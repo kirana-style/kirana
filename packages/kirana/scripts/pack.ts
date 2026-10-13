@@ -7,8 +7,9 @@
  *
  * The workspace keeps consuming TypeScript source (D-040): apps, tests and the compiler itself read
  * `src/*.ts` directly and none of that changes. Packing happens in a staging copy instead — compiled
- * to JavaScript with declarations, `workspace:` and `catalog:` versions resolved, development
- * scripts dropped — and `npm pack` turns each copy into the tarball an install test installs.
+ * to JavaScript with declarations by Vite+'s packer (`vite-plus/pack`, tsdown), one output file per
+ * source file, `workspace:` and `catalog:` versions resolved, development scripts dropped — and
+ * `npm pack` turns each copy into the tarball an install test installs.
  *
  * The native engine ships as one package per platform, listed as `optionalDependencies` of
  * `@kirana-style/compiler`, so the package manager installs only the one that matches. No package has an
@@ -26,6 +27,8 @@ import {
   writeFileSync,
 } from "node:fs"
 import path from "node:path"
+
+import { build } from "vite-plus/pack"
 
 const root = path.resolve(import.meta.dirname, "..")
 const repository = path.resolve(root, "../..")
@@ -205,7 +208,7 @@ function refuseInstallScripts(manifest: Manifest) {
   }
 }
 
-function packOne(name: string): string {
+async function packOne(name: string): Promise<string> {
   const source = path.join(root, "npm", name)
   const stage = path.join(out, "stage", name)
   rmSync(stage, { recursive: true, force: true })
@@ -217,35 +220,26 @@ function packOne(name: string): string {
     ...files(path.join(source, "bin")).map((file) => path.join("bin", file)),
   ].filter((file) => file.endsWith(".ts") && !file.endsWith(".d.ts"))
   if (inputs.length) {
-    run(
-      path.join(repository, "node_modules/.bin/tsc"),
-      [
-        ...inputs,
-        "--outDir",
-        stage,
-        "--rootDir",
-        ".",
-        "--declaration",
-        "--rewriteRelativeImportExtensions",
-        "--allowImportingTsExtensions",
-        "--module",
-        "esnext",
-        "--moduleResolution",
-        "bundler",
-        "--target",
-        "es2022",
-        "--lib",
-        "es2022,dom",
-        "--types",
-        "node",
-        "--jsx",
-        "react-jsx",
-        "--verbatimModuleSyntax",
-        "--skipLibCheck",
-        "--ignoreConfig",
-      ],
-      source
-    )
+    await build({
+      config: false,
+      cwd: source,
+      entry: inputs,
+      // Unbundled: each source file becomes one file at the same path, so exports only change
+      // extension, and every package import stays an import of that package.
+      unbundle: true,
+      root: source,
+      outDir: stage,
+      clean: false,
+      format: "esm",
+      fixedExtension: false,
+      platform: "node",
+      target: "es2022",
+      deps: { neverBundle: true },
+      tsconfig: false,
+      dts: { tsconfig: path.join(root, "tsconfig.pack.json") },
+      report: false,
+      logLevel: "warn",
+    })
   }
   // Hand-written declarations and assets are not compiler output, so they are copied.
   const assets = [
@@ -404,7 +398,9 @@ function packNatives(directory: string, version: string): string[] {
 if (import.meta.main) {
   rmSync(out, { recursive: true, force: true })
   mkdirSync(out, { recursive: true })
-  const tarballs = PACKAGES.map(packOne)
+  const tarballs: string[] = []
+  // One at a time: each build starts its own declaration compiler.
+  for (const name of PACKAGES) tarballs.push(await packOne(name))
   const version = versions.get("@kirana-style/compiler")!
   const native = packNatives(
     natives ? path.resolve(natives) : path.join(root, "npm/compiler"),

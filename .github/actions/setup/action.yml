@@ -8,12 +8,13 @@ runs:
   using: composite
 
   steps:
-    # `vp` provides Node.js and Bun (the version in package.json's `packageManager`, so CI and local
-    # development cannot drift apart), caches the dependency download, and runs `vp install`.
+    # `vp` provides Node.js (the version in .node-version) and Bun (package.json's `packageManager`),
+    # the same pins `vp env` uses on a developer's machine, so CI and local development cannot drift
+    # apart; it also caches the dependency download and runs `vp install`.
     - name: Setup Vite+
       uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
       with:
-        node-version: "24"
+        node-version-file: .node-version
         cache: true
         run-install: |
           - args: ["--frozen-lockfile"]
