@@ -17,6 +17,7 @@
     "**/.vinxi/**",
     "**/routeTree.gen.ts",
     "bun.lock",
+    "CHANGELOG.md",
     ".agents/**",
     ".claude/**",
     "packages/kirana/fixtures/**",
