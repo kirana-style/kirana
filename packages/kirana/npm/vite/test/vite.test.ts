@@ -345,6 +345,7 @@ describe("KRN-INT-009 development server", () => {
         )
       ).toBeNull()
       // A burst of stylesheet changes schedules one update.
+      const beforeBurst = send.mock.calls.length
       await transform.call(
         context,
         'import { css } from "@kirana-style/core"\nexport const a = css({ order: 1 })',
@@ -373,6 +374,12 @@ describe("KRN-INT-009 development server", () => {
         }
       )
       expect(ghost?.length).toBe(modules.length)
+      // The held update goes out at most `BURST` (250 ms) after the burst began. A timer started now
+      // fires after it, so the update has been sent before the server closes, however fast the
+      // machine ran the steps above.
+      await new Promise((resolve) => setTimeout(resolve, 250))
+      expect(send.mock.calls.length).toBeGreaterThan(beforeBurst)
+      expect(JSON.stringify(send.mock.calls.at(-1))).toContain("css-update")
     } finally {
       await server.close()
     }
