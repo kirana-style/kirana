@@ -28,8 +28,6 @@ import {
 } from "node:fs"
 import path from "node:path"
 
-import { build } from "vite-plus/pack"
-
 const root = path.resolve(import.meta.dirname, "..")
 const repository = path.resolve(root, "../..")
 const args = process.argv.slice(2)
@@ -220,6 +218,9 @@ async function packOne(name: string): Promise<string> {
     ...files(path.join(source, "bin")).map((file) => path.join("bin", file)),
   ].filter((file) => file.endsWith(".ts") && !file.endsWith(".d.ts"))
   if (inputs.length) {
+    // Loaded here, not at the top: the example runner imports `TARGETS` from this file inside bare
+    // containers (the Alpine install jobs), where the workspace's dependencies are not installed.
+    const { build } = await import("vite-plus/pack")
     await build({
       config: false,
       cwd: source,
