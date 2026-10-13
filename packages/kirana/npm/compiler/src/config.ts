@@ -27,7 +27,7 @@ const CANDIDATES = [
  * configuration loads, accepts only string-literal `import()`, and otherwise warns on every build
  * ("Build dependencies behind this expression are ignored"). The configuration file is read by the
  * Driver at run time, never a build dependency a bundler could track, so hiding the call loses
- * nothing. It also keeps `tsc --rewriteRelativeImportExtensions` from wrapping it when packed.
+ * nothing. It also keeps the packer (`vite-plus/pack`) from rewriting the import when it compiles.
  */
 export const importFile = new Function(
   "url",

@@ -564,13 +564,28 @@ async function checkPage(url: string) {
         }
       }
     }
-    expect(await read(), {
+    // A development server delivers the stylesheet after the page: it fills as modules compile and
+    // arrives as a hot update (KRN-INT-009), so the probe can exist before its styles do. Read until
+    // the values match, and fail with the last reading if they never do.
+    const settled = async (expected: Record<string, string>) => {
+      const deadline = Date.now() + 10_000
+      for (;;) {
+        const actual = await read()
+        try {
+          return expect(actual, expected)
+        } catch (error) {
+          if (Date.now() > deadline) throw error
+          await page.waitForTimeout(100)
+        }
+      }
+    }
+    await settled({
       color: "rgb(1, 2, 3)",
       paddingTop: "7px",
       backgroundColor: "rgb(250, 250, 250)",
     })
     await probe.hover()
-    expect(await read(), { backgroundColor: "rgb(4, 5, 6)" })
+    await settled({ backgroundColor: "rgb(4, 5, 6)" })
     if (errors.length) throw new Error(`the page threw: ${errors.join("; ")}`)
     console.log("✓ computed style and hover match")
   } finally {

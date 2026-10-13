@@ -1,0 +1,19 @@
+{
+  // Declarations for the published packages (`scripts/pack.ts` → `vp pack`). The same compiler
+  // settings as tsconfig.json, without the tests, scripts and examples it also checks.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "verbatimModuleSyntax": true,
+    "declaration": true
+  },
+  "include": ["npm/*/src/**/*.ts", "npm/*/bin/**/*.ts"]
+}
