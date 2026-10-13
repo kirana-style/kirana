@@ -55,7 +55,8 @@ function manifest(file: string): Tarball {
 
 const tarballs = readdirSync(directory)
   .filter((file) => file.endsWith(".tgz"))
-  .map((file) => manifest(path.join(directory, file)))
+  // An absolute path: npm reads a relative `dir/name.tgz` as a GitHub `user/repo` and tries to clone it.
+  .map((file) => manifest(path.resolve(directory, file)))
 const byName = new Map(tarballs.map((tarball) => [tarball.name, tarball]))
 
 /** Depth-first: a package after everything it depends on that is published here too. */

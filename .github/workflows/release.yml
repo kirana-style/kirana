@@ -18,6 +18,15 @@ on:
     branches: [main]
   # By hand (Actions → release → Run workflow), e.g. after a startup failure, which cannot be re-run.
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish an existing release again, to these targets only (comma-separated: npm, rubygems, hex, editors, php). Empty: the normal release-please run."
+        required: false
+        default: ""
+      tag:
+        description: "The release tag those targets publish, e.g. v0.1.0 (the files on main must carry that version)."
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -86,13 +95,17 @@ jobs:
   # commit: what is published is exactly what passed.
   packages:
     needs: release-please
-    if: needs.release-please.outputs.created == 'true'
+    if: needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'npm')
     uses: ./.github/workflows/packages.yml
     permissions:
       contents: read
 
   npm:
     needs: [release-please, packages]
+    # A release, or a re-publish of this target (workflow_dispatch). `packages` may be skipped then.
+    if: >-
+      !failure() && !cancelled() &&
+      (needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'npm'))
     runs-on: ubuntu-26.04
     environment: release
     permissions:
@@ -126,6 +139,10 @@ jobs:
 
   rubygems:
     needs: [release-please, packages]
+    # A release, or a re-publish of this target (workflow_dispatch). `packages` may be skipped then.
+    if: >-
+      !failure() && !cancelled() &&
+      (needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'rubygems'))
     runs-on: ubuntu-26.04
     environment: release
     permissions:
@@ -153,6 +170,10 @@ jobs:
 
   hex:
     needs: [release-please, packages]
+    # A release, or a re-publish of this target (workflow_dispatch). `packages` may be skipped then.
+    if: >-
+      !failure() && !cancelled() &&
+      (needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'hex'))
     runs-on: ubuntu-26.04
     environment: release
     defaults:
@@ -178,6 +199,10 @@ jobs:
 
   editors:
     needs: [release-please, packages]
+    # A release, or a re-publish of this target (workflow_dispatch). `packages` may be skipped then.
+    if: >-
+      !failure() && !cancelled() &&
+      (needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'editors'))
     runs-on: ubuntu-26.04
     environment: release
     permissions:
@@ -201,7 +226,7 @@ jobs:
         working-directory: packages/kirana/editors/vscode
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.release-please.outputs.tag }}
+          TAG: ${{ needs.release-please.outputs.tag || inputs.tag }}
         run: gh release upload "$TAG" kirana.vsix --clobber
 
       - name: Publish to the VS Code Marketplace
@@ -225,6 +250,10 @@ jobs:
   # read-only kirana-php mirror (kirana-style/kirana), and the kirana/kirana alias gets the same tag.
   php:
     needs: [release-please, packages]
+    # A release, or a re-publish of this target (workflow_dispatch). `packages` may be skipped then.
+    if: >-
+      !failure() && !cancelled() &&
+      (needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'php'))
     runs-on: ubuntu-26.04
     environment: release
 
@@ -239,17 +268,18 @@ jobs:
       - name: Push the split and the tag to kirana-php
         env:
           TOKEN: ${{ secrets.PHP_MIRROR_TOKEN }}
-          TAG: ${{ needs.release-please.outputs.tag }}
+          TAG: ${{ needs.release-please.outputs.tag || inputs.tag }}
         run: |
           git subtree split --prefix=packages/kirana/helpers/php -b php
           git push --force "https://x-access-token:${TOKEN}@github.com/kirana-style/kirana-php.git" php:main
-          git tag "$TAG" php
-          git push "https://x-access-token:${TOKEN}@github.com/kirana-style/kirana-php.git" "$TAG"
+          # Pushed straight to the mirror's tag ref: a local tag of that name already exists, this
+          # repository's own release tag.
+          git push "https://x-access-token:${TOKEN}@github.com/kirana-style/kirana-php.git" "php:refs/tags/$TAG"
 
       - name: Tag the kirana/kirana alias
         env:
           TOKEN: ${{ secrets.PHP_MIRROR_TOKEN }}
-          TAG: ${{ needs.release-please.outputs.tag }}
+          TAG: ${{ needs.release-please.outputs.tag || inputs.tag }}
         run: |
           git clone --depth 1 "https://x-access-token:${TOKEN}@github.com/kirana-style/kirana-php-alias.git" "$RUNNER_TEMP/alias"
           cd "$RUNNER_TEMP/alias"
