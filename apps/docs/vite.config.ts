@@ -1,3 +1,4 @@
 import { defineAppConfig } from "@workspace/vite-config"
 
-export default defineAppConfig()
+// The site deploys as a Cloudflare Worker (wrangler.jsonc).
+export default defineAppConfig({ cloudflare: true })

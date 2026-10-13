@@ -1,0 +1,61 @@
+name: site
+
+# The documentation site, deployed as a Cloudflare Worker (apps/docs/wrangler.jsonc) on every push to
+# main, independently of releases.
+#
+# Why here and not Cloudflare's own Git integration (Workers Builds): the site's build compiles every
+# style with Kirana's native engine, which is Rust. Cloudflare's build image has no Rust toolchain
+# and no cache, so each deploy would install Rust and compile the engine from nothing; here it reuses
+# CI's toolchain and Cargo cache, and only `main` (which takes only pull requests that passed CI)
+# deploys. If the docs ever build from published packages instead of the workspace engine, Workers
+# Builds becomes the simpler choice: connect the repository in the dashboard and delete this file.
+#
+# Until the custom domain is added it answers at https://kirana-style.<account-subdomain>.workers.dev.
+# The `site` environment holds the Cloudflare token and account id (kirana-spec operations/site.md).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# The newest push wins, but a deploy already running finishes.
+concurrency:
+  group: site
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-26.04
+    environment:
+      name: site
+      url: ${{ steps.deploy.outputs.url }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-rust
+        with:
+          cache-key: release
+
+      # Turbo builds the native engine first (@kirana-style/compiler#build), which the docs' Vite
+      # plugin compiles with, then the site: the Worker and its static assets in apps/docs/dist.
+      - name: Build
+        run: bun run build --filter=docs
+
+      - name: Deploy
+        id: deploy
+        working-directory: apps/docs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          bunx wrangler deploy | tee deploy.log
+          url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          echo "url=${url:-https://kirana.style}" >> "$GITHUB_OUTPUT"

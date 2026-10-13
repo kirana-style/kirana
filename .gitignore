@@ -33,3 +33,4 @@ packages/kirana/dist-packages/
 
 # LLVM coverage output: an instrumented engine run outside `kirana:coverage` writes it to its working directory.
 *.profraw
+.dev.vars*

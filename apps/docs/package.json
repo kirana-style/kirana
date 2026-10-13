@@ -8,7 +8,7 @@
     "dev": "vite dev --port 3000",
     "prebuild": "bun run generate",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "wrangler dev",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "generate": "bun run generate:content && bun run generate:reference && bun run generate:skills && bun run generate:examples && bun run generate:brand",
@@ -19,7 +19,9 @@
     "generate:examples": "bun scripts/generate-examples.ts",
     "verify:generated": "bun scripts/generate-content.ts --check && bun scripts/generate-svgl.ts --check && bun scripts/generate-reference.ts --check && bun scripts/generate-skills.ts --check && bun scripts/generate-examples.ts --check && bun scripts/generate-brand.ts --check && bun scripts/check-consistency.ts",
     "generate:brand": "bun scripts/generate-brand.ts",
-    "generate:svgl": "bun scripts/generate-svgl.ts"
+    "generate:svgl": "bun scripts/generate-svgl.ts",
+    "deploy": "wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
     "@hugeicons/core-free-icons": "catalog:",
@@ -44,6 +46,7 @@
     "@workspace/vite-config": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "wrangler": "^4.149.0"
   }
 }

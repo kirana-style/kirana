@@ -6,6 +6,7 @@
  * Plain ESM rather than TypeScript, so Vite's config loader can import it from
  * the workspace without transpiling a dependency.
  */
+import { cloudflare } from "@cloudflare/vite-plugin"
 import kirana from "@kirana-style/vite"
 import { devtools } from "@tanstack/devtools-vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
@@ -13,12 +14,19 @@ import viteReact from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
 /**
+ * @param {{ cloudflare?: boolean }} [options] `cloudflare`: the app deploys as a Cloudflare Worker
+ *   (its `wrangler.jsonc`); `vite dev` and `vite build` then run the server half inside workerd, the
+ *   runtime production uses, so a Node-only API fails locally rather than after deploying.
  * @returns {import("vite").UserConfigFnObject}
  */
-export function defineAppConfig() {
+export function defineAppConfig(options = {}) {
   return defineConfig(() => ({
     resolve: { tsconfigPaths: true },
     plugins: [
+      // First: it takes over the "ssr" environment before TanStack Start configures it.
+      ...(options.cloudflare
+        ? [cloudflare({ viteEnvironment: { name: "ssr" } })]
+        : []),
       // Console piping is off: it sends client logs to the terminal and server
       // logs back to the browser console, so one `console.error` echoes between
       // the two and multiplies until the tab is closed. Everything else the
