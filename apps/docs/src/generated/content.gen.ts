@@ -9959,7 +9959,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Contributing",
     "section": "project",
     "heading": "Set up",
-    "text": "Rust is installed through rustup. The README's Scripts table lists what each command needs."
+    "text": "Vite+ ( ) and Rust (through rustup) are the two installs. The README's Scripts table lists what each command needs. The pre-push hook ( ) runs the checks, the Rust lints and the tests with 100 % coverage, from the cache when nothing changed."
   },
   {
     "id": "/docs/project/contributing#what-a-pull-request-needs",

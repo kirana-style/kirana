@@ -146,6 +146,12 @@ function resolve(dependencies: Record<string, string> | undefined) {
         const version = catalog[name]
         if (!version)
           throw new Error(`${name} has no entry in the root catalog`)
+        // The catalog may alias a package for the workspace (`vite` is Vite+'s core); users get
+        // the real one.
+        if (version.startsWith("npm:"))
+          throw new Error(
+            `${name} is an alias in the root catalog (${version}): publish a plain range`
+          )
         return [name, version]
       }
       return [name, range]

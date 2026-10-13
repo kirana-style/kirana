@@ -12,6 +12,7 @@ import { devtools } from "@tanstack/devtools-vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import viteReact from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
+import { lazyPlugins } from "vite-plus"
 
 /**
  * @param {{ cloudflare?: boolean }} [options] `cloudflare`: the app deploys as a Cloudflare Worker
@@ -22,7 +23,10 @@ import { defineConfig } from "vite"
 export function defineAppConfig(options = {}) {
   return defineConfig(() => ({
     resolve: { tsconfigPaths: true },
-    plugins: [
+    // `vp run` reads every package's config to find its tasks, before any task has built the
+    // native engine the Kirana plugin opens; `lazyPlugins` leaves the plugins out of that read and
+    // in for every build, dev server and test.
+    plugins: lazyPlugins(() => [
       // First: it takes over the "ssr" environment before TanStack Start configures it.
       ...(options.cloudflare
         ? [cloudflare({ viteEnvironment: { name: "ssr" } })]
@@ -37,7 +41,7 @@ export function defineAppConfig(options = {}) {
       kirana(),
       tanstackStart({ router: { quoteStyle: "double", semicolons: false } }),
       viteReact(),
-    ],
+    ]),
     build: { cssMinify: true, minify: true },
   }))
 }

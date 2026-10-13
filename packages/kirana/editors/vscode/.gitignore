@@ -4,3 +4,4 @@ dist
 test/fixture/node_modules
 # Copied from ../brand/icon.png when packaging.
 icon.png
+.vitest/

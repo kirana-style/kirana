@@ -86,7 +86,7 @@ A checkout can pack every package the way it would be published — compiled
 JavaScript with declarations, and the engine as its own per-platform package:
 
 ```bash
-bun run kirana:build   # the engine for this machine
+vp run engine          # the engine for this machine
 bun run kirana:pack    # tarballs in packages/kirana/dist-packages
 ```
 
@@ -157,8 +157,8 @@ cd ../vite && bun link
 cd /your/project && bun link @kirana-style/core @kirana-style/vite
 ```
 
-The native engine comes from the checkout's build (`bun run build` there, or
-`bun run kirana:build`).
+The native engine comes from the checkout's build (`vp run build` there, or
+`vp run engine`).
 
 ### Once published
 

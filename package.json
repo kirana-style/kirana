@@ -3,38 +3,24 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "dev:local": "bun --env-file=.env turbo run dev",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
-    "format": "oxfmt",
-    "format:check": "oxfmt --check",
-    "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
-    "check": "bun run lint && bun run format:check && bun run typecheck && bun run --cwd apps/docs check:consistency",
+    "prepare": "vp config",
+    "dev:local": "bun --env-file=.env vp run dev",
     "deps:check": "bun outdated --filter='*'",
     "deps:update": "bun update --recursive",
     "deps:update:latest": "bun update --recursive --latest",
     "deps:update:interactive": "bun update --recursive --interactive",
-    "clean": "rm -rf .turbo node_modules/.cache/turbo",
-    "build:clean": "bun run clean && bun pm cache rm && turbo run build",
-    "kirana:check": "turbo run check --filter=@kirana-style/workspace",
-    "kirana:test": "cd packages/kirana && bun run test:rust && bun run test",
-    "kirana:coverage": "turbo run coverage --filter=@kirana-style/workspace",
-    "kirana:build": "cd packages/kirana/npm/compiler && bun run build",
+    "clean": "vp cache clean",
     "kirana:pack": "cd packages/kirana && bun run pack",
     "kirana:example": "cd packages/kirana && bun run example"
   },
   "devDependencies": {
-    "oxfmt": "^0.72.0",
-    "oxlint": "^1.87.0",
-    "turbo": "^2.11.7",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   },
   "packageManager": "bun@1.4.2",
   "engines": {
-    "node": ">=20"
+    "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
   },
   "trustedDependencies": [
     "esbuild",
@@ -58,7 +44,7 @@
       "react-day-picker": "^10.0.2",
       "react-dom": "^19.3.0",
       "typescript": "^7.0.2",
-      "vite": "^8.3.4",
+      "vite": "npm:@voidzero-dev/vite-plus-core@1.1.0",
       "rolldown": "^1.2.13",
       "esbuild": "^0.28.2",
       "emnapi": "2.0.0-alpha.5",
@@ -84,16 +70,22 @@
       "edge.js": "^6.5.1",
       "@parcel/plugin": "^2.16.4",
       "parcel": "^2.16.4",
-      "vitest": "^5.0.4",
+      "vitest": "5.0.3",
       "eslint": "^10.12.0",
       "@biomejs/biome": "2.5.15",
-      "@vitest/coverage-v8": "^5.0.4",
+      "@vitest/coverage-v8": "5.0.3",
       "@napi-rs/cli": "^3.10.7",
       "motion": "^14.1.0",
       "playwright": "1.64.0",
       "input-otp": "^1.5.0",
       "react-resizable-panels": "^4.14.4",
-      "recharts": "^3.10.1"
+      "recharts": "^3.10.1",
+      "vite-plus": "1.1.0",
+      "oxlint": "1.87.0"
     }
+  },
+  "overrides": {
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }

@@ -6,7 +6,7 @@
  */
 import { readFileSync, readdirSync, statSync } from "node:fs"
 import path from "node:path"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vite-plus/test"
 
 import { loadNative } from "../src/native.ts"
 import { parseComponent } from "../src/sfc.ts"

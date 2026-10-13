@@ -12,7 +12,7 @@ import path from "node:path"
 import { rspack } from "@rspack/core"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
 import webpack from "webpack"
-import { afterAll, describe, expect, it } from "vitest"
+import { afterAll, describe, expect, it } from "vite-plus/test"
 
 import { PLACEHOLDER } from "@kirana-style/compiler/host"
 
@@ -341,10 +341,11 @@ describe("the loader and plugin contract", () => {
   })
 
   it("forwards changed files to the Driver", async () => {
-    const hooks: Record<string, (value: unknown) => void> = {}
+    const hooks: Record<string, (value: unknown) => unknown> = {}
     const tap = (name: string) => ({
-      tap: (_: string, hook: (value: unknown) => void) => (hooks[name] = hook),
-      tapPromise: (_: string, hook: (value: unknown) => void) =>
+      tap: (_: string, hook: (value: unknown) => unknown) =>
+        (hooks[name] = hook),
+      tapPromise: (_: string, hook: (value: unknown) => unknown) =>
         (hooks[name] = hook),
     })
     const compiler = {

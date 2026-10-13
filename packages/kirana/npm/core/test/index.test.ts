@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from "vitest"
+import { describe, expect, expectTypeOf, it } from "vite-plus/test"
 
 import * as core from "../src/index.ts"
 import { defineConfig } from "../src/config.ts"

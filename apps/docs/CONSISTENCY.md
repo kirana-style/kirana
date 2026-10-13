@@ -24,7 +24,7 @@ an unknown name fails the build, and a new diagnostic or rule changes every page
 
 ## The check
 
-`bun run check` and CI's `verify:generated` run `apps/docs/scripts/check-consistency.ts`. It fails
+`vp run check` and CI's `verify:generated` run `apps/docs/scripts/check-consistency.ts`. It fails
 on:
 
 - **a count written by hand** — "45 diagnostics", "four rules", "20 packages";
@@ -48,7 +48,7 @@ are dated, so they are exempt.
    the generated data and `FACTS` follow.
 2. Write about it with `{{fact:…}}` or `LISTS`, never a typed count or list.
 3. A product it names shows its logo; add the logo to `generate-svgl.ts` if the site lacks it.
-4. Run `bun run check`. Fix what it reports rather than marking it, unless the list really is a
+4. Run `vp run check`. Fix what it reports rather than marking it, unless the list really is a
    subset.
 
 ## What was found, 2026-10-12

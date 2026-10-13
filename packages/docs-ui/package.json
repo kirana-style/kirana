@@ -4,9 +4,6 @@
   "type": "module",
   "private": true,
   "description": "The layout of the Kirana docs framework: docs shell with section tabs, sidebar, table of contents, copy-page menu, code blocks and markdown components, styled with Kirana and built on @workspace/ui.",
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  },
   "dependencies": {
     "@hugeicons/core-free-icons": "catalog:",
     "@kirana-style/core": "workspace:*",

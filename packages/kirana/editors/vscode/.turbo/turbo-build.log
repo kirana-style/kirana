@@ -1,0 +1,5 @@
+[0m[2m[35m$[0m [2m[1mesbuild src/extension.ts --bundle --platform=node --format=cjs --target=node20 --external:vscode --minify --outfile=dist/extension.js[0m
+
+  [37mdist/[0m[1mextension.js[0m  [36m460.2kb[0m
+
+⚡ [32mDone in 30ms[0m

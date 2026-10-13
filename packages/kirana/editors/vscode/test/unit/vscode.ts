@@ -2,7 +2,7 @@
  * The slice of the `vscode` API the extension uses, recorded so unit tests can drive the
  * extension without an editor. The end-to-end test (`test/e2e`) runs it in a real VS Code.
  */
-import { vi } from "vitest"
+import { vi } from "vite-plus/test"
 
 type Listener = (...args: any[]) => unknown
 

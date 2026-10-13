@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vite-plus/test"
 
 import { createSx, sx } from "../src/index.ts"
 import kiranaEmber, { EMBER_EXTERNALS, TEMPLATE_TAG } from "../src/vite.ts"

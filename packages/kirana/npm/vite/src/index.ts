@@ -119,7 +119,10 @@ export default function kirana(
     renames: renameStylesheet,
   })
   // Vite reports changes through `hotUpdate`, below; answering `watchChange` too would invalidate twice.
-  const { watchChange: _, ...build } = plugin
+  // Its hooks are typed by the `rolldown` package, and Vite types them with the Rolldown it runs on:
+  // the same package in an application, but a bundled copy under Vite+ (this workspace), where the
+  // identical shapes are distinct types.
+  const { watchChange: _, ...build } = plugin as unknown as Plugin
 
   const main: Plugin = {
     ...build,

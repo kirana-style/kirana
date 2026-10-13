@@ -7,7 +7,7 @@ import {
 } from "node:fs"
 import path from "node:path"
 import { stylesheetPath, PLACEHOLDER } from "@kirana-style/compiler/host"
-import { afterAll, describe, expect, it, vi } from "vitest"
+import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 import kirana from "../src/index.ts"
 import type { PluginBuilder } from "../src/index.ts"

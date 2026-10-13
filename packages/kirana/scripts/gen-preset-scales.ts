@@ -142,9 +142,10 @@ const output = path.join(
 )
 writeFileSync(output, lines.join("\n"))
 // Formatted with the repository's formatter so the CI freshness check compares like with like.
-const format = spawnSync("bunx", ["oxfmt", output], {
+// The workspace's formatter with its settings (vite.config.ts → fmt), as `vp check` applies them.
+const format = spawnSync("bunx", ["vp", "fmt", output], {
   cwd: path.join(import.meta.dirname, "../../.."),
   stdio: "inherit",
 })
-if (format.status !== 0) throw new Error("oxfmt failed")
+if (format.status !== 0) throw new Error("vp fmt failed")
 console.log(`${groups.length} token groups from tailwindcss ${version}`)

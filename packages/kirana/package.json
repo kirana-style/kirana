@@ -7,9 +7,8 @@
   "license": "MIT",
   "scripts": {
     "gen:css-data": "bun scripts/gen-css-data.ts",
-    "test": "vitest run",
-    "typecheck": "tsc --noEmit",
-    "check": "bun run check:rust && bun run test:rust && bun run typecheck && bun run test",
+    "test": "vp test run",
+    "check": "bun run check:rust && bun run test:rust && bun run test",
     "check:rust": "bun scripts/rust.ts \"cargo fmt --all --check && cargo clippy --workspace --all-targets -- -D warnings && cargo deny check\"",
     "test:rust": "bun scripts/rust.ts \"cargo nextest run --workspace\"",
     "coverage": "bun scripts/rust.ts scripts/coverage.sh",
@@ -45,6 +44,8 @@
     "@emnapi/core": "catalog:",
     "@emnapi/runtime": "catalog:",
     "@napi-rs/wasm-runtime": "catalog:",
-    "@kirana-style/preset-scales": "workspace:*"
+    "@kirana-style/preset-scales": "workspace:*",
+    "vite-plus": "catalog:",
+    "oxlint": "catalog:"
   }
 }
