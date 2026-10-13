@@ -16,6 +16,8 @@ name: release
 on:
   push:
     branches: [main]
+  # By hand (Actions → release → Run workflow), e.g. after a startup failure, which cannot be re-run.
+  workflow_dispatch:
 
 permissions:
   contents: read
