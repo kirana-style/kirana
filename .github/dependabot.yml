@@ -17,6 +17,11 @@ updates:
       interval: weekly
     commit-message:
       prefix: deps
+    ignore:
+      # Must never be newer than the extension's engines.vscode (vsce refuses to package), and raising
+      # that drops older VS Code and the forks (Cursor, Windsurf, Antigravity). Bump both by hand,
+      # together, when a newer API is needed.
+      - dependency-name: "@types/vscode"
     groups:
       minor-and-patch:
         update-types: [minor, patch]
