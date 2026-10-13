@@ -29,13 +29,13 @@ kirana_project = { path = "crates/kirana_project" }
 kirana_cli = { path = "crates/kirana_cli" }
 kirana_lsp = { path = "crates/kirana_lsp" }
 
-oxc_allocator = "=0.150.0"
-oxc_ast = "=0.150.0"
-oxc_ast_visit = "=0.150.0"
-oxc_parser = "=0.150.0"
-oxc_semantic = "=0.150.0"
-oxc_span = "=0.150.0"
-oxc_syntax = "=0.150.0"
+oxc_allocator = "=0.153.0"
+oxc_ast = "=0.153.0"
+oxc_ast_visit = "=0.153.0"
+oxc_parser = "=0.153.0"
+oxc_semantic = "=0.153.0"
+oxc_span = "=0.153.0"
+oxc_syntax = "=0.153.0"
 oxc_resolver = "=11.24.3"
 oxc_sourcemap = "=8.1.2"
 string_wizard = { version = "=1.2.8", default-features = false, features = [
