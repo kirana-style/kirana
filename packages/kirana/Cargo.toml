@@ -1,0 +1,68 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.98.1"
+license = "MIT"
+repository = "https://github.com/kirana-style/kirana"
+homepage = "https://kirana.style"
+authors = ["The Kirana authors"]
+publish = false
+
+[workspace.dependencies]
+kirana_shared = { path = "crates/kirana_shared" }
+kirana_diagnostics = { path = "crates/kirana_diagnostics" }
+kirana_css_data = { path = "crates/kirana_css_data" }
+kirana_config = { path = "crates/kirana_config" }
+kirana_ir = { path = "crates/kirana_ir" }
+kirana_utility = { path = "crates/kirana_utility" }
+kirana_migrate = { path = "crates/kirana_migrate" }
+kirana_cascade = { path = "crates/kirana_cascade" }
+kirana_emit = { path = "crates/kirana_emit" }
+kirana_frontend = { path = "crates/kirana_frontend" }
+kirana_evaluator = { path = "crates/kirana_evaluator" }
+kirana_transform = { path = "crates/kirana_transform" }
+kirana_project = { path = "crates/kirana_project" }
+kirana_cli = { path = "crates/kirana_cli" }
+kirana_lsp = { path = "crates/kirana_lsp" }
+
+oxc_allocator = "=0.150.0"
+oxc_ast = "=0.150.0"
+oxc_ast_visit = "=0.150.0"
+oxc_parser = "=0.150.0"
+oxc_semantic = "=0.150.0"
+oxc_span = "=0.150.0"
+oxc_syntax = "=0.150.0"
+oxc_resolver = "=11.24.3"
+oxc_sourcemap = "=8.1.2"
+string_wizard = { version = "=1.2.8", default-features = false, features = [
+  "sourcemap",
+] }
+lightningcss = { version = "=1.0.0-alpha.72", default-features = false }
+napi = { version = "=3.12.4", default-features = false, features = ["napi6"] }
+napi-derive = "=3.6.5"
+napi-build = "=2.4.2"
+rustc-hash = "=2.1.3"
+xxhash-rust = { version = "=0.8.18", features = ["xxh3"] }
+rayon = "=1.12.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "=1.0.151"
+lsp-server = "=0.10.0"
+lsp-types = "=0.97.0"
+clap = { version = "=4.6.7", features = ["derive"] }
+insta = "=1.48.0"
+proptest = "=1.11.0"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "symbols"

@@ -1,0 +1,12 @@
+{
+  "//": "The editors' colours, read by the language server (the card, each hint part) and the VS Code extension. Theme colours as CSS variables, so they follow light and dark themes; no red, which reads as an error. The icon is in brand.json, generated from the logo.",
+  "groups": {
+    "layout": "var(--vscode-charts-blue)",
+    "box": "var(--vscode-charts-green)",
+    "size": "var(--vscode-terminal-ansiCyan)",
+    "colour": "var(--vscode-charts-orange)",
+    "type": "var(--vscode-charts-yellow)",
+    "border": "var(--vscode-charts-purple)"
+  },
+  "quiet": "var(--vscode-descriptionForeground)"
+}

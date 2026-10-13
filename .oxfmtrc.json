@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "endOfLine": "lf",
+  "semi": false,
+  "singleQuote": false,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "printWidth": 80,
+  "sortPackageJson": false,
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/.output/**",
+    "**/.nitro/**",
+    "**/.tanstack/**",
+    "**/.vinxi/**",
+    "**/routeTree.gen.ts",
+    "bun.lock",
+    ".agents/**",
+    ".claude/**",
+    "packages/kirana/fixtures/**",
+    "packages/kirana/target/**",
+    "packages/kirana/npm/compiler/native.generated.d.ts",
+    "packages/kirana/crates/**",
+    "apps/docs/src/generated/**",
+    "apps/docs/public/docs/**",
+    "apps/docs/public/llms*.txt",
+    "skills/kirana/references/diagnostics.md",
+    "skills/kirana/references/lint.md"
+  ]
+}

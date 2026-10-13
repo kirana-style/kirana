@@ -1,0 +1,10 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k50-aje_D9ur::after {
+    color: red;
+  }
+  .k5n-aje_57fc::after {
+    content: '';
+  }
+}

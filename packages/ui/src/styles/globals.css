@@ -1,0 +1,368 @@
+/*
+ * Global stylesheet: structural normalisation only.
+ *
+ * Rules that must target bare tags live here: component styles are classes on
+ * elements the design system renders. Deliberately token-free — Kirana hashes
+ * its variable names, so there is nothing stable for plain CSS to reference.
+ * Anything that depends on the theme is applied with `sx` instead, starting at
+ * `<html>` in the app's root route.
+ *
+ * Tailwind's reset let components write `border` with no colour and inherit
+ * `border-border` from a `*` rule. That implicit default is gone on purpose:
+ * every border in the design system now names its own colour, so a border is
+ * never invisible because a global rule failed to load.
+ *
+ * The two layers are declared in `apps/web/kirana.config.ts` as
+ * `layers: { before: ["reset", "base"] }`, so Kirana's layer statement pins
+ * them underneath every Kirana rule, in development and production alike.
+ */
+
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/cormorant-garamond";
+@import "@fontsource-variable/crimson-pro";
+/* The real italic: without it the browser slants the upright letters itself. */
+@import "@fontsource-variable/cormorant-garamond/wght-italic.css";
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/jetbrains-mono";
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+  }
+
+  /*
+   * Padding too, as Tailwind's preflight does. Without it the browser's own
+   * defaults leak through — 1px on every table cell, which made the calendar's
+   * weekday row 2px taller than the original.
+   */
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    line-height: 1.5;
+    -moz-tab-size: 4;
+    tab-size: 4;
+    /* Cormorant Garamond, the heading face, defaults to old-style figures; numbers in
+       headings and stats sit on the line like capitals instead. */
+    font-variant-numeric: lining-nums;
+  }
+
+  /*
+   * No `-webkit-font-smoothing` here. The original never set it, and forcing
+   * grayscale antialiasing renders every glyph visibly thinner on macOS.
+   */
+  body {
+    min-height: 100vh;
+  }
+
+  img,
+  svg,
+  video,
+  canvas,
+  audio,
+  iframe,
+  embed,
+  object {
+    display: block;
+    vertical-align: middle;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Links take the colour and decoration of their component, not the UA's. */
+  a {
+    color: inherit;
+    -webkit-text-decoration: inherit;
+    text-decoration: inherit;
+  }
+
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    /* Chrome dims a disabled select to 0.7 on its own; components decide. */
+    opacity: 1;
+  }
+
+  button,
+  [type="button"],
+  [type="reset"],
+  [type="submit"] {
+    appearance: button;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* Tailwind's preflight: inline code and key text use the monospace stack. */
+  :where(code, kbd, samp, pre) {
+    font-family: var(
+      --font-mono,
+      "JetBrains Mono Variable",
+      ui-monospace,
+      SFMono-Regular,
+      Menlo,
+      Monaco,
+      Consolas,
+      "Liberation Mono",
+      "Courier New",
+      monospace
+    );
+    font-size: 1em;
+  }
+
+  :where(h1, h2, h3, h4, h5, h6) {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  :where(ol, ul, menu) {
+    list-style: none;
+    padding: 0;
+  }
+
+  table {
+    border-collapse: collapse;
+    border-color: inherit;
+    text-indent: 0;
+  }
+
+  /*
+   * Tailwind's preflight value. Controls set their own placeholder colour; this
+   * covers bare inputs such as cmdk's, which otherwise fall back to the
+   * browser's grey.
+   */
+  ::placeholder {
+    opacity: 1;
+    color: color-mix(in oklab, currentcolor 50%, transparent);
+  }
+
+  [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
+  }
+}
+
+/*
+ * Recharts internals.
+ *
+ * Recharts renders its own SVG with its own fixed class names, and hard-codes
+ * `#ccc` and `#fff` onto several of them. Restyling those means selecting
+ * markup this design system does not own, which component styles deliberately
+ * never do — so this is the one component whose internals stay in global CSS.
+ *
+ * Scoped under `[data-slot="chart"]` so nothing here escapes a chart, and placed
+ * in the `base` layer so a component style can still win.
+ *
+ * ChartContainer hands the colours down as plain custom properties
+ * (`--chart-grid`, `--chart-line`, `--chart-muted`, `--chart-fill`) set from
+ * tokens, because a token's real name is hashed and cannot be written here.
+ */
+@layer base {
+  [data-slot="chart"] .recharts-surface,
+  [data-slot="chart"] .recharts-layer,
+  [data-slot="chart"] .recharts-sector {
+    outline: none;
+  }
+
+  [data-slot="chart"] .recharts-cartesian-axis-tick text {
+    fill: var(--chart-muted);
+  }
+
+  [data-slot="chart"] .recharts-cartesian-grid line[stroke="#ccc"] {
+    stroke: var(--chart-grid);
+  }
+
+  [data-slot="chart"] .recharts-polar-grid [stroke="#ccc"],
+  [data-slot="chart"] .recharts-reference-line [stroke="#ccc"] {
+    stroke: var(--chart-line);
+  }
+
+  [data-slot="chart"] .recharts-curve.recharts-tooltip-cursor {
+    stroke: var(--chart-line);
+  }
+
+  [data-slot="chart"] .recharts-rectangle.recharts-tooltip-cursor,
+  [data-slot="chart"] .recharts-radial-bar-background-sector {
+    fill: var(--chart-fill);
+  }
+
+  /* Recharts outlines dots and sectors in white, which only works on white. */
+  [data-slot="chart"] .recharts-dot[stroke="#fff"],
+  [data-slot="chart"] .recharts-sector[stroke="#fff"] {
+    stroke: transparent;
+  }
+}
+
+/*
+ * Inline content inside an alert, an accordion panel, or a field, empty or item
+ * description.
+ *
+ * These parts hold arbitrary markup — a paragraph or two, a link — that the
+ * caller writes and the component never sees as a component. The Tailwind
+ * version styled it with `[&_a]:underline` and `[&_p:not(:last-child)]:mb-4`.
+ *
+ * In the base layer, so a style the caller gives the link or paragraph wins.
+ * The hover colour is handed down as `--inline-link-hover` by each component,
+ * because a semantic token's real name is hashed and cannot be written here.
+ */
+@layer base {
+  :is(
+      [data-slot="alert-title"],
+      [data-slot="alert-description"],
+      [data-slot="accordion-content"]
+    )
+    a {
+    text-decoration-line: underline;
+    text-underline-offset: 3px;
+  }
+
+  :is(
+      [data-slot="alert-title"],
+      [data-slot="alert-description"],
+      [data-slot="accordion-content"]
+    )
+    a:hover {
+    color: var(--inline-link-hover);
+  }
+
+  /* Was `[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary`:
+     direct children only, and a wider offset. */
+  :is(
+      [data-slot="field-description"],
+      [data-slot="empty-description"],
+      [data-slot="item-description"]
+    )
+    > a {
+    text-decoration-line: underline;
+    text-underline-offset: 4px;
+  }
+
+  :is(
+      [data-slot="field-description"],
+      [data-slot="empty-description"],
+      [data-slot="item-description"]
+    )
+    > a:hover {
+    color: var(--inline-link-hover);
+  }
+
+  :is([data-slot="alert-description"], [data-slot="accordion-content"])
+    p:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+}
+
+/*
+ * Extra lines inside a calendar day.
+ *
+ * A custom DayButton can render a price or a note beneath the date as a span.
+ * The Tailwind version shrank and faded it with
+ * `[&>span:not([data-slot=button-label])]`; the date itself is the Button's own
+ * label span and is left alone.
+ */
+@layer base {
+  [data-slot="calendar"] [data-day] > span:not([data-slot="button-label"]) {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    opacity: 0.7;
+  }
+}
+
+/*
+ * A sidebar menu button's label.
+ *
+ * The button holds whatever the caller writes — an icon and a span, usually —
+ * and the last span truncates rather than wrapping. `SidebarMenuLabel` does the
+ * same as a component; this covers a plain span, as `[&>span:last-child]:truncate`
+ * did. In the base layer, so a span's own style still wins.
+ */
+@layer base {
+  :is([data-slot="sidebar-menu-button"], [data-slot="sidebar-menu-sub-button"])
+    > span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/*
+ * Field layout.
+ *
+ * A Field lays out whatever it is given — a label, a select, a switch, a
+ * component from outside this package — so it cannot hand each child a style.
+ * The Tailwind version reached into its children with `*:` variants, and those
+ * beat the child's own width. These rules do the same, keyed on the attributes
+ * Field and FieldLabel already render.
+ *
+ * Unlayered on purpose: a layered rule would lose to the child's own Kirana
+ * width (a FieldLabel is `fit-content`), which is exactly what `*:w-full`
+ * overrode.
+ */
+[data-slot="field"]:is(
+    [data-orientation="vertical"],
+    [data-orientation="responsive"]
+  )
+  > :not(.sr-only) {
+  width: 100%;
+}
+
+[data-slot="field"][data-orientation="horizontal"] > [data-slot="field-label"] {
+  flex: auto;
+}
+
+/* A checkbox or radio beside a FieldContent block drops to the title's baseline. */
+[data-slot="field"][data-orientation="horizontal"]:has(
+    > [data-slot="field-content"]
+  )
+  > :is([role="checkbox"], [role="radio"]) {
+  margin-top: 1px;
+}
+
+@container field-group (min-width: 28rem) {
+  [data-slot="field"][data-orientation="responsive"] > * {
+    width: auto;
+  }
+
+  [data-slot="field"][data-orientation="responsive"]
+    > [data-slot="field-label"] {
+    flex: auto;
+  }
+
+  [data-slot="field"][data-orientation="responsive"]:has(
+      > [data-slot="field-content"]
+    )
+    > :is([role="checkbox"], [role="radio"]) {
+    margin-top: 1px;
+  }
+}
+
+/* A FieldGroup directly inside another is tighter: `*:data-[slot=field-group]:gap-4`. */
+[data-slot="field-group"] > [data-slot="field-group"] {
+  gap: 1rem;
+}
+
+/* The Field inside a card-form FieldLabel is padded away from the card's edge. */
+[data-slot="field-label"] > [data-slot="field"] {
+  padding: 0.625rem;
+}

@@ -1,0 +1,24 @@
+id = "kirana"
+name = "Kirana"
+version = "0.1.0"
+schema_version = 1
+authors = ["The Kirana authors"]
+description = "The Kirana language server: hover the CSS a style compiles to, token colours, an inline summary of what each element receives, completion and the compiler's diagnostics."
+repository = "https://github.com/kirana-style/kirana"
+
+[language_servers.kirana]
+name = "Kirana"
+languages = [
+  "TypeScript",
+  "TSX",
+  "JavaScript",
+  "Vue.js",
+  "Svelte",
+  "Astro",
+  "HTML",
+  "PHP",
+  "Blade",
+  "HTML/ERB",
+  "Twig",
+  "HEEX",
+]

@@ -1,0 +1,7 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k50_D9ur {
+    color: red;
+  }
+}

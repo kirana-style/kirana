@@ -1,0 +1,146 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1536,
+      "end": 1546
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1579,
+      "end": 1644
+    },
+    "message": "content is set at runtime through --k5n",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1927,
+      "end": 1944
+    },
+    "message": "fontStyle is set at runtime through --k6j",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1957,
+      "end": 1975
+    },
+    "message": "tabSize is set at runtime through --k9s",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2163,
+      "end": 2190
+    },
+    "message": "borderTopColor is set at runtime through --kl",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2211,
+      "end": 2234
+    },
+    "message": "borderLeftColor is set at runtime through --ko",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2256,
+      "end": 2279
+    },
+    "message": "borderRightColor is set at runtime through --km",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2358,
+      "end": 2383
+    },
+    "message": "opacity is set at runtime through --k87",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2402,
+      "end": 2420
+    },
+    "message": "letterSpacing is set at runtime through --k7d",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2437,
+      "end": 2459
+    },
+    "message": "wordSpacing is set at runtime through --kaJ",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2475,
+      "end": 2504
+    },
+    "message": "textIndent is set at runtime through --k9P",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2602,
+      "end": 2611
+    },
+    "message": "inset is set at runtime through --ku",
+    "help": []
+  }
+]

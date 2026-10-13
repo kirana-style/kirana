@@ -1,0 +1,40 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 209,
+      "end": 217
+    },
+    "message": "width is set at runtime through --dsaF",
+    "help": []
+  },
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 219,
+      "end": 238
+    },
+    "message": "padding cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  },
+  {
+    "code": "KRN1902",
+    "name": "target-lowering",
+    "severity": "info",
+    "file": "",
+    "span": {
+      "start": 0,
+      "end": 0
+    },
+    "message": "the stylesheet is lowered for targets below the default floor",
+    "help": []
+  }
+]

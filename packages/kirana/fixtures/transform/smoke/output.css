@@ -1,0 +1,50 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  :root {
+    --kv8752: oklch(0.7 0 0);
+    --kvNETw: darken;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --kvNETw: lighten;
+    }
+  }
+  .km-light {
+    --kvNETw: darken;
+  }
+  .km-dark {
+    --kvNETw: lighten;
+  }
+}
+@layer kirana.atoms {
+  .k0_Elck {
+    padding: 0.5rem;
+  }
+  .kJ_pnCg {
+    gap: 0.5rem;
+  }
+  .k75_NvtF {
+    inline-size: var(--k75);
+  }
+  .k50_D9ur {
+    color: red;
+  }
+  .k50_NYVC {
+    color: light-dark(oklch(0.145 0 0), oklch(0.985 0 0));
+  }
+  .k5O_23ai {
+    display: flex;
+  }
+  .k7X_iNo1 {
+    mix-blend-mode: var(--kvNETw);
+  }
+  @media (width >= 48rem) {
+    .k0-0w85_HV2H {
+      padding: 1rem;
+    }
+  }
+  .k50-KFHz_wERY:where(:hover) {
+    color: var(--kv8752);
+  }
+}

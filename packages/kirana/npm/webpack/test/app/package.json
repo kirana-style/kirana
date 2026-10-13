@@ -1,0 +1,5 @@
+{
+  "name": "kirana-webpack-app",
+  "private": true,
+  "type": "module"
+}

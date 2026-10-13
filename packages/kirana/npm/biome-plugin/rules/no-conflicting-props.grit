@@ -1,0 +1,21 @@
+// kirana/no-conflicting-props: a `className` or `style` written next to `{...styleProps(…)}` on the
+// same element. JSX keeps the last one written, so either the compiled styles replace the attribute
+// or the attribute replaces the compiled styles. `sx` itself is fine: the compiler merges it with the
+// element's own `className`.
+language js(typescript, jsx)
+
+pattern style_props() {
+  JsxSpreadAttribute(argument = JsCallExpression(callee = `styleProps`))
+}
+
+JsxAttribute(name = $name) as $attr where {
+  $name <: or { `className`, `style` },
+  $attr <: within or { JsxSelfClosingElement(attributes = $list), JsxOpeningElement(attributes = $list) },
+  $list <: contains style_props(),
+  if ($list <: [..., $attr, ..., style_props(), ...]) {
+    $message = `kirana/no-conflicting-props: The styleProps() spread after this $name replaces it; move these styles into a css() handle passed to styleProps().`
+  } else {
+    $message = `kirana/no-conflicting-props: This $name replaces the one styleProps() returned, dropping the compiled styles; move these styles into a css() handle passed to styleProps().`
+  },
+  register_diagnostic(span = $attr, message = $message, severity = "error")
+}

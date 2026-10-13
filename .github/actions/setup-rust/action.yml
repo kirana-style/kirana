@@ -1,0 +1,35 @@
+name: Setup Rust
+description: The toolchain pinned in packages/kirana/rust-toolchain.toml, a warm Cargo cache, and the Cargo tools Kirana's jobs use.
+
+inputs:
+  tools:
+    description: Comma-separated Cargo tools to install from prebuilt binaries (cargo-nextest, cargo-llvm-cov, cargo-deny).
+    required: false
+    default: ""
+  cache-key:
+    description: Extra cache key, so jobs that build different profiles keep separate caches.
+    required: false
+    default: default
+
+runs:
+  using: composite
+
+  steps:
+    # rustup reads rust-toolchain.toml and installs the pinned release with its components
+    # (rustfmt, clippy, llvm-tools) the first time cargo runs in that directory.
+    - name: Install the pinned toolchain
+      shell: bash
+      working-directory: packages/kirana
+      run: rustup show active-toolchain || rustup toolchain install
+
+    - name: Cache Cargo
+      uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: packages/kirana
+        key: ${{ inputs.cache-key }}
+
+    - name: Install Cargo tools
+      if: inputs.tools != ''
+      uses: taiki-e/install-action@v2
+      with:
+        tool: ${{ inputs.tools }}

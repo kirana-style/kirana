@@ -1,0 +1,14 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 429,
+      "end": 436
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  }
+]

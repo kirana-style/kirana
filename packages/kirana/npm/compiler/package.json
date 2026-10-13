@@ -1,0 +1,37 @@
+{
+  "name": "@kirana-style/compiler",
+  "version": "0.1.0",
+  "description": "The Kirana Driver: configuration, the native compiler session and the `kirana` command.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/compiler"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "bin": {
+    "kirana": "./bin/kirana.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./host": "./src/host.ts",
+    "./package.json": "./package.json"
+  },
+  "napi": {
+    "binaryName": "kirana"
+  },
+  "scripts": {
+    "build": "bun scripts/build-native.ts",
+    "build:debug": "bun scripts/build-native.ts --debug"
+  },
+  "dependencies": {
+    "@kirana-style/core": "workspace:*",
+    "magic-string": "catalog:"
+  }
+}

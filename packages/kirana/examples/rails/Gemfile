@@ -1,0 +1,9 @@
+source "https://rubygems.org"
+
+gem "actionpack", "~> 8.1"
+gem "actionview", "~> 8.1"
+gem "railties", "~> 8.1"
+gem "puma", "~> 8.0"
+
+# Kirana's view helper, from this repository until it is published.
+gem "kirana", path: "{kirana}/helpers/ruby"

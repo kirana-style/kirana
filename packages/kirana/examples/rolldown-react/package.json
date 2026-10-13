@@ -1,0 +1,17 @@
+{
+  "name": "kirana-example-rolldown-react",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rolldown -c rolldown.config.mjs"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@kirana-style/rolldown": "0.1.0",
+    "rolldown": "^1.2.9"
+  }
+}

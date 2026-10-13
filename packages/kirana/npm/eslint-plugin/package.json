@@ -1,0 +1,36 @@
+{
+  "name": "@kirana-style/eslint-plugin",
+  "version": "0.1.0",
+  "description": "Kirana's lint rules for ESLint and Oxlint, read from the compiler: its diagnostics, property order, tokens, forwarded sx, and the overrides that silently lose.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/eslint-plugin"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "eslint": ">=9"
+  },
+  "peerDependenciesMeta": {
+    "eslint": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*"
+  },
+  "devDependencies": {
+    "eslint": "catalog:"
+  }
+}

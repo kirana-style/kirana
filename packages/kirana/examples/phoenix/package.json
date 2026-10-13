@@ -1,0 +1,42 @@
+{
+  "name": "kirana-example-phoenix",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "kirana build resources/styles --out priv/static/kirana-style/kirana.css --minify",
+    "start": "mix run --no-halt"
+  },
+  "kirana-example": {
+    "output": "priv/static/kirana",
+    "prepare": [
+      [
+        "mix",
+        "deps.get"
+      ],
+      [
+        "mix",
+        "compile"
+      ]
+    ],
+    "dev": [
+      "mix",
+      "run",
+      "--no-halt"
+    ],
+    "devAlso": [
+      "kirana",
+      "dev",
+      "resources/styles",
+      "--out",
+      "priv/static/kirana-style/kirana.css"
+    ],
+    "reloads": true,
+    "edit": "resources/styles/app.styles.ts"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0"
+  },
+  "devDependencies": {
+    "@kirana-style/compiler": "0.1.0"
+  }
+}

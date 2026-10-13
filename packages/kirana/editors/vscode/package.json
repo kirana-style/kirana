@@ -1,0 +1,216 @@
+{
+  "name": "kirana",
+  "displayName": "Kirana",
+  "description": "Hover the CSS a style compiles to, see token colours, an inline summary of what each element receives, completion for conditions and utilities, and the compiler's diagnostics as you type.",
+  "version": "0.1.0",
+  "publisher": "kirana-style",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/editors/vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "private": true,
+  "engines": {
+    "vscode": "^1.91.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters"
+  ],
+  "keywords": [
+    "css",
+    "css-in-js",
+    "kirana",
+    "intellisense"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:vue",
+    "onLanguage:svelte",
+    "onLanguage:astro",
+    "onLanguage:html",
+    "onLanguage:blade",
+    "onLanguage:php",
+    "onLanguage:erb",
+    "onLanguage:twig",
+    "onLanguage:phoenix-heex",
+    "onLanguage:edge",
+    "workspaceContains:**/kirana.config.*",
+    "onView:kirana.inspector"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "kirana.showCompiledCss",
+        "title": "Show Compiled CSS",
+        "category": "Kirana"
+      },
+      {
+        "command": "kirana.explainPrecedence",
+        "title": "Explain Precedence of the Property Under the Cursor",
+        "category": "Kirana"
+      },
+      {
+        "command": "kirana.convertTailwind",
+        "title": "Convert Tailwind Classes to css()",
+        "category": "Kirana"
+      },
+      {
+        "command": "kirana.restartServer",
+        "title": "Restart Language Server",
+        "category": "Kirana"
+      },
+      {
+        "command": "kirana.inspect",
+        "title": "Open Style Inspector",
+        "category": "Kirana"
+      },
+      {
+        "command": "kirana.toggleStyleFold",
+        "title": "Toggle Style Fold",
+        "category": "Kirana"
+      },
+      {
+        "command": "kirana.foldStyles",
+        "title": "Fold Styles",
+        "category": "Kirana"
+      }
+    ],
+    "configuration": {
+      "title": "Kirana",
+      "properties": {
+        "kirana.server.path": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "The `kirana` binary to run. Empty: the project's own `node_modules/.bin/kirana`, so the editor runs the engine the build does. A `.js` or `.ts` path runs with `node`."
+        },
+        "kirana.inlayHints.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show what each element receives after `sx={…}` (`grid · gap 1rem · p 1.5rem`)."
+        },
+        "kirana.inlayHints.maxLength": {
+          "type": "number",
+          "default": 100,
+          "minimum": 0,
+          "markdownDescription": "The longest summary after an element, in characters; the rest is counted as `+N`. `0` shows every declaration. VS Code also cuts hints at `editor.inlayHints.maximumLength` (43 by default): set that to `0`."
+        },
+        "kirana.inlayHints.colors": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Colour the summary after each element by group, as the card does (layout blue, box green, colour orange…). Off: VS Code's own one-colour inlay hints."
+        },
+        "kirana.inlayHints.icon": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show Kirana's icon before each summary."
+        },
+        "kirana.inlayHints.opacity": {
+          "type": "number",
+          "default": 0.85,
+          "minimum": 0.1,
+          "maximum": 1,
+          "markdownDescription": "How strongly the summary reads against the code, from `0.1` to `1`."
+        },
+        "kirana.codeLens.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show declaration, condition and bridged-value counts above `css()` and `recipe()`."
+        },
+        "kirana.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Log the messages between the editor and the language server."
+        },
+        "kirana.hover.diagrams": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Draw the box model, layout, colours and type of a style as a picture in the hover; off: a text drawing."
+        },
+        "kirana.rootFontSize": {
+          "type": "number",
+          "default": 16,
+          "markdownDescription": "Pixels per `rem`, for the pixel equivalents in hovers and tooltips."
+        },
+        "kirana.inspector.followCursor": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "The Style Inspector shows what the cursor is on."
+        },
+        "kirana.fold.enabled": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Show long one-line `css({…})` objects as their summary until the cursor is on their line."
+        },
+        "kirana.fold.mode": {
+          "type": "string",
+          "enum": [
+            "fold",
+            "dim"
+          ],
+          "default": "fold",
+          "enumDescriptions": [
+            "Replace a long one-line style object with its summary until the cursor is on its line.",
+            "Keep the object and lower its opacity until the cursor is on its line."
+          ],
+          "markdownDescription": "What Style Fold does to a long one-line `css({…})` object off the cursor's line."
+        },
+        "kirana.fold.opacity": {
+          "type": "number",
+          "default": 0.4,
+          "minimum": 0.1,
+          "maximum": 1,
+          "markdownDescription": "The opacity of a dimmed object (`kirana.fold.mode`: `dim`)."
+        },
+        "kirana.fold.minLength": {
+          "type": "number",
+          "default": 40,
+          "minimum": 0,
+          "markdownDescription": "Objects shorter than this many characters stay as written."
+        },
+        "kirana.fold.icon": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show Kirana's icon before a folded summary."
+        }
+      }
+    },
+    "views": {
+      "explorer": [
+        {
+          "type": "webview",
+          "id": "kirana.inspector",
+          "name": "Kirana Style Inspector"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node20 --external:vscode --minify --outfile=dist/extension.js",
+    "package": "cp ../brand/icon.png icon.png && bun run build && vsce package --no-dependencies --skip-license --out kirana.vsix",
+    "test:e2e": "bun run build && node test/e2e/run.ts"
+  },
+  "devDependencies": {
+    "@types/vscode": "1.91.0",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^4.0.0",
+    "esbuild": "catalog:",
+    "vscode-languageclient": "^10.1.2"
+  },
+  "icon": "icon.png"
+}

@@ -1,0 +1,53 @@
+# Updates arrive as pull requests, grouped so a week's updates are one review, not twenty.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: bun
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: deps
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: cargo
+    directory: /packages/kirana
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: deps
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: bundler
+    directory: /packages/kirana/helpers/ruby
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: mix
+    directory: /packages/kirana/helpers/elixir
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: deps
+
+  - package-ecosystem: composer
+    directory: /packages/kirana/helpers/php
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: deps

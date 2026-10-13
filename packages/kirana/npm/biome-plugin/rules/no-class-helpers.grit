@@ -1,0 +1,21 @@
+// kirana/no-class-helpers: an import of a class-string helper into a Kirana codebase. Joined class
+// strings do not merge: two atoms for one property both apply, and which wins depends on the
+// stylesheet, not on the order written. `cx` and `sx={[a, b]}` merge per property and condition, and
+// recipe() compiles the variants `cva` would pick at runtime.
+language js(typescript, jsx)
+
+JsModuleSource() as $source where {
+  $source <: r"[\"']((clsx|classnames|tailwind-merge|class-variance-authority)(/[^\"']*|))[\"']"($path, $name, $rest),
+  if ($name <: "class-variance-authority") {
+    $instead = "recipe() from @kirana-style/core, which compiles static variant calls to class strings"
+  } else if ($name <: "tailwind-merge") {
+    $instead = "cx() from @kirana-style/core, which already merges per property and condition"
+  } else {
+    $instead = "cx() or sx={[a, b]} from @kirana-style/core, which merge per property"
+  },
+  register_diagnostic(
+    span = $source,
+    message = `kirana/no-class-helpers: $path joins class strings, which do not merge in Kirana; use $instead.`,
+    severity = "error"
+  )
+}

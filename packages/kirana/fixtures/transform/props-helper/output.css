@@ -1,0 +1,10 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k5O_23ai {
+    display: flex;
+  }
+  .kaF_ZFLY {
+    width: var(--kaF);
+  }
+}

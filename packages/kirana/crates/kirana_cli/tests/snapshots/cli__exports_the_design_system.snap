@@ -1,0 +1,107 @@
+---
+source: crates/kirana_cli/tests/cli.rs
+expression: "serde_json::to_string_pretty(&shown).unwrap()"
+---
+{
+  "schema": 1,
+  "engine": "[version]",
+  "prefix": "k",
+  "tokens": [
+    {
+      "identity": "color.brand",
+      "value": "light-dark(#000, #fff)",
+      "light": "#000",
+      "dark": "#fff",
+      "variable": true,
+      "origin": "src/tokens.ts:2"
+    },
+    {
+      "identity": "color.muted",
+      "value": "#888",
+      "variable": true,
+      "origin": "src/tokens.ts:2"
+    },
+    {
+      "identity": "space.x",
+      "value": "1rem",
+      "variable": false,
+      "origin": "src/tokens.ts:3"
+    }
+  ],
+  "themes": [
+    {
+      "name": "ocean",
+      "origin": "src/design.ts:3",
+      "class": "kt9fBs",
+      "overrides": [
+        "color.brand"
+      ]
+    }
+  ],
+  "recipes": [
+    {
+      "name": "button",
+      "origin": "src/design.ts:4",
+      "variants": {
+        "size": [
+          "sm",
+          "md"
+        ],
+        "tone": [
+          "quiet"
+        ]
+      },
+      "defaults": {
+        "size": "md"
+      },
+      "compoundVariants": 1
+    },
+    {
+      "name": "card",
+      "origin": "src/design.ts:10",
+      "slots": [
+        "root",
+        "title"
+      ],
+      "variants": {},
+      "defaults": {},
+      "compoundVariants": 0
+    }
+  ],
+  "relations": [
+    {
+      "name": "field",
+      "declaredIn": [
+        "src/design.ts"
+      ],
+      "anchoredIn": [],
+      "readIn": []
+    }
+  ],
+  "keyframes": [
+    {
+      "name": "rotate",
+      "origin": "src/design.ts",
+      "css": "kfMMUp"
+    },
+    {
+      "name": "spin",
+      "origin": "src/design.ts:11",
+      "css": "kfMMUp"
+    }
+  ],
+  "positionTries": [
+    {
+      "name": "below",
+      "origin": "src/design.ts:12",
+      "css": "--kpd1Rq"
+    }
+  ],
+  "viewTransitions": [
+    {
+      "name": "slide",
+      "origin": "src/design.ts:13",
+      "css": "kwTyjU"
+    }
+  ]
+}

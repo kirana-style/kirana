@@ -1,0 +1,37 @@
+{
+  "name": "@kirana-style/ember",
+  "version": "0.1.0",
+  "description": "Kirana for Ember on Embroider and Vite: css() in .gjs and .gts files, and the sx template helper.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/ember"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./vite": "./src/vite.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@kirana-style/vite": "0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@kirana-style/vite": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "workspace:*"
+  }
+}

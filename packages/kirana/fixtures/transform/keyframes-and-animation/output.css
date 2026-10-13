@@ -1,0 +1,54 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  :root {
+    --kvwQUQ: 0.5;
+  }
+  @keyframes kf1i7V {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: var(--kvwQUQ);
+      padding: 1px;
+    }
+  }
+  @keyframes kfFrw6 {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes kfKhbN {
+    to {
+    }
+  }
+}
+@layer kirana.atoms {
+  .k3J_0c03 {
+    animation-delay: 0s;
+  }
+  .k3K_yN0w {
+    animation-direction: normal;
+  }
+  .k3L_dQWT {
+    animation-duration: 1s;
+  }
+  .k3M_R06i {
+    animation-fill-mode: none;
+  }
+  .k3N_3Pgn {
+    animation-iteration-count: infinite;
+  }
+  .k3O_8CFT {
+    animation-name: kf1i7V;
+  }
+  .k3P_gFK6 {
+    animation-play-state: running;
+  }
+  .k3T_z3Kb {
+    animation-timeline: initial;
+  }
+  .k3U_FEHc {
+    animation-timing-function: ease;
+  }
+}

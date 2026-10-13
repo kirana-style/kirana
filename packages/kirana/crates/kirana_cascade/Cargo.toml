@@ -1,0 +1,21 @@
+[package]
+name = "kirana_cascade"
+description = "Longhand expansion, value validation and normalization for Kirana, on Lightning CSS."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+kirana_css_data = { workspace = true }
+kirana_ir = { workspace = true }
+kirana_shared = { workspace = true }
+lightningcss = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+proptest = { workspace = true }
+
+[lints]
+workspace = true

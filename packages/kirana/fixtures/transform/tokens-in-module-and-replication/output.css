@@ -1,0 +1,40 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  :root {
+    --kv0Qrm: 1px 2px;
+    --kvUhsq: 1rem;
+    --kvXoi2: 0.5rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --kvUhsq: 2rem;
+    }
+  }
+  .km-light {
+    --kvUhsq: 1rem;
+  }
+  .km-dark {
+    --kvUhsq: 2rem;
+  }
+}
+@layer kirana.atoms {
+  .k0_fp4K {
+    padding: var(--kv0Qrm);
+  }
+  .k5_yPvC {
+    margin: var(--kvUhsq);
+  }
+  .ka_uSm6 {
+    border-radius: var(--kvXoi2);
+  }
+  .kk_bkdy {
+    border-color: var(--kvnotaToken);
+  }
+  .ku_RUyX {
+    inset: var(--from-a-library);
+  }
+  .kJ_kO6B {
+    gap: min(var(--kvXoi2), 10px);
+  }
+}

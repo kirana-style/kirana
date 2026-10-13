@@ -1,0 +1,10 @@
+---
+source: crates/kirana_migrate/tests/migrate.rs
+expression: result.notes
+---
+[
+    Note {
+        offset: 0,
+        message: "uses the default marker: import `peer` from the module that declares it",
+    },
+]

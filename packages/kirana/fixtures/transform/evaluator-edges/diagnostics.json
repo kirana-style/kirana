@@ -1,0 +1,394 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1189,
+      "end": 1208
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1481,
+      "end": 1492
+    },
+    "message": "paddingTop is set at runtime through --k4",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1511,
+      "end": 1523
+    },
+    "message": "paddingBottom is set at runtime through --k1",
+    "help": []
+  },
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1665,
+      "end": 1671
+    },
+    "message": "select must be called where it is used",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1752,
+      "end": 1762
+    },
+    "message": "right is set at runtime through --ky",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1775,
+      "end": 1797
+    },
+    "message": "content is set at runtime through --k5n",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1809,
+      "end": 1833
+    },
+    "message": "quotes is set at runtime through --k8F",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1849,
+      "end": 1870
+    },
+    "message": "columnRule is set at runtime through --k56",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1915,
+      "end": 1940
+    },
+    "message": "rowGap is set at runtime through --kK",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1956,
+      "end": 1968
+    },
+    "message": "textIndent is set at runtime through --k9P",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2038,
+      "end": 2051
+    },
+    "message": "borderSpacing is set at runtime through --k4z",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2068,
+      "end": 2074
+    },
+    "message": "columnWidth is set at runtime through --k5b",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2107,
+      "end": 2111
+    },
+    "message": "maxHeight is set at runtime through --k7P",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2139,
+      "end": 2147
+    },
+    "message": "outlineOffset is set at runtime through --k8c",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2178,
+      "end": 2180
+    },
+    "message": "zIndex is set at runtime through --kaO",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2220,
+      "end": 2255
+    },
+    "message": "flexGrow is set at runtime through --k61",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2287,
+      "end": 2304
+    },
+    "message": "condition constructors take a query string",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2306,
+      "end": 2316
+    },
+    "message": "condition constructors take a query string",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2318,
+      "end": 2329
+    },
+    "message": "container() takes a query string and an optional name",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2356,
+      "end": 2435
+    },
+    "message": "token names must be static strings",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2411,
+      "end": 2421
+    },
+    "message": "token keys.flag is not a CSS value",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2942,
+      "end": 2962
+    },
+    "message": "this value cannot be evaluated at build time (object with methods or accessors)",
+    "help": []
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2971,
+      "end": 3007
+    },
+    "message": "conditions nest inside property values",
+    "help": [
+      "write `property: { [condition]: value }`"
+    ]
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 3027,
+      "end": 3041
+    },
+    "message": "\"hover\": expected a pseudo-class, an attribute selector or an at-rule",
+    "help": []
+  },
+  {
+    "code": "KRN1201",
+    "name": "unknown-property",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 3066,
+      "end": 3075
+    },
+    "message": "colour is not a CSS property",
+    "help": []
+  },
+  {
+    "code": "KRN1603",
+    "name": "dynamic-key",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 3088,
+      "end": 3112
+    },
+    "message": "a property or condition key must be known at build time",
+    "help": [
+      "use a fixed key, or move the choice into a conditional value"
+    ]
+  },
+  {
+    "code": "KRN1201",
+    "name": "unknown-property",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 3121,
+      "end": 3144
+    },
+    "message": "1 is not a CSS property",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 3153,
+      "end": 3175
+    },
+    "message": "this value cannot be evaluated at build time (unsupported key)",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 3243,
+      "end": 3276
+    },
+    "message": "a style handle is not a property value",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3263,
+      "end": 3264
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 3317,
+      "end": 3335
+    },
+    "message": "inset cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  },
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 3337,
+      "end": 3358
+    },
+    "message": "margin cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  }
+]

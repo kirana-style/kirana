@@ -1,0 +1,6 @@
+dist
+*.vsix
+.vscode-test
+test/fixture/node_modules
+# Copied from ../brand/icon.png when packaging.
+icon.png

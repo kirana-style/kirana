@@ -1,0 +1,68 @@
+/**
+ * The homepage's benchmark figures, copied from
+ * `packages/kirana/design-notes/benchmark-results.md`, "Full three-way corpus (sprint 2)": the
+ * median of five interleaved `vite build` runs of the same three applications
+ * built with Kirana, the StyleX port and the Tailwind original, on one
+ * developer machine. Advisory, as that file says — not a published claim.
+ *
+ * Update both together: the numbers here are the ones in that table.
+ */
+/** Where the numbers live in the repository; shown as text, since the repository is not public yet. */
+export const BENCH_SOURCE = "packages/kirana/design-notes/benchmark-results.md"
+
+export type Tool = "Kirana" | "StyleX" | "Tailwind"
+
+export const TOOLS: readonly Tool[] = ["Kirana", "StyleX", "Tailwind"]
+
+export const APPS = ["web", "blocks", "examples"] as const
+
+export type Metric = {
+  id: string
+  label: string
+  unit: string
+  /** One value per app, in `APPS` order. */
+  values: Record<Tool, readonly [number, number, number]>
+  /** The corpus total, from the same section's second table. */
+  total: Record<Tool, number>
+  /** Lower is better for every metric here. */
+  note: string
+}
+
+export const METRICS: readonly Metric[] = [
+  {
+    id: "build",
+    label: "Build time",
+    unit: "s",
+    values: {
+      Kirana: [1.43, 2.18, 1.94],
+      StyleX: [3.26, 7.46, 5.51],
+      Tailwind: [1.56, 1.97, 1.86],
+    },
+    total: { Kirana: 5.55, StyleX: 16.23, Tailwind: 5.39 },
+    note: "2.9× faster than StyleX; within 3 % of Tailwind, which wins on two of the three apps.",
+  },
+  {
+    id: "css",
+    label: "CSS, gzip",
+    unit: "kB",
+    values: {
+      Kirana: [17.6, 21.2, 22.1],
+      StyleX: [17.8, 22.2, 22.9],
+      Tailwind: [26.9, 30.4, 29.7],
+    },
+    total: { Kirana: 60.9, StyleX: 63.0, Tailwind: 87.1 },
+    note: "The smallest gzipped CSS of the three. Raw, StyleX's is 23.3 kB smaller.",
+  },
+  {
+    id: "total",
+    label: "CSS + JS, gzip",
+    unit: "kB",
+    values: {
+      Kirana: [293.2, 660.2, 647.7],
+      StyleX: [300.3, 685.6, 673.1],
+      Tailwind: [306.9, 676.6, 655.7],
+    },
+    total: { Kirana: 1601.1, StyleX: 1659.0, Tailwind: 1639.1 },
+    note: "57.9 kB less than StyleX and 38.0 kB less than Tailwind over the three apps.",
+  },
+]

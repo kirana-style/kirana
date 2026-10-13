@@ -1,0 +1,28 @@
+{
+  "name": "kirana-example-gatsby",
+  "private": true,
+  "scripts": {
+    "build": "gatsby build"
+  },
+  "kirana-example": {
+    "output": "public",
+    "dev": [
+      "gatsby",
+      "develop",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "src/pages/index.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "gatsby": "^5.16.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@kirana-style/gatsby": "0.1.0"
+  }
+}

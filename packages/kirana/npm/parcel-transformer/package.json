@@ -1,0 +1,36 @@
+{
+  "name": "@kirana-style/parcel-transformer",
+  "version": "0.1.0",
+  "description": "Kirana for Parcel: a transformer that compiles styles in scripts, with the stylesheet from @kirana-style/postcss.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/parcel-transformer"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*",
+    "@kirana-style/core": "workspace:*",
+    "@kirana-style/postcss": "workspace:*"
+  },
+  "peerDependencies": {
+    "@parcel/plugin": "^2.16.0"
+  },
+  "devDependencies": {
+    "@parcel/plugin": "catalog:"
+  },
+  "engines": {
+    "parcel": "^2.16.0"
+  }
+}

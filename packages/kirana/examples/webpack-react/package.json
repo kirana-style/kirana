@@ -1,0 +1,35 @@
+{
+  "name": "kirana-example-webpack-react",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "webpack --mode production"
+  },
+  "kirana-example": {
+    "dev": [
+      "webpack",
+      "serve",
+      "--mode",
+      "development",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "src/main.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@kirana-style/webpack": "0.1.0",
+    "@swc/core": "^1.16.2",
+    "html-webpack-plugin": "^5.6.8",
+    "swc-loader": "^0.2.7",
+    "webpack": "^5.111.1",
+    "webpack-cli": "^7.2.3",
+    "webpack-dev-server": "^6.0.0"
+  }
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "code": "KRN1504",
+    "name": "dynamic-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 151,
+      "end": 165
+    },
+    "message": "token dynamic.value is not known at build time",
+    "help": []
+  },
+  {
+    "code": "KRN1504",
+    "name": "dynamic-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 174,
+      "end": 227
+    },
+    "message": "token values must be known at build time",
+    "help": []
+  },
+  {
+    "code": "KRN1504",
+    "name": "dynamic-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 233,
+      "end": 294
+    },
+    "message": "token values must be known at build time",
+    "help": []
+  },
+  {
+    "code": "KRN1504",
+    "name": "dynamic-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 300,
+      "end": 335
+    },
+    "message": "token values must be known at build time",
+    "help": []
+  },
+  {
+    "code": "KRN1504",
+    "name": "dynamic-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 366,
+      "end": 438
+    },
+    "message": "token values must be known at build time",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 468,
+      "end": 491
+    },
+    "message": "defineTokens(namespace, values) takes a string and an object",
+    "help": []
+  }
+]

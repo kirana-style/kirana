@@ -1,0 +1,15 @@
+@layer reset, kirana, overrides, kirana.tokens, kirana.themes, kirana.contextual;
+
+@layer kirana.atoms {
+  .ds0_iyeH {
+    padding: var(--x);
+  }
+
+  .ds50_DbCs {
+    color: var(--lightningcss-light, #fff) var(--lightningcss-dark, #000);
+  }
+
+  .dsaF_bKud {
+    width: var(--dsaF);
+  }
+}

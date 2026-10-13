@@ -1,0 +1,255 @@
+name: release
+
+# One version for everything (operations/release.md in kirana-spec). On every push to main,
+# release-please keeps a Release PR open: the next version, read from the Conventional Commit titles
+# since the last tag, bumped in every package.json, Cargo.toml, the gemspec, mix.exs and the editor
+# extensions, with CHANGELOG.md. Merging that PR tags vX.Y.Z and creates the GitHub release; this
+# workflow then builds every platform, runs the installation matrix as the gate, and publishes:
+#
+#   npm (20 packages + 8 platform packages) · RubyGems · Hex · VS Code Marketplace · Open VSX ·
+#   the kirana-php mirror and the kirana/kirana alias (Packagist reads their tags)
+#
+# Publishing jobs run in the `release` environment, which requires an approval, so nothing reaches a
+# registry without a person saying so. npm and RubyGems authenticate with trusted publishing (OIDC);
+# the rest read secrets scoped to that environment.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Releases queue rather than cancel: a half-published release must finish.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      created: ${{ steps.release.outputs.release_created }}
+      version: ${{ steps.release.outputs.version }}
+      tag: ${{ steps.release.outputs.tag_name }}
+      pr-branch: ${{ steps.release.outputs.pr && fromJSON(steps.release.outputs.pr).headBranchName || '' }}
+
+    steps:
+      # A token other than GITHUB_TOKEN, so the Release PR's commits start CI like any other PR's.
+      - id: release
+        uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # The version bump changes the workspace versions bun.lock and Cargo.lock record; CI installs with
+  # --frozen-lockfile, so the Release PR carries the refreshed lockfiles too.
+  lockfiles:
+    needs: release-please
+    if: needs.release-please.outputs.pr-branch != ''
+    runs-on: ubuntu-26.04
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release-please.outputs.pr-branch }}
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - uses: ./.github/actions/setup-rust
+        with:
+          cache-key: release
+
+      - name: Refresh the lockfiles
+        run: |
+          bun install
+          (cd packages/kirana && cargo update --workspace)
+
+      - name: Commit them to the Release PR
+        run: |
+          git diff --quiet && exit 0
+          git config user.name "Kirana"
+          git config user.email "dev@kirana.style"
+          git commit -am "chore: refresh lockfiles for the release"
+          git push
+
+  # The same build, pack and installation matrix as every push to main, run again on the tagged
+  # commit: what is published is exactly what passed.
+  packages:
+    needs: release-please
+    if: needs.release-please.outputs.created == 'true'
+    uses: ./.github/workflows/packages.yml
+    permissions:
+      contents: read
+
+  npm:
+    needs: [release-please, packages]
+    runs-on: ubuntu-26.04
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs npm 11.5.1 or later.
+      - run: npm install --global npm@11
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: kirana-packages
+          path: dist-packages
+
+      - name: Publish in dependency order
+        run: bun packages/kirana/scripts/publish-npm.ts dist-packages
+
+  rubygems:
+    needs: [release-please, packages]
+    runs-on: ubuntu-26.04
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: packages/kirana/helpers/ruby
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+
+      - uses: rubygems/configure-rubygems-credentials@v2
+
+      - name: Build and push the gem
+        run: |
+          gem build kirana.gemspec
+          gem push kirana-*.gem
+
+  hex:
+    needs: [release-please, packages]
+    runs-on: ubuntu-26.04
+    environment: release
+    defaults:
+      run:
+        working-directory: packages/kirana/helpers/elixir
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "28"
+          elixir-version: "1.20"
+
+      - name: Publish to Hex
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+        run: |
+          mix deps.get
+          mix hex.publish --yes
+
+  editors:
+    needs: [release-please, packages]
+    runs-on: ubuntu-26.04
+    environment: release
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - name: Package the extension
+        working-directory: packages/kirana/editors/vscode
+        run: bun run package
+
+      # Attached to the GitHub release in every case: without VSCE_PAT (an Azure DevOps organization
+      # needs an Azure subscription), the .vsix is uploaded by hand at
+      # marketplace.visualstudio.com/manage → kirana-style → Kirana → Update.
+      - name: Attach the .vsix to the GitHub release
+        working-directory: packages/kirana/editors/vscode
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release-please.outputs.tag }}
+        run: gh release upload "$TAG" kirana.vsix --clobber
+
+      - name: Publish to the VS Code Marketplace
+        working-directory: packages/kirana/editors/vscode
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "::notice::No VSCE_PAT: upload kirana.vsix from the GitHub release to the Marketplace by hand."
+            exit 0
+          fi
+          bunx @vscode/vsce publish --packagePath kirana.vsix
+
+      - name: Publish to Open VSX
+        working-directory: packages/kirana/editors/vscode
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: bunx ovsx publish kirana.vsix
+
+  # Packagist reads packages from Git tags: the PHP helper is split out of this repository into the
+  # read-only kirana-php mirror (kirana-style/kirana), and the kirana/kirana alias gets the same tag.
+  php:
+    needs: [release-please, packages]
+    runs-on: ubuntu-26.04
+    environment: release
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # One fine-grained token (PHP_MIRROR_TOKEN: Contents read and write on kirana-php and
+      # kirana-php-alias only); the organization disables deploy keys.
+      - name: Push the split and the tag to kirana-php
+        env:
+          TOKEN: ${{ secrets.PHP_MIRROR_TOKEN }}
+          TAG: ${{ needs.release-please.outputs.tag }}
+        run: |
+          git subtree split --prefix=packages/kirana/helpers/php -b php
+          git push --force "https://x-access-token:${TOKEN}@github.com/kirana-style/kirana-php.git" php:main
+          git tag "$TAG" php
+          git push "https://x-access-token:${TOKEN}@github.com/kirana-style/kirana-php.git" "$TAG"
+
+      - name: Tag the kirana/kirana alias
+        env:
+          TOKEN: ${{ secrets.PHP_MIRROR_TOKEN }}
+          TAG: ${{ needs.release-please.outputs.tag }}
+        run: |
+          git clone --depth 1 "https://x-access-token:${TOKEN}@github.com/kirana-style/kirana-php-alias.git" "$RUNNER_TEMP/alias"
+          cd "$RUNNER_TEMP/alias"
+          git tag "$TAG"
+          git push origin "$TAG"

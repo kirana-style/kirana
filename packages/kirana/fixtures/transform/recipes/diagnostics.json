@@ -1,0 +1,86 @@
+[
+  {
+    "code": "KRN1605",
+    "name": "dynamic-variant",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1129,
+      "end": 1155
+    },
+    "message": "variant options are chosen at runtime from the recipe's table",
+    "help": []
+  },
+  {
+    "code": "KRN1801",
+    "name": "unknown-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1324,
+      "end": 1348
+    },
+    "message": "variant \"tone\" has no option \"loud\"",
+    "help": []
+  },
+  {
+    "code": "KRN1801",
+    "name": "unknown-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1352,
+      "end": 1378
+    },
+    "message": "the recipe has no variant \"shape\"",
+    "help": []
+  },
+  {
+    "code": "KRN1802",
+    "name": "unknown-slot",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1382,
+      "end": 1429
+    },
+    "message": "the recipe has no slot \"head\"",
+    "help": []
+  },
+  {
+    "code": "KRN1801",
+    "name": "unknown-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1433,
+      "end": 1506
+    },
+    "message": "variant \"tone\" has no option \"x\"",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1510,
+      "end": 1521
+    },
+    "message": "recipe() takes a configuration object",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1594,
+      "end": 1627
+    },
+    "message": "a recipe definition must be static",
+    "help": []
+  }
+]

@@ -1,0 +1,78 @@
+[
+  {
+    "code": "KRN1208",
+    "name": "invalid-position-try",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 686,
+      "end": 719
+    },
+    "message": "color has no effect in @position-try",
+    "help": [
+      "a fallback position sets only inset, margin, size, self-alignment, position-anchor and position-area"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 747,
+      "end": 768
+    },
+    "message": "positionTry() takes an object of declarations",
+    "help": [
+      "for example positionTry({ positionArea: \"bottom\", marginTop: \"4px\" })"
+    ]
+  },
+  {
+    "code": "KRN1208",
+    "name": "invalid-position-try",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 796,
+      "end": 831
+    },
+    "message": "a @position-try block takes property names as keys",
+    "help": []
+  },
+  {
+    "code": "KRN1201",
+    "name": "unknown-property",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 855,
+      "end": 889
+    },
+    "message": "marginTopp is not a CSS property",
+    "help": []
+  },
+  {
+    "code": "KRN1208",
+    "name": "invalid-position-try",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 914,
+      "end": 949
+    },
+    "message": "top: this value is not a CSS value",
+    "help": []
+  },
+  {
+    "code": "KRN1208",
+    "name": "invalid-position-try",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1015,
+      "end": 1042
+    },
+    "message": "top: a definition's values must be known at build time",
+    "help": []
+  }
+]

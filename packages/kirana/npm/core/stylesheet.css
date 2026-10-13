@@ -1,0 +1,4 @@
+/*! kirana:stylesheet — the Kirana host adapter or `kirana build --out` replaces the rule below. */
+.kirana-placeholder {
+  --kirana: "stylesheet";
+}

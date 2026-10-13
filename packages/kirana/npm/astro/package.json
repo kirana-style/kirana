@@ -1,0 +1,30 @@
+{
+  "name": "@kirana-style/astro",
+  "version": "0.1.0",
+  "description": "Kirana for Astro: the integration that compiles .astro components and finishes the stylesheet.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/astro"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*",
+    "@kirana-style/core": "workspace:*",
+    "@kirana-style/vite": "workspace:*"
+  },
+  "peerDependencies": {
+    "astro": ">=5.0.0"
+  }
+}

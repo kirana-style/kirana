@@ -1,0 +1,14 @@
+{
+  "builders": {
+    "application": {
+      "implementation": "./src/application.js",
+      "schema": "./schemas/application.json",
+      "description": "Angular's application builder, with Kirana's compiled sources and stylesheet."
+    },
+    "dev-server": {
+      "implementation": "./src/dev-server.js",
+      "schema": "./schemas/dev-server.json",
+      "description": "Angular's development server, with Kirana's compiled sources and stylesheet."
+    }
+  }
+}

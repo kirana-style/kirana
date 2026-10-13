@@ -1,0 +1,49 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .kJ_iExv {
+    gap: 1rem;
+  }
+  .kJ_pnCg {
+    gap: 0.5rem;
+  }
+  .k44_FThQ {
+    background-color: transparent;
+  }
+  .k44_LB88 {
+    background-color: blue;
+  }
+  .k50_4U33 {
+    color: white;
+  }
+  .k50_W0yl {
+    color: black;
+  }
+  .k50_jWjM {
+    color: gray;
+  }
+  .k5J_Gcl3 {
+    cursor: not-allowed;
+  }
+  .k5O_Kh8G {
+    display: inline-flex;
+  }
+  .k5O_fqMV {
+    display: grid;
+  }
+  .k6V_5QUl {
+    height: 2rem;
+  }
+  .k6V_Imrn {
+    height: 1.75rem;
+  }
+  .k6f_EOeu {
+    font-size: 1rem;
+  }
+  .k6y_vXXk {
+    font-weight: 600;
+  }
+  .k87_ufrO {
+    opacity: 0.5;
+  }
+}

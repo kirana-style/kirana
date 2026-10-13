@@ -1,0 +1,50 @@
+[
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 381,
+      "end": 398
+    },
+    "message": "keyframes() takes an object of frames",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 423,
+      "end": 445
+    },
+    "message": "each keyframe is a selector string with a style object",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 476,
+      "end": 512
+    },
+    "message": "keyframe declaration colour: \"red\" is invalid",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 578,
+      "end": 615
+    },
+    "message": "keyframe declarations must be static",
+    "help": []
+  }
+]

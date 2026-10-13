@@ -1,0 +1,67 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k44_jWjM {
+    background-color: gray;
+  }
+  .k50_sO1o {
+    color: oklch(0.7 0.2 90);
+  }
+  .k5O_23ai {
+    display: flex;
+  }
+  .k5n_JmUz {
+    content: "ac23bundefined";
+  }
+  .k61_tIfm {
+    flex-grow: 1;
+  }
+  .k63_oD60 {
+    flex-shrink: 0;
+  }
+  .k6V_A8Sp {
+    height: 3rem;
+  }
+  .k6_f2HK {
+    margin-bottom: 0px;
+  }
+  .k6y_xnnw {
+    font-weight: 700;
+  }
+  .k7d_f2HK {
+    letter-spacing: 0px;
+  }
+  .k7h_aXik {
+    line-height: 1.5;
+  }
+  .k87_tIfm {
+    opacity: 1;
+  }
+  .k88_reDk {
+    order: -2;
+  }
+  .k9P_f2HK {
+    text-indent: 0px;
+  }
+  .k9_jeF2 {
+    margin-top: calc(3px - 1px);
+  }
+  .k9s_oAVr {
+    tab-size: 4;
+  }
+  .kaF_5QUl {
+    width: 2rem;
+  }
+  .kaJ_eK8R {
+    word-spacing: 1px;
+  }
+  .kaO_arbC {
+    z-index: 10;
+  }
+  .kl_sO1o {
+    border-top-color: oklch(0.7 0.2 90);
+  }
+  .kn_vIsY {
+    border-bottom-color: fallback;
+  }
+}

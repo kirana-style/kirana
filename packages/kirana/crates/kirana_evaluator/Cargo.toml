@@ -1,0 +1,29 @@
+[package]
+name = "kirana_evaluator"
+description = "The Kirana restricted evaluator: folds style values without executing user code."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+kirana_cascade = { workspace = true }
+kirana_config = { workspace = true }
+kirana_css_data = { workspace = true }
+kirana_diagnostics = { workspace = true }
+kirana_frontend = { workspace = true }
+kirana_ir = { workspace = true }
+kirana_shared = { workspace = true }
+kirana_utility = { workspace = true }
+oxc_ast = { workspace = true }
+oxc_ast_visit = { workspace = true }
+oxc_semantic = { workspace = true }
+oxc_span = { workspace = true }
+oxc_syntax = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+
+[lints]
+workspace = true

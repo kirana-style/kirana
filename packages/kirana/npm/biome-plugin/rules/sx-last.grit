@@ -1,0 +1,28 @@
+// kirana/sx-last: a component that forwards its caller's `sx` puts it last, so the caller's styles
+// override the component's own (`sx={[styles.root, sx]}`, `styleProps(styles.root, sx)`). Kirana
+// merges later entries over earlier ones per property and condition; an `sx` in the middle is
+// silently overridden by what follows it. A `className` handed down may follow it. The ESLint rule
+// also reorders the list; GritQL reports it.
+language js(typescript, jsx)
+
+pattern forwarded() {
+  or { `sx`, `$_.sx` }
+}
+
+pattern passes_through() {
+  or { `sx`, `$_.sx`, `className`, `$_.className` }
+}
+
+or {
+  JsxAttribute() as $attr where { $attr <: `sx={[$items]}` },
+  JsCallExpression(callee = `styleProps`, arguments = JsCallArguments(args = $items))
+} where {
+  $items <: [..., forwarded() as $sx, ..., not passes_through(), ...],
+  // What a spread overrides depends on what it holds.
+  $items <: not contains JsSpread(),
+  register_diagnostic(
+    span = $sx,
+    message = `kirana/sx-last: $sx is followed by styles that override it; forward it last so callers can override this component.`,
+    severity = "error"
+  )
+}

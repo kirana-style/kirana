@@ -1,0 +1,19 @@
+[package]
+name = "kirana_ir"
+description = "The Kirana Style IR: conditions, the precedence ladder, atoms, handles, names and evaluated values."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+kirana_css_data = { workspace = true }
+kirana_shared = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

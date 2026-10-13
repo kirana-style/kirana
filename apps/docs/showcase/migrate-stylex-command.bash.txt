@@ -1,0 +1,4 @@
+# print the diff and the report, then apply it
+kirana migrate stylex src
+kirana migrate stylex src --write
+kirana check src

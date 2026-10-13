@@ -1,0 +1,16 @@
+[
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 94,
+      "end": 120
+    },
+    "message": "padding-inline-start and padding-left are both set with the same number of longhands; the physical property wins",
+    "help": [
+      "use one axis family on an element"
+    ]
+  }
+]

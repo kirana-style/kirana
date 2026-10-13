@@ -1,0 +1,18 @@
+import { css, relation } from "@kirana-style/core"
+
+const menu = relation("menu")
+
+const styles = {
+  chevron: css({
+    rotate: { base: "0deg", [menu.within("[data-open]")]: "180deg" },
+  }),
+}
+
+export function Menu({ open }: { open: boolean }) {
+  // The anchor was left off the element that has the state.
+  return (
+    <div data-open={open || undefined}>
+      <span sx={styles.chevron}>▾</span>
+    </div>
+  )
+}

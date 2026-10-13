@@ -1,0 +1,16 @@
+[
+  {
+    "code": "KRN1602",
+    "name": "branch-budget-exceeded",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 119,
+      "end": 190
+    },
+    "message": "2 conditional values exceed the branch budget of 1",
+    "help": [
+      "split the conditionals into separate handles, or raise dynamic.branchBudget"
+    ]
+  }
+]

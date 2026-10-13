@@ -1,0 +1,7 @@
+{
+  "name": "fixture-parity",
+  "private": true,
+  "dependencies": {
+    "@kirana-style/core": "*"
+  }
+}

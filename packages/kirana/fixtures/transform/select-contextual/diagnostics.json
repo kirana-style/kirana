@@ -1,0 +1,110 @@
+[
+  {
+    "code": "KRN1603",
+    "name": "dynamic-key",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 603,
+      "end": 951
+    },
+    "message": "a property or condition key must be known at build time",
+    "help": [
+      "use a fixed key, or move the choice into a conditional value"
+    ]
+  },
+  {
+    "code": "KRN1303",
+    "name": "unsupported-contextual-target",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 656,
+      "end": 683
+    },
+    "message": "a contextual target is an element name, attribute selectors and pseudo-classes: one compound selector",
+    "help": [
+      "for example select.descendant('svg') or select.child('[data-slot=\"icon\"]')"
+    ]
+  },
+  {
+    "code": "KRN1303",
+    "name": "unsupported-contextual-target",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 707,
+      "end": 728
+    },
+    "message": "a contextual target is an element name, attribute selectors and pseudo-classes: one compound selector",
+    "help": [
+      "for example select.descendant('svg') or select.child('[data-slot=\"icon\"]')"
+    ]
+  },
+  {
+    "code": "KRN1303",
+    "name": "unsupported-contextual-target",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 752,
+      "end": 775
+    },
+    "message": "a contextual target is an element name, attribute selectors and pseudo-classes: one compound selector",
+    "help": [
+      "for example select.descendant('svg') or select.child('[data-slot=\"icon\"]')"
+    ]
+  },
+  {
+    "code": "KRN1303",
+    "name": "unsupported-contextual-target",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 799,
+      "end": 815
+    },
+    "message": "a contextual target is an element name, attribute selectors and pseudo-classes: one compound selector",
+    "help": [
+      "for example select.descendant('svg') or select.child('[data-slot=\"icon\"]')"
+    ]
+  },
+  {
+    "code": "KRN1303",
+    "name": "unsupported-contextual-target",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 839,
+      "end": 866
+    },
+    "message": "a contextual target is an element name, attribute selectors and pseudo-classes: one compound selector",
+    "help": [
+      "for example select.descendant('svg') or select.child('[data-slot=\"icon\"]')"
+    ]
+  },
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1025,
+      "end": 1034
+    },
+    "message": "pseudo-elements cannot nest",
+    "help": []
+  },
+  {
+    "code": "KRN1303",
+    "name": "unsupported-contextual-target",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1089,
+      "end": 1126
+    },
+    "message": "select.* keys are top-level style keys whose value is a style object",
+    "help": []
+  }
+]

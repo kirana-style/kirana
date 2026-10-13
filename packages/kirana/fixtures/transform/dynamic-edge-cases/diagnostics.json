@@ -1,0 +1,126 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 363,
+      "end": 381
+    },
+    "message": "color is set at runtime through --k50-0w85",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 376,
+      "end": 381
+    },
+    "message": "color is set at runtime through --k50-0w85",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 437,
+      "end": 442
+    },
+    "message": "color is set at runtime through --k50-9RcJ",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 508,
+      "end": 513
+    },
+    "message": "width is set at runtime through --kaF-C9M",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 542,
+      "end": 568
+    },
+    "message": "color: this value is not a CSS value",
+    "help": []
+  },
+  {
+    "code": "KRN1603",
+    "name": "dynamic-key",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 595,
+      "end": 639
+    },
+    "message": "a property or condition key must be known at build time",
+    "help": [
+      "use a fixed key, or move the choice into a conditional value"
+    ]
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 675,
+      "end": 683
+    },
+    "message": "only conditions may key a conditional value",
+    "help": []
+  },
+  {
+    "code": "KRN1603",
+    "name": "dynamic-key",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 744,
+      "end": 785
+    },
+    "message": "a property or condition key must be known at build time",
+    "help": [
+      "use a fixed key, or move the choice into a conditional value"
+    ]
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 977,
+      "end": 987
+    },
+    "message": "color is set at runtime through --k50",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1224,
+      "end": 1250
+    },
+    "message": "color: this value is not a CSS value",
+    "help": []
+  }
+]

@@ -1,0 +1,6 @@
+{
+  "classes": {
+    "modules": ["resources/styles"],
+    "out": "public/kirana/classes.json"
+  }
+}

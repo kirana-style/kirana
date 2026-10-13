@@ -1,0 +1,33 @@
+{
+  "name": "kirana-example-parcel",
+  "private": true,
+  "type": "module",
+  "source": "index.html",
+  "scripts": {
+    "build": "parcel build index.html --dist-dir dist --no-cache"
+  },
+  "kirana-example": {
+    "dev": [
+      "parcel",
+      "serve",
+      "index.html",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--no-cache"
+    ],
+    "edit": "src/index.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@kirana-style/parcel-transformer": "0.1.0",
+    "@kirana-style/postcss": "0.1.0",
+    "parcel": "^2.16.4",
+    "postcss": "^8.5.29"
+  }
+}

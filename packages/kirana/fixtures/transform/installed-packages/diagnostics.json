@@ -1,0 +1,90 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 545,
+      "end": 550
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1103",
+    "name": "unresolved-import",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 645,
+      "end": 652
+    },
+    "message": "`missing` depends on \"not-installed\" from input.tsx, which cannot be resolved, so it compiles as a runtime value",
+    "help": [
+      "install the project's dependencies, or check the specifier and the tsconfig paths"
+    ]
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 645,
+      "end": 652
+    },
+    "message": "marginTop is set at runtime through --k9",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 676,
+      "end": 683
+    },
+    "message": "marginBottom is set at runtime through --k6",
+    "help": []
+  },
+  {
+    "code": "KRN1103",
+    "name": "unresolved-import",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 705,
+      "end": 710
+    },
+    "message": "`again` depends on \"not-installed\" from reexports.ts, which cannot be resolved, so it compiles as a runtime value",
+    "help": [
+      "install the project's dependencies, or check the specifier and the tsconfig paths"
+    ]
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 705,
+      "end": 710
+    },
+    "message": "marginLeft is set at runtime through --k7",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 728,
+      "end": 736
+    },
+    "message": "height is set at runtime through --k6V",
+    "help": []
+  }
+]

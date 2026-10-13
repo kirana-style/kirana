@@ -1,0 +1,32 @@
+{
+  "name": "kirana-example-next-turbopack",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "next build",
+    "start": "next start"
+  },
+  "kirana-example": {
+    "output": ".next/static",
+    "dev": [
+      "next",
+      "dev",
+      "--port",
+      "{port}",
+      "--hostname",
+      "127.0.0.1"
+    ],
+    "edit": "app/page.jsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "next": "^16.3.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@kirana-style/next": "0.1.0",
+    "@kirana-style/postcss": "0.1.0",
+    "postcss": "^8.5.28"
+  }
+}

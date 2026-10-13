@@ -1,0 +1,27 @@
+---
+import "@kirana-style/core/stylesheet.css"
+import { css } from "@kirana-style/core"
+
+/**
+ * The probe the example runner reads back from the browser, rendered on the server. Styles are
+ * declared in the frontmatter and applied with `sx`, which Kirana rewrites into `class` and `style`.
+ */
+const styles = {
+  probe: css({
+    color: "rgb(1, 2, 3)",
+    paddingTop: "7px",
+    backgroundColor: { base: "rgb(250, 250, 250)", ":hover": "rgb(4, 5, 6)" },
+  }),
+}
+const offset = css({ marginLeft: `${Astro.url.pathname.length % 3}px` })
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Kirana on Astro</title>
+  </head>
+  <body>
+    <p data-probe="" class="probe" sx={[styles.probe, offset]}>Styled by Kirana.</p>
+  </body>
+</html>

@@ -1,0 +1,100 @@
+[
+  {
+    "code": "KRN1209",
+    "name": "invalid-view-transition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 969,
+      "end": 1012
+    },
+    "message": "a view transition has four parts, group, imagePair, old and new, each a style object",
+    "help": []
+  },
+  {
+    "code": "KRN1209",
+    "name": "invalid-view-transition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1087
+    },
+    "message": "a view-transition part applies under media() and supports() conditions only",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1115,
+      "end": 1138
+    },
+    "message": "viewTransition() takes an object of parts",
+    "help": [
+      "for example viewTransition({ old: { animationName: fadeOut } })"
+    ]
+  },
+  {
+    "code": "KRN1209",
+    "name": "invalid-view-transition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1166,
+      "end": 1213
+    },
+    "message": "a view-transition part takes property names as keys",
+    "help": []
+  },
+  {
+    "code": "KRN1209",
+    "name": "invalid-view-transition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1239,
+      "end": 1305
+    },
+    "message": "a view-transition part applies under media() and supports() conditions only",
+    "help": []
+  },
+  {
+    "code": "KRN1209",
+    "name": "invalid-view-transition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1335,
+      "end": 1366
+    },
+    "message": "a view transition has four parts, group, imagePair, old and new, each a style object",
+    "help": []
+  },
+  {
+    "code": "KRN1201",
+    "name": "unknown-property",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1397,
+      "end": 1450
+    },
+    "message": "animationDurationn is not a CSS property",
+    "help": []
+  },
+  {
+    "code": "KRN1209",
+    "name": "invalid-view-transition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1516,
+      "end": 1569
+    },
+    "message": "animationDuration: a definition's values must be known at build time",
+    "help": []
+  }
+]

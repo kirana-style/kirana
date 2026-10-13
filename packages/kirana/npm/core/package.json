@@ -1,0 +1,56 @@
+{
+  "name": "@kirana-style/core",
+  "version": "0.1.0",
+  "description": "Kirana authoring API: typed styles, tokens, recipes and relations, compiled away at build time.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/core"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "sideEffects": [
+    "./stylesheet.css"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./internal": "./src/internal.ts",
+    "./config": "./src/config.ts",
+    "./class-map": "./src/class-map.ts",
+    "./react": {
+      "types": "./src/react.d.ts"
+    },
+    "./preact": {
+      "types": "./src/preact.d.ts"
+    },
+    "./solid": {
+      "types": "./src/solid.d.ts"
+    },
+    "./qwik": {
+      "types": "./src/qwik.d.ts"
+    },
+    "./vue": {
+      "types": "./src/vue.d.ts"
+    },
+    "./svelte": {
+      "types": "./src/svelte.d.ts"
+    },
+    "./astro": {
+      "types": "./src/astro.d.ts"
+    },
+    "./stylesheet.css": {
+      "types": "./stylesheet.d.ts",
+      "default": "./stylesheet.css"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "csstype": "^3.2.3"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "kirana-example-ember",
+  "private": true,
+  "exports": {
+    "./*": "./app/*"
+  },
+  "scripts": {
+    "build": "vite build"
+  },
+  "kirana-example": {
+    "dev": [
+      "vite",
+      "--port",
+      "{port}",
+      "--strictPort",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "app/templates/application.gjs"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "@kirana-style/ember": "0.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.7",
+    "@babel/plugin-transform-runtime": "^7.29.7",
+    "@babel/runtime": "^7.29.7",
+    "@ember/optional-features": "^3.0.0",
+    "@embroider/compat": "^4.1.25",
+    "@embroider/config-meta-loader": "^1.0.0",
+    "@embroider/core": "^4.6.7",
+    "@embroider/macros": "^1.21.1",
+    "@embroider/router": "^3.0.6",
+    "@embroider/vite": "^1.7.13",
+    "@glimmer/component": "^2.1.1",
+    "@kirana-style/vite": "0.1.0",
+    "@rollup/plugin-babel": "^7.1.0",
+    "babel-plugin-ember-template-compilation": "^4.0.0",
+    "decorator-transforms": "^2.4.0",
+    "ember-cli": "~7.3.0",
+    "ember-cli-babel": "^8.3.2",
+    "ember-load-initializers": "^3.0.1",
+    "ember-resolver": "^13.2.0",
+    "ember-source": "~7.3.0",
+    "vite": "^8.3.0"
+  },
+  "ember": {
+    "edition": "octane"
+  }
+}

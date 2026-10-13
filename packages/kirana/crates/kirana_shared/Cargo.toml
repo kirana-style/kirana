@@ -1,0 +1,15 @@
+[package]
+name = "kirana_shared"
+description = "Hashing, base-62 text, fast maps and the file system trait shared by every Kirana crate."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+rustc-hash = { workspace = true }
+xxhash-rust = { workspace = true }
+
+[lints]
+workspace = true

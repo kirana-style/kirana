@@ -1,0 +1,37 @@
+{
+  "name": "@kirana-style/rspack",
+  "version": "0.1.0",
+  "description": "Kirana for Rspack and Rsbuild: the webpack adapter, which Rspack runs unchanged, and an Rsbuild plugin.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/rspack"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/webpack": "workspace:*"
+  },
+  "peerDependencies": {
+    "@rspack/core": "^1.7.0 || ^2.2.8",
+    "@rsbuild/core": "^2.2.11"
+  },
+  "peerDependenciesMeta": {
+    "@rsbuild/core": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@rsbuild/core": "catalog:"
+  }
+}

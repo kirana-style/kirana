@@ -1,0 +1,263 @@
+---
+source: crates/kirana_migrate/tests/tailwind.rs
+expression: migration.source
+---
+import { mergeProps } from "@base-ui/react/merge-props"
+import { useRender } from "@base-ui/react/use-render"
+import * as Primitive from "react"
+import { Profiler } from "react"
+
+import { cn, other } from "./utils"
+import { css, props as styleProps, recipe, relation, select } from "@kirana-style/core"
+import type { Sx } from "@kirana-style/core"
+import { compose, fontSize, lineHeight, radius, space } from "./scales"
+import { theme } from "./theme"
+
+const badgeGroup = relation("badge")
+const cardGroup = relation("card")
+const group = relation("group")
+const peer = relation("peer")
+const xGroup = relation("x")
+
+const styles = {
+  badge: css({
+    opacity: "50%",
+  }),
+  card: css({
+    display: "flex",
+    flexDirection: { base: "column", '[data-orientation="horizontal"]': "row" },
+    gap: space[4],
+    borderRadius: radius.lg,
+    padding: space[4],
+    fontSize: fontSize.sm,
+    lineHeight: lineHeight.sm,
+    containerType: "inline-size",
+    containerName: "card",
+  }),
+  card2: css({
+    backgroundColor: theme.muted,
+  }),
+  card3: css({
+    textDecorationLine: "underline",
+    padding: space[2],
+  }),
+  card4: css({
+    borderStyle: "solid",
+    borderWidth: "1px",
+  }),
+  card5: css({
+    opacity: "50%",
+  }),
+  cardTitle: css({
+    fontWeight: "600",
+    fontSize: { [cardGroup.within('[data-size="sm"]')]: fontSize.sm },
+    lineHeight: { [cardGroup.within('[data-size="sm"]')]: lineHeight.sm },
+    textDecorationLine: { [cardGroup.within(":hover")]: "underline" },
+    padding: { "@container card (width >= 28rem)": space[2] },
+  }),
+  cardSpan: css({
+    width: space[4],
+    height: space[4],
+  }),
+  cardLabel: css({
+    opacity: { [peer.after(":disabled")]: "50%" },
+    marginTop: `calc(${space[2]} * -1)`,
+    width: "calc(1/2 * 100%)",
+    backgroundColor: "rgb(1,2,3)",
+    [select.descendant("svg")]: {
+      width: space[4],
+      height: space[4],
+    },
+    "::after": {
+      content: '""',
+      position: "absolute",
+      backgroundColor: { ":hover": theme.muted },
+    },
+  }),
+  cardDiv: css({
+    padding: space[2],
+  }),
+  cardDiv2: css({
+    // tailwind: no-scrollbar — `no-scrollbar` is a custom utility in your CSS; declare it under `utilities.utilities` and run again
+    // tailwind: data-open:block — `data-open:` is a custom variant in your CSS; declare it under `utilities.variants` and run again
+    padding: { "*": null, base: space[4] },
+    "--gap": { "@media (width >= 48rem)": `calc(${space[1]} * 4)` },
+    contentVisibility: "auto",
+  }),
+  cardDiv3: css({
+    // tailwind: *:p-2 — `*:p-2`: `*` is not a contextual target: an element name, attribute selectors and pseudo-classes
+    // tailwind: hover:*:p-2 — `hover:*:p-2`: a contextual target under a condition of the element itself; write it in css() by hand
+    // tailwind: *:after:p-2 — `*:after:p-2`: `::after` is not a contextual target: an element name, attribute selectors and pseudo-classes
+    // tailwind: [&_svg]:[&_a]:p-2 — `[&_svg]:[&_a]:p-2`: a contextual target under a condition of the element itself; write it in css() by hand
+    [select.child('[data-slot="x"]')]: {
+      padding: space[2],
+    },
+    [select.descendant("svg")]: {
+      width: space[2],
+      height: space[2],
+    },
+    [select.child(":hover")]: {
+      padding: space[2],
+    },
+    [select.child("a:hover")]: {
+      padding: space[2],
+    },
+  }),
+  cardDiv4: css({
+    // tailwind: group-md:p-2 — `group-md:p-2`: `@media (width >= 48rem)` is not a state an anchor can have
+    // tailwind: peer-bogus:p-2 — `peer-bogus:p-2`: no variant `bogus`
+    // tailwind: bogus-4 — `bogus-4` is not a utility (did you mean `border`, `bg`, `block`?)
+    // tailwind: in-data-[x]:p-2 — `in-data-[x]:p-2`: no variant `in-data-[x]`
+    // tailwind: dark:color — `dark:` on `color` has no light value to pair with; write a light-dark() token
+    padding: { [group.within(":is(.x)")]: space[2] },
+  }),
+  card6: css({
+    padding: space[2],
+  }),
+  card7: css({
+    padding: space[4],
+  }),
+  cardDiv5: css({
+    padding: space[2],
+  }),
+  cardBadge: css({
+    paddingInline: space[2],
+  }),
+  cardSuspense: css({
+    padding: space[4],
+  }),
+  cardProfiler: css({
+    padding: space[2],
+  }),
+  cardThing: css({
+    padding: space[2],
+  }),
+  arrowI: css({
+    padding: space[2],
+  }),
+  root: css({
+    padding: space[2],
+  }),
+}
+
+const badgeVariants = recipe({
+  base: {
+    // tailwind: inline-flex — `inline-flex` is not a utility
+    // tailwind: [&>svg]:p-4! — `[&>svg]:p-4!`: Kirana has no `!important`; the precedence ladder decides
+    borderRadius: radius.lg,
+    borderStyle: "solid",
+    borderWidth: "1px",
+    paddingInline: { base: space[2], ':has([data-icon="inline-end"])': space[1] },
+    fontSize: fontSize.sm,
+    lineHeight: lineHeight.sm,
+    fontWeight: "500",
+    [compose["ring-width"]]: { ":focus-visible": "3px" },
+    boxShadow: { ":focus-visible": `${compose["ring-shadow"]}, ${compose.shadow}` },
+    [compose["ring-shadow"]]: { ":focus-visible": `0 0 0 ${compose["ring-width"]} ${compose["ring-color"]}` },
+    [compose["ring-color"]]: { ":focus-visible": `color-mix(in oklab, ${theme.ring} 50%, transparent)` },
+    [select.child("svg")]: {
+      width: space[2],
+      height: space[2],
+    },
+  },
+  variants: {
+    variant: {
+      default: {
+        backgroundColor: { base: theme.primary, ":is(a)": { ":hover": `color-mix(in oklab, ${theme.primary} 80%, transparent)` } },
+        color: theme["primary-foreground"],
+      },
+      destructive: {
+        backgroundColor: `light-dark(color-mix(in oklab, ${theme.destructive} 10%, transparent), color-mix(in oklab, ${theme.destructive} 20%, transparent))`,
+        color: theme.destructive,
+      },
+      ghost: {
+        backgroundColor: { ":hover": `light-dark(${theme.muted}, color-mix(in oklab, ${theme.muted} 50%, transparent))` },
+      },
+      dynamic: someClasses,
+    },
+    size: {
+      sm: {
+        paddingInline: space[1],
+      },
+      md: {},
+    },
+    tone: shared,
+  },
+  compoundVariants: [
+    {
+      variant: "ghost",
+      size: "sm",
+      css: {
+        paddingInline: space["0.5"],
+      },
+    },
+    {
+      variant: "default",
+      size: "md",
+      css: {
+        gap: space[1],
+      },
+    },
+    spreadCompound,
+  ],
+  defaultVariants: {
+    variant: "default",
+  },
+  ...rest,
+})
+
+const plain = recipe({})
+
+function Badge({
+  sx,
+  variant = "default",
+  render,
+  ...props
+}: useRender.ComponentProps<"span"> & NonNullable<Parameters<typeof badgeVariants>[0]>) {
+  return useRender({
+    defaultTagName: "span",
+    props: mergeProps<"span">(
+      {
+        ...styleProps(badgeGroup.anchor, badgeVariants({ variant }), sx, props.hidden && styles.badge),
+      },
+      props
+    ),
+    render,
+  })
+}
+
+function Card({ sx: cardClass, open, ...props }: React.ComponentProps<"div"> & { open?: boolean }) {
+  return (
+    <div
+      data-slot="card"
+      sx={[cardGroup.anchor, styles.card, open && styles.card2, open && styles.card3, open ? styles.card4 : undefined, (props.hidden) && styles.card5]} className={cn(cardClass, ...props.extra)}
+      {...props}
+    >
+      <p data-slot="card-title" sx={styles.cardTitle}>
+        Title
+      </p>
+      <span sx={[peer.anchor, styles.cardSpan]} />
+      <label sx={styles.cardLabel} />
+      <div className={props.id} />
+      <div sx={styles.cardDiv} className={cn(props.id)} />
+      <div className={cn(props.id, other)} />
+      <div sx={styles.cardDiv2} />
+      <div sx={styles.cardDiv3} />
+      <div sx={styles.cardDiv4} />
+      <div className={(state) => styleProps(styles.card6, state.open && styles.card7).className} />
+      <div sx={styles.cardDiv5} />
+      <div  />
+      <Badge sx={styles.cardBadge} />
+      <Primitive.Suspense {...styleProps(styles.cardSuspense)} />
+      <Profiler {...styleProps(styles.cardProfiler, cn(props.id))} />
+      <Profiler {...styleProps(xGroup.anchor)} />
+      <this.Thing sx={styles.cardThing} />
+    </div>
+  )
+}
+
+const Arrow = ({ sx }: { sx?: Sx }) => <i sx={[styles.arrowI, sx]} />
+
+const button = styleProps(styles.root).className
+
+export { Arrow, Badge, Card, badgeVariants, button, plain }

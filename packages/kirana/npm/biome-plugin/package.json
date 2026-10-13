@@ -1,0 +1,36 @@
+{
+  "name": "@kirana-style/biome-plugin",
+  "version": "0.1.0",
+  "description": "Kirana's lint rules for Biome, as GritQL plugins: a forwarded sx that is not last, className next to styleProps(), dark mode written as prefers-color-scheme or dark:, and class-string helpers.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style/docs/tooling/lint#biome",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/biome-plugin"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "private": true,
+  "files": [
+    "rules",
+    "recommended.json",
+    "strict.json"
+  ],
+  "exports": {
+    "./recommended": "./recommended.json",
+    "./strict": "./strict.json",
+    "./rules/*": "./rules/*",
+    "./package.json": "./package.json"
+  },
+  "peerDependencies": {
+    "@biomejs/biome": ">=2.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@kirana-style/eslint-plugin": "workspace:*",
+    "eslint": "catalog:"
+  }
+}

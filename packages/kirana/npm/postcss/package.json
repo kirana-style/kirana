@@ -1,0 +1,32 @@
+{
+  "name": "@kirana-style/postcss",
+  "version": "0.1.0",
+  "description": "Kirana for PostCSS: compiles the project into the stylesheet at the `@kirana;` directive. Next.js with Turbopack, and any PostCSS pipeline.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/postcss"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*",
+    "@kirana-style/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "postcss": "^8.4.0"
+  },
+  "devDependencies": {
+    "postcss": "catalog:"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "plugins": [
+    "./node_modules/@kirana-style/biome-plugin/rules/sx-last.grit",
+    "./node_modules/@kirana-style/biome-plugin/rules/no-conflicting-props.grit",
+    "./node_modules/@kirana-style/biome-plugin/rules/no-dark-variant.grit",
+    "./node_modules/@kirana-style/biome-plugin/rules/no-class-helpers.grit"
+  ]
+}

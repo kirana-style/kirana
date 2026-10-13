@@ -1,0 +1,29 @@
+---
+source: crates/kirana_migrate/tests/tailwind.rs
+expression: notes(&migration)
+---
+[
+    "`group` (relation \"group\") is read here and anchored in no migrated file: apply its anchor where the state lives",
+    "`cn` is still used outside className; its import stays",
+    "`inline-flex` is not a utility",
+    "`[&>svg]:p-4!`: Kirana has no `!important`; the precedence ladder decides",
+    "a variant option that is not a static string; left as it was",
+    "a cva base that is not a static string; left out",
+    "`cn(cardClass, ...props.extra)` is not a static class string; it stays a class",
+    "`props.id` is not a static class string; it stays a class",
+    "`cn(props.id)` is not a static class string; it stays a class",
+    "`cn(props.id, other)` is not a static class string; it stays a class",
+    "`no-scrollbar` is a custom utility in your CSS; declare it under `utilities.utilities` and run again",
+    "`data-open:` is a custom variant in your CSS; declare it under `utilities.variants` and run again",
+    "`*:p-2`: `*` is not a contextual target: an element name, attribute selectors and pseudo-classes",
+    "`hover:*:p-2`: a contextual target under a condition of the element itself; write it in css() by hand",
+    "`*:after:p-2`: `::after` is not a contextual target: an element name, attribute selectors and pseudo-classes",
+    "`[&_svg]:[&_a]:p-2`: a contextual target under a condition of the element itself; write it in css() by hand",
+    "`group-md:p-2`: `@media (width >= 48rem)` is not a state an anchor can have",
+    "`peer-bogus:p-2`: no variant `bogus`",
+    "`bogus-4` is not a utility (did you mean `border`, `bg`, `block`?)",
+    "`in-data-[x]:p-2`: no variant `in-data-[x]`",
+    "`dark:` on `color` has no light value to pair with; write a light-dark() token",
+    "a className function of state: its `cn()` calls compile through `props()`; any other class string it returns is left as it was",
+    "`cn(props.id)` is not a static class string; it stays a class",
+]

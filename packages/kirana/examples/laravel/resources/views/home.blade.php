@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Kirana on Laravel</title>
+    <link rel="stylesheet" href="{{ asset('kirana-style/kirana.css') }}">
+  </head>
+  <body>
+    {{-- The probe the example runner reads back: its classes come from the class map. --}}
+    <p data-probe class="@kirana('probe', 'quiet')">Styled by Kirana.</p>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+---
+title: React
+description: Install Kirana in a React app on Vite - the plugin, the stylesheet, sx types and a first component.
+section: frameworks
+order: 2
+keywords: [react, vite, install, setup, sx, className]
+---
+
+# React
+
+`sx` compiles to `className` (and `style` for values known only at runtime).
+Tested by `examples/vite-react`.
+
+> [!NOTE] Not on npm yet
+> The packages are packed and install-tested on every change, but not published.
+> Until they are, install them from tarballs as
+> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
+> of this page is the same either way.
+
+## 1. Install
+
+<!-- ::install packages="@kirana-style/core" dev="@kirana-style/vite" -->
+
+## 2. Add the plugin
+
+Kirana goes before the React plugin, so React only ever sees compiled JSX:
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
+
+export default defineConfig({ plugins: [kirana(), react()] })
+```
+
+## 3. Import the stylesheet
+
+Once, in your entry, before your own global CSS:
+
+```tsx file="src/main.tsx"
+import "@kirana-style/core/stylesheet.css"
+```
+
+## 4. Type `sx`
+
+```json file="tsconfig.json"
+{ "compilerOptions": { "types": ["@kirana-style/core/react"] } }
+```
+
+## 5. Write a component
+
+```tsx file="src/button.tsx"
+import { css } from "@kirana-style/core"
+
+const styles = {
+  button: css({
+    paddingInline: "1rem",
+    borderRadius: "0.5rem",
+    backgroundColor: { base: "#111", ":hover": "#333" },
+    color: "white",
+  }),
+}
+
+export function Button(props: React.ComponentProps<"button">) {
+  return <button {...props} sx={styles.button} />
+}
+```
+
+Run `vite`: the page is styled, and editing a value updates it without a reload.
+
+## Next
+
+- [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions) — what
+  goes inside `css()`.
+- [The Vite plugin](/docs/integrations/vite) — its options and what it does in
+  development and in a build.
+- Not on Vite? [Other bundlers](/docs/integrations/bundlers).

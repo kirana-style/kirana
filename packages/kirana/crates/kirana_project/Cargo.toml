@@ -1,0 +1,33 @@
+[package]
+name = "kirana_project"
+description = "The Kirana project façade: module graph, cross-file resolution, atom registry and stylesheet."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+kirana_css_data = { workspace = true }
+kirana_cascade = { workspace = true }
+kirana_config = { workspace = true }
+kirana_diagnostics = { workspace = true }
+kirana_emit = { workspace = true }
+kirana_evaluator = { workspace = true }
+kirana_frontend = { workspace = true }
+kirana_ir = { workspace = true }
+kirana_shared = { workspace = true }
+kirana_transform = { workspace = true }
+lightningcss = { workspace = true }
+oxc_resolver = { workspace = true }
+rayon = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+rayon = { workspace = true }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

@@ -1,0 +1,120 @@
+[
+  {
+    "code": "KRN1603",
+    "name": "dynamic-key",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 394,
+      "end": 435
+    },
+    "message": "a property or condition key must be known at build time",
+    "help": [
+      "use a fixed key, or move the choice into a conditional value"
+    ]
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 404,
+      "end": 425
+    },
+    "message": "\"hover\": expected a pseudo-class, an attribute selector or an at-rule",
+    "help": []
+  },
+  {
+    "code": "KRN1603",
+    "name": "dynamic-key",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 463,
+      "end": 507
+    },
+    "message": "a property or condition key must be known at build time",
+    "help": [
+      "use a fixed key, or move the choice into a conditional value"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 473,
+      "end": 497
+    },
+    "message": "a relation state must be a selector string",
+    "help": []
+  },
+  {
+    "code": "KRN1403",
+    "name": "relation-placement",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 836,
+      "end": 872
+    },
+    "message": "reads a relation `within` its anchor, but no ancestor in this tree carries the anchor",
+    "help": [
+      "move the anchor to an element that wraps this one, or read it with `after`"
+    ]
+  },
+  {
+    "code": "KRN1403",
+    "name": "relation-placement",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 879,
+      "end": 894
+    },
+    "message": "reads a relation `after` its anchor, but no earlier sibling carries the anchor",
+    "help": [
+      "put the anchor on an earlier sibling, or read it with `within`"
+    ]
+  },
+  {
+    "code": "KRN1403",
+    "name": "relation-placement",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 934,
+      "end": 951
+    },
+    "message": "reads a relation `before` its anchor, but no later sibling carries the anchor",
+    "help": [
+      "put the anchor on a later sibling"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1076,
+      "end": 1104
+    },
+    "message": "relation() takes a string name",
+    "help": []
+  },
+  {
+    "code": "KRN1402",
+    "name": "relation-unused",
+    "severity": "warning",
+    "file": "",
+    "span": {
+      "start": 0,
+      "end": 0
+    },
+    "message": "relation \"unused\" is anchored but never read",
+    "help": []
+  }
+]

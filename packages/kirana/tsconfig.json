@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true
+  },
+  "include": [
+    "npm/*/src/**/*.ts",
+    "editors/vscode/src/**/*.ts",
+    "editors/vscode/test/**/*.ts",
+    "npm/*/test/**/*.ts",
+    "npm/*/bin/**/*.ts",
+    "npm/*/scripts/**/*.ts",
+    "scripts/**/*.ts",
+    "vitest.config.ts",
+    "examples/run.ts",
+    "examples/compare-atoms.ts"
+  ],
+  "exclude": [
+    "npm/vite/test/app",
+    "npm/vite/test/.app-*",
+    "npm/rolldown/test/app",
+    "npm/rolldown/test/.app-*",
+    "npm/webpack/test/app",
+    "npm/webpack/test/.app-*",
+    "npm/bun/test/.app-*"
+  ]
+}

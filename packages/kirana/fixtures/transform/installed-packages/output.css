@@ -1,0 +1,33 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  :root {
+    --kvaM74: oklch(0.5 0.2 30);
+  }
+}
+@layer kirana.atoms {
+  .k0_HV2H {
+    padding: 1rem;
+  }
+  .kJ_ASX8 {
+    gap: 2px;
+  }
+  .k50_AEIm {
+    color: var(--kvaM74);
+  }
+  .k6V_yYCA {
+    height: var(--k6V);
+  }
+  .k6_fYDk {
+    margin-bottom: var(--k6);
+  }
+  .k7_O8Bf {
+    margin-left: var(--k7);
+  }
+  .k9_ZhSI {
+    margin-top: var(--k9);
+  }
+  .kaF_ZFLY {
+    width: var(--kaF);
+  }
+}

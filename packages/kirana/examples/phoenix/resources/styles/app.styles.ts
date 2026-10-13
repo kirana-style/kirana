@@ -1,0 +1,13 @@
+import { css } from "@kirana-style/core"
+
+/**
+ * The styles the HEEx templates name. `kirana build` and `kirana dev` write their class strings to the
+ * class map, which `kirana/1` reads.
+ */
+export const probe = css({
+  color: "rgb(1, 2, 3)",
+  paddingTop: "7px",
+  backgroundColor: { base: "rgb(250, 250, 250)", ":hover": "rgb(4, 5, 6)" },
+})
+
+export const quiet = css({ marginLeft: "1px" })

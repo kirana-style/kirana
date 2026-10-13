@@ -1,0 +1,16 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  :root {
+    --kvHbtQ: 1px;
+    --kvtQsD: 2px;
+  }
+}
+@layer kirana.atoms {
+  .k6V_rjEI {
+    height: var(--kvtQsD);
+  }
+  .kaF_HIxI {
+    width: var(--kvHbtQ);
+  }
+}

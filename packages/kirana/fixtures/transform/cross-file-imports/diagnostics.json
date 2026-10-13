@@ -1,0 +1,28 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 227,
+      "end": 260
+    },
+    "message": "color is set at runtime through --k50",
+    "help": []
+  },
+  {
+    "code": "KRN1103",
+    "name": "unresolved-import",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 238,
+      "end": 249
+    },
+    "message": "`missingFile` depends on \"./does-not-exist\" from input.tsx, which cannot be resolved, so it compiles as a runtime value",
+    "help": [
+      "install the project's dependencies, or check the specifier and the tsconfig paths"
+    ]
+  }
+]

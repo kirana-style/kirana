@@ -1,0 +1,138 @@
+# Kirana
+
+> Styling, compiled. A compile-time styling system for the modern web: typed
+> styles next to your components, compiled into small, predictable CSS with no
+> runtime style engine.
+
+Kirana is pre-release. The `@kirana-style/*` packages are version 0.1.0 and not
+published to npm; the name is a working name. Pages state what is built and
+what is planned.
+
+## Beyond the docs
+
+- [The compiler](https://kirana.style/compiler): the build-time pipeline, and what reaches the browser
+- [Migrate](https://kirana.style/migrate): the Tailwind and StyleX codemods, measured on a whole codebase
+- [Compare](https://kirana.style/compare): runtime CSS-in-JS, StyleX, Panda CSS and Tailwind, with sources
+- [Ecosystem](https://kirana.style/ecosystem): every package, bundler, framework and tool, with status
+- [Changelog](https://kirana.style/changelog): milestones and sprints, until there are releases
+- [Why Kirana](https://kirana.style/why), [Open source](https://kirana.style/open-source), [License](https://kirana.style/license)
+
+## Start
+
+- [Introduction](https://kirana.style/docs/index.md): Kirana is a compile-time styling system for the modern web. Write typed styles next to your components; ship small, predictable CSS.
+- [Quick start](https://kirana.style/docs/start/quick-start.md): Style a component with Kirana in about ten minutes, on the path that works today.
+- [Installation](https://kirana.style/docs/start/installation.md): Let kirana init set your project up, or follow your framework's guide - React, Next.js, React Router, Vue, Svelte, Astro, Angular, Laravel, Rails, Phoenix and more, or none - plus how to install before the packages are on npm.
+- [Your first component](https://kirana.style/docs/start/first-component.md): Build a button with a hover state and a quiet variant, and read the CSS the compiler produced from it.
+- [How it works](https://kirana.style/docs/start/how-it-works.md): What happens between the file you write and the stylesheet the browser loads, and what is left at runtime.
+- [Mental model](https://kirana.style/docs/start/mental-model.md): Five ideas that make Kirana predictable - properties not classes, entries not properties, a ladder not specificity, styling only what you render, and an editor that shows what each element gets.
+- [Why Kirana](https://kirana.style/docs/start/why-kirana.md): Why CSS-in-JS got a bad name, what a compiler changes, how the editor gives back the class list you could read, what Kirana answers that StyleX left open, and why styles written down the page are a feature.
+- [Habits for a new project](https://kirana.style/docs/start/tips.md): Fifteen habits from building and migrating three applications on Kirana - the ones that would have saved us the most time on day one.
+
+## Frameworks
+
+- [Get started](https://kirana.style/docs/frameworks/overview.md): Install Kirana with your framework, on your bundler, or from the command line for server templates - a guide for each, and every one tested on every change.
+- [React](https://kirana.style/docs/frameworks/react.md): Install Kirana in a React app on Vite - the plugin, the stylesheet, sx types and a first component.
+- [Next.js](https://kirana.style/docs/frameworks/nextjs.md): Install Kirana in a Next.js app - Turbopack (the default) or webpack, one withKirana, the stylesheet through PostCSS, and server components.
+- [React Router](https://kirana.style/docs/frameworks/react-router.md): Install Kirana in a React Router app - framework mode on Vite, sx compiles to className, server rendering and single-page mode alike.
+- [TanStack Start](https://kirana.style/docs/frameworks/tanstack-start.md): Install Kirana in a TanStack Start app - the plugin, the root document, stylesheet order and server rendering.
+- [Gatsby](https://kirana.style/docs/frameworks/gatsby.md): Install Kirana in a Gatsby site - one plugin adds Kirana to every webpack stage, so the server render and the browser name the same classes.
+- [Preact](https://kirana.style/docs/frameworks/preact.md): Install Kirana in a Preact app on Vite - sx compiles to class, detected from jsxImportSource.
+- [Solid](https://kirana.style/docs/frameworks/solid.md): Install Kirana in a Solid app on Vite - sx compiles to class, detected from jsxImportSource.
+- [Vue](https://kirana.style/docs/frameworks/vue.md): Install Kirana in a Vue app on Vite - styles in the script, :sx in the template, compiled before Vue sees the component.
+- [Nuxt](https://kirana.style/docs/frameworks/nuxt.md): Install Kirana in a Nuxt app - the Vite plugin in nuxt.config, the stylesheet in css, and :sx in components rendered on the server.
+- [Svelte](https://kirana.style/docs/frameworks/svelte.md): Install Kirana in a Svelte app on Vite - styles in the script, sx on elements, compiled before Svelte sees the component.
+- [SvelteKit](https://kirana.style/docs/frameworks/sveltekit.md): Install Kirana in a SvelteKit app - the Vite plugin before sveltekit(), the stylesheet in the root layout, and sx in server-rendered components.
+- [Astro](https://kirana.style/docs/frameworks/astro.md): Install Kirana in an Astro site - the integration, styles in the frontmatter, sx on elements, and the stylesheet Astro links or inlines.
+- [Qwik](https://kirana.style/docs/frameworks/qwik.md): Install Kirana in a Qwik 2 app on Vite - sx compiles to class, detected from jsxImportSource, rendered on the server and resumed in the browser.
+- [Angular](https://kirana.style/docs/frameworks/angular.md): Install Kirana in an Angular app - the Angular CLI through Kirana's builders, or Analog on Vite - and style templates with the [sx] directive.
+- [Ember.js](https://kirana.style/docs/frameworks/ember.md): Install Kirana in an Ember app on Embroider and Vite - css() in .gjs and .gts files, and the sx helper in templates.
+- [Meteor](https://kirana.style/docs/frameworks/meteor.md): Install Kirana in a Meteor 3.4+ app - Meteor bundles app code with Rspack, and Kirana's Rspack plugin goes in its configuration.
+- [No framework](https://kirana.style/docs/frameworks/vanilla.md): Use Kirana without a framework - style handles are class strings, merged with cx, for plain TypeScript, web components and server templates.
+
+## Server frameworks
+
+- [Server templates](https://kirana.style/docs/frameworks/server-templates.md): How Kirana styles Blade, Twig, ERB, HEEx and Edge templates - styles in TypeScript modules, a class map the CLI writes, and a small helper per template language.
+- [Laravel](https://kirana.style/docs/frameworks/laravel.md): Install Kirana in a Laravel app - styles in TypeScript modules, the Kirana CLI beside artisan serve, and @kirana in Blade.
+- [Symfony](https://kirana.style/docs/frameworks/symfony.md): Install Kirana in a Symfony app - styles in TypeScript modules, the Kirana CLI, and kirana() in Twig.
+- [Ruby on Rails](https://kirana.style/docs/frameworks/rails.md): Install Kirana in a Rails app - styles in TypeScript modules, the Kirana CLI in bin/dev, and the kirana helper in ERB views.
+- [Phoenix](https://kirana.style/docs/frameworks/phoenix.md): Install Kirana in a Phoenix app - styles in TypeScript modules, the Kirana CLI as a watcher, and kirana/1 in HEEx.
+- [AdonisJS](https://kirana.style/docs/frameworks/adonisjs.md): Install Kirana in an AdonisJS app - styles in TypeScript modules, the Kirana CLI, and kirana() in Edge templates.
+
+## Styling
+
+- [Writing styles](https://kirana.style/docs/styling/styles.md): css() and the style object - property names, values, custom properties, and what the compiler refuses.
+- [The sx prop](https://kirana.style/docs/styling/sx.md): How sx works on elements and on components, what it compiles to, and how className and style survive it.
+- [Conditions](https://kirana.style/docs/styling/conditions.md): Hover, focus, attributes, breakpoints and container queries - all written inside the value they change.
+- [Utility strings](https://kirana.style/docs/styling/utilities.md): Write sx as Tailwind-style utility strings; each one compiles to the same atoms as the style object it stands for.
+- [Merging and removal](https://kirana.style/docs/styling/merging.md): How styles combine per entry, and how to remove a value with null.
+- [Precedence](https://kirana.style/docs/styling/precedence.md): The ladder that decides which value wins, why specificity is not part of it, and what to do when the compiler says two values are ambiguous.
+- [Styling other people's components](https://kirana.style/docs/styling/external-components.md): props() for components that do not read sx, and what the sx-on-external-component diagnostic is telling you.
+- [Relations](https://kirana.style/docs/styling/relations.md): Style an element from another element's state - what group and peer variants do, with the anchor stated in the source.
+- [Contextual styles](https://kirana.style/docs/styling/contextual.md): select.descendant and select.child - styling elements below you, in a layer their own styles still beat.
+- [Recipes](https://kirana.style/docs/styling/recipes.md): recipe() for variants, compound variants and slots - resolved at build time when the options are known.
+- [Animation](https://kirana.style/docs/styling/animation.md): keyframes(), transitions, and animating a custom property that the browser can interpolate.
+- [Values known at runtime](https://kirana.style/docs/styling/dynamic.md): What happens to a style that depends on props - class expressions, the custom-property bridge, and the 1 kB runtime.
+- [Fallback values](https://kirana.style/docs/styling/fallbacks.md): firstThatWorks() writes one property several times, so a browser that does not know the preferred value keeps the one before it.
+- [Anchor positioning](https://kirana.style/docs/styling/anchor-positioning.md): positionTry() defines an @position-try fallback for an anchored element, checked at build time.
+- [View transitions](https://kirana.style/docs/styling/view-transitions.md): viewTransition() styles the pseudo-elements of a view transition, and is at once a style for sx and the class name a framework's transition API takes.
+
+## Tokens and theming
+
+- [Tokens](https://kirana.style/docs/tokens/overview.md): defineTokens, inlined values versus custom properties, and how a token stays a typed constant.
+- [Starting with no preset, then scales](https://kirana.style/docs/tokens/preset-scales.md): Kirana ships no design decisions. Start with plain CSS values, adopt @kirana-style/preset-scales when you want a vocabulary, and keep the parts you need.
+- [Semantic tokens](https://kirana.style/docs/tokens/semantic-tokens.md): Naming your decisions - a variable layer with light-dark() pairs, so dark mode needs no variant.
+- [Themes and modes](https://kirana.style/docs/tokens/themes-and-modes.md): mode.system, mode.light and mode.dark on the root element, and defineTheme for a subtree.
+
+## Configuration
+
+- [The configuration file](https://kirana.style/docs/config/file.md): Where kirana.config.ts lives, how it is found, and what overrides what.
+- [Configuration reference](https://kirana.style/docs/config/reference.md): Every key that exists today, with its type, default and what it changes.
+- [Layers and global CSS](https://kirana.style/docs/config/layers.md): Where a reset goes, why Kirana emits nothing unlayered, and how to keep third-party CSS below your styles.
+
+## Integrations
+
+- [Vite](https://kirana.style/docs/integrations/vite.md): The @kirana-style/vite plugin - options, the stylesheet entry, hot updates and the built asset.
+- [Bundlers](https://kirana.style/docs/integrations/bundlers.md): Kirana on every bundler - Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun, esbuild, PostCSS and Jest, each with its own guide and tested example.
+- [Rolldown](https://kirana.style/docs/integrations/rolldown.md): Kirana on Rolldown without Vite - the plugin compiles styles and writes the stylesheet as its own asset.
+- [webpack](https://kirana.style/docs/integrations/webpack.md): Kirana on webpack 5 - a pre loader that reads sx before your JSX compiler, and a plugin that writes the stylesheet before minification.
+- [Rspack and Rsbuild](https://kirana.style/docs/integrations/rspack.md): Kirana on Rspack and Rsbuild - Rsbuild's pluginKirana, or the webpack plugin, which Rspack runs unchanged.
+- [Parcel](https://kirana.style/docs/integrations/parcel.md): Kirana on Parcel - a transformer compiles styles in scripts, and @kirana-style/postcss writes the stylesheet where @kirana; stands.
+- [Bun](https://kirana.style/docs/integrations/bun.md): Kirana with Bun's bundler and dev server - one plugin for Bun.build and bunfig.toml.
+- [esbuild](https://kirana.style/docs/integrations/esbuild.md): Kirana on esbuild - a plugin that compiles styles and finishes the bundled CSS, on disk, in memory, in watch mode and when serving.
+- [PostCSS](https://kirana.style/docs/integrations/postcss.md): The @kirana-style/postcss plugin - the whole project's stylesheet where @kirana; stands, for pipelines whose scripts another step compiles.
+- [Jest](https://kirana.style/docs/integrations/jest.md): Kirana under Jest - a transformer that compiles styles, then hands the module to the transformer you already use.
+- [Ecosystem and status](https://kirana.style/docs/integrations/ecosystem.md): What works today, what is planned, and which milestone each thing belongs to.
+
+## Tooling
+
+- [The CLI](https://kirana.style/docs/tooling/cli.md): kirana init, doctor, dev, build, check, analyze, export, trace, migrate and lsp - what each one does, and what it prints.
+- [Editor support](https://kirana.style/docs/tooling/editor.md): The Kirana language server in VS Code, Cursor, Windsurf, Antigravity, Zed, Neovim and Helix — the compiled CSS on hover, which entry wins and why, swatches, an inline summary, completion and the compiler's diagnostics as you type.
+- [Lint](https://kirana.style/docs/tooling/lint.md): @kirana-style/eslint-plugin under Oxlint or ESLint, and @kirana-style/biome-plugin under Biome: the compiler's diagnostics, and the overrides and forwarding mistakes that lose styles silently.
+- [Diagnostics reference](https://kirana.style/docs/tooling/diagnostics.md): Every code the compiler can emit, its default severity, and which ones you can re-level.
+- [Debugging styles](https://kirana.style/docs/tooling/debugging.md): Why doesn't my style apply? A short list, in the order worth checking.
+
+## Migration
+
+- [Migrating from Tailwind](https://kirana.style/docs/migration/from-tailwind.md): The mental shift, the utility mapping, and the pitfalls that actually cost time.
+- [Migrating from StyleX](https://kirana.style/docs/migration/from-stylex.md): The API maps almost directly - and the one semantic difference that will bite you.
+
+## Advanced
+
+- [The output](https://kirana.style/docs/advanced/output.md): What the stylesheet looks like, how classes are named, and what determinism buys you.
+- [Building a design system](https://kirana.style/docs/advanced/design-system.md): How the layered system in this repository is put together, and why each layer exists.
+- [Publishing a library](https://kirana.style/docs/advanced/libraries.md): Ship a component library styled with Kirana - styles uncompiled in the package, compiled by each app that lists it in libraries.
+- [Verifying a migration](https://kirana.style/docs/advanced/conformance.md): How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.
+
+## Reference
+
+- [API reference](https://kirana.style/docs/reference/api.md): Every export of @kirana-style/core, with its signature and what it returns.
+
+## Project
+
+- [What works today](https://kirana.style/docs/project/status.md): A single honest table of the built, the partial and the planned.
+- [Roadmap](https://kirana.style/docs/project/roadmap.md): The milestones, what each one contains, and where the work is now.
+- [Releases and upgrading](https://kirana.style/docs/project/releases.md): How versions will work, what pre-1.0 means, and how a breaking change will be communicated.
+- [For LLMs](https://kirana.style/docs/project/llms.md): Plain-text endpoints of this documentation, written for coding agents - llms.txt, the full text, and a markdown twin of every page.
+- [Agent skills](https://kirana.style/docs/project/agent-skills.md): Two installable skills that teach a coding agent to write Kirana and to migrate to it - the rules that cause real bugs, the check-trace-report loop, and every diagnostic and lint rule.
+- [Contributing](https://kirana.style/docs/project/contributing.md): How to report a bug, fix the docs, get a pull request merged, and support Kirana.
+

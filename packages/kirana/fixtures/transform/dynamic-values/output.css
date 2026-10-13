@@ -1,0 +1,34 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k0_NlYA {
+    padding: var(--k0);
+  }
+  .k5_gplW {
+    margin: var(--k5);
+  }
+  .k75_NvtF {
+    inline-size: var(--k75);
+  }
+  .k50_49ob {
+    color: green;
+  }
+  .k50_D9ur {
+    color: red;
+  }
+  .k50_LB88 {
+    color: blue;
+  }
+  .k50_W0yl {
+    color: black;
+  }
+  .k50_jnlc {
+    color: orange;
+  }
+  .kaF-aje_UQN4::after {
+    width: var(--kaF-aje);
+  }
+  .k6V-aje-KFHz_4zme:where(:hover)::after {
+    height: var(--k6V-aje-KFHz);
+  }
+}

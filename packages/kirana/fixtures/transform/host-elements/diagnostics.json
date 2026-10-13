@@ -1,0 +1,124 @@
+[
+  {
+    "code": "KRN1702",
+    "name": "utility-surface-disabled",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 773,
+      "end": 784
+    },
+    "message": "string `sx` values need a utility grammar",
+    "help": [
+      "add a preset that declares one — presets: [scales()] — or write css({ … })"
+    ]
+  },
+  {
+    "code": "KRN1702",
+    "name": "utility-surface-disabled",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 802,
+      "end": 813
+    },
+    "message": "string `sx` values need a utility grammar",
+    "help": [
+      "add a preset that declares one — presets: [scales()] — or write css({ … })"
+    ]
+  },
+  {
+    "code": "KRN1702",
+    "name": "utility-surface-disabled",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 832,
+      "end": 843
+    },
+    "message": "string `sx` values need a utility grammar",
+    "help": [
+      "add a preset that declares one — presets: [scales()] — or write css({ … })"
+    ]
+  },
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 863,
+      "end": 879
+    },
+    "message": "a style object must be compiled with css() before it is applied",
+    "help": [
+      "wrap the object: css({ … })"
+    ]
+  },
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 899,
+      "end": 900
+    },
+    "message": "this value is not a style handle",
+    "help": []
+  },
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 922,
+      "end": 931
+    },
+    "message": "a component from \"headless\" receives `sx`, which it does not read",
+    "help": [
+      "spread the compiled props instead: {...props(styles.root, sx)}"
+    ]
+  },
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 957,
+      "end": 966
+    },
+    "message": "a component from \"headless\" receives `sx`, which it does not read",
+    "help": [
+      "spread the compiled props instead: {...props(styles.root, sx)}"
+    ]
+  },
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 985,
+      "end": 991
+    },
+    "message": "this value is not a style handle",
+    "help": []
+  },
+  {
+    "code": "KRN1701",
+    "name": "unused-sx",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1180,
+      "end": 1182
+    },
+    "message": "the component takes `sx` but never applies it",
+    "help": [
+      "pass it last in the root element's sx array: sx={[styles.root, sx]}"
+    ]
+  }
+]

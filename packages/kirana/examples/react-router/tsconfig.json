@@ -1,0 +1,14 @@
+{
+  "include": ["app", "*.ts", ".react-router/types/**/*"],
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "rootDirs": [".", "./.react-router/types"],
+    "types": ["@kirana-style/core/react", "vite/client"]
+  }
+}

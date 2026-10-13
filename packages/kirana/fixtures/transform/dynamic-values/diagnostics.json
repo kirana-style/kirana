@@ -1,0 +1,114 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 342,
+      "end": 353
+    },
+    "message": "inlineSize is set at runtime through --k75",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 432,
+      "end": 437
+    },
+    "message": "padding is set at runtime through --k0",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 459,
+      "end": 464
+    },
+    "message": "width is set at runtime through --kaF-aje",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 486,
+      "end": 491
+    },
+    "message": "height is set at runtime through --k6V-aje-KFHz",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 530,
+      "end": 555
+    },
+    "message": "margin is set at runtime through --k5",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 543,
+      "end": 555
+    },
+    "message": "margin is set at runtime through --k5",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 700,
+      "end": 742
+    },
+    "message": "color: this value is not a CSS value",
+    "help": []
+  },
+  {
+    "code": "KRN1603",
+    "name": "dynamic-key",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 767,
+      "end": 783
+    },
+    "message": "a property or condition key must be known at build time",
+    "help": [
+      "use a fixed key, or move the choice into a conditional value"
+    ]
+  },
+  {
+    "code": "KRN1604",
+    "name": "dynamic-spread",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 806,
+      "end": 832
+    },
+    "message": "a spread in a style must be known at build time",
+    "help": [
+      "declare the properties explicitly instead of spreading a runtime object"
+    ]
+  }
+]

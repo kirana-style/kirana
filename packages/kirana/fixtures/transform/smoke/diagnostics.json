@@ -1,0 +1,14 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 577,
+      "end": 588
+    },
+    "message": "inlineSize is set at runtime through --k75",
+    "help": []
+  }
+]

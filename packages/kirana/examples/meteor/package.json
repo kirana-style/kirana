@@ -1,0 +1,42 @@
+{
+  "name": "kirana-example-meteor",
+  "private": true,
+  "scripts": {
+    "build": "meteor build --directory .build --server-only",
+    "start": "meteor run --production --port $PORT"
+  },
+  "kirana-example": {
+    "output": ".build/bundle/programs/web.browser",
+    "dev": [
+      "meteor",
+      "run",
+      "--port",
+      "{port}"
+    ],
+    "edit": "imports/ui/App.jsx"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.23.5",
+    "@kirana-style/core": "0.1.0",
+    "@swc/helpers": "^0.5.17",
+    "meteor-node-stubs": "^1.2.30",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@kirana-style/rspack": "0.1.0",
+    "@meteorjs/rspack": "^2.2.0",
+    "@rspack/cli": "^1.7.1",
+    "@rspack/core": "^1.7.1",
+    "@rspack/plugin-react-refresh": "^1.4.3",
+    "react-refresh": "^0.17.0"
+  },
+  "meteor": {
+    "mainModule": {
+      "client": "client/main.jsx",
+      "server": "server/main.js"
+    },
+    "modern": true,
+    "autoInstallDeps": false
+  }
+}

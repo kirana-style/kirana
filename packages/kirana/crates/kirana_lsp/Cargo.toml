@@ -1,0 +1,28 @@
+[package]
+name = "kirana_lsp"
+description = "The Kirana language server (KRN-DX-001): editor features read from the compiler session."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+kirana_cascade = { workspace = true }
+kirana_config = { workspace = true }
+kirana_css_data = { workspace = true }
+kirana_diagnostics = { workspace = true }
+kirana_frontend = { workspace = true }
+kirana_ir = { workspace = true }
+kirana_migrate = { workspace = true }
+kirana_project = { workspace = true }
+kirana_shared = { workspace = true }
+kirana_utility = { workspace = true }
+lightningcss = { workspace = true }
+lsp-server = { workspace = true }
+lsp-types = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

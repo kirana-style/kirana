@@ -1,0 +1,32 @@
+{
+  "name": "@kirana-style/next",
+  "version": "0.1.0",
+  "description": "Kirana for Next.js: one `withKirana` for Turbopack (a loader, with the stylesheet from @kirana-style/postcss) and webpack.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/next"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./loader": "./src/loader.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*",
+    "@kirana-style/core": "workspace:*",
+    "@kirana-style/postcss": "workspace:*",
+    "@kirana-style/webpack": "workspace:*"
+  },
+  "peerDependencies": {
+    "next": ">=16.0.0"
+  }
+}

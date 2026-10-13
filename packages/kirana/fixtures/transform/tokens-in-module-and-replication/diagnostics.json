@@ -1,0 +1,44 @@
+[
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 298,
+      "end": 318
+    },
+    "message": "padding cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  },
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 380,
+      "end": 410
+    },
+    "message": "inset cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  },
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 414,
+      "end": 447
+    },
+    "message": "border-color cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  }
+]

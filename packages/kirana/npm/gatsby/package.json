@@ -1,0 +1,31 @@
+{
+  "name": "@kirana-style/gatsby",
+  "version": "0.1.0",
+  "description": "Kirana for Gatsby: a plugin that adds Kirana's webpack plugin to every stage of the build.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/gatsby"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./gatsby-node": "./gatsby-node.mjs",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*",
+    "@kirana-style/core": "workspace:*",
+    "@kirana-style/webpack": "workspace:*"
+  },
+  "peerDependencies": {
+    "gatsby": ">=5.0.0"
+  }
+}

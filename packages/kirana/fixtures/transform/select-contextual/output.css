@@ -1,0 +1,28 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.contextual {
+  .kM-dq7_vJdK > :where(span:last-child) {
+    overflow: hidden;
+  }
+  .kW-OA0_q5fv > :where([data-slot="icon"]) {
+    margin-inline-start: -0.25rem;
+  }
+  .k5n-Ujl_57fc > :where([data-slot="icon"])::after {
+    content: '';
+  }
+  .k63-WzP_oD60 :where(svg[data-icon]) {
+    flex-shrink: 0;
+  }
+  .k6V-C9M_EOeu :where(svg) {
+    height: 1rem;
+  }
+  .k9F-uyO_uowW :where(a:hover:not([data-disabled])) {
+    text-decoration-line: underline;
+  }
+  .kaF-C9M_EOeu :where(svg) {
+    width: 1rem;
+  }
+  .k6V-C9M-KFHz_5QUl:where(:hover) :where(svg) {
+    height: 2rem;
+  }
+}

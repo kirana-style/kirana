@@ -1,0 +1,34 @@
+{
+  "name": "@kirana-style/adonis",
+  "version": "0.1.0",
+  "description": "Kirana for AdonisJS: the kirana() Edge global, reading the class map of a server app's styles.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/adonis"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./provider": "./src/provider.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@adonisjs/core": ">=7.0.0",
+    "edge.js": ">=6.0.0"
+  },
+  "devDependencies": {
+    "@adonisjs/core": "catalog:",
+    "edge.js": "catalog:"
+  }
+}

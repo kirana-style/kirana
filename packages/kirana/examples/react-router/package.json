@@ -1,0 +1,37 @@
+{
+  "name": "kirana-example-react-router",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build"
+  },
+  "kirana-example": {
+    "output": "build/client",
+    "dev": [
+      "react-router",
+      "dev",
+      "--port",
+      "{port}",
+      "--strictPort",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "app/routes/home.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "@react-router/node": "^8.4.0",
+    "isbot": "^5.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router": "^8.4.0"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "@react-router/dev": "^8.4.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "~6.0.0",
+    "vite": "^8.3.0"
+  }
+}

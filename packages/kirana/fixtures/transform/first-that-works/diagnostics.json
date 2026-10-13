@@ -1,0 +1,108 @@
+[
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1022,
+      "end": 1091
+    },
+    "message": "the values of firstThatWorks() set different longhands of padding",
+    "help": [
+      "give every value the same shape, or write the longhands separately"
+    ]
+  },
+  {
+    "code": "KRN1207",
+    "name": "fallback-on-variable",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1122,
+      "end": 1161
+    },
+    "message": "--gap accepts any value, so the browser keeps the preferred one and never falls back",
+    "help": [
+      "put the fallback where the variable is read: var(--name, fallback)"
+    ]
+  },
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1201,
+      "end": 1217
+    },
+    "message": "firstThatWorks() needs at least one value",
+    "help": []
+  },
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1273,
+      "end": 1303
+    },
+    "message": "firstThatWorks() cannot be nested",
+    "help": []
+  },
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1369,
+      "end": 1383
+    },
+    "message": "this value of firstThatWorks() is not a CSS value",
+    "help": []
+  },
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1429,
+      "end": 1479
+    },
+    "message": "the values of firstThatWorks() set different longhands of padding",
+    "help": [
+      "give every value the same shape, or write the longhands separately"
+    ]
+  },
+  {
+    "code": "KRN1203",
+    "name": "unitless-length",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1512,
+      "end": 1546
+    },
+    "message": "width does not accept a bare number (10)",
+    "help": [
+      "write the unit, for example \"10px\""
+    ]
+  },
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1647,
+      "end": 1652
+    },
+    "message": "every value of firstThatWorks() must be known at build time",
+    "help": [
+      "for a value known only at runtime, read a variable with a fallback: var(--name, fallback)"
+    ]
+  }
+]

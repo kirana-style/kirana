@@ -1,0 +1,37 @@
+{
+  "name": "@kirana-style/rolldown",
+  "version": "0.1.0",
+  "description": "Kirana for Rolldown: compiles modules and emits the stylesheet.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/rolldown"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*",
+    "@kirana-style/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "rolldown": "^1.2.12"
+  },
+  "peerDependenciesMeta": {
+    "rolldown": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "rolldown": "catalog:"
+  }
+}

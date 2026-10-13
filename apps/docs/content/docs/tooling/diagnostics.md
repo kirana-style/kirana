@@ -1,0 +1,87 @@
+---
+title: Diagnostics reference
+description: Every code the compiler can emit, its default severity, and which ones you can re-level.
+kind: diagnostics
+section: tooling
+order: 4
+keywords: [diagnostics, errors, warnings, codes, KRN]
+---
+
+# Diagnostics reference
+
+Every diagnostic has a stable code and a kebab-case name. Neither changes meaning
+once released, so you can suppress or raise one by name and trust it to keep
+meaning the same thing.
+
+A diagnostic about one property points at that property — `width: 5` in
+`css({ display: "grid", width: 5 })` — not at the whole `css()` call, even when
+the style object is declared in one place and passed to `css()` somewhere else in
+the same module. The [editor](/docs/tooling/editor) underlines exactly that
+property, and the [lint plugin](/docs/tooling/lint) reports it there.
+
+<!-- ::diagnostics-figure -->
+
+The table below is generated from the compiler's own catalogue at build time, so
+it cannot drift from what the compiler actually emits.
+
+<!-- ::diagnostics -->
+
+## Severities
+
+- **error** — the output would be wrong. The build fails, and the level cannot be
+  changed.
+- **warning** — the output is valid but probably not what you meant.
+- **info** — something worth knowing: a runtime bridge, a lowered target.
+
+Any non-error can be re-levelled, including to `"off"`, in
+[`diagnostics`](/docs/config/reference).
+
+## The ones you will actually meet
+
+**`sx-on-external-component`** — you gave `sx` to a component that does not read
+it. Spread compiled props instead:
+[styling other people's components](/docs/styling/external-components).
+
+**`unused-sx`** — a component takes `sx` and never applies it, so callers think
+they can style it and cannot.
+
+**`ambiguous-precedence`** — two values could both apply and the ladder cannot
+order them. Nest one condition inside the other, or declare the pair exclusive:
+[precedence](/docs/styling/precedence).
+
+**`mixed-logical-physical`** — a box has both logical and physical longhands set,
+in a way whose outcome could mislead. Pick one axis family.
+
+**`unsplittable-shorthand`** — a shorthand whose value cannot be split into
+longhands exactly, usually `border: var(--something)`. It stays whole, which means
+a later style cannot remove just one of its longhands.
+
+**`dynamic-bridged`** (info) — a value became a custom property because it is only
+known at runtime: [values known at runtime](/docs/styling/dynamic).
+
+**`relation-without-anchor`** — a style reads a relation whose anchor is never
+applied, so it can never match: [relations](/docs/styling/relations). A build
+checks the relations whose module it compiled; `kirana check` checks them all.
+
+**`invalid-fallback`**, **`invalid-position-try`**, **`invalid-view-transition`**
+— a [`firstThatWorks()`](/docs/styling/fallbacks),
+[`positionTry()`](/docs/styling/anchor-positioning) or
+[`viewTransition()`](/docs/styling/view-transitions) the browser would drop or
+misread: a fallback run whose values set different longhands, a property an
+`@position-try` block ignores, a transition part that is not one of the four.
+
+**`unresolved-import`** — an import a style depends on could not be resolved, so
+its value compiles as a runtime value. Check the specifier and your tsconfig
+paths.
+
+## Reading one
+
+```console
+$ kirana check src
+error[KRN1301] unknown-condition: ":hover" is a condition, and conditions nest
+inside property values (src/card.tsx:12:3)
+  help: write `property: { [condition]: value }`
+```
+
+Code, name, message, location, and a help line that says what to do. `kirana check
+--format json` gives the same fields as data.

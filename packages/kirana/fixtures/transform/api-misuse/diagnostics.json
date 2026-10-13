@@ -1,0 +1,88 @@
+[
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 7,
+      "end": 17
+    },
+    "message": "@kirana-style/core has no default export",
+    "help": []
+  },
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 121,
+      "end": 134
+    },
+    "message": "@kirana-style/core has no export \"unknownExport\"",
+    "help": []
+  },
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 178,
+      "end": 181
+    },
+    "message": "css must be called where it is used",
+    "help": []
+  },
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 204,
+      "end": 217
+    },
+    "message": "select is not a function",
+    "help": []
+  },
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 239,
+      "end": 245
+    },
+    "message": "mode is not a function",
+    "help": []
+  },
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 280,
+      "end": 292
+    },
+    "message": "css() takes style objects and handles, not strings",
+    "help": [
+      "write the declarations as an object"
+    ]
+  },
+  {
+    "code": "KRN1102",
+    "name": "unsupported-syntax",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 398,
+      "end": 403
+    },
+    "message": "css must be called where it is used",
+    "help": []
+  }
+]

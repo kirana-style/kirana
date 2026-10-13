@@ -1,0 +1,22 @@
+{
+  "name": "@workspace/vite-config",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "dependencies": {
+    "@tanstack/devtools-vite": "^0.8.5",
+    "@tanstack/react-start": "catalog:",
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "catalog:",
+    "@kirana-style/vite": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:"
+  }
+}

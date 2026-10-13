@@ -1,0 +1,29 @@
+{
+  "name": "kirana-example-nuxt",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt generate"
+  },
+  "kirana-example": {
+    "output": ".output/public",
+    "dev": [
+      "nuxt",
+      "dev",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "app/app.vue",
+    "hot": true
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "nuxt": "^4.5.2",
+    "vue": "^3.5.43"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0"
+  }
+}

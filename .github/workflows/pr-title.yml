@@ -1,0 +1,42 @@
+name: pr-title
+
+# Pull requests are squash-merged, so the title becomes the one commit on main that release-please
+# reads: it decides the next version and the changelog line. It must be a Conventional Commit.
+#
+#   feat: …       a new feature            → minor (patch while 0.x)
+#   fix: …        a bug fix                → patch
+#   feat!: …      a breaking change        → major (minor while 0.x)
+#   perf, docs, deps                       → patch, listed in the changelog
+#   refactor, test, build, ci, chore       → no release on their own
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  title:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            perf
+            revert
+            docs
+            deps
+            refactor
+            test
+            build
+            ci
+            chore
+          requireScope: false
+          subjectPattern: ^[a-z].+[^.]$
+          subjectPatternError: |
+            Start the subject in lower case and leave off the full stop, e.g. "fix: keep sx last when merging".

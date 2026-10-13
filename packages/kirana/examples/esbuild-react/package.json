@@ -1,0 +1,26 @@
+{
+  "name": "kirana-example-esbuild-react",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "kirana-example": {
+    "output": "www",
+    "dev": [
+      "node",
+      "build.mjs",
+      "--serve"
+    ],
+    "edit": "src/main.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@kirana-style/esbuild": "0.1.0",
+    "esbuild": "^0.28.2"
+  }
+}

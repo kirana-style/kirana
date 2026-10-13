@@ -1,0 +1,502 @@
+name: packages
+
+# Kirana as a user gets it (M4, E-08, KRN-INT-007): the native engine built for every platform, every
+# package packed into the tarball it would be published as, and those tarballs installed into the
+# examples with every supported package manager on every supported OS. Nothing is published; the
+# examples resolve the tarballs through each package manager's override mechanism
+# (packages/kirana/examples/run.ts).
+#
+# Pull requests run a smoke subset (Linux x64 with npm, pnpm and Bun, plus musl); pushes, the nightly
+# schedule and manual runs cover the full matrix. Each cell is its own job, so a red one names the
+# exact platform and package manager.
+
+on:
+  push:
+    branches: [main, kirana]
+  pull_request:
+    branches: [main, kirana]
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+  # The release gate: release.yml runs the full matrix again on the tagged commit before publishing.
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # One `kirana.<triple>.node` per target in KRN-INT-007. Linux gnu links against napi-rs's glibc 2.17
+  # toolchain, so the engine loads on any distribution from the last decade rather than only on the
+  # runner's much newer glibc; musl links through Zig; macOS x64 and Windows arm64 cross-compile on the
+  # other architecture's runner.
+  native:
+    name: native (${{ matrix.triple }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - triple: linux-x64-gnu
+            os: ubuntu-26.04
+            target: x86_64-unknown-linux-gnu
+            flags: --use-napi-cross
+          - triple: linux-arm64-gnu
+            os: ubuntu-26.04-arm
+            target: aarch64-unknown-linux-gnu
+            flags: --use-napi-cross
+          - triple: linux-x64-musl
+            os: ubuntu-26.04
+            target: x86_64-unknown-linux-musl
+            flags: --cross-compile
+            zig: true
+          - triple: linux-arm64-musl
+            os: ubuntu-26.04-arm
+            target: aarch64-unknown-linux-musl
+            flags: --cross-compile
+            zig: true
+          - triple: darwin-arm64
+            os: macos-26
+            target: aarch64-apple-darwin
+          - triple: darwin-x64
+            os: macos-26
+            target: x86_64-apple-darwin
+          - triple: win32-x64-msvc
+            os: windows-2025
+            target: x86_64-pc-windows-msvc
+          - triple: win32-arm64-msvc
+            os: windows-2025
+            target: aarch64-pc-windows-msvc
+          # The WASI fallback (KRN-INT-006): napi-rs links it against emnapi, no WASI SDK needed.
+          - triple: wasm32-wasi
+            os: ubuntu-26.04
+            target: wasm32-wasip1-threads
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-rust
+        with:
+          cache-key: native-${{ matrix.triple }}
+          tools: ${{ matrix.zig && 'cargo-zigbuild' || '' }}
+
+      - name: Add the Rust target
+        working-directory: packages/kirana
+        shell: bash
+        run: rustup target add ${{ matrix.target }}
+
+      # Zig for cargo-zigbuild, from ziglang.org at a pinned version and checksum. Not
+      # mlugg/setup-zig: every release of it still declares the deprecated Node 20 runtime.
+      - name: Install Zig
+        if: matrix.zig
+        shell: bash
+        run: |
+          version=0.16.0
+          case "$(uname -m)" in
+            x86_64) arch=x86_64 sum=70e49664a74374b48b51e6f3fdfbf437f6395d42509050588bd49abe52ba3d00 ;;
+            aarch64) arch=aarch64 sum=ea4b09bfb22ec6f6c6ceac57ab63efb6b46e17ab08d21f69f3a48b38e1534f17 ;;
+          esac
+          curl -fsSL -o zig.tar.xz "https://ziglang.org/download/$version/zig-$arch-linux-$version.tar.xz"
+          echo "$sum  zig.tar.xz" | sha256sum -c -
+          tar -xJf zig.tar.xz -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/zig-$arch-linux-$version" >> "$GITHUB_PATH"
+
+      - name: Build
+        working-directory: packages/kirana/npm/compiler
+        shell: bash
+        run: bun run build --target ${{ matrix.target }} ${{ matrix.flags }}
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: native-${{ matrix.triple }}
+          # The WASI build is the `.wasm` plus the loaders napi-rs writes beside it.
+          path: |
+            packages/kirana/npm/compiler/kirana.${{ matrix.triple }}.node
+            packages/kirana/npm/compiler/kirana.wasm32-wasi.wasm
+            packages/kirana/npm/compiler/kirana.wasi*
+            packages/kirana/npm/compiler/wasi-worker*.mjs
+          if-no-files-found: error
+          retention-days: 3
+
+  # Every @kirana-style/* package plus the eight platform packages, as tarballs. `scripts/pack.ts` refuses
+  # a package with an install script (D-029).
+  pack:
+    name: pack
+    runs-on: ubuntu-26.04
+    needs: [native]
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: native-*
+          path: natives
+          merge-multiple: true
+
+      - name: Pack
+        run: bun run kirana:pack --natives "$GITHUB_WORKSPACE/natives"
+
+      - name: The compiler package carries no engine of its own
+        run: |
+          cd packages/kirana/dist-packages
+          ! tar -tzf kirana-style-compiler-[0-9]*.tgz | grep -q '\.node$'
+          test "$(ls | grep -cE '^kirana-style-compiler-(darwin|linux|win32)-')" -eq 8
+          test -f kirana-style-compiler-wasm32-wasi-[0-9]*.tgz
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: kirana-packages
+          path: packages/kirana/dist-packages/*.tgz
+          if-no-files-found: error
+          retention-days: 3
+
+  # The installation matrix: vite-react, because it isolates the package manager. Installs, builds,
+  # checks the stylesheet, then reads a probe's computed style (and hover) back in Chromium.
+  install:
+    name: install (${{ matrix.os }} · ${{ matrix.pm }})
+    runs-on: ${{ matrix.os }}
+    needs: [pack]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-26.04"]' || '["ubuntu-26.04", "ubuntu-26.04-arm", "macos-26", "windows-2025"]') }}
+        pm: ${{ fromJSON(github.event_name == 'pull_request' && '["npm", "pnpm", "bun"]' || '["npm", "pnpm", "yarn", "yarn-pnp", "bun"]') }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Bun runs the runner and supplies Playwright; the example itself installs outside the
+      # workspace, with the package manager under test.
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: pnpm and Yarn through Corepack
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@12 --activate
+          corepack prepare yarn@4 --activate
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: kirana-packages
+          path: packages/kirana/dist-packages
+
+      - name: Install Chromium
+        working-directory: packages/kirana
+        run: bunx playwright install --with-deps chromium
+
+      - name: vite-react with ${{ matrix.pm }}
+        run: bun run kirana:example vite-react --pm ${{ matrix.pm }}
+
+  # The WASI engine end to end (KRN-INT-006): installed explicitly, forced, used for a whole build,
+  # and required to write the same stylesheet as the native engine on the same project.
+  install-wasi:
+    name: install (wasi · npm)
+    runs-on: ubuntu-26.04
+    needs: [pack]
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: kirana-packages
+          path: packages/kirana/dist-packages
+
+      - name: Install Chromium
+        working-directory: packages/kirana
+        run: bunx playwright install --with-deps chromium
+
+      - name: vite-react on the WASI engine
+        run: bun run kirana:example vite-react --pm npm --wasi
+
+  # The compatibility matrix: one example per host and framework, on Linux with npm, since the
+  # installation matrix already covers the package managers. Each adapter and framework mode adds
+  # its example here as it lands (S4-E08-05).
+  compat:
+    name: compat (${{ matrix.example }})
+    runs-on: ubuntu-26.04
+    needs: [pack]
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - vite-react
+          - rolldown-react
+          - webpack-react
+          - next-webpack
+          - next-turbopack
+          - rsbuild-react
+          - bun-react
+          - vite-preact
+          - vite-solid
+          - vite-vanilla
+          - vite-vue
+          - vite-svelte
+          - astro
+          - vite-library
+          - esbuild-react
+          - jest-react
+          - vite-utilities
+          - sveltekit
+          - nuxt
+          - qwik
+          - analog-angular
+          - angular-cli
+          - react-router
+          - rspack-react
+          - ember
+          - parcel
+          - gatsby
+          - meteor
+          - laravel
+          - symfony
+          - rails
+          - phoenix
+          - adonisjs
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: kirana-packages
+          path: packages/kirana/dist-packages
+
+      - name: Install Chromium
+        working-directory: packages/kirana
+        run: bunx playwright install --with-deps chromium
+
+      # Server frameworks' own toolchains (D-069), and Meteor's tool, for the examples that need them.
+      - if: contains(fromJSON('["laravel","symfony"]'), matrix.example)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer
+
+      - if: matrix.example == 'rails'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+
+      - if: matrix.example == 'phoenix'
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "28"
+          elixir-version: "1.20"
+
+      - name: Install Meteor
+        if: matrix.example == 'meteor'
+        run: npx -y meteor@3.5.2 && echo "$HOME/.meteor" >> "$GITHUB_PATH"
+
+      - name: ${{ matrix.example }}
+        run: >-
+          bun run kirana:example ${{ matrix.example }} --pm npm
+          --atoms "$GITHUB_WORKSPACE/atoms/${{ matrix.example }}.json"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: atoms-${{ matrix.example }}
+          path: atoms
+          if-no-files-found: ignore
+          retention-days: 3
+
+  # The M4 exit criterion (D-056): the same source compiles to the same atoms on every host, so
+  # conformance measured on Vite holds for all of them.
+  compat-atoms:
+    name: compat (same atoms on every host)
+    runs-on: ubuntu-26.04
+    needs: [compat]
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: atoms-*
+          path: atoms
+          merge-multiple: true
+
+      - name: React on every bundler
+        run: >-
+          bun packages/kirana/examples/compare-atoms.ts atoms vite-react rolldown-react
+          webpack-react rsbuild-react next-webpack next-turbopack bun-react esbuild-react
+
+  # Deno as the runtime (KRN-INT-006): installed with npm, built with Deno, native engine through
+  # Node-API. (`deno install` links local tarballs as directories, so Deno as the installer waits for
+  # the registry — S4-E08-07.)
+  runtime-deno:
+    name: runtime (deno · ${{ matrix.example }})
+    runs-on: ubuntu-26.04
+    needs: [pack]
+    strategy:
+      fail-fast: false
+      matrix:
+        example: [vite-react, vite-vue]
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: kirana-packages
+          path: packages/kirana/dist-packages
+
+      - name: Install Chromium
+        working-directory: packages/kirana
+        run: bunx playwright install --with-deps chromium
+
+      - name: ${{ matrix.example }} built on Deno
+        run: bun run kirana:example ${{ matrix.example }} --pm npm --runtime deno
+
+  # Development servers (KRN-INT-009): the page is styled, and a style edit reaches it — as a CSS hot
+  # update, without a reload, where the framework updates components in place.
+  dev:
+    name: dev (${{ matrix.example }})
+    runs-on: ubuntu-26.04
+    needs: [pack]
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - vite-react
+          - vite-preact
+          - vite-solid
+          - vite-vue
+          - vite-svelte
+          - sveltekit
+          - nuxt
+          - astro
+          - webpack-react
+          - rsbuild-react
+          - next-webpack
+          - next-turbopack
+          - bun-react
+          - esbuild-react
+          - vite-utilities
+          - qwik
+          - analog-angular
+          - angular-cli
+          - react-router
+          - rspack-react
+          - ember
+          - parcel
+          - gatsby
+          - meteor
+          - laravel
+          - symfony
+          - rails
+          - phoenix
+          - adonisjs
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: kirana-packages
+          path: packages/kirana/dist-packages
+
+      - name: Install Chromium
+        working-directory: packages/kirana
+        run: bunx playwright install --with-deps chromium
+
+      # Server frameworks' own toolchains (D-069), and Meteor's tool, for the examples that need them.
+      - if: contains(fromJSON('["laravel","symfony"]'), matrix.example)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer
+
+      - if: matrix.example == 'rails'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+
+      - if: matrix.example == 'phoenix'
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "28"
+          elixir-version: "1.20"
+
+      - name: Install Meteor
+        if: matrix.example == 'meteor'
+        run: npx -y meteor@3.5.2 && echo "$HOME/.meteor" >> "$GITHUB_PATH"
+
+      - name: ${{ matrix.example }} in development
+        run: bun run kirana:example ${{ matrix.example }} --pm npm --dev
+
+  # Alpine: the musl platform packages. No Chromium to drive, so the stylesheet check stands in for
+  # the browser one; Node runs the runner through its type stripping. Checkout and artifacts happen on
+  # the host and only the install runs in Alpine, because GitHub runs JavaScript actions inside Alpine
+  # containers on x64 runners only ("JavaScript Actions in Alpine containers are only supported on x64
+  # Linux runners").
+  install-musl:
+    name: install (alpine ${{ matrix.arch }} · ${{ matrix.pm }})
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-26.04-arm' || 'ubuntu-26.04' }}
+    needs: [pack]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ${{ fromJSON(github.event_name == 'pull_request' && '["x64"]' || '["x64", "arm64"]') }}
+        pm: [npm, pnpm, bun]
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: kirana-packages
+          path: packages/kirana/dist-packages
+
+      - name: vite-react with ${{ matrix.pm }}
+        run: >-
+          docker run --rm -v "$PWD:/repo" -w /repo node:24-alpine sh -euc "
+          apk add --no-cache bash libstdc++ libgcc;
+          corepack enable; corepack prepare pnpm@12 --activate;
+          npm install --global bun;
+          node packages/kirana/examples/run.ts vite-react --pm ${{ matrix.pm }} --no-browser"

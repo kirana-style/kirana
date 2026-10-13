@@ -1,0 +1,58 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k6_HV2H {
+    margin-bottom: 1rem;
+  }
+  .k7_zgUg {
+    margin-left: 4px;
+  }
+  .k8_zgUg {
+    margin-right: 4px;
+  }
+  .k9_HV2H {
+    margin-top: 1rem;
+  }
+  .k44_LB88 {
+    background-color: blue;
+  }
+  .k50_D9ur {
+    color: red;
+  }
+  .k5O_u3uh {
+    display: block;
+  }
+  .k5n_Ts5U {
+    content: 'x';
+  }
+  .k61_1Y3S {
+    flex-grow: var(--k61);
+  }
+  .k63_3ALG {
+    flex-shrink: var(--k63);
+  }
+  .k6V_vqnf {
+    height: 4px;
+  }
+  .k87_tIfm {
+    opacity: 1;
+  }
+  .k88_reDk {
+    order: -2;
+  }
+  .kaF_5QUl {
+    width: 2rem;
+  }
+  .kaO_Z0Ni {
+    z-index: var(--kaO);
+  }
+  .kv_ES2o {
+    top: 3px;
+  }
+  .kw_kbjD {
+    bottom: 2px;
+  }
+  .kx_XMJ0 {
+    left: 5px;
+  }
+}

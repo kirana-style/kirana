@@ -1,0 +1,243 @@
+---
+title: Installation
+description: Let kirana init set your project up, or follow your framework's guide - React, Next.js, React Router, Vue, Svelte, Astro, Angular, Laravel, Rails, Phoenix and more, or none - plus how to install before the packages are on npm.
+section: start
+order: 3
+keywords:
+  [
+    install,
+    setup,
+    frameworks,
+    react,
+    next.js,
+    vue,
+    svelte,
+    astro,
+    qwik,
+    angular,
+    preact,
+    solid,
+    tarballs,
+    kirana init,
+    kirana doctor,
+  ]
+---
+
+# Installation
+
+## Let `kirana init` do it
+
+In your project's root:
+
+```bash
+npx kirana init
+```
+
+It reads `package.json` and your lockfile, recognises the framework, bundler and
+package manager, and shows every change it would make — the configuration file,
+the adapter in your bundler's configuration, the stylesheet and the `sx` types —
+as a diff. Nothing is written until you say yes, and the install command is
+printed for you to run (or pass `--install`). Then:
+
+```bash
+npx kirana doctor
+```
+
+checks the engine, the installed versions, the configuration and the wiring, and
+says what is missing. Both are described in [the CLI](/docs/tooling/cli#kirana-init).
+Until the packages are on npm, install `@kirana-style/compiler` from the tarballs below
+first, so `npx kirana` finds it.
+
+## Pick your framework
+
+Each guide takes you from an empty project to a styled component, and names the
+example that CI builds and checks in a browser on every change.
+
+<!-- ::frameworks -->
+
+The overview of all of them, with what `sx` compiles to in each, is
+[supported frameworks](/docs/frameworks/overview).
+
+## Not on npm yet
+
+The packages — `@kirana-style/core`, the compiler, and one adapter per host — are at
+version 0.1.0 and **not published**: the API is still moving and the name is not
+cleared. Two ways work today; the guides are the same for both.
+
+### Install from tarballs
+
+A checkout can pack every package the way it would be published — compiled
+JavaScript with declarations, and the engine as its own per-platform package:
+
+```bash
+bun run kirana:build   # the engine for this machine
+bun run kirana:pack    # tarballs in packages/kirana/dist-packages
+```
+
+Point your project at those tarballs, including the ones it does not name itself,
+through your package manager's overrides. With npm or Bun:
+
+```json file="package.json"
+{
+  "dependencies": {
+    "@kirana-style/core": "file:/path/to/dist-packages/kirana-core-0.1.0.tgz"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "file:/path/to/dist-packages/kirana-vite-0.1.0.tgz"
+  },
+  "overrides": {
+    "@kirana-style/compiler": "file:/path/to/dist-packages/kirana-compiler-0.1.0.tgz",
+    "@kirana-style/rolldown": "file:/path/to/dist-packages/kirana-rolldown-0.1.0.tgz",
+    "@kirana-style/compiler-linux-x64-gnu": "file:/path/to/dist-packages/kirana-compiler-linux-x64-gnu-0.1.0.tgz"
+  }
+}
+```
+
+pnpm reads the same map from `overrides` in `pnpm-workspace.yaml`, and Yarn from
+`resolutions`. This is exactly what CI does on every change: it installs the
+tarballs with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and
+Alpine, builds an example, and checks its styles in a browser. No package runs an
+install script, so there is nothing to allow-list.
+
+> [!NOTE] Yarn needs every platform
+> Yarn looks up all eight platform packages to write its lockfile, even the seven
+> it will not install. A tarball set packed on one machine has only that
+> machine's, so use npm, pnpm or Bun there.
+
+### Machines without a native build
+
+The engine is native code for eight platforms. Anywhere else — a WebContainer, an
+unusual CPU — install its WebAssembly build as well; Kirana uses it when no native
+engine loads, and it writes exactly the same CSS, about twice as slowly:
+
+```bash
+npm install -D @kirana-style/compiler-wasm32-wasi --force
+```
+
+`KIRANA_FORCE_WASI=1` uses it even where the native engine works.
+
+### From a checkout of the repository
+
+Kirana lives in a Bun workspace alongside the apps that use it. In that setup an
+app depends on the packages by workspace protocol:
+
+```json file="apps/your-app/package.json"
+{
+  "dependencies": {
+    "@kirana-style/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "workspace:*"
+  }
+}
+```
+
+To use Kirana from a project outside the repository, link the packages from a
+checkout:
+
+```bash
+cd kirana/packages/kirana/npm/core && bun link
+cd ../vite && bun link
+cd /your/project && bun link @kirana-style/core @kirana-style/vite
+```
+
+The native engine comes from the checkout's build (`bun run build` there, or
+`bun run kirana:build`).
+
+### Once published
+
+Once the packages are released, installation becomes the ordinary thing. Do not
+run this yet — the registry has nothing to give you.
+
+<!-- ::install packages="@kirana-style/core" dev="@kirana-style/vite" -->
+
+## What every setup has
+
+The guides differ in names, not in shape. Whatever the framework, a project needs
+the same four things.
+
+### 1. The bundler plugin
+
+Kirana compiles modules, so it runs in the bundler, ahead of the framework's own
+plugin. Here it is for React on Vite 8; the [guides](#pick-your-framework) show it
+for every other framework and bundler.
+
+```ts file="vite.config.ts"
+import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react"
+import kirana from "@kirana-style/vite"
+
+export default defineConfig({
+  // Kirana goes before the framework plugins, so they only ever see compiled
+  // JavaScript.
+  plugins: [kirana(), react()],
+})
+```
+
+### 2. The configuration file
+
+`kirana.config.ts` sits in the project root. It is optional — every key has a
+default — but this is where layers, targets and diagnostic levels live.
+
+```ts file="kirana.config.ts"
+import { defineConfig } from "@kirana-style/core/config"
+
+export default defineConfig({
+  // Your own layers, placed below every Kirana rule.
+  layers: { before: ["reset", "base"] },
+})
+```
+
+Every key is listed in the [configuration reference](/docs/config/reference).
+
+### 3. The stylesheet entry
+
+Kirana writes one stylesheet. Import it once, in the entry that renders your
+document, and the adapter fills it in:
+
+<!-- prettier-ignore -->
+```tsx file="root.tsx"
+import kiranaCss from "@kirana-style/core/stylesheet.css?url"
+
+// In a document component, before your own global stylesheet: its
+// `@layer reset, base, kirana` statement fixes the layer order.
+<link rel="stylesheet" href={kiranaCss} />
+```
+
+In development the adapter serves the live stylesheet and updates it over HMR. In
+a production build it replaces the placeholder rule and renames the file to a
+content hash.
+
+### 4. The `sx` prop's types
+
+`sx` is not an import: the compiler recognises it on any element in a module it
+compiles. TypeScript needs one reference to know about it:
+
+```ts file="src/types.d.ts"
+/// <reference types="@kirana-style/core/react" />
+```
+
+Put it in a `.d.ts` file that your `tsconfig.json` includes, and every host
+element accepts `sx`. The other frameworks have their own: `@kirana-style/core/preact`,
+`/solid`, `/qwik`, `/vue`, `/svelte` and `/astro` — each guide names the one to
+use. Angular needs none: the `[sx]` directive carries its type.
+
+## Check it worked
+
+```bash
+# no diagnostics, exit code 0
+kirana check src
+```
+
+If a module that uses `css()` was never compiled, calling it throws at runtime
+with a message that says exactly that — the failure is loud, never a silently
+unstyled page.
+
+> [!TIP] Troubleshooting
+> **Styles missing in development?** The stylesheet entry must be imported, and
+> `kirana()` must come before the framework plugin.
+> **`unresolved-import` warnings?** The compiler follows imports to find token
+> and style definitions; check the specifier and your `tsconfig.json` paths.
+> **A component ignores `sx`?** Components from installed packages do not read it.
+> Spread the compiled props instead — see
+> [styling other people's components](/docs/styling/external-components).

@@ -1,0 +1,32 @@
+{
+  "name": "kirana-example-sveltekit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "kirana-example": {
+    "output": "build",
+    "dev": [
+      "vite",
+      "--port",
+      "{port}",
+      "--strictPort",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "src/routes/+page.svelte",
+    "hot": true
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.70.3",
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "svelte": "^5.57.1",
+    "vite": "^8.3.0"
+  }
+}

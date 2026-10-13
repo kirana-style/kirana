@@ -1,0 +1,9 @@
+@custom-variant data-horizontal {
+  &:where([data-orientation="horizontal"]) {
+    @slot;
+  }
+}
+@custom-variant data-open (&:where([data-state="open"]));
+@utility no-scrollbar {
+  scrollbar-width: none;
+}

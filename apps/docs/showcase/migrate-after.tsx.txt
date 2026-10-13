@@ -1,0 +1,23 @@
+import { css } from "@kirana-style/core"
+import { color, compose, radius, space } from "@kirana-style/preset-scales"
+
+const styles = {
+  cardDiv: css({
+    display: "flex",
+    flexDirection: "column",
+    gap: space[4],
+    borderRadius: radius.xl,
+    borderStyle: compose["border-style"],
+    borderWidth: "1px",
+    paddingBlock: space[6],
+    paddingInline: space[6],
+    backgroundColor: {
+      base: `light-dark(${color.white}, ${color.zinc[900]})`,
+      ":hover": `light-dark(${color.zinc[50]}, ${color.zinc[900]})`,
+    },
+  }),
+}
+
+export function Card({ children }: { children: React.ReactNode }) {
+  return <div sx={styles.cardDiv}>{children}</div>
+}

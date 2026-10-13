@@ -1,0 +1,35 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  @position-try --kp2bzC {
+    align-self: end;
+  }
+  @position-try --kp9KfV {
+    position-area: bottom span-right;
+    margin-top: 4px;
+    width: anchor-size(width);
+  }
+  @position-try --kpOing {
+    position-area: top;
+    margin-bottom: 4px;
+  }
+  @position-try --kpg9VA {
+    inset: auto;
+    max-inline-size: 90vw;
+    max-inline-size: calc(100vw - 2rem);
+  }
+}
+@layer kirana.atoms {
+  .k8B_AWUj {
+    position-try-fallbacks: --kpg9VA;
+  }
+  .k8B_mMqN {
+    position-try-fallbacks: --kp9KfV, --kpOing, flip-block;
+  }
+  .k8y_127D {
+    position-anchor: --trigger;
+  }
+  .k8z_b8XI {
+    position-area: top;
+  }
+}

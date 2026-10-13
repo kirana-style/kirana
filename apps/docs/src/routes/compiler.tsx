@@ -1,0 +1,321 @@
+import { createFileRoute } from "@tanstack/react-router"
+import { css } from "@kirana-style/core"
+import {
+  CpuIcon,
+  FilterHorizontalIcon,
+  Files01Icon,
+  FileScriptIcon,
+  Layers01Icon,
+  SourceCodeIcon,
+} from "@hugeicons/core-free-icons"
+
+import { Button } from "@workspace/ui/components/button"
+import { radius, theme } from "@workspace/ui/theme/semantic"
+import { breakpoint } from "@workspace/ui/tokens/breakpoints"
+import { duration } from "@workspace/ui/tokens/motion"
+import { spacing } from "@workspace/ui/tokens/spacing"
+import {
+  fontSize,
+  fontWeight,
+  lineHeight,
+} from "@workspace/ui/tokens/typography"
+
+import { DocsLink } from "@/components/docs-link"
+import { FRAMEWORKS } from "@/components/home/content"
+import { GlowBand } from "@/components/site/accents"
+import { LogoIcon, PAGE_LOGOS } from "@/components/site/brands"
+import { Card, CardGrid, Figures, Steps } from "@/components/site/cards"
+import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
+import { At, Pill, Scene, Stage, Tag, Tile } from "@/components/site/visuals"
+import { InlineCode } from "@/components/site/code-tokens"
+import { LIFT, REST } from "@/components/site/lift"
+
+export const Route = createFileRoute("/compiler")({
+  component: CompilerPage,
+  head: () => ({
+    meta: [
+      { title: "The compiler · Kirana" },
+      {
+        name: "description",
+        content:
+          "Kirana reads your modules at build time, writes one stylesheet, and rewrites the modules to reference classes. Nothing styles your page at runtime.",
+      },
+    ],
+  }),
+})
+
+/** The pipeline, as `/docs/start/how-it-works` states it. */
+const PIPELINE = [
+  {
+    title: "Prefilter",
+    text: "Before parsing anything, the adapter skips every module whose text contains neither @kirana-style/ nor an sx attribute — the work scales with styled modules, not the dependency graph.",
+  },
+  {
+    title: "Evaluate",
+    text: "What feeds a style is evaluated at build time: constants, imported tokens, template literals, simple functions, across files. Anything it cannot evaluate is reported, not guessed.",
+  },
+  {
+    title: "Normalise",
+    text: "Declarations become longhands, so two styles that touch the same box merge per side rather than per shorthand.",
+  },
+  {
+    title: "Atomise",
+    text: "Each declaration becomes one rule with one class, named by hashing property, value and conditions. Two modules that write display: flex share a class.",
+  },
+  {
+    title: "Order",
+    text: "Atoms are placed in layers, ordered by a stated precedence ladder: more conditions win, then the narrower declaration. Specificity never carries intent.",
+  },
+  {
+    title: "Rewrite",
+    text: "css({ … }) becomes a class string and sx becomes className. A runtime value becomes a choice between classes or a custom-property bridge.",
+  },
+]
+
+/** Modules in, most set aside unread, the rest compiled into one stylesheet. */
+function PipelineArt() {
+  return (
+    <Stage>
+      <Scene
+        width={620}
+        height={170}
+        wires={["M 92 85 H 170"]}
+        live={["M 250 85 H 350", "M 430 85 H 520"]}
+      >
+        <At x={10} y={50}>
+          <Tile icon={Files01Icon} size={52} caption="your modules" />
+        </At>
+        <At x={34} y={50}>
+          <Tile icon={FilterHorizontalIcon} size={52} caption="prefilter" />
+        </At>
+        <At x={34} y={14}>
+          <Pill mono>
+            <Tag tone="muted">7,747</Tag>
+            99.3 % never parsed
+          </Pill>
+        </At>
+        <At x={62} y={50}>
+          <Tile
+            icon={CpuIcon}
+            size={60}
+            variant="accent"
+            caption="evaluate · atomise · order"
+          />
+        </At>
+        <At x={90} y={50}>
+          <Tile icon={FileScriptIcon} size={52} caption="one stylesheet" />
+        </At>
+      </Scene>
+    </Stage>
+  )
+}
+
+const styles = {
+  flow: css({
+    height: "14rem",
+    overflowX: "auto",
+    overflowY: "hidden",
+    borderRadius: radius.xl,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: theme.border,
+    backgroundColor: theme.background,
+  }),
+  split: css({
+    display: "grid",
+    gap: spacing[10],
+    gridTemplateColumns: {
+      base: "minmax(0, 1fr)",
+      [breakpoint.lg]: "minmax(0, 1fr) minmax(0, 1fr)",
+    },
+  }),
+  frameworks: css({
+    display: "grid",
+    gap: spacing[2],
+    gridTemplateColumns: "repeat(auto-fill, minmax(12rem, 1fr))",
+  }),
+  framework: css({
+    display: "flex",
+    alignItems: "center",
+    gap: spacing[3],
+    borderRadius: radius.lg,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: theme.border,
+    boxShadow: { base: REST, ":hover": LIFT },
+    backgroundColor: theme.card,
+    paddingInline: spacing[4],
+    paddingBlock: spacing[3],
+    textDecorationLine: "none",
+    color: theme.foreground,
+    fontSize: fontSize.sm,
+    lineHeight: lineHeight.sm,
+    fontWeight: fontWeight.medium,
+    transitionProperty: "box-shadow",
+    transitionDuration: duration[150],
+  }),
+  note: css({
+    fontSize: fontSize.sm,
+    lineHeight: "1.6",
+    color: theme.mutedForeground,
+  }),
+}
+
+function CompilerPage() {
+  return (
+    <Page accent="blue">
+      <PageHero
+        icon={CpuIcon}
+        eyebrow="The compiler"
+        title={
+          <>
+            Styles in, <Accent>one stylesheet</Accent> out.
+          </>
+        }
+        lede="Kirana reads your modules at build time, works out every style they can produce, writes one stylesheet, and rewrites the modules to reference classes instead of style objects."
+        actions={
+          <>
+            <Button
+              size="lg"
+              nativeButton={false}
+              render={
+                <DocsLink href="/docs/start/quick-start">Quick start</DocsLink>
+              }
+            />
+            <Button
+              size="lg"
+              variant="outline"
+              nativeButton={false}
+              render={
+                <DocsLink href="/docs/start/how-it-works">
+                  How it works
+                </DocsLink>
+              }
+            />
+          </>
+        }
+      />
+
+      <PageSection
+        title="Six steps, all at build time"
+        lede="Between the file you write and the stylesheet the browser loads."
+      >
+        <div sx={styles.flow}>
+          <PipelineArt />
+        </div>
+        <div sx={styles.split}>
+          <Steps items={PIPELINE.slice(0, 3)} />
+          <Steps items={PIPELINE.slice(3)} start={4} />
+        </div>
+      </PageSection>
+
+      <PageSection
+        title="What reaches the browser"
+        lede="The only runtime code is a private helper under 1 kB, included only in modules that merge styles at runtime or bridge a value. It merges class strings; it never generates CSS."
+      >
+        <CardGrid>
+          <Card icon={FileScriptIcon} title="One stylesheet">
+            The atoms your application actually uses, minified through Lightning
+            CSS and lowered for your browser targets.
+          </Card>
+          <Card icon={SourceCodeIcon} title="Class strings">
+            In your JavaScript, where the style objects were. The same sources
+            produce byte-identical CSS.
+          </Card>
+          <Card icon={Layers01Icon} title="Layers you control">
+            Every rule sits in a layer, so your reset stays below Kirana's and
+            nothing is emitted unlayered.
+          </Card>
+        </CardGrid>
+      </PageSection>
+
+      <PageSection
+        title="Proportional to your styling"
+        lede="Measured on the shadcn/ui port's demo applications."
+      >
+        <Figures
+          items={[
+            {
+              value: "99.3 %",
+              label:
+                "of 7,747 modules in the demo's build rejected before parsing",
+            },
+            {
+              value: "0.05 s",
+              label: "engine time over 370 modules: packages/ui and three apps",
+            },
+            { value: "44 MB", label: "peak engine memory over that build" },
+            {
+              value: "36.8 ms",
+              label: "median from saving a file to the updated stylesheet",
+            },
+          ]}
+        />
+        <p sx={styles.note}>
+          One developer machine, advisory — from{" "}
+          <InlineCode>
+            packages/kirana/design-notes/benchmark-results.md
+          </InlineCode>
+          , where the method is written down.
+        </p>
+      </PageSection>
+
+      <PageSection
+        title="With the framework you already use"
+        lede="Every guide is installed from the packed packages and built on every change."
+      >
+        <div sx={styles.frameworks}>
+          {FRAMEWORKS.map((framework) => (
+            <DocsLink
+              key={framework.href}
+              href={framework.href}
+              sx={styles.framework}
+            >
+              {PAGE_LOGOS[framework.href] ? (
+                <LogoIcon logo={PAGE_LOGOS[framework.href]!} size="1.125rem" />
+              ) : null}
+              {framework.title}
+            </DocsLink>
+          ))}
+        </div>
+      </PageSection>
+
+      <PageSection
+        title="What it deliberately does not do"
+        lede="Three lines the compiler does not cross, so the result stays something you can predict."
+      >
+        <CardGrid>
+          <Card title="Generate CSS in the browser">
+            Every rule exists before the page loads. The runtime helper only
+            merges class strings.
+          </Card>
+          <Card title="Guess from class names">
+            Which style wins comes from a stated ladder, not from reading class
+            names or source order.
+          </Card>
+          <Card title="Style markup it cannot see">
+            A component from a package is styled from the outside, with a
+            contextual selector or compiled props.
+          </Card>
+        </CardGrid>
+      </PageSection>
+
+      <PageSection flush>
+        <GlowBand
+          title="See a component compile"
+          actions={
+            <Button
+              size="lg"
+              nativeButton={false}
+              render={<DocsLink href="/play">Open the playground</DocsLink>}
+            />
+          }
+        >
+          The playground shows examples the compiler in this repository compiled
+          when the site was built: the source, the CSS and the classes, nothing
+          written by hand.
+        </GlowBand>
+      </PageSection>
+    </Page>
+  )
+}

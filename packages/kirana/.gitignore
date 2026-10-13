@@ -1,0 +1,39 @@
+# Cargo build output (several GB; never committed)
+/target/
+
+# Coverage artifacts from cargo-llvm-cov and Vitest
+*.profraw
+*.profdata
+lcov.info
+coverage/
+
+# Native addons built by `napi build` (published per platform at release, never committed)
+*.node
+
+# npm package build output
+npm/*/dist/
+
+# Insta pending snapshots (accepted snapshots are committed)
+*.snap.new
+*.pending-snap
+
+# Conformance and benchmark run output (results worth keeping are copied into bench/results)
+conformance/output/
+bench/output/
+
+# Vite adapter test apps copied per run
+npm/vite/test/.app-*/
+npm/rolldown/test/.app-*/
+npm/webpack/test/.app-*/
+npm/bun/test/.app-*/
+npm/compiler/test/.app-*/
+npm/esbuild/test/.app-*/
+npm/jest/test/.app-*/
+
+# Built native addons and local run output
+npm/compiler/*.node
+# The WASI engine and napi-rs's loaders for it (`bun run build --target wasm32-wasip1-threads`).
+npm/compiler/*.wasm
+npm/compiler/kirana.wasi*
+npm/compiler/wasi-worker*.mjs
+*.node.bak

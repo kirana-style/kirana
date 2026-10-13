@@ -1,0 +1,62 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  :root {
+    --kv5O4F: 0px;
+    --kvBG1M: oklch(0.7 0 0);
+    --kvWoxh: 1rem;
+    --kvw250: darken;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --kvWoxh: 1rem;
+      --kvw250: lighten;
+    }
+  }
+  .km-light {
+    --kvWoxh: 1rem;
+    --kvw250: darken;
+  }
+  .km-dark {
+    --kvWoxh: 1rem;
+    --kvw250: lighten;
+  }
+}
+@layer kirana.atoms {
+  .kf_GvB4 {
+    border-width: 1px;
+  }
+  .kk_sdRM {
+    border-color: oklch(0.6 0.2 260);
+  }
+  .kJ_JVvW {
+    gap: 0.375rem;
+  }
+  .kP_DeBs {
+    padding-inline: 1px;
+  }
+  .k44_c4Fs {
+    background-color: color-mix(in oklab, oklch(0.6 0.2 260) 50%, transparent);
+  }
+  .k50_iCqW {
+    color: light-dark(oklch(0.6 0.2 260), oklch(1 0 0));
+  }
+  .k7X_OAkM {
+    mix-blend-mode: var(--kvw250);
+  }
+  .k8b_ecmU {
+    outline-color: var(--kvBG1M);
+  }
+  .kK_Copg {
+    row-gap: var(--kv5O4F);
+  }
+  .kaO_nVG3 {
+    z-index: 3;
+  }
+  .kbeWXx_EOeu {
+    --kv5O4F: 1rem;
+  }
+  .kbeWXx-KFHz_oU4E:where(:hover) {
+    --kv5O4F: var(--kvWoxh);
+  }
+}

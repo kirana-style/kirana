@@ -1,0 +1,314 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first one's answer worthless, so
+# stop paying for it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Runner images are pinned, not `*-latest`: a label that moves re-baselines the determinism
+# hashes and the advisory benchmark under us, and GitHub annotates every job that uses one.
+#
+# Jobs run in parallel and report on their own.
+
+jobs:
+  check:
+    runs-on: ubuntu-26.04
+    name: lint, format and types
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-rust
+        with:
+          cache-key: lint
+
+      # The Kirana lint rules read the compiler, so oxlint needs the native engine.
+      - name: Build the native engine
+        working-directory: packages/kirana/npm/compiler
+        run: bun run build:debug
+
+      # Separate steps so a red build names the stage that failed.
+      - name: Lint
+        run: bun run lint
+
+      - name: Format
+        run: bun run format:check
+
+      - name: Types
+        run: bun run typecheck
+
+      # The docs' generated data (diagnostics, lint rules, packages, commands, the agent skills'
+      # references) must match the source, and no page may contradict it: a hand-typed count, a
+      # partial list, a product without its logo (apps/docs/CONSISTENCY.md). Needs the engine above.
+      - name: Generated docs and consistency
+        run: bun run --cwd apps/docs verify:generated
+
+  kirana-rust:
+    runs-on: ubuntu-26.04
+    name: kirana · rust checks
+    defaults:
+      run:
+        working-directory: packages/kirana
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-rust
+        with:
+          tools: cargo-deny
+
+      - name: rustfmt
+        run: cargo fmt --all --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      # Licences (MPL-2.0 allowed for Lightning CSS only as a dependency), advisories, sources.
+      - name: cargo-deny
+        run: cargo deny check
+
+      # The property tables are generated from mdn-data; the committed file must match.
+      - name: Generated CSS data is current
+        run: bun run gen:css-data && git diff --exit-code crates/kirana_css_data/src/generated.rs
+
+      # @kirana-style/preset-scales is generated from the pinned tailwindcss theme; the committed file must match.
+      - name: Generated preset scales are current
+        run: bun run gen:preset-scales && git diff --exit-code npm/preset-scales/src/scales.ts
+
+  kirana-coverage:
+    runs-on: ubuntu-26.04
+    name: kirana · tests and 100% coverage
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-rust
+        with:
+          tools: cargo-nextest,cargo-llvm-cov
+          cache-key: coverage
+
+      # Rust unit, snapshot and golden-fixture tests; Vitest against an instrumented native
+      # addon; both reports fail below 100 % (lines and functions for Rust; every metric for
+      # TypeScript).
+      - name: Tests with coverage
+        working-directory: packages/kirana
+        run: scripts/coverage.sh
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: kirana-coverage
+          path: packages/kirana/coverage
+          if-no-files-found: ignore
+
+  # The template helpers for server frameworks (D-069), each in its own language, each held to the
+  # runtime's merge by fixtures/merge/vectors.json and to 100 % coverage (PHP: lines and methods;
+  # Ruby: lines and branches; Elixir: lines).
+  kirana-helpers:
+    runs-on: ubuntu-26.04
+    name: kirana · ${{ matrix.language }} helper
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [php, ruby, elixir]
+    defaults:
+      run:
+        working-directory: packages/kirana/helpers/${{ matrix.language }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - if: matrix.language == 'php'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          coverage: xdebug
+          tools: composer
+
+      - if: matrix.language == 'ruby'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+
+      - if: matrix.language == 'elixir'
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "28"
+          elixir-version: "1.20"
+
+      - name: PHPUnit with coverage
+        if: matrix.language == 'php'
+        run: composer install --no-interaction && composer run coverage
+
+      - name: Minitest with SimpleCov
+        if: matrix.language == 'ruby'
+        run: bundle install && bundle exec rake test
+
+      - name: ExUnit with coverage
+        if: matrix.language == 'elixir'
+        run: mix test --cover
+
+  # The editor side of M3 (sprint 6): the VS Code extension in a real VS Code against the real
+  # language server, its .vsix, and the Zed extension's WebAssembly build. The lint plugin's rule and
+  # Oxlint/ESLint parity tests, and the extension's unit tests, run in kirana-coverage with Vitest.
+  kirana-editors:
+    runs-on: ubuntu-26.04
+    name: kirana · editors
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-rust
+        with:
+          cache-key: editors
+
+      # The fixture's `node_modules/.bin/kirana` runs the compiler entry, TypeScript, with Node.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Build the native engine
+        working-directory: packages/kirana/npm/compiler
+        run: bun run build:debug
+
+      # VS Code is downloaded and run on Electron's headless platform: no display server needed.
+      - name: VS Code extension, end to end
+        working-directory: packages/kirana/editors/vscode
+        run: bun run test:e2e
+
+      - name: Package the VS Code extension
+        working-directory: packages/kirana/editors/vscode
+        run: bun run package
+
+      # Outside the engine's Cargo workspace, with its own toolchain file naming the target.
+      - name: Zed extension
+        working-directory: packages/kirana/editors/zed
+        run: |
+          rustup target add wasm32-wasip2
+          cargo fmt --check
+          cargo clippy --all-targets -- -D warnings
+          cargo test
+          cargo build --release --target wasm32-wasip2
+
+      - name: Upload the editor builds
+        uses: actions/upload-artifact@v7
+        with:
+          name: kirana-editors
+          path: |
+            packages/kirana/editors/vscode/kirana.vsix
+            packages/kirana/editors/zed/target/wasm32-wasip2/release/kirana_zed.wasm
+
+  build:
+    runs-on: ubuntu-26.04
+    name: build
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-rust
+        with:
+          cache-key: release
+
+      # Turbo's own cache, so a push that changes only one app replays the others.
+      - name: Cache turbo outputs
+        uses: actions/cache@v6
+        with:
+          path: .turbo
+          key: turbo-build-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-build-${{ runner.os }}-
+
+      # Turbo builds the native engine first (@kirana-style/compiler#build), then the docs site.
+      - name: Build
+        run: bun run build
+
+  determinism:
+    name: kirana · determinism (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-26.04, ubuntu-26.04-arm, macos-26, windows-2025]
+
+    steps:
+      # Byte-identical output must not depend on line endings in the checkout.
+      - name: Keep LF line endings
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Installed workspace links (`@workspace/ui`, `@kirana-style/preset-scales`) are part of the
+      # compiler's input: without them every imported token is an unresolved runtime value.
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/setup-rust
+        with:
+          cache-key: determinism
+
+      # The same sources compiled with one thread and with all threads (KRN-OUT-006, KRN-TEST-005).
+      - name: Build the stylesheet twice
+        shell: bash
+        run: |
+          cargo build --release --manifest-path packages/kirana/Cargo.toml -p kirana_cli
+          kirana=packages/kirana/target/release/kirana
+          config='{"layers":{"before":["reset","base"]}}'
+          RAYON_NUM_THREADS=1 "$kirana" --config-json "$config" build packages/ui/src packages/shell/src packages/docs-ui/src apps/docs/src --out one.css --minify
+          "$kirana" --config-json "$config" build packages/ui/src packages/shell/src packages/docs-ui/src apps/docs/src --out all.css --minify
+          cmp one.css all.css
+          test -s one.css
+          if command -v sha256sum > /dev/null; then sha256sum one.css; else shasum -a 256 one.css; fi | cut -d' ' -f1 > stylesheet.sha256
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: determinism-${{ matrix.os }}
+          path: stylesheet.sha256
+
+  determinism-compare:
+    runs-on: ubuntu-26.04
+    name: kirana · determinism across platforms
+    needs: [determinism]
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: determinism-*
+
+      - name: Every platform produced the same stylesheet
+        run: |
+          cat determinism-*/stylesheet.sha256
+          test "$(cat determinism-*/stylesheet.sha256 | sort -u | wc -l)" -eq 1

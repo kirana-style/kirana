@@ -1,0 +1,58 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k4f_liOv {
+    border: var(--line);
+  }
+  .k4C_4IBj {
+    border-top: var(--top);
+  }
+  .k0_HV2H {
+    padding: 1rem;
+  }
+  .ka_pZ99 {
+    border-radius: var(--radius);
+  }
+  .ku_OAhx {
+    inset: var(--ku);
+  }
+  .k1_HV2H {
+    padding-bottom: 1rem;
+  }
+  .k2_HV2H {
+    padding-left: 1rem;
+  }
+  .k3_HV2H {
+    padding-right: 1rem;
+  }
+  .k4_HV2H {
+    padding-top: 1rem;
+  }
+  .k6_GvB4 {
+    margin-bottom: 1px;
+  }
+  .k7_8bbU {
+    margin-left: 2px;
+  }
+  .k8_8bbU {
+    margin-right: 2px;
+  }
+  .k9_GvB4 {
+    margin-top: 1px;
+  }
+  .k1g_mTvr {
+    overscroll-behavior: contain none;
+  }
+  .kJ_pnCg {
+    gap: 0.5rem;
+  }
+  .kM_vJdK {
+    overflow: hidden;
+  }
+  .k4_oD60 {
+    padding-top: 0;
+  }
+  .kJ-KFHz_iExv:where(:hover) {
+    gap: 1rem;
+  }
+}

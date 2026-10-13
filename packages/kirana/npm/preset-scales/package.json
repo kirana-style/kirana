@@ -1,0 +1,27 @@
+{
+  "name": "@kirana-style/preset-scales",
+  "version": "0.1.0",
+  "description": "Scale tokens for Kirana: a Tailwind CSS v4-compatible palette, spacing, type ramp, radii, shadows and breakpoints.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/preset-scales"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./preset": "./src/preset.ts",
+    "./conditions": "./src/conditions.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/core": "workspace:*"
+  }
+}

@@ -1,0 +1,12 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 93b8320192aaa4617f4106b5171a55bcacfcc4901c6104d46f02f20dd1c0efcd # shrinks to sequence = [(5, Some(0))]
+cc c46e3e48b0ddd5d492e70a36cf5423092db6c73a3c88fd5bd264aba59714b87c # shrinks to sequence = [(11, Some(0), true, false), (12, None, false, true)]
+cc 7510ec691bf57dbb8939d4ac927b346bdfe3362e115f7c90e3ee5c7be19e8bd9 # shrinks to sequence = [(0, Some(0), false, false)]
+cc 2a569ed45383f1e8743036f99e01542b887041f4b1b713439872ca4964b66d52 # shrinks to sequence = [(0, Some(0), false, false), (2, Some(0), false, false), (3, None, false, false)]
+cc 76940fdd11edb6b2c06f3091196e7b08d7a77e00b47df473276dede109975798 # shrinks to sequence = [(0, Some(0), false, false), (3, Some(0), false, false), (5, None, false, false)]
+cc 2b1389134432d1c329a3dbe9dbdb14b7fecf618fb8a6f5d9ec3a47d1918fce01 # shrinks to sequence = [(0, Some(0), false, false), (3, Some(0), false, false), (4, None, false, false), (1, None, false, false)]

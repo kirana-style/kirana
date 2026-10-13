@@ -1,0 +1,16 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k5O_Im6t {
+    display: none;
+  }
+  .k5O-krb5_u3uh:where(.krzJXH:checked ~ *) {
+    display: block;
+  }
+  .k50-6nuf_D9ur:where(:has(~ .krzJXH)) {
+    color: red;
+  }
+  .k87-soRz_ufrO:where(.krLW1F[data-disabled="true"] *) {
+    opacity: 0.5;
+  }
+}

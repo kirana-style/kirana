@@ -1,0 +1,30 @@
+// kirana/no-dark-variant: dark mode written the way other systems write it, which Kirana compiles
+// without complaint and the page then ignores. A `prefers-color-scheme` condition in a style (a key
+// of a css() or recipe() object, or a media() query) follows the operating system, not the mode the
+// page chose; a `light-dark()` token follows `color-scheme`, and so a theme toggle too. A Tailwind
+// `dark:` class in a `className`, `class` or `sx` string names a class no stylesheet defines.
+language js(typescript, jsx)
+
+pattern scheme() {
+  r".*prefers-color-scheme.*"
+}
+
+or {
+  JsPropertyObjectMember(name = JsLiteralMemberName() as $at) where {
+    $at <: scheme(),
+    $at <: within JsCallExpression(callee = or { `css`, `recipe` }),
+    $message = "kirana/no-dark-variant: prefers-color-scheme follows the system, not the mode the page chose; put both values in a light-dark() token, which follows color-scheme."
+  },
+  JsCallExpression(callee = `media`, arguments = JsCallArguments(args = [$query])) as $at where {
+    $query <: scheme(),
+    $message = "kirana/no-dark-variant: prefers-color-scheme follows the system, not the mode the page chose; put both values in a light-dark() token, which follows color-scheme."
+  },
+  JsxAttribute(name = $name, initializer = $value) where {
+    $name <: or { `className`, `class`, `sx` },
+    $value <: contains JsxString() as $at,
+    $at <: or { r"[\"']dark:[^\s\"'].*", r".*\sdark:[^\s\"'].*" },
+    $message = "kirana/no-dark-variant: dark: is a Tailwind variant and names no class here; put both values in a light-dark() token."
+  }
+} where {
+  register_diagnostic(span = $at, message = $message, severity = "warn")
+}

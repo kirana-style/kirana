@@ -1,0 +1,42 @@
+{
+  "name": "kirana-example-symfony",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "kirana build resources/styles --out public/kirana-style/kirana.css --minify",
+    "start": "php -S 127.0.0.1:$PORT -t public"
+  },
+  "kirana-example": {
+    "output": "public/kirana",
+    "prepare": [
+      [
+        "composer",
+        "install",
+        "--no-interaction",
+        "--quiet"
+      ]
+    ],
+    "dev": [
+      "php",
+      "-S",
+      "127.0.0.1:{port}",
+      "-t",
+      "public"
+    ],
+    "devAlso": [
+      "kirana",
+      "dev",
+      "resources/styles",
+      "--out",
+      "public/kirana-style/kirana.css"
+    ],
+    "reloads": true,
+    "edit": "resources/styles/app.styles.ts"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0"
+  },
+  "devDependencies": {
+    "@kirana-style/compiler": "0.1.0"
+  }
+}

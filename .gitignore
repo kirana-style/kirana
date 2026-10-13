@@ -1,0 +1,35 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+.env*
+# The server examples ship their framework's template env file, with no secrets in it.
+!packages/kirana/examples/*/.env.example
+!packages/kirana/examples/symfony/.env
+.tanstack
+.wrangler
+.output
+.vinxi
+__unconfig*
+todos.json
+
+# turbo
+.turbo
+
+# typescript
+*.tsbuildinfo
+
+# coverage
+coverage
+*.lcov
+
+# Golden fixtures carry small stand-ins for installed packages; without them CI cannot
+# exercise external-package behaviour (sx-on-external-component, installed presets).
+!packages/kirana/fixtures/transform/*/node_modules/
+
+# Tarballs from `bun run kirana:pack`; install tests read them, nothing commits them.
+packages/kirana/dist-packages/
+
+# LLVM coverage output: an instrumented engine run outside `kirana:coverage` writes it to its working directory.
+*.profraw

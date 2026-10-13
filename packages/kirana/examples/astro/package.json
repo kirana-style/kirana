@@ -1,0 +1,26 @@
+{
+  "name": "kirana-example-astro",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "astro build"
+  },
+  "kirana-example": {
+    "dev": [
+      "astro",
+      "dev",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "src/pages/index.astro"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "astro": "^7.3.4"
+  },
+  "devDependencies": {
+    "@kirana-style/astro": "0.1.0"
+  }
+}

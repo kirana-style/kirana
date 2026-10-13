@@ -1,0 +1,16 @@
+[
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 115,
+      "end": 132
+    },
+    "message": "gap cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  }
+]

@@ -1,0 +1,86 @@
+[
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 369,
+      "end": 378
+    },
+    "message": "Trigger passes its props, `sx` included, to \"menu-lib\", which does not read it",
+    "help": [
+      "take `sx` out of that component's props and pass it on: sx={[styles.root, sx]} on an element, {...props(styles.root, sx)} on an installed component"
+    ]
+  },
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 395,
+      "end": 404
+    },
+    "message": "Block passes its props, `sx` included, to \"menu-lib\", which does not read it",
+    "help": [
+      "take `sx` out of that component's props and pass it on: sx={[styles.root, sx]} on an element, {...props(styles.root, sx)} on an installed component"
+    ]
+  },
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 423,
+      "end": 432
+    },
+    "message": "Concise passes its props, `sx` included, to \"menu-lib\", which does not read it",
+    "help": [
+      "take `sx` out of that component's props and pass it on: sx={[styles.root, sx]} on an element, {...props(styles.root, sx)} on an installed component"
+    ]
+  },
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 451,
+      "end": 460
+    },
+    "message": "Aliased passes its props, `sx` included, to \"menu-lib\", which does not read it",
+    "help": [
+      "take `sx` out of that component's props and pass it on: sx={[styles.root, sx]} on an element, {...props(styles.root, sx)} on an installed component"
+    ]
+  },
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 529,
+      "end": 538
+    },
+    "message": "Host passes its props, `sx` included, to <div>, which does not read it",
+    "help": [
+      "take `sx` out of that component's props and pass it on: sx={[styles.root, sx]} on an element, {...props(styles.root, sx)} on an installed component"
+    ]
+  },
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 849,
+      "end": 858
+    },
+    "message": "Overloaded passes its props, `sx` included, to \"menu-lib\", which does not read it",
+    "help": [
+      "take `sx` out of that component's props and pass it on: sx={[styles.root, sx]} on an element, {...props(styles.root, sx)} on an installed component"
+    ]
+  }
+]

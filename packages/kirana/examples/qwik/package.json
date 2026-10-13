@@ -1,0 +1,30 @@
+{
+  "name": "kirana-example-qwik",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build && vite build -c adapters/ssg/vite.config.ts"
+  },
+  "kirana-example": {
+    "dev": [
+      "vite",
+      "--mode",
+      "ssr",
+      "--port",
+      "{port}",
+      "--strictPort",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "src/routes/index.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "@qwik.dev/core": "2.0.0-rc.0",
+    "@qwik.dev/router": "2.0.0-rc.0",
+    "vite": "^8.3.0"
+  }
+}

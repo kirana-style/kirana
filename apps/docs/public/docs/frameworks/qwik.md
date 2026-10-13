@@ -1,0 +1,106 @@
+# Qwik
+Source: https://kirana.style/docs/frameworks/qwik
+
+# Qwik
+
+`sx` compiles to `class` (and `style` for values known only at runtime). Kirana
+picks that up from `jsxImportSource` in your `tsconfig.json`, so there is nothing
+to configure. Kirana supports **Qwik 2** (`@qwik.dev/core`): Qwik 1 runs only on
+Vite 7 and older, and Kirana's Vite plugin needs Vite 8. Tested on every change
+by `examples/qwik`, a Qwik Router app built and served with npm and pnpm.
+
+> [!NOTE] Not on npm yet
+> The packages are packed and install-tested on every change, but not published.
+> Until they are, install them from tarballs as
+> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
+> of this page is the same either way.
+
+## The fast way
+
+In the project's root:
+
+```bash
+npx kirana init
+```
+
+It detects Qwik, shows every change below as a diff, writes them once you say
+yes, and prints the install command (`--install` runs it). Then
+`npx kirana doctor` checks the result.
+
+## 1. Install
+
+```bash
+npm install @kirana-style/core
+npm install -D @kirana-style/vite
+```
+
+## 2. Add the plugin
+
+Kirana goes first, so Qwik's optimizer splits components that are already
+compiled:
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import { qwikVite } from "@qwik.dev/core/optimizer"
+import { qwikRouter } from "@qwik.dev/router/vite"
+import { defineConfig } from "vite"
+
+export default defineConfig({
+  plugins: [kirana(), qwikRouter(), qwikVite()],
+})
+```
+
+One Kirana session serves the server render and the client build, so both name
+the same classes.
+
+## 3. Point `jsxImportSource` at Qwik, and type `sx`
+
+```json file="tsconfig.json"
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@qwik.dev/core",
+    "types": ["@kirana-style/core/qwik"]
+  }
+}
+```
+
+Without a `tsconfig.json`, set [`jsx: "qwik"`](/docs/config/reference) in
+`kirana.config.ts` instead.
+
+## 4. Import the stylesheet
+
+In the root component, which every page renders:
+
+```tsx file="src/root.tsx"
+import "@kirana-style/core/stylesheet.css"
+```
+
+## 5. Write a component
+
+```tsx file="src/components/card.tsx"
+import { css } from "@kirana-style/core"
+import { component$ } from "@qwik.dev/core"
+
+const card = css({ padding: "1rem", borderRadius: "0.5rem" })
+const wide = css({ width: "100%" })
+
+export const Card = component$((props: { wide: boolean }) => (
+  <div class="card" sx={[card, props.wide && wide]} />
+))
+```
+
+Keep the handles at module level, as here: the optimizer moves each `$` function
+into a module of its own, which imports them. A `class` already on the element is
+merged with the styles into the one `class` it ends up with.
+
+## In development
+
+Qwik updates the page from the server render, so run the dev server in its SSR
+mode (`vite --mode ssr`, which a Qwik Router app's `dev` script already does). A
+style edit then reaches the page like any other edit.
+
+## Next
+
+- [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).
+- [The Vite plugin](/docs/integrations/vite).

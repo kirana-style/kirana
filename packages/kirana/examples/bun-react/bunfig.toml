@@ -1,0 +1,5 @@
+# The dev server: `bun ./index.html --host=127.0.0.1:<port>`. The host goes after the
+# entry, and is given because otherwise Bun binds whichever address `localhost`
+# resolves to first, which is ::1 on the CI runners.
+[serve.static]
+plugins = ["./kirana.ts"]

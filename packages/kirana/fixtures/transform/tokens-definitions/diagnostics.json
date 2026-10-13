@@ -1,0 +1,28 @@
+[
+  {
+    "code": "KRN1501",
+    "name": "unknown-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 465,
+      "end": 475
+    },
+    "message": "the token group has no token \"nope\"",
+    "help": []
+  },
+  {
+    "code": "KRN1506",
+    "name": "token-not-variable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 510,
+      "end": 531
+    },
+    "message": "space.px is not a variable token, so it cannot be assigned",
+    "help": [
+      "declare the token with `variable: true`"
+    ]
+  }
+]

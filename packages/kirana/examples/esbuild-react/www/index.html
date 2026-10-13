@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Kirana on esbuild + React</title>
+    <link rel="stylesheet" href="/main.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/main.js"></script>
+    <!-- esbuild's live reload while serving; nothing listens in a build. -->
+    <script>
+      new EventSource("/esbuild").addEventListener("change", () =>
+        location.reload()
+      )
+    </script>
+  </body>
+</html>

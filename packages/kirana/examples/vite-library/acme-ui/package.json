@@ -1,0 +1,15 @@
+{
+  "name": "acme-ui",
+  "version": "1.0.0",
+  "description": "A stand-in for a published Kirana library: its styles ship uncompiled, and the app compiles them.",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "tokens.js"
+  ],
+  "peerDependencies": {
+    "@kirana-style/core": ">=0.1.0",
+    "react": ">=19"
+  }
+}

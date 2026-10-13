@@ -1,0 +1,29 @@
+{
+  "name": "kirana-example-rsbuild-react",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rsbuild build"
+  },
+  "kirana-example": {
+    "dev": [
+      "rsbuild",
+      "dev",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "src/index.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@kirana-style/rspack": "0.1.0",
+    "@rsbuild/core": "^2.2.8",
+    "@rsbuild/plugin-react": "^2.0.0"
+  }
+}

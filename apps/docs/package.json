@@ -1,0 +1,49 @@
+{
+  "name": "docs",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "predev": "bun run generate:content",
+    "dev": "vite dev --port 3000",
+    "prebuild": "bun run generate",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "generate": "bun run generate:content && bun run generate:reference && bun run generate:skills && bun run generate:examples && bun run generate:brand",
+    "generate:content": "bun scripts/generate-content.ts",
+    "generate:reference": "bun scripts/generate-reference.ts",
+    "generate:skills": "bun scripts/generate-skills.ts",
+    "check:consistency": "bun scripts/check-consistency.ts",
+    "generate:examples": "bun scripts/generate-examples.ts",
+    "verify:generated": "bun scripts/generate-content.ts --check && bun scripts/generate-svgl.ts --check && bun scripts/generate-reference.ts --check && bun scripts/generate-skills.ts --check && bun scripts/generate-examples.ts --check && bun scripts/generate-brand.ts --check && bun scripts/check-consistency.ts",
+    "generate:brand": "bun scripts/generate-brand.ts",
+    "generate:svgl": "bun scripts/generate-svgl.ts"
+  },
+  "dependencies": {
+    "@hugeicons/core-free-icons": "catalog:",
+    "@kirana-style/core": "workspace:*",
+    "@tanstack/highlight": "^1.1.0",
+    "@tanstack/markdown": "^1.0.0",
+    "@tanstack/react-hotkeys": "^0.13.0",
+    "@tanstack/react-router": "catalog:",
+    "@tanstack/react-start": "catalog:",
+    "@workspace/docs-core": "workspace:*",
+    "@workspace/docs-ui": "workspace:*",
+    "@workspace/shell": "workspace:*",
+    "@workspace/ui": "workspace:*",
+    "motion": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@kirana-style/compiler": "workspace:*",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@workspace/vite-config": "workspace:*",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

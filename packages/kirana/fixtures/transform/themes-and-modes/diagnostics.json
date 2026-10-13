@@ -1,0 +1,64 @@
+[
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 382,
+      "end": 453
+    },
+    "message": "group is a token group; override its tokens",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 382,
+      "end": 453
+    },
+    "message": "theme value for theme.primary is not a CSS value",
+    "help": []
+  },
+  {
+    "code": "KRN1501",
+    "name": "unknown-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 382,
+      "end": 453
+    },
+    "message": "the token group has no token \"missing\"",
+    "help": []
+  },
+  {
+    "code": "KRN1506",
+    "name": "token-not-variable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 481,
+      "end": 516
+    },
+    "message": "fixed.size is not a variable token, so a theme cannot override it",
+    "help": [
+      "declare the token with `variable: true`"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 540,
+      "end": 560
+    },
+    "message": "defineTheme(tokens, overrides) takes a token group and an object",
+    "help": []
+  }
+]

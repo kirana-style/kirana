@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  App\:
+    resource: "../src/"
+
+  # `kirana()` in Twig, reading the class map `kirana build` and `kirana dev` write.
+  Kirana\Twig\KiranaExtension:
+    arguments: ["%kernel.project_dir%/public/kirana/classes.json"]

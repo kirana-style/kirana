@@ -1,0 +1,1 @@
+{"names": {"prefix": "ds"}, "diagnostics": {"relation-unused": "off", "dynamic-bridged": "warning", "unsplittable-shorthand": "info"}, "targets": {"safari": "15"}, "layers": {"before": ["reset"], "after": ["overrides"]}}

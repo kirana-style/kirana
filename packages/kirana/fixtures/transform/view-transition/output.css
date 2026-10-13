@@ -1,0 +1,50 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  @keyframes kfBcwa {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes kfWkJE {
+    from {
+      translate: 0 1rem;
+    }
+  }
+  .kw1AiT {
+    view-transition-class: kw1AiT;
+  }
+  .kwBm2s {
+    view-transition-class: kwBm2s;
+  }
+  ::view-transition-group(*.kwBm2s) {
+    animation-timing-function: ease-out;
+    animation-timing-function: linear(0, 1.2 60%, 1);
+  }
+  @supports (animation-timeline: view()) {
+    ::view-transition-group(*.kwBm2s) {
+      animation-duration: 300ms;
+    }
+  }
+  ::view-transition-image-pair(*.kwBm2s) {
+    isolation: auto;
+  }
+  ::view-transition-old(*.kwBm2s) {
+    animation-name: kfBcwa;
+    animation-duration: 150ms;
+  }
+  ::view-transition-new(*.kwBm2s) {
+    animation-name: kfWkJE;
+    animation-duration: 250ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-new(*.kwBm2s) {
+      animation-duration: 0s;
+    }
+  }
+}
+@layer kirana.atoms {
+  .ka_MKOQ {
+    border-radius: 8px;
+  }
+}

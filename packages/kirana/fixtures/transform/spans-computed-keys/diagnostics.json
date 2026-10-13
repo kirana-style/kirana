@@ -1,0 +1,82 @@
+[
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 196,
+      "end": 204
+    },
+    "message": "\":focus\" is a condition, and conditions nest inside property values",
+    "help": [
+      "write `property: { [condition]: value }`"
+    ]
+  },
+  {
+    "code": "KRN1203",
+    "name": "unitless-length",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 236,
+      "end": 250
+    },
+    "message": "width does not accept a bare number (5)",
+    "help": [
+      "write the unit, for example \"5px\""
+    ]
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 252,
+      "end": 262
+    },
+    "message": "\"0\": expected a pseudo-class, an attribute selector or an at-rule",
+    "help": []
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 395,
+      "end": 424
+    },
+    "message": "\":hover\" is a condition, and conditions nest inside property values",
+    "help": [
+      "write `property: { [condition]: value }`"
+    ]
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 518,
+      "end": 533
+    },
+    "message": "padding: a value cannot contain ';'",
+    "help": []
+  },
+  {
+    "code": "KRN1203",
+    "name": "unitless-length",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 545,
+      "end": 558
+    },
+    "message": "margin does not accept a bare number (3)",
+    "help": [
+      "write the unit, for example \"3px\""
+    ]
+  }
+]

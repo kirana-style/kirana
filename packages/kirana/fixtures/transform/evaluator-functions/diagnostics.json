@@ -1,0 +1,482 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2280,
+      "end": 2293
+    },
+    "message": "content is set at runtime through --k5n",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2313,
+      "end": 2328
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2348,
+      "end": 2367
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2387,
+      "end": 2400
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2420,
+      "end": 2434
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2454,
+      "end": 2468
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2488,
+      "end": 2503
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2523,
+      "end": 2541
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2561,
+      "end": 2579
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2599,
+      "end": 2617
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2637,
+      "end": 2653
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2673,
+      "end": 2686
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2706,
+      "end": 2726
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2746,
+      "end": 2765
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2785,
+      "end": 2802
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2822,
+      "end": 2840
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2889,
+      "end": 2896
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2916,
+      "end": 2931
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2951,
+      "end": 2967
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2987,
+      "end": 3000
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3020,
+      "end": 3030
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3050,
+      "end": 3061
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3081,
+      "end": 3094
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3114,
+      "end": 3124
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3144,
+      "end": 3155
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3175,
+      "end": 3191
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3211,
+      "end": 3224
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3244,
+      "end": 3258
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3278,
+      "end": 3287
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3307,
+      "end": 3317
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3337,
+      "end": 3348
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3368,
+      "end": 3379
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3399,
+      "end": 3410
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3430,
+      "end": 3444
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3464,
+      "end": 3482
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3502,
+      "end": 3521
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3541,
+      "end": 3555
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3575,
+      "end": 3588
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3608,
+      "end": 3623
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 3643,
+      "end": 3662
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "code": "KRN1001",
+    "name": "parse-error",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 54,
+      "end": 55
+    },
+    "message": "Unexpected token",
+    "help": []
+  }
+]

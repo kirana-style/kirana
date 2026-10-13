@@ -1,0 +1,20 @@
+[package]
+name = "kirana_emit"
+description = "The Kirana stylesheet writer: layer plan, tokens, themes, keyframes and ladder-ordered atoms."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+kirana_css_data = { workspace = true }
+kirana_ir = { workspace = true }
+kirana_shared = { workspace = true }
+lightningcss = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+
+[lints]
+workspace = true

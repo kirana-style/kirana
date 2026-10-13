@@ -1,0 +1,29 @@
+{
+  "name": "@workspace/docs-ui",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "description": "The layout of the Kirana docs framework: docs shell with section tabs, sidebar, table of contents, copy-page menu, code blocks and markdown components, styled with Kirana and built on @workspace/ui.",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hugeicons/core-free-icons": "catalog:",
+    "@kirana-style/core": "workspace:*",
+    "@tanstack/markdown": "^1.0.0",
+    "@tanstack/react-router": "catalog:",
+    "@workspace/docs-core": "workspace:*",
+    "@workspace/ui": "workspace:*",
+    "motion": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "typescript": "catalog:"
+  },
+  "exports": {
+    "./*": "./src/*"
+  }
+}

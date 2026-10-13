@@ -1,0 +1,31 @@
+[package]
+name = "kirana_migrate"
+description = "The codemods behind `kirana migrate stylex` and `kirana migrate tailwind`: mechanical rewrites, and a report for everything they will not guess."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+kirana_config = { workspace = true }
+kirana_css_data = { workspace = true }
+kirana_frontend = { workspace = true }
+kirana_ir = { workspace = true }
+kirana_project = { workspace = true }
+kirana_shared = { workspace = true }
+kirana_utility = { workspace = true }
+oxc_ast = { workspace = true }
+oxc_ast_visit = { workspace = true }
+oxc_span = { workspace = true }
+oxc_syntax = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+kirana_diagnostics = { workspace = true }
+kirana_shared = { workspace = true }
+serde_json = { workspace = true }
+
+[lints]
+workspace = true

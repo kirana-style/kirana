@@ -1,0 +1,283 @@
+{
+  "utilities": {
+    "scales": {
+      "space": [
+        {
+          "module": "./scales.ts",
+          "export": "space"
+        }
+      ],
+      "color": [
+        {
+          "module": "./scales.ts",
+          "export": "color"
+        },
+        {
+          "module": "../migrate-tailwind/theme.ts",
+          "export": "theme"
+        },
+        {
+          "module": "./brand.ts",
+          "export": "color"
+        }
+      ],
+      "radius": [
+        {
+          "module": "./scales",
+          "export": "radius"
+        }
+      ],
+      "fontSize": [
+        {
+          "module": "./scales.ts",
+          "export": "fontSize"
+        }
+      ],
+      "lineHeight": [
+        {
+          "module": "./scales.ts",
+          "export": "lineHeight"
+        }
+      ],
+      "compose": [
+        {
+          "module": "./scales.ts",
+          "export": "compose"
+        }
+      ],
+      "shadow": [
+        {
+          "module": "@kirana-style/preset-scales",
+          "export": "shadow"
+        }
+      ]
+    },
+    "utilities": {
+      "flex": [
+        {
+          "static": {
+            "display": "flex"
+          }
+        },
+        {
+          "properties": [
+            "flexDirection"
+          ],
+          "values": {
+            "col": "column",
+            "row": "row"
+          }
+        }
+      ],
+      "block": [
+        {
+          "static": {
+            "display": "block"
+          }
+        }
+      ],
+      "absolute": [
+        {
+          "static": {
+            "position": "absolute"
+          }
+        }
+      ],
+      "p": [
+        {
+          "properties": [
+            "padding"
+          ],
+          "scale": "space",
+          "number": {
+            "step": 0.25,
+            "unit": "rem"
+          }
+        }
+      ],
+      "px": [
+        {
+          "properties": [
+            "paddingInline"
+          ],
+          "scale": "space"
+        }
+      ],
+      "mt": [
+        {
+          "properties": [
+            "marginTop"
+          ],
+          "scale": "space",
+          "negative": true
+        }
+      ],
+      "gap": [
+        {
+          "properties": [
+            "gap"
+          ],
+          "scale": "space"
+        }
+      ],
+      "w": [
+        {
+          "properties": [
+            "width"
+          ],
+          "scale": "space",
+          "fractions": true
+        }
+      ],
+      "size": [
+        {
+          "properties": [
+            "width",
+            "height"
+          ],
+          "scale": "space"
+        }
+      ],
+      "rounded": [
+        {
+          "properties": [
+            "borderRadius"
+          ],
+          "scale": "radius"
+        }
+      ],
+      "text": [
+        {
+          "properties": [
+            "fontSize"
+          ],
+          "scale": "fontSize",
+          "pair": {
+            "lineHeight": "lineHeight"
+          }
+        },
+        {
+          "properties": [
+            "color"
+          ],
+          "scale": "color",
+          "alpha": true
+        }
+      ],
+      "bg": [
+        {
+          "properties": [
+            "backgroundColor"
+          ],
+          "scale": "color",
+          "alpha": true
+        }
+      ],
+      "font": [
+        {
+          "properties": [
+            "fontWeight"
+          ],
+          "values": {
+            "semibold": "600",
+            "medium": "500"
+          }
+        }
+      ],
+      "opacity": [
+        {
+          "properties": [
+            "opacity"
+          ],
+          "number": {
+            "unit": "%"
+          }
+        }
+      ],
+      "underline": [
+        {
+          "static": {
+            "textDecorationLine": "underline"
+          }
+        }
+      ],
+      "border": [
+        {
+          "static": {
+            "borderWidth": "1px",
+            "borderStyle": "solid"
+          }
+        },
+        {
+          "properties": [
+            "borderColor"
+          ],
+          "scale": "color"
+        }
+      ],
+      "ring": [
+        {
+          "properties": [
+            "{compose.ring-width}"
+          ],
+          "number": {
+            "unit": "px"
+          },
+          "also": {
+            "{compose.ring-shadow}": "0 0 0 {compose.ring-width} {compose.ring-color}",
+            "boxShadow": "{compose.ring-shadow}, {compose.shadow}"
+          }
+        },
+        {
+          "properties": [
+            "{compose.ring-color}"
+          ],
+          "scale": "color",
+          "alpha": true
+        }
+      ],
+      "shadow": [
+        {
+          "properties": [
+            "boxShadow"
+          ],
+          "scale": "shadow"
+        }
+      ],
+      "@container": [
+        {
+          "static": {
+            "containerType": "inline-size"
+          }
+        }
+      ],
+      "me": [
+        {
+          "properties": [
+            "marginInlineEnd"
+          ],
+          "scale": "space",
+          "negative": true
+        }
+      ],
+      "mb": [
+        {
+          "properties": [
+            "marginBlockEnd"
+          ],
+          "scale": "space",
+          "negative": true
+        }
+      ]
+    },
+    "variants": {
+      "hover": ":hover",
+      "focus-visible": ":focus-visible",
+      "disabled": ":disabled",
+      "md": "@media (width >= 48rem)",
+      "@md": "@container (width >= 28rem)",
+      "after": "::after",
+      "data-horizontal": "[data-orientation=\"horizontal\"]"
+    }
+  }
+}

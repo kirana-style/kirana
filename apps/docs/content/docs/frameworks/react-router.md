@@ -1,0 +1,83 @@
+---
+title: React Router
+description: Install Kirana in a React Router app - framework mode on Vite, sx compiles to className, server rendering and single-page mode alike.
+section: frameworks
+order: 3.5
+keywords: [react router, remix, framework mode, vite, ssr, spa, install]
+---
+
+# React Router
+
+React Router's framework mode builds with Vite, so Kirana's Vite plugin is all it
+needs: `sx` compiles to `className`, on the server render and in the browser
+alike. Tested on every change by `examples/react-router`, built and on its dev
+server.
+
+> [!NOTE] Not on npm yet
+> The packages are packed and install-tested on every change, but not published.
+> Until they are, install them from tarballs as
+> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
+> of this page is the same either way.
+
+## The fast way
+
+In the project's root:
+
+```bash
+npx kirana init
+```
+
+It detects the project, shows every change below as a diff, writes them once you
+say yes, and prints the install command (`--install` runs it). Then
+`npx kirana doctor` checks the result.
+
+## 1. Install
+
+<!-- ::install packages="@kirana-style/core" dev="@kirana-style/vite" -->
+
+## 2. Add the plugin
+
+Kirana goes before React Router's plugin, so routes reach it as source:
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import { reactRouter } from "@react-router/dev/vite"
+import { defineConfig } from "vite"
+
+export default defineConfig({
+  plugins: [kirana(), reactRouter()],
+})
+```
+
+## 3. Import the stylesheet
+
+In the root route, which renders the document:
+
+```tsx file="app/root.tsx"
+import "@kirana-style/core/stylesheet.css"
+```
+
+## 4. Type `sx`
+
+```json file="tsconfig.json"
+{
+  "compilerOptions": { "types": ["@kirana-style/core/react"] }
+}
+```
+
+## 5. Write a route
+
+```tsx file="app/routes/home.tsx"
+import { css } from "@kirana-style/core"
+
+const title = css({ fontSize: "2rem", fontWeight: 600 })
+
+export default function Home() {
+  return <h1 sx={title}>Hello</h1>
+}
+```
+
+## Next
+
+- [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).
+- [The Vite plugin](/docs/integrations/vite).

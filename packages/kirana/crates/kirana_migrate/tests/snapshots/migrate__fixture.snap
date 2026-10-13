@@ -1,0 +1,41 @@
+---
+source: crates/kirana_migrate/tests/migrate.rs
+expression: result.source
+---
+import { css, defineTheme, defineTokens, keyframes, props as styleProps, relation, type Sx } from "@kirana-style/core"
+import { spacing } from "./tokens"
+
+export const colors = defineTokens("colors", { ink: "black" }, { variable: true })
+export const sizes = { gap: "1rem" } as const
+export const brand = defineTheme(colors, { ink: "navy" })
+export const spin = keyframes({ to: { transform: "rotate(360deg)" } })
+export const fieldMarker = relation("field")
+
+const styles = {
+  root: css({
+    color: "black",
+    backgroundColor: {
+      base: "white",
+      ":hover": "grey",
+    },
+    outlineColor: {
+      ":focus": "blue",
+    },
+    opacity: {
+      base: 1,
+      [fieldMarker.within("[data-disabled]")]: 0.5,
+      [peer.after(":checked")]: 0.8,
+    },
+  }),
+  size: (width: number) => css({ width }),
+}
+
+export function Field({ style }: { style?: Sx }) {
+  const attributes = styleProps(styles.root, style)
+  return (
+    <div sx={[styles.root, fieldMarker.anchor, peer.anchor]}>
+      <span {...attributes} />
+      <i sx={[styles.size(spacing.x)]} />
+    </div>
+  )
+}

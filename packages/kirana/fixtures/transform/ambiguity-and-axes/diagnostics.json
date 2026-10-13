@@ -1,0 +1,72 @@
+[
+  {
+    "code": "KRN1302",
+    "name": "ambiguous-precedence",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 116,
+      "end": 121
+    },
+    "message": "color: `[data-state=\"open\"]` and `[aria-expanded=\"true\"]` have equal precedence and can match together",
+    "help": [
+      "nest one condition inside the other to state which wins"
+    ]
+  },
+  {
+    "code": "KRN1302",
+    "name": "ambiguous-precedence",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 116,
+      "end": 121
+    },
+    "message": "color: `[aria-expanded=\"true\"]` and `[data-state=\"closed\"]` have equal precedence and can match together",
+    "help": [
+      "nest one condition inside the other to state which wins"
+    ]
+  },
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 328,
+      "end": 354
+    },
+    "message": "padding-inline-start and padding-left are both set with the same number of longhands; the physical property wins",
+    "help": [
+      "use one axis family on an element"
+    ]
+  },
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 494,
+      "end": 507
+    },
+    "message": "margin-inline-end and margin-right are both set; margin-right is written later but margin-inline-end wins because it sets fewer longhands",
+    "help": [
+      "use one axis family on an element"
+    ]
+  },
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 627,
+      "end": 646
+    },
+    "message": "padding-block-start and padding-top are both set; padding-block-start is written later but padding-top wins because it sets fewer longhands",
+    "help": [
+      "use one axis family on an element"
+    ]
+  }
+]

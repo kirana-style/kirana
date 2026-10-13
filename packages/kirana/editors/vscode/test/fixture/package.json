@@ -1,0 +1,7 @@
+{
+  "name": "kirana-vscode-fixture",
+  "private": true,
+  "dependencies": {
+    "@kirana-style/core": "*"
+  }
+}

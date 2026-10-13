@@ -1,0 +1,70 @@
+[
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 194,
+      "end": 223
+    },
+    "message": "border-radius cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  },
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 710,
+      "end": 731
+    },
+    "message": "border cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  },
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 733,
+      "end": 756
+    },
+    "message": "border-top cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  },
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 952,
+      "end": 986
+    },
+    "message": "overscroll-behavior cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 995,
+      "end": 1006
+    },
+    "message": "inset is set at runtime through --ku",
+    "help": []
+  }
+]

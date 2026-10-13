@@ -1,0 +1,26 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.contextual {
+  .kaF-C9M_w2yB :where(svg) {
+    width: var(--kaF-C9M);
+  }
+}
+@layer kirana.atoms {
+  .k44_LB88 {
+    background-color: blue;
+  }
+  .k50_D9ur {
+    color: red;
+  }
+  .k50_OuAg {
+    color: var(--k50);
+  }
+  @media (width >= 48rem) {
+    .k50-0w85_ISJz {
+      color: var(--k50-0w85);
+    }
+  }
+  .k50-9RcJ_Ycuw:where(.krYXFN *) {
+    color: var(--k50-9RcJ);
+  }
+}

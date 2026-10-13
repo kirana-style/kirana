@@ -1,0 +1,55 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k5O_u3uh {
+    display: block;
+  }
+  .k5n-k9l_57fc::before {
+    content: '';
+  }
+  .k8x-k9l_6UZd::before {
+    position: absolute;
+  }
+  .kaF-XTU_oD60::-webkit-scrollbar {
+    width: 0;
+  }
+  @supports not (display: grid) {
+    .k50-77vN_4U33 {
+      color: white;
+    }
+  }
+  @container sidebar (min-width: 10rem) {
+    .k50-J5tQ_W0yl {
+      color: black;
+    }
+  }
+  @container card (min-width: 20rem) {
+    .kJ-UdBF_iExv {
+      gap: 1rem;
+    }
+  }
+  @container (min-width: 30rem) {
+    .kJ-U880_v6Bq {
+      gap: 2rem;
+    }
+  }
+  .k50-Yp30_49ob:where(:nth-child(2n + 1)) {
+    color: green;
+  }
+  .k50-KFHz_D9ur:where(:hover) {
+    color: red;
+  }
+  .k87-k9l-KFHz_ufrO:where(:hover)::before {
+    opacity: 0.5;
+  }
+  .k50-vv9I_LB88:where([data-state="open"]) {
+    color: blue;
+  }
+  @supports (display: grid) {
+    @media (width >= 48rem) {
+      .k5O-cOEC_fqMV {
+        display: grid;
+      }
+    }
+  }
+}

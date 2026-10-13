@@ -1,0 +1,247 @@
+/**
+ * The Rolldown host adapter (KRN-INT-001, KRN-INT-002). It selects modules, forwards transform
+ * results, emits the stylesheet entry and forwards file changes to the Driver; it never interprets
+ * styles (D-028).
+ *
+ * The Vite adapter is this plugin plus Vite's dev-server hooks, because Vite's plugin API extends
+ * Rolldown's: one implementation of the build path serves both hosts. The one difference is CSS:
+ * Vite bundles it, so the stylesheet entry is a placeholder Vite processes and the plugin fills in;
+ * Rolldown alone does not, so the plugin emits the stylesheet as an asset of its own.
+ */
+import { COMPONENT, Driver } from "@kirana-style/compiler"
+import type { DriverOptions } from "@kirana-style/compiler"
+import {
+  ASSET_QUERY,
+  PLACEHOLDER,
+  SCRIPT,
+  STYLE_BEARING,
+  cleanId,
+  createReporter,
+  fillStylesheet,
+  renameAsset,
+  stylesheetPath,
+} from "@kirana-style/compiler/host"
+import type { KiranaConfig } from "@kirana-style/core/config"
+import { readFile } from "node:fs/promises"
+import path from "node:path"
+import type { OutputBundle, Plugin } from "rolldown"
+
+/** A request for part of a Vue, Svelte or Astro component, which carries a query. */
+const COMPONENT_PART = /\.(?:vue|svelte|astro)\?/
+
+export type KiranaRolldownOptions = {
+  /** The project root: where `kirana.config.*` and `@kirana-style/core` are found. Default: the working directory. */
+  root?: string
+  /** Options that override `kirana.config.*`. */
+  config?: KiranaConfig
+  /** Report `info` diagnostics (such as `dynamic-bridged`) as warnings. */
+  reportInfo?: boolean
+  /**
+   * Where the stylesheet is written in the output, when Rolldown builds on its own. Rolldown does
+   * not bundle CSS, so importing `@kirana-style/core/stylesheet.css` yields this name and the finished
+   * stylesheet is emitted under it; link it from your HTML. Default `kirana.css`. Under Vite, which
+   * bundles CSS, the stylesheet follows Vite's asset naming instead.
+   */
+  fileName?: string
+  /** Injected Driver options (tests). */
+  driver?: Pick<DriverOptions, "native" | "importModule">
+}
+
+/** What a host that extends this plugin supplies. */
+export type Host = {
+  /** True while a dev server serves the live stylesheet instead of the placeholder. */
+  development?: () => boolean
+  /** A transform changed the stylesheet. */
+  cssChanged?: () => void
+  /** The host bundles CSS (Vite): the entry is a placeholder stylesheet it processes like any other. */
+  bundlesCss?: boolean
+  /**
+   * False when something later renames the finished stylesheet itself (`@kirana-style/astro`, because
+   * Astro links each page's CSS by the name it recorded before `generateBundle`): the asset is filled
+   * where it is, and its name is added to `filled`.
+   */
+  renames?: boolean
+}
+
+/**
+ * The plugin, with the session and the settings a host that extends it may change (the Vite
+ * adapter sets the root from Vite's resolved configuration).
+ */
+export function createKirana(
+  options: KiranaRolldownOptions = {},
+  host: Host = {}
+) {
+  const state = { root: options.root ?? process.cwd(), stylesheetFile: "" }
+  let driver: Promise<Driver> | undefined
+  const reporter = createReporter(options)
+  const renamed = new Map<string, string>()
+  /** Stylesheet assets filled in place (`Host.renames` false), by output file name. */
+  const filled = new Set<string>()
+  const development = () => host.development?.() ?? false
+  const fileName = options.fileName ?? "kirana.css"
+
+  const session = () => {
+    driver ??= Driver.create({
+      root: state.root,
+      config: options.config,
+      ...options.driver,
+    })
+    return driver
+  }
+  const stylesheetFile = () =>
+    (state.stylesheetFile ||= stylesheetPath(state.root))
+
+  const plugin = {
+    name: "kirana",
+
+    async buildStart() {
+      await session()
+    },
+
+    load: {
+      // No `node_modules` exclusion here: in an installed app the stylesheet entry lives there.
+      filter: { id: [/stylesheet\.css/, COMPONENT] },
+      async handler(this, id: string) {
+        // A Vue, Svelte or Astro component is compiled as it is read, before any framework plugin's
+        // `transform` — Astro's compiles `.astro` files ahead of every user plugin, so a transform
+        // would only ever see its output (design-notes/sfc-masking.md).
+        if (COMPONENT.test(id)) {
+          // An installed component is compiled only when its package is in `libraries`.
+          const compiler = await session()
+          if (!compiler.compiles(id)) return null
+          const source = await readFile(id, "utf8")
+          const result = await compiler.transformComponent(id, source)
+          for (const dependency of result.dependencies)
+            this.addWatchFile(dependency)
+          reporter.module(this, id, source, result.diagnostics)
+          if (result.cssChanged) host.cssChanged?.()
+          return result.code === undefined
+            ? null
+            : { code: result.code, map: result.map }
+        }
+        if (cleanId(id) !== stylesheetFile()) return null
+        // Rolldown alone: the import is a module naming the file emitted at the end of the build.
+        if (!host.bundlesCss) {
+          return {
+            code: `export default ${JSON.stringify(fileName)}`,
+            moduleType: "js" as const,
+          }
+        }
+        // `?inline` asks for the stylesheet as a string: in development that is the live stylesheet
+        // (SvelteKit's server render inlines CSS this way). `?url` and `?raw`, and `?inline` in a
+        // build, are Vite's to answer from the file.
+        if (ASSET_QUERY.test(id)) {
+          return development() && /[?&]inline\b/.test(id)
+            ? (await session()).stylesheet(false)
+            : null
+        }
+        return development() ? (await session()).stylesheet(false) : PLACEHOLDER
+      },
+    },
+
+    transform: {
+      filter: {
+        id: {
+          include: SCRIPT,
+          // A framework's own requests for a component's parts (`Card.vue?vue&type=script&lang.ts`)
+          // hold what it derived from the component, which `load` compiled already.
+          // Installed packages are excluded in the handler, which knows `libraries`.
+          exclude: [ASSET_QUERY, COMPONENT_PART],
+        },
+        code: STYLE_BEARING,
+      },
+      async handler(this, code: string, id: string) {
+        const file = cleanId(id)
+        const compiler = await session()
+        if (!compiler.compiles(file)) return null
+        const result = compiler.transform(file, code)
+        for (const dependency of result.dependencies)
+          this.addWatchFile(dependency)
+        reporter.module(this, file, code, result.diagnostics)
+        if (result.cssChanged) host.cssChanged?.()
+        return result.code === undefined
+          ? null
+          : { code: result.code, map: result.map }
+      },
+    },
+
+    /** A watch rebuild: modules that read the changed file's tokens or relations compile again. */
+    async watchChange(id: string) {
+      ;(await session()).invalidate(id)
+    },
+
+    async buildEnd() {
+      if (development()) return
+      reporter.project(this, state.root, (await session()).diagnostics())
+    },
+
+    // First, so every plugin that reads CSS assets reads the finished stylesheet: Astro inlines
+    // small stylesheets into its pages in its own `generateBundle`. Vite writes HTML later from each
+    // chunk's `viteMetadata.importedCss`, which is renamed here along with the asset.
+    generateBundle: {
+      order: "pre",
+      async handler(_output, bundle) {
+        if (!host.bundlesCss) {
+          const css = (await session()).stylesheet(true)
+          this.emitFile({ type: "asset", fileName, source: css })
+          return
+        }
+        await fill(bundle, this.emitFile.bind(this))
+      },
+    },
+  } satisfies Plugin
+
+  /**
+   * Fills every stylesheet asset still holding the placeholder, renaming it by content unless the
+   * host keeps names, and points the chunks and assets that named it at the new name. A second pass
+   * finds nothing to do, so a host may run it again later in `generateBundle` for assets another
+   * plugin added after the first pass (Qwik's).
+   */
+  const fill = async (
+    bundle: OutputBundle,
+    emitFile: (file: {
+      type: "asset"
+      fileName: string
+      source: string
+    }) => unknown
+  ) => {
+    const css = (await session()).stylesheet(true)
+    for (const [key, asset] of Object.entries(bundle)) {
+      if (asset.type !== "asset") continue
+      const source = fillStylesheet(String(asset.source), css)
+      if (source === undefined) continue
+      if (host.renames === false) {
+        asset.source = source
+        filled.add(asset.fileName)
+        continue
+      }
+      const hashed =
+        renamed.get(asset.fileName) ?? renameAsset(asset.fileName, source)
+      renamed.set(asset.fileName, hashed)
+      delete bundle[key]
+      emitFile({ type: "asset", fileName: hashed, source })
+    }
+    // Every rename so far, not only this pass's: a server bundle names the client's asset.
+    for (const [from, to] of renamed) {
+      const oldBase = path.posix.basename(from)
+      const newBase = path.posix.basename(to)
+      for (const file of Object.values(bundle)) {
+        if (file.type === "chunk") {
+          file.code = file.code.replaceAll(oldBase, newBase)
+          const imported = (
+            file as { viteMetadata?: { importedCss: Set<string> } }
+          ).viteMetadata?.importedCss
+          if (imported?.delete(from)) imported.add(to)
+        } else if (typeof file.source === "string") {
+          file.source = file.source.replaceAll(oldBase, newBase)
+        }
+      }
+    }
+  }
+
+  return { plugin, session, state, filled, fill }
+}
+
+export default function kirana(options: KiranaRolldownOptions = {}): Plugin {
+  return createKirana(options).plugin
+}

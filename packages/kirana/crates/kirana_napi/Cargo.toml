@@ -1,0 +1,29 @@
+[package]
+name = "kirana_napi"
+description = "Node-API binding for the Kirana compiler."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+kirana_cli = { workspace = true }
+kirana_diagnostics = { workspace = true }
+kirana_frontend = { workspace = true }
+kirana_lsp = { workspace = true }
+kirana_project = { workspace = true }
+kirana_shared = { workspace = true }
+napi = { workspace = true }
+napi-derive = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[build-dependencies]
+napi-build = { workspace = true }
+
+[lints.rust]
+unsafe_code = "allow"

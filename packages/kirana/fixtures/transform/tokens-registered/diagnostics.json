@@ -1,0 +1,70 @@
+[
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 493,
+      "end": 535
+    },
+    "message": "keyframe declarations must be static",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 675,
+      "end": 684
+    },
+    "message": "token rejected.badSyntax has an invalid syntax; write a CSS syntax string",
+    "help": [
+      "for example { value: \"0px\", syntax: \"<length-percentage>\" }"
+    ]
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 717,
+      "end": 723
+    },
+    "message": "token rejected.quoted has an invalid syntax; write a CSS syntax string",
+    "help": [
+      "for example { value: \"0px\", syntax: \"<length-percentage>\" }"
+    ]
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 766,
+      "end": 771
+    },
+    "message": "registered token rejected.modes takes one `value`, its initial value",
+    "help": [
+      "an @property initial value cannot differ per mode; only syntax \"*\" may leave it out"
+    ]
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1059,
+      "end": 1066
+    },
+    "message": "registered token layer.noValue takes one `value`, its initial value",
+    "help": [
+      "an @property initial value cannot differ per mode; only syntax \"*\" may leave it out"
+    ]
+  }
+]

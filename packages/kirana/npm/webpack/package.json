@@ -1,0 +1,46 @@
+{
+  "name": "@kirana-style/webpack",
+  "version": "0.1.0",
+  "description": "Kirana for webpack 5 and Rspack: a loader that compiles modules and a plugin that finishes the stylesheet.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/webpack"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./loader": "./src/loader.ts",
+    "./next": "./src/next.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*",
+    "@kirana-style/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "webpack": "^5.90.0",
+    "@rspack/core": "^2.2.8"
+  },
+  "peerDependenciesMeta": {
+    "webpack": {
+      "optional": true
+    },
+    "@rspack/core": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "webpack": "catalog:",
+    "@rspack/core": "catalog:",
+    "css-loader": "catalog:",
+    "mini-css-extract-plugin": "catalog:"
+  }
+}

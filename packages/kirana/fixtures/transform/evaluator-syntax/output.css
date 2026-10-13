@@ -1,0 +1,97 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k0_xmAD {
+    padding: 2rem;
+  }
+  .k5_pq3K {
+    margin: 3px;
+  }
+  .ku_OAhx {
+    inset: var(--ku);
+  }
+  .k44_crui {
+    background-color: no;
+  }
+  .k4_vqnf {
+    padding-top: 4px;
+  }
+  .k50_vIsY {
+    color: fallback;
+  }
+  .k53_SyNM {
+    column-count: 2;
+  }
+  .k5n_bOc8 {
+    content: var(--k5n);
+  }
+  .k61_tIfm {
+    flex-grow: 1;
+  }
+  .k63_oD60 {
+    flex-shrink: 0;
+  }
+  .k69_puAz {
+    font-family: q;
+  }
+  .k6V_WKEC {
+    height: b;
+  }
+  .k6_ES2o {
+    margin-bottom: 3px;
+  }
+  .k6j_JJqs {
+    font-style: var(--k6j);
+  }
+  .k7d_mDfl {
+    letter-spacing: var(--k7d);
+  }
+  .k7h_aXik {
+    line-height: 1.5;
+  }
+  .k87_arAB {
+    opacity: var(--k87);
+  }
+  .k88_O8AE {
+    order: 6;
+  }
+  .k8b_49ob {
+    outline-color: green;
+  }
+  .k9P_bGIB {
+    text-indent: var(--k9P);
+  }
+  .k9s_fXG3 {
+    tab-size: var(--k9s);
+  }
+  .kaF_ZFLY {
+    width: var(--kaF);
+  }
+  .kaF_eK8R {
+    width: 1px;
+  }
+  .kaJ_4ffC {
+    word-spacing: var(--kaJ);
+  }
+  .kaO_Gn1q {
+    z-index: 5;
+  }
+  .kl_yTYu {
+    border-top-color: var(--kl);
+  }
+  .km_jXt3 {
+    border-right-color: var(--km);
+  }
+  .ko_sniH {
+    border-left-color: var(--ko);
+  }
+  .kv_WDdC {
+    top: 8px;
+  }
+  .kw_kbjD {
+    bottom: 2px;
+  }
+  .kx_eK8R {
+    left: 1px;
+  }
+}

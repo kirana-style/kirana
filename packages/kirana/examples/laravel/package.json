@@ -1,0 +1,55 @@
+{
+  "name": "kirana-example-laravel",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "kirana build resources/styles --out public/kirana-style/kirana.css --minify",
+    "start": "php artisan serve --host 127.0.0.1 --port $PORT"
+  },
+  "kirana-example": {
+    "output": "public/kirana",
+    "prepare": [
+      [
+        "cp",
+        ".env.example",
+        ".env"
+      ],
+      [
+        "composer",
+        "install",
+        "--no-interaction",
+        "--quiet"
+      ],
+      [
+        "php",
+        "artisan",
+        "key:generate",
+        "--no-interaction"
+      ]
+    ],
+    "dev": [
+      "php",
+      "artisan",
+      "serve",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "{port}"
+    ],
+    "devAlso": [
+      "kirana",
+      "dev",
+      "resources/styles",
+      "--out",
+      "public/kirana-style/kirana.css"
+    ],
+    "edit": "resources/styles/app.styles.ts",
+    "reloads": true
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0"
+  },
+  "devDependencies": {
+    "@kirana-style/compiler": "0.1.0"
+  }
+}

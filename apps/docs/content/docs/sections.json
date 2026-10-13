@@ -1,0 +1,68 @@
+[
+  {
+    "slug": "start",
+    "label": "Start"
+  },
+  {
+    "slug": "frameworks",
+    "label": "Frameworks"
+  },
+  {
+    "slug": "server",
+    "label": "Server frameworks"
+  },
+  {
+    "slug": "styling",
+    "label": "Styling",
+    "groups": [
+      {
+        "slug": "fundamentals",
+        "label": "Fundamentals"
+      },
+      {
+        "slug": "cascade",
+        "label": "The cascade"
+      },
+      {
+        "slug": "composition",
+        "label": "Composition"
+      },
+      {
+        "slug": "beyond-static",
+        "label": "Beyond static styles"
+      }
+    ]
+  },
+  {
+    "slug": "tokens",
+    "label": "Tokens and theming"
+  },
+  {
+    "slug": "config",
+    "label": "Configuration"
+  },
+  {
+    "slug": "integrations",
+    "label": "Integrations"
+  },
+  {
+    "slug": "tooling",
+    "label": "Tooling"
+  },
+  {
+    "slug": "migration",
+    "label": "Migration"
+  },
+  {
+    "slug": "advanced",
+    "label": "Advanced"
+  },
+  {
+    "slug": "reference",
+    "label": "Reference"
+  },
+  {
+    "slug": "project",
+    "label": "Project"
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "name": "kirana-example-bun-react",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun build.ts"
+  },
+  "kirana-example": {
+    "dev": [
+      "bun",
+      "./index.html",
+      "--host=127.0.0.1:{port}"
+    ],
+    "edit": "src/main.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@kirana-style/bun": "0.1.0"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "name": "@kirana-style/angular",
+  "version": "0.1.0",
+  "description": "Kirana for Angular: the [sx] directive, the Analog (Vite) plugin and Angular CLI builders.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/angular"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./vite": "./src/vite.ts",
+    "./package.json": "./package.json",
+    "./builders.json": "./builders.json"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*",
+    "@kirana-style/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@angular/core": ">=20.0.0",
+    "@angular/build": ">=20.0.0",
+    "@angular-devkit/architect": ">=0.2000.0",
+    "@kirana-style/vite": "0.1.0"
+  },
+  "devDependencies": {
+    "@angular/compiler": "catalog:",
+    "@angular/core": "catalog:",
+    "@angular/build": "catalog:",
+    "@angular-devkit/architect": "catalog:",
+    "@kirana-style/vite": "workspace:*"
+  },
+  "builders": "./builders.json",
+  "peerDependenciesMeta": {
+    "@angular/build": {
+      "optional": true
+    },
+    "@angular-devkit/architect": {
+      "optional": true
+    },
+    "@kirana-style/vite": {
+      "optional": true
+    }
+  }
+}

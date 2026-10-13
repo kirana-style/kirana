@@ -1,0 +1,192 @@
+[
+  {
+    "code": "KRN1201",
+    "name": "unknown-property",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 69,
+      "end": 82
+    },
+    "message": "colour is not a CSS property",
+    "help": []
+  },
+  {
+    "code": "KRN1203",
+    "name": "unitless-length",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 86,
+      "end": 94
+    },
+    "message": "width does not accept a bare number (5)",
+    "help": [
+      "write the unit, for example \"5px\""
+    ]
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 98,
+      "end": 107
+    },
+    "message": "color: the value is empty",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 111,
+      "end": 125
+    },
+    "message": "margin: a value cannot contain ';'",
+    "help": []
+  },
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 129,
+      "end": 154
+    },
+    "message": "padding cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 158,
+      "end": 166
+    },
+    "message": "\":hover\" is a condition, and conditions nest inside property values",
+    "help": [
+      "write `property: { [condition]: value }`"
+    ]
+  },
+  {
+    "code": "KRN1201",
+    "name": "unknown-property",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 188,
+      "end": 197
+    },
+    "message": "\"base\" belongs inside a property's conditional value",
+    "help": [
+      "write `property: { base: value, [condition]: value }`"
+    ]
+  },
+  {
+    "code": "KRN1603",
+    "name": "dynamic-key",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 201,
+      "end": 263
+    },
+    "message": "a property or condition key must be known at build time",
+    "help": [
+      "use a fixed key, or move the choice into a conditional value"
+    ]
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 267,
+      "end": 280
+    },
+    "message": "opacity: this value is not a CSS value",
+    "help": []
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 284,
+      "end": 293
+    },
+    "message": "::bogus is not a pseudo-element",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 315,
+      "end": 342
+    },
+    "message": "::before takes a style object",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 353,
+      "end": 368
+    },
+    "message": "`\"*\"` only accepts null, at the top of a property",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 394,
+      "end": 403
+    },
+    "message": "`\"*\"` only accepts null, at the top of a property",
+    "help": []
+  },
+  {
+    "code": "KRN1201",
+    "name": "unknown-property",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 411,
+      "end": 433
+    },
+    "message": "backgroundColour is not a CSS property",
+    "help": []
+  },
+  {
+    "code": "KRN1201",
+    "name": "unknown-property",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 505,
+      "end": 510
+    },
+    "message": "borderColour is not a CSS property",
+    "help": []
+  }
+]

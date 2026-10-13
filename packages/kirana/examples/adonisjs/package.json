@@ -1,0 +1,54 @@
+{
+  "name": "kirana-example-adonisjs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "kirana build resources/styles --out public/kirana-style/kirana.css --minify",
+    "start": "node --import=@poppinss/ts-exec bin/server.ts"
+  },
+  "imports": {
+    "#exceptions/*": "./app/exceptions/*.js",
+    "#start/*": "./start/*.js",
+    "#config/*": "./config/*.js"
+  },
+  "kirana-example": {
+    "output": "public/kirana",
+    "prepare": [
+      [
+        "node",
+        "-e",
+        "const {randomBytes}=require('node:crypto');require('node:fs').writeFileSync('.env',require('node:fs').readFileSync('.env.example','utf8')+'APP_KEY='+randomBytes(24).toString('base64url')+'\\n')"
+      ]
+    ],
+    "dev": [
+      "node",
+      "--import=@poppinss/ts-exec",
+      "bin/server.ts"
+    ],
+    "devAlso": [
+      "kirana",
+      "dev",
+      "resources/styles",
+      "--out",
+      "public/kirana-style/kirana.css"
+    ],
+    "reloads": true,
+    "edit": "resources/styles/app.styles.ts"
+  },
+  "dependencies": {
+    "@adonisjs/core": "^7.6.0",
+    "@adonisjs/static": "^2.0.1",
+    "@kirana-style/adonis": "0.1.0",
+    "@kirana-style/core": "0.1.0",
+    "edge.js": "^6.5.1",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@adonisjs/tsconfig": "^2.0.0",
+    "@kirana-style/compiler": "0.1.0",
+    "@poppinss/ts-exec": "^1.4.4",
+    "pino-pretty": "^13.2.0",
+    "typescript": "~6.0.0",
+    "youch": "^4.1.1"
+  }
+}

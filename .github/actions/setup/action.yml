@@ -1,0 +1,33 @@
+name: Setup
+description: Bun with a warm dependency cache and the workspace installed.
+
+# Every job needs the same three things, and each one used to spell them out.
+# Kept here so the workflow reads as a graph of jobs rather than as the same
+# install block copied per job — and so the cache key is defined once, which is
+# what makes the second job of a run install from cache.
+
+runs:
+  using: composite
+
+  steps:
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        # Pinned to the `packageManager` field so CI and local development
+        # cannot drift onto different Bun versions.
+        bun-version-file: package.json
+
+    # Only Bun's global download cache is stored. node_modules itself is left
+    # out on purpose: Bun links binaries and workspace packages into it with
+    # symlinks that do not survive a cache round-trip, and a warm global cache
+    # already makes `bun install` a sub-second step.
+    - name: Cache Bun dependencies
+      uses: actions/cache@v6
+      with:
+        path: ~/.bun/install/cache
+        key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+        restore-keys: bun-${{ runner.os }}-
+
+    - name: Install dependencies
+      shell: bash
+      run: bun install --frozen-lockfile

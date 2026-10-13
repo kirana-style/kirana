@@ -1,0 +1,394 @@
+{
+  "npm": {
+    "title": "NPM",
+    "category": "Software",
+    "url": "https://www.npmjs.com/",
+    "route": "npm.svg"
+  },
+  "pnpm": {
+    "title": "Pnpm",
+    "category": "Software",
+    "url": "https://pnpm.io/",
+    "route": {
+      "light": "pnpm.svg",
+      "dark": "pnpm_dark.svg"
+    }
+  },
+  "yarn": {
+    "title": "Yarn",
+    "category": "Software",
+    "url": "https://yarnpkg.com/",
+    "route": "yarn.svg"
+  },
+  "bun": {
+    "title": "Bun",
+    "category": "Library",
+    "url": "https://bun.sh",
+    "route": "bun.svg"
+  },
+  "deno": {
+    "title": "Deno",
+    "category": "Library",
+    "url": "https://deno.com/",
+    "route": {
+      "light": "deno.svg",
+      "dark": "deno_dark.svg"
+    }
+  },
+  "nodejs": {
+    "title": "Node.js",
+    "category": "Library",
+    "url": "https://nodejs.org/",
+    "route": "nodejs.svg"
+  },
+  "react": {
+    "title": "React",
+    "category": "Library",
+    "url": "https://react.dev/",
+    "route": {
+      "light": "react_light.svg",
+      "dark": "react_dark.svg"
+    }
+  },
+  "nextjs": {
+    "title": "Next.js",
+    "category": ["Framework", "Vercel"],
+    "url": "https://nextjs.org/",
+    "route": "nextjs_icon_dark.svg"
+  },
+  "preact": {
+    "title": "Preact",
+    "category": "Library",
+    "url": "https://preactjs.com/",
+    "route": "preact.svg"
+  },
+  "solidjs": {
+    "title": "Solidjs",
+    "category": "Framework",
+    "url": "https://www.solidjs.com/",
+    "route": "solidjs.svg"
+  },
+  "vue": {
+    "title": "Vue",
+    "category": "Framework",
+    "url": "https://vuejs.org/",
+    "route": "vue.svg"
+  },
+  "nuxt": {
+    "title": "Nuxt",
+    "category": ["Framework", "Nuxt"],
+    "url": "https://nuxt.com/",
+    "route": "nuxt.svg"
+  },
+  "svelte": {
+    "title": "Svelte",
+    "category": "Library",
+    "url": "https://svelte.dev/",
+    "route": "svelte.svg"
+  },
+  "sveltekit": {
+    "title": "Svelte",
+    "category": "Library",
+    "url": "https://svelte.dev/",
+    "route": "svelte.svg"
+  },
+  "astro": {
+    "title": "Astro",
+    "category": "Framework",
+    "url": "https://astro.build",
+    "route": {
+      "light": "astro-icon-light.svg",
+      "dark": "astro-icon-dark.svg"
+    }
+  },
+  "qwik": {
+    "title": "Qwik",
+    "category": "Framework",
+    "url": "https://qwik.builder.io/",
+    "route": "qwik.svg"
+  },
+  "angular": {
+    "title": "Angular",
+    "category": "Framework",
+    "url": "https://angular.dev/",
+    "route": "angular.svg"
+  },
+  "reactrouter": {
+    "title": "React Router",
+    "category": "Library",
+    "url": "https://reactrouter.com/en/main",
+    "route": "reactrouter.svg"
+  },
+  "gatsby": {
+    "title": "Gatsby",
+    "category": "Framework",
+    "url": "https://www.gatsbyjs.org/",
+    "route": "gatsby.svg"
+  },
+  "ember": {
+    "title": "Ember",
+    "category": "Framework",
+    "url": "https://emberjs.com/",
+    "route": "ember.svg"
+  },
+  "laravel": {
+    "title": "Laravel",
+    "category": "Framework",
+    "url": "https://laravel.com/",
+    "route": "laravel.svg"
+  },
+  "tanstack": {
+    "title": "TanStack",
+    "category": ["Software", "Library"],
+    "url": "https://tanstack.com/",
+    "route": {
+      "light": "tanstack_light.svg",
+      "dark": "tanstack_dark.svg"
+    }
+  },
+  "vite": {
+    "title": "Vite",
+    "category": ["Devtool", "VoidZero"],
+    "url": "https://vitejs.dev",
+    "route": "vite.svg"
+  },
+  "rolldown": {
+    "title": "Rolldown",
+    "category": ["Compiler", "VoidZero"],
+    "url": "https://rolldown.rs/",
+    "route": "rolldown.svg"
+  },
+  "rspack": {
+    "title": "Rspack",
+    "category": "Compiler",
+    "url": "https://rspack.rs/",
+    "route": "rspack.svg"
+  },
+  "rsbuild": {
+    "title": "Rsbuild",
+    "category": ["Devtool", "Compiler"],
+    "url": "https://rsbuild.rs",
+    "route": "rsbuild.svg"
+  },
+  "parcel": {
+    "title": "Parcel",
+    "category": "Compiler",
+    "url": "https://parceljs.org/",
+    "route": "parcel.svg"
+  },
+  "postcss": {
+    "title": "PostCSS",
+    "category": "Compiler",
+    "url": "https://postcss.org/",
+    "route": "postcss.svg"
+  },
+  "esbuild": {
+    "title": "Esbuild",
+    "category": "Compiler",
+    "url": "https://esbuild.github.io/",
+    "route": "esbuild.svg"
+  },
+  "jest": {
+    "title": "Jest",
+    "category": "Framework",
+    "url": "https://jestjs.io/",
+    "route": "jest.svg"
+  },
+  "vitest": {
+    "title": "Vitest",
+    "category": ["Framework", "VoidZero"],
+    "url": "https://vitest.dev/",
+    "route": "vitest.svg"
+  },
+  "javascript": {
+    "title": "JavaScript",
+    "category": "Language",
+    "url": "https://developer.mozilla.org/docs/Web/JavaScript",
+    "route": "javascript.svg"
+  },
+  "typescript": {
+    "title": "TypeScript",
+    "category": "Language",
+    "url": "https://www.typescriptlang.org",
+    "route": "typescript.svg"
+  },
+  "tailwindcss": {
+    "title": "Tailwind CSS",
+    "category": "Framework",
+    "url": "https://tailwindcss.com/",
+    "route": "tailwindcss.svg"
+  },
+  "pandacss": {
+    "title": "PandaCSS",
+    "category": "Library",
+    "url": "https://panda-css.com/",
+    "route": "pandacss.svg"
+  },
+  "eslint": {
+    "title": "ESLint",
+    "category": "Library",
+    "url": "https://eslint.org",
+    "route": {
+      "light": "eslint-icon-light.svg",
+      "dark": "eslint-icon-dark.svg"
+    }
+  },
+  "oxc": {
+    "title": "Oxc",
+    "category": ["Devtool", "VoidZero"],
+    "url": "https://oxc.rs/",
+    "route": "oxc.svg"
+  },
+  "biome": {
+    "title": "Biomejs",
+    "category": "Compiler",
+    "url": "https://biomejs.dev/",
+    "route": "biomejs.svg"
+  },
+  "vscode": {
+    "title": "Visual Studio Code",
+    "category": ["Software", "Microsoft"],
+    "url": "https://code.visualstudio.com/",
+    "route": "vscode.svg"
+  },
+  "cursor": {
+    "title": "Cursor",
+    "category": ["Software"],
+    "url": "https://www.cursor.com",
+    "route": {
+      "light": "cursor_light.svg",
+      "dark": "cursor_dark.svg"
+    }
+  },
+  "windsurf": {
+    "title": "Windsurf",
+    "category": ["Software", "AI"],
+    "url": "https://windsurf.com/editor",
+    "route": {
+      "light": "windsurf-light.svg",
+      "dark": "windsurf-dark.svg"
+    }
+  },
+  "antigravity": {
+    "title": "Google Antigravity",
+    "category": "Google",
+    "url": "https://www.google.com/antigravity",
+    "route": "antigravity.svg"
+  },
+  "zed": {
+    "title": "Zed",
+    "category": "Software",
+    "url": "https://zed.dev/",
+    "route": {
+      "light": "zed-logo.svg",
+      "dark": "zed-logo_dark.svg"
+    }
+  },
+  "neovim": {
+    "title": "Neovim",
+    "category": "Software",
+    "url": "https://neovim.io/",
+    "route": "neovim.svg"
+  },
+  "webstorm": {
+    "title": "JetBrains WebStorm",
+    "category": "Software",
+    "url": "https://www.jetbrains.com/webstorm/",
+    "route": "webstorm.svg"
+  },
+  "github": {
+    "title": "GitHub",
+    "category": "Software",
+    "url": "https://github.com/",
+    "route": {
+      "light": "github_light.svg",
+      "dark": "github_dark.svg"
+    }
+  },
+  "x": {
+    "title": "X (formerly Twitter)",
+    "category": "Social",
+    "url": "https://x.com",
+    "route": {
+      "light": "x.svg",
+      "dark": "x_dark.svg"
+    }
+  },
+  "claude": {
+    "title": "Claude AI",
+    "category": "AI",
+    "url": "https://claude.ai/",
+    "route": "claude-ai-icon.svg"
+  },
+  "openai": {
+    "title": "OpenAI",
+    "category": "AI",
+    "url": "https://openai.com/",
+    "route": {
+      "light": "openai.svg",
+      "dark": "openai_dark.svg"
+    }
+  },
+  "meteor": {
+    "title": "Meteor",
+    "category": ["frameworks"],
+    "url": "https://www.meteor.com/",
+    "route": "logoforge-meteor-icon.svg",
+    "source": "logoforge"
+  },
+  "symfony": {
+    "title": "Symfony",
+    "category": ["frameworks"],
+    "url": "https://symfony.com/",
+    "route": {
+      "light": "logoforge-symfony-icon.svg",
+      "dark": "logoforge-symfony-icon-dark.svg"
+    },
+    "source": "logoforge"
+  },
+  "rails": {
+    "title": "Ruby on Rails",
+    "category": ["frameworks"],
+    "url": "https://rubyonrails.org/",
+    "route": "logoforge-rails-icon.svg",
+    "source": "logoforge"
+  },
+  "phoenix": {
+    "title": "Phoenix",
+    "category": ["frameworks"],
+    "url": "https://www.phoenixframework.org/",
+    "route": "logoforge-phoenix-icon.svg",
+    "source": "logoforge"
+  },
+  "adonisjs": {
+    "title": "AdonisJS",
+    "category": ["frameworks"],
+    "url": "https://adonisjs.com/",
+    "route": "logoforge-adonisjs-icon.svg",
+    "source": "logoforge"
+  },
+  "webpack": {
+    "title": "webpack",
+    "category": ["build"],
+    "url": "https://webpack.github.io/",
+    "route": "logoforge-webpack-icon.svg",
+    "source": "logoforge"
+  },
+  "stylex": {
+    "title": "StyleX",
+    "category": ["ui"],
+    "url": "https://stylexjs.com",
+    "route": "logoforge-stylex-icon.svg",
+    "source": "logoforge"
+  },
+  "helix": {
+    "title": "Helix",
+    "category": ["editors"],
+    "url": "https://helix-editor.com/",
+    "route": {
+      "light": "logoforge-helix-icon.svg",
+      "dark": "logoforge-helix-icon-dark.svg"
+    },
+    "source": "logoforge"
+  }
+}

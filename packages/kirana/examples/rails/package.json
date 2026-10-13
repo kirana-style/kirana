@@ -1,0 +1,50 @@
+{
+  "name": "kirana-example-rails",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "kirana build resources/styles --out public/kirana-style/kirana.css --minify",
+    "start": "bundle exec puma --bind tcp://127.0.0.1:$PORT config.ru"
+  },
+  "kirana-example": {
+    "output": "public/kirana",
+    "prepare": [
+      [
+        "bundle",
+        "config",
+        "set",
+        "--local",
+        "path",
+        "vendor/bundle"
+      ],
+      [
+        "bundle",
+        "install",
+        "--quiet"
+      ]
+    ],
+    "dev": [
+      "bundle",
+      "exec",
+      "puma",
+      "--bind",
+      "tcp://127.0.0.1:{port}",
+      "config.ru"
+    ],
+    "devAlso": [
+      "kirana",
+      "dev",
+      "resources/styles",
+      "--out",
+      "public/kirana-style/kirana.css"
+    ],
+    "reloads": true,
+    "edit": "resources/styles/app.styles.ts"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0"
+  },
+  "devDependencies": {
+    "@kirana-style/compiler": "0.1.0"
+  }
+}

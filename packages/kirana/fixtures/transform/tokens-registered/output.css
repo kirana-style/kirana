@@ -1,0 +1,47 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@property --kvF0Yw {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+@property --kvIZFO {
+  syntax: "*";
+  inherits: false;
+}
+@property --kvR5MZ {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --kvavap {
+  syntax: "*";
+  inherits: false;
+}
+@layer kirana.tokens {
+  @keyframes kfRZwV {
+    from {
+      --kvR5MZ: 0px;
+    }
+    to {
+      --kvR5MZ: 2rem;
+    }
+  }
+}
+@layer kirana.atoms {
+  .k3O_PrWW {
+    animation-name: kfRZwV;
+  }
+  .k5W_OgEh {
+    filter: var(--kvIZFO,) var(--kvavap,);
+  }
+  .k7D_W4l7 {
+    mask-image: linear-gradient(#000 calc(100% - var(--kvR5MZ)), transparent);
+  }
+  .k8K_dFfR {
+    rotate: var(--kvF0Yw);
+  }
+  .ksc3ON_vT4A {
+    --kvavap: grayscale(100%);
+  }
+}

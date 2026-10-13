@@ -1,0 +1,16 @@
+[
+  {
+    "code": "KRN1404",
+    "name": "relation-name-collision",
+    "severity": "error",
+    "file": "b.ts",
+    "span": {
+      "start": 0,
+      "end": 0
+    },
+    "message": "relation \"card\" is also declared in a.ts, so both share one marker",
+    "help": [
+      "export the relation from one module and import it where it is read"
+    ]
+  }
+]

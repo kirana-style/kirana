@@ -1,0 +1,342 @@
+[
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 266,
+      "end": 365
+    },
+    "message": "`bg-x` is not a utility",
+    "help": [
+      "did you mean `border`?"
+    ]
+  },
+  {
+    "code": "KRN1103",
+    "name": "unresolved-import",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 758,
+      "end": 762
+    },
+    "message": "`Card` depends on \"./card\" from input.tsx, which cannot be resolved, so it compiles as a runtime value",
+    "help": [
+      "install the project's dependencies, or check the specifier and the tsconfig paths"
+    ]
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 816,
+      "end": 819
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1706",
+    "name": "utility-not-static",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 939,
+      "end": 948
+    },
+    "message": "a utility string must be written out: interpolated utilities cannot compile",
+    "help": [
+      "write the values as an object — css({ paddingInline: n }) — or pick between whole strings"
+    ]
+  },
+  {
+    "code": "KRN1706",
+    "name": "utility-not-static",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 980,
+      "end": 988
+    },
+    "message": "a utility string must be written out: interpolated utilities cannot compile",
+    "help": [
+      "write the values as an object — css({ paddingInline: n }) — or pick between whole strings"
+    ]
+  },
+  {
+    "code": "KRN1706",
+    "name": "utility-not-static",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 995,
+      "end": 1003
+    },
+    "message": "a utility string must be written out: interpolated utilities cannot compile",
+    "help": [
+      "write the values as an object — css({ paddingInline: n }) — or pick between whole strings"
+    ]
+  },
+  {
+    "code": "KRN1706",
+    "name": "utility-not-static",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1007,
+      "end": 1015
+    },
+    "message": "a utility string must be written out: interpolated utilities cannot compile",
+    "help": [
+      "write the values as an object — css({ paddingInline: n }) — or pick between whole strings"
+    ]
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`pad-4` is not a utility",
+    "help": [
+      "did you mean `p`?"
+    ]
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`p-99`: no such value",
+    "help": []
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`w-a/2`: no such value",
+    "help": []
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`text-blue-600/150`: no such value",
+    "help": []
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`p-4/50`: no such value",
+    "help": []
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`-p-4`: no such value",
+    "help": []
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`-flex`: no such value",
+    "help": []
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`flex-x`: no such value",
+    "help": []
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`roun` is not a utility",
+    "help": [
+      "did you mean `rounded`, `rounded-t`?"
+    ]
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`text-blue`: no such value",
+    "help": []
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`text-transparent`: no such value",
+    "help": []
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`text-[]`: no such value",
+    "help": []
+  },
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`p-[3px`: no such value",
+    "help": []
+  },
+  {
+    "code": "KRN1705",
+    "name": "unknown-utility-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`hovr:p-1`: no variant `hovr`",
+    "help": [
+      "did you mean `hover`?"
+    ]
+  },
+  {
+    "code": "KRN1707",
+    "name": "utility-unsupported",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`!p-1`: `!important` has no place in Kirana's cascade",
+    "help": [
+      "the precedence ladder decides which value wins; see `kirana trace`"
+    ]
+  },
+  {
+    "code": "KRN1707",
+    "name": "utility-unsupported",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`p-1!`: `!important` has no place in Kirana's cascade",
+    "help": [
+      "the precedence ladder decides which value wins; see `kirana trace`"
+    ]
+  },
+  {
+    "code": "KRN1707",
+    "name": "utility-unsupported",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`group-hover:p-1`: `group-hover:` reads another element's state",
+    "help": [
+      "declare a relation and read it in css(): relation(\"…\").within(…)"
+    ]
+  },
+  {
+    "code": "KRN1707",
+    "name": "utility-unsupported",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`peer-checked:p-1`: `peer-checked:` reads another element's state",
+    "help": [
+      "declare a relation and read it in css(): relation(\"…\").within(…)"
+    ]
+  },
+  {
+    "code": "KRN1707",
+    "name": "utility-unsupported",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1034,
+      "end": 1214
+    },
+    "message": "`[&_svg]:p-1`: arbitrary selector variants are not utilities",
+    "help": [
+      "style descendants with select.* in css()"
+    ]
+  }
+]

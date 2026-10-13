@@ -1,0 +1,16 @@
+[
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 205,
+      "end": 214
+    },
+    "message": "a component from \"lib\" receives `sx`, which it does not read",
+    "help": [
+      "spread the compiled props instead: {...props(styles.root, sx)}"
+    ]
+  }
+]

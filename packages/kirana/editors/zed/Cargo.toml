@@ -1,0 +1,16 @@
+[package]
+name = "kirana_zed"
+description = "The Kirana extension for Zed: registers the project's own `kirana lsp`."
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+publish = false
+
+# Built for wasm32-wasip2 by Zed's extension tooling; not a member of the engine's workspace.
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+zed_extension_api = "=0.7.0"
