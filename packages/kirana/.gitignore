@@ -37,3 +37,4 @@ npm/compiler/*.wasm
 npm/compiler/kirana.wasi*
 npm/compiler/wasi-worker*.mjs
 *.node.bak
+.vitest/

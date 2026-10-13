@@ -1,33 +1,30 @@
 name: Setup
-description: Bun with a warm dependency cache and the workspace installed.
+description: Vite+ with Node.js, Bun and the workspace installed, and the task cache restored.
 
-# Every job needs the same three things, and each one used to spell them out.
-# Kept here so the workflow reads as a graph of jobs rather than as the same
-# install block copied per job — and so the cache key is defined once, which is
-# what makes the second job of a run install from cache.
+# Every job needs the same things, and each one used to spell them out. Kept here so the workflow
+# reads as a graph of jobs rather than as the same install block copied per job.
 
 runs:
   using: composite
 
   steps:
-    - name: Setup Bun
-      uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+    # `vp` provides Node.js and Bun (the version in package.json's `packageManager`, so CI and local
+    # development cannot drift apart), caches the dependency download, and runs `vp install`.
+    - name: Setup Vite+
+      uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
       with:
-        # Pinned to the `packageManager` field so CI and local development
-        # cannot drift onto different Bun versions.
-        bun-version-file: package.json
+        node-version: "24"
+        cache: true
+        run-install: |
+          - args: ["--frozen-lockfile"]
 
-    # Only Bun's global download cache is stored. node_modules itself is left
-    # out on purpose: Bun links binaries and workspace packages into it with
-    # symlinks that do not survive a cache round-trip, and a warm global cache
-    # already makes `bun install` a sub-second step.
-    - name: Cache Bun dependencies
+    # The `vp run` task cache (vite.config.ts → run.tasks): a task whose inputs did not change
+    # replays its output and restores its files, the native engine above all. Each run saves a new
+    # entry; the newest one for this job and platform is restored. Vite Task fingerprints the inputs
+    # itself, so none belong in the key.
+    - name: Cache vp tasks
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
-        path: ~/.bun/install/cache
-        key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-        restore-keys: bun-${{ runner.os }}-
-
-    - name: Install dependencies
-      shell: bash
-      run: bun install --frozen-lockfile
+        path: node_modules/.vite/task-cache
+        key: vite-task-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+        restore-keys: vite-task-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-

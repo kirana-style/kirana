@@ -2,7 +2,7 @@ import { gzipSync } from "node:zlib"
 import { readFileSync } from "node:fs"
 import { transformSync } from "oxc-transform"
 import { minifySync } from "oxc-minify"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vite-plus/test"
 
 import { runtime } from "../src/internal.ts"
 

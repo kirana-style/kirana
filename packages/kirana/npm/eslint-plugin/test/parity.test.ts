@@ -17,7 +17,7 @@ import { createRequire } from "node:module"
 import path from "node:path"
 
 import { Linter } from "eslint"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vite-plus/test"
 
 import plugin from "../src/index.ts"
 

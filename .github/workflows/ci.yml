@@ -36,26 +36,25 @@ jobs:
         with:
           cache-key: lint
 
-      # The Kirana lint rules read the compiler, so oxlint needs the native engine.
+      # The Kirana lint rules read the compiler, so the linter needs the native engine. A cached
+      # task: restored, not rebuilt, while the Rust workspace is unchanged.
       - name: Build the native engine
-        working-directory: packages/kirana/npm/compiler
-        run: bun run build:debug
+        run: vp run engine
 
-      # Separate steps so a red build names the stage that failed.
-      - name: Lint
-        run: bun run lint
-
+      # Separate steps so a red build names the stage that failed. The same checks run in the
+      # pre-push hook (`vp run prepush`).
       - name: Format
-        run: bun run format:check
+        run: vp fmt --check
 
-      - name: Types
-        run: bun run typecheck
+      # Oxlint with the Kirana rules, and the TypeScript type check (tsgolint) in the same pass.
+      - name: Lint and types
+        run: vp lint
 
       # The docs' generated data (diagnostics, lint rules, packages, commands, the agent skills'
       # references) must match the source, and no page may contradict it: a hand-typed count, a
       # partial list, a product without its logo (apps/docs/CONSISTENCY.md). Needs the engine above.
       - name: Generated docs and consistency
-        run: bun run --cwd apps/docs verify:generated
+        run: vp run verify
 
   kirana-rust:
     runs-on: ubuntu-26.04
@@ -242,18 +241,9 @@ jobs:
         with:
           cache-key: release
 
-      # Turbo's own cache, so a push that changes only one app replays the others.
-      - name: Cache turbo outputs
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: .turbo
-          key: turbo-build-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            turbo-build-${{ runner.os }}-
-
-      # Turbo builds the native engine first (@kirana-style/compiler#build), then the docs site.
+      # The native engine first (the `engine` task), then the docs site; both cached tasks.
       - name: Build
-        run: bun run build
+        run: vp run build
 
   determinism:
     name: kirana · determinism (${{ matrix.os }})

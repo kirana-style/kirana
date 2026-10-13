@@ -9,7 +9,7 @@ import {
 import { tmpdir } from "node:os"
 import path from "node:path"
 import { pathToFileURL } from "node:url"
-import { afterAll, describe, expect, it } from "vitest"
+import { afterAll, describe, expect, it } from "vite-plus/test"
 
 import kirana, { renameStylesheets } from "../src/index.ts"
 

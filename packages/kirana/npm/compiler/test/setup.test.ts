@@ -9,7 +9,7 @@ import { tmpdir } from "node:os"
 import path from "node:path"
 import { PassThrough } from "node:stream"
 
-import { afterAll, describe, expect, it, vi } from "vitest"
+import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 import { main, terminal } from "../src/cli.ts"
 import { compiled, runDev } from "../src/dev.ts"

@@ -1,7 +1,7 @@
 import type * as fs from "node:fs"
 import path from "node:path"
 
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import {
   CONVERT,
@@ -59,7 +59,7 @@ vi.mock("vscode-languageclient/node", () => ({
     })
     protocol2CodeConverter = {
       asWorkspaceEdit: vi.fn(async (edit: unknown) => ({ converted: edit })),
-      asLocation: vi.fn(async (location: unknown) => ({
+      asLocation: vi.fn((location: unknown) => ({
         uri: "u",
         range: { start: "s" },
         location,

@@ -44,10 +44,10 @@ jobs:
         with:
           cache-key: release
 
-      # Turbo builds the native engine first (@kirana-style/compiler#build), which the docs' Vite
-      # plugin compiles with, then the site: the Worker and its static assets in apps/docs/dist.
+      # The native engine first (the `engine` task), which the docs' Vite plugin compiles with, then
+      # the site: the Worker and its static assets in apps/docs/dist. Both are cached tasks.
       - name: Build
-        run: bun run build --filter=docs
+        run: vp run build
 
       - name: Deploy
         id: deploy

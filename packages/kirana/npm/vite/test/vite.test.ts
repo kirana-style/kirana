@@ -8,7 +8,7 @@ import {
   writeFileSync,
 } from "node:fs"
 import path from "node:path"
-import { afterAll, describe, expect, it, vi } from "vitest"
+import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 import { build, createServer } from "vite"
 import type { Rolldown } from "vite"
 

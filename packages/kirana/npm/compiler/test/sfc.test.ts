@@ -8,7 +8,7 @@ import {
 } from "node:fs"
 import { tmpdir } from "node:os"
 import path from "node:path"
-import { afterAll, describe, expect, it } from "vitest"
+import { afterAll, describe, expect, it } from "vite-plus/test"
 
 import { Driver, frameworkOf } from "../src/index.ts"
 import { compileComponent } from "../src/sfc.ts"

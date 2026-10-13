@@ -1,7 +1,7 @@
 {
   // ─── Formatting and linting (oxc) ────────────────────────────────────────────
-  // oxfmt replaces Prettier and oxlint replaces ESLint; both are driven by the
-  // Oxc extension reading .oxfmtrc.json / .oxlintrc.json at the repo root.
+  // Oxfmt and Oxlint through Vite+: both read the `fmt` and `lint` blocks of the
+  // root vite.config.ts, which the Oxc extension finds there too.
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "[typescript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
@@ -12,6 +12,9 @@
   "[jsonc]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
   "[css]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
   "oxc.fmt.experimental": true,
+  // One config for the whole workspace, as `vp check` applies it.
+  "oxc.disableNestedConfig": true,
+  "oxc.fmt.disableNestedConfig": true,
   // A single config at the repo root covers every workspace, so the server does
   // not need the per-package working directories ESLint required.
   "oxc.lint.run": "onType",
@@ -20,7 +23,7 @@
   // Use the workspace TypeScript version instead of VS Code's bundled one.
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  // Align quote style with .oxfmtrc.json (double quotes, no semi)
+  // Align quote style with vite.config.ts → fmt (double quotes, no semi)
   "typescript.preferences.quoteStyle": "double",
   "javascript.preferences.quoteStyle": "double",
   "typescript.preferences.importModuleSpecifier": "non-relative",
@@ -43,7 +46,6 @@
     "**/.output/**": true,
     "**/.nitro/**": true,
     "**/.vinxi/**": true,
-    "**/.turbo/**": true,
     "**/node_modules/**": true,
     "**/routeTree.gen.ts": true,
     "**/.tanstack/**": true
@@ -52,7 +54,6 @@
     "**/.output": true,
     "**/.nitro": true,
     "**/.vinxi": true,
-    "**/.turbo": true,
     "**/node_modules": true,
     "**/routeTree.gen.ts": true,
     "**/.tanstack": true,

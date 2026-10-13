@@ -5,12 +5,11 @@
   "private": true,
   "scripts": {
     "predev": "bun run generate:content",
-    "dev": "vite dev --port 3000",
+    "dev": "vp dev --port 3000",
     "prebuild": "bun run generate",
-    "build": "vite build",
+    "build": "vp build",
     "preview": "wrangler dev",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vp test run",
     "generate": "bun run generate:content && bun run generate:reference && bun run generate:skills && bun run generate:examples && bun run generate:brand",
     "generate:content": "bun scripts/generate-content.ts",
     "generate:reference": "bun scripts/generate-reference.ts",
@@ -46,7 +45,7 @@
     "@workspace/vite-config": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:",
-    "wrangler": "^4.149.0"
+    "wrangler": "^4.149.0",
+    "vite-plus": "catalog:"
   }
 }

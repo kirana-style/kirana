@@ -3,7 +3,7 @@ import path from "node:path"
 
 import { STYLE_BEARING } from "@kirana-style/compiler/host"
 import { KiranaPlugin } from "@kirana-style/webpack"
-import { afterAll, describe, expect, it, vi } from "vitest"
+import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 import { LOADER, SCRIPTS, rule, withKirana } from "../src/index.ts"
 import kiranaLoader, { driverFor } from "../src/loader.ts"

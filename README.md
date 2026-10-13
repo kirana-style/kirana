@@ -49,13 +49,13 @@ export function Badge(props: React.ComponentProps<"span">) {
 
 ### 1. Install the prerequisites (once)
 
-| Tool          | Why                                                       | Install                                                           |
-| ------------- | --------------------------------------------------------- | ----------------------------------------------------------------- |
-| Bun 1.4.2     | package manager and script runner                         | https://bun.com/docs/installation                                 |
-| Rust (rustup) | the Kirana engine is Rust, built before anything else     | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
-| A C linker    | Rust links the native engine with it                      | Linux/WSL: `build-essential` · macOS: `xcode-select --install`    |
-| Cargo tools   | only for `kirana:check`, `kirana:test`, `kirana:coverage` | `cargo install --locked cargo-nextest cargo-deny cargo-llvm-cov`  |
-| Chromium      | only for `kirana:example`                                 | `cd packages/kirana && bunx playwright install chromium`          |
+| Tool          | Why                                                                                 | Install                                                           |
+| ------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Vite+ (`vp`)  | the toolchain: install, check, test, tasks, git hooks; brings Node.js and Bun 1.4.2 | `curl -fsSL https://vite.plus \| bash`, then open a new terminal  |
+| Rust (rustup) | the Kirana engine is Rust, built before anything else                               | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
+| A C linker    | Rust links the native engine with it                                                | Linux/WSL: `build-essential` · macOS: `xcode-select --install`    |
+| Cargo tools   | only for `vp run rust`, `vp run coverage`, the pre-push hook                        | `cargo install --locked cargo-nextest cargo-deny cargo-llvm-cov`  |
+| Chromium      | only for `kirana:example`                                                           | `cd packages/kirana && bunx playwright install chromium`          |
 
 The Rust version is pinned in `packages/kirana/rust-toolchain.toml`; rustup
 downloads it the first time a command needs it. The scripts find cargo in
@@ -64,33 +64,53 @@ downloads it the first time a command needs it. The scripts find cargo in
 ### 2. Install, run and build
 
 ```bash
-bun install      # again whenever bun.lock changes
-bun dev          # builds the native engine, then serves the docs on :3000
-bun run build    # native engine, then the docs site → apps/docs/dist
+vp install       # again whenever bun.lock changes; also installs the git hooks
+vp run dev       # builds the native engine, then serves the docs on :3000
+vp run build     # native engine, then the docs site → apps/docs/dist
 ```
 
 The first run compiles the Rust workspace and takes a few minutes; later runs
-reuse Turbo's cache until a file in `packages/kirana/crates` changes. The build
-prints every compiler diagnostic as `file:line:column`; it must report 0 errors.
+replay it from the task cache (`node_modules/.vite/task-cache`) until a file in
+`packages/kirana/crates` changes. The build prints every compiler diagnostic as
+`file:line:column`; it must report 0 errors.
 
 ## Scripts
 
-Every command runs from the repository root. **Needs** is what must have run
-first.
+Every command runs from the repository root. `vp <command>` is a Vite+ built-in;
+`vp run <task>` runs a task from the root `vite.config.ts`, cached unless noted:
+a task whose inputs did not change replays its output in a second. **Needs** is
+what must be installed.
 
-| Command                   | What it does                                                                      | Needs                                             |
-| ------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `bun install`             | installs every workspace                                                          | Bun                                               |
-| `bun dev`                 | builds the native engine, then serves the docs with hot reload                    | `bun install`, Rust                               |
-| `bun run build`           | builds the native engine, then the docs into `dist/`                              | `bun install`, Rust                               |
-| `bun run check`           | oxlint, oxfmt check, TypeScript typecheck                                         | `bun install`                                     |
-| `bun run format`          | rewrites files with oxfmt                                                         | `bun install`                                     |
-| `bun run kirana:build`    | builds only the native engine (release)                                           | `bun install`, Rust                               |
-| `bun run kirana:check`    | `cargo fmt`, Clippy, `cargo deny`, Rust tests, typecheck, Vitest                  | `bun run kirana:build`, cargo-nextest, cargo-deny |
-| `bun run kirana:test`     | Rust tests and Vitest; `KIRANA_UPDATE_FIXTURES=1` rewrites golden fixtures        | `bun run kirana:build`, cargo-nextest             |
-| `bun run kirana:coverage` | the same tests with coverage; fails below 100 % (Rust regions too)                | `bun install`, cargo-nextest, cargo-llvm-cov      |
-| `bun run kirana:pack`     | packs every npm package and the native engine into `dist-packages/`               | `bun run kirana:build`                            |
-| `bun run kirana:example`  | installs the packed tarballs into an example, builds it and checks it in Chromium | `bun run kirana:pack`, Chromium                   |
+| Command                  | What it does                                                                      | Needs                           |
+| ------------------------ | --------------------------------------------------------------------------------- | ------------------------------- |
+| `vp install`             | installs every workspace (Bun) and the git hooks                                  | Vite+                           |
+| `vp run dev`             | builds the native engine, then serves the docs with hot reload (not cached)       | Rust                            |
+| `vp run build`           | builds the native engine, then the docs into `apps/docs/dist`                     | Rust                            |
+| `vp run engine`          | builds only the native engine (release)                                           | Rust                            |
+| `vp check`               | Oxfmt check, Oxlint with the Kirana rules, TypeScript type check, in one pass     | `vp run engine`                 |
+| `vp check --fix`         | the same, rewriting what the formatter and the fixable rules can                  | `vp run engine`                 |
+| `vp run check`           | `vp check` plus the docs' consistency check, after building the engine            | Rust                            |
+| `vp run verify`          | the docs' generated files match their sources                                     | Rust                            |
+| `vp run rust`            | `cargo fmt`, Clippy, `cargo deny` (`vp run rust:lint` alone), then the Rust tests | cargo-nextest, cargo-deny       |
+| `vp run test`            | Vitest: the Kirana packages against the engine, and docs-core                     | Rust                            |
+| `vp run coverage`        | Rust and TypeScript tests with coverage; fails below 100 % (Rust regions too)     | cargo-nextest, cargo-llvm-cov   |
+| `vp run prepush`         | `check`, `verify`, `rust:lint`, `coverage`, docs-core tests: the pre-push hook    | the cargo tools                 |
+| `bun run kirana:pack`    | packs every npm package and the native engine into `dist-packages/`               | `vp run engine`                 |
+| `bun run kirana:example` | installs the packed tarballs into an example, builds it and checks it in Chromium | `bun run kirana:pack`, Chromium |
+| `vp cache clean`         | empties the task cache                                                            | Vite+                           |
+
+`KIRANA_UPDATE_FIXTURES=1 bun run --cwd packages/kirana test:rust` rewrites the
+golden fixtures.
+
+### Git hooks
+
+`vp install` installs two hooks (`.vite-hooks/`): **pre-commit** formats and
+lints the staged files (`vp staged`, the `staged` block of `vite.config.ts`),
+and **pre-push** runs `vp run prepush`, the checks CI requires, 100 % coverage
+included (coverage runs every Rust and Kirana test, so the plain test runs are
+not repeated). Pushing again
+without changes replays them from the cache. `VP_GIT_HOOKS=0 git push` skips
+them once; `vp hooks status` shows their state.
 
 When a Rust tool is missing, the command stops and prints the line that installs
 it.
@@ -101,24 +121,26 @@ it.
 | --------------------------------------------------------------- | ----------------------------------------------------------------- |
 | `Kirana needs Rust, and cargo was not found`                    | install rustup (above), then open a new terminal                  |
 | `Internal Error: cargo metadata failed to run`                  | cargo is not reachable: install rustup, or `. "$HOME/.cargo/env"` |
-| `Cannot find module '…/kirana.<platform>.node'`                 | `bun run kirana:build`                                            |
+| `Cannot find module '…/kirana.<platform>.node'`                 | `vp run engine`                                                   |
 | `This command needs cargo-nextest …`                            | run the `cargo install` line it prints                            |
-| `bun dev` starts on :3001 or later                              | another server holds :3000; stop it (`lsof -i :3000` shows which) |
-| `lockfile had changes, but lockfile is frozen` / missing module | `bun install`                                                     |
-| Turbo keeps a stale engine                                      | `bun run clean`, then rebuild                                     |
+| `vp run dev` starts on :3001 or later                           | another server holds :3000; stop it (`lsof -i :3000` shows which) |
+| `lockfile had changes, but lockfile is frozen` / missing module | `vp install`                                                      |
+| A task replays a stale result                                   | `vp cache clean`, then run it again                               |
 | A `default_*.profraw` file appears                              | coverage output from an instrumented binary; ignored, delete it   |
-| `Kirana has no engine` from `bun run lint`                      | `bun run kirana:build`                                            |
+| `Kirana has no engine` from `vp check`                          | `vp run engine`                                                   |
 
 ## Editor, lint and brand-logo tooling
 
 ### Lint
 
-`bun run lint` (part of `bun run check`) runs oxlint with Kirana's own rules,
-`@kirana-style/eslint-plugin`, loaded from source through `jsPlugins` in
-`.oxlintrc.json`. The rules read the compiler, so **build the native engine
-first** (`bun run kirana:build`, or any `bun run build`); without it every file
-reports `Kirana has no engine`. The examples and the editor extensions are
-excluded. How another project sets the plugin up under Oxlint, ESLint or Biome
+`vp check` (or `vp lint`) runs Oxlint with Kirana's own rules,
+`@kirana-style/eslint-plugin`, loaded from source through `jsPlugins` in the
+`lint` block of `vite.config.ts`. The rules read the compiler, so **build the
+native engine first** (`vp run engine`, or any task that depends on it); without
+it every file reports `Kirana has no engine`. The editor extensions are
+excluded from the Kirana rules, and the examples from linting altogether: they
+are installed from packed tarballs elsewhere, so their imports cannot resolve
+here, and CI builds every one of them. How another project sets the plugin up under Oxlint, ESLint or Biome
 (`@kirana-style/biome-plugin`) is on the docs page `/docs/tooling/lint`.
 
 ### Agent skills
@@ -135,7 +157,7 @@ The extension lives in `packages/kirana/editors/vscode` and starts the project's
 own `kirana lsp`. It is not on a marketplace yet, so build and install it by hand:
 
 ```bash
-bun run kirana:build                                   # the engine the server runs
+vp run engine                                          # the engine the server runs
 (cd packages/kirana/editors/vscode && bun run package) # writes kirana.vsix
 ```
 
@@ -159,7 +181,7 @@ points the extension at the compiler entry instead:
 
 - **After changing the extension:** package again, install with `--force` (or
   uninstall the old one first), then **Developer: Reload Window**.
-- **After changing the compiler:** `bun run kirana:build`, then **Kirana: Restart
+- **After changing the compiler:** `vp run engine`, then **Kirana: Restart
   Language Server**.
 - **WSL, SSH or a container:** install the `.vsix` on the remote side (the
   Extensions view offers "Install in WSL"), where the project and Node.js live.

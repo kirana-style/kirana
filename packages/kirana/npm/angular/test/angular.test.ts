@@ -7,7 +7,7 @@ import {
   ɵINJECTOR_SCOPE as INJECTOR_SCOPE,
   ɵgetDirectiveDef as getDirectiveDef,
 } from "@angular/core"
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi } from "vite-plus/test"
 
 import {
   KIRANA_PREFIX,

@@ -22,6 +22,13 @@ updates:
       # that drops older VS Code and the forks (Cursor, Windsurf, Antigravity). Bump both by hand,
       # together, when a newer API is needed.
       - dependency-name: "@types/vscode"
+      # Vite+ fixes the versions of what it bundles: the `vite` alias to its core, Vitest and the
+      # coverage provider all move with `vite-plus`, through its own upgrade (`vp migrate`), never
+      # one by one (kirana-spec operations/dependencies.md).
+      - dependency-name: "vite-plus"
+      - dependency-name: "vite"
+      - dependency-name: "vitest"
+      - dependency-name: "@vitest/coverage-v8"
     groups:
       minor-and-patch:
         update-types: [minor, patch]

@@ -8,7 +8,7 @@ import {
 import path from "node:path"
 
 import postcss from "postcss"
-import { afterAll, describe, expect, it, vi } from "vitest"
+import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 import kirana, { Project, WATCHED, projectFor, sources } from "../src/index.ts"
 

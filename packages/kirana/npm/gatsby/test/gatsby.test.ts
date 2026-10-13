@@ -1,5 +1,5 @@
 import { KiranaPlugin } from "@kirana-style/webpack"
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi } from "vite-plus/test"
 
 import { onCreateWebpackConfig } from "../src/index.ts"
 

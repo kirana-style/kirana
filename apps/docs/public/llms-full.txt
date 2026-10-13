@@ -232,7 +232,7 @@ A checkout can pack every package the way it would be published — compiled
 JavaScript with declarations, and the engine as its own per-platform package:
 
 ```bash
-bun run kirana:build   # the engine for this machine
+vp run engine          # the engine for this machine
 bun run kirana:pack    # tarballs in packages/kirana/dist-packages
 ```
 
@@ -303,8 +303,8 @@ cd ../vite && bun link
 cd /your/project && bun link @kirana-style/core @kirana-style/vite
 ```
 
-The native engine comes from the checkout's build (`bun run build` there, or
-`bun run kirana:build`).
+The native engine comes from the checkout's build (`vp run build` there, or
+`vp run engine`).
 
 ### Once published
 
@@ -8466,20 +8466,23 @@ not accepted: the formatters and linters own that.
 ### Set up
 
 ```bash
-bun install
-bun run check          # oxlint, oxfmt, types
-bun run kirana:check   # cargo fmt, Clippy, cargo-deny, Rust tests, Vitest
-bun run build          # native engine, then the apps
+vp install             # dependencies, and the git hooks
+vp run check           # format, lint, types, docs consistency
+vp run rust            # cargo fmt, Clippy, cargo-deny, Rust tests
+vp run test            # Vitest
+vp run build           # native engine, then the docs site
 ```
 
-Rust is installed through rustup. The README's Scripts table lists what each
-`kirana:*` command needs.
+Vite+ (`vp`) and Rust (through rustup) are the two installs. The README's
+Scripts table lists what each command needs. The pre-push hook (`vp run prepush`)
+runs the checks, the Rust lints and the tests with 100 % coverage, from the cache
+when nothing changed.
 
 ### What a pull request needs
 
 - **Tests, and 100 % coverage.** Kirana's packages keep 100 % coverage — Rust
   lines, functions and regions; TypeScript statements, branches, functions and
-  lines. `bun run kirana:coverage` checks it. A change that lowers it fails CI.
+  lines. `vp run coverage` checks it. A change that lowers it fails CI.
 - **The specification, in the same change.** A change to the compiler's
   behaviour updates the matching document in `spec/`, and a design choice gets
   a decision in `spec/20-decisions.md`.

@@ -247,10 +247,8 @@ async function start(): Promise<void> {
           )
         } else if (outcome.kind === "locations") {
           const converter = client!.protocol2CodeConverter
-          const locations = await Promise.all(
-            outcome.locations.map((location) =>
-              converter.asLocation(location as never)
-            )
+          const locations = outcome.locations.map((location) =>
+            converter.asLocation(location as never)
           )
           await vscode.commands.executeCommand(
             "editor.action.showReferences",

@@ -1,4 +1,4 @@
-import { defineConfig } from "vitest/config"
+import { defineConfig } from "vite-plus"
 
 // The floor sits at today's coverage so it can only rise; the remaining gaps are
 // defensive branches in the generator (malformed nav groups, missing blog dirs).

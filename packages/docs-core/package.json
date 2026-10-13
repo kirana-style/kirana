@@ -5,8 +5,7 @@
   "private": true,
   "description": "The content engine of the Kirana docs framework: markdown to parsed documents, nav, search index, llms.txt and markdown twins, built on @tanstack/markdown and @tanstack/highlight.",
   "scripts": {
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vp test run"
   },
   "dependencies": {
     "@tanstack/highlight": "^1.1.0",
@@ -16,7 +15,8 @@
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "vite-plus": "catalog:"
   },
   "exports": {
     "./*": "./src/*"

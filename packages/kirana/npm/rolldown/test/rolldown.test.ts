@@ -2,7 +2,7 @@ import { cpSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import { rolldown } from "rolldown"
 import type { OutputAsset, OutputChunk } from "rolldown"
-import { afterAll, describe, expect, it } from "vitest"
+import { afterAll, describe, expect, it } from "vite-plus/test"
 
 import kirana, { createKirana } from "../src/index.ts"
 

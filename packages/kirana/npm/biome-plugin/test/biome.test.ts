@@ -20,7 +20,7 @@ import path from "node:path"
 
 import eslint from "@kirana-style/eslint-plugin"
 import { Linter } from "eslint"
-import { afterAll, describe, expect, it } from "vitest"
+import { afterAll, describe, expect, it } from "vite-plus/test"
 
 const require = createRequire(import.meta.url)
 const biome = path.join(

@@ -10,7 +10,7 @@ import { createRequire } from "node:module"
 import path from "node:path"
 
 import type { BuilderContext } from "@angular-devkit/architect"
-import { afterAll, describe, expect, it, vi } from "vitest"
+import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 /** What Angular's builders were given; `touch` edits a source while one is running (watch mode). */
 const angular = vi.hoisted(() => ({

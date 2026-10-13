@@ -1,5 +1,5 @@
 import { KiranaPlugin as FromWebpack } from "@kirana-style/webpack"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it } from "vite-plus/test"
 
 import KiranaPlugin, { pluginKirana } from "../src/index.ts"
 import type { RsbuildPluginAPI } from "../src/index.ts"

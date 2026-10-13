@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test"
 
 import { Documents } from "../../src/documents.ts"
 import { foldLines, MIN_LENGTH, plan } from "../../src/fold.ts"

@@ -8,7 +8,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import { Driver } from "@kirana-style/compiler"
 import type { UtilityRule } from "@kirana-style/core/config"
-import { afterAll, describe, expect, it } from "vitest"
+import { afterAll, describe, expect, it } from "vite-plus/test"
 
 import * as scales from "../src/index.ts"
 import scalesPreset, { grammar } from "../src/preset.ts"

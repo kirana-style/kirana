@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url"
 
 import kirana from "@kirana-style/vite"
-import { defineConfig } from "vitest/config"
+import { defineConfig } from "vite-plus"
 
 export default defineConfig({
   test: {

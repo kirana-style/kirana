@@ -8,7 +8,7 @@ import {
 import { tmpdir } from "node:os"
 import path from "node:path"
 
-import { afterAll, describe, expect, it } from "vitest"
+import { afterAll, describe, expect, it } from "vite-plus/test"
 
 import { main } from "../src/cli.ts"
 import { loadNative } from "../src/native.ts"

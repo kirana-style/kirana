@@ -31,5 +31,5 @@ else
 fi
 cp "$library" "$native"
 # Worker threads, not forks: forked workers exit before the profile runtime writes its data.
-bunx vitest run --coverage --pool=threads
+vp test run --coverage --pool=threads
 cargo llvm-cov report --summary-only --fail-under-lines 100 --fail-under-functions 100 --fail-under-regions 100

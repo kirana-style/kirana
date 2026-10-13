@@ -34,7 +34,7 @@ performance, size or another project needs a source or a measurement beside it.
 Counts and lists — diagnostics, lint rules, packages, frameworks, bundlers,
 linters, commands — are never typed: pages read them from
 `apps/docs/src/data/facts.ts`, and markdown writes `{{fact:name}}`. A product a
-page names shows its logo. `bun run check` fails on a hand-written count, a
+page names shows its logo. `vp run check` fails on a hand-written count, a
 partial list or a missing logo; [`apps/docs/CONSISTENCY.md`](apps/docs/CONSISTENCY.md)
 explains the rules and how to mark a list that is deliberately partial.
 
@@ -50,20 +50,23 @@ not accepted: the formatters and linters own that.
 ### Set up
 
 ```bash
-bun install
-bun run check          # oxlint, oxfmt, types
-bun run kirana:check   # cargo fmt, Clippy, cargo-deny, Rust tests, Vitest
-bun run build          # native engine, then the apps
+vp install             # dependencies, and the git hooks
+vp run check           # format, lint, types, docs consistency
+vp run rust            # cargo fmt, Clippy, cargo-deny, Rust tests
+vp run test            # Vitest
+vp run build           # native engine, then the docs site
 ```
 
-Rust is installed through rustup. The README's Scripts table lists what each
-`kirana:*` command needs.
+Vite+ (`vp`) and Rust (through rustup) are the two installs. The README's
+Scripts table lists what each command needs. The pre-push hook (`vp run prepush`)
+runs the checks, the Rust lints and the tests with 100 % coverage, from the cache
+when nothing changed.
 
 ### What a pull request needs
 
 - **Tests, and 100 % coverage.** Kirana's packages keep 100 % coverage — Rust
   lines, functions and regions; TypeScript statements, branches, functions and
-  lines. `bun run kirana:coverage` checks it. A change that lowers it fails CI.
+  lines. `vp run coverage` checks it. A change that lowers it fails CI.
 - **The specification, in the same change.** A change to the compiler's
   behaviour updates the matching document in `spec/`, and a design choice gets
   a decision in `spec/20-decisions.md`.

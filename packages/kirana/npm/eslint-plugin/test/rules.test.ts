@@ -1,7 +1,7 @@
 import path from "node:path"
 
 import { RuleTester } from "eslint"
-import { afterAll, describe, it } from "vitest"
+import { afterAll, describe, it } from "vite-plus/test"
 
 import plugin, { reset, rules } from "../src/index.ts"
 
@@ -548,7 +548,7 @@ tester.run("no-classname-on-sx", rules["no-classname-on-sx"] as never, {
 
 describe("project root", () => {
   it("falls back when no configuration is above the file", async () => {
-    const { expect } = await import("vitest")
+    const { expect } = await import("vite-plus/test")
     const { rootOf } = await import("../src/project.ts")
     expect(rootOf("/kirana-nowhere/a/b.jsx", "fallback")).toBe("fallback")
     expect(rootOf(file, "fallback")).toBe(project)
@@ -613,7 +613,7 @@ tester.run("no-class-helpers", rules["no-class-helpers"] as never, {
 
 describe("configs under ESLint", () => {
   it("runs every rule over one compiled file", async () => {
-    const { expect } = await import("vitest")
+    const { expect } = await import("vite-plus/test")
     const { Linter } = await import("eslint")
     const linter = new Linter({ configType: "flat" })
     const config = [
@@ -631,7 +631,11 @@ describe("configs under ESLint", () => {
       config as never,
       path.join(project, "strict.jsx")
     )
-    expect(messages.map((message) => message.ruleId).sort()).toEqual([
+    expect(
+      messages
+        .map((message) => message.ruleId)
+        .sort((a, b) => String(a).localeCompare(String(b)))
+    ).toEqual([
       "kirana/diagnostics",
       "kirana/no-unused",
       "kirana/sort-properties",
@@ -642,7 +646,7 @@ describe("configs under ESLint", () => {
 
 describe("plugin", () => {
   it("exports every rule and two configs", async () => {
-    const { expect } = await import("vitest")
+    const { expect } = await import("vite-plus/test")
     expect(Object.keys(plugin.rules)).toHaveLength(11)
     expect(plugin.configs.recommended.plugins.kirana).toBe(plugin)
     expect(Object.keys(plugin.configs.strict.rules)).toHaveLength(11)

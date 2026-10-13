@@ -1,7 +1,7 @@
 /**
  * Builds the native engine (`kirana.<platform>.node`) with `napi build`.
  *
- *   bun scripts/build-native.ts            # release, what `bun run build` and Turbo use
+ *   bun scripts/build-native.ts            # release, what `bun run build` and the `engine` task use
  *   bun scripts/build-native.ts --debug    # debug, faster to compile
  *   bun scripts/build-native.ts --target aarch64-pc-windows-msvc   # CI: any other napi flag passes through
  *
