@@ -824,11 +824,11 @@ function stylesheetStep(files: Files, project: Detected): Step {
     case "rails":
     case "phoenix":
     case "adonisjs": {
-      const out = `${staticDirectory(project.framework)}/kirana-style/kirana.css`
+      const out = `${staticDirectory(project.framework)}/kirana/kirana.css`
       const helper = HELPERS[project.framework]
       return manual(
         "stylesheet",
-        `${helper ? `${helper}; ` : ""}run kirana dev resources/styles --out ${out} beside your server (kirana build --minify for production), and link /kirana-style/kirana.css from your layout`
+        `${helper ? `${helper}; ` : ""}run kirana dev resources/styles --out ${out} beside your server (kirana build --minify for production), and link /kirana/kirana.css from your layout`
       )
     }
     case "tanstack-start":

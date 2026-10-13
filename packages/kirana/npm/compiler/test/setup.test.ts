@@ -1314,7 +1314,7 @@ describe("D-069 to D-072: the frameworks Tailwind has a guide for", () => {
     expect(all.stylesheet).toMatchObject({
       status: "manual",
       detail: expect.stringContaining(
-        "composer require kirana-style/kirana; run kirana dev resources/styles --out public/kirana-style/kirana.css"
+        "composer require kirana-style/kirana; run kirana dev resources/styles --out public/kirana/kirana.css"
       ),
     })
     expect(all.types).toMatchObject({

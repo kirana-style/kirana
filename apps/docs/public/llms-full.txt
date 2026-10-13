@@ -1114,7 +1114,7 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ### 4. Run it
 
 ```bash
-npx kirana dev styles --out public/kirana-style/kirana.css
+npx kirana dev styles --out public/kirana/kirana.css
 ```
 
 `kirana dev` watches and rewrites both files; `kirana build` writes them once,
@@ -2325,7 +2325,7 @@ it is:
 
 Angular compiles TypeScript from disk and has no hook to change a file first. So
 the builders keep a compiled copy of `src/` in `.kirana/`, hand Angular that copy
-through `fileReplacements`, and add the stylesheet, `.kirana-style/kirana.css`, to
+through `fileReplacements`, and add the stylesheet, `.kirana/kirana.css`, to
 `styles`. `ng serve` and `ng build --watch` update the copy as you edit. Ignore
 the folder:
 
@@ -2695,7 +2695,7 @@ in TypeScript modules, Kirana's CLI compiles them, and the templates name them.
    ```
 
    ```bash
-   npx kirana dev resources/styles --out public/kirana-style/kirana.css
+   npx kirana dev resources/styles --out public/kirana/kirana.css
    ```
 
    `kirana dev` rewrites both on every edit; `kirana build --minify` writes them
@@ -2782,16 +2782,16 @@ export const active = css({ outline: "2px solid" })
 ## 4. Run the CLI beside the server
 
 ```bash
-npx kirana dev resources/styles --out public/kirana-style/kirana.css
+npx kirana dev resources/styles --out public/kirana/kirana.css
 ```
 
-For production, `npx kirana build resources/styles --out public/kirana-style/kirana.css --minify`
+For production, `npx kirana build resources/styles --out public/kirana/kirana.css --minify`
 in your deploy step.
 
 ## 5. Use it in Blade
 
 ```html file="resources/views/home.blade.php"
-<link rel="stylesheet" href="{{ asset('kirana-style/kirana.css') }}" />
+<link rel="stylesheet" href="{{ asset('kirana/kirana.css') }}" />
 
 <div class="@kirana('card', $active ? 'active' : null)">…</div>
 ```
@@ -2861,7 +2861,7 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ## 4. Run the CLI
 
 ```bash
-npx kirana dev resources/styles --out public/kirana-style/kirana.css
+npx kirana dev resources/styles --out public/kirana/kirana.css
 ```
 
 `kirana build --minify` writes both files once, for production.
@@ -2869,7 +2869,7 @@ npx kirana dev resources/styles --out public/kirana-style/kirana.css
 ## 5. Use it in Twig
 
 ```twig file="templates/home.html.twig"
-<link rel="stylesheet" href="{{ asset('kirana-style/kirana.css') }}">
+<link rel="stylesheet" href="{{ asset('kirana/kirana.css') }}">
 
 <div class="{{ kirana('card', active ? 'active') }}">…</div>
 ```
@@ -2923,16 +2923,16 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 
 ```bash file="Procfile.dev"
 web: bin/rails server
-kirana: npx kirana dev app/styles --out public/kirana-style/kirana.css
+kirana: npx kirana dev app/styles --out public/kirana/kirana.css
 ```
 
-For production, run `npx kirana build app/styles --out public/kirana-style/kirana.css --minify`
+For production, run `npx kirana build app/styles --out public/kirana/kirana.css --minify`
 before `assets:precompile`.
 
 ## 4. Use it in a view
 
 ```erb file="app/views/home/index.html.erb"
-<link rel="stylesheet" href="/kirana-style/kirana.css">
+<link rel="stylesheet" href="/kirana/kirana.css">
 
 <div class="<%= kirana :card, active && :active %>">…</div>
 ```
@@ -3010,7 +3010,7 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ```elixir file="config/dev.exs"
 config :my_app, MyAppWeb.Endpoint,
   watchers: [
-    kirana: {System, :cmd, ["npx", ~w(kirana dev assets/styles --out priv/static/kirana-style/kirana.css)]}
+    kirana: {System, :cmd, ["npx", ~w(kirana dev assets/styles --out priv/static/kirana/kirana.css)]}
   ]
 ```
 
@@ -3020,7 +3020,7 @@ Add `kirana` to `Plug.Static`'s `only:` list (`static_paths/0`), and run
 ## 5. Use it in HEEx
 
 ```heex file="lib/my_app_web/components/layouts/root.html.heex"
-<link rel="stylesheet" href={~p"/kirana-style/kirana.css"} />
+<link rel="stylesheet" href={~p"/kirana/kirana.css"} />
 
 <div class={kirana(["card", @active && "active"])}>…</div>
 ```
@@ -3093,13 +3093,13 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ## 4. Run the CLI
 
 ```bash
-npx kirana dev resources/styles --out public/kirana-style/kirana.css
+npx kirana dev resources/styles --out public/kirana/kirana.css
 ```
 
 ## 5. Use it in Edge
 
 ```html file="resources/views/pages/home.edge"
-<link rel="stylesheet" href="/kirana-style/kirana.css" />
+<link rel="stylesheet" href="/kirana/kirana.css" />
 
 <div class="{{ kirana('card', active && 'active') }}">…</div>
 ```

@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "kirana build resources/styles --out priv/static/kirana-style/kirana.css --minify",
+    "build": "kirana build resources/styles --out priv/static/kirana/kirana.css --minify",
     "start": "mix run --no-halt"
   },
   "kirana-example": {
@@ -28,7 +28,7 @@
       "dev",
       "resources/styles",
       "--out",
-      "priv/static/kirana-style/kirana.css"
+      "priv/static/kirana/kirana.css"
     ],
     "reloads": true,
     "edit": "resources/styles/app.styles.ts"

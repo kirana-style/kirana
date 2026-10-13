@@ -57,7 +57,7 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ## 4. Run the CLI
 
 ```bash
-npx kirana dev resources/styles --out public/kirana-style/kirana.css
+npx kirana dev resources/styles --out public/kirana/kirana.css
 ```
 
 `kirana build --minify` writes both files once, for production.
@@ -65,7 +65,7 @@ npx kirana dev resources/styles --out public/kirana-style/kirana.css
 ## 5. Use it in Twig
 
 ```twig file="templates/home.html.twig"
-<link rel="stylesheet" href="{{ asset('kirana-style/kirana.css') }}">
+<link rel="stylesheet" href="{{ asset('kirana/kirana.css') }}">
 
 <div class="{{ kirana('card', active ? 'active') }}">…</div>
 ```

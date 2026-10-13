@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "kirana build resources/styles --out public/kirana-style/kirana.css --minify",
+    "build": "kirana build resources/styles --out public/kirana/kirana.css --minify",
     "start": "php artisan serve --host 127.0.0.1 --port $PORT"
   },
   "kirana-example": {
@@ -41,7 +41,7 @@
       "dev",
       "resources/styles",
       "--out",
-      "public/kirana-style/kirana.css"
+      "public/kirana/kirana.css"
     ],
     "edit": "resources/styles/app.styles.ts",
     "reloads": true

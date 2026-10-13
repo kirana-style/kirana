@@ -126,7 +126,7 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ### 4. Run it
 
 ```bash
-npx kirana dev styles --out public/kirana-style/kirana.css
+npx kirana dev styles --out public/kirana/kirana.css
 ```
 
 `kirana dev` watches and rewrites both files; `kirana build` writes them once,

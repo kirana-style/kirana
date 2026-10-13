@@ -63,13 +63,13 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ## 4. Run the CLI
 
 ```bash
-npx kirana dev resources/styles --out public/kirana-style/kirana.css
+npx kirana dev resources/styles --out public/kirana/kirana.css
 ```
 
 ## 5. Use it in Edge
 
 ```html file="resources/views/pages/home.edge"
-<link rel="stylesheet" href="/kirana-style/kirana.css" />
+<link rel="stylesheet" href="/kirana/kirana.css" />
 
 <div class="{{ kirana('card', active && 'active') }}">…</div>
 ```

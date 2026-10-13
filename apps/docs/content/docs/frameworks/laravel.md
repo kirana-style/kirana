@@ -55,16 +55,16 @@ export const active = css({ outline: "2px solid" })
 ## 4. Run the CLI beside the server
 
 ```bash
-npx kirana dev resources/styles --out public/kirana-style/kirana.css
+npx kirana dev resources/styles --out public/kirana/kirana.css
 ```
 
-For production, `npx kirana build resources/styles --out public/kirana-style/kirana.css --minify`
+For production, `npx kirana build resources/styles --out public/kirana/kirana.css --minify`
 in your deploy step.
 
 ## 5. Use it in Blade
 
 ```html file="resources/views/home.blade.php"
-<link rel="stylesheet" href="{{ asset('kirana-style/kirana.css') }}" />
+<link rel="stylesheet" href="{{ asset('kirana/kirana.css') }}" />
 
 <div class="@kirana('card', $active ? 'active' : null)">…</div>
 ```

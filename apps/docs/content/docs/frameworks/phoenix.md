@@ -66,7 +66,7 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ```elixir file="config/dev.exs"
 config :my_app, MyAppWeb.Endpoint,
   watchers: [
-    kirana: {System, :cmd, ["npx", ~w(kirana dev assets/styles --out priv/static/kirana-style/kirana.css)]}
+    kirana: {System, :cmd, ["npx", ~w(kirana dev assets/styles --out priv/static/kirana/kirana.css)]}
   ]
 ```
 
@@ -76,7 +76,7 @@ Add `kirana` to `Plug.Static`'s `only:` list (`static_paths/0`), and run
 ## 5. Use it in HEEx
 
 ```heex file="lib/my_app_web/components/layouts/root.html.heex"
-<link rel="stylesheet" href={~p"/kirana-style/kirana.css"} />
+<link rel="stylesheet" href={~p"/kirana/kirana.css"} />
 
 <div class={kirana(["card", @active && "active"])}>…</div>
 ```

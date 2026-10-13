@@ -203,7 +203,7 @@ transform a source before it:
 - **Angular CLI**: the builders `@kirana-style/angular:application` and `:dev-server` wrap `@angular/build`'s.
   They mirror the source root into `.kirana/` (style-bearing modules compiled, every other file
   copied, so relative imports and `templateUrl`s resolve inside the mirror), pass every TypeScript file
-  except the entries as `fileReplacements`, and add `.kirana-style/kirana.css` to `styles`. In watch mode
+  except the entries as `fileReplacements`, and add `.kirana/kirana.css` to `styles`. In watch mode
   each change is mirrored again with the modules that read from it. The builders' schemas are copies
   of `@angular/build`'s, kept equal as JSON by a test, because Architect resolves a schema only inside the
   builder's package.

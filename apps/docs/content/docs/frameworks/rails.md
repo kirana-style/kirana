@@ -46,16 +46,16 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 
 ```bash file="Procfile.dev"
 web: bin/rails server
-kirana: npx kirana dev app/styles --out public/kirana-style/kirana.css
+kirana: npx kirana dev app/styles --out public/kirana/kirana.css
 ```
 
-For production, run `npx kirana build app/styles --out public/kirana-style/kirana.css --minify`
+For production, run `npx kirana build app/styles --out public/kirana/kirana.css --minify`
 before `assets:precompile`.
 
 ## 4. Use it in a view
 
 ```erb file="app/views/home/index.html.erb"
-<link rel="stylesheet" href="/kirana-style/kirana.css">
+<link rel="stylesheet" href="/kirana/kirana.css">
 
 <div class="<%= kirana :card, active && :active %>">…</div>
 ```

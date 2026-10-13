@@ -44,7 +44,7 @@ framework Kirana already supported:
   `:dev-server`.
   - `createMirror` walks the source root and writes `.kirana/<sourceRoot>/…`: a style-bearing script
     (`shouldCompile`) compiled by the Driver, every other file copied, so the compiled copy's relative
-    imports and `templateUrl`s resolve inside the mirror. It writes `.kirana-style/kirana.css` only when its
+    imports and `templateUrl`s resolve inside the mirror. It writes `.kirana/kirana.css` only when its
     text changed.
   - `withMirror` adds a `fileReplacements` entry for every TypeScript file except `.d.ts` files and
     the entries (`browser`, `server`), and appends the stylesheet to `styles`.

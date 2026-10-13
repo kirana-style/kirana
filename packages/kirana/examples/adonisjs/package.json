@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "kirana build resources/styles --out public/kirana-style/kirana.css --minify",
+    "build": "kirana build resources/styles --out public/kirana/kirana.css --minify",
     "start": "node --import=@poppinss/ts-exec bin/server.ts"
   },
   "imports": {
@@ -30,7 +30,7 @@
       "dev",
       "resources/styles",
       "--out",
-      "public/kirana-style/kirana.css"
+      "public/kirana/kirana.css"
     ],
     "reloads": true,
     "edit": "resources/styles/app.styles.ts"

@@ -43,7 +43,7 @@ in TypeScript modules, Kirana's CLI compiles them, and the templates name them.
    ```
 
    ```bash
-   npx kirana dev resources/styles --out public/kirana-style/kirana.css
+   npx kirana dev resources/styles --out public/kirana/kirana.css
    ```
 
    `kirana dev` rewrites both on every edit; `kirana build --minify` writes them

@@ -85,7 +85,7 @@ it is:
 
 Angular compiles TypeScript from disk and has no hook to change a file first. So
 the builders keep a compiled copy of `src/` in `.kirana/`, hand Angular that copy
-through `fileReplacements`, and add the stylesheet, `.kirana-style/kirana.css`, to
+through `fileReplacements`, and add the stylesheet, `.kirana/kirana.css`, to
 `styles`. `ng serve` and `ng build --watch` update the copy as you edit. Ignore
 the folder:
 
