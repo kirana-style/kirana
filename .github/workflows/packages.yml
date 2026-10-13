@@ -76,7 +76,7 @@ jobs:
             target: wasm32-wasip1-threads
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -113,7 +113,7 @@ jobs:
         shell: bash
         run: bun run build --target ${{ matrix.target }} ${{ matrix.flags }}
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: native-${{ matrix.triple }}
           # The WASI build is the `.wasm` plus the loaders napi-rs writes beside it.
@@ -133,13 +133,13 @@ jobs:
     needs: [native]
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - uses: ./.github/actions/setup
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: native-*
           path: natives
@@ -155,7 +155,7 @@ jobs:
           test "$(ls | grep -cE '^kirana-style-compiler-(darwin|linux|win32)-')" -eq 8
           test -f kirana-style-compiler-wasm32-wasi-[0-9]*.tgz
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: kirana-packages
           path: packages/kirana/dist-packages/*.tgz
@@ -175,7 +175,7 @@ jobs:
         pm: ${{ fromJSON(github.event_name == 'pull_request' && '["npm", "pnpm", "bun"]' || '["npm", "pnpm", "yarn", "yarn-pnp", "bun"]') }}
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -183,7 +183,7 @@ jobs:
       # workspace, with the package manager under test.
       - uses: ./.github/actions/setup
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
 
@@ -194,7 +194,7 @@ jobs:
           corepack prepare pnpm@12 --activate
           corepack prepare yarn@4 --activate
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: kirana-packages
           path: packages/kirana/dist-packages
@@ -214,13 +214,13 @@ jobs:
     needs: [pack]
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - uses: ./.github/actions/setup
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: kirana-packages
           path: packages/kirana/dist-packages
@@ -278,13 +278,13 @@ jobs:
           - adonisjs
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - uses: ./.github/actions/setup
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: kirana-packages
           path: packages/kirana/dist-packages
@@ -295,18 +295,18 @@ jobs:
 
       # Server frameworks' own toolchains (D-069), and Meteor's tool, for the examples that need them.
       - if: contains(fromJSON('["laravel","symfony"]'), matrix.example)
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: "8.4"
           tools: composer
 
       - if: matrix.example == 'rails'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
           ruby-version: "4.0"
 
       - if: matrix.example == 'phoenix'
-        uses: erlef/setup-beam@v1
+        uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
           otp-version: "28"
           elixir-version: "1.20"
@@ -320,7 +320,7 @@ jobs:
           bun run kirana:example ${{ matrix.example }} --pm npm
           --atoms "$GITHUB_WORKSPACE/atoms/${{ matrix.example }}.json"
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: atoms-${{ matrix.example }}
           path: atoms
@@ -335,13 +335,13 @@ jobs:
     needs: [compat]
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - uses: ./.github/actions/setup
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: atoms-*
           path: atoms
@@ -365,17 +365,17 @@ jobs:
         example: [vite-react, vite-vue]
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - uses: ./.github/actions/setup
 
-      - uses: denoland/setup-deno@v2
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
         with:
           deno-version: v2.x
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: kirana-packages
           path: packages/kirana/dist-packages
@@ -428,13 +428,13 @@ jobs:
           - adonisjs
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
       - uses: ./.github/actions/setup
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: kirana-packages
           path: packages/kirana/dist-packages
@@ -445,18 +445,18 @@ jobs:
 
       # Server frameworks' own toolchains (D-069), and Meteor's tool, for the examples that need them.
       - if: contains(fromJSON('["laravel","symfony"]'), matrix.example)
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: "8.4"
           tools: composer
 
       - if: matrix.example == 'rails'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
           ruby-version: "4.0"
 
       - if: matrix.example == 'phoenix'
-        uses: erlef/setup-beam@v1
+        uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
           otp-version: "28"
           elixir-version: "1.20"
@@ -484,11 +484,11 @@ jobs:
         pm: [npm, pnpm, bun]
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: kirana-packages
           path: packages/kirana/dist-packages
