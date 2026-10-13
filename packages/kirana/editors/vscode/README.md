@@ -12,10 +12,6 @@ TypeScript, JavaScript, Vue, Svelte and Astro files.
 - **Style Inspector** (**Kirana: Open Style Inspector**): a panel that follows the cursor, with
   `:hover`, breakpoints and `sx` guards to switch on and off.
 - **Style Fold** (`kirana.fold.enabled`, **Kirana: Toggle Style Fold**): long one-line `css({…})`
-  | `kirana.fold.mode` | `fold` | `fold` writes the summary in place; `dim` lowers the object's opacity. |
-  | `kirana.fold.opacity` | `0.4` | The opacity of a dimmed object. |
-  | `kirana.fold.minLength` | `40` | Shorter objects stay as written. |
-  | `kirana.fold.icon` | `true` | Kirana's icon before a folded summary. |
   objects read as their summary; **Kirana: Fold Styles** folds the multi-line ones.
 - **Code lens** on `css()` and `recipe()`: counts, and **used by N elements**.
 - **Colour swatches** beside colour literals and colour tokens; the picker edits literals only.
@@ -39,23 +35,27 @@ The summary is an inlay hint. Inlay hints must be on in the editor:
 Some editors default to `offUnlessPressed`, which shows hints only while Ctrl+Alt is held, and VS
 Code cuts every hint at 43 characters unless `maximumLength` is `0`. This repository's
 `.vscode/settings.json` sets both; `kirana.inlayHints.maxLength` (100) is Kirana's own limit.
-| `kirana.inlayHints.colors` | `true` | Colour the summary by group, as the card does. |
-| `kirana.inlayHints.icon` | `true` | Kirana's icon before each summary. |
-| `kirana.inlayHints.opacity` | `0.85` | How strongly the summary reads, from `0.1` to `1`. |
 
 ## Settings
 
-| Setting                         | Default | What it does                                           |
-| ------------------------------- | ------- | ------------------------------------------------------ |
-| `kirana.server.path`            | empty   | The binary to run; empty is the project's own.         |
-| `kirana.inlayHints.enabled`     | `true`  | The summary after each element's `sx`.                 |
-| `kirana.inlayHints.maxLength`   | `100`   | The longest summary; `0` for every declaration.        |
-| `kirana.codeLens.enabled`       | `true`  | The counts and "used by" above `css()` and `recipe()`. |
-| `kirana.hover.diagrams`         | `true`  | The box model as a picture; off, a text drawing.       |
-| `kirana.rootFontSize`           | `16`    | Pixels per `rem` for the pixel equivalents.            |
-| `kirana.inspector.followCursor` | `true`  | The Style Inspector shows what the cursor is on.       |
-| `kirana.fold.enabled`           | `false` | Style Fold.                                            |
-| `kirana.trace.server`           | `off`   | Log the protocol messages.                             |
+| Setting                         | Default | What it does                                                           |
+| ------------------------------- | ------- | ---------------------------------------------------------------------- |
+| `kirana.server.path`            | empty   | The binary to run; empty is the project's own.                         |
+| `kirana.inlayHints.enabled`     | `true`  | The summary after each element's `sx`.                                 |
+| `kirana.inlayHints.maxLength`   | `100`   | The longest summary; `0` for every declaration.                        |
+| `kirana.inlayHints.colors`      | `true`  | Colour the summary by group, as the card does.                         |
+| `kirana.inlayHints.icon`        | `true`  | Kirana's icon before each summary.                                     |
+| `kirana.inlayHints.opacity`     | `0.85`  | How strongly the summary reads, from `0.1` to `1`.                     |
+| `kirana.codeLens.enabled`       | `true`  | The counts and "used by" above `css()` and `recipe()`.                 |
+| `kirana.hover.diagrams`         | `true`  | The box model as a picture; off, a text drawing.                       |
+| `kirana.rootFontSize`           | `16`    | Pixels per `rem` for the pixel equivalents.                            |
+| `kirana.inspector.followCursor` | `true`  | The Style Inspector shows what the cursor is on.                       |
+| `kirana.fold.enabled`           | `false` | Style Fold.                                                            |
+| `kirana.fold.mode`              | `fold`  | `fold` writes the summary in place; `dim` lowers the object's opacity. |
+| `kirana.fold.opacity`           | `0.4`   | The opacity of a dimmed object.                                        |
+| `kirana.fold.minLength`         | `40`    | Shorter objects stay as written.                                       |
+| `kirana.fold.icon`              | `true`  | Kirana's icon before a folded summary.                                 |
+| `kirana.trace.server`           | `off`   | Log the protocol messages.                                             |
 
 VS Code fixes a hover's height at a quarter of the editor (at least 250 px), and an extension cannot
 change it. Drag the hover's edge once and it keeps that size until the window reloads; the Style

@@ -61,7 +61,6 @@
     ".": {
       "package-name": "kirana",
       "changelog-path": "CHANGELOG.md",
-      "release-as": "0.1.0",
       "extra-files": [
         {
           "type": "json",
