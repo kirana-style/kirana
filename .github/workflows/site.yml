@@ -10,7 +10,7 @@ name: site
 # deploys. If the docs ever build from published packages instead of the workspace engine, Workers
 # Builds becomes the simpler choice: connect the repository in the dashboard and delete this file.
 #
-# Until the custom domain is added it answers at https://kirana-style.<account-subdomain>.workers.dev.
+# Until the custom domain is added it answers at https://site.kirana-style.workers.dev.
 # The `site` environment holds the Cloudflare token and account id (kirana-spec operations/site.md).
 
 on:

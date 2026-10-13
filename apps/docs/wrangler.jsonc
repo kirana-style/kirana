@@ -2,8 +2,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   // The documentation site, kirana.style. Built by `vite build` (the Cloudflare plugin writes the
   // Worker and its static assets) and deployed with `wrangler deploy`. Until the custom domain is
-  // added it is served at https://kirana-style.<account-subdomain>.workers.dev.
-  "name": "kirana-style",
+  // added it is served at https://site.kirana-style.workers.dev.
+  "name": "site",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
