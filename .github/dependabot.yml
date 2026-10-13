@@ -29,6 +29,8 @@ updates:
       - dependency-name: "vite"
       - dependency-name: "vitest"
       - dependency-name: "@vitest/coverage-v8"
+      # The parity test runs Oxlint itself; it stays at the version Vite+ bundles.
+      - dependency-name: "oxlint"
     groups:
       minor-and-patch:
         update-types: [minor, patch]

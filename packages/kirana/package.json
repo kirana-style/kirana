@@ -45,6 +45,7 @@
     "@emnapi/runtime": "catalog:",
     "@napi-rs/wasm-runtime": "catalog:",
     "@kirana-style/preset-scales": "workspace:*",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:",
+    "oxlint": "catalog:"
   }
 }
