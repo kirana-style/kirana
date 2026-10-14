@@ -245,6 +245,16 @@ jobs:
       - name: Build
         run: vp run build
 
+      # The site ships `light-dark()` as written (D-026). A CSS minifier aiming below that floor
+      # rewrites it into `--lightningcss-light/dark` switches that nothing sets, and the colours
+      # vanish in production only: the dev server does not minify.
+      - name: Colours survive the build
+        run: |
+          if grep -rl -- "--lightningcss-" apps/docs/dist/client/assets; then
+            echo "::error::a built stylesheet lowered light-dark(); set build.cssTarget to Kirana's floor"
+            exit 1
+          fi
+
   determinism:
     name: kirana · determinism (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
