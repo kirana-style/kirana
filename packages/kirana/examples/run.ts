@@ -565,14 +565,15 @@ async function checkPage(url: string) {
       }
     }
     // A development server delivers the stylesheet after the page: it fills as modules compile and
-    // arrives as a hot update (KRN-INT-009), so the probe can exist before its styles do. Read until
-    // the values match, and fail with the last reading if they never do.
+    // arrives as a hot update (KRN-INT-009), so the probe can exist before its styles do. Some reload
+    // the page once on first visit, too: Vite finds a dependency to pre-bundle (Ember's, in CI), and
+    // a read during the reload fails. Read until the values match, and fail with the last reading if
+    // they never do; 30 s covers a slow runner's first pre-bundle.
     const settled = async (expected: Record<string, string>) => {
-      const deadline = Date.now() + 10_000
+      const deadline = Date.now() + 30_000
       for (;;) {
-        const actual = await read()
         try {
-          return expect(actual, expected)
+          return expect(await read(), expected)
         } catch (error) {
           if (Date.now() > deadline) throw error
           await page.waitForTimeout(100)
