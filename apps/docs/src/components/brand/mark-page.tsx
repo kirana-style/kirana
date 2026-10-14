@@ -21,6 +21,7 @@ import {
 import {
   ONE_COLOUR,
   PALETTES,
+  SCENERY,
   SOLIDS,
   VISIBLE,
   CIRCLES,
@@ -553,12 +554,24 @@ export function MarkPage() {
           below is drawn large on paper and on ink, at 14 px in a dark editor's
           hint and at 16 px in a dark tab. Under each, every part's contrast
           with the ground: S, A and L for stem, arm and leg, flagged under 3 :
-          1, the minimum for graphics.
+          1, the minimum for graphics. Every set copies or downloads as the mark
+          alone, with no ground.
         </SectionHeader>
         <Palettes sets={PALETTES} chosen="ocean" />
       </Section>
 
-      <Section id="solids">
+      <Section id="scenery">
+        <SectionHeader eyebrow="Scenery" title="Gradients from the landscapes">
+          One set for each of the brand's landscapes, its colours taken from the
+          picture: the light, the land and the sky. Each is made for the mark on
+          its own landscape, and is judged here on the same four grounds. Copy
+          or download any set as the mark alone, with no ground, to place it on
+          a photo.
+        </SectionHeader>
+        <Palettes sets={SCENERY} />
+      </Section>
+
+      <Section tinted id="solids">
         <SectionHeader eyebrow="Solid colours" title="One flat colour per part">
           For print, embroidery, small sizes and anywhere a gradient cannot go:
           each part one colour, judged on the same four grounds.
@@ -566,7 +579,7 @@ export function MarkPage() {
         <Palettes sets={SOLIDS} />
       </Section>
 
-      <Section tinted id="one-colour">
+      <Section id="one-colour">
         <SectionHeader eyebrow="One colour" title="All three petals alike">
           Every part the same colour, for stamps, monochrome print and any place
           a single ink is all there is. One colour fuses the leg into the arm,
@@ -576,7 +589,7 @@ export function MarkPage() {
         <Palettes sets={ONE_COLOUR} />
       </Section>
 
-      <Section>
+      <Section tinted>
         <SectionHeader eyebrow="Size" title="From favicon to poster">
           The mark at the sizes it is used, and as an app icon on ink and on
           paper.
@@ -609,7 +622,7 @@ export function MarkPage() {
         </div>
       </Section>
 
-      <Section tinted>
+      <Section>
         <SectionHeader eyebrow="In use" title="Beside the name">
           The mark with the wordmark, as the site's header draws them, on paper
           and on ink.
@@ -628,7 +641,7 @@ export function MarkPage() {
           ))}
         </div>
       </Section>
-      <Section id="wording">
+      <Section tinted id="wording">
         <SectionHeader eyebrow="Wording" title="What we say beside the mark">
           Headlines and descriptions under review, each written to sell what
           only Kirana does — and each with the page that backs it, so no line

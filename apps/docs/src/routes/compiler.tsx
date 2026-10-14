@@ -2,8 +2,6 @@ import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
 import {
   CpuIcon,
-  FilterHorizontalIcon,
-  Files01Icon,
   FileScriptIcon,
   Layers01Icon,
   SourceCodeIcon,
@@ -26,7 +24,7 @@ import { GlowBand } from "@/components/site/accents"
 import { LogoIcon, PAGE_LOGOS } from "@/components/site/brands"
 import { Card, CardGrid, Figures, Steps } from "@/components/site/cards"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
-import { At, Pill, Scene, Stage, Tag, Tile } from "@/components/site/visuals"
+import { PipelineArt } from "@/components/art/compiler-art"
 import { InlineCode } from "@/components/site/code-tokens"
 import { LIFT, REST } from "@/components/site/lift"
 
@@ -71,44 +69,6 @@ const PIPELINE = [
     text: "css({ … }) becomes a class string and sx becomes className. A runtime value becomes a choice between classes or a custom-property bridge.",
   },
 ]
-
-/** Modules in, most set aside unread, the rest compiled into one stylesheet. */
-function PipelineArt() {
-  return (
-    <Stage>
-      <Scene
-        width={620}
-        height={170}
-        wires={["M 92 85 H 170"]}
-        live={["M 250 85 H 350", "M 430 85 H 520"]}
-      >
-        <At x={10} y={50}>
-          <Tile icon={Files01Icon} size={52} caption="your modules" />
-        </At>
-        <At x={34} y={50}>
-          <Tile icon={FilterHorizontalIcon} size={52} caption="prefilter" />
-        </At>
-        <At x={34} y={14}>
-          <Pill mono>
-            <Tag tone="muted">7,747</Tag>
-            99.3 % never parsed
-          </Pill>
-        </At>
-        <At x={62} y={50}>
-          <Tile
-            icon={CpuIcon}
-            size={60}
-            variant="accent"
-            caption="evaluate · atomise · order"
-          />
-        </At>
-        <At x={90} y={50}>
-          <Tile icon={FileScriptIcon} size={52} caption="one stylesheet" />
-        </At>
-      </Scene>
-    </Stage>
-  )
-}
 
 const styles = {
   flow: css({

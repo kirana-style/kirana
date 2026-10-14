@@ -169,7 +169,7 @@ const styles = {
   }),
 }
 
-type Path = {
+export type Path = {
   step: string
   title: string
   accent: AccentName
@@ -184,7 +184,7 @@ type Path = {
   file: string
 }
 
-const PATHS: readonly Path[] = [
+export const PATHS: readonly Path[] = [
   {
     step: "Start small",
     title: "Just css()",
@@ -386,7 +386,7 @@ const pathIcon: Record<string, IconProps["icon"]> = {
 }
 
 /** A path's scene: its snippet in a code window, highlighted at build time. */
-function CodeArt({ path }: { path: Path }) {
+export function CodeArt({ path }: { path: Path }) {
   return (
     <Card title={path.file} icon={CodeIcon} glow sx={styles.window}>
       <pre sx={styles.code} data-slot="code-block-source">
@@ -399,7 +399,7 @@ function CodeArt({ path }: { path: Path }) {
 }
 
 /** The choices: one engine at the centre, the frameworks around it. */
-function ChoicesArt() {
+export function ChoicesArt() {
   const left = [SVGL.react, SVGL.vue, SVGL.svelte] as const
   const right = [SVGL.nextjs, SVGL.astro, SVGL.solidjs] as const
   const ys = [24, 70, 116]
@@ -431,7 +431,7 @@ function ChoicesArt() {
 }
 
 /** What an agent works with: a check it can parse. */
-function AgentsArt() {
+export function AgentsArt() {
   return (
     <Card title="~/app" icon={CommandLineIcon} glow sx={styles.window}>
       <Row flat typed={0}>

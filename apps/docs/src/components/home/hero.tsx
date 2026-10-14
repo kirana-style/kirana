@@ -179,7 +179,7 @@ const styles = {
 }
 
 /** Source in, one compile, atomic CSS out: what the claim beside it says. */
-function CompileScene() {
+export function CompileScene() {
   return (
     <Stage sx={styles.art}>
       <Scene

@@ -1,11 +1,6 @@
 import { useState } from "react"
 import { css } from "@kirana-style/core"
-import {
-  Cancel01Icon,
-  Copy01Icon,
-  Download04Icon,
-  Tick02Icon,
-} from "@hugeicons/core-free-icons"
+import { Cancel01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
@@ -25,16 +20,16 @@ import {
   lineHeight,
 } from "@workspace/ui/tokens/typography"
 
-import { GRADIENTS, PAINT_ORDER, PARTS, RULES } from "@/brand/kirana-mark"
+import { GRADIENTS, PAINT_ORDER, PARTS } from "@/brand/kirana-mark"
 import type { Part } from "@/brand/kirana-mark"
 import { KiranaMark } from "@/brand/kirana-mark-svg"
 import { COLOURS, VARIANTS, fileName, toSvg } from "@/brand/logo"
 import type { Lockup, Variant } from "@/brand/logo"
 import { LogoSvg } from "@/brand/logo-svg"
 import { DocsLink } from "@/components/docs-link"
-import { Plan } from "@/components/brand/mark-plan"
+import { CopyButton, DownloadButton } from "@/components/brand/asset-buttons"
 import { Explorations } from "@/components/brand/explorations"
-import { Motif } from "@/components/motif"
+import { PixelField } from "@/components/site/pixel-field"
 import { Wordmark } from "@/components/site/wordmark"
 import {
   Section,
@@ -74,15 +69,17 @@ const styles = {
     color: theme.mutedForeground,
     textWrap: "pretty",
   }),
+  // The K in pixels: the canvas fills it, the mark 84 % of its height.
   heroMark: css({
-    display: "grid",
-    placeItems: "center",
+    position: "relative",
     aspectRatio: "1",
-    borderRadius: radius.xl,
-    backgroundColor: theme.card,
-    padding: { base: spacing[10], [breakpoint.md]: spacing[16] },
+    width: "100%",
+    maxWidth: "32rem",
+    justifySelf: "center",
+    // A soft Ocean glow behind the pixels, as the other heroes have in their accent.
+    backgroundImage:
+      "radial-gradient(closest-side, color-mix(in oklab, #3B82F6 14%, transparent), transparent)",
   }),
-  heroLogo: css({ height: "100%", width: "auto", maxHeight: "24rem" }),
 
   // Meaning
   three: css({
@@ -119,37 +116,7 @@ const styles = {
   }),
   glyphPart: css({ opacity: 0.16 }),
 
-  // Construction
-  construction: css({
-    display: "grid",
-    gap: spacing[8],
-    alignItems: "center",
-    gridTemplateColumns: {
-      base: "minmax(0, 1fr)",
-      [breakpoint.lg]: "minmax(0, 1.2fr) minmax(0, 1fr)",
-    },
-  }),
-  blueprint: css({
-    borderRadius: radius.xl,
-    backgroundColor: theme.card,
-    padding: spacing[4],
-  }),
-  rules: css({ display: "grid", gap: spacing[4] }),
-  rule: css({
-    display: "grid",
-    gridTemplateColumns: "2rem minmax(0, 1fr)",
-    gap: spacing[4],
-    paddingBlockEnd: spacing[4],
-    borderBottomWidth: "1px",
-    borderBottomStyle: "solid",
-    borderBottomColor: theme.border,
-  }),
-  formula: css({
-    fontFamily: fontFamily.mono,
-    fontSize: fontSize.sm,
-    lineHeight: lineHeight.sm,
-    fontWeight: fontWeight.semibold,
-  }),
+  more: css({ display: "flex", marginBlockStart: spacing[6] }),
 
   // Downloads
   asset: css({
@@ -332,10 +299,18 @@ const styles = {
   }),
 
   // Pattern
+  patterns: css({
+    display: "grid",
+    gap: spacing[4],
+    gridTemplateColumns: {
+      base: "minmax(0, 1fr)",
+      [breakpoint.md]: "repeat(2, minmax(0, 1fr))",
+    },
+  }),
   pattern: css({
     position: "relative",
     overflow: "hidden",
-    minHeight: spacing[48],
+    minHeight: spacing[64],
     borderRadius: radius.xl,
     backgroundColor: theme.card,
   }),
@@ -398,50 +373,6 @@ const styles = {
 /** The surface a variant belongs on: a paper mark on ink, the rest on paper. */
 function surfaceFor(variant: Variant): "light" | "dark" {
   return variant.paint === "paper" ? "dark" : "light"
-}
-
-function CopyButton({ text, label }: { text: string; label: string }) {
-  const [copied, setCopied] = useState(false)
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      aria-label={copied ? "Copied" : label}
-      onClick={() => {
-        void navigator.clipboard.writeText(text).then(() => {
-          setCopied(true)
-          setTimeout(() => setCopied(false), 1500)
-        })
-      }}
-    >
-      <Icon icon={copied ? Tick02Icon : Copy01Icon} />
-      {copied ? "Copied" : "Copy SVG"}
-    </Button>
-  )
-}
-
-function DownloadButton({
-  href,
-  name,
-  label = "Download",
-}: {
-  href: string
-  name: string
-  label?: string
-}) {
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      nativeButton={false}
-      render={
-        <a href={href} download={name}>
-          <Icon icon={Download04Icon} />
-          {label}
-        </a>
-      }
-    />
-  )
 }
 
 function LogoAsset() {
@@ -673,7 +604,7 @@ const DONTS = [
 export function BrandPage() {
   return (
     <>
-      <Section sx={styles.hero} backdrop={<Motif />}>
+      <Section sx={styles.hero}>
         <div sx={styles.heroGrid}>
           <div sx={styles.heroCopy}>
             <Badge variant="secondary">Brand guide</Badge>
@@ -690,8 +621,12 @@ export function BrandPage() {
               render={<a href="#surfaces">See it on every surface</a>}
             />
           </div>
-          <div sx={[sectionStyles.bordered, styles.heroMark]}>
-            <KiranaMark sx={styles.heroLogo} />
+          <div
+            sx={styles.heroMark}
+            role="img"
+            aria-label="The petal K in pixels, a ray of light passing through it"
+          >
+            <PixelField pattern="mark" cell={7} density={0.62} opacity={1} />
           </div>
         </div>
       </Section>
@@ -723,46 +658,16 @@ export function BrandPage() {
             </div>
           ))}
         </div>
-      </Section>
-
-      <Section>
-        <SectionHeader eyebrow="Construction" title="The grid and the formula">
-          A 16 × 21.5 grid, one width and circles of Fibonacci radii, each
-          meeting the next edge tangent to it. Nothing is adjusted by eye, so
-          anyone can redraw it with a compass and a rule.
-        </SectionHeader>
-        <div sx={styles.construction}>
-          <div sx={[sectionStyles.bordered, styles.blueprint]}>
-            <Plan
-              layers={{
-                grid: true,
-                ghost: true,
-                circles: true,
-                labels: true,
-                outline: true,
-                joints: true,
-                dimensions: true,
-              }}
-              label="The petal K on its 16 × 21.5 construction grid"
-            />
-          </div>
-          <div sx={styles.rules}>
-            {RULES.map((rule, index) => (
-              <div key={rule} sx={styles.rule}>
-                <span sx={styles.formula}>{index + 1}</span>
-                <span sx={styles.cardText}>{rule}</span>
-              </div>
-            ))}
-            <Button
-              variant="outline"
-              nativeButton={false}
-              render={
-                <DocsLink href="/brand/mark">
-                  Every circle, step and measurement
-                </DocsLink>
-              }
-            />
-          </div>
+        <div sx={styles.more}>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={
+              <DocsLink href="/brand/mark">
+                The grid, every circle and the formula
+              </DocsLink>
+            }
+          />
         </div>
       </Section>
 
@@ -927,13 +832,21 @@ export function BrandPage() {
       </Section>
 
       <Section>
-        <SectionHeader eyebrow="Pattern" title="The texture">
-          Four petals around a point, repeated on a 48 px tile. It sits behind
-          heroes and the footer at low contrast, fades before it reaches text,
-          and follows the colour scheme. It is never used as a logo.
+        <SectionHeader eyebrow="Pattern" title="Light in pixels">
+          Square pixels, dithered on an 8 × 8 matrix and moving slowly. Every
+          page's hero has a field in its accent — clouds, waves, rings or rain;
+          the brand's own is the K, each pixel in its petal's Ocean colour, with
+          a ray of light passing through and the pixels near the pointer
+          lighting up. It pauses off screen and holds still for reduced motion.
+          It is a texture, never a logo.
         </SectionHeader>
-        <div sx={[sectionStyles.bordered, styles.pattern]}>
-          <Motif />
+        <div sx={styles.patterns}>
+          <div sx={[sectionStyles.bordered, styles.pattern]}>
+            <PixelField pattern="clouds" density={0.6} opacity={0.7} />
+          </div>
+          <div sx={[sectionStyles.bordered, styles.pattern]}>
+            <PixelField pattern="mark" cell={5} density={0.62} opacity={1} />
+          </div>
         </div>
       </Section>
 

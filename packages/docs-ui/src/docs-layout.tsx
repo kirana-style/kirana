@@ -96,7 +96,18 @@ const styles = {
     borderBottomWidth: "1px",
     borderBottomStyle: "solid",
     borderBottomColor: theme.border,
-    backgroundColor: theme.background,
+    // Frosted, like the site's header: the page shows through, blurred. The blur is
+    // on a `::before` layer so the bar does not become the containing block of the
+    // fixed popups inside it.
+    isolation: "isolate",
+    "::before": {
+      content: "''",
+      position: "absolute",
+      inset: 0,
+      zIndex: -1,
+      backgroundColor: `color-mix(in oklab, ${theme.background} 72%, transparent)`,
+      backdropFilter: "blur(14px) saturate(1.5)",
+    },
   }),
   brand: css({
     display: "flex",

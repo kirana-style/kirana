@@ -1,7 +1,10 @@
 /**
  * A dithered field of square pixels moving slowly: a field (noise, waves,
  * ripples, rain — see `PIXEL_PATTERNS`) thresholded by an 8 × 8 Bayer matrix
- * into cells, drawn in the subtree's accent colour.
+ * into cells, drawn in the subtree's accent colour. The `mark` pattern is the
+ * petal K instead: its three petals drawn in Ocean into a texture, each cell
+ * taking its petal's colour, with a ray of light sweeping through and the
+ * pointer lighting the cells near it.
  *
  * Written for a small GPU budget: one triangle, one short fragment shader, no
  * library. It draws only while on screen and while the tab is visible, caps at
@@ -14,6 +17,8 @@ import { css } from "@kirana-style/core"
 
 import { accent } from "@workspace/docs-ui/accent.ts"
 import type { Sx } from "@workspace/ui/lib/sx"
+
+import { GRADIENTS, MARK, PAINT_ORDER, PARTS } from "@/brand/kirana-mark"
 
 const VERTEX = `
 attribute vec2 position;
@@ -29,6 +34,8 @@ uniform float uDensity;
 uniform vec3 uColor;
 uniform float uOpacity;
 uniform float uPattern;
+uniform sampler2D uMark;
+uniform vec2 uPointer;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
@@ -98,13 +105,28 @@ float field(vec2 cell, vec2 uv, float t) {
 void main() {
   vec2 cell = floor(gl_FragCoord.xy / uCell);
   vec2 uv = cell * uCell / uResolution.y;
-  float shaped = field(cell, uv, uTime);
+  vec3 color = uColor;
+  float shaped;
+  if (uPattern > 6.5) {
+    // mark: the K's coverage and colour at the cell's centre, a slow shimmer,
+    // a diagonal ray of light sweeping through, and a glow around the pointer
+    vec4 texel = texture2D(uMark, (cell + 0.5) * uCell / uResolution);
+    float drift = 0.5 + 0.35 * fbm(uv * 3.0 + vec2(uTime * 0.05, -uTime * 0.03));
+    float sweep = fract(uTime * 0.06) * 3.2 - 0.9;
+    float ray = exp(-pow((dot(uv, vec2(0.83, 0.55)) - sweep) * 5.0, 2.0));
+    float near = uPointer.x < 0.0 ? 0.0
+      : smoothstep(uCell * 16.0, 0.0, distance(gl_FragCoord.xy, uPointer));
+    shaped = texel.a * (drift + 0.7 * ray + 0.8 * near);
+    color = mix(texel.rgb, vec3(1.0), 0.35 * ray);
+  } else {
+    shaped = field(cell, uv, uTime);
+  }
   float lit = step(bayer8(cell) + 0.02, shaped * uDensity * 1.8);
   vec2 inside = fract(gl_FragCoord.xy / uCell);
   float square = step(0.18, inside.x) * step(inside.x, 0.82) *
                  step(0.18, inside.y) * step(inside.y, 0.82);
   float alpha = lit * square * uOpacity;
-  gl_FragColor = vec4(uColor * alpha, alpha);
+  gl_FragColor = vec4(color * alpha, alpha);
 }
 `
 
@@ -147,8 +169,39 @@ export const PIXEL_PATTERNS = [
   "blocks",
   "scan",
   "spiral",
+  "mark",
 ] as const
 export type PixelPattern = (typeof PIXEL_PATTERNS)[number]
+
+/**
+ * The petal K in Ocean on a transparent canvas of `width` × `height`, centred and
+ * 84 % of the height: what the `mark` pattern samples. Drawn from the same paths
+ * and gradients as every logo file.
+ */
+function markCanvas(width: number, height: number): HTMLCanvasElement {
+  const canvas = document.createElement("canvas")
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext("2d")
+  if (!ctx) return canvas
+  const scale = Math.min(
+    (height * 0.84) / MARK.height,
+    (width * 0.84) / MARK.width
+  )
+  ctx.translate(
+    (width - MARK.width * scale) / 2,
+    (height - MARK.height * scale) / 2
+  )
+  ctx.scale(scale, scale)
+  for (const part of PAINT_ORDER) {
+    const g = GRADIENTS[part]
+    const paint = ctx.createLinearGradient(g.x1, g.y1, g.x2, g.y2)
+    for (const [offset, colour] of g.stops) paint.addColorStop(offset, colour)
+    ctx.fillStyle = paint
+    ctx.fill(new Path2D(PARTS[part]))
+  }
+  return canvas
+}
 
 export function PixelField({
   cell = 5,
@@ -209,6 +262,46 @@ export function PixelField({
     gl.uniform1f(uniform("uDensity"), density)
     gl.uniform1f(uniform("uOpacity"), opacity)
     gl.uniform1f(uniform("uPattern"), PIXEL_PATTERNS.indexOf(pattern))
+    const uPointer = uniform("uPointer")
+    gl.uniform2f(uPointer, -1, -1)
+
+    // The mark's texture, redrawn at the canvas's size; one transparent pixel
+    // for the other patterns, so the sampler always has a texture to read.
+    const texture = gl.createTexture()
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+    gl.uniform1i(uniform("uMark"), 0)
+    const retexture = () => {
+      if (pattern === "mark")
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          markCanvas(
+            Math.max(1, canvas.clientWidth),
+            Math.max(1, canvas.clientHeight)
+          )
+        )
+      else
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          1,
+          1,
+          0,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          new Uint8Array(4)
+        )
+    }
 
     const ratio = Math.min(window.devicePixelRatio || 1, 2)
     const resize = () => {
@@ -217,6 +310,7 @@ export function PixelField({
       gl.viewport(0, 0, canvas.width, canvas.height)
       gl.uniform2f(uResolution, canvas.width, canvas.height)
       gl.uniform1f(uCell, cell * ratio)
+      retexture()
     }
     const recolor = () =>
       gl.uniform3fv(uColor, rgb(getComputedStyle(canvas).color))
@@ -277,6 +371,22 @@ export function PixelField({
     }
     media.addEventListener("change", onMedia)
     document.addEventListener("visibilitychange", run)
+    // The mark answers the pointer: the canvas lets events through, so listen on
+    // the window and place the pointer in the canvas's pixels (origin bottom left).
+    const onPointer = (event: PointerEvent) => {
+      const box = canvas.getBoundingClientRect()
+      const x = event.clientX - box.left
+      const y = event.clientY - box.top
+      const inside = x >= 0 && y >= 0 && x <= box.width && y <= box.height
+      gl.uniform2f(
+        uPointer,
+        inside ? x * ratio : -1,
+        inside ? (box.height - y) * ratio : -1
+      )
+      if (still) draw()
+    }
+    if (pattern === "mark")
+      window.addEventListener("pointermove", onPointer, { passive: true })
 
     return () => {
       cancelAnimationFrame(frame)
@@ -285,9 +395,11 @@ export function PixelField({
       scheme.disconnect()
       media.removeEventListener("change", onMedia)
       document.removeEventListener("visibilitychange", run)
+      window.removeEventListener("pointermove", onPointer)
       // Free what this mount created. The context itself stays with the canvas:
       // React may mount the same canvas again (Strict Mode does), and a lost
       // context cannot be recovered on it.
+      gl.deleteTexture(texture)
       gl.deleteBuffer(buffer)
       gl.deleteProgram(program)
       gl.deleteShader(vertex)

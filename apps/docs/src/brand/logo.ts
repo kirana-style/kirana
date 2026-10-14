@@ -16,6 +16,7 @@
  */
 
 import { GRADIENTS, MARK, PAINT_ORDER, PARTS } from "./kirana-mark"
+import type { Palette, Part } from "./kirana-mark"
 
 /** Neutral colours, as hex so every file works everywhere (the site uses the same values in oklch). */
 export const COLOURS = {
@@ -83,6 +84,54 @@ export function placement(lockup: Lockup) {
 
 const n = (value: number) => +value.toFixed(4)
 
+/** One linear gradient per part, along the part's Ocean vector, in the stops given. */
+function gradients(
+  id: string,
+  stopsOf: (part: Part) => readonly (readonly [number, string])[]
+): string {
+  return PAINT_ORDER.map((part) => {
+    const g = GRADIENTS[part]
+    const stops = stopsOf(part)
+      .map(
+        ([offset, colour]) =>
+          `<stop offset="${offset}" stop-color="${colour}"/>`
+      )
+      .join("")
+    return `<linearGradient id="${id}-${part}" gradientUnits="userSpaceOnUse" x1="${g.x1}" y1="${g.y1}" x2="${g.x2}" y2="${g.y2}">${stops}</linearGradient>`
+  }).join("")
+}
+
+/** True when every stop of every part is one colour: the parts would fuse without a seam. */
+export function isOneColour(palette: Palette): boolean {
+  return (
+    new Set(
+      Object.values(palette.stops)
+        .flat()
+        .map(([, colour]) => colour)
+    ).size === 1
+  )
+}
+
+/**
+ * The mark alone in a colour set, with no tile and no background: a file to place on a photo or
+ * any ground. Where the three parts share one colour, a mask cuts a transparent seam around the
+ * arm (the gap `KiranaMark` paints in the ground's colour), so the K still reads as three petals.
+ */
+export function markSvg(palette: Palette, id = "kirana"): string {
+  const one = isOneColour(palette)
+  const colour = palette.stops.stem[0]![1]
+  const paint = (part: Part) => (one ? colour : `url(#${id}-${part})`)
+  const seam = `<mask id="${id}-seam" maskUnits="userSpaceOnUse" x="-1" y="-1" width="${MARK.width + 2}" height="${MARK.height + 2}"><rect x="-1" y="-1" width="${MARK.width + 2}" height="${MARK.height + 2}" fill="#fff"/><path d="${PARTS.arm}" fill="none" stroke="#000" stroke-width="0.7" stroke-linejoin="round"/></mask>`
+  const defs = one ? seam : gradients(id, (part) => palette.stops[part])
+  const masked = one ? ` mask="url(#${id}-seam)"` : ""
+  const paths = PAINT_ORDER.map((part) =>
+    part === "stem"
+      ? `<path d="${PARTS[part]}" fill="${paint(part)}" stroke="${paint(part)}" stroke-width="0.2" stroke-linejoin="round"${masked}/>`
+      : `<path d="${PARTS[part]}" fill="${paint(part)}"${part === "arm" ? "" : masked}/>`
+  ).join("")
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${MARK.width} ${MARK.height}" role="img" aria-label="Kirana">${`<defs>${defs}</defs>`}${paths}</svg>\n`
+}
+
 /**
  * A standalone SVG file. `id` prefixes the gradients' ids, so several copies
  * inlined in one page each keep their own.
@@ -96,16 +145,7 @@ export function toSvg(lockup: Lockup, variant: Variant, id = "kirana"): string {
       ? `url(#${id}-${part})`
       : COLOURS[variant.paint].hex
   const defs = brand
-    ? `<defs>${PAINT_ORDER.map((part) => {
-        const g = GRADIENTS[part]
-        const stops = g.stops
-          .map(
-            ([offset, colour]) =>
-              `<stop offset="${offset}" stop-color="${colour}"/>`
-          )
-          .join("")
-        return `<linearGradient id="${id}-${part}" gradientUnits="userSpaceOnUse" x1="${g.x1}" y1="${g.y1}" x2="${g.x2}" y2="${g.y2}">${stops}</linearGradient>`
-      }).join("")}</defs>`
+    ? `<defs>${gradients(id, (part) => GRADIENTS[part].stops)}</defs>`
     : ""
   const back = variant.backdrop
     ? `<rect width="${width}" height="${height}" rx="${ICON.radius}" fill="${variant.backdrop}"/>`

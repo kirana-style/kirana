@@ -2,7 +2,8 @@
  * Colour sets (`PALETTES` or `SOLIDS`), side by side where the mark has to hold up: large on paper and
  * on ink, at 14 px in a dark editor's inline hint, and at 16 px in a dark browser tab. Under each
  * ground, each part's contrast against it: a part under 3 : 1 (the WCAG minimum for graphics) is
- * flagged, since it is the one that sinks into the ground.
+ * flagged, since it is the one that sinks into the ground. Each set copies or downloads as the mark
+ * alone, with no ground (`markSvg`), for placing on a photo.
  */
 import { css } from "@kirana-style/core"
 
@@ -18,6 +19,12 @@ import {
 
 import type { Palette, Part } from "@/brand/kirana-mark"
 import { KiranaMark } from "@/brand/kirana-mark-svg"
+import { isOneColour, markSvg } from "@/brand/logo"
+import {
+  CopyButton,
+  DownloadButton,
+  svgDataUrl,
+} from "@/components/brand/asset-buttons"
 
 const PARTS: Part[] = ["stem", "arm", "leg"]
 
@@ -67,6 +74,13 @@ const styles = {
     color: theme.mutedForeground,
   }),
   swatches: css({ display: "flex", gap: spacing[1.5] }),
+  // The mark alone in this set, with no ground: for a photo editor.
+  actions: css({
+    display: "flex",
+    flexWrap: "wrap",
+    gap: spacing[2],
+    marginBlockStart: spacing[1],
+  }),
   swatch: css({ height: "0.75rem", flex: "1 1 0", borderRadius: "999px" }),
   ground: css({
     display: "grid",
@@ -157,12 +171,7 @@ function Scores({ palette, ground }: { palette: Palette; ground: string }) {
 }
 
 /** True when every stop of every part is one colour: the parts would fuse without a gap. */
-const single = (palette: Palette) =>
-  new Set(
-    Object.values(palette.stops)
-      .flat()
-      .map(([, c]) => c)
-  ).size === 1
+const single = isOneColour
 
 export function Palettes({
   sets,
@@ -201,6 +210,16 @@ export function Palettes({
               ))}
             </span>
             <span sx={styles.note}>{palette.note}</span>
+            <span sx={styles.actions}>
+              <CopyButton
+                text={markSvg(palette)}
+                label={`Copy the ${palette.name} mark as SVG`}
+              />
+              <DownloadButton
+                href={svgDataUrl(markSvg(palette))}
+                name={`kirana-mark-${palette.id}.svg`}
+              />
+            </span>
           </div>
           {GROUNDS.map((ground) => (
             <div
