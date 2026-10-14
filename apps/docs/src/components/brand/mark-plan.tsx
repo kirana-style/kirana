@@ -80,7 +80,8 @@ const MONO = {
   gridMajor: css({ stroke: "currentColor", strokeOpacity: 0.3 }),
   circle: css({ stroke: "currentColor", fill: "none" }),
   outline: css({ stroke: "currentColor", fill: "none" }),
-  ghost: css({ fill: "currentColor", fillOpacity: 0.12 }),
+  // Solid enough to read as the mark on a picture (the homepage's closing card).
+  ghost: css({ fill: "currentColor", fillOpacity: 0.65 }),
   label: css({ fill: "currentColor", fontFamily: fontFamily.numeric }),
   pointLabel: css({
     fill: "currentColor",

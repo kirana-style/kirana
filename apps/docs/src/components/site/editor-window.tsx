@@ -40,15 +40,38 @@ export const EDITOR = {
   current: "rgb(255 255 255 / 0.035)",
 }
 
-/** The summary's groups, as the extension colours them in a dark theme. */
+/**
+ * VS Code's colours with the GitHub Dark theme, the theme the docs' code blocks use: what the
+ * extension's decorations, hovers and webview resolve their theme variables to there.
+ */
+export const VSCODE = {
+  foreground: "#c9d1d9",
+  hover: "#161b22",
+  sidebar: "#010409",
+  border: "#30363d",
+  link: "#58a6ff",
+  codeBlock: "rgb(110 118 129 / 0.4)",
+  codeLens: "#8b949e",
+  lineNumber: "#6e7681",
+  lineHighlight: "rgb(110 118 129 / 0.1)",
+  badge: "#1f6feb",
+  button: "#238636",
+  error: "#f85149",
+}
+
+/**
+ * The summary's groups in the extension's palette (`editors/brand/palette.json`), resolved for
+ * GitHub Dark: `charts.blue`, `charts.green`, `terminal.ansiCyan`, `charts.orange`,
+ * `charts.yellow`, `charts.purple`; the separators and `+N` in the inlay hint colour.
+ */
 export const GROUP = {
-  layout: css({ color: "#8cbbf0" }),
-  box: css({ color: "#9fd4ad" }),
-  size: css({ color: "#7fd3dc" }),
-  colour: css({ color: "#e8b98a" }),
-  type: css({ color: "#e6d37f" }),
-  border: css({ color: "#c9aef0" }),
-  quiet: css({ color: EDITOR.muted }),
+  layout: css({ color: "#58a6ff" }),
+  box: css({ color: "#3fb950" }),
+  size: css({ color: "#39c5cf" }),
+  colour: css({ color: "#db6d28" }),
+  type: css({ color: "#d29922" }),
+  border: css({ color: "#bc8cff" }),
+  quiet: css({ color: VSCODE.codeLens }),
 }
 export type Group = keyof typeof GROUP
 
@@ -150,20 +173,20 @@ const styles = {
     color: EDITOR.gutter,
     userSelect: "none",
   }),
+  // As the extension draws it: decorations after the line, the icon first, at the hint opacity
+  // (`kirana.inlayHints.opacity`, 0.85), with no background of their own.
   hint: css({
     display: "inline-flex",
     alignItems: "center",
-    gap: "0.45em",
-    marginInlineStart: spacing[4],
-    paddingInline: "0.5em",
-    paddingBlock: "0.05em",
-    borderRadius: radius.sm,
-    backgroundColor: "rgb(255 255 255 / 0.06)",
-    fontSize: "0.92em",
-    whiteSpace: "nowrap",
+    marginInlineStart: "1ch",
+    opacity: 0.85,
+    whiteSpace: "pre",
   }),
-  mark: css({ height: "0.95em" }),
-  dot: css({ color: EDITOR.gutter }),
+  mark: css({
+    width: "0.9em",
+    height: "0.9em",
+    marginInlineEnd: "0.5ch",
+  }),
 }
 
 /** The window: title bar with traffic lights and the file's path, then the body. */
@@ -217,20 +240,66 @@ export function EditorWindow({
   )
 }
 
-/** The summary the language server writes after a line, split at its ` · `. */
-export function Hint({ text, sx }: { text: string; sx?: Sx }) {
-  const parts = text.split(" · ")
+/** The extension's icon, as it leads a summary or a folded object. */
+export function HintMark({ sx }: { sx?: Sx }) {
+  return <KiranaMark title={null} sx={[styles.mark, sx]} />
+}
+
+/**
+ * The summary the language server writes after a line. `parts` are the server's own, each with
+ * its group; a docs block's `//:` hint is `text`, split at its ` · ` and grouped by its words.
+ */
+export function Hint({
+  text,
+  parts,
+  sx,
+}: {
+  text?: string
+  parts?: readonly { text: string; group: string }[]
+  sx?: Sx
+}) {
+  const shown =
+    parts ??
+    (text ?? "")
+      .split(" · ")
+      .map((part) => ({ text: part, group: groupOf(part) }))
   return (
     <span sx={[styles.hint, sx]} data-slot="editor-hint">
-      <KiranaMark title={null} sx={styles.mark} />
-      {parts.map((part, index) => (
-        <span key={`${index}-${part}`}>
-          {index > 0 ? <span sx={styles.dot}>· </span> : null}
-          <span sx={GROUP[groupOf(part)]}>{part}</span>
+      <HintMark />
+      {shown.map((part, index) => (
+        <span key={`${index}-${part.text}`}>
+          {index > 0 ? <span sx={GROUP.quiet}> · </span> : null}
+          <span sx={GROUP[part.group as Group] ?? GROUP.quiet}>
+            {part.text}
+          </span>
         </span>
       ))}
     </span>
   )
+}
+
+/**
+ * Highlighted markup cut into lines, each one whole: a token that runs on (a comment over two
+ * lines) is closed at the end of a line and opened again at the start of the next. Cut at the
+ * newline alone, a line would hold an unclosed `<span>` that the browser closes its own way, and
+ * the page would hydrate differently from the server's markup.
+ */
+export function splitLines(html: string): string[] {
+  const lines: string[] = []
+  const open: string[] = []
+  let line = ""
+  for (const part of html.split(/(<\/?span[^>]*>|\n)/)) {
+    if (part === "\n") {
+      lines.push(line + "</span>".repeat(open.length))
+      line = open.join("")
+    } else {
+      if (part.startsWith("<span")) open.push(part)
+      else if (part === "</span>") open.pop()
+      line += part
+    }
+  }
+  lines.push(line)
+  return lines
 }
 
 /** Highlighted lines, numbered, each followed by its hint when it has one. */
@@ -243,7 +312,7 @@ export function EditorLines({
   hints?: readonly { line: number; text: string }[]
   start?: number
 }) {
-  const lines = html.split("\n")
+  const lines = splitLines(html)
   return (
     <pre sx={styles.code} data-slot="code-block-source">
       <code>

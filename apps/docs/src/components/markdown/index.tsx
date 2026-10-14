@@ -28,7 +28,8 @@ import {
   LintFigure,
   ClassNameFigure,
 } from "./figures"
-import { EditorScene } from "@/components/home/editor"
+import { EditorScene, EditorShowcase } from "@/components/home/editor"
+import { EditorBanner } from "@/components/site/editor-banner"
 import { SiteCodeBlock } from "@/components/site/editor-window"
 import { FrameworkGrid, GuideGrid } from "./frameworks"
 import { EditorGrid, LintRuleGrid, LinterGrid } from "./tooling"
@@ -64,6 +65,10 @@ export const markdownComponents = createMarkdownComponents(
     linters: LinterGrid as CommentRegistry[string],
     "lint-rules": LintRuleGrid as CommentRegistry[string],
     "figure-editor": EditorScene as CommentRegistry[string],
+    "editor-banner": EditorBanner as CommentRegistry[string],
+    "editor-showcase": (() => (
+      <EditorShowcase compact />
+    )) as CommentRegistry[string],
   },
   SiteCodeBlock
 )

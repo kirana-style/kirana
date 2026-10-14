@@ -2,6 +2,8 @@ dist
 *.vsix
 .vscode-test
 test/fixture/node_modules
-# Copied from ../brand/icon.png when packaging.
+# Copied when packaging: the icon from ../brand, the changelog and licence from the repository root.
 icon.png
+CHANGELOG.md
+LICENSE
 .vitest/

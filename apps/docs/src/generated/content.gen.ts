@@ -3134,6 +3134,11 @@ export const PAGES: readonly PageMeta[] = [
     ],
     "headings": [
       {
+        "id": "light-through-every-line-of-your-styles",
+        "text": "Light through every line of your styles",
+        "level": 2
+      },
+      {
         "id": "pick-your-editor",
         "text": "Pick your editor",
         "level": 2
@@ -8762,6 +8767,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Object styles move the CSS out of the markup: you read , not a class list. The Kirana language server brings it back where you are reading — and answers questions a class list never could: which value wins, and why . It is , a command of the compiler you already installed. It runs on the same compiler session as your build, so what the editor tells you is what the build does, never an approximation of it."
   },
   {
+    "id": "/docs/tooling/editor#light-through-every-line-of-your-styles",
+    "href": "/docs/tooling/editor#light-through-every-line-of-your-styles",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Light through every line of your styles",
+    "text": "A Tailwind class list shows what an element gets; object styles hid it. The language server puts it back on every line, coloured by kind, and answers the rest on hover. Pick a feature to see what it shows: every picture is the server's real output for one file."
+  },
+  {
     "id": "/docs/tooling/editor#pick-your-editor",
     "href": "/docs/tooling/editor#pick-your-editor",
     "page": "Editor support",
@@ -8775,7 +8788,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Editor support",
     "section": "tooling",
     "heading": "VS Code and its forks",
-    "text": "VS Code, Cursor, Windsurf and Antigravity take the same extension. It finds the server in your project, walking up to a monorepo's root, and starts it for TypeScript, JavaScript, Vue, Svelte, Astro and HTML files (HTML for Angular templates). Until the first release is on the Marketplace and Open VSX, install the that CI builds: Extensions: Install from VSIX… . In a remote workspace (WSL, SSH, a container), install it on the remote side, where your project and Node.js live. If your project has no — a checkout of Kirana itself, say — point the extension at a binary or script: A relative path is resolved against the workspace folder; a or path runs with (22.18 or later)."
+    "text": "VS Code, Cursor, Windsurf and Antigravity take the same extension. It finds the server in your project, walking up to a monorepo's root, and starts it for TypeScript, JavaScript, Vue, Svelte, Astro and HTML files (HTML for Angular templates). Install Kirana from the VS Code Marketplace in VS Code, or from Open VSX in Cursor, Windsurf, Antigravity and VSCodium: search \"Kirana\" in the Extensions view. In a remote workspace (WSL, SSH, a container), install it on the remote side, where your project and Node.js live. If your project has no — a checkout of Kirana itself, say — point the extension at a binary or script: A relative path is resolved against the workspace folder; a or path runs with (22.18 or later)."
   },
   {
     "id": "/docs/tooling/editor#zed",
@@ -8919,7 +8932,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Editor support",
     "section": "tooling",
     "heading": "Limits",
-    "text": "Components are read by a scanner. The build parses Vue, Svelte and Astro with their own compilers (and Angular's templates are its own, merged at runtime); the server, which cannot load them, scans the same blocks and bindings — held to the frameworks' parsers by a test over every example. A template binding that reads only a Svelte handle gets no hint. One project per server. The root is your workspace folder or 's directory; editing restarts the server. Uses are found by name. Declarations, anchors and reads come from the compiler; uses in other files are matched by their written names, so a token imported under another alias is found under that alias."
+    "text": "Components are read by a scanner. The build parses Vue, Svelte and Astro with their own compilers (and Angular's templates are its own, merged at runtime); the server, which cannot load them, scans the same blocks and bindings — held to the frameworks' parsers by a test over every example. A template binding that reads only a Svelte handle gets no hint. The summary shows what the compiler knows at build time. A value returned by a function it cannot see into ( , a hand-written variant helper) has nothing to summarise, where the same values as an array, , do. A recipe called with a variant known only at run time ( ) is not summarised yet, and passed to one of your components is summarised inside it, on the element that receives it. One project per server. The root is your workspace folder or 's directory; editing restarts the server. Uses are found by name. Declarations, anchors and reads come from the compiler; uses in other files are matched by their written names, so a token imported under another alias is found under that alias."
   },
   {
     "id": "/docs/tooling/editor#troubleshooting",

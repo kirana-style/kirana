@@ -11,7 +11,8 @@ defmodule Kirana.MixProject do
         licenses: ["MIT"],
         links: %{
           "Website" => "https://kirana.style",
-          "Source" => "https://github.com/kirana-style/kirana"
+          "Source" => "https://github.com/kirana-style/kirana",
+          "Changelog" => "https://github.com/kirana-style/kirana/blob/main/CHANGELOG.md"
         }
       ],
       source_url: "https://github.com/kirana-style/kirana",

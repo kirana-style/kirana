@@ -2,7 +2,7 @@
  * How the homepage ends: the Platinum and Gold sponsors, or empty places for
  * them, questions
  * grouped by topic, and a blueprint card — the mark's construction drawing in
- * white on the accent — with the ways in.
+ * white on one of Kirana's landscapes — with the ways in.
  */
 import { Link } from "@tanstack/react-router"
 import { css, props as styleProps } from "@kirana-style/core"
@@ -151,14 +151,33 @@ const styles = {
     display: "grid",
     gap: spacing[8],
     alignItems: "center",
+    isolation: "isolate",
     borderRadius: radius.xl,
-    backgroundColor: accent.base,
-    color: accent.on,
+    // Under the picture until it loads: the sky's own blue.
+    backgroundColor: "#4a7fb0",
+    color: "#ffffff",
     padding: { base: spacing[8], [breakpoint.md]: spacing[12] },
     gridTemplateColumns: {
       base: "minmax(0, 1fr)",
       [breakpoint.md]: "minmax(0, 1fr) minmax(0, 20rem)",
     },
+  }),
+  // The landscape (as the editor scenes use), and a shade on the copy's side so white reads.
+  ctaPicture: css({
+    position: "absolute",
+    inset: 0,
+    zIndex: -2,
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    objectPosition: "50% 35%",
+  }),
+  ctaShade: css({
+    position: "absolute",
+    inset: 0,
+    zIndex: -1,
+    backgroundImage:
+      "linear-gradient(to right, rgb(8 18 30 / 0.72), rgb(8 18 30 / 0.45) 55%, rgb(8 18 30 / 0.15))",
   }),
   // A blueprint grid under everything, in the text colour.
   ctaGrid: css({
@@ -200,16 +219,22 @@ const styles = {
     backgroundColor: { base: "white", ":hover": "rgb(255 255 255 / 0.9)" },
     color: "black",
   }),
+  // White on the picture in every state: the outline button darkens its text on `:hover`, so
+  // the override names `:hover` too (Kirana merges per condition).
   ctaSecondary: css({
-    borderColor: "rgb(255 255 255 / 0.4)",
-    backgroundColor: {
-      base: "transparent",
-      ":hover": "rgb(255 255 255 / 0.12)",
+    borderColor: {
+      base: "rgb(255 255 255 / 0.45)",
+      ":hover": "rgb(255 255 255 / 0.7)",
     },
-    color: "white",
+    backgroundColor: {
+      base: "rgb(255 255 255 / 0.06)",
+      ":hover": "rgb(255 255 255 / 0.18)",
+    },
+    backdropFilter: "blur(8px)",
+    color: { base: "white", ":hover": "white" },
   }),
-  // In the card's own colour, `accent.on`.
-  drawing: css({ position: "relative", maxWidth: "17rem", opacity: 0.9 }),
+  // In the card's text colour, white.
+  drawing: css({ position: "relative", maxWidth: "17rem" }),
 }
 
 export function Sponsors() {
@@ -286,13 +311,25 @@ export function Blueprint() {
     <section sx={[styles.ctaWrap, styles.ground]}>
       <Rail sx={styles.ctaInner}>
         <div sx={styles.cta}>
+          <img
+            sx={styles.ctaPicture}
+            src="/scenes/highlands-800.webp"
+            srcSet="/scenes/highlands-800.webp 800w, /scenes/highlands-1600.webp 1600w"
+            sizes="(min-width: 64rem) 70vw, 100vw"
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+          <div sx={styles.ctaShade} aria-hidden="true" />
           <div sx={styles.ctaGrid} aria-hidden="true" />
           <div sx={styles.ctaCopy}>
-            <h2 sx={styles.ctaTitle}>Built on a grid you can check.</h2>
+            <h2 sx={styles.ctaTitle}>
+              From your first style to the CSS you ship.
+            </h2>
             <p sx={styles.ctaText}>
-              Like the mark beside this, every style has a stated rule behind
-              it. Start with the quick start, or see what the compiler made of
-              the examples.
+              Every class Kirana writes comes from a line of your source, and
+              your editor shows which. Start with the quick start, or see what
+              the compiler made of the examples.
             </p>
             <div sx={styles.ctaActions}>
               <Button

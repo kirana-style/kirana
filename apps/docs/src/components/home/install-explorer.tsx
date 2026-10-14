@@ -11,6 +11,12 @@ import type { MarkdownDocument } from "@tanstack/markdown"
 import { accent, tint } from "@workspace/docs-ui/accent.ts"
 import { CodeBlock } from "@workspace/docs-ui/markdown/code-block.tsx"
 import { InstallTabs } from "@workspace/docs-ui/markdown/install-tabs.tsx"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@workspace/ui/components/select"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
@@ -85,12 +91,14 @@ const styles = {
       [breakpoint.lg]: "17rem minmax(0, 1fr)",
     },
   }),
+  // Beside the steps on a wide screen; on a narrow one, a dropdown in its place.
   list: css({
-    display: { base: "flex", [breakpoint.lg]: "grid" },
-    flexWrap: "wrap",
+    display: { base: "none", [breakpoint.lg]: "grid" },
     alignContent: "start",
     gap: spacing[1],
   }),
+  dropdown: css({ display: { base: "block", [breakpoint.lg]: "none" } }),
+  trigger: css({ width: "100%", height: "2.75rem" }),
   pick: css({
     display: "flex",
     minWidth: 0,
@@ -192,6 +200,16 @@ function Step({
   )
 }
 
+/** A framework's logo and name, as the list, the dropdown and its items show it. */
+function Framework({ href, title }: { href: string; title: string }) {
+  return (
+    <span sx={styles.pickName}>
+      {PAGE_LOGOS[href] ? <LogoIcon logo={PAGE_LOGOS[href]!} /> : null}
+      <span sx={styles.pickTitle}>{title}</span>
+    </span>
+  )
+}
+
 export function InstallExplorer() {
   const [href, setHref] = useState(FRAMEWORKS[0]!.href)
   const [setups, setSetups] = useState<Record<string, Setup>>({})
@@ -219,6 +237,25 @@ export function InstallExplorer() {
       lede={`${FRAMEWORKS.length} install guides, each built from the packages and checked on every change. Pick one — the steps below are read from its guide.`}
     >
       <div sx={styles.layout}>
+        <div sx={styles.dropdown}>
+          <Select
+            value={href}
+            onValueChange={(value) => {
+              if (typeof value === "string") setHref(value)
+            }}
+          >
+            <SelectTrigger sx={styles.trigger} aria-label="Framework">
+              <Framework href={href} title={framework.title} />
+            </SelectTrigger>
+            <SelectContent>
+              {FRAMEWORKS.map((item) => (
+                <SelectItem key={item.href} value={item.href}>
+                  <Framework href={item.href} title={item.title} />
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div sx={styles.list} role="tablist" aria-label="Framework">
           {FRAMEWORKS.map((item) => (
             <button
@@ -230,12 +267,7 @@ export function InstallExplorer() {
               sx={styles.pick}
               onClick={() => setHref(item.href)}
             >
-              <span sx={styles.pickName}>
-                {PAGE_LOGOS[item.href] ? (
-                  <LogoIcon logo={PAGE_LOGOS[item.href]!} />
-                ) : null}
-                <span sx={styles.pickTitle}>{item.title}</span>
-              </span>
+              <Framework href={item.href} title={item.title} />
               <span sx={styles.pickText}>{item.text}</span>
             </button>
           ))}

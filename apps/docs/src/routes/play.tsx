@@ -1,3 +1,9 @@
+/**
+ * The playground: an example's source and the CSS the compiler wrote for it, as two editor
+ * windows on one of Kirana's landscapes — the same windows, colours and frosted glass as the
+ * homepage's editor scene. Both panes are build output (`generate-examples.ts`), read-only until
+ * the compiler runs in the page.
+ */
 import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
 
@@ -8,18 +14,25 @@ import {
   AlertTitle,
 } from "@workspace/ui/components/alert"
 import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
-import { InformationCircleIcon, PlayIcon } from "@hugeicons/core-free-icons"
-import { radius, surface, theme } from "@workspace/ui/theme/semantic"
+import {
+  Alert02Icon,
+  CheckmarkCircle02Icon,
+  InformationCircleIcon,
+  PlayIcon,
+} from "@hugeicons/core-free-icons"
+import { Icon } from "@workspace/ui/primitives/icon"
+import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
-import {
-  fontFamily,
-  fontSize,
-  fontWeight,
-  lineHeight,
-} from "@workspace/ui/tokens/typography"
+import { fontFamily } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
+import { Backdrop } from "@/components/site/backdrop"
+import {
+  EditorLines,
+  EditorWindow,
+  VSCODE,
+} from "@/components/site/editor-window"
 import { Page, PageHero, PageSection } from "@/components/site/page"
 import { engine, examples } from "@/lib/compile"
 
@@ -31,6 +44,9 @@ export const Route = createFileRoute("/play")({
   head: () => ({ meta: [{ title: "Playground · Kirana" }] }),
 })
 
+const UI_FONT =
+  '-apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", system-ui, Ubuntu, sans-serif'
+
 const styles = {
   picker: css({
     overflowX: "auto",
@@ -40,50 +56,58 @@ const styles = {
     borderBlockEndColor: theme.border,
     fontFamily: fontFamily.mono,
   }),
-  panes: css({
+  stage: css({
+    paddingBlockEnd: { base: spacing[4], [breakpoint.md]: "6%" },
+  }),
+  windows: css({
     display: "grid",
-    gap: spacing[4],
+    gap: { base: spacing[2], [breakpoint.md]: spacing[3] },
     gridTemplateColumns: {
       base: "minmax(0, 1fr)",
       [breakpoint.lg]: "repeat(2, minmax(0, 1fr))",
     },
   }),
-  pane: css({
-    borderRadius: radius.lg,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    overflow: "hidden",
+  scroll: css({
+    maxHeight: "30rem",
+    overflow: "auto",
+    scrollbarWidth: "thin",
+    scrollbarColor: "rgb(110 118 129 / 0.4) transparent",
   }),
-  paneTitle: css({
-    borderBottomWidth: "1px",
-    borderBottomStyle: "solid",
-    borderBottomColor: theme.border,
-    backgroundColor: surface.page,
-    paddingInline: spacing[4],
+  // VS Code's Problems panel: one row per diagnostic, under the source.
+  problems: css({
+    display: "grid",
+    gap: "2px",
+    paddingInline: spacing[3],
     paddingBlock: spacing[2],
-    fontSize: fontSize.xs,
-    lineHeight: lineHeight.xs,
-    fontWeight: fontWeight.medium,
-    color: theme.mutedForeground,
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
+    borderBlockStartWidth: "1px",
+    borderBlockStartStyle: "solid",
+    borderBlockStartColor: VSCODE.border,
+    fontFamily: UI_FONT,
+    fontSize: "12px",
+    color: VSCODE.foreground,
   }),
-  scroll: css({ overflowX: "auto", maxHeight: "32rem", overflowY: "auto" }),
-  code: css({
-    margin: 0,
-    padding: spacing[4],
-    fontFamily: fontFamily.mono,
-    fontSize: fontSize.sm,
-    lineHeight: lineHeight.sm,
-  }),
-  meta: css({
+  problem: css({ display: "flex", gap: spacing[2], alignItems: "baseline" }),
+  problemIcon: css({ flexShrink: 0, color: "#d29922", translate: "0 2px" }),
+  problemWhere: css({ color: VSCODE.codeLens }),
+  // VS Code's status bar: the counts, at the window's foot.
+  status: css({
     display: "flex",
     flexWrap: "wrap",
-    gap: spacing[4],
-    fontSize: fontSize.sm,
-    lineHeight: lineHeight.sm,
-    color: theme.mutedForeground,
+    columnGap: spacing[4],
+    paddingInline: spacing[3],
+    paddingBlock: "3px",
+    borderBlockStartWidth: "1px",
+    borderBlockStartStyle: "solid",
+    borderBlockStartColor: VSCODE.border,
+    backgroundColor: VSCODE.sidebar,
+    fontFamily: UI_FONT,
+    fontSize: "12px",
+    color: VSCODE.codeLens,
+  }),
+  statusItem: css({
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "4px",
   }),
 }
 
@@ -106,10 +130,11 @@ function Play() {
           <AlertIcon icon={InformationCircleIcon} />
           <AlertTitle>These examples are compiled, not simulated</AlertTitle>
           <AlertDescription>
-            Each pane below was produced by the compiler in this repository when
-            the site was built. Editing source in the browser needs the compiler
-            running in the page, which is not built yet — until then the source
-            is read-only rather than an editor that quietly compiles nothing.{" "}
+            Each window below was produced by the compiler in this repository
+            when the site was built. Editing source in the browser needs the
+            compiler running in the page, which is not built yet — until then
+            the source is read-only rather than an editor that quietly compiles
+            nothing.{" "}
             <DocsLink href="/docs/project/roadmap">See the roadmap</DocsLink>.
           </AlertDescription>
         </Alert>
@@ -132,35 +157,57 @@ function Play() {
         </Tabs>
 
         {current ? (
-          <>
-            <div sx={styles.panes}>
-              <section sx={styles.pane}>
-                <p sx={styles.paneTitle}>Source · {current.name}.tsx</p>
+          <Backdrop
+            sx={styles.stage}
+            label={`${current.name}.tsx and the CSS the compiler wrote for it`}
+          >
+            <div sx={styles.windows}>
+              <EditorWindow file={`${current.name}.tsx`} path="src/examples">
                 <div sx={styles.scroll}>
-                  <pre sx={styles.code} data-slot="code-block-source">
-                    <code
-                      dangerouslySetInnerHTML={{ __html: current.sourceHtml }}
-                    />
-                  </pre>
+                  <EditorLines html={current.sourceHtml} />
                 </div>
-              </section>
-              <section sx={styles.pane}>
-                <p sx={styles.paneTitle}>Compiled CSS</p>
+                {current.diagnostics.length > 0 ? (
+                  <div sx={styles.problems} aria-label="Problems">
+                    {current.diagnostics.map((diagnostic) => (
+                      <span
+                        key={`${diagnostic.line}-${diagnostic.code}`}
+                        sx={styles.problem}
+                      >
+                        <Icon
+                          icon={Alert02Icon}
+                          size="0.8125rem"
+                          sx={styles.problemIcon}
+                        />
+                        <span>
+                          {diagnostic.message}{" "}
+                          <span sx={styles.problemWhere}>
+                            kirana({diagnostic.name}) [Ln {diagnostic.line}]
+                          </span>
+                        </span>
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                <div sx={styles.status}>
+                  <span sx={styles.statusItem}>
+                    <Icon icon={CheckmarkCircle02Icon} size="0.75rem" />
+                    {current.diagnostics.length} diagnostics
+                  </span>
+                  <span>TypeScript JSX</span>
+                </div>
+              </EditorWindow>
+              <EditorWindow file="kirana.css" path="dist">
                 <div sx={styles.scroll}>
-                  <pre sx={styles.code} data-slot="code-block-source">
-                    <code
-                      dangerouslySetInnerHTML={{ __html: current.cssHtml }}
-                    />
-                  </pre>
+                  <EditorLines html={current.cssHtml} />
                 </div>
-              </section>
+                <div sx={styles.status}>
+                  <span>{current.classNames.length} classes</span>
+                  <span>engine: {engine.id}</span>
+                  <span>CSS</span>
+                </div>
+              </EditorWindow>
             </div>
-            <p sx={styles.meta}>
-              <span>{current.classNames.length} classes</span>
-              <span>{current.diagnostics.length} diagnostics</span>
-              <span>engine: {engine.id}</span>
-            </p>
-          </>
+          </Backdrop>
         ) : null}
       </PageSection>
     </Page>

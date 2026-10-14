@@ -1,20 +1,22 @@
 /**
  * "In your editor": what Kirana's extension shows, as a desktop you can look around.
  * A feature list on the left, picked by hovering it; on the right a framed scene — a dark
- * editor window, its open files as tabs, a component with its summaries at the end of the
- * lines, and a hover window over it that fades to the feature picked: the style card, the
- * inspector, Style Fold, the colour picker, a diagnostic with its fix, and the editors it
- * runs in. What the scene is drawn from sits above it; what the feature does, below.
+ * editor on one of Kirana's landscapes, behind frosted glass — that switches to the feature
+ * picked: the summaries, the style card, the Style Inspector, Style Fold, a token's colours, a
+ * diagnostic, and the editors it runs in.
  *
- * The editor and its hovers are dark in both schemes, as a dark editor's are. Everything
- * shown is something the extension draws (`/docs/tooling/editor`).
+ * Nothing in the editor is drawn by hand. `scripts/generate-editor.ts` opens
+ * `showcase/editor/plan.tsx` in `kirana lsp` and records its answers (`EDITOR_SAMPLE`): the code
+ * lens and summaries are the server's, painted as the extension paints them; the hovers are the
+ * HTML its Markdown renders to, in a frame styled as VS Code's hover; the Inspector is the
+ * extension's own renderer. The colours are VS Code's with the GitHub Dark theme, the one the
+ * docs' code blocks use.
  */
 import { useState } from "react"
 import { css, keyframes } from "@kirana-style/core"
 import {
   Alert02Icon,
   ArrowUpRight01Icon,
-  CheckmarkCircle02Icon,
   ColorsIcon,
   CursorMagicSelection02Icon,
   LayoutRightIcon,
@@ -23,11 +25,10 @@ import {
   VisualStudioCodeIcon,
 } from "@hugeicons/core-free-icons"
 
-import { accent, tint } from "@workspace/docs-ui/accent.ts"
-import { BrandIcon } from "@workspace/docs-ui/brand-icon.tsx"
+import { accent } from "@workspace/docs-ui/accent.ts"
 import { Icon } from "@workspace/ui/primitives/icon"
 import type { IconProps } from "@workspace/ui/primitives/icon"
-import { radius, theme } from "@workspace/ui/theme/semantic"
+import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
@@ -38,28 +39,98 @@ import {
   lineHeight,
 } from "@workspace/ui/tokens/typography"
 
-import { KiranaMark } from "@/brand/kirana-mark-svg"
 import { DocsLink } from "@/components/docs-link"
-import { EDITOR, EditorWindow, Hint } from "@/components/site/editor-window"
-import { SVGL } from "@/generated/svgl-icons.gen"
+import { Backdrop } from "@/components/site/backdrop"
+import { EditorsGrid } from "@/components/site/editors-grid"
+import {
+  EditorWindow,
+  Hint,
+  HintMark,
+  VSCODE,
+} from "@/components/site/editor-window"
+import { EDITOR_SAMPLE } from "@/generated/editor.gen"
 
 import { HomeSection } from "./frame"
 
-/** GitHub's dark theme, the one the docs' code blocks use in dark mode. */
-const SYNTAX = {
-  keyword: css({ color: "#ff7b72" }),
-  string: css({ color: "#a5d6ff" }),
-  fn: css({ color: "#d2a8ff" }),
-  property: css({ color: "#79c0ff" }),
-  tag: css({ color: "#7ee787" }),
+/** One row of the editor, in lines: a hover opens under the row it belongs to. */
+const ROW = 1.8
+
+const UI_FONT =
+  '-apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", system-ui, Ubuntu, sans-serif'
+
+/**
+ * The frame a hover's HTML is shown in: VS Code's hover (and the Inspector's webview) with the
+ * GitHub Dark theme — the theme variables the extension's own styles read, and the rules VS Code
+ * applies to a Markdown hover. The HTML is the server's, unchanged.
+ */
+const FRAME_CSS = `
+:root {
+  color-scheme: dark;
+  --vscode-foreground: ${VSCODE.foreground};
+  --vscode-font-family: ${UI_FONT};
+  --vscode-font-size: 13px;
+  --vscode-editor-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --vscode-sideBar-background: ${VSCODE.sidebar};
+  --vscode-panel-border: ${VSCODE.border};
+  --vscode-badge-background: ${VSCODE.badge};
+  --vscode-badge-foreground: #f0f6fc;
+  --vscode-button-background: ${VSCODE.button};
+  --vscode-button-foreground: #ffffff;
+  --vscode-textLink-foreground: ${VSCODE.link};
+  --vscode-textCodeBlock-background: ${VSCODE.codeBlock};
 }
+html, body { margin: 0; }
+body.hover { background: ${VSCODE.hover}; color: ${VSCODE.foreground}; font: 13px/1.5 var(--vscode-font-family); padding: 0 8px; }
+body.hover p { margin: 8px 0; }
+body.hover img { vertical-align: middle; }
+body.hover code { font-family: var(--vscode-editor-font-family); font-size: 12px; background: ${VSCODE.codeBlock}; padding: 1px 3px; border-radius: 4px; }
+body.hover pre { margin: 8px 0; white-space: pre; }
+body.hover pre code { display: block; background: none; padding: 0; }
+body.hover table { border-collapse: collapse; margin: 4px 0; }
+body.hover th, body.hover td { padding: 0 8px 0 0; text-align: start; }
+body.hover a { color: ${VSCODE.link}; cursor: pointer; }
+.th-keyword { color: #ff7b72 } .th-string { color: #a5d6ff } .th-property, .th-attr, .th-number, .th-literal { color: #79c0ff }
+.th-selector, .th-tag { color: #7ee787 } .th-function, .th-operator { color: #d2a8ff } .th-comment, .th-meta { color: #8b949e }
+.th-type, .th-variable { color: #ffa657 }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: rgb(110 118 129 / 0.4); }
+::-webkit-scrollbar-track { background: transparent; }
+`
 
-const DANGER =
-  "light-dark(oklch(0.577 0.245 27.325), oklch(0.704 0.191 22.216))"
+/** The Inspector's own stylesheet: the `<style>` of the extension's webview page. */
+const INSPECTOR_CSS = `
+body.view { color: var(--vscode-foreground); background: var(--vscode-sideBar-background); font: var(--vscode-font-size) var(--vscode-font-family); padding: 0 12px 16px; }
+code, .tag, small, .when { font-family: var(--vscode-editor-font-family); }
+header .brand { width: 16px; height: 16px; flex: none; align-self: center; }
+header { display: flex; gap: 8px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--vscode-panel-border); }
+header code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .8; }
+.kind { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--vscode-badge-background); color: var(--vscode-badge-foreground); }
+.toggles, .scheme { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.chip { display: inline-flex; gap: 4px; align-items: center; font: inherit; font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--vscode-button-border, var(--vscode-panel-border)); color: var(--vscode-foreground); background: transparent; }
+.chip.on { background: var(--vscode-button-background); color: var(--vscode-button-foreground); border-color: transparent; }
+.chip .kind { background: transparent; color: inherit; opacity: .7; padding: 0; }
+.box { margin: 12px 0; font-size: 11px; }
+.box .tag { display: block; margin-bottom: 4px; opacity: .85; }
+.margin { padding: 6px; border: 1px dashed #f97316; background: #f9731620; border-radius: 4px; }
+.border { padding: 6px; border: 1px solid #ca8a04; background: #eab30824; }
+.padding { padding: 6px; border: 1px solid #16a34a; background: #22c55e24; }
+.content, .cell { padding: 8px; text-align: center; border: 1px solid #3b82f6; background: #3b82f62e; border-radius: 2px; min-height: 12px; }
+.layout { margin: 6px 0; font-family: var(--vscode-editor-font-family); font-size: 12px; }
+.colours ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.colours li { display: grid; grid-template-columns: 22px auto 1fr; gap: 8px; align-items: center; font-size: 12px; }
+.swatch { width: 20px; height: 20px; border-radius: 4px; border: 1px solid var(--vscode-panel-border); }
+.colours code { text-align: end; opacity: .8; }
+.type { display: flex; align-items: baseline; gap: 10px; margin: 12px 0; }
+.group h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; opacity: .7; margin: 14px 0 4px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+td { padding: 3px 4px; border-top: 1px solid var(--vscode-panel-border); vertical-align: top; }
+td:first-child { opacity: .85; white-space: nowrap; }
+tr.idle { opacity: .45; }
+.when { font-size: 11px; padding: 0 4px; border-radius: 3px; background: var(--vscode-textCodeBlock-background); white-space: nowrap; }
+`
 
-/** A window that floats over the editor, in the page's colours. */
-const FLOAT =
-  "0 0 0 1px rgb(0 0 0 / 0.04), 0 2px 6px rgb(0 0 0 / 0.08), 0 24px 48px -18px rgb(0 0 0 / 0.35)"
+const page = (body: string, kind: "hover" | "view") =>
+  `<!doctype html><html lang="en"><head><meta charset="utf-8"><style>${FRAME_CSS}${kind === "view" ? INSPECTOR_CSS : ""}</style></head><body class="${kind}">${body}</body></html>`
 
 const styles = {
   layout: css({
@@ -70,6 +141,29 @@ const styles = {
       [breakpoint.lg]: "minmax(0, 0.8fr) minmax(0, 1.2fr)",
     },
     alignItems: "center",
+  }),
+
+  // In a docs column: one column, the features as a row of chips above the scene.
+  layoutCompact: css({
+    gridTemplateColumns: {
+      base: "minmax(0, 1fr)",
+      [breakpoint.lg]: "minmax(0, 1fr)",
+    },
+    gap: spacing[4],
+    marginBlock: spacing[6],
+  }),
+  optionsCompact: css({
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: spacing["1.5"],
+  }),
+  optionCompact: css({
+    alignItems: "center",
+    gap: spacing[2],
+    paddingInline: spacing[3],
+    paddingBlock: spacing["1.5"],
+    borderRadius: "999px",
   }),
 
   // The feature list: quiet rows, the chosen one lifted onto a card.
@@ -113,42 +207,30 @@ const styles = {
     color: theme.foreground,
   }),
 
-  // The scene: a soft sky in the site's colours, a desktop on it.
   figure: css({ margin: 0, minWidth: 0 }),
-  stage: css({
-    position: "relative",
-    isolation: "isolate",
-    overflow: "hidden",
-    borderRadius: { base: "1.25rem", [breakpoint.md]: "1.75rem" },
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    paddingInline: { base: spacing[3], [breakpoint.md]: "7%" },
-    paddingBlockStart: { base: spacing[4], [breakpoint.md]: "7%" },
-    paddingBlockEnd: { base: spacing[16], [breakpoint.md]: "14%" },
-    backgroundColor: "light-dark(#eef2f8, #0f1116)",
-    backgroundImage: [
-      "radial-gradient(120% 90% at 0% 0%, light-dark(oklch(0.9 0.06 235), oklch(0.32 0.09 250)), transparent 62%)",
-      "radial-gradient(90% 80% at 100% 100%, light-dark(oklch(0.91 0.07 300), oklch(0.3 0.1 300)), transparent 60%)",
-      "radial-gradient(60% 55% at 85% 8%, light-dark(oklch(0.95 0.06 75), oklch(0.3 0.06 60)), transparent 62%)",
-    ].join(", "),
+  caption: css({
+    marginBlockEnd: spacing[3],
+    textAlign: "center",
+    fontSize: fontSize.xs,
+    lineHeight: "1.6",
+    color: theme.mutedForeground,
   }),
-  // The desktop: the editor, with a second window over its lower right.
-  desk: css({ position: "relative" }),
+
+  // The editor's body: the code, and the Inspector's side bar beside it when it is open.
   body: css({
     display: "flex",
-    minHeight: { base: "auto", [breakpoint.md]: "23rem" },
+    flexWrap: { base: "wrap", [breakpoint.md]: "nowrap" },
+    minHeight: { base: "auto", [breakpoint.md]: "24rem" },
   }),
+  codeArea: css({ position: "relative", flex: 1, minWidth: 0 }),
   code: css({
-    flex: 1,
-    minWidth: 0,
     margin: 0,
     paddingBlock: spacing[3],
     overflowX: "auto",
     fontFamily: fontFamily.mono,
     fontSize: { base: "0.6875rem", [breakpoint.md]: "0.78rem" },
-    lineHeight: "1.8",
-    color: "#e6edf3",
+    lineHeight: String(ROW),
+    color: VSCODE.foreground,
     scrollbarWidth: "none",
   }),
   line: css({
@@ -158,256 +240,145 @@ const styles = {
     paddingInlineEnd: spacing[4],
     whiteSpace: "pre",
   }),
-  // Inline, so the line keeps its spaces: a flex row drops whitespace-only text.
   text: css({ whiteSpace: "pre" }),
-  current: css({ backgroundColor: EDITOR.current }),
+  current: css({ backgroundColor: VSCODE.lineHighlight }),
   number: css({
     flexShrink: 0,
     width: "2.75rem",
     paddingInlineEnd: spacing[4],
     textAlign: "end",
-    color: EDITOR.gutter,
+    color: VSCODE.lineNumber,
     userSelect: "none",
   }),
+  // A code lens: the line's commands above it, separated as VS Code separates them.
   lens: css({
     display: "block",
     paddingInlineStart: "2.75rem",
-    fontSize: "0.85em",
-    color: EDITOR.muted,
+    fontFamily: UI_FONT,
+    fontSize: "0.9em",
+    color: VSCODE.codeLens,
     whiteSpace: "pre",
   }),
+  // VS Code's colour decorator, before a colour value.
   swatch: css({
     display: "inline-block",
     width: "0.8em",
     height: "0.8em",
-    marginInlineEnd: "0.4em",
+    marginInlineEnd: "0.3em",
     verticalAlign: "-0.05em",
-    borderRadius: "2px",
-    borderWidth: "1px",
+    borderWidth: "0.1em",
     borderStyle: "solid",
-    borderColor: "rgb(255 255 255 / 0.3)",
-    backgroundColor: "#0af",
-  }),
-  swatchOn: css({
-    outlineWidth: "2px",
-    outlineStyle: "solid",
-    outlineColor: "#8fb4ff",
-    outlineOffset: "1px",
+    borderColor: VSCODE.foreground,
   }),
   squiggle: css({
     textDecorationLine: "underline",
     textDecorationStyle: "wavy",
-    textDecorationColor: "#ff7b72",
-    textUnderlineOffset: "4px",
+    textDecorationColor: VSCODE.error,
+    textDecorationSkipInk: "none",
+    textUnderlineOffset: "3px",
   }),
-  folded: css({
-    marginInlineStart: 0,
-    outlineWidth: "1px",
-    outlineStyle: "dashed",
-    outlineColor: "rgb(143 180 255 / 0.45)",
-  }),
-  lit: css({
-    boxShadow:
-      "0 0 0 1px rgb(143 180 255 / 0.55), 0 0 18px rgb(143 180 255 / 0.25)",
+  // Style Fold's label in the object's place: the icon, then `{ summary }` in italics.
+  fold: css({
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "0.4ch",
+    color: VSCODE.codeLens,
+    fontStyle: "italic",
   }),
 
-  // A hover window over the editor, dark as the editor's own: `color-scheme` takes every
-  // token inside it to its dark side. Each feature has one; they fade into each other.
-  float: css({
-    colorScheme: "dark",
-    transitionProperty: "opacity, translate",
+  // A hover over the editor: VS Code's hover widget, opening under the row it belongs to.
+  hover: css({
+    position: { base: "relative", [breakpoint.md]: "absolute" },
+    insetBlockStart: {
+      base: "auto",
+      [breakpoint.md]: `calc(var(--row) * ${ROW} * 0.78rem + 0.75rem)`,
+    },
+    // At its column, moved left as far as it must to stay inside the editor, as VS Code does.
+    insetInlineStart: {
+      base: "auto",
+      [breakpoint.md]:
+        "min(calc(2.75rem + var(--column) * 0.6 * 0.78rem), calc(100% - min(29rem, 86%) - 0.5rem))",
+    },
+    zIndex: 2,
+    display: "grid",
+    width: { base: "auto", [breakpoint.md]: "min(29rem, 86%)" },
+    marginInline: { base: spacing[3], [breakpoint.md]: 0 },
+    marginBlockEnd: { base: spacing[3], [breakpoint.md]: 0 },
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: VSCODE.border,
+    borderRadius: "3px",
+    backgroundColor: VSCODE.hover,
+    color: VSCODE.foreground,
+    boxShadow: "0 0 8px 2px rgb(1 4 9 / 0.85)",
+    overflow: "hidden",
+    transitionProperty: "opacity",
     transitionDuration: {
-      base: "220ms",
+      base: "100ms",
       "@media (prefers-reduced-motion: reduce)": "0s",
     },
-    transitionTimingFunction: "ease-out",
-    position: { base: "relative", [breakpoint.md]: "absolute" },
-    insetInlineEnd: { base: "auto", [breakpoint.md]: "-5%" },
-    insetBlockStart: { base: "auto", [breakpoint.md]: "38%" },
-    zIndex: 2,
-    width: { base: "auto", [breakpoint.md]: "min(27rem, 68%)" },
-    marginBlockStart: { base: spacing[3], [breakpoint.md]: 0 },
-    overflow: "hidden",
-    borderRadius: "0.875rem",
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: "rgb(255 255 255 / 0.12)",
-    backgroundColor: "#24262c",
-    color: EDITOR.text,
-    boxShadow: FLOAT,
-    fontSize: fontSize.xs,
-    lineHeight: "1.6",
   }),
-  // The hidden ones: faded and out of the way on wide screens, not drawn on narrow ones,
-  // where the window sits under the editor instead of over it.
-  floatOff: css({
-    display: { base: "none", [breakpoint.md]: "block" },
+  // Opening above its row, as VS Code opens a hover with no room below it.
+  above: css({ translate: { base: "none", [breakpoint.md]: "0 -100%" } }),
+  off: css({
+    display: { base: "none", [breakpoint.md]: "grid" },
     opacity: 0,
-    translate: "0 8px",
     pointerEvents: "none",
   }),
-  floatBar: css({
+  frame: css({
+    display: "block",
+    width: "100%",
+    borderWidth: 0,
+    backgroundColor: VSCODE.hover,
+    colorScheme: "dark",
+  }),
+  // A diagnostic's hover: VS Code's own layout, with the server's message, code and fix.
+  problem: css({
+    paddingInline: "8px",
+    paddingBlock: "6px",
+    fontFamily: UI_FONT,
+    fontSize: "13px",
+    lineHeight: "1.5",
+    whiteSpace: "pre-wrap",
+  }),
+  problemCode: css({ color: VSCODE.codeLens }),
+  statusBar: css({
     display: "flex",
-    alignItems: "center",
-    gap: spacing[2],
-    paddingInline: spacing["3.5"],
-    paddingBlock: spacing[2],
-    borderBlockEndWidth: "1px",
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: theme.border,
-    backgroundColor: tint(6),
-    fontWeight: fontWeight.semibold,
+    flexWrap: "wrap",
+    columnGap: spacing[4],
+    paddingInline: "8px",
+    paddingBlock: "4px",
+    borderBlockStartWidth: "1px",
+    borderBlockStartStyle: "solid",
+    borderBlockStartColor: VSCODE.border,
+    fontFamily: UI_FONT,
+    fontSize: "12px",
+    color: VSCODE.link,
   }),
-  mark: css({ height: "0.95rem" }),
-  floatNote: css({
-    marginInlineStart: "auto",
-    fontFamily: fontFamily.mono,
-    fontWeight: fontWeight.normal,
-    color: theme.mutedForeground,
-  }),
-  floatBody: css({ display: "grid", gap: spacing[3], padding: spacing["3.5"] }),
-  split: css({
+
+  // The Inspector: a side bar view, as VS Code shows the extension's webview.
+  sidebar: css({
     display: "grid",
-    gap: spacing[3],
-    gridTemplateColumns: "auto minmax(0, 1fr)",
-    alignItems: "start",
-  }),
-  // The box model, drawn as DevTools draws it.
-  box: css({
-    display: "grid",
-    justifyItems: "center",
-    paddingInline: spacing["1.5"],
-    paddingBlock: "2px",
-    borderWidth: "1px",
-    borderStyle: "dashed",
-    borderRadius: radius.sm,
-    fontFamily: fontFamily.mono,
-    fontSize: "0.625rem",
-  }),
-  margin: css({ borderColor: tint(35) }),
-  border: css({ borderStyle: "solid", borderColor: theme.foreground }),
-  padding: css({ borderColor: tint(55), backgroundColor: tint(8) }),
-  content: css({
-    paddingInline: spacing["2.5"],
-    paddingBlock: "3px",
-    marginBlock: "2px",
-    borderRadius: "2px",
-    backgroundColor: tint(18),
-    whiteSpace: "nowrap",
-  }),
-  boxLabel: css({ justifySelf: "start", color: theme.mutedForeground }),
-  table: css({
-    display: "grid",
-    gridTemplateColumns: "auto minmax(0, 1fr)",
-    columnGap: spacing[3],
-    rowGap: "2px",
-    fontFamily: fontFamily.mono,
-    fontSize: "0.6875rem",
-    whiteSpace: "nowrap",
-  }),
-  muted: css({ color: theme.mutedForeground }),
-  rule: css({
-    margin: 0,
-    paddingInline: spacing[3],
-    paddingBlock: spacing[2],
-    borderRadius: radius.md,
-    backgroundColor: theme.muted,
-    fontFamily: fontFamily.mono,
-    fontSize: "0.6875rem",
-    whiteSpace: "pre",
-    overflowX: "auto",
-  }),
-  chips: css({ display: "flex", flexWrap: "wrap", gap: spacing["1.5"] }),
-  chip: css({
-    display: "inline-flex",
-    alignItems: "center",
-    paddingInline: spacing["2.5"],
-    paddingBlock: "2px",
-    borderRadius: radius.full,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    fontFamily: fontFamily.mono,
-    fontSize: "0.6875rem",
-    color: theme.mutedForeground,
-  }),
-  chipOn: css({
-    borderColor: accent.base,
-    backgroundColor: tint(12),
-    color: theme.foreground,
-  }),
-  picker: css({
-    position: "relative",
-    height: "6.5rem",
-    borderRadius: radius.md,
-    backgroundImage:
-      "linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, oklch(0.72 0.15 230))",
-  }),
-  pickerDot: css({
-    position: "absolute",
-    insetInlineStart: "72%",
-    insetBlockStart: "28%",
-    width: "12px",
-    height: "12px",
-    borderRadius: radius.full,
-    borderWidth: "2px",
-    borderStyle: "solid",
-    borderColor: "white",
-    boxShadow: "0 0 0 1px rgb(0 0 0 / 0.3)",
-  }),
-  hue: css({
-    height: "8px",
-    borderRadius: radius.full,
-    backgroundImage:
-      "linear-gradient(to right, oklch(0.7 0.15 0), oklch(0.7 0.15 90), oklch(0.7 0.15 180), oklch(0.7 0.15 270), oklch(0.7 0.15 360))",
-  }),
-  modes: css({
-    display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    gap: spacing[2],
-  }),
-  mode: css({
-    display: "flex",
-    alignItems: "center",
-    gap: spacing[2],
-    paddingInline: spacing[2],
-    paddingBlock: spacing["1.5"],
-    borderRadius: radius.md,
-    backgroundColor: theme.muted,
-    fontFamily: fontFamily.mono,
-    fontSize: "0.6875rem",
-  }),
-  modeSwatch: css({
+    gridTemplateRows: "auto minmax(0, 1fr)",
+    flexBasis: { base: "100%", [breakpoint.md]: "17rem" },
     flexShrink: 0,
-    width: "14px",
-    height: "14px",
-    borderRadius: "3px",
+    minHeight: { base: "24rem", [breakpoint.md]: "auto" },
+    borderInlineStartWidth: "1px",
+    borderInlineStartStyle: "solid",
+    borderInlineStartColor: VSCODE.border,
+    backgroundColor: VSCODE.sidebar,
   }),
-  danger: css({ color: DANGER, fontWeight: fontWeight.semibold }),
-  fix: css({
-    display: "flex",
-    alignItems: "center",
-    gap: spacing[2],
+  sidebarTitle: css({
     paddingInline: spacing[3],
     paddingBlock: spacing[2],
-    borderRadius: radius.md,
-    backgroundColor: tint(10),
+    fontFamily: UI_FONT,
+    fontSize: "11px",
+    fontWeight: fontWeight.semibold,
+    letterSpacing: "0.04em",
+    textTransform: "uppercase",
+    color: VSCODE.foreground,
   }),
-  editors: css({ display: "grid", gap: spacing[1] }),
-  editorRow: css({
-    display: "flex",
-    alignItems: "center",
-    gap: spacing["2.5"],
-    paddingBlock: spacing[1],
-  }),
-  editorNote: css({
-    marginInlineStart: "auto",
-    color: theme.mutedForeground,
-  }),
-  ok: css({
-    display: "inline-flex",
-    color: "light-dark(oklch(0.596 0.145 163.225), oklch(0.765 0.177 163.223))",
-  }),
+  sidebarFrame: css({ height: "100%" }),
 
   closer: css({
     position: "absolute",
@@ -419,24 +390,16 @@ const styles = {
     gap: spacing[2],
     paddingInline: spacing["3.5"],
     paddingBlock: spacing[2],
-    borderRadius: radius.full,
+    borderRadius: "999px",
     borderWidth: "1px",
     borderStyle: "solid",
-    borderColor: theme.border,
-    backgroundColor:
-      "light-dark(rgb(255 255 255 / 0.85), rgb(20 22 28 / 0.85))",
+    borderColor: "rgb(255 255 255 / 0.55)",
+    backgroundColor: "rgb(255 255 255 / 0.72)",
     backdropFilter: "blur(12px)",
     fontSize: fontSize.xs,
     fontWeight: fontWeight.medium,
-    color: theme.foreground,
+    color: "#0a0a0a",
     textDecorationLine: "none",
-  }),
-  caption: css({
-    marginBlockEnd: spacing[3],
-    textAlign: "center",
-    fontSize: fontSize.xs,
-    lineHeight: "1.6",
-    color: theme.mutedForeground,
   }),
 }
 
@@ -503,7 +466,7 @@ const FEATURES: readonly Feature[] = [
     icon: CursorMagicSelection02Icon,
     label: "Style card",
     title: "Hover for the whole story.",
-    text: "The box model as DevTools draws it, every declaration with rem in pixels and the token it reads, and the compiled rules.",
+    text: "The box model as DevTools draws it, every declaration with rem in pixels and the token it reads, the values under a breakpoint, and the compiled rules.",
     href: "/docs/tooling/editor#the-style-card",
   },
   {
@@ -519,15 +482,15 @@ const FEATURES: readonly Feature[] = [
     icon: ViewOffSlashIcon,
     label: "Style Fold",
     title: "Long objects, read short.",
-    text: "A style object folds into its summary until the cursor reaches it — Tailwind Fold, for objects.",
+    text: "A one-line style object reads as its summary until the cursor reaches it — Tailwind Fold, for objects.",
     href: "/docs/tooling/editor#style-fold-vs-code",
   },
   {
     id: "colours",
     icon: ColorsIcon,
     label: "Colours",
-    title: "Both sides of light-dark().",
-    text: "A swatch per mode, and a picker that keeps oklch() as oklch() — on literals, never on a token.",
+    title: "Every colour, where it is used.",
+    text: "A swatch beside every colour literal and colour token, and on hover the token's value — both sides of light-dark() when it has two.",
     href: "/docs/tooling/editor#colours",
   },
   {
@@ -549,373 +512,284 @@ const FEATURES: readonly Feature[] = [
   },
 ]
 
-const k = (text: string) => <span sx={SYNTAX.keyword}>{text}</span>
-const s = (text: string) => <span sx={SYNTAX.string}>{text}</span>
-const f = (text: string) => <span sx={SYNTAX.fn}>{text}</span>
-const p = (text: string) => <span sx={SYNTAX.property}>{text}</span>
-const t = (text: string) => <span sx={SYNTAX.tag}>{text}</span>
+const SAMPLE = EDITOR_SAMPLE
 
-const CARD_HINT = "▦ grid · gap 1rem · p 1rem · +2"
-/** The same summary unshortened: a folded object has the whole line. */
-const CARD_FOLDED = "▦ grid · gap 1rem · p 1rem · border #0af · md: p 1.5rem"
-const TITLE_HINT = "text 1.25rem · 600 · ink"
+/** One row of the code: a line of the file, or the code lens above one. */
+type Row =
+  | { kind: "lens"; titles: readonly string[] }
+  | {
+      kind: "line"
+      index: number
+      number: number
+      html: string
+      added?: boolean
+    }
 
-function Line({
-  n,
-  current,
-  children,
-}: {
-  n: number
-  current?: boolean
-  children?: React.ReactNode
-}) {
+/** The rows the editor shows for a feature: Diagnostics adds the line it reports. */
+function rows(feature: FeatureId): Row[] {
+  const out: Row[] = []
+  let number = 0
+  SAMPLE.lines.forEach((html, index) => {
+    const lens = SAMPLE.lenses.find((entry) => entry.line === index)
+    if (lens) out.push({ kind: "lens", titles: lens.titles })
+    out.push({ kind: "line", index, number: ++number, html })
+    if (feature === "lint" && index === SAMPLE.problem.line - 1) {
+      out.push({
+        kind: "line",
+        index: SAMPLE.problem.line,
+        number: ++number,
+        html: SAMPLE.lintLine.html,
+        added: true,
+      })
+    }
+  })
+  return out
+}
+
+/** The row a file line sits on, counting the lenses above it. */
+function rowOf(list: readonly Row[], line: number, added = false) {
+  return list.findIndex(
+    (row) =>
+      row.kind === "line" &&
+      row.index === line &&
+      (row.added ?? false) === added
+  )
+}
+
+/** The line with a colour token: VS Code's colour decorator before the token. */
+function TokenLine({ html }: { html: string }) {
+  const at = html.lastIndexOf("color")
   return (
-    <span sx={[styles.line, current ? styles.current : null]}>
-      <span sx={styles.number}>{n}</span>
-      <span sx={styles.text}>{children ?? " "}</span>
+    <span sx={styles.text}>
+      <span dangerouslySetInnerHTML={{ __html: html.slice(0, at) }} />
+      <span sx={styles.swatch} style={{ backgroundColor: "#0af" }} />
+      <span dangerouslySetInnerHTML={{ __html: html.slice(at) }} />
     </span>
   )
 }
 
-/** The component in the editor, drawn for the chosen feature. */
-function Code({ feature }: { feature: FeatureId }) {
-  const fold = feature === "fold"
-  const lint = feature === "lint"
-  // Lines after the style object move with it: folded, or one longer for the error.
-  const after = (n: number) => (fold ? n - 4 : lint ? n + 1 : n)
+/** The component in the editor, as the extension draws it for the chosen feature. */
+function Code({ feature, list }: { feature: FeatureId; list: readonly Row[] }) {
+  const cardLine = SAMPLE.anchors.card.line
+  const tokenLine = SAMPLE.anchors.token.line
   return (
-    <pre sx={styles.code}>
+    <pre sx={styles.code} data-slot="code-block-source">
       <code>
-        <Line n={1}>
-          {k("import")} {"{ "}
-          {f("css")}
-          {" }"} {k("from")} {s('"@kirana-style/core"')}
-        </Line>
-        <Line n={2}>
-          {k("import")} {"{ color, space }"} {k("from")} {s('"./tokens"')}
-        </Line>
-        <Line n={3} />
-        {fold ? (
-          <Line n={4} current>
-            {k("const")} card = <Hint text={CARD_FOLDED} sx={styles.folded} />
-          </Line>
-        ) : (
-          <>
-            <span sx={styles.lens}>
-              css() · 5 declarations · used by 2 elements
-            </span>
-            <Line n={4}>
-              {k("const")} card = {f("css")}({"{"}
-            </Line>
-            <Line n={5}>
-              {"  "}
-              {p("display")}: {s('"grid"')}, {p("gap")}: space[{p("4")}],
-            </Line>
-            <Line n={6}>
-              {"  "}
-              {p("padding")}: {"{ "}
-              {p("base")}: space[{p("4")}], [md]: space[{p("6")}] {"}"},
-            </Line>
-            <Line n={7} current={feature === "colours"}>
-              {"  "}
-              {p("borderColor")}:{" "}
-              <span
-                sx={[
-                  styles.swatch,
-                  feature === "colours" ? styles.swatchOn : null,
-                ]}
-              />
-              color.{p("brand")},
-            </Line>
-            {lint ? (
-              <Line n={8} current>
-                {"  "}
-                <span sx={styles.squiggle}>
-                  {p("width")}: {p("5")}
+        {list.map((row, position) => {
+          if (row.kind === "lens") {
+            return (
+              <span key={`lens-${position}`} sx={styles.lens}>
+                {row.titles.join(" | ")}
+              </span>
+            )
+          }
+          const added = row.added === true
+          const hint = added
+            ? undefined
+            : SAMPLE.hints.find((entry) => entry.line === row.index)
+          const folded =
+            feature === "fold" && !added && row.index === SAMPLE.fold.line
+          const current =
+            ((feature === "card" || feature === "inspector") &&
+              row.index === cardLine &&
+              !added) ||
+            (feature === "colours" && row.index === tokenLine && !added) ||
+            (feature === "lint" && added) ||
+            folded
+          return (
+            <span
+              key={`line-${position}`}
+              sx={[styles.line, current ? styles.current : null]}
+            >
+              <span sx={styles.number}>{row.number}</span>
+              {folded ? (
+                <span sx={styles.text}>
+                  <span
+                    dangerouslySetInnerHTML={{ __html: SAMPLE.fold.before }}
+                  />
+                  <span sx={styles.fold}>
+                    <HintMark />
+                    {`{ ${SAMPLE.fold.summary} }`}
+                  </span>
+                  <span
+                    dangerouslySetInnerHTML={{ __html: SAMPLE.fold.after }}
+                  />
                 </span>
-                ,
-              </Line>
-            ) : null}
-            <Line n={after(8)}>{"})"}</Line>
-          </>
-        )}
-        <Line n={after(9)} />
-        <Line n={after(10)}>
-          {k("export const")} {f("Plan")} = () {k("=>")} (
-        </Line>
-        <Line n={after(11)} current={feature === "card"}>
-          {"  <"}
-          {t("article")} {p("sx")}={"{"}card{"}"}
-          {">"}
-          {fold ? null : (
-            <Hint
-              text={CARD_HINT}
-              sx={
-                feature === "summary" || feature === "card" ? styles.lit : null
-              }
-            />
-          )}
-        </Line>
-        <Line n={after(12)}>
-          {"    <"}
-          {t("h2")} {p("sx")}={"{"}title{"}"}
-          {">"}Pro{"</"}
-          {t("h2")}
-          {">"}
-          <Hint
-            text={TITLE_HINT}
-            sx={feature === "summary" ? styles.lit : null}
-          />
-        </Line>
-        <Line n={after(13)}>
-          {"  </"}
-          {t("article")}
-          {">"}
-        </Line>
-        <Line n={after(14)}>{")"}</Line>
+              ) : added ? (
+                <span sx={styles.text}>
+                  {"  "}
+                  <span
+                    sx={styles.squiggle}
+                    dangerouslySetInnerHTML={{
+                      __html: row.html.trimStart().replace(/,$/, ""),
+                    }}
+                  />
+                  ,
+                </span>
+              ) : row.index === tokenLine ? (
+                <TokenLine html={row.html} />
+              ) : (
+                <span
+                  sx={styles.text}
+                  dangerouslySetInnerHTML={{ __html: row.html || " " }}
+                />
+              )}
+              {hint && !folded ? <Hint parts={hint.parts} /> : null}
+            </span>
+          )
+        })}
       </code>
     </pre>
   )
 }
 
-/** A floating window's title bar, led by Kirana's mark. */
-function FloatBar({ title, note }: { title: string; note?: string }) {
+/** A hover's HTML in a frame of its own, so neither the page's styles nor its own leak. */
+function Frame({
+  html,
+  kind,
+  title,
+  height,
+}: {
+  html: string
+  kind: "hover" | "view"
+  title: string
+  height?: string
+}) {
   return (
-    <div sx={styles.floatBar}>
-      <KiranaMark title={null} sx={styles.mark} />
-      {title}
-      {note ? <span sx={styles.floatNote}>{note}</span> : null}
+    <iframe
+      title={title}
+      srcDoc={page(html, kind)}
+      sandbox=""
+      tabIndex={-1}
+      sx={[styles.frame, height ? null : styles.sidebarFrame]}
+      style={height ? { height } : undefined}
+    />
+  )
+}
+
+/** A hover window opening under the row of `line`, at `column`. */
+function Hover({
+  on,
+  row,
+  column,
+  above = false,
+  children,
+}: {
+  on: boolean
+  row: number
+  column: number
+  above?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <div
+      sx={[styles.hover, above ? styles.above : null, on ? null : styles.off]}
+      aria-hidden={!on}
+      style={
+        {
+          "--row": above ? row : row + 1,
+          "--column": column,
+        } as React.CSSProperties
+      }
+    >
+      {children}
     </div>
   )
 }
 
-function BoxModel({ padding = "16" }: { padding?: string }) {
+const FILES = ["plan.tsx", "tokens.ts"] as const
+
+/** The editor alone: the file, its hovers and the side bar, for a scene or the banner. */
+export function EditorDesk({ feature = "card" }: { feature?: FeatureId }) {
+  const list = rows(feature)
+  const { card, token } = SAMPLE.anchors
   return (
-    <div sx={[styles.box, styles.margin]}>
-      <span sx={styles.boxLabel}>margin</span>
-      <div sx={[styles.box, styles.border]}>
-        <span sx={styles.boxLabel}>border 1</span>
-        <div sx={[styles.box, styles.padding]}>
-          <span sx={styles.boxLabel}>padding {padding}</span>
-          <span sx={styles.content}>grid · gap 16</span>
+    <EditorWindow file="plan.tsx" tabs={FILES}>
+      <div sx={styles.body}>
+        <div sx={styles.codeArea}>
+          <Code feature={feature} list={list} />
+          <Hover
+            on={feature === "card"}
+            row={rowOf(list, card.line)}
+            column={card.character}
+            above
+          >
+            <Frame
+              html={SAMPLE.card}
+              kind="hover"
+              title="The style card"
+              height="17rem"
+            />
+          </Hover>
+          <Hover
+            on={feature === "colours"}
+            row={rowOf(list, token.line)}
+            column={token.character}
+          >
+            <Frame
+              html={SAMPLE.token}
+              kind="hover"
+              title="A colour token's hover"
+              height="6.75rem"
+            />
+          </Hover>
+          <Hover
+            on={feature === "lint"}
+            row={rowOf(list, SAMPLE.problem.line, true)}
+            column={2}
+          >
+            <div sx={styles.problem}>
+              {SAMPLE.problem.message}{" "}
+              <span sx={styles.problemCode}>
+                {SAMPLE.problem.source}({SAMPLE.problem.code})
+              </span>
+            </div>
+            <div sx={styles.statusBar}>
+              <span>View Problem (Alt+F8)</span>
+              <span>Quick Fix… (Ctrl+.)</span>
+            </div>
+          </Hover>
         </div>
+        {feature === "inspector" ? (
+          <div sx={styles.sidebar}>
+            <span sx={styles.sidebarTitle}>Kirana Style Inspector</span>
+            <Frame
+              html={SAMPLE.inspector}
+              kind="view"
+              title="The Style Inspector"
+            />
+          </div>
+        ) : null}
       </div>
-    </div>
+    </EditorWindow>
   )
 }
 
-/** The group colours on the page, for windows over the editor. */
-const PAGE_GROUP = {
-  layout: css({
-    color: "light-dark(oklch(0.52 0.17 255), oklch(0.75 0.13 255))",
-  }),
-  box: css({
-    color: "light-dark(oklch(0.52 0.14 150), oklch(0.78 0.15 150))",
-  }),
-  border: css({
-    color: "light-dark(oklch(0.52 0.17 305), oklch(0.76 0.13 305))",
-  }),
-}
-
-/** Property names in their group's colour, as the card prints them. */
-const DECLARATIONS: readonly [keyof typeof PAGE_GROUP, string, string][] = [
-  ["layout", "display", "grid"],
-  ["layout", "gap", "1rem · 16px"],
-  ["box", "padding", "1rem · md: 1.5rem"],
-  ["border", "border-color", "#0af · color.brand"],
-]
-
-function Declarations({ md }: { md?: boolean }) {
-  return (
-    <div sx={styles.table}>
-      {DECLARATIONS.flatMap(([group, property, value]) => [
-        <span key={`${property}-name`} sx={PAGE_GROUP[group]}>
-          {property}
-        </span>,
-        <span key={`${property}-value`}>
-          {md && property === "padding" ? "1.5rem · 24px" : value}
-        </span>,
-      ])}
-    </div>
-  )
-}
-
-const EDITORS = [
-  [SVGL.vscode, "VS Code", "extension"],
-  [SVGL.cursor, "Cursor", "extension"],
-  [SVGL.zed, "Zed", "extension"],
-  [SVGL.neovim, "Neovim", "vim.lsp.config"],
-] as const
-
-/** The hover window for each feature, shown when it is the chosen one; the summary has none. */
-function Overlay({ feature, on }: { feature: FeatureId; on: boolean }) {
-  const float = [styles.float, on ? null : styles.floatOff]
-  switch (feature) {
-    case "card":
-      return (
-        <div sx={float} aria-hidden={!on}>
-          {/* consistency: ignore — the code lens counts CSS rules, not lint rules */}
-          <FloatBar title="card" note="css() · 6 rules" />
-          <div sx={styles.floatBody}>
-            <div sx={styles.split}>
-              <BoxModel />
-              <Declarations />
-            </div>
-            <pre sx={styles.rule}>
-              {
-                ".k5O_fqMV { display: grid }\n.kJ_pnCg { gap: 1rem }\n@media (width >= 48rem) {\n  .k0-x8Qe_kf2c { padding: 1.5rem }\n}"
-              }
-            </pre>
-          </div>
-        </div>
-      )
-    case "inspector":
-      return (
-        <div sx={float} aria-hidden={!on}>
-          <FloatBar title="Style Inspector" note="<article>" />
-          <div sx={styles.floatBody}>
-            <div sx={styles.chips}>
-              <span sx={styles.chip}>:hover</span>
-              <span sx={[styles.chip, styles.chipOn]}>md</span>
-              <span sx={styles.chip}>:focus-visible</span>
-            </div>
-            <div sx={styles.split}>
-              <BoxModel padding="24" />
-              <Declarations md />
-            </div>
-          </div>
-        </div>
-      )
-    case "fold":
-      return (
-        <div sx={float} aria-hidden={!on}>
-          <FloatBar title="Style Fold" note="kirana.fold" />
-          <div sx={styles.floatBody}>
-            <div sx={styles.table}>
-              <span sx={styles.muted}>mode</span>
-              <span>fold · dim</span>
-              <span sx={styles.muted}>minLength</span>
-              <span>40</span>
-              <span sx={styles.muted}>icon</span>
-              <span>on</span>
-            </div>
-            <span sx={styles.muted}>
-              The object reads as its summary until the cursor reaches its line.
-            </span>
-          </div>
-        </div>
-      )
-    case "colours":
-      return (
-        <div sx={float} aria-hidden={!on}>
-          <FloatBar title="light-dark()" note="oklch()" />
-          <div sx={styles.floatBody}>
-            <div sx={styles.picker}>
-              <span sx={styles.pickerDot} />
-            </div>
-            <div sx={styles.hue} />
-            <div sx={styles.modes}>
-              <span sx={styles.mode}>
-                <span
-                  sx={styles.modeSwatch}
-                  style={{ backgroundColor: "oklch(0.62 0.15 230)" }}
-                />
-                light
-              </span>
-              <span sx={styles.mode}>
-                <span
-                  sx={styles.modeSwatch}
-                  style={{ backgroundColor: "oklch(0.78 0.12 230)" }}
-                />
-                dark
-              </span>
-            </div>
-          </div>
-        </div>
-      )
-    case "lint":
-      return (
-        <div sx={float} aria-hidden={!on}>
-          <FloatBar title="kirana" note="KRN1203" />
-          <div sx={styles.floatBody}>
-            <span>
-              <span sx={styles.danger}>unitless-length</span> width does not
-              accept a bare number (5)
-            </span>
-            <span sx={styles.fix}>
-              <Icon icon={CheckmarkCircle02Icon} size="0.875rem" />
-              Quick fix: write "5px"
-            </span>
-          </div>
-        </div>
-      )
-    case "editors":
-      return (
-        <div sx={float} aria-hidden={!on}>
-          <FloatBar title="Kirana" note="kirana lsp" />
-          <div sx={styles.floatBody}>
-            <div sx={styles.editors}>
-              {EDITORS.map(([icon, name, note]) => (
-                <span key={name} sx={styles.editorRow}>
-                  <BrandIcon icon={icon} size="1rem" />
-                  {name}
-                  <span sx={styles.editorNote}>{note}</span>
-                  <span sx={styles.ok}>
-                    <Icon icon={CheckmarkCircle02Icon} size="0.875rem" />
-                  </span>
-                </span>
-              ))}
-            </div>
-            <div sx={styles.chips}>
-              {[".tsx", ".vue", ".svelte", ".astro"].map((extension) => (
-                <span key={extension} sx={styles.chip}>
-                  {extension}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      )
-    default:
-      return null
-  }
-}
-
-const FILES = ["Plan.tsx", "tokens.ts", "Card.vue", "Card.svelte"] as const
-
-/** The framed desktop: the editor, the window over it, and a link to the details. */
+/** The framed desktop: the editor on a landscape, and a link to the details. */
 export function EditorScene({ feature = "card" }: { feature?: FeatureId }) {
   const chosen = FEATURES.find((entry) => entry.id === feature)!
   return (
     <figure sx={styles.figure}>
       <figcaption sx={styles.caption}>
-        Drawn from what the VS Code extension shows in a dark theme. Every LSP
-        editor gets the summaries, the card and the fixes.
+        What Kirana's language server answers for this file, as VS Code shows it
+        with the GitHub Dark theme.
       </figcaption>
-      <div
-        sx={styles.stage}
-        role="img"
-        aria-label={`An editor with Kirana — ${chosen.label}: ${chosen.text}`}
+      <Backdrop
+        label={`An editor with Kirana — ${chosen.label}: ${chosen.text}`}
+        after={
+          <DocsLink href={chosen.href} sx={styles.closer}>
+            Take a closer look
+            <Icon icon={ArrowUpRight01Icon} size="0.875rem" />
+          </DocsLink>
+        }
       >
-        <div sx={styles.desk}>
-          <EditorWindow file="Plan.tsx" tabs={FILES}>
-            <div sx={styles.body}>
-              <Code feature={feature} />
-            </div>
-          </EditorWindow>
-          {FEATURES.map((entry) => (
-            <Overlay
-              key={entry.id}
-              feature={entry.id}
-              on={entry.id === feature}
-            />
-          ))}
-        </div>
-        <DocsLink href={chosen.href} sx={styles.closer}>
-          Take a closer look
-          <Icon icon={ArrowUpRight01Icon} size="0.875rem" />
-        </DocsLink>
-      </div>
+        {/* The editors it runs in are no editor's UI: a grid of them, not a window. */}
+        {feature === "editors" ? (
+          <EditorsGrid />
+        ) : (
+          <EditorDesk feature={feature} />
+        )}
+      </Backdrop>
       <div key={chosen.id} sx={below.description}>
         <span sx={below.title}>{chosen.title}</span>
         <span sx={below.text}>{chosen.text}</span>
@@ -925,11 +799,15 @@ export function EditorScene({ feature = "card" }: { feature?: FeatureId }) {
 }
 
 /** The feature list and the scene it drives. */
-export function EditorShowcase() {
+export function EditorShowcase({ compact = false }: { compact?: boolean }) {
   const [feature, setFeature] = useState<FeatureId>("summary")
   return (
-    <div sx={styles.layout}>
-      <div sx={styles.options} role="group" aria-label="Editor features">
+    <div sx={[styles.layout, compact ? styles.layoutCompact : null]}>
+      <div
+        sx={[styles.options, compact ? styles.optionsCompact : null]}
+        role="group"
+        aria-label="Editor features"
+      >
         {FEATURES.map((entry) => {
           const on = entry.id === feature
           return (
@@ -937,7 +815,11 @@ export function EditorShowcase() {
               key={entry.id}
               type="button"
               aria-pressed={on}
-              sx={[styles.option, on ? styles.optionOn : null]}
+              sx={[
+                styles.option,
+                compact ? styles.optionCompact : null,
+                on ? styles.optionOn : null,
+              ]}
               onMouseEnter={() => setFeature(entry.id)}
               onFocus={() => setFeature(entry.id)}
               onClick={() => setFeature(entry.id)}
@@ -947,7 +829,9 @@ export function EditorShowcase() {
               </span>
               <span sx={styles.optionText}>
                 <span sx={styles.optionLabel}>{entry.label}</span>
-                <span sx={styles.optionTitle}>{entry.title}</span>
+                {compact ? null : (
+                  <span sx={styles.optionTitle}>{entry.title}</span>
+                )}
               </span>
             </button>
           )
