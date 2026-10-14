@@ -31,6 +31,16 @@ updates:
       - dependency-name: "@vitest/coverage-v8"
       # The parity test runs Oxlint itself; it stays at the version Vite+ bundles.
       - dependency-name: "oxlint"
+      # emnapi 2.0.0-beta renames napiModule to addonModule. @napi-rs/wasm-runtime bundles emnapi's
+      # plugins when it is built, and 1.2.5 was built with the alpha, so it writes napiModule and the
+      # WASI engine fails to load ("setting 'initWorker'"). napi-rs moved to the beta on main; take
+      # it with the first wasm-runtime release after 1.2.5. The install (wasi · npm) job proves it.
+      - dependency-name: "emnapi"
+        versions: [">= 2.0.0-beta.1"]
+      - dependency-name: "@emnapi/core"
+        versions: [">= 2.0.0-beta.1"]
+      - dependency-name: "@emnapi/runtime"
+        versions: [">= 2.0.0-beta.1"]
     groups:
       minor-and-patch:
         update-types: [minor, patch]
