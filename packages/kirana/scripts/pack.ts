@@ -71,6 +71,13 @@ const WASI = {
 }
 
 const INSTALL_SCRIPTS = ["preinstall", "install", "postinstall"]
+/** Files from the repository root that every package carries: one changelog and one licence. */
+const SHARED = ["CHANGELOG.md", "LICENSE"]
+
+function shared(stage: string, names: string[]) {
+  for (const name of names)
+    copyFileSync(path.join(repository, name), path.join(stage, name))
+}
 const PACKAGES = [
   "core",
   "compiler",
@@ -271,6 +278,7 @@ async function packOne(name: string): Promise<string> {
     mkdirSync(path.dirname(path.join(stage, file)), { recursive: true })
     copyFileSync(path.join(source, file), path.join(stage, file))
   }
+  shared(stage, SHARED)
 
   const manifest = JSON.parse(
     readFileSync(path.join(source, "package.json"), "utf8")
@@ -292,6 +300,7 @@ async function packOne(name: string): Promise<string> {
       "*.d.ts",
       "*.css",
       "README.md",
+      ...SHARED,
       "builders.json",
       "schemas",
       "gatsby-node.mjs",
@@ -344,6 +353,7 @@ function packNatives(directory: string, version: string): string[] {
     rmSync(stage, { recursive: true, force: true })
     mkdirSync(stage, { recursive: true })
     copyFileSync(path.join(directory, file), path.join(stage, file))
+    shared(stage, ["LICENSE"])
     const manifest = {
       name: `@kirana-style/compiler-${triple}`,
       version,
@@ -351,7 +361,7 @@ function packNatives(directory: string, version: string): string[] {
       license: "MIT",
       ...PUBLIC,
       main: file,
-      files: [file],
+      files: [file, "LICENSE"],
       os: [target.os],
       cpu: [target.cpu],
       ...(target.libc ? { libc: [target.libc] } : {}),
@@ -370,6 +380,7 @@ function packNatives(directory: string, version: string): string[] {
     mkdirSync(stage, { recursive: true })
     for (const file of WASI.files)
       copyFileSync(path.join(directory, file), path.join(stage, file))
+    shared(stage, ["LICENSE"])
     const manifest = {
       name: `@kirana-style/compiler-${WASI.triple}`,
       version,
@@ -379,7 +390,7 @@ function packNatives(directory: string, version: string): string[] {
       ...PUBLIC,
       main: "kirana.wasi.cjs",
       browser: "kirana.wasi-browser.js",
-      files: WASI.files,
+      files: [...WASI.files, "LICENSE"],
       cpu: ["wasm32"],
       dependencies: Object.fromEntries(
         WASI.dependencies.map((name) => [name, catalog[name]!])

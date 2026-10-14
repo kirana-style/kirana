@@ -59,12 +59,15 @@ export function BrandIcon({
   icon,
   size = "1rem",
   label,
+  scheme,
   sx,
 }: {
   icon: SvglIcon
   size?: string
   /** Name it for assistive tech; without one the logo is decorative. */
   label?: string
+  /** The variant for a surface whose scheme is fixed (a dark editor bar), whatever the page's. */
+  scheme?: "light" | "dark"
   sx?: Sx
 }) {
   const image = (src: string, variant: Sx) => (
@@ -79,6 +82,7 @@ export function BrandIcon({
     />
   )
   if (typeof icon.route === "string") return image(icon.route, null)
+  if (scheme) return image(icon.route[scheme], null)
   return (
     <>
       {image(icon.route.light, styles.light)}

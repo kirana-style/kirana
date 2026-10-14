@@ -34,11 +34,11 @@ const styles = {
   }),
 }
 
-export function Wordmark({ sx }: { sx?: Sx }) {
+export function Wordmark({ sx, styleSx }: { sx?: Sx; styleSx?: Sx }) {
   return (
     <span sx={[styles.root, sx]}>
       <span sx={styles.name}>kirana</span>
-      <span sx={styles.style}>style</span>
+      <span sx={[styles.style, styleSx]}>style</span>
     </span>
   )
 }

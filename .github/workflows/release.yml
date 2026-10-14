@@ -240,6 +240,8 @@ jobs:
     environment: release
     permissions:
       contents: write
+      # Open VSX trusted publishing: a short-lived token for this workflow and environment.
+      id-token: write
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -273,11 +275,11 @@ jobs:
           fi
           bunx @vscode/vsce publish --packagePath kirana.vsix
 
+      # Trusted publishing (no stored token): Open VSX accepts this repository's release.yml in the
+      # `release` environment for the kirana-style namespace (open-vsx.org → Trusted Publishers).
       - name: Publish to Open VSX
         working-directory: packages/kirana/editors/vscode
-        env:
-          OVSX_PAT: ${{ secrets.OVSX_PAT }}
-        run: bunx ovsx publish kirana.vsix
+        run: bunx ovsx@1.2.0 publish kirana.vsix --trusted-pub
 
   # Packagist reads packages from Git tags: the PHP helper is split out of this repository into the
   # read-only kirana-php mirror (kirana-style/kirana), and the kirana/kirana alias gets the same tag.

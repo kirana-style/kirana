@@ -13,4 +13,5 @@ Gem::Specification.new do |spec|
   spec.metadata["rubygems_mfa_required"] = "true"
   spec.metadata["source_code_uri"] = "https://github.com/kirana-style/kirana/tree/main/packages/kirana/helpers/ruby"
   spec.metadata["bug_tracker_uri"] = "https://github.com/kirana-style/kirana/issues"
+  spec.metadata["changelog_uri"] = "https://github.com/kirana-style/kirana/blob/main/CHANGELOG.md"
 end

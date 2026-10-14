@@ -27,7 +27,17 @@
     "css",
     "css-in-js",
     "kirana",
-    "intellisense"
+    "intellisense",
+    "inlay hints",
+    "atomic css",
+    "design tokens",
+    "react",
+    "vue",
+    "svelte",
+    "astro",
+    "angular",
+    "tailwind",
+    "stylex"
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
@@ -202,7 +212,7 @@
   },
   "scripts": {
     "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node20 --external:vscode --minify --outfile=dist/extension.js",
-    "package": "cp ../brand/icon.png icon.png && bun run build && vsce package --no-dependencies --skip-license --out kirana.vsix",
+    "package": "cp ../brand/icon.png icon.png && cp ../../../../CHANGELOG.md ../../../../LICENSE . && bun run build && vsce package --no-dependencies --out kirana.vsix",
     "test:e2e": "bun run build && node test/e2e/run.ts"
   },
   "devDependencies": {
@@ -212,5 +222,9 @@
     "esbuild": "catalog:",
     "vscode-languageclient": "^10.1.2"
   },
-  "icon": "icon.png"
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#0a0a0a",
+    "theme": "dark"
+  }
 }

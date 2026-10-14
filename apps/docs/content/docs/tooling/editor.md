@@ -23,6 +23,8 @@ keywords:
 
 # Editor support
 
+<!-- ::editor-banner -->
+
 Object styles move the CSS out of the markup: you read `sx={styles.card}`, not a
 class list. The Kirana language server brings it back where you are reading — and
 answers questions a class list never could: **which value wins, and why**.
@@ -31,7 +33,14 @@ It is `kirana lsp`, a command of the compiler you already installed. It runs on 
 same compiler session as your build, so what the editor tells you is what the build
 does, never an approximation of it.
 
-<!-- ::figure-editor -->
+## Light through every line of your styles
+
+A Tailwind class list shows what an element gets; object styles hid it. The
+language server puts it back on every line, coloured by kind, and answers the rest
+on hover. Pick a feature to see what it shows: every picture is the server's real
+output for one file.
+
+<!-- ::editor-showcase -->
 
 ## Pick your editor
 
@@ -48,10 +57,12 @@ server in your project, walking up to a monorepo's root, and starts it for
 TypeScript, JavaScript, Vue, Svelte, Astro and HTML files (HTML for Angular
 templates).
 
-Until the first release is on the Marketplace and Open VSX, install the
-`kirana.vsix` that CI builds: **Extensions: Install from VSIX…**. In a remote
-workspace (WSL, SSH, a container), install it on the remote side, where your
-project and Node.js live.
+Install **Kirana** from the
+[VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kirana-style.kirana)
+in VS Code, or from [Open VSX](https://open-vsx.org/extension/kirana-style/kirana)
+in Cursor, Windsurf, Antigravity and VSCodium: search "Kirana" in the
+Extensions view. In a remote workspace (WSL, SSH, a container), install it on
+the remote side, where your project and Node.js live.
 
 If your project has no `node_modules/.bin/kirana` — a checkout of Kirana itself,
 say — point the extension at a binary or script:
@@ -297,6 +308,12 @@ budgets are 50 ms, 200 ms and 300 MB.
   their own compilers (and Angular's templates are its own, merged at runtime); the server, which cannot load them, scans the same blocks and
   bindings — held to the frameworks' parsers by a test over every example. A
   template binding that reads only a Svelte `<script module>` handle gets no hint.
+- **The summary shows what the compiler knows at build time.** A value returned
+  by a function it cannot see into (`sx={mergeSx(a, b)}`, a hand-written variant
+  helper) has nothing to summarise, where the same values as an array,
+  `sx={[a, b]}`, do. A recipe called with a variant known only at run time
+  (`button({ variant })`) is not summarised yet, and `sx` passed to one of your
+  components is summarised inside it, on the element that receives it.
 - **One project per server.** The root is your workspace folder or
   `kirana.config.*`'s directory; editing `kirana.config.*` restarts the server.
 - **Uses are found by name.** Declarations, anchors and reads come from the
