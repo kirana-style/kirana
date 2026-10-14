@@ -10,7 +10,7 @@
     }
   },
   "dependencies": {
-    "@cloudflare/vite-plugin": "^1.63.1",
+    "@cloudflare/vite-plugin": "^1.64.0",
     "@kirana-style/vite": "workspace:*",
     "@tanstack/devtools-vite": "^0.8.5",
     "@tanstack/react-start": "catalog:",
