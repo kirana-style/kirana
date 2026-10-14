@@ -46,7 +46,7 @@
     "@workspace/vite-config": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "wrangler": "^4.149.0",
+    "wrangler": "^4.151.0",
     "vite-plus": "catalog:"
   }
 }
