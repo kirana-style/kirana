@@ -5,7 +5,6 @@
  */
 import { css } from "@kirana-style/core"
 import {
-  AiBrain02Icon,
   CodeIcon,
   CommandLineIcon,
   DashboardSpeed01Icon,
@@ -14,7 +13,6 @@ import {
   GlobalIcon,
   Layers01Icon,
   PackageIcon,
-  PaintBoardIcon,
   VisualStudioCodeIcon,
 } from "@hugeicons/core-free-icons"
 
@@ -188,7 +186,7 @@ export const PATHS: readonly Path[] = [
   {
     step: "Start small",
     title: "Just css()",
-    accent: "emerald",
+    accent: "forest",
     text: "No configuration, no tokens, no vocabulary to learn: real CSS property names in typed objects, next to the component.",
     snippet: "path-css",
     fit: "A small app, a landing page, a widget.",
@@ -199,7 +197,7 @@ export const PATHS: readonly Path[] = [
   {
     step: "Tailwind's system",
     title: "The preset, compiled",
-    accent: "sky",
+    accent: "forest",
     text: "@kirana-style/preset-scales brings Tailwind v4's scales as tokens and its names as utility strings — or migrate an app with kirana migrate tailwind.",
     snippet: "path-preset",
     fit: "A team that already thinks in Tailwind.",
@@ -210,7 +208,7 @@ export const PATHS: readonly Path[] = [
   {
     step: "Your rules",
     title: "A design system of your own",
-    accent: "violet",
+    accent: "forest",
     text: "Your tokens and recipes, as small or as opinionated as you want: a primitive palette with semantic tokens over it, or semantic tokens alone.",
     snippet: "path-system",
     fit: "A product with a brand, or a component library.",
@@ -379,12 +377,6 @@ const AGENT_POINTS: readonly { title: string; text: string }[] = [
   },
 ]
 
-const pathIcon: Record<string, IconProps["icon"]> = {
-  "Start small": CodeIcon,
-  "Tailwind's system": PaintBoardIcon,
-  "Your rules": Layers01Icon,
-}
-
 /** A path's scene: its snippet in a code window, highlighted at build time. */
 export function CodeArt({ path }: { path: Path }) {
   return (
@@ -463,8 +455,6 @@ export function AgentsArt() {
 export function Flexible() {
   return (
     <HomeSection
-      accent="emerald"
-      icon={Layers01Icon}
       eyebrow="Fits the project"
       title="As small or as structured as the project needs"
       lede="Start with one css() call. Grow into Tailwind's system, or into a design system with your own rules. Nothing about the first step has to be undone for the next."
@@ -473,10 +463,8 @@ export function Flexible() {
         {PATHS.map((path, index) => (
           <IllustratedCard
             key={path.title}
-            tone={path.accent}
             tall
             art={<CodeArt path={path} />}
-            icon={pathIcon[path.step]!}
             title={path.title}
             note={`0${index + 1}`}
             href={path.href}
@@ -490,9 +478,7 @@ export function Flexible() {
 
       <div sx={styles.columns}>
         <IllustratedCard
-          tone="emerald"
           art={<ChoicesArt />}
-          icon={DashboardSpeed01Icon}
           title="Your choices, not ours"
           text="How you write, how strict the build is, and where it runs are yours to decide."
         >
@@ -506,9 +492,7 @@ export function Flexible() {
           </div>
         </IllustratedCard>
         <IllustratedCard
-          tone="violet"
           art={<AgentsArt />}
-          icon={AiBrain02Icon}
           title="Written well by agents"
           text="What makes a style easy for a model to write, check and fix."
           links={[

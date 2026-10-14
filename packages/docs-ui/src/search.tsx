@@ -42,10 +42,10 @@ import { useDocs } from "./provider.tsx"
 
 /** The same kind colours as the sidebar's badges. */
 const KIND_ACCENTS: Record<string, AccentName> = {
-  api: "violet",
-  config: "amber",
-  cli: "emerald",
-  diagnostics: "pink",
+  api: "neutral",
+  config: "neutral",
+  cli: "neutral",
+  diagnostics: "neutral",
 }
 const KIND_LABELS: Record<string, string> = {
   api: "API",

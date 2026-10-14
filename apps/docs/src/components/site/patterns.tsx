@@ -5,14 +5,10 @@
  */
 import { css, props as styleProps } from "@kirana-style/core"
 
-import { tint } from "@workspace/docs-ui/accent.ts"
 import type { Sx } from "@workspace/ui/lib/sx"
 import { alpha, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
-
-/** One seed of four ovals per 18 px tile; used as a mask, so it takes any colour. */
-export const PETAL_TILE = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Cg fill='%23000'%3E%3Cellipse cx='12.2' cy='9' rx='3.2' ry='2' transform='rotate(45 9 9)'/%3E%3Cellipse cx='12.2' cy='9' rx='3.2' ry='2' transform='rotate(135 9 9)'/%3E%3Cellipse cx='12.2' cy='9' rx='3.2' ry='2' transform='rotate(225 9 9)'/%3E%3Cellipse cx='12.2' cy='9' rx='3.2' ry='2' transform='rotate(315 9 9)'/%3E%3C/g%3E%3C/svg%3E")`
 
 export const patterns = {
   /** Diagonal hatching in the text colour: set `color` to choose its strength. */
@@ -20,31 +16,6 @@ export const patterns = {
     color: alpha.foreground10,
     backgroundImage:
       "repeating-linear-gradient(-45deg, transparent 0 5px, currentColor 5px 6px)",
-  }),
-  dots: css({
-    position: "absolute",
-    inset: 0,
-    pointerEvents: "none",
-    backgroundImage: `radial-gradient(circle, ${tint(45)} 1.2px, transparent 1.4px)`,
-    backgroundSize: "14px 14px",
-    maskImage: "linear-gradient(to bottom, black 20%, transparent 95%)",
-  }),
-  petals: css({
-    position: "absolute",
-    inset: 0,
-    pointerEvents: "none",
-    backgroundColor: tint(40),
-    maskImage: `${PETAL_TILE}, linear-gradient(to bottom, black 20%, transparent 95%)`,
-    maskSize: "18px 18px, 100% 100%",
-    maskRepeat: "repeat, no-repeat",
-    maskComposite: "intersect",
-  }),
-  /** A soft glow in the accent, top left; place inside a `position: relative` box. */
-  glow: css({
-    position: "absolute",
-    inset: 0,
-    pointerEvents: "none",
-    backgroundImage: `radial-gradient(40% 60% at 0% 0%, ${tint(14)}, transparent 70%)`,
   }),
 }
 

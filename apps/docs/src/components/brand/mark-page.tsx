@@ -63,7 +63,7 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: { base: fontSize["4xl"], [breakpoint.md]: fontSize["6xl"] },
     lineHeight: 1.05,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.tight,
   }),
   lede: css({
@@ -342,11 +342,12 @@ export function MarkPage() {
             <Badge variant="secondary">Brand · the mark</Badge>
             <h1 sx={styles.title}>The petal K</h1>
             <p sx={styles.lede}>
-              A K of three petals — a stem, an arm and a leg — built from a grid
+              A K of three petals (a stem, an arm and a leg) built from a grid
               and Fibonacci circles so it can be redrawn with a compass and a
               rule, never traced. Every part is the same width and shows the
               same area, every curve meets the next edge tangent to it, and the
-              brand colours are Ocean: cyan, blue and indigo.
+              brand colours are Highland morning: the sun, the forest and the
+              far ridges of the master scene.
             </p>
             <div sx={styles.facts}>
               <Badge variant="outline">16 × 21.5u</Badge>
@@ -525,9 +526,10 @@ export function MarkPage() {
 
       <Section>
         <SectionHeader eyebrow="Colour" title="Brand, one colour and mono">
-          The brand version is Ocean: cyan, blue and indigo, each part with a
-          light end so it holds on any ground. The others take any colour: one
-          colour fills every part, mono gives each part its own share of it.
+          The brand version is Highland morning: a sun-gold stem, a forest-green
+          arm and a ridge-blue leg, each from a deep end to a light one. The
+          others take any colour: one colour fills every part, mono gives each
+          part its own share of it.
         </SectionHeader>
         <div sx={styles.surfaces}>
           {SURFACES.map((s) => (

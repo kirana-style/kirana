@@ -13,10 +13,8 @@ import {
   FileCodeIcon,
   FileScriptIcon,
   GridViewIcon,
-  PackageIcon,
   PaintBrush01Icon,
   PlugSocketIcon,
-  SparklesIcon,
 } from "@hugeicons/core-free-icons"
 
 import { accent } from "@workspace/docs-ui/accent.ts"
@@ -59,28 +57,28 @@ const GROUPS: {
   {
     title: "Authoring",
     icon: PaintBrush01Icon,
-    accent: "orange",
+    accent: "tea",
     packages: ["@kirana-style/core"],
     href: "/docs/reference/api",
   },
   {
     title: "Compiler and CLI",
     icon: CubeIcon,
-    accent: "blue",
+    accent: "tea",
     packages: ["@kirana-style/compiler"],
     href: "/docs/tooling/cli",
   },
   {
     title: "Preset",
     icon: GridViewIcon,
-    accent: "violet",
+    accent: "tea",
     packages: ["@kirana-style/preset-scales"],
     href: "/docs/tokens/preset-scales",
   },
   {
     title: "Bundler adapters",
     icon: PlugSocketIcon,
-    accent: "emerald",
+    accent: "tea",
     text: "A thin adapter per host: it hands modules to the engine and puts the stylesheet where the bundler expects it.",
     packages: [
       "@kirana-style/vite",
@@ -104,7 +102,7 @@ const GROUPS: {
   {
     title: "Lint",
     icon: CheckListIcon,
-    accent: "pink",
+    accent: "tea",
     text: "The compiler's checks in the linter your CI already runs: one plugin for Oxlint and ESLint that reads the compiler, and the rules Biome can run as GritQL plugins.",
     packages: ["@kirana-style/eslint-plugin", "@kirana-style/biome-plugin"],
     href: "/docs/tooling/lint",
@@ -351,8 +349,6 @@ const ART: Record<string, () => React.ReactNode> = {
 export function Ecosystem() {
   return (
     <HomeSection
-      accent="sky"
-      icon={PackageIcon}
       eyebrow="Packages"
       title="Small packages, one engine"
       lede="One native engine, a thin adapter per bundler. None of them is on npm yet; each is packed and install-tested on every change."
@@ -370,7 +366,6 @@ export function Ecosystem() {
               tone={group.accent}
               wide={!single}
               art={<ArtFor />}
-              icon={group.icon}
               title={group.title}
               note={single ? "1 package" : `${entries.length} packages`}
               href={group.href}
@@ -399,12 +394,7 @@ export function Ecosystem() {
 
 export function Features() {
   return (
-    <HomeSection
-      accent="amber"
-      icon={SparklesIcon}
-      eyebrow="Principles"
-      title="Three promises, and what they buy"
-    >
+    <HomeSection eyebrow="Principles" title="Three promises, and what they buy">
       <div sx={styles.pillars}>
         {PILLARS.map((pillar) => (
           <DocsLink key={pillar.title} href={pillar.href} sx={styles.pillar}>

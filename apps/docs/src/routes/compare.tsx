@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
 import {
   Cancel01Icon,
-  GitCompareIcon,
   LinkSquare02Icon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons"
@@ -105,10 +104,9 @@ const styles = {
   }),
   toolName: css({
     display: "block",
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.base,
     lineHeight: lineHeight.base,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   toolNote: css({
     display: "block",
@@ -316,11 +314,9 @@ function Details({ row }: { row: Row }) {
 
 function ComparePage() {
   return (
-    <Page accent="sky">
+    <Page scene="still-water">
       <PageHero
-        icon={GitCompareIcon}
-        pattern="waves"
-        eyebrow="Compare"
+        label="Compare"
         title={
           <>
             Next to the tools <Accent>you know.</Accent>

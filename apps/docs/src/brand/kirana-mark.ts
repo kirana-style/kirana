@@ -174,8 +174,10 @@ export const REFERENCE_STOPS: Record<Part, [number, string][]> = {
 }
 
 /**
- * The brand colours: "Ocean", one linear gradient per part, its vector in u. Cyan, blue and indigo,
- * each with a light end, so every part holds on paper, on ink and in a dark editor.
+ * The brand colours: "Highland morning", one linear gradient per part, its vector in u. The light,
+ * the land and the sky of the master scene: a sun-gold stem, a forest-green arm, a ridge-blue leg,
+ * each from its deep end to its light one. The same ramp as `SCENERY`'s first set, so the mark on
+ * the highlands and the mark on its own are one. (Ocean, cyan to indigo, is in `PALETTES`.)
  */
 export const GRADIENTS: Record<
   Part,
@@ -187,8 +189,8 @@ export const GRADIENTS: Record<
     x2: 4.812,
     y2: 0.824,
     stops: [
-      [0, "#06B6D4"],
-      [1, "#A5F3FC"],
+      [0, "#D9A01E"],
+      [1, "#F4CF70"],
     ],
   },
   arm: {
@@ -197,8 +199,8 @@ export const GRADIENTS: Record<
     x2: 9.739,
     y2: 11.229,
     stops: [
-      [0, "#3B82F6"],
-      [1, "#93C5FD"],
+      [0, "#5E8F3E"],
+      [1, "#AFCB86"],
     ],
   },
   leg: {
@@ -207,8 +209,8 @@ export const GRADIENTS: Record<
     x2: 8.177,
     y2: 23.621,
     stops: [
-      [0, "#6366F1"],
-      [1, "#A5B4FC"],
+      [0, "#2E7FB2"],
+      [1, "#8FC1DE"],
     ],
   },
 }
@@ -578,14 +580,29 @@ export const SOLIDS: readonly Palette[] = [
 
 /** One colour for all three petals: the mark as a single shape, split only by its seams. */
 export const ONE_COLOUR: readonly Palette[] = [
-  ["Ink", "ink", "#0a0a0a", "The default on light: the header and the docs."],
-  ["Paper", "paper", "#fafafa", "The default on dark."],
-  ["Blue", "blue", "#3B82F6", "The site's accent."],
-  ["Indigo", "indigo", "#6366F1", "The reference leg's hue, lifted."],
-  ["Amber", "amber", "#F59E0B", "The reference stem's warmth."],
-  ["Coral", "coral", "#F97362", "The reference arm's hue."],
-  ["Emerald", "emerald", "#10B981", "A green for contrast with the rest."],
-  ["Violet", "violet", "#8B5CF6", "Between the blue and the pink."],
+  ["Ink", "ink", "#1a1510", "The default on light: the header and the docs."],
+  ["Paper", "paper", "#fcfbf8", "The default on dark."],
+  ["Sun", "sun", "#f7b83d", "The gold light every landscape shares."],
+  [
+    "Forest",
+    "forest",
+    "#337344",
+    "The highlands' hue: the home page and Learn.",
+  ],
+  ["Lake", "lake", "#0f68a2", "Still water's hue: Compare."],
+  [
+    "Crater",
+    "crater",
+    "#00736a",
+    "The crater's hue: the compiler and Reference.",
+  ],
+  [
+    "Terracotta",
+    "terracotta",
+    "#b04613",
+    "The old street's hue: Migrate and Guides.",
+  ],
+  ["Dusk", "dusk", "#644fb1", "The city at dusk: the blog and the changelog."],
 ].map(([name, id, colour, note]) =>
   flat(name!, `one-${id}`, note!, [colour!, colour!, colour!])
 )

@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
 import {
-  CpuIcon,
   FileScriptIcon,
   Layers01Icon,
   SourceCodeIcon,
@@ -20,7 +19,7 @@ import {
 
 import { DocsLink } from "@/components/docs-link"
 import { FRAMEWORKS } from "@/components/home/content"
-import { GlowBand } from "@/components/site/accents"
+import { NextStep } from "@/components/site/accents"
 import { LogoIcon, PAGE_LOGOS } from "@/components/site/brands"
 import { Card, CardGrid, Figures, Steps } from "@/components/site/cards"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
@@ -123,10 +122,9 @@ const styles = {
 
 function CompilerPage() {
   return (
-    <Page accent="blue">
+    <Page scene="crater-lake">
       <PageHero
-        icon={CpuIcon}
-        eyebrow="The compiler"
+        label="The compiler"
         title={
           <>
             Styles in, <Accent>one stylesheet</Accent> out.
@@ -157,6 +155,8 @@ function CompilerPage() {
       />
 
       <PageSection
+        number="01"
+        label="Pipeline"
         title="Six steps, all at build time"
         lede="Between the file you write and the stylesheet the browser loads."
       >
@@ -170,6 +170,8 @@ function CompilerPage() {
       </PageSection>
 
       <PageSection
+        number="02"
+        label="Output"
         title="What reaches the browser"
         lede="The only runtime code is a private helper under 1 kB, included only in modules that merge styles at runtime or bridge a value. It merges class strings; it never generates CSS."
       >
@@ -190,6 +192,8 @@ function CompilerPage() {
       </PageSection>
 
       <PageSection
+        number="03"
+        label="Scale"
         title="Proportional to your styling"
         lede="Measured on the shadcn/ui port's demo applications."
       >
@@ -221,6 +225,8 @@ function CompilerPage() {
       </PageSection>
 
       <PageSection
+        number="04"
+        label="Frameworks"
         title="With the framework you already use"
         lede="Every guide is installed from the packed packages and built on every change."
       >
@@ -241,6 +247,8 @@ function CompilerPage() {
       </PageSection>
 
       <PageSection
+        number="05"
+        label="Limits"
         title="What it deliberately does not do"
         lede="Three lines the compiler does not cross, so the result stays something you can predict."
       >
@@ -261,7 +269,7 @@ function CompilerPage() {
       </PageSection>
 
       <PageSection flush>
-        <GlowBand
+        <NextStep
           title="See a component compile"
           actions={
             <Button
@@ -274,7 +282,7 @@ function CompilerPage() {
           The playground shows examples the compiler in this repository compiled
           when the site was built: the source, the CSS and the classes, nothing
           written by hand.
-        </GlowBand>
+        </NextStep>
       </PageSection>
     </Page>
   )

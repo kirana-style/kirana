@@ -2,12 +2,13 @@ import { useState } from "react"
 import { css } from "@kirana-style/core"
 import { Cancel01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 
-import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@workspace/ui/components/toggle-group"
+import { SUN, accent, accents } from "@workspace/docs-ui/accent.ts"
+import type { AccentName } from "@workspace/docs-ui/accent.ts"
 import { Icon } from "@workspace/ui/primitives/icon"
 import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
@@ -18,6 +19,8 @@ import {
   fontWeight,
   letterSpacing,
   lineHeight,
+  textLeading,
+  textSize,
 } from "@workspace/ui/tokens/typography"
 
 import { GRADIENTS, PAINT_ORDER, PARTS } from "@/brand/kirana-mark"
@@ -29,13 +32,12 @@ import { LogoSvg } from "@/brand/logo-svg"
 import { DocsLink } from "@/components/docs-link"
 import { CopyButton, DownloadButton } from "@/components/brand/asset-buttons"
 import { Explorations } from "@/components/brand/explorations"
+import { SCENES, sceneImage } from "@/brand/scenes"
+import { sectionStyles } from "@/components/page-section"
+import { chapter } from "@/components/site/chapter"
+import { Accent, PageHero, PageSection } from "@/components/site/page"
 import { PixelField } from "@/components/site/pixel-field"
 import { Wordmark } from "@/components/site/wordmark"
-import {
-  Section,
-  SectionHeader,
-  sectionStyles,
-} from "@/components/page-section"
 
 /** Fixed surfaces for previews: a logo is shown on the surface it is made for. */
 const SURFACE = {
@@ -44,42 +46,56 @@ const SURFACE = {
 }
 
 const styles = {
-  hero: css({ overflow: "hidden" }),
-  heroGrid: css({
+  // The idea
+  ideas: css({
     display: "grid",
-    gap: spacing[12],
-    alignItems: "center",
+    gap: "1px",
+    backgroundColor: theme.border,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: theme.border,
+    borderRadius: radius.xl,
+    overflow: "hidden",
     gridTemplateColumns: {
       base: "minmax(0, 1fr)",
-      [breakpoint.lg]: "minmax(0, 1fr) minmax(0, 1fr)",
+      [breakpoint.md]: "repeat(3, minmax(0, 1fr))",
     },
   }),
-  heroCopy: css({ display: "grid", gap: spacing[6], justifyItems: "start" }),
-  title: css({
-    fontFamily: fontFamily.heading,
-    fontSize: { base: fontSize["5xl"], [breakpoint.md]: fontSize["6xl"] },
-    lineHeight: { base: lineHeight["5xl"], [breakpoint.md]: lineHeight["6xl"] },
-    fontWeight: fontWeight.bold,
-    letterSpacing: letterSpacing.tighter,
+  idea: css({
+    display: "grid",
+    gap: spacing[2],
+    alignContent: "start",
+    padding: spacing[6],
+    backgroundColor: theme.card,
   }),
-  lede: css({
-    maxWidth: "34rem",
-    fontSize: { base: fontSize.lg, [breakpoint.md]: fontSize.xl },
-    lineHeight: "1.6",
-    color: theme.mutedForeground,
-    textWrap: "pretty",
+  ideaNumber: css({
+    fontFamily: fontFamily.mono,
+    fontSize: textSize.label,
+    color: accent.base,
   }),
-  // The K in pixels: the canvas fills it, the mark 84 % of its height.
-  heroMark: css({
+  ideaTitle: css({
+    fontSize: textSize.subheading,
+    lineHeight: textLeading.subheading,
+    fontWeight: fontWeight.semibold,
+  }),
+
+  // The mark
+  markGrid: css({
+    display: "grid",
+    gap: spacing[4],
+    gridTemplateColumns: {
+      base: "minmax(0, 1fr)",
+      [breakpoint.xl]: "minmax(0, 3fr) minmax(0, 1fr)",
+    },
+  }),
+  markPixels: css({
     position: "relative",
-    aspectRatio: "1",
-    width: "100%",
-    maxWidth: "32rem",
-    justifySelf: "center",
-    // A soft Ocean glow behind the pixels, as the other heroes have in their accent.
-    backgroundImage:
-      "radial-gradient(closest-side, color-mix(in oklab, #3B82F6 14%, transparent), transparent)",
+    minHeight: "16rem",
+    borderRadius: radius.xl,
+    backgroundColor: theme.card,
+    overflow: "hidden",
   }),
+  spanTwo: css({ gridColumn: { [breakpoint.md]: "span 2" } }),
 
   // Meaning
   three: css({
@@ -99,10 +115,9 @@ const styles = {
     padding: spacing[6],
   }),
   cardTitle: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.lg,
     lineHeight: lineHeight.lg,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   cardText: css({
     fontSize: fontSize.sm,
@@ -115,8 +130,6 @@ const styles = {
     color: theme.foreground,
   }),
   glyphPart: css({ opacity: 0.16 }),
-
-  more: css({ display: "flex", marginBlockStart: spacing[6] }),
 
   // Downloads
   asset: css({
@@ -284,8 +297,8 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: { base: fontSize["4xl"], [breakpoint.md]: fontSize["6xl"] },
     lineHeight: { base: lineHeight["4xl"], [breakpoint.md]: lineHeight["6xl"] },
-    fontWeight: fontWeight.bold,
-    letterSpacing: letterSpacing.tighter,
+    fontWeight: fontWeight.normal,
+    letterSpacing: letterSpacing.tight,
   }),
   bodyType: css({
     maxWidth: "40rem",
@@ -298,21 +311,76 @@ const styles = {
     lineHeight: "1.6",
   }),
 
-  // Pattern
-  patterns: css({
+  // Hues and scenes
+  sunChip: css({ backgroundColor: SUN.sun }),
+  hues: css({
+    display: "grid",
+    gap: "1px",
+    backgroundColor: theme.border,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: theme.border,
+    borderRadius: radius.xl,
+    overflow: "hidden",
+    gridTemplateColumns: {
+      base: "repeat(2, minmax(0, 1fr))",
+      [breakpoint.md]: "repeat(4, minmax(0, 1fr))",
+      [breakpoint.xl]: "repeat(7, minmax(0, 1fr))",
+    },
+  }),
+  hue: css({
+    display: "grid",
+    gap: spacing[2],
+    alignContent: "start",
+    padding: spacing[4],
+    backgroundColor: theme.card,
+  }),
+  hueChip: css({
+    height: spacing[12],
+    borderRadius: radius.md,
+    backgroundColor: accent.base,
+  }),
+  hueName: css({
+    fontFamily: fontFamily.mono,
+    fontSize: fontSize.sm,
+    color: accent.base,
+  }),
+  scenes: css({
     display: "grid",
     gap: spacing[4],
     gridTemplateColumns: {
       base: "minmax(0, 1fr)",
-      [breakpoint.md]: "repeat(2, minmax(0, 1fr))",
+      [breakpoint.sm]: "repeat(2, minmax(0, 1fr))",
+      [breakpoint.lg]: "repeat(3, minmax(0, 1fr))",
     },
   }),
-  pattern: css({
-    position: "relative",
+  scene: css({
+    margin: 0,
     overflow: "hidden",
-    minHeight: spacing[64],
     borderRadius: radius.xl,
     backgroundColor: theme.card,
+  }),
+  sceneImage: css({
+    width: "100%",
+    aspectRatio: "16 / 9",
+    objectFit: "cover",
+  }),
+  sceneCaption: css({
+    display: "grid",
+    gap: spacing["1.5"],
+    padding: spacing[4],
+  }),
+  sceneName: css({
+    display: "flex",
+    alignItems: "center",
+    gap: spacing[2],
+    fontSize: textSize.subheading,
+    fontWeight: fontWeight.semibold,
+  }),
+  huePixel: css({
+    width: "0.5rem",
+    height: "0.5rem",
+    backgroundColor: accent.base,
   }),
 
   // Usage
@@ -552,7 +620,7 @@ function Glyph({ part }: { part: Part }) {
   )
 }
 
-/** The three Ocean gradients, as swatches. */
+/** The mark's three gradients, Highland morning, as swatches. */
 const GRADIENT_SWATCHES = (["stem", "arm", "leg"] as const).map((part) => ({
   part,
   label: `${part[0]!.toUpperCase()}${part.slice(1)}`,
@@ -601,88 +669,151 @@ const DONTS = [
   },
 ]
 
+/** What makes a page Kirana's: the three things every page repeats. */
+const IDEAS = [
+  {
+    title: "The landscape in pixels",
+    text: "The page's picture, sampled cell by cell on the same 8 × 8 Bayer matrix as the pixel K, dissolving into the paper. A band of sun crosses it and the cells near the pointer light up; it holds still for reduced motion.",
+  },
+  {
+    title: "Numbered chapters",
+    text: "Every section opens with its number in the page's hue, its name in small mono capitals and a hairline, so a reader keeps their place.",
+  },
+  {
+    title: "One italic word",
+    text: "A headline in Newsreader at its regular weight, with one word in italic in the page's hue.",
+  },
+]
+
+/** The scene hues, each with what it is in the pictures. */
+const HUES: { name: Exclude<AccentName, "neutral">; from: string }[] = [
+  { name: "forest", from: "Forest on the ridges" },
+  { name: "tea", from: "Tea rows and morning grass" },
+  { name: "crater", from: "The pale water of a crater" },
+  { name: "lake", from: "A lake under a clear sky" },
+  { name: "terracotta", from: "Clay roof tiles" },
+  { name: "ochre", from: "Lime-washed walls at evening" },
+  { name: "dusk", from: "A city sky after sunset" },
+]
+
+const WRITING = [
+  { term: "Meaning", text: "A ray of light. Pronounced kee-RAH-nah." },
+  {
+    term: "In prose",
+    text: "Kirana: never KIRANA, kirana or Kirana CSS. The lower case of the wordmark belongs to the drawing, not the name.",
+  },
+  { term: "In code", text: "Lower case: @kirana-style/core, kirana build." },
+  {
+    term: "Product parts",
+    text: "The Kirana compiler, the Kirana language server: descriptive, lower case after the name.",
+  },
+  {
+    term: "Voice",
+    text: "Plain words, the evidence next to the claim, numbers only with their source, costs said out loud. No em dashes, and no place is ever named.",
+  },
+]
+
+/** The link at the end of a chapter's label row. */
+const chapterAside = chapter.aside
+
 export function BrandPage() {
   return (
     <>
-      <Section sx={styles.hero}>
-        <div sx={styles.heroGrid}>
-          <div sx={styles.heroCopy}>
-            <Badge variant="secondary">Brand guide</Badge>
-            <h1 sx={styles.title}>Light through every line</h1>
-            <p sx={styles.lede}>
-              The logo is the petal K: three petals — a stem, an arm and a leg —
-              drawn from a grid and Fibonacci circles, each the same width and
-              showing the same weight, in Ocean's cyan, blue and indigo. Kirana
-              means a ray of light. The typefaces are still open.
-            </p>
+      <PageHero
+        label="Brand"
+        title={
+          <>
+            Light through <Accent>every line</Accent>
+          </>
+        }
+        lede="Kirana means a ray of light. The mark is three petals of the same width; the colours come from ten painted landscapes of one highland region at golden hour, and every page of this site stands in one of them."
+        actions={
+          <>
             <Button
               size="lg"
               nativeButton={false}
-              render={<a href="#surfaces">See it on every surface</a>}
+              render={
+                <DocsLink href="/brand/mark">The mark in detail</DocsLink>
+              }
             />
-          </div>
-          <div
-            sx={styles.heroMark}
-            role="img"
-            aria-label="The petal K in pixels, a ray of light passing through it"
-          >
-            <PixelField pattern="mark" cell={7} density={0.62} opacity={1} />
-          </div>
-        </div>
-      </Section>
+            <Button
+              size="lg"
+              variant="outline"
+              nativeButton={false}
+              render={<a href="#files">Download the files</a>}
+            />
+          </>
+        }
+      />
 
-      <Section id="surfaces">
-        <SectionHeader
-          eyebrow="On every surface"
-          title="One colour, any ground"
-        >
-          The mark large, at 16 to 48 px, on twelve surfaces and as an app icon.
-          In one colour it takes whatever the surface needs — solid, gradient or
-          photograph.
-        </SectionHeader>
-        <Explorations />
-      </Section>
-
-      <Section tinted>
-        <SectionHeader eyebrow="Meaning" title="Three petals, one K">
-          Each part is a petal of the same width, 5u, so none outweighs the
-          others. Together they read as a K and as light opening outward —
-          Kirana means a ray of light.
-        </SectionHeader>
-        <div sx={styles.three}>
-          {MEANING.map((item) => (
-            <div key={item.title} sx={[sectionStyles.bordered, styles.card]}>
-              <Glyph part={item.part} />
-              <span sx={styles.cardTitle}>{item.title}</span>
-              <span sx={styles.cardText}>{item.text}</span>
+      <PageSection
+        number="01"
+        label="The idea"
+        title="One light, ten places"
+        lede="Every landscape is the same golden-hour light on a different place. Each page takes its colour from its place, and the light runs through all of them. Three things repeat on every page and make it Kirana's."
+      >
+        <div sx={styles.ideas}>
+          {IDEAS.map((idea, index) => (
+            <div key={idea.title} sx={styles.idea}>
+              <span sx={styles.ideaNumber}>
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span sx={styles.ideaTitle}>{idea.title}</span>
+              <span sx={styles.cardText}>{idea.text}</span>
             </div>
           ))}
         </div>
-        <div sx={styles.more}>
-          <Button
-            variant="outline"
-            nativeButton={false}
-            render={
-              <DocsLink href="/brand/mark">
-                The grid, every circle and the formula
-              </DocsLink>
-            }
-          />
-        </div>
-      </Section>
+      </PageSection>
 
-      <Section id="logos">
-        <SectionHeader eyebrow="Assets" title="Logos">
-          The mark in its brand gradients, or in one colour: ink on light
-          surfaces, paper on dark ones. A drawn wordmark will join it once the
-          typeface is chosen; until then the name is set beside the mark.
-        </SectionHeader>
+      <PageSection
+        number="02"
+        label="The mark"
+        title="Three petals, one K"
+        lede="Each part is a petal of the same width, 5u, so none outweighs the others. Together they read as a K and as light opening outward."
+        aside={
+          <DocsLink href="/brand/mark" sx={chapterAside}>
+            Every circle and the formula
+          </DocsLink>
+        }
+      >
+        <div sx={styles.markGrid}>
+          <div sx={styles.three}>
+            {MEANING.map((item) => (
+              <div key={item.title} sx={[sectionStyles.bordered, styles.card]}>
+                <Glyph part={item.part} />
+                <span sx={styles.cardTitle}>{item.title}</span>
+                <span sx={styles.cardText}>{item.text}</span>
+              </div>
+            ))}
+          </div>
+          <div
+            sx={[sectionStyles.bordered, styles.markPixels]}
+            role="img"
+            aria-label="The petal K in pixels, a ray of light passing through it"
+          >
+            <PixelField cell={6} density={0.62} opacity={1} />
+          </div>
+        </div>
+      </PageSection>
+
+      <PageSection
+        id="surfaces"
+        number="03"
+        label="On every surface"
+        title="One colour, any ground"
+        lede="The mark large, at 16 to 48 px, on twelve surfaces and as an app icon. In one colour it takes whatever the surface needs: solid, gradient or photograph."
+      >
+        <Explorations />
+      </PageSection>
+
+      <PageSection
+        id="files"
+        number="04"
+        label="Files"
+        title="Logos, icons and favicons"
+        lede="The mark in its brand colours, or in one colour: ink on light surfaces, paper on dark ones. Keep one part's width (5u, about a quarter of the mark's height) clear on every side; below 16 px, use the app icon."
+      >
         <LogoAsset />
-        <SectionHeader eyebrow="Assets" title="App icons and favicons">
-          The mark on a rounded square, for avatars, app icons and the editor
-          extensions. Browser tabs show the mark alone: its gradients read on
-          light and dark tabs alike.
-        </SectionHeader>
         <IconAssets />
         <div sx={styles.tabs}>
           <BrowserTab mode="light" />
@@ -715,24 +846,13 @@ export function BrandPage() {
             label="icon-512.png"
           />
         </div>
-      </Section>
-
-      <Section tinted>
-        <SectionHeader eyebrow="Space and size" title="Give it room">
-          Keep one part's width (5u, about a quarter of the mark's height) clear
-          on every side. The mark holds its shape down to 16 px; below that, use
-          the app icon.
-        </SectionHeader>
         <div sx={styles.three}>
           <div sx={[sectionStyles.bordered, styles.space]}>
             <div sx={styles.spaceBox}>
               <KiranaMark sx={styles.spaceMark} title={null} />
             </div>
           </div>
-          <div
-            sx={[sectionStyles.bordered, styles.sizes]}
-            style={{ gridColumn: "span 2" }}
-          >
+          <div sx={[sectionStyles.bordered, styles.sizes, styles.spanTwo]}>
             {[16, 24, 32, 48].map((size) => (
               <div key={size} sx={styles.sizeItem}>
                 <KiranaMark title={null} height={size} />
@@ -744,39 +864,19 @@ export function BrandPage() {
                 <KiranaMark variant="solid" title={null} height={21} />
                 <Wordmark />
               </span>
-              <span sx={styles.mono}>beside the name · 21 px</span>
+              <span sx={styles.mono}>beside the name, 21 px</span>
             </div>
           </div>
         </div>
-      </Section>
+      </PageSection>
 
-      <Section>
-        <SectionHeader eyebrow="Colour" title="Ocean, and neutrals">
-          The brand gradients are Ocean: cyan, blue and indigo, each with a
-          light end so every part holds on paper, on ink and in a dark editor.
-          They mark what should stand out — the favicon, app icons, the editor
-          extensions. The header and the docs draw the mark in one colour, and
-          the site itself runs on neutrals.
-        </SectionHeader>
+      <PageSection
+        number="05"
+        label="Colour"
+        title="Paper, ink, and a hue for every place"
+        lede="The site has no primary colour: it is paper and ink, and each page takes one hue from the landscape it stands in. The sun, the gold all ten share, is the one constant accent, and it is only ever a fill."
+      >
         <div sx={styles.swatches}>
-          {GRADIENT_SWATCHES.map((swatch) => (
-            <div key={swatch.part} sx={[sectionStyles.bordered, styles.swatch]}>
-              <div
-                sx={styles.chip}
-                style={{
-                  backgroundImage: `linear-gradient(135deg, ${swatch.stops
-                    .map(([offset, colour]) => `${colour} ${offset * 100}%`)
-                    .join(", ")})`,
-                }}
-              />
-              <div sx={styles.swatchBody}>
-                <span sx={styles.assetName}>{swatch.label}</span>
-                <span sx={styles.mono}>
-                  {swatch.stops.map(([, colour]) => colour).join(" → ")}
-                </span>
-              </div>
-            </div>
-          ))}
           {Object.values(COLOURS).map((colour) => (
             <div
               key={colour.label}
@@ -790,68 +890,138 @@ export function BrandPage() {
               </div>
             </div>
           ))}
+          <div sx={[sectionStyles.bordered, styles.swatch]}>
+            <div sx={[styles.chip, styles.sunChip]} />
+            <div sx={styles.swatchBody}>
+              <span sx={styles.assetName}>Sun</span>
+              <span sx={styles.mono}>A fill, never text</span>
+            </div>
+          </div>
+          {GRADIENT_SWATCHES.map((swatch) => (
+            <div key={swatch.part} sx={[sectionStyles.bordered, styles.swatch]}>
+              <div
+                sx={styles.chip}
+                style={{
+                  backgroundImage: `linear-gradient(135deg, ${swatch.stops
+                    .map(([offset, colour]) => `${colour} ${offset * 100}%`)
+                    .join(", ")})`,
+                }}
+              />
+              <div sx={styles.swatchBody}>
+                <span sx={styles.assetName}>
+                  Mark, {swatch.label.toLowerCase()}
+                </span>
+                <span sx={styles.mono}>
+                  {swatch.stops.map(([, colour]) => colour).join(" to ")}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
-      </Section>
+        <div sx={styles.hues}>
+          {HUES.map((hue) => (
+            <div key={hue.name} sx={[accents[hue.name], styles.hue]}>
+              <span sx={styles.hueChip} />
+              <span sx={styles.hueName}>{hue.name}</span>
+              <span sx={styles.cardText}>{hue.from}</span>
+            </div>
+          ))}
+        </div>
+      </PageSection>
 
-      <Section tinted>
-        <SectionHeader eyebrow="Type" title="Not decided">
-          The faces the site uses today, still to be settled: Cormorant Garamond
-          for headings and the wordmark, Inter for text, JetBrains Mono for code
-          and figures.
-        </SectionHeader>
+      <PageSection
+        number="06"
+        label="Type"
+        title="Three faces, one job each"
+        lede="A serif for what is said large, a sans for everything read, a mono for code and anything measured. The serif is only for 1.5rem and up, at its regular weight; one word of a headline may be italic."
+      >
         <div sx={styles.specimens}>
           <div sx={[sectionStyles.bordered, styles.specimen]}>
             <div sx={styles.specimenHead}>
-              <span sx={styles.assetName}>Cormorant Garamond · headings</span>
-              <span sx={styles.mono}>SIL Open Font License</span>
+              <span sx={styles.assetName}>
+                Newsreader, display and headings
+              </span>
+              <span sx={styles.mono}>
+                Production Type, SIL Open Font License
+              </span>
             </div>
-            <span sx={styles.displayType}>Styling, compiled.</span>
-          </div>
-          <div sx={[sectionStyles.bordered, styles.specimen]}>
-            <div sx={styles.specimenHead}>
-              <span sx={styles.assetName}>Inter · text</span>
-              <span sx={styles.mono}>SIL Open Font License</span>
-            </div>
-            <p sx={styles.bodyType}>
-              Write typed styles next to your components. Kirana compiles them
-              into small, predictable CSS and stays out of your runtime.
-            </p>
+            <span sx={styles.displayType}>
+              Styles in, <em>one stylesheet</em> out.
+            </span>
+            <span sx={styles.cardText}>
+              An editorial serif with optical sizes: fine at 84 px, readable at
+              24, with a true italic for the one accented word and the wordmark.
+            </span>
           </div>
           <div sx={[sectionStyles.bordered, styles.specimen]}>
             <div sx={styles.specimenHead}>
               <span sx={styles.assetName}>
-                JetBrains Mono · code and figures
+                Plus Jakarta Sans, text and interface
               </span>
-              <span sx={styles.mono}>SIL Open Font License</span>
+              <span sx={styles.mono}>Tokotype, SIL Open Font License</span>
+            </div>
+            <p sx={styles.bodyType}>
+              Write typed styles next to your components. Kirana compiles them
+              into one small, predictable stylesheet and stays out of your
+              runtime.
+            </p>
+            <span sx={styles.cardText}>
+              Drawn by an Indonesian foundry; its tall x-height reads well at 14
+              to 16 px.
+            </span>
+          </div>
+          <div sx={[sectionStyles.bordered, styles.specimen]}>
+            <div sx={styles.specimenHead}>
+              <span sx={styles.assetName}>
+                JetBrains Mono, code, labels and figures
+              </span>
+              <span sx={styles.mono}>JetBrains, SIL Open Font License</span>
             </div>
             <code sx={styles.codeType}>
               {"css({ paddingInline: space[4] })"}
             </code>
+            <span sx={styles.cardText}>
+              Clear 0 and O, 1 and l; the face the editor scenes show code in.
+            </span>
           </div>
         </div>
-      </Section>
+      </PageSection>
 
-      <Section>
-        <SectionHeader eyebrow="Pattern" title="Light in pixels">
-          Square pixels, dithered on an 8 × 8 matrix and moving slowly. Every
-          page's hero has a field in its accent — clouds, waves, rings or rain;
-          the brand's own is the K, each pixel in its petal's Ocean colour, with
-          a ray of light passing through and the pixels near the pointer
-          lighting up. It pauses off screen and holds still for reduced motion.
-          It is a texture, never a logo.
-        </SectionHeader>
-        <div sx={styles.patterns}>
-          <div sx={[sectionStyles.bordered, styles.pattern]}>
-            <PixelField pattern="clouds" density={0.6} opacity={0.7} />
-          </div>
-          <div sx={[sectionStyles.bordered, styles.pattern]}>
-            <PixelField pattern="mark" cell={5} density={0.62} opacity={1} />
-          </div>
+      <PageSection
+        number="07"
+        label="Scenery"
+        title="Every page stands somewhere"
+        lede="Ten painted landscapes, all at golden hour. A page takes its hue, its hero and its footer from one of them. No copy names a place: a scene is described by what is in the picture."
+      >
+        <div sx={styles.scenes}>
+          {Object.values(SCENES).map((scene) => (
+            <figure
+              key={scene.id}
+              sx={[accents[scene.hue], sectionStyles.bordered, styles.scene]}
+            >
+              <img
+                src={sceneImage(scene.id, 800)}
+                alt={scene.alt}
+                loading="lazy"
+                decoding="async"
+                style={{ objectPosition: scene.position }}
+                sx={styles.sceneImage}
+              />
+              <figcaption sx={styles.sceneCaption}>
+                <span sx={styles.sceneName}>
+                  <span sx={styles.huePixel} aria-hidden="true" />
+                  {scene.name}
+                  <span sx={styles.mono}>{scene.hue}</span>
+                </span>
+                <span sx={styles.cardText}>{scene.uses}.</span>
+                <span sx={styles.cardText}>{scene.reason}</span>
+              </figcaption>
+            </figure>
+          ))}
         </div>
-      </Section>
+      </PageSection>
 
-      <Section tinted>
-        <SectionHeader eyebrow="Usage" title="Do and don't" />
+      <PageSection number="08" label="Usage" title="Do and don't">
         <div sx={styles.usage}>
           {DOS.map((item) => (
             <div key={item.text} sx={[sectionStyles.bordered, styles.example]}>
@@ -887,38 +1057,18 @@ export function BrandPage() {
             </div>
           ))}
         </div>
-      </Section>
+      </PageSection>
 
-      <Section>
-        <SectionHeader eyebrow="Name" title="Writing Kirana" />
+      <PageSection number="09" label="Name and voice" title="Writing Kirana">
         <div sx={styles.nameRows}>
-          <div sx={styles.nameRow}>
-            <span sx={styles.assetName}>Meaning</span>
-            <span>A ray of light. Pronounced kee-RAH-nah.</span>
-          </div>
-          <div sx={styles.nameRow}>
-            <span sx={styles.assetName}>In prose</span>
-            <span>
-              “Kirana” — never “KIRANA”, “kirana” or “Kirana CSS”. The capitals
-              of the wordmark belong to the drawing, not the name.
-            </span>
-          </div>
-          <div sx={styles.nameRow}>
-            <span sx={styles.assetName}>In code</span>
-            <span>
-              Lowercase: <code sx={styles.mono}>@kirana-style/core</code>,{" "}
-              <code sx={styles.mono}>kirana build</code>.
-            </span>
-          </div>
-          <div sx={styles.nameRow}>
-            <span sx={styles.assetName}>Product parts</span>
-            <span>
-              “Kirana compiler”, “Kirana language server” — descriptive,
-              lowercase after the name.
-            </span>
-          </div>
+          {WRITING.map((row) => (
+            <div key={row.term} sx={styles.nameRow}>
+              <span sx={styles.assetName}>{row.term}</span>
+              <span>{row.text}</span>
+            </div>
+          ))}
         </div>
-      </Section>
+      </PageSection>
     </>
   )
 }

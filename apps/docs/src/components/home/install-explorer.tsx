@@ -5,7 +5,6 @@
  */
 import { useEffect, useState } from "react"
 import { css } from "@kirana-style/core"
-import { PackageIcon } from "@hugeicons/core-free-icons"
 import type { MarkdownDocument } from "@tanstack/markdown"
 
 import { accent, tint } from "@workspace/docs-ui/accent.ts"
@@ -230,8 +229,6 @@ export function InstallExplorer() {
 
   return (
     <HomeSection
-      accent="blue"
-      icon={PackageIcon}
       eyebrow="Frameworks"
       title="Works with your stack"
       lede={`${FRAMEWORKS.length} install guides, each built from the packages and checked on every change. Pick one — the steps below are read from its guide.`}

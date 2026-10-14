@@ -1,32 +1,31 @@
 /**
- * The frame every marketing page shares: the site header and footer, a hero in
- * the rail over a backdrop in the page's accent, and ruled sections below.
+ * The frame every marketing page shares: the site header and footer, a hero with the page's scene
+ * dissolving into the paper beside it, and numbered chapters below. A page names its scene once
+ * (`apps/docs/src/brand/scenes.ts`); its hue, its hero picture and its footer follow from it.
  */
 import { css } from "@kirana-style/core"
 
-import { accent, accents, tint } from "@workspace/docs-ui/accent.ts"
-import type { AccentName } from "@workspace/docs-ui/accent.ts"
+import { accent, accents } from "@workspace/docs-ui/accent.ts"
 import type { Sx } from "@workspace/ui/lib/sx"
-import type { IconProps } from "@workspace/ui/primitives/icon"
 import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
   fontFamily,
-  fontSize,
   fontWeight,
-  letterSpacing,
-  lineHeight,
+  textLeading,
+  textSize,
+  textTracking,
 } from "@workspace/ui/tokens/typography"
 
+import { SCENES } from "@/brand/scenes"
+import type { SceneId } from "@/brand/scenes"
 import { SiteFooter, SiteHeader } from "@/components/site-chrome"
 
-import { Eyebrow } from "./accents"
-import { PETAL_TILE, Rail, patterns } from "./patterns"
-import { PixelField } from "./pixel-field"
-import type { PixelPattern } from "./pixel-field"
-
-export type Backdrop = "pixels" | "dots" | "petals" | "lines" | "none"
+import { Chapter, chapter } from "./chapter"
+import { Rail } from "./patterns"
+import { SceneProvider, useScene } from "./scene-context"
+import { ScenePixels } from "./scene-pixels"
 
 const styles = {
   hero: css({
@@ -36,57 +35,64 @@ const styles = {
     borderBlockEndStyle: "solid",
     borderBlockEndColor: theme.border,
   }),
-  field: css({
-    maskImage:
-      "radial-gradient(ellipse 60% 90% at 100% 0%, black 5%, transparent 70%)",
+  heroRail: css({
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr)",
   }),
-  corner: css({
-    maskImage:
-      "radial-gradient(ellipse 55% 90% at 100% 0%, black 10%, transparent 70%)",
-  }),
-  // The petal tile, faded out from the top right; both mask layers are kept,
-  // since a mask of one layer would be tiled at the petal's size.
-  petalCorner: css({
-    maskImage: `${PETAL_TILE}, radial-gradient(ellipse 55% 90% at 100% 0%, black 10%, transparent 70%)`,
-  }),
-  // Thin accent lines fanning from the top right: the "about" backdrop.
-  lines: css({
-    position: "absolute",
-    inset: 0,
-    pointerEvents: "none",
-    backgroundImage: `repeating-linear-gradient(115deg, transparent 0 22px, ${tint(22)} 22px 23px)`,
-    maskImage:
-      "radial-gradient(ellipse 60% 100% at 100% 0%, black 0%, transparent 70%)",
-  }),
-  glow: css({
-    position: "absolute",
-    inset: 0,
-    pointerEvents: "none",
-    backgroundImage: `radial-gradient(50% 80% at 0% 0%, ${tint(12)}, transparent 70%)`,
+  // Beside the words from `lg` up, dissolving left into them; a band under them on a phone.
+  scene: css({
+    position: { base: "relative", [breakpoint.lg]: "absolute" },
+    order: { base: 2, [breakpoint.lg]: 0 },
+    insetBlock: { [breakpoint.lg]: 0 },
+    insetInlineEnd: { [breakpoint.lg]: 0 },
+    insetInlineStart: { [breakpoint.lg]: "auto" },
+    width: { base: "100%", [breakpoint.lg]: "54%" },
+    height: {
+      base: "12rem",
+      [breakpoint.sm]: "15rem",
+      [breakpoint.lg]: "auto",
+    },
   }),
   inner: css({
     position: "relative",
     display: "grid",
     gap: spacing[6],
     justifyItems: "start",
+    // Clear of the scene's dissolving edge, so no pixel lands among the words.
+    maxWidth: { [breakpoint.lg]: "37rem" },
     paddingInline: { base: spacing[5], [breakpoint.md]: spacing[10] },
     paddingBlockStart: { base: spacing[14], [breakpoint.md]: spacing[24] },
-    paddingBlockEnd: { base: spacing[12], [breakpoint.md]: spacing[20] },
+    paddingBlockEnd: { base: spacing[8], [breakpoint.lg]: spacing[24] },
+  }),
+  label: css({
+    display: "inline-flex",
+    alignItems: "center",
+    gap: spacing["2.5"],
+    fontFamily: fontFamily.mono,
+    fontSize: textSize.label,
+    lineHeight: textLeading.label,
+    letterSpacing: textTracking.label,
+    textTransform: "uppercase",
+    color: theme.foreground,
+  }),
+  // One pixel of the page's hue: the scene's colour, in the motif's unit.
+  pixel: css({
+    width: "0.5rem",
+    height: "0.5rem",
+    backgroundColor: accent.base,
   }),
   title: css({
-    maxWidth: "52rem",
     fontFamily: fontFamily.heading,
-    fontSize: { base: fontSize["4xl"], [breakpoint.md]: fontSize["6xl"] },
-    lineHeight: { base: lineHeight["4xl"], [breakpoint.md]: lineHeight["6xl"] },
-    fontWeight: fontWeight.bold,
-    letterSpacing: letterSpacing.tighter,
+    fontSize: textSize.display2,
+    lineHeight: textLeading.display2,
+    letterSpacing: textTracking.display2,
+    fontWeight: fontWeight.normal,
     textWrap: "balance",
   }),
-  accentWord: css({ color: accent.base }),
+  accentWord: css({ fontStyle: "italic", color: accent.base }),
   lede: css({
-    maxWidth: "40rem",
-    fontSize: { base: fontSize.lg, [breakpoint.md]: fontSize.xl },
-    lineHeight: "1.6",
+    fontSize: textSize.lede,
+    lineHeight: textLeading.lede,
     color: theme.mutedForeground,
     textWrap: "pretty",
   }),
@@ -103,9 +109,9 @@ const styles = {
     // One column that may shrink below its content, so a wide child (a tab
     // list, a code block) scrolls inside itself instead of widening the page.
     gridTemplateColumns: "minmax(0, 1fr)",
-    gap: { base: spacing[8], [breakpoint.md]: spacing[10] },
+    gap: { base: spacing[8], [breakpoint.md]: spacing[12] },
     paddingInline: { base: spacing[5], [breakpoint.md]: spacing[10] },
-    paddingBlock: { base: spacing[12], [breakpoint.md]: spacing[16] },
+    paddingBlock: { base: spacing[14], [breakpoint.md]: spacing[20] },
   }),
   // A band that fills the rail edge to edge: the same conditions as above, so
   // it replaces every entry.
@@ -113,75 +119,55 @@ const styles = {
     paddingInline: { base: 0, [breakpoint.md]: 0 },
     paddingBlock: { base: 0, [breakpoint.md]: 0 },
   }),
-  head: css({ display: "grid", gap: spacing[3], maxWidth: "44rem" }),
-  sectionTitle: css({
-    fontFamily: fontFamily.heading,
-    fontSize: { base: fontSize["2xl"], [breakpoint.md]: fontSize["3xl"] },
-    lineHeight: { base: lineHeight["2xl"], [breakpoint.md]: lineHeight["3xl"] },
-    fontWeight: fontWeight.bold,
-    letterSpacing: letterSpacing.tight,
-    textWrap: "balance",
-  }),
-  sectionLede: css({
-    fontSize: fontSize.base,
-    lineHeight: "1.7",
-    color: theme.mutedForeground,
-    textWrap: "pretty",
-  }),
+  head: css({ display: "grid", gap: spacing[4] }),
 }
 
-/** Header, the page in its accent, footer. */
+/** Header, the page in its scene's hue, footer. */
 export function Page({
-  accent: name,
+  scene,
   children,
 }: {
-  accent: AccentName
+  scene: SceneId
   children: React.ReactNode
 }) {
   return (
-    <>
+    <SceneProvider value={scene}>
       <SiteHeader />
-      <main sx={accents[name]}>{children}</main>
+      <main sx={accents[SCENES[scene].hue]}>{children}</main>
       <SiteFooter />
-    </>
+    </SceneProvider>
   )
 }
 
 export function PageHero({
-  icon,
-  eyebrow,
+  label,
   title,
   lede,
   actions,
-  backdrop = "pixels",
-  pattern = "clouds",
   children,
 }: {
-  /** The pixel field's shape, when the backdrop is `pixels`. */
-  pattern?: PixelPattern
-  icon: IconProps["icon"]
-  eyebrow: string
+  /** The page's name, above its headline. */
+  label: string
   title: React.ReactNode
   lede?: React.ReactNode
   actions?: React.ReactNode
-  backdrop?: Backdrop
   children?: React.ReactNode
 }) {
+  const scene = useScene()
   return (
     <header sx={styles.hero}>
-      <Rail>
-        <div sx={styles.glow} aria-hidden="true" />
-        {backdrop === "pixels" ? (
-          <PixelField sx={styles.field} opacity={0.55} pattern={pattern} />
-        ) : backdrop === "dots" ? (
-          <span sx={[patterns.dots, styles.corner]} aria-hidden="true" />
-        ) : backdrop === "petals" ? (
-          <span sx={[patterns.petals, styles.petalCorner]} aria-hidden="true" />
-        ) : backdrop === "lines" ? (
-          <span sx={styles.lines} aria-hidden="true" />
-        ) : null}
+      <Rail sx={styles.heroRail}>
+        <ScenePixels
+          scene={scene}
+          dissolve="hero"
+          fade={0.72}
+          sx={styles.scene}
+        />
         <div sx={styles.inner}>
-          <Eyebrow icon={icon}>{eyebrow}</Eyebrow>
+          <p sx={styles.label}>
+            <span sx={styles.pixel} aria-hidden="true" />
+            {label}
+          </p>
           <h1 sx={styles.title}>{title}</h1>
           {lede ? <p sx={styles.lede}>{lede}</p> : null}
           {actions ? <div sx={styles.actions}>{actions}</div> : null}
@@ -192,22 +178,31 @@ export function PageHero({
   )
 }
 
-/** A word of a title in the page's accent. */
+/** The one word of a page's headline set in italic, in the page's hue. */
 export function Accent({ children }: { children: React.ReactNode }) {
-  return <span sx={styles.accentWord}>{children}</span>
+  return <em sx={styles.accentWord}>{children}</em>
 }
 
 export function PageSection({
   id,
+  number,
+  label,
   title,
   lede,
+  aside,
   flush,
   sx,
   children,
 }: {
   id?: string
+  /** The chapter's number on its page: "01". */
+  number?: string
+  /** The chapter's name, in two or three words. */
+  label?: React.ReactNode
   title?: React.ReactNode
   lede?: React.ReactNode
+  /** A link at the end of the label row. */
+  aside?: React.ReactNode
   /** No padding: for a band that should meet the rail's lines. */
   flush?: boolean
   sx?: Sx
@@ -216,10 +211,18 @@ export function PageSection({
   return (
     <section id={id} sx={styles.section}>
       <Rail sx={[styles.sectionInner, flush ? styles.flush : null, sx]}>
-        {title || lede ? (
+        {label && title ? (
+          <Chapter
+            number={number}
+            label={label}
+            title={title}
+            lede={lede}
+            aside={aside}
+          />
+        ) : title || lede ? (
           <div sx={styles.head}>
-            {title ? <h2 sx={styles.sectionTitle}>{title}</h2> : null}
-            {lede ? <p sx={styles.sectionLede}>{lede}</p> : null}
+            {title ? <h2 sx={chapter.title}>{title}</h2> : null}
+            {lede ? <p sx={chapter.lede}>{lede}</p> : null}
           </div>
         ) : null}
         {children}

@@ -1,21 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router"
 
 import { Home as HomePage } from "@/components/home/home"
-import { SiteFooter, SiteHeader } from "@/components/site-chrome"
+import { Page } from "@/components/site/page"
 
 export const Route = createFileRoute("/")({
   component: Home,
   head: () => ({
-    meta: [{ title: "Kirana — Write objects. Read classes. Ship CSS." }],
+    meta: [{ title: "Kirana: write objects, read classes, ship CSS" }],
   }),
 })
 
 function Home() {
   return (
-    <>
-      <SiteHeader />
+    <Page scene="highlands">
       <HomePage />
-      <SiteFooter />
-    </>
+    </Page>
   )
 }

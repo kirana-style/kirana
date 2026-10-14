@@ -13,7 +13,7 @@ import { theme } from "@workspace/ui/theme/semantic"
 import { fontSize } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
-import { GlowBand } from "@/components/site/accents"
+import { NextStep } from "@/components/site/accents"
 import { Card, CardGrid, Steps } from "@/components/site/cards"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
 import { GOALS } from "@/components/sponsors/data"
@@ -72,11 +72,9 @@ const styles = {
 
 function OpenSourcePage() {
   return (
-    <Page accent="neutral">
+    <Page scene="old-hall">
       <PageHero
-        icon={GitBranchIcon}
-        backdrop="pixels"
-        eyebrow="Open source"
+        label="Open source"
         title={
           <>
             Built in the open, <Accent>kept free.</Accent>
@@ -104,7 +102,7 @@ function OpenSourcePage() {
         }
       />
 
-      <PageSection title="Four principles">
+      <PageSection number="01" label="Principles" title="Four principles">
         <CardGrid cols={4}>
           {PRINCIPLES.map((principle) => (
             <Card
@@ -119,6 +117,8 @@ function OpenSourcePage() {
       </PageSection>
 
       <PageSection
+        number="02"
+        label="Funding"
         title="Where the money goes"
         lede="In this order: running costs first, then what a 1.0 needs, then maintainer time."
       >
@@ -131,6 +131,8 @@ function OpenSourcePage() {
       </PageSection>
 
       <PageSection
+        number="03"
+        label="Contributing"
         title="Taking part"
         lede="Money is one way. Reports, documentation and code count as much."
       >
@@ -157,6 +159,8 @@ function OpenSourcePage() {
       </PageSection>
 
       <PageSection
+        number="04"
+        label="The name"
         title="One name we would like to ask about"
         lede="Kirana's packages would read best as @kirana-style/core and @kirana-style/vite."
       >
@@ -174,7 +178,7 @@ function OpenSourcePage() {
       </PageSection>
 
       <PageSection flush>
-        <GlowBand
+        <NextStep
           title="Keep Kirana independent"
           actions={
             <Button
@@ -186,7 +190,7 @@ function OpenSourcePage() {
         >
           Sponsorship pays for CI, a security review, dedicated benchmark
           hardware and maintainer time.
-        </GlowBand>
+        </NextStep>
       </PageSection>
     </Page>
   )

@@ -159,7 +159,7 @@ export function SponsorVacancy({
 export function RailSponsor() {
   const sponsors = gold()
   return (
-    <aside sx={[accents.pink, styles.rail]} aria-label="Sponsors">
+    <aside sx={[accents.ochre, styles.rail]} aria-label="Sponsors">
       <span sx={styles.label}>Sponsors</span>
       {sponsors.length > 0 ? (
         sponsors.map((sponsor) => (
@@ -185,7 +185,7 @@ export function RailSponsor() {
 /** Pinned at the foot of the docs sidebar. */
 export function SidebarSponsor() {
   return (
-    <DocsLink href="/sponsors" sx={[accents.pink, styles.foot]}>
+    <DocsLink href="/sponsors" sx={[accents.ochre, styles.foot]}>
       <span sx={styles.footIcon}>
         <Icon icon={FavouriteIcon} size="1rem" />
       </span>

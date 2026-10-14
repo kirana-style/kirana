@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { css, props as styleProps } from "@kirana-style/core"
-import { News01Icon, Search01Icon } from "@hugeicons/core-free-icons"
+import { Search01Icon } from "@hugeicons/core-free-icons"
 
 import type { BlogMeta } from "@workspace/docs-core/types.ts"
 import { accent, tint } from "@workspace/docs-ui/accent.ts"
@@ -138,7 +138,7 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: { base: fontSize["2xl"], [breakpoint.md]: fontSize["4xl"] },
     lineHeight: { base: lineHeight["2xl"], [breakpoint.md]: lineHeight["4xl"] },
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.tight,
     textWrap: "balance",
   }),
@@ -183,10 +183,9 @@ const styles = {
     padding: spacing[6],
   }),
   title: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.xl,
     lineHeight: lineHeight.xl,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
     textWrap: "balance",
   }),
   summary: css({
@@ -261,11 +260,9 @@ function BlogIndex() {
   const filtered = tag !== null || needle !== ""
 
   return (
-    <Page accent="amber">
+    <Page scene="city-dusk">
       <PageHero
-        icon={News01Icon}
-        pattern="rain"
-        eyebrow="Blog"
+        label="Blog"
         title="Notes from building Kirana"
         lede="The design, the measurements with their method, and what we got wrong on the way."
       />

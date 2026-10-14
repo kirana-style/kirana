@@ -51,10 +51,12 @@ section.
 
 - **Kirana throughout.** Components take `sx`; Base UI parts and `motion` elements get
   `{...styleProps(…)}`, since installed components do not read `sx`.
-- **Accents are one variable token.** `accent.base` is assigned on a subtree (`sx={accents.blue}`); the
+- **Accents are one variable token.** `accent.base` is assigned on a subtree (`sx={accents.forest}`); the
   frame takes the active tab's accent, and every shade is mixed where it is used (`tint(percent)`), because
-  a variable token's default is resolved on `:root` and cannot be pre-mixed per subtree. Each palette entry
-  is a `light-dark()` pair.
+  a variable token's default is resolved on `:root` and cannot be pre-mixed per subtree. The palette is the
+  site's seven scene hues (forest, tea, crater, lake, terracotta, ochre, dusk), each a `light-dark()` pair
+  checked against WCAG AA by `apps/docs/scripts/check-contrast.ts`; `SUN` is the gold fill the site uses
+  for light, never for text. Which tab and page wears each hue: `apps/docs/src/brand/scenes.ts`.
 - **Brand logos** come from simple-icons (CC0) and are drawn in the product's colour, unless that colour
   would vanish in one scheme (luminance below 0.08 or above 0.75), in which case they take the text colour.
   One rule, both schemes.

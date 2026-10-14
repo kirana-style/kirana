@@ -7,16 +7,17 @@
  */
 
 /**
- * The typefaces, by name: the four variable fonts `globals.css` loads and the
- * system stacks. Each stack ends in a generic family, so glyphs a web font lacks
- * (emoji) still render. Components never use these directly: they use
- * `fontFamily`, which says what a face is for, so swapping a face is one line.
+ * The typefaces, by name: the three variable fonts `globals.css` loads and the system stacks.
+ * Each stack ends in a generic family, so glyphs a web font lacks (emoji) still render.
+ * Components never use these directly: they use `fontFamily`, which says what a face is for, so
+ * swapping a face is one line. Why these three: the brand page (`/brand`, Type).
  */
 export const typeface = {
-  inter: '"Inter Variable", sans-serif',
-  plusJakartaSans: '"Plus Jakarta Sans Variable", "Inter Variable", sans-serif',
-  cormorantGaramond: '"Cormorant Garamond Variable", ui-serif, Georgia, serif',
-  crimsonPro: '"Crimson Pro Variable", serif',
+  /** Newsreader, Production Type: an editorial serif with optical sizes and a true italic. */
+  newsreader: '"Newsreader Variable", ui-serif, Georgia, serif',
+  /** Plus Jakarta Sans, Tokotype: the text and interface face. */
+  plusJakartaSans:
+    '"Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif',
   jetbrainsMono:
     "\"JetBrains Mono Variable\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   systemSerif: 'ui-serif, Georgia, Cambria, "Times New Roman", serif',
@@ -26,19 +27,20 @@ export const typeface = {
 
 /**
  * What each face is for. Each role reads a named custom property and falls back to its typeface,
- * so nothing sets them in normal use and the page renders the fallback. The docs' font lab
- * (`?fonts`) sets them on the root element to try other faces without a rebuild.
+ * so nothing sets them in normal use and the page renders the fallback. The docs' font lab sets
+ * them on the root element to try other faces without a rebuild.
+ *
+ * The serif is for display only: headings from 1.5rem up and the wordmark. Card titles, table
+ * headers, labels and figures are set in the sans, where a small serif reads cramped.
  */
 export const fontFamily = {
   /** Body text and interface labels. */
-  sans: `var(--font-sans, ${typeface.inter})`,
-  /** Titles and headings. */
-  heading: `var(--font-heading, ${typeface.crimsonPro})`,
-  /** A sans for display lines the heading serif sets badly, such as code-like words. */
-  display: `var(--font-display, ${typeface.plusJakartaSans})`,
+  sans: `var(--font-sans, ${typeface.plusJakartaSans})`,
+  /** Display lines and headings from 1.5rem up. */
+  heading: `var(--font-heading, ${typeface.newsreader})`,
   /** Serif accents: the wordmark, quotations. */
-  serif: `var(--font-serif, ${typeface.crimsonPro})`,
-  /** Code, commands and class names. */
+  serif: `var(--font-serif, ${typeface.newsreader})`,
+  /** Code, commands, class names and chapter labels. */
   mono: `var(--font-mono, ${typeface.jetbrainsMono})`,
   /** Measured figures: stats, prices, timings. Mono, so digits line up. */
   numeric: `var(--font-numeric, ${typeface.jetbrainsMono})`,
@@ -117,4 +119,67 @@ export const leading = {
   normal: "1.5",
   relaxed: "1.625",
   loose: "2",
+} as const
+
+/**
+ * The site's type roles. Each role is a size, the line height it is set with and its tracking,
+ * looked up by the same key in all three maps: `textSize.title` with `textLeading.title` and
+ * `textTracking.title`. Pages use these instead of one-off sizes, so a role changes in one place.
+ *
+ * Display roles are fluid between a phone and a wide screen. The serif roles (display1, display2,
+ * title, heading) are tracked in a little, as Newsreader's display optical size is set loose.
+ */
+export const textSize = {
+  /** The homepage headline. */
+  display1: "clamp(2.75rem, 1.55rem + 4.8vw, 5.25rem)",
+  /** A page's headline. */
+  display2: "clamp(2.375rem, 1.6rem + 3.1vw, 4rem)",
+  /** A section's title. */
+  title: "clamp(1.875rem, 1.45rem + 1.7vw, 2.75rem)",
+  /** A docs H2, a closing line. */
+  heading: "1.75rem",
+  /** A card title, a docs H3 (sans). */
+  subheading: "1.0625rem",
+  /** The paragraph under a headline. */
+  lede: "clamp(1.0625rem, 1rem + 0.3vw, 1.25rem)",
+  /** Interface text. */
+  body: "1rem",
+  /** Long-form reading text in the docs. */
+  prose: "1rem",
+  small: "0.875rem",
+  caption: "0.8125rem",
+  /** Chapter labels and table headers (mono, uppercase). */
+  label: "0.6875rem",
+  /** Labels inside figures and drawn windows. */
+  micro: "0.625rem",
+} as const
+
+export const textLeading = {
+  display1: "1",
+  display2: "1.04",
+  title: "1.08",
+  heading: "1.2",
+  subheading: "1.4",
+  lede: "1.6",
+  body: "1.5",
+  prose: "1.75",
+  small: "1.6",
+  caption: "1.55",
+  label: "1.45",
+  micro: "1.4",
+} as const
+
+export const textTracking = {
+  display1: "-0.024em",
+  display2: "-0.02em",
+  title: "-0.015em",
+  heading: "-0.01em",
+  subheading: "-0.005em",
+  lede: "0em",
+  body: "0em",
+  prose: "0em",
+  small: "0em",
+  caption: "0em",
+  label: "0.04em",
+  micro: "0.02em",
 } as const

@@ -1,7 +1,7 @@
 /**
- * The name, set in type while the logo is not settled: both words in the serif
- * italic, "kirana" bold and "style" light and muted, as the domain reads. The drawn mark stays in
- * `src/brand` and on the brand page.
+ * The name, set in type: both words in Newsreader's true italic, "kirana" semibold and "style"
+ * light and muted, as the domain reads. It stands beside the drawn mark in the header and the
+ * footer; the brand page shows the lockup.
  */
 import { css } from "@kirana-style/core"
 
@@ -22,7 +22,7 @@ const styles = {
   name: css({
     fontFamily: fontFamily.serif,
     fontStyle: "italic",
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
     letterSpacing: "-0.01em",
   }),
   style: css({

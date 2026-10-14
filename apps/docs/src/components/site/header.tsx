@@ -1,5 +1,5 @@
 /**
- * The site header: logo, mega-menu, theme toggle and "Get started".
+ * The site header: logo, the three menus, the sponsor heart, the theme toggle and "Quick start".
  *
  * The menu is packages/ui's NavigationMenu (Base UI), which already morphs its
  * popup between panels of different sizes and slides content in from the side
@@ -10,11 +10,11 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react"
 import { css, props as styleProps } from "@kirana-style/core"
 import { Link } from "@tanstack/react-router"
-import { Menu01Icon } from "@hugeicons/core-free-icons"
+import { FavouriteIcon, Menu01Icon } from "@hugeicons/core-free-icons"
 import { motion, useReducedMotion } from "motion/react"
 
 import { ThemeToggle } from "@workspace/shell/theme-toggle"
-import { accents, tint } from "@workspace/docs-ui/accent.ts"
+import { PALETTE, accents, tint } from "@workspace/docs-ui/accent.ts"
 import { Button } from "@workspace/ui/components/button"
 import {
   NavigationMenu,
@@ -33,7 +33,7 @@ import {
 } from "@workspace/ui/components/sheet"
 import { Icon } from "@workspace/ui/primitives/icon"
 import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
-import { breakpoint } from "@workspace/ui/tokens/breakpoints"
+import { breakpoint, pointer } from "@workspace/ui/tokens/breakpoints"
 import { duration, easing } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
@@ -44,11 +44,12 @@ import {
 
 import { DocsLink } from "@/components/docs-link"
 
-import { MenuArt } from "./menu-art"
 import { KiranaMark } from "@/brand/kirana-mark-svg"
+import { SCENES, sceneImage } from "@/brand/scenes"
 
+import { MenuArt } from "./menu-art"
 import { Wordmark } from "./wordmark"
-import { MENUS } from "./nav"
+import { MENUS, SPONSOR } from "./nav"
 import type { Featured, Menu, NavLinkItem } from "./nav"
 import { LIFT, REST } from "@/components/site/lift"
 import { IconTile } from "./icon-tile"
@@ -83,6 +84,8 @@ const styles = {
     paddingInline: { base: spacing[4], [breakpoint.md]: spacing[6] },
   }),
   brand: css({
+    // A finger-sized target on a touch screen.
+    minHeight: { [pointer.coarse]: "2.75rem" },
     display: "flex",
     alignItems: "center",
     gap: spacing[2],
@@ -115,19 +118,6 @@ const styles = {
       "[data-popup-open]": theme.foreground,
     },
   }),
-  plainLink: css({
-    position: "relative",
-    display: "inline-flex",
-    height: spacing[9],
-    alignItems: "center",
-    borderRadius: radius.full,
-    paddingInline: spacing["3.5"],
-    fontSize: fontSize.sm,
-    lineHeight: lineHeight.sm,
-    fontWeight: fontWeight.medium,
-    textDecorationLine: "none",
-    color: { base: theme.mutedForeground, ":hover": theme.foreground },
-  }),
 
   actions: css({
     marginInlineStart: "auto",
@@ -137,9 +127,17 @@ const styles = {
   }),
   getStarted: css({
     display: { base: "none", [breakpoint.sm]: "inline-flex" },
+    minHeight: { [pointer.coarse]: "2.75rem" },
+  }),
+  // The heart warms to the sponsor page's hue on hover.
+  sponsor: css({
+    display: { base: "none", [breakpoint.lg]: "inline-flex" },
+    color: { base: theme.mutedForeground, ":hover": PALETTE.ochre },
   }),
   mobileTrigger: css({
     display: { base: "inline-flex", [breakpoint.lg]: "none" },
+    minWidth: { [pointer.coarse]: "2.75rem" },
+    minHeight: { [pointer.coarse]: "2.75rem" },
   }),
 
   // Panels
@@ -195,30 +193,25 @@ const styles = {
     borderBlockEndColor: theme.border,
     backgroundColor: theme.background,
   }),
-  artGrid: css({
+  // The destination's landscape, softened so the illustration on it reads.
+  artPhoto: css({
     position: "absolute",
     inset: 0,
     zIndex: -1,
-    backgroundImage: `linear-gradient(to right, ${alpha.foreground5} 1px, transparent 1px), linear-gradient(to bottom, ${alpha.foreground5} 1px, transparent 1px)`,
-    backgroundSize: "20px 20px",
-    maskImage:
-      "radial-gradient(ellipse 60% 60% at 50% 50%, black 30%, transparent 100%)",
-  }),
-  artGlow: css({
-    position: "absolute",
-    insetBlockStart: "50%",
-    insetInlineStart: "50%",
-    width: "12rem",
-    height: "12rem",
-    translate: "-50% -50%",
-    zIndex: -1,
-    borderRadius: radius.full,
-    backgroundImage: `radial-gradient(circle, ${tint(100)}, transparent 68%)`,
-    filter: "blur(36px)",
-    opacity: { base: 0.14, ":is([data-featured]:hover *)": 0.26 },
-    transitionProperty: "opacity",
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    filter: "saturate(0.9)",
+    scale: { base: "1.02", ":is([data-featured]:hover *)": "1.06" },
+    transitionProperty: "scale",
     transitionDuration: duration[300],
     transitionTimingFunction: easing.inOut,
+  }),
+  artVeil: css({
+    position: "absolute",
+    inset: 0,
+    zIndex: -1,
+    backgroundImage: `linear-gradient(to bottom, color-mix(in oklab, ${theme.background} 10%, transparent), color-mix(in oklab, ${theme.background} 38%, transparent))`,
   }),
   artScene: css({
     translate: { base: "0 0", ":is([data-featured]:hover *)": "0 -3px" },
@@ -290,10 +283,15 @@ const styles = {
   mobileGroup: css({ display: "grid", gap: spacing[1] }),
 }
 
+/** A destination's glyph, in the hue of the scene it stands in. */
+function Glyph({ link }: { link: NavLinkItem }) {
+  return <IconTile icon={link.icon} sx={accents[SCENES[link.scene].hue]} />
+}
+
 function Row({ link }: { link: NavLinkItem }) {
   return (
     <NavigationMenuLink render={<DocsLink href={link.href} />} sx={styles.row}>
-      <IconTile icon={link.icon} tone="muted" />
+      <Glyph link={link} />
       <span sx={styles.rowText}>
         <span sx={styles.rowTitle}>{link.title}</span>
         <span sx={styles.rowDescription}>{link.description}</span>
@@ -306,12 +304,19 @@ function FeaturedCard({ item }: { item: Featured }) {
   return (
     <NavigationMenuLink
       render={<DocsLink href={item.href} />}
-      sx={[accents[item.accent], styles.featured]}
+      sx={[accents[SCENES[item.scene].hue], styles.featured]}
       data-featured=""
     >
       <span sx={styles.art} aria-hidden="true">
-        <span sx={styles.artGrid} />
-        <span sx={styles.artGlow} />
+        <img
+          src={sceneImage(item.scene, 800)}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          style={{ objectPosition: SCENES[item.scene].position }}
+          sx={styles.artPhoto}
+        />
+        <span sx={styles.artVeil} />
         <span sx={styles.artScene}>
           <MenuArt kind={item.art} />
         </span>
@@ -419,15 +424,6 @@ function DesktopNav() {
               </NavigationMenuContent>
             </NavigationMenuItem>
           ))}
-          <NavigationMenuItem>
-            <NavigationMenuLink
-              render={<DocsLink href="/sponsors" />}
-              data-pill="Sponsor"
-              sx={styles.plainLink}
-            >
-              Sponsor
-            </NavigationMenuLink>
-          </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
     </div>
@@ -465,7 +461,7 @@ function MobileNav() {
                     href={link.href}
                     sx={styles.row}
                   >
-                    <IconTile icon={link.icon} tone="muted" />
+                    <Glyph link={link} />
                     <span sx={styles.rowText}>
                       <span sx={styles.rowTitle}>{link.title}</span>
                       <span sx={styles.rowDescription}>{link.description}</span>
@@ -475,6 +471,15 @@ function MobileNav() {
               )}
             </div>
           ))}
+          <div sx={styles.mobileGroup}>
+            <DocsLink href={SPONSOR.href} sx={styles.row}>
+              <Glyph link={SPONSOR} />
+              <span sx={styles.rowText}>
+                <span sx={styles.rowTitle}>{SPONSOR.title}</span>
+                <span sx={styles.rowDescription}>{SPONSOR.description}</span>
+              </span>
+            </DocsLink>
+          </div>
         </nav>
       </SheetContent>
     </Sheet>
@@ -492,13 +497,24 @@ export function SiteHeader() {
         </Link>
         <DesktopNav />
         <div sx={styles.actions}>
+          <Button
+            variant="ghost"
+            size="icon"
+            nativeButton={false}
+            aria-label="Sponsor Kirana"
+            title="Sponsor Kirana"
+            sx={styles.sponsor}
+            render={<DocsLink href={SPONSOR.href} />}
+          >
+            <Icon icon={FavouriteIcon} />
+          </Button>
           <ThemeToggle />
           <Button
             size="sm"
             nativeButton={false}
             sx={styles.getStarted}
             render={
-              <DocsLink href="/docs/start/quick-start">Get started</DocsLink>
+              <DocsLink href="/docs/start/quick-start">Quick start</DocsLink>
             }
           />
           <MobileNav />

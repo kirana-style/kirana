@@ -1,10 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
-import {
-  Cancel01Icon,
-  JusticeScale01Icon,
-  Tick02Icon,
-} from "@hugeicons/core-free-icons"
+import { Cancel01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 
 import { accent } from "@workspace/docs-ui/accent.ts"
 import { Icon } from "@workspace/ui/primitives/icon"
@@ -115,10 +111,9 @@ const styles = {
     padding: spacing[6],
   }),
   columnTitle: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.lg,
     lineHeight: lineHeight.lg,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   item: css({
     display: "flex",
@@ -200,11 +195,9 @@ function List({
 
 function LicensePage() {
   return (
-    <Page accent="emerald">
+    <Page scene="old-hall">
       <PageHero
-        icon={JusticeScale01Icon}
-        pattern="rings"
-        eyebrow="License"
+        label="License"
         title={
           <>
             MIT, <Accent>all of it.</Accent>
@@ -213,7 +206,7 @@ function LicensePage() {
         lede="The compiler, every package and this documentation are released under the MIT License. Sponsorship pays for maintenance; it never buys features away from anyone."
       />
 
-      <PageSection title="In short">
+      <PageSection number="01" label="The terms" title="In short">
         <div sx={styles.columns}>
           <div sx={styles.column}>
             <span sx={styles.columnTitle}>You can</span>
@@ -230,7 +223,7 @@ function LicensePage() {
         </div>
       </PageSection>
 
-      <PageSection title="The licence">
+      <PageSection number="02" label="Full text" title="The licence">
         <div sx={styles.text}>
           {MIT.split("\n\n").map((paragraph) => (
             <p key={paragraph.slice(0, 24)}>{paragraph.replace(/\n/g, " ")}</p>
@@ -239,6 +232,8 @@ function LicensePage() {
       </PageSection>
 
       <PageSection
+        number="03"
+        label="Credits"
         title="What Kirana builds on"
         lede="Dependencies whose licences carry an obligation, from the project's licensing specification. The Rust dependencies' licences are also checked against an allow list by cargo-deny."
       >

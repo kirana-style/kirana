@@ -18,35 +18,41 @@
 
 import { defineTokens } from "@kirana-style/core"
 
+/**
+ * Paper and ink: warm neutrals (hue 70 to 85, chroma at most 0.014) instead of shadcn's pure greys,
+ * so the landscapes' cream walls and gold light sit in the page rather than on clinical white.
+ * The colours are shown on the brand page (`/brand`, Colour); `bun
+ * scripts/check-contrast.ts` in apps/docs fails when a text pair drops below WCAG AA.
+ */
 export const theme = defineTokens(
   "theme",
   {
-    background: `light-dark(oklch(1 0 0), oklch(0.145 0 0))`,
-    foreground: `light-dark(oklch(0.145 0 0), oklch(0.985 0 0))`,
+    background: `light-dark(oklch(0.988 0.004 85), oklch(0.165 0.008 70))`,
+    foreground: `light-dark(oklch(0.2 0.012 70), oklch(0.965 0.006 85))`,
 
-    card: `light-dark(oklch(1 0 0), oklch(0.205 0 0))`,
-    cardForeground: `light-dark(oklch(0.145 0 0), oklch(0.985 0 0))`,
+    card: `light-dark(oklch(0.997 0.002 85), oklch(0.2 0.009 70))`,
+    cardForeground: `light-dark(oklch(0.2 0.012 70), oklch(0.965 0.006 85))`,
 
-    popover: `light-dark(oklch(1 0 0), oklch(0.205 0 0))`,
-    popoverForeground: `light-dark(oklch(0.145 0 0), oklch(0.985 0 0))`,
+    popover: `light-dark(oklch(0.997 0.002 85), oklch(0.2 0.009 70))`,
+    popoverForeground: `light-dark(oklch(0.2 0.012 70), oklch(0.965 0.006 85))`,
 
-    primary: `light-dark(oklch(0.205 0 0), oklch(0.922 0 0))`,
-    primaryForeground: `light-dark(oklch(0.985 0 0), oklch(0.205 0 0))`,
+    primary: `light-dark(oklch(0.2 0.012 70), oklch(0.955 0.006 85))`,
+    primaryForeground: `light-dark(oklch(0.988 0.004 85), oklch(0.2 0.012 70))`,
 
-    secondary: `light-dark(oklch(0.97 0 0), oklch(0.269 0 0))`,
-    secondaryForeground: `light-dark(oklch(0.205 0 0), oklch(0.985 0 0))`,
+    secondary: `light-dark(oklch(0.962 0.007 85), oklch(0.25 0.01 70))`,
+    secondaryForeground: `light-dark(oklch(0.2 0.012 70), oklch(0.965 0.006 85))`,
 
-    muted: `light-dark(oklch(0.97 0 0), oklch(0.269 0 0))`,
-    mutedForeground: `light-dark(oklch(0.556 0 0), oklch(0.708 0 0))`,
+    muted: `light-dark(oklch(0.962 0.007 85), oklch(0.25 0.01 70))`,
+    mutedForeground: `light-dark(oklch(0.5 0.014 70), oklch(0.72 0.012 80))`,
 
-    accent: `light-dark(oklch(0.97 0 0), oklch(0.269 0 0))`,
-    accentForeground: `light-dark(oklch(0.205 0 0), oklch(0.985 0 0))`,
+    accent: `light-dark(oklch(0.962 0.007 85), oklch(0.25 0.01 70))`,
+    accentForeground: `light-dark(oklch(0.2 0.012 70), oklch(0.965 0.006 85))`,
 
     destructive: `light-dark(oklch(0.577 0.245 27.325), oklch(0.704 0.191 22.216))`,
 
-    border: `light-dark(oklch(0.922 0 0), oklch(1 0 0 / 10%))`,
-    input: `light-dark(oklch(0.922 0 0), oklch(1 0 0 / 15%))`,
-    ring: `light-dark(oklch(0.708 0 0), oklch(0.556 0 0))`,
+    border: `light-dark(oklch(0.912 0.01 80), oklch(0.97 0.01 85 / 10%))`,
+    input: `light-dark(oklch(0.9 0.01 80), oklch(0.97 0.01 85 / 15%))`,
+    ring: `light-dark(oklch(0.68 0.012 75), oklch(0.56 0.01 75))`,
 
     chart1: "oklch(0.87 0 0)",
     chart2: "oklch(0.556 0 0)",
@@ -54,14 +60,14 @@ export const theme = defineTokens(
     chart4: "oklch(0.371 0 0)",
     chart5: "oklch(0.269 0 0)",
 
-    sidebar: `light-dark(oklch(0.985 0 0), oklch(0.205 0 0))`,
-    sidebarForeground: `light-dark(oklch(0.145 0 0), oklch(0.985 0 0))`,
-    sidebarPrimary: `light-dark(oklch(0.205 0 0), oklch(0.488 0.243 264.376))`,
-    sidebarPrimaryForeground: "oklch(0.985 0 0)",
-    sidebarAccent: `light-dark(oklch(0.97 0 0), oklch(0.269 0 0))`,
-    sidebarAccentForeground: `light-dark(oklch(0.205 0 0), oklch(0.985 0 0))`,
-    sidebarBorder: `light-dark(oklch(0.922 0 0), oklch(1 0 0 / 10%))`,
-    sidebarRing: `light-dark(oklch(0.708 0 0), oklch(0.556 0 0))`,
+    sidebar: `light-dark(oklch(0.98 0.005 85), oklch(0.2 0.009 70))`,
+    sidebarForeground: `light-dark(oklch(0.2 0.012 70), oklch(0.965 0.006 85))`,
+    sidebarPrimary: `light-dark(oklch(0.2 0.012 70), oklch(0.955 0.006 85))`,
+    sidebarPrimaryForeground: `light-dark(oklch(0.988 0.004 85), oklch(0.2 0.012 70))`,
+    sidebarAccent: `light-dark(oklch(0.962 0.007 85), oklch(0.25 0.01 70))`,
+    sidebarAccentForeground: `light-dark(oklch(0.2 0.012 70), oklch(0.965 0.006 85))`,
+    sidebarBorder: `light-dark(oklch(0.912 0.01 80), oklch(0.97 0.01 85 / 10%))`,
+    sidebarRing: `light-dark(oklch(0.68 0.012 75), oklch(0.56 0.01 75))`,
   },
   { variable: true }
 )

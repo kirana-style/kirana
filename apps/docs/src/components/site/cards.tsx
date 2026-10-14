@@ -50,10 +50,9 @@ const styles = {
     transitionDuration: duration[200],
   }),
   title: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.lg,
     lineHeight: lineHeight.lg,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   text: css({
     fontSize: fontSize.sm,

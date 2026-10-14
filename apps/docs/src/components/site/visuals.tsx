@@ -10,7 +10,7 @@
  */
 import { css, keyframes } from "@kirana-style/core"
 
-import { PALETTE, accent, tint } from "@workspace/docs-ui/accent.ts"
+import { PALETTE, SUN, accent, tint } from "@workspace/docs-ui/accent.ts"
 import { BrandIcon } from "@workspace/docs-ui/brand-icon.tsx"
 import type { SvglIcon } from "@workspace/docs-ui/brand-icon.tsx"
 import type { Sx } from "@workspace/ui/lib/sx"
@@ -20,14 +20,11 @@ import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import { fontFamily, fontWeight } from "@workspace/ui/tokens/typography"
 
-export const DANGER =
-  "light-dark(oklch(0.577 0.245 27.325), oklch(0.704 0.191 22.216))"
-export const SUCCESS =
-  "light-dark(oklch(0.596 0.145 163.225), oklch(0.765 0.177 163.223))"
-export const WARN =
-  "light-dark(oklch(0.666 0.179 58.318), oklch(0.828 0.189 84.429))"
-export const INFO =
-  "light-dark(oklch(0.588 0.158 241.966), oklch(0.746 0.16 232.661))"
+/** What a drawing marks as wrong, right, a warning or a note: the theme's red and three scene hues. */
+export const DANGER = theme.destructive
+export const SUCCESS = PALETTE.forest
+export const WARN = PALETTE.ochre
+export const INFO = PALETTE.lake
 
 const mix = (color: string, percent: number) =>
   `color-mix(in oklab, ${color} ${percent}%, transparent)`
@@ -342,7 +339,7 @@ const styles = {
   rowLit: css({ backgroundColor: tint(7) }),
   rowDanger: css({ backgroundColor: mix(DANGER, 9) }),
 
-  // The coloured light under a card, faded upwards into the page.
+  // Light under a card: the sun into the page's hue, faded upwards into the page.
   underglow: css({
     position: "absolute",
     insetInline: "6px",
@@ -350,7 +347,7 @@ const styles = {
     height: "1.5rem",
     zIndex: -1,
     borderRadius: radius.full,
-    backgroundImage: `linear-gradient(to right, ${PALETTE.orange}, ${PALETTE.amber}, ${PALETTE.emerald}, ${PALETTE.blue}, ${PALETTE.violet}, ${PALETTE.pink})`,
+    backgroundImage: `linear-gradient(to right, ${SUN.sun}, ${accent.base})`,
     opacity: 0.6,
     filter: "blur(6px)",
   }),

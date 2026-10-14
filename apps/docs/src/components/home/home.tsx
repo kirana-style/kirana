@@ -14,7 +14,7 @@ import { System } from "./system"
 
 export function Home() {
   return (
-    <main>
+    <>
       <Hero />
       <Showcase />
       <InstallExplorer />
@@ -27,6 +27,6 @@ export function Home() {
       <Sponsors />
       <Faq />
       <Blueprint />
-    </main>
+    </>
   )
 }

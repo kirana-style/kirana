@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
-import { PackageIcon } from "@hugeicons/core-free-icons"
 import { accent, accents, tint } from "@workspace/docs-ui/accent.ts"
 import { BrandIcon } from "@workspace/docs-ui/brand-icon.tsx"
 import type { SvglIcon } from "@workspace/docs-ui/brand-icon.tsx"
@@ -153,11 +152,12 @@ const TOOLING: { name: string; status: Status; note: string; href: string }[] =
     },
   ]
 
+/** A status's hue: works in forest, deferred in ochre, the rest in ink. */
 const STATUS_ACCENT = {
-  Works: "emerald",
+  Works: "forest",
   Planned: "neutral",
-  Deferred: "amber",
-  "In this repository": "violet",
+  Deferred: "ochre",
+  "In this repository": "neutral",
 } as const
 
 const styles = {
@@ -285,17 +285,17 @@ function Badge({ status }: { status: Status }) {
 
 function EcosystemPage() {
   return (
-    <Page accent="emerald">
+    <Page scene="rock-garden">
       <PageHero
-        icon={PackageIcon}
-        pattern="spiral"
-        eyebrow="Ecosystem"
+        label="Ecosystem"
         title="What exists, honestly"
         lede={`${PACKAGES.length} packages, one engine behind them, and the tools around it. Anything marked planned is in the specification, not in the build.`}
       />
 
       <PageSection
-        title="Packages"
+        number="01"
+        label="Packages"
+        title="One engine, a thin package for each tool"
         lede="Every package is 0.1.0 and none is on npm yet; each is packed and install-tested on every change."
       >
         <div sx={styles.packages}>
@@ -314,7 +314,11 @@ function EcosystemPage() {
         </div>
       </PageSection>
 
-      <PageSection title="Bundlers">
+      <PageSection
+        number="02"
+        label="Bundlers"
+        title="The same compiler under every bundler"
+      >
         <div sx={styles.table}>
           {BUNDLERS.map((item) => (
             <div key={item.name} sx={styles.row}>
@@ -330,7 +334,9 @@ function EcosystemPage() {
       </PageSection>
 
       <PageSection
-        title="Frameworks"
+        number="03"
+        label="Frameworks"
+        title="A guide and a checked example for each framework"
         lede="All of them work; each guide names the example CI builds and checks."
       >
         <div sx={styles.frameworks}>
@@ -349,7 +355,11 @@ function EcosystemPage() {
         </div>
       </PageSection>
 
-      <PageSection title="Tooling">
+      <PageSection
+        number="04"
+        label="Tooling"
+        title="The tools around the compiler"
+      >
         <div sx={styles.table}>
           {TOOLING.map((item) => (
             <DocsLink key={item.name} href={item.href} sx={styles.row}>

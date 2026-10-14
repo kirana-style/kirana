@@ -59,7 +59,7 @@ export type TextProps = React.ComponentProps<"span"> & {
   weight?: keyof typeof t.weight
   color?: keyof typeof t.fg
   leading?: keyof typeof t.lead
-  /** Switches to the display typeface. */
+  /** Switches to the heading serif. Use it from 1.5rem up; smaller text stays in the sans. */
   heading?: boolean
   truncate?: boolean
   clamp?: keyof typeof clamp

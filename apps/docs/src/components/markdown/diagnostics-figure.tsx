@@ -111,7 +111,7 @@ function Check() {
 export function DiagnosticsFigure() {
   return (
     <figure
-      sx={[accents.blue, styles.root]}
+      sx={[accents.crater, styles.root]}
       aria-label="kirana check over a project: one file fails with KRN1401"
     >
       <div sx={styles.panel}>

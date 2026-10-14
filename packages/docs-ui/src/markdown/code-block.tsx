@@ -51,7 +51,12 @@ const styles = {
     paddingBlock: spacing[2],
     color: theme.mutedForeground,
   }),
+  // A long path is cut with an ellipsis rather than widening a phone's page.
   label: css({
+    minWidth: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
     fontFamily: fontFamily.mono,
     fontSize: fontSize.xs,
     lineHeight: lineHeight.xs,

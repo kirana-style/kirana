@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
-import { ArrowDataTransferHorizontalIcon } from "@hugeicons/core-free-icons"
 import { SVGL } from "@/generated/svgl-icons.gen"
 
 import { tint } from "@workspace/docs-ui/accent.ts"
@@ -19,7 +18,7 @@ import {
 
 import { DocsLink } from "@/components/docs-link"
 import { More } from "@/components/page-section"
-import { GlowBand } from "@/components/site/accents"
+import { NextStep } from "@/components/site/accents"
 import { Figures, Steps } from "@/components/site/cards"
 import { CodeTokens } from "@/components/site/code-tokens"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
@@ -118,10 +117,9 @@ const styles = {
   }),
   codemodHead: css({ display: "flex", alignItems: "center", gap: spacing[3] }),
   codemodTitle: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.xl,
     lineHeight: lineHeight.xl,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   text: css({
     fontSize: fontSize.sm,
@@ -173,10 +171,9 @@ const styles = {
 
 function MigratePage() {
   return (
-    <Page accent="orange">
+    <Page scene="heritage-street">
       <PageHero
-        icon={ArrowDataTransferHorizontalIcon}
-        eyebrow="Migrate"
+        label="Migrate"
         title={
           <>
             Bring the styles <Accent>you already have.</Accent>
@@ -209,6 +206,8 @@ function MigratePage() {
       />
 
       <PageSection
+        number="01"
+        label="Example"
         title="One card, before and after"
         lede="The right-hand file is what kirana migrate tailwind wrote for the left-hand one — one long line re-wrapped, nothing else changed. The dark variant became a light-dark() pair."
       >
@@ -216,6 +215,8 @@ function MigratePage() {
       </PageSection>
 
       <PageSection
+        number="02"
+        label="Evidence"
         title="Measured on a whole codebase"
         lede="The codemod was run over the Tailwind original of our shadcn/ui port — packages/ui, the shared shell, and three applications — and the result compared with the original, element by element."
       >
@@ -245,7 +246,7 @@ function MigratePage() {
         </p>
       </PageSection>
 
-      <PageSection title="Two codemods">
+      <PageSection number="03" label="The tools" title="Two codemods">
         <div sx={styles.codemods}>
           <div sx={styles.codemod}>
             <div sx={styles.codemodHead}>
@@ -293,6 +294,8 @@ function MigratePage() {
       </PageSection>
 
       <PageSection
+        number="04"
+        label="Mapping"
         title="What maps to what"
         lede="A few rows of the Tailwind mapping; the guide has the rest."
       >
@@ -319,6 +322,8 @@ function MigratePage() {
       </PageSection>
 
       <PageSection
+        number="05"
+        label="Process"
         title="The process that worked"
         lede="How the shadcn/ui port reached zero differences."
       >
@@ -326,7 +331,7 @@ function MigratePage() {
       </PageSection>
 
       <PageSection flush>
-        <GlowBand
+        <NextStep
           title="Check a migration the way we did"
           actions={
             <Button
@@ -342,7 +347,7 @@ function MigratePage() {
         >
           Diff the computed style of every element against the original, in both
           schemes and at three widths.
-        </GlowBand>
+        </NextStep>
       </PageSection>
     </Page>
   )

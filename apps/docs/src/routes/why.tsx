@@ -4,7 +4,6 @@ import {
   Alert02Icon,
   CpuIcon,
   Flag01Icon,
-  Idea01Icon,
   SourceCodeIcon,
 } from "@hugeicons/core-free-icons"
 
@@ -22,7 +21,7 @@ import {
 
 import { DocsLink } from "@/components/docs-link"
 import { EditorScene } from "@/components/home/editor"
-import { GlowBand } from "@/components/site/accents"
+import { NextStep } from "@/components/site/accents"
 import { Card, CardGrid } from "@/components/site/cards"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
 import { BuildArt, RuntimeArt } from "@/components/art/why-art"
@@ -96,10 +95,9 @@ const styles = {
   }),
   panelCopy: css({ display: "grid", gap: spacing[1], padding: spacing[5] }),
   panelTitle: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.lg,
     lineHeight: lineHeight.lg,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   panelText: css({
     fontSize: fontSize.sm,
@@ -121,7 +119,7 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: { base: fontSize.xl, [breakpoint.md]: fontSize["2xl"] },
     lineHeight: "1.45",
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
     textWrap: "balance",
   }),
   handle: css({
@@ -180,11 +178,9 @@ function A({ href, children }: { href: string; children: React.ReactNode }) {
 
 function WhyPage() {
   return (
-    <Page accent="blue">
+    <Page scene="highlands">
       <PageHero
-        icon={Idea01Icon}
-        pattern="waves"
-        eyebrow="Why Kirana"
+        label="Why Kirana"
         title={
           <>
             Styles next to components, <Accent>without the cost.</Accent>
@@ -192,7 +188,11 @@ function WhyPage() {
         }
         lede={`"CSS-in-JS" means two different things, and most of the dislike is for the first one.`}
       />
-      <PageSection title="The CSS-in-JS people left">
+      <PageSection
+        number="01"
+        label="History"
+        title="The CSS-in-JS people left"
+      >
         <div sx={styles.prose}>
           <p>
             The first generation — styled-components, Emotion and their
@@ -223,6 +223,8 @@ function WhyPage() {
       </PageSection>
 
       <PageSection
+        number="02"
+        label="The change"
         title="What a compiler changes"
         lede="The same style objects, read at build time instead of while rendering."
       >
@@ -267,6 +269,8 @@ function WhyPage() {
       </PageSection>
 
       <PageSection
+        number="03"
+        label="In the editor"
         title="You can see the CSS again"
         lede="The other reason teams left CSS-in-JS: the class list was gone, so nobody could read what an element gets."
       >
@@ -304,6 +308,8 @@ function WhyPage() {
       </PageSection>
 
       <PageSection
+        number="04"
+        label="Costs"
         title="Where it costs you something"
         lede="A compiler is a trade. These are the parts you pay for."
       >
@@ -326,7 +332,7 @@ function WhyPage() {
         </CardGrid>
       </PageSection>
       <PageSection flush>
-        <GlowBand
+        <NextStep
           title="The long version, with every source"
           actions={
             <Button
@@ -342,7 +348,7 @@ function WhyPage() {
         >
           Including the objections — "it doubles the code", "why not Tailwind
           and cn()" — answered with measurements.
-        </GlowBand>
+        </NextStep>
       </PageSection>
     </Page>
   )

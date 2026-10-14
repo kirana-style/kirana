@@ -17,12 +17,12 @@
  * them underneath every Kirana rule, in development and production alike.
  */
 
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/cormorant-garamond";
-@import "@fontsource-variable/crimson-pro";
-/* The real italic: without it the browser slants the upright letters itself. */
-@import "@fontsource-variable/cormorant-garamond/wght-italic.css";
+/* Text and interface: Plus Jakarta Sans, with its real italic. */
 @import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/plus-jakarta-sans/wght-italic.css";
+/* Display and headings: Newsreader with its optical-size axis, and its real italic. */
+@import "@fontsource-variable/newsreader/opsz.css";
+@import "@fontsource-variable/newsreader/opsz-italic.css";
 @import "@fontsource-variable/jetbrains-mono";
 
 @layer reset {
@@ -50,8 +50,8 @@
     line-height: 1.5;
     -moz-tab-size: 4;
     tab-size: 4;
-    /* Cormorant Garamond, the heading face, defaults to old-style figures; numbers in
-       headings and stats sit on the line like capitals instead. */
+    /* Numbers in headings and stats sit on the line like capitals, whatever a face's default
+       figures are. */
     font-variant-numeric: lining-nums;
   }
 
@@ -130,6 +130,12 @@
       monospace
     );
     font-size: 1em;
+  }
+
+  /* Selected text in the sun: the brand's one constant accent, the gold light every landscape
+     shares (the brand page, /brand). A literal, as this file is token-free. */
+  ::selection {
+    background-color: rgb(247 184 61 / 0.38);
   }
 
   :where(h1, h2, h3, h4, h5, h6) {

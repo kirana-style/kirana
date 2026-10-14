@@ -106,12 +106,13 @@ const styles = {
 function Figure({
   label,
   caption,
-  tone = "blue",
+  tone,
   tall,
   panels,
 }: {
   label: string
   caption: React.ReactNode
+  /** A hue of its own; a figure otherwise takes its page's (the docs tab's). */
   tone?: AccentName
   tall?: boolean
   panels: readonly React.ReactNode[]
@@ -119,7 +120,7 @@ function Figure({
   return (
     <figure
       aria-label={label}
-      sx={[accents[tone], styles.root]}
+      sx={[tone ? accents[tone] : null, styles.root]}
       style={{ "--panels": panels.length } as React.CSSProperties}
     >
       {panels.map((panel, i) => (
@@ -179,7 +180,6 @@ export function CodemodFigure() {
   return (
     <Figure
       label="kirana migrate tailwind rewrites class strings into css() objects and writes a report"
-      tone="orange"
       panels={[<Codemod key="flat" />]}
       caption="The codemod turns class strings into css() objects and lists what it would not decide in a report; nothing is written until you pass --write."
     />
@@ -200,7 +200,6 @@ export function StylexFigure() {
   return (
     <Figure
       label="How StyleX's API maps to Kirana's"
-      tone="violet"
       tall
       panels={[
         <Stage key="flat">
@@ -278,7 +277,6 @@ export function ConformanceFigure() {
   return (
     <Figure
       label="Two builds compared by computed style"
-      tone="emerald"
       panels={[<Conformance key="flat" />]}
       caption="Serve both builds, open the same routes, read every element's computed style, and diff. The Tailwind migration of our shadcn/ui port ended at zero differences."
     />
@@ -321,7 +319,6 @@ export function LayersFigure() {
   return (
     <Figure
       label="Kirana's cascade layers, in order"
-      tone="amber"
       tall
       panels={[
         <Stack
@@ -345,7 +342,6 @@ export function DesignSystemFigure() {
   return (
     <Figure
       label="The six layers of a design system"
-      tone="violet"
       tall
       panels={[
         <Stack
@@ -371,7 +367,6 @@ export function LibraryFigure() {
   return (
     <Figure
       label="A library ships uncompiled styles and the app compiles them with its own"
-      tone="emerald"
       panels={[
         <Stage key="flat">
           <Scene
@@ -418,7 +413,6 @@ export function MergeFigure() {
   return (
     <Figure
       label="A later style replaces the entries it names"
-      tone="blue"
       tall
       panels={[
         <Stage key="flat">
@@ -474,7 +468,6 @@ export function RelationFigure() {
   return (
     <Figure
       label="A relation: the anchor on the element with the state, the read on another"
-      tone="violet"
       panels={[
         <Stage key="flat">
           <Scene width={320} height={170} live={["M 160 58 V 112"]}>
@@ -556,7 +549,6 @@ export function PipelineFigure() {
   return (
     <Figure
       label="The compiler's six steps, from source module to class strings"
-      tone="blue"
       tall
       panels={[<Pipeline key="flat" />]}
       caption="Skip modules with nothing to style, evaluate what feeds a style, expand to longhands, make one atom per declaration, order them by the ladder, and rewrite css() and sx into class strings."
@@ -579,7 +571,6 @@ export function PrecedenceFigure() {
   return (
     <Figure
       label="The precedence ladder, and a hover value beating a breakpoint value at step 3"
-      tone="amber"
       tall
       panels={[
         <Stage key="ladder">
@@ -685,7 +676,6 @@ export function ConditionsFigure() {
   return (
     <Figure
       label="The color property holding a base value and two conditional values"
-      tone="violet"
       panels={[<Conditions key="flat" />]}
       caption="The property is written once and its conditions go inside the value, so the whole story of color is in one place."
     />
@@ -709,7 +699,6 @@ export function DynamicFigure() {
   return (
     <Figure
       label="Static, finite and open values, and what each compiles to"
-      tone="emerald"
       tall
       panels={[
         <Stage key="flat">
@@ -748,10 +737,8 @@ export function DynamicFigure() {
 
 /* ── Themes and modes ────────────────────────────────────────────────── */
 
-const SWATCH = {
-  blue: "light-dark(oklch(0.55 0.2 260), oklch(0.68 0.17 255))",
-  violet: "light-dark(oklch(0.54 0.25 293), oklch(0.7 0.18 293))",
-}
+/** Two `primary` colours, the default's and the section theme's: two scene hues. */
+const SWATCH = { base: PALETTE.lake, themed: PALETTE.dusk }
 
 const scope = {
   frame: css({
@@ -810,7 +797,6 @@ export function ThemesFigure() {
   return (
     <Figure
       label="A theme overriding a token inside one section; everything outside keeps the default"
-      tone="violet"
       tall
       panels={[
         <Stage key="flat">
@@ -818,13 +804,13 @@ export function ThemesFigure() {
             <At x={50} y={50}>
               <Scope
                 label="<html sx={mode.system}>"
-                color={SWATCH.blue}
+                color={SWATCH.base}
                 layer="kirana.tokens"
                 width={320}
               >
                 <Scope
                   label="<section sx={brand}>"
-                  color={SWATCH.violet}
+                  color={SWATCH.themed}
                   layer="kirana.themes"
                   inner
                   width={230}
@@ -845,7 +831,6 @@ export function ExternalFigure() {
   return (
     <Figure
       label="sx on an installed component is not read; the compiled props are"
-      tone="orange"
       panels={[
         <Stage key="flat">
           <Scene
@@ -910,7 +895,6 @@ export function TraceFigure() {
   return (
     <Figure
       label="kirana trace listing the candidates for padding-top and the step that decided"
-      tone="blue"
       panels={[
         <Stage key="flat">
           <Scene width={380} height={170}>
@@ -975,7 +959,6 @@ export function LintFigure() {
   return (
     <Figure
       label="Oxlint running the Kirana rules: three findings, each naming the rule and the place"
-      tone="pink"
       panels={[
         <Stage key="flat">
           <Scene width={380} height={170}>
@@ -1022,11 +1005,11 @@ const anatomy = {
 
 /** Each part of a class name: its text, what it holds, the tone of its pill and colour. */
 const SEGMENTS = [
-  { text: "k", label: "prefix", value: "names.prefix", color: PALETTE.violet },
-  { text: "0", label: "property", value: "padding", color: PALETTE.blue },
-  { text: "-Ab3", label: "target", value: "> svg", color: PALETTE.amber },
-  { text: "-x8Qe", label: "conditions", value: "md", color: PALETTE.emerald },
-  { text: "_kf2c", label: "value", value: "1.5rem", color: PALETTE.pink },
+  { text: "k", label: "prefix", value: "names.prefix", color: PALETTE.dusk },
+  { text: "0", label: "property", value: "padding", color: PALETTE.lake },
+  { text: "-Ab3", label: "target", value: "> svg", color: PALETTE.ochre },
+  { text: "-x8Qe", label: "conditions", value: "md", color: PALETTE.forest },
+  { text: "_kf2c", label: "value", value: "1.5rem", color: PALETTE.terracotta },
 ] as const
 
 function Anatomy() {
@@ -1088,7 +1071,6 @@ export function ClassNameFigure() {
   return (
     <Figure
       label="A class name split into its parts: prefix, property code, target hash, condition hash and value hash"
-      tone="violet"
       tall
       panels={[
         <Stage key="name">

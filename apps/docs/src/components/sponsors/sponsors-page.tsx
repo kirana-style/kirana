@@ -47,10 +47,9 @@ const styles = {
   }),
   group: css({ display: "grid", gap: spacing[4] }),
   groupTitle: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.xl,
     lineHeight: lineHeight.xl,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   tiers: css({
     display: "grid",
@@ -105,7 +104,7 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: { base: fontSize["2xl"], [breakpoint.md]: fontSize["3xl"] },
     lineHeight: { base: lineHeight["2xl"], [breakpoint.md]: lineHeight["3xl"] },
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.tight,
   }),
   tierKind: css({
@@ -123,10 +122,9 @@ const styles = {
     padding: spacing[6],
   }),
   tierName: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.xl,
     lineHeight: lineHeight.xl,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   tierText: css({
     fontSize: fontSize.sm,
@@ -150,7 +148,7 @@ const styles = {
   // "Let's talk" and "You choose" are words, not figures: the heading face.
   priceWords: css({
     fontFamily: fontFamily.heading,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
   }),
   pricePer: css({
     fontFamily: fontFamily.sans,
@@ -639,8 +637,7 @@ export function SponsorsPage() {
   return (
     <>
       <PageHero
-        icon={FavouriteIcon}
-        eyebrow="Sponsor · independent · MIT licensed"
+        label="Sponsor"
         title={
           <>
             Sponsor <Accent>Kirana</Accent>
@@ -694,6 +691,8 @@ export function SponsorsPage() {
 
       <PageSection
         id="terms"
+        number="01"
+        label="Terms"
         title="What a sponsorship covers, and what it does not"
         lede="Read this before you pay. Sponsorship keeps Kirana maintained and independent; it does not buy control of it."
       >
@@ -701,7 +700,7 @@ export function SponsorsPage() {
           groups={[
             {
               topic: "It covers",
-              tone: "emerald",
+              tone: "neutral",
               icon: Tick02Icon,
               items: TERMS.covers.map((term) => ({
                 title: term.title,
@@ -710,7 +709,7 @@ export function SponsorsPage() {
             },
             {
               topic: "It does not cover",
-              tone: "pink",
+              tone: "neutral",
               icon: Cancel01Icon,
               items: TERMS.excludes.map((term) => ({
                 title: term.title,
@@ -723,6 +722,8 @@ export function SponsorsPage() {
 
       <PageSection
         id="give"
+        number="02"
+        label="Channels"
         title="Choose your channel"
         lede="Several doors, so nobody is turned away by how they pay. Channels open as their accounts are approved; until then they say so."
       >
@@ -748,6 +749,8 @@ export function SponsorsPage() {
       </PageSection>
 
       <PageSection
+        number="03"
+        label="Funding"
         title="What funding unlocks"
         lede="In the order it would be spent. Running costs come first; maintainer time is the largest cost and the one that sets the pace."
       >
@@ -768,6 +771,8 @@ export function SponsorsPage() {
       </PageSection>
 
       <PageSection
+        number="04"
+        label="Community"
         title="Kirana is all of us"
         lede={
           SPONSORS.length === 0
@@ -778,7 +783,7 @@ export function SponsorsPage() {
         <Wall />
       </PageSection>
 
-      <PageSection title="Other ways to help">
+      <PageSection number="05" label="Other help" title="Other ways to help">
         <div sx={styles.helps}>
           {HELP.map((item) => (
             <DocsLink
@@ -797,7 +802,11 @@ export function SponsorsPage() {
         </div>
       </PageSection>
 
-      <PageSection title="Before you sponsor">
+      <PageSection
+        number="06"
+        label="Before you start"
+        title="Before you sponsor"
+      >
         <FaqGroups
           groups={FAQ.map((group) => ({
             topic: group.topic,

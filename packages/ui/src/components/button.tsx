@@ -28,10 +28,15 @@ function withLabels(children: React.ReactNode) {
 }
 
 function Button({ sx, variant, size, children, ...props }: ButtonProps) {
+  // `nativeButton={false}` is a button drawn on a link (`render={<a href>}`): it keeps the link's
+  // role, where Base UI would announce it as a button.
+  const link =
+    props.nativeButton === false ? { role: props.role ?? "link" } : null
   return (
     <ButtonPrimitive
       data-slot="button"
       {...props}
+      {...link}
       {...styleProps(buttonRing, ...button({ variant, size }), groupedItem, sx)}
     >
       {typeof children === "function" ? children : withLabels(children)}

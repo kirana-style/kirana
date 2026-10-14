@@ -7,7 +7,6 @@ import { ctx } from "../theme/context"
 import { radius, theme } from "../theme/semantic"
 import { spacing } from "../tokens/spacing"
 import {
-  fontFamily,
   fontSize,
   fontWeight,
   leading,
@@ -61,10 +60,9 @@ const styles = {
   }),
 
   title: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.sm,
     lineHeight: lineHeight.sm,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
     letterSpacing: letterSpacing.tight,
   }),
   description: css({

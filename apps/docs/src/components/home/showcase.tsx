@@ -21,8 +21,7 @@ import {
   PaintBoardIcon,
 } from "@hugeicons/core-free-icons"
 
-import { accent, accents } from "@workspace/docs-ui/accent.ts"
-import type { AccentName } from "@workspace/docs-ui/accent.ts"
+import { SUN, accent } from "@workspace/docs-ui/accent.ts"
 import { TrafficLights } from "@workspace/docs-ui/markdown/code-block.tsx"
 import { Icon } from "@workspace/ui/primitives/icon"
 import type { IconProps } from "@workspace/ui/primitives/icon"
@@ -47,7 +46,6 @@ type Tab = {
   id: string
   label: string
   icon: IconProps["icon"]
-  accent: AccentName
   caption: string
   href: string
 }
@@ -57,7 +55,6 @@ const TABS: readonly Tab[] = [
     id: "compile",
     label: "Compile",
     icon: CodeIcon,
-    accent: "orange",
     caption:
       "Conditions sit inside the value they change. Each declaration becomes one class, shared by every module that writes it.",
     href: "/docs/start/how-it-works",
@@ -66,7 +63,6 @@ const TABS: readonly Tab[] = [
     id: "merge",
     label: "Merge",
     icon: GitMergeIcon,
-    accent: "blue",
     caption:
       "A later handle replaces the entries it names and keeps the rest: the quiet button takes a new base and hover colour, and keeps the shape.",
     href: "/docs/styling/merging",
@@ -75,7 +71,6 @@ const TABS: readonly Tab[] = [
     id: "relations",
     label: "Relations",
     icon: LinkSquare02Icon,
-    accent: "violet",
     caption:
       "Style one element from another's state. The relation is declared once, the anchor sits on the element that has the state, and the compiler checks both ends.",
     href: "/docs/styling/relations",
@@ -84,7 +79,6 @@ const TABS: readonly Tab[] = [
     id: "tokens",
     label: "Tokens",
     icon: PaintBoardIcon,
-    accent: "emerald",
     caption:
       "A token is a typed constant. With variable: true it becomes a custom property that a subtree can override — one light-dark() pair, no dark variant.",
     href: "/docs/tokens/overview",
@@ -93,7 +87,6 @@ const TABS: readonly Tab[] = [
     id: "diagnostics",
     label: "Diagnostics",
     icon: AlertDiamondIcon,
-    accent: "pink",
     caption:
       "The anchor was left off, so the chevron would never rotate. In a class string that fails silently; here the build stops and says why.",
     href: "/docs/tooling/diagnostics",
@@ -102,7 +95,6 @@ const TABS: readonly Tab[] = [
     id: "migrate",
     label: "Migrate",
     icon: ArrowDataTransferHorizontalIcon,
-    accent: "amber",
     caption:
       "kirana migrate tailwind rewrote this class string, dark variant included. Anything it cannot decide goes into a report instead of a guess.",
     href: "/docs/migration/from-tailwind",
@@ -173,6 +165,15 @@ const AREA = {
   output: css({ gridArea: { [breakpoint.lg]: "output" } }),
   terminal: css({ gridArea: { [breakpoint.lg]: "terminal" } }),
 }
+
+/**
+ * The window is always dark, so its accent is the sun, the brand's gold, which reads on it in
+ * either scheme; the page's hue is for the paper around it.
+ */
+const sunlit = css({
+  [accent.base]: SUN.sun,
+  [accent.on]: "oklch(0.2 0.012 70)",
+})
 
 const styles = {
   // One window, dark in both schemes: a title bar with the lights and the examples as browser
@@ -626,13 +627,11 @@ export function Showcase() {
 
   return (
     <HomeSection
-      accent="orange"
-      icon={CodeIcon}
       eyebrow="Source in, CSS out"
       title="Every panel is the compiler's own output"
       lede="Each tab is a file in this site and what the compiler in this repository made of it — generated at build time, never written by hand."
     >
-      <div sx={[styles.shell, accents[tab.accent]]}>
+      <div sx={[styles.shell, sunlit]}>
         <div sx={styles.titleBar}>
           <span sx={styles.lights}>
             <TrafficLights />
@@ -654,11 +653,7 @@ export function Showcase() {
                   aria-selected={on}
                   aria-controls="showcase-panel"
                   tabIndex={on ? 0 : -1}
-                  sx={[
-                    styles.tab,
-                    accents[item.accent],
-                    on ? styles.tabOn : null,
-                  ]}
+                  sx={[styles.tab, sunlit, on ? styles.tabOn : null]}
                   onClick={() => setValue(item.id)}
                 >
                   <Icon icon={item.icon} size="0.875rem" sx={styles.tabIcon} />
@@ -702,7 +697,7 @@ export function Showcase() {
 export function ShowcaseScene({ id }: { id: Tab["id"] }) {
   const tab = TABS.find((item) => item.id === id)!
   return (
-    <div sx={[styles.shell, accents[tab.accent]]} data-slot="showcase-scene">
+    <div sx={[styles.shell, sunlit]} data-slot="showcase-scene">
       <div sx={styles.titleBar}>
         <span sx={styles.lights}>
           <TrafficLights />

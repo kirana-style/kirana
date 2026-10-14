@@ -1,10 +1,8 @@
 /**
- * A dithered field of square pixels moving slowly: a field (noise, waves,
- * ripples, rain — see `PIXEL_PATTERNS`) thresholded by an 8 × 8 Bayer matrix
- * into cells, drawn in the subtree's accent colour. The `mark` pattern is the
- * petal K instead: its three petals drawn in Ocean into a texture, each cell
- * taking its petal's colour, with a ray of light sweeping through and the
- * pointer lighting the cells near it.
+ * The petal K in pixels: its three petals drawn in the brand colours into a texture, sampled
+ * cell by cell and thresholded by an 8 × 8 Bayer matrix, each cell taking its petal's colour,
+ * with a ray of light sweeping through and the pointer lighting the cells near it. The landscapes
+ * use the same matrix in `ScenePixels`, which shares this file's shader helpers.
  *
  * Written for a small GPU budget: one triangle, one short fragment shader, no
  * library. It draws only while on screen and while the tab is visible, caps at
@@ -15,14 +13,21 @@
 import { useEffect, useRef } from "react"
 import { css } from "@kirana-style/core"
 
-import { accent } from "@workspace/docs-ui/accent.ts"
 import type { Sx } from "@workspace/ui/lib/sx"
 
 import { GRADIENTS, MARK, PAINT_ORDER, PARTS } from "@/brand/kirana-mark"
 
-const VERTEX = `
+/** The vertex shader every pixel canvas shares: one triangle covering the viewport. */
+export const VERTEX = `
 attribute vec2 position;
 void main() { gl_Position = vec4(position, 0.0, 1.0); }
+`
+
+/** The 8 × 8 ordered-dither matrix in GLSL, built from the 2 × 2 one without a lookup table. */
+export const BAYER = `
+float bayer2(vec2 a) { a = floor(a); return fract(dot(a, vec2(0.5, a.y * 0.75))); }
+float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
+float bayer8(vec2 a) { return bayer4(0.5 * a) * 0.25 + bayer2(a); }
 `
 
 const FRAGMENT = `
@@ -31,9 +36,7 @@ uniform vec2 uResolution;
 uniform float uTime;
 uniform float uCell;
 uniform float uDensity;
-uniform vec3 uColor;
 uniform float uOpacity;
-uniform float uPattern;
 uniform sampler2D uMark;
 uniform vec2 uPointer;
 
@@ -58,69 +61,21 @@ float fbm(vec2 p) {
   return value;
 }
 
-// The ordered-dither matrix, built from the 2 x 2 one without a lookup table.
-float bayer2(vec2 a) { a = floor(a); return fract(dot(a, vec2(0.5, a.y * 0.75))); }
-float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
-float bayer8(vec2 a) { return bayer4(0.5 * a) * 0.25 + bayer2(a); }
-
-// How lit a cell is, 0-1, before dithering. Each pattern is a different
-// field over the same cells; the corner is the top right, where heroes show it.
-float field(vec2 cell, vec2 uv, float t) {
-  vec2 corner = vec2(uResolution.x / uResolution.y, 1.0);
-  if (uPattern < 0.5) {
-    // clouds: drifting value noise, clumped into patches
-    return smoothstep(0.38, 0.72, fbm(uv * 2.2 + vec2(t * 0.04, t * 0.025)));
-  } else if (uPattern < 1.5) {
-    // waves: diagonal bands rolling across, broken up by noise
-    float w = sin((uv.x * 1.2 + uv.y * 0.8) * 9.0 - t * 0.6) * 0.5 + 0.5;
-    return smoothstep(0.35, 0.85, w * (0.55 + 0.6 * fbm(uv * 2.0 + t * 0.03)));
-  } else if (uPattern < 2.5) {
-    // rings: ripples spreading from the corner, fading with distance
-    float d = length(uv - corner);
-    float w = sin(d * 16.0 - t * 0.8) * 0.5 + 0.5;
-    return smoothstep(0.45, 0.9, w) * smoothstep(1.7, 0.1, d);
-  } else if (uPattern < 3.5) {
-    // rain: columns of streaks falling at their own speeds
-    float lane = hash(vec2(cell.x, 3.0));
-    float speed = 0.35 + hash(vec2(cell.x, 1.0)) * 0.6;
-    float y = fract(uv.y * 0.9 + t * speed * 0.12 + hash(vec2(cell.x, 7.0)));
-    return pow(y, 4.0) * step(0.45, lane);
-  } else if (uPattern < 4.5) {
-    // blocks: coarse tiles switching slowly, like a map of lit windows
-    vec2 tile = floor(cell / 5.0);
-    float n = noise(tile * 0.45 + vec2(t * 0.05, 0.0));
-    return smoothstep(0.5, 0.7, n) * (0.55 + 0.45 * hash(tile));
-  } else if (uPattern < 5.5) {
-    // scan: horizontal bands sweeping downwards
-    float w = sin(uv.y * 7.0 + t * 0.5) * 0.5 + 0.5;
-    return smoothstep(0.5, 0.95, w) * (0.5 + 0.7 * fbm(uv * 3.0));
-  }
-  // spiral: arms turning around the corner
-  vec2 d = uv - corner;
-  float r = length(d);
-  float w = sin(atan(d.y, d.x) * 4.0 + r * 10.0 - t * 0.6) * 0.5 + 0.5;
-  return smoothstep(0.45, 0.9, w) * smoothstep(1.8, 0.2, r);
-}
+${BAYER}
 
 void main() {
   vec2 cell = floor(gl_FragCoord.xy / uCell);
   vec2 uv = cell * uCell / uResolution.y;
-  vec3 color = uColor;
-  float shaped;
-  if (uPattern > 6.5) {
-    // mark: the K's coverage and colour at the cell's centre, a slow shimmer,
-    // a diagonal ray of light sweeping through, and a glow around the pointer
-    vec4 texel = texture2D(uMark, (cell + 0.5) * uCell / uResolution);
-    float drift = 0.5 + 0.35 * fbm(uv * 3.0 + vec2(uTime * 0.05, -uTime * 0.03));
-    float sweep = fract(uTime * 0.06) * 3.2 - 0.9;
-    float ray = exp(-pow((dot(uv, vec2(0.83, 0.55)) - sweep) * 5.0, 2.0));
-    float near = uPointer.x < 0.0 ? 0.0
-      : smoothstep(uCell * 16.0, 0.0, distance(gl_FragCoord.xy, uPointer));
-    shaped = texel.a * (drift + 0.7 * ray + 0.8 * near);
-    color = mix(texel.rgb, vec3(1.0), 0.35 * ray);
-  } else {
-    shaped = field(cell, uv, uTime);
-  }
+  // The K's coverage and colour at the cell's centre, a slow shimmer, a diagonal ray of light
+  // sweeping through, and a glow around the pointer.
+  vec4 texel = texture2D(uMark, (cell + 0.5) * uCell / uResolution);
+  float drift = 0.5 + 0.35 * fbm(uv * 3.0 + vec2(uTime * 0.05, -uTime * 0.03));
+  float sweep = fract(uTime * 0.06) * 3.2 - 0.9;
+  float ray = exp(-pow((dot(uv, vec2(0.83, 0.55)) - sweep) * 5.0, 2.0));
+  float near = uPointer.x < 0.0 ? 0.0
+    : smoothstep(uCell * 16.0, 0.0, distance(gl_FragCoord.xy, uPointer));
+  float shaped = texel.a * (drift + 0.7 * ray + 0.8 * near);
+  vec3 color = mix(texel.rgb, vec3(1.0), 0.35 * ray);
   float lit = step(bayer8(cell) + 0.02, shaped * uDensity * 1.8);
   vec2 inside = fract(gl_FragCoord.xy / uCell);
   float square = step(0.18, inside.x) * step(inside.x, 0.82) *
@@ -137,13 +92,11 @@ const styles = {
     width: "100%",
     height: "100%",
     pointerEvents: "none",
-    // The shader reads this to learn its colour.
-    color: accent.base,
   }),
 }
 
 /** A colour as the canvas resolves it (`oklch()` and `light-dark()` included), in 0–1 RGB. */
-function rgb(color: string): [number, number, number] {
+export function rgb(color: string): [number, number, number] {
   const probe = document.createElement("canvas").getContext("2d")
   if (!probe) return [0, 0, 0]
   probe.fillStyle = color
@@ -152,7 +105,11 @@ function rgb(color: string): [number, number, number] {
   return [(r ?? 0) / 255, (g ?? 0) / 255, (b ?? 0) / 255]
 }
 
-function compile(gl: WebGLRenderingContext, type: number, source: string) {
+export function compile(
+  gl: WebGLRenderingContext,
+  type: number,
+  source: string
+) {
   const shader = gl.createShader(type)
   if (!shader) return null
   gl.shaderSource(shader, source)
@@ -160,22 +117,9 @@ function compile(gl: WebGLRenderingContext, type: number, source: string) {
   return gl.getShaderParameter(shader, gl.COMPILE_STATUS) ? shader : null
 }
 
-/** The shapes the field can take; the dithering and the cost are the same for all. */
-export const PIXEL_PATTERNS = [
-  "clouds",
-  "waves",
-  "rings",
-  "rain",
-  "blocks",
-  "scan",
-  "spiral",
-  "mark",
-] as const
-export type PixelPattern = (typeof PIXEL_PATTERNS)[number]
-
 /**
- * The petal K in Ocean on a transparent canvas of `width` × `height`, centred and
- * 84 % of the height: what the `mark` pattern samples. Drawn from the same paths
+ * The petal K in the brand colours on a transparent canvas of `width` × `height`, centred and
+ * 84 % of the height: what the shader samples. Drawn from the same paths
  * and gradients as every logo file.
  */
 function markCanvas(width: number, height: number): HTMLCanvasElement {
@@ -207,10 +151,8 @@ export function PixelField({
   cell = 5,
   density = 0.55,
   opacity = 0.55,
-  pattern = "clouds",
   sx,
 }: {
-  pattern?: PixelPattern
   /** Cell size in CSS pixels. */
   cell?: number
   /** 0–1: how much of the field is lit. */
@@ -258,15 +200,12 @@ export function PixelField({
     const uResolution = uniform("uResolution")
     const uTime = uniform("uTime")
     const uCell = uniform("uCell")
-    const uColor = uniform("uColor")
     gl.uniform1f(uniform("uDensity"), density)
     gl.uniform1f(uniform("uOpacity"), opacity)
-    gl.uniform1f(uniform("uPattern"), PIXEL_PATTERNS.indexOf(pattern))
     const uPointer = uniform("uPointer")
     gl.uniform2f(uPointer, -1, -1)
 
-    // The mark's texture, redrawn at the canvas's size; one transparent pixel
-    // for the other patterns, so the sampler always has a texture to read.
+    // The mark's texture, redrawn at the canvas's size.
     const texture = gl.createTexture()
     gl.activeTexture(gl.TEXTURE0)
     gl.bindTexture(gl.TEXTURE_2D, texture)
@@ -276,32 +215,18 @@ export function PixelField({
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
     gl.uniform1i(uniform("uMark"), 0)
-    const retexture = () => {
-      if (pattern === "mark")
-        gl.texImage2D(
-          gl.TEXTURE_2D,
-          0,
-          gl.RGBA,
-          gl.RGBA,
-          gl.UNSIGNED_BYTE,
-          markCanvas(
-            Math.max(1, canvas.clientWidth),
-            Math.max(1, canvas.clientHeight)
-          )
+    const retexture = () =>
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        markCanvas(
+          Math.max(1, canvas.clientWidth),
+          Math.max(1, canvas.clientHeight)
         )
-      else
-        gl.texImage2D(
-          gl.TEXTURE_2D,
-          0,
-          gl.RGBA,
-          1,
-          1,
-          0,
-          gl.RGBA,
-          gl.UNSIGNED_BYTE,
-          new Uint8Array(4)
-        )
-    }
+      )
 
     const ratio = Math.min(window.devicePixelRatio || 1, 2)
     const resize = () => {
@@ -312,8 +237,6 @@ export function PixelField({
       gl.uniform1f(uCell, cell * ratio)
       retexture()
     }
-    const recolor = () =>
-      gl.uniform3fv(uColor, rgb(getComputedStyle(canvas).color))
 
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     const start = performance.now()
@@ -342,7 +265,6 @@ export function PixelField({
     }
 
     resize()
-    recolor()
     draw()
 
     const onScreen = new IntersectionObserver(([entry]) => {
@@ -355,21 +277,6 @@ export function PixelField({
       draw()
     })
     sized.observe(canvas)
-    // The accent is a light-dark() pair: follow the colour scheme.
-    const scheme = new MutationObserver(() => {
-      recolor()
-      draw()
-    })
-    scheme.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class", "style"],
-    })
-    const media = window.matchMedia("(prefers-color-scheme: dark)")
-    const onMedia = () => {
-      recolor()
-      draw()
-    }
-    media.addEventListener("change", onMedia)
     document.addEventListener("visibilitychange", run)
     // The mark answers the pointer: the canvas lets events through, so listen on
     // the window and place the pointer in the canvas's pixels (origin bottom left).
@@ -385,15 +292,12 @@ export function PixelField({
       )
       if (still) draw()
     }
-    if (pattern === "mark")
-      window.addEventListener("pointermove", onPointer, { passive: true })
+    window.addEventListener("pointermove", onPointer, { passive: true })
 
     return () => {
       cancelAnimationFrame(frame)
       onScreen.disconnect()
       sized.disconnect()
-      scheme.disconnect()
-      media.removeEventListener("change", onMedia)
       document.removeEventListener("visibilitychange", run)
       window.removeEventListener("pointermove", onPointer)
       // Free what this mount created. The context itself stays with the canvas:
@@ -405,7 +309,7 @@ export function PixelField({
       gl.deleteShader(vertex)
       gl.deleteShader(fragment)
     }
-  }, [cell, density, opacity, pattern])
+  }, [cell, density, opacity])
 
   return <canvas ref={ref} aria-hidden="true" sx={[styles.canvas, sx]} />
 }

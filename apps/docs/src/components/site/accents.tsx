@@ -1,11 +1,10 @@
 /**
- * Small pieces that carry a section's accent: the framed glyph beside a
- * section's name, the eyebrow that pairs it with a label, and the gradient band
- * a page ends on.
+ * Small pieces that carry a page's hue: the framed glyph (`Keycap`), the label that names a part
+ * of a page (`Eyebrow`), and the strip a page ends on (`NextStep`).
  */
 import { css } from "@kirana-style/core"
 
-import { tint } from "@workspace/docs-ui/accent.ts"
+import { accent } from "@workspace/docs-ui/accent.ts"
 import type { Sx } from "@workspace/ui/lib/sx"
 import type { IconProps } from "@workspace/ui/primitives/icon"
 import { theme } from "@workspace/ui/theme/semantic"
@@ -15,7 +14,9 @@ import {
   fontFamily,
   fontSize,
   fontWeight,
-  lineHeight,
+  textLeading,
+  textSize,
+  textTracking,
 } from "@workspace/ui/tokens/typography"
 
 import { IconTile } from "./icon-tile"
@@ -24,16 +25,22 @@ const styles = {
   eyebrow: css({
     display: "inline-flex",
     alignItems: "center",
-    gap: spacing[3],
-    fontSize: fontSize.sm,
-    lineHeight: lineHeight.sm,
-    fontWeight: fontWeight.medium,
+    gap: spacing["2.5"],
+    fontFamily: fontFamily.mono,
+    fontSize: textSize.label,
+    lineHeight: textLeading.label,
+    letterSpacing: textTracking.label,
+    textTransform: "uppercase",
     color: theme.foreground,
+  }),
+  pixel: css({
+    width: "0.5rem",
+    height: "0.5rem",
+    flexShrink: 0,
+    backgroundColor: accent.base,
   }),
 
   band: css({
-    position: "relative",
-    overflow: "hidden",
     display: "grid",
     gap: spacing[6],
     alignItems: "center",
@@ -41,70 +48,53 @@ const styles = {
       base: "minmax(0, 1fr)",
       [breakpoint.md]: "minmax(0, 1fr) auto",
     },
-    paddingInline: { base: spacing[6], [breakpoint.md]: spacing[12] },
-    paddingBlock: { base: spacing[10], [breakpoint.md]: spacing[14] },
-    backgroundColor: theme.background,
+    paddingInline: { base: spacing[5], [breakpoint.md]: spacing[10] },
+    paddingBlock: { base: spacing[12], [breakpoint.md]: spacing[16] },
   }),
-  bandGlow: css({
-    position: "absolute",
-    inset: 0,
-    pointerEvents: "none",
-    backgroundImage: `radial-gradient(110% 160% at 82% 100%, ${tint(22)} 0%, transparent 62%), radial-gradient(90% 140% at 6% 0%, ${tint(12)} 0%, transparent 60%)`,
-  }),
-  bandLines: css({
-    position: "absolute",
-    inset: 0,
-    pointerEvents: "none",
-    backgroundImage: `repeating-linear-gradient(-45deg, transparent 0 3px, ${tint(14)} 3px 3.55px)`,
-    maskImage:
-      "radial-gradient(85% 95% at 88% 110%, black 0%, transparent 68%), radial-gradient(70% 90% at 4% -5%, black 0%, transparent 62%)",
-  }),
-  bandCopy: css({ position: "relative", display: "grid", gap: spacing[2] }),
+  bandCopy: css({ display: "grid", gap: spacing[3] }),
   bandTitle: css({
     fontFamily: fontFamily.heading,
-    fontSize: { base: fontSize.xl, [breakpoint.md]: fontSize["2xl"] },
-    lineHeight: { base: lineHeight.xl, [breakpoint.md]: lineHeight["2xl"] },
-    fontWeight: fontWeight.bold,
+    fontSize: textSize.heading,
+    lineHeight: textLeading.heading,
+    letterSpacing: textTracking.heading,
+    fontWeight: fontWeight.normal,
+    textWrap: "balance",
   }),
   bandText: css({
-    maxWidth: "34rem",
-    fontSize: fontSize.sm,
+    maxWidth: "36rem",
+    fontSize: fontSize.base,
     lineHeight: "1.6",
     color: theme.mutedForeground,
   }),
-  bandActions: css({
-    position: "relative",
-    display: "flex",
-    flexWrap: "wrap",
-    gap: spacing[3],
-  }),
+  bandActions: css({ display: "flex", flexWrap: "wrap", gap: spacing[3] }),
 }
 
-/** A section's glyph: a framed tile the size of the menus' icons, filled with the subtree's accent. */
+/** A glyph in a framed tile, filled with the subtree's hue. */
 export function Keycap({ icon }: { icon: IconProps["icon"] }) {
   return <IconTile icon={icon} tone="solid" />
 }
 
-/** The framed glyph and a label: what sits above a section's title. */
+/**
+ * The name of a part of a page, in small mono capitals after one pixel of the page's hue. It names
+ * what the heading under it is about; it is not a badge, and it never repeats the heading.
+ */
 export function Eyebrow({
-  icon,
   children,
   sx,
 }: {
-  icon: IconProps["icon"]
   children: React.ReactNode
   sx?: Sx
 }) {
   return (
     <span sx={[styles.eyebrow, sx]}>
-      <Keycap icon={icon} />
+      <span sx={styles.pixel} aria-hidden="true" />
       {children}
     </span>
   )
 }
 
-/** The strip a page ends on: two accent glows and hatching fading from two corners. */
-export function GlowBand({
+/** The strip a page ends on: one line in the serif, a sentence, and where to go next. */
+export function NextStep({
   title,
   children,
   actions,
@@ -117,8 +107,6 @@ export function GlowBand({
 }) {
   return (
     <div sx={[styles.band, sx]}>
-      <div sx={styles.bandGlow} aria-hidden="true" />
-      <div sx={styles.bandLines} aria-hidden="true" />
       <div sx={styles.bandCopy}>
         <h2 sx={styles.bandTitle}>{title}</h2>
         {children ? <p sx={styles.bandText}>{children}</p> : null}

@@ -44,8 +44,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "theme-color", content: "#0a0a0a" },
-      { title: "Kirana — styling, compiled" },
+      // The paper and the night ground, for the browser's own chrome.
+      {
+        name: "theme-color",
+        content: "#fcfbf8",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        name: "theme-color",
+        content: "#110e0b",
+        media: "(prefers-color-scheme: dark)",
+      },
+      { title: "Kirana: styling, compiled" },
       {
         name: "description",
         content:

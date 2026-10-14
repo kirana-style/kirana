@@ -16,6 +16,11 @@ export const breakpoint = {
   "3xl": "@media (min-width: 100rem)",
 } as const
 
+/** Input conditions: `pointer.coarse` is a touch screen, where a target must fit a finger. */
+export const pointer = {
+  coarse: "@media (pointer: coarse)",
+} as const
+
 /** Raw widths, for `maxWidth`/`width` rather than as a condition. */
 export const screen = {
   sm: "40rem",
