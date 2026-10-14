@@ -394,6 +394,140 @@ const flat = (
   },
 })
 
+/** A gradient set: each part from its darker stop at the start of its vector to its lighter one. */
+const ramp = (
+  name: string,
+  id: string,
+  note: string,
+  [stem, arm, leg]: [[string, string], [string, string], [string, string]]
+): Palette => ({
+  id,
+  name,
+  note,
+  stops: {
+    stem: [
+      [0, stem[0]],
+      [1, stem[1]],
+    ],
+    arm: [
+      [0, arm[0]],
+      [1, arm[1]],
+    ],
+    leg: [
+      [0, leg[0]],
+      [1, leg[1]],
+    ],
+  },
+})
+
+/**
+ * Scenery sets: one per landscape in the brand's photography, its colours picked from the picture
+ * (sky, light, ground), each stop light enough to hold on ink. `kirana-spec/brand/platform` renders
+ * the mark in each set on its own landscape. A set is named for its mood, never for a place.
+ */
+export const SCENERY: readonly Palette[] = [
+  ramp(
+    "Highland morning",
+    "scene-highlands",
+    "Sun gold, forest green and the blue of far ridges.",
+    [
+      ["#D9A01E", "#F4CF70"],
+      ["#5E8F3E", "#AFCB86"],
+      ["#2E7FB2", "#8FC1DE"],
+    ]
+  ),
+  ramp(
+    "Crater dusk",
+    "scene-crater-lake",
+    "Low gold sky, a pale green pool and warm stone.",
+    [
+      ["#D69845", "#F6CF7D"],
+      ["#4FA79F", "#A8DCD3"],
+      ["#A7895F", "#D9C5A0"],
+    ]
+  ),
+  ramp(
+    "Still water",
+    "scene-still-water",
+    "Gold light on a blue lake, reflected twice.",
+    [
+      ["#E0A82E", "#FCDB73"],
+      ["#2F7FB0", "#8CC4E0"],
+      ["#3E8A8A", "#9CC9B8"],
+    ]
+  ),
+  ramp(
+    "Turquoise lake",
+    "scene-turquoise-lake",
+    "Warm cliffs above clear turquoise water.",
+    [
+      ["#E3B04B", "#FAD774"],
+      ["#2FB0A8", "#9EE6D4"],
+      ["#3C84B3", "#9CC8E6"],
+    ]
+  ),
+  ramp(
+    "Old hall",
+    "scene-old-hall",
+    "Amber evening, a grey-blue sky, ochre walls.",
+    [
+      ["#D99A26", "#FAC25D"],
+      ["#5E8FA6", "#A9CAD6"],
+      ["#B07A3E", "#E3B77A"],
+    ]
+  ),
+  ramp(
+    "Misty hills",
+    "scene-misty-hills",
+    "Sunrise orange over moss and morning mist.",
+    [
+      ["#F0A030", "#FBD96D"],
+      ["#6F9A3A", "#B9D27A"],
+      ["#7FA394", "#C3D6C8"],
+    ]
+  ),
+  ramp(
+    "Heritage street",
+    "scene-heritage-street",
+    "Gold light, red roofs and a clear blue sky.",
+    [
+      ["#E2A64A", "#FCD782"],
+      ["#C8602C", "#F0A070"],
+      ["#4F93B5", "#A6CBD9"],
+    ]
+  ),
+  ramp(
+    "City dusk",
+    "scene-city-dusk",
+    "Light trails, a rose horizon and a violet sky.",
+    [
+      ["#E07A40", "#F6B768"],
+      ["#C2577E", "#F09AA8"],
+      ["#6A5BC0", "#A99BE6"],
+    ]
+  ),
+  ramp(
+    "Golden fields",
+    "scene-golden-fields",
+    "Straw, a summer sky and dry wheat.",
+    [
+      ["#E8A43A", "#F7D07A"],
+      ["#3D8CC4", "#93C6E6"],
+      ["#B98544", "#E6C48A"],
+    ]
+  ),
+  ramp(
+    "Rock garden",
+    "scene-rock-garden",
+    "Gold grass, green slopes and a hazy blue.",
+    [
+      ["#E0B020", "#F5D468"],
+      ["#7FA83A", "#C3DB7E"],
+      ["#4F96B0", "#A2CBDA"],
+    ]
+  ),
+]
+
 /** Solid sets: one flat colour per part, for print, embroidery, small sizes and anywhere a gradient cannot go. */
 export const SOLIDS: readonly Palette[] = [
   flat(

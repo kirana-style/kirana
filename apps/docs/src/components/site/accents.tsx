@@ -1,13 +1,12 @@
 /**
- * Small pieces that carry a section's accent: the keycap glyph beside a
+ * Small pieces that carry a section's accent: the framed glyph beside a
  * section's name, the eyebrow that pairs it with a label, and the gradient band
  * a page ends on.
  */
 import { css } from "@kirana-style/core"
 
-import { accent, tint } from "@workspace/docs-ui/accent.ts"
+import { tint } from "@workspace/docs-ui/accent.ts"
 import type { Sx } from "@workspace/ui/lib/sx"
-import { Icon } from "@workspace/ui/primitives/icon"
 import type { IconProps } from "@workspace/ui/primitives/icon"
 import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
@@ -19,31 +18,13 @@ import {
   lineHeight,
 } from "@workspace/ui/tokens/typography"
 
+import { IconTile } from "./icon-tile"
+
 const styles = {
-  // A key: a darker base one pixel deeper at the bottom, the accent face on top.
-  keycap: css({
-    display: "inline-grid",
-    flexShrink: 0,
-    justifySelf: "start",
-    borderRadius: "5px",
-    padding: "1px",
-    paddingBlockEnd: "2px",
-    backgroundColor: `color-mix(in oklab, ${accent.base} 72%, black)`,
-  }),
-  keycapFace: css({
-    display: "grid",
-    placeItems: "center",
-    width: "1.125rem",
-    height: "1.125rem",
-    borderRadius: "4px",
-    backgroundColor: accent.base,
-    color: accent.on,
-    boxShadow: "inset 0 0.5px 0 0 rgb(255 255 255 / 0.45)",
-  }),
   eyebrow: css({
     display: "inline-flex",
     alignItems: "center",
-    gap: spacing[2],
+    gap: spacing[3],
     fontSize: fontSize.sm,
     lineHeight: lineHeight.sm,
     fontWeight: fontWeight.medium,
@@ -99,17 +80,12 @@ const styles = {
   }),
 }
 
+/** A section's glyph: a framed tile the size of the menus' icons, filled with the subtree's accent. */
 export function Keycap({ icon }: { icon: IconProps["icon"] }) {
-  return (
-    <span sx={styles.keycap} aria-hidden="true">
-      <span sx={styles.keycapFace}>
-        <Icon icon={icon} size="0.75rem" />
-      </span>
-    </span>
-  )
+  return <IconTile icon={icon} tone="solid" />
 }
 
-/** The accent keycap and a label: what sits above a section's title. */
+/** The framed glyph and a label: what sits above a section's title. */
 export function Eyebrow({
   icon,
   children,

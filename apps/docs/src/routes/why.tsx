@@ -3,10 +3,7 @@ import { css } from "@kirana-style/core"
 import {
   Alert02Icon,
   CpuIcon,
-  FileCodeIcon,
-  FileScriptIcon,
   Flag01Icon,
-  GlobalIcon,
   Idea01Icon,
   SourceCodeIcon,
 } from "@hugeicons/core-free-icons"
@@ -28,16 +25,7 @@ import { EditorScene } from "@/components/home/editor"
 import { GlowBand } from "@/components/site/accents"
 import { Card, CardGrid } from "@/components/site/cards"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
-import {
-  At,
-  Card as SceneCard,
-  Row,
-  Scene,
-  Stage,
-  T,
-  Tag,
-  Tile,
-} from "@/components/site/visuals"
+import { BuildArt, RuntimeArt } from "@/components/art/why-art"
 import { InlineCode } from "@/components/site/code-tokens"
 
 export const Route = createFileRoute("/why")({
@@ -179,60 +167,6 @@ function Selection({ children }: { children: React.ReactNode }) {
       </span>
       {children}
     </blockquote>
-  )
-}
-
-/** Components rendering, each appending its own rule: the old model. */
-function RuntimeArt() {
-  return (
-    <Stage danger>
-      <SceneCard title="browser" icon={GlobalIcon} width={260}>
-        <Row>
-          <T tone="muted">render</T>
-          <T tone="strong">{"<Button />"}</T>
-        </Row>
-        <Row danger>
-          <Tag tone="danger">+</Tag>
-          <T tone="danger">{"<style>"}</T>
-          <T tone="muted">.css-1q2w {"{…}"}</T>
-        </Row>
-        <Row>
-          <T tone="muted">render</T>
-          <T tone="strong">{"<Card />"}</T>
-        </Row>
-        <Row danger>
-          <Tag tone="danger">+</Tag>
-          <T tone="danger">{"<style>"}</T>
-          <T tone="muted">.css-3e4r {"{…}"}</T>
-        </Row>
-      </SceneCard>
-    </Stage>
-  )
-}
-
-/** Modules in, one stylesheet out: what Kirana does. */
-function BuildArt() {
-  const wires = [
-    "M 62 50 C 100 50, 110 90, 138 90",
-    "M 62 130 C 100 130, 110 90, 138 90",
-  ]
-  return (
-    <Stage>
-      <Scene width={300} height={180} wires={wires} live={["M 182 90 H 236"]}>
-        <At x={14} y={28}>
-          <Tile icon={FileCodeIcon} size={40} caption="button.tsx" />
-        </At>
-        <At x={14} y={72}>
-          <Tile icon={FileCodeIcon} size={40} caption="card.tsx" />
-        </At>
-        <At x={53} y={50}>
-          <Tile icon={CpuIcon} size={48} variant="accent" caption="kirana" />
-        </At>
-        <At x={87} y={50}>
-          <Tile icon={FileScriptIcon} size={44} caption="app.css" />
-        </At>
-      </Scene>
-    </Stage>
   )
 }
 

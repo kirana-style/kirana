@@ -78,7 +78,7 @@ const styles = {
 
 /* ── The scenes ─────────────────────────────────────────────────────── */
 
-function CompileScene() {
+export function CompileScene() {
   return (
     <Scene
       width={230}
@@ -108,7 +108,7 @@ const FRAMEWORK_BRANDS = [
   SVGL.nextjs,
 ] as const
 
-function FrameworksScene() {
+export function FrameworksScene() {
   return (
     <Scene width={180} height={150} iso>
       <At x={50} y={50}>
@@ -128,7 +128,7 @@ function FrameworksScene() {
   )
 }
 
-function MigrateScene() {
+export function MigrateScene() {
   const sheets = [
     { label: "tailwind" },
     { label: "stylex" },
@@ -149,7 +149,7 @@ function MigrateScene() {
   )
 }
 
-function ReferenceScene() {
+export function ReferenceScene() {
   return (
     <Scene width={200} height={150} iso>
       <At x={50} y={50}>
@@ -172,7 +172,7 @@ function ReferenceScene() {
   )
 }
 
-function ProjectScene() {
+export function ProjectScene() {
   return (
     <Scene
       width={250}

@@ -51,17 +51,29 @@ import { Wordmark } from "./wordmark"
 import { MENUS } from "./nav"
 import type { Featured, Menu, NavLinkItem } from "./nav"
 import { LIFT, REST } from "@/components/site/lift"
+import { IconTile } from "./icon-tile"
 import { Rail } from "./patterns"
 
 const styles = {
+  // Frosted: the page shows through, blurred, as it scrolls under. The blur is on
+  // a `::before` layer, not the header: `backdrop-filter` on the header would make
+  // it the containing block of the fixed menus inside it.
   header: css({
     position: "sticky",
     insetBlockStart: "0px",
     zIndex: 40,
-    backgroundColor: theme.background,
+    isolation: "isolate",
     borderBottomWidth: "1px",
     borderBottomStyle: "solid",
     borderBottomColor: theme.border,
+    "::before": {
+      content: "''",
+      position: "absolute",
+      inset: 0,
+      zIndex: -1,
+      backgroundColor: `color-mix(in oklab, ${theme.background} 72%, transparent)`,
+      backdropFilter: "blur(14px) saturate(1.5)",
+    },
   }),
   bar: css({
     display: "flex",
@@ -252,18 +264,6 @@ const styles = {
     transitionProperty: "background-color",
     transitionDuration: duration[150],
   }),
-  tile: css({
-    display: "grid",
-    placeItems: "center",
-    width: spacing[9],
-    height: spacing[9],
-    borderRadius: radius.lg,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    backgroundColor: theme.background,
-    color: theme.mutedForeground,
-  }),
   rowText: css({ display: "grid", minWidth: 0 }),
   rowTitle: css({
     fontSize: fontSize.sm,
@@ -293,9 +293,7 @@ const styles = {
 function Row({ link }: { link: NavLinkItem }) {
   return (
     <NavigationMenuLink render={<DocsLink href={link.href} />} sx={styles.row}>
-      <span sx={styles.tile}>
-        <Icon icon={link.icon} size="1rem" />
-      </span>
+      <IconTile icon={link.icon} tone="muted" />
       <span sx={styles.rowText}>
         <span sx={styles.rowTitle}>{link.title}</span>
         <span sx={styles.rowDescription}>{link.description}</span>
@@ -467,9 +465,7 @@ function MobileNav() {
                     href={link.href}
                     sx={styles.row}
                   >
-                    <span sx={styles.tile}>
-                      <Icon icon={link.icon} size="1rem" />
-                    </span>
+                    <IconTile icon={link.icon} tone="muted" />
                     <span sx={styles.rowText}>
                       <span sx={styles.rowTitle}>{link.title}</span>
                       <span sx={styles.rowDescription}>{link.description}</span>

@@ -625,13 +625,14 @@ const HELP = [
 
 export function SponsorsPage() {
   const individuals = TIERS.filter((t) => t.audience === "individual")
-  // The yearly top tier leads its group, across the whole row.
+  // The monthly tiers first, from the smallest; the yearly top tier closes the
+  // group across the whole row, so a small sponsor does not meet it first.
   const organisations = [
     ...TIERS.filter(
-      (t) => t.audience === "organisation" && t.period === "year"
+      (t) => t.audience === "organisation" && t.period !== "year"
     ),
     ...TIERS.filter(
-      (t) => t.audience === "organisation" && t.period !== "year"
+      (t) => t.audience === "organisation" && t.period === "year"
     ),
   ]
 

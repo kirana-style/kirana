@@ -93,7 +93,7 @@ const styles = {
   text: css({ fontSize: fontSize.sm, lineHeight: "1.65" }),
 }
 
-function CliArt() {
+export function CliArt() {
   return (
     <Stage>
       <Card title="~/app" icon={CommandLineIcon} width={290} glow>
@@ -124,7 +124,7 @@ function CliArt() {
   )
 }
 
-function LlmArt() {
+export function LlmArt() {
   // Two sources on the left — the docs as text, and the skills an agent installs — and three
   // readers on the right, every reader joined to both.
   const readers = [31, 85, 139]
@@ -159,7 +159,7 @@ function LlmArt() {
   )
 }
 
-function EditorArt() {
+export function EditorArt() {
   return (
     <Stage>
       <Scene width={300} height={180} iso>
@@ -197,7 +197,7 @@ function EditorArt() {
   )
 }
 
-function LintArt() {
+export function LintArt() {
   // Oxlint, ESLint and Biome run the same rules over the same files.
   const linters = [22, 82, 141]
   const wires = [37, 93, 149].flatMap((y) =>

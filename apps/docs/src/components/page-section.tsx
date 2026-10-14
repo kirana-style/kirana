@@ -88,7 +88,7 @@ export function Section({
 }: {
   tinted?: boolean
   id?: string
-  /** Decoration behind the whole band, such as the motif. */
+  /** Decoration behind the whole band. */
   backdrop?: React.ReactNode
   sx?: Sx
   children: React.ReactNode

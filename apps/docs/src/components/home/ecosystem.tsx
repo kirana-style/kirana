@@ -207,7 +207,7 @@ const styles = {
 const BY_NAME = new Map(PACKAGES.map((entry) => [entry.name, entry]))
 
 /** Authoring: the API a module imports. */
-function AuthoringArt() {
+export function AuthoringArt() {
   return (
     <Card title="@kirana-style/core" icon={CodeIcon} glow sx={styles.window}>
       {(["css()", "recipe()", "defineTokens()"] as const).map((name) => (
@@ -221,7 +221,7 @@ function AuthoringArt() {
 }
 
 /** The compiler: modules in, one stylesheet out. */
-function CompilerArt() {
+export function CompilerArt() {
   return (
     <Scene
       width={250}
@@ -260,7 +260,7 @@ const HOSTS = [
 ] as const
 
 /** The adapters: every host feeding one engine. */
-function AdaptersArt() {
+export function AdaptersArt() {
   const xs = [10, 30, 70, 90]
   const wires = HOSTS.map((_, index) => {
     const x = (xs[index % 4]! / 100) * 360
@@ -287,7 +287,7 @@ function AdaptersArt() {
 }
 
 /** The preset: Tailwind's scales as tokens. */
-function PresetArt() {
+export function PresetArt() {
   return (
     <Card
       title="@kirana-style/preset-scales"
@@ -315,7 +315,7 @@ function PresetArt() {
 }
 
 /** Lint: three linters, one set of Kirana rules. */
-function LintArt() {
+export function LintArt() {
   const xs = [22, 50, 78]
   const wires = xs.map((x) => {
     const from = (x / 100) * 360
