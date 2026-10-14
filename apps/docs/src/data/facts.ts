@@ -118,4 +118,7 @@ export const FACTS: Readonly<Record<string, string>> = {
   "linters-or": sentence(LISTS.linters, "or"),
   agents: sentence(LISTS.agents),
   api: sentence(LISTS.api.map((name) => `\`${name}\``)),
+  // The compiler's default targets (`FLOOR` in kirana_config, D-026), the first versions with
+  // `light-dark()`; the site's Vite config holds its build to the same floor.
+  "browser-floor": "Chrome 123, Safari 17.5, Firefox 120",
 }

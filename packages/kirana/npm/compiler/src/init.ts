@@ -759,7 +759,7 @@ function stylesheetStep(files: Files, project: Detected): Step {
           ),
         ])
       if (text.includes(STYLESHEET)) return done("stylesheet", file)
-      const script = /<script\b[^>]*>/.exec(text)
+      const script = /<script\b[^>]*>/i.exec(text)
       const after = script
         ? `${text.slice(0, script.index + script[0].length)}\n  import "${STYLESHEET}"${text.slice(script.index + script[0].length)}`
         : `<script>\n  import "${STYLESHEET}"\n</script>\n\n${text}`

@@ -170,6 +170,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 3
       },
       {
+        "id": "browsers",
+        "text": "Browsers",
+        "level": 2
+      },
+      {
         "id": "check-it-worked",
         "text": "Check it worked",
         "level": 2
@@ -5677,6 +5682,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "start",
     "heading": "4. The  sx  prop's types",
     "text": "is not an import: the compiler recognises it on any element in a module it compiles. TypeScript needs one reference to know about it: Put it in a file that your includes, and every host element accepts . The other frameworks have their own: , , , , and — each guide names the one to use. Angular needs none: the directive carries its type."
+  },
+  {
+    "id": "/docs/start/installation#browsers",
+    "href": "/docs/start/installation#browsers",
+    "page": "Installation",
+    "section": "start",
+    "heading": "Browsers",
+    "text": "The CSS Kirana writes runs in Chrome 123, Safari 17.5, Firefox 120 and later, the first versions with : every colour token is one value, so light and dark mode need no second stylesheet and no class to toggle. Every current browser qualifies. To reach older ones, set below that floor and the compiler lowers what it can."
   },
   {
     "id": "/docs/start/installation#check-it-worked",
