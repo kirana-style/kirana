@@ -42,6 +42,14 @@ export function defineAppConfig(options = {}) {
       tanstackStart({ router: { quoteStyle: "double", semicolons: false } }),
       viteReact(),
     ]),
-    build: { cssMinify: true, minify: true },
+    build: {
+      cssMinify: true,
+      minify: true,
+      // Kirana's browser floor (D-026: Chrome 123, Safari 17.5, Firefox 120), the first versions with
+      // `light-dark()`. Vite's default target is older, so its CSS minifier rewrote `light-dark()` in
+      // plain stylesheets (the syntax colours in highlight.css) into `--lightningcss-light/dark`
+      // switches that nothing sets, and every token lost its colour.
+      cssTarget: ["chrome123", "safari17.5", "firefox120"],
+    },
   }))
 }
