@@ -14,7 +14,9 @@ import type { Diagnostic } from "./diagnostics.ts"
 
 /** The placeholder rule the stylesheet entry compiles to until the adapter replaces it. */
 export const PLACEHOLDER = '.kirana-placeholder{--kirana:"stylesheet"}'
-export const PLACEHOLDER_RULE = /\.kirana-placeholder\s*\{[^}]*\}/
+// `[^{}]`, not `[^}]`: a body never holds a brace, and excluding the opening one too keeps the
+// match linear on a stylesheet with many unclosed `.kirana-placeholder{` (CodeQL js/polynomial-redos).
+export const PLACEHOLDER_RULE = /\.kirana-placeholder\s*\{[^{}]*\}/
 
 /**
  * A module to compile, including one a framework re-emits under a query.

@@ -222,6 +222,15 @@ element accepts `sx`. The other frameworks have their own: `@kirana-style/core/p
 `/solid`, `/qwik`, `/vue`, `/svelte` and `/astro` — each guide names the one to
 use. Angular needs none: the `[sx]` directive carries its type.
 
+## Browsers
+
+The CSS Kirana writes runs in {{fact:browser-floor}} and later, the first
+versions with `light-dark()`: every colour token is one `light-dark()` value, so
+light and dark mode need no second stylesheet and no class to toggle. Every
+current browser qualifies. To reach older ones, set
+[`targets`](/docs/config/reference#targets) below that floor and the compiler
+lowers what it can.
+
 ## Check it worked
 
 ```bash

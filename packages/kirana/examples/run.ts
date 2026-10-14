@@ -347,7 +347,7 @@ try {
         direct ? rest : settings.dev,
         {},
         async (url) => {
-          await checkPage(url)
+          await checkPage(url, { development: true })
           await checkHotUpdate(
             url,
             path.join(directory, settings.edit!),
@@ -533,12 +533,31 @@ async function withServer(
 }
 
 /** Reads the probe's computed style at `url`, before and during hover. */
-async function checkPage(url: string) {
+async function checkPage(
+  url: string,
+  { development = false }: { development?: boolean } = {}
+) {
   const { chromium } = await import("playwright")
   // Playwright's bundled Chromium by default; KIRANA_CHROME_CHANNEL=chrome uses an installed Chrome.
   const channel = process.env.KIRANA_CHROME_CHANNEL
   const chrome = await chromium.launch(channel ? { channel } : {})
   try {
+    if (development) {
+      // A development server's first visit is not the page a developer reads: Vite discovers the
+      // dependencies to pre-bundle (`@kirana-style/core/internal` among them), bundles them and
+      // reloads the page, and on a slow runner that first page can stay without its stylesheet
+      // (Ember in CI). Visit once and let the server finish, as a developer's first load does; the
+      // check below reads a fresh page, with every dependency already bundled.
+      // The budget is the server's, not the check's: in CI, Ember's pre-bundle of about a thousand
+      // packages was still running ("bundling dependencies…", no "optimized" after it) when a 30 s
+      // check gave up, and the page's scripts wait for it.
+      const warm = await chrome.newPage()
+      await warm.goto(url, { timeout: 120_000 })
+      await warm.waitForLoadState("networkidle", { timeout: 120_000 })
+      await warm.waitForTimeout(1000)
+      await warm.waitForLoadState("networkidle", { timeout: 120_000 })
+      await warm.close()
+    }
     const page = await chrome.newPage()
     const errors: string[] = []
     page.on("pageerror", (error) => errors.push(error.message))
@@ -569,14 +588,25 @@ async function checkPage(url: string) {
     // the page once on first visit, too: Vite finds a dependency to pre-bundle (Ember's, in CI), and
     // a read during the reload fails. Read until the values match, and fail with the last reading if
     // they never do; 30 s covers a slow runner's first pre-bundle.
-    const settled = async (expected: Record<string, string>) => {
+    // The last resort, in development only: one reload, as a developer would press, then the same
+    // exact values or a failure with the last reading.
+    const settled = async (
+      expected: Record<string, string>,
+      reloads = development ? 1 : 0
+    ): Promise<void> => {
       const deadline = Date.now() + 30_000
       for (;;) {
         try {
           return expect(await read(), expected)
         } catch (error) {
-          if (Date.now() > deadline) throw error
-          await page.waitForTimeout(100)
+          if (Date.now() <= deadline) {
+            await page.waitForTimeout(100)
+            continue
+          }
+          if (reloads === 0) throw error
+          await page.reload()
+          await probe.waitFor()
+          return settled(expected, reloads - 1)
         }
       }
     }

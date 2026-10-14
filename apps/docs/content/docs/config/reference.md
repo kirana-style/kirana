@@ -38,7 +38,7 @@ targets: { chrome?: number | string, safari?: number | string, firefox?: number 
 ```
 
 Browser versions to compile for, as a major number (`123`) or `"major.minor"`
-(`"17.5"`). The default floor is **Chrome 123, Safari 17.5, Firefox 120**.
+(`"17.5"`). The default floor is **{{fact:browser-floor}}**.
 
 Setting a target below the floor makes Lightning CSS lower the output where it
 can, and emits `target-lowering` (informational) so you know it happened. A minor
