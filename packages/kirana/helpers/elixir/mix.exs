@@ -4,7 +4,7 @@ defmodule Kirana.MixProject do
   def project do
     [
       app: :kirana,
-      version: "0.1.0", # x-release-please-version
+      version: "0.2.0", # x-release-please-version
       elixir: "~> 1.18",
       description: "Kirana for Phoenix templates: the class map reader and the kirana/1 helper.",
       package: [

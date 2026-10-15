@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/jest",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Kirana for Jest: a transformer that compiles modules, then hands them to your usual one.",
   "license": "MIT",
   "author": "The Kirana authors",

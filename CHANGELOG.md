@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.2.0](https://github.com/kirana-style/kirana/compare/v0.1.0...v0.2.0) (2026-10-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* one command name, kirana-style ([#29](https://github.com/kirana-style/kirana/issues/29))
+
+### Features
+
+* **editor:** real editor output on the site, open vsx trusted publishing ([#21](https://github.com/kirana-style/kirana/issues/21)) ([350fa4e](https://github.com/kirana-style/kirana/commit/350fa4ec0d8054a082d6c7dcdae2b5be53f8d98a))
+* one command name, kirana-style ([#29](https://github.com/kirana-style/kirana/issues/29)) ([b3f3154](https://github.com/kirana-style/kirana/commit/b3f3154662589dd1bd43fd0ff2341acf4f3df628))
+* **site:** paper, ink, scenery and type for one identity ([#27](https://github.com/kirana-style/kirana/issues/27)) ([5da3c6f](https://github.com/kirana-style/kirana/commit/5da3c6f0f1c8cbfdb450b36a6609a3ab4b20e358))
+* **site:** reorganise the homepage, product pages and docs ([#28](https://github.com/kirana-style/kirana/issues/28)) ([88b5209](https://github.com/kirana-style/kirana/commit/88b52093488b2aa0112b458ca04b836c83d03954))
+* **site:** scenery gradients, logo downloads, pixel k, glass icons ([#25](https://github.com/kirana-style/kirana/issues/25)) ([2953dc1](https://github.com/kirana-style/kirana/commit/2953dc126f47b68257ebfdb33c61992984708c49))
+
+
+### Bug fixes
+
+* hold emnapi at 2.0.0-alpha.6, the wasi engine fails on the beta ([#26](https://github.com/kirana-style/kirana/issues/26)) ([8aa33e1](https://github.com/kirana-style/kirana/commit/8aa33e1dbccaefa15b87f6487ac0a346bbf6581a))
+* settle the ember dev check, resolve code scanning findings ([#23](https://github.com/kirana-style/kirana/issues/23)) ([0c266c8](https://github.com/kirana-style/kirana/commit/0c266c8428c1453892beeeb5f98918cbc0eae6ff))
+* **site:** keep syntax colours in the production build ([#22](https://github.com/kirana-style/kirana/issues/22)) ([621f2fc](https://github.com/kirana-style/kirana/commit/621f2fcf67dada773ca66110e295ab7ac5605f56))
+
+
+### Documentation
+
+* fix the extension's settings table ([#13](https://github.com/kirana-style/kirana/issues/13)) ([457e06d](https://github.com/kirana-style/kirana/commit/457e06d12f9e3b005e0820aab36faac5bf3f80b3))
+
+
+### Dependencies
+
+* bump the minor-and-patch group across 1 directory with 3 updates ([#19](https://github.com/kirana-style/kirana/issues/19)) ([7ea00ed](https://github.com/kirana-style/kirana/commit/7ea00edcc5cc02b9ab5e41b13f152ae344ea448f))
+* emnapi 2.0.0-beta.1, minor and patch updates ([#24](https://github.com/kirana-style/kirana/issues/24)) ([a399fa7](https://github.com/kirana-style/kirana/commit/a399fa78e53dcfd7f41f249ccee1133809e66544))
+
 ## [0.1.0](https://github.com/kirana-style/kirana/compare/v0.1.0...v0.1.0) (2026-10-13)
 
 
