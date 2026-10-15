@@ -247,7 +247,10 @@ fn hover_explains_styles_properties_conditions_and_tokens() {
     assert!(wash.contains("rgb(0 0 0 / 0.5)") && wash.contains("custom property"), "{wash}");
     // A property key: its rules, precedence, and the trace command.
     let property = hover_text(&f.ok("textDocument/hover", f.at("color: { base", 0, 2)));
-    assert!(property.contains("**Precedence**") && property.contains("kirana-style trace card.tsx:8 color"), "{property}");
+    assert!(
+        property.contains("**Precedence**") && property.contains("kirana-style trace card.tsx:8 color"),
+        "{property}"
+    );
     assert!(property.contains("@media (width >= 48rem) {"), "{property}");
     // A condition key.
     let hovered = hover_text(&f.ok("textDocument/hover", f.at("\":hover\": \"#ff0000\"", 0, 2)));
