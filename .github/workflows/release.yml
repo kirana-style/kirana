@@ -4,13 +4,14 @@ name: release
 # release-please keeps a Release PR open: the next version, read from the Conventional Commit titles
 # since the last tag, bumped in every package.json, Cargo.toml, the gemspec, mix.exs and the editor
 # extensions, with CHANGELOG.md. Merging that PR tags vX.Y.Z and creates the GitHub release; this
-# workflow then builds every platform, runs the installation matrix as the gate, and publishes:
+# workflow then builds every platform, runs the installation matrix as the gate, publishes, and
+# last asks every registry for the version (`verify`):
 #
 #   npm (21 packages + 9 engine packages: 8 native, 1 WASI) · RubyGems · Hex · VS Code Marketplace · Open VSX ·
 #   the kirana-php mirror and the kirana/kirana alias (Packagist reads their tags)
 #
 # Publishing jobs run in the `release` environment, which requires an approval, so nothing reaches a
-# registry without a person saying so. npm and RubyGems authenticate with trusted publishing (OIDC);
+# registry without a person saying so. npm, RubyGems and Open VSX authenticate with trusted publishing (OIDC);
 # the rest read secrets scoped to that environment.
 
 on:
@@ -279,7 +280,7 @@ jobs:
       # `release` environment for the kirana-style namespace (open-vsx.org → Trusted Publishers).
       - name: Publish to Open VSX
         working-directory: packages/kirana/editors/vscode
-        run: bunx ovsx@1.2.0 publish kirana.vsix --trusted-pub
+        run: bunx ovsx@1.2.0 publish kirana.vsix --trusted-publishing
 
   # Packagist reads packages from Git tags: the PHP helper is split out of this repository into the
   # read-only kirana-php mirror (kirana-style/kirana), and the kirana/kirana alias gets the same tag.
@@ -320,3 +321,30 @@ jobs:
           cd "$RUNNER_TEMP/alias"
           git tag "$TAG"
           git push origin "$TAG"
+
+  # Every registry serves the version: a target that quietly did not publish (Packagist missing the
+  # tag, a skipped Marketplace upload) shows as a failed job instead of being found later. It runs
+  # after the publish jobs even when one failed, so the summary is complete; public APIs only.
+  verify:
+    needs: [release-please, npm, rubygems, hex, editors, php]
+    if: >-
+      !cancelled() &&
+      (needs.release-please.outputs.created == 'true' || inputs.publish != '')
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+        with:
+          node-version-file: .node-version
+          run-install: false
+
+      - name: Ask every registry for the release
+        env:
+          TAG: ${{ needs.release-please.outputs.tag || inputs.tag }}
+        run: bun packages/kirana/scripts/verify-release.ts "$TAG"
