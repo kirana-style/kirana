@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/vite",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Kirana for Vite: the Rolldown adapter plus the dev server, with the live stylesheet and CSS hot updates.",
   "license": "MIT",
   "author": "The Kirana authors",

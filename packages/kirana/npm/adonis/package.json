@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/adonis",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Kirana for AdonisJS: the kirana() Edge global, reading the class map of a server app's styles.",
   "license": "MIT",
   "author": "The Kirana authors",
