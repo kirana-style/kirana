@@ -55,7 +55,7 @@ export const HEADLINES: Line[] = [
     text: "Light through every line of your styles.",
     tone: "Brand",
     proof:
-      "Kirana means a ray of light: the editor shows what each line ends up with, and kirana trace shows why.",
+      "Kirana means a ray of light: the editor shows what each line ends up with, and kirana-style trace shows why.",
     href: "/docs/tooling/debugging",
   },
 ]
@@ -148,7 +148,7 @@ export const IMPROVED_HEADLINES: Line[] = [
     text: "Every line of your styles, in plain sight.",
     tone: "Light, said plainly",
     proof:
-      "The inline summary on each line, the card on hover, and kirana trace for which entry wins and why.",
+      "The inline summary on each line, the card on hover, and kirana-style trace for which entry wins and why.",
     href: "/docs/tooling/debugging",
   },
   {

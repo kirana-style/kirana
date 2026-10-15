@@ -8,7 +8,7 @@ config :kirana_example, KiranaExampleWeb.Endpoint,
   secret_key_base: String.duplicate("kirana-example-not-a-secret-", 3),
   render_errors: [formats: [html: KiranaExampleWeb.ErrorHTML], layout: false]
 
-# The class map `kirana build` and `kirana dev` write (the default, spelled out).
+# The class map `kirana-style build` and `kirana-style dev` write (the default, spelled out).
 config :kirana, classes: "priv/static/kirana/classes.json"
 
 config :phoenix, :json_library, Jason

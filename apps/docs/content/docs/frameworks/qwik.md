@@ -33,7 +33,7 @@ by `examples/qwik`, a Qwik Router app built and served with npm and pnpm.
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects Qwik, shows every change below as a diff, writes them once you say

@@ -26,7 +26,7 @@ keywords:
 
 # The CLI
 
-The `kirana` binary's commands, by what they do:
+The `kirana-style` command, by what it does:
 
 | What it does                            | Commands                              |
 | --------------------------------------- | ------------------------------------- |
@@ -36,28 +36,54 @@ The `kirana` binary's commands, by what they do:
 | Rewrites other styling systems          | `migrate`                             |
 | Serves your editor                      | `lsp`                                 |
 
-The command comes with the compiler package. In a project that does not have
-Kirana yet, run `npx kirana-style init`: `kirana-style` is the command line's
-package on npm, and it runs the same command. Once `init` has added the compiler,
-every command is plain `kirana`.
+In a project without Kirana, run it without installing anything: your package
+manager's runner fetches it for one run, as `npx shadcn@latest` does.
+
+| Package manager | Without installing                    | Once installed            |
+| --------------- | ------------------------------------- | ------------------------- |
+| npm             | `npx kirana-style@latest init`        | `npx kirana-style check`  |
+| pnpm            | `pnpm dlx kirana-style@latest init`   | `pnpm kirana-style check` |
+| Yarn            | `yarn dlx kirana-style@latest init`   | `yarn kirana-style check` |
+| Bun             | `bunx --bun kirana-style@latest init` | `bunx kirana-style check` |
+
+`init` adds `kirana-style` to the project's dev dependencies, so every later run
+uses the version the project pins, and the editor's language server comes from the
+same install.
+
+### A shorter name
+
+The command is `kirana-style` everywhere: npm does not give out the plain name
+`kirana`, so a bare `npx kirana` cannot run Kirana. For a shorter
+name in your own project, add a script:
+
+```json file="package.json"
+{
+  "scripts": {
+    "kirana": "kirana-style"
+  }
+}
+```
+
+Then `npm run kirana -- check src`; pnpm, Yarn and Bun run scripts the same way. In your shell,
+`alias kirana="npx kirana-style"` does the same for every project.
 
 In this repository the binary runs through its entry script:
 
 ```bash
-node packages/kirana/npm/compiler/bin/kirana.ts <command>
+node packages/kirana/npm/cli/bin/kirana-style.ts <command>
 ```
 
-## `kirana init`
+## `kirana-style init`
 
 Set a project up: the configuration file, the adapter in your bundler's
 configuration, the stylesheet, and the types for `sx`.
 
 ```bash
-kirana init             # show the changes, ask, write them
-kirana init --dry-run   # only show them
-kirana init --yes       # write without asking
-kirana init --install   # also run the install command
-kirana init --preset    # with the scales preset (utilities)
+kirana-style init             # show the changes, ask, write them
+kirana-style init --dry-run   # only show them
+kirana-style init --yes       # write without asking
+kirana-style init --install   # also run the install command
+kirana-style init --preset    # with the scales preset (utilities)
 ```
 
 It reads `package.json` and the lockfile to find the framework, the bundler and
@@ -65,7 +91,7 @@ the package manager, then prints every change as a diff before it writes
 anything:
 
 ```console
-$ kirana init --dry-run
+$ kirana-style init --dry-run
 Next.js · turbopack · npm · TypeScript
 
 + config: create kirana.config.mts
@@ -95,24 +121,24 @@ guessing. The install command is printed, never run unless you pass
 `--install`, so your lockfile stays yours.
 
 Its setups were checked the way the examples are: sixteen examples, stripped of
-Kirana and set up again by `kirana init`, built from packed tarballs and styled
+Kirana and set up again by `kirana-style init`, built from packed tarballs and styled
 exactly like the hand-written ones in a browser.
 
-## `kirana doctor`
+## `kirana-style doctor`
 
 Check a project's setup, and say what is missing.
 
 ```bash
-kirana doctor
-kirana doctor --json
-kirana doctor --report
-kirana doctor --report bug.md --trace src/card.tsx:12 minHeight
+kirana-style doctor
+kirana-style doctor --json
+kirana-style doctor --report
+kirana-style doctor --report bug.md --trace src/card.tsx:12 minHeight
 ```
 
 ```console
-$ kirana doctor
+$ kirana-style doctor
 ✓ engine       native (linux-x64)
-✓ packages     @kirana-style/compiler@0.1.0, @kirana-style/core@0.1.0, @kirana-style/next@0.1.0
+✓ packages     @kirana-style/core@0.1.0, @kirana-style/next@0.1.0, kirana-style@0.1.0
 ✓ config       kirana.config.mts, prefix "k"
 ✓ project      Next.js · turbopack · npm · TypeScript
 ✓ adapter      next.config.ts, postcss.config.mjs
@@ -126,7 +152,7 @@ All good.
 It reports the engine in use (native, or the WebAssembly fallback), every
 installed `@kirana-style/*` version and whether they match, whether the configuration
 loads, and whether the adapter, stylesheet and types are in place, which it learns
-by running `kirana init`'s plan without writing. The exit code is 1 when something fails.
+by running `kirana-style init`'s plan without writing. The exit code is 1 when something fails.
 There is no cache to clear: Kirana keeps nothing on disk between builds.
 
 ### A bug report
@@ -140,11 +166,11 @@ Kirana collected:
 - each diagnostic code, how often it occurred and where first;
 - the stylesheet's size and the resolved configuration.
 
-`--trace <file>:<line> <property>` adds `kirana trace` output, and `--json` prints
+`--trace <file>:<line> <property>` adds `kirana-style trace` output, and `--json` prints
 the same data instead of writing the file.
 
 ```console
-$ kirana doctor --report --trace src/card.tsx:12 minHeight
+$ kirana-style doctor --report --trace src/card.tsx:12 minHeight
 wrote kirana-report.md: describe what happened and add a reproduction at the top, read the rest, then paste it into an issue
 ```
 
@@ -153,14 +179,14 @@ reads `<project>`, the home directory `~` and your user name `<user>`,
 configuration values under keys that name a secret are masked, and no environment
 variable is read. Read it before you post it anyway.
 
-## `kirana dev`
+## `kirana-style dev`
 
 Watch mode for projects without a bundler: plain HTML, web components, server
 templates.
 
 ```bash
-kirana dev src --out public/kirana.css
-kirana dev --minify
+kirana-style dev src --out public/kirana.css
+kirana-style dev --minify
 ```
 
 It compiles every script under the paths (`src`, or the project when there is
@@ -170,27 +196,27 @@ stylesheet is rewritten only when it changed, and diagnostics print as they
 appear:
 
 ```console
-$ kirana dev src --out public/kirana.css
+$ kirana-style dev src --out public/kirana.css
 ✓ public/kirana.css (4780 bytes, 8 file(s), 9 ms)
 watching src
 ✓ public/kirana.css (4802 bytes, src/card.ts, 2 ms)
 ```
 
-## `kirana check`
+## `kirana-style check`
 
 Report diagnostics without writing anything.
 
 ```bash
-kirana check src
-kirana check src --format json
-kirana check src --format github --max-warnings 0
+kirana-style check src
+kirana-style check src --format json
+kirana-style check src --format github --max-warnings 0
 ```
 
 It walks the paths you give it, skipping `node_modules`, `dist`, dotfiles and
 `.d.ts` files. Human output underlines the span and prints the help line:
 
 ```console
-$ kirana check src
+$ kirana-style check src
 warning[KRN1703] sx-on-external-component: a component from "@base-ui/react"
 receives `sx`, which it does not read (src/menu.tsx:14:7)
   help: spread the compiled props instead: {...props(styles.root, sx)}
@@ -212,34 +238,34 @@ configuration.
 
 ```yaml
 # .github/workflows/ci.yml
-- run: npx kirana check src --format github --max-warnings 0
+- run: npx kirana-style check src --format github --max-warnings 0
 ```
 
-## `kirana build`
+## `kirana-style build`
 
 Compile files and write the stylesheet.
 
 ```bash
-kirana build src --out dist/kirana.css
-kirana build src --out dist/kirana.css --minify
+kirana-style build src --out dist/kirana.css
+kirana-style build src --out dist/kirana.css --minify
 ```
 
 Useful when a bundler is not in the picture: a library build, a check in CI, or
 looking at the CSS for yourself. Applications normally let the
 [Vite plugin](/docs/integrations/vite) do this.
 
-## `kirana analyze`
+## `kirana-style analyze`
 
 What the stylesheet holds, and why.
 
 ```bash
-kirana analyze src
-kirana analyze src --json
-kirana analyze src --html report.html
+kirana-style analyze src
+kirana-style analyze src --json
+kirana-style analyze src --html report.html
 ```
 
 ```console
-$ kirana analyze src
+$ kirana-style analyze src
 58 module(s), 1607 site(s), 851 atom(s), 39.2 kB stylesheet
 
 Stylesheet by layer
@@ -266,7 +292,7 @@ your project declares that nothing reads. `--json` prints all of it;
 `--html` writes one self-contained page, readable in light and dark. The exit
 code is the same as `check`'s.
 
-## `kirana export`
+## `kirana-style export`
 
 The design system, as JSON: every token with its value (and both halves of a
 `light-dark()` pair), each theme and the tokens it overrides, each recipe with
@@ -275,8 +301,8 @@ anchored and read, and the keyframes, `positionTry` and `viewTransition` names.
 Each comes with the file and line that declares it.
 
 ```bash
-kirana export                       # print it
-kirana export src --out design-system.json
+kirana-style export                       # print it
+kirana-style export src --out design-system.json
 ```
 
 ```json file="design-system.json"
@@ -338,19 +364,19 @@ locations only, never source text; everything is sorted, so the file diffs clean
 when it is committed. `schema` changes only when a field does. The exit code is
 1 when the project has errors, as for `check`.
 
-## `kirana trace`
+## `kirana-style trace`
 
 Explain which declaration wins for a property, and why.
 
 ```bash
-kirana trace src/components/card.tsx:24 padding-top
+kirana-style trace src/components/card.tsx:24 padding-top
 ```
 
 It prints one line per candidate: a marker for the winner, the value, the
 conditions, the layer, and the ladder step that decided it.
 
 ```console
-$ kirana trace src/components/card.tsx:24 padding-top
+$ kirana-style trace src/components/card.tsx:24 padding-top
 ✓ 2px   base   kirana.atoms   step 5 (set 1 longhand < 4)
   1px   base   kirana.atoms
 ```
@@ -371,16 +397,16 @@ result, not from reading the source.
 | 1    | `check --max-warnings n`: more than `n` warnings              |
 | 2    | Bad configuration, or a malformed argument                    |
 
-## `kirana migrate`
+## `kirana-style migrate`
 
 Rewrite another styling system's sources into Kirana, and report what it will
 not decide for you.
 
 ```bash
-kirana migrate tailwind src                    # print the diff and the report
-kirana migrate tailwind src --write            # apply it
-kirana migrate tailwind src --report todo.txt  # also save the report
-kirana migrate stylex src --write
+kirana-style migrate tailwind src                    # print the diff and the report
+kirana-style migrate tailwind src --write            # apply it
+kirana-style migrate tailwind src --report todo.txt  # also save the report
+kirana-style migrate stylex src --write
 ```
 
 Nothing is written without `--write`. The report is printed either way: each
@@ -392,13 +418,13 @@ and your theme's scales), and reads `@custom-variant` and `@utility` from any CS
 file among its paths. See
 [migrating from Tailwind](/docs/migration/from-tailwind#the-codemod).
 
-## `kirana lsp`
+## `kirana-style lsp`
 
 Start the language server on stdin and stdout. Editors run it for you (see
 [editor support](/docs/tooling/editor)), but any LSP client can:
 
 ```bash
-kirana lsp
+kirana-style lsp
 ```
 
 It loads `kirana.config.*` like every other command, indexes the project, and then

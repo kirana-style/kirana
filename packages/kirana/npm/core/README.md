@@ -1,7 +1,7 @@
 # @kirana-style/core
 
 The authoring API of [Kirana](../../../../spec/README.md), a compile-time styling system.
-Every export here is compiled away by `@kirana-style/vite` (or the `kirana` CLI); calling one in code the
+Every export here is compiled away by `@kirana-style/vite` (or the `kirana-style` CLI); calling one in code the
 compiler did not see throws an error that says so. The normative reference is
 [06-authoring-api](../../../../spec/06-authoring-api.md).
 

@@ -127,9 +127,9 @@ on Linux, macOS and Windows, plus a WASI-fallback run (experiment E-08).
 
 **KRN-TEST-008** — Migration codemods MUST be tested end to end on our shadcn/ui port:
 
-1. `kirana migrate stylex` on `packages/ui` and the apps, then a Kirana build, then the conformance suite
+1. `kirana-style migrate stylex` on `packages/ui` and the apps, then a Kirana build, then the conformance suite
    against the StyleX port;
-2. `kirana migrate tailwind` on the Tailwind twin, then a Kirana build, then the conformance suite against
+2. `kirana-style migrate tailwind` on the Tailwind twin, then a Kirana build, then the conformance suite against
    the twin;
 3. fixture cases for every "reports" item in [06](./06-authoring-api.md#migration-codemods) (custom
    variants, `cn` deletions, width-only borders, wrapper default props), asserting the report is produced

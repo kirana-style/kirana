@@ -29,7 +29,7 @@ flowchart LR
 | **A — Build**    | Wall time; CPU user + system; peak RSS; transform calls; modules parsed by the styling tool; for incremental: time from file write to stylesheet available.                                                                |
 | **B — Artifact** | CSS raw / gzip / brotli (all minified); rule, selector and declaration counts; unique declarations; bytes per layer; JS raw / gzip; styling runtime bytes; rendered HTML bytes; total `class` and `style` attribute bytes. |
 | **C — Runtime**  | First render (FCP, LCP); total "Recalculate Style", "Layout" and "Paint" time from Chrome performance traces; long tasks; INP for scripted interactions; p95 frame time while scrolling; JS heap; DOM node count.          |
-| **D — DX**       | Language-server hover and diagnostics latency (p50, p95); server memory after indexing; `kirana check` wall time.                                                                                                          |
+| **D — DX**       | Language-server hover and diagnostics latency (p50, p95); server memory after indexing; `kirana-style check` wall time.                                                                                                    |
 
 ## Corpora
 

@@ -17,7 +17,7 @@ change by `examples/rails`, served by Puma, with a style edit checked on reload.
 
 ## 1. Install
 
-<!-- ::install packages="@kirana-style/core" dev="@kirana-style/compiler" -->
+<!-- ::install packages="@kirana-style/core" dev="kirana-style" -->
 
 ```ruby file="Gemfile"
 gem "kirana"
@@ -41,10 +41,10 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 
 ```bash file="Procfile.dev"
 web: bin/rails server
-kirana: npx kirana dev app/styles --out public/kirana/kirana.css
+kirana: npx kirana-style dev app/styles --out public/kirana/kirana.css
 ```
 
-For production, run `npx kirana build app/styles --out public/kirana/kirana.css --minify`
+For production, run `npx kirana-style build app/styles --out public/kirana/kirana.css --minify`
 before `assets:precompile`.
 
 ## 4. Use it in a view
@@ -55,7 +55,7 @@ before `assets:precompile`.
 <div class="<%= kirana :card, active && :active %>">…</div>
 ```
 
-The helper reads the class map again whenever `kirana dev` rewrites it. Set
+The helper reads the class map again whenever `kirana-style dev` rewrites it. Set
 `config.kirana.classes` to read it from somewhere other than
 `public/kirana/classes.json`.
 

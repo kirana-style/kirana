@@ -12,7 +12,7 @@ Astro and Angular templates.
 ![Kirana, and the editors its language server runs in: VS Code, Cursor, Windsurf, Antigravity, Zed, Neovim, Helix and any LSP editor](https://raw.githubusercontent.com/kirana-style/kirana/main/packages/kirana/editors/vscode/images/banner.webp)
 
 Every editor picture below is the language server's real output for one file, rendered as VS Code shows it
-with the GitHub Dark theme. The answers come from your project's own compiler (`kirana lsp`, from `@kirana-style/compiler`), so
+with the GitHub Dark theme. The answers come from your project's own compiler (`kirana-style lsp`, from `@kirana-style/compiler`), so
 the editor sees exactly what your build does. Upgrading Kirana upgrades the editor with it.
 
 ## Installation
@@ -22,10 +22,11 @@ the editor sees exactly what your build does. Upgrading Kirana upgrades the edit
 | **VS Code**                                 | [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kirana-style.kirana), **Extensions** → search "Kirana", or `code --install-extension kirana-style.kirana` |
 | **Cursor, Windsurf, Antigravity, VSCodium** | [Open VSX](https://open-vsx.org/extension/kirana-style/kirana): **Extensions** → search "Kirana"                                                                                    |
 | **Zed**                                     | The Kirana extension: **zed: install dev extension** from [`packages/kirana/editors/zed`](https://github.com/kirana-style/kirana/tree/main/packages/kirana/editors/zed)             |
-| **Neovim, Helix, any LSP editor**           | `kirana lsp` as a language server: [setup for each editor](https://kirana.style/docs/tooling/editor)                                                                                |
+| **Neovim, Helix, any LSP editor**           | `kirana-style lsp` as a language server: [setup for each editor](https://kirana.style/docs/tooling/editor)                                                                          |
 
-The extension needs `@kirana-style/compiler` in your project (every Kirana adapter installs it). It
-finds `node_modules/.bin/kirana`, walking up to a monorepo's root. In a remote workspace (WSL, SSH,
+The extension needs `kirana-style` in your project (`npx kirana-style@latest init` adds it). It
+finds `node_modules/.bin/kirana-style`, walking up to a monorepo's root, or `kirana` in a project
+still on 0.1.0. In a remote workspace (WSL, SSH,
 a dev container), install the extension on the remote side, where your project lives.
 
 ## Features
@@ -137,7 +138,7 @@ After changing `kirana.config.*`, or when answers look stale.
 
 ### `kirana.server.path`
 
-The `kirana` binary or script to run. Empty uses the project's own `node_modules/.bin/kirana`. A
+The `kirana-style` binary or script to run. Empty uses the project's own `node_modules/.bin/kirana-style`. A
 relative path is resolved against the workspace folder; a `.js` or `.ts` path runs with `node`
 (22.18 or later). **Default: empty**
 

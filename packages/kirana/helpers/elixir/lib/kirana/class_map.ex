@@ -1,7 +1,7 @@
 defmodule Kirana.ClassMap do
   @moduledoc """
   A class map (D-069): the class string of every handle a server app's style modules export, by
-  name, as `kirana build` and `kirana dev` write it. `classes/2` merges named handles the way `sx`
+  name, as `kirana-style build` and `kirana-style dev` write it. `classes/2` merges named handles the way `sx`
   merges them, later ones winning.
   """
 
@@ -31,7 +31,7 @@ defmodule Kirana.ClassMap do
           "kirana: this class map was written by another version of Kirana; rebuild it"
   end
 
-  @doc "Reads the class map `kirana build` or `kirana dev` wrote."
+  @doc "Reads the class map `kirana-style build` or `kirana-style dev` wrote."
   def from_file(path) do
     case File.read(path) do
       {:ok, text} ->
@@ -40,7 +40,7 @@ defmodule Kirana.ClassMap do
       {:error, _} ->
         raise File.Error,
           reason: :enoent,
-          action: "read the class map (run `kirana dev` or `kirana build` first)",
+          action: "read the class map (run `kirana-style dev` or `kirana-style build` first)",
           path: path
     end
   end

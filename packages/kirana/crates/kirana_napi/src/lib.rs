@@ -94,7 +94,7 @@ impl Compiler {
     }
 
     /// Compiles every source file under `paths` (files or directories) into the session; returns
-    /// every diagnostic as JSON, project-wide ones included, as `kirana check` reports them.
+    /// every diagnostic as JSON, project-wide ones included, as `kirana-style check` reports them.
     #[napi]
     pub fn check(&self, paths: Vec<String>) -> String {
         let paths: Vec<PathBuf> = paths.into_iter().map(PathBuf::from).collect();
@@ -167,13 +167,13 @@ pub fn scan_component(file: String, source: String) -> String {
 }
 
 /// Runs the language server on this process's stdin and stdout until the client shuts it down;
-/// returns the exit code. It blocks: `kirana lsp` is a process of its own.
+/// returns the exit code. It blocks: `kirana-style lsp` is a process of its own.
 #[napi]
 pub fn run_lsp(config_json: String) -> i32 {
     kirana_lsp::serve_stdio(&config_json)
 }
 
-/// Runs the `kirana` command line; returns `[exitCode, output]`.
+/// Runs the `kirana-style` command line; returns `[exitCode, output]`.
 #[napi]
 pub fn run_cli(args: Vec<String>) -> (i32, String) {
     let mut output = Vec::new();

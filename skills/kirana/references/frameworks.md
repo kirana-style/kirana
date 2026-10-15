@@ -2,7 +2,7 @@
 
 # Frameworks
 
-`npx kirana-style init` detects the framework, bundler and package manager and shows every change as a
+`npx kirana-style@latest init` detects the framework, bundler and package manager and shows every change as a
 diff before writing it; `npx kirana-style doctor` checks the result. Each app imports
 `@kirana-style/core/stylesheet.css` once. Until the packages are on npm they install from tarballs
 (https://kirana.style/docs/start/installation.md).
@@ -27,7 +27,7 @@ Bundlers without a framework: `@kirana-style/vite`, `@kirana-style/rolldown`, `@
 ## Server templates
 
 Styles live in TypeScript modules listed in `classes.modules` of `kirana.config.ts`; the CLI
-(`kirana dev` beside the server, `kirana build` in deploys) writes the stylesheet and a class map the
+(`kirana-style dev` beside the server, `kirana-style build` in deploys) writes the stylesheet and a class map the
 template helper reads. A style a template names must be a static export (`classes-not-static`,
 `unknown-class-name` otherwise).
 

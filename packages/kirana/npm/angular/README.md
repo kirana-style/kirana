@@ -30,4 +30,4 @@ export class Card {
   source root into `.kirana/` (ignore it), hand Angular the copy through `fileReplacements`, and add
   `.kirana/kirana.css` to `styles`.
 
-`kirana init` sets up either. How it works and what it costs: `design-notes/angular.md`.
+`kirana-style init` sets up either. How it works and what it costs: `design-notes/angular.md`.

@@ -32,7 +32,7 @@ export function rootOf(file: string, fallback: string): string {
 
 const drivers = new Map<string, Driver>()
 
-/** The session for a root, opened and compiled once (`kirana check` over the root). */
+/** The session for a root, opened and compiled once (`kirana-style check` over the root). */
 export function driverFor(root: string): Driver {
   let driver = drivers.get(root)
   if (!driver) {

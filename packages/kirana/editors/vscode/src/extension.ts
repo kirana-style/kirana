@@ -1,5 +1,5 @@
 /**
- * The VS Code client (KRN-DX-001): starts the project's `kirana lsp` and wires the editor to it.
+ * The VS Code client (KRN-DX-001): starts the project's `kirana-style lsp` and wires the editor to it.
  * Everything the server can answer it answers; this file only finds the server, passes settings
  * and the theme, restarts it when the configuration changes, shows command results, and hosts the
  * views the server's answers feed: the Style Inspector, Style Fold and the status bar's stylesheet

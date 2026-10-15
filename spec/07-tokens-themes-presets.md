@@ -174,7 +174,7 @@ export default defineConfig({ presets: [scales(), company()] })
 
 1. Presets apply in array order; project definitions apply after all presets.
 2. A later definition of the same token identity overrides an earlier one; the override is reported by
-   `kirana analyze` so replacements are visible.
+   `kirana-style analyze` so replacements are visible.
 3. Presets never add rules to the stylesheet by themselves; only tokens and conditions that styles
    reference are emitted.
 4. Presets are ordinary modules: authors may import a preset's tokens directly without adding it to

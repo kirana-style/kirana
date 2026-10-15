@@ -72,6 +72,6 @@
   // VS Code cuts an inlay hint at 43 characters with "…"; 0 shows it whole. Kirana
   // keeps its own limit (`kirana.inlayHints.maxLength`, 100) and counts the rest as +N.
   "editor.inlayHints.maximumLength": 0,
-  "kirana.server.path": "packages/kirana/npm/compiler/bin/kirana.ts",
+  "kirana.server.path": "packages/kirana/npm/cli/bin/kirana-style.ts",
   "kirana.trace.server": "verbose"
 }

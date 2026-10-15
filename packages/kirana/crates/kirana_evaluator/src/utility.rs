@@ -2,7 +2,7 @@
 //! the style object a person would have written — scale values read through the same import
 //! resolution a real `import` uses — and that object goes through the function `css()` uses, so
 //! both forms produce the same atoms. The lowering itself is `kirana_utility`'s, shared with
-//! `kirana migrate tailwind`; this renders its values as IR.
+//! `kirana-style migrate tailwind`; this renders its values as IR.
 
 use std::sync::Arc;
 

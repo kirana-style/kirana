@@ -117,7 +117,7 @@ impl Jsx {
 #[derive(Debug, Clone, Deserialize, PartialEq, Default)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
-    /// Absolute project root; scopes `kirana build` and relative file names in diagnostics.
+    /// Absolute project root; scopes `kirana-style build` and relative file names in diagnostics.
     #[serde(default)]
     pub root: String,
     pub targets: Option<Targets>,

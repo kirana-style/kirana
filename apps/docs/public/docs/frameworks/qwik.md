@@ -11,15 +11,14 @@ Kirana supports **Qwik 2** (`@qwik.dev/core`): Qwik 1 runs only on
 Vite 7 and older, and Kirana's Vite plugin needs Vite 8. Tested on every change
 by `examples/qwik`, a Qwik Router app built and served with npm and pnpm.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects Qwik, shows every change below as a diff, writes them once you say

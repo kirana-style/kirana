@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: Set a project up with kirana init or with your framework's guide, see what every setup has, and install from tarballs while the packages are unpublished.
+description: Set a project up with kirana-style init or your framework's guide, see what every setup has, and try unreleased changes from a checkout.
 section: start
 order: 4
 keywords:
@@ -18,20 +18,25 @@ keywords:
     preact,
     solid,
     tarballs,
-    kirana init,
-    kirana doctor,
+    kirana-style init,
+    kirana-style doctor,
   ]
 ---
 
 # Installation
 
-## Let `kirana init` do it
+## Let `kirana-style init` do it
 
-In your project's root:
+In your project's root, through your package manager's runner. It fetches the
+command for this one run, the way `npx shadcn@latest` does, and writes nothing
+until you say yes:
 
-```bash
-npx kirana-style init
-```
+| Package manager | First run                             |
+| --------------- | ------------------------------------- |
+| npm             | `npx kirana-style@latest init`        |
+| pnpm            | `pnpm dlx kirana-style@latest init`   |
+| Yarn            | `yarn dlx kirana-style@latest init`   |
+| Bun             | `bunx --bun kirana-style@latest init` |
 
 It reads `package.json` and your lockfile, recognises the framework, bundler and
 package manager, and shows every change it would make as a diff: the configuration
@@ -44,15 +49,11 @@ npx kirana-style doctor
 ```
 
 checks the engine, the installed versions, the configuration and the wiring, and
-says what is missing. Both are described in [the CLI](/docs/tooling/cli#kirana-init).
+says what is missing. Both are described in [the CLI](/docs/tooling/cli#kirana-style-init).
 
-The first run goes through `kirana-style`, the command line's package on npm.
-After that the project has its own `kirana` command, which came with the compiler
-the first run added, so the rest of these docs write `kirana check`, `kirana build` and so
-on.
-
-Until the packages are on npm, install `@kirana-style/compiler` from the tarballs
-below first, and run its `kirana init` instead.
+`init` adds `kirana-style` to your dev dependencies, so every later command runs
+the version your project pins: `npx kirana-style check`, `npx kirana-style build`
+and the rest. [A shorter name](/docs/tooling/cli#a-shorter-name) is one script away.
 
 ## Pick your framework
 
@@ -64,53 +65,14 @@ example that CI builds and checks in a browser on every change.
 The overview of all of them, with what `sx` compiles to in each, is
 [supported frameworks](/docs/frameworks/overview).
 
-## Not on npm yet
+## Install by hand
 
-The packages (`@kirana-style/core`, the compiler, and one adapter per host) are at
-version 0.1.0 and **not published**: the API is still moving and the name is not
-cleared. Two ways work today; the guides are the same for both.
+The runtime package, the command line and your bundler's adapter (Vite here; your
+[guide](#pick-your-framework) names yours):
 
-### Install from tarballs
+<!-- ::install packages="@kirana-style/core" dev="kirana-style @kirana-style/vite" -->
 
-A checkout can pack every package the way it would be published, as compiled
-JavaScript with declarations and the engine as its own per-platform package:
-
-```bash
-vp run engine          # the engine for this machine
-bun run kirana:pack    # tarballs in packages/kirana/dist-packages
-```
-
-Point your project at those tarballs, including the ones it does not name itself,
-through your package manager's overrides. With npm or Bun:
-
-```json file="package.json"
-{
-  "dependencies": {
-    "@kirana-style/core": "file:/path/to/dist-packages/kirana-core-0.1.0.tgz"
-  },
-  "devDependencies": {
-    "@kirana-style/vite": "file:/path/to/dist-packages/kirana-vite-0.1.0.tgz"
-  },
-  "overrides": {
-    "@kirana-style/compiler": "file:/path/to/dist-packages/kirana-compiler-0.1.0.tgz",
-    "@kirana-style/rolldown": "file:/path/to/dist-packages/kirana-rolldown-0.1.0.tgz",
-    "@kirana-style/compiler-linux-x64-gnu": "file:/path/to/dist-packages/kirana-compiler-linux-x64-gnu-0.1.0.tgz"
-  }
-}
-```
-
-pnpm reads the same map from `overrides` in `pnpm-workspace.yaml`, and Yarn from
-`resolutions`. This is exactly what CI does on every change: it installs the
-tarballs with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and
-Alpine, builds an example, and checks its styles in a browser. No package runs an
-install script, so there is nothing to allow-list.
-
-> [!NOTE] Yarn needs every platform
-> Yarn looks up all eight platform packages to write its lockfile, even the seven
-> it will not install. A tarball set packed on one machine has only that
-> machine's, so use npm, pnpm or Bun there.
-
-### Machines without a native build
+## Machines without a native build
 
 The engine is native code for eight platforms. Anywhere else (a WebContainer, an
 unusual CPU), install its WebAssembly build as well; Kirana uses it when no native
@@ -121,41 +83,6 @@ npm install -D @kirana-style/compiler-wasm32-wasi --force
 ```
 
 `KIRANA_FORCE_WASI=1` uses it even where the native engine works.
-
-### From a checkout of the repository
-
-Kirana lives in a Bun workspace alongside the apps that use it. In that setup an
-app depends on the packages by workspace protocol:
-
-```json file="apps/your-app/package.json"
-{
-  "dependencies": {
-    "@kirana-style/core": "workspace:*"
-  },
-  "devDependencies": {
-    "@kirana-style/vite": "workspace:*"
-  }
-}
-```
-
-To use Kirana from a project outside the repository, link the packages from a
-checkout:
-
-```bash
-cd kirana/packages/kirana/npm/core && bun link
-cd ../vite && bun link
-cd /your/project && bun link @kirana-style/core @kirana-style/vite
-```
-
-The native engine comes from the checkout's build (`vp run build` there, or
-`vp run engine`).
-
-### Once published
-
-Once the packages are released, installation becomes the ordinary thing. Do not
-run this yet: the registry has nothing to give you.
-
-<!-- ::install packages="@kirana-style/core" dev="@kirana-style/vite" -->
 
 ## What every setup has
 
@@ -253,7 +180,7 @@ lowers what it can.
 
 ```bash
 # no diagnostics, exit code 0
-kirana check src
+npx kirana-style check src
 ```
 
 If a module that uses `css()` was never compiled, calling it throws at runtime
@@ -268,3 +195,77 @@ unstyled page.
 > **A component ignores `sx`?** Components from installed packages do not read it.
 > Spread the compiled props instead; see
 > [styling other people's components](/docs/styling/external-components).
+
+## Unreleased changes
+
+The published packages are the release. To try a change that is on `main` but not
+released yet, use the packages from a checkout.
+
+### From tarballs
+
+A checkout packs every package the way it would be published, as compiled
+JavaScript with declarations and the engine as its own per-platform package:
+
+```bash
+vp run engine          # the engine for this machine
+bun run kirana:pack    # tarballs in packages/kirana/dist-packages
+```
+
+Point your project at those tarballs, including the ones it does not name itself,
+through your package manager's overrides. With npm or Bun:
+
+```json file="package.json"
+{
+  "dependencies": {
+    "@kirana-style/core": "file:/path/to/dist-packages/kirana-style-core-0.1.0.tgz"
+  },
+  "devDependencies": {
+    "kirana-style": "file:/path/to/dist-packages/kirana-style-0.1.0.tgz",
+    "@kirana-style/vite": "file:/path/to/dist-packages/kirana-style-vite-0.1.0.tgz"
+  },
+  "overrides": {
+    "@kirana-style/compiler": "file:/path/to/dist-packages/kirana-style-compiler-0.1.0.tgz",
+    "@kirana-style/rolldown": "file:/path/to/dist-packages/kirana-style-rolldown-0.1.0.tgz",
+    "@kirana-style/compiler-linux-x64-gnu": "file:/path/to/dist-packages/kirana-style-compiler-linux-x64-gnu-0.1.0.tgz"
+  }
+}
+```
+
+pnpm reads the same map from `overrides` in `pnpm-workspace.yaml`, and Yarn from
+`resolutions`. This is what CI does on every change: it installs the tarballs with
+npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and Alpine, builds
+an example, and checks its styles in a browser. No package runs an install script,
+so there is nothing to allow-list.
+
+> [!NOTE] Yarn needs every platform
+> Yarn looks up all eight platform packages to write its lockfile, even the seven
+> it will not install. A tarball set packed on one machine has only that
+> machine's, so use npm, pnpm or Bun there.
+
+### From a checkout of the repository
+
+Kirana lives in a Bun workspace alongside the apps that use it. In that setup an
+app depends on the packages by workspace protocol:
+
+```json file="apps/your-app/package.json"
+{
+  "dependencies": {
+    "@kirana-style/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "workspace:*"
+  }
+}
+```
+
+To use Kirana from a project outside the repository, link the packages from a
+checkout:
+
+```bash
+cd kirana/packages/kirana/npm/core && bun link
+cd ../vite && bun link
+cd /your/project && bun link @kirana-style/core @kirana-style/vite
+```
+
+The native engine comes from the checkout's build (`vp run build` there, or
+`vp run engine`).

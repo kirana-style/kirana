@@ -167,7 +167,7 @@ fn vue_template_bindings_hover_summarize_and_show_colours() {
     // Hover on a property in the script explains its precedence through the block's module.
     let hover = f.hover("Card.vue", VUE, "padding: \"2rem\"", 0, 2);
     assert!(hover.contains("padding"), "{hover}");
-    assert!(!hover.contains("kirana trace"), "{hover}");
+    assert!(!hover.contains("kirana-style trace"), "{hover}");
     // The compiled CSS of the whole component, and the lens over each `css()`.
     let css = f.ok(
         "workspace/executeCommand",

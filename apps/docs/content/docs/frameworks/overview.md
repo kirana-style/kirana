@@ -46,7 +46,7 @@ Each is complete on its own: install, configure, import the stylesheet, type
 > [!NOTE] Don't see your framework?
 > Most frameworks build with Vite: use [the Vite plugin](/docs/integrations/vite).
 > Otherwise, pick [your bundler](/docs/integrations/bundlers), or let
-> [the Kirana CLI](/docs/tooling/cli#kirana-dev) write the stylesheet and a
+> [the Kirana CLI](/docs/tooling/cli#kirana-style-dev) write the stylesheet and a
 > [class map](/docs/frameworks/server-templates) for your templates.
 
 ## Using Vite
@@ -103,7 +103,7 @@ stylesheet, and a class map your templates read the class names from.
 
 ### 1. Install
 
-<!-- ::install dev="@kirana-style/compiler @kirana-style/core" -->
+<!-- ::install dev="kirana-style @kirana-style/core" -->
 
 ### 2. Name the modules templates use
 
@@ -126,10 +126,10 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ### 4. Run it
 
 ```bash
-npx kirana dev styles --out public/kirana/kirana.css
+npx kirana-style dev styles --out public/kirana/kirana.css
 ```
 
-`kirana dev` watches and rewrites both files; `kirana build` writes them once,
+`kirana-style dev` watches and rewrites both files; `kirana-style build` writes them once,
 minified with `--minify`. Your template helper then turns `card` into its class
 names; see [server templates](/docs/frameworks/server-templates).
 

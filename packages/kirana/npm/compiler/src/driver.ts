@@ -194,7 +194,7 @@ export class Driver {
 
   /**
    * Compiles every source file under `paths` (files or directories, relative to the root) into the
-   * session, as `kirana check` does; returns every diagnostic, project-wide ones included.
+   * session, as `kirana-style check` does; returns every diagnostic, project-wide ones included.
    */
   check(paths: readonly string[]): Diagnostic[] {
     return parseDiagnostics(

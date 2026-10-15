@@ -133,7 +133,7 @@ describe("KRN-DX-008 detecting a project", () => {
   })
 })
 
-describe("KRN-DX-008 kirana init's edits", () => {
+describe("KRN-DX-008 kirana-style init's edits", () => {
   it("adds imports in the module's style", () => {
     expect(addImport(`import a from "a";\n\nx()\n`, `import k from "k"`)).toBe(
       `import a from "a";\nimport k from "k";\n\nx()\n`
@@ -188,7 +188,7 @@ describe("KRN-DX-008 kirana init's edits", () => {
   })
 })
 
-describe("KRN-DX-008 kirana init's plan", () => {
+describe("KRN-DX-008 kirana-style init's plan", () => {
   it("sets up Next.js on Turbopack: withKirana, PostCSS and @kirana;", () => {
     const root = project({
       "package.json": pkg({ next: "16" }),
@@ -228,7 +228,7 @@ describe("KRN-DX-008 kirana init's plan", () => {
     )
     expect(result.dependencies).toEqual(["@kirana-style/core"])
     expect(result.development).toEqual([
-      "@kirana-style/compiler",
+      "kirana-style",
       "@kirana-style/next",
       "@kirana-style/postcss",
       "postcss",
@@ -613,7 +613,7 @@ function io(
   return session
 }
 
-describe("KRN-DX-008 kirana init", () => {
+describe("KRN-DX-008 kirana-style init", () => {
   const VITE = {
     "package.json": pkg({ react: "19", vite: "8" }, { type: "module" }),
     "vite.config.ts": `import { defineConfig } from "vite"\n\nexport default defineConfig({ plugins: [] })\n`,
@@ -630,7 +630,7 @@ describe("KRN-DX-008 kirana init", () => {
       "+ export default defineConfig({ plugins: [kirana()] })"
     )
     expect(session.output).toContain(
-      "Dry run: nothing written.\n  npm install @kirana-style/core\n  npm install -D @kirana-style/compiler @kirana-style/vite"
+      "Dry run: nothing written.\n  npm install @kirana-style/core\n  npm install -D kirana-style @kirana-style/vite"
     )
     expect(read(root, "vite.config.ts")).not.toContain("kirana")
   })
@@ -655,7 +655,7 @@ describe("KRN-DX-008 kirana init", () => {
         react: "19",
         vite: "8",
         "@kirana-style/core": "0",
-        "@kirana-style/compiler": "0",
+        "kirana-style": "0",
         "@kirana-style/vite": "0",
       })
     )
@@ -674,12 +674,14 @@ describe("KRN-DX-008 kirana init", () => {
     expect(await runInit(["-y", "--install"], root, session)).toBe(0)
     expect(session.commands).toEqual([
       "npm install @kirana-style/core",
-      "npm install -D @kirana-style/compiler @kirana-style/esbuild",
+      "npm install -D kirana-style @kirana-style/esbuild",
     ])
     expect(session.output).toContain(
       "To do by hand:\n  adapter: add kirana() to esbuild's plugins"
     )
-    expect(session.output).toContain("Then check the setup with: kirana doctor")
+    expect(session.output).toContain(
+      "Then check the setup with: kirana-style doctor"
+    )
     const failing = io(false, 3)
     expect(await runInit(["--install"], root, failing)).toBe(3)
     expect(failing.commands).toHaveLength(1)
@@ -704,18 +706,18 @@ describe("KRN-DX-008 kirana init", () => {
   })
 })
 
-describe("KRN-DX-008 kirana doctor", () => {
+describe("KRN-DX-008 kirana-style doctor", () => {
   const native = loadNative()
 
   it("passes a project that is set up, with its packages installed", async () => {
     const root = project({
       "package.json": pkg({
         "@kirana-style/core": "0",
-        "@kirana-style/compiler": "0",
+        "kirana-style": "0",
       }),
       "kirana.config.json": `{ "names": { "prefix": "q" }, "libraries": ["ui"] }`,
       "node_modules/@kirana-style/core/package.json": `{"name":"@kirana-style/core","version":"0.1.0"}`,
-      "node_modules/@kirana-style/compiler/package.json": `{"name":"@kirana-style/compiler","version":"0.1.0"}`,
+      "node_modules/kirana-style/package.json": `{"name":"kirana-style","version":"0.1.0"}`,
     })
     let output = ""
     expect(
@@ -728,7 +730,7 @@ describe("KRN-DX-008 kirana doctor", () => {
     ).toBe(0)
     expect(output).toContain("✓ engine       native (")
     expect(output).toContain(
-      "✓ packages     @kirana-style/compiler@0.1.0, @kirana-style/core@0.1.0"
+      "✓ packages     @kirana-style/core@0.1.0, kirana-style@0.1.0"
     )
     expect(output).toContain(
       `✓ config       kirana.config.json, prefix "q", libraries ui`
@@ -760,12 +762,12 @@ describe("KRN-DX-008 kirana doctor", () => {
     expect(by.config!.status).toBe("fail")
     expect(by.adapter).toMatchObject({
       status: "fail",
-      detail: "not set up: kirana init would create vite.config.ts",
+      detail: "not set up: kirana-style init would create vite.config.ts",
     })
     expect(by.types!.status).toBe("warn")
     expect(by.dependencies).toMatchObject({
       status: "fail",
-      detail: "not in package.json: @kirana-style/compiler",
+      detail: "not in package.json: kirana-style",
     })
     let output = ""
     expect(
@@ -783,14 +785,14 @@ describe("KRN-DX-008 kirana doctor", () => {
     const root = project({
       "package.json": pkg({
         "@kirana-style/core": "0",
-        "@kirana-style/compiler": "0",
+        "kirana-style": "0",
       }),
       "node_modules/@kirana-style/core/package.json": `{"version":"0.1.0"}`,
-      "node_modules/@kirana-style/compiler/package.json": `{"version":"0.2.0"}`,
+      "node_modules/kirana-style/package.json": `{"version":"0.2.0"}`,
       "kirana.config.json": "{}",
     })
     expect(installedVersions(root)).toEqual({
-      "@kirana-style/compiler": "0.2.0",
+      "kirana-style": "0.2.0",
       "@kirana-style/core": "0.1.0",
     })
     const checks = await diagnose(root, () => native)
@@ -809,7 +811,7 @@ describe("KRN-DX-008 kirana doctor", () => {
       detail: "no engine for this machine",
     })
     expect(broken.find((check) => check.name === "packages")!.detail).toBe(
-      "no @kirana-style/* package in package.json"
+      "no Kirana package in package.json"
     )
     expect(broken.some((check) => check.name === "config")).toBe(false)
     const wasi = await diagnose(
@@ -827,12 +829,12 @@ describe("KRN-DX-008 kirana doctor", () => {
       )
     ).toBe(1)
     expect(output).toMatch(
-      /\d problem\(s\)\. kirana init sets up what it can\.\n$/
+      /\d problem\(s\)\. kirana-style init sets up what it can\.\n$/
     )
   })
 })
 
-describe("KRN-DX-008 kirana dev", () => {
+describe("KRN-DX-008 kirana-style dev", () => {
   const STYLE = (colour: string) =>
     `import { css } from "@kirana-style/core"\nexport const a = css({ color: "${colour}" })\n`
 
@@ -907,7 +909,7 @@ describe("KRN-DX-008 kirana dev", () => {
     expect((await runDev(["--wat"], root, log)).code).toBe(2)
     expect((await runDev(["missing"], root, log)).code).toBe(2)
     expect(output).toBe(
-      "--out needs a file\nunknown option --wat\nusage: kirana dev [paths] [--out <file>] [--minify]\nmissing does not exist\n"
+      "--out needs a file\nunknown option --wat\nusage: kirana-style dev [paths] [--out <file>] [--minify]\nmissing does not exist\n"
     )
     const idle = await runDev(["--wat"], root, log)
     idle.flush()
@@ -1314,7 +1316,7 @@ describe("D-069 to D-072: the frameworks Tailwind has a guide for", () => {
     expect(all.stylesheet).toMatchObject({
       status: "manual",
       detail: expect.stringContaining(
-        "composer require kirana-style/kirana; run kirana dev resources/styles --out public/kirana/kirana.css"
+        "composer require kirana-style/kirana; run kirana-style dev resources/styles --out public/kirana/kirana.css"
       ),
     })
     expect(all.types).toMatchObject({
@@ -1341,7 +1343,7 @@ describe("D-069 to D-072: the frameworks Tailwind has a guide for", () => {
     expect(
       steps(project({ "package.json": pkg({ "@adonisjs/core": "7" }) }))
         .stylesheet!.detail
-    ).toMatch(/^run kirana dev/)
+    ).toMatch(/^run kirana-style dev/)
     // An existing configuration without a class map is the user's to edit.
     const existing = project({
       "composer.json": '{"require":{"laravel/framework":"^13"}}',
@@ -1500,6 +1502,6 @@ describe("D-069 to D-072: the frameworks Tailwind has a guide for", () => {
     const session = io()
     expect(await runInit(["--dry-run"], root, session)).toBe(0)
     expect(session.output).toContain("Ruby on Rails · cli · npm · JavaScript")
-    expect(session.output).toContain("npm install -D @kirana-style/compiler")
+    expect(session.output).toContain("npm install -D kirana-style")
   })
 })

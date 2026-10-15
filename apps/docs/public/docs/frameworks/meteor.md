@@ -7,15 +7,14 @@ Since Meteor 3.4 the `rspack` package bundles app code with Rspack, so Kirana's
 Rspack plugin is Meteor's plugin too. Tested on every change by
 `examples/meteor`, built with `meteor build` and on `meteor run`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you

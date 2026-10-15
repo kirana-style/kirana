@@ -39,4 +39,4 @@ guard; dynamic class strings; a `select` rule whose target sets the property its
 
 Tailwind's stylesheet order decided between variants; Kirana's ladder decides instead: an attribute
 outranks `:hover`, and two conditions beat one. Nest hover inside the attribute when both apply.
-`kirana trace file:line property` shows the decision.
+`kirana-style trace file:line property` shows the decision.

@@ -14,7 +14,7 @@ expression is.
 
 ## Options
 
-**A. Call into JavaScript for the parse.** `kirana lsp` usually runs in Node (the `.bin` shim),
+**A. Call into JavaScript for the parse.** `kirana-style lsp` usually runs in Node (the `.bin` shim),
 so the server could ask the Driver. But the server is synchronous and also runs from the Rust
 binary with no Node at all; Zed and Helix start it either way. Rejected.
 

@@ -212,7 +212,7 @@ function CompilerPage() {
         number="05"
         label="Diagnostics"
         title="Mistakes that used to be silent"
-        lede={`${DIAGNOSTICS.length} diagnostics with stable codes and help text, and kirana trace to ask which declaration wins a property and which rule decided it.`}
+        lede={`${DIAGNOSTICS.length} diagnostics with stable codes and help text, and kirana-style trace to ask which declaration wins a property and which rule decided it.`}
         aside={
           <DocsLink href="/docs/tooling/diagnostics" sx={chapter.aside}>
             Every diagnostic

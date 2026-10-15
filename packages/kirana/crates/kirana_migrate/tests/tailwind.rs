@@ -1,4 +1,4 @@
-//! `kirana migrate tailwind` against a real project: the fixture's grammar and scales, resolved the
+//! `kirana-style migrate tailwind` against a real project: the fixture's grammar and scales, resolved the
 //! way the command line resolves them.
 
 use std::collections::BTreeSet;

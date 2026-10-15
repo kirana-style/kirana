@@ -1,4 +1,4 @@
 # read the diff and the report, then apply it
-kirana migrate tailwind src src/globals.css
-kirana migrate tailwind src src/globals.css --write
-kirana check src
+kirana-style migrate tailwind src src/globals.css
+kirana-style migrate tailwind src src/globals.css --write
+kirana-style check src

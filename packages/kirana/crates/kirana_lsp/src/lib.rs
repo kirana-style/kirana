@@ -102,7 +102,7 @@ pub fn serve_stdio(config_json: &str) -> i32 {
     match result {
         Ok(()) => 0,
         Err(error) => {
-            eprintln!("kirana lsp: {error}");
+            eprintln!("kirana-style lsp: {error}");
             1
         }
     }
@@ -163,7 +163,7 @@ pub fn respond(id: lsp_server::RequestId, method: &str, run: impl FnOnce() -> Re
 
 /// Runs one message's handler, turning a panic into an error for that message alone.
 ///
-/// The server usually runs on Node's main thread (`kirana lsp` through the Node-API binding), where
+/// The server usually runs on Node's main thread (`kirana-style lsp` through the Node-API binding), where
 /// a panic cannot unwind past Node's frames and aborts the process: every feature would stop for
 /// one bad answer. Caught here, the editor gets an error for that request and the server goes on.
 pub fn guarded<T>(method: &str, run: impl FnOnce() -> T) -> Result<T, String> {
@@ -173,8 +173,8 @@ pub fn guarded<T>(method: &str, run: impl FnOnce() -> T) -> Result<T, String> {
             .map(|reason| (*reason).to_owned())
             .or_else(|| payload.downcast_ref::<String>().cloned())
             .unwrap_or_else(|| "unknown panic".to_owned());
-        eprintln!("kirana lsp: {method} failed: {reason}");
-        format!("kirana lsp: {method} failed: {reason}")
+        eprintln!("kirana-style lsp: {method} failed: {reason}");
+        format!("kirana-style lsp: {method} failed: {reason}")
     })
 }
 

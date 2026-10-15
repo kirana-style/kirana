@@ -3,7 +3,7 @@
 ## Summary
 
 A Blade, Twig, ERB, HEEx or Edge template cannot call `css()`, and nothing compiles it. So a server
-app keeps its styles in TypeScript modules, `kirana build` and `kirana dev` write a class map — every
+app keeps its styles in TypeScript modules, `kirana-style build` and `kirana-style dev` write a class map — every
 exported handle's class string, by name — and a helper in the template's own language merges the
 named strings with the runtime's rules. PHP (Laravel, Symfony), Ruby (Rails), Elixir (Phoenix) and
 Node.js (AdonisJS) each have one. The merge needs no Kirana engine in those languages: the rules are
@@ -62,7 +62,7 @@ compiled class strings by name, as CSS Modules does for its consumers.
   name on its literal, so hover, colours and summaries work as in components. A name nothing
   exports is `unknown-class-name` (KRN1905).
 - **The stylesheet** goes where the framework serves static files (`public/kirana`,
-  `priv/static/kirana` for Phoenix), written by `kirana dev` beside the server and `kirana build` in
+  `priv/static/kirana` for Phoenix), written by `kirana-style dev` beside the server and `kirana-style build` in
   the deploy.
 
 ## Findings

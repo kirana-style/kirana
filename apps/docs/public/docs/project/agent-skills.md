@@ -39,16 +39,16 @@ to the compiler without a line saying what to do about it fails the build.
 
 ## The loop it follows
 
-1. **Learn the project.** Run [`kirana export`](/docs/tooling/cli#kirana-export)
+1. **Learn the project.** Run [`kirana-style export`](/docs/tooling/cli#kirana-style-export)
    for the tokens, themes, recipes and relations that exist, by their real names,
-   then `kirana doctor`.
+   then `kirana-style doctor`.
 2. **Write the style**, with the rules: conditions inside the value, entries
    merge per condition, `sx` forwarded last, `styleProps` for installed
    components, colours as `light-dark()` pairs.
-3. **`kirana check`**, and fix every error by its code.
+3. **`kirana-style check`**, and fix every error by its code.
 4. **Lint**, with whichever of ESLint, Oxlint or Biome the project runs.
-5. **`kirana trace file:line property`** when it compiles and looks wrong.
-6. **`kirana doctor --report`** when it looks like a Kirana bug, and ask before
+5. **`kirana-style trace file:line property`** when it compiles and looks wrong.
+6. **`kirana-style doctor --report`** when it looks like a Kirana bug, and ask before
    filing it.
 
 Every step answers from the compiler, so an agent that follows it checks its own

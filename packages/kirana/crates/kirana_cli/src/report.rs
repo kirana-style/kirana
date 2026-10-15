@@ -1,4 +1,4 @@
-//! `kirana report`: the engine's half of `kirana doctor --report` (KRN-DX-008). It compiles the
+//! `kirana-style report`: the engine's half of `kirana-style doctor --report` (KRN-DX-008). It compiles the
 //! project and prints what a bug report needs from the engine, as JSON: the engine version, how
 //! much work it did, the stylesheet's size, and every diagnostic code with how often it occurred
 //! and where first. It never prints source text; locations are project-relative.

@@ -97,6 +97,21 @@ export default defineConfig({
         cwd: "packages/kirana",
         cache: { input: RUST, output: [] },
       },
+      // The Zed extension, a Cargo project of its own outside the engine's workspace, so `cargo fmt
+      // --all` there does not reach it: the checks CI's editors job runs, without its wasm build.
+      zed: {
+        command: "bun run check:zed",
+        cwd: "packages/kirana",
+        cache: {
+          input: [
+            "packages/kirana/editors/zed/**",
+            "!packages/kirana/editors/zed/target/**",
+            // rustfmt reads its settings from the nearest parent that has them.
+            "packages/kirana/rustfmt.toml",
+          ],
+          output: [],
+        },
+      },
       // Vitest: the Kirana packages against the engine, and the docs content engine. Each runs in
       // its package, which some tests take as the working directory.
       "test:kirana": {
@@ -131,7 +146,7 @@ export default defineConfig({
       // Coverage holds the Rust and Kirana tests to 100 %, docs-core to its own floor.
       prepush: {
         command: "echo All checks passed.",
-        dependsOn: ["coverage", "test:docs"],
+        dependsOn: ["coverage", "test:docs", "zed"],
         cache: false,
       },
     },

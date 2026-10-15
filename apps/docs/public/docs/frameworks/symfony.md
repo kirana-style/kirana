@@ -8,14 +8,13 @@ stylesheet and the class map into `public/kirana`. How it fits together:
 [server templates](/docs/frameworks/server-templates). Tested on every change by
 `examples/symfony`, with a style edit checked on reload.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change, but not published. Until they are, install the npm packages from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows, and the helper from a checkout of the repository by path; the rest of this page is the same either way.
+
 
 ## 1. Install
 
 ```bash
 npm install @kirana-style/core
-npm install -D @kirana-style/compiler
+npm install -D kirana-style
 ```
 
 ```bash
@@ -31,7 +30,7 @@ services:
 ```
 
 Autoconfiguration tags it as a Twig extension. It reads the class map on first
-use, so `cache:clear` works before the first `kirana build`.
+use, so `cache:clear` works before the first `kirana-style build`.
 
 ## 3. Name the style modules and write styles
 
@@ -53,10 +52,10 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ## 4. Run the CLI
 
 ```bash
-npx kirana dev resources/styles --out public/kirana/kirana.css
+npx kirana-style dev resources/styles --out public/kirana/kirana.css
 ```
 
-`kirana build --minify` writes both files once, for production.
+`kirana-style build --minify` writes both files once, for production.
 
 ## 5. Use it in Twig
 

@@ -1,7 +1,7 @@
 {
   "name": "@kirana-style/compiler",
   "version": "0.1.0",
-  "description": "The Kirana Driver: configuration, the native compiler session and the `kirana` command.",
+  "description": "The Kirana Driver: configuration, the native compiler session and the commands kirana-style runs.",
   "license": "MIT",
   "author": "The Kirana authors",
   "homepage": "https://kirana.style",
@@ -15,8 +15,8 @@
   },
   "type": "module",
   "private": true,
-  "bin": {
-    "kirana": "./bin/kirana.ts"
+  "publishConfig": {
+    "access": "public"
   },
   "exports": {
     ".": "./src/index.ts",

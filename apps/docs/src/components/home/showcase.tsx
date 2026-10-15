@@ -4,8 +4,8 @@
  * running the build, the rendered result and the `kirana.css` it wrote; a diagnostic shows the
  * source and the terminal; a migration shows the file before and after, and the command.
  *
- * The terminal types its command, then prints what the compiler prints (`kirana build` ends with
- * its diagnostic count, `kirana check` with the diagnostics themselves), and the stylesheet streams
+ * The terminal types its command, then prints what the compiler prints (`kirana-style build` ends with
+ * its diagnostic count, `kirana-style check` with the diagnostics themselves), and the stylesheet streams
  * in line by line. Switching tabs replays it; under reduced motion everything is simply there.
  * Nothing in a pane is written by hand: sources, CSS and diagnostics come from the build.
  */
@@ -96,7 +96,7 @@ const TABS: readonly Tab[] = [
     label: "Migrate",
     icon: ArrowDataTransferHorizontalIcon,
     caption:
-      "kirana migrate tailwind rewrote this class string, dark variant included. Anything it cannot decide goes into a report instead of a guess.",
+      "kirana-style migrate tailwind rewrote this class string, dark variant included. Anything it cannot decide goes into a report instead of a guess.",
     href: "/docs/migration/from-tailwind",
   },
 ]
@@ -514,7 +514,7 @@ function Terminal({
 function BuildWindow({ name }: { name: string }) {
   const example = EXAMPLES[name]!
   const file = `src/examples/${name}.tsx`
-  const commands = [`kirana build ${file} --out kirana.css`]
+  const commands = [`kirana-style build ${file} --out kirana.css`]
   const errors = example.diagnostics.filter(
     (diagnostic) => diagnostic.severity === "error"
   ).length
@@ -550,7 +550,7 @@ function CheckWindow() {
         <Lines html={snippet.html} />
       </Pane>
       <Pane tabs={["Terminal"]} area="terminal">
-        <Terminal commands={["kirana check menu.tsx"]}>
+        <Terminal commands={["kirana-style check menu.tsx"]}>
           {snippet.diagnostics.map((diagnostic) => (
             <span key={diagnostic.code + diagnostic.message}>
               <span sx={styles.error}>error[{diagnostic.code}]</span>{" "}
@@ -581,7 +581,9 @@ const MIGRATE_COMMANDS = SHOWCASE["migrate-tailwind-command"]!.source.split(
   "\n"
 )
   .map((line) => line.replace(/\s+#.*$/, "").trim())
-  .filter((line) => line.includes("--write") || line.startsWith("kirana check"))
+  .filter(
+    (line) => line.includes("--write") || line.startsWith("kirana-style check")
+  )
 
 function MigrateWindow() {
   return (

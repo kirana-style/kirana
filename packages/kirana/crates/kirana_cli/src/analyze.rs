@@ -1,4 +1,4 @@
-//! `kirana analyze`'s three renderings of [`Analysis`]: a terminal summary, JSON, and one
+//! `kirana-style analyze`'s three renderings of [`Analysis`]: a terminal summary, JSON, and one
 //! self-contained HTML page.
 
 use kirana_project::{Analysis, Finding};
@@ -205,7 +205,7 @@ pub fn html(analysis: &Analysis, project: &str) -> String {
     format!(
         "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" \
          content=\"width=device-width,initial-scale=1\"><title>Kirana analysis</title><style>{STYLE}</style></head>\
-         <body><main><p class=\"eyebrow\">kirana analyze</p><h1>{}</h1>{body}</main></body></html>\n",
+         <body><main><p class=\"eyebrow\">kirana-style analyze</p><h1>{}</h1>{body}</main></body></html>\n",
         escape(project)
     )
 }

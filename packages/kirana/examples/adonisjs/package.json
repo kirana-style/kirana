@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "kirana build resources/styles --out public/kirana/kirana.css --minify",
+    "build": "kirana-style build resources/styles --out public/kirana/kirana.css --minify",
     "start": "node --import=@poppinss/ts-exec bin/server.ts"
   },
   "imports": {
@@ -26,7 +26,7 @@
       "bin/server.ts"
     ],
     "devAlso": [
-      "kirana",
+      "kirana-style",
       "dev",
       "resources/styles",
       "--out",
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@adonisjs/tsconfig": "^2.0.0",
-    "@kirana-style/compiler": "0.1.0",
+    "kirana-style": "0.1.0",
     "@poppinss/ts-exec": "^1.4.4",
     "pino-pretty": "^13.2.0",
     "typescript": "~6.0.0",

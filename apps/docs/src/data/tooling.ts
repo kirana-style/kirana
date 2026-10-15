@@ -55,7 +55,7 @@ export const EDITORS: readonly ToolChoice[] = [
   },
   {
     title: "Any LSP editor",
-    how: "kirana lsp over stdio",
+    how: "kirana-style lsp over stdio",
     href: `${EDITOR}#any-other-editor`,
   },
 ]

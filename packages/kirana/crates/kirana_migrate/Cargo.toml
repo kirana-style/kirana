@@ -1,6 +1,6 @@
 [package]
 name = "kirana_migrate"
-description = "The codemods behind `kirana migrate stylex` and `kirana migrate tailwind`: mechanical rewrites, and a report for everything they will not guess."
+description = "The codemods behind `kirana-style migrate stylex` and `kirana-style migrate tailwind`: mechanical rewrites, and a report for everything they will not guess."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

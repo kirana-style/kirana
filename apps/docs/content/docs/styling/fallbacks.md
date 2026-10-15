@@ -51,7 +51,7 @@ const pad = css({
 
 The run is one atom. Its class name covers every value in order, so two styles
 with the same run share one class, and swapping the order is a different style.
-Hover, `kirana trace` and `kirana analyze` show it as `firstThatWorks(100dvh, 100vh)`.
+Hover, `kirana-style trace` and `kirana-style analyze` show it as `firstThatWorks(100dvh, 100vh)`.
 
 ## What it refuses
 

@@ -10,6 +10,7 @@
     "test": "vp test run",
     "check": "bun run check:rust && bun run test:rust && bun run test",
     "check:rust": "bun scripts/rust.ts \"cargo fmt --all --check && cargo clippy --workspace --all-targets -- -D warnings && cargo deny check\"",
+    "check:zed": "cd editors/zed && bun ../../scripts/rust.ts \"cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test\"",
     "test:rust": "bun scripts/rust.ts \"cargo nextest run --workspace\"",
     "coverage": "bun scripts/rust.ts scripts/coverage.sh",
     "migrate:stylex": "bun scripts/migrate-stylex.ts",

@@ -1,10 +1,10 @@
 /**
- * `kirana dev [paths] [--out <file>] [--minify]` (KRN-DX-008): watch mode for projects without a
+ * `kirana-style dev [paths] [--out <file>] [--minify]` (KRN-DX-008): watch mode for projects without a
  * bundler — plain HTML, web components, server templates. It compiles every script under `paths`,
  * writes the stylesheet, and on each change recompiles the file and the modules that read a value
  * from it (KRN-INT-009), rewriting the stylesheet only when it changed and printing diagnostics as
  * they appear. With `classes` configured it writes the class map too (D-069), and watches its
- * modules wherever they are. Like `kirana build`, it writes the stylesheet only; the scripts are left
+ * modules wherever they are. Like `kirana-style build`, it writes the stylesheet only; the scripts are left
  * to the project's own toolchain.
  */
 import {
@@ -80,7 +80,7 @@ export async function runDev(
     } else if (argument === "--minify") minify = true
     else if (argument.startsWith("-")) {
       write(
-        `unknown option ${argument}\nusage: kirana dev [paths] [--out <file>] [--minify]\n`
+        `unknown option ${argument}\nusage: kirana-style dev [paths] [--out <file>] [--minify]\n`
       )
       return idle
     } else paths.push(argument)

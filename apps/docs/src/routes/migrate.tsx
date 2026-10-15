@@ -33,7 +33,7 @@ export const Route = createFileRoute("/migrate")({
       {
         name: "description",
         content:
-          "kirana migrate tailwind and kirana migrate stylex rewrite your styles, print a diff and a report of what they would not decide, and write nothing until you say so.",
+          "kirana-style migrate tailwind and kirana-style migrate stylex rewrite your styles, print a diff and a report of what they would not decide, and write nothing until you say so.",
       },
     ],
   }),
@@ -76,7 +76,7 @@ const PROCESS = [
     text: "Same elements, same attributes; change only how styles are written. Then a diff means something.",
   },
   {
-    title: "Run kirana check after each one",
+    title: "Run kirana-style check after each one",
     text: "sx-on-external-component and unused-sx catch the two mistakes everyone makes with wrapper components.",
   },
   {
@@ -209,7 +209,7 @@ function MigratePage() {
         number="01"
         label="Example"
         title="One card, before and after"
-        lede="The right-hand file is what kirana migrate tailwind wrote for the left-hand one: one long line re-wrapped, nothing else changed. The dark variant became a light-dark() pair."
+        lede="The right-hand file is what kirana-style migrate tailwind wrote for the left-hand one: one long line re-wrapped, nothing else changed. The dark variant became a light-dark() pair."
       >
         <ShowcaseScene id="migrate" />
       </PageSection>
@@ -276,8 +276,8 @@ function MigratePage() {
             </div>
             <p sx={styles.text}>
               create becomes css, defineVars becomes defineTokens, createTheme
-              becomes defineTheme, markers become relations. Then kirana check
-              finds the relations without anchors and the components that
+              becomes defineTheme, markers become relations. Then kirana-style
+              check finds the relations without anchors and the components that
               swallow sx.
             </p>
             <CodeBlock

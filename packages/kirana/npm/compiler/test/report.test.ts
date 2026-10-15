@@ -49,16 +49,16 @@ const setUp = () =>
       name: "app",
       dependencies: {
         "@kirana-style/core": "0",
-        "@kirana-style/compiler": "0",
+        "kirana-style": "0",
       },
     }),
     "kirana.config.json": `{ "names": { "prefix": "q" } }`,
     "node_modules/@kirana-style/core/package.json": `{"version":"0.1.0"}`,
-    "node_modules/@kirana-style/compiler/package.json": `{"version":"0.1.0"}`,
+    "node_modules/kirana-style/package.json": `{"version":"0.1.0"}`,
     "src/box.tsx": STYLE,
   })
 
-describe("KRN-DX-008 kirana doctor --report", () => {
+describe("KRN-DX-008 kirana-style doctor --report", () => {
   it("writes a redacted issue body with the engine's findings", async () => {
     const root = setUp()
     let output = ""
@@ -76,7 +76,7 @@ describe("KRN-DX-008 kirana doctor --report", () => {
     const text = readFileSync(path.join(root, "kirana-report.md"), "utf8")
     expect(text).toMatch(/^# Kirana bug report\n\n## What happened\n/)
     expect(text).toContain(
-      "| Packages | @kirana-style/compiler@0.1.0, @kirana-style/core@0.1.0 |"
+      "| Packages | @kirana-style/core@0.1.0, kirana-style@0.1.0 |"
     )
     expect(text).toContain("- ✓ **engine** native (")
     expect(text).toContain(
@@ -170,7 +170,7 @@ describe("KRN-DX-008 kirana doctor --report", () => {
     expect(text).toContain("## Diagnostics\n\nNone.\n")
   })
 
-  it("is what `kirana doctor --report` runs", async () => {
+  it("is what `kirana-style doctor --report` runs", async () => {
     const root = setUp()
     let output = ""
     expect(

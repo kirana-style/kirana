@@ -43,7 +43,7 @@ What is _not_ breaking: new diagnostics, new API, better messages, smaller outpu
 ## When you upgrade
 
 1. Read the release note for behaviour changes.
-2. `kirana check`: new diagnostics surface here first, and a new warning is
+2. `kirana-style check`: new diagnostics surface here first, and a new warning is
    usually a real problem that was invisible before.
 3. Build, and diff the stylesheet. Output is deterministic, so a diff is
    meaningful: it shows exactly which declarations changed.

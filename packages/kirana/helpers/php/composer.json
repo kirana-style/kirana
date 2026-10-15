@@ -19,8 +19,9 @@
     "php": ">=8.3"
   },
   "require-dev": {
+    "laravel/framework": "^13.32",
+    "orchestra/testbench-core": "^11.5",
     "phpunit/phpunit": "~13.3.0",
-    "orchestra/testbench": "^11.3",
     "twig/twig": "^3.30"
   },
   "suggest": {

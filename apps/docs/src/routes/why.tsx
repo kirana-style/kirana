@@ -338,7 +338,8 @@ function WhyPage() {
       >
         <CardGrid cols={4}>
           <Card icon={Flag01Icon} title="It is pre-release">
-            Not published to npm yet. The status page lists what works today.
+            On npm, but the API can change before 1.0. The status page lists
+            what works today.
           </Card>
           <Card icon={CpuIcon} title="It is a compiler">
             Styles must be statically known in shape; a value it cannot

@@ -280,7 +280,7 @@
     },
     "message": "`!p-1`: `!important` has no place in Kirana's cascade",
     "help": [
-      "the precedence ladder decides which value wins; see `kirana trace`"
+      "the precedence ladder decides which value wins; see `kirana-style trace`"
     ]
   },
   {
@@ -294,7 +294,7 @@
     },
     "message": "`p-1!`: `!important` has no place in Kirana's cascade",
     "help": [
-      "the precedence ladder decides which value wins; see `kirana trace`"
+      "the precedence ladder decides which value wins; see `kirana-style trace`"
     ]
   },
   {

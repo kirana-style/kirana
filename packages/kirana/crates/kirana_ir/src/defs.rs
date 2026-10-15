@@ -18,7 +18,7 @@ pub struct TokenDef {
     /// `--kv…`.
     pub variable: String,
     pub value: TokenValue,
-    /// `namespace.path`, for diagnostics and `kirana trace`.
+    /// `namespace.path`, for diagnostics and `kirana-style trace`.
     pub identity: String,
     pub deps: Vec<Dep>,
     /// Set when the custom property is registered with `@property` (KRN-TOK-011).

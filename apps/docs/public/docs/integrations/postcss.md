@@ -12,8 +12,7 @@ It writes the stylesheet only: the scripts still need Kirana's compiler to turn
 used: the loader in [Next.js on Turbopack](/docs/frameworks/nextjs), the
 transformer in [Parcel](/docs/integrations/parcel).
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 

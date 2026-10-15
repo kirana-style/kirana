@@ -1,7 +1,7 @@
 /**
  * Kirana for AdonisJS (D-069): Edge templates name the handles a server app's style modules export,
  * `{{ kirana('card', active && 'card.active') }}`, and get their merged classes from the class map
- * `kirana build` and `kirana dev` write. Register the provider in `adonisrc.ts`:
+ * `kirana-style build` and `kirana-style dev` write. Register the provider in `adonisrc.ts`:
  *
  *   providers: [() => import("@kirana-style/adonis/provider")]
  *

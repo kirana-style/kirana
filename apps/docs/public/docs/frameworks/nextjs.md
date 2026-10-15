@@ -9,15 +9,14 @@ unchanged. Tested on every change by `examples/next-turbopack` and
 `examples/next-webpack`, with npm and pnpm, in a production build and on the dev
 server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects Next.js and its bundler, shows every change below as a diff, writes

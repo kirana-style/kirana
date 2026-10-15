@@ -74,7 +74,7 @@ export function EditorsGrid({ size = "2rem", sx }: { size?: string; sx?: Sx }) {
       <div sx={styles.cell}>
         <Icon icon={CommandLineIcon} size={size} />
         <span sx={styles.name}>Any LSP editor</span>
-        <span sx={styles.how}>kirana lsp</span>
+        <span sx={styles.how}>kirana-style lsp</span>
       </div>
     </div>
   )

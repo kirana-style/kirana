@@ -40,7 +40,7 @@ long-lived dev server could not stay deterministic.
 
 - **Lengthening on collision** (the original D-024): order-dependent, rejected.
 - **Readable development names** (`k-inline-size-md_50`): a second naming scheme doubles the merge
-  runtime's cases and hides dev/prod differences. `kirana trace` gives readability instead.
+  runtime's cases and hides dev/prod differences. `kirana-style trace` gives readability instead.
 - **Hash-only property segments**: 4–5 characters for every atom; the index keeps the common case to
   two.
 

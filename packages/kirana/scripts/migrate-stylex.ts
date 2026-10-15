@@ -1,5 +1,5 @@
 /**
- * Prototype of `kirana migrate stylex` (KRN-API-013), used to port this repository's StyleX
+ * Prototype of `kirana-style migrate stylex` (KRN-API-013), used to port this repository's StyleX
  * packages. It rewrites the mechanical parts and prints a report of what it could not decide;
  * the report items are the codemod's "never guess" list. Productizing it (in Rust, with fixtures)
  * is carried to a later milestone.

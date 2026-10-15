@@ -29,4 +29,4 @@ export default { plugins: { "@kirana-style/postcss": {} } }
 - **webpack.** The same configuration adds `@kirana-style/webpack`'s plugin for `next build --webpack`.
 
 Options: `root` (default: the working directory), and the webpack plugin's `config`, `reportInfo`.
-`kirana init` writes all three files. How it works and what it costs: `design-notes/turbopack.md`.
+`kirana-style init` writes all three files. How it works and what it costs: `design-notes/turbopack.md`.

@@ -1,6 +1,6 @@
 [package]
 name = "kirana_utility"
-description = "The utility surface's lowering: a utility string to the declarations it stands for, shared by the engine and `kirana migrate tailwind`."
+description = "The utility surface's lowering: a utility string to the declarations it stands for, shared by the engine and `kirana-style migrate tailwind`."
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

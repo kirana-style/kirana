@@ -66,5 +66,5 @@ Measured 2026-10-05 on an AMD Ryzen 9 9900X (12 cores), Node 24.21.0, three runs
   an unused component are emitted. The webpack and Vite adapters emit only imported modules' atoms.
 - The project is compiled twice — once by the loader, module by module, and once by the plugin. The
   numbers above bound the cost of the second.
-- `postcss.config.mjs` and `@kirana;` in a global stylesheet are part of setup; `kirana init` writes
+- `postcss.config.mjs` and `@kirana;` in a global stylesheet are part of setup; `kirana-style init` writes
   both.

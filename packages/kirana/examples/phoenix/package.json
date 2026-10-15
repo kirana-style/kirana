@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "kirana build resources/styles --out priv/static/kirana/kirana.css --minify",
+    "build": "kirana-style build resources/styles --out priv/static/kirana/kirana.css --minify",
     "start": "mix run --no-halt"
   },
   "kirana-example": {
@@ -24,7 +24,7 @@
       "--no-halt"
     ],
     "devAlso": [
-      "kirana",
+      "kirana-style",
       "dev",
       "resources/styles",
       "--out",
@@ -37,6 +37,6 @@
     "@kirana-style/core": "0.1.0"
   },
   "devDependencies": {
-    "@kirana-style/compiler": "0.1.0"
+    "kirana-style": "0.1.0"
   }
 }

@@ -43,16 +43,16 @@ See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 
 ## Tooling
 
-|                                                       | Status                                                                                                     |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `kirana build`, `check`, `analyze`, `export`, `trace` | **Works**                                                                                                  |
-| `kirana init`, `doctor`, `doctor --report`, `dev`     | **Works**, see [the CLI](/docs/tooling/cli)                                                                |
-| `kirana migrate stylex`                               | **Works**, see [migration](/docs/migration/from-stylex)                                                    |
-| `kirana migrate tailwind`                             | **Works**, with a report of what it leaves; see [migration](/docs/migration/from-tailwind#the-codemod)     |
-| Language server, VS Code and Zed extensions           | **Works**, see [editor support](/docs/tooling/editor)                                                      |
-| Lint plugin, `@kirana-style/eslint-plugin`            | **Works**, see [lint](/docs/tooling/lint)                                                                  |
-| Lint plugin, for Biome                                | **Works**, the four rules that need no compiler; see [lint](/docs/tooling/lint#biome) |
-| Agent skills                                          | **Works**, see [agent skills](/docs/project/agent-skills)                                                  |
+|                                                             | Status                                                                                                     |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `kirana-style build`, `check`, `analyze`, `export`, `trace` | **Works**                                                                                                  |
+| `kirana-style init`, `doctor`, `doctor --report`, `dev`     | **Works**, see [the CLI](/docs/tooling/cli)                                                                |
+| `kirana-style migrate stylex`                               | **Works**, see [migration](/docs/migration/from-stylex)                                                    |
+| `kirana-style migrate tailwind`                             | **Works**, with a report of what it leaves; see [migration](/docs/migration/from-tailwind#the-codemod)     |
+| Language server, VS Code and Zed extensions                 | **Works**, see [editor support](/docs/tooling/editor)                                                      |
+| Lint plugin, `@kirana-style/eslint-plugin`                  | **Works**, see [lint](/docs/tooling/lint)                                                                  |
+| Lint plugin, for Biome                                      | **Works**, the four rules that need no compiler; see [lint](/docs/tooling/lint#biome) |
+| Agent skills                                                | **Works**, see [agent skills](/docs/project/agent-skills)                                                  |
 
 ## Runtime and distribution
 
@@ -60,7 +60,7 @@ See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 | ---------------------------------------------- | ---------------------------------------------------------------------- |
 | Node.js ≥ 22.18, Bun, Deno                     | **Works**                                                              |
 | Native engine (Node-API)                       | **Works**, built from source in this repository                        |
-| Prebuilt per-platform packages                 | Built and install-tested in CI; not published yet                      |
+| Prebuilt per-platform packages                 | **Works**: on npm, and install-tested in CI                            |
 | WASI fallback (WebContainers, no native addon) | **Works**: `@kirana-style/compiler-wasm32-wasi`, byte-identical output |
 
 ## Configuration keys in the specification but not the build

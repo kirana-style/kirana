@@ -98,7 +98,7 @@ export function CliArt() {
       <Card title="~/app" icon={CommandLineIcon} width={290} glow>
         <Row flat typed={0}>
           <T tone="prompt">$</T>
-          <T tone="strong">kirana check src</T>
+          <T tone="strong">kirana-style check src</T>
         </Row>
         <Row flat typed={1}>
           <T tone="danger">error[KRN1401]</T>
@@ -182,7 +182,7 @@ export function EditorArt() {
         <At x={60} y={86}>
           <Pill mono>
             <Tag tone="success" icon={Tick02Icon} />
-            kirana lsp
+            kirana-style lsp
           </Pill>
         </At>
         <At x={9} y={24}>
@@ -249,7 +249,7 @@ const ITEMS: {
     title: "The CLI",
     status: "Works",
     accent: "crater",
-    text: "kirana build, check, export and trace: compile a tree, report every diagnostic (as GitHub annotations in CI), describe the design system, and ask which declaration wins a property and why.",
+    text: "kirana-style build, check, export and trace: compile a tree, report every diagnostic (as GitHub annotations in CI), describe the design system, and ask which declaration wins a property and why.",
     href: "/docs/tooling/cli",
     art: CliArt,
   },
@@ -265,7 +265,7 @@ const ITEMS: {
     title: "Editors",
     status: "Works",
     accent: "crater",
-    text: "kirana lsp with VS Code and Zed extensions: the CSS on hover, swatches, a summary after every sx, completion and diagnostics as you type.",
+    text: "kirana-style lsp with VS Code and Zed extensions: the CSS on hover, swatches, a summary after every sx, completion and diagnostics as you type.",
     href: "/docs/tooling/editor",
     art: EditorArt,
   },

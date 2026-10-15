@@ -252,7 +252,7 @@ fn write_atoms(writer: &mut Writer, atoms: &[&Atom]) {
 }
 
 /// One atom's rule as the stylesheet writes it when nothing shares it, at-rules included: what the
-/// atom costs before rules carrying the same declaration are merged (`kirana analyze`).
+/// atom costs before rules carrying the same declaration are merged (`kirana-style analyze`).
 pub fn atom_rule(atom: &Atom, minify: bool) -> String {
     let mut writer = Writer { out: String::new(), minify, depth: 0 };
     write_atoms(&mut writer, &[atom]);

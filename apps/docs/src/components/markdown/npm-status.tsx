@@ -1,6 +1,6 @@
 /**
- * `<!-- ::npm-status -->`: the "not on npm yet" note, from `data/npm-status.ts`. Nothing once the
- * packages are published.
+ * `<!-- ::npm-status -->`: the pre-release install note, from `data/npm-status.ts`. It renders
+ * nothing once `PUBLISHED` is true, which it is now; the embed stays so a page can carry it again.
  */
 import { Callout } from "@workspace/docs-ui/markdown/callout.tsx"
 import {

@@ -11,14 +11,14 @@ Pick your framework. The steps below are read from its guide, so they always mat
 Or let the command line set it up. In your project's root:
 
 ```console
-$ npx kirana-style init
+$ npx kirana-style@latest init
 $ npx kirana-style doctor
 ```
 
-`kirana init` recognises the framework, the bundler and the package manager, and shows every change
-it would make as a diff; nothing is written until you say yes. `kirana doctor` then checks the
+`kirana-style init` recognises the framework, the bundler and the package manager, and shows every change
+it would make as a diff; nothing is written until you say yes. `kirana-style doctor` then checks the
 engine, the installed versions and the wiring. [Installation](/docs/start/installation) has the
-details, including how to install while the packages are not on npm yet.
+same first run for pnpm, Yarn and Bun.
 
 ## Where to go next
 

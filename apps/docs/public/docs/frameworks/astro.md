@@ -6,8 +6,7 @@ Source: https://kirana.style/docs/frameworks/astro
 Declare styles in the frontmatter and apply them with `sx`. Kirana compiles the
 component as it is read, before Astro does. Tested by `examples/astro`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 

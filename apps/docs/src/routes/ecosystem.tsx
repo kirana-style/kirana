@@ -105,13 +105,13 @@ const BUNDLERS: { name: string; status: Status; note: string; href: string }[] =
 const TOOLING: { name: string; status: Status; note: string; href: string }[] =
   [
     {
-      name: "kirana build, check, analyze, export, trace",
+      name: "kirana-style build, check, analyze, export, trace",
       status: "Works",
       note: "Compile, report (GitHub annotations, a warning cap), size the stylesheet, describe the design system, and explain which declaration wins",
       href: "/docs/tooling/cli",
     },
     {
-      name: "kirana migrate tailwind / stylex",
+      name: "kirana-style migrate tailwind / stylex",
       status: "Works",
       note: "Codemods with a diff and a report",
       href: "/migrate",
@@ -123,15 +123,15 @@ const TOOLING: { name: string; status: Status; note: string; href: string }[] =
       href: "/docs/integrations/ecosystem#runtime-and-distribution",
     },
     {
-      name: "kirana init, doctor, dev",
+      name: "kirana-style init, doctor, dev",
       status: "Works",
-      note: "Set a project up from a diff (npx kirana-style init on the first run), check the setup or write a bug report, watch without a bundler",
+      note: "Set a project up from a diff (npx kirana-style@latest init on the first run), check the setup or write a bug report, watch without a bundler",
       href: "/docs/tooling/cli",
     },
     {
       name: "Language server, VS Code and Zed",
       status: "Works",
-      note: "kirana lsp",
+      note: "kirana-style lsp",
       href: "/docs/tooling/editor",
     },
     {

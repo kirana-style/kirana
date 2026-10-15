@@ -83,7 +83,7 @@ framework Kirana already supported:
   kirana:example <name> --pm npm`, and `--dev`): the probe's computed colour, padding and hover in
   Chromium, and a style edit reaching the page on the dev server. Both run in the `compat` and `dev`
   jobs of `.github/workflows/packages.yml`.
-- `kirana init --yes` on copies of both examples stripped of Kirana, then built as above.
+- `kirana-style init --yes` on copies of both examples stripped of Kirana, then built as above.
 
 ## Costs
 

@@ -1,6 +1,6 @@
 # kirana-style/kirana
 
-Kirana for PHP server templates (D-069): reads the class map `kirana build` and `kirana dev` write,
+Kirana for PHP server templates (D-069): reads the class map `kirana-style build` and `kirana-style dev` write,
 and merges named styles the way `sx` does.
 
 - **Laravel**: the service provider is discovered; `@kirana('card', $active ? 'card.active' : null)`

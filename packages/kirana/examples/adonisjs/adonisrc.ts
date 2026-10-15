@@ -6,7 +6,7 @@ export default defineConfig({
     () => import("@adonisjs/core/providers/app_provider"),
     () => import("@adonisjs/core/providers/edge_provider"),
     () => import("@adonisjs/static/static_provider"),
-    // `kirana()` in every Edge template, from the class map `kirana build` writes.
+    // `kirana()` in every Edge template, from the class map `kirana-style build` writes.
     () => import("@kirana-style/adonis/provider"),
   ],
   preloads: [() => import("#start/routes"), () => import("#start/kernel")],

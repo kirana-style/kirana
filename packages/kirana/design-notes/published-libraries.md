@@ -1,6 +1,6 @@
 # Published libraries: ship styles uncompiled, compile them in the app (2026-09-23)
 
-KRN-INT-008 required a published library to be built with `kirana build --library`, shipping compiled
+KRN-INT-008 required a published library to be built with `kirana-style build --library`, shipping compiled
 JavaScript plus a versioned `kirana.manifest.json` of its atoms, tokens and relations, which the
 application's Driver merges into its registry. This note replaces that with something simpler and
 more correct, recorded as D-054. It is M4 phase 7.
@@ -53,7 +53,7 @@ library's modules are a fraction of that. There is nothing to save by precompili
   compiler understands in plain JavaScript; `sx` needs JSX, which a library's build usually compiles
   away. A library that ships `.jsx` or `.tsx` may use `sx`.
 
-`kirana build --library` and the manifest are withdrawn. The cost is one condition on library
+`kirana-style build --library` and the manifest are withdrawn. The cost is one condition on library
 authors — build without Kirana's plugin — and one line for application authors.
 
 ## Not covered

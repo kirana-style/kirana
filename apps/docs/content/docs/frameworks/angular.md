@@ -14,7 +14,7 @@ keywords:
     sx,
     templates,
     install,
-    kirana init,
+    kirana-style init,
   ]
 ---
 
@@ -43,7 +43,7 @@ when two handles set the same property.
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects Angular and whether it builds with the CLI or Analog, shows every

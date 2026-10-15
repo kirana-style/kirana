@@ -1,14 +1,14 @@
 /**
  * The class map for server templates (D-069), read in Node.js: Edge (`@kirana-style/adonis`) and any other
  * JavaScript template engine name the handles a server app's style modules export, and this merges
- * their class strings with the runtime every compiled module uses. `kirana build` and `kirana dev`
+ * their class strings with the runtime every compiled module uses. `kirana-style build` and `kirana-style dev`
  * write the file (`classes` in `kirana.config`).
  */
 import { readFileSync, statSync } from "node:fs"
 
 import { runtime } from "./internal.ts"
 
-/** The file `kirana build` and `kirana dev` write. */
+/** The file `kirana-style build` and `kirana-style dev` write. */
 export type ClassMapFile = {
   readonly version: number
   readonly prefix?: string
@@ -32,14 +32,14 @@ export class ClassMap {
     this.#runtime = runtime(map.prefix ?? "k", "class")
   }
 
-  /** Reads the class map `kirana build` or `kirana dev` wrote. */
+  /** Reads the class map `kirana-style build` or `kirana-style dev` wrote. */
   static fromFile(file: string): ClassMap {
     let text: string
     try {
       text = readFileSync(file, "utf8")
     } catch {
       throw new Error(
-        `kirana: no class map at ${file}; run \`kirana dev\` or \`kirana build\` first`
+        `kirana: no class map at ${file}; run \`kirana-style dev\` or \`kirana-style build\` first`
       )
     }
     return new ClassMap(JSON.parse(text) as ClassMapFile)
@@ -63,7 +63,7 @@ export class ClassMap {
 
 const cache = new Map<string, { stamp: string; map: ClassMap }>()
 
-/** The class map at `file`, read again when the file changes (`kirana dev` rewrites it). */
+/** The class map at `file`, read again when the file changes (`kirana-style dev` rewrites it). */
 export function classMap(file: string): ClassMap {
   const stats = statSync(file, { throwIfNoEntry: false })
   const stamp = stats ? `${stats.mtimeMs}:${stats.size}` : ""

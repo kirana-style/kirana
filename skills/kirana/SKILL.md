@@ -45,22 +45,22 @@ borrows from all three:
 
 ## The loop
 
-Run the CLI through the project's package manager (`npx kirana …`, `bunx kirana …`).
+Run the CLI through the project's package manager (`npx kirana-style …`, `bunx kirana-style …`); the command is `kirana-style`, never a bare `kirana`.
 
-1. **Learn the project first.** `kirana export` prints the design system as JSON: every token with
+1. **Learn the project first.** `kirana-style export` prints the design system as JSON: every token with
    its value and file, themes, recipes with their variants and options, relations, keyframes,
    `positionTry` and `viewTransition` names. Use the tokens and recipes that exist instead of
-   inventing values. `kirana doctor` says whether the engine, packages and wiring are right.
+   inventing values. `kirana-style doctor` says whether the engine, packages and wiring are right.
 2. **Write the style** with the API below. Look up a signature in `references/api.md`.
-3. **Check it.** `kirana check src` prints every diagnostic as `severity[KRN1234] name: message`,
+3. **Check it.** `kirana-style check src` prints every diagnostic as `severity[KRN1234] name: message`,
    with the location and a `help:` line. Fix every error; `references/diagnostics.md` explains each
    code. Do not silence a warning by re-levelling it in config unless the user agrees.
 4. **Lint.** If the project has `@kirana-style/eslint-plugin` (ESLint or Oxlint) or
    `@kirana-style/biome-plugin` (Biome), run its linter; `references/lint.md` lists the rules.
-5. **When it compiles but looks wrong:** `kirana trace src/card.tsx:12 padding` prints every
+5. **When it compiles but looks wrong:** `kirana-style trace src/card.tsx:12 padding` prints every
    candidate value for that property at that line, the winner, and the precedence step that decided
    it. Compare **computed styles** in the browser, not screenshots, in both colour schemes.
-6. **When it looks like a Kirana bug:** `kirana doctor --report` writes `kirana-report.md`, a redacted
+6. **When it looks like a Kirana bug:** `kirana-style doctor --report` writes `kirana-report.md`, a redacted
    issue body (versions, environment, diagnostics by code, configuration; no source text, no paths
    or user names). Add `--trace file:line property` for the trace. Ask the user before filing it.
 
@@ -85,16 +85,16 @@ Ember's `sx` helper, server templates' `kirana(...)` helpers) and which package 
 
 ## What not to write
 
-| Habit from elsewhere                                                 | In Kirana                                                      |
-| -------------------------------------------------------------------- | -------------------------------------------------------------- |
-| `className={cn("px-4", isActive && "bg-primary")}`                   | `sx={[styles.item, isActive && styles.active]}`                |
-| `cva(...)`                                                           | `recipe(...)`                                                  |
-| `dark:bg-zinc-900`, `.dark &`, `@media (prefers-color-scheme: dark)` | a `light-dark()` colour token                                  |
-| `":hover": { color: "blue" }` at the top level                       | `color: { base: ..., ":hover": "blue" }`                       |
-| `!important`                                                         | a condition, or `{ "*": null, base: v }`; check `kirana trace` |
-| `stylex.create`, `stylex.props`                                      | `css`, `sx` (or `styleProps` for installed components)         |
-| `style={{ ... }}` for static values                                  | `css({ ... })`                                                 |
-| `[&:not([class*='size-'])]` guards                                   | `select` blocks already rank below the child's own styles      |
+| Habit from elsewhere                                                 | In Kirana                                                            |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `className={cn("px-4", isActive && "bg-primary")}`                   | `sx={[styles.item, isActive && styles.active]}`                      |
+| `cva(...)`                                                           | `recipe(...)`                                                        |
+| `dark:bg-zinc-900`, `.dark &`, `@media (prefers-color-scheme: dark)` | a `light-dark()` colour token                                        |
+| `":hover": { color: "blue" }` at the top level                       | `color: { base: ..., ":hover": "blue" }`                             |
+| `!important`                                                         | a condition, or `{ "*": null, base: v }`; check `kirana-style trace` |
+| `stylex.create`, `stylex.props`                                      | `css`, `sx` (or `styleProps` for installed components)               |
+| `style={{ ... }}` for static values                                  | `css({ ... })`                                                       |
+| `[&:not([class*='size-'])]` guards                                   | `select` blocks already rank below the child's own styles            |
 
 ## More
 

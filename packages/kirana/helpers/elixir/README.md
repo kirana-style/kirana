@@ -1,7 +1,7 @@
 # kirana (Elixir)
 
-Kirana for Phoenix templates (D-069): `kirana/1`, which reads the class map `kirana build` and
-`kirana dev` write and merges named styles the way `sx` does.
+Kirana for Phoenix templates (D-069): `kirana/1`, which reads the class map `kirana-style build` and
+`kirana-style dev` write and merges named styles the way `sx` does.
 
 ```elixir
 # lib/my_app_web.ex, in html_helpers

@@ -105,7 +105,7 @@ export const FEATURES: WithIcon[] = [
   },
   {
     icon: Bug01Icon,
-    title: "kirana trace",
+    title: "kirana-style trace",
     text: "Ask which declaration wins for a property, and which rule decided it.",
     href: "/docs/tooling/debugging",
   },

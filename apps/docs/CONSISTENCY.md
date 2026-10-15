@@ -40,10 +40,11 @@ on:
 - **a paragraph or list item with more than four inline code spans** in the docs: make it a list, a
   table or a code block;
 - **a description written as metadata** ("X - y"): it is the page's lede, shown under its title;
-- **`npx kirana init` or `npx kirana doctor`** (or through bunx, pnpm dlx or yarn dlx) in pages,
-  components, showcase snippets and the agent skills: in a project without Kirana the runner
-  fetches a package named `kirana`, which is not Kirana, so the first run is `npx kirana-style init`
-  (`kirana init` with the compiler installed is fine);
+- **the command under its old name** in pages, components, showcase snippets, READMEs, the agent
+  skills and the examples' commands (their `package.json` scripts and `kirana-example` arrays, each
+  array read as the command line it starts): a subcommand after a bare `kirana`, or `npx`, `bunx`, `pnpm dlx` or `yarn dlx` given a bare
+  `kirana`. The command is `kirana-style` everywhere (D-082): npm does not give out `kirana`, so a
+  runner would fetch whatever has that name;
 - **a partial list that reads as complete** — half or more of the frameworks, component layers,
   server frameworks, bundlers, linters or `@kirana-style/core` exports, but not all of them;
 - **agents offered llms.txt without the skills**;
@@ -77,7 +78,7 @@ Every mismatch found in the review that led to this file, so the patterns are vi
 | 2   | Home, "Connect" — Language models card                                         | llms.txt only                                                                          | the agent skills too                                                |
 | 3   | Home, "Connect" — CLI card                                                     | build, check and trace                                                                 | export, and GitHub annotations                                      |
 | 4   | 404 page, Lint link                                                            | "in Oxlint or ESLint"                                                                  | Biome too                                                           |
-| 5   | Home, "Written well by agents"                                                 | llms.txt only; no `kirana export`                                                      | skills and export                                                   |
+| 5   | Home, "Written well by agents"                                                 | llms.txt only; no `kirana-style export`                                                | skills and export                                                   |
 | 6   | Home FAQ, "Can my AI tools read these docs?"                                   | llms.txt only                                                                          | the skills too                                                      |
 | 7   | Header menu, footer                                                            | no Agent skills page; no Lint link                                                     | both exist                                                          |
 | 8   | `/ecosystem` tooling, `integrations/ecosystem`                                 | no export, `doctor --report`, Biome or skills                                          | all built                                                           |

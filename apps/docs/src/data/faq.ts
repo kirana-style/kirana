@@ -20,13 +20,13 @@ export const FAQ: readonly {
       },
       {
         q: "Which frameworks and bundlers does it support?",
-        a: `${sentence(LISTS.frameworks)}, and plain class strings; server templates in ${sentence(LISTS.serverFrameworks)}; ${sentence(LISTS.bundlers)}, and Turbopack through Next.js. kirana init sets any of them up from a diff.`,
+        a: `${sentence(LISTS.frameworks)}, and plain class strings; server templates in ${sentence(LISTS.serverFrameworks)}; ${sentence(LISTS.bundlers)}, and Turbopack through Next.js. kirana-style init sets any of them up from a diff.`,
         href: "/docs/integrations/ecosystem",
         link: "Ecosystem and status",
       },
       {
         q: "Can I move an existing Tailwind or StyleX project?",
-        a: "kirana migrate tailwind rewrites class strings, cn and cva; kirana migrate stylex maps create, defineVars and markers. Both print a diff and a report, and write nothing until you pass --write.",
+        a: "kirana-style migrate tailwind rewrites class strings, cn and cva; kirana-style migrate stylex maps create, defineVars and markers. Both print a diff and a report, and write nothing until you pass --write.",
         href: "/docs/migration/from-tailwind",
         link: "Migrating from Tailwind",
       },

@@ -53,7 +53,7 @@ pub fn hover(server: &Server, params: &Value) -> Result<Value, String> {
         }
         if !server.is_component(&path) {
             out.push_str(&format!(
-                "\n`kirana trace {}:{line} {property}` explains it from the command line.",
+                "\n`kirana-style trace {}:{line} {property}` explains it from the command line.",
                 server.project.display_name(&path)
             ));
         }

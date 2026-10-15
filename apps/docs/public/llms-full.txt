@@ -60,8 +60,8 @@ browser. It does not try to style markup you do not render: the compiler works o
 the source it can see.
 
 > [!NOTE] Pre-release
-> Kirana is built and used inside this repository, but it is not published to npm
-> yet, and the name is a working name. Every page tells you what works today.
+> Kirana is on npm as a 0.x pre-release: the API can still change before 1.0, and
+> the name is a working name. Every page tells you what works today.
 ---
 # Why Kirana
 Source: https://kirana.style/docs/start/why-kirana
@@ -112,15 +112,15 @@ class names. Kirana is this kind, and it is exactly what the React team
 recommends: static CSS files for static styles, and a custom property in
 `style` for a value only known at runtime.
 
-| The complaint                       | Runtime CSS-in-JS         | Kirana                                                                                                                                                                       |
-| ----------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Styles are computed while rendering | Yes                       | No. Styles become CSS during the build                                                                                                                                       |
-| A styling runtime in the bundle     | Yes, the whole library    | A module with only static styles imports nothing; merging and bridging need a helper under 1 kB gzipped                                                     |
-| Server rendering collects styles    | Yes                       | No. The stylesheet is a file, linked like any other                                                                                                                          |
-| `<style>` tags inserted at runtime  | Yes                       | Never. The runtime [never generates CSS](/docs/styling/dynamic)                                                                                                              |
-| CSS grows with markup               | Often, one rule per usage | [Atomic](/docs/advanced/output): one rule per distinct declaration, shared by every element that uses it                                                                     |
-| Class names you cannot read         | Hashed                    | Hashed too, but `kirana trace file:line property` prints every entry for a style and the one that wins, and [hovering it in the editor](/docs/tooling/editor) shows the same |
-| Order bugs between style sheets     | Insertion order decided   | One [precedence ladder](/docs/styling/precedence), in [layers](/docs/config/layers)                                                                                          |
+| The complaint                       | Runtime CSS-in-JS         | Kirana                                                                                                                                                                             |
+| ----------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Styles are computed while rendering | Yes                       | No. Styles become CSS during the build                                                                                                                                             |
+| A styling runtime in the bundle     | Yes, the whole library    | A module with only static styles imports nothing; merging and bridging need a helper under 1 kB gzipped                                                           |
+| Server rendering collects styles    | Yes                       | No. The stylesheet is a file, linked like any other                                                                                                                                |
+| `<style>` tags inserted at runtime  | Yes                       | Never. The runtime [never generates CSS](/docs/styling/dynamic)                                                                                                                    |
+| CSS grows with markup               | Often, one rule per usage | [Atomic](/docs/advanced/output): one rule per distinct declaration, shared by every element that uses it                                                                           |
+| Class names you cannot read         | Hashed                    | Hashed too, but `kirana-style trace file:line property` prints every entry for a style and the one that wins, and [hovering it in the editor](/docs/tooling/editor) shows the same |
+| Order bugs between style sheets     | Insertion order decided   | One [precedence ladder](/docs/styling/precedence), in [layers](/docs/config/layers)                                                                                                |
 
 What you keep from CSS-in-JS is the part people liked: styles are values, next to
 the component, typed, passed as props, and deleted with the component.
@@ -182,7 +182,7 @@ answers them:
 | Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [45 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
 | The official compiler is Babel; the Rust one is a community port behind it                                                                      | The engine is Kirana's own, in Rust on [oxc](https://oxc.rs), with a WASI build that writes the same bytes where no native one runs                                                                  |
 | No utility vocabulary: a Tailwind team rebuilt the scales by hand                                                                               | [`@kirana-style/preset-scales`](/docs/tokens/preset-scales) is Tailwind v4's scales, and [utility strings](/docs/styling/utilities) compile to the same atoms as the object form                     |
-| A port from Tailwind was done by hand                                                                                                           | [`kirana migrate tailwind`](/docs/migration/from-tailwind), measured below                                                                                                                           |
+| A port from Tailwind was done by hand                                                                                                           | [`kirana-style migrate tailwind`](/docs/migration/from-tailwind), measured below                                                                                                                     |
 
 Framework reach is the other half: `sx` works in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (Angular
 templates take it as a directive, Ember's as a helper), and Kirana has adapters
@@ -265,7 +265,7 @@ is still one rule.
 
 ## Where Kirana costs you something
 
-- **It is pre-release.** Not published to npm yet; see
+- **It is pre-release.** On npm, but before 1.0 the API can still change; see
   [what works today](/docs/project/status).
 - **It is a compiler.** Styles must be statically known in shape: a computed key
   or a spread object is an error, and a value the compiler cannot enumerate goes
@@ -291,14 +291,14 @@ Pick your framework. The steps below are read from its guide, so they always mat
 Or let the command line set it up. In your project's root:
 
 ```console
-$ npx kirana-style init
+$ npx kirana-style@latest init
 $ npx kirana-style doctor
 ```
 
-`kirana init` recognises the framework, the bundler and the package manager, and shows every change
-it would make as a diff; nothing is written until you say yes. `kirana doctor` then checks the
+`kirana-style init` recognises the framework, the bundler and the package manager, and shows every change
+it would make as a diff; nothing is written until you say yes. `kirana-style doctor` then checks the
 engine, the installed versions and the wiring. [Installation](/docs/start/installation) has the
-details, including how to install while the packages are not on npm yet.
+same first run for pnpm, Yarn and Bun.
 
 ## Where to go next
 
@@ -310,13 +310,18 @@ details, including how to install while the packages are not on npm yet.
 Source: https://kirana.style/docs/start/installation
 # Installation
 
-## Let `kirana init` do it
+## Let `kirana-style init` do it
 
-In your project's root:
+In your project's root, through your package manager's runner. It fetches the
+command for this one run, the way `npx shadcn@latest` does, and writes nothing
+until you say yes:
 
-```bash
-npx kirana-style init
-```
+| Package manager | First run                             |
+| --------------- | ------------------------------------- |
+| npm             | `npx kirana-style@latest init`        |
+| pnpm            | `pnpm dlx kirana-style@latest init`   |
+| Yarn            | `yarn dlx kirana-style@latest init`   |
+| Bun             | `bunx --bun kirana-style@latest init` |
 
 It reads `package.json` and your lockfile, recognises the framework, bundler and
 package manager, and shows every change it would make as a diff: the configuration
@@ -329,15 +334,11 @@ npx kirana-style doctor
 ```
 
 checks the engine, the installed versions, the configuration and the wiring, and
-says what is missing. Both are described in [the CLI](/docs/tooling/cli#kirana-init).
+says what is missing. Both are described in [the CLI](/docs/tooling/cli#kirana-style-init).
 
-The first run goes through `kirana-style`, the command line's package on npm.
-After that the project has its own `kirana` command, which came with the compiler
-the first run added, so the rest of these docs write `kirana check`, `kirana build` and so
-on.
-
-Until the packages are on npm, install `@kirana-style/compiler` from the tarballs
-below first, and run its `kirana init` instead.
+`init` adds `kirana-style` to your dev dependencies, so every later command runs
+the version your project pins: `npx kirana-style check`, `npx kirana-style build`
+and the rest. [A shorter name](/docs/tooling/cli#a-shorter-name) is one script away.
 
 ## Pick your framework
 
@@ -387,53 +388,17 @@ Bundlers:
 The overview of all of them, with what `sx` compiles to in each, is
 [supported frameworks](/docs/frameworks/overview).
 
-## Not on npm yet
+## Install by hand
 
-The packages (`@kirana-style/core`, the compiler, and one adapter per host) are at
-version 0.1.0 and **not published**: the API is still moving and the name is not
-cleared. Two ways work today; the guides are the same for both.
-
-### Install from tarballs
-
-A checkout can pack every package the way it would be published, as compiled
-JavaScript with declarations and the engine as its own per-platform package:
+The runtime package, the command line and your bundler's adapter (Vite here; your
+[guide](#pick-your-framework) names yours):
 
 ```bash
-vp run engine          # the engine for this machine
-bun run kirana:pack    # tarballs in packages/kirana/dist-packages
+npm install @kirana-style/core
+npm install -D kirana-style @kirana-style/vite
 ```
 
-Point your project at those tarballs, including the ones it does not name itself,
-through your package manager's overrides. With npm or Bun:
-
-```json file="package.json"
-{
-  "dependencies": {
-    "@kirana-style/core": "file:/path/to/dist-packages/kirana-core-0.1.0.tgz"
-  },
-  "devDependencies": {
-    "@kirana-style/vite": "file:/path/to/dist-packages/kirana-vite-0.1.0.tgz"
-  },
-  "overrides": {
-    "@kirana-style/compiler": "file:/path/to/dist-packages/kirana-compiler-0.1.0.tgz",
-    "@kirana-style/rolldown": "file:/path/to/dist-packages/kirana-rolldown-0.1.0.tgz",
-    "@kirana-style/compiler-linux-x64-gnu": "file:/path/to/dist-packages/kirana-compiler-linux-x64-gnu-0.1.0.tgz"
-  }
-}
-```
-
-pnpm reads the same map from `overrides` in `pnpm-workspace.yaml`, and Yarn from
-`resolutions`. This is exactly what CI does on every change: it installs the
-tarballs with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and
-Alpine, builds an example, and checks its styles in a browser. No package runs an
-install script, so there is nothing to allow-list.
-
-> [!NOTE] Yarn needs every platform
-> Yarn looks up all eight platform packages to write its lockfile, even the seven
-> it will not install. A tarball set packed on one machine has only that
-> machine's, so use npm, pnpm or Bun there.
-
-### Machines without a native build
+## Machines without a native build
 
 The engine is native code for eight platforms. Anywhere else (a WebContainer, an
 unusual CPU), install its WebAssembly build as well; Kirana uses it when no native
@@ -444,44 +409,6 @@ npm install -D @kirana-style/compiler-wasm32-wasi --force
 ```
 
 `KIRANA_FORCE_WASI=1` uses it even where the native engine works.
-
-### From a checkout of the repository
-
-Kirana lives in a Bun workspace alongside the apps that use it. In that setup an
-app depends on the packages by workspace protocol:
-
-```json file="apps/your-app/package.json"
-{
-  "dependencies": {
-    "@kirana-style/core": "workspace:*"
-  },
-  "devDependencies": {
-    "@kirana-style/vite": "workspace:*"
-  }
-}
-```
-
-To use Kirana from a project outside the repository, link the packages from a
-checkout:
-
-```bash
-cd kirana/packages/kirana/npm/core && bun link
-cd ../vite && bun link
-cd /your/project && bun link @kirana-style/core @kirana-style/vite
-```
-
-The native engine comes from the checkout's build (`vp run build` there, or
-`vp run engine`).
-
-### Once published
-
-Once the packages are released, installation becomes the ordinary thing. Do not
-run this yet: the registry has nothing to give you.
-
-```bash
-npm install @kirana-style/core
-npm install -D @kirana-style/vite
-```
 
 ## What every setup has
 
@@ -578,7 +505,7 @@ lowers what it can.
 
 ```bash
 # no diagnostics, exit code 0
-kirana check src
+npx kirana-style check src
 ```
 
 If a module that uses `css()` was never compiled, calling it throws at runtime
@@ -593,6 +520,80 @@ unstyled page.
 > **A component ignores `sx`?** Components from installed packages do not read it.
 > Spread the compiled props instead; see
 > [styling other people's components](/docs/styling/external-components).
+
+## Unreleased changes
+
+The published packages are the release. To try a change that is on `main` but not
+released yet, use the packages from a checkout.
+
+### From tarballs
+
+A checkout packs every package the way it would be published, as compiled
+JavaScript with declarations and the engine as its own per-platform package:
+
+```bash
+vp run engine          # the engine for this machine
+bun run kirana:pack    # tarballs in packages/kirana/dist-packages
+```
+
+Point your project at those tarballs, including the ones it does not name itself,
+through your package manager's overrides. With npm or Bun:
+
+```json file="package.json"
+{
+  "dependencies": {
+    "@kirana-style/core": "file:/path/to/dist-packages/kirana-style-core-0.1.0.tgz"
+  },
+  "devDependencies": {
+    "kirana-style": "file:/path/to/dist-packages/kirana-style-0.1.0.tgz",
+    "@kirana-style/vite": "file:/path/to/dist-packages/kirana-style-vite-0.1.0.tgz"
+  },
+  "overrides": {
+    "@kirana-style/compiler": "file:/path/to/dist-packages/kirana-style-compiler-0.1.0.tgz",
+    "@kirana-style/rolldown": "file:/path/to/dist-packages/kirana-style-rolldown-0.1.0.tgz",
+    "@kirana-style/compiler-linux-x64-gnu": "file:/path/to/dist-packages/kirana-style-compiler-linux-x64-gnu-0.1.0.tgz"
+  }
+}
+```
+
+pnpm reads the same map from `overrides` in `pnpm-workspace.yaml`, and Yarn from
+`resolutions`. This is what CI does on every change: it installs the tarballs with
+npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and Alpine, builds
+an example, and checks its styles in a browser. No package runs an install script,
+so there is nothing to allow-list.
+
+> [!NOTE] Yarn needs every platform
+> Yarn looks up all eight platform packages to write its lockfile, even the seven
+> it will not install. A tarball set packed on one machine has only that
+> machine's, so use npm, pnpm or Bun there.
+
+### From a checkout of the repository
+
+Kirana lives in a Bun workspace alongside the apps that use it. In that setup an
+app depends on the packages by workspace protocol:
+
+```json file="apps/your-app/package.json"
+{
+  "dependencies": {
+    "@kirana-style/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "workspace:*"
+  }
+}
+```
+
+To use Kirana from a project outside the repository, link the packages from a
+checkout:
+
+```bash
+cd kirana/packages/kirana/npm/core && bun link
+cd ../vite && bun link
+cd /your/project && bun link @kirana-style/core @kirana-style/vite
+```
+
+The native engine comes from the checkout's build (`vp run build` there, or
+`vp run engine`).
 ---
 # Your first component
 Source: https://kirana.style/docs/start/first-component
@@ -1568,7 +1569,7 @@ Kirana writes is unlayered, custom-property assignments included.
 When a value does not win and you want the reason, ask:
 
 ```bash
-kirana trace src/components/card.tsx:24 padding-top
+kirana-style trace src/components/card.tsx:24 padding-top
 ```
 
 It prints one line per candidate declaration (value, conditions, layer), marks
@@ -1586,7 +1587,7 @@ it one does nothing.
 The compiler catches this rather than letting you find it in the browser:
 
 ```console
-$ kirana check src
+$ kirana-style check src
 warning[KRN1703] sx-on-external-component: a component from "@base-ui/react"
 receives `sx`, which it does not read
   help: spread the compiled props instead: {...props(styles.root, sx)}
@@ -1717,7 +1718,7 @@ Because the compiler checks it. Two errors you get for free:
   its anchor. In a class-string system this is a `group-hover:` that silently
   never fires. An application's build checks the relations whose module it
   compiled, so a shared component may read an ancestor that only some
-  applications render; `kirana check` checks every relation in the project.
+  applications render; `kirana-style check` checks every relation in the project.
 - **`relation-placement`**: the anchor cannot be proven to be in the right
   position: `after()` used where the anchor is not an earlier sibling, for
   example.
@@ -2155,7 +2156,7 @@ const pad = css({
 
 The run is one atom. Its class name covers every value in order, so two styles
 with the same run share one class, and swapping the order is a different style.
-Hover, `kirana trace` and `kirana analyze` show it as `firstThatWorks(100dvh, 100vh)`.
+Hover, `kirana-style trace` and `kirana-style analyze` show it as `firstThatWorks(100dvh, 100vh)`.
 
 ## What it refuses
 
@@ -3043,7 +3044,7 @@ Each is complete on its own: install, configure, import the stylesheet, type
 > [!NOTE] Don't see your framework?
 > Most frameworks build with Vite: use [the Vite plugin](/docs/integrations/vite).
 > Otherwise, pick [your bundler](/docs/integrations/bundlers), or let
-> [the Kirana CLI](/docs/tooling/cli#kirana-dev) write the stylesheet and a
+> [the Kirana CLI](/docs/tooling/cli#kirana-style-dev) write the stylesheet and a
 > [class map](/docs/frameworks/server-templates) for your templates.
 
 ## Using Vite
@@ -3112,7 +3113,7 @@ stylesheet, and a class map your templates read the class names from.
 ### 1. Install
 
 ```bash
-npm install -D @kirana-style/compiler @kirana-style/core
+npm install -D kirana-style @kirana-style/core
 ```
 
 ### 2. Name the modules templates use
@@ -3136,10 +3137,10 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ### 4. Run it
 
 ```bash
-npx kirana dev styles --out public/kirana/kirana.css
+npx kirana-style dev styles --out public/kirana/kirana.css
 ```
 
-`kirana dev` watches and rewrites both files; `kirana build` writes them once,
+`kirana-style dev` watches and rewrites both files; `kirana-style build` writes them once,
 minified with `--minify`. Your template helper then turns `card` into its class
 names; see [server templates](/docs/frameworks/server-templates).
 
@@ -3188,8 +3189,7 @@ Source: https://kirana.style/docs/frameworks/react
 `sx` compiles to `className` (and `style` for values known only at runtime).
 Tested by `examples/vite-react`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -3265,15 +3265,14 @@ unchanged. Tested on every change by `examples/next-turbopack` and
 `examples/next-webpack`, with npm and pnpm, in a production build and on the dev
 server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects Next.js and its bundler, shows every change below as a diff, writes
@@ -3406,15 +3405,14 @@ needs: `sx` compiles to `className`, on the server render and in the browser
 alike. Tested on every change by `examples/react-router`, built and on its dev
 server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you
@@ -3484,8 +3482,7 @@ Source: https://kirana.style/docs/frameworks/tanstack-start
 This site, and the three applications of our shadcn/ui port, are TanStack
 Start apps; this page is the setup they use.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## Install and add the plugin
 
@@ -3579,15 +3576,14 @@ every stage, and the stages share one compiler session, so the HTML and the
 browser agree on every class. Tested on every change by `examples/gatsby`, built
 and on its dev server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you
@@ -3648,8 +3644,7 @@ Source: https://kirana.style/docs/frameworks/preact
 runtime). Kirana picks that up from the JSX import source in your `tsconfig.json`,
 so there is nothing to configure. Tested by `examples/vite-preact`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -3722,8 +3717,7 @@ Source: https://kirana.style/docs/frameworks/solid
 runtime). Kirana picks that up from the JSX import source in your `tsconfig.json`,
 so there is nothing to configure. Tested by `examples/vite-solid`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -3795,8 +3789,7 @@ Source: https://kirana.style/docs/frameworks/vue
 Declare styles in `<script setup>` and apply them with `:sx`. Kirana compiles the
 component as it is read, before Vue does. Tested by `examples/vite-vue`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -3877,8 +3870,7 @@ Pages rendered on the server and hydrated in the browser are styled from the fir
 byte. Tested by `examples/nuxt`, built as a static site and run on the dev
 server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -3940,8 +3932,7 @@ Declare styles in the component's `<script>` and apply them with `sx`. Kirana
 compiles the component as it is read, before Svelte does. Tested by
 `examples/vite-svelte`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -4023,8 +4014,7 @@ SvelteKit compiles Svelte components with Vite, so Kirana works as it does in
 rendered on the server, or prerendered, are styled from the first byte. Tested by
 `examples/sveltekit`, built with the static adapter and run on the dev server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -4099,8 +4089,7 @@ Source: https://kirana.style/docs/frameworks/astro
 Declare styles in the frontmatter and apply them with `sx`. Kirana compiles the
 component as it is read, before Astro does. Tested by `examples/astro`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -4186,15 +4175,14 @@ Kirana supports **Qwik 2** (`@qwik.dev/core`): Qwik 1 runs only on
 Vite 7 and older, and Kirana's Vite plugin needs Vite 8. Tested on every change
 by `examples/qwik`, a Qwik Router app built and served with npm and pnpm.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects Qwik, shows every change below as a diff, writes them once you say
@@ -4291,8 +4279,7 @@ Vite, through a Vite plugin. Templates style elements with an `[sx]` directive.
 Tested on every change by `examples/angular-cli` and `examples/analog-angular`,
 with npm and pnpm, in a production build and on the dev server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## How Angular differs
 
@@ -4309,7 +4296,7 @@ when two handles set the same property.
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects Angular and whether it builds with the CLI or Analog, shows every
@@ -4464,15 +4451,14 @@ handles in scope.
 The `sx` helper merges them, later ones winning. Tested on
 every change by `examples/ember`, built and on its dev server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you
@@ -4552,15 +4538,14 @@ Since Meteor 3.4 the `rspack` package bundles app code with Rspack, so Kirana's
 Rspack plugin is Meteor's plugin too. Tested on every change by
 `examples/meteor`, built with `meteor build` and on `meteor run`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you
@@ -4631,8 +4616,7 @@ A style handle is a class string, and `cx` merges handles the way `sx` does. Tha
 is all plain TypeScript, a web component or a server template needs. Tested by
 `examples/vite-vanilla`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -4673,7 +4657,7 @@ merge you want and `cx(primary, button)` the reverse.
 
 ## Without a bundler
 
-`kirana build src --out styles.css` writes the stylesheet from the command line;
+`kirana-style build src --out styles.css` writes the stylesheet from the command line;
 see the [CLI](/docs/tooling/cli).
 
 ## Next
@@ -4725,10 +4709,10 @@ in TypeScript modules, Kirana's CLI compiles them, and the templates name them.
    ```
 
    ```bash
-   npx kirana dev resources/styles --out public/kirana/kirana.css
+   npx kirana-style dev resources/styles --out public/kirana/kirana.css
    ```
 
-   `kirana dev` rewrites both on every edit; `kirana build --minify` writes them
+   `kirana-style dev` rewrites both on every edit; `kirana-style build --minify` writes them
    once, for production.
 
 3. **A template names styles** through its language's helper, which reads the
@@ -4769,14 +4753,13 @@ stylesheet and the class map into `public/kirana`. How it fits together:
 reload. A React, Vue or Svelte front end (Inertia) uses [the Vite
 plugin](/docs/integrations/vite) as usual.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change, but not published. Until they are, install the npm packages from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows, and the helper from a checkout of the repository by path; the rest of this page is the same either way.
+
 
 ## 1. Install
 
 ```bash
 npm install @kirana-style/core
-npm install -D @kirana-style/compiler
+npm install -D kirana-style
 ```
 
 ```bash
@@ -4808,10 +4791,10 @@ export const active = css({ outline: "2px solid" })
 ## 4. Run the CLI beside the server
 
 ```bash
-npx kirana dev resources/styles --out public/kirana/kirana.css
+npx kirana-style dev resources/styles --out public/kirana/kirana.css
 ```
 
-For production, `npx kirana build resources/styles --out public/kirana/kirana.css --minify`
+For production, `npx kirana-style build resources/styles --out public/kirana/kirana.css --minify`
 in your deploy step.
 
 ## 5. Use it in Blade
@@ -4840,14 +4823,13 @@ stylesheet and the class map into `public/kirana`. How it fits together:
 [server templates](/docs/frameworks/server-templates). Tested on every change by
 `examples/symfony`, with a style edit checked on reload.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change, but not published. Until they are, install the npm packages from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows, and the helper from a checkout of the repository by path; the rest of this page is the same either way.
+
 
 ## 1. Install
 
 ```bash
 npm install @kirana-style/core
-npm install -D @kirana-style/compiler
+npm install -D kirana-style
 ```
 
 ```bash
@@ -4863,7 +4845,7 @@ services:
 ```
 
 Autoconfiguration tags it as a Twig extension. It reads the class map on first
-use, so `cache:clear` works before the first `kirana build`.
+use, so `cache:clear` works before the first `kirana-style build`.
 
 ## 3. Name the style modules and write styles
 
@@ -4885,10 +4867,10 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ## 4. Run the CLI
 
 ```bash
-npx kirana dev resources/styles --out public/kirana/kirana.css
+npx kirana-style dev resources/styles --out public/kirana/kirana.css
 ```
 
-`kirana build --minify` writes both files once, for production.
+`kirana-style build --minify` writes both files once, for production.
 
 ## 5. Use it in Twig
 
@@ -4913,14 +4895,13 @@ every view; the Kirana CLI writes the stylesheet and the class map. How it fits
 together: [server templates](/docs/frameworks/server-templates). Tested on every
 change by `examples/rails`, served by Puma, with a style edit checked on reload.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change, but not published. Until they are, install the npm packages from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows, and the helper from a checkout of the repository by path; the rest of this page is the same either way.
+
 
 ## 1. Install
 
 ```bash
 npm install @kirana-style/core
-npm install -D @kirana-style/compiler
+npm install -D kirana-style
 ```
 
 ```ruby file="Gemfile"
@@ -4945,10 +4926,10 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 
 ```bash file="Procfile.dev"
 web: bin/rails server
-kirana: npx kirana dev app/styles --out public/kirana/kirana.css
+kirana: npx kirana-style dev app/styles --out public/kirana/kirana.css
 ```
 
-For production, run `npx kirana build app/styles --out public/kirana/kirana.css --minify`
+For production, run `npx kirana-style build app/styles --out public/kirana/kirana.css --minify`
 before `assets:precompile`.
 
 ## 4. Use it in a view
@@ -4959,7 +4940,7 @@ before `assets:precompile`.
 <div class="<%= kirana :card, active && :active %>">…</div>
 ```
 
-The helper reads the class map again whenever `kirana dev` rewrites it. Set
+The helper reads the class map again whenever `kirana-style dev` rewrites it. Set
 `config.kirana.classes` to read it from somewhere other than
 `public/kirana/classes.json`.
 
@@ -4978,14 +4959,13 @@ and the class map into `priv/static/kirana`. How it fits together:
 [server templates](/docs/frameworks/server-templates). Tested on every change by
 `examples/phoenix`, with a style edit checked on reload.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change, but not published. Until they are, install the npm packages from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows, and the helper from a checkout of the repository by path; the rest of this page is the same either way.
+
 
 ## 1. Install
 
 ```bash
 npm install @kirana-style/core
-npm install -D @kirana-style/compiler
+npm install -D kirana-style
 ```
 
 ```elixir file="mix.exs"
@@ -5030,13 +5010,13 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ```elixir file="config/dev.exs"
 config :my_app, MyAppWeb.Endpoint,
   watchers: [
-    kirana: {System, :cmd, ["npx", ~w(kirana dev assets/styles --out priv/static/kirana/kirana.css)]}
+    kirana: {System, :cmd, ["npx", ~w(kirana-style dev assets/styles --out priv/static/kirana/kirana.css)]}
   ]
 ```
 
 Add `kirana` to the `only:` list of `Plug.Static` (in `static_paths/0`).
 
-In your deploy, run `npx kirana build … --minify` before `mix phx.digest`.
+In your deploy, run `npx kirana-style build … --minify` before `mix phx.digest`.
 
 ## 5. Use it in HEEx
 
@@ -5062,15 +5042,14 @@ it fits together: [server templates](/docs/frameworks/server-templates). Tested 
 every change by `examples/adonisjs`, with a style edit checked on reload. An
 Inertia front end uses [the Vite plugin](/docs/integrations/vite) as usual.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change, but not published. Until they are, install the npm packages from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows, and the helper from a checkout of the repository by path; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It adds the provider, the configuration and a style module, shows each as a diff,
@@ -5080,7 +5059,7 @@ and prints the install command.
 
 ```bash
 npm install @kirana-style/core @kirana-style/adonis
-npm install -D @kirana-style/compiler
+npm install -D kirana-style
 ```
 
 ## 2. Register the provider
@@ -5112,7 +5091,7 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ## 4. Run the CLI
 
 ```bash
-npx kirana dev resources/styles --out public/kirana/kirana.css
+npx kirana-style dev resources/styles --out public/kirana/kirana.css
 ```
 
 ## 5. Use it in Edge
@@ -5123,7 +5102,7 @@ npx kirana dev resources/styles --out public/kirana/kirana.css
 <div class="{{ kirana('card', active && 'active') }}">…</div>
 ```
 
-The global reads the class map again whenever `kirana dev` rewrites it.
+The global reads the class map again whenever `kirana-style dev` rewrites it.
 
 ## Next
 
@@ -5251,8 +5230,7 @@ itself and your HTML links it. On Vite, which is Rolldown-backed and does bundle
 CSS, use [the Vite plugin](/docs/integrations/vite) instead. Tested by
 `examples/rolldown-react`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -5299,8 +5277,7 @@ finished stylesheet once every module is built. Tested by
 `examples/webpack-react`. Next.js has [its own guide](/docs/frameworks/nextjs),
 and Gatsby, which runs webpack, [its own too](/docs/frameworks/gatsby).
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -5345,8 +5322,7 @@ Rspack runs webpack's plugins unchanged, so Kirana's webpack plugin is its
 plugin too; Rsbuild gets a one-line `pluginKirana`. Tested by
 `examples/rsbuild-react` and `examples/rspack-react`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -5408,8 +5384,7 @@ the styles in each script into class names, and the PostCSS plugin compiles the
 whole project into the stylesheet. Tested on every change by `examples/parcel`,
 built and on `parcel serve`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -5453,8 +5428,7 @@ Source: https://kirana.style/docs/integrations/bun
 Bun writes CSS imported from an entry next to it (`main.css`), and the plugin
 finishes it once every module has loaded. Tested by `examples/bun-react`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -5514,8 +5488,7 @@ esbuild writes CSS imported from an entry beside it (`main.css`), and the plugin
 finishes it once every module has loaded, on disk or in `outputFiles` with
 `write: false`. Tested by `examples/esbuild-react`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -5565,8 +5538,7 @@ It writes the stylesheet only: the scripts still need Kirana's compiler to turn
 used: the loader in [Next.js on Turbopack](/docs/frameworks/nextjs), the
 transformer in [Parcel](/docs/integrations/parcel).
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -5608,8 +5580,7 @@ then hands it to the transformer you already use. Tests see the class names your
 app ships; no stylesheet is written. Tested by `examples/jest-react`. With
 Vitest, [the Vite plugin](/docs/integrations/vite) does this already.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 
@@ -5642,7 +5613,7 @@ Source: https://kirana.style/docs/migration/from-tailwind
 
 We have done this migration at full scale (every shadcn/ui component, three
 applications) twice: once by hand (by way of the StyleX port), and once with
-`kirana migrate tailwind`, until the result matched the Tailwind original with zero computed-style differences.
+`kirana-style migrate tailwind`, until the result matched the Tailwind original with zero computed-style differences.
 So this page is what it costs, not what it should cost in theory.
 
 ## The shift, in four lines
@@ -5704,7 +5675,7 @@ the child's own style wins without a guard.
 > page's process: the codemod and its report, the traps, and how to prove the
 > port renders the same.
 
-`kirana migrate tailwind` rewrites Tailwind's constructs into Kirana's:
+`kirana-style migrate tailwind` rewrites Tailwind's constructs into Kirana's:
 
 | Tailwind        | Kirana                               |
 | --------------- | ------------------------------------ |
@@ -5745,9 +5716,9 @@ and `@utility`, so a custom variant nobody declared is reported instead of
 silently getting Tailwind's default meaning:
 
 ```bash
-kirana migrate tailwind src src/globals.css            # read the diff and the report
-kirana migrate tailwind src src/globals.css --write
-kirana check src
+kirana-style migrate tailwind src src/globals.css            # read the diff and the report
+kirana-style migrate tailwind src src/globals.css --write
+kirana-style check src
 ```
 
 A colour's `dark:` value becomes a `light-dark()` pair. Any other property's
@@ -5914,7 +5885,7 @@ are mostly dynamic), work component by component with the mapping above, and:
 4. Replace `[&_svg]:` and `*:` with [`select`](/docs/styling/contextual), and
    delete the `:not([class*='size-'])` guards: the child's own size wins anyway.
 5. Delete every `dark:` on a colour; write the colour as a `light-dark()` token.
-6. Run `kirana check` and resolve every diagnostic before moving on.
+6. Run `kirana-style check` and resolve every diagnostic before moving on.
 
 ## The process that worked
 
@@ -5922,7 +5893,7 @@ are mostly dynamic), work component by component with the mapping above, and:
    the shape.
 2. **Port structure verbatim.** Keep the same elements and attributes; change only
    how the styles are expressed. Then a visual diff means something.
-3. **Run `kirana check` after each component.** `sx-on-external-component` and
+3. **Run `kirana-style check` after each component.** `sx-on-external-component` and
    `unused-sx` catch the two mistakes everyone makes with wrapper components.
 4. **Compare computed styles, not screenshots.** We kept the
    Tailwind build alongside the Kirana one and diffed the computed styles of every
@@ -5998,7 +5969,7 @@ most of the reason Kirana exists.
 
 **A stated precedence ladder, and a tool that reads it back.** StyleX offers two
 modes (later-wins and property-specificity), and neither reproduced what the
-Tailwind components needed. Kirana has one ladder, and `kirana trace file:line
+Tailwind components needed. Kirana has one ladder, and `kirana-style trace file:line
 property` prints every candidate declaration, the winner, and the step that
 decided it.
 
@@ -6059,12 +6030,12 @@ The longer argument, with the StyleX port's problems and what answers each, is
 Fairness matters more than a feature list:
 
 - **It is published, versioned and used in production** at Meta scale. Kirana is
-  0.1.0 and not on npm.
+  a 0.x pre-release.
 - **A larger ecosystem**: community plugins, documentation, examples, articles and people who have
   already hit your problem.
 - **A few helpers** have no direct equivalent, `stylex.when.descendant` and
   `stylex.when.anySibling` among them; write a `:has()` condition.
-  `kirana migrate stylex` names each one it meets in its report.
+  `kirana-style migrate stylex` names each one it meets in its report.
 
 If you need a styling compiler in production this quarter, StyleX is the
 defensible choice. Kirana is worth it when predictability and diagnostics are the
@@ -6096,8 +6067,8 @@ Kirana emits nothing outside its layers.
 > port renders the same.
 
 ```bash
-kirana migrate stylex src          # print the diff and the report
-kirana migrate stylex src --write  # apply it
+kirana-style migrate stylex src          # print the diff and the report
+kirana-style migrate stylex src --write  # apply it
 ```
 
 It makes the mechanical rewrites, renames `*.stylex.ts` files, and prints a report
@@ -6119,7 +6090,7 @@ Two follow-up passes still live as scripts in the compiler's repository:
 
 ## After the codemod
 
-Work through the report, then let the compiler finish the job: `kirana check`
+Work through the report, then let the compiler finish the job: `kirana-style check`
 will find the relations without anchors, the components that swallow `sx`, and the
 ambiguous pairs. Fix those and the port is done.
 ---
@@ -6332,8 +6303,8 @@ values enter. See [values known at runtime](/docs/styling/dynamic).
 
 ### 15. Let the tools answer "why"
 
-- `kirana check` in CI: every diagnostic, with an exit code.
-- `kirana trace <file>:<line> <property>` when a value is not the one you
+- `kirana-style check` in CI: every diagnostic, with an exit code.
+- `kirana-style trace <file>:<line> <property>` when a value is not the one you
   expected: every entry, the winner, and the ladder step that decided it.
 - To verify a port or a refactor, compare **computed styles**, not screenshots,
   in both colour schemes and at several widths. A 1 px border, an easing curve
@@ -6940,7 +6911,7 @@ diagnostic paths relative.
 Source: https://kirana.style/docs/tooling/cli
 # The CLI
 
-The `kirana` binary's commands, by what they do:
+The `kirana-style` command, by what it does:
 
 | What it does                            | Commands                              |
 | --------------------------------------- | ------------------------------------- |
@@ -6950,28 +6921,54 @@ The `kirana` binary's commands, by what they do:
 | Rewrites other styling systems          | `migrate`                             |
 | Serves your editor                      | `lsp`                                 |
 
-The command comes with the compiler package. In a project that does not have
-Kirana yet, run `npx kirana-style init`: `kirana-style` is the command line's
-package on npm, and it runs the same command. Once `init` has added the compiler,
-every command is plain `kirana`.
+In a project without Kirana, run it without installing anything: your package
+manager's runner fetches it for one run, as `npx shadcn@latest` does.
+
+| Package manager | Without installing                    | Once installed            |
+| --------------- | ------------------------------------- | ------------------------- |
+| npm             | `npx kirana-style@latest init`        | `npx kirana-style check`  |
+| pnpm            | `pnpm dlx kirana-style@latest init`   | `pnpm kirana-style check` |
+| Yarn            | `yarn dlx kirana-style@latest init`   | `yarn kirana-style check` |
+| Bun             | `bunx --bun kirana-style@latest init` | `bunx kirana-style check` |
+
+`init` adds `kirana-style` to the project's dev dependencies, so every later run
+uses the version the project pins, and the editor's language server comes from the
+same install.
+
+### A shorter name
+
+The command is `kirana-style` everywhere: npm does not give out the plain name
+`kirana`, so a bare `npx kirana` cannot run Kirana. For a shorter
+name in your own project, add a script:
+
+```json file="package.json"
+{
+  "scripts": {
+    "kirana": "kirana-style"
+  }
+}
+```
+
+Then `npm run kirana -- check src`; pnpm, Yarn and Bun run scripts the same way. In your shell,
+`alias kirana="npx kirana-style"` does the same for every project.
 
 In this repository the binary runs through its entry script:
 
 ```bash
-node packages/kirana/npm/compiler/bin/kirana.ts <command>
+node packages/kirana/npm/cli/bin/kirana-style.ts <command>
 ```
 
-## `kirana init`
+## `kirana-style init`
 
 Set a project up: the configuration file, the adapter in your bundler's
 configuration, the stylesheet, and the types for `sx`.
 
 ```bash
-kirana init             # show the changes, ask, write them
-kirana init --dry-run   # only show them
-kirana init --yes       # write without asking
-kirana init --install   # also run the install command
-kirana init --preset    # with the scales preset (utilities)
+kirana-style init             # show the changes, ask, write them
+kirana-style init --dry-run   # only show them
+kirana-style init --yes       # write without asking
+kirana-style init --install   # also run the install command
+kirana-style init --preset    # with the scales preset (utilities)
 ```
 
 It reads `package.json` and the lockfile to find the framework, the bundler and
@@ -6979,7 +6976,7 @@ the package manager, then prints every change as a diff before it writes
 anything:
 
 ```console
-$ kirana init --dry-run
+$ kirana-style init --dry-run
 Next.js · turbopack · npm · TypeScript
 
 + config: create kirana.config.mts
@@ -7008,24 +7005,24 @@ guessing. The install command is printed, never run unless you pass
 `--install`, so your lockfile stays yours.
 
 Its setups were checked the way the examples are: sixteen examples, stripped of
-Kirana and set up again by `kirana init`, built from packed tarballs and styled
+Kirana and set up again by `kirana-style init`, built from packed tarballs and styled
 exactly like the hand-written ones in a browser.
 
-## `kirana doctor`
+## `kirana-style doctor`
 
 Check a project's setup, and say what is missing.
 
 ```bash
-kirana doctor
-kirana doctor --json
-kirana doctor --report
-kirana doctor --report bug.md --trace src/card.tsx:12 minHeight
+kirana-style doctor
+kirana-style doctor --json
+kirana-style doctor --report
+kirana-style doctor --report bug.md --trace src/card.tsx:12 minHeight
 ```
 
 ```console
-$ kirana doctor
+$ kirana-style doctor
 ✓ engine       native (linux-x64)
-✓ packages     @kirana-style/compiler@0.1.0, @kirana-style/core@0.1.0, @kirana-style/next@0.1.0
+✓ packages     @kirana-style/core@0.1.0, @kirana-style/next@0.1.0, kirana-style@0.1.0
 ✓ config       kirana.config.mts, prefix "k"
 ✓ project      Next.js · turbopack · npm · TypeScript
 ✓ adapter      next.config.ts, postcss.config.mjs
@@ -7039,7 +7036,7 @@ All good.
 It reports the engine in use (native, or the WebAssembly fallback), every
 installed `@kirana-style/*` version and whether they match, whether the configuration
 loads, and whether the adapter, stylesheet and types are in place, which it learns
-by running `kirana init`'s plan without writing. The exit code is 1 when something fails.
+by running `kirana-style init`'s plan without writing. The exit code is 1 when something fails.
 There is no cache to clear: Kirana keeps nothing on disk between builds.
 
 ### A bug report
@@ -7053,11 +7050,11 @@ Kirana collected:
 - each diagnostic code, how often it occurred and where first;
 - the stylesheet's size and the resolved configuration.
 
-`--trace <file>:<line> <property>` adds `kirana trace` output, and `--json` prints
+`--trace <file>:<line> <property>` adds `kirana-style trace` output, and `--json` prints
 the same data instead of writing the file.
 
 ```console
-$ kirana doctor --report --trace src/card.tsx:12 minHeight
+$ kirana-style doctor --report --trace src/card.tsx:12 minHeight
 wrote kirana-report.md: describe what happened and add a reproduction at the top, read the rest, then paste it into an issue
 ```
 
@@ -7066,14 +7063,14 @@ reads `<project>`, the home directory `~` and your user name `<user>`,
 configuration values under keys that name a secret are masked, and no environment
 variable is read. Read it before you post it anyway.
 
-## `kirana dev`
+## `kirana-style dev`
 
 Watch mode for projects without a bundler: plain HTML, web components, server
 templates.
 
 ```bash
-kirana dev src --out public/kirana.css
-kirana dev --minify
+kirana-style dev src --out public/kirana.css
+kirana-style dev --minify
 ```
 
 It compiles every script under the paths (`src`, or the project when there is
@@ -7083,27 +7080,27 @@ stylesheet is rewritten only when it changed, and diagnostics print as they
 appear:
 
 ```console
-$ kirana dev src --out public/kirana.css
+$ kirana-style dev src --out public/kirana.css
 ✓ public/kirana.css (4780 bytes, 8 file(s), 9 ms)
 watching src
 ✓ public/kirana.css (4802 bytes, src/card.ts, 2 ms)
 ```
 
-## `kirana check`
+## `kirana-style check`
 
 Report diagnostics without writing anything.
 
 ```bash
-kirana check src
-kirana check src --format json
-kirana check src --format github --max-warnings 0
+kirana-style check src
+kirana-style check src --format json
+kirana-style check src --format github --max-warnings 0
 ```
 
 It walks the paths you give it, skipping `node_modules`, `dist`, dotfiles and
 `.d.ts` files. Human output underlines the span and prints the help line:
 
 ```console
-$ kirana check src
+$ kirana-style check src
 warning[KRN1703] sx-on-external-component: a component from "@base-ui/react"
 receives `sx`, which it does not read (src/menu.tsx:14:7)
   help: spread the compiled props instead: {...props(styles.root, sx)}
@@ -7125,34 +7122,34 @@ configuration.
 
 ```yaml
 # .github/workflows/ci.yml
-- run: npx kirana check src --format github --max-warnings 0
+- run: npx kirana-style check src --format github --max-warnings 0
 ```
 
-## `kirana build`
+## `kirana-style build`
 
 Compile files and write the stylesheet.
 
 ```bash
-kirana build src --out dist/kirana.css
-kirana build src --out dist/kirana.css --minify
+kirana-style build src --out dist/kirana.css
+kirana-style build src --out dist/kirana.css --minify
 ```
 
 Useful when a bundler is not in the picture: a library build, a check in CI, or
 looking at the CSS for yourself. Applications normally let the
 [Vite plugin](/docs/integrations/vite) do this.
 
-## `kirana analyze`
+## `kirana-style analyze`
 
 What the stylesheet holds, and why.
 
 ```bash
-kirana analyze src
-kirana analyze src --json
-kirana analyze src --html report.html
+kirana-style analyze src
+kirana-style analyze src --json
+kirana-style analyze src --html report.html
 ```
 
 ```console
-$ kirana analyze src
+$ kirana-style analyze src
 58 module(s), 1607 site(s), 851 atom(s), 39.2 kB stylesheet
 
 Stylesheet by layer
@@ -7179,7 +7176,7 @@ your project declares that nothing reads. `--json` prints all of it;
 `--html` writes one self-contained page, readable in light and dark. The exit
 code is the same as `check`'s.
 
-## `kirana export`
+## `kirana-style export`
 
 The design system, as JSON: every token with its value (and both halves of a
 `light-dark()` pair), each theme and the tokens it overrides, each recipe with
@@ -7188,8 +7185,8 @@ anchored and read, and the keyframes, `positionTry` and `viewTransition` names.
 Each comes with the file and line that declares it.
 
 ```bash
-kirana export                       # print it
-kirana export src --out design-system.json
+kirana-style export                       # print it
+kirana-style export src --out design-system.json
 ```
 
 ```json file="design-system.json"
@@ -7251,19 +7248,19 @@ locations only, never source text; everything is sorted, so the file diffs clean
 when it is committed. `schema` changes only when a field does. The exit code is
 1 when the project has errors, as for `check`.
 
-## `kirana trace`
+## `kirana-style trace`
 
 Explain which declaration wins for a property, and why.
 
 ```bash
-kirana trace src/components/card.tsx:24 padding-top
+kirana-style trace src/components/card.tsx:24 padding-top
 ```
 
 It prints one line per candidate: a marker for the winner, the value, the
 conditions, the layer, and the ladder step that decided it.
 
 ```console
-$ kirana trace src/components/card.tsx:24 padding-top
+$ kirana-style trace src/components/card.tsx:24 padding-top
 ✓ 2px   base   kirana.atoms   step 5 (set 1 longhand < 4)
   1px   base   kirana.atoms
 ```
@@ -7284,16 +7281,16 @@ result, not from reading the source.
 | 1    | `check --max-warnings n`: more than `n` warnings              |
 | 2    | Bad configuration, or a malformed argument                    |
 
-## `kirana migrate`
+## `kirana-style migrate`
 
 Rewrite another styling system's sources into Kirana, and report what it will
 not decide for you.
 
 ```bash
-kirana migrate tailwind src                    # print the diff and the report
-kirana migrate tailwind src --write            # apply it
-kirana migrate tailwind src --report todo.txt  # also save the report
-kirana migrate stylex src --write
+kirana-style migrate tailwind src                    # print the diff and the report
+kirana-style migrate tailwind src --write            # apply it
+kirana-style migrate tailwind src --report todo.txt  # also save the report
+kirana-style migrate stylex src --write
 ```
 
 Nothing is written without `--write`. The report is printed either way: each
@@ -7305,13 +7302,13 @@ and your theme's scales), and reads `@custom-variant` and `@utility` from any CS
 file among its paths. See
 [migrating from Tailwind](/docs/migration/from-tailwind#the-codemod).
 
-## `kirana lsp`
+## `kirana-style lsp`
 
 Start the language server on stdin and stdout. Editors run it for you (see
 [editor support](/docs/tooling/editor)), but any LSP client can:
 
 ```bash
-kirana lsp
+kirana-style lsp
 ```
 
 It loads `kirana.config.*` like every other command, indexes the project, and then
@@ -7328,7 +7325,7 @@ Object styles move the CSS out of the markup: you read `sx={styles.card}`, not a
 class list. The Kirana language server brings it back where you are reading, and
 answers questions a class list never could: **which value wins, and why**.
 
-It is `kirana lsp`, a command of the compiler you already installed. It runs on the
+It is `kirana-style lsp`, a command of the compiler you already installed. It runs on the
 same compiler session as your build, so what the editor tells you is what the build
 does, never an approximation of it.
 
@@ -7350,11 +7347,12 @@ output for one file.
 - [Zed](/docs/tooling/editor#zed): Extension
 - [Neovim](/docs/tooling/editor#neovim): vim.lsp.config
 - [Helix](/docs/tooling/editor#helix): languages.toml
-- [Any LSP editor](/docs/tooling/editor#any-other-editor): kirana lsp over stdio
+- [Any LSP editor](/docs/tooling/editor#any-other-editor): kirana-style lsp over stdio
 
-Every editor runs your project's own `node_modules/.bin/kirana lsp`, from
-`@kirana-style/compiler`. Upgrading Kirana upgrades the editor with it; there is no
-extension version to keep in step.
+Every editor runs your project's own `node_modules/.bin/kirana-style lsp`, from the
+`kirana-style` package. Upgrading Kirana upgrades the editor with it; there is no
+extension version to keep in step. A project still on 0.1.0 has `kirana` there
+instead, and the extensions find that too.
 
 ### VS Code and its forks
 
@@ -7370,11 +7368,11 @@ in Cursor, Windsurf, Antigravity and VSCodium: search "Kirana" in the
 Extensions view. In a remote workspace (WSL, SSH, a container), install it on
 the remote side, where your project and Node.js live.
 
-If your project has no `node_modules/.bin/kirana` (a checkout of Kirana itself,
+If your project has no `node_modules/.bin/kirana-style` (a checkout of Kirana itself,
 say), point the extension at a binary or script:
 
 ```json
-{ "kirana.server.path": "packages/kirana/npm/compiler/bin/kirana.ts" }
+{ "kirana.server.path": "packages/kirana/npm/cli/bin/kirana-style.ts" }
 ```
 
 A relative path is resolved against the workspace folder; a `.js` or `.ts` path
@@ -7402,7 +7400,7 @@ Neovim 0.11 and later:
 
 ```lua
 vim.lsp.config("kirana", {
-  cmd = { "node_modules/.bin/kirana", "lsp" },
+  cmd = { "node_modules/.bin/kirana-style", "lsp" },
   filetypes = {
     "typescript", "typescriptreact", "javascript", "javascriptreact",
     "vue", "svelte", "astro", "html",
@@ -7418,7 +7416,7 @@ In `languages.toml`:
 
 ```toml
 [language-server.kirana]
-command = "node_modules/.bin/kirana"
+command = "node_modules/.bin/kirana-style"
 args = ["lsp"]
 
 [[language]]
@@ -7432,7 +7430,7 @@ language-servers = ["vuels", "kirana"]
 
 ### Any other editor
 
-Run `kirana lsp` from the project root and connect over stdio. It runs beside the
+Run `kirana-style lsp` from the project root and connect over stdio. It runs beside the
 TypeScript server and answers styling questions only: property names and token
 keys are TypeScript's, through `@kirana-style/core`'s types.
 
@@ -7457,7 +7455,7 @@ the way you read a style:
 
 Hover a **property** instead and you get its entries in precedence order, with the
 ladder step that put each one where it is: the answer
-[`kirana trace`](/docs/tooling/cli) gives on the command line. Hover a **token** for
+[`kirana-style trace`](/docs/tooling/cli) gives on the command line. Hover a **token** for
 its value in both colour modes, and whether a theme can reassign it.
 
 VS Code draws the box model as a picture in your theme's colours, with the
@@ -7546,7 +7544,7 @@ Code actions also offer:
   `{ base: …, "@media (width >= 48rem)": … }`, ready to change.
 - **Show compiled CSS**, **Explain precedence** for the property under the cursor,
   and **Convert Tailwind classes to `css()`** on a `className` string, with the
-  engine of [`kirana migrate tailwind`](/docs/migration/from-tailwind).
+  engine of [`kirana-style migrate tailwind`](/docs/migration/from-tailwind).
 
 ### Structure and navigation
 
@@ -7655,7 +7653,7 @@ budgets are 50 ms, 200 ms and 300 MB.
 ## Troubleshooting
 
 - **The status bar shows Kirana with a warning sign.** No binary was found:
-  install `@kirana-style/compiler` in the project, or set `kirana.server.path`.
+  install `kirana-style` in the project, or set `kirana.server.path`.
 - **Answers look stale after changing the configuration.** Run **Kirana: Restart
   Language Server**.
 - **No hint after `sx={…}`.** Check that your editor shows inlay hints at all:
@@ -7767,12 +7765,12 @@ whose `node_modules` sits higher up, list the files from there in `plugins`.
 
 A Biome plugin matches syntax: it cannot ask the compiler or read another file.
 What the other rules would report reaches a Biome project two other ways:
-`kirana check` in CI, as pull-request annotations, and the
+`kirana-style check` in CI, as pull-request annotations, and the
 [language server](/docs/tooling/editor) in the editor:
 
 ```yaml
 # .github/workflows/ci.yml
-- run: npx kirana check src --format github --max-warnings 0
+- run: npx kirana-style check src --format github --max-warnings 0
 ```
 
 
@@ -7988,7 +7986,7 @@ known at runtime: [values known at runtime](/docs/styling/dynamic).
 
 **`relation-without-anchor`**: a style reads a relation whose anchor is never
 applied, so it can never match: [relations](/docs/styling/relations). A build
-checks the relations whose module it compiled; `kirana check` checks them all.
+checks the relations whose module it compiled; `kirana-style check` checks them all.
 
 **`invalid-fallback`**, **`invalid-position-try`** and **`invalid-view-transition`**
 report a value the browser would drop or misread:
@@ -8006,13 +8004,13 @@ paths.
 ## Reading one
 
 ```console
-$ kirana check src
+$ kirana-style check src
 error[KRN1301] unknown-condition: ":hover" is a condition, and conditions nest
 inside property values (src/card.tsx:12:3)
   help: write `property: { [condition]: value }`
 ```
 
-Code, name, message, location, and a help line that says what to do. `kirana check
+Code, name, message, location, and a help line that says what to do. `kirana-style check
 --format json` gives the same fields as data.
 
 <!-- ::diagnostics-figure -->
@@ -8044,7 +8042,7 @@ you mean "and nothing else"; [Merging](/docs/styling/merging) has the rule.
 ## 4 · Ask the compiler
 
 ```bash
-kirana trace src/components/card.tsx:24 padding-top
+kirana-style trace src/components/card.tsx:24 padding-top
 ```
 
 It lists every candidate declaration for that property, marks the winner, and
@@ -8078,7 +8076,7 @@ Source: https://kirana.style/docs/project/status
 
 Kirana is pre-release. It compiles three real applications in our shadcn/ui port
 (a demo, 60+ shadcn blocks and one page per component), and its own test suite
-keeps 100 % line coverage. It is not published, and the name is a working name.
+keeps 100 % line coverage. It is on npm as a 0.x pre-release, and the name is a working name.
 
 ## Built
 
@@ -8100,7 +8098,7 @@ keeps 100 % line coverage. It is not published, and the name is a working name.
   Vite plugin for Analog; see [Angular](/docs/frameworks/angular)
 - React Router, Gatsby (`@kirana-style/gatsby`), Ember (`@kirana-style/ember`), Meteor and
   Parcel (`@kirana-style/parcel-transformer`), each with a tested example
-- Server templates: the class map `kirana build` and `kirana dev` write, and
+- Server templates: the class map `kirana-style build` and `kirana-style dev` write, and
   helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and
   AdonisJS; see [server templates](/docs/frameworks/server-templates)
 - The command line: setting a project up and checking it (with a bug report),
@@ -8114,11 +8112,11 @@ keeps 100 % line coverage. It is not published, and the name is a working name.
   [view transitions](/docs/styling/view-transitions)
 - `@kirana-style/preset-scales`: Tailwind v4 scales as tokens, and its utility names as
   [utility strings](/docs/styling/utilities) in `sx`
-- `kirana migrate tailwind`, proven on the Tailwind original of our shadcn/ui port: zero
+- `kirana-style migrate tailwind`, proven on the Tailwind original of our shadcn/ui port: zero
   computed-style differences after the codemod and 38 hand fixes
   ([the numbers](/docs/migration/from-tailwind#measured-this-repository-s-tailwind-original))
 
-- `kirana lsp`, the language server, with VS Code and Zed extensions, in
+- `kirana-style lsp`, the language server, with VS Code and Zed extensions, in
   TypeScript, Vue, Svelte and Astro files and Angular templates; see
   [editor support](/docs/tooling/editor)
 - `@kirana-style/eslint-plugin` under Oxlint and ESLint, identical results, and
@@ -8131,8 +8129,8 @@ keeps 100 % line coverage. It is not published, and the name is a working name.
 
 - **`variable-default-scope`** is in the catalogue but not emitted yet.
 - **Benchmarks** are advisory: hosted CI numbers, not dedicated hardware.
-- **Packaging** is built but not published: `bun run kirana:pack` produces every
-  package and the eight per-platform engine packages as tarballs, and CI installs
+- **Packaging**: every package and the per-platform engine packages are on npm.
+  `bun run kirana:pack` produces them as tarballs before a release, and CI installs
   them with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and
   Alpine.
 
@@ -8163,7 +8161,7 @@ by one person with AI assistance, and a date would be fiction.
 ## M0: Foundations · done
 
 The workspace, the IR, longhand expansion and normalisation, the ladder and layer
-plan, the CSS writer, golden fixtures, `kirana build`.
+plan, the CSS writer, golden fixtures, `kirana-style build`.
 
 ## M1: Feasibility slice · done
 
@@ -8174,7 +8172,7 @@ against the StyleX and Tailwind originals.
 ## M2: Recipes and dynamic styles · done
 
 `recipe()` with slots, finite and open dynamic values, the private runtime,
-incremental rebuilds and hot updates, `kirana migrate stylex`, and the full
+incremental rebuilds and hot updates, `kirana-style migrate stylex`, and the full
 component set built on it, which is what found most of the compiler's bugs.
 
 One thing in this milestone's scope is deliberately not built: a persistent
@@ -8228,7 +8226,7 @@ composed utilities (rings, shadows, translations, filters) and pseudo-elements.
 A property test compiles all 7,391 utilities the grammar generates and checks
 each gives the same atoms as its object.
 
-`kirana migrate tailwind` is built on the same lowering. The exit criterion was
+`kirana-style migrate tailwind` is built on the same lowering. The exit criterion was
 to migrate the Tailwind original of our shadcn/ui port with it and match the original:
 after the codemod and 38 hand fixes, conformance finds **zero computed-style
 differences** on all 189 routes of the three applications, at three widths, in
@@ -8245,7 +8243,7 @@ they never disagree with the build.
 
 **Built** (sprint 6):
 
-- **Language server**, [`kirana lsp`](/docs/tooling/editor): diagnostics at the
+- **Language server**, [`kirana-style lsp`](/docs/tooling/editor): diagnostics at the
   property, hover with the compiled CSS and the winning entry's ladder step,
   token values in both modes, colour swatches, an inline summary after every
   `sx`, code lenses, completion for conditions, `select` targets, keyword values
@@ -8265,10 +8263,10 @@ they never disagree with the build.
 - **Editors in Vue, Svelte and Astro components**, the style card (box model,
   every declaration, compiled CSS), coloured summaries at the end of each line,
   the Style Inspector and Style Fold.
-- **CLI**: [`init`](/docs/tooling/cli#kirana-init) sets a project up from a diff,
-  [`doctor`](/docs/tooling/cli#kirana-doctor) checks it,
-  [`dev`](/docs/tooling/cli#kirana-dev) watches without a bundler, and
-  [`analyze`](/docs/tooling/cli#kirana-analyze) reports atoms, reuse and bytes by
+- **CLI**: [`init`](/docs/tooling/cli#kirana-style-init) sets a project up from a diff,
+  [`doctor`](/docs/tooling/cli#kirana-style-doctor) checks it,
+  [`dev`](/docs/tooling/cli#kirana-style-dev) watches without a bundler, and
+  [`analyze`](/docs/tooling/cli#kirana-style-analyze) reports atoms, reuse and bytes by
   layer and module.
 - **Next.js with Turbopack**, through `@kirana-style/next` and `@kirana-style/postcss`.
 
@@ -8278,9 +8276,9 @@ they never disagree with the build.
   [`positionTry()`](/docs/styling/anchor-positioning) and
   [`viewTransition()`](/docs/styling/view-transitions)**, each checked at build
   time, and a redacted bug report from
-  [`kirana doctor --report`](/docs/tooling/cli#a-bug-report).
-- **[`kirana export`](/docs/tooling/cli#kirana-export)**, the design system as
-  JSON, and **[`kirana check`](/docs/tooling/cli#kirana-check)** with
+  [`kirana-style doctor --report`](/docs/tooling/cli#a-bug-report).
+- **[`kirana-style export`](/docs/tooling/cli#kirana-style-export)**, the design system as
+  JSON, and **[`kirana-style check`](/docs/tooling/cli#kirana-style-check)** with
   `--format github` and `--max-warnings` for CI.
 - **Two more lint rules**, `no-dark-variant` and `no-class-helpers`, and
   **[`@kirana-style/biome-plugin`](/docs/tooling/lint#biome)** with the four rules
@@ -8351,7 +8349,7 @@ What is _not_ breaking: new diagnostics, new API, better messages, smaller outpu
 ## When you upgrade
 
 1. Read the release note for behaviour changes.
-2. `kirana check`: new diagnostics surface here first, and a new warning is
+2. `kirana-style check`: new diagnostics surface here first, and a new warning is
    usually a real problem that was invisible before.
 3. Build, and diff the stylesheet. Output is deterministic, so a diff is
    meaningful: it shows exactly which declarations changed.
@@ -8402,16 +8400,16 @@ See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 
 ## Tooling
 
-|                                                       | Status                                                                                                     |
-| ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `kirana build`, `check`, `analyze`, `export`, `trace` | **Works**                                                                                                  |
-| `kirana init`, `doctor`, `doctor --report`, `dev`     | **Works**, see [the CLI](/docs/tooling/cli)                                                                |
-| `kirana migrate stylex`                               | **Works**, see [migration](/docs/migration/from-stylex)                                                    |
-| `kirana migrate tailwind`                             | **Works**, with a report of what it leaves; see [migration](/docs/migration/from-tailwind#the-codemod)     |
-| Language server, VS Code and Zed extensions           | **Works**, see [editor support](/docs/tooling/editor)                                                      |
-| Lint plugin, `@kirana-style/eslint-plugin`            | **Works**, see [lint](/docs/tooling/lint)                                                                  |
-| Lint plugin, for Biome                                | **Works**, the four rules that need no compiler; see [lint](/docs/tooling/lint#biome) |
-| Agent skills                                          | **Works**, see [agent skills](/docs/project/agent-skills)                                                  |
+|                                                             | Status                                                                                                     |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `kirana-style build`, `check`, `analyze`, `export`, `trace` | **Works**                                                                                                  |
+| `kirana-style init`, `doctor`, `doctor --report`, `dev`     | **Works**, see [the CLI](/docs/tooling/cli)                                                                |
+| `kirana-style migrate stylex`                               | **Works**, see [migration](/docs/migration/from-stylex)                                                    |
+| `kirana-style migrate tailwind`                             | **Works**, with a report of what it leaves; see [migration](/docs/migration/from-tailwind#the-codemod)     |
+| Language server, VS Code and Zed extensions                 | **Works**, see [editor support](/docs/tooling/editor)                                                      |
+| Lint plugin, `@kirana-style/eslint-plugin`                  | **Works**, see [lint](/docs/tooling/lint)                                                                  |
+| Lint plugin, for Biome                                      | **Works**, the four rules that need no compiler; see [lint](/docs/tooling/lint#biome) |
+| Agent skills                                                | **Works**, see [agent skills](/docs/project/agent-skills)                                                  |
 
 ## Runtime and distribution
 
@@ -8419,7 +8417,7 @@ See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 | ---------------------------------------------- | ---------------------------------------------------------------------- |
 | Node.js ≥ 22.18, Bun, Deno                     | **Works**                                                              |
 | Native engine (Node-API)                       | **Works**, built from source in this repository                        |
-| Prebuilt per-platform packages                 | Built and install-tested in CI; not published yet                      |
+| Prebuilt per-platform packages                 | **Works**: on npm, and install-tested in CI                            |
 | WASI fallback (WebContainers, no native addon) | **Works**: `@kirana-style/compiler-wasm32-wasi`, byte-identical output |
 
 ## Configuration keys in the specification but not the build
@@ -8448,7 +8446,7 @@ The most valuable contribution at this stage. A good report has:
 - **What you ran**: the Kirana version, your framework and bundler, and the
   smallest source that shows the problem.
 - **What you expected and what happened**: the computed style you expected,
-  and the one you got. `kirana trace <file>:<line> <property>` prints every
+  and the one you got. `kirana-style trace <file>:<line> <property>` prints every
   entry for a style and the one that won; paste its output.
 - **The diagnostic**, if there was one, with its code (`KRN…`).
 
@@ -8486,8 +8484,8 @@ vp run build           # native engine, then the docs site
 
 Vite+ (`vp`) and Rust (through rustup) are the two installs. The README's
 Scripts table lists what each command needs. The pre-push hook (`vp run prepush`)
-runs the checks, the Rust lints and the tests with 100 % coverage, from the cache
-when nothing changed.
+runs the checks, the Rust lints, the tests with 100 % coverage and the Zed
+extension's own Rust checks, from the cache when nothing changed.
 
 ### Try it on this repository
 
@@ -8504,8 +8502,8 @@ and sends it through Vite's hot update channel. To ask the compiler what it foun
 declaration wins a property and why:
 
 ```console
-$ node packages/kirana/npm/compiler/bin/kirana.ts check packages/ui/src
-$ node packages/kirana/npm/compiler/bin/kirana.ts trace packages/ui/src/components/badge.tsx:12 color
+$ node packages/kirana/npm/cli/bin/kirana-style.ts check packages/ui/src
+$ node packages/kirana/npm/cli/bin/kirana-style.ts trace packages/ui/src/components/badge.tsx:12 color
 ```
 
 `trace` prints one line per candidate declaration, marks the winner, and names the step of the
@@ -8618,7 +8616,7 @@ worth handing to an agent alongside the pages above.
 - The diagnostics are also available as data on the
   [diagnostics page](/docs/tooling/diagnostics): code, message, and what to do
   about it.
-- [`kirana export`](/docs/tooling/cli#kirana-export) prints your project's own
+- [`kirana-style export`](/docs/tooling/cli#kirana-style-export) prints your project's own
   design system (tokens, themes, recipes and relations, with where each is
   declared) as JSON, so an agent uses the names that exist.
 - The [API reference](/docs/reference/api) is generated from the packages'
@@ -8626,7 +8624,7 @@ worth handing to an agent alongside the pages above.
 - The [playground](/play) shows curated examples with the CSS, class names and
   diagnostics the real compiler produced from them at build time. It does not
   compile pasted source yet (that needs the WASM engine), so to check an agent's
-  suggestion, run `kirana build` or `kirana check` on it.
+  suggestion, run `kirana-style build` or `kirana-style check` on it.
 ---
 # Agent skills
 Source: https://kirana.style/docs/project/agent-skills
@@ -8668,16 +8666,16 @@ to the compiler without a line saying what to do about it fails the build.
 
 ## The loop it follows
 
-1. **Learn the project.** Run [`kirana export`](/docs/tooling/cli#kirana-export)
+1. **Learn the project.** Run [`kirana-style export`](/docs/tooling/cli#kirana-style-export)
    for the tokens, themes, recipes and relations that exist, by their real names,
-   then `kirana doctor`.
+   then `kirana-style doctor`.
 2. **Write the style**, with the rules: conditions inside the value, entries
    merge per condition, `sx` forwarded last, `styleProps` for installed
    components, colours as `light-dark()` pairs.
-3. **`kirana check`**, and fix every error by its code.
+3. **`kirana-style check`**, and fix every error by its code.
 4. **Lint**, with whichever of ESLint, Oxlint or Biome the project runs.
-5. **`kirana trace file:line property`** when it compiles and looks wrong.
-6. **`kirana doctor --report`** when it looks like a Kirana bug, and ask before
+5. **`kirana-style trace file:line property`** when it compiles and looks wrong.
+6. **`kirana-style doctor --report`** when it looks like a Kirana bug, and ask before
    filing it.
 
 Every step answers from the compiler, so an agent that follows it checks its own

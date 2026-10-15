@@ -1,4 +1,4 @@
-//! Source discovery and whole-tree compilation, shared by `kirana check`, the language server's
+//! Source discovery and whole-tree compilation, shared by `kirana-style check`, the language server's
 //! indexing and the lint plugin's project pass.
 
 use std::fs;
@@ -50,7 +50,7 @@ pub fn collect_sources(path: &Path, files: &mut Vec<PathBuf>, extensions: &[&str
 
 impl Project {
     /// Compiles every source file under `paths` (files or directories); returns every diagnostic,
-    /// project-wide ones included, and the source of each file that has any. `kirana check`, the
+    /// project-wide ones included, and the source of each file that has any. `kirana-style check`, the
     /// language server's indexing and the lint plugin's project pass share it.
     pub fn compile_paths(&self, paths: &[PathBuf]) -> (Vec<Diagnostic>, Vec<(String, String)>) {
         let mut files = Vec::new();

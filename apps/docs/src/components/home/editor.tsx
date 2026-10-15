@@ -6,7 +6,7 @@
  * diagnostic, and the editors it runs in.
  *
  * Nothing in the editor is drawn by hand. `scripts/generate-editor.ts` opens
- * `showcase/editor/plan.tsx` in `kirana lsp` and records its answers (`EDITOR_SAMPLE`): the code
+ * `showcase/editor/plan.tsx` in `kirana-style lsp` and records its answers (`EDITOR_SAMPLE`): the code
  * lens and summaries are the server's, painted as the extension paints them; the hovers are the
  * HTML its Markdown renders to, in a frame styled as VS Code's hover; the Inspector is the
  * extension's own renderer. The colours are VS Code's with the GitHub Dark theme, the one the

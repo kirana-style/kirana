@@ -231,7 +231,7 @@ fn a_panicking_handler_answers_with_an_error() {
     let response = kirana_lsp::respond(RequestId::from(7), "textDocument/hover", || panic!("boom"));
     let error = response.response_result.unwrap_err();
     assert_eq!(error.code, ErrorCode::InternalError as i32);
-    assert_eq!(error.message, "kirana lsp: textDocument/hover failed: boom");
+    assert_eq!(error.message, "kirana-style lsp: textDocument/hover failed: boom");
     let fine = kirana_lsp::respond(RequestId::from(8), "x", || lsp_server::Response::new_ok(RequestId::from(8), 1));
     assert!(fine.response_result.is_ok());
 }

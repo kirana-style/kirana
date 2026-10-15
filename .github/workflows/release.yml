@@ -6,7 +6,7 @@ name: release
 # extensions, with CHANGELOG.md. Merging that PR tags vX.Y.Z and creates the GitHub release; this
 # workflow then builds every platform, runs the installation matrix as the gate, and publishes:
 #
-#   npm (20 packages + 8 platform packages) · RubyGems · Hex · VS Code Marketplace · Open VSX ·
+#   npm (21 packages + 9 engine packages: 8 native, 1 WASI) · RubyGems · Hex · VS Code Marketplace · Open VSX ·
 #   the kirana-php mirror and the kirana/kirana alias (Packagist reads their tags)
 #
 # Publishing jobs run in the `release` environment, which requires an approval, so nothing reaches a

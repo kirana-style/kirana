@@ -21,7 +21,7 @@ Inertia front end uses [the Vite plugin](/docs/integrations/vite) as usual.
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It adds the provider, the configuration and a style module, shows each as a diff,
@@ -29,7 +29,7 @@ and prints the install command.
 
 ## 1. Install
 
-<!-- ::install packages="@kirana-style/core @kirana-style/adonis" dev="@kirana-style/compiler" -->
+<!-- ::install packages="@kirana-style/core @kirana-style/adonis" dev="kirana-style" -->
 
 ## 2. Register the provider
 
@@ -60,7 +60,7 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ## 4. Run the CLI
 
 ```bash
-npx kirana dev resources/styles --out public/kirana/kirana.css
+npx kirana-style dev resources/styles --out public/kirana/kirana.css
 ```
 
 ## 5. Use it in Edge
@@ -71,7 +71,7 @@ npx kirana dev resources/styles --out public/kirana/kirana.css
 <div class="{{ kirana('card', active && 'active') }}">…</div>
 ```
 
-The global reads the class map again whenever `kirana dev` rewrites it.
+The global reads the class map again whenever `kirana-style dev` rewrites it.
 
 ## Next
 

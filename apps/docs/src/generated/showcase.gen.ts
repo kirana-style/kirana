@@ -21,8 +21,8 @@ export const SHOWCASE: Readonly<Record<string, ShowcaseSnippet>> = {
   "kirana-init": {
     "name": "kirana-init",
     "lang": "bash",
-    "source": "# set up this project, showing each change as a diff\nnpx kirana-style init\n# then check the engine, the versions and the wiring\nnpx kirana-style doctor\n",
-    "html": "<span class=\"th-token th-comment\"># set up this project, showing each change as a diff</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style init\n<span class=\"th-token th-comment\"># then check the engine, the versions and the wiring</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style doctor",
+    "source": "# set up this project, showing each change as a diff\nnpx kirana-style@latest init\n# then check the engine, the versions and the wiring\nnpx kirana-style doctor\n",
+    "html": "<span class=\"th-token th-comment\"># set up this project, showing each change as a diff</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style@latest init\n<span class=\"th-token th-comment\"># then check the engine, the versions and the wiring</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style doctor",
     "diagnostics": []
   },
   "migrate-after": {
@@ -42,15 +42,15 @@ export const SHOWCASE: Readonly<Record<string, ShowcaseSnippet>> = {
   "migrate-stylex-command": {
     "name": "migrate-stylex-command",
     "lang": "bash",
-    "source": "# print the diff and the report, then apply it\nkirana migrate stylex src\nkirana migrate stylex src --write\nkirana check src\n",
-    "html": "<span class=\"th-token th-comment\"># print the diff and the report, then apply it</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana</span> migrate stylex src\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana</span> migrate stylex src <span class=\"th-token th-attr\">--write</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana</span> check src",
+    "source": "# print the diff and the report, then apply it\nkirana-style migrate stylex src\nkirana-style migrate stylex src --write\nkirana-style check src\n",
+    "html": "<span class=\"th-token th-comment\"># print the diff and the report, then apply it</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> migrate stylex src\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> migrate stylex src <span class=\"th-token th-attr\">--write</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> check src",
     "diagnostics": []
   },
   "migrate-tailwind-command": {
     "name": "migrate-tailwind-command",
     "lang": "bash",
-    "source": "# read the diff and the report, then apply it\nkirana migrate tailwind src src/globals.css\nkirana migrate tailwind src src/globals.css --write\nkirana check src\n",
-    "html": "<span class=\"th-token th-comment\"># read the diff and the report, then apply it</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana</span> migrate tailwind src src/globals.css\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana</span> migrate tailwind src src/globals.css <span class=\"th-token th-attr\">--write</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana</span> check src",
+    "source": "# read the diff and the report, then apply it\nkirana-style migrate tailwind src src/globals.css\nkirana-style migrate tailwind src src/globals.css --write\nkirana-style check src\n",
+    "html": "<span class=\"th-token th-comment\"># read the diff and the report, then apply it</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> migrate tailwind src src/globals.css\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> migrate tailwind src src/globals.css <span class=\"th-token th-attr\">--write</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> check src",
     "diagnostics": []
   },
   "path-css": {

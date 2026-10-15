@@ -19,7 +19,7 @@ Rspack plugin is Meteor's plugin too. Tested on every change by
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you

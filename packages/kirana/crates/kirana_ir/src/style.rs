@@ -133,7 +133,7 @@ pub fn fallback_values(css: &str) -> std::str::Split<'_, char> {
 }
 
 /// A value as the author wrote it: a `firstThatWorks` run reads back as the call, for hover,
-/// `kirana trace` and `kirana analyze`.
+/// `kirana-style trace` and `kirana-style analyze`.
 pub fn readable_value(css: &str) -> String {
     if css.contains(FALLBACK_SEPARATOR) {
         format!("firstThatWorks({})", fallback_values(css).collect::<Vec<_>>().join(", "))

@@ -50,7 +50,7 @@ merge you want and `cx(primary, button)` the reverse.
 
 ## Without a bundler
 
-`kirana build src --out styles.css` writes the stylesheet from the command line;
+`kirana-style build src --out styles.css` writes the stylesheet from the command line;
 see the [CLI](/docs/tooling/cli).
 
 ## Next

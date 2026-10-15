@@ -1,7 +1,7 @@
 # kirana (Ruby)
 
 Kirana for Rails templates (D-069): the `kirana` view helper, which reads the class map
-`kirana build` and `kirana dev` write and merges named styles the way `sx` does.
+`kirana-style build` and `kirana-style dev` write and merges named styles the way `sx` does.
 
 ```erb
 <div class="<%= kirana :card, active && "card.active" %>">…</div>

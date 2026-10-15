@@ -83,8 +83,8 @@ function subscribe(onChange: () => void) {
 }
 
 /**
- * The status line above the docs. Kirana is not published, and the name is a
- * working name; the docs say so rather than letting a reader find out at
+ * The status line above the docs. Kirana is a pre-release and the name is a
+ * working name; the docs say so rather than letting a reader find out after
  * `bun add`. The server always renders it; a reader who closed it does not
  * see it again after hydration.
  */
@@ -100,7 +100,7 @@ export function StatusBanner() {
     >
       <span sx={styles.label}>Pre-release.</span>
       <span>
-        Kirana is not published to npm yet, and the name is a working name.{" "}
+        Kirana is on npm as a pre-release, and the name is a working name.{" "}
         <DocsLink href="/docs/project/status" sx={styles.link}>
           What works today
         </DocsLink>

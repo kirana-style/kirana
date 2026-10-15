@@ -10,7 +10,7 @@ it one does nothing.
 The compiler catches this rather than letting you find it in the browser:
 
 ```console
-$ kirana check src
+$ kirana-style check src
 warning[KRN1703] sx-on-external-component: a component from "@base-ui/react"
 receives `sx`, which it does not read
   help: spread the compiled props instead: {...props(styles.root, sx)}

@@ -8,8 +8,7 @@ itself and your HTML links it. On Vite, which is Rolldown-backed and does bundle
 CSS, use [the Vite plugin](/docs/integrations/vite) instead. Tested by
 `examples/rolldown-react`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 

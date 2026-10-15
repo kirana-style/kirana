@@ -1,4 +1,4 @@
-//! The `kirana` command line ([12-tooling-and-dx](../../../../spec/12-tooling-and-dx.md)).
+//! The `kirana-style` command line ([12-tooling-and-dx](../../../../spec/12-tooling-and-dx.md)).
 //! The binary is shipped through the native addon (`runCli`), so one artifact serves the bundler
 //! adapters and the command line.
 
@@ -18,7 +18,7 @@ pub use kirana_project::plain_path;
 use kirana_shared::OsFs;
 
 #[derive(Parser, Debug)]
-#[command(name = "kirana", version, about = "Styling, compiled.")]
+#[command(name = "kirana-style", version, about = "Styling, compiled.")]
 struct Cli {
     /// Resolved configuration as JSON (the Driver loads kirana.config.* and passes it here).
     #[arg(long, global = true, default_value = "{}")]
@@ -71,7 +71,7 @@ enum Command {
         #[arg(long)]
         out: Option<PathBuf>,
     },
-    /// What a bug report needs from the engine, as JSON (`kirana doctor --report` runs it).
+    /// What a bug report needs from the engine, as JSON (`kirana-style doctor --report` runs it).
     #[command(hide = true)]
     Report {
         /// Sources to compile; the project root when none are given.
@@ -88,7 +88,7 @@ enum Command {
     },
 }
 
-/// How `kirana check` prints its diagnostics.
+/// How `kirana-style check` prints its diagnostics.
 #[derive(ValueEnum, Clone, Copy, Debug, PartialEq, Eq)]
 enum Format {
     /// For a terminal, with the source line.
@@ -302,7 +302,7 @@ pub fn run(args: &[String], out: &mut dyn Write) -> i32 {
             let Some(grammar) = project.config().utilities.clone() else {
                 let _ = writeln!(
                     out,
-                    "kirana migrate tailwind needs a utility grammar: add `presets: [scales()]` from \
+                    "kirana-style migrate tailwind needs a utility grammar: add `presets: [scales()]` from \
                      `@kirana-style/preset-scales/preset` to kirana.config, and your theme's scales under `utilities`"
                 );
                 return 2;
@@ -361,7 +361,7 @@ fn custom_declarations(paths: &[PathBuf]) -> (BTreeSet<String>, BTreeSet<String>
     (variants, utilities)
 }
 
-/// `kirana migrate stylex` and `kirana migrate tailwind`: rewrite, or show what the rewrite would be.
+/// `kirana-style migrate stylex` and `kirana-style migrate tailwind`: rewrite, or show what the rewrite would be.
 ///
 /// Nothing is written without `--write`, because a codemod over someone's source is the kind of
 /// thing that should be read before it happens. The report is printed either way: it is the part a

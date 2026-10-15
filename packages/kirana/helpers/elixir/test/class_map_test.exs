@@ -33,7 +33,7 @@ defmodule Kirana.ClassMapTest do
     path = Path.join(dir, "classes.json")
     Application.put_env(:kirana, :classes, path)
 
-    assert_raise File.Error, ~r/run `kirana dev` or `kirana build` first/, fn ->
+    assert_raise File.Error, ~r/run `kirana-style dev` or `kirana-style build` first/, fn ->
       Kirana.kirana(["card"])
     end
 

@@ -1,11 +1,11 @@
 /**
- * `kirana init` (KRN-DX-008, D-066): sets a project up for Kirana. It detects the framework, bundler
+ * `kirana-style init` (KRN-DX-008, D-066): sets a project up for Kirana. It detects the framework, bundler
  * and package manager, then plans four steps — the configuration file, the adapter in the host's
  * configuration, the stylesheet, and the types for `sx` — shows each change as a diff, and writes
  * them once confirmed. A configuration it cannot edit safely gets the step printed instead. The
  * install command is printed, and run only with `--install`.
  *
- * `kirana doctor` runs the same plan without writing: a step with something left to do is a step
+ * `kirana-style doctor` runs the same plan without writing: a step with something left to do is a step
  * the project is missing.
  */
 import {
@@ -602,7 +602,7 @@ function adapterStep(files: Files, project: Detected): Step {
     default:
       return done(
         "adapter",
-        "no bundler: kirana build or kirana dev writes the stylesheet"
+        "no bundler: kirana-style build or kirana-style dev writes the stylesheet"
       )
   }
 }
@@ -828,7 +828,7 @@ function stylesheetStep(files: Files, project: Detected): Step {
       const helper = HELPERS[project.framework]
       return manual(
         "stylesheet",
-        `${helper ? `${helper}; ` : ""}run kirana dev resources/styles --out ${out} beside your server (kirana build --minify for production), and link /kirana/kirana.css from your layout`
+        `${helper ? `${helper}; ` : ""}run kirana-style dev resources/styles --out ${out} beside your server (kirana-style build --minify for production), and link /kirana/kirana.css from your layout`
       )
     }
     case "tanstack-start":
@@ -840,7 +840,7 @@ function stylesheetStep(files: Files, project: Detected): Step {
   if (project.bundler === "none")
     return done(
       "stylesheet",
-      "no bundler: link the file kirana build --out or kirana dev --out writes"
+      "no bundler: link the file kirana-style build --out or kirana-style dev --out writes"
     )
   if (project.bundler === "parcel")
     return manual(
@@ -909,7 +909,7 @@ function typesStep(files: Files, project: Detected): Step {
   ])
 }
 
-/** What `kirana init` would do in `root`. */
+/** What `kirana-style init` would do in `root`. */
 export function plan(root: string, options: InitOptions = {}): Plan {
   const project = detect(root)
   const files = new Files(root)
@@ -925,8 +925,9 @@ export function plan(root: string, options: InitOptions = {}): Plan {
     project,
     steps,
     dependencies: missing(runtimeOf(project)),
+    // `kirana-style` carries the command and depends on the compiler, so the project gets both.
     development: missing([
-      "@kirana-style/compiler",
+      "kirana-style",
       ...adapterOf(project),
       ...(options.preset ? ["@kirana-style/preset-scales"] : []),
     ]),
@@ -1028,7 +1029,7 @@ export function describe(project: Detected): string {
   return `${NAMES[project.framework]} · ${bundler} · ${project.packageManager} · ${language}`
 }
 
-/** `kirana init [--yes] [--dry-run] [--install] [--preset]`. */
+/** `kirana-style init [--yes] [--dry-run] [--install] [--preset]`. */
 export async function runInit(
   argv: readonly string[],
   root: string,
@@ -1041,7 +1042,7 @@ export async function runInit(
   )
   if (unknown.length) {
     io.write(
-      `unknown option ${unknown[0]}\nusage: kirana init [--yes] [--dry-run] [--install] [--preset]\n`
+      `unknown option ${unknown[0]}\nusage: kirana-style init [--yes] [--dry-run] [--install] [--preset]\n`
     )
     return 2
   }
@@ -1050,7 +1051,9 @@ export async function runInit(
     !existsSync(path.join(root, "package.json")) &&
     !isServer(detect(root).framework)
   ) {
-    io.write("no package.json here: run kirana init in your project's root\n")
+    io.write(
+      "no package.json here: run kirana-style init in your project's root\n"
+    )
     return 2
   }
   const result = plan(root, { preset: flags.has("--preset") })
@@ -1109,7 +1112,7 @@ export async function runInit(
   }
   io.write(
     changes.length || commands.length || manualSteps.length
-      ? "\nThen check the setup with: kirana doctor\n"
+      ? "\nThen check the setup with: kirana-style doctor\n"
       : "\nAlready set up.\n"
   )
   return 0

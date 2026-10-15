@@ -134,7 +134,7 @@ export const PATHS: readonly Path[] = [
     step: "Tailwind's system",
     title: "The preset, compiled",
     accent: "forest",
-    text: "@kirana-style/preset-scales brings Tailwind v4's scales as tokens and its names as utility strings. Or migrate an app with kirana migrate tailwind.",
+    text: "@kirana-style/preset-scales brings Tailwind v4's scales as tokens and its names as utility strings. Or migrate an app with kirana-style migrate tailwind.",
     snippet: "path-preset",
     fit: "A team that already thinks in Tailwind.",
     href: "/docs/tokens/preset-scales",
@@ -257,7 +257,7 @@ const AGENT_POINTS: readonly { title: string; text: string }[] = [
   },
   {
     title: "Feedback it can read",
-    text: "kirana check --format json, the lint plugins and the language server report machine-readably, at the line; kirana export lists the tokens and recipes that exist.",
+    text: "kirana-style check --format json, the lint plugins and the language server report machine-readably, at the line; kirana-style export lists the tokens and recipes that exist.",
   },
   {
     title: "Skills and docs it can load",
@@ -320,7 +320,7 @@ export function AgentsArt() {
     <Card title="~/app" icon={CommandLineIcon} glow sx={styles.window}>
       <Row flat typed={0}>
         <T tone="prompt">$</T>
-        <T tone="strong">kirana check src --format json</T>
+        <T tone="strong">kirana-style check src --format json</T>
       </Row>
       <Row flat typed={1}>
         <T tone="muted">{"[{"}</T>

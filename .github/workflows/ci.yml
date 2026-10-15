@@ -285,7 +285,7 @@ jobs:
         shell: bash
         run: |
           cargo build --release --manifest-path packages/kirana/Cargo.toml -p kirana_cli
-          kirana=packages/kirana/target/release/kirana
+          kirana=packages/kirana/target/release/kirana-style
           config='{"layers":{"before":["reset","base"]}}'
           RAYON_NUM_THREADS=1 "$kirana" --config-json "$config" build packages/ui/src packages/shell/src packages/docs-ui/src apps/docs/src --out one.css --minify
           "$kirana" --config-json "$config" build packages/ui/src packages/shell/src packages/docs-ui/src apps/docs/src --out all.css --minify

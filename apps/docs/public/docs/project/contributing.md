@@ -17,7 +17,7 @@ The most valuable contribution at this stage. A good report has:
 - **What you ran**: the Kirana version, your framework and bundler, and the
   smallest source that shows the problem.
 - **What you expected and what happened**: the computed style you expected,
-  and the one you got. `kirana trace <file>:<line> <property>` prints every
+  and the one you got. `kirana-style trace <file>:<line> <property>` prints every
   entry for a style and the one that won; paste its output.
 - **The diagnostic**, if there was one, with its code (`KRN…`).
 
@@ -55,8 +55,8 @@ vp run build           # native engine, then the docs site
 
 Vite+ (`vp`) and Rust (through rustup) are the two installs. The README's
 Scripts table lists what each command needs. The pre-push hook (`vp run prepush`)
-runs the checks, the Rust lints and the tests with 100 % coverage, from the cache
-when nothing changed.
+runs the checks, the Rust lints, the tests with 100 % coverage and the Zed
+extension's own Rust checks, from the cache when nothing changed.
 
 ### Try it on this repository
 
@@ -73,8 +73,8 @@ and sends it through Vite's hot update channel. To ask the compiler what it foun
 declaration wins a property and why:
 
 ```console
-$ node packages/kirana/npm/compiler/bin/kirana.ts check packages/ui/src
-$ node packages/kirana/npm/compiler/bin/kirana.ts trace packages/ui/src/components/badge.tsx:12 color
+$ node packages/kirana/npm/cli/bin/kirana-style.ts check packages/ui/src
+$ node packages/kirana/npm/cli/bin/kirana-style.ts trace packages/ui/src/components/badge.tsx:12 color
 ```
 
 `trace` prints one line per candidate declaration, marks the winner, and names the step of the

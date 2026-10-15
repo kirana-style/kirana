@@ -1,7 +1,7 @@
 {
   "name": "kirana-style",
   "version": "0.1.0",
-  "description": "Kirana's command line for a project that does not have Kirana yet: npx kirana-style init sets it up.",
+  "description": "Kirana's command line: npx kirana-style@latest init sets a project up; check, build, trace and migrate.",
   "license": "MIT",
   "author": "The Kirana authors",
   "homepage": "https://kirana.style",
@@ -15,6 +15,9 @@
   },
   "type": "module",
   "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "kirana-style": "./bin/kirana-style.ts"
   },
