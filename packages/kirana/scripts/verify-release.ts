@@ -72,7 +72,7 @@ const checks: Check[] = [
     has: async () =>
       Boolean(
         await json(
-          `https://registry.npmjs.org/${name.replace("/", "%2F")}/${version}`
+          `https://registry.npmjs.org/${encodeURIComponent(name)}/${version}`
         )
       ),
   })),
