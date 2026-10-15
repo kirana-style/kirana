@@ -60,8 +60,8 @@ vp run build           # native engine, then the docs site
 
 Vite+ (`vp`) and Rust (through rustup) are the two installs. The README's
 Scripts table lists what each command needs. The pre-push hook (`vp run prepush`)
-runs the checks, the Rust lints and the tests with 100 % coverage, from the cache
-when nothing changed.
+runs the checks, the Rust lints, the tests with 100 % coverage and the Zed
+extension's own Rust checks, from the cache when nothing changed.
 
 ### Try it on this repository
 

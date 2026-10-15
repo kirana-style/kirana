@@ -48,7 +48,8 @@ impl zed::Extension for Kirana {
     fn language_server_command(&mut self, id: &LanguageServerId, worktree: &zed::Worktree) -> Result<zed::Command> {
         let binary = LspSettings::for_worktree(id.as_ref(), worktree).ok().and_then(|settings| settings.binary);
         let configured = binary.and_then(|binary| binary.path.map(|path| (path, binary.arguments)));
-        let local = NAMES.into_iter().find(|name| worktree.read_text_file(&format!("node_modules/.bin/{name}")).is_ok());
+        let local =
+            NAMES.into_iter().find(|name| worktree.read_text_file(&format!("node_modules/.bin/{name}")).is_ok());
         let on_path = NAMES.into_iter().find_map(|name| worktree.which(name));
         let found = locate(&worktree.root_path(), configured, local, on_path)?;
         Ok(zed::Command { command: found.command, args: found.args, env: worktree.shell_env() })
