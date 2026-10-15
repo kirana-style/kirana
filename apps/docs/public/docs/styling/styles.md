@@ -5,7 +5,7 @@ Source: https://kirana.style/docs/styling/styles
 
 `css()` takes style objects and returns a handle. A handle is an opaque value:
 you pass it to `sx`, merge it with others, or export it. It is not an object you
-can read at runtime — by then it is a class string.
+can read at runtime: by then it is a class string.
 
 ```tsx
 import { css } from "@kirana-style/core"
@@ -59,8 +59,8 @@ css({ margin: "1px;" }) // error: invalid-value - a stray semicolon
 
 ## Several objects, one handle
 
-`css()` takes any number of arguments — objects, or handles you already made —
-and merges them left to right:
+`css()` takes any number of arguments (objects, or handles you already made) and
+merges them left to right:
 
 ```tsx
 const base = css({ padding: "0.5rem" })
@@ -82,8 +82,8 @@ const b = css({ paddingTop: "2rem" })
 <div sx={[a, b]} /> // 2rem on top, 1rem on the other three sides
 ```
 
-A shorthand whose value cannot be split exactly — `border: "var(--line)"`, where
-the value is one custom property — stays whole, and the compiler warns
+A shorthand whose value cannot be split exactly (`border: "var(--line)"`, where
+the value is one custom property) stays whole, and the compiler warns
 (`unsplittable-shorthand`) because removing one of its longhands later cannot be
 done precisely.
 
@@ -102,12 +102,12 @@ const styles = {
 }
 ```
 
-Writing `css({ … })` inside a component body is fine too — it still compiles —
-but there is no reason to, unless the style depends on a value only known at
-render time, which is its own topic:
+Writing `css({ … })` inside a component body is fine too, since it still
+compiles, but there is no reason to unless the style depends on a value only
+known at render time, which is its own topic:
 [dynamic values](/docs/styling/dynamic).
 
 ## Next
 
-- [The `sx` prop](/docs/styling/sx) — putting a handle on an element.
-- [Conditions](/docs/styling/conditions) — hover, breakpoints, attributes.
+- [The `sx` prop](/docs/styling/sx): putting a handle on an element.
+- [Conditions](/docs/styling/conditions): hover, breakpoints, attributes.

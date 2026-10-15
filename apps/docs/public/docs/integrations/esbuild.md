@@ -4,14 +4,11 @@ Source: https://kirana.style/docs/integrations/esbuild
 # esbuild
 
 esbuild writes CSS imported from an entry beside it (`main.css`), and the plugin
-finishes it once every module has loaded — on disk, or in `outputFiles` with
+finishes it once every module has loaded, on disk or in `outputFiles` with
 `write: false`. Tested by `examples/esbuild-react`.
 
 > [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
 
 ## 1. Install
 

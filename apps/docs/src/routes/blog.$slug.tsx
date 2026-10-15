@@ -31,7 +31,7 @@ import { DocsLink } from "@/components/docs-link"
 import { markdownComponents } from "@/components/markdown"
 import { SiteFooter, SiteHeader } from "@/components/site-chrome"
 import { Rail } from "@/components/site/patterns"
-import { LIFT, REST } from "@/components/site/lift"
+import { LIFT, REST } from "@workspace/ui/recipes/lift"
 import { POSTS } from "@/generated/content.gen"
 
 const documents = import.meta.glob<{ default: MarkdownDocument }>(

@@ -13,8 +13,8 @@ import { Link } from "@tanstack/react-router"
 import { FavouriteIcon, Menu01Icon } from "@hugeicons/core-free-icons"
 import { motion, useReducedMotion } from "motion/react"
 
-import { ThemeToggle } from "@workspace/shell/theme-toggle"
 import { PALETTE, accents, tint } from "@workspace/docs-ui/accent.ts"
+import { ThemeMenu } from "@workspace/docs-ui/theme-menu.tsx"
 import { Button } from "@workspace/ui/components/button"
 import {
   NavigationMenu,
@@ -51,7 +51,7 @@ import { MenuArt } from "./menu-art"
 import { Wordmark } from "./wordmark"
 import { MENUS, SPONSOR } from "./nav"
 import type { Featured, Menu, NavLinkItem } from "./nav"
-import { LIFT, REST } from "@/components/site/lift"
+import { LIFT, REST } from "@workspace/ui/recipes/lift"
 import { IconTile } from "./icon-tile"
 import { Rail } from "./patterns"
 
@@ -508,7 +508,7 @@ export function SiteHeader() {
           >
             <Icon icon={FavouriteIcon} />
           </Button>
-          <ThemeToggle />
+          <ThemeMenu />
           <Button
             size="sm"
             nativeButton={false}

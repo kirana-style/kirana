@@ -4,7 +4,7 @@ Source: https://kirana.style/docs/start/first-component
 # Your first component
 
 A button, with a hover state and a second variant. Everything below is one file,
-and the tabs show what the compiler made of it — the CSS and the class names on
+and the tabs show what the compiler made of it: the CSS and the class names on
 this page came out of the compiler, not out of prose.
 
 <!-- ::example name="button-variants" -->
@@ -28,24 +28,18 @@ and no second stylesheet. The browser picks the half that matches the page's
 `color-scheme`, which the app sets once on `<html>`.
 
 **The second variant is a second handle.** `sx={[styles.base, styles.quiet]}`
-merges them in order, and the merge happens **per entry**: `quiet`'s base colour
-replaces `base`'s base colour, and `quiet`'s hover colour replaces `base`'s hover
-colour. Everything it does not mention — the padding, the radius, the font — is
-still there.
-
-> [!IMPORTANT] This is the rule that surprises people
-> A later style replaces the _entries_ it names, not the whole property. Writing
-> `backgroundColor: "red"` after a style that sets `:hover` leaves that hover
-> value in place. [Merging](/docs/styling/merging) explains how to remove it when
-> that is what you want.
+merges them in order, and the merge happens **per entry**: the quiet style's base
+colour replaces the first one's base colour, and its hover colour replaces the
+hover colour. Everything it does not mention (the padding, the radius, the font)
+is still there. [Merging](/docs/styling/merging) has the rule, and how to drop an
+entry you did not name.
 
 **One class per declaration.** Open the Classes tab: thirteen classes, each a
-single declaration. Two components that both write `display: flex` share a class,
-so the stylesheet grows with the number of distinct declarations, not with the
-number of components.
+single declaration. [How it works](/docs/start/how-it-works#the-pipeline) explains
+why that keeps the stylesheet small.
 
 ## Next
 
-- [How it works](/docs/start/how-it-works) — what happens between the file and
+- [How it works](/docs/start/how-it-works): what happens between the file and
   the stylesheet.
-- [Mental model](/docs/start/mental-model) — the four ideas the rest builds on.
+- [Mental model](/docs/start/mental-model): the five ideas the rest builds on.

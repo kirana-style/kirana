@@ -235,7 +235,13 @@ const styles = {
     whiteSpace: "nowrap",
     fontFamily: fontFamily.mono,
     fontSize: "0.625rem",
-    color: theme.mutedForeground,
+    lineHeight: "1rem",
+    // A chip of paper behind the name, so it reads on a landscape as well as on the grid.
+    paddingInline: "0.375rem",
+    borderRadius: radius.full,
+    backgroundColor: mix(theme.background, 86),
+    backdropFilter: "blur(6px)",
+    color: theme.foreground,
   }),
 
   pill: css({

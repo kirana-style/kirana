@@ -1,6 +1,6 @@
 ---
 title: Astro
-description: Install Kirana in an Astro site - the integration, styles in the frontmatter, sx on elements, and the stylesheet Astro links or inlines.
+description: Install Kirana in an Astro site, with the integration, styles in the frontmatter, sx on elements, and the stylesheet Astro links or inlines.
 section: frameworks
 order: 11
 keywords: [astro, integration, frontmatter, islands, class, install]
@@ -11,11 +11,7 @@ keywords: [astro, integration, frontmatter, islands, class, install]
 Declare styles in the frontmatter and apply them with `sx`. Kirana compiles the
 component as it is read, before Astro does. Tested by `examples/astro`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## 1. Install
 
@@ -78,6 +74,11 @@ follow their own guides for `sx` (islands are not in the test matrix yet).
 ## How it compiles
 
 The frontmatter compiles like any module, and each `sx` becomes a spread of a call
-to Kirana's small runtime, evaluated when the page renders — at build time for a
-static page. Keep `css()` calls in the frontmatter: one written inside the markup
+to Kirana's small runtime, evaluated when the page renders, which is at build time
+for a static page. Keep `css()` calls in the frontmatter: one written inside the markup
 is not compiled, and says so when it runs.
+
+## Next
+
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.

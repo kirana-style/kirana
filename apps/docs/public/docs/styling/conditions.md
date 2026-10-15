@@ -19,19 +19,19 @@ css({
 <!-- ::figure-conditions -->
 
 `base` is the unconditional value. Every other key is a condition. The property is
-written once, so the whole story of `color` is in one place — and so is the reason
+written once, so the whole story of `color` is in one place, and so is the reason
 the compiler can tell you when two of those values could both apply.
 
 ## What a key may be
 
-| Key                     | Example                                                                        |
-| ----------------------- | ------------------------------------------------------------------------------ |
-| A pseudo-class          | `":hover"`, `":focus-visible"`, `":disabled"`, `":nth-child(2)"`               |
-| An attribute selector   | `'[data-state="open"]'`, `"[aria-expanded]"`                                   |
-| A compound of both      | `'[aria-haspopup]:active'`                                                     |
-| An at-rule, as a string | `"@media (min-width: 40rem)"`, `"@supports (height: 100dvh)"`                  |
-| A condition value       | `[breakpoint.md]`, `[container("(width >= 20rem)")]`, `[media("print")]`       |
-| A relation read         | `[group.within('[data-disabled]')]` — see [relations](/docs/styling/relations) |
+| Key                     | Example                                                                       |
+| ----------------------- | ----------------------------------------------------------------------------- |
+| A pseudo-class          | `":hover"`, `":focus-visible"`, `":disabled"`, `":nth-child(2)"`              |
+| An attribute selector   | `'[data-state="open"]'`, `"[aria-expanded]"`                                  |
+| A compound of both      | `'[aria-haspopup]:active'`                                                    |
+| An at-rule, as a string | `"@media (min-width: 40rem)"`, `"@supports (height: 100dvh)"`                 |
+| A condition value       | `[breakpoint.md]`, `[container("(width >= 20rem)")]`, `[media("print")]`      |
+| A relation read         | `[group.within('[data-disabled]')]`; see [relations](/docs/styling/relations) |
 
 Condition values come from `media()`, `container()` and `supports()`, and from
 presets:
@@ -69,7 +69,7 @@ should win inside the other.
 
 ## Pseudo-elements are different
 
-`::before` and `::after` are not conditions — they are other elements. They are
+`::before` and `::after` are not conditions: they are other elements. They are
 top-level keys, holding a style object of their own:
 
 ```tsx
@@ -130,12 +130,12 @@ css({
 
 ## What the compiler checks
 
-- An unrecognised condition is an error (`unknown-condition`) — including the
+- An unrecognised condition is an error (`unknown-condition`), including the
   common mistake of writing a condition as a top-level key.
 - Two values that could both apply, with nothing to separate them, get
   `ambiguous-precedence`. Fix it by nesting, or by declaring that the two
-  conditions never hold together — see
+  conditions never hold together; see
   [`conditions.exclusive`](/docs/config/reference).
 
-Next: [precedence](/docs/styling/precedence) — the ladder that decides which
+Next: [precedence](/docs/styling/precedence), the ladder that decides which
 condition wins.

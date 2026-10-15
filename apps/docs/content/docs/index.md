@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: Kirana is a compile-time styling system for the modern web. Write typed styles next to your components; ship small, predictable CSS.
+description: Kirana is a compile-time styling system: write typed styles next to your components, and ship small, predictable CSS.
 section: start
 order: 1
 keywords: [what is kirana, overview, compile-time css, styling compiler]
@@ -33,21 +33,21 @@ of Kirana is left at runtime.
 ## Works with your framework
 
 {{fact:frameworks}}; server templates in {{fact:server-frameworks}}; or no
-framework at all — on {{fact:bundlers}}, or Angular's CLI. Each has a complete
+framework at all, on {{fact:bundlers}}, or Angular's CLI. Each has a complete
 install guide, and each is built and checked in a browser on every change:
 **[pick yours](/docs/frameworks/overview)**.
 
 ## What it gives you
 
 - **Typed styles.** Ordinary objects, checked by TypeScript, with camelCase CSS
-  property names and real values — not a string vocabulary you have to learn.
+  property names and real values, not a string vocabulary you have to learn.
 - **Conditions inside values.** `{ base: x, ":hover": y }` reads in the order it
   applies, instead of scattering `hover:` prefixes across a class list.
 - **Predictable precedence.** A stated ladder decides which value wins, and the
   `ambiguous-precedence` diagnostic tells you when two values could both apply.
 - **Tokens and themes.** Design tokens compile to constants or custom properties,
   and every colour can be a `light-dark()` pair, so dark mode needs no variant.
-- **Real diagnostics.** 38 checks with codes, severities and help text, from
+- **Real diagnostics.** {{fact:diagnostics}} checks with codes, severities and help text, from
   unknown properties to a component that forgets to pass `sx` on.
 
 ## What it is not

@@ -31,7 +31,7 @@ import {
 
 import { DocsLink } from "@/components/docs-link"
 import { Stage } from "@/components/site/visuals"
-import { LIFT, REST } from "@/components/site/lift"
+import { LIFT, REST } from "@workspace/ui/recipes/lift"
 
 const REDUCED = "@media (prefers-reduced-motion: reduce)"
 

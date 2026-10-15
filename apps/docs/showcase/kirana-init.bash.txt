@@ -1,0 +1,4 @@
+# set up this project, showing each change as a diff
+npx kirana-style init
+# then check the engine, the versions and the wiring
+npx kirana-style doctor

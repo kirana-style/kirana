@@ -53,11 +53,18 @@ reports `branch-budget-exceeded`. Must be at least 1. See
 jsx: "preact" // "react" | "preact" | "solid" | "qwik"
 ```
 
-Which attribute `sx` compiles to: `className` for `"react"`, `class` for
-`"preact"`, `"solid"` and `"qwik"`. Leave it out and the compiler reads
-`compilerOptions.jsxImportSource` from the project's `tsconfig.json` —
-`"preact"` means Preact, `"solid-js"` means Solid, `"@qwik.dev/core"` means Qwik,
-anything else React — so most projects never set it. See [supported frameworks](/docs/frameworks/overview).
+Which attribute `sx` compiles to. Leave it out and the compiler reads
+`compilerOptions.jsxImportSource` from the project's `tsconfig.json`, so most
+projects never set it:
+
+| Value      | `sx` compiles to | Read when `jsxImportSource` is |
+| ---------- | ---------------- | ------------------------------ |
+| `"react"`  | `className`      | anything not below             |
+| `"preact"` | `class`          | `"preact"`                     |
+| `"solid"`  | `class`          | `"solid-js"`                   |
+| `"qwik"`   | `class`          | `"@qwik.dev/core"`             |
+
+See [supported frameworks](/docs/frameworks/overview).
 
 ## `libraries`
 
@@ -79,7 +86,7 @@ import scales from "@kirana-style/preset-scales/preset"
 presets: [scales()] // default: []
 ```
 
-Presets contribute data to the configuration — today, a utility grammar that
+Presets contribute data to the configuration: today, a utility grammar that
 turns on [utility strings](/docs/styling/utilities). A preset is
 `{ name: string, utilities?: UtilityGrammar }`; later presets replace earlier ones
 scale by scale, root by root and variant by variant.
@@ -94,28 +101,39 @@ utilities: {
 }
 ```
 
-The application's own grammar, merged after every preset.
+The application's own grammar, merged after every preset. It has three parts:
 
-- `scales` — where a scale's values come from: exports of modules, looked up as
-  an `import` would be (relative modules from the project root). Several sources
-  are searched in order.
-- `utilities` — what each root sets, as rules tried in order: `{ static: {…} }`
-  for fixed declarations; `{ properties, scale }` for a scale, with optional
-  `number` (`{ step, unit }`: a bare number that is not a key, as `w-50` is 50 ×
-  `0.25rem`; a rule may have `number` and no `scale`), `negative`, `fractions`,
-  `alpha` (colour opacity), `pair` (a second property from another scale, as
-  `text-sm` sets a line height — yielding to a utility that sets that property
-  itself, as `text-sm leading-6` does, and replaced by a modifier, as in
-  `text-sm/relaxed`), `aliases`, `format` (the value inside other text,
-  `"brightness({value})"`) and `also` (extra declarations); `{ properties, values }`
-  for keywords.
-- `variants` — a name for any condition `css()` accepts; one starting with `::`
-  is a pseudo-element block.
+| Part        | What it holds                                                                                                                                        |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `scales`    | Where a scale's values come from: exports of modules, looked up as an `import` would be (relative modules from the project root), searched in order. |
+| `utilities` | What each root sets, as rules tried in order.                                                                                                        |
+| `variants`  | A name for any condition `css()` accepts; one starting with `::` is a pseudo-element block.                                                          |
 
-In any text of a rule, `{scale.key}` is that token (`"{compose.ring-shadow},
-{compose.shadow}"`), and a property written `{scale.key}` sets the token's custom
-property — how composed utilities such as `ring` and `shadow` share one
-`box-shadow`.
+A rule is one of three kinds:
+
+| Rule                     | For                                   |
+| ------------------------ | ------------------------------------- |
+| `{ static: {…} }`        | the root alone: `flex` sets `display` |
+| `{ properties, scale }`  | values from a scale, or a number      |
+| `{ properties, values }` | values from a fixed table of keywords |
+
+A scale rule takes these options:
+
+| Option      | What it does                                                                                                                                                                                                |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `number`    | `{ step, unit }`: a number that is not a key, as `w-50` is 50 × `0.25rem`. A rule may have `number` and no `scale`.                                                                                         |
+| `pair`      | Properties set from other scales at the same key: `text-sm` also sets its line height. A utility that sets that property itself (`text-sm leading-6`) wins, and a modifier (`text-sm/relaxed`) replaces it. |
+| `alpha`     | A colour: `/90` mixes it with `transparent`.                                                                                                                                                                |
+| `negative`  | `-mt-2` negates the value.                                                                                                                                                                                  |
+| `fractions` | `w-1/2` is a percentage.                                                                                                                                                                                    |
+| `format`    | The value inside other text: `brightness({value})`.                                                                                                                                                         |
+| `aliases`   | Utility keys spelled differently from the scale's: `in-out` reads `inOut`.                                                                                                                                  |
+| `also`      | Declarations set alongside, as written (a keyword rule takes it too).                                                                                                                                       |
+
+In any text of a rule, `{scale.key}` is that token, and a property written
+`{scale.key}` sets the token's custom property. That is how a ring and a shadow
+share one `box-shadow`: its value is `"{compose.ring-shadow}, {compose.shadow}"`,
+and each utility sets one of the two.
 
 ## `diagnostics`
 
@@ -158,7 +176,7 @@ conditions: {
 
 This is how you silence `ambiguous-precedence` for pairs the selectors cannot
 prove are exclusive. The compiler already knows about two values of one attribute,
-a selector and its negation, and fixed positions counted from the same end — you
+a selector and its negation, and fixed positions counted from the same end; you
 only need to declare what a library promises.
 
 ## `classes`
@@ -168,9 +186,9 @@ classes: { modules: ["resources/styles"], out: "public/kirana/classes.json" }
 ```
 
 The class map for server templates. `modules` are files or folders, relative to
-the root, whose exported handles Blade, Twig, ERB, HEEx and Edge templates name;
-`kirana build` and `kirana dev` write their class strings to `out`, and compile
-the modules whatever paths they were given. A recipe or a runtime value among the
+the root, whose exported handles Blade, Twig, ERB, HEEx and Edge templates name.
+The build and dev commands write their class strings to `out`, and compile the
+modules whatever paths they were given. A recipe or a runtime value among the
 exports is `classes-not-static`. See [server templates](/docs/frameworks/server-templates).
 
 ## `externals`
@@ -181,9 +199,10 @@ externals: ["meteor/"] // default: []
 
 Specifier prefixes the bundler provides and Node.js resolution cannot find. An
 import from one is a runtime value, as an installed package's is, instead of an
-`unresolved-import` warning. `@kirana-style/ember` adds Ember's own (`@ember/`,
-`@glimmer/`, `@embroider/virtual/`); [Meteor](/docs/frameworks/meteor) sets
-`meteor/`.
+`unresolved-import` warning.
+
+The Ember adapter adds Ember's own (`@ember/`, `@glimmer/`, `@embroider/virtual/`),
+and [Meteor](/docs/frameworks/meteor) sets `meteor/`.
 
 ## `root`
 

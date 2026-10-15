@@ -6,7 +6,7 @@ Source: https://kirana.style/docs/tooling/editor
 <!-- ::editor-banner -->
 
 Object styles move the CSS out of the markup: you read `sx={styles.card}`, not a
-class list. The Kirana language server brings it back where you are reading — and
+class list. The Kirana language server brings it back where you are reading, and
 answers questions a class list never could: **which value wins, and why**.
 
 It is `kirana lsp`, a command of the compiler you already installed. It runs on the
@@ -24,17 +24,17 @@ output for one file.
 
 ## Pick your editor
 
-- [VS Code](/docs/tooling/editor#vs-code-and-its-forks) — Extension
-- [Cursor](/docs/tooling/editor#vs-code-and-its-forks) — VS Code extension
-- [Windsurf](/docs/tooling/editor#vs-code-and-its-forks) — VS Code extension
-- [Antigravity](/docs/tooling/editor#vs-code-and-its-forks) — VS Code extension
-- [Zed](/docs/tooling/editor#zed) — Extension
-- [Neovim](/docs/tooling/editor#neovim) — vim.lsp.config
-- [Helix](/docs/tooling/editor#helix) — languages.toml
-- [Any LSP editor](/docs/tooling/editor#any-other-editor) — kirana lsp over stdio
+- [VS Code](/docs/tooling/editor#vs-code-and-its-forks): Extension
+- [Cursor](/docs/tooling/editor#vs-code-and-its-forks): VS Code extension
+- [Windsurf](/docs/tooling/editor#vs-code-and-its-forks): VS Code extension
+- [Antigravity](/docs/tooling/editor#vs-code-and-its-forks): VS Code extension
+- [Zed](/docs/tooling/editor#zed): Extension
+- [Neovim](/docs/tooling/editor#neovim): vim.lsp.config
+- [Helix](/docs/tooling/editor#helix): languages.toml
+- [Any LSP editor](/docs/tooling/editor#any-other-editor): kirana lsp over stdio
 
 Every editor runs your project's own `node_modules/.bin/kirana lsp`, from
-`@kirana-style/compiler`. Upgrading Kirana upgrades the editor with it — there is no
+`@kirana-style/compiler`. Upgrading Kirana upgrades the editor with it; there is no
 extension version to keep in step.
 
 ### VS Code and its forks
@@ -51,8 +51,8 @@ in Cursor, Windsurf, Antigravity and VSCodium: search "Kirana" in the
 Extensions view. In a remote workspace (WSL, SSH, a container), install it on
 the remote side, where your project and Node.js live.
 
-If your project has no `node_modules/.bin/kirana` — a checkout of Kirana itself,
-say — point the extension at a binary or script:
+If your project has no `node_modules/.bin/kirana` (a checkout of Kirana itself,
+say), point the extension at a binary or script:
 
 ```json
 { "kirana.server.path": "packages/kirana/npm/compiler/bin/kirana.ts" }
@@ -63,9 +63,9 @@ runs with `node` (22.18 or later).
 
 ### Zed
 
-The Kirana extension registers the server for TypeScript, TSX, JavaScript, and —
-with Zed's Vue, Svelte and Astro extensions installed — their components, and
-HTML for Angular templates.
+The Kirana extension registers the server for TypeScript, TSX and JavaScript, for
+Vue, Svelte and Astro components once Zed's extensions for them are installed, and
+for HTML in Angular templates.
 Until it is published, add it with **zed: install dev extension** from
 `packages/kirana/editors/zed`. To run another binary:
 
@@ -114,7 +114,7 @@ language-servers = ["vuels", "kirana"]
 ### Any other editor
 
 Run `kirana lsp` from the project root and connect over stdio. It runs beside the
-TypeScript server and answers styling questions only — property names and token
+TypeScript server and answers styling questions only: property names and token
 keys are TypeScript's, through `@kirana-style/core`'s types.
 
 ## What you get
@@ -125,41 +125,43 @@ Hover an element's `sx`, a `css()` call or a recipe and you get its card, laid o
 the way you read a style:
 
 - **What it is**: the expression (`styles.card`) and the handles it merges, each a
-  link to where it is defined — `Merges 2 handles: base + wide if on`.
+  link to where it is defined, as in `Merges 2 handles: base + wide if on`.
 - **The box model**, drawn as DevTools draws it: margin, border, padding and
   content nested, each side's value on its side, the content's size and layout in
   the middle, the corners rounded by the border radius.
 - **Resolved**: every property that applies, in source order within layout, box,
   size, colour, type, border, effects and motion, with `rem` in pixels, the token
-  a value reads, and a swatch for each colour — split light and dark for a pair.
+  a value reads, and a swatch for each colour, split light and dark for a pair.
 - **When**: the values that depend on a breakpoint (`md`), a state (`:hover`), a
-  pseudo-element, or a guard in the `sx` (`if on` for `on && wide`).
+  pseudo-element, or a guard in the `sx`, shown as `if on`.
 - **Compiled CSS**: the rules the stylesheet carries, with their size.
 
 Hover a **property** instead and you get its entries in precedence order, with the
-ladder step that put each one where it is — the answer
+ladder step that put each one where it is: the answer
 [`kirana trace`](/docs/tooling/cli) gives on the command line. Hover a **token** for
 its value in both colour modes, and whether a theme can reassign it.
 
 VS Code draws the box model as a picture in your theme's colours, with the
-properties beside it, each property name in its group's colour — layout blue, box
+properties beside it, each property name in its group's colour: layout blue, box
 green, size cyan, colour orange, type yellow, border purple. Other editors show the
 same card with a text drawing and the properties below it.
 
 ### Inline summary
 
 At the end of every element's line, a muted hint says what it ends up with, in the
-vocabulary of a class list: `▦ grid · gap 1rem · p 1rem · m 0.5rem 1rem · +4`. The
-mark is its layout (`▦` grid, `⇶` flex); margin and padding read as their
-shorthand; values under a guard lead with it (`on: p 2rem`). Hover the hint for the
-card. A `{...props(a, b)}` spread is summarized too, from the handles it names.
+vocabulary of a class list: `▦ grid · gap 1rem · p 1rem · m 0.5rem 1rem · +4`.
+Hover the hint for the card.
 
-In VS Code each part is coloured by its group, as the card colours properties —
-layout blue, box green, size cyan, colour orange, type yellow, border purple; no
-red, which reads as an error — in your theme's own colours, and Kirana's icon leads
-it. `kirana.inlayHints.icon` and `kirana.inlayHints.opacity` tune it; other editors
-| `kirana.inlayHints.opacity` | `0.85` | How strongly the summary reads, from `0.1` to `1`. |
-show it in the hint colour.
+- The mark is the layout: `▦` for grid, `⇶` for flex.
+- Margin and padding read as their shorthand.
+- A value under a guard leads with it: `on: p 2rem`.
+- A `{...props(a, b)}` spread is summarised too, from the handles it names.
+
+In VS Code each part is coloured by its group, as the card colours properties:
+layout blue, box green, size cyan, colour orange, type yellow, border purple. There
+is no red, which reads as an error, and the colours are your theme's own. Kirana's
+icon leads the hint; `kirana.inlayHints.icon` and `kirana.inlayHints.opacity` tune
+it. Other editors show it in the hint colour.
 
 Above each `css()` and `recipe()`, a code lens counts declarations, conditional
 entries and bridged values, and **used by N elements** lists the elements whose
@@ -171,29 +173,25 @@ file, read-only, in one reused tab.
 **Kirana: Open Style Inspector** opens a panel in the Explorer that follows the
 cursor. It draws the box model, the layout, the colours with a light and dark
 switch, and every declaration with its source. Its chips turn conditions and
-guards on and off — `:hover`, `md`, `on` — and the values that apply then are the
+guards on and off (`:hover`, `md`, `on`), and the values that apply then are the
 compiler's answer, not a guess: the server simulates the cascade for exactly that
 set.
 
 ### Style Fold (VS Code)
 
 With `kirana.fold.enabled` (or **Kirana: Toggle Style Fold**), a long one-line
-| `kirana.fold.mode` | `fold` | `fold` writes the summary in place; `dim` lowers the object's opacity. |
-| `kirana.fold.opacity` | `0.4` | The opacity of a dimmed object. |
-| `kirana.fold.minLength` | `40` | Shorter objects stay as written. |
-| `kirana.fold.icon` | `true` | Kirana's icon before a folded summary. |
 `css({ … })` reads as its summary, after Kirana's icon, until the cursor is on its
-line — Tailwind Fold, for object styles. `kirana.fold.mode: "dim"` keeps the text
-and lowers its opacity instead (`kirana.fold.opacity`), and `kirana.fold.minLength`
-sets how long an object must be to fold. **Kirana: Fold Styles** folds every multi-line style
-object with the editor's own folding.
+line: Tailwind Fold, for object styles. In `dim` mode the text stays and its opacity
+drops instead, and a minimum length keeps short objects as written; the settings
+are [below](#settings). **Kirana: Fold Styles** folds every multi-line style object
+with the editor's own folding.
 
 ### Colours
 
 Colour literals and colour tokens get a swatch. A `light-dark(…, …)` pair gets one
 per mode, and the picker edits that mode alone. The picker writes the format the
-colour is written in — an `oklch()` stays `oklch()`; click the colour at the top of
-the picker to switch to hex or `rgb()`. It edits literals only, never a token
+colour is written in, so an `oklch()` stays `oklch()`; click the colour at the top
+of the picker to switch to hex or `rgb()`. It edits literals only, never a token
 reference, so a theme stays the source of a token's colour. A token's swatch shows
 its light value, and hover shows both.
 
@@ -201,8 +199,8 @@ its light value, and hover shows both.
 
 Where TypeScript cannot help:
 
-- **Condition keys** inside a property's value — pseudo-classes, attributes,
-  `@media`, `@container`, `@supports`, `base` — listed weakest to strongest, the
+- **Condition keys** inside a property's value (pseudo-classes, attributes,
+  `@media`, `@container`, `@supports` and `base`), listed weakest to strongest, the
   order the [precedence ladder](/docs/styling/precedence) applies them.
 - **`select.`** offers `descendant` and `child`.
 - **Keyword values** for the property you are writing (`alignItems: "cen` →
@@ -214,8 +212,13 @@ Where TypeScript cannot help:
 
 Every [compiler diagnostic](/docs/tooling/diagnostics) appears as you type, at the
 property it is about. Two have one exact fix, offered as a quick fix:
-`unitless-length` (`width: 5` → `width: "5px"`) and a misspelled property (`colr`
-→ `color`). Code actions also offer:
+
+| Diagnostic            | You wrote  | The fix        |
+| --------------------- | ---------- | -------------- |
+| `unitless-length`     | `width: 5` | `width: "5px"` |
+| A misspelled property | `colr`     | `color`        |
+
+Code actions also offer:
 
 - **Extract to `css()`** on an inline `css({…})` in an element's `sx`: a named
   handle above the component.
@@ -223,8 +226,8 @@ property it is about. Two have one exact fix, offered as a quick fix:
 - **Vary at md** and **Vary on :hover** on a plain value: it becomes
   `{ base: …, "@media (width >= 48rem)": … }`, ready to change.
 - **Show compiled CSS**, **Explain precedence** for the property under the cursor,
-  and **Convert Tailwind classes to `css()`** on a `className` string — the engine
-  of [`kirana migrate tailwind`](/docs/migration/from-tailwind).
+  and **Convert Tailwind classes to `css()`** on a `className` string, with the
+  engine of [`kirana migrate tailwind`](/docs/migration/from-tailwind).
 
 ### Structure and navigation
 
@@ -237,28 +240,42 @@ symbols search every token and relation in the project.
 
 ### Vue, Svelte and Astro
 
-Components get all of it: script blocks compile as the build compiles them, and
-each template binding — Vue's `:sx="…"`, Svelte's and Astro's `sx={…}` — gets its
-hint, card and colours, inside `v-for`, `{#each}` and `.map()` too. A diagnostic in
-a script lands on its line in the component.
+Components get all of it. Script blocks compile as the build compiles them, and
+each template binding gets its hint, card and colours, inside a loop too:
+
+| Framework | Binding   | Loop      |
+| --------- | --------- | --------- |
+| Vue       | `:sx="…"` | `v-for`   |
+| Svelte    | `sx={…}`  | `{#each}` |
+| Astro     | `sx={…}`  | `.map()`  |
+
+A diagnostic in a script lands on its line in the component.
 
 ### Server templates
 
 In Blade, Twig, ERB, HEEx and Edge files, each name passed to `kirana(…)` gets
-the same hover, colours and summary as an `sx`, from the class map's modules
-(`classes` in `kirana.config`). A name no module exports is underlined as
-`unknown-class-name`, before the helper would fail on it at runtime. VS Code
-sends these files to the server under the `blade`, `php`, `erb`, `twig`,
-`phoenix-heex` and `edge` languages; Zed under PHP, Blade, HTML/ERB, Twig and
-HEEX.
+the same hover, colours and summary as an `sx`, from the class map's modules (the
+`classes` setting of your configuration). A name no module exports is underlined
+as `unknown-class-name`, before the helper would fail on it at runtime. The editors
+send these files to the server as:
+
+| Editor  | Languages                                             |
+| ------- | ----------------------------------------------------- |
+| VS Code | `blade`, `php`, `erb`, `twig`, `phoenix-heex`, `edge` |
+| Zed     | PHP, Blade, HTML/ERB, Twig, HEEX                      |
 
 ### Angular
 
 `[sx]="…"` bindings get the same hint, card and colours, in a component's inline
-`template` and in the `.html` file its `templateUrl` names. A template reaches
-the handles through a member of the same name (`protected readonly styles =
-styles`), and the server reads that member as the module's own `styles`. An
-HTML file that no component names as its template is left alone.
+`template` and in the `.html` file its `templateUrl` names. A template reaches the
+handles through a member of the same name, which the server reads as the module's
+own handles:
+
+```ts
+protected readonly styles = styles
+```
+
+An HTML file that no component names as its template is left alone.
 
 ## Settings
 
@@ -269,23 +286,32 @@ HTML file that no component names as its template is left alone.
 | `kirana.inlayHints.maxLength`   | `100`   | The longest summary, in characters; `0` for every declaration.               |
 | `kirana.inlayHints.colors`      | `true`  | Colour the summary by group; off, VS Code's one-colour hint.                 |
 | `kirana.inlayHints.icon`        | `true`  | Kirana's icon before each summary.                                           |
+| `kirana.inlayHints.opacity`     | `0.85`  | How strongly the summary reads, from `0.1` to `1`.                           |
 | `kirana.codeLens.enabled`       | `true`  | The counts above `css()` and `recipe()`.                                     |
 | `kirana.hover.diagrams`         | `true`  | Draw the box model as a picture; off, a text drawing.                        |
 | `kirana.rootFontSize`           | `16`    | Pixels per `rem`, for the pixel equivalents.                                 |
 | `kirana.inspector.followCursor` | `true`  | The Style Inspector shows what the cursor is on.                             |
 | `kirana.fold.enabled`           | `false` | Style Fold for long one-line style objects.                                  |
+| `kirana.fold.mode`              | `fold`  | `fold` writes the summary in place; `dim` lowers the object's opacity.       |
+| `kirana.fold.opacity`           | `0.4`   | The opacity of a dimmed object.                                              |
+| `kirana.fold.minLength`         | `40`    | Shorter objects stay as written.                                             |
+| `kirana.fold.icon`              | `true`  | Kirana's icon before a folded summary.                                       |
 | `kirana.trace.server`           | `off`   | Log the protocol messages to the **Kirana** output channel.                  |
 
 Other editors pass the same switches as `initializationOptions`:
-`{ "summary": false, "codeLens": false, "rootFontSize": 16 }`. A client that renders
-`data:` images in hovers sends `"images": true` and its `"theme"` (`light` or
-`dark`, updated with the `kirana/theme` notification); one that runs trusted
-`command:` links sends `"commandLinks": true`.
+
+| Option                 | What it does                                                                                                                                         |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `"summary": false`     | Turns the inline summary off.                                                                                                                        |
+| `"codeLens": false`    | Turns the counts above `css()` off.                                                                                                                  |
+| `"rootFontSize": 16`   | Pixels per `rem`.                                                                                                                                    |
+| `"images": true`       | For a client that renders `data:` images in hovers. It sends `"theme"` (`light` or `dark`) too, and updates it with the `kirana/theme` notification. |
+| `"commandLinks": true` | For a client that runs trusted `command:` links.                                                                                                     |
 
 ## How fast
 
-On our shadcn/ui port — `packages/ui` and three applications indexed in 166 ms, 61
-component files open — a hover answers in **1.2 ms** at the 95th percentile,
+On our shadcn/ui port (`packages/ui` and three applications, indexed in 166 ms, with
+61 component files open), a hover answers in **1.2 ms** at the 95th percentile,
 diagnostics refresh **7.1 ms** after an edit, and the server holds **65 MB**. The
 budgets are 50 ms, 200 ms and 300 MB.
 
@@ -293,7 +319,7 @@ budgets are 50 ms, 200 ms and 300 MB.
 
 - **Components are read by a scanner.** The build parses Vue, Svelte and Astro with
   their own compilers (and Angular's templates are its own, merged at runtime); the server, which cannot load them, scans the same blocks and
-  bindings — held to the frameworks' parsers by a test over every example. A
+  bindings, and a test over every example holds the scan to the frameworks' parsers. A
   template binding that reads only a Svelte `<script module>` handle gets no hint.
 - **The summary shows what the compiler knows at build time.** A value returned
   by a function it cannot see into (`sx={mergeSx(a, b)}`, a hand-written variant
@@ -314,20 +340,20 @@ budgets are 50 ms, 200 ms and 300 MB.
 - **Answers look stale after changing the configuration.** Run **Kirana: Restart
   Language Server**.
 - **No hint after `sx={…}`.** Check that your editor shows inlay hints at all:
-  `editor.inlayHints.enabled` must be `on` (some editors default to
-  `offUnlessPressed`, which shows them only while you hold Ctrl+Alt). Set it in
+  `editor.inlayHints.enabled` must be `on` (some editors default to showing them
+  only while you hold Ctrl+Alt). Set it in
   your workspace's `.vscode/settings.json`:
 
   ```json
   { "editor.inlayHints.enabled": "on", "editor.inlayHints.maximumLength": 0 }
   ```
 
-- **The summary ends in `…`.** VS Code cuts every inlay hint at 43 characters
-  (`editor.inlayHints.maximumLength`); set it to `0` and Kirana's own limit applies,
-  `kirana.inlayHints.maxLength`, which counts what it leaves out as `+N`.
+- **The summary ends in `…`.** VS Code cuts every inlay hint at 43 characters. Set
+  `editor.inlayHints.maximumLength` to `0` and Kirana's own limit applies
+  (`kirana.inlayHints.maxLength`), counting what it leaves out at the end.
 - **The card is taller than the hover.** VS Code fixes a hover's height at a quarter
   of the editor, at least 250 px; no extension can change that. Drag the hover's
-  edge once and it keeps that size until the window reloads — or open the Style
+  edge once and it keeps that size until the window reloads. Or open the Style
   Inspector, which has the whole height of the sidebar.
 - **You want to see what is said.** Set `kirana.trace.server` to `verbose` and open
   the **Kirana** output channel.

@@ -1,6 +1,6 @@
 ---
 title: Gatsby
-description: Install Kirana in a Gatsby site - one plugin adds Kirana to every webpack stage, so the server render and the browser name the same classes.
+description: Install Kirana in a Gatsby site, where one plugin adds Kirana to every webpack stage so the server render and the browser name the same classes.
 section: frameworks
 order: 4.5
 keywords: [gatsby, webpack, ssr, static site, plugin, install]
@@ -8,29 +8,25 @@ keywords: [gatsby, webpack, ssr, static site, plugin, install]
 
 # Gatsby
 
-Gatsby builds with webpack in stages — the browser bundle, and the server render
+Gatsby builds with webpack in stages: the browser bundle, and the server render
 that writes each page's HTML. `@kirana-style/gatsby` adds Kirana's webpack plugin to
 every stage, and the stages share one compiler session, so the HTML and the
 browser agree on every class. Tested on every change by `examples/gatsby`, built
 and on its dev server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana init
+npx kirana-style init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you
 say yes, and prints the install command (`--install` runs it). Then
-`npx kirana doctor` checks the result.
+`npx kirana-style doctor` checks the result.
 
 ## 1. Install
 
@@ -70,5 +66,7 @@ Type `sx` with `"types": ["@kirana-style/core/react"]` in `tsconfig.json`.
 
 ## Next
 
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
 - [The webpack plugin](/docs/integrations/webpack), which does the work.
 - [Styles](/docs/styling/styles).

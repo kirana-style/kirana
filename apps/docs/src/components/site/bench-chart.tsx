@@ -164,7 +164,7 @@ export function BenchChart() {
       </div>
       <figcaption sx={styles.note}>
         {metric.note} Lower is better. Median of five interleaved builds on one
-        developer machine — advisory, not a published claim. Source:{" "}
+        developer machine: advisory, not a published claim. Source:{" "}
         <InlineCode>{BENCH_SOURCE}</InlineCode>.
       </figcaption>
     </figure>

@@ -18,7 +18,7 @@ export const PACKAGES: readonly PackageEntry[] = [
     "name": "@kirana-style/vite",
     "version": "0.1.0",
     "published": false,
-    "description": "Kirana for Vite: the Rolldown adapter plus the dev server — the live stylesheet and CSS hot updates."
+    "description": "Kirana for Vite: the Rolldown adapter plus the dev server, with the live stylesheet and CSS hot updates."
   },
   {
     "name": "@kirana-style/rolldown",
@@ -109,6 +109,12 @@ export const PACKAGES: readonly PackageEntry[] = [
     "version": "0.1.0",
     "published": false,
     "description": "The Kirana Driver: configuration, the native compiler session and the `kirana` command."
+  },
+  {
+    "name": "kirana-style",
+    "version": "0.1.0",
+    "published": false,
+    "description": "Kirana's command line for a project that does not have Kirana yet: npx kirana-style init sets it up."
   },
   {
     "name": "@kirana-style/preset-scales",

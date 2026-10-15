@@ -34,8 +34,9 @@ Both are optional, and most projects pass nothing: the plugin finds
 
 ## Which modules it compiles
 
-Script files only — `.ts`, `.tsx`, `.js`, `.jsx`, `.mts`, `.mjs` — outside
-`node_modules`, and only when the text contains `@kirana-style/` or an `sx` attribute.
+Script files only (TypeScript and JavaScript, with or without JSX, ES modules
+included) outside `node_modules`, and only when the text contains `@kirana-style/`
+or an `sx` attribute.
 That prefilter is why adding Kirana to a large application does not slow the build
 down in proportion to its size.
 
@@ -44,9 +45,12 @@ nothing.
 
 ## The stylesheet
 
-Import the entry once:
+Import the entry once, in your entry; a framework that renders the document as a
+component imports it as a URL for its `<link>`:
 
 ```tsx
+import "@kirana-style/core/stylesheet.css"
+// or, for <link rel="stylesheet" href={kiranaCss} /> in a document component:
 import kiranaCss from "@kirana-style/core/stylesheet.css?url"
 ```
 
@@ -64,8 +68,8 @@ asset a framework adds after the first has filled the others (Qwik does).
 ## Diagnostics in the terminal
 
 Errors fail the build; warnings print with their file, line and help text. Info
-diagnostics are quiet unless you pass `reportInfo: true` — useful when you want to
-see every runtime bridge in an application.
+diagnostics are quiet unless you pass `reportInfo: true`, which is useful when you
+want to see every runtime bridge in an application.
 
 ## Rolldown
 

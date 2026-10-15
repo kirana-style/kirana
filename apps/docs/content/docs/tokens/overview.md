@@ -1,6 +1,6 @@
 ---
 title: Tokens
-description: defineTokens, inlined values versus custom properties, and how a token stays a typed constant.
+description: Declare tokens with defineTokens, choose between inlined values and custom properties, and keep each token a typed constant.
 section: tokens
 order: 1
 keywords: [tokens, defineTokens, design tokens, custom properties, variables]
@@ -24,7 +24,7 @@ export const space = defineTokens("space", {
 css({ gap: space[2] })
 ```
 
-The first argument is the **namespace**. It has to be unique in a project — two
+The first argument is the **namespace**. It has to be unique in a project: two
 groups claiming one namespace is an error (`token-namespace-collision`), which is
 what keeps two libraries from quietly overwriting each other's variables.
 
@@ -33,8 +33,8 @@ what keeps two libraries from quietly overwriting each other's variables.
 By default a token is **inlined**: `gap: space[2]` compiles to `gap: 0.5rem`. The
 token costs nothing, and unreferenced tokens emit nothing at all.
 
-Ask for a custom property when the value must be _overridable at runtime_ — a
-theme, a mode, a value a parent hands down:
+Ask for a custom property when the value must be _overridable at runtime_, for a
+theme, a mode, or a value a parent hands down:
 
 ```tsx
 export const theme = defineTokens(
@@ -68,8 +68,8 @@ export const theme = defineTokens(
 
 Colours are usually better written as one `light-dark()` value, which needs no
 variable at all and no mode plumbing. Use `{ light, dark }` for values
-`light-dark()` cannot express — a shadow's opacity, a blend mode, an image
-filter. [Themes and modes](/docs/tokens/themes-and-modes) covers the difference.
+`light-dark()` cannot express, such as a shadow's opacity, a blend mode or an
+image filter. [Themes and modes](/docs/tokens/themes-and-modes) covers the difference.
 
 ## Registered tokens
 
@@ -86,7 +86,8 @@ This emits `@property`, and the token may then be used as a keyframe key.
 
 With the universal syntax a token may have no value at all. It starts unset, and
 every reference to it falls back to nothing (`var(--k…,)`), so a chain of such
-tokens lists only the parts an element sets — how Tailwind composes `filter`:
+tokens lists only the parts an element sets. That is how Tailwind composes
+`filter`:
 
 ```tsx
 export const step = defineTokens("step", {
@@ -115,13 +116,13 @@ knowing the other's class names.
 ## What the compiler checks
 
 - A token that does not exist: `unknown-token`.
-- A token reference computed at runtime: `dynamic-token` — tokens are build-time
-  values by design.
+- A token reference computed at runtime: `dynamic-token`, since tokens are
+  build-time values by design.
 - `defineTheme` on a token that is not a custom property: `token-not-variable`.
 
 ## Next
 
-- [Using the scales preset](/docs/tokens/preset-scales) — Tailwind's vocabulary,
+- [Using the scales preset](/docs/tokens/preset-scales): Tailwind's vocabulary,
   ready to import.
-- [Semantic tokens](/docs/tokens/semantic-tokens) — building your own layer on
+- [Semantic tokens](/docs/tokens/semantic-tokens): building your own layer on
   top.

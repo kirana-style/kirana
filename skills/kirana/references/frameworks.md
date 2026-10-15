@@ -2,8 +2,8 @@
 
 # Frameworks
 
-`npx kirana init` detects the framework, bundler and package manager and shows every change as a
-diff before writing it; `npx kirana doctor` checks the result. Each app imports
+`npx kirana-style init` detects the framework, bundler and package manager and shows every change as a
+diff before writing it; `npx kirana-style doctor` checks the result. Each app imports
 `@kirana-style/core/stylesheet.css` once. Until the packages are on npm they install from tarballs
 (https://kirana.style/docs/start/installation.md).
 

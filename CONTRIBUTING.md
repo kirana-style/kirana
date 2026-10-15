@@ -18,7 +18,7 @@ The most valuable contribution at this stage. A good report has:
   entry for a style and the one that won; paste its output.
 - **The diagnostic**, if there was one, with its code (`KRN…`).
 
-A style that compiles and renders wrong is a bug even when no diagnostic fired —
+A style that compiles and renders wrong is a bug even when no diagnostic fired;
 report it. So is a diagnostic whose help text did not tell you what to do.
 
 ## Improve the docs
@@ -31,8 +31,8 @@ search index follow.
 Every statement in the docs should be true of the code today. A claim about
 performance, size or another project needs a source or a measurement beside it.
 
-Counts and lists — diagnostics, lint rules, packages, frameworks, bundlers,
-linters, commands — are never typed: pages read them from
+Counts and lists (diagnostics, lint rules, packages, frameworks, bundlers,
+linters, commands) are never typed: pages read them from
 `apps/docs/src/data/facts.ts`, and markdown writes `{{fact:name}}`. A product a
 page names shows its logo. `vp run check` fails on a hand-written count, a
 partial list or a missing logo; [`apps/docs/CONSISTENCY.md`](apps/docs/CONSISTENCY.md)
@@ -64,8 +64,8 @@ when nothing changed.
 
 ### What a pull request needs
 
-- **Tests, and 100 % coverage.** Kirana's packages keep 100 % coverage — Rust
-  lines, functions and regions; TypeScript statements, branches, functions and
+- **Tests, and 100 % coverage.** Kirana's packages keep 100 % coverage of Rust
+  lines, functions and regions, and of TypeScript statements, branches, functions and
   lines. `vp run coverage` checks it. A change that lowers it fails CI.
 - **The specification, in the same change.** A change to the compiler's
   behaviour updates the matching document in `spec/`, and a design choice gets
@@ -106,8 +106,8 @@ maintainer approves. You never bump a version or edit `CHANGELOG.md` by hand.
 ## Support the project
 
 Kirana is MIT licensed and free to use. If it saves you time, `/sponsors` lists
-every way to support it — GitHub Sponsors, Open Collective, Polar, and invoices for
-companies — once each channel opens.
+every way to support it (GitHub Sponsors, Open Collective, Polar, and invoices for
+companies) once each channel opens.
 
 ## Conduct
 

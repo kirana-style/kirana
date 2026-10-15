@@ -16,8 +16,8 @@ post is the method, and the caveats come first.
 - The numbers below come from **shared CI machines**, not dedicated hardware.
   They are advisory. Treat them as "the same order of magnitude", not as a
   benchmark result.
-- The comparison is **our shadcn/ui port**: the same three applications
-  — a demo, sixty-odd blocks, one page per component — built three ways.
+- The comparison is **our shadcn/ui port**: the same three applications (a demo,
+  sixty-odd blocks, one page per component), built three ways.
 - All three are the same markup, kept deliberately identical in structure and
   checked against each other by comparing computed styles. That is what makes the
   comparison fair; it is also what makes it narrow.
@@ -26,14 +26,14 @@ post is the method, and the caveats come first.
 
 Two things in the build benchmark:
 
-1. **Build time** — a full production build, several rounds, median.
-2. **Output size** — CSS and JavaScript, raw and gzipped, each file gzipped on
+1. **Build time**: a full production build, several rounds, median.
+2. **Output size**: CSS and JavaScript, raw and gzipped, each file gzipped on
    its own, as a browser receives them.
 
 A third thing is measured separately, because build size says nothing about it:
 what the stylesheet costs the browser. One class per declaration means more
 selectors to match per element, and `:where()` and relation selectors mean more
-again — so the same page is opened in all three builds, grown to six thousand
+again. So the same page is opened in all three builds, grown to six thousand
 elements, and driven through colour-scheme switches and hovers with the CPU
 throttled, reading the renderer's own recalculation numbers.
 
@@ -41,7 +41,7 @@ throttled, reading the renderer's own recalculation numbers.
 
 On the corpus total, Kirana built fastest and shipped the smallest gzipped CSS,
 with total gzipped CSS + JavaScript below both baselines. StyleX produced smaller
-raw CSS before compression — about 8 % smaller — and we have not closed that gap;
+raw CSS before compression (about 8 % smaller), and we have not closed that gap;
 Tailwind's CSS was the largest, raw and gzipped.
 
 The interesting part is _why_, and it is not cleverness:
@@ -52,8 +52,8 @@ The interesting part is _why_, and it is not cleverness:
 - **The prefilter** means the compiler looks at the modules that carry styles,
   not at the dependency graph.
 
-And the raw-CSS gap has a cause too. Kirana's class names carry structure — a
-property code, a condition hash, a value hash — which costs characters and pays
+And the raw-CSS gap has a cause too. Kirana's class names carry structure (a
+property code, a condition hash, a value hash), which costs characters and pays
 them back under compression, because the same fragments repeat and gzip finds
 them. Random per-atom names are shorter on disk and larger over the wire; we
 measured that swap and it cost 2.1 kB gzipped. So the raw number is a real trade,
@@ -64,8 +64,8 @@ not an oversight, and it is the compressed number that reaches a browser.
 Being honest about this matters more than the numbers. Results depend on:
 
 - how much of your CSS is shared versus unique;
-- how many values are dynamic — a bridged value is a rule plus a custom property,
-  which is cheap but not free;
+- how many values are dynamic, since a bridged value is a rule plus a custom
+  property, which is cheap but not free;
 - whether the baseline uses a design system with its own variants.
 
 A different corpus would produce different numbers, and we would publish those

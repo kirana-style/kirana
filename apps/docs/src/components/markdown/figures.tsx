@@ -26,10 +26,17 @@ import { SVGL } from "@/generated/svgl-icons.gen"
 
 import { PALETTE, accent, accents } from "@workspace/docs-ui/accent.ts"
 import type { AccentName } from "@workspace/docs-ui/accent.ts"
-import { radius, theme } from "@workspace/ui/theme/semantic"
+import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
-import { fontFamily, fontSize } from "@workspace/ui/tokens/typography"
+import { duration } from "@workspace/ui/tokens/motion"
+import {
+  fontFamily,
+  fontSize,
+  fontWeight,
+  textLeading,
+  textSize,
+} from "@workspace/ui/tokens/typography"
 
 import {
   At,
@@ -1086,5 +1093,164 @@ export function ClassNameFigure() {
         </>
       }
     />
+  )
+}
+
+/* ── Mental model: the five ideas as thumbnails ──────────────────────── */
+
+const thumbs = {
+  // Five cells split by 1px gutters; on a phone each is a row, the drawing beside its name.
+  grid: css({
+    display: "grid",
+    gap: "1px",
+    marginBlock: spacing[6],
+    overflow: "hidden",
+    borderRadius: radius.xl,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: theme.border,
+    backgroundColor: theme.border,
+    gridTemplateColumns: {
+      base: "minmax(0, 1fr)",
+      [breakpoint.md]: "repeat(5, minmax(0, 1fr))",
+    },
+  }),
+  cell: css({
+    display: "grid",
+    gridTemplateColumns: {
+      base: "9rem minmax(0, 1fr)",
+      [breakpoint.md]: "1fr",
+    },
+    alignItems: "center",
+    textDecorationLine: "none",
+    color: theme.foreground,
+    backgroundColor: { base: theme.background, ":hover": alpha.muted50 },
+    transitionProperty: "background-color",
+    transitionDuration: duration[150],
+  }),
+  art: css({ position: "relative", height: "7rem" }),
+  stage: css({ paddingInline: spacing[1], paddingBlock: spacing[2] }),
+  name: css({
+    display: "grid",
+    gap: spacing["0.5"],
+    paddingInline: spacing[3],
+    paddingBlock: spacing[3],
+    fontSize: textSize.small,
+    lineHeight: textLeading.small,
+    fontWeight: fontWeight.semibold,
+  }),
+  number: css({
+    fontFamily: fontFamily.mono,
+    fontSize: textSize.micro,
+    lineHeight: textLeading.micro,
+    fontWeight: fontWeight.normal,
+    color: theme.mutedForeground,
+  }),
+}
+
+const IDEAS: { id: string; name: string; art: React.ReactNode }[] = [
+  {
+    id: "1-you-write-properties-not-classes",
+    name: "Properties, not classes",
+    art: (
+      <Card title="card" width={112}>
+        <Row>
+          <T tone="muted">gap</T>
+          <T>1rem</T>
+        </Row>
+        <Row>
+          <T tone="muted">radius</T>
+          <T>.75rem</T>
+        </Row>
+      </Card>
+    ),
+  },
+  {
+    id: "2-merging-replaces-entries-not-properties",
+    name: "Entries, not properties",
+    art: (
+      <Card title="color" width={112}>
+        <Row lit>
+          <T tone="muted">base</T>
+          <T tone="prompt">grey</T>
+        </Row>
+        <Row>
+          <T tone="muted">:hover</T>
+          <T>blue</T>
+        </Row>
+      </Card>
+    ),
+  },
+  {
+    id: "3-a-ladder-decides-what-wins-not-specificity",
+    name: "A ladder, not specificity",
+    art: (
+      <Card title="wins" width={112}>
+        <Row lit>
+          <Tag tone="success" icon={Tick02Icon} />
+          <T tone="strong">:hover</T>
+        </Row>
+        <Row>
+          <T tone="muted">2</T>
+          <T tone="muted">base</T>
+        </Row>
+      </Card>
+    ),
+  },
+  {
+    id: "4-style-what-you-render",
+    name: "Style what you render",
+    art: (
+      <Scene width={120} height={64} wires={["M 46 32 H 74"]} dashed>
+        <At x={25} y={50}>
+          <Tile
+            icon={FileCodeIcon}
+            size={34}
+            variant="accent"
+            badge={{ tone: "success", label: "✓" }}
+          />
+        </At>
+        <At x={75} y={50}>
+          <Tile
+            icon={PackageIcon}
+            size={34}
+            badge={{ tone: "danger", label: "✕" }}
+          />
+        </At>
+      </Scene>
+    ),
+  },
+  {
+    id: "5-your-editor-shows-what-the-element-gets",
+    name: "The editor shows it",
+    art: (
+      <Card title="plan.tsx" icon={FileEditIcon} width={116}>
+        <Row flat>
+          <T tone="strong">{"<h2>"}</T>
+        </Row>
+        <Row flat>
+          <Tag tone="accent">text 1.25rem</Tag>
+        </Row>
+      </Card>
+    ),
+  },
+]
+
+/** The page's five ideas at a glance, each a small drawing that links to its section. */
+export function MentalModelFigure() {
+  return (
+    <nav aria-label="The five ideas" sx={thumbs.grid}>
+      {IDEAS.map((idea, i) => (
+        <a key={idea.id} href={`#${idea.id}`} sx={thumbs.cell}>
+          <span sx={thumbs.art}>
+            <Stage sx={thumbs.stage}>{idea.art}</Stage>
+          </span>
+          <span sx={thumbs.name}>
+            <span sx={thumbs.number}>{String(i + 1).padStart(2, "0")}</span>
+            {idea.name}
+          </span>
+        </a>
+      ))}
+    </nav>
   )
 }

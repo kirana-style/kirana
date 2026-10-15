@@ -22,7 +22,7 @@ import { DocsLink } from "@/components/docs-link"
 import { EDITORS, LINTERS, LINT_RULES } from "@/data/tooling"
 import type { ToolChoice } from "@/data/tooling"
 import { SVGL } from "@/generated/svgl-icons.gen"
-import { LIFT, REST } from "@/components/site/lift"
+import { LIFT, REST } from "@workspace/ui/recipes/lift"
 
 import { ChoiceGrid } from "./choice-grid"
 

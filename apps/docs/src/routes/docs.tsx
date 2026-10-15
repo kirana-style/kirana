@@ -6,8 +6,8 @@ import {
 } from "@tanstack/react-router"
 import { css, props as styleProps } from "@kirana-style/core"
 
+import { ThemeMenu } from "@workspace/docs-ui/theme-menu.tsx"
 import { DocsLayout } from "@workspace/docs-ui/docs-layout.tsx"
-import { ThemeToggle } from "@workspace/shell/theme-toggle"
 import { theme } from "@workspace/ui/theme/semantic"
 import { pointer } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
@@ -52,7 +52,7 @@ function Docs() {
           <Wordmark />
         </Link>
       }
-      actions={<ThemeToggle />}
+      actions={<ThemeMenu />}
       banner={<StatusBanner />}
     >
       <Outlet />

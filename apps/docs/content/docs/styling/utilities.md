@@ -1,9 +1,8 @@
 ---
 title: Utility strings
 description: Write sx as Tailwind-style utility strings; each one compiles to the same atoms as the style object it stands for.
-section: styling
-parent: fundamentals
-order: 12
+section: writing
+order: 4
 keywords: [utilities, tailwind, sx, string, preset, grammar, variants]
 ---
 
@@ -56,7 +55,7 @@ attribute is left as written.
 
 ## Where strings go
 
-Anywhere `sx` takes a style — on elements and on your components, alone, in an
+Anywhere `sx` takes a style: on elements and on your components, alone, in an
 array, or in a condition:
 
 ```tsx
@@ -67,7 +66,7 @@ array, or in a condition:
 
 Later utilities override earlier ones property by property, as later entries in
 an array do. A template literal works only without substitutions:
-``sx={`p-${n}`}`` is the `utility-not-static` error — write
+``sx={`p-${n}`}`` is the `utility-not-static` error; write
 `css({ padding: n })`, which Kirana bridges at runtime.
 
 `className` strings are never read. Only `sx` is Kirana's.
@@ -86,55 +85,73 @@ an array do. A template literal works only without substitutions:
 | Fraction       | `w-1/2`                            | `calc(1/2 * 100%)`                               |
 
 Spaces inside brackets are fine (`bg-[rgb(1, 2, 3)]` is one utility), and
-Tailwind's `_` for a space works too. Tailwind's `--spacing(n)` inside brackets
-is `n` steps of the `space` scale's `1`: `gap-[--spacing(var(--gap))]` is
-`calc(<space 1> * var(--gap))`.
+Tailwind's `_` for a space works too.
 
-Variants go before the utility and stack: `hover:`, `focus-visible:`,
-`disabled:`, `md:`, `motion-reduce:`, `print:`, `rtl:`, and Tailwind's own forms —
-`data-open:`, `data-[state=open]:`, `data-side=left:`, `aria-invalid:`,
-`has-[svg]:`, `not-first:`, `nth-3:`, `supports-[display:grid]:`,
-`[&:nth-child(2)]:`, and container queries `@md:`, `@md/card:`, `@[250px]:`
-(name a container with `@container/card`). There is no `dark:`: every colour
-token is already a `light-dark()` pair.
+Tailwind's `--spacing(n)` inside brackets counts steps of the space scale, so
+`gap-[--spacing(var(--gap))]` is the scale's first step times `var(--gap)`.
 
-`before:`, `after:`, `placeholder:`, `file:` and `selection:` are pseudo-elements,
-which `css()` writes as a block of their own; `before:` and `after:` get
-`content: ""` as Tailwind gives them.
+Variants go before the utility and stack, in Tailwind's own forms. There is no
+`dark:`: every colour token is already a `light-dark()` pair.
+
+| Kind              | Variants                                                                  |
+| ----------------- | ------------------------------------------------------------------------- |
+| States            | `hover:`, `focus-visible:`, `disabled:`                                   |
+| Media             | `md:`, `motion-reduce:`, `print:`                                         |
+| Direction         | `rtl:`                                                                    |
+| Attributes        | `data-open:`, `data-[state=open]:`, `data-side=left:`, `aria-invalid:`    |
+| Structure         | `has-[svg]:`, `not-first:`, `nth-3:`, `[&:nth-child(2)]:`                 |
+| Feature queries   | `supports-[display:grid]:`                                                |
+| Container queries | `@md:`, `@md/card:`, `@[250px]:`; name a container with `@container/card` |
+| Pseudo-elements   | `before:`, `after:`, `placeholder:`, `file:`, `selection:`                |
+
+A pseudo-element variant becomes a block of its own, and `before:` and `after:`
+get `content: ""`, as Tailwind gives them.
 
 ## Composed utilities
 
-Some utilities share one CSS property: `ring-2` and `shadow-sm` both draw a
-`box-shadow`, `translate-x-4` and `translate-y-2` one `translate`. As in Tailwind,
-each sets its own layer — a registered, non-inheriting custom property from the
-preset's `compose` tokens — and the shared property reads them all, so the two
-combine instead of the later one winning. `ring`, `shadow`, `translate`, `scale`,
-the filters (`grayscale`, `brightness-50`, `blur-sm`) and the backdrop filters
-(`backdrop-blur-xs`) work this way, and so do transitions and outlines:
-`transition` reads the timing `duration-*` and `ease-*` set, and `outline-2` the
-style `outline-hidden` set, so the order of the utilities does not matter.
+Some utilities share one CSS property, and combine instead of the later one
+winning. As in Tailwind, each sets its own layer (a registered, non-inheriting
+custom property from the preset's `compose` tokens), and the shared property reads
+them all:
 
-`p-4`, `m-4` and `inset-0` set both logical axes (`paddingBlock` and
-`paddingInline`) rather than the `padding` shorthand. The value is the same on
-every side, and a later `p-0` then replaces an earlier `py-4` entry for entry,
-the way `cn()` did.
+| Utilities                                                    | Share             |
+| ------------------------------------------------------------ | ----------------- |
+| `ring-2`, `shadow-sm`                                        | `box-shadow`      |
+| `translate-x-4`, `translate-y-2`                             | `translate`       |
+| `scale-*`                                                    | `scale`           |
+| The filters, such as `grayscale`, `brightness-50`, `blur-sm` | `filter`          |
+| The backdrop filters, such as `backdrop-blur-xs`             | `backdrop-filter` |
+
+Transitions and outlines work the same way, so the order of the utilities does
+not matter:
+
+- `transition` reads the timing that `duration-*` and `ease-*` set;
+- `outline-2` reads the style that `outline-hidden` set.
+
+Uniform box utilities such as `p-4`, `m-4` and `inset-0` set both logical axes
+(block and inline) rather than the shorthand.
+
+The value is the same on every side, and a later `p-0` then replaces an earlier
+`py-4` entry for entry, as `cn()` did.
 
 ## Animations
 
-Tailwind's `animate-spin`, `animate-ping`, `animate-pulse` and `animate-bounce`
-are here, and so is the vocabulary of `tw-animate-css`, which shadcn/ui uses:
+Tailwind's `animate-*` utilities (spin, ping, pulse and bounce) are here, and so is
+the vocabulary of `tw-animate-css`, which shadcn/ui uses:
 
 ```tsx
 <div sx="data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 duration-100" />
 ```
 
-`animate-in` and `animate-out` play the `enter` and `exit` keyframes; `fade-in-0`,
-`zoom-in-95`, `spin-in-45`, `blur-in` and `slide-in-from-top-2` set what they start
-from (and their `-out`/`-out-to-` forms what they end at). `duration-*` and
-`ease-*` time the animation as well as transitions, and `delay-*`, `repeat-*`,
-`direction-*` and `fill-mode-*` set the animation's own properties.
+| Utilities                                                                 | What they do                                                               |
+| ------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `animate-in`, `animate-out`                                               | Play the `enter` and `exit` keyframes                                      |
+| `fade-in-0`, `zoom-in-95`, `spin-in-45`, `blur-in`, `slide-in-from-top-2` | Set what the animation starts from; their `-out` forms set what it ends at |
+| `duration-*`, `ease-*`                                                    | Time the animation as well as transitions                                  |
+| `delay-*`, `repeat-*`, `direction-*`, `fill-mode-*`                       | Set the animation's own properties                                         |
+
 `slide-in-from-start` and `-end`, which depend on the writing direction, are not
-utilities; write them with a `rtl:` condition.
+utilities; write them with an `rtl:` condition.
 
 ## What it will not do
 

@@ -1,6 +1,6 @@
 ---
 title: Phoenix
-description: Install Kirana in a Phoenix app - styles in TypeScript modules, the Kirana CLI as a watcher, and kirana/1 in HEEx.
+description: Install Kirana in a Phoenix app, with styles in TypeScript modules, the Kirana CLI as a watcher, and kirana/1 in HEEx.
 section: server
 order: 5
 keywords: [phoenix, elixir, heex, hex, mix, class map, install]
@@ -13,12 +13,7 @@ and the class map into `priv/static/kirana`. How it fits together:
 [server templates](/docs/frameworks/server-templates). Tested on every change by
 `examples/phoenix`, with a style edit checked on reload.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change,
-> but not published. Until they are, install the npm packages from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows, and the
-> helper from a checkout of the repository by path; the rest of this page is the
-> same either way.
+<!-- ::npm-status kind="helpers" -->
 
 ## 1. Install
 
@@ -70,8 +65,9 @@ config :my_app, MyAppWeb.Endpoint,
   ]
 ```
 
-Add `kirana` to `Plug.Static`'s `only:` list (`static_paths/0`), and run
-`npx kirana build … --minify` before `mix phx.digest` in your deploy.
+Add `kirana` to the `only:` list of `Plug.Static` (in `static_paths/0`).
+
+In your deploy, run `npx kirana build … --minify` before `mix phx.digest`.
 
 ## 5. Use it in HEEx
 
@@ -83,4 +79,6 @@ Add `kirana` to `Plug.Static`'s `only:` list (`static_paths/0`), and run
 
 ## Next
 
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
 - [Server templates](/docs/frameworks/server-templates): merging and the limits.

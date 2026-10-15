@@ -7,21 +7,13 @@ import { css } from "@kirana-style/core"
 import {
   CodeIcon,
   CommandLineIcon,
-  DashboardSpeed01Icon,
-  FileScriptIcon,
-  FlashIcon,
-  GlobalIcon,
   Layers01Icon,
-  PackageIcon,
-  VisualStudioCodeIcon,
 } from "@hugeicons/core-free-icons"
 
 import { BrandIcon } from "@workspace/docs-ui/brand-icon.tsx"
-import { accent, tint } from "@workspace/docs-ui/accent.ts"
+import { accent } from "@workspace/docs-ui/accent.ts"
 import type { AccentName } from "@workspace/docs-ui/accent.ts"
-import { Icon } from "@workspace/ui/primitives/icon"
-import type { IconProps } from "@workspace/ui/primitives/icon"
-import { radius, theme } from "@workspace/ui/theme/semantic"
+import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
@@ -109,62 +101,6 @@ const styles = {
     gap: spacing[2],
   }),
   // The numbers: cells split by hairline gutters, each led by what it measures.
-  stats: css({
-    display: "grid",
-    gap: "1px",
-    overflow: "hidden",
-    borderRadius: radius.xl,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    backgroundColor: theme.border,
-    gridTemplateColumns: {
-      base: "repeat(2, minmax(0, 1fr))",
-      [breakpoint.md]: "repeat(3, minmax(0, 1fr))",
-      [breakpoint.xl]: "repeat(6, minmax(0, 1fr))",
-    },
-  }),
-  stat: css({
-    position: "relative",
-    display: "grid",
-    alignContent: "start",
-    gap: spacing[2],
-    padding: spacing[5],
-    backgroundColor: theme.card,
-    backgroundImage: `radial-gradient(120% 80% at 100% 0%, ${tint(7)}, transparent 60%)`,
-  }),
-  statHead: css({
-    display: "flex",
-    alignItems: "center",
-    gap: spacing[2],
-    fontSize: "0.6875rem",
-    fontWeight: fontWeight.semibold,
-    letterSpacing: "0.08em",
-    textTransform: "uppercase",
-    color: theme.mutedForeground,
-  }),
-  statIcon: css({
-    display: "grid",
-    placeItems: "center",
-    width: "1.5rem",
-    height: "1.5rem",
-    borderRadius: radius.md,
-    backgroundColor: tint(12),
-    color: accent.base,
-  }),
-  statValue: css({
-    fontFamily: fontFamily.numeric,
-    fontSize: { base: fontSize["2xl"], [breakpoint.md]: fontSize["3xl"] },
-    lineHeight: { base: lineHeight["2xl"], [breakpoint.md]: lineHeight["3xl"] },
-    fontWeight: fontWeight.semibold,
-    color: theme.foreground,
-    fontVariantNumeric: "tabular-nums",
-  }),
-  statText: css({
-    fontSize: fontSize.sm,
-    lineHeight: "1.55",
-    color: theme.mutedForeground,
-  }),
 }
 
 export type Path = {
@@ -198,7 +134,7 @@ export const PATHS: readonly Path[] = [
     step: "Tailwind's system",
     title: "The preset, compiled",
     accent: "forest",
-    text: "@kirana-style/preset-scales brings Tailwind v4's scales as tokens and its names as utility strings — or migrate an app with kirana migrate tailwind.",
+    text: "@kirana-style/preset-scales brings Tailwind v4's scales as tokens and its names as utility strings. Or migrate an app with kirana migrate tailwind.",
     snippet: "path-preset",
     fit: "A team that already thinks in Tailwind.",
     href: "/docs/tokens/preset-scales",
@@ -221,7 +157,7 @@ export const PATHS: readonly Path[] = [
 const CHOICES: readonly { name: string; text: React.ReactNode }[] = [
   {
     name: "Tokens",
-    text: "A primitive scale with semantic tokens on top, as Tailwind and shadcn do — or semantic tokens only, written straight as light-dark() pairs. Both compile to the same kind of CSS.",
+    text: "A primitive scale with semantic tokens on top, as Tailwind and shadcn do, or semantic tokens only, written straight as light-dark() pairs. Both compile to the same kind of CSS.",
   },
   {
     name: "Strictness",
@@ -229,7 +165,7 @@ const CHOICES: readonly { name: string; text: React.ReactNode }[] = [
   },
   {
     name: "Syntax",
-    text: "Objects, utility strings, or both in one sx array — they compile to the same atoms.",
+    text: "Objects, utility strings, or both in one sx array. They compile to the same atoms.",
   },
   {
     name: "Frameworks",
@@ -310,54 +246,10 @@ const CHOICES: readonly { name: string; text: React.ReactNode }[] = [
   },
 ]
 
-const STATS: readonly {
-  kind: string
-  icon: IconProps["icon"]
-  value: string
-  label: string
-}[] = [
-  {
-    kind: "Build",
-    icon: DashboardSpeed01Icon,
-    value: "2.7×",
-    label: "faster builds than StyleX on the same three apps",
-  },
-  {
-    kind: "CSS",
-    icon: FileScriptIcon,
-    value: "61.7 kB",
-    label: "of CSS for three apps, gzipped — less than StyleX",
-  },
-  {
-    kind: "Runtime",
-    icon: PackageIcon,
-    value: "< 1 kB",
-    label: "of runtime, only when styles merge or bridge",
-  },
-  {
-    kind: "Browser",
-    icon: GlobalIcon,
-    value: "3.1–3.7×",
-    label: "less style recalculation in the browser than Tailwind",
-  },
-  {
-    kind: "Dev",
-    icon: FlashIcon,
-    value: "36.8 ms",
-    label: "from an edit to the updated stylesheet",
-  },
-  {
-    kind: "Editor",
-    icon: VisualStudioCodeIcon,
-    value: "1.2 ms",
-    label: "for a hover in the editor, at the 95th percentile",
-  },
-]
-
 const AGENT_POINTS: readonly { title: string; text: string }[] = [
   {
     title: "Nothing new to learn",
-    text: "Styles are CSS properties and selectors a model already knows — no class vocabulary to hallucinate.",
+    text: "Styles are CSS properties and selectors a model already knows, with no class vocabulary to hallucinate.",
   },
   {
     title: "Wrong code does not compile",
@@ -452,11 +344,13 @@ export function AgentsArt() {
   )
 }
 
+/** The homepage chapter: three ways to start, each growing into the next. */
 export function Flexible() {
   return (
     <HomeSection
+      number="03"
       eyebrow="Fits the project"
-      title="As small or as structured as the project needs"
+      title="As small or as structured as you need"
       lede="Start with one css() call. Grow into Tailwind's system, or into a design system with your own rules. Nothing about the first step has to be undone for the next."
     >
       <div sx={styles.paths}>
@@ -475,56 +369,46 @@ export function Flexible() {
           </IllustratedCard>
         ))}
       </div>
-
-      <div sx={styles.columns}>
-        <IllustratedCard
-          art={<ChoicesArt />}
-          title="Your choices, not ours"
-          text="How you write, how strict the build is, and where it runs are yours to decide."
-        >
-          <div sx={styles.list}>
-            {CHOICES.map((choice) => (
-              <div key={choice.name} sx={styles.item}>
-                <span sx={styles.itemName}>{choice.name}</span>
-                <span sx={styles.itemText}>{choice.text}</span>
-              </div>
-            ))}
-          </div>
-        </IllustratedCard>
-        <IllustratedCard
-          art={<AgentsArt />}
-          title="Written well by agents"
-          text="What makes a style easy for a model to write, check and fix."
-          links={[
-            { title: "Agent skills", href: "/docs/project/agent-skills" },
-            { title: "llms.txt", href: "/docs/project/llms" },
-          ]}
-        >
-          <div sx={styles.list}>
-            {AGENT_POINTS.map((point) => (
-              <div key={point.title} sx={styles.item}>
-                <span sx={styles.itemName}>{point.title}</span>
-                <span sx={styles.itemText}>{point.text}</span>
-              </div>
-            ))}
-          </div>
-        </IllustratedCard>
-      </div>
-
-      <div sx={styles.stats}>
-        {STATS.map((stat) => (
-          <div key={stat.label} sx={styles.stat}>
-            <span sx={styles.statHead}>
-              <span sx={styles.statIcon}>
-                <Icon icon={stat.icon} size="0.875rem" />
-              </span>
-              {stat.kind}
-            </span>
-            <span sx={styles.statValue}>{stat.value}</span>
-            <span sx={styles.statText}>{stat.label}</span>
-          </div>
-        ))}
-      </div>
     </HomeSection>
+  )
+}
+
+/** What is left to the reader, and what makes a style easy for a model: two cards for `/why`. */
+export function Choices() {
+  return (
+    <div sx={styles.columns}>
+      <IllustratedCard
+        art={<ChoicesArt />}
+        title="Your choices, not ours"
+        text="How you write, how strict the build is, and where it runs are yours to decide."
+      >
+        <div sx={styles.list}>
+          {CHOICES.map((choice) => (
+            <div key={choice.name} sx={styles.item}>
+              <span sx={styles.itemName}>{choice.name}</span>
+              <span sx={styles.itemText}>{choice.text}</span>
+            </div>
+          ))}
+        </div>
+      </IllustratedCard>
+      <IllustratedCard
+        art={<AgentsArt />}
+        title="Written well by agents"
+        text="What makes a style easy for a model to write, check and fix."
+        links={[
+          { title: "Agent skills", href: "/docs/project/agent-skills" },
+          { title: "llms.txt", href: "/docs/project/llms" },
+        ]}
+      >
+        <div sx={styles.list}>
+          {AGENT_POINTS.map((point) => (
+            <div key={point.title} sx={styles.item}>
+              <span sx={styles.itemName}>{point.title}</span>
+              <span sx={styles.itemText}>{point.text}</span>
+            </div>
+          ))}
+        </div>
+      </IllustratedCard>
+    </div>
   )
 }

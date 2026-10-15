@@ -13,11 +13,11 @@ when it cannot.
 The docs have five parts: learn the model, set up your framework, move an
 existing project, look something up, or see where the project stands.
 
-- **Documentation** — The model, writing styles, tokens and configuration. [Quick start](/docs/start/quick-start), [How it works](/docs/start/how-it-works), [Mental model](/docs/start/mental-model)
-- **Frameworks** — An install guide for every framework and bundler, each built on every change. [Vue](/docs/frameworks/vue), [Next.js](/docs/frameworks/nextjs), [TanStack Start](/docs/frameworks/tanstack-start)
-- **Guides** — Moving from Tailwind or StyleX, and building larger systems. [From Tailwind](/docs/migration/from-tailwind), [From StyleX](/docs/migration/from-stylex), [A design system](/docs/advanced/design-system)
-- **Reference** — The API, the command line, and every diagnostic with its code. [API](/docs/reference/api), [CLI](/docs/tooling/cli), [Diagnostics](/docs/tooling/diagnostics)
-- **Project** — Where Kirana stands, what comes next, and how to help. [Status](/docs/project/status), [Roadmap](/docs/project/roadmap), [Contributing](/docs/project/contributing)
+- **Documentation**: The model, writing styles, tokens and configuration. [Quick start](/docs/start/quick-start), [How it works](/docs/start/how-it-works), [Mental model](/docs/start/mental-model)
+- **Frameworks**: An install guide for every framework and bundler, each built on every change. [Vue](/docs/frameworks/vue), [Next.js](/docs/frameworks/nextjs), [TanStack Start](/docs/frameworks/tanstack-start)
+- **Guides**: Moving from Tailwind or StyleX, and building larger systems. [From Tailwind](/docs/migration/from-tailwind), [From StyleX](/docs/migration/from-stylex), [A design system](/docs/advanced/design-system)
+- **Reference**: The API, the command line, and every diagnostic with its code. [API](/docs/reference/api), [CLI](/docs/tooling/cli), [Diagnostics](/docs/tooling/diagnostics)
+- **Project**: Where Kirana stands, what comes next, and how to help. [Status](/docs/project/status), [Roadmap](/docs/project/roadmap), [Contributing](/docs/project/contributing)
 
 ## A first look
 
@@ -32,21 +32,21 @@ of Kirana is left at runtime.
 ## Works with your framework
 
 React, Next.js, React Router, TanStack Start, Gatsby, Preact, Solid, Vue, Nuxt, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no
-framework at all — on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete
+framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete
 install guide, and each is built and checked in a browser on every change:
 **[pick yours](/docs/frameworks/overview)**.
 
 ## What it gives you
 
 - **Typed styles.** Ordinary objects, checked by TypeScript, with camelCase CSS
-  property names and real values — not a string vocabulary you have to learn.
+  property names and real values, not a string vocabulary you have to learn.
 - **Conditions inside values.** `{ base: x, ":hover": y }` reads in the order it
   applies, instead of scattering `hover:` prefixes across a class list.
 - **Predictable precedence.** A stated ladder decides which value wins, and the
   `ambiguous-precedence` diagnostic tells you when two values could both apply.
 - **Tokens and themes.** Design tokens compile to constants or custom properties,
   and every colour can be a `light-dark()` pair, so dark mode needs no variant.
-- **Real diagnostics.** 38 checks with codes, severities and help text, from
+- **Real diagnostics.** 45 checks with codes, severities and help text, from
   unknown properties to a component that forgets to pass `sx` on.
 
 ## What it is not

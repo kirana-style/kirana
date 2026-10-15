@@ -69,7 +69,7 @@ const LABELS: Record<Shortcut["tab"], string> = {
 export function shortcutsMarkdown() {
   return SHORTCUTS.map(
     (group) =>
-      `- **${LABELS[group.tab]}** — ${group.text} ${group.links
+      `- **${LABELS[group.tab]}**: ${group.text} ${group.links
         .map((link) => `[${link.title}](${link.href})`)
         .join(", ")}`
   ).join("\n")

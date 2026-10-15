@@ -154,7 +154,7 @@ export const LINT_RULES: readonly LintRule[] = [
 
 const list = (choices: readonly ToolChoice[]) =>
   choices
-    .map((choice) => `- [${choice.title}](${choice.href}) — ${choice.how}`)
+    .map((choice) => `- [${choice.title}](${choice.href}): ${choice.how}`)
     .join("\n")
 
 export const editorsMarkdown = () => list(EDITORS)
@@ -162,5 +162,5 @@ export const lintersMarkdown = () => list(LINTERS)
 export const lintRulesMarkdown = () =>
   LINT_RULES.map(
     (rule) =>
-      `- [\`kirana/${rule.name}\`](${LINT}#${rule.name}) (${rule.config}${rule.fix ? `, ${rule.fix}` : ""}${rule.biome ? ", also Biome" : ""}) — ${rule.catches}`
+      `- [\`kirana/${rule.name}\`](${LINT}#${rule.name}) (${rule.config}${rule.fix ? `, ${rule.fix}` : ""}${rule.biome ? ", also Biome" : ""}): ${rule.catches}`
   ).join("\n")

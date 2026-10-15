@@ -20,7 +20,7 @@ import {
 
 import { Page, PageHero, PageSection } from "@/components/site/page"
 import { Rail, patterns } from "@/components/site/patterns"
-import { LIFT, REST } from "@/components/site/lift"
+import { LIFT, REST } from "@workspace/ui/recipes/lift"
 import { POSTS } from "@/generated/content.gen"
 
 export const Route = createFileRoute("/blog/")({

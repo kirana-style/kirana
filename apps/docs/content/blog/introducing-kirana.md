@@ -35,7 +35,7 @@ like, with the precedence question answered in the source.
 
 Styling has two hard problems, and only one of them is generating CSS.
 
-The other is answering **which style wins** — and being able to answer it while
+The other is answering **which style wins**, and being able to answer it while
 reading the source, not by opening devtools on a rendered page. Class-string
 systems answer it with ordering rules nobody can hold in their head. Runtime
 CSS-in-JS answers it with insertion order that depends on render order.
@@ -45,8 +45,8 @@ ladder cannot settle instead of picking one and moving on.
 
 ## What it does
 
-It compiles the styles next to your components into one stylesheet of atoms —
-one class per declaration — and rewrites `sx` into `className`. Nothing of it
+It compiles the styles next to your components into one stylesheet of atoms (one
+class per declaration), and rewrites `sx` into `className`. Nothing of it
 remains at runtime except an optional helper under 1 kB, and that only when a
 style depends on a value known at render time.
 
@@ -55,7 +55,7 @@ Three things fall out of that design:
 - **Conditions live inside the value they change.** `backgroundColor: { base, ":hover" }`
   rather than a hover prefix somewhere in a class list.
 - **Merging replaces entries, not properties.** A later style replaces what it
-  names and leaves your hover state alone — which is either a relief or a
+  names and leaves your hover state alone, which is either a relief or a
   surprise, depending on where you are coming from.
 - **Colours are `light-dark()` pairs.** Dark mode is one declaration on the root
   element, not a variant on every utility.

@@ -1,9 +1,8 @@
 ---
 title: Recipes
-description: recipe() for variants, compound variants and slots - resolved at build time when the options are known.
-section: styling
-parent: composition
-order: 9
+description: Variants, compound variants and slots with recipe(), resolved at build time when the options are known.
+section: composition
+order: 4
 keywords: [recipe, variants, cva, slots, compound variants, defaults]
 ---
 
@@ -101,7 +100,7 @@ Both catch the rename that used to leave a component silently unstyled.
 ## Recipes or plain handles?
 
 Use a recipe when a component has variants a caller chooses by name. Use plain
-handles when it does not — an object of `css()` handles is simpler to read, and
+handles when it does not: an object of `css()` handles is simpler to read, and
 merging already gives you composition:
 
 ```tsx

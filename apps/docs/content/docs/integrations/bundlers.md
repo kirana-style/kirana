@@ -1,8 +1,8 @@
 ---
-title: Bundlers
-description: Kirana on every bundler - Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun, esbuild, PostCSS and Jest, each with its own guide and tested example.
-section: integrations
-order: 2
+title: Choose a bundler
+description: Kirana on every bundler (Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun, esbuild, PostCSS and Jest), each with its own guide and tested example.
+section: bundlers
+order: 1
 keywords:
   [
     bundlers,
@@ -19,7 +19,7 @@ keywords:
   ]
 ---
 
-# Bundlers
+# Choose a bundler
 
 Every adapter does the same small job: it hands modules that carry styles to the
 compiler, and puts the finished stylesheet where the bundler expects it. None of

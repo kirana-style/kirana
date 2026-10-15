@@ -1,31 +1,29 @@
 /**
- * The homepage, top to bottom. Every section is its own module under
- * `components/home/`; this file is only the order.
+ * The homepage, top to bottom: what Kirana is, the compiler's own output, the editor, three ways to
+ * start, the numbers, the frameworks, and where to go next. Every chapter is its own module under
+ * `components/home/`; this file is only the order. Detail lives on the product pages and in the
+ * docs; the homepage introduces each idea once and links there.
  */
-import { Blueprint, Faq, Sponsors } from "./closing"
-import { Connect } from "./connect"
-import { Ecosystem, Features } from "./ecosystem"
+import { Blueprint, Sponsors } from "./closing"
 import { Editor } from "./editor"
 import { Flexible } from "./flexible"
 import { Hero } from "./hero"
-import { InstallExplorer } from "./install-explorer"
+import { Proof } from "./proof"
 import { Showcase } from "./showcase"
-import { System } from "./system"
+import { Stack } from "./stack"
+import { WhereNext } from "./where-next"
 
 export function Home() {
   return (
     <>
       <Hero />
       <Showcase />
-      <InstallExplorer />
-      <System />
-      <Flexible />
-      <Features />
       <Editor />
-      <Connect />
-      <Ecosystem />
+      <Flexible />
+      <Proof />
+      <Stack />
+      <WhereNext />
       <Sponsors />
-      <Faq />
       <Blueprint />
     </>
   )

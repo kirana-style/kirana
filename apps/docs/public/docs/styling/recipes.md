@@ -95,7 +95,7 @@ Both catch the rename that used to leave a component silently unstyled.
 ## Recipes or plain handles?
 
 Use a recipe when a component has variants a caller chooses by name. Use plain
-handles when it does not — an object of `css()` handles is simpler to read, and
+handles when it does not: an object of `css()` handles is simpler to read, and
 merging already gives you composition:
 
 ```tsx

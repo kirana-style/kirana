@@ -9,14 +9,11 @@ by modification time, and reports project-wide diagnostics as PostCSS warnings.
 
 It writes the stylesheet only: the scripts still need Kirana's compiler to turn
 `css()` into class names. That is why it comes with a script step wherever it is
-used — the loader in [Next.js on Turbopack](/docs/frameworks/nextjs), the
+used: the loader in [Next.js on Turbopack](/docs/frameworks/nextjs), the
 transformer in [Parcel](/docs/integrations/parcel).
 
 > [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
 
 ## 1. Install
 

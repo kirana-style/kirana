@@ -1,5 +1,5 @@
 /**
- * Every install guide, as the "Get started" page and the installation page list
+ * Every install guide, as the "Choose a framework" page and the installation page list
  * them: a framework, a server framework whose templates read a class map, or a
  * bundler. `runsOn` is what the overview's table states; `description` is the
  * tile's line. The logos live in `PAGE_LOGOS` (a React module; this file is read
@@ -252,7 +252,7 @@ export const FRAMEWORK_GUIDES: readonly Guide[] = [
 /** One group's guides as markdown, for the page's twin that language models read. */
 export function guidesMarkdown(group?: GuideGroup) {
   return FRAMEWORK_GUIDES.filter((guide) => !group || guide.group === group)
-    .map((guide) => `- [${guide.title}](${guide.href}) — ${guide.description}`)
+    .map((guide) => `- [${guide.title}](${guide.href}): ${guide.description}`)
     .join("\n")
 }
 

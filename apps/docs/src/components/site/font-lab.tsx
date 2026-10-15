@@ -93,9 +93,9 @@ type Role = "sans" | "heading" | "serif" | "mono" | "numeric"
 
 /** Each role, what it sets and what the site uses today. */
 const ROLES: readonly { role: Role; label: string; current: string }[] = [
-  { role: "heading", label: "Headings", current: "Newsreader" },
+  { role: "heading", label: "Headings", current: "EB Garamond" },
   { role: "sans", label: "Body text", current: "Plus Jakarta Sans" },
-  { role: "serif", label: "Serif accents, wordmark", current: "Newsreader" },
+  { role: "serif", label: "Wordmark", current: "EB Garamond" },
   { role: "mono", label: "Code", current: "JetBrains Mono" },
   { role: "numeric", label: "Numbers", current: "JetBrains Mono" },
 ]
@@ -189,7 +189,7 @@ const styles = {
     insetInlineEnd: spacing[4],
     insetBlockEnd: spacing[4],
     zIndex: zIndex.popover,
-    fontFamily: typeface.newsreader,
+    fontFamily: typeface.ebGaramond,
     fontStyle: "italic",
     fontWeight: fontWeight.bold,
     fontSize: fontSize.lg,

@@ -6,7 +6,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs",
     "file": "content/docs/index.md",
     "title": "Introduction",
-    "description": "Kirana is a compile-time styling system for the modern web. Write typed styles next to your components; ship small, predictable CSS.",
+    "description": "Kirana is a compile-time styling system: write typed styles next to your components, and ship small, predictable CSS.",
     "section": "start",
     "order": 1,
     "keywords": [
@@ -44,39 +44,80 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/start/quick-start",
-    "file": "content/docs/start/quick-start.md",
-    "title": "Quick start",
-    "description": "Style a component with Kirana in about ten minutes, on the path that works today.",
+    "href": "/docs/start/why-kirana",
+    "file": "content/docs/start/why-kirana.md",
+    "title": "Why Kirana",
+    "description": "Why CSS-in-JS got a bad name, what a compiler changes, and what Kirana answers that StyleX left open.",
     "section": "start",
     "order": 2,
     "keywords": [
-      "quick start",
-      "getting started",
-      "tutorial",
-      "setup"
+      "why",
+      "css-in-js",
+      "runtime",
+      "styled-components",
+      "emotion",
+      "stylex",
+      "tailwind",
+      "tailwind-merge",
+      "cn",
+      "comparison",
+      "verbosity",
+      "editor",
+      "readability"
     ],
     "headings": [
       {
-        "id": "1-get-the-repository-running",
-        "text": "1. Get the repository running",
+        "id": "the-css-in-js-people-left",
+        "text": "The CSS-in-JS people left",
         "level": 2
       },
       {
-        "id": "2-look-at-a-component",
-        "text": "2. Look at a component",
+        "id": "what-a-compiler-changes",
+        "text": "What a compiler changes",
         "level": 2
       },
       {
-        "id": "3-start-the-site-and-change-something",
-        "text": "3. Start the site and change something",
+        "id": "you-can-see-the-css-again",
+        "text": "You can see the CSS again",
         "level": 2
       },
       {
-        "id": "4-see-what-it-compiled-to",
-        "text": "4. See what it compiled to",
+        "id": "what-stylex-got-right-and-what-kirana-adds",
+        "text": "What StyleX got right, and what Kirana adds",
         "level": 2
       },
+      {
+        "id": "why-not-tailwind-and-cn",
+        "text": "Why not Tailwind and cn()?",
+        "level": 2
+      },
+      {
+        "id": "it-doubles-the-code",
+        "text": "\"It doubles the code\"",
+        "level": 2
+      },
+      {
+        "id": "where-kirana-costs-you-something",
+        "text": "Where Kirana costs you something",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/start/quick-start",
+    "file": "content/docs/start/quick-start.md",
+    "title": "Quick start",
+    "description": "Add Kirana to your project in three steps (install it, add the plugin, import the stylesheet), read from your framework's own guide.",
+    "section": "start",
+    "order": 3,
+    "keywords": [
+      "quick start",
+      "getting started",
+      "setup",
+      "install",
+      "kirana init"
+    ],
+    "headings": [
       {
         "id": "where-to-go-next",
         "text": "Where to go next",
@@ -88,9 +129,9 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/start/installation",
     "file": "content/docs/start/installation.md",
     "title": "Installation",
-    "description": "Let kirana init set your project up, or follow your framework's guide - React, Next.js, React Router, Vue, Svelte, Astro, Angular, Laravel, Rails, Phoenix and more, or none - plus how to install before the packages are on npm.",
+    "description": "Set a project up with kirana init or with your framework's guide, see what every setup has, and install from tarballs while the packages are unpublished.",
     "section": "start",
-    "order": 3,
+    "order": 4,
     "keywords": [
       "install",
       "setup",
@@ -187,7 +228,7 @@ export const PAGES: readonly PageMeta[] = [
     "title": "Your first component",
     "description": "Build a button with a hover state and a quiet variant, and read the CSS the compiler produced from it.",
     "section": "start",
-    "order": 4,
+    "order": 5,
     "keywords": [
       "tutorial",
       "first component",
@@ -208,53 +249,10 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/start/how-it-works",
-    "file": "content/docs/start/how-it-works.md",
-    "title": "How it works",
-    "description": "What happens between the file you write and the stylesheet the browser loads, and what is left at runtime.",
-    "section": "start",
-    "order": 5,
-    "keywords": [
-      "architecture",
-      "compiler",
-      "pipeline",
-      "atoms",
-      "layers",
-      "runtime"
-    ],
-    "headings": [
-      {
-        "id": "the-pipeline",
-        "text": "The pipeline",
-        "level": 2
-      },
-      {
-        "id": "what-reaches-the-browser",
-        "text": "What reaches the browser",
-        "level": 2
-      },
-      {
-        "id": "in-development",
-        "text": "In development",
-        "level": 2
-      },
-      {
-        "id": "in-a-build",
-        "text": "In a build",
-        "level": 2
-      },
-      {
-        "id": "what-it-deliberately-does-not-do",
-        "text": "What it deliberately does not do",
-        "level": 2
-      }
-    ]
-  },
-  {
     "href": "/docs/start/mental-model",
     "file": "content/docs/start/mental-model.md",
     "title": "Mental model",
-    "description": "Five ideas that make Kirana predictable - properties not classes, entries not properties, a ladder not specificity, styling only what you render, and an editor that shows what each element gets.",
+    "description": "Five ideas make Kirana predictable: properties instead of classes, entries instead of properties, a ladder instead of specificity, styling only what you render, and an editor that shows what each element gets.",
     "section": "start",
     "order": 6,
     "keywords": [
@@ -300,84 +298,66 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/start/why-kirana",
-    "file": "content/docs/start/why-kirana.md",
-    "title": "Why Kirana",
-    "description": "Why CSS-in-JS got a bad name, what a compiler changes, how the editor gives back the class list you could read, what Kirana answers that StyleX left open, and why styles written down the page are a feature.",
+    "href": "/docs/start/how-it-works",
+    "file": "content/docs/start/how-it-works.md",
+    "title": "How it works",
+    "description": "What happens between the file you write and the stylesheet the browser loads, and what is left at runtime.",
     "section": "start",
     "order": 7,
     "keywords": [
-      "why",
-      "css-in-js",
-      "runtime",
-      "styled-components",
-      "emotion",
-      "stylex",
-      "tailwind",
-      "tailwind-merge",
-      "cn",
-      "comparison",
-      "verbosity",
-      "editor",
-      "readability"
+      "architecture",
+      "compiler",
+      "pipeline",
+      "atoms",
+      "layers",
+      "runtime"
     ],
     "headings": [
       {
-        "id": "the-css-in-js-people-left",
-        "text": "The CSS-in-JS people left",
+        "id": "the-pipeline",
+        "text": "The pipeline",
         "level": 2
       },
       {
-        "id": "what-a-compiler-changes",
-        "text": "What a compiler changes",
+        "id": "what-reaches-the-browser",
+        "text": "What reaches the browser",
         "level": 2
       },
       {
-        "id": "you-can-see-the-css-again",
-        "text": "You can see the CSS again",
+        "id": "in-development",
+        "text": "In development",
         "level": 2
       },
       {
-        "id": "what-stylex-got-right-and-what-kirana-adds",
-        "text": "What StyleX got right, and what Kirana adds",
+        "id": "in-a-build",
+        "text": "In a build",
         "level": 2
       },
       {
-        "id": "why-not-tailwind-and-cn",
-        "text": "Why not Tailwind and cn()?",
-        "level": 2
-      },
-      {
-        "id": "it-doubles-the-code",
-        "text": "\"It doubles the code\"",
-        "level": 2
-      },
-      {
-        "id": "where-kirana-costs-you-something",
-        "text": "Where Kirana costs you something",
+        "id": "what-it-deliberately-does-not-do",
+        "text": "What it deliberately does not do",
         "level": 2
       }
     ]
   },
   {
-    "href": "/docs/start/tips",
-    "file": "content/docs/start/tips.md",
-    "title": "Habits for a new project",
-    "description": "Fifteen habits from building and migrating three applications on Kirana - the ones that would have saved us the most time on day one.",
-    "section": "start",
-    "order": 8,
+    "href": "/docs/styling/styles",
+    "file": "content/docs/styling/styles.md",
+    "title": "Writing styles",
+    "description": "How css() turns a style object into a handle, with property names, values, custom properties, and what the compiler refuses.",
+    "section": "writing",
+    "order": 1,
     "keywords": [
-      "tips",
-      "best practices",
-      "habits",
-      "conventions",
-      "from scratch",
-      "pitfalls"
+      "css",
+      "style object",
+      "properties",
+      "values",
+      "units"
     ],
     "headings": [
       {
-        "id": "structure",
-        "text": "Structure",
+        "id": "property-names",
+        "text": "Property names",
         "level": 2
       },
       {
@@ -386,18 +366,855 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
-        "id": "overrides-and-states",
-        "text": "Overrides and states",
+        "id": "several-objects-one-handle",
+        "text": "Several objects, one handle",
         "level": 2
       },
       {
-        "id": "runtime-values",
-        "text": "Runtime values",
+        "id": "shorthands",
+        "text": "Shorthands",
         "level": 2
       },
       {
-        "id": "checking",
-        "text": "Checking",
+        "id": "where-styles-live",
+        "text": "Where styles live",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/sx",
+    "file": "content/docs/styling/sx.md",
+    "title": "The sx prop",
+    "description": "How sx works on elements and on components, what it compiles to, and how className and style survive it.",
+    "section": "writing",
+    "order": 2,
+    "keywords": [
+      "sx",
+      "className",
+      "style",
+      "props",
+      "components"
+    ],
+    "headings": [
+      {
+        "id": "on-your-own-components",
+        "text": "On your own components",
+        "level": 2
+      },
+      {
+        "id": "on-components-you-did-not-write",
+        "text": "On components you did not write",
+        "level": 2
+      },
+      {
+        "id": "classname-and-style-still-work",
+        "text": "className and style still work",
+        "level": 2
+      },
+      {
+        "id": "typing",
+        "text": "Typing",
+        "level": 2
+      },
+      {
+        "id": "what-it-is-not",
+        "text": "What it is not",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/conditions",
+    "file": "content/docs/styling/conditions.md",
+    "title": "Conditions",
+    "description": "Hover, focus, attributes, breakpoints and container queries, all written inside the value they change.",
+    "section": "writing",
+    "order": 3,
+    "keywords": [
+      "conditions",
+      "hover",
+      "media query",
+      "breakpoints",
+      "attributes",
+      "container query",
+      "responsive"
+    ],
+    "headings": [
+      {
+        "id": "what-a-key-may-be",
+        "text": "What a key may be",
+        "level": 2
+      },
+      {
+        "id": "nesting",
+        "text": "Nesting",
+        "level": 2
+      },
+      {
+        "id": "pseudo-elements-are-different",
+        "text": "Pseudo-elements are different",
+        "level": 2
+      },
+      {
+        "id": "responsive-design",
+        "text": "Responsive design",
+        "level": 2
+      },
+      {
+        "id": "container-queries",
+        "text": "Container queries",
+        "level": 2
+      },
+      {
+        "id": "what-the-compiler-checks",
+        "text": "What the compiler checks",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/utilities",
+    "file": "content/docs/styling/utilities.md",
+    "title": "Utility strings",
+    "description": "Write sx as Tailwind-style utility strings; each one compiles to the same atoms as the style object it stands for.",
+    "section": "writing",
+    "order": 4,
+    "keywords": [
+      "utilities",
+      "tailwind",
+      "sx",
+      "string",
+      "preset",
+      "grammar",
+      "variants"
+    ],
+    "headings": [
+      {
+        "id": "turning-it-on",
+        "text": "Turning it on",
+        "level": 2
+      },
+      {
+        "id": "where-strings-go",
+        "text": "Where strings go",
+        "level": 2
+      },
+      {
+        "id": "what-a-utility-can-say",
+        "text": "What a utility can say",
+        "level": 2
+      },
+      {
+        "id": "composed-utilities",
+        "text": "Composed utilities",
+        "level": 2
+      },
+      {
+        "id": "animations",
+        "text": "Animations",
+        "level": 2
+      },
+      {
+        "id": "what-it-will-not-do",
+        "text": "What it will not do",
+        "level": 2
+      },
+      {
+        "id": "your-own-tokens",
+        "text": "Your own tokens",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/merging",
+    "file": "content/docs/styling/merging.md",
+    "title": "Merging and removal",
+    "description": "How styles combine per entry, and how to remove a value with null.",
+    "section": "cascade",
+    "order": 1,
+    "keywords": [
+      "merge",
+      "cx",
+      "override",
+      "null",
+      "remove",
+      "entries"
+    ],
+    "headings": [
+      {
+        "id": "entries-not-properties",
+        "text": "Entries, not properties",
+        "level": 2
+      },
+      {
+        "id": "removing",
+        "text": "Removing",
+        "level": 2
+      },
+      {
+        "id": "cx",
+        "text": "cx()",
+        "level": 2
+      },
+      {
+        "id": "order-is-the-order-you-wrote",
+        "text": "Order is the order you wrote",
+        "level": 2
+      },
+      {
+        "id": "shorthands-merge-per-longhand",
+        "text": "Shorthands merge per longhand",
+        "level": 2
+      },
+      {
+        "id": "a-component-s-own-sx",
+        "text": "A component's own sx",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/precedence",
+    "file": "content/docs/styling/precedence.md",
+    "title": "Precedence",
+    "description": "The ladder that decides which value wins, why specificity is not part of it, and what to do when the compiler says two values are ambiguous.",
+    "section": "cascade",
+    "order": 2,
+    "keywords": [
+      "precedence",
+      "cascade",
+      "specificity",
+      "ladder",
+      "ambiguous",
+      "trace",
+      "layers"
+    ],
+    "headings": [
+      {
+        "id": "the-two-steps-you-will-feel",
+        "text": "The two steps you will feel",
+        "level": 2
+      },
+      {
+        "id": "ambiguity-is-reported-not-guessed",
+        "text": "Ambiguity is reported, not guessed",
+        "level": 2
+      },
+      {
+        "id": "layers",
+        "text": "Layers",
+        "level": 2
+      },
+      {
+        "id": "asking-why",
+        "text": "Asking why",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/external-components",
+    "file": "content/docs/styling/external-components.md",
+    "title": "Styling other people's components",
+    "description": "Style components that do not read sx with props(), and read what the sx-on-external-component diagnostic is telling you.",
+    "section": "composition",
+    "order": 1,
+    "keywords": [
+      "props",
+      "styleProps",
+      "external",
+      "base ui",
+      "third party",
+      "className"
+    ],
+    "headings": [
+      {
+        "id": "props",
+        "text": "props()",
+        "level": 2
+      },
+      {
+        "id": "the-case-one-module-away",
+        "text": "The case one module away",
+        "level": 2
+      },
+      {
+        "id": "components-that-render-something-else",
+        "text": "Components that render something else",
+        "level": 2
+      },
+      {
+        "id": "when-you-cannot-pass-props-at-all",
+        "text": "When you cannot pass props at all",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/relations",
+    "file": "content/docs/styling/relations.md",
+    "title": "Relations",
+    "description": "Style an element from another element's state, as group and peer variants do, with the anchor stated in the source.",
+    "section": "composition",
+    "order": 2,
+    "keywords": [
+      "relation",
+      "group",
+      "peer",
+      "anchor",
+      "within",
+      "after",
+      "before",
+      "state"
+    ],
+    "headings": [
+      {
+        "id": "the-three-reads",
+        "text": "The three reads",
+        "level": 2
+      },
+      {
+        "id": "why-declare-it-at-all",
+        "text": "Why declare it at all",
+        "level": 2
+      },
+      {
+        "id": "anchors-are-placed-not-guessed",
+        "text": "Anchors are placed, not guessed",
+        "level": 2
+      },
+      {
+        "id": "has-is-not-a-relation",
+        "text": ":has() is not a relation",
+        "level": 2
+      },
+      {
+        "id": "precedence",
+        "text": "Precedence",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/contextual",
+    "file": "content/docs/styling/contextual.md",
+    "title": "Contextual styles",
+    "description": "Style the elements below you with select.descendant and select.child, in a layer their own styles still beat.",
+    "section": "composition",
+    "order": 3,
+    "keywords": [
+      "select",
+      "descendant",
+      "child",
+      "contextual",
+      "svg",
+      "layer"
+    ],
+    "headings": [
+      {
+        "id": "they-lose-to-the-element-s-own-styles",
+        "text": "They lose to the element's own styles",
+        "level": 2
+      },
+      {
+        "id": "what-a-target-may-be",
+        "text": "What a target may be",
+        "level": 2
+      },
+      {
+        "id": "when-to-reach-for-it",
+        "text": "When to reach for it",
+        "level": 2
+      },
+      {
+        "id": "alternatives",
+        "text": "Alternatives",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/recipes",
+    "file": "content/docs/styling/recipes.md",
+    "title": "Recipes",
+    "description": "Variants, compound variants and slots with recipe(), resolved at build time when the options are known.",
+    "section": "composition",
+    "order": 4,
+    "keywords": [
+      "recipe",
+      "variants",
+      "cva",
+      "slots",
+      "compound variants",
+      "defaults"
+    ],
+    "headings": [
+      {
+        "id": "static-calls-compile-to-a-constant",
+        "text": "Static calls compile to a constant",
+        "level": 2
+      },
+      {
+        "id": "slots",
+        "text": "Slots",
+        "level": 2
+      },
+      {
+        "id": "checks",
+        "text": "Checks",
+        "level": 2
+      },
+      {
+        "id": "recipes-or-plain-handles",
+        "text": "Recipes or plain handles?",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/animation",
+    "file": "content/docs/styling/animation.md",
+    "title": "Animation",
+    "description": "Animate with keyframes() and transitions, including a custom property the browser can interpolate.",
+    "section": "dynamic",
+    "order": 1,
+    "keywords": [
+      "keyframes",
+      "animation",
+      "transition",
+      "motion",
+      "property"
+    ],
+    "headings": [
+      {
+        "id": "keyframes",
+        "text": "Keyframes",
+        "level": 2
+      },
+      {
+        "id": "transitions",
+        "text": "Transitions",
+        "level": 2
+      },
+      {
+        "id": "animating-a-custom-property",
+        "text": "Animating a custom property",
+        "level": 2
+      },
+      {
+        "id": "respecting-motion-preferences",
+        "text": "Respecting motion preferences",
+        "level": 2
+      },
+      {
+        "id": "entry-and-exit-states",
+        "text": "Entry and exit states",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/dynamic",
+    "file": "content/docs/styling/dynamic.md",
+    "title": "Values known at runtime",
+    "description": "What happens to a style that depends on props: class expressions, the custom-property bridge, and the runtime helper.",
+    "section": "dynamic",
+    "order": 2,
+    "keywords": [
+      "dynamic",
+      "runtime",
+      "bridge",
+      "custom property",
+      "branch budget",
+      "performance"
+    ],
+    "headings": [
+      {
+        "id": "three-classes-of-value",
+        "text": "Three classes of value",
+        "level": 2
+      },
+      {
+        "id": "the-branch-budget",
+        "text": "The branch budget",
+        "level": 2
+      },
+      {
+        "id": "what-ships",
+        "text": "What ships",
+        "level": 2
+      },
+      {
+        "id": "what-is-not-allowed",
+        "text": "What is not allowed",
+        "level": 2
+      },
+      {
+        "id": "keeping-runtime-values-honest",
+        "text": "Keeping runtime values honest",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/fallbacks",
+    "file": "content/docs/styling/fallbacks.md",
+    "title": "Fallback values",
+    "description": "Write one property several times with firstThatWorks(), so a browser that does not know the preferred value keeps the one before it.",
+    "section": "dynamic",
+    "order": 3,
+    "keywords": [
+      "firstThatWorks",
+      "fallback",
+      "dvh",
+      "svh",
+      "progressive enhancement",
+      "supports"
+    ],
+    "headings": [
+      {
+        "id": "where-it-works",
+        "text": "Where it works",
+        "level": 2
+      },
+      {
+        "id": "what-it-refuses",
+        "text": "What it refuses",
+        "level": 2
+      },
+      {
+        "id": "when-to-use-supports-instead",
+        "text": "When to use supports() instead",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/anchor-positioning",
+    "file": "content/docs/styling/anchor-positioning.md",
+    "title": "Anchor positioning",
+    "description": "Define fallback positions for an anchored element with positionTry(), each an @position-try rule checked at build time.",
+    "section": "dynamic",
+    "order": 4,
+    "keywords": [
+      "positionTry",
+      "position-try",
+      "anchor",
+      "positionAnchor",
+      "positionArea",
+      "positionTryFallbacks",
+      "popover",
+      "tooltip"
+    ],
+    "headings": [
+      {
+        "id": "what-a-fallback-may-set",
+        "text": "What a fallback may set",
+        "level": 2
+      },
+      {
+        "id": "anchors",
+        "text": "Anchors",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/styling/view-transitions",
+    "file": "content/docs/styling/view-transitions.md",
+    "title": "View transitions",
+    "description": "Style the pseudo-elements of a view transition with viewTransition(), which is at once a style for sx and the class name a framework's transition API takes.",
+    "section": "dynamic",
+    "order": 5,
+    "keywords": [
+      "viewTransition",
+      "view transition",
+      "view-transition-class",
+      "view-transition-name",
+      "startViewTransition",
+      "ViewTransition",
+      "animation"
+    ],
+    "headings": [
+      {
+        "id": "using-it",
+        "text": "Using it",
+        "level": 2
+      },
+      {
+        "id": "the-parts",
+        "text": "The parts",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/tokens/overview",
+    "file": "content/docs/tokens/overview.md",
+    "title": "Tokens",
+    "description": "Declare tokens with defineTokens, choose between inlined values and custom properties, and keep each token a typed constant.",
+    "section": "tokens",
+    "order": 1,
+    "keywords": [
+      "tokens",
+      "defineTokens",
+      "design tokens",
+      "custom properties",
+      "variables"
+    ],
+    "headings": [
+      {
+        "id": "inlined-or-a-custom-property",
+        "text": "Inlined or a custom property",
+        "level": 2
+      },
+      {
+        "id": "per-mode-values",
+        "text": "Per-mode values",
+        "level": 2
+      },
+      {
+        "id": "registered-tokens",
+        "text": "Registered tokens",
+        "level": 2
+      },
+      {
+        "id": "a-token-as-a-style-key",
+        "text": "A token as a style key",
+        "level": 2
+      },
+      {
+        "id": "what-the-compiler-checks",
+        "text": "What the compiler checks",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/tokens/preset-scales",
+    "file": "content/docs/tokens/preset-scales.md",
+    "title": "Starting with no preset, then scales",
+    "description": "Kirana ships no design decisions. Start with plain CSS values, adopt @kirana-style/preset-scales when you want a vocabulary, and keep the parts you need.",
+    "section": "tokens",
+    "order": 2,
+    "keywords": [
+      "preset",
+      "preset-scales",
+      "tailwind scales",
+      "colors",
+      "spacing",
+      "breakpoints"
+    ],
+    "headings": [
+      {
+        "id": "level-1-no-tokens-at-all",
+        "text": "Level 1: no tokens at all",
+        "level": 2
+      },
+      {
+        "id": "level-2-the-scales-preset",
+        "text": "Level 2: the scales preset",
+        "level": 2
+      },
+      {
+        "id": "what-is-in-it",
+        "text": "What is in it",
+        "level": 3
+      },
+      {
+        "id": "level-3-your-own-semantic-layer",
+        "text": "Level 3: your own semantic layer",
+        "level": 2
+      },
+      {
+        "id": "level-4-packaging-a-preset-of-your-own",
+        "text": "Level 4: packaging a preset of your own",
+        "level": 2
+      },
+      {
+        "id": "the-utility-grammar",
+        "text": "The utility grammar",
+        "level": 2
+      },
+      {
+        "id": "how-the-grammar-behaves",
+        "text": "How the grammar behaves",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/tokens/semantic-tokens",
+    "file": "content/docs/tokens/semantic-tokens.md",
+    "title": "Semantic tokens",
+    "description": "Name your design decisions in a variable layer of light-dark() pairs, so dark mode needs no variant.",
+    "section": "tokens",
+    "order": 3,
+    "keywords": [
+      "semantic tokens",
+      "design system",
+      "light-dark",
+      "dark mode",
+      "surface",
+      "primary"
+    ],
+    "headings": [
+      {
+        "id": "every-colour-is-one-light-dark-pair",
+        "text": "Every colour is one light-dark() pair",
+        "level": 2
+      },
+      {
+        "id": "semantic-tokens-are-variables",
+        "text": "Semantic tokens are variables",
+        "level": 2
+      },
+      {
+        "id": "intent-tokens-for-the-things-light-dark-cannot-hold",
+        "text": "Intent tokens for the things light-dark() cannot hold",
+        "level": 2
+      },
+      {
+        "id": "deriving-values",
+        "text": "Deriving values",
+        "level": 2
+      },
+      {
+        "id": "where-to-put-it",
+        "text": "Where to put it",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/tokens/themes-and-modes",
+    "file": "content/docs/tokens/themes-and-modes.md",
+    "title": "Themes and modes",
+    "description": "Set the colour mode on the root element with mode.system, mode.light or mode.dark, and override tokens for a subtree with defineTheme.",
+    "section": "tokens",
+    "order": 4,
+    "keywords": [
+      "theme",
+      "dark mode",
+      "color-scheme",
+      "defineTheme",
+      "mode",
+      "system"
+    ],
+    "headings": [
+      {
+        "id": "modes",
+        "text": "Modes",
+        "level": 2
+      },
+      {
+        "id": "themes",
+        "text": "Themes",
+        "level": 2
+      },
+      {
+        "id": "per-mode-overrides",
+        "text": "Per-mode overrides",
+        "level": 3
+      },
+      {
+        "id": "where-the-values-live",
+        "text": "Where the values live",
+        "level": 2
+      },
+      {
+        "id": "switching-without-a-flash",
+        "text": "Switching without a flash",
+        "level": 2
+      },
+      {
+        "id": "what-not-to-do",
+        "text": "What not to do",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/config/file",
+    "file": "content/docs/config/file.md",
+    "title": "The configuration file",
+    "description": "Where kirana.config.ts lives, how it is found, and what overrides what.",
+    "section": "config",
+    "order": 1,
+    "keywords": [
+      "kirana.config",
+      "defineConfig",
+      "configuration",
+      "setup"
+    ],
+    "headings": [
+      {
+        "id": "how-it-is-found",
+        "text": "How it is found",
+        "level": 2
+      },
+      {
+        "id": "what-overrides-what",
+        "text": "What overrides what",
+        "level": 2
+      },
+      {
+        "id": "unknown-keys-are-errors",
+        "text": "Unknown keys are errors",
+        "level": 2
+      },
+      {
+        "id": "sharing-configuration",
+        "text": "Sharing configuration",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/config/layers",
+    "file": "content/docs/config/layers.md",
+    "title": "Layers and global CSS",
+    "description": "Where a reset goes, why Kirana emits nothing unlayered, and how to keep third-party CSS below your styles.",
+    "section": "config",
+    "order": 2,
+    "keywords": [
+      "layers",
+      "cascade layers",
+      "reset",
+      "global css",
+      "preflight"
+    ],
+    "headings": [
+      {
+        "id": "your-own-layers",
+        "text": "Your own layers",
+        "level": 2
+      },
+      {
+        "id": "load-order-matters-once",
+        "text": "Load order matters once",
+        "level": 2
+      },
+      {
+        "id": "third-party-css",
+        "text": "Third-party CSS",
+        "level": 2
+      },
+      {
+        "id": "when-to-write-global-css-at-all",
+        "text": "When to write global CSS at all",
         "level": 2
       }
     ]
@@ -405,8 +1222,8 @@ export const PAGES: readonly PageMeta[] = [
   {
     "href": "/docs/frameworks/overview",
     "file": "content/docs/frameworks/overview.md",
-    "title": "Get started",
-    "description": "Install Kirana with your framework, on your bundler, or from the command line for server templates - a guide for each, and every one tested on every change.",
+    "title": "Choose a framework",
+    "description": "Install Kirana with your framework, on your bundler, or from the command line for server templates, with a guide for each that is tested on every change.",
     "section": "frameworks",
     "order": 1,
     "keywords": [
@@ -439,7 +1256,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/react",
     "file": "content/docs/frameworks/react.md",
     "title": "React",
-    "description": "Install Kirana in a React app on Vite - the plugin, the stylesheet, sx types and a first component.",
+    "description": "Install Kirana in a React app on Vite: the plugin, the stylesheet, sx types and a first component.",
     "section": "frameworks",
     "order": 2,
     "keywords": [
@@ -487,7 +1304,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/nextjs",
     "file": "content/docs/frameworks/nextjs.md",
     "title": "Next.js",
-    "description": "Install Kirana in a Next.js app - Turbopack (the default) or webpack, one withKirana, the stylesheet through PostCSS, and server components.",
+    "description": "Install Kirana in a Next.js app on Turbopack (the default) or webpack, with one withKirana, the stylesheet through PostCSS, and server components.",
     "section": "frameworks",
     "order": 3,
     "keywords": [
@@ -546,6 +1363,11 @@ export const PAGES: readonly PageMeta[] = [
         "id": "with-webpack-only",
         "text": "With webpack only",
         "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
       }
     ]
   },
@@ -553,7 +1375,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/react-router",
     "file": "content/docs/frameworks/react-router.md",
     "title": "React Router",
-    "description": "Install Kirana in a React Router app - framework mode on Vite, sx compiles to className, server rendering and single-page mode alike.",
+    "description": "Install Kirana in a React Router app in framework mode on Vite, where sx compiles to className for server rendering and single-page mode alike.",
     "section": "frameworks",
     "order": 3.5,
     "keywords": [
@@ -607,7 +1429,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/tanstack-start",
     "file": "content/docs/frameworks/tanstack-start.md",
     "title": "TanStack Start",
-    "description": "Install Kirana in a TanStack Start app - the plugin, the root document, stylesheet order and server rendering.",
+    "description": "Install Kirana in a TanStack Start app: the plugin, the root document, stylesheet order and server rendering.",
     "section": "frameworks",
     "order": 4,
     "keywords": [
@@ -643,6 +1465,11 @@ export const PAGES: readonly PageMeta[] = [
         "id": "other-setups",
         "text": "Other setups",
         "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
       }
     ]
   },
@@ -650,7 +1477,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/gatsby",
     "file": "content/docs/frameworks/gatsby.md",
     "title": "Gatsby",
-    "description": "Install Kirana in a Gatsby site - one plugin adds Kirana to every webpack stage, so the server render and the browser name the same classes.",
+    "description": "Install Kirana in a Gatsby site, where one plugin adds Kirana to every webpack stage so the server render and the browser name the same classes.",
     "section": "frameworks",
     "order": 4.5,
     "keywords": [
@@ -698,7 +1525,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/preact",
     "file": "content/docs/frameworks/preact.md",
     "title": "Preact",
-    "description": "Install Kirana in a Preact app on Vite - sx compiles to class, detected from jsxImportSource.",
+    "description": "Install Kirana in a Preact app on Vite, where sx compiles to class, detected from jsxImportSource.",
     "section": "frameworks",
     "order": 5,
     "keywords": [
@@ -745,7 +1572,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/solid",
     "file": "content/docs/frameworks/solid.md",
     "title": "Solid",
-    "description": "Install Kirana in a Solid app on Vite - sx compiles to class, detected from jsxImportSource.",
+    "description": "Install Kirana in a Solid app on Vite, where sx compiles to class, detected from jsxImportSource.",
     "section": "frameworks",
     "order": 6,
     "keywords": [
@@ -793,7 +1620,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/vue",
     "file": "content/docs/frameworks/vue.md",
     "title": "Vue",
-    "description": "Install Kirana in a Vue app on Vite - styles in the script, :sx in the template, compiled before Vue sees the component.",
+    "description": "Install Kirana in a Vue app on Vite, with styles in the script and :sx in the template, compiled before Vue sees the component.",
     "section": "frameworks",
     "order": 7,
     "keywords": [
@@ -840,6 +1667,11 @@ export const PAGES: readonly PageMeta[] = [
         "id": "nuxt",
         "text": "Nuxt",
         "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
       }
     ]
   },
@@ -847,7 +1679,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/nuxt",
     "file": "content/docs/frameworks/nuxt.md",
     "title": "Nuxt",
-    "description": "Install Kirana in a Nuxt app - the Vite plugin in nuxt.config, the stylesheet in css, and :sx in components rendered on the server.",
+    "description": "Install Kirana in a Nuxt app, with the Vite plugin in nuxt.config, the stylesheet in css, and :sx in components rendered on the server.",
     "section": "frameworks",
     "order": 8,
     "keywords": [
@@ -890,7 +1722,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/svelte",
     "file": "content/docs/frameworks/svelte.md",
     "title": "Svelte",
-    "description": "Install Kirana in a Svelte app on Vite - styles in the script, sx on elements, compiled before Svelte sees the component.",
+    "description": "Install Kirana in a Svelte app on Vite, with styles in the script and sx on elements, compiled before Svelte sees the component.",
     "section": "frameworks",
     "order": 9,
     "keywords": [
@@ -936,6 +1768,11 @@ export const PAGES: readonly PageMeta[] = [
         "id": "sveltekit",
         "text": "SvelteKit",
         "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
       }
     ]
   },
@@ -943,7 +1780,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/sveltekit",
     "file": "content/docs/frameworks/sveltekit.md",
     "title": "SvelteKit",
-    "description": "Install Kirana in a SvelteKit app - the Vite plugin before sveltekit(), the stylesheet in the root layout, and sx in server-rendered components.",
+    "description": "Install Kirana in a SvelteKit app, with the Vite plugin before sveltekit(), the stylesheet in the root layout, and sx in server-rendered components.",
     "section": "frameworks",
     "order": 10,
     "keywords": [
@@ -991,7 +1828,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/astro",
     "file": "content/docs/frameworks/astro.md",
     "title": "Astro",
-    "description": "Install Kirana in an Astro site - the integration, styles in the frontmatter, sx on elements, and the stylesheet Astro links or inlines.",
+    "description": "Install Kirana in an Astro site, with the integration, styles in the frontmatter, sx on elements, and the stylesheet Astro links or inlines.",
     "section": "frameworks",
     "order": 11,
     "keywords": [
@@ -1032,6 +1869,11 @@ export const PAGES: readonly PageMeta[] = [
         "id": "how-it-compiles",
         "text": "How it compiles",
         "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
       }
     ]
   },
@@ -1039,7 +1881,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/qwik",
     "file": "content/docs/frameworks/qwik.md",
     "title": "Qwik",
-    "description": "Install Kirana in a Qwik 2 app on Vite - sx compiles to class, detected from jsxImportSource, rendered on the server and resumed in the browser.",
+    "description": "Install Kirana in a Qwik 2 app on Vite, where sx compiles to class, detected from jsxImportSource, rendered on the server and resumed in the browser.",
     "section": "frameworks",
     "order": 12,
     "keywords": [
@@ -1099,7 +1941,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/angular",
     "file": "content/docs/frameworks/angular.md",
     "title": "Angular",
-    "description": "Install Kirana in an Angular app - the Angular CLI through Kirana's builders, or Analog on Vite - and style templates with the [sx] directive.",
+    "description": "Install Kirana in an Angular app, through Kirana's builders for the Angular CLI or through Analog on Vite, and style templates with the [sx] directive.",
     "section": "frameworks",
     "order": 13,
     "keywords": [
@@ -1186,7 +2028,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/ember",
     "file": "content/docs/frameworks/ember.md",
     "title": "Ember.js",
-    "description": "Install Kirana in an Ember app on Embroider and Vite - css() in .gjs and .gts files, and the sx helper in templates.",
+    "description": "Install Kirana in an Ember app on Embroider and Vite, with css() in .gjs and .gts files and the sx helper in templates.",
     "section": "frameworks",
     "order": 13.5,
     "keywords": [
@@ -1236,7 +2078,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/meteor",
     "file": "content/docs/frameworks/meteor.md",
     "title": "Meteor",
-    "description": "Install Kirana in a Meteor 3.4+ app - Meteor bundles app code with Rspack, and Kirana's Rspack plugin goes in its configuration.",
+    "description": "Install Kirana in a Meteor 3.4+ app, where Meteor bundles app code with Rspack and Kirana's Rspack plugin goes in its configuration.",
     "section": "frameworks",
     "order": 13.7,
     "keywords": [
@@ -1293,7 +2135,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/vanilla",
     "file": "content/docs/frameworks/vanilla.md",
     "title": "No framework",
-    "description": "Use Kirana without a framework - style handles are class strings, merged with cx, for plain TypeScript, web components and server templates.",
+    "description": "Use Kirana without a framework: style handles are class strings, merged with cx, for plain TypeScript, web components and server templates.",
     "section": "frameworks",
     "order": 14,
     "keywords": [
@@ -1329,6 +2171,11 @@ export const PAGES: readonly PageMeta[] = [
         "id": "without-a-bundler",
         "text": "Without a bundler",
         "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
       }
     ]
   },
@@ -1336,7 +2183,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/server-templates",
     "file": "content/docs/frameworks/server-templates.md",
     "title": "Server templates",
-    "description": "How Kirana styles Blade, Twig, ERB, HEEx and Edge templates - styles in TypeScript modules, a class map the CLI writes, and a small helper per template language.",
+    "description": "How Kirana styles Blade, Twig, ERB, HEEx and Edge templates: styles in TypeScript modules, a class map the CLI writes, and a small helper per template language.",
     "section": "server",
     "order": 1,
     "keywords": [
@@ -1375,7 +2222,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/laravel",
     "file": "content/docs/frameworks/laravel.md",
     "title": "Laravel",
-    "description": "Install Kirana in a Laravel app - styles in TypeScript modules, the Kirana CLI beside artisan serve, and @kirana in Blade.",
+    "description": "Install Kirana in a Laravel app, with styles in TypeScript modules, the Kirana CLI beside artisan serve, and @kirana in Blade.",
     "section": "server",
     "order": 2,
     "keywords": [
@@ -1423,7 +2270,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/symfony",
     "file": "content/docs/frameworks/symfony.md",
     "title": "Symfony",
-    "description": "Install Kirana in a Symfony app - styles in TypeScript modules, the Kirana CLI, and kirana() in Twig.",
+    "description": "Install Kirana in a Symfony app, with styles in TypeScript modules, the Kirana CLI, and kirana() in Twig.",
     "section": "server",
     "order": 3,
     "keywords": [
@@ -1471,7 +2318,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/rails",
     "file": "content/docs/frameworks/rails.md",
     "title": "Ruby on Rails",
-    "description": "Install Kirana in a Rails app - styles in TypeScript modules, the Kirana CLI in bin/dev, and the kirana helper in ERB views.",
+    "description": "Install Kirana in a Rails app, with styles in TypeScript modules, the Kirana CLI in bin/dev, and the kirana helper in ERB views.",
     "section": "server",
     "order": 4,
     "keywords": [
@@ -1515,7 +2362,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/phoenix",
     "file": "content/docs/frameworks/phoenix.md",
     "title": "Phoenix",
-    "description": "Install Kirana in a Phoenix app - styles in TypeScript modules, the Kirana CLI as a watcher, and kirana/1 in HEEx.",
+    "description": "Install Kirana in a Phoenix app, with styles in TypeScript modules, the Kirana CLI as a watcher, and kirana/1 in HEEx.",
     "section": "server",
     "order": 5,
     "keywords": [
@@ -1564,7 +2411,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/adonisjs",
     "file": "content/docs/frameworks/adonisjs.md",
     "title": "AdonisJS",
-    "description": "Install Kirana in an AdonisJS app - styles in TypeScript modules, the Kirana CLI, and kirana() in Edge templates.",
+    "description": "Install Kirana in an AdonisJS app, with styles in TypeScript modules, the Kirana CLI, and kirana() in Edge templates.",
     "section": "server",
     "order": 6,
     "keywords": [
@@ -1614,25 +2461,583 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/styling/styles",
-    "file": "content/docs/styling/styles.md",
-    "title": "Writing styles",
-    "description": "css() and the style object - property names, values, custom properties, and what the compiler refuses.",
-    "section": "styling",
-    "parent": "fundamentals",
+    "href": "/docs/integrations/bundlers",
+    "file": "content/docs/integrations/bundlers.md",
+    "title": "Choose a bundler",
+    "description": "Kirana on every bundler (Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun, esbuild, PostCSS and Jest), each with its own guide and tested example.",
+    "section": "bundlers",
     "order": 1,
     "keywords": [
-      "css",
-      "style object",
-      "properties",
-      "values",
-      "units"
+      "bundlers",
+      "rolldown",
+      "webpack",
+      "rspack",
+      "rsbuild",
+      "parcel",
+      "bun",
+      "esbuild",
+      "postcss",
+      "jest",
+      "plugin"
     ],
     "headings": [
       {
-        "id": "property-names",
-        "text": "Property names",
+        "id": "development-servers",
+        "text": "Development servers",
         "level": 2
+      },
+      {
+        "id": "same-styles-on-every-host",
+        "text": "Same styles on every host",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/integrations/vite",
+    "file": "content/docs/integrations/vite.md",
+    "title": "Vite",
+    "description": "The @kirana-style/vite plugin: its options, the stylesheet entry, hot updates and the built asset.",
+    "section": "bundlers",
+    "order": 2,
+    "keywords": [
+      "vite",
+      "rolldown",
+      "plugin",
+      "hmr",
+      "stylesheet",
+      "build"
+    ],
+    "headings": [
+      {
+        "id": "options",
+        "text": "Options",
+        "level": 2
+      },
+      {
+        "id": "which-modules-it-compiles",
+        "text": "Which modules it compiles",
+        "level": 2
+      },
+      {
+        "id": "the-stylesheet",
+        "text": "The stylesheet",
+        "level": 2
+      },
+      {
+        "id": "diagnostics-in-the-terminal",
+        "text": "Diagnostics in the terminal",
+        "level": 2
+      },
+      {
+        "id": "rolldown",
+        "text": "Rolldown",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/integrations/rolldown",
+    "file": "content/docs/integrations/rolldown.md",
+    "title": "Rolldown",
+    "description": "Kirana on Rolldown without Vite, where the plugin compiles styles and writes the stylesheet as its own asset.",
+    "section": "bundlers",
+    "order": 3,
+    "keywords": [
+      "rolldown",
+      "bundler",
+      "plugin",
+      "stylesheet",
+      "asset"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-link-the-stylesheet",
+        "text": "3. Link the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/integrations/webpack",
+    "file": "content/docs/integrations/webpack.md",
+    "title": "webpack",
+    "description": "Kirana on webpack 5, with a pre loader that reads sx before your JSX compiler and a plugin that writes the stylesheet before minification.",
+    "section": "bundlers",
+    "order": 4,
+    "keywords": [
+      "webpack",
+      "loader",
+      "plugin",
+      "css",
+      "realContentHash",
+      "mini-css-extract-plugin"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-import-the-stylesheet",
+        "text": "3. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/integrations/rspack",
+    "file": "content/docs/integrations/rspack.md",
+    "title": "Rspack and Rsbuild",
+    "description": "Kirana on Rspack and Rsbuild, through Rsbuild's pluginKirana or the webpack plugin, which Rspack runs unchanged.",
+    "section": "bundlers",
+    "order": 5,
+    "keywords": [
+      "rspack",
+      "rsbuild",
+      "pluginKirana",
+      "rust bundler",
+      "webpack compatible"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-import-the-stylesheet",
+        "text": "3. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/integrations/parcel",
+    "file": "content/docs/integrations/parcel.md",
+    "title": "Parcel",
+    "description": "Kirana on Parcel, where a transformer compiles styles in scripts and @kirana-style/postcss writes the stylesheet where @kirana; stands.",
+    "section": "bundlers",
+    "order": 6,
+    "keywords": [
+      "parcel",
+      "transformer",
+      "postcss",
+      "parcelrc",
+      "zero configuration"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-transformer",
+        "text": "2. Add the transformer",
+        "level": 2
+      },
+      {
+        "id": "3-add-the-postcss-plugin-and-mark-the-stylesheet",
+        "text": "3. Add the PostCSS plugin and mark the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/integrations/bun",
+    "file": "content/docs/integrations/bun.md",
+    "title": "Bun",
+    "description": "Kirana with Bun's bundler and dev server, through one plugin for Bun.build and bunfig.toml.",
+    "section": "bundlers",
+    "order": 7,
+    "keywords": [
+      "bun",
+      "bun build",
+      "bunfig",
+      "dev server",
+      "plugin"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-import-the-stylesheet",
+        "text": "3. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "limits",
+        "text": "Limits",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/integrations/esbuild",
+    "file": "content/docs/integrations/esbuild.md",
+    "title": "esbuild",
+    "description": "Kirana on esbuild, through a plugin that compiles styles and finishes the bundled CSS, on disk, in memory, in watch mode and when serving.",
+    "section": "bundlers",
+    "order": 8,
+    "keywords": [
+      "esbuild",
+      "plugin",
+      "watch",
+      "serve",
+      "outputFiles"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-import-the-stylesheet",
+        "text": "3. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/integrations/postcss",
+    "file": "content/docs/integrations/postcss.md",
+    "title": "PostCSS",
+    "description": "The @kirana-style/postcss plugin writes the whole project's stylesheet where @kirana; stands, for pipelines whose scripts another step compiles.",
+    "section": "bundlers",
+    "order": 9,
+    "keywords": [
+      "postcss",
+      "plugin",
+      "@kirana",
+      "turbopack",
+      "parcel",
+      "stylesheet"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-mark-where-the-stylesheet-goes",
+        "text": "3. Mark where the stylesheet goes",
+        "level": 2
+      },
+      {
+        "id": "options",
+        "text": "Options",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/integrations/jest",
+    "file": "content/docs/integrations/jest.md",
+    "title": "Jest",
+    "description": "Kirana under Jest, through a transformer that compiles styles, then hands the module to the transformer you already use.",
+    "section": "testing",
+    "order": 1,
+    "keywords": [
+      "jest",
+      "transformer",
+      "babel-jest",
+      "testing",
+      "class names"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-transformer",
+        "text": "2. Add the transformer",
+        "level": 2
+      },
+      {
+        "id": "caching",
+        "text": "Caching",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/migration/from-tailwind",
+    "file": "content/docs/migration/from-tailwind.md",
+    "title": "Migrating from Tailwind",
+    "description": "The mental shift, the utility mapping, and the pitfalls that actually cost time.",
+    "section": "migration",
+    "order": 1,
+    "keywords": [
+      "tailwind",
+      "migration",
+      "utilities",
+      "cn",
+      "cva",
+      "group",
+      "peer"
+    ],
+    "headings": [
+      {
+        "id": "the-shift-in-four-lines",
+        "text": "The shift, in four lines",
+        "level": 2
+      },
+      {
+        "id": "the-mapping",
+        "text": "The mapping",
+        "level": 2
+      },
+      {
+        "id": "the-four-that-do-not-translate-directly",
+        "text": "The four that do not translate directly",
+        "level": 2
+      },
+      {
+        "id": "the-codemod",
+        "text": "The codemod",
+        "level": 2
+      },
+      {
+        "id": "measured-the-tailwind-original-of-our-shadcn-ui-port",
+        "text": "Measured: the Tailwind original of our shadcn/ui port",
+        "level": 2
+      },
+      {
+        "id": "pitfalls-we-hit",
+        "text": "Pitfalls we hit",
+        "level": 2
+      },
+      {
+        "id": "utility-strings-or-objects",
+        "text": "Utility strings or objects?",
+        "level": 2
+      },
+      {
+        "id": "migrating-by-hand",
+        "text": "Migrating by hand",
+        "level": 2
+      },
+      {
+        "id": "the-process-that-worked",
+        "text": "The process that worked",
+        "level": 2
+      },
+      {
+        "id": "what-you-get-for-the-trouble",
+        "text": "What you get for the trouble",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/migration/from-stylex",
+    "file": "content/docs/migration/from-stylex.md",
+    "title": "Migrating from StyleX",
+    "description": "The API maps almost directly; this page shows the mapping, and the one difference in how styles merge that will bite you.",
+    "section": "migration",
+    "order": 2,
+    "keywords": [
+      "stylex",
+      "migration",
+      "codemod",
+      "defineVars",
+      "create",
+      "props"
+    ],
+    "headings": [
+      {
+        "id": "the-mapping",
+        "text": "The mapping",
+        "level": 2
+      },
+      {
+        "id": "the-difference-that-bites",
+        "text": "The difference that bites",
+        "level": 2
+      },
+      {
+        "id": "what-kirana-has-that-stylex-does-not",
+        "text": "What Kirana has that StyleX does not",
+        "level": 2
+      },
+      {
+        "id": "what-stylex-has-that-kirana-does-not",
+        "text": "What StyleX has that Kirana does not",
+        "level": 2
+      },
+      {
+        "id": "what-else-is-different",
+        "text": "What else is different",
+        "level": 2
+      },
+      {
+        "id": "the-codemod",
+        "text": "The codemod",
+        "level": 2
+      },
+      {
+        "id": "after-the-codemod",
+        "text": "After the codemod",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/advanced/conformance",
+    "file": "content/docs/advanced/conformance.md",
+    "title": "Verifying a migration",
+    "description": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.",
+    "section": "migration",
+    "order": 3,
+    "keywords": [
+      "conformance",
+      "testing",
+      "visual regression",
+      "computed styles",
+      "verification"
+    ],
+    "headings": [
+      {
+        "id": "the-method",
+        "text": "The method",
+        "level": 2
+      },
+      {
+        "id": "things-worth-knowing-if-you-build-one",
+        "text": "Things worth knowing if you build one",
+        "level": 2
+      },
+      {
+        "id": "how-it-runs",
+        "text": "How it runs",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/start/tips",
+    "file": "content/docs/start/tips.md",
+    "title": "Habits for a new project",
+    "description": "The habits that would have saved us the most time on day one, learnt building and migrating three applications on Kirana.",
+    "section": "building",
+    "order": 1,
+    "keywords": [
+      "tips",
+      "best practices",
+      "habits",
+      "conventions",
+      "from scratch",
+      "pitfalls"
+    ],
+    "headings": [
+      {
+        "id": "structure",
+        "text": "Structure",
+        "level": 2
+      },
+      {
+        "id": "1-one-styles-object-per-module-named-by-part",
+        "text": "1. One styles object per module, named by part",
+        "level": 3
+      },
+      {
+        "id": "2-components-take-sx-sx-and-put-it-last",
+        "text": "2. Components take sx?: Sx, and put it last",
+        "level": 3
+      },
+      {
+        "id": "3-take-sx-out-of-the-rest-spread",
+        "text": "3. Take sx out of the rest spread",
+        "level": 3
+      },
+      {
+        "id": "4-installed-components-do-not-read-sx",
+        "text": "4. Installed components do not read sx",
+        "level": 3
       },
       {
         "id": "values",
@@ -1640,832 +3045,306 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
-        "id": "several-objects-one-handle",
-        "text": "Several objects, one handle",
-        "level": 2
-      },
-      {
-        "id": "shorthands",
-        "text": "Shorthands",
-        "level": 2
-      },
-      {
-        "id": "where-styles-live",
-        "text": "Where styles live",
-        "level": 2
-      },
-      {
-        "id": "next",
-        "text": "Next",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/sx",
-    "file": "content/docs/styling/sx.md",
-    "title": "The sx prop",
-    "description": "How sx works on elements and on components, what it compiles to, and how className and style survive it.",
-    "section": "styling",
-    "parent": "fundamentals",
-    "order": 2,
-    "keywords": [
-      "sx",
-      "className",
-      "style",
-      "props",
-      "components"
-    ],
-    "headings": [
-      {
-        "id": "on-your-own-components",
-        "text": "On your own components",
-        "level": 2
-      },
-      {
-        "id": "on-components-you-did-not-write",
-        "text": "On components you did not write",
-        "level": 2
-      },
-      {
-        "id": "classname-and-style-still-work",
-        "text": "className and style still work",
-        "level": 2
-      },
-      {
-        "id": "typing",
-        "text": "Typing",
-        "level": 2
-      },
-      {
-        "id": "what-it-is-not",
-        "text": "What it is not",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/conditions",
-    "file": "content/docs/styling/conditions.md",
-    "title": "Conditions",
-    "description": "Hover, focus, attributes, breakpoints and container queries - all written inside the value they change.",
-    "section": "styling",
-    "parent": "fundamentals",
-    "order": 3,
-    "keywords": [
-      "conditions",
-      "hover",
-      "media query",
-      "breakpoints",
-      "attributes",
-      "container query",
-      "responsive"
-    ],
-    "headings": [
-      {
-        "id": "what-a-key-may-be",
-        "text": "What a key may be",
-        "level": 2
-      },
-      {
-        "id": "nesting",
-        "text": "Nesting",
-        "level": 2
-      },
-      {
-        "id": "pseudo-elements-are-different",
-        "text": "Pseudo-elements are different",
-        "level": 2
-      },
-      {
-        "id": "responsive-design",
-        "text": "Responsive design",
-        "level": 2
-      },
-      {
-        "id": "container-queries",
-        "text": "Container queries",
-        "level": 2
-      },
-      {
-        "id": "what-the-compiler-checks",
-        "text": "What the compiler checks",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/utilities",
-    "file": "content/docs/styling/utilities.md",
-    "title": "Utility strings",
-    "description": "Write sx as Tailwind-style utility strings; each one compiles to the same atoms as the style object it stands for.",
-    "section": "styling",
-    "parent": "fundamentals",
-    "order": 12,
-    "keywords": [
-      "utilities",
-      "tailwind",
-      "sx",
-      "string",
-      "preset",
-      "grammar",
-      "variants"
-    ],
-    "headings": [
-      {
-        "id": "turning-it-on",
-        "text": "Turning it on",
-        "level": 2
-      },
-      {
-        "id": "where-strings-go",
-        "text": "Where strings go",
-        "level": 2
-      },
-      {
-        "id": "what-a-utility-can-say",
-        "text": "What a utility can say",
-        "level": 2
-      },
-      {
-        "id": "composed-utilities",
-        "text": "Composed utilities",
-        "level": 2
-      },
-      {
-        "id": "animations",
-        "text": "Animations",
-        "level": 2
-      },
-      {
-        "id": "what-it-will-not-do",
-        "text": "What it will not do",
-        "level": 2
-      },
-      {
-        "id": "your-own-tokens",
-        "text": "Your own tokens",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/merging",
-    "file": "content/docs/styling/merging.md",
-    "title": "Merging and removal",
-    "description": "How styles combine per entry, and how to remove a value with null.",
-    "section": "styling",
-    "parent": "cascade",
-    "order": 4,
-    "keywords": [
-      "merge",
-      "cx",
-      "override",
-      "null",
-      "remove",
-      "entries"
-    ],
-    "headings": [
-      {
-        "id": "entries-not-properties",
-        "text": "Entries, not properties",
-        "level": 2
-      },
-      {
-        "id": "removing",
-        "text": "Removing",
-        "level": 2
-      },
-      {
-        "id": "cx",
-        "text": "cx()",
-        "level": 2
-      },
-      {
-        "id": "order-is-the-order-you-wrote",
-        "text": "Order is the order you wrote",
-        "level": 2
-      },
-      {
-        "id": "shorthands-merge-per-longhand",
-        "text": "Shorthands merge per longhand",
-        "level": 2
-      },
-      {
-        "id": "a-component-s-own-sx",
-        "text": "A component's own sx",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/precedence",
-    "file": "content/docs/styling/precedence.md",
-    "title": "Precedence",
-    "description": "The ladder that decides which value wins, why specificity is not part of it, and what to do when the compiler says two values are ambiguous.",
-    "section": "styling",
-    "parent": "cascade",
-    "order": 5,
-    "keywords": [
-      "precedence",
-      "cascade",
-      "specificity",
-      "ladder",
-      "ambiguous",
-      "trace",
-      "layers"
-    ],
-    "headings": [
-      {
-        "id": "the-two-steps-you-will-feel",
-        "text": "The two steps you will feel",
-        "level": 2
-      },
-      {
-        "id": "ambiguity-is-reported-not-guessed",
-        "text": "Ambiguity is reported, not guessed",
-        "level": 2
-      },
-      {
-        "id": "layers",
-        "text": "Layers",
-        "level": 2
-      },
-      {
-        "id": "asking-why",
-        "text": "Asking why",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/external-components",
-    "file": "content/docs/styling/external-components.md",
-    "title": "Styling other people's components",
-    "description": "props() for components that do not read sx, and what the sx-on-external-component diagnostic is telling you.",
-    "section": "styling",
-    "parent": "composition",
-    "order": 6,
-    "keywords": [
-      "props",
-      "styleProps",
-      "external",
-      "base ui",
-      "third party",
-      "className"
-    ],
-    "headings": [
-      {
-        "id": "props",
-        "text": "props()",
-        "level": 2
-      },
-      {
-        "id": "the-case-one-module-away",
-        "text": "The case one module away",
-        "level": 2
-      },
-      {
-        "id": "components-that-render-something-else",
-        "text": "Components that render something else",
-        "level": 2
-      },
-      {
-        "id": "when-you-cannot-pass-props-at-all",
-        "text": "When you cannot pass props at all",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/relations",
-    "file": "content/docs/styling/relations.md",
-    "title": "Relations",
-    "description": "Style an element from another element's state - what group and peer variants do, with the anchor stated in the source.",
-    "section": "styling",
-    "parent": "composition",
-    "order": 7,
-    "keywords": [
-      "relation",
-      "group",
-      "peer",
-      "anchor",
-      "within",
-      "after",
-      "before",
-      "state"
-    ],
-    "headings": [
-      {
-        "id": "the-three-reads",
-        "text": "The three reads",
-        "level": 2
-      },
-      {
-        "id": "why-declare-it-at-all",
-        "text": "Why declare it at all",
-        "level": 2
-      },
-      {
-        "id": "anchors-are-placed-not-guessed",
-        "text": "Anchors are placed, not guessed",
-        "level": 2
-      },
-      {
-        "id": "has-is-not-a-relation",
-        "text": ":has() is not a relation",
-        "level": 2
-      },
-      {
-        "id": "precedence",
-        "text": "Precedence",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/contextual",
-    "file": "content/docs/styling/contextual.md",
-    "title": "Contextual styles",
-    "description": "select.descendant and select.child - styling elements below you, in a layer their own styles still beat.",
-    "section": "styling",
-    "parent": "composition",
-    "order": 8,
-    "keywords": [
-      "select",
-      "descendant",
-      "child",
-      "contextual",
-      "svg",
-      "layer"
-    ],
-    "headings": [
-      {
-        "id": "they-lose-to-the-element-s-own-styles",
-        "text": "They lose to the element's own styles",
-        "level": 2
-      },
-      {
-        "id": "what-a-target-may-be",
-        "text": "What a target may be",
-        "level": 2
-      },
-      {
-        "id": "when-to-reach-for-it",
-        "text": "When to reach for it",
-        "level": 2
-      },
-      {
-        "id": "alternatives",
-        "text": "Alternatives",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/recipes",
-    "file": "content/docs/styling/recipes.md",
-    "title": "Recipes",
-    "description": "recipe() for variants, compound variants and slots - resolved at build time when the options are known.",
-    "section": "styling",
-    "parent": "composition",
-    "order": 9,
-    "keywords": [
-      "recipe",
-      "variants",
-      "cva",
-      "slots",
-      "compound variants",
-      "defaults"
-    ],
-    "headings": [
-      {
-        "id": "static-calls-compile-to-a-constant",
-        "text": "Static calls compile to a constant",
-        "level": 2
-      },
-      {
-        "id": "slots",
-        "text": "Slots",
-        "level": 2
-      },
-      {
-        "id": "checks",
-        "text": "Checks",
-        "level": 2
-      },
-      {
-        "id": "recipes-or-plain-handles",
-        "text": "Recipes or plain handles?",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/animation",
-    "file": "content/docs/styling/animation.md",
-    "title": "Animation",
-    "description": "keyframes(), transitions, and animating a custom property that the browser can interpolate.",
-    "section": "styling",
-    "parent": "beyond-static",
-    "order": 10,
-    "keywords": [
-      "keyframes",
-      "animation",
-      "transition",
-      "motion",
-      "property"
-    ],
-    "headings": [
-      {
-        "id": "keyframes",
-        "text": "Keyframes",
-        "level": 2
-      },
-      {
-        "id": "transitions",
-        "text": "Transitions",
-        "level": 2
-      },
-      {
-        "id": "animating-a-custom-property",
-        "text": "Animating a custom property",
-        "level": 2
-      },
-      {
-        "id": "respecting-motion-preferences",
-        "text": "Respecting motion preferences",
-        "level": 2
-      },
-      {
-        "id": "entry-and-exit-states",
-        "text": "Entry and exit states",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/dynamic",
-    "file": "content/docs/styling/dynamic.md",
-    "title": "Values known at runtime",
-    "description": "What happens to a style that depends on props - class expressions, the custom-property bridge, and the 1 kB runtime.",
-    "section": "styling",
-    "parent": "beyond-static",
-    "order": 11,
-    "keywords": [
-      "dynamic",
-      "runtime",
-      "bridge",
-      "custom property",
-      "branch budget",
-      "performance"
-    ],
-    "headings": [
-      {
-        "id": "three-classes-of-value",
-        "text": "Three classes of value",
-        "level": 2
-      },
-      {
-        "id": "the-branch-budget",
-        "text": "The branch budget",
-        "level": 2
-      },
-      {
-        "id": "what-ships",
-        "text": "What ships",
-        "level": 2
-      },
-      {
-        "id": "what-is-not-allowed",
-        "text": "What is not allowed",
-        "level": 2
-      },
-      {
-        "id": "keeping-runtime-values-honest",
-        "text": "Keeping runtime values honest",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/fallbacks",
-    "file": "content/docs/styling/fallbacks.md",
-    "title": "Fallback values",
-    "description": "firstThatWorks() writes one property several times, so a browser that does not know the preferred value keeps the one before it.",
-    "section": "styling",
-    "parent": "beyond-static",
-    "order": 13,
-    "keywords": [
-      "firstThatWorks",
-      "fallback",
-      "dvh",
-      "svh",
-      "progressive enhancement",
-      "supports"
-    ],
-    "headings": [
-      {
-        "id": "where-it-works",
-        "text": "Where it works",
-        "level": 2
-      },
-      {
-        "id": "what-it-refuses",
-        "text": "What it refuses",
-        "level": 2
-      },
-      {
-        "id": "when-to-use-supports-instead",
-        "text": "When to use supports() instead",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/anchor-positioning",
-    "file": "content/docs/styling/anchor-positioning.md",
-    "title": "Anchor positioning",
-    "description": "positionTry() defines an @position-try fallback for an anchored element, checked at build time.",
-    "section": "styling",
-    "parent": "beyond-static",
-    "order": 14,
-    "keywords": [
-      "positionTry",
-      "position-try",
-      "anchor",
-      "positionAnchor",
-      "positionArea",
-      "positionTryFallbacks",
-      "popover",
-      "tooltip"
-    ],
-    "headings": [
-      {
-        "id": "what-a-fallback-may-set",
-        "text": "What a fallback may set",
-        "level": 2
-      },
-      {
-        "id": "anchors",
-        "text": "Anchors",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/styling/view-transitions",
-    "file": "content/docs/styling/view-transitions.md",
-    "title": "View transitions",
-    "description": "viewTransition() styles the pseudo-elements of a view transition, and is at once a style for sx and the class name a framework's transition API takes.",
-    "section": "styling",
-    "parent": "beyond-static",
-    "order": 15,
-    "keywords": [
-      "viewTransition",
-      "view transition",
-      "view-transition-class",
-      "view-transition-name",
-      "startViewTransition",
-      "ViewTransition",
-      "animation"
-    ],
-    "headings": [
-      {
-        "id": "using-it",
-        "text": "Using it",
-        "level": 2
-      },
-      {
-        "id": "the-parts",
-        "text": "The parts",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/tokens/overview",
-    "file": "content/docs/tokens/overview.md",
-    "title": "Tokens",
-    "description": "defineTokens, inlined values versus custom properties, and how a token stays a typed constant.",
-    "section": "tokens",
-    "order": 1,
-    "keywords": [
-      "tokens",
-      "defineTokens",
-      "design tokens",
-      "custom properties",
-      "variables"
-    ],
-    "headings": [
-      {
-        "id": "inlined-or-a-custom-property",
-        "text": "Inlined or a custom property",
-        "level": 2
-      },
-      {
-        "id": "per-mode-values",
-        "text": "Per-mode values",
-        "level": 2
-      },
-      {
-        "id": "registered-tokens",
-        "text": "Registered tokens",
-        "level": 2
-      },
-      {
-        "id": "a-token-as-a-style-key",
-        "text": "A token as a style key",
-        "level": 2
-      },
-      {
-        "id": "what-the-compiler-checks",
-        "text": "What the compiler checks",
-        "level": 2
-      },
-      {
-        "id": "next",
-        "text": "Next",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/tokens/preset-scales",
-    "file": "content/docs/tokens/preset-scales.md",
-    "title": "Starting with no preset, then scales",
-    "description": "Kirana ships no design decisions. Start with plain CSS values, adopt @kirana-style/preset-scales when you want a vocabulary, and keep the parts you need.",
-    "section": "tokens",
-    "order": 2,
-    "keywords": [
-      "preset",
-      "preset-scales",
-      "tailwind scales",
-      "colors",
-      "spacing",
-      "breakpoints"
-    ],
-    "headings": [
-      {
-        "id": "level-1-no-tokens-at-all",
-        "text": "Level 1 — no tokens at all",
-        "level": 2
-      },
-      {
-        "id": "level-2-the-scales-preset",
-        "text": "Level 2 — the scales preset",
-        "level": 2
-      },
-      {
-        "id": "what-is-in-it",
-        "text": "What is in it",
+        "id": "5-start-with-plain-values-adopt-scales-when-they-repeat",
+        "text": "5. Start with plain values; adopt scales when they repeat",
         "level": 3
       },
       {
-        "id": "level-3-your-own-semantic-layer",
-        "text": "Level 3 — your own semantic layer",
+        "id": "6-put-product-decisions-in-your-own-tokens",
+        "text": "6. Put product decisions in your own tokens",
+        "level": 3
+      },
+      {
+        "id": "7-a-font-size-comes-with-its-line-height",
+        "text": "7. A font size comes with its line height",
+        "level": 3
+      },
+      {
+        "id": "8-name-the-longhands-you-set",
+        "text": "8. Name the longhands you set",
+        "level": 3
+      },
+      {
+        "id": "overrides-and-states",
+        "text": "Overrides and states",
         "level": 2
       },
       {
-        "id": "level-4-packaging-a-preset-of-your-own",
-        "text": "Level 4 — packaging a preset of your own",
+        "id": "9-override-under-the-same-condition",
+        "text": "9. Override under the same condition",
+        "level": 3
+      },
+      {
+        "id": "10-nest-the-winner-inside-the-other-condition",
+        "text": "10. Nest the winner inside the other condition",
+        "level": 3
+      },
+      {
+        "id": "11-put-the-relation-anchor-where-the-state-lives",
+        "text": "11. Put the relation anchor where the state lives",
+        "level": 3
+      },
+      {
+        "id": "12-a-parent-s-rule-ranks-below-the-child-s-own",
+        "text": "12. A parent's rule ranks below the child's own",
+        "level": 3
+      },
+      {
+        "id": "13-animate-the-property-you-set",
+        "text": "13. Animate the property you set",
+        "level": 3
+      },
+      {
+        "id": "runtime-values",
+        "text": "Runtime values",
         "level": 2
       },
       {
-        "id": "the-utility-grammar",
-        "text": "The utility grammar",
+        "id": "14-prefer-a-finite-set",
+        "text": "14. Prefer a finite set",
+        "level": 3
+      },
+      {
+        "id": "checking",
+        "text": "Checking",
         "level": 2
       },
       {
-        "id": "how-the-grammar-behaves",
-        "text": "How the grammar behaves",
-        "level": 2
+        "id": "15-let-the-tools-answer-why",
+        "text": "15. Let the tools answer \"why\"",
+        "level": 3
       }
     ]
   },
   {
-    "href": "/docs/tokens/semantic-tokens",
-    "file": "content/docs/tokens/semantic-tokens.md",
-    "title": "Semantic tokens",
-    "description": "Naming your decisions - a variable layer with light-dark() pairs, so dark mode needs no variant.",
-    "section": "tokens",
-    "order": 3,
+    "href": "/docs/advanced/design-system",
+    "file": "content/docs/advanced/design-system.md",
+    "title": "Building a design system",
+    "description": "How the layered system in this repository is put together, and why each layer exists.",
+    "section": "building",
+    "order": 2,
     "keywords": [
-      "semantic tokens",
       "design system",
-      "light-dark",
-      "dark mode",
-      "surface",
-      "primary"
+      "layers",
+      "tokens",
+      "recipes",
+      "primitives",
+      "components",
+      "shadcn"
     ],
     "headings": [
       {
-        "id": "every-colour-is-one-light-dark-pair",
-        "text": "Every colour is one light-dark() pair",
+        "id": "six-layers",
+        "text": "Six layers",
         "level": 2
       },
       {
-        "id": "semantic-tokens-are-variables",
-        "text": "Semantic tokens are variables",
+        "id": "rules-that-keep-it-from-drifting",
+        "text": "Rules that keep it from drifting",
         "level": 2
       },
       {
-        "id": "intent-tokens-for-the-things-light-dark-cannot-hold",
-        "text": "Intent tokens for the things light-dark() cannot hold",
-        "level": 2
-      },
-      {
-        "id": "deriving-values",
-        "text": "Deriving values",
-        "level": 2
-      },
-      {
-        "id": "where-to-put-it",
-        "text": "Where to put it",
+        "id": "what-the-compiler-gives-you-here",
+        "text": "What the compiler gives you here",
         "level": 2
       }
     ]
   },
   {
-    "href": "/docs/tokens/themes-and-modes",
-    "file": "content/docs/tokens/themes-and-modes.md",
-    "title": "Themes and modes",
-    "description": "mode.system, mode.light and mode.dark on the root element, and defineTheme for a subtree.",
-    "section": "tokens",
+    "href": "/docs/advanced/libraries",
+    "file": "content/docs/advanced/libraries.md",
+    "title": "Publishing a library",
+    "description": "Ship a component library styled with Kirana: the package keeps its styles uncompiled, and each app that lists it in libraries compiles them.",
+    "section": "building",
+    "order": 3,
+    "keywords": [
+      "library",
+      "design system",
+      "publish",
+      "npm",
+      "libraries",
+      "package",
+      "props"
+    ],
+    "headings": [
+      {
+        "id": "in-the-library",
+        "text": "In the library",
+        "level": 2
+      },
+      {
+        "id": "in-the-app",
+        "text": "In the app",
+        "level": 2
+      },
+      {
+        "id": "why-not-ship-compiled-css",
+        "text": "Why not ship compiled CSS",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/advanced/output",
+    "file": "content/docs/advanced/output.md",
+    "title": "The output",
+    "description": "What the stylesheet looks like, how classes are named, and what determinism buys you.",
+    "section": "building",
     "order": 4,
     "keywords": [
-      "theme",
-      "dark mode",
-      "color-scheme",
+      "output",
+      "css",
+      "atoms",
+      "class names",
+      "hashing",
+      "determinism",
+      "minification"
+    ],
+    "headings": [
+      {
+        "id": "one-declaration-per-rule",
+        "text": "One declaration per rule",
+        "level": 2
+      },
+      {
+        "id": "class-names",
+        "text": "Class names",
+        "level": 2
+      },
+      {
+        "id": "conditions-in-the-selector",
+        "text": "Conditions in the selector",
+        "level": 2
+      },
+      {
+        "id": "determinism",
+        "text": "Determinism",
+        "level": 2
+      },
+      {
+        "id": "minification-and-targets",
+        "text": "Minification and targets",
+        "level": 2
+      },
+      {
+        "id": "dead-styles",
+        "text": "Dead styles",
+        "level": 2
+      },
+      {
+        "id": "what-ships-to-the-browser",
+        "text": "What ships to the browser",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/reference/api",
+    "file": "content/docs/reference/api.md",
+    "title": "API reference",
+    "description": "Every export of @kirana-style/core, with its signature and what it returns.",
+    "section": "reference",
+    "order": 1,
+    "keywords": [
+      "api",
+      "reference",
+      "css",
+      "cx",
+      "props",
+      "recipe",
+      "relation",
+      "select",
+      "keyframes",
+      "defineTokens",
       "defineTheme",
       "mode",
-      "system"
+      "firstThatWorks",
+      "positionTry",
+      "viewTransition",
+      "media",
+      "container",
+      "supports"
     ],
+    "kind": "api",
     "headings": [
       {
-        "id": "modes",
-        "text": "Modes",
+        "id": "css-styles",
+        "text": "css(...styles)",
         "level": 2
       },
       {
-        "id": "themes",
-        "text": "Themes",
+        "id": "cx-handles",
+        "text": "cx(...handles)",
         "level": 2
       },
       {
-        "id": "per-mode-overrides",
-        "text": "Per-mode overrides",
-        "level": 3
-      },
-      {
-        "id": "where-the-values-live",
-        "text": "Where the values live",
+        "id": "props-handles",
+        "text": "props(...handles)",
         "level": 2
       },
       {
-        "id": "switching-without-a-flash",
-        "text": "Switching without a flash",
+        "id": "recipe-config",
+        "text": "recipe(config)",
         "level": 2
       },
       {
-        "id": "what-not-to-do",
-        "text": "What not to do",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/config/file",
-    "file": "content/docs/config/file.md",
-    "title": "The configuration file",
-    "description": "Where kirana.config.ts lives, how it is found, and what overrides what.",
-    "section": "config",
-    "order": 1,
-    "keywords": [
-      "kirana.config",
-      "defineConfig",
-      "configuration",
-      "setup"
-    ],
-    "headings": [
-      {
-        "id": "how-it-is-found",
-        "text": "How it is found",
+        "id": "relation-name",
+        "text": "relation(name)",
         "level": 2
       },
       {
-        "id": "what-overrides-what",
-        "text": "What overrides what",
+        "id": "select-descendant-target-select-child-target",
+        "text": "select.descendant(target) · select.child(target)",
         "level": 2
       },
       {
-        "id": "unknown-keys-are-errors",
-        "text": "Unknown keys are errors",
+        "id": "keyframes-frames",
+        "text": "keyframes(frames)",
         "level": 2
       },
       {
-        "id": "sharing-configuration",
-        "text": "Sharing configuration",
+        "id": "firstthatworks-preferred-fallbacks",
+        "text": "firstThatWorks(preferred, ...fallbacks)",
+        "level": 2
+      },
+      {
+        "id": "positiontry-block",
+        "text": "positionTry(block)",
+        "level": 2
+      },
+      {
+        "id": "viewtransition-parts",
+        "text": "viewTransition(parts)",
+        "level": 2
+      },
+      {
+        "id": "definetokens-namespace-values-options",
+        "text": "defineTokens(namespace, values, options?)",
+        "level": 2
+      },
+      {
+        "id": "definetheme-tokens-overrides",
+        "text": "defineTheme(tokens, overrides)",
+        "level": 2
+      },
+      {
+        "id": "mode-system-mode-light-mode-dark",
+        "text": "mode.system · mode.light · mode.dark",
+        "level": 2
+      },
+      {
+        "id": "media-query-container-query-name-supports-condition",
+        "text": "media(query) · container(query, name?) · supports(condition)",
+        "level": 2
+      },
+      {
+        "id": "types",
+        "text": "Types",
+        "level": 2
+      },
+      {
+        "id": "entry-points",
+        "text": "Entry points",
         "level": 2
       }
     ]
@@ -2475,7 +3354,7 @@ export const PAGES: readonly PageMeta[] = [
     "file": "content/docs/config/reference.md",
     "title": "Configuration reference",
     "description": "Every key that exists today, with its type, default and what it changes.",
-    "section": "config",
+    "section": "reference",
     "order": 2,
     "keywords": [
       "configuration reference",
@@ -2558,480 +3437,10 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/config/layers",
-    "file": "content/docs/config/layers.md",
-    "title": "Layers and global CSS",
-    "description": "Where a reset goes, why Kirana emits nothing unlayered, and how to keep third-party CSS below your styles.",
-    "section": "config",
-    "order": 3,
-    "keywords": [
-      "layers",
-      "cascade layers",
-      "reset",
-      "global css",
-      "preflight"
-    ],
-    "headings": [
-      {
-        "id": "your-own-layers",
-        "text": "Your own layers",
-        "level": 2
-      },
-      {
-        "id": "load-order-matters-once",
-        "text": "Load order matters once",
-        "level": 2
-      },
-      {
-        "id": "third-party-css",
-        "text": "Third-party CSS",
-        "level": 2
-      },
-      {
-        "id": "when-to-write-global-css-at-all",
-        "text": "When to write global CSS at all",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/integrations/vite",
-    "file": "content/docs/integrations/vite.md",
-    "title": "Vite",
-    "description": "The @kirana-style/vite plugin - options, the stylesheet entry, hot updates and the built asset.",
-    "section": "integrations",
-    "order": 1,
-    "keywords": [
-      "vite",
-      "rolldown",
-      "plugin",
-      "hmr",
-      "stylesheet",
-      "build"
-    ],
-    "headings": [
-      {
-        "id": "options",
-        "text": "Options",
-        "level": 2
-      },
-      {
-        "id": "which-modules-it-compiles",
-        "text": "Which modules it compiles",
-        "level": 2
-      },
-      {
-        "id": "the-stylesheet",
-        "text": "The stylesheet",
-        "level": 2
-      },
-      {
-        "id": "diagnostics-in-the-terminal",
-        "text": "Diagnostics in the terminal",
-        "level": 2
-      },
-      {
-        "id": "rolldown",
-        "text": "Rolldown",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/integrations/bundlers",
-    "file": "content/docs/integrations/bundlers.md",
-    "title": "Bundlers",
-    "description": "Kirana on every bundler - Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun, esbuild, PostCSS and Jest, each with its own guide and tested example.",
-    "section": "integrations",
-    "order": 2,
-    "keywords": [
-      "bundlers",
-      "rolldown",
-      "webpack",
-      "rspack",
-      "rsbuild",
-      "parcel",
-      "bun",
-      "esbuild",
-      "postcss",
-      "jest",
-      "plugin"
-    ],
-    "headings": [
-      {
-        "id": "development-servers",
-        "text": "Development servers",
-        "level": 2
-      },
-      {
-        "id": "same-styles-on-every-host",
-        "text": "Same styles on every host",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/integrations/rolldown",
-    "file": "content/docs/integrations/rolldown.md",
-    "title": "Rolldown",
-    "description": "Kirana on Rolldown without Vite - the plugin compiles styles and writes the stylesheet as its own asset.",
-    "section": "integrations",
-    "order": 3,
-    "keywords": [
-      "rolldown",
-      "bundler",
-      "plugin",
-      "stylesheet",
-      "asset"
-    ],
-    "headings": [
-      {
-        "id": "1-install",
-        "text": "1. Install",
-        "level": 2
-      },
-      {
-        "id": "2-add-the-plugin",
-        "text": "2. Add the plugin",
-        "level": 2
-      },
-      {
-        "id": "3-link-the-stylesheet",
-        "text": "3. Link the stylesheet",
-        "level": 2
-      },
-      {
-        "id": "next",
-        "text": "Next",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/integrations/webpack",
-    "file": "content/docs/integrations/webpack.md",
-    "title": "webpack",
-    "description": "Kirana on webpack 5 - a pre loader that reads sx before your JSX compiler, and a plugin that writes the stylesheet before minification.",
-    "section": "integrations",
-    "order": 4,
-    "keywords": [
-      "webpack",
-      "loader",
-      "plugin",
-      "css",
-      "realContentHash",
-      "mini-css-extract-plugin"
-    ],
-    "headings": [
-      {
-        "id": "1-install",
-        "text": "1. Install",
-        "level": 2
-      },
-      {
-        "id": "2-add-the-plugin",
-        "text": "2. Add the plugin",
-        "level": 2
-      },
-      {
-        "id": "3-import-the-stylesheet",
-        "text": "3. Import the stylesheet",
-        "level": 2
-      },
-      {
-        "id": "next",
-        "text": "Next",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/integrations/rspack",
-    "file": "content/docs/integrations/rspack.md",
-    "title": "Rspack and Rsbuild",
-    "description": "Kirana on Rspack and Rsbuild - Rsbuild's pluginKirana, or the webpack plugin, which Rspack runs unchanged.",
-    "section": "integrations",
-    "order": 5,
-    "keywords": [
-      "rspack",
-      "rsbuild",
-      "pluginKirana",
-      "rust bundler",
-      "webpack compatible"
-    ],
-    "headings": [
-      {
-        "id": "1-install",
-        "text": "1. Install",
-        "level": 2
-      },
-      {
-        "id": "2-add-the-plugin",
-        "text": "2. Add the plugin",
-        "level": 2
-      },
-      {
-        "id": "3-import-the-stylesheet",
-        "text": "3. Import the stylesheet",
-        "level": 2
-      },
-      {
-        "id": "next",
-        "text": "Next",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/integrations/parcel",
-    "file": "content/docs/integrations/parcel.md",
-    "title": "Parcel",
-    "description": "Kirana on Parcel - a transformer compiles styles in scripts, and @kirana-style/postcss writes the stylesheet where @kirana; stands.",
-    "section": "integrations",
-    "order": 6,
-    "keywords": [
-      "parcel",
-      "transformer",
-      "postcss",
-      "parcelrc",
-      "zero configuration"
-    ],
-    "headings": [
-      {
-        "id": "1-install",
-        "text": "1. Install",
-        "level": 2
-      },
-      {
-        "id": "2-add-the-transformer",
-        "text": "2. Add the transformer",
-        "level": 2
-      },
-      {
-        "id": "3-add-the-postcss-plugin-and-mark-the-stylesheet",
-        "text": "3. Add the PostCSS plugin and mark the stylesheet",
-        "level": 2
-      },
-      {
-        "id": "next",
-        "text": "Next",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/integrations/bun",
-    "file": "content/docs/integrations/bun.md",
-    "title": "Bun",
-    "description": "Kirana with Bun's bundler and dev server - one plugin for Bun.build and bunfig.toml.",
-    "section": "integrations",
-    "order": 7,
-    "keywords": [
-      "bun",
-      "bun build",
-      "bunfig",
-      "dev server",
-      "plugin"
-    ],
-    "headings": [
-      {
-        "id": "1-install",
-        "text": "1. Install",
-        "level": 2
-      },
-      {
-        "id": "2-add-the-plugin",
-        "text": "2. Add the plugin",
-        "level": 2
-      },
-      {
-        "id": "3-import-the-stylesheet",
-        "text": "3. Import the stylesheet",
-        "level": 2
-      },
-      {
-        "id": "limits",
-        "text": "Limits",
-        "level": 2
-      },
-      {
-        "id": "next",
-        "text": "Next",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/integrations/esbuild",
-    "file": "content/docs/integrations/esbuild.md",
-    "title": "esbuild",
-    "description": "Kirana on esbuild - a plugin that compiles styles and finishes the bundled CSS, on disk, in memory, in watch mode and when serving.",
-    "section": "integrations",
-    "order": 8,
-    "keywords": [
-      "esbuild",
-      "plugin",
-      "watch",
-      "serve",
-      "outputFiles"
-    ],
-    "headings": [
-      {
-        "id": "1-install",
-        "text": "1. Install",
-        "level": 2
-      },
-      {
-        "id": "2-add-the-plugin",
-        "text": "2. Add the plugin",
-        "level": 2
-      },
-      {
-        "id": "3-import-the-stylesheet",
-        "text": "3. Import the stylesheet",
-        "level": 2
-      },
-      {
-        "id": "next",
-        "text": "Next",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/integrations/postcss",
-    "file": "content/docs/integrations/postcss.md",
-    "title": "PostCSS",
-    "description": "The @kirana-style/postcss plugin - the whole project's stylesheet where @kirana; stands, for pipelines whose scripts another step compiles.",
-    "section": "integrations",
-    "order": 9,
-    "keywords": [
-      "postcss",
-      "plugin",
-      "@kirana",
-      "turbopack",
-      "parcel",
-      "stylesheet"
-    ],
-    "headings": [
-      {
-        "id": "1-install",
-        "text": "1. Install",
-        "level": 2
-      },
-      {
-        "id": "2-add-the-plugin",
-        "text": "2. Add the plugin",
-        "level": 2
-      },
-      {
-        "id": "3-mark-where-the-stylesheet-goes",
-        "text": "3. Mark where the stylesheet goes",
-        "level": 2
-      },
-      {
-        "id": "options",
-        "text": "Options",
-        "level": 2
-      },
-      {
-        "id": "next",
-        "text": "Next",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/integrations/jest",
-    "file": "content/docs/integrations/jest.md",
-    "title": "Jest",
-    "description": "Kirana under Jest - a transformer that compiles styles, then hands the module to the transformer you already use.",
-    "section": "integrations",
-    "order": 10,
-    "keywords": [
-      "jest",
-      "transformer",
-      "babel-jest",
-      "testing",
-      "class names"
-    ],
-    "headings": [
-      {
-        "id": "1-install",
-        "text": "1. Install",
-        "level": 2
-      },
-      {
-        "id": "2-add-the-transformer",
-        "text": "2. Add the transformer",
-        "level": 2
-      },
-      {
-        "id": "caching",
-        "text": "Caching",
-        "level": 2
-      },
-      {
-        "id": "next",
-        "text": "Next",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/integrations/ecosystem",
-    "file": "content/docs/integrations/ecosystem.md",
-    "title": "Ecosystem and status",
-    "description": "What works today, what is planned, and which milestone each thing belongs to.",
-    "section": "integrations",
-    "order": 20,
-    "keywords": [
-      "ecosystem",
-      "status",
-      "support",
-      "bundlers",
-      "frameworks",
-      "editors",
-      "roadmap"
-    ],
-    "headings": [
-      {
-        "id": "packages",
-        "text": "Packages",
-        "level": 2
-      },
-      {
-        "id": "bundlers",
-        "text": "Bundlers",
-        "level": 2
-      },
-      {
-        "id": "frameworks",
-        "text": "Frameworks",
-        "level": 2
-      },
-      {
-        "id": "tooling",
-        "text": "Tooling",
-        "level": 2
-      },
-      {
-        "id": "runtime-and-distribution",
-        "text": "Runtime and distribution",
-        "level": 2
-      },
-      {
-        "id": "configuration-keys-in-the-specification-but-not-the-build",
-        "text": "Configuration keys in the specification but not the build",
-        "level": 2
-      }
-    ]
-  },
-  {
     "href": "/docs/tooling/cli",
     "file": "content/docs/tooling/cli.md",
     "title": "The CLI",
-    "description": "kirana init, doctor, dev, build, check, analyze, export, trace, migrate and lsp - what each one does, and what it prints.",
+    "description": "What each kirana command does and what it prints, for init, doctor, dev, build, check, analyze, export, trace, migrate and lsp.",
     "section": "tooling",
     "order": 1,
     "keywords": [
@@ -3119,7 +3528,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/tooling/editor",
     "file": "content/docs/tooling/editor.md",
     "title": "Editor support",
-    "description": "The Kirana language server in VS Code, Cursor, Windsurf, Antigravity, Zed, Neovim and Helix — the compiled CSS on hover, which entry wins and why, swatches, an inline summary, completion and the compiler's diagnostics as you type.",
+    "description": "The Kirana language server shows each element's compiled CSS, which entry wins and why, colour swatches and the compiler's diagnostics as you type, in VS Code, Cursor, Windsurf, Antigravity, Zed, Neovim and Helix.",
     "section": "tooling",
     "order": 2,
     "keywords": [
@@ -3259,7 +3668,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/tooling/lint",
     "file": "content/docs/tooling/lint.md",
     "title": "Lint",
-    "description": "@kirana-style/eslint-plugin under Oxlint or ESLint, and @kirana-style/biome-plugin under Biome: the compiler's diagnostics, and the overrides and forwarding mistakes that lose styles silently.",
+    "description": "Kirana's rules under Oxlint, ESLint and Biome: the compiler's diagnostics, and the overrides and forwarding mistakes that lose styles silently.",
     "section": "tooling",
     "order": 3,
     "keywords": [
@@ -3464,397 +3873,10 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/migration/from-tailwind",
-    "file": "content/docs/migration/from-tailwind.md",
-    "title": "Migrating from Tailwind",
-    "description": "The mental shift, the utility mapping, and the pitfalls that actually cost time.",
-    "section": "migration",
-    "order": 1,
-    "keywords": [
-      "tailwind",
-      "migration",
-      "utilities",
-      "cn",
-      "cva",
-      "group",
-      "peer"
-    ],
-    "headings": [
-      {
-        "id": "the-shift-in-four-lines",
-        "text": "The shift, in four lines",
-        "level": 2
-      },
-      {
-        "id": "the-mapping",
-        "text": "The mapping",
-        "level": 2
-      },
-      {
-        "id": "the-four-that-do-not-translate-directly",
-        "text": "The four that do not translate directly",
-        "level": 2
-      },
-      {
-        "id": "the-codemod",
-        "text": "The codemod",
-        "level": 2
-      },
-      {
-        "id": "measured-the-tailwind-original-of-our-shadcn-ui-port",
-        "text": "Measured: the Tailwind original of our shadcn/ui port",
-        "level": 2
-      },
-      {
-        "id": "pitfalls-we-hit",
-        "text": "Pitfalls we hit",
-        "level": 2
-      },
-      {
-        "id": "utility-strings-or-objects",
-        "text": "Utility strings or objects?",
-        "level": 2
-      },
-      {
-        "id": "migrating-by-hand",
-        "text": "Migrating by hand",
-        "level": 2
-      },
-      {
-        "id": "the-process-that-worked",
-        "text": "The process that worked",
-        "level": 2
-      },
-      {
-        "id": "what-you-get-for-the-trouble",
-        "text": "What you get for the trouble",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/migration/from-stylex",
-    "file": "content/docs/migration/from-stylex.md",
-    "title": "Migrating from StyleX",
-    "description": "The API maps almost directly - and the one semantic difference that will bite you.",
-    "section": "migration",
-    "order": 2,
-    "keywords": [
-      "stylex",
-      "migration",
-      "codemod",
-      "defineVars",
-      "create",
-      "props"
-    ],
-    "headings": [
-      {
-        "id": "the-mapping",
-        "text": "The mapping",
-        "level": 2
-      },
-      {
-        "id": "the-difference-that-bites",
-        "text": "The difference that bites",
-        "level": 2
-      },
-      {
-        "id": "what-kirana-has-that-stylex-does-not",
-        "text": "What Kirana has that StyleX does not",
-        "level": 2
-      },
-      {
-        "id": "what-stylex-has-that-kirana-does-not",
-        "text": "What StyleX has that Kirana does not",
-        "level": 2
-      },
-      {
-        "id": "what-else-is-different",
-        "text": "What else is different",
-        "level": 2
-      },
-      {
-        "id": "the-codemod",
-        "text": "The codemod",
-        "level": 2
-      },
-      {
-        "id": "after-the-codemod",
-        "text": "After the codemod",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/advanced/output",
-    "file": "content/docs/advanced/output.md",
-    "title": "The output",
-    "description": "What the stylesheet looks like, how classes are named, and what determinism buys you.",
-    "section": "advanced",
-    "order": 1,
-    "keywords": [
-      "output",
-      "css",
-      "atoms",
-      "class names",
-      "hashing",
-      "determinism",
-      "minification"
-    ],
-    "headings": [
-      {
-        "id": "one-declaration-per-rule",
-        "text": "One declaration per rule",
-        "level": 2
-      },
-      {
-        "id": "class-names",
-        "text": "Class names",
-        "level": 2
-      },
-      {
-        "id": "conditions-in-the-selector",
-        "text": "Conditions in the selector",
-        "level": 2
-      },
-      {
-        "id": "determinism",
-        "text": "Determinism",
-        "level": 2
-      },
-      {
-        "id": "minification-and-targets",
-        "text": "Minification and targets",
-        "level": 2
-      },
-      {
-        "id": "dead-styles",
-        "text": "Dead styles",
-        "level": 2
-      },
-      {
-        "id": "what-ships-to-the-browser",
-        "text": "What ships to the browser",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/advanced/design-system",
-    "file": "content/docs/advanced/design-system.md",
-    "title": "Building a design system",
-    "description": "How the layered system in this repository is put together, and why each layer exists.",
-    "section": "advanced",
-    "order": 2,
-    "keywords": [
-      "design system",
-      "layers",
-      "tokens",
-      "recipes",
-      "primitives",
-      "components",
-      "shadcn"
-    ],
-    "headings": [
-      {
-        "id": "six-layers",
-        "text": "Six layers",
-        "level": 2
-      },
-      {
-        "id": "rules-that-keep-it-from-drifting",
-        "text": "Rules that keep it from drifting",
-        "level": 2
-      },
-      {
-        "id": "what-the-compiler-gives-you-here",
-        "text": "What the compiler gives you here",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/advanced/libraries",
-    "file": "content/docs/advanced/libraries.md",
-    "title": "Publishing a library",
-    "description": "Ship a component library styled with Kirana - styles uncompiled in the package, compiled by each app that lists it in libraries.",
-    "section": "advanced",
-    "order": 3,
-    "keywords": [
-      "library",
-      "design system",
-      "publish",
-      "npm",
-      "libraries",
-      "package",
-      "props"
-    ],
-    "headings": [
-      {
-        "id": "in-the-library",
-        "text": "In the library",
-        "level": 2
-      },
-      {
-        "id": "in-the-app",
-        "text": "In the app",
-        "level": 2
-      },
-      {
-        "id": "why-not-ship-compiled-css",
-        "text": "Why not ship compiled CSS",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/advanced/conformance",
-    "file": "content/docs/advanced/conformance.md",
-    "title": "Verifying a migration",
-    "description": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.",
-    "section": "advanced",
-    "order": 4,
-    "keywords": [
-      "conformance",
-      "testing",
-      "visual regression",
-      "computed styles",
-      "verification"
-    ],
-    "headings": [
-      {
-        "id": "the-method",
-        "text": "The method",
-        "level": 2
-      },
-      {
-        "id": "things-worth-knowing-if-you-build-one",
-        "text": "Things worth knowing if you build one",
-        "level": 2
-      },
-      {
-        "id": "how-it-runs",
-        "text": "How it runs",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/reference/api",
-    "file": "content/docs/reference/api.md",
-    "title": "API reference",
-    "description": "Every export of @kirana-style/core, with its signature and what it returns.",
-    "section": "reference",
-    "order": 1,
-    "keywords": [
-      "api",
-      "reference",
-      "css",
-      "cx",
-      "props",
-      "recipe",
-      "relation",
-      "select",
-      "keyframes",
-      "defineTokens",
-      "defineTheme",
-      "mode",
-      "firstThatWorks",
-      "positionTry",
-      "viewTransition",
-      "media",
-      "container",
-      "supports"
-    ],
-    "kind": "api",
-    "headings": [
-      {
-        "id": "css-styles",
-        "text": "css(...styles)",
-        "level": 2
-      },
-      {
-        "id": "cx-handles",
-        "text": "cx(...handles)",
-        "level": 2
-      },
-      {
-        "id": "props-handles",
-        "text": "props(...handles)",
-        "level": 2
-      },
-      {
-        "id": "recipe-config",
-        "text": "recipe(config)",
-        "level": 2
-      },
-      {
-        "id": "relation-name",
-        "text": "relation(name)",
-        "level": 2
-      },
-      {
-        "id": "select-descendant-target-select-child-target",
-        "text": "select.descendant(target) · select.child(target)",
-        "level": 2
-      },
-      {
-        "id": "keyframes-frames",
-        "text": "keyframes(frames)",
-        "level": 2
-      },
-      {
-        "id": "firstthatworks-preferred-fallbacks",
-        "text": "firstThatWorks(preferred, ...fallbacks)",
-        "level": 2
-      },
-      {
-        "id": "positiontry-block",
-        "text": "positionTry(block)",
-        "level": 2
-      },
-      {
-        "id": "viewtransition-parts",
-        "text": "viewTransition(parts)",
-        "level": 2
-      },
-      {
-        "id": "definetokens-namespace-values-options",
-        "text": "defineTokens(namespace, values, options?)",
-        "level": 2
-      },
-      {
-        "id": "definetheme-tokens-overrides",
-        "text": "defineTheme(tokens, overrides)",
-        "level": 2
-      },
-      {
-        "id": "mode-system-mode-light-mode-dark",
-        "text": "mode.system · mode.light · mode.dark",
-        "level": 2
-      },
-      {
-        "id": "media-query-container-query-name-supports-condition",
-        "text": "media(query) · container(query, name?) · supports(condition)",
-        "level": 2
-      },
-      {
-        "id": "types",
-        "text": "Types",
-        "level": 2
-      },
-      {
-        "id": "entry-points",
-        "text": "Entry points",
-        "level": 2
-      }
-    ]
-  },
-  {
     "href": "/docs/project/status",
     "file": "content/docs/project/status.md",
     "title": "What works today",
-    "description": "A single honest table of the built, the partial and the planned.",
+    "description": "What is built, what is partial and what is planned.",
     "section": "project",
     "order": 1,
     "keywords": [
@@ -3905,37 +3927,37 @@ export const PAGES: readonly PageMeta[] = [
     "headings": [
       {
         "id": "m0-foundations-done",
-        "text": "M0 — Foundations · done",
+        "text": "M0: Foundations · done",
         "level": 2
       },
       {
         "id": "m1-feasibility-slice-done",
-        "text": "M1 — Feasibility slice · done",
+        "text": "M1: Feasibility slice · done",
         "level": 2
       },
       {
         "id": "m2-recipes-and-dynamic-styles-done",
-        "text": "M2 — Recipes and dynamic styles · done",
+        "text": "M2: Recipes and dynamic styles · done",
         "level": 2
       },
       {
         "id": "m4-ecosystem-done-pending-publication",
-        "text": "M4 — Ecosystem · done, pending publication",
+        "text": "M4: Ecosystem · done, pending publication",
         "level": 2
       },
       {
         "id": "m5-utility-surface-done",
-        "text": "M5 — Utility surface · done",
+        "text": "M5: Utility surface · done",
         "level": 2
       },
       {
         "id": "m3-developer-experience-done-pending-publication",
-        "text": "M3 — Developer experience · done, pending publication",
+        "text": "M3: Developer experience · done, pending publication",
         "level": 2
       },
       {
         "id": "m6-1-0-planned",
-        "text": "M6 — 1.0 · planned",
+        "text": "M6: 1.0 · planned",
         "level": 2
       },
       {
@@ -3984,75 +4006,50 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/project/llms",
-    "file": "content/docs/project/llms.md",
-    "title": "For LLMs",
-    "description": "Plain-text endpoints of this documentation, written for coding agents - llms.txt, the full text, and a markdown twin of every page.",
+    "href": "/docs/integrations/ecosystem",
+    "file": "content/docs/integrations/ecosystem.md",
+    "title": "Ecosystem and status",
+    "description": "What works today, what is planned, and which milestone each thing belongs to.",
     "section": "project",
     "order": 4,
     "keywords": [
-      "llms.txt",
-      "ai",
-      "agents",
-      "markdown",
-      "plain text",
-      "context"
+      "ecosystem",
+      "status",
+      "support",
+      "bundlers",
+      "frameworks",
+      "editors",
+      "roadmap"
     ],
     "headings": [
       {
-        "id": "the-endpoints",
-        "text": "The endpoints",
+        "id": "packages",
+        "text": "Packages",
         "level": 2
       },
       {
-        "id": "which-one-to-use",
-        "text": "Which one to use",
+        "id": "bundlers",
+        "text": "Bundlers",
         "level": 2
       },
       {
-        "id": "giving-an-agent-the-rules",
-        "text": "Giving an agent the rules",
+        "id": "frameworks",
+        "text": "Frameworks",
         "level": 2
       },
       {
-        "id": "machine-readable-extras",
-        "text": "Machine-readable extras",
-        "level": 2
-      }
-    ]
-  },
-  {
-    "href": "/docs/project/agent-skills",
-    "file": "content/docs/project/agent-skills.md",
-    "title": "Agent skills",
-    "description": "Two installable skills that teach a coding agent to write Kirana and to migrate to it - the rules that cause real bugs, the check-trace-report loop, and every diagnostic and lint rule.",
-    "section": "project",
-    "order": 5,
-    "keywords": [
-      "agent skills",
-      "skills.sh",
-      "ai",
-      "agents",
-      "claude code",
-      "cursor",
-      "codex",
-      "coding agent",
-      "kirana export"
-    ],
-    "headings": [
-      {
-        "id": "what-each-one-teaches",
-        "text": "What each one teaches",
+        "id": "tooling",
+        "text": "Tooling",
         "level": 2
       },
       {
-        "id": "the-loop-it-follows",
-        "text": "The loop it follows",
+        "id": "runtime-and-distribution",
+        "text": "Runtime and distribution",
         "level": 2
       },
       {
-        "id": "with-llms-txt",
-        "text": "With llms.txt",
+        "id": "configuration-keys-in-the-specification-but-not-the-build",
+        "text": "Configuration keys in the specification but not the build",
         "level": 2
       }
     ]
@@ -4063,7 +4060,7 @@ export const PAGES: readonly PageMeta[] = [
     "title": "Contributing",
     "description": "How to report a bug, fix the docs, get a pull request merged, and support Kirana.",
     "section": "project",
-    "order": 6,
+    "order": 5,
     "keywords": [
       "contributing",
       "bug report",
@@ -4100,6 +4097,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 3
       },
       {
+        "id": "try-it-on-this-repository",
+        "text": "Try it on this repository",
+        "level": 3
+      },
+      {
         "id": "what-a-pull-request-needs",
         "text": "What a pull request needs",
         "level": 3
@@ -4120,18 +4122,92 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       }
     ]
+  },
+  {
+    "href": "/docs/project/llms",
+    "file": "content/docs/project/llms.md",
+    "title": "For LLMs",
+    "description": "Plain-text endpoints of this documentation, written for coding agents: llms.txt, the full text, and a markdown twin of every page.",
+    "section": "project",
+    "order": 6,
+    "keywords": [
+      "llms.txt",
+      "ai",
+      "agents",
+      "markdown",
+      "plain text",
+      "context"
+    ],
+    "headings": [
+      {
+        "id": "the-endpoints",
+        "text": "The endpoints",
+        "level": 2
+      },
+      {
+        "id": "which-one-to-use",
+        "text": "Which one to use",
+        "level": 2
+      },
+      {
+        "id": "giving-an-agent-the-rules",
+        "text": "Giving an agent the rules",
+        "level": 2
+      },
+      {
+        "id": "machine-readable-extras",
+        "text": "Machine-readable extras",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/project/agent-skills",
+    "file": "content/docs/project/agent-skills.md",
+    "title": "Agent skills",
+    "description": "Two installable skills teach a coding agent to write Kirana and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule.",
+    "section": "project",
+    "order": 7,
+    "keywords": [
+      "agent skills",
+      "skills.sh",
+      "ai",
+      "agents",
+      "claude code",
+      "cursor",
+      "codex",
+      "coding agent",
+      "kirana export"
+    ],
+    "headings": [
+      {
+        "id": "what-each-one-teaches",
+        "text": "What each one teaches",
+        "level": 2
+      },
+      {
+        "id": "the-loop-it-follows",
+        "text": "The loop it follows",
+        "level": 2
+      },
+      {
+        "id": "with-llms-txt",
+        "text": "With llms.txt",
+        "level": 2
+      }
+    ]
   }
 ]
 
 export const NAV: readonly NavGroup[] = [
   {
     "slug": "start",
-    "label": "Start",
+    "label": "Get started",
     "items": [
       {
         "title": "Introduction",
         "href": "/docs",
-        "description": "Kirana is a compile-time styling system for the modern web. Write typed styles next to your components; ship small, predictable CSS.",
+        "description": "Kirana is a compile-time styling system: write typed styles next to your components, and ship small, predictable CSS.",
         "keywords": [
           "what is kirana",
           "overview",
@@ -4140,20 +4216,41 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
+        "title": "Why Kirana",
+        "href": "/docs/start/why-kirana",
+        "description": "Why CSS-in-JS got a bad name, what a compiler changes, and what Kirana answers that StyleX left open.",
+        "keywords": [
+          "why",
+          "css-in-js",
+          "runtime",
+          "styled-components",
+          "emotion",
+          "stylex",
+          "tailwind",
+          "tailwind-merge",
+          "cn",
+          "comparison",
+          "verbosity",
+          "editor",
+          "readability"
+        ]
+      },
+      {
         "title": "Quick start",
         "href": "/docs/start/quick-start",
-        "description": "Style a component with Kirana in about ten minutes, on the path that works today.",
+        "description": "Add Kirana to your project in three steps (install it, add the plugin, import the stylesheet), read from your framework's own guide.",
         "keywords": [
           "quick start",
           "getting started",
-          "tutorial",
-          "setup"
+          "setup",
+          "install",
+          "kirana init"
         ]
       },
       {
         "title": "Installation",
         "href": "/docs/start/installation",
-        "description": "Let kirana init set your project up, or follow your framework's guide - React, Next.js, React Router, Vue, Svelte, Astro, Angular, Laravel, Rails, Phoenix and more, or none - plus how to install before the packages are on npm.",
+        "description": "Set a project up with kirana init or with your framework's guide, see what every setup has, and install from tarballs while the packages are unpublished.",
         "keywords": [
           "install",
           "setup",
@@ -4184,22 +4281,9 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
-        "title": "How it works",
-        "href": "/docs/start/how-it-works",
-        "description": "What happens between the file you write and the stylesheet the browser loads, and what is left at runtime.",
-        "keywords": [
-          "architecture",
-          "compiler",
-          "pipeline",
-          "atoms",
-          "layers",
-          "runtime"
-        ]
-      },
-      {
         "title": "Mental model",
         "href": "/docs/start/mental-model",
-        "description": "Five ideas that make Kirana predictable - properties not classes, entries not properties, a ladder not specificity, styling only what you render, and an editor that shows what each element gets.",
+        "description": "Five ideas make Kirana predictable: properties instead of classes, entries instead of properties, a ladder instead of specificity, styling only what you render, and an editor that shows what each element gets.",
         "keywords": [
           "mental model",
           "concepts",
@@ -4211,615 +4295,240 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
-        "title": "Why Kirana",
-        "href": "/docs/start/why-kirana",
-        "description": "Why CSS-in-JS got a bad name, what a compiler changes, how the editor gives back the class list you could read, what Kirana answers that StyleX left open, and why styles written down the page are a feature.",
+        "title": "How it works",
+        "href": "/docs/start/how-it-works",
+        "description": "What happens between the file you write and the stylesheet the browser loads, and what is left at runtime.",
         "keywords": [
-          "why",
-          "css-in-js",
-          "runtime",
-          "styled-components",
-          "emotion",
-          "stylex",
+          "architecture",
+          "compiler",
+          "pipeline",
+          "atoms",
+          "layers",
+          "runtime"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "writing",
+    "label": "Writing styles",
+    "items": [
+      {
+        "title": "Writing styles",
+        "href": "/docs/styling/styles",
+        "description": "How css() turns a style object into a handle, with property names, values, custom properties, and what the compiler refuses.",
+        "keywords": [
+          "css",
+          "style object",
+          "properties",
+          "values",
+          "units"
+        ]
+      },
+      {
+        "title": "The sx prop",
+        "href": "/docs/styling/sx",
+        "description": "How sx works on elements and on components, what it compiles to, and how className and style survive it.",
+        "keywords": [
+          "sx",
+          "className",
+          "style",
+          "props",
+          "components"
+        ]
+      },
+      {
+        "title": "Conditions",
+        "href": "/docs/styling/conditions",
+        "description": "Hover, focus, attributes, breakpoints and container queries, all written inside the value they change.",
+        "keywords": [
+          "conditions",
+          "hover",
+          "media query",
+          "breakpoints",
+          "attributes",
+          "container query",
+          "responsive"
+        ]
+      },
+      {
+        "title": "Utility strings",
+        "href": "/docs/styling/utilities",
+        "description": "Write sx as Tailwind-style utility strings; each one compiles to the same atoms as the style object it stands for.",
+        "keywords": [
+          "utilities",
           "tailwind",
-          "tailwind-merge",
-          "cn",
-          "comparison",
-          "verbosity",
-          "editor",
-          "readability"
-        ]
-      },
-      {
-        "title": "Habits for a new project",
-        "href": "/docs/start/tips",
-        "description": "Fifteen habits from building and migrating three applications on Kirana - the ones that would have saved us the most time on day one.",
-        "keywords": [
-          "tips",
-          "best practices",
-          "habits",
-          "conventions",
-          "from scratch",
-          "pitfalls"
+          "sx",
+          "string",
+          "preset",
+          "grammar",
+          "variants"
         ]
       }
     ]
   },
   {
-    "slug": "frameworks",
-    "label": "Frameworks",
+    "slug": "cascade",
+    "label": "The cascade",
     "items": [
       {
-        "title": "Get started",
-        "href": "/docs/frameworks/overview",
-        "description": "Install Kirana with your framework, on your bundler, or from the command line for server templates - a guide for each, and every one tested on every change.",
+        "title": "Merging and removal",
+        "href": "/docs/styling/merging",
+        "description": "How styles combine per entry, and how to remove a value with null.",
         "keywords": [
-          "get started",
-          "installation",
-          "frameworks",
-          "bundlers",
-          "support",
-          "react",
-          "next.js",
-          "vue",
-          "svelte",
-          "angular",
-          "laravel",
-          "rails",
-          "phoenix",
-          "symfony",
-          "vite",
-          "cli"
-        ]
-      },
-      {
-        "title": "React",
-        "href": "/docs/frameworks/react",
-        "description": "Install Kirana in a React app on Vite - the plugin, the stylesheet, sx types and a first component.",
-        "keywords": [
-          "react",
-          "vite",
-          "install",
-          "setup",
-          "sx",
-          "className"
-        ]
-      },
-      {
-        "title": "Next.js",
-        "href": "/docs/frameworks/nextjs",
-        "description": "Install Kirana in a Next.js app - Turbopack (the default) or webpack, one withKirana, the stylesheet through PostCSS, and server components.",
-        "keywords": [
-          "next.js",
-          "nextjs",
-          "turbopack",
-          "webpack",
-          "postcss",
-          "app router",
-          "server components",
-          "install",
-          "kirana init"
-        ]
-      },
-      {
-        "title": "React Router",
-        "href": "/docs/frameworks/react-router",
-        "description": "Install Kirana in a React Router app - framework mode on Vite, sx compiles to className, server rendering and single-page mode alike.",
-        "keywords": [
-          "react router",
-          "remix",
-          "framework mode",
-          "vite",
-          "ssr",
-          "spa",
-          "install"
-        ]
-      },
-      {
-        "title": "TanStack Start",
-        "href": "/docs/frameworks/tanstack-start",
-        "description": "Install Kirana in a TanStack Start app - the plugin, the root document, stylesheet order and server rendering.",
-        "keywords": [
-          "react",
-          "tanstack start",
-          "ssr",
-          "root",
-          "stylesheet order",
-          "server rendering"
-        ]
-      },
-      {
-        "title": "Gatsby",
-        "href": "/docs/frameworks/gatsby",
-        "description": "Install Kirana in a Gatsby site - one plugin adds Kirana to every webpack stage, so the server render and the browser name the same classes.",
-        "keywords": [
-          "gatsby",
-          "webpack",
-          "ssr",
-          "static site",
-          "plugin",
-          "install"
-        ]
-      },
-      {
-        "title": "Preact",
-        "href": "/docs/frameworks/preact",
-        "description": "Install Kirana in a Preact app on Vite - sx compiles to class, detected from jsxImportSource.",
-        "keywords": [
-          "preact",
-          "vite",
-          "install",
-          "class",
-          "jsxImportSource"
-        ]
-      },
-      {
-        "title": "Solid",
-        "href": "/docs/frameworks/solid",
-        "description": "Install Kirana in a Solid app on Vite - sx compiles to class, detected from jsxImportSource.",
-        "keywords": [
-          "solid",
-          "solid-js",
-          "vite",
-          "install",
-          "class",
-          "jsxImportSource"
-        ]
-      },
-      {
-        "title": "Vue",
-        "href": "/docs/frameworks/vue",
-        "description": "Install Kirana in a Vue app on Vite - styles in the script, :sx in the template, compiled before Vue sees the component.",
-        "keywords": [
-          "vue",
-          "vite",
-          "sfc",
-          "script setup",
-          "v-bind",
-          "class",
-          "install"
-        ]
-      },
-      {
-        "title": "Nuxt",
-        "href": "/docs/frameworks/nuxt",
-        "description": "Install Kirana in a Nuxt app - the Vite plugin in nuxt.config, the stylesheet in css, and :sx in components rendered on the server.",
-        "keywords": [
-          "nuxt",
-          "vue",
-          "ssr",
-          "nuxt.config",
-          "generate",
-          "install"
-        ]
-      },
-      {
-        "title": "Svelte",
-        "href": "/docs/frameworks/svelte",
-        "description": "Install Kirana in a Svelte app on Vite - styles in the script, sx on elements, compiled before Svelte sees the component.",
-        "keywords": [
-          "svelte",
-          "svelte 5",
-          "vite",
-          "runes",
-          "class",
-          "install"
-        ]
-      },
-      {
-        "title": "SvelteKit",
-        "href": "/docs/frameworks/sveltekit",
-        "description": "Install Kirana in a SvelteKit app - the Vite plugin before sveltekit(), the stylesheet in the root layout, and sx in server-rendered components.",
-        "keywords": [
-          "sveltekit",
-          "svelte",
-          "ssr",
-          "prerender",
-          "adapter",
-          "install"
-        ]
-      },
-      {
-        "title": "Astro",
-        "href": "/docs/frameworks/astro",
-        "description": "Install Kirana in an Astro site - the integration, styles in the frontmatter, sx on elements, and the stylesheet Astro links or inlines.",
-        "keywords": [
-          "astro",
-          "integration",
-          "frontmatter",
-          "islands",
-          "class",
-          "install"
-        ]
-      },
-      {
-        "title": "Qwik",
-        "href": "/docs/frameworks/qwik",
-        "description": "Install Kirana in a Qwik 2 app on Vite - sx compiles to class, detected from jsxImportSource, rendered on the server and resumed in the browser.",
-        "keywords": [
-          "qwik",
-          "qwik router",
-          "qwik city",
-          "vite",
-          "install",
-          "class",
-          "jsxImportSource",
-          "resumability"
-        ]
-      },
-      {
-        "title": "Angular",
-        "href": "/docs/frameworks/angular",
-        "description": "Install Kirana in an Angular app - the Angular CLI through Kirana's builders, or Analog on Vite - and style templates with the [sx] directive.",
-        "keywords": [
-          "angular",
-          "analog",
-          "angular cli",
-          "ng build",
-          "ng serve",
-          "directive",
-          "sx",
-          "templates",
-          "install",
-          "kirana init"
-        ]
-      },
-      {
-        "title": "Ember.js",
-        "href": "/docs/frameworks/ember",
-        "description": "Install Kirana in an Ember app on Embroider and Vite - css() in .gjs and .gts files, and the sx helper in templates.",
-        "keywords": [
-          "ember",
-          "embroider",
-          "vite",
-          "gjs",
-          "gts",
-          "template tag",
-          "glimmer",
-          "helper"
-        ]
-      },
-      {
-        "title": "Meteor",
-        "href": "/docs/frameworks/meteor",
-        "description": "Install Kirana in a Meteor 3.4+ app - Meteor bundles app code with Rspack, and Kirana's Rspack plugin goes in its configuration.",
-        "keywords": [
-          "meteor",
-          "rspack",
-          "react",
-          "install",
-          "modern build stack"
-        ]
-      },
-      {
-        "title": "No framework",
-        "href": "/docs/frameworks/vanilla",
-        "description": "Use Kirana without a framework - style handles are class strings, merged with cx, for plain TypeScript, web components and server templates.",
-        "keywords": [
-          "vanilla",
-          "no framework",
-          "web components",
-          "typescript",
+          "merge",
           "cx",
+          "override",
+          "null",
+          "remove",
+          "entries"
+        ]
+      },
+      {
+        "title": "Precedence",
+        "href": "/docs/styling/precedence",
+        "description": "The ladder that decides which value wins, why specificity is not part of it, and what to do when the compiler says two values are ambiguous.",
+        "keywords": [
+          "precedence",
+          "cascade",
+          "specificity",
+          "ladder",
+          "ambiguous",
+          "trace",
+          "layers"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "composition",
+    "label": "Composition",
+    "items": [
+      {
+        "title": "Styling other people's components",
+        "href": "/docs/styling/external-components",
+        "description": "Style components that do not read sx with props(), and read what the sx-on-external-component diagnostic is telling you.",
+        "keywords": [
+          "props",
+          "styleProps",
+          "external",
+          "base ui",
+          "third party",
           "className"
         ]
-      }
-    ]
-  },
-  {
-    "slug": "server",
-    "label": "Server frameworks",
-    "items": [
+      },
       {
-        "title": "Server templates",
-        "href": "/docs/frameworks/server-templates",
-        "description": "How Kirana styles Blade, Twig, ERB, HEEx and Edge templates - styles in TypeScript modules, a class map the CLI writes, and a small helper per template language.",
+        "title": "Relations",
+        "href": "/docs/styling/relations",
+        "description": "Style an element from another element's state, as group and peer variants do, with the anchor stated in the source.",
         "keywords": [
-          "server templates",
-          "class map",
-          "blade",
-          "twig",
-          "erb",
-          "heex",
-          "edge",
-          "laravel",
-          "rails",
-          "phoenix",
-          "symfony",
-          "adonisjs"
+          "relation",
+          "group",
+          "peer",
+          "anchor",
+          "within",
+          "after",
+          "before",
+          "state"
         ]
       },
       {
-        "title": "Laravel",
-        "href": "/docs/frameworks/laravel",
-        "description": "Install Kirana in a Laravel app - styles in TypeScript modules, the Kirana CLI beside artisan serve, and @kirana in Blade.",
+        "title": "Contextual styles",
+        "href": "/docs/styling/contextual",
+        "description": "Style the elements below you with select.descendant and select.child, in a layer their own styles still beat.",
         "keywords": [
-          "laravel",
-          "php",
-          "blade",
-          "composer",
-          "class map",
-          "install"
+          "select",
+          "descendant",
+          "child",
+          "contextual",
+          "svg",
+          "layer"
         ]
       },
       {
-        "title": "Symfony",
-        "href": "/docs/frameworks/symfony",
-        "description": "Install Kirana in a Symfony app - styles in TypeScript modules, the Kirana CLI, and kirana() in Twig.",
+        "title": "Recipes",
+        "href": "/docs/styling/recipes",
+        "description": "Variants, compound variants and slots with recipe(), resolved at build time when the options are known.",
         "keywords": [
-          "symfony",
-          "php",
-          "twig",
-          "composer",
-          "class map",
-          "install"
-        ]
-      },
-      {
-        "title": "Ruby on Rails",
-        "href": "/docs/frameworks/rails",
-        "description": "Install Kirana in a Rails app - styles in TypeScript modules, the Kirana CLI in bin/dev, and the kirana helper in ERB views.",
-        "keywords": [
-          "rails",
-          "ruby",
-          "erb",
-          "gem",
-          "propshaft",
-          "class map",
-          "install"
-        ]
-      },
-      {
-        "title": "Phoenix",
-        "href": "/docs/frameworks/phoenix",
-        "description": "Install Kirana in a Phoenix app - styles in TypeScript modules, the Kirana CLI as a watcher, and kirana/1 in HEEx.",
-        "keywords": [
-          "phoenix",
-          "elixir",
-          "heex",
-          "hex",
-          "mix",
-          "class map",
-          "install"
-        ]
-      },
-      {
-        "title": "AdonisJS",
-        "href": "/docs/frameworks/adonisjs",
-        "description": "Install Kirana in an AdonisJS app - styles in TypeScript modules, the Kirana CLI, and kirana() in Edge templates.",
-        "keywords": [
-          "adonisjs",
-          "adonis",
-          "edge",
-          "node.js",
-          "class map",
-          "install"
+          "recipe",
+          "variants",
+          "cva",
+          "slots",
+          "compound variants",
+          "defaults"
         ]
       }
     ]
   },
   {
-    "slug": "styling",
-    "label": "Styling",
+    "slug": "dynamic",
+    "label": "Beyond static styles",
     "items": [
       {
-        "label": "Fundamentals",
-        "items": [
-          {
-            "title": "Writing styles",
-            "href": "/docs/styling/styles",
-            "description": "css() and the style object - property names, values, custom properties, and what the compiler refuses.",
-            "keywords": [
-              "css",
-              "style object",
-              "properties",
-              "values",
-              "units"
-            ]
-          },
-          {
-            "title": "The sx prop",
-            "href": "/docs/styling/sx",
-            "description": "How sx works on elements and on components, what it compiles to, and how className and style survive it.",
-            "keywords": [
-              "sx",
-              "className",
-              "style",
-              "props",
-              "components"
-            ]
-          },
-          {
-            "title": "Conditions",
-            "href": "/docs/styling/conditions",
-            "description": "Hover, focus, attributes, breakpoints and container queries - all written inside the value they change.",
-            "keywords": [
-              "conditions",
-              "hover",
-              "media query",
-              "breakpoints",
-              "attributes",
-              "container query",
-              "responsive"
-            ]
-          },
-          {
-            "title": "Utility strings",
-            "href": "/docs/styling/utilities",
-            "description": "Write sx as Tailwind-style utility strings; each one compiles to the same atoms as the style object it stands for.",
-            "keywords": [
-              "utilities",
-              "tailwind",
-              "sx",
-              "string",
-              "preset",
-              "grammar",
-              "variants"
-            ]
-          }
+        "title": "Animation",
+        "href": "/docs/styling/animation",
+        "description": "Animate with keyframes() and transitions, including a custom property the browser can interpolate.",
+        "keywords": [
+          "keyframes",
+          "animation",
+          "transition",
+          "motion",
+          "property"
         ]
       },
       {
-        "label": "The cascade",
-        "items": [
-          {
-            "title": "Merging and removal",
-            "href": "/docs/styling/merging",
-            "description": "How styles combine per entry, and how to remove a value with null.",
-            "keywords": [
-              "merge",
-              "cx",
-              "override",
-              "null",
-              "remove",
-              "entries"
-            ]
-          },
-          {
-            "title": "Precedence",
-            "href": "/docs/styling/precedence",
-            "description": "The ladder that decides which value wins, why specificity is not part of it, and what to do when the compiler says two values are ambiguous.",
-            "keywords": [
-              "precedence",
-              "cascade",
-              "specificity",
-              "ladder",
-              "ambiguous",
-              "trace",
-              "layers"
-            ]
-          }
+        "title": "Values known at runtime",
+        "href": "/docs/styling/dynamic",
+        "description": "What happens to a style that depends on props: class expressions, the custom-property bridge, and the runtime helper.",
+        "keywords": [
+          "dynamic",
+          "runtime",
+          "bridge",
+          "custom property",
+          "branch budget",
+          "performance"
         ]
       },
       {
-        "label": "Composition",
-        "items": [
-          {
-            "title": "Styling other people's components",
-            "href": "/docs/styling/external-components",
-            "description": "props() for components that do not read sx, and what the sx-on-external-component diagnostic is telling you.",
-            "keywords": [
-              "props",
-              "styleProps",
-              "external",
-              "base ui",
-              "third party",
-              "className"
-            ]
-          },
-          {
-            "title": "Relations",
-            "href": "/docs/styling/relations",
-            "description": "Style an element from another element's state - what group and peer variants do, with the anchor stated in the source.",
-            "keywords": [
-              "relation",
-              "group",
-              "peer",
-              "anchor",
-              "within",
-              "after",
-              "before",
-              "state"
-            ]
-          },
-          {
-            "title": "Contextual styles",
-            "href": "/docs/styling/contextual",
-            "description": "select.descendant and select.child - styling elements below you, in a layer their own styles still beat.",
-            "keywords": [
-              "select",
-              "descendant",
-              "child",
-              "contextual",
-              "svg",
-              "layer"
-            ]
-          },
-          {
-            "title": "Recipes",
-            "href": "/docs/styling/recipes",
-            "description": "recipe() for variants, compound variants and slots - resolved at build time when the options are known.",
-            "keywords": [
-              "recipe",
-              "variants",
-              "cva",
-              "slots",
-              "compound variants",
-              "defaults"
-            ]
-          }
+        "title": "Fallback values",
+        "href": "/docs/styling/fallbacks",
+        "description": "Write one property several times with firstThatWorks(), so a browser that does not know the preferred value keeps the one before it.",
+        "keywords": [
+          "firstThatWorks",
+          "fallback",
+          "dvh",
+          "svh",
+          "progressive enhancement",
+          "supports"
         ]
       },
       {
-        "label": "Beyond static styles",
-        "items": [
-          {
-            "title": "Animation",
-            "href": "/docs/styling/animation",
-            "description": "keyframes(), transitions, and animating a custom property that the browser can interpolate.",
-            "keywords": [
-              "keyframes",
-              "animation",
-              "transition",
-              "motion",
-              "property"
-            ]
-          },
-          {
-            "title": "Values known at runtime",
-            "href": "/docs/styling/dynamic",
-            "description": "What happens to a style that depends on props - class expressions, the custom-property bridge, and the 1 kB runtime.",
-            "keywords": [
-              "dynamic",
-              "runtime",
-              "bridge",
-              "custom property",
-              "branch budget",
-              "performance"
-            ]
-          },
-          {
-            "title": "Fallback values",
-            "href": "/docs/styling/fallbacks",
-            "description": "firstThatWorks() writes one property several times, so a browser that does not know the preferred value keeps the one before it.",
-            "keywords": [
-              "firstThatWorks",
-              "fallback",
-              "dvh",
-              "svh",
-              "progressive enhancement",
-              "supports"
-            ]
-          },
-          {
-            "title": "Anchor positioning",
-            "href": "/docs/styling/anchor-positioning",
-            "description": "positionTry() defines an @position-try fallback for an anchored element, checked at build time.",
-            "keywords": [
-              "positionTry",
-              "position-try",
-              "anchor",
-              "positionAnchor",
-              "positionArea",
-              "positionTryFallbacks",
-              "popover",
-              "tooltip"
-            ]
-          },
-          {
-            "title": "View transitions",
-            "href": "/docs/styling/view-transitions",
-            "description": "viewTransition() styles the pseudo-elements of a view transition, and is at once a style for sx and the class name a framework's transition API takes.",
-            "keywords": [
-              "viewTransition",
-              "view transition",
-              "view-transition-class",
-              "view-transition-name",
-              "startViewTransition",
-              "ViewTransition",
-              "animation"
-            ]
-          }
+        "title": "Anchor positioning",
+        "href": "/docs/styling/anchor-positioning",
+        "description": "Define fallback positions for an anchored element with positionTry(), each an @position-try rule checked at build time.",
+        "keywords": [
+          "positionTry",
+          "position-try",
+          "anchor",
+          "positionAnchor",
+          "positionArea",
+          "positionTryFallbacks",
+          "popover",
+          "tooltip"
+        ]
+      },
+      {
+        "title": "View transitions",
+        "href": "/docs/styling/view-transitions",
+        "description": "Style the pseudo-elements of a view transition with viewTransition(), which is at once a style for sx and the class name a framework's transition API takes.",
+        "keywords": [
+          "viewTransition",
+          "view transition",
+          "view-transition-class",
+          "view-transition-name",
+          "startViewTransition",
+          "ViewTransition",
+          "animation"
         ]
       }
     ]
@@ -4831,7 +4540,7 @@ export const NAV: readonly NavGroup[] = [
       {
         "title": "Tokens",
         "href": "/docs/tokens/overview",
-        "description": "defineTokens, inlined values versus custom properties, and how a token stays a typed constant.",
+        "description": "Declare tokens with defineTokens, choose between inlined values and custom properties, and keep each token a typed constant.",
         "keywords": [
           "tokens",
           "defineTokens",
@@ -4856,7 +4565,7 @@ export const NAV: readonly NavGroup[] = [
       {
         "title": "Semantic tokens",
         "href": "/docs/tokens/semantic-tokens",
-        "description": "Naming your decisions - a variable layer with light-dark() pairs, so dark mode needs no variant.",
+        "description": "Name your design decisions in a variable layer of light-dark() pairs, so dark mode needs no variant.",
         "keywords": [
           "semantic tokens",
           "design system",
@@ -4869,7 +4578,7 @@ export const NAV: readonly NavGroup[] = [
       {
         "title": "Themes and modes",
         "href": "/docs/tokens/themes-and-modes",
-        "description": "mode.system, mode.light and mode.dark on the root element, and defineTheme for a subtree.",
+        "description": "Set the colour mode on the root element with mode.system, mode.light or mode.dark, and override tokens for a subtree with defineTheme.",
         "keywords": [
           "theme",
           "dark mode",
@@ -4897,6 +4606,650 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
+        "title": "Layers and global CSS",
+        "href": "/docs/config/layers",
+        "description": "Where a reset goes, why Kirana emits nothing unlayered, and how to keep third-party CSS below your styles.",
+        "keywords": [
+          "layers",
+          "cascade layers",
+          "reset",
+          "global css",
+          "preflight"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "frameworks",
+    "label": "Frameworks",
+    "items": [
+      {
+        "title": "Choose a framework",
+        "href": "/docs/frameworks/overview",
+        "description": "Install Kirana with your framework, on your bundler, or from the command line for server templates, with a guide for each that is tested on every change.",
+        "keywords": [
+          "get started",
+          "installation",
+          "frameworks",
+          "bundlers",
+          "support",
+          "react",
+          "next.js",
+          "vue",
+          "svelte",
+          "angular",
+          "laravel",
+          "rails",
+          "phoenix",
+          "symfony",
+          "vite",
+          "cli"
+        ]
+      },
+      {
+        "title": "React",
+        "href": "/docs/frameworks/react",
+        "description": "Install Kirana in a React app on Vite: the plugin, the stylesheet, sx types and a first component.",
+        "keywords": [
+          "react",
+          "vite",
+          "install",
+          "setup",
+          "sx",
+          "className"
+        ]
+      },
+      {
+        "title": "Next.js",
+        "href": "/docs/frameworks/nextjs",
+        "description": "Install Kirana in a Next.js app on Turbopack (the default) or webpack, with one withKirana, the stylesheet through PostCSS, and server components.",
+        "keywords": [
+          "next.js",
+          "nextjs",
+          "turbopack",
+          "webpack",
+          "postcss",
+          "app router",
+          "server components",
+          "install",
+          "kirana init"
+        ]
+      },
+      {
+        "title": "React Router",
+        "href": "/docs/frameworks/react-router",
+        "description": "Install Kirana in a React Router app in framework mode on Vite, where sx compiles to className for server rendering and single-page mode alike.",
+        "keywords": [
+          "react router",
+          "remix",
+          "framework mode",
+          "vite",
+          "ssr",
+          "spa",
+          "install"
+        ]
+      },
+      {
+        "title": "TanStack Start",
+        "href": "/docs/frameworks/tanstack-start",
+        "description": "Install Kirana in a TanStack Start app: the plugin, the root document, stylesheet order and server rendering.",
+        "keywords": [
+          "react",
+          "tanstack start",
+          "ssr",
+          "root",
+          "stylesheet order",
+          "server rendering"
+        ]
+      },
+      {
+        "title": "Gatsby",
+        "href": "/docs/frameworks/gatsby",
+        "description": "Install Kirana in a Gatsby site, where one plugin adds Kirana to every webpack stage so the server render and the browser name the same classes.",
+        "keywords": [
+          "gatsby",
+          "webpack",
+          "ssr",
+          "static site",
+          "plugin",
+          "install"
+        ]
+      },
+      {
+        "title": "Preact",
+        "href": "/docs/frameworks/preact",
+        "description": "Install Kirana in a Preact app on Vite, where sx compiles to class, detected from jsxImportSource.",
+        "keywords": [
+          "preact",
+          "vite",
+          "install",
+          "class",
+          "jsxImportSource"
+        ]
+      },
+      {
+        "title": "Solid",
+        "href": "/docs/frameworks/solid",
+        "description": "Install Kirana in a Solid app on Vite, where sx compiles to class, detected from jsxImportSource.",
+        "keywords": [
+          "solid",
+          "solid-js",
+          "vite",
+          "install",
+          "class",
+          "jsxImportSource"
+        ]
+      },
+      {
+        "title": "Vue",
+        "href": "/docs/frameworks/vue",
+        "description": "Install Kirana in a Vue app on Vite, with styles in the script and :sx in the template, compiled before Vue sees the component.",
+        "keywords": [
+          "vue",
+          "vite",
+          "sfc",
+          "script setup",
+          "v-bind",
+          "class",
+          "install"
+        ]
+      },
+      {
+        "title": "Nuxt",
+        "href": "/docs/frameworks/nuxt",
+        "description": "Install Kirana in a Nuxt app, with the Vite plugin in nuxt.config, the stylesheet in css, and :sx in components rendered on the server.",
+        "keywords": [
+          "nuxt",
+          "vue",
+          "ssr",
+          "nuxt.config",
+          "generate",
+          "install"
+        ]
+      },
+      {
+        "title": "Svelte",
+        "href": "/docs/frameworks/svelte",
+        "description": "Install Kirana in a Svelte app on Vite, with styles in the script and sx on elements, compiled before Svelte sees the component.",
+        "keywords": [
+          "svelte",
+          "svelte 5",
+          "vite",
+          "runes",
+          "class",
+          "install"
+        ]
+      },
+      {
+        "title": "SvelteKit",
+        "href": "/docs/frameworks/sveltekit",
+        "description": "Install Kirana in a SvelteKit app, with the Vite plugin before sveltekit(), the stylesheet in the root layout, and sx in server-rendered components.",
+        "keywords": [
+          "sveltekit",
+          "svelte",
+          "ssr",
+          "prerender",
+          "adapter",
+          "install"
+        ]
+      },
+      {
+        "title": "Astro",
+        "href": "/docs/frameworks/astro",
+        "description": "Install Kirana in an Astro site, with the integration, styles in the frontmatter, sx on elements, and the stylesheet Astro links or inlines.",
+        "keywords": [
+          "astro",
+          "integration",
+          "frontmatter",
+          "islands",
+          "class",
+          "install"
+        ]
+      },
+      {
+        "title": "Qwik",
+        "href": "/docs/frameworks/qwik",
+        "description": "Install Kirana in a Qwik 2 app on Vite, where sx compiles to class, detected from jsxImportSource, rendered on the server and resumed in the browser.",
+        "keywords": [
+          "qwik",
+          "qwik router",
+          "qwik city",
+          "vite",
+          "install",
+          "class",
+          "jsxImportSource",
+          "resumability"
+        ]
+      },
+      {
+        "title": "Angular",
+        "href": "/docs/frameworks/angular",
+        "description": "Install Kirana in an Angular app, through Kirana's builders for the Angular CLI or through Analog on Vite, and style templates with the [sx] directive.",
+        "keywords": [
+          "angular",
+          "analog",
+          "angular cli",
+          "ng build",
+          "ng serve",
+          "directive",
+          "sx",
+          "templates",
+          "install",
+          "kirana init"
+        ]
+      },
+      {
+        "title": "Ember.js",
+        "href": "/docs/frameworks/ember",
+        "description": "Install Kirana in an Ember app on Embroider and Vite, with css() in .gjs and .gts files and the sx helper in templates.",
+        "keywords": [
+          "ember",
+          "embroider",
+          "vite",
+          "gjs",
+          "gts",
+          "template tag",
+          "glimmer",
+          "helper"
+        ]
+      },
+      {
+        "title": "Meteor",
+        "href": "/docs/frameworks/meteor",
+        "description": "Install Kirana in a Meteor 3.4+ app, where Meteor bundles app code with Rspack and Kirana's Rspack plugin goes in its configuration.",
+        "keywords": [
+          "meteor",
+          "rspack",
+          "react",
+          "install",
+          "modern build stack"
+        ]
+      },
+      {
+        "title": "No framework",
+        "href": "/docs/frameworks/vanilla",
+        "description": "Use Kirana without a framework: style handles are class strings, merged with cx, for plain TypeScript, web components and server templates.",
+        "keywords": [
+          "vanilla",
+          "no framework",
+          "web components",
+          "typescript",
+          "cx",
+          "className"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "server",
+    "label": "Server frameworks",
+    "items": [
+      {
+        "title": "Server templates",
+        "href": "/docs/frameworks/server-templates",
+        "description": "How Kirana styles Blade, Twig, ERB, HEEx and Edge templates: styles in TypeScript modules, a class map the CLI writes, and a small helper per template language.",
+        "keywords": [
+          "server templates",
+          "class map",
+          "blade",
+          "twig",
+          "erb",
+          "heex",
+          "edge",
+          "laravel",
+          "rails",
+          "phoenix",
+          "symfony",
+          "adonisjs"
+        ]
+      },
+      {
+        "title": "Laravel",
+        "href": "/docs/frameworks/laravel",
+        "description": "Install Kirana in a Laravel app, with styles in TypeScript modules, the Kirana CLI beside artisan serve, and @kirana in Blade.",
+        "keywords": [
+          "laravel",
+          "php",
+          "blade",
+          "composer",
+          "class map",
+          "install"
+        ]
+      },
+      {
+        "title": "Symfony",
+        "href": "/docs/frameworks/symfony",
+        "description": "Install Kirana in a Symfony app, with styles in TypeScript modules, the Kirana CLI, and kirana() in Twig.",
+        "keywords": [
+          "symfony",
+          "php",
+          "twig",
+          "composer",
+          "class map",
+          "install"
+        ]
+      },
+      {
+        "title": "Ruby on Rails",
+        "href": "/docs/frameworks/rails",
+        "description": "Install Kirana in a Rails app, with styles in TypeScript modules, the Kirana CLI in bin/dev, and the kirana helper in ERB views.",
+        "keywords": [
+          "rails",
+          "ruby",
+          "erb",
+          "gem",
+          "propshaft",
+          "class map",
+          "install"
+        ]
+      },
+      {
+        "title": "Phoenix",
+        "href": "/docs/frameworks/phoenix",
+        "description": "Install Kirana in a Phoenix app, with styles in TypeScript modules, the Kirana CLI as a watcher, and kirana/1 in HEEx.",
+        "keywords": [
+          "phoenix",
+          "elixir",
+          "heex",
+          "hex",
+          "mix",
+          "class map",
+          "install"
+        ]
+      },
+      {
+        "title": "AdonisJS",
+        "href": "/docs/frameworks/adonisjs",
+        "description": "Install Kirana in an AdonisJS app, with styles in TypeScript modules, the Kirana CLI, and kirana() in Edge templates.",
+        "keywords": [
+          "adonisjs",
+          "adonis",
+          "edge",
+          "node.js",
+          "class map",
+          "install"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "bundlers",
+    "label": "Bundlers",
+    "items": [
+      {
+        "title": "Choose a bundler",
+        "href": "/docs/integrations/bundlers",
+        "description": "Kirana on every bundler (Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun, esbuild, PostCSS and Jest), each with its own guide and tested example.",
+        "keywords": [
+          "bundlers",
+          "rolldown",
+          "webpack",
+          "rspack",
+          "rsbuild",
+          "parcel",
+          "bun",
+          "esbuild",
+          "postcss",
+          "jest",
+          "plugin"
+        ]
+      },
+      {
+        "title": "Vite",
+        "href": "/docs/integrations/vite",
+        "description": "The @kirana-style/vite plugin: its options, the stylesheet entry, hot updates and the built asset.",
+        "keywords": [
+          "vite",
+          "rolldown",
+          "plugin",
+          "hmr",
+          "stylesheet",
+          "build"
+        ]
+      },
+      {
+        "title": "Rolldown",
+        "href": "/docs/integrations/rolldown",
+        "description": "Kirana on Rolldown without Vite, where the plugin compiles styles and writes the stylesheet as its own asset.",
+        "keywords": [
+          "rolldown",
+          "bundler",
+          "plugin",
+          "stylesheet",
+          "asset"
+        ]
+      },
+      {
+        "title": "webpack",
+        "href": "/docs/integrations/webpack",
+        "description": "Kirana on webpack 5, with a pre loader that reads sx before your JSX compiler and a plugin that writes the stylesheet before minification.",
+        "keywords": [
+          "webpack",
+          "loader",
+          "plugin",
+          "css",
+          "realContentHash",
+          "mini-css-extract-plugin"
+        ]
+      },
+      {
+        "title": "Rspack and Rsbuild",
+        "href": "/docs/integrations/rspack",
+        "description": "Kirana on Rspack and Rsbuild, through Rsbuild's pluginKirana or the webpack plugin, which Rspack runs unchanged.",
+        "keywords": [
+          "rspack",
+          "rsbuild",
+          "pluginKirana",
+          "rust bundler",
+          "webpack compatible"
+        ]
+      },
+      {
+        "title": "Parcel",
+        "href": "/docs/integrations/parcel",
+        "description": "Kirana on Parcel, where a transformer compiles styles in scripts and @kirana-style/postcss writes the stylesheet where @kirana; stands.",
+        "keywords": [
+          "parcel",
+          "transformer",
+          "postcss",
+          "parcelrc",
+          "zero configuration"
+        ]
+      },
+      {
+        "title": "Bun",
+        "href": "/docs/integrations/bun",
+        "description": "Kirana with Bun's bundler and dev server, through one plugin for Bun.build and bunfig.toml.",
+        "keywords": [
+          "bun",
+          "bun build",
+          "bunfig",
+          "dev server",
+          "plugin"
+        ]
+      },
+      {
+        "title": "esbuild",
+        "href": "/docs/integrations/esbuild",
+        "description": "Kirana on esbuild, through a plugin that compiles styles and finishes the bundled CSS, on disk, in memory, in watch mode and when serving.",
+        "keywords": [
+          "esbuild",
+          "plugin",
+          "watch",
+          "serve",
+          "outputFiles"
+        ]
+      },
+      {
+        "title": "PostCSS",
+        "href": "/docs/integrations/postcss",
+        "description": "The @kirana-style/postcss plugin writes the whole project's stylesheet where @kirana; stands, for pipelines whose scripts another step compiles.",
+        "keywords": [
+          "postcss",
+          "plugin",
+          "@kirana",
+          "turbopack",
+          "parcel",
+          "stylesheet"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "testing",
+    "label": "Testing",
+    "items": [
+      {
+        "title": "Jest",
+        "href": "/docs/integrations/jest",
+        "description": "Kirana under Jest, through a transformer that compiles styles, then hands the module to the transformer you already use.",
+        "keywords": [
+          "jest",
+          "transformer",
+          "babel-jest",
+          "testing",
+          "class names"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "migration",
+    "label": "Migration",
+    "items": [
+      {
+        "title": "Migrating from Tailwind",
+        "href": "/docs/migration/from-tailwind",
+        "description": "The mental shift, the utility mapping, and the pitfalls that actually cost time.",
+        "keywords": [
+          "tailwind",
+          "migration",
+          "utilities",
+          "cn",
+          "cva",
+          "group",
+          "peer"
+        ]
+      },
+      {
+        "title": "Migrating from StyleX",
+        "href": "/docs/migration/from-stylex",
+        "description": "The API maps almost directly; this page shows the mapping, and the one difference in how styles merge that will bite you.",
+        "keywords": [
+          "stylex",
+          "migration",
+          "codemod",
+          "defineVars",
+          "create",
+          "props"
+        ]
+      },
+      {
+        "title": "Verifying a migration",
+        "href": "/docs/advanced/conformance",
+        "description": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.",
+        "keywords": [
+          "conformance",
+          "testing",
+          "visual regression",
+          "computed styles",
+          "verification"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "building",
+    "label": "Building",
+    "items": [
+      {
+        "title": "Habits for a new project",
+        "href": "/docs/start/tips",
+        "description": "The habits that would have saved us the most time on day one, learnt building and migrating three applications on Kirana.",
+        "keywords": [
+          "tips",
+          "best practices",
+          "habits",
+          "conventions",
+          "from scratch",
+          "pitfalls"
+        ]
+      },
+      {
+        "title": "Building a design system",
+        "href": "/docs/advanced/design-system",
+        "description": "How the layered system in this repository is put together, and why each layer exists.",
+        "keywords": [
+          "design system",
+          "layers",
+          "tokens",
+          "recipes",
+          "primitives",
+          "components",
+          "shadcn"
+        ]
+      },
+      {
+        "title": "Publishing a library",
+        "href": "/docs/advanced/libraries",
+        "description": "Ship a component library styled with Kirana: the package keeps its styles uncompiled, and each app that lists it in libraries compiles them.",
+        "keywords": [
+          "library",
+          "design system",
+          "publish",
+          "npm",
+          "libraries",
+          "package",
+          "props"
+        ]
+      },
+      {
+        "title": "The output",
+        "href": "/docs/advanced/output",
+        "description": "What the stylesheet looks like, how classes are named, and what determinism buys you.",
+        "keywords": [
+          "output",
+          "css",
+          "atoms",
+          "class names",
+          "hashing",
+          "determinism",
+          "minification"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "reference",
+    "label": "API",
+    "items": [
+      {
+        "title": "API reference",
+        "href": "/docs/reference/api",
+        "description": "Every export of @kirana-style/core, with its signature and what it returns.",
+        "keywords": [
+          "api",
+          "reference",
+          "css",
+          "cx",
+          "props",
+          "recipe",
+          "relation",
+          "select",
+          "keyframes",
+          "defineTokens",
+          "defineTheme",
+          "mode",
+          "firstThatWorks",
+          "positionTry",
+          "viewTransition",
+          "media",
+          "container",
+          "supports"
+        ],
+        "kind": "api"
+      },
+      {
         "title": "Configuration reference",
         "href": "/docs/config/reference",
         "description": "Every key that exists today, with its type, default and what it changes.",
@@ -4912,178 +5265,17 @@ export const NAV: readonly NavGroup[] = [
           "externals"
         ],
         "kind": "config"
-      },
-      {
-        "title": "Layers and global CSS",
-        "href": "/docs/config/layers",
-        "description": "Where a reset goes, why Kirana emits nothing unlayered, and how to keep third-party CSS below your styles.",
-        "keywords": [
-          "layers",
-          "cascade layers",
-          "reset",
-          "global css",
-          "preflight"
-        ]
-      }
-    ]
-  },
-  {
-    "slug": "integrations",
-    "label": "Integrations",
-    "items": [
-      {
-        "title": "Vite",
-        "href": "/docs/integrations/vite",
-        "description": "The @kirana-style/vite plugin - options, the stylesheet entry, hot updates and the built asset.",
-        "keywords": [
-          "vite",
-          "rolldown",
-          "plugin",
-          "hmr",
-          "stylesheet",
-          "build"
-        ]
-      },
-      {
-        "title": "Bundlers",
-        "href": "/docs/integrations/bundlers",
-        "description": "Kirana on every bundler - Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun, esbuild, PostCSS and Jest, each with its own guide and tested example.",
-        "keywords": [
-          "bundlers",
-          "rolldown",
-          "webpack",
-          "rspack",
-          "rsbuild",
-          "parcel",
-          "bun",
-          "esbuild",
-          "postcss",
-          "jest",
-          "plugin"
-        ]
-      },
-      {
-        "title": "Rolldown",
-        "href": "/docs/integrations/rolldown",
-        "description": "Kirana on Rolldown without Vite - the plugin compiles styles and writes the stylesheet as its own asset.",
-        "keywords": [
-          "rolldown",
-          "bundler",
-          "plugin",
-          "stylesheet",
-          "asset"
-        ]
-      },
-      {
-        "title": "webpack",
-        "href": "/docs/integrations/webpack",
-        "description": "Kirana on webpack 5 - a pre loader that reads sx before your JSX compiler, and a plugin that writes the stylesheet before minification.",
-        "keywords": [
-          "webpack",
-          "loader",
-          "plugin",
-          "css",
-          "realContentHash",
-          "mini-css-extract-plugin"
-        ]
-      },
-      {
-        "title": "Rspack and Rsbuild",
-        "href": "/docs/integrations/rspack",
-        "description": "Kirana on Rspack and Rsbuild - Rsbuild's pluginKirana, or the webpack plugin, which Rspack runs unchanged.",
-        "keywords": [
-          "rspack",
-          "rsbuild",
-          "pluginKirana",
-          "rust bundler",
-          "webpack compatible"
-        ]
-      },
-      {
-        "title": "Parcel",
-        "href": "/docs/integrations/parcel",
-        "description": "Kirana on Parcel - a transformer compiles styles in scripts, and @kirana-style/postcss writes the stylesheet where @kirana; stands.",
-        "keywords": [
-          "parcel",
-          "transformer",
-          "postcss",
-          "parcelrc",
-          "zero configuration"
-        ]
-      },
-      {
-        "title": "Bun",
-        "href": "/docs/integrations/bun",
-        "description": "Kirana with Bun's bundler and dev server - one plugin for Bun.build and bunfig.toml.",
-        "keywords": [
-          "bun",
-          "bun build",
-          "bunfig",
-          "dev server",
-          "plugin"
-        ]
-      },
-      {
-        "title": "esbuild",
-        "href": "/docs/integrations/esbuild",
-        "description": "Kirana on esbuild - a plugin that compiles styles and finishes the bundled CSS, on disk, in memory, in watch mode and when serving.",
-        "keywords": [
-          "esbuild",
-          "plugin",
-          "watch",
-          "serve",
-          "outputFiles"
-        ]
-      },
-      {
-        "title": "PostCSS",
-        "href": "/docs/integrations/postcss",
-        "description": "The @kirana-style/postcss plugin - the whole project's stylesheet where @kirana; stands, for pipelines whose scripts another step compiles.",
-        "keywords": [
-          "postcss",
-          "plugin",
-          "@kirana",
-          "turbopack",
-          "parcel",
-          "stylesheet"
-        ]
-      },
-      {
-        "title": "Jest",
-        "href": "/docs/integrations/jest",
-        "description": "Kirana under Jest - a transformer that compiles styles, then hands the module to the transformer you already use.",
-        "keywords": [
-          "jest",
-          "transformer",
-          "babel-jest",
-          "testing",
-          "class names"
-        ]
-      },
-      {
-        "title": "Ecosystem and status",
-        "href": "/docs/integrations/ecosystem",
-        "description": "What works today, what is planned, and which milestone each thing belongs to.",
-        "keywords": [
-          "ecosystem",
-          "status",
-          "support",
-          "bundlers",
-          "frameworks",
-          "editors",
-          "roadmap"
-        ]
       }
     ]
   },
   {
     "slug": "tooling",
-    "label": "Tooling",
+    "label": "Tools",
     "items": [
       {
         "title": "The CLI",
         "href": "/docs/tooling/cli",
-        "description": "kirana init, doctor, dev, build, check, analyze, export, trace, migrate and lsp - what each one does, and what it prints.",
+        "description": "What each kirana command does and what it prints, for init, doctor, dev, build, check, analyze, export, trace, migrate and lsp.",
         "keywords": [
           "cli",
           "init",
@@ -5106,7 +5298,7 @@ export const NAV: readonly NavGroup[] = [
       {
         "title": "Editor support",
         "href": "/docs/tooling/editor",
-        "description": "The Kirana language server in VS Code, Cursor, Windsurf, Antigravity, Zed, Neovim and Helix — the compiled CSS on hover, which entry wins and why, swatches, an inline summary, completion and the compiler's diagnostics as you type.",
+        "description": "The Kirana language server shows each element's compiled CSS, which entry wins and why, colour swatches and the compiler's diagnostics as you type, in VS Code, Cursor, Windsurf, Antigravity, Zed, Neovim and Helix.",
         "keywords": [
           "editor",
           "language server",
@@ -5126,7 +5318,7 @@ export const NAV: readonly NavGroup[] = [
       {
         "title": "Lint",
         "href": "/docs/tooling/lint",
-        "description": "@kirana-style/eslint-plugin under Oxlint or ESLint, and @kirana-style/biome-plugin under Biome: the compiler's diagnostics, and the overrides and forwarding mistakes that lose styles silently.",
+        "description": "Kirana's rules under Oxlint, ESLint and Biome: the compiler's diagnostics, and the overrides and forwarding mistakes that lose styles silently.",
         "keywords": [
           "lint",
           "eslint",
@@ -5169,138 +5361,13 @@ export const NAV: readonly NavGroup[] = [
     ]
   },
   {
-    "slug": "migration",
-    "label": "Migration",
-    "items": [
-      {
-        "title": "Migrating from Tailwind",
-        "href": "/docs/migration/from-tailwind",
-        "description": "The mental shift, the utility mapping, and the pitfalls that actually cost time.",
-        "keywords": [
-          "tailwind",
-          "migration",
-          "utilities",
-          "cn",
-          "cva",
-          "group",
-          "peer"
-        ]
-      },
-      {
-        "title": "Migrating from StyleX",
-        "href": "/docs/migration/from-stylex",
-        "description": "The API maps almost directly - and the one semantic difference that will bite you.",
-        "keywords": [
-          "stylex",
-          "migration",
-          "codemod",
-          "defineVars",
-          "create",
-          "props"
-        ]
-      }
-    ]
-  },
-  {
-    "slug": "advanced",
-    "label": "Advanced",
-    "items": [
-      {
-        "title": "The output",
-        "href": "/docs/advanced/output",
-        "description": "What the stylesheet looks like, how classes are named, and what determinism buys you.",
-        "keywords": [
-          "output",
-          "css",
-          "atoms",
-          "class names",
-          "hashing",
-          "determinism",
-          "minification"
-        ]
-      },
-      {
-        "title": "Building a design system",
-        "href": "/docs/advanced/design-system",
-        "description": "How the layered system in this repository is put together, and why each layer exists.",
-        "keywords": [
-          "design system",
-          "layers",
-          "tokens",
-          "recipes",
-          "primitives",
-          "components",
-          "shadcn"
-        ]
-      },
-      {
-        "title": "Publishing a library",
-        "href": "/docs/advanced/libraries",
-        "description": "Ship a component library styled with Kirana - styles uncompiled in the package, compiled by each app that lists it in libraries.",
-        "keywords": [
-          "library",
-          "design system",
-          "publish",
-          "npm",
-          "libraries",
-          "package",
-          "props"
-        ]
-      },
-      {
-        "title": "Verifying a migration",
-        "href": "/docs/advanced/conformance",
-        "description": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.",
-        "keywords": [
-          "conformance",
-          "testing",
-          "visual regression",
-          "computed styles",
-          "verification"
-        ]
-      }
-    ]
-  },
-  {
-    "slug": "reference",
-    "label": "Reference",
-    "items": [
-      {
-        "title": "API reference",
-        "href": "/docs/reference/api",
-        "description": "Every export of @kirana-style/core, with its signature and what it returns.",
-        "keywords": [
-          "api",
-          "reference",
-          "css",
-          "cx",
-          "props",
-          "recipe",
-          "relation",
-          "select",
-          "keyframes",
-          "defineTokens",
-          "defineTheme",
-          "mode",
-          "firstThatWorks",
-          "positionTry",
-          "viewTransition",
-          "media",
-          "container",
-          "supports"
-        ],
-        "kind": "api"
-      }
-    ]
-  },
-  {
     "slug": "project",
     "label": "Project",
     "items": [
       {
         "title": "What works today",
         "href": "/docs/project/status",
-        "description": "A single honest table of the built, the partial and the planned.",
+        "description": "What is built, what is partial and what is planned.",
         "keywords": [
           "status",
           "support",
@@ -5336,32 +5403,17 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
-        "title": "For LLMs",
-        "href": "/docs/project/llms",
-        "description": "Plain-text endpoints of this documentation, written for coding agents - llms.txt, the full text, and a markdown twin of every page.",
+        "title": "Ecosystem and status",
+        "href": "/docs/integrations/ecosystem",
+        "description": "What works today, what is planned, and which milestone each thing belongs to.",
         "keywords": [
-          "llms.txt",
-          "ai",
-          "agents",
-          "markdown",
-          "plain text",
-          "context"
-        ]
-      },
-      {
-        "title": "Agent skills",
-        "href": "/docs/project/agent-skills",
-        "description": "Two installable skills that teach a coding agent to write Kirana and to migrate to it - the rules that cause real bugs, the check-trace-report loop, and every diagnostic and lint rule.",
-        "keywords": [
-          "agent skills",
-          "skills.sh",
-          "ai",
-          "agents",
-          "claude code",
-          "cursor",
-          "codex",
-          "coding agent",
-          "kirana export"
+          "ecosystem",
+          "status",
+          "support",
+          "bundlers",
+          "frameworks",
+          "editors",
+          "roadmap"
         ]
       },
       {
@@ -5377,6 +5429,35 @@ export const NAV: readonly NavGroup[] = [
           "sponsor",
           "help"
         ]
+      },
+      {
+        "title": "For LLMs",
+        "href": "/docs/project/llms",
+        "description": "Plain-text endpoints of this documentation, written for coding agents: llms.txt, the full text, and a markdown twin of every page.",
+        "keywords": [
+          "llms.txt",
+          "ai",
+          "agents",
+          "markdown",
+          "plain text",
+          "context"
+        ]
+      },
+      {
+        "title": "Agent skills",
+        "href": "/docs/project/agent-skills",
+        "description": "Two installable skills teach a coding agent to write Kirana and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule.",
+        "keywords": [
+          "agent skills",
+          "skills.sh",
+          "ai",
+          "agents",
+          "claude code",
+          "cursor",
+          "codex",
+          "coding agent",
+          "kirana export"
+        ]
       }
     ]
   }
@@ -5385,13 +5466,33 @@ export const NAV: readonly NavGroup[] = [
 /** Reading order, for the previous/next pager. */
 export const ORDER: readonly string[] = [
   "/docs",
+  "/docs/start/why-kirana",
   "/docs/start/quick-start",
   "/docs/start/installation",
   "/docs/start/first-component",
-  "/docs/start/how-it-works",
   "/docs/start/mental-model",
-  "/docs/start/why-kirana",
-  "/docs/start/tips",
+  "/docs/start/how-it-works",
+  "/docs/styling/styles",
+  "/docs/styling/sx",
+  "/docs/styling/conditions",
+  "/docs/styling/utilities",
+  "/docs/styling/merging",
+  "/docs/styling/precedence",
+  "/docs/styling/external-components",
+  "/docs/styling/relations",
+  "/docs/styling/contextual",
+  "/docs/styling/recipes",
+  "/docs/styling/animation",
+  "/docs/styling/dynamic",
+  "/docs/styling/fallbacks",
+  "/docs/styling/anchor-positioning",
+  "/docs/styling/view-transitions",
+  "/docs/tokens/overview",
+  "/docs/tokens/preset-scales",
+  "/docs/tokens/semantic-tokens",
+  "/docs/tokens/themes-and-modes",
+  "/docs/config/file",
+  "/docs/config/layers",
   "/docs/frameworks/overview",
   "/docs/frameworks/react",
   "/docs/frameworks/nextjs",
@@ -5416,30 +5517,8 @@ export const ORDER: readonly string[] = [
   "/docs/frameworks/rails",
   "/docs/frameworks/phoenix",
   "/docs/frameworks/adonisjs",
-  "/docs/styling/styles",
-  "/docs/styling/sx",
-  "/docs/styling/conditions",
-  "/docs/styling/utilities",
-  "/docs/styling/merging",
-  "/docs/styling/precedence",
-  "/docs/styling/external-components",
-  "/docs/styling/relations",
-  "/docs/styling/contextual",
-  "/docs/styling/recipes",
-  "/docs/styling/animation",
-  "/docs/styling/dynamic",
-  "/docs/styling/fallbacks",
-  "/docs/styling/anchor-positioning",
-  "/docs/styling/view-transitions",
-  "/docs/tokens/overview",
-  "/docs/tokens/preset-scales",
-  "/docs/tokens/semantic-tokens",
-  "/docs/tokens/themes-and-modes",
-  "/docs/config/file",
-  "/docs/config/reference",
-  "/docs/config/layers",
-  "/docs/integrations/vite",
   "/docs/integrations/bundlers",
+  "/docs/integrations/vite",
   "/docs/integrations/rolldown",
   "/docs/integrations/webpack",
   "/docs/integrations/rspack",
@@ -5448,25 +5527,27 @@ export const ORDER: readonly string[] = [
   "/docs/integrations/esbuild",
   "/docs/integrations/postcss",
   "/docs/integrations/jest",
-  "/docs/integrations/ecosystem",
+  "/docs/migration/from-tailwind",
+  "/docs/migration/from-stylex",
+  "/docs/advanced/conformance",
+  "/docs/start/tips",
+  "/docs/advanced/design-system",
+  "/docs/advanced/libraries",
+  "/docs/advanced/output",
+  "/docs/reference/api",
+  "/docs/config/reference",
   "/docs/tooling/cli",
   "/docs/tooling/editor",
   "/docs/tooling/lint",
   "/docs/tooling/diagnostics",
   "/docs/tooling/debugging",
-  "/docs/migration/from-tailwind",
-  "/docs/migration/from-stylex",
-  "/docs/advanced/output",
-  "/docs/advanced/design-system",
-  "/docs/advanced/libraries",
-  "/docs/advanced/conformance",
-  "/docs/reference/api",
   "/docs/project/status",
   "/docs/project/roadmap",
   "/docs/project/releases",
+  "/docs/integrations/ecosystem",
+  "/docs/project/contributing",
   "/docs/project/llms",
-  "/docs/project/agent-skills",
-  "/docs/project/contributing"
+  "/docs/project/agent-skills"
 ]
 
 export const SEARCH: readonly SearchRecord[] = [
@@ -5475,7 +5556,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "href": "/docs",
     "page": "Introduction",
     "section": "start",
-    "text": "Kirana is a compile-time styling system for the modern web. Write typed styles next to your components; ship small, predictable CSS. "
+    "text": "Kirana is a compile-time styling system: write typed styles next to your components, and ship small, predictable CSS. "
   },
   {
     "id": "/docs#introduction",
@@ -5507,7 +5588,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Introduction",
     "section": "start",
     "heading": "Works with your framework",
-    "text": "React, Next.js, React Router, TanStack Start, Gatsby, Preact, Solid, Vue, Nuxt, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no framework at all — on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete install guide, and each is built and checked in a browser on every change: pick yours ."
+    "text": "React, Next.js, React Router, TanStack Start, Gatsby, Preact, Solid, Vue, Nuxt, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete install guide, and each is built and checked in a browser on every change: pick yours ."
   },
   {
     "id": "/docs#what-it-gives-you",
@@ -5515,7 +5596,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Introduction",
     "section": "start",
     "heading": "What it gives you",
-    "text": "Typed styles. Ordinary objects, checked by TypeScript, with camelCase CSS property names and real values — not a string vocabulary you have to learn. Conditions inside values. reads in the order it applies, instead of scattering prefixes across a class list. Predictable precedence. A stated ladder decides which value wins, and the diagnostic tells you when two values could both apply. Tokens and themes. Design tokens compile to constants or custom properties, and every colour can be a pair, so dark mode needs no variant. Real diagnostics. 38 checks with codes, severities and help text, from unknown properties to a component that forgets to pass on."
+    "text": "Typed styles. Ordinary objects, checked by TypeScript, with camelCase CSS property names and real values, not a string vocabulary you have to learn. Conditions inside values. reads in the order it applies, instead of scattering prefixes across a class list. Predictable precedence. A stated ladder decides which value wins, and the diagnostic tells you when two values could both apply. Tokens and themes. Design tokens compile to constants or custom properties, and every colour can be a pair, so dark mode needs no variant. Real diagnostics. 45 checks with codes, severities and help text, from unknown properties to a component that forgets to pass on."
   },
   {
     "id": "/docs#what-it-is-not",
@@ -5526,11 +5607,82 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Kirana is not a utility-class framework, and it does not generate CSS in the browser. It does not try to style markup you do not render: the compiler works on the source it can see."
   },
   {
+    "id": "/docs/start/why-kirana",
+    "href": "/docs/start/why-kirana",
+    "page": "Why Kirana",
+    "section": "start",
+    "text": "Why CSS-in-JS got a bad name, what a compiler changes, and what Kirana answers that StyleX left open. "
+  },
+  {
+    "id": "/docs/start/why-kirana#why-kirana",
+    "href": "/docs/start/why-kirana#why-kirana",
+    "page": "Why Kirana",
+    "section": "start",
+    "heading": "Why Kirana",
+    "text": "\"CSS-in-JS\" means two different things, and most of the dislike is for the first one. This page separates them, says what Kirana is, what it answers that StyleX left open, and where it costs you something."
+  },
+  {
+    "id": "/docs/start/why-kirana#the-css-in-js-people-left",
+    "href": "/docs/start/why-kirana#the-css-in-js-people-left",
+    "page": "Why Kirana",
+    "section": "start",
+    "heading": "The CSS-in-JS people left",
+    "text": "The first generation (styled-components, Emotion and their relatives) kept styles in JavaScript and turned them into CSS in the browser, while rendering . Every component that rendered serialised its styles, hashed them and inserted a rule. That had costs that no amount of tuning removed: Work on every render. Styles were computed at runtime, so pages started slower and got slower as the number of components grew. A library in every bundle. The runtime that did that work shipped to every user. Server rendering got harder. Styles had to be collected during the render and serialised into the HTML. The browser recalculated styles more often. React's own documentation lists two problems with runtime injection: it \"forces the browser to recalculate the styles a lot more often\", and it \"can be very slow if it happens at the wrong time in the React lifecycle\". It recommends static extraction to CSS files, plus inline styles for dynamic values , and says the first of those two problems \"is not solvable\" for runtime injection. GitHub's Primer is the public example. Starting with Primer React v37 it moved its components from styled-components to CSS Modules, finished that by December 2024, a"
+  },
+  {
+    "id": "/docs/start/why-kirana#what-a-compiler-changes",
+    "href": "/docs/start/why-kirana#what-a-compiler-changes",
+    "page": "Why Kirana",
+    "section": "start",
+    "heading": "What a compiler changes",
+    "text": "A compiled system reads the same style objects at build time and writes a plain stylesheet. Nothing about styling happens in the browser except applying class names. Kirana is this kind, and it is exactly what the React team recommends: static CSS files for static styles, and a custom property in for a value only known at runtime. What you keep from CSS-in-JS is the part people liked: styles are values, next to the component, typed, passed as props, and deleted with the component."
+  },
+  {
+    "id": "/docs/start/why-kirana#you-can-see-the-css-again",
+    "href": "/docs/start/why-kirana#you-can-see-the-css-again",
+    "page": "Why Kirana",
+    "section": "start",
+    "heading": "You can see the CSS again",
+    "text": "Runtime cost was one reason teams left CSS-in-JS. The other was reading. A Tailwind class list is the CSS, written on the element: tells you what the gets without leaving the line. A style object moves that into a constant somewhere else, and reading a component turns into jumping to and back. Kirana's language server gives the class list back, without putting it in your markup: At the end of every element's line , what it ends up with, in a class list's words and coloured by kind: . Values under a guard lead with it ( ). On hover , a card: the box model drawn as DevTools draws it, every declaration with in pixels and the token it reads, and the compiled rule. On one property, every entry in precedence order and the step that decided. In VS Code , a Style Inspector that follows the cursor and turns or on to show what applies then, and Style Fold, which reads a long object as its summary until you edit it, like Tailwind Fold, for objects. It works in , , and files and Angular templates, in VS Code, Zed, Neovim and Helix. It answers from the compiler session the build uses, so the editor and the stylesheet never disagree. So the trade is no longer readability for types. You keep what"
+  },
+  {
+    "id": "/docs/start/why-kirana#what-stylex-got-right-and-what-kirana-adds",
+    "href": "/docs/start/why-kirana#what-stylex-got-right-and-what-kirana-adds",
+    "page": "Why Kirana",
+    "section": "start",
+    "heading": "What StyleX got right, and what Kirana adds",
+    "text": "StyleX, which Meta open-sourced at the end of 2023, showed that compiled, atomic CSS-in-JS works at scale. Kirana keeps its premise: atomic output, constants that cost nothing until used, styles as values passed through one prop, and colours. The same shadcn/ui app, ported from Tailwind to StyleX (0.19) for comparison, shows these problems, each measured and written down with evidence. Kirana answers them: Framework reach is the other half: works in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (Angular templates take it as a directive, Ember's as a helper), and Kirana has adapters for Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, with Next.js on Turbopack or webpack. See frameworks . StyleX has things Kirana does not: it is published, used in production at Meta and elsewhere, and has a community. Migrating from StyleX is honest about that."
+  },
+  {
+    "id": "/docs/start/why-kirana#why-not-tailwind-and-cn",
+    "href": "/docs/start/why-kirana#why-not-tailwind-and-cn",
+    "page": "Why Kirana",
+    "section": "start",
+    "heading": "Why not Tailwind and  cn() ?",
+    "text": "Tailwind is excellent, and Kirana borrows its vocabulary on purpose. What Kirana replaces is the merging. A component library built on Tailwind lets callers override styles by appending classes, and resolves conflicts at runtime with tailwind-merge ( ), which parses class strings in the browser and keeps the last class of each conflict group. Measured with tailwind-merge 3.6.0: None of these is a bug in tailwind-merge; it works from class names, because class names are all it has. Kirana merges declarations , at build time, per longhand: and are separate entries, a custom token is a typed value, and there is nothing to configure or parse at runtime. And a typo ( ) is a compile error, not a class that silently does nothing."
+  },
+  {
+    "id": "/docs/start/why-kirana#it-doubles-the-code",
+    "href": "/docs/start/why-kirana#it-doubles-the-code",
+    "page": "Why Kirana",
+    "section": "start",
+    "heading": "\"It doubles the code\"",
+    "text": "It is the most common first reaction, and it is true in one sense: a style object takes more lines than a class string. It does not contain more meaning . Tailwind is horizontal ; Kirana is vertical . The vertical form earns its lines: Diffs and reviews show one change per line. Changing the padding changes one line, not a 120-character string where the reviewer hunts for . Conditions group by property. Everything that can happen to the background colour is in one place; in a class string, its utilities and their , and forms can sit anywhere in the line. Nothing is implicit. sets two properties; the object says so. The single most common drift in our port was a font size without its line height. Every key and value is typed. Autocompletion, go-to-definition on tokens, rename, and errors before the build. Styles have names. says what it is for; the markup stays readable because the styling is not inline in it. Comments fit. A line can say why a value is what it is. And you do not have to choose one form for a whole project. With the scales preset, is valid Kirana and compiles to the same atoms as the object. Use strings where a short line reads best and objects where a component has"
+  },
+  {
+    "id": "/docs/start/why-kirana#where-kirana-costs-you-something",
+    "href": "/docs/start/why-kirana#where-kirana-costs-you-something",
+    "page": "Why Kirana",
+    "section": "start",
+    "heading": "Where Kirana costs you something",
+    "text": "It is pre-release. Not published to npm yet; see what works today . It is a compiler. Styles must be statically known in shape: a computed key or a spread object is an error, and a value the compiler cannot enumerate goes through a custom property. It is stricter than CSS. Contextual rules rank below the target's own styles, and two conditions that tie are reported instead of left to source order. That is what makes the result predictable, and it is why a migration from Tailwind needs a few hand fixes (the migration guide lists every one we met). The richest editor is VS Code. Every LSP editor gets the card, the hints and the fixes; the Style Inspector, Style Fold and coloured hints are VS Code's. The extensions are not on the marketplaces until the first release."
+  },
+  {
     "id": "/docs/start/quick-start",
     "href": "/docs/start/quick-start",
     "page": "Quick start",
     "section": "start",
-    "text": "Style a component with Kirana in about ten minutes, on the path that works today. "
+    "text": "Add Kirana to your project in three steps (install it, add the plugin, import the stylesheet), read from your framework's own guide. "
   },
   {
     "id": "/docs/start/quick-start#quick-start",
@@ -5538,39 +5690,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Quick start",
     "section": "start",
     "heading": "Quick start",
-    "text": "This page runs Kirana inside the repository it is built in, which needs nothing but a checkout. To add it to your own project instead, run there — it shows the setup as a diff before writing it ( installation ) — or follow the guide for your framework in supported frameworks ."
-  },
-  {
-    "id": "/docs/start/quick-start#1-get-the-repository-running",
-    "href": "/docs/start/quick-start#1-get-the-repository-running",
-    "page": "Quick start",
-    "section": "start",
-    "heading": "1. Get the repository running",
-    "text": "compiles the native engine first, then this documentation site. When it finishes, the compiler is ready to use."
-  },
-  {
-    "id": "/docs/start/quick-start#2-look-at-a-component",
-    "href": "/docs/start/quick-start#2-look-at-a-component",
-    "page": "Quick start",
-    "section": "start",
-    "heading": "2. Look at a component",
-    "text": "Every component in is written with Kirana. Open one — say — and you will find style handles at the top of the file and an prop on the elements below."
-  },
-  {
-    "id": "/docs/start/quick-start#3-start-the-site-and-change-something",
-    "href": "/docs/start/quick-start#3-start-the-site-and-change-something",
-    "page": "Quick start",
-    "section": "start",
-    "heading": "3. Start the site and change something",
-    "text": "This documentation is on <http://localhost:3000>. Change a value in any call and the page updates without a reload: the compiler rebuilds the stylesheet and sends it through Vite's hot update channel."
-  },
-  {
-    "id": "/docs/start/quick-start#4-see-what-it-compiled-to",
-    "href": "/docs/start/quick-start#4-see-what-it-compiled-to",
-    "page": "Quick start",
-    "section": "start",
-    "heading": "4. See what it compiled to",
-    "text": "Ask the compiler what it produced, and why a value won: prints one line per candidate declaration, marks the winner, and names the step of the precedence ladder that decided it."
+    "text": "Pick your framework. The steps below are read from its guide, so they always match it. Or let the command line set it up. In your project's root: recognises the framework, the bundler and the package manager, and shows every change it would make as a diff; nothing is written until you say yes. then checks the engine, the installed versions and the wiring. Installation has the details, including how to install while the packages are not on npm yet."
   },
   {
     "id": "/docs/start/quick-start#where-to-go-next",
@@ -5578,14 +5698,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Quick start",
     "section": "start",
     "heading": "Where to go next",
-    "text": "Installation — adding Kirana to an app of your own. Your first component — a button, with the CSS it compiles to. Mental model — the four ideas that make the rest predictable."
+    "text": "Your first component : a button, and the CSS it compiles to. Mental model : the five ideas that make the rest predictable. Every framework guide , with what compiles to in each."
   },
   {
     "id": "/docs/start/installation",
     "href": "/docs/start/installation",
     "page": "Installation",
     "section": "start",
-    "text": "Let kirana init set your project up, or follow your framework's guide - React, Next.js, React Router, Vue, Svelte, Astro, Angular, Laravel, Rails, Phoenix and more, or none - plus how to install before the packages are on npm. "
+    "text": "Set a project up with kirana init or with your framework's guide, see what every setup has, and install from tarballs while the packages are unpublished. "
   },
   {
     "id": "/docs/start/installation#let-kirana-init-do-it",
@@ -5593,7 +5713,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installation",
     "section": "start",
     "heading": "Let  kirana init  do it",
-    "text": "In your project's root: It reads and your lockfile, recognises the framework, bundler and package manager, and shows every change it would make — the configuration file, the adapter in your bundler's configuration, the stylesheet and the types — as a diff. Nothing is written until you say yes, and the install command is printed for you to run (or pass ). Then: checks the engine, the installed versions, the configuration and the wiring, and says what is missing. Both are described in the CLI . Until the packages are on npm, install from the tarballs below first, so finds it."
+    "text": "In your project's root: It reads and your lockfile, recognises the framework, bundler and package manager, and shows every change it would make as a diff: the configuration file, the adapter in your bundler's configuration, the stylesheet and the types. Nothing is written until you say yes, and the install command is printed for you to run (or pass ). Then: checks the engine, the installed versions, the configuration and the wiring, and says what is missing. Both are described in the CLI . The first run goes through , the command line's package on npm. After that the project has its own command, which came with the compiler the first run added, so the rest of these docs write , and so on. Until the packages are on npm, install from the tarballs below first, and run its instead."
   },
   {
     "id": "/docs/start/installation#pick-your-framework",
@@ -5609,7 +5729,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installation",
     "section": "start",
     "heading": "Not on npm yet",
-    "text": "The packages — , the compiler, and one adapter per host — are at version 0.1.0 and not published : the API is still moving and the name is not cleared. Two ways work today; the guides are the same for both."
+    "text": "The packages ( , the compiler, and one adapter per host) are at version 0.1.0 and not published : the API is still moving and the name is not cleared. Two ways work today; the guides are the same for both."
   },
   {
     "id": "/docs/start/installation#install-from-tarballs",
@@ -5617,7 +5737,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installation",
     "section": "start",
     "heading": "Install from tarballs",
-    "text": "A checkout can pack every package the way it would be published — compiled JavaScript with declarations, and the engine as its own per-platform package: Point your project at those tarballs, including the ones it does not name itself, through your package manager's overrides. With npm or Bun: pnpm reads the same map from in , and Yarn from . This is exactly what CI does on every change: it installs the tarballs with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and Alpine, builds an example, and checks its styles in a browser. No package runs an install script, so there is nothing to allow-list."
+    "text": "A checkout can pack every package the way it would be published, as compiled JavaScript with declarations and the engine as its own per-platform package: Point your project at those tarballs, including the ones it does not name itself, through your package manager's overrides. With npm or Bun: pnpm reads the same map from in , and Yarn from . This is exactly what CI does on every change: it installs the tarballs with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and Alpine, builds an example, and checks its styles in a browser. No package runs an install script, so there is nothing to allow-list."
   },
   {
     "id": "/docs/start/installation#machines-without-a-native-build",
@@ -5625,7 +5745,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installation",
     "section": "start",
     "heading": "Machines without a native build",
-    "text": "The engine is native code for eight platforms. Anywhere else — a WebContainer, an unusual CPU — install its WebAssembly build as well; Kirana uses it when no native engine loads, and it writes exactly the same CSS, about twice as slowly: uses it even where the native engine works."
+    "text": "The engine is native code for eight platforms. Anywhere else (a WebContainer, an unusual CPU), install its WebAssembly build as well; Kirana uses it when no native engine loads, and it writes exactly the same CSS, about twice as slowly: uses it even where the native engine works."
   },
   {
     "id": "/docs/start/installation#from-a-checkout-of-the-repository",
@@ -5641,7 +5761,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installation",
     "section": "start",
     "heading": "Once published",
-    "text": "Once the packages are released, installation becomes the ordinary thing. Do not run this yet — the registry has nothing to give you."
+    "text": "Once the packages are released, installation becomes the ordinary thing. Do not run this yet: the registry has nothing to give you."
   },
   {
     "id": "/docs/start/installation#what-every-setup-has",
@@ -5665,7 +5785,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installation",
     "section": "start",
     "heading": "2. The configuration file",
-    "text": "sits in the project root. It is optional — every key has a default — but this is where layers, targets and diagnostic levels live. Every key is listed in the configuration reference ."
+    "text": "sits in the project root. It is optional, since every key has a default, but this is where layers, targets and diagnostic levels live. Every key is listed in the configuration reference ."
   },
   {
     "id": "/docs/start/installation#3-the-stylesheet-entry",
@@ -5673,7 +5793,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installation",
     "section": "start",
     "heading": "3. The stylesheet entry",
-    "text": "Kirana writes one stylesheet. Import it once, in the entry that renders your document, and the adapter fills it in: In development the adapter serves the live stylesheet and updates it over HMR. In a production build it replaces the placeholder rule and renames the file to a content hash."
+    "text": "Kirana writes one stylesheet. Import it once, in your entry, before your own global CSS, and the adapter fills it in: A framework that renders the whole document as a component, such as TanStack Start , links it from that component instead: Your framework's guide shows which of the two it uses. In development the adapter serves the live stylesheet and updates it over HMR. In a production build it replaces the placeholder rule and renames the file to a content hash."
   },
   {
     "id": "/docs/start/installation#4-the-sx-prop-s-types",
@@ -5681,7 +5801,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installation",
     "section": "start",
     "heading": "4. The  sx  prop's types",
-    "text": "is not an import: the compiler recognises it on any element in a module it compiles. TypeScript needs one reference to know about it: Put it in a file that your includes, and every host element accepts . The other frameworks have their own: , , , , and — each guide names the one to use. Angular needs none: the directive carries its type."
+    "text": "is not an import: the compiler recognises it on any element in a module it compiles. TypeScript needs one reference to know about it: Put it in a file that your includes, and every host element accepts . The other frameworks have their own entry, such as , and each guide names the one to use. Angular needs none: the directive carries its type."
   },
   {
     "id": "/docs/start/installation#browsers",
@@ -5697,7 +5817,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installation",
     "section": "start",
     "heading": "Check it worked",
-    "text": "If a module that uses was never compiled, calling it throws at runtime with a message that says exactly that — the failure is loud, never a silently unstyled page."
+    "text": "If a module that uses was never compiled, calling it throws at runtime with a message that says exactly that: the failure is loud, never a silently unstyled page."
   },
   {
     "id": "/docs/start/first-component",
@@ -5712,7 +5832,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Your first component",
     "section": "start",
     "heading": "Your first component",
-    "text": "A button, with a hover state and a second variant. Everything below is one file, and the tabs show what the compiler made of it — the CSS and the class names on this page came out of the compiler, not out of prose."
+    "text": "A button, with a hover state and a second variant. Everything below is one file, and the tabs show what the compiler made of it: the CSS and the class names on this page came out of the compiler, not out of prose."
   },
   {
     "id": "/docs/start/first-component#what-to-notice",
@@ -5720,7 +5840,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Your first component",
     "section": "start",
     "heading": "What to notice",
-    "text": "The condition lives inside the value. is written once, with its resting value and its hover value together: You never look in two places to find out what colour a button is. Colours are pairs. There is no dark variant, no prefix and no second stylesheet. The browser picks the half that matches the page's , which the app sets once on . The second variant is a second handle. merges them in order, and the merge happens per entry : 's base colour replaces 's base colour, and 's hover colour replaces 's hover colour. Everything it does not mention — the padding, the radius, the font — is still there. One class per declaration. Open the Classes tab: thirteen classes, each a single declaration. Two components that both write share a class, so the stylesheet grows with the number of distinct declarations, not with the number of components."
+    "text": "The condition lives inside the value. is written once, with its resting value and its hover value together: You never look in two places to find out what colour a button is. Colours are pairs. There is no dark variant, no prefix and no second stylesheet. The browser picks the half that matches the page's , which the app sets once on . The second variant is a second handle. merges them in order, and the merge happens per entry : the quiet style's base colour replaces the first one's base colour, and its hover colour replaces the hover colour. Everything it does not mention (the padding, the radius, the font) is still there. Merging has the rule, and how to drop an entry you did not name. One class per declaration. Open the Classes tab: thirteen classes, each a single declaration. How it works explains why that keeps the stylesheet small."
   },
   {
     "id": "/docs/start/first-component#next",
@@ -5728,7 +5848,70 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Your first component",
     "section": "start",
     "heading": "Next",
-    "text": "How it works — what happens between the file and the stylesheet. Mental model — the four ideas the rest builds on."
+    "text": "How it works : what happens between the file and the stylesheet. Mental model : the five ideas the rest builds on."
+  },
+  {
+    "id": "/docs/start/mental-model",
+    "href": "/docs/start/mental-model",
+    "page": "Mental model",
+    "section": "start",
+    "text": "Five ideas make Kirana predictable: properties instead of classes, entries instead of properties, a ladder instead of specificity, styling only what you render, and an editor that shows what each element gets. "
+  },
+  {
+    "id": "/docs/start/mental-model#mental-model",
+    "href": "/docs/start/mental-model#mental-model",
+    "page": "Mental model",
+    "section": "start",
+    "heading": "Mental model",
+    "text": "Five ideas. Everything else in these docs is a consequence of one of them."
+  },
+  {
+    "id": "/docs/start/mental-model#1-you-write-properties-not-classes",
+    "href": "/docs/start/mental-model#1-you-write-properties-not-classes",
+    "page": "Mental model",
+    "section": "start",
+    "heading": "1 · You write properties, not classes",
+    "text": "A style is an object of CSS properties with real values. There is no vocabulary to memorise, no scale to look up before you can write a length, and no class-name grammar to decode when you read it back. Design tokens are ordinary imported values, so a token is just a constant your editor can show you; see tokens ."
+  },
+  {
+    "id": "/docs/start/mental-model#2-merging-replaces-entries-not-properties",
+    "href": "/docs/start/mental-model#2-merging-replaces-entries-not-properties",
+    "page": "Mental model",
+    "section": "start",
+    "heading": "2 · Merging replaces entries, not properties",
+    "text": "This is the one that catches people, and it is worth ten minutes now rather than an afternoon later. A property can hold several entries : one per condition. When you merge two styles, the later one replaces the entries it names and leaves the rest alone. Merging shows how to remove the entries you did not name."
+  },
+  {
+    "id": "/docs/start/mental-model#3-a-ladder-decides-what-wins-not-specificity",
+    "href": "/docs/start/mental-model#3-a-ladder-decides-what-wins-not-specificity",
+    "page": "Mental model",
+    "section": "start",
+    "heading": "3 · A ladder decides what wins, not specificity",
+    "text": "Every rule Kirana writes is one class, so every rule has the same specificity. A stated ladder decides instead, and two of its steps cover most days: More conditions win. A value beats a base value. Then the narrower declaration. beats , in either order. When the ladder cannot separate two values, the compiler reports instead of picking. Precedence is the whole ladder."
+  },
+  {
+    "id": "/docs/start/mental-model#4-style-what-you-render",
+    "href": "/docs/start/mental-model#4-style-what-you-render",
+    "page": "Mental model",
+    "section": "start",
+    "heading": "4 · Style what you render",
+    "text": "The compiler styles elements it can see in your source. An element rendered inside a component from an installed package is not yours, so on that component does nothing unless the component reads it, and the compiler will tell you so ( ). Three ways out, in order of preference: Pass compiled props, , which works with any component that spreads props onto an element. Style it from an ancestor you do render, with . Read its state from a parent with a relation ."
+  },
+  {
+    "id": "/docs/start/mental-model#5-your-editor-shows-what-the-element-gets",
+    "href": "/docs/start/mental-model#5-your-editor-shows-what-the-element-gets",
+    "page": "Mental model",
+    "section": "start",
+    "heading": "5 · Your editor shows what the element gets",
+    "text": "A class list puts the CSS on the element; a style object puts it behind a name. So the language server writes it back where you read: every element's line ends with what it gets, in a class list's words. Read it the way you read . Hover it for the box model, every declaration with in pixels and the token it reads, and the compiled rule; hover one property to see which entry wins and why. The answers come from the same compiler session as the build, so the editor never disagrees with the stylesheet: if it shows , the element gets . See editor support ."
+  },
+  {
+    "id": "/docs/start/mental-model#coming-from-somewhere-else",
+    "href": "/docs/start/mental-model#coming-from-somewhere-else",
+    "page": "Mental model",
+    "section": "start",
+    "heading": "Coming from somewhere else",
+    "text": "From Tailwind: the vocabulary is the same ( carries Tailwind's scales), but conditions nest inside values instead of prefixing class names, and the merge story is different from . The class list you read is still there, at the end of the line in your editor (idea 5). Migration guide . From StyleX: the API will look familiar. The difference that bites is idea 2: StyleX's means \"no base value\", Kirana's removes an earlier one. Migration guide ."
   },
   {
     "id": "/docs/start/how-it-works",
@@ -5751,7 +5934,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "How it works",
     "section": "start",
     "heading": "The pipeline",
-    "text": "1 · Prefilter. Most files in an application have nothing to do with styling. Before parsing anything, the adapter skips any module whose text contains neither nor an attribute, so the compiler's work scales with the number of styled modules, not with the size of the dependency graph. 2 · Evaluate. The modules that survive are parsed, and the parts that feed a style are evaluated by a restricted evaluator: constants, imported token values, template literals, simple functions. It follows imports across files, so a token defined in one module and used in another is a build-time value. Anything it cannot evaluate statically is reported rather than guessed at. 3 · Normalise. Declarations are expanded to longhands and normalised, so and compare as the same kind of thing, and written twice in two modules merges per side rather than per shorthand. 4 · Atomise. Each declaration becomes one atom — one CSS rule with one declaration — named by hashing the property, the value and the conditions. Two modules that write get the same class. The stylesheet grows with distinct declarations, not with components. 5 · Order. Atoms are placed in layers, and inside the layer their order comes from the pr"
+    "text": "1 · Prefilter. Most files in an application have nothing to do with styling. Before parsing anything, the adapter skips any module whose text contains neither nor an attribute, so the compiler's work scales with the number of styled modules, not with the size of the dependency graph. 2 · Evaluate. The modules that survive are parsed, and the parts that feed a style are evaluated by a restricted evaluator: constants, imported token values, template literals, simple functions. It follows imports across files, so a token defined in one module and used in another is a build-time value. Anything it cannot evaluate statically is reported rather than guessed at. 3 · Normalise. Declarations are expanded to longhands and normalised, so and compare as the same kind of thing, and written twice in two modules merges per side rather than per shorthand. 4 · Atomise. Each declaration becomes one atom (one CSS rule with one declaration), named by hashing the property, the value and the conditions. Two modules that write get the same class. The stylesheet grows with distinct declarations, not with components. 5 · Order. Atoms are placed in layers, and inside the layer their order comes from the pre"
   },
   {
     "id": "/docs/start/how-it-works#what-reaches-the-browser",
@@ -5759,7 +5942,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "How it works",
     "section": "start",
     "heading": "What reaches the browser",
-    "text": "One stylesheet , containing the atoms your application actually uses. Class strings in your JavaScript. No style engine. Nothing parses styles, computes classes, or injects CSS at runtime. The only runtime code is a private helper under 1 kB, and it is included only when a module needs it — when styles are merged at runtime, or a value is bridged through a custom property. It merges class strings; it never generates CSS."
+    "text": "One stylesheet , containing the atoms your application actually uses. Class strings in your JavaScript. No style engine. Nothing parses styles, computes classes, or injects CSS at runtime. The only runtime code is a private helper under 1 kB, and it is included only when a module needs it: when styles are merged at runtime, or a value is bridged through a custom property. It merges class strings; it never generates CSS."
   },
   {
     "id": "/docs/start/how-it-works#in-development",
@@ -5783,226 +5966,1128 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "How it works",
     "section": "start",
     "heading": "What it deliberately does not do",
-    "text": "It does not generate CSS in the browser. It does not read class names to decide what wins; it has a stated ladder. It does not style markup it cannot see. If a component from a package renders the element, you style it from the outside — with a contextual selector , or by passing compiled props. Next: the mental model — four ideas that follow from this design, and make everything else predictable."
+    "text": "It does not generate CSS in the browser. It does not read class names to decide what wins; it has a stated ladder. It does not style markup it cannot see. If a component from a package renders the element, you style it from the outside, with a contextual selector or by passing compiled props. Next: the mental model , five ideas that follow from this design, and make everything else predictable."
   },
   {
-    "id": "/docs/start/mental-model",
-    "href": "/docs/start/mental-model",
-    "page": "Mental model",
-    "section": "start",
-    "text": "Five ideas that make Kirana predictable - properties not classes, entries not properties, a ladder not specificity, styling only what you render, and an editor that shows what each element gets. "
+    "id": "/docs/styling/styles",
+    "href": "/docs/styling/styles",
+    "page": "Writing styles",
+    "section": "writing",
+    "text": "How css() turns a style object into a handle, with property names, values, custom properties, and what the compiler refuses. "
   },
   {
-    "id": "/docs/start/mental-model#mental-model",
-    "href": "/docs/start/mental-model#mental-model",
-    "page": "Mental model",
-    "section": "start",
-    "heading": "Mental model",
-    "text": "Five ideas. Everything else in these docs is a consequence of one of them."
+    "id": "/docs/styling/styles#writing-styles",
+    "href": "/docs/styling/styles#writing-styles",
+    "page": "Writing styles",
+    "section": "writing",
+    "heading": "Writing styles",
+    "text": "takes style objects and returns a handle. A handle is an opaque value: you pass it to , merge it with others, or export it. It is not an object you can read at runtime: by then it is a class string."
   },
   {
-    "id": "/docs/start/mental-model#1-you-write-properties-not-classes",
-    "href": "/docs/start/mental-model#1-you-write-properties-not-classes",
-    "page": "Mental model",
-    "section": "start",
-    "heading": "1 · You write properties, not classes",
-    "text": "A style is an object of CSS properties with real values. There is no vocabulary to memorise, no scale to look up before you can write a length, and no class-name grammar to decode when you read it back. Design tokens are ordinary imported values, so a token is just a constant your editor can show you — see tokens ."
+    "id": "/docs/styling/styles#property-names",
+    "href": "/docs/styling/styles#property-names",
+    "page": "Writing styles",
+    "section": "writing",
+    "heading": "Property names",
+    "text": "Properties are camelCase: , , . Anything CSS knows about is allowed; anything else is an error ( ), so a typo fails the build instead of disappearing. Custom properties are written as they are in CSS, in quotes:"
   },
   {
-    "id": "/docs/start/mental-model#2-merging-replaces-entries-not-properties",
-    "href": "/docs/start/mental-model#2-merging-replaces-entries-not-properties",
-    "page": "Mental model",
-    "section": "start",
-    "heading": "2 · Merging replaces entries, not properties",
-    "text": "This is the one that catches people, and it is worth ten minutes now rather than an afternoon later. A property can hold several entries : one per condition. might have a base entry and a entry. When you merge two styles, the later one replaces the entries it names and leaves the rest alone. If you meant \"grey, and nothing on hover\", say so: removes: removes the base entry, removes the property, removes everything you do not list. Merging has the full set."
-  },
-  {
-    "id": "/docs/start/mental-model#3-a-ladder-decides-what-wins-not-specificity",
-    "href": "/docs/start/mental-model#3-a-ladder-decides-what-wins-not-specificity",
-    "page": "Mental model",
-    "section": "start",
-    "heading": "3 · A ladder decides what wins, not specificity",
-    "text": "Every rule Kirana writes is one class, so every rule has the same specificity. What wins is decided by a stated ladder, and the two steps you will meet daily are: More conditions win. beats a base value; a value under both and a breakpoint beats one under alone. At equal conditions, the narrower declaration wins. beats , whichever order they were written in. When two values could both apply and the ladder cannot separate them, the compiler does not pick silently — it reports and asks you to say which you meant. Precedence is the whole story, and prints the decision for a property on a line."
-  },
-  {
-    "id": "/docs/start/mental-model#4-style-what-you-render",
-    "href": "/docs/start/mental-model#4-style-what-you-render",
-    "page": "Mental model",
-    "section": "start",
-    "heading": "4 · Style what you render",
-    "text": "The compiler styles elements it can see in your source. An element rendered inside a component from an installed package is not yours, so on that component does nothing unless the component reads it — and the compiler will tell you so ( ). Three ways out, in order of preference: Pass compiled props: — works with any component that spreads props onto an element. Style it from an ancestor you do render, with . Read its state from a parent with a relation ."
-  },
-  {
-    "id": "/docs/start/mental-model#5-your-editor-shows-what-the-element-gets",
-    "href": "/docs/start/mental-model#5-your-editor-shows-what-the-element-gets",
-    "page": "Mental model",
-    "section": "start",
-    "heading": "5 · Your editor shows what the element gets",
-    "text": "A class list puts the CSS on the element; a style object puts it behind a name. So the language server writes it back where you read: every element's line ends with what it gets, in a class list's words. Read it the way you read . Hover it for the box model, every declaration with in pixels and the token it reads, and the compiled rule; hover one property to see which entry wins and why. The answers come from the same compiler session as the build, so the editor never disagrees with the stylesheet — if it shows , the element gets . See editor support ."
-  },
-  {
-    "id": "/docs/start/mental-model#coming-from-somewhere-else",
-    "href": "/docs/start/mental-model#coming-from-somewhere-else",
-    "page": "Mental model",
-    "section": "start",
-    "heading": "Coming from somewhere else",
-    "text": "From Tailwind: the vocabulary is the same ( carries Tailwind's scales), but conditions nest inside values instead of prefixing class names, and the merge story is different from . The class list you read is still there — at the end of the line, in your editor (idea 5). Migration guide . From StyleX: the API will look familiar. The difference that bites is idea 2: StyleX's means \"no base value\", Kirana's removes an earlier one. Migration guide ."
-  },
-  {
-    "id": "/docs/start/why-kirana",
-    "href": "/docs/start/why-kirana",
-    "page": "Why Kirana",
-    "section": "start",
-    "text": "Why CSS-in-JS got a bad name, what a compiler changes, how the editor gives back the class list you could read, what Kirana answers that StyleX left open, and why styles written down the page are a feature. "
-  },
-  {
-    "id": "/docs/start/why-kirana#why-kirana",
-    "href": "/docs/start/why-kirana#why-kirana",
-    "page": "Why Kirana",
-    "section": "start",
-    "heading": "Why Kirana",
-    "text": "\"CSS-in-JS\" means two different things, and most of the dislike is for the first one. This page separates them, says what Kirana is, what it answers that StyleX left open, and where it costs you something."
-  },
-  {
-    "id": "/docs/start/why-kirana#the-css-in-js-people-left",
-    "href": "/docs/start/why-kirana#the-css-in-js-people-left",
-    "page": "Why Kirana",
-    "section": "start",
-    "heading": "The CSS-in-JS people left",
-    "text": "The first generation — styled-components, Emotion and their relatives — kept styles in JavaScript and turned them into CSS in the browser, while rendering . Every component that rendered serialised its styles, hashed them and inserted a rule. That had costs that no amount of tuning removed: Work on every render. Styles were computed at runtime, so pages started slower and got slower as the number of components grew. A library in every bundle. The runtime that did that work shipped to every user. Server rendering got harder. Styles had to be collected during the render and serialised into the HTML. The browser recalculated styles more often. React's own documentation lists two problems with runtime injection: it \"forces the browser to recalculate the styles a lot more often\", and it \"can be very slow if it happens at the wrong time in the React lifecycle\". It recommends static extraction to CSS files, plus inline styles for dynamic values , and says the first of those two problems \"is not solvable\" for runtime injection. GitHub's Primer is the public example. Starting with Primer React v37 it moved its components from styled-components to CSS Modules, finished that by December 2024,"
-  },
-  {
-    "id": "/docs/start/why-kirana#what-a-compiler-changes",
-    "href": "/docs/start/why-kirana#what-a-compiler-changes",
-    "page": "Why Kirana",
-    "section": "start",
-    "heading": "What a compiler changes",
-    "text": "A compiled system reads the same style objects at build time and writes a plain stylesheet. Nothing about styling happens in the browser except applying class names. Kirana is this kind, and it is exactly what the React team recommends: static CSS files for static styles, and a custom property in for a value only known at runtime. What you keep from CSS-in-JS is the part people liked: styles are values, next to the component, typed, passed as props, and deleted with the component."
-  },
-  {
-    "id": "/docs/start/why-kirana#you-can-see-the-css-again",
-    "href": "/docs/start/why-kirana#you-can-see-the-css-again",
-    "page": "Why Kirana",
-    "section": "start",
-    "heading": "You can see the CSS again",
-    "text": "Runtime cost was one reason teams left CSS-in-JS. The other was reading. A Tailwind class list is the CSS, written on the element: tells you what the gets without leaving the line. A style object moves that into a constant somewhere else, and reading a component turns into jumping to and back. Kirana's language server gives the class list back, without putting it in your markup: At the end of every element's line , what it ends up with, in a class list's words and coloured by kind — . Values under a guard lead with it ( ). On hover , a card: the box model drawn as DevTools draws it, every declaration with in pixels and the token it reads, and the compiled rule. On one property, every entry in precedence order and the step that decided. In VS Code , a Style Inspector that follows the cursor and turns or on to show what applies then, and Style Fold, which reads a long object as its summary until you edit it — Tailwind Fold, for objects. It works in , , and files and Angular templates, in VS Code, Zed, Neovim and Helix. It answers from the compiler session the build uses, so the editor and the stylesheet never disagree. So the trade is no longer readability for types. You keep what ma"
-  },
-  {
-    "id": "/docs/start/why-kirana#what-stylex-got-right-and-what-kirana-adds",
-    "href": "/docs/start/why-kirana#what-stylex-got-right-and-what-kirana-adds",
-    "page": "Why Kirana",
-    "section": "start",
-    "heading": "What StyleX got right, and what Kirana adds",
-    "text": "StyleX, which Meta open-sourced at the end of 2023, showed that compiled, atomic CSS-in-JS works at scale. Kirana keeps its premise: atomic output, constants that cost nothing until used, styles as values passed through one prop, and colours. The same shadcn/ui app, ported from Tailwind to StyleX (0.19) for comparison, shows these problems, each measured and written down with evidence. Kirana answers them: Framework reach is the other half: works in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember — Angular templates take it as a directive, Ember's as a helper — and Kirana has adapters for Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, with Next.js on Turbopack or webpack. See frameworks . StyleX has things Kirana does not: it is published, used in production at Meta and elsewhere, and has a community. Migrating from StyleX is honest about that."
-  },
-  {
-    "id": "/docs/start/why-kirana#why-not-tailwind-and-cn",
-    "href": "/docs/start/why-kirana#why-not-tailwind-and-cn",
-    "page": "Why Kirana",
-    "section": "start",
-    "heading": "Why not Tailwind and  cn() ?",
-    "text": "Tailwind is excellent, and Kirana borrows its vocabulary on purpose. What Kirana replaces is the merging. A component library built on Tailwind lets callers override styles by appending classes, and resolves conflicts at runtime with tailwind-merge ( ), which parses class strings in the browser and keeps the last class of each conflict group. Measured with tailwind-merge 3.6.0: None of these is a bug in tailwind-merge; it works from class names, because class names are all it has. Kirana merges declarations , at build time, per longhand: and are separate entries, a custom token is a typed value, and there is nothing to configure or parse at runtime. And a typo ( ) is a compile error, not a class that silently does nothing."
-  },
-  {
-    "id": "/docs/start/why-kirana#it-doubles-the-code",
-    "href": "/docs/start/why-kirana#it-doubles-the-code",
-    "page": "Why Kirana",
-    "section": "start",
-    "heading": "\"It doubles the code\"",
-    "text": "It is the most common first reaction, and it is true in one sense: a style object takes more lines than a class string. It does not contain more meaning . Tailwind is horizontal ; Kirana is vertical . The vertical form earns its lines: Diffs and reviews show one change per line. Changing the padding changes one line, not a 120-character string where the reviewer hunts for . Conditions group by property. Everything that can happen to is in one place; in a class string, , , and can sit anywhere in the line. Nothing is implicit. sets two properties; the object says so. The single most common drift in our port was a font size without its line height. Every key and value is typed. Autocompletion, go-to-definition on tokens, rename, and errors before the build. Styles have names. says what it is for; the markup stays readable because the styling is not inline in it. Comments fit. A line can say why a value is what it is. And you do not have to choose one form for a whole project. With the scales preset, is valid Kirana and compiles to the same atoms as the object — use strings where a short line reads best and objects where a component has states. The compiler also does not care how long"
-  },
-  {
-    "id": "/docs/start/why-kirana#where-kirana-costs-you-something",
-    "href": "/docs/start/why-kirana#where-kirana-costs-you-something",
-    "page": "Why Kirana",
-    "section": "start",
-    "heading": "Where Kirana costs you something",
-    "text": "It is pre-release. Not published to npm yet; see what works today . It is a compiler. Styles must be statically known in shape: a computed key or a spread object is an error, and a value the compiler cannot enumerate goes through a custom property. It is stricter than CSS. Contextual rules rank below the target's own styles, and two conditions that tie are reported instead of left to source order. That is what makes the result predictable, and it is why a migration from Tailwind needs a few hand fixes (the migration guide lists every one we met). The richest editor is VS Code. Every LSP editor gets the card, the hints and the fixes; the Style Inspector, Style Fold and coloured hints are VS Code's. The extensions are not on the marketplaces until the first release."
-  },
-  {
-    "id": "/docs/start/tips",
-    "href": "/docs/start/tips",
-    "page": "Habits for a new project",
-    "section": "start",
-    "text": "Fifteen habits from building and migrating three applications on Kirana - the ones that would have saved us the most time on day one. "
-  },
-  {
-    "id": "/docs/start/tips#habits-for-a-new-project",
-    "href": "/docs/start/tips#habits-for-a-new-project",
-    "page": "Habits for a new project",
-    "section": "start",
-    "heading": "Habits for a new project",
-    "text": "These come from building every shadcn/ui component on Kirana, migrating the same three applications from StyleX and from Tailwind, and diffing the results element by element. Each one is here because not doing it cost us a bug."
-  },
-  {
-    "id": "/docs/start/tips#structure",
-    "href": "/docs/start/tips#structure",
-    "page": "Habits for a new project",
-    "section": "start",
-    "heading": "Structure",
-    "text": "1. One object per module, named by part. Declare styles after the imports and name each after the part it styles — the element's is a good name ( → ). Markup stays readable because the styling is not inline in it, and a search for the name finds both ends. 2. Components take , and put it last. : an array is merge order, so the caller's styles go last and win. Never take a for styling. 3. Take out of the rest spread. A wrapper written carries inside the spread, where nothing compiles it. Write and pass it on. The compiler reports a wrapper that drops it ( ). 4. Installed components do not read . Base UI parts and anything else from take instead ( ). Passing them is ."
-  },
-  {
-    "id": "/docs/start/tips#values",
-    "href": "/docs/start/tips#values",
-    "page": "Habits for a new project",
-    "section": "start",
+    "id": "/docs/styling/styles#values",
+    "href": "/docs/styling/styles#values",
+    "page": "Writing styles",
+    "section": "writing",
     "heading": "Values",
-    "text": "5. Start with plain values; adopt scales when they repeat. You do not need a preset to begin. When you want a vocabulary, is Tailwind v4's, and a token nothing references emits nothing. 6. Put product decisions in your own tokens. , and are yours; define them once as semantic tokens , each colour a pair, and set the theme's on , not — the root decides scrollbars and an iframe's canvas. 7. A font size comes with its line height. Set and together. A size without its line height was the most common drift in our ports. 8. Name the longhands you set. on a component whose base sets sits beside it instead of replacing it ( ). Prefer logical properties ( , ) throughout, so right-to-left works without a second style."
+    "text": "Values are strings and numbers, exactly as CSS reads them. Kirana does not add units for you: The rule is the CSS rule: a property that takes a needs a unit. A property whose value is a plain number takes a plain number. Guessing is how a styling system ends up with values it cannot explain, so the compiler asks you instead. Invalid values are errors too ( ), checked against the property's real grammar:"
   },
   {
-    "id": "/docs/start/tips#overrides-and-states",
-    "href": "/docs/start/tips#overrides-and-states",
-    "page": "Habits for a new project",
-    "section": "start",
-    "heading": "Overrides and states",
-    "text": "9. Override under the same condition. Styles merge per entry : a caller's replaces the base entry and keeps the component's one. To win there too, write it under that condition, or clear the rest with . Omitting a key keeps it; removes it. 10. Nest the winner inside the other condition. When two conditions of the same kind can match together and set different values, the compiler reports rather than letting source order decide. Nest one inside the other ( ), or, when the library never sets both, list the pair in . Do not re-level the diagnostic to hide a tie; twice it hid a real bug. 11. Put the relation anchor where the state lives. reads an ancestor, an earlier sibling. The anchor goes on the element whose state is read, not on the element being styled. Relations . 12. A parent's rule ranks below the child's own. A block styles children from a parent, below their own styles, so an icon that sets its own size keeps it without a guard. When the parent must win — a field forcing its label to full width — let the child read the parent: a relation, or a condition on its own position ( ). 13. Animate the property you set. , and are properties of their own; does not cover them."
+    "id": "/docs/styling/styles#several-objects-one-handle",
+    "href": "/docs/styling/styles#several-objects-one-handle",
+    "page": "Writing styles",
+    "section": "writing",
+    "heading": "Several objects, one handle",
+    "text": "takes any number of arguments (objects, or handles you already made) and merges them left to right: Merging follows the merge rules : later entries replace matching entries and leave the rest alone."
   },
   {
-    "id": "/docs/start/tips#runtime-values",
-    "href": "/docs/start/tips#runtime-values",
-    "page": "Habits for a new project",
-    "section": "start",
-    "heading": "Runtime values",
-    "text": "14. Prefer a finite set. compiles to a choice between two classes and costs nothing. Bridge only what varies continuously — a width in percent, a colour from data — and read in the report to see where runtime values enter. Values known at runtime ."
+    "id": "/docs/styling/styles#shorthands",
+    "href": "/docs/styling/styles#shorthands",
+    "page": "Writing styles",
+    "section": "writing",
+    "heading": "Shorthands",
+    "text": "Shorthands are expanded to longhands, so two styles that touch the same box merge per side rather than wholesale: A shorthand whose value cannot be split exactly ( , where the value is one custom property) stays whole, and the compiler warns ( ) because removing one of its longhands later cannot be done precisely. Mixing logical and physical longhands of the same box ( and ) is allowed, but they are different declarations, and when the result could mislead the compiler says so ( )."
   },
   {
-    "id": "/docs/start/tips#checking",
-    "href": "/docs/start/tips#checking",
-    "page": "Habits for a new project",
-    "section": "start",
-    "heading": "Checking",
-    "text": "15. Let the tools answer \"why\". in CI: every diagnostic, with an exit code. when a value is not the one you expected: every entry, the winner, and the ladder step that decided it. To verify a port or a refactor, compare computed styles , not screenshots, in both colour schemes and at several widths. A 1 px border, an easing curve and a missing hover state were all invisible in screenshots and obvious in a diff. Conformance ."
+    "id": "/docs/styling/styles#where-styles-live",
+    "href": "/docs/styling/styles#where-styles-live",
+    "page": "Writing styles",
+    "section": "writing",
+    "heading": "Where styles live",
+    "text": "A handle is usually a module-level constant, because it compiles to a constant: Writing inside a component body is fine too, since it still compiles, but there is no reason to unless the style depends on a value only known at render time, which is its own topic: dynamic values ."
+  },
+  {
+    "id": "/docs/styling/styles#next",
+    "href": "/docs/styling/styles#next",
+    "page": "Writing styles",
+    "section": "writing",
+    "heading": "Next",
+    "text": "The prop : putting a handle on an element. Conditions : hover, breakpoints, attributes."
+  },
+  {
+    "id": "/docs/styling/sx",
+    "href": "/docs/styling/sx",
+    "page": "The sx prop",
+    "section": "writing",
+    "text": "How sx works on elements and on components, what it compiles to, and how className and style survive it. "
+  },
+  {
+    "id": "/docs/styling/sx#the-sx-prop",
+    "href": "/docs/styling/sx#the-sx-prop",
+    "page": "The sx prop",
+    "section": "writing",
+    "heading": "The  sx  prop",
+    "text": "is not an import. The compiler recognises it on any element in a module it compiles, and turns it into : It takes a handle, or an array of handles, and skips , and : Order is merge order, so a component's own styles come first and the caller's last."
+  },
+  {
+    "id": "/docs/styling/sx#on-your-own-components",
+    "href": "/docs/styling/sx#on-your-own-components",
+    "page": "The sx prop",
+    "section": "writing",
+    "heading": "On your own components",
+    "text": "For a component you wrote, is an ordinary prop. Accept it, type it as , and apply it: Taking and never applying it is reported ( ), because from the outside the component looks styleable and silently is not."
+  },
+  {
+    "id": "/docs/styling/sx#on-components-you-did-not-write",
+    "href": "/docs/styling/sx#on-components-you-did-not-write",
+    "page": "The sx prop",
+    "section": "writing",
+    "heading": "On components you did not write",
+    "text": "A component from an installed package does not read . Passing it one does nothing, and the compiler says so ( ), including the case where your own component forwards its rest props into one. Pass compiled props instead: Styling other people's components covers the cases."
+  },
+  {
+    "id": "/docs/styling/sx#classname-and-style-still-work",
+    "href": "/docs/styling/sx#classname-and-style-still-work",
+    "page": "The sx prop",
+    "section": "writing",
+    "heading": "className  and  style  still work",
+    "text": "If an element has both and a , they are merged, not replaced: the class from is appended to whatever the element already had, including a arriving through a spread: The same is true of . When a style needs a value known only at render time, the compiler bridges it through a custom property and puts that in , after anything you passed."
+  },
+  {
+    "id": "/docs/styling/sx#typing",
+    "href": "/docs/styling/sx#typing",
+    "page": "The sx prop",
+    "section": "writing",
+    "heading": "Typing",
+    "text": "reaches React's element types through a reference, once per project: The type is what a component should accept: a handle, , , , or an array of those, nested."
+  },
+  {
+    "id": "/docs/styling/sx#what-it-is-not",
+    "href": "/docs/styling/sx#what-it-is-not",
+    "page": "The sx prop",
+    "section": "writing",
+    "heading": "What it is not",
+    "text": "does not take a bare style object: A string is not a class list either. With a preset that declares a utility grammar, is a utility string that compiles to the same atoms as its object; without one it is the error."
+  },
+  {
+    "id": "/docs/styling/conditions",
+    "href": "/docs/styling/conditions",
+    "page": "Conditions",
+    "section": "writing",
+    "text": "Hover, focus, attributes, breakpoints and container queries, all written inside the value they change. "
+  },
+  {
+    "id": "/docs/styling/conditions#conditions",
+    "href": "/docs/styling/conditions#conditions",
+    "page": "Conditions",
+    "section": "writing",
+    "heading": "Conditions",
+    "text": "A condition goes inside the value it changes, not around the object that holds it: is the unconditional value. Every other key is a condition. The property is written once, so the whole story of is in one place, and so is the reason the compiler can tell you when two of those values could both apply."
+  },
+  {
+    "id": "/docs/styling/conditions#what-a-key-may-be",
+    "href": "/docs/styling/conditions#what-a-key-may-be",
+    "page": "Conditions",
+    "section": "writing",
+    "heading": "What a key may be",
+    "text": "Condition values come from , and , and from presets:"
+  },
+  {
+    "id": "/docs/styling/conditions#nesting",
+    "href": "/docs/styling/conditions#nesting",
+    "page": "Conditions",
+    "section": "writing",
+    "heading": "Nesting",
+    "text": "Conditions nest, and nesting is how you say \"both\": Two conditions beat one, so the nested value wins wherever both hold. This is also the answer when the compiler reports : nest the one that should win inside the other."
+  },
+  {
+    "id": "/docs/styling/conditions#pseudo-elements-are-different",
+    "href": "/docs/styling/conditions#pseudo-elements-are-different",
+    "page": "Conditions",
+    "section": "writing",
+    "heading": "Pseudo-elements are different",
+    "text": "and are not conditions: they are other elements. They are top-level keys, holding a style object of their own: Only pseudo-elements and targets are top-level keys. Everything else nests inside a value."
+  },
+  {
+    "id": "/docs/styling/conditions#responsive-design",
+    "href": "/docs/styling/conditions#responsive-design",
+    "page": "Conditions",
+    "section": "writing",
+    "heading": "Responsive design",
+    "text": "Breakpoints are conditions like any other, which has two consequences worth knowing: A state beats a breakpoint. wins over at every width, because attributes and pseudo-classes rank above at-rules. That is what people usually mean, and what the Tailwind components this compiler was built against relied on. Ranges read as ranges. For a value that applies only between two widths, write the range: ."
+  },
+  {
+    "id": "/docs/styling/conditions#container-queries",
+    "href": "/docs/styling/conditions#container-queries",
+    "page": "Conditions",
+    "section": "writing",
+    "heading": "Container queries",
+    "text": "Containers work the same way, and need a container to query:"
+  },
+  {
+    "id": "/docs/styling/conditions#what-the-compiler-checks",
+    "href": "/docs/styling/conditions#what-the-compiler-checks",
+    "page": "Conditions",
+    "section": "writing",
+    "heading": "What the compiler checks",
+    "text": "An unrecognised condition is an error ( ), including the common mistake of writing a condition as a top-level key. Two values that could both apply, with nothing to separate them, get . Fix it by nesting, or by declaring that the two conditions never hold together; see . Next: precedence , the ladder that decides which condition wins."
+  },
+  {
+    "id": "/docs/styling/utilities",
+    "href": "/docs/styling/utilities",
+    "page": "Utility strings",
+    "section": "writing",
+    "text": "Write sx as Tailwind-style utility strings; each one compiles to the same atoms as the style object it stands for. "
+  },
+  {
+    "id": "/docs/styling/utilities#utility-strings",
+    "href": "/docs/styling/utilities#utility-strings",
+    "page": "Utility strings",
+    "section": "writing",
+    "heading": "Utility strings",
+    "text": "With a preset that declares a utility grammar, also takes a string: That string is not a class list. The compiler reads each utility, turns the whole string into the style object you would have written by hand, and compiles that object exactly as it compiles : There is one style path, so a utility and its object produce the same atoms , share tokens, merge the same way, and get every diagnostic the object form gets. The object form stays the reference; strings are a shorter way to write it."
+  },
+  {
+    "id": "/docs/styling/utilities#turning-it-on",
+    "href": "/docs/styling/utilities#turning-it-on",
+    "page": "Utility strings",
+    "section": "writing",
+    "heading": "Turning it on",
+    "text": "Utility strings are off until a preset declares a grammar. ships Tailwind v4's names over its own scales: Import the preset from , not from the package root: a configuration file runs uncompiled, and the root exports tokens, which only exist inside the compiler. Without a grammar, a string is the error and the attribute is left as written."
+  },
+  {
+    "id": "/docs/styling/utilities#where-strings-go",
+    "href": "/docs/styling/utilities#where-strings-go",
+    "page": "Utility strings",
+    "section": "writing",
+    "heading": "Where strings go",
+    "text": "Anywhere takes a style: on elements and on your components, alone, in an array, or in a condition: Later utilities override earlier ones property by property, as later entries in an array do. A template literal works only without substitutions: is the error; write , which Kirana bridges at runtime. strings are never read. Only is Kirana's."
+  },
+  {
+    "id": "/docs/styling/utilities#what-a-utility-can-say",
+    "href": "/docs/styling/utilities#what-a-utility-can-say",
+    "page": "Utility strings",
+    "section": "writing",
+    "heading": "What a utility can say",
+    "text": "Spaces inside brackets are fine ( is one utility), and Tailwind's for a space works too. Tailwind's inside brackets counts steps of the space scale, so is the scale's first step times . Variants go before the utility and stack, in Tailwind's own forms. There is no : every colour token is already a pair. A pseudo-element variant becomes a block of its own, and and get , as Tailwind gives them."
+  },
+  {
+    "id": "/docs/styling/utilities#composed-utilities",
+    "href": "/docs/styling/utilities#composed-utilities",
+    "page": "Utility strings",
+    "section": "writing",
+    "heading": "Composed utilities",
+    "text": "Some utilities share one CSS property, and combine instead of the later one winning. As in Tailwind, each sets its own layer (a registered, non-inheriting custom property from the preset's tokens), and the shared property reads them all: Transitions and outlines work the same way, so the order of the utilities does not matter: reads the timing that and set; reads the style that set. Uniform box utilities such as , and set both logical axes (block and inline) rather than the shorthand. The value is the same on every side, and a later then replaces an earlier entry for entry, as did."
+  },
+  {
+    "id": "/docs/styling/utilities#animations",
+    "href": "/docs/styling/utilities#animations",
+    "page": "Utility strings",
+    "section": "writing",
+    "heading": "Animations",
+    "text": "Tailwind's utilities (spin, ping, pulse and bounce) are here, and so is the vocabulary of , which shadcn/ui uses: and , which depend on the writing direction, are not utilities; write them with an condition."
+  },
+  {
+    "id": "/docs/styling/utilities#what-it-will-not-do",
+    "href": "/docs/styling/utilities#what-it-will-not-do",
+    "page": "Utility strings",
+    "section": "writing",
+    "heading": "What it will not do",
+    "text": "These are errors that point to the Kirana way, never silently dropped classes: There is no scan of your files, no , no plugins, and no arbitrary properties ( )."
+  },
+  {
+    "id": "/docs/styling/utilities#your-own-tokens",
+    "href": "/docs/styling/utilities#your-own-tokens",
+    "page": "Utility strings",
+    "section": "writing",
+    "heading": "Your own tokens",
+    "text": "A grammar reads its scales from modules, the way an would. Point a scale at your theme and reaches your semantic tokens: Later presets and your own replace earlier ones scale by scale, root by root and variant by variant. The full shape is in the configuration reference ."
+  },
+  {
+    "id": "/docs/styling/merging",
+    "href": "/docs/styling/merging",
+    "page": "Merging and removal",
+    "section": "cascade",
+    "text": "How styles combine per entry, and how to remove a value with null. "
+  },
+  {
+    "id": "/docs/styling/merging#merging-and-removal",
+    "href": "/docs/styling/merging#merging-and-removal",
+    "page": "Merging and removal",
+    "section": "cascade",
+    "heading": "Merging and removal",
+    "text": "Styles combine in three places: , , and . All three merge the same way, in order, and the rule is the one from the mental model : A later style replaces the entries it names, and leaves the others alone."
+  },
+  {
+    "id": "/docs/styling/merging#entries-not-properties",
+    "href": "/docs/styling/merging#entries-not-properties",
+    "page": "Merging and removal",
+    "section": "cascade",
+    "heading": "Entries, not properties",
+    "text": "A property holds one entry per condition set. with a base value and a value is two entries. The anchor is grey, still royal blue on hover, and still underlined. named the base entry of , so that is the entry it replaced. This is the single biggest difference from class-string systems, where a later removes the whole colour idea, hover included."
+  },
+  {
+    "id": "/docs/styling/merging#removing",
+    "href": "/docs/styling/merging#removing",
+    "page": "Merging and removal",
+    "section": "cascade",
+    "heading": "Removing",
+    "text": "removes. There are three forms, and they differ in reach: is the one to reach for when you want a component's conditional chrome gone and your own value in its place, such as an input inside a group that should lose the group's focus ring."
+  },
+  {
+    "id": "/docs/styling/merging#cx",
+    "href": "/docs/styling/merging#cx",
+    "page": "Merging and removal",
+    "section": "cascade",
+    "heading": "cx()",
+    "text": "merges handles and skips , and , which makes conditional composition read naturally: accepts the same shapes, including nested arrays, so you rarely need on an element: it is for building a handle to pass on."
+  },
+  {
+    "id": "/docs/styling/merging#order-is-the-order-you-wrote",
+    "href": "/docs/styling/merging#order-is-the-order-you-wrote",
+    "page": "Merging and removal",
+    "section": "cascade",
+    "heading": "Order is the order you wrote",
+    "text": "Merging is left to right, and the last writer of an entry wins that entry . What order does not decide is a conflict between two different conditions: that is the precedence ladder , and it applies after merging."
+  },
+  {
+    "id": "/docs/styling/merging#shorthands-merge-per-longhand",
+    "href": "/docs/styling/merging#shorthands-merge-per-longhand",
+    "page": "Merging and removal",
+    "section": "cascade",
+    "heading": "Shorthands merge per longhand",
+    "text": "expands to four longhands, replaces one of them, and the other three keep . The same is true across modules and across components: merging is defined on longhands, so nothing depends on which shorthand each author happened to use."
+  },
+  {
+    "id": "/docs/styling/merging#a-component-s-own-sx",
+    "href": "/docs/styling/merging#a-component-s-own-sx",
+    "page": "Merging and removal",
+    "section": "cascade",
+    "heading": "A component's own  sx",
+    "text": "A component that takes should merge it last , so its caller can override: Declaring and never applying it is reported ( )."
+  },
+  {
+    "id": "/docs/styling/precedence",
+    "href": "/docs/styling/precedence",
+    "page": "Precedence",
+    "section": "cascade",
+    "text": "The ladder that decides which value wins, why specificity is not part of it, and what to do when the compiler says two values are ambiguous. "
+  },
+  {
+    "id": "/docs/styling/precedence#precedence",
+    "href": "/docs/styling/precedence#precedence",
+    "page": "Precedence",
+    "section": "cascade",
+    "heading": "Precedence",
+    "text": "Every rule Kirana writes is a single class, so every rule has the same specificity. What wins is decided by a stated ladder, compared in order: the first difference decides."
+  },
+  {
+    "id": "/docs/styling/precedence#the-two-steps-you-will-feel",
+    "href": "/docs/styling/precedence#the-two-steps-you-will-feel",
+    "page": "Precedence",
+    "section": "cascade",
+    "heading": "The two steps you will feel",
+    "text": "State beats breakpoint (step 3). A or value wins over a breakpoint value at every width. That is almost always what an author means, and it is what the Tailwind components this compiler was built against relied on. Narrow beats broad (step 5), regardless of who wrote first:"
+  },
+  {
+    "id": "/docs/styling/precedence#ambiguity-is-reported-not-guessed",
+    "href": "/docs/styling/precedence#ambiguity-is-reported-not-guessed",
+    "page": "Precedence",
+    "section": "cascade",
+    "heading": "Ambiguity is reported, not guessed",
+    "text": "When two entries for the same property could both match, set different values, and the ladder cannot separate them, the compiler emits rather than picking one: Three ways to resolve it: Nest the winner inside the loser. Two conditions beat one, and the ambiguity is gone: Say they are exclusive. When a library guarantees two attributes never appear together ( and ), declare it once in . Use the same value , if that is the truth. Two entries with the same value are never ambiguous. The compiler already knows some pairs are exclusive on their own: two values of one attribute, a selector and its negation, or two fixed positions counted from the same end."
+  },
+  {
+    "id": "/docs/styling/precedence#layers",
+    "href": "/docs/styling/precedence#layers",
+    "page": "Precedence",
+    "section": "cascade",
+    "heading": "Layers",
+    "text": "Everything Kirana emits is inside layers, in this order: Your own global CSS (a reset, base element styles) goes in layers you name in configuration , which sit below every Kirana rule. Nothing Kirana writes is unlayered, custom-property assignments included."
+  },
+  {
+    "id": "/docs/styling/precedence#asking-why",
+    "href": "/docs/styling/precedence#asking-why",
+    "page": "Precedence",
+    "section": "cascade",
+    "heading": "Asking why",
+    "text": "When a value does not win and you want the reason, ask: It prints one line per candidate declaration (value, conditions, layer), marks the winner, and names the step that decided it, for example ."
+  },
+  {
+    "id": "/docs/styling/external-components",
+    "href": "/docs/styling/external-components",
+    "page": "Styling other people's components",
+    "section": "composition",
+    "text": "Style components that do not read sx with props(), and read what the sx-on-external-component diagnostic is telling you. "
+  },
+  {
+    "id": "/docs/styling/external-components#styling-other-people-s-components",
+    "href": "/docs/styling/external-components#styling-other-people-s-components",
+    "page": "Styling other people's components",
+    "section": "composition",
+    "heading": "Styling other people's components",
+    "text": "works on elements your module renders. A component from an installed package renders its own elements, and unless it happens to read a prop called , giving it one does nothing. The compiler catches this rather than letting you find it in the browser:"
+  },
+  {
+    "id": "/docs/styling/external-components#props",
+    "href": "/docs/styling/external-components#props",
+    "page": "Styling other people's components",
+    "section": "composition",
+    "heading": "props()",
+    "text": "compiles the same handles into , which every component that spreads its props onto an element will apply: The alias is a convention, not an API: is a common identifier, and the alias keeps the import from shadowing a parameter."
+  },
+  {
+    "id": "/docs/styling/external-components#the-case-one-module-away",
+    "href": "/docs/styling/external-components#the-case-one-module-away",
+    "page": "Styling other people's components",
+    "section": "composition",
+    "heading": "The case one module away",
+    "text": "The diagnostic also fires when the component that receives is yours, but it hands its rest props to an installed component without reading first: Take out of the rest props and apply it:"
+  },
+  {
+    "id": "/docs/styling/external-components#components-that-render-something-else",
+    "href": "/docs/styling/external-components#components-that-render-something-else",
+    "page": "Styling other people's components",
+    "section": "composition",
+    "heading": "Components that render something else",
+    "text": "Some libraries let you supply the element a part renders as. The classes belong to whichever element ends up in the DOM, so pass the styles to the part, and let it merge: If instead you style the inner element and the outer part also sets classes, the outer part's classes can be dropped: the part is not merging anything, it is rendering your element."
+  },
+  {
+    "id": "/docs/styling/external-components#when-you-cannot-pass-props-at-all",
+    "href": "/docs/styling/external-components#when-you-cannot-pass-props-at-all",
+    "page": "Styling other people's components",
+    "section": "composition",
+    "heading": "When you cannot pass props at all",
+    "text": "Two options, in order: Style it from an ancestor you do render with . Contextual styles sit in a lower layer, so the element's own styles still win. Global CSS , scoped by an attribute the library sets. This is the last resort: it is markup you do not own, and nothing checks it."
+  },
+  {
+    "id": "/docs/styling/relations",
+    "href": "/docs/styling/relations",
+    "page": "Relations",
+    "section": "composition",
+    "text": "Style an element from another element's state, as group and peer variants do, with the anchor stated in the source. "
+  },
+  {
+    "id": "/docs/styling/relations#relations",
+    "href": "/docs/styling/relations#relations",
+    "page": "Relations",
+    "section": "composition",
+    "heading": "Relations",
+    "text": "Sometimes an element's style depends on another element's state: a label that dims when its field is disabled, an icon that rotates when its menu is open. A relation names that connection once, and both ends refer to it: marks the element whose state is read. reads it from a descendant."
+  },
+  {
+    "id": "/docs/styling/relations#the-three-reads",
+    "href": "/docs/styling/relations#the-three-reads",
+    "page": "Relations",
+    "section": "composition",
+    "heading": "The three reads",
+    "text": "The argument is any selector the anchor may match, such as , or . Omit it to mean \"the anchor exists\", which is how you style by structure rather than state."
+  },
+  {
+    "id": "/docs/styling/relations#why-declare-it-at-all",
+    "href": "/docs/styling/relations#why-declare-it-at-all",
+    "page": "Relations",
+    "section": "composition",
+    "heading": "Why declare it at all",
+    "text": "Because the compiler checks it. Two errors you get for free: : a style reads a relation, but nothing applies its anchor. In a class-string system this is a that silently never fires. An application's build checks the relations whose module it compiled, so a shared component may read an ancestor that only some applications render; checks every relation in the project. : the anchor cannot be proven to be in the right position: used where the anchor is not an earlier sibling, for example. A relation that is declared and never read is reported too ( ), so dead relations do not accumulate. And because a relation is identified by its package and name, two modules of one package that both write would share one marker without meaning to: names both files. Export the relation from one module and import it where it is read."
+  },
+  {
+    "id": "/docs/styling/relations#anchors-are-placed-not-guessed",
+    "href": "/docs/styling/relations#anchors-are-placed-not-guessed",
+    "page": "Relations",
+    "section": "composition",
+    "heading": "Anchors are placed, not guessed",
+    "text": "The anchor must sit on the element whose state you are reading. That sounds obvious, and it is the most common mistake when porting: the state lives on the root, the anchor gets attached to an inner wrapper, and the read never matches."
+  },
+  {
+    "id": "/docs/styling/relations#has-is-not-a-relation",
+    "href": "/docs/styling/relations#has-is-not-a-relation",
+    "page": "Relations",
+    "section": "composition",
+    "heading": ":has()  is not a relation",
+    "text": "Styling a parent by its children is a plain condition, because the selector does it on its own: Relations exist for the other direction (a descendant or sibling reading state that lives elsewhere), where CSS needs the two ends to agree on a class."
+  },
+  {
+    "id": "/docs/styling/relations#precedence",
+    "href": "/docs/styling/relations#precedence",
+    "page": "Relations",
+    "section": "composition",
+    "heading": "Precedence",
+    "text": "A relation read is its own condition class, ranked below attributes and pseudo-classes on the element itself, and above at-rules ( ladder , step 3). So an element's own beats a value that depends on an ancestor's , which is what an author usually means."
+  },
+  {
+    "id": "/docs/styling/contextual",
+    "href": "/docs/styling/contextual",
+    "page": "Contextual styles",
+    "section": "composition",
+    "text": "Style the elements below you with select.descendant and select.child, in a layer their own styles still beat. "
+  },
+  {
+    "id": "/docs/styling/contextual#contextual-styles",
+    "href": "/docs/styling/contextual#contextual-styles",
+    "page": "Contextual styles",
+    "section": "composition",
+    "heading": "Contextual styles",
+    "text": "styles elements below an element you render, by name or attribute: reaches any depth; only direct children. Both are top-level keys holding a style object, like a pseudo-element."
+  },
+  {
+    "id": "/docs/styling/contextual#they-lose-to-the-element-s-own-styles",
+    "href": "/docs/styling/contextual#they-lose-to-the-element-s-own-styles",
+    "page": "Contextual styles",
+    "section": "composition",
+    "heading": "They lose to the element's own styles",
+    "text": "Contextual rules are written to a layer below element styles, so anything the target sets for itself wins, whatever conditions it carries. That is the point. In a class-based system a parent's competes with the icon's own size class and usually wins, which is why such rules grow guards like . Here the guard is unnecessary: give the icon a size and it keeps it."
+  },
+  {
+    "id": "/docs/styling/contextual#what-a-target-may-be",
+    "href": "/docs/styling/contextual#what-a-target-may-be",
+    "page": "Contextual styles",
+    "section": "composition",
+    "heading": "What a target may be",
+    "text": "One compound selector: an element name, attribute selectors and pseudo-classes, alone or together: No combinators ( ) and no pseudo-elements: a target is the element itself. Class selectors are not targets: Kirana's class names are hashes, and a handwritten class is markup the compiler cannot verify. An unsupported target is an error ( )."
+  },
+  {
+    "id": "/docs/styling/contextual#when-to-reach-for-it",
+    "href": "/docs/styling/contextual#when-to-reach-for-it",
+    "page": "Contextual styles",
+    "section": "composition",
+    "heading": "When to reach for it",
+    "text": "Styling an icon, a bullet, or any element a library renders inside yours. Giving a wrapper's children a shared rhythm you do not want to repeat on each one. When you own the element, style it directly instead: it is easier to read, and it lands in the higher layer where it belongs."
+  },
+  {
+    "id": "/docs/styling/recipes",
+    "href": "/docs/styling/recipes",
+    "page": "Recipes",
+    "section": "composition",
+    "text": "Variants, compound variants and slots with recipe(), resolved at build time when the options are known. "
+  },
+  {
+    "id": "/docs/styling/recipes#recipes",
+    "href": "/docs/styling/recipes#recipes",
+    "page": "Recipes",
+    "section": "composition",
+    "heading": "Recipes",
+    "text": "A recipe is a component's variants in one place: a base style, named groups of options, and the combinations that need a value of their own."
+  },
+  {
+    "id": "/docs/styling/recipes#static-calls-compile-to-a-constant",
+    "href": "/docs/styling/recipes#static-calls-compile-to-a-constant",
+    "page": "Recipes",
+    "section": "composition",
+    "heading": "Static calls compile to a constant",
+    "text": "When the options are known at build time, the call disappears: the element gets a class string, and no recipe table ships. When an option is a runtime value, the recipe resolves through the small private runtime instead, and the compiler tells you it did ( , informational). Both work. The diagnostic exists so you can see which components carry a runtime cost."
+  },
+  {
+    "id": "/docs/styling/recipes#slots",
+    "href": "/docs/styling/recipes#slots",
+    "page": "Recipes",
+    "section": "composition",
+    "heading": "Slots",
+    "text": "A component with several parts gives them one recipe. Each variant lists the slots it changes, and calling the recipe returns a handle per slot: Boolean variants are written as the string keys and , and called with real booleans."
+  },
+  {
+    "id": "/docs/styling/recipes#checks",
+    "href": "/docs/styling/recipes#checks",
+    "page": "Recipes",
+    "section": "composition",
+    "heading": "Checks",
+    "text": "An option that names a group or value the recipe does not define is an error ( ). A style that names a slot the recipe does not declare is an error ( ). Both catch the rename that used to leave a component silently unstyled."
+  },
+  {
+    "id": "/docs/styling/recipes#recipes-or-plain-handles",
+    "href": "/docs/styling/recipes#recipes-or-plain-handles",
+    "page": "Recipes",
+    "section": "composition",
+    "heading": "Recipes or plain handles?",
+    "text": "Use a recipe when a component has variants a caller chooses by name. Use plain handles when it does not: an object of handles is simpler to read, and merging already gives you composition:"
+  },
+  {
+    "id": "/docs/styling/animation",
+    "href": "/docs/styling/animation",
+    "page": "Animation",
+    "section": "dynamic",
+    "text": "Animate with keyframes() and transitions, including a custom property the browser can interpolate. "
+  },
+  {
+    "id": "/docs/styling/animation#keyframes",
+    "href": "/docs/styling/animation#keyframes",
+    "page": "Animation",
+    "section": "dynamic",
+    "heading": "Keyframes",
+    "text": "returns a name you can use as from any module: The name is hashed like a class, so two modules that define the same frames share one rule, and a set of frames nothing references emits nothing."
+  },
+  {
+    "id": "/docs/styling/animation#transitions",
+    "href": "/docs/styling/animation#transitions",
+    "page": "Animation",
+    "section": "dynamic",
+    "heading": "Transitions",
+    "text": "Transitions are ordinary declarations, and the thing worth saying is about the property you name: Animate the property you actually set. , and are separate properties from , and a transition on it does not interpolate them. This is one of the most common reasons an animation silently does nothing."
+  },
+  {
+    "id": "/docs/styling/animation#animating-a-custom-property",
+    "href": "/docs/styling/animation#animating-a-custom-property",
+    "page": "Animation",
+    "section": "dynamic",
+    "heading": "Animating a custom property",
+    "text": "A custom property does not interpolate unless the browser knows its type. Register it by giving the token a syntax, and it becomes animatable: That emits an rule, so a transition or keyframe on animates smoothly instead of jumping. A registered token may also be a keyframe key."
+  },
+  {
+    "id": "/docs/styling/animation#respecting-motion-preferences",
+    "href": "/docs/styling/animation#respecting-motion-preferences",
+    "page": "Animation",
+    "section": "dynamic",
+    "heading": "Respecting motion preferences",
+    "text": "is a condition like any other, and it ranks above width queries:"
+  },
+  {
+    "id": "/docs/styling/animation#entry-and-exit-states",
+    "href": "/docs/styling/animation#entry-and-exit-states",
+    "page": "Animation",
+    "section": "dynamic",
+    "heading": "Entry and exit states",
+    "text": "Libraries that animate elements in and out usually expose attributes for the two edges, such as and . Those are plain attribute conditions. Because they never appear at the same time but the selectors cannot prove it, declare them as exclusive once in , and the compiler stops asking which of the two wins."
+  },
+  {
+    "id": "/docs/styling/dynamic",
+    "href": "/docs/styling/dynamic",
+    "page": "Values known at runtime",
+    "section": "dynamic",
+    "text": "What happens to a style that depends on props: class expressions, the custom-property bridge, and the runtime helper. "
+  },
+  {
+    "id": "/docs/styling/dynamic#values-known-at-runtime",
+    "href": "/docs/styling/dynamic#values-known-at-runtime",
+    "page": "Values known at runtime",
+    "section": "dynamic",
+    "heading": "Values known at runtime",
+    "text": "Kirana compiles styles, but some values are only known when the component runs: a progress width, a colour from data, a variant from props. Those are fine to write where you write everything else: the compiler classifies each one and picks a representation."
+  },
+  {
+    "id": "/docs/styling/dynamic#three-classes-of-value",
+    "href": "/docs/styling/dynamic#three-classes-of-value",
+    "page": "Values known at runtime",
+    "section": "dynamic",
+    "heading": "Three classes of value",
+    "text": "Static. Known at build time. Compiles to a class. Nothing else happens. Finite dynamic. A choice between a known set of static values: Both values are compiled to classes, and the element gets a class expression , a ternary between two class strings. Still no CSS at runtime. Open dynamic. A value the compiler cannot enumerate: The declaration becomes , and the element gets that custom property in its attribute. One rule, any value, and the browser does the rest. The compiler reports it as (informational), so you can see where runtime values enter your styles."
+  },
+  {
+    "id": "/docs/styling/dynamic#the-branch-budget",
+    "href": "/docs/styling/dynamic#the-branch-budget",
+    "page": "Values known at runtime",
+    "section": "dynamic",
+    "heading": "The branch budget",
+    "text": "A finite dynamic value with too many branches would multiply classes, so there is a budget: 16 branches by default, configurable as . Past it, the compiler stops and reports rather than emitting a combinatorial explosion. Usually that is a sign the value should be a bridge, or a recipe ."
+  },
+  {
+    "id": "/docs/styling/dynamic#what-ships",
+    "href": "/docs/styling/dynamic#what-ships",
+    "page": "Values known at runtime",
+    "section": "dynamic",
+    "heading": "What ships",
+    "text": "A module that needs runtime merging or a bridge imports a private helper that is under 1 kB minified and gzipped. It merges class strings and sets custom properties. It never parses styles and never generates CSS. Modules with only static styles import nothing."
+  },
+  {
+    "id": "/docs/styling/dynamic#what-is-not-allowed",
+    "href": "/docs/styling/dynamic#what-is-not-allowed",
+    "page": "Values known at runtime",
+    "section": "dynamic",
+    "heading": "What is not allowed",
+    "text": "Two things the compiler refuses, because they would mean generating styles at runtime: A style's shape is fixed at build time; its values may vary. If you need a different property depending on state, write both and choose between handles:"
+  },
+  {
+    "id": "/docs/styling/dynamic#keeping-runtime-values-honest",
+    "href": "/docs/styling/dynamic#keeping-runtime-values-honest",
+    "page": "Values known at runtime",
+    "section": "dynamic",
+    "heading": "Keeping runtime values honest",
+    "text": "Prefer a finite set when there is one: a class expression costs nothing in the browser, a bridge costs a custom property. Bridge lengths, colours and numbers: values that vary continuously. If a page reports many values you did not expect, something that could be static is not: usually a token read through an intermediate variable the evaluator cannot follow."
+  },
+  {
+    "id": "/docs/styling/fallbacks",
+    "href": "/docs/styling/fallbacks",
+    "page": "Fallback values",
+    "section": "dynamic",
+    "text": "Write one property several times with firstThatWorks(), so a browser that does not know the preferred value keeps the one before it. "
+  },
+  {
+    "id": "/docs/styling/fallbacks#fallback-values",
+    "href": "/docs/styling/fallbacks#fallback-values",
+    "page": "Fallback values",
+    "section": "dynamic",
+    "heading": "Fallback values",
+    "text": "A browser drops a declaration whose value it does not understand and keeps the one before it. uses that: you list the values a property should try, the preferred first, and Kirana writes the property once per value. The preferred value is written last because the last declaration a browser understands is the one it keeps. The arguments go in reading order (the value you want, then what to fall back to), the same order as StyleX's helper and as ."
+  },
+  {
+    "id": "/docs/styling/fallbacks#where-it-works",
+    "href": "/docs/styling/fallbacks#where-it-works",
+    "page": "Fallback values",
+    "section": "dynamic",
+    "heading": "Where it works",
+    "text": "Anywhere a property takes a value: inside conditions, recipes, frames, blocks and parts. Every value goes through the same checks as a value written alone, so tokens resolve, units are checked and shorthands expand: The run is one atom. Its class name covers every value in order, so two styles with the same run share one class, and swapping the order is a different style. Hover, and show it as ."
+  },
+  {
+    "id": "/docs/styling/fallbacks#what-it-refuses",
+    "href": "/docs/styling/fallbacks#what-it-refuses",
+    "page": "Fallback values",
+    "section": "dynamic",
+    "heading": "What it refuses",
+    "text": "The longhand rule exists because a shorthand with a cannot be split at build time: one value would set four longhands and the other the shorthand, and a browser would keep a fallback for some sides and the preferred value for others. A custom property never falls back, because the browser accepts any text for it; put the fallback where the variable is read, . One value is that value: is , which keeps code migrated from StyleX working."
+  },
+  {
+    "id": "/docs/styling/fallbacks#when-to-use-supports-instead",
+    "href": "/docs/styling/fallbacks#when-to-use-supports-instead",
+    "page": "Fallback values",
+    "section": "dynamic",
+    "heading": "When to use  supports()  instead",
+    "text": "fits one property whose newer value a browser either parses or drops. When several properties have to change together, or the old browser parses the new value but renders it wrongly, use a condition instead."
+  },
+  {
+    "id": "/docs/styling/anchor-positioning",
+    "href": "/docs/styling/anchor-positioning",
+    "page": "Anchor positioning",
+    "section": "dynamic",
+    "text": "Define fallback positions for an anchored element with positionTry(), each an @position-try rule checked at build time. "
+  },
+  {
+    "id": "/docs/styling/anchor-positioning#anchor-positioning",
+    "href": "/docs/styling/anchor-positioning#anchor-positioning",
+    "page": "Anchor positioning",
+    "section": "dynamic",
+    "heading": "Anchor positioning",
+    "text": "CSS anchor positioning places an element against another one, and lists where to put it when the first place overflows. The built-in fallbacks ( , ) mirror the position; defines your own. returns a dashed ident, , and emits an rule with that name: The name is hashed from the declarations, like a keyframes name, so the same block defined in two modules is one rule. The rule ships only when something refers to it: a value, a template string, or an export another module reads."
+  },
+  {
+    "id": "/docs/styling/anchor-positioning#what-a-fallback-may-set",
+    "href": "/docs/styling/anchor-positioning#what-a-fallback-may-set",
+    "page": "Anchor positioning",
+    "section": "dynamic",
+    "heading": "What a fallback may set",
+    "text": "An block accepts the properties that place and size the box: A browser ignores anything else without a word, so Kirana reports it instead: Values are plain: a fallback has no hover state or breakpoint of its own, so a conditional value is too. Tokens and work as they do in a style."
+  },
+  {
+    "id": "/docs/styling/anchor-positioning#anchors",
+    "href": "/docs/styling/anchor-positioning#anchors",
+    "page": "Anchor positioning",
+    "section": "dynamic",
+    "heading": "Anchors",
+    "text": "Kirana does not manage for you. An anchor name must be unique on the page, the same as an , so name it where you know the element is unique: a style on that element, or an inline when the name depends on data."
+  },
+  {
+    "id": "/docs/styling/view-transitions",
+    "href": "/docs/styling/view-transitions",
+    "page": "View transitions",
+    "section": "dynamic",
+    "text": "Style the pseudo-elements of a view transition with viewTransition(), which is at once a style for sx and the class name a framework's transition API takes. "
+  },
+  {
+    "id": "/docs/styling/view-transitions#view-transitions",
+    "href": "/docs/styling/view-transitions#view-transitions",
+    "page": "View transitions",
+    "section": "dynamic",
+    "heading": "View transitions",
+    "text": "During a view transition the browser draws an element's old and new states in four pseudo-elements, and styles them for every element of one transition class: The result is a class, , that names itself as the element's . The parts select every element of that class:"
+  },
+  {
+    "id": "/docs/styling/view-transitions#using-it",
+    "href": "/docs/styling/view-transitions#using-it",
+    "page": "View transitions",
+    "section": "dynamic",
+    "heading": "Using it",
+    "text": "The value is a style handle and a class name at the same time. Put it in next to the element's other styles: or pass it where a framework asks for a transition class, such as React's . Kirana does not set . The browser needs it to be unique among the elements taking part in one transition, so it usually comes from data (an id, a slug) and belongs where that data is."
+  },
+  {
+    "id": "/docs/styling/view-transitions#the-parts",
+    "href": "/docs/styling/view-transitions#the-parts",
+    "page": "View transitions",
+    "section": "dynamic",
+    "heading": "The parts",
+    "text": "Each part is a style object. A property may be conditional on or ; the pseudo-elements have no hover or attribute state, so other conditions are , as is a key other than these four. Values take tokens, keyframes and . Like keyframes, the class is hashed from its parts, so the same transition defined twice is one rule, and it ships only where something uses it."
+  },
+  {
+    "id": "/docs/tokens/overview",
+    "href": "/docs/tokens/overview",
+    "page": "Tokens",
+    "section": "tokens",
+    "text": "Declare tokens with defineTokens, choose between inlined values and custom properties, and keep each token a typed constant. "
+  },
+  {
+    "id": "/docs/tokens/overview#tokens",
+    "href": "/docs/tokens/overview#tokens",
+    "page": "Tokens",
+    "section": "tokens",
+    "heading": "Tokens",
+    "text": "A token is a named value your styles refer to. In Kirana it is an ordinary imported constant, so your editor shows the value, \"go to definition\" works, and nothing needs code generation. The first argument is the namespace . It has to be unique in a project: two groups claiming one namespace is an error ( ), which is what keeps two libraries from quietly overwriting each other's variables."
+  },
+  {
+    "id": "/docs/tokens/overview#inlined-or-a-custom-property",
+    "href": "/docs/tokens/overview#inlined-or-a-custom-property",
+    "page": "Tokens",
+    "section": "tokens",
+    "heading": "Inlined or a custom property",
+    "text": "By default a token is inlined : compiles to . The token costs nothing, and unreferenced tokens emit nothing at all. Ask for a custom property when the value must be overridable at runtime , for a theme, a mode, or a value a parent hands down: Now compiles to , the defaults are declared once in the layer, and anything below can override them."
+  },
+  {
+    "id": "/docs/tokens/overview#per-mode-values",
+    "href": "/docs/tokens/overview#per-mode-values",
+    "page": "Tokens",
+    "section": "tokens",
+    "heading": "Per-mode values",
+    "text": "A token can carry a light and a dark value: Colours are usually better written as one value, which needs no variable at all and no mode plumbing. Use for values cannot express, such as a shadow's opacity, a blend mode or an image filter. Themes and modes covers the difference."
+  },
+  {
+    "id": "/docs/tokens/overview#registered-tokens",
+    "href": "/docs/tokens/overview#registered-tokens",
+    "page": "Tokens",
+    "section": "tokens",
+    "heading": "Registered tokens",
+    "text": "Give a token a syntax and it becomes a real registered property, which means the browser can animate it: This emits , and the token may then be used as a keyframe key. With the universal syntax a token may have no value at all. It starts unset, and every reference to it falls back to nothing ( ), so a chain of such tokens lists only the parts an element sets. That is how Tailwind composes :"
+  },
+  {
+    "id": "/docs/tokens/overview#a-token-as-a-style-key",
+    "href": "/docs/tokens/overview#a-token-as-a-style-key",
+    "page": "Tokens",
+    "section": "tokens",
+    "heading": "A token as a style key",
+    "text": "A variable token can be the key of a declaration, which sets that custom property for the subtree: That is how a control tells the icons inside it how big to be, without either side knowing the other's class names."
+  },
+  {
+    "id": "/docs/tokens/overview#what-the-compiler-checks",
+    "href": "/docs/tokens/overview#what-the-compiler-checks",
+    "page": "Tokens",
+    "section": "tokens",
+    "heading": "What the compiler checks",
+    "text": "A token that does not exist: . A token reference computed at runtime: , since tokens are build-time values by design. on a token that is not a custom property: ."
+  },
+  {
+    "id": "/docs/tokens/overview#next",
+    "href": "/docs/tokens/overview#next",
+    "page": "Tokens",
+    "section": "tokens",
+    "heading": "Next",
+    "text": "Using the scales preset : Tailwind's vocabulary, ready to import. Semantic tokens : building your own layer on top."
+  },
+  {
+    "id": "/docs/tokens/preset-scales",
+    "href": "/docs/tokens/preset-scales",
+    "page": "Starting with no preset, then scales",
+    "section": "tokens",
+    "text": "Kirana ships no design decisions. Start with plain CSS values, adopt @kirana-style/preset-scales when you want a vocabulary, and keep the parts you need. "
+  },
+  {
+    "id": "/docs/tokens/preset-scales#from-no-preset-to-scales",
+    "href": "/docs/tokens/preset-scales#from-no-preset-to-scales",
+    "page": "Starting with no preset, then scales",
+    "section": "tokens",
+    "heading": "From no preset, to scales",
+    "text": "Kirana has no opinion about what your spacing scale is. There is no default theme to override and nothing to reset. You start with plain CSS, and adopt a vocabulary when you want one."
+  },
+  {
+    "id": "/docs/tokens/preset-scales#level-1-no-tokens-at-all",
+    "href": "/docs/tokens/preset-scales#level-1-no-tokens-at-all",
+    "page": "Starting with no preset, then scales",
+    "section": "tokens",
+    "heading": "Level 1: no tokens at all",
+    "text": "Perfectly valid, and the right way to start a small thing: Nothing to install, nothing to learn. The compiler is already doing its job: atoms, merge rules, diagnostics."
+  },
+  {
+    "id": "/docs/tokens/preset-scales#level-2-the-scales-preset",
+    "href": "/docs/tokens/preset-scales#level-2-the-scales-preset",
+    "page": "Starting with no preset, then scales",
+    "section": "tokens",
+    "heading": "Level 2: the scales preset",
+    "text": "When repeating raw values gets old, gives you a vocabulary: the palette, spacing, type ramp, radii, shadows, blurs, durations, easings and breakpoints of Tailwind CSS v4, generated from its own theme, as typed tokens. There is no configuration step: you import what you use. A token nothing references emits nothing, so importing the package costs nothing in the output."
+  },
+  {
+    "id": "/docs/tokens/preset-scales#what-is-in-it",
+    "href": "/docs/tokens/preset-scales#what-is-in-it",
+    "page": "Starting with no preset, then scales",
+    "section": "tokens",
+    "heading": "What is in it",
+    "text": "and are separate because they share step names and mean different things: one queries the viewport, the other a container."
+  },
+  {
+    "id": "/docs/tokens/preset-scales#level-3-your-own-semantic-layer",
+    "href": "/docs/tokens/preset-scales#level-3-your-own-semantic-layer",
+    "page": "Starting with no preset, then scales",
+    "section": "tokens",
+    "heading": "Level 3: your own semantic layer",
+    "text": "The next step is naming the decisions: what is, what a card's surface is, what a border looks like in dark mode. That is semantic tokens , and it is where a design system starts."
+  },
+  {
+    "id": "/docs/tokens/preset-scales#level-4-packaging-a-preset-of-your-own",
+    "href": "/docs/tokens/preset-scales#level-4-packaging-a-preset-of-your-own",
+    "page": "Starting with no preset, then scales",
+    "section": "tokens",
+    "heading": "Level 4: packaging a preset of your own",
+    "text": "A preset is a module that exports token groups. To share yours, export them from a package and import them like any other module: Nothing else is required: no registration, no plugin."
+  },
+  {
+    "id": "/docs/tokens/preset-scales#the-utility-grammar",
+    "href": "/docs/tokens/preset-scales#the-utility-grammar",
+    "page": "Starting with no preset, then scales",
+    "section": "tokens",
+    "heading": "The utility grammar",
+    "text": "declares Tailwind v4's utility names over these scales, so works once the preset is listed: The entry holds only data and imports no tokens, because a configuration file runs uncompiled. See utility strings . The grammar composes some utilities through , a group of registered, non-inheriting tokens mirroring Tailwind's properties, such as and . A style object can set them too, and then combines with those utilities on the same element: holds the keyframes the animation utilities play: A style reads them by name:"
+  },
+  {
+    "id": "/docs/tokens/preset-scales#how-the-grammar-behaves",
+    "href": "/docs/tokens/preset-scales#how-the-grammar-behaves",
+    "page": "Starting with no preset, then scales",
+    "section": "tokens",
+    "heading": "How the grammar behaves",
+    "text": "The grammar is data, but a few of its rules decide results you will notice. Each matches what Tailwind v4 renders, and a property test checks every one of the 7,391 utilities it generates against the equivalent style object. A font size carries its line height. sets the font size and the line height paired with it. The pair is a default, not a declaration of its own: keeps , whichever comes first; replaces the pair with . Uniform box utilities are logical axes. sets the block and the inline padding, so: a later replaces an earlier , as did; a later replaces only the inline axis. Composed utilities combine instead of replacing. Each pair below ends up in one property: Each utility sets a layer, a registered, non-inheriting custom property such as (as Tailwind's ones are), and the property reads all of them. So class order does not change the result. Transitions read their timing from layers too. sets the list of properties and reads the duration and easing utilities from their layers, so and agree. Without either, the timing is Tailwind's: 150 ms, . also resets the duration and timing function, so it removes a component's transition entirely, as did by deleting the utility. keeps a "
+  },
+  {
+    "id": "/docs/tokens/semantic-tokens",
+    "href": "/docs/tokens/semantic-tokens",
+    "page": "Semantic tokens",
+    "section": "tokens",
+    "text": "Name your design decisions in a variable layer of light-dark() pairs, so dark mode needs no variant. "
+  },
+  {
+    "id": "/docs/tokens/semantic-tokens#semantic-tokens",
+    "href": "/docs/tokens/semantic-tokens#semantic-tokens",
+    "page": "Semantic tokens",
+    "section": "tokens",
+    "heading": "Semantic tokens",
+    "text": "Scales tell you what values exist. Semantic tokens say what they mean : what a card's surface is, what \"primary\" is, what a border looks like. This is the layer that makes a component readable: says something does not. Two decisions in that snippet, and both matter."
+  },
+  {
+    "id": "/docs/tokens/semantic-tokens#every-colour-is-one-light-dark-pair",
+    "href": "/docs/tokens/semantic-tokens#every-colour-is-one-light-dark-pair",
+    "page": "Semantic tokens",
+    "section": "tokens",
+    "heading": "Every colour is one  light-dark()  pair",
+    "text": "resolves against the element's , so one declaration covers both schemes. There is no dark variant, no class, no duplicated block, and no way for the two halves to drift apart: they are written on the same line. The application sets once, at the root ( themes and modes )."
+  },
+  {
+    "id": "/docs/tokens/semantic-tokens#semantic-tokens-are-variables",
+    "href": "/docs/tokens/semantic-tokens#semantic-tokens-are-variables",
+    "page": "Semantic tokens",
+    "section": "tokens",
+    "heading": "Semantic tokens are variables",
+    "text": ", because these are the values a theme overrides. Scales stay inlined: nobody re-themes ."
+  },
+  {
+    "id": "/docs/tokens/semantic-tokens#intent-tokens-for-the-things-light-dark-cannot-hold",
+    "href": "/docs/tokens/semantic-tokens#intent-tokens-for-the-things-light-dark-cannot-hold",
+    "page": "Semantic tokens",
+    "section": "tokens",
+    "heading": "Intent tokens for the things  light-dark()  cannot hold",
+    "text": "Sometimes the two schemes differ in something that is not a colour: a shadow's strength, an image filter, a blend mode. Those get per-mode values: The same idea covers pairs where light and dark want different roles rather than different shades, such as a control that is a tint in light and a solid in dark. Naming that intent once ( ) beats repeating a conditional in every component that needs it."
+  },
+  {
+    "id": "/docs/tokens/semantic-tokens#deriving-values",
+    "href": "/docs/tokens/semantic-tokens#deriving-values",
+    "page": "Semantic tokens",
+    "section": "tokens",
+    "heading": "Deriving values",
+    "text": "Tokens are constants, so deriving one from another is just an expression: with a variable token keeps the relationship live: re-theme and every tint follows."
+  },
+  {
+    "id": "/docs/tokens/semantic-tokens#where-to-put-it",
+    "href": "/docs/tokens/semantic-tokens#where-to-put-it",
+    "page": "Semantic tokens",
+    "section": "tokens",
+    "heading": "Where to put it",
+    "text": "One module, exported, imported by every component. In this repository it is , and adding a colour is one line there rather than a decision in each component."
+  },
+  {
+    "id": "/docs/tokens/themes-and-modes",
+    "href": "/docs/tokens/themes-and-modes",
+    "page": "Themes and modes",
+    "section": "tokens",
+    "text": "Set the colour mode on the root element with mode.system, mode.light or mode.dark, and override tokens for a subtree with defineTheme. "
+  },
+  {
+    "id": "/docs/tokens/themes-and-modes#modes",
+    "href": "/docs/tokens/themes-and-modes#modes",
+    "page": "Themes and modes",
+    "section": "tokens",
+    "heading": "Modes",
+    "text": "gives you three handles that set : Put it on the root element , not the body: the root decides the page's canvas and scrollbars, and an iframe whose root scheme differs from its frame gets an opaque backdrop. With every colour written as a pair , that single declaration is the whole dark-mode implementation. needs no JavaScript at all. A three-way switch is then ordinary state:"
+  },
+  {
+    "id": "/docs/tokens/themes-and-modes#themes",
+    "href": "/docs/tokens/themes-and-modes#themes",
+    "page": "Themes and modes",
+    "section": "tokens",
+    "heading": "Themes",
+    "text": "overrides variable tokens for a subtree: Everything inside the section reads the new value; everything outside is untouched. Themes nest, and a theme may override some tokens and leave the rest. Only variable tokens can be overridden: overriding an inlined one is an error ( ), because there is no variable to change. If a token needs a theme, declare its group with ."
+  },
+  {
+    "id": "/docs/tokens/themes-and-modes#per-mode-overrides",
+    "href": "/docs/tokens/themes-and-modes#per-mode-overrides",
+    "page": "Themes and modes",
+    "section": "tokens",
+    "heading": "Per-mode overrides",
+    "text": "A theme can set both halves of a token:"
+  },
+  {
+    "id": "/docs/tokens/themes-and-modes#where-the-values-live",
+    "href": "/docs/tokens/themes-and-modes#where-the-values-live",
+    "page": "Themes and modes",
+    "section": "tokens",
+    "heading": "Where the values live",
+    "text": "Token defaults go in the layer, on . Theme overrides go in , as a class. Both sit below your component styles, so a component that sets a colour directly always wins over a theme that suggests one."
+  },
+  {
+    "id": "/docs/tokens/themes-and-modes#switching-without-a-flash",
+    "href": "/docs/tokens/themes-and-modes#switching-without-a-flash",
+    "page": "Themes and modes",
+    "section": "tokens",
+    "heading": "Switching without a flash",
+    "text": "The mode handle is a class on the root element, so server-rendered HTML can carry it: render the user's stored preference into the root on the server, and there is no flash. needs nothing stored at all."
+  },
+  {
+    "id": "/docs/tokens/themes-and-modes#what-not-to-do",
+    "href": "/docs/tokens/themes-and-modes#what-not-to-do",
+    "page": "Themes and modes",
+    "section": "tokens",
+    "heading": "What not to do",
+    "text": "Do not put the mode on . The canvas belongs to the root. Do not write a variant. There is no dark variant; the pair is in the token. Do not theme scales. Re-theming makes a layout unpredictable; theme the semantic layer instead."
+  },
+  {
+    "id": "/docs/config/file",
+    "href": "/docs/config/file",
+    "page": "The configuration file",
+    "section": "config",
+    "text": "Where kirana.config.ts lives, how it is found, and what overrides what. "
+  },
+  {
+    "id": "/docs/config/file#the-configuration-file",
+    "href": "/docs/config/file#the-configuration-file",
+    "page": "The configuration file",
+    "section": "config",
+    "heading": "The configuration file",
+    "text": "Configuration is optional. Every key has a default, and a project with no compiles. is an identity function: it exists for the types."
+  },
+  {
+    "id": "/docs/config/file#how-it-is-found",
+    "href": "/docs/config/file#how-it-is-found",
+    "page": "The configuration file",
+    "section": "config",
+    "heading": "How it is found",
+    "text": "The compiler looks in the project root, in this order, and takes the first match: TypeScript and JavaScript files are imported natively; the default export is the configuration."
+  },
+  {
+    "id": "/docs/config/file#what-overrides-what",
+    "href": "/docs/config/file#what-overrides-what",
+    "page": "The configuration file",
+    "section": "config",
+    "heading": "What overrides what",
+    "text": "Options passed to the adapter override the file, key by key: The project root comes from the adapter (Vite's , or the CLI's working directory) and cannot be set in the file."
+  },
+  {
+    "id": "/docs/config/file#unknown-keys-are-errors",
+    "href": "/docs/config/file#unknown-keys-are-errors",
+    "page": "The configuration file",
+    "section": "config",
+    "heading": "Unknown keys are errors",
+    "text": "The validator rejects keys it does not know ( ), rather than ignoring them. A typo fails the build instead of silently doing nothing, and a key from a future version fails loudly rather than pretending to work."
+  },
+  {
+    "id": "/docs/config/file#sharing-configuration",
+    "href": "/docs/config/file#sharing-configuration",
+    "page": "The configuration file",
+    "section": "config",
+    "heading": "Sharing configuration",
+    "text": "A configuration is a plain object, so a shared one is a plain export: That is how a component library tells every app what its attributes guarantee; see ."
+  },
+  {
+    "id": "/docs/config/layers",
+    "href": "/docs/config/layers",
+    "page": "Layers and global CSS",
+    "section": "config",
+    "text": "Where a reset goes, why Kirana emits nothing unlayered, and how to keep third-party CSS below your styles. "
+  },
+  {
+    "id": "/docs/config/layers#layers-and-global-css",
+    "href": "/docs/config/layers#layers-and-global-css",
+    "page": "Layers and global CSS",
+    "section": "config",
+    "heading": "Layers and global CSS",
+    "text": "Kirana writes every rule inside a layer, and declares the order in one statement at the top of the stylesheet: The first line is yours: the names from and . The second is Kirana's own, and its order is fixed. Nothing Kirana emits is unlayered, custom-property assignments included. That is what lets a reset stay a reset: it cannot accidentally outrank a component style, and a component style cannot accidentally outrank a theme."
+  },
+  {
+    "id": "/docs/config/layers#your-own-layers",
+    "href": "/docs/config/layers#your-own-layers",
+    "page": "Layers and global CSS",
+    "section": "config",
+    "heading": "Your own layers",
+    "text": "Then write your global CSS into those layers: Because and come before in the order statement, every Kirana rule wins over them, whatever their selectors look like."
+  },
+  {
+    "id": "/docs/config/layers#load-order-matters-once",
+    "href": "/docs/config/layers#load-order-matters-once",
+    "page": "Layers and global CSS",
+    "section": "config",
+    "heading": "Load order matters once",
+    "text": "Import Kirana's stylesheet before your global CSS. Its statement is what fixes the order, and a layer first seen inside would otherwise be ordered by where it appeared."
+  },
+  {
+    "id": "/docs/config/layers#third-party-css",
+    "href": "/docs/config/layers#third-party-css",
+    "page": "Layers and global CSS",
+    "section": "config",
+    "heading": "Third-party CSS",
+    "text": "A package's stylesheet you cannot edit (a date picker, a carousel) goes into a layer you name, so your styles beat it without :"
+  },
+  {
+    "id": "/docs/config/layers#when-to-write-global-css-at-all",
+    "href": "/docs/config/layers#when-to-write-global-css-at-all",
+    "page": "Layers and global CSS",
+    "section": "config",
+    "heading": "When to write global CSS at all",
+    "text": "Rarely. Two cases hold up: A reset , and base element styles that must apply to bare tags. Markup you do not render , where no component can carry a class, scoped by an attribute the library sets, as narrowly as you can manage. Everything else belongs in , where the compiler can see it, check it and tell you when two declarations fight."
   },
   {
     "id": "/docs/frameworks/overview",
     "href": "/docs/frameworks/overview",
-    "page": "Get started",
+    "page": "Choose a framework",
     "section": "frameworks",
-    "text": "Install Kirana with your framework, on your bundler, or from the command line for server templates - a guide for each, and every one tested on every change. "
+    "text": "Install Kirana with your framework, on your bundler, or from the command line for server templates, with a guide for each that is tested on every change. "
   },
   {
-    "id": "/docs/frameworks/overview#get-started",
-    "href": "/docs/frameworks/overview#get-started",
-    "page": "Get started",
+    "id": "/docs/frameworks/overview#choose-a-framework",
+    "href": "/docs/frameworks/overview#choose-a-framework",
+    "page": "Choose a framework",
     "section": "frameworks",
-    "heading": "Get started",
+    "heading": "Choose a framework",
     "text": "Kirana compiles the styles you write next to your components into class names and one static stylesheet, with no styling runtime left in the page. It works with every major framework and bundler, and with server-rendered templates through the command line."
   },
   {
     "id": "/docs/frameworks/overview#every-guide-is-a-test",
     "href": "/docs/frameworks/overview#every-guide-is-a-test",
-    "page": "Get started",
+    "page": "Choose a framework",
     "section": "frameworks",
     "heading": "Every guide is a test",
-    "text": "Every example lives in . On every change, CI packs the packages, installs each example from the tarballs, builds it, and checks a styled element's computed style and hover in a browser. It also starts each dev server and checks that a style edit reaches the page — in place, without a reload, where the framework updates components that way. A row in this table is a test that passes, not a claim. The bundlers have their own examples, listed on each page ."
+    "text": "Every example lives in . On every change, CI packs the packages, installs each example from the tarballs, builds it, and checks a styled element's computed style and hover in a browser. It also starts each dev server and checks that a style edit reaches the page in place, without a reload, where the framework updates components that way. A row in this table is a test that passes, not a claim. The bundlers have their own examples, listed on each page ."
   },
   {
     "id": "/docs/frameworks/react",
     "href": "/docs/frameworks/react",
     "page": "React",
     "section": "frameworks",
-    "text": "Install Kirana in a React app on Vite - the plugin, the stylesheet, sx types and a first component. "
+    "text": "Install Kirana in a React app on Vite: the plugin, the stylesheet, sx types and a first component. "
   },
   {
     "id": "/docs/frameworks/react#react",
@@ -6042,14 +7127,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "React",
     "section": "frameworks",
     "heading": "Next",
-    "text": "Styles and conditions — what goes inside . The Vite plugin — its options and what it does in development and in a build. Not on Vite? Other bundlers ."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Styles and conditions : what goes inside . The Vite plugin : its options and what it does in development and in a build. Not on Vite? Other bundlers ."
   },
   {
     "id": "/docs/frameworks/nextjs",
     "href": "/docs/frameworks/nextjs",
     "page": "Next.js",
     "section": "frameworks",
-    "text": "Install Kirana in a Next.js app - Turbopack (the default) or webpack, one withKirana, the stylesheet through PostCSS, and server components. "
+    "text": "Install Kirana in a Next.js app on Turbopack (the default) or webpack, with one withKirana, the stylesheet through PostCSS, and server components. "
   },
   {
     "id": "/docs/frameworks/nextjs#next-js",
@@ -6057,7 +7142,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Next.js",
     "section": "frameworks",
     "heading": "Next.js",
-    "text": "Kirana works with both of Next.js's bundlers: Turbopack , the default for and , and webpack ( ). Server components work unchanged. Tested on every change by and , with npm and pnpm, in a production build and on the dev server."
+    "text": "Kirana works with both of Next.js's bundlers: Turbopack , the default for development and production builds, and webpack ( ). Server components work unchanged. Tested on every change by and , with npm and pnpm, in a production build and on the dev server."
   },
   {
     "id": "/docs/frameworks/nextjs#the-fast-way",
@@ -6089,7 +7174,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Next.js",
     "section": "frameworks",
     "heading": "6. Write a component",
-    "text": "That is a server component: compiles to a class string at build time, so nothing of Kirana runs at request time. In your editor, the line shows what the element gets — see editor support ."
+    "text": "That is a server component: compiles to a class string at build time, so nothing of Kirana runs at request time. In your editor, the line shows what the element gets; see editor support ."
   },
   {
     "id": "/docs/frameworks/nextjs#how-the-stylesheet-gets-built",
@@ -6097,7 +7182,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Next.js",
     "section": "frameworks",
     "heading": "How the stylesheet gets built",
-    "text": "Turbopack runs loaders, not bundler plugins, so no single step sees every module. Kirana splits the work the way Tailwind CSS v4 does: the loader rewrites each module's styles into class names, and the PostCSS plugin compiles the project into the stylesheet. The two never talk — they agree because a class name is a hash of what it styles, never of the order modules were built in. In development the plugin tells Next.js which folders to watch, so an edit to a component reaches the page without a restart. The cost is measured in the design note : 53 ms to compile the 104 scripts of this documentation site the first time, 5 ms after an edit. One difference from the other adapters: the stylesheet holds the atoms of every script in the project, imported or not."
+    "text": "Turbopack runs loaders, not bundler plugins, so no single step sees every module. Kirana splits the work the way Tailwind CSS v4 does: the loader rewrites each module's styles into class names, and the PostCSS plugin compiles the project into the stylesheet. The two never talk: they agree because a class name is a hash of what it styles, never of the order modules were built in. In development the plugin tells Next.js which folders to watch, so an edit to a component reaches the page without a restart. The cost is measured in the design note : 53 ms to compile the 104 scripts of this documentation site the first time, 5 ms after an edit. One difference from the other adapters: the stylesheet holds the atoms of every script in the project, imported or not."
   },
   {
     "id": "/docs/frameworks/nextjs#with-webpack-only",
@@ -6108,11 +7193,19 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "A project that always builds with can skip PostCSS and use the webpack adapter on its own: Next runs a server and a client compiler over the same app, and a server component is only seen by the server one. Every compiler of a project shares one compiler session, which is how those atoms reach the stylesheet the client writes. Details in other bundlers . With webpack, a style change in shows after a reload: CSS hot updates are not implemented for webpack."
   },
   {
+    "id": "/docs/frameworks/nextjs#next",
+    "href": "/docs/frameworks/nextjs#next",
+    "page": "Next.js",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to."
+  },
+  {
     "id": "/docs/frameworks/react-router",
     "href": "/docs/frameworks/react-router",
     "page": "React Router",
     "section": "frameworks",
-    "text": "Install Kirana in a React Router app - framework mode on Vite, sx compiles to className, server rendering and single-page mode alike. "
+    "text": "Install Kirana in a React Router app in framework mode on Vite, where sx compiles to className for server rendering and single-page mode alike. "
   },
   {
     "id": "/docs/frameworks/react-router#react-router",
@@ -6152,14 +7245,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "React Router",
     "section": "frameworks",
     "heading": "Next",
-    "text": "Styles and conditions . The Vite plugin ."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Styles and conditions . The Vite plugin ."
   },
   {
     "id": "/docs/frameworks/tanstack-start",
     "href": "/docs/frameworks/tanstack-start",
     "page": "TanStack Start",
     "section": "frameworks",
-    "text": "Install Kirana in a TanStack Start app - the plugin, the root document, stylesheet order and server rendering. "
+    "text": "Install Kirana in a TanStack Start app: the plugin, the root document, stylesheet order and server rendering. "
   },
   {
     "id": "/docs/frameworks/tanstack-start#tanstack-start",
@@ -6167,7 +7260,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "TanStack Start",
     "section": "frameworks",
     "heading": "TanStack Start",
-    "text": "This site, and the three applications of our shadcn/ui port, are TanStack Start apps — this page is the setup they use."
+    "text": "This site, and the three applications of our shadcn/ui port, are TanStack Start apps; this page is the setup they use."
   },
   {
     "id": "/docs/frameworks/tanstack-start#the-root-document",
@@ -6191,7 +7284,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "TanStack Start",
     "section": "frameworks",
     "heading": "Server rendering",
-    "text": "There is nothing to do. Styles are in a stylesheet the document links, and class names are in the markup, so server-rendered HTML is already styled — no style collection step, no flash, no double render. Server components work the same way: the compiler runs at build time, so nothing of Kirana has to run on the server at request time."
+    "text": "There is nothing to do. Styles are in a stylesheet the document links, and class names are in the markup, so server-rendered HTML is already styled, with no style collection step, no flash and no double render. Server components work the same way: the compiler runs at build time, so nothing of Kirana has to run on the server at request time."
   },
   {
     "id": "/docs/frameworks/tanstack-start#other-setups",
@@ -6202,11 +7295,19 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Every other framework has its own guide in supported frameworks , and React on other bundlers is in other bundlers ."
   },
   {
+    "id": "/docs/frameworks/tanstack-start#next",
+    "href": "/docs/frameworks/tanstack-start#next",
+    "page": "TanStack Start",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to."
+  },
+  {
     "id": "/docs/frameworks/gatsby",
     "href": "/docs/frameworks/gatsby",
     "page": "Gatsby",
     "section": "frameworks",
-    "text": "Install Kirana in a Gatsby site - one plugin adds Kirana to every webpack stage, so the server render and the browser name the same classes. "
+    "text": "Install Kirana in a Gatsby site, where one plugin adds Kirana to every webpack stage so the server render and the browser name the same classes. "
   },
   {
     "id": "/docs/frameworks/gatsby#gatsby",
@@ -6214,7 +7315,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Gatsby",
     "section": "frameworks",
     "heading": "Gatsby",
-    "text": "Gatsby builds with webpack in stages — the browser bundle, and the server render that writes each page's HTML. adds Kirana's webpack plugin to every stage, and the stages share one compiler session, so the HTML and the browser agree on every class. Tested on every change by , built and on its dev server."
+    "text": "Gatsby builds with webpack in stages: the browser bundle, and the server render that writes each page's HTML. adds Kirana's webpack plugin to every stage, and the stages share one compiler session, so the HTML and the browser agree on every class. Tested on every change by , built and on its dev server."
   },
   {
     "id": "/docs/frameworks/gatsby#the-fast-way",
@@ -6246,14 +7347,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Gatsby",
     "section": "frameworks",
     "heading": "Next",
-    "text": "The webpack plugin , which does the work. Styles ."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. The webpack plugin , which does the work. Styles ."
   },
   {
     "id": "/docs/frameworks/preact",
     "href": "/docs/frameworks/preact",
     "page": "Preact",
     "section": "frameworks",
-    "text": "Install Kirana in a Preact app on Vite - sx compiles to class, detected from jsxImportSource. "
+    "text": "Install Kirana in a Preact app on Vite, where sx compiles to class, detected from jsxImportSource. "
   },
   {
     "id": "/docs/frameworks/preact#preact",
@@ -6261,7 +7362,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Preact",
     "section": "frameworks",
     "heading": "Preact",
-    "text": "compiles to (and for values known only at runtime). Kirana picks that up from in your , so there is nothing to configure. Tested by ."
+    "text": "compiles to (and a style attribute for values known only at runtime). Kirana picks that up from the JSX import source in your , so there is nothing to configure. Tested by ."
   },
   {
     "id": "/docs/frameworks/preact#2-add-the-plugin",
@@ -6293,14 +7394,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Preact",
     "section": "frameworks",
     "heading": "Next",
-    "text": "Styles and conditions . The Vite plugin ."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Styles and conditions . The Vite plugin ."
   },
   {
     "id": "/docs/frameworks/solid",
     "href": "/docs/frameworks/solid",
     "page": "Solid",
     "section": "frameworks",
-    "text": "Install Kirana in a Solid app on Vite - sx compiles to class, detected from jsxImportSource. "
+    "text": "Install Kirana in a Solid app on Vite, where sx compiles to class, detected from jsxImportSource. "
   },
   {
     "id": "/docs/frameworks/solid#solid",
@@ -6308,7 +7409,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Solid",
     "section": "frameworks",
     "heading": "Solid",
-    "text": "compiles to (and for values known only at runtime). Kirana picks that up from in your , so there is nothing to configure. Tested by ."
+    "text": "compiles to (and a style attribute for values known only at runtime). Kirana picks that up from the JSX import source in your , so there is nothing to configure. Tested by ."
   },
   {
     "id": "/docs/frameworks/solid#2-add-the-plugin",
@@ -6340,14 +7441,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Solid",
     "section": "frameworks",
     "heading": "Next",
-    "text": "Styles and conditions . The Vite plugin ."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Styles and conditions . The Vite plugin ."
   },
   {
     "id": "/docs/frameworks/vue",
     "href": "/docs/frameworks/vue",
     "page": "Vue",
     "section": "frameworks",
-    "text": "Install Kirana in a Vue app on Vite - styles in the script, :sx in the template, compiled before Vue sees the component. "
+    "text": "Install Kirana in a Vue app on Vite, with styles in the script and :sx in the template, compiled before Vue sees the component. "
   },
   {
     "id": "/docs/frameworks/vue#vue",
@@ -6379,7 +7480,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Vue",
     "section": "frameworks",
     "heading": "How it compiles",
-    "text": "The script compiles like any module — becomes class strings, and the stylesheet gets the atoms. Each becomes with a call to Kirana's small runtime, which merges the styles when the component renders. Keep calls in the script: one written inside the template is not compiled, and says so when it runs."
+    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes with a call to Kirana's small runtime, which merges the styles when the component renders. Keep calls in the script: one written inside the template is not compiled, and says so when it runs."
   },
   {
     "id": "/docs/frameworks/vue#nuxt",
@@ -6390,11 +7491,19 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "On Nuxt, follow the Nuxt guide : the plugin goes in instead."
   },
   {
+    "id": "/docs/frameworks/vue#next",
+    "href": "/docs/frameworks/vue#next",
+    "page": "Vue",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to."
+  },
+  {
     "id": "/docs/frameworks/nuxt",
     "href": "/docs/frameworks/nuxt",
     "page": "Nuxt",
     "section": "frameworks",
-    "text": "Install Kirana in a Nuxt app - the Vite plugin in nuxt.config, the stylesheet in css, and :sx in components rendered on the server. "
+    "text": "Install Kirana in a Nuxt app, with the Vite plugin in nuxt.config, the stylesheet in css, and :sx in components rendered on the server. "
   },
   {
     "id": "/docs/frameworks/nuxt#nuxt",
@@ -6402,7 +7511,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Nuxt",
     "section": "frameworks",
     "heading": "Nuxt",
-    "text": "Nuxt compiles Vue components with Vite, so Kirana works as it does in Vue : styles in , in the template. Pages rendered on the server and hydrated in the browser are styled from the first byte. Tested by , built with and run with ."
+    "text": "Nuxt compiles Vue components with Vite, so Kirana works as it does in Vue : styles in , in the template. Pages rendered on the server and hydrated in the browser are styled from the first byte. Tested by , built as a static site and run on the dev server."
   },
   {
     "id": "/docs/frameworks/nuxt#2-configure-nuxt",
@@ -6426,14 +7535,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Nuxt",
     "section": "frameworks",
     "heading": "Next",
-    "text": "Vue — how compiles, and what to keep in the script. Styles and conditions ."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Vue : how compiles, and what to keep in the script. Styles and conditions ."
   },
   {
     "id": "/docs/frameworks/svelte",
     "href": "/docs/frameworks/svelte",
     "page": "Svelte",
     "section": "frameworks",
-    "text": "Install Kirana in a Svelte app on Vite - styles in the script, sx on elements, compiled before Svelte sees the component. "
+    "text": "Install Kirana in a Svelte app on Vite, with styles in the script and sx on elements, compiled before Svelte sees the component. "
   },
   {
     "id": "/docs/frameworks/svelte#svelte",
@@ -6465,7 +7574,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Svelte",
     "section": "frameworks",
     "heading": "5. Write a component",
-    "text": "The element's own and are merged into what produces, in order, and and directives keep working beside it."
+    "text": "The element's own class and style attributes are merged into what produces, in order, and and directives keep working beside it."
   },
   {
     "id": "/docs/frameworks/svelte#how-it-compiles",
@@ -6473,7 +7582,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Svelte",
     "section": "frameworks",
     "heading": "How it compiles",
-    "text": "The script compiles like any module — becomes class strings, and the stylesheet gets the atoms. Each becomes a spread of a call to Kirana's small runtime, which merges the styles as the component renders, so a condition like stays reactive. Keep calls in the script: one written inside the markup is not compiled, and says so when it runs."
+    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes a spread of a call to Kirana's small runtime, which merges the styles as the component renders, so a condition like stays reactive. Keep calls in the script: one written inside the markup is not compiled, and says so when it runs."
   },
   {
     "id": "/docs/frameworks/svelte#sveltekit",
@@ -6484,11 +7593,19 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "On SvelteKit, follow the SvelteKit guide : the plugin goes before , and the stylesheet in the root layout."
   },
   {
+    "id": "/docs/frameworks/svelte#next",
+    "href": "/docs/frameworks/svelte#next",
+    "page": "Svelte",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to."
+  },
+  {
     "id": "/docs/frameworks/sveltekit",
     "href": "/docs/frameworks/sveltekit",
     "page": "SvelteKit",
     "section": "frameworks",
-    "text": "Install Kirana in a SvelteKit app - the Vite plugin before sveltekit(), the stylesheet in the root layout, and sx in server-rendered components. "
+    "text": "Install Kirana in a SvelteKit app, with the Vite plugin before sveltekit(), the stylesheet in the root layout, and sx in server-rendered components. "
   },
   {
     "id": "/docs/frameworks/sveltekit#sveltekit",
@@ -6496,7 +7613,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "SvelteKit",
     "section": "frameworks",
     "heading": "SvelteKit",
-    "text": "SvelteKit compiles Svelte components with Vite, so Kirana works as it does in Svelte : styles in , on elements. Pages rendered on the server — or prerendered — are styled from the first byte. Tested by , built with and run with ."
+    "text": "SvelteKit compiles Svelte components with Vite, so Kirana works as it does in Svelte : styles in , on elements. Pages rendered on the server, or prerendered, are styled from the first byte. Tested by , built with the static adapter and run on the dev server."
   },
   {
     "id": "/docs/frameworks/sveltekit#2-add-the-plugin",
@@ -6528,14 +7645,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "SvelteKit",
     "section": "frameworks",
     "heading": "Next",
-    "text": "Svelte — how compiles, and what to keep in the script. Styles and conditions ."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Svelte : how compiles, and what to keep in the script. Styles and conditions ."
   },
   {
     "id": "/docs/frameworks/astro",
     "href": "/docs/frameworks/astro",
     "page": "Astro",
     "section": "frameworks",
-    "text": "Install Kirana in an Astro site - the integration, styles in the frontmatter, sx on elements, and the stylesheet Astro links or inlines. "
+    "text": "Install Kirana in an Astro site, with the integration, styles in the frontmatter, sx on elements, and the stylesheet Astro links or inlines. "
   },
   {
     "id": "/docs/frameworks/astro#astro",
@@ -6583,14 +7700,22 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Astro",
     "section": "frameworks",
     "heading": "How it compiles",
-    "text": "The frontmatter compiles like any module, and each becomes a spread of a call to Kirana's small runtime, evaluated when the page renders — at build time for a static page. Keep calls in the frontmatter: one written inside the markup is not compiled, and says so when it runs."
+    "text": "The frontmatter compiles like any module, and each becomes a spread of a call to Kirana's small runtime, evaluated when the page renders, which is at build time for a static page. Keep calls in the frontmatter: one written inside the markup is not compiled, and says so when it runs."
+  },
+  {
+    "id": "/docs/frameworks/astro#next",
+    "href": "/docs/frameworks/astro#next",
+    "page": "Astro",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to."
   },
   {
     "id": "/docs/frameworks/qwik",
     "href": "/docs/frameworks/qwik",
     "page": "Qwik",
     "section": "frameworks",
-    "text": "Install Kirana in a Qwik 2 app on Vite - sx compiles to class, detected from jsxImportSource, rendered on the server and resumed in the browser. "
+    "text": "Install Kirana in a Qwik 2 app on Vite, where sx compiles to class, detected from jsxImportSource, rendered on the server and resumed in the browser. "
   },
   {
     "id": "/docs/frameworks/qwik#qwik",
@@ -6598,7 +7723,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Qwik",
     "section": "frameworks",
     "heading": "Qwik",
-    "text": "compiles to (and for values known only at runtime). Kirana picks that up from in your , so there is nothing to configure. Kirana supports Qwik 2 ( ): Qwik 1 runs only on Vite 7 and older, and Kirana's Vite plugin needs Vite 8. Tested on every change by , a Qwik Router app built and served with npm and pnpm."
+    "text": "compiles to (and a style attribute for values known only at runtime). Kirana picks that up from the JSX import source in your , so there is nothing to configure. Kirana supports Qwik 2 ( ): Qwik 1 runs only on Vite 7 and older, and Kirana's Vite plugin needs Vite 8. Tested on every change by , a Qwik Router app built and served with npm and pnpm."
   },
   {
     "id": "/docs/frameworks/qwik#the-fast-way",
@@ -6654,14 +7779,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Qwik",
     "section": "frameworks",
     "heading": "Next",
-    "text": "Styles and conditions . The Vite plugin ."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Styles and conditions . The Vite plugin ."
   },
   {
     "id": "/docs/frameworks/angular",
     "href": "/docs/frameworks/angular",
     "page": "Angular",
     "section": "frameworks",
-    "text": "Install Kirana in an Angular app - the Angular CLI through Kirana's builders, or Analog on Vite - and style templates with the [sx] directive. "
+    "text": "Install Kirana in an Angular app, through Kirana's builders for the Angular CLI or through Analog on Vite, and style templates with the [sx] directive. "
   },
   {
     "id": "/docs/frameworks/angular#angular",
@@ -6669,7 +7794,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Angular",
     "section": "frameworks",
     "heading": "Angular",
-    "text": "Kirana works with both ways of building Angular: the Angular CLI ( , ), through two builders that replace Angular's own, and Analog on Vite, through a Vite plugin. Templates style elements with an directive. Tested on every change by and , with npm and pnpm, in a production build and on the dev server."
+    "text": "Kirana works with both ways of building Angular: the Angular CLI , through two builders that replace Angular's own for building and serving, and Analog on Vite, through a Vite plugin. Templates style elements with an directive. Tested on every change by and , with npm and pnpm, in a production build and on the dev server."
   },
   {
     "id": "/docs/frameworks/angular#how-angular-differs",
@@ -6693,7 +7818,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Angular",
     "section": "frameworks",
     "heading": "2. Use Kirana's builders",
-    "text": "In , swap the and builders. Every option stays as it is: Angular compiles TypeScript from disk and has no hook to change a file first. So the builders keep a compiled copy of in , hand Angular that copy through , and add the stylesheet, , to . and update the copy as you edit. Ignore the folder: There is no stylesheet import to add: the builders add it."
+    "text": "In , swap the and builders. Every option stays as it is: Angular compiles TypeScript from disk and has no hook to change a file first. So the builders keep a compiled copy of in , and hand Angular: that copy, through ; the stylesheet, , in . The dev server and watch builds update the copy as you edit. Ignore the folder: There is no stylesheet import to add: the builders add it."
   },
   {
     "id": "/docs/frameworks/angular#2-add-the-plugin",
@@ -6709,7 +7834,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Angular",
     "section": "frameworks",
     "heading": "Write a component",
-    "text": "Import , and expose the handles as a member with the same name, so the template can reach them: takes what takes anywhere: one handle, or an array with falsy guards. Angular type-checks it against . The element's own and stay; the directive adds and removes only what it set. Templates in a file work the same way. A value known only at runtime, such as , is bridged through a custom property, as in dynamic styles ."
+    "text": "Import , and expose the handles as a member with the same name, so the template can reach them: takes what takes anywhere: one handle, or an array with falsy guards. Angular type-checks it against . The element's own class and style attributes stay; the directive adds and removes only what it set. Templates in a file work the same way. A value known only at runtime, such as , is bridged through a custom property, as in dynamic styles ."
   },
   {
     "id": "/docs/frameworks/angular#another-class-name-prefix",
@@ -6733,14 +7858,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Angular",
     "section": "frameworks",
     "heading": "Next",
-    "text": "Styles and merging . The Vite plugin , for Analog."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Styles and merging . The Vite plugin , for Analog."
   },
   {
     "id": "/docs/frameworks/ember",
     "href": "/docs/frameworks/ember",
     "page": "Ember.js",
     "section": "frameworks",
-    "text": "Install Kirana in an Ember app on Embroider and Vite - css() in .gjs and .gts files, and the sx helper in templates. "
+    "text": "Install Kirana in an Ember app on Embroider and Vite, with css() in .gjs and .gts files and the sx helper in templates. "
   },
   {
     "id": "/docs/frameworks/ember#ember-js",
@@ -6764,7 +7889,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Ember.js",
     "section": "frameworks",
     "heading": "2. Add the plugin",
-    "text": "Kirana goes last, after Embroider's plugins: also tells the compiler that , and are modules only Embroider resolves ( )."
+    "text": "Kirana goes last, after Embroider's plugins: The Ember plugin also tells the compiler that , and are modules only Embroider resolves ( )."
   },
   {
     "id": "/docs/frameworks/ember#4-write-a-component",
@@ -6780,14 +7905,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Ember.js",
     "section": "frameworks",
     "heading": "Next",
-    "text": "Styles and merging . The Vite plugin ."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Styles and merging . The Vite plugin ."
   },
   {
     "id": "/docs/frameworks/meteor",
     "href": "/docs/frameworks/meteor",
     "page": "Meteor",
     "section": "frameworks",
-    "text": "Install Kirana in a Meteor 3.4+ app - Meteor bundles app code with Rspack, and Kirana's Rspack plugin goes in its configuration. "
+    "text": "Install Kirana in a Meteor 3.4+ app, where Meteor bundles app code with Rspack and Kirana's Rspack plugin goes in its configuration. "
   },
   {
     "id": "/docs/frameworks/meteor#meteor",
@@ -6827,14 +7952,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Meteor",
     "section": "frameworks",
     "heading": "Next",
-    "text": "Rspack and Rsbuild . Styles ."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Rspack and Rsbuild . Styles ."
   },
   {
     "id": "/docs/frameworks/vanilla",
     "href": "/docs/frameworks/vanilla",
     "page": "No framework",
     "section": "frameworks",
-    "text": "Use Kirana without a framework - style handles are class strings, merged with cx, for plain TypeScript, web components and server templates. "
+    "text": "Use Kirana without a framework: style handles are class strings, merged with cx, for plain TypeScript, web components and server templates. "
   },
   {
     "id": "/docs/frameworks/vanilla#no-framework",
@@ -6861,11 +7986,19 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "writes the stylesheet from the command line; see the CLI ."
   },
   {
+    "id": "/docs/frameworks/vanilla#next",
+    "href": "/docs/frameworks/vanilla#next",
+    "page": "No framework",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to."
+  },
+  {
     "id": "/docs/frameworks/server-templates",
     "href": "/docs/frameworks/server-templates",
     "page": "Server templates",
     "section": "server",
-    "text": "How Kirana styles Blade, Twig, ERB, HEEx and Edge templates - styles in TypeScript modules, a class map the CLI writes, and a small helper per template language. "
+    "text": "How Kirana styles Blade, Twig, ERB, HEEx and Edge templates: styles in TypeScript modules, a class map the CLI writes, and a small helper per template language. "
   },
   {
     "id": "/docs/frameworks/server-templates#server-templates",
@@ -6881,7 +8014,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Server templates",
     "section": "server",
     "heading": "How it works",
-    "text": "You write styles in modules listed under in . Each exported handle, and each handle inside an exported object, is a style a template can name: The CLI writes two files : the stylesheet, and a class map — every name, with the classes it compiles to: rewrites both on every edit; writes them once, for production. A template names styles through its language's helper, which reads the class map and merges the names, later ones winning, as an list does:"
+    "text": "You write styles in modules listed under in . Each exported handle, and each handle inside an exported object, is a style a template can name: The CLI writes two files : the stylesheet, and a class map of every name with the classes it compiles to: rewrites both on every edit; writes them once, for production. A template names styles through its language's helper, which reads the class map and merges the names, later ones winning, as an list does:"
   },
   {
     "id": "/docs/frameworks/server-templates#merging-without-a-runtime",
@@ -6897,14 +8030,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Server templates",
     "section": "server",
     "heading": "Limits",
-    "text": "Only styles known at build time. A recipe, an array, or a value from a variable has no class string a template can use; the build reports it as . Pick between variants in the template instead: . An unknown name fails loudly — at runtime in the helper, and in the editor, where the language server underlines it ( ) and hovers a known one with its styles. The stylesheet holds every style the modules export , used or not: no template is read at build time."
+    "text": "Only styles known at build time. A recipe, an array, or a value from a variable has no class string a template can use; the build reports it as . Pick between variants in the template instead: . An unknown name fails loudly : at runtime in the helper, and in the editor, where the language server underlines it ( ) and hovers a known one with its styles. The stylesheet holds every style the modules export , used or not: no template is read at build time."
   },
   {
     "id": "/docs/frameworks/laravel",
     "href": "/docs/frameworks/laravel",
     "page": "Laravel",
     "section": "server",
-    "text": "Install Kirana in a Laravel app - styles in TypeScript modules, the Kirana CLI beside artisan serve, and @kirana in Blade. "
+    "text": "Install Kirana in a Laravel app, with styles in TypeScript modules, the Kirana CLI beside artisan serve, and @kirana in Blade. "
   },
   {
     "id": "/docs/frameworks/laravel#laravel",
@@ -6944,14 +8077,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Laravel",
     "section": "server",
     "heading": "Next",
-    "text": "Server templates : merging and the limits."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Server templates : merging and the limits."
   },
   {
     "id": "/docs/frameworks/symfony",
     "href": "/docs/frameworks/symfony",
     "page": "Symfony",
     "section": "server",
-    "text": "Install Kirana in a Symfony app - styles in TypeScript modules, the Kirana CLI, and kirana() in Twig. "
+    "text": "Install Kirana in a Symfony app, with styles in TypeScript modules, the Kirana CLI, and kirana() in Twig. "
   },
   {
     "id": "/docs/frameworks/symfony#symfony",
@@ -6983,14 +8116,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Symfony",
     "section": "server",
     "heading": "Next",
-    "text": "Server templates : merging and the limits."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Server templates : merging and the limits."
   },
   {
     "id": "/docs/frameworks/rails",
     "href": "/docs/frameworks/rails",
     "page": "Ruby on Rails",
     "section": "server",
-    "text": "Install Kirana in a Rails app - styles in TypeScript modules, the Kirana CLI in bin/dev, and the kirana helper in ERB views. "
+    "text": "Install Kirana in a Rails app, with styles in TypeScript modules, the Kirana CLI in bin/dev, and the kirana helper in ERB views. "
   },
   {
     "id": "/docs/frameworks/rails#ruby-on-rails",
@@ -7022,14 +8155,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Ruby on Rails",
     "section": "server",
     "heading": "Next",
-    "text": "Server templates : merging and the limits."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Server templates : merging and the limits."
   },
   {
     "id": "/docs/frameworks/phoenix",
     "href": "/docs/frameworks/phoenix",
     "page": "Phoenix",
     "section": "server",
-    "text": "Install Kirana in a Phoenix app - styles in TypeScript modules, the Kirana CLI as a watcher, and kirana/1 in HEEx. "
+    "text": "Install Kirana in a Phoenix app, with styles in TypeScript modules, the Kirana CLI as a watcher, and kirana/1 in HEEx. "
   },
   {
     "id": "/docs/frameworks/phoenix#phoenix",
@@ -7045,7 +8178,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Phoenix",
     "section": "server",
     "heading": "4. Run the CLI as a watcher",
-    "text": "Add to 's list ( ), and run before in your deploy."
+    "text": "Add to the list of (in ). In your deploy, run before ."
   },
   {
     "id": "/docs/frameworks/phoenix#next",
@@ -7053,14 +8186,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Phoenix",
     "section": "server",
     "heading": "Next",
-    "text": "Server templates : merging and the limits."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Server templates : merging and the limits."
   },
   {
     "id": "/docs/frameworks/adonisjs",
     "href": "/docs/frameworks/adonisjs",
     "page": "AdonisJS",
     "section": "server",
-    "text": "Install Kirana in an AdonisJS app - styles in TypeScript modules, the Kirana CLI, and kirana() in Edge templates. "
+    "text": "Install Kirana in an AdonisJS app, with styles in TypeScript modules, the Kirana CLI, and kirana() in Edge templates. "
   },
   {
     "id": "/docs/frameworks/adonisjs#adonisjs",
@@ -7092,1230 +8225,51 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "AdonisJS",
     "section": "server",
     "heading": "Next",
-    "text": "Server templates : merging and the limits."
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Server templates : merging and the limits."
   },
   {
-    "id": "/docs/styling/styles",
-    "href": "/docs/styling/styles",
-    "page": "Writing styles",
-    "section": "styling",
-    "text": "css() and the style object - property names, values, custom properties, and what the compiler refuses. "
+    "id": "/docs/integrations/bundlers",
+    "href": "/docs/integrations/bundlers",
+    "page": "Choose a bundler",
+    "section": "bundlers",
+    "text": "Kirana on every bundler (Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun, esbuild, PostCSS and Jest), each with its own guide and tested example. "
   },
   {
-    "id": "/docs/styling/styles#writing-styles",
-    "href": "/docs/styling/styles#writing-styles",
-    "page": "Writing styles",
-    "section": "styling",
-    "heading": "Writing styles",
-    "text": "takes style objects and returns a handle. A handle is an opaque value: you pass it to , merge it with others, or export it. It is not an object you can read at runtime — by then it is a class string."
+    "id": "/docs/integrations/bundlers#choose-a-bundler",
+    "href": "/docs/integrations/bundlers#choose-a-bundler",
+    "page": "Choose a bundler",
+    "section": "bundlers",
+    "heading": "Choose a bundler",
+    "text": "Every adapter does the same small job: it hands modules that carry styles to the compiler, and puts the finished stylesheet where the bundler expects it. None of them interprets a style, so the atoms, the class names and the stylesheet are byte-for-byte the same whichever bundler built them."
   },
   {
-    "id": "/docs/styling/styles#property-names",
-    "href": "/docs/styling/styles#property-names",
-    "page": "Writing styles",
-    "section": "styling",
-    "heading": "Property names",
-    "text": "Properties are camelCase: , , . Anything CSS knows about is allowed; anything else is an error ( ), so a typo fails the build instead of disappearing. Custom properties are written as they are in CSS, in quotes:"
+    "id": "/docs/integrations/bundlers#development-servers",
+    "href": "/docs/integrations/bundlers#development-servers",
+    "page": "Choose a bundler",
+    "section": "bundlers",
+    "heading": "Development servers",
+    "text": "Every host updates the stylesheet while you work. Vite, webpack, Rspack, Rsbuild and Next.js send it as a CSS hot update; Bun and esbuild as their reload. Each is checked on every change: the dev server starts, a style is edited, and the page must show it."
   },
   {
-    "id": "/docs/styling/styles#values",
-    "href": "/docs/styling/styles#values",
-    "page": "Writing styles",
-    "section": "styling",
-    "heading": "Values",
-    "text": "Values are strings and numbers, exactly as CSS reads them. Kirana does not add units for you: The rule is the CSS rule: a property that takes a needs a unit. A property whose value is a plain number takes a plain number. Guessing is how a styling system ends up with values it cannot explain, so the compiler asks you instead. Invalid values are errors too ( ), checked against the property's real grammar:"
-  },
-  {
-    "id": "/docs/styling/styles#several-objects-one-handle",
-    "href": "/docs/styling/styles#several-objects-one-handle",
-    "page": "Writing styles",
-    "section": "styling",
-    "heading": "Several objects, one handle",
-    "text": "takes any number of arguments — objects, or handles you already made — and merges them left to right: Merging follows the merge rules : later entries replace matching entries and leave the rest alone."
-  },
-  {
-    "id": "/docs/styling/styles#shorthands",
-    "href": "/docs/styling/styles#shorthands",
-    "page": "Writing styles",
-    "section": "styling",
-    "heading": "Shorthands",
-    "text": "Shorthands are expanded to longhands, so two styles that touch the same box merge per side rather than wholesale: A shorthand whose value cannot be split exactly — , where the value is one custom property — stays whole, and the compiler warns ( ) because removing one of its longhands later cannot be done precisely. Mixing logical and physical longhands of the same box ( and ) is allowed, but they are different declarations, and when the result could mislead the compiler says so ( )."
-  },
-  {
-    "id": "/docs/styling/styles#where-styles-live",
-    "href": "/docs/styling/styles#where-styles-live",
-    "page": "Writing styles",
-    "section": "styling",
-    "heading": "Where styles live",
-    "text": "A handle is usually a module-level constant, because it compiles to a constant: Writing inside a component body is fine too — it still compiles — but there is no reason to, unless the style depends on a value only known at render time, which is its own topic: dynamic values ."
-  },
-  {
-    "id": "/docs/styling/styles#next",
-    "href": "/docs/styling/styles#next",
-    "page": "Writing styles",
-    "section": "styling",
-    "heading": "Next",
-    "text": "The prop — putting a handle on an element. Conditions — hover, breakpoints, attributes."
-  },
-  {
-    "id": "/docs/styling/sx",
-    "href": "/docs/styling/sx",
-    "page": "The sx prop",
-    "section": "styling",
-    "text": "How sx works on elements and on components, what it compiles to, and how className and style survive it. "
-  },
-  {
-    "id": "/docs/styling/sx#the-sx-prop",
-    "href": "/docs/styling/sx#the-sx-prop",
-    "page": "The sx prop",
-    "section": "styling",
-    "heading": "The  sx  prop",
-    "text": "is not an import. The compiler recognises it on any element in a module it compiles, and turns it into : It takes a handle, or an array of handles, and skips , and : Order is merge order, so a component's own styles come first and the caller's last."
-  },
-  {
-    "id": "/docs/styling/sx#on-your-own-components",
-    "href": "/docs/styling/sx#on-your-own-components",
-    "page": "The sx prop",
-    "section": "styling",
-    "heading": "On your own components",
-    "text": "For a component you wrote, is an ordinary prop. Accept it, type it as , and apply it: Taking and never applying it is reported ( ), because from the outside the component looks styleable and silently is not."
-  },
-  {
-    "id": "/docs/styling/sx#on-components-you-did-not-write",
-    "href": "/docs/styling/sx#on-components-you-did-not-write",
-    "page": "The sx prop",
-    "section": "styling",
-    "heading": "On components you did not write",
-    "text": "A component from an installed package does not read . Passing it one does nothing, and the compiler says so ( ) — including the case where your own component forwards its rest props into one. Pass compiled props instead: Styling other people's components covers the cases."
-  },
-  {
-    "id": "/docs/styling/sx#classname-and-style-still-work",
-    "href": "/docs/styling/sx#classname-and-style-still-work",
-    "page": "The sx prop",
-    "section": "styling",
-    "heading": "className  and  style  still work",
-    "text": "If an element has both and a , they are merged, not replaced — the class from is appended to whatever the element already had, including a arriving through a spread: The same is true of . When a style needs a value known only at render time, the compiler bridges it through a custom property and puts that in , after anything you passed."
-  },
-  {
-    "id": "/docs/styling/sx#typing",
-    "href": "/docs/styling/sx#typing",
-    "page": "The sx prop",
-    "section": "styling",
-    "heading": "Typing",
-    "text": "reaches React's element types through a reference, once per project: The type is what a component should accept: a handle, , , , or an array of those, nested."
-  },
-  {
-    "id": "/docs/styling/sx#what-it-is-not",
-    "href": "/docs/styling/sx#what-it-is-not",
-    "page": "The sx prop",
-    "section": "styling",
-    "heading": "What it is not",
-    "text": "does not take a bare style object: A string is not a class list either. With a preset that declares a utility grammar, is a utility string that compiles to the same atoms as its object; without one it is the error."
-  },
-  {
-    "id": "/docs/styling/conditions",
-    "href": "/docs/styling/conditions",
-    "page": "Conditions",
-    "section": "styling",
-    "text": "Hover, focus, attributes, breakpoints and container queries - all written inside the value they change. "
-  },
-  {
-    "id": "/docs/styling/conditions#conditions",
-    "href": "/docs/styling/conditions#conditions",
-    "page": "Conditions",
-    "section": "styling",
-    "heading": "Conditions",
-    "text": "A condition goes inside the value it changes, not around the object that holds it: is the unconditional value. Every other key is a condition. The property is written once, so the whole story of is in one place — and so is the reason the compiler can tell you when two of those values could both apply."
-  },
-  {
-    "id": "/docs/styling/conditions#what-a-key-may-be",
-    "href": "/docs/styling/conditions#what-a-key-may-be",
-    "page": "Conditions",
-    "section": "styling",
-    "heading": "What a key may be",
-    "text": "Condition values come from , and , and from presets:"
-  },
-  {
-    "id": "/docs/styling/conditions#nesting",
-    "href": "/docs/styling/conditions#nesting",
-    "page": "Conditions",
-    "section": "styling",
-    "heading": "Nesting",
-    "text": "Conditions nest, and nesting is how you say \"both\": Two conditions beat one, so the nested value wins wherever both hold. This is also the answer when the compiler reports : nest the one that should win inside the other."
-  },
-  {
-    "id": "/docs/styling/conditions#pseudo-elements-are-different",
-    "href": "/docs/styling/conditions#pseudo-elements-are-different",
-    "page": "Conditions",
-    "section": "styling",
-    "heading": "Pseudo-elements are different",
-    "text": "and are not conditions — they are other elements. They are top-level keys, holding a style object of their own: Only pseudo-elements and targets are top-level keys. Everything else nests inside a value."
-  },
-  {
-    "id": "/docs/styling/conditions#responsive-design",
-    "href": "/docs/styling/conditions#responsive-design",
-    "page": "Conditions",
-    "section": "styling",
-    "heading": "Responsive design",
-    "text": "Breakpoints are conditions like any other, which has two consequences worth knowing: A state beats a breakpoint. wins over at every width, because attributes and pseudo-classes rank above at-rules. That is what people usually mean, and what the Tailwind components this compiler was built against relied on. Ranges read as ranges. For a value that applies only between two widths, write the range: ."
-  },
-  {
-    "id": "/docs/styling/conditions#container-queries",
-    "href": "/docs/styling/conditions#container-queries",
-    "page": "Conditions",
-    "section": "styling",
-    "heading": "Container queries",
-    "text": "Containers work the same way, and need a container to query:"
-  },
-  {
-    "id": "/docs/styling/conditions#what-the-compiler-checks",
-    "href": "/docs/styling/conditions#what-the-compiler-checks",
-    "page": "Conditions",
-    "section": "styling",
-    "heading": "What the compiler checks",
-    "text": "An unrecognised condition is an error ( ) — including the common mistake of writing a condition as a top-level key. Two values that could both apply, with nothing to separate them, get . Fix it by nesting, or by declaring that the two conditions never hold together — see . Next: precedence — the ladder that decides which condition wins."
-  },
-  {
-    "id": "/docs/styling/utilities",
-    "href": "/docs/styling/utilities",
-    "page": "Utility strings",
-    "section": "styling",
-    "text": "Write sx as Tailwind-style utility strings; each one compiles to the same atoms as the style object it stands for. "
-  },
-  {
-    "id": "/docs/styling/utilities#utility-strings",
-    "href": "/docs/styling/utilities#utility-strings",
-    "page": "Utility strings",
-    "section": "styling",
-    "heading": "Utility strings",
-    "text": "With a preset that declares a utility grammar, also takes a string: That string is not a class list. The compiler reads each utility, turns the whole string into the style object you would have written by hand, and compiles that object exactly as it compiles : There is one style path, so a utility and its object produce the same atoms , share tokens, merge the same way, and get every diagnostic the object form gets. The object form stays the reference; strings are a shorter way to write it."
-  },
-  {
-    "id": "/docs/styling/utilities#turning-it-on",
-    "href": "/docs/styling/utilities#turning-it-on",
-    "page": "Utility strings",
-    "section": "styling",
-    "heading": "Turning it on",
-    "text": "Utility strings are off until a preset declares a grammar. ships Tailwind v4's names over its own scales: Import the preset from , not from the package root: a configuration file runs uncompiled, and the root exports tokens, which only exist inside the compiler. Without a grammar, a string is the error and the attribute is left as written."
-  },
-  {
-    "id": "/docs/styling/utilities#where-strings-go",
-    "href": "/docs/styling/utilities#where-strings-go",
-    "page": "Utility strings",
-    "section": "styling",
-    "heading": "Where strings go",
-    "text": "Anywhere takes a style — on elements and on your components, alone, in an array, or in a condition: Later utilities override earlier ones property by property, as later entries in an array do. A template literal works only without substitutions: is the error — write , which Kirana bridges at runtime. strings are never read. Only is Kirana's."
-  },
-  {
-    "id": "/docs/styling/utilities#what-a-utility-can-say",
-    "href": "/docs/styling/utilities#what-a-utility-can-say",
-    "page": "Utility strings",
-    "section": "styling",
-    "heading": "What a utility can say",
-    "text": "Spaces inside brackets are fine ( is one utility), and Tailwind's for a space works too. Tailwind's inside brackets is steps of the scale's : is . Variants go before the utility and stack: , , , , , , , and Tailwind's own forms — , , , , , , , , , and container queries , , (name a container with ). There is no : every colour token is already a pair. , , , and are pseudo-elements, which writes as a block of their own; and get as Tailwind gives them."
-  },
-  {
-    "id": "/docs/styling/utilities#composed-utilities",
-    "href": "/docs/styling/utilities#composed-utilities",
-    "page": "Utility strings",
-    "section": "styling",
-    "heading": "Composed utilities",
-    "text": "Some utilities share one CSS property: and both draw a , and one . As in Tailwind, each sets its own layer — a registered, non-inheriting custom property from the preset's tokens — and the shared property reads them all, so the two combine instead of the later one winning. , , , , the filters ( , , ) and the backdrop filters ( ) work this way, and so do transitions and outlines: reads the timing and set, and the style set, so the order of the utilities does not matter. , and set both logical axes ( and ) rather than the shorthand. The value is the same on every side, and a later then replaces an earlier entry for entry, the way did."
-  },
-  {
-    "id": "/docs/styling/utilities#animations",
-    "href": "/docs/styling/utilities#animations",
-    "page": "Utility strings",
-    "section": "styling",
-    "heading": "Animations",
-    "text": "Tailwind's , , and are here, and so is the vocabulary of , which shadcn/ui uses: and play the and keyframes; , , , and set what they start from (and their / forms what they end at). and time the animation as well as transitions, and , , and set the animation's own properties. and , which depend on the writing direction, are not utilities; write them with a condition."
-  },
-  {
-    "id": "/docs/styling/utilities#what-it-will-not-do",
-    "href": "/docs/styling/utilities#what-it-will-not-do",
-    "page": "Utility strings",
-    "section": "styling",
-    "heading": "What it will not do",
-    "text": "These are errors that point to the Kirana way, never silently dropped classes: There is no scan of your files, no , no plugins, and no arbitrary properties ( )."
-  },
-  {
-    "id": "/docs/styling/utilities#your-own-tokens",
-    "href": "/docs/styling/utilities#your-own-tokens",
-    "page": "Utility strings",
-    "section": "styling",
-    "heading": "Your own tokens",
-    "text": "A grammar reads its scales from modules, the way an would. Point a scale at your theme and reaches your semantic tokens: Later presets and your own replace earlier ones scale by scale, root by root and variant by variant. The full shape is in the configuration reference ."
-  },
-  {
-    "id": "/docs/styling/merging",
-    "href": "/docs/styling/merging",
-    "page": "Merging and removal",
-    "section": "styling",
-    "text": "How styles combine per entry, and how to remove a value with null. "
-  },
-  {
-    "id": "/docs/styling/merging#merging-and-removal",
-    "href": "/docs/styling/merging#merging-and-removal",
-    "page": "Merging and removal",
-    "section": "styling",
-    "heading": "Merging and removal",
-    "text": "Styles combine in three places: , , and . All three merge the same way, in order, and the rule is the one from the mental model : A later style replaces the entries it names, and leaves the others alone."
-  },
-  {
-    "id": "/docs/styling/merging#entries-not-properties",
-    "href": "/docs/styling/merging#entries-not-properties",
-    "page": "Merging and removal",
-    "section": "styling",
-    "heading": "Entries, not properties",
-    "text": "A property holds one entry per condition set. with a base value and a value is two entries. The anchor is grey, still royal blue on hover, and still underlined. named the base entry of , so that is the entry it replaced. This is the single biggest difference from class-string systems, where a later removes the whole colour idea, hover included."
-  },
-  {
-    "id": "/docs/styling/merging#removing",
-    "href": "/docs/styling/merging#removing",
-    "page": "Merging and removal",
-    "section": "styling",
-    "heading": "Removing",
-    "text": "removes. There are three forms, and they differ in reach: is the one to reach for when you want a component's conditional chrome gone and your own value in its place — an input inside a group that should lose the group's focus ring, for example."
-  },
-  {
-    "id": "/docs/styling/merging#cx",
-    "href": "/docs/styling/merging#cx",
-    "page": "Merging and removal",
-    "section": "styling",
-    "heading": "cx()",
-    "text": "merges handles and skips , and , which makes conditional composition read naturally: accepts the same shapes, including nested arrays, so you rarely need on an element — it is for building a handle to pass on."
-  },
-  {
-    "id": "/docs/styling/merging#order-is-the-order-you-wrote",
-    "href": "/docs/styling/merging#order-is-the-order-you-wrote",
-    "page": "Merging and removal",
-    "section": "styling",
-    "heading": "Order is the order you wrote",
-    "text": "Merging is left to right, and the last writer of an entry wins that entry . What order does not decide is a conflict between two different conditions: that is the precedence ladder , and it applies after merging."
-  },
-  {
-    "id": "/docs/styling/merging#shorthands-merge-per-longhand",
-    "href": "/docs/styling/merging#shorthands-merge-per-longhand",
-    "page": "Merging and removal",
-    "section": "styling",
-    "heading": "Shorthands merge per longhand",
-    "text": "expands to four longhands, replaces one of them, and the other three keep . The same is true across modules and across components: merging is defined on longhands, so nothing depends on which shorthand each author happened to use."
-  },
-  {
-    "id": "/docs/styling/merging#a-component-s-own-sx",
-    "href": "/docs/styling/merging#a-component-s-own-sx",
-    "page": "Merging and removal",
-    "section": "styling",
-    "heading": "A component's own  sx",
-    "text": "A component that takes should merge it last , so its caller can override: Declaring and never applying it is reported ( )."
-  },
-  {
-    "id": "/docs/styling/precedence",
-    "href": "/docs/styling/precedence",
-    "page": "Precedence",
-    "section": "styling",
-    "text": "The ladder that decides which value wins, why specificity is not part of it, and what to do when the compiler says two values are ambiguous. "
-  },
-  {
-    "id": "/docs/styling/precedence#precedence",
-    "href": "/docs/styling/precedence#precedence",
-    "page": "Precedence",
-    "section": "styling",
-    "heading": "Precedence",
-    "text": "Every rule Kirana writes is a single class, so every rule has the same specificity. What wins is decided by a stated ladder, compared in order — the first difference decides."
-  },
-  {
-    "id": "/docs/styling/precedence#the-two-steps-you-will-feel",
-    "href": "/docs/styling/precedence#the-two-steps-you-will-feel",
-    "page": "Precedence",
-    "section": "styling",
-    "heading": "The two steps you will feel",
-    "text": "State beats breakpoint (step 3). A or value wins over a breakpoint value at every width. That is almost always what an author means, and it is what the Tailwind components this compiler was built against relied on. Narrow beats broad (step 5), regardless of who wrote first:"
-  },
-  {
-    "id": "/docs/styling/precedence#ambiguity-is-reported-not-guessed",
-    "href": "/docs/styling/precedence#ambiguity-is-reported-not-guessed",
-    "page": "Precedence",
-    "section": "styling",
-    "heading": "Ambiguity is reported, not guessed",
-    "text": "When two entries for the same property could both match, set different values, and the ladder cannot separate them, the compiler emits rather than picking one: Three ways to resolve it: Nest the winner inside the loser. Two conditions beat one, and the ambiguity is gone: Say they are exclusive. When a library guarantees two attributes never appear together — and — declare it once in . Use the same value , if that is the truth. Two entries with the same value are never ambiguous. The compiler already knows some pairs are exclusive on their own: two values of one attribute, a selector and its negation, or two fixed positions counted from the same end."
-  },
-  {
-    "id": "/docs/styling/precedence#layers",
-    "href": "/docs/styling/precedence#layers",
-    "page": "Precedence",
-    "section": "styling",
-    "heading": "Layers",
-    "text": "Everything Kirana emits is inside layers, in this order: Your own global CSS — a reset, base element styles — goes in layers you name in configuration , which sit below every Kirana rule. Nothing Kirana writes is unlayered, custom-property assignments included."
-  },
-  {
-    "id": "/docs/styling/precedence#asking-why",
-    "href": "/docs/styling/precedence#asking-why",
-    "page": "Precedence",
-    "section": "styling",
-    "heading": "Asking why",
-    "text": "When a value does not win and you want the reason, ask: It prints one line per candidate declaration — value, conditions, layer — marks the winner, and names the step that decided it, for example ."
-  },
-  {
-    "id": "/docs/styling/external-components",
-    "href": "/docs/styling/external-components",
-    "page": "Styling other people's components",
-    "section": "styling",
-    "text": "props() for components that do not read sx, and what the sx-on-external-component diagnostic is telling you. "
-  },
-  {
-    "id": "/docs/styling/external-components#styling-other-people-s-components",
-    "href": "/docs/styling/external-components#styling-other-people-s-components",
-    "page": "Styling other people's components",
-    "section": "styling",
-    "heading": "Styling other people's components",
-    "text": "works on elements your module renders. A component from an installed package renders its own elements, and unless it happens to read a prop called , giving it one does nothing. The compiler catches this rather than letting you find it in the browser:"
-  },
-  {
-    "id": "/docs/styling/external-components#props",
-    "href": "/docs/styling/external-components#props",
-    "page": "Styling other people's components",
-    "section": "styling",
-    "heading": "props()",
-    "text": "compiles the same handles into , which every component that spreads its props onto an element will apply: The alias is a convention, not an API: is a common identifier, and the alias keeps the import from shadowing a parameter."
-  },
-  {
-    "id": "/docs/styling/external-components#the-case-one-module-away",
-    "href": "/docs/styling/external-components#the-case-one-module-away",
-    "page": "Styling other people's components",
-    "section": "styling",
-    "heading": "The case one module away",
-    "text": "The diagnostic also fires when the component that receives is yours, but it hands its rest props to an installed component without reading first: Take out of the rest props and apply it:"
-  },
-  {
-    "id": "/docs/styling/external-components#components-that-render-something-else",
-    "href": "/docs/styling/external-components#components-that-render-something-else",
-    "page": "Styling other people's components",
-    "section": "styling",
-    "heading": "Components that render something else",
-    "text": "Some libraries let you supply the element a part renders as. The classes belong to whichever element ends up in the DOM, so pass the styles to the part, and let it merge: If instead you style the inner element and the outer part also sets classes, the outer part's classes can be dropped — the part is not merging anything, it is rendering your element."
-  },
-  {
-    "id": "/docs/styling/external-components#when-you-cannot-pass-props-at-all",
-    "href": "/docs/styling/external-components#when-you-cannot-pass-props-at-all",
-    "page": "Styling other people's components",
-    "section": "styling",
-    "heading": "When you cannot pass props at all",
-    "text": "Two options, in order: Style it from an ancestor you do render with . Contextual styles sit in a lower layer, so the element's own styles still win. Global CSS , scoped by an attribute the library sets. This is the last resort — it is markup you do not own, and nothing checks it."
-  },
-  {
-    "id": "/docs/styling/relations",
-    "href": "/docs/styling/relations",
-    "page": "Relations",
-    "section": "styling",
-    "text": "Style an element from another element's state - what group and peer variants do, with the anchor stated in the source. "
-  },
-  {
-    "id": "/docs/styling/relations#relations",
-    "href": "/docs/styling/relations#relations",
-    "page": "Relations",
-    "section": "styling",
-    "heading": "Relations",
-    "text": "Sometimes an element's style depends on another element's state: a label that dims when its field is disabled, an icon that rotates when its menu is open. A relation names that connection once, and both ends refer to it: marks the element whose state is read. reads it from a descendant."
-  },
-  {
-    "id": "/docs/styling/relations#the-three-reads",
-    "href": "/docs/styling/relations#the-three-reads",
-    "page": "Relations",
-    "section": "styling",
-    "heading": "The three reads",
-    "text": "The argument is any selector the anchor may match — , , . Omit it to mean \"the anchor exists\", which is how you style by structure rather than state."
-  },
-  {
-    "id": "/docs/styling/relations#why-declare-it-at-all",
-    "href": "/docs/styling/relations#why-declare-it-at-all",
-    "page": "Relations",
-    "section": "styling",
-    "heading": "Why declare it at all",
-    "text": "Because the compiler checks it. Two errors you get for free: — a style reads a relation, but nothing applies its anchor. In a class-string system this is a that silently never fires. An application's build checks the relations whose module it compiled, so a shared component may read an ancestor that only some applications render; checks every relation in the project. — the anchor cannot be proven to be in the right position: used where the anchor is not an earlier sibling, for example. A relation that is declared and never read is reported too ( ), so dead relations do not accumulate. And because a relation is identified by its package and name, two modules of one package that both write would share one marker without meaning to: names both files. Export the relation from one module and import it where it is read."
-  },
-  {
-    "id": "/docs/styling/relations#anchors-are-placed-not-guessed",
-    "href": "/docs/styling/relations#anchors-are-placed-not-guessed",
-    "page": "Relations",
-    "section": "styling",
-    "heading": "Anchors are placed, not guessed",
-    "text": "The anchor must sit on the element whose state you are reading. That sounds obvious, and it is the most common mistake when porting: the state lives on the root, the anchor gets attached to an inner wrapper, and the read never matches."
-  },
-  {
-    "id": "/docs/styling/relations#has-is-not-a-relation",
-    "href": "/docs/styling/relations#has-is-not-a-relation",
-    "page": "Relations",
-    "section": "styling",
-    "heading": ":has()  is not a relation",
-    "text": "Styling a parent by its children is a plain condition, because the selector does it on its own: Relations exist for the other direction — a descendant or sibling reading state that lives elsewhere — where CSS needs the two ends to agree on a class."
-  },
-  {
-    "id": "/docs/styling/relations#precedence",
-    "href": "/docs/styling/relations#precedence",
-    "page": "Relations",
-    "section": "styling",
-    "heading": "Precedence",
-    "text": "A relation read is its own condition class, ranked below attributes and pseudo-classes on the element itself, and above at-rules ( ladder , step 3). So an element's own beats a value that depends on an ancestor's , which is what an author usually means."
-  },
-  {
-    "id": "/docs/styling/contextual",
-    "href": "/docs/styling/contextual",
-    "page": "Contextual styles",
-    "section": "styling",
-    "text": "select.descendant and select.child - styling elements below you, in a layer their own styles still beat. "
-  },
-  {
-    "id": "/docs/styling/contextual#contextual-styles",
-    "href": "/docs/styling/contextual#contextual-styles",
-    "page": "Contextual styles",
-    "section": "styling",
-    "heading": "Contextual styles",
-    "text": "styles elements below an element you render, by name or attribute: reaches any depth; only direct children. Both are top-level keys holding a style object, like a pseudo-element."
-  },
-  {
-    "id": "/docs/styling/contextual#they-lose-to-the-element-s-own-styles",
-    "href": "/docs/styling/contextual#they-lose-to-the-element-s-own-styles",
-    "page": "Contextual styles",
-    "section": "styling",
-    "heading": "They lose to the element's own styles",
-    "text": "Contextual rules are written to a layer below element styles, so anything the target sets for itself wins — whatever conditions it carries. That is the point. In a class-based system a parent's competes with the icon's own size class and usually wins, which is why such rules grow guards like . Here the guard is unnecessary: give the icon a size and it keeps it."
-  },
-  {
-    "id": "/docs/styling/contextual#what-a-target-may-be",
-    "href": "/docs/styling/contextual#what-a-target-may-be",
-    "page": "Contextual styles",
-    "section": "styling",
-    "heading": "What a target may be",
-    "text": "One compound selector: an element name, attribute selectors and pseudo-classes, alone or together: No combinators ( ) and no pseudo-elements: a target is the element itself. Class selectors are not targets — Kirana's class names are hashes, and a handwritten class is markup the compiler cannot verify. An unsupported target is an error ( )."
-  },
-  {
-    "id": "/docs/styling/contextual#when-to-reach-for-it",
-    "href": "/docs/styling/contextual#when-to-reach-for-it",
-    "page": "Contextual styles",
-    "section": "styling",
-    "heading": "When to reach for it",
-    "text": "Styling an icon, a bullet, or any element a library renders inside yours. Giving a wrapper's children a shared rhythm you do not want to repeat on each one. When you own the element, style it directly instead: it is easier to read, and it lands in the higher layer where it belongs."
-  },
-  {
-    "id": "/docs/styling/recipes",
-    "href": "/docs/styling/recipes",
-    "page": "Recipes",
-    "section": "styling",
-    "text": "recipe() for variants, compound variants and slots - resolved at build time when the options are known. "
-  },
-  {
-    "id": "/docs/styling/recipes#recipes",
-    "href": "/docs/styling/recipes#recipes",
-    "page": "Recipes",
-    "section": "styling",
-    "heading": "Recipes",
-    "text": "A recipe is a component's variants in one place: a base style, named groups of options, and the combinations that need a value of their own."
-  },
-  {
-    "id": "/docs/styling/recipes#static-calls-compile-to-a-constant",
-    "href": "/docs/styling/recipes#static-calls-compile-to-a-constant",
-    "page": "Recipes",
-    "section": "styling",
-    "heading": "Static calls compile to a constant",
-    "text": "When the options are known at build time, the call disappears: the element gets a class string, and no recipe table ships. When an option is a runtime value, the recipe resolves through the small private runtime instead, and the compiler tells you it did ( , informational). Both work. The diagnostic exists so you can see which components carry a runtime cost."
-  },
-  {
-    "id": "/docs/styling/recipes#slots",
-    "href": "/docs/styling/recipes#slots",
-    "page": "Recipes",
-    "section": "styling",
-    "heading": "Slots",
-    "text": "A component with several parts gives them one recipe. Each variant lists the slots it changes, and calling the recipe returns a handle per slot: Boolean variants are written as the string keys and , and called with real booleans."
-  },
-  {
-    "id": "/docs/styling/recipes#checks",
-    "href": "/docs/styling/recipes#checks",
-    "page": "Recipes",
-    "section": "styling",
-    "heading": "Checks",
-    "text": "An option that names a group or value the recipe does not define is an error ( ). A style that names a slot the recipe does not declare is an error ( ). Both catch the rename that used to leave a component silently unstyled."
-  },
-  {
-    "id": "/docs/styling/recipes#recipes-or-plain-handles",
-    "href": "/docs/styling/recipes#recipes-or-plain-handles",
-    "page": "Recipes",
-    "section": "styling",
-    "heading": "Recipes or plain handles?",
-    "text": "Use a recipe when a component has variants a caller chooses by name. Use plain handles when it does not — an object of handles is simpler to read, and merging already gives you composition:"
-  },
-  {
-    "id": "/docs/styling/animation",
-    "href": "/docs/styling/animation",
-    "page": "Animation",
-    "section": "styling",
-    "text": "keyframes(), transitions, and animating a custom property that the browser can interpolate. "
-  },
-  {
-    "id": "/docs/styling/animation#keyframes",
-    "href": "/docs/styling/animation#keyframes",
-    "page": "Animation",
-    "section": "styling",
-    "heading": "Keyframes",
-    "text": "returns a name you can use as from any module: The name is hashed like a class, so two modules that define the same frames share one rule, and a set of frames nothing references emits nothing."
-  },
-  {
-    "id": "/docs/styling/animation#transitions",
-    "href": "/docs/styling/animation#transitions",
-    "page": "Animation",
-    "section": "styling",
-    "heading": "Transitions",
-    "text": "Transitions are ordinary declarations, and the thing worth saying is about the property you name: Animate the property you actually set. , and are separate properties from ; a transition on does not interpolate them. This is one of the most common reasons an animation silently does nothing."
-  },
-  {
-    "id": "/docs/styling/animation#animating-a-custom-property",
-    "href": "/docs/styling/animation#animating-a-custom-property",
-    "page": "Animation",
-    "section": "styling",
-    "heading": "Animating a custom property",
-    "text": "A custom property does not interpolate unless the browser knows its type. Register it by giving the token a syntax, and it becomes animatable: That emits an rule, so a transition or keyframe on animates smoothly instead of jumping. A registered token may also be a keyframe key."
-  },
-  {
-    "id": "/docs/styling/animation#respecting-motion-preferences",
-    "href": "/docs/styling/animation#respecting-motion-preferences",
-    "page": "Animation",
-    "section": "styling",
-    "heading": "Respecting motion preferences",
-    "text": "is a condition like any other, and it ranks above width queries:"
-  },
-  {
-    "id": "/docs/styling/animation#entry-and-exit-states",
-    "href": "/docs/styling/animation#entry-and-exit-states",
-    "page": "Animation",
-    "section": "styling",
-    "heading": "Entry and exit states",
-    "text": "Libraries that animate elements in and out usually expose attributes for the two edges — and , for example. Those are plain attribute conditions. Because they never appear at the same time but the selectors cannot prove it, declare them as exclusive once in , and the compiler stops asking which of the two wins."
-  },
-  {
-    "id": "/docs/styling/dynamic",
-    "href": "/docs/styling/dynamic",
-    "page": "Values known at runtime",
-    "section": "styling",
-    "text": "What happens to a style that depends on props - class expressions, the custom-property bridge, and the 1 kB runtime. "
-  },
-  {
-    "id": "/docs/styling/dynamic#values-known-at-runtime",
-    "href": "/docs/styling/dynamic#values-known-at-runtime",
-    "page": "Values known at runtime",
-    "section": "styling",
-    "heading": "Values known at runtime",
-    "text": "Kirana compiles styles, but some values are only known when the component runs: a progress width, a colour from data, a variant from props. Those are fine to write where you write everything else — the compiler classifies each one and picks a representation."
-  },
-  {
-    "id": "/docs/styling/dynamic#three-classes-of-value",
-    "href": "/docs/styling/dynamic#three-classes-of-value",
-    "page": "Values known at runtime",
-    "section": "styling",
-    "heading": "Three classes of value",
-    "text": "Static. Known at build time. Compiles to a class. Nothing else happens. Finite dynamic. A choice between a known set of static values: Both values are compiled to classes, and the element gets a class expression — a ternary between two class strings. Still no CSS at runtime. Open dynamic. A value the compiler cannot enumerate: The declaration becomes , and the element gets that custom property in its attribute. One rule, any value, and the browser does the rest. The compiler reports it as (informational), so you can see where runtime values enter your styles."
-  },
-  {
-    "id": "/docs/styling/dynamic#the-branch-budget",
-    "href": "/docs/styling/dynamic#the-branch-budget",
-    "page": "Values known at runtime",
-    "section": "styling",
-    "heading": "The branch budget",
-    "text": "A finite dynamic value with too many branches would multiply classes, so there is a budget — 16 branches by default, configurable as . Past it, the compiler stops and reports rather than emitting a combinatorial explosion. Usually that is a sign the value should be a bridge, or a recipe ."
-  },
-  {
-    "id": "/docs/styling/dynamic#what-ships",
-    "href": "/docs/styling/dynamic#what-ships",
-    "page": "Values known at runtime",
-    "section": "styling",
-    "heading": "What ships",
-    "text": "A module that needs runtime merging or a bridge imports a private helper that is under 1 kB minified and gzipped. It merges class strings and sets custom properties. It never parses styles and never generates CSS. Modules with only static styles import nothing."
-  },
-  {
-    "id": "/docs/styling/dynamic#what-is-not-allowed",
-    "href": "/docs/styling/dynamic#what-is-not-allowed",
-    "page": "Values known at runtime",
-    "section": "styling",
-    "heading": "What is not allowed",
-    "text": "Two things the compiler refuses, because they would mean generating styles at runtime: A style's shape is fixed at build time; its values may vary. If you need a different property depending on state, write both and choose between handles:"
-  },
-  {
-    "id": "/docs/styling/dynamic#keeping-runtime-values-honest",
-    "href": "/docs/styling/dynamic#keeping-runtime-values-honest",
-    "page": "Values known at runtime",
-    "section": "styling",
-    "heading": "Keeping runtime values honest",
-    "text": "Prefer a finite set when there is one: a class expression costs nothing in the browser, a bridge costs a custom property. Bridge lengths, colours and numbers — values that vary continuously. If a page reports many values you did not expect, something that could be static is not: usually a token read through an intermediate variable the evaluator cannot follow."
-  },
-  {
-    "id": "/docs/styling/fallbacks",
-    "href": "/docs/styling/fallbacks",
-    "page": "Fallback values",
-    "section": "styling",
-    "text": "firstThatWorks() writes one property several times, so a browser that does not know the preferred value keeps the one before it. "
-  },
-  {
-    "id": "/docs/styling/fallbacks#fallback-values",
-    "href": "/docs/styling/fallbacks#fallback-values",
-    "page": "Fallback values",
-    "section": "styling",
-    "heading": "Fallback values",
-    "text": "A browser drops a declaration whose value it does not understand and keeps the one before it. uses that: you list the values a property should try, the preferred first, and Kirana writes the property once per value. The preferred value is written last because the last declaration a browser understands is the one it keeps. The arguments go in reading order — the value you want, then what to fall back to — the same order as StyleX's helper and as ."
-  },
-  {
-    "id": "/docs/styling/fallbacks#where-it-works",
-    "href": "/docs/styling/fallbacks#where-it-works",
-    "page": "Fallback values",
-    "section": "styling",
-    "heading": "Where it works",
-    "text": "Anywhere a property takes a value: inside conditions, recipes, frames, blocks and parts. Every value goes through the same checks as a value written alone, so tokens resolve, units are checked and shorthands expand: The run is one atom. Its class name covers every value in order, so two styles with the same run share one class, and swapping the order is a different style. Hover, and show it as ."
-  },
-  {
-    "id": "/docs/styling/fallbacks#what-it-refuses",
-    "href": "/docs/styling/fallbacks#what-it-refuses",
-    "page": "Fallback values",
-    "section": "styling",
-    "heading": "What it refuses",
-    "text": "The longhand rule exists because a shorthand with a cannot be split at build time: one value would set four longhands and the other the shorthand, and a browser would keep a fallback for some sides and the preferred value for others. A custom property never falls back, because the browser accepts any text for it; put the fallback where the variable is read, . One value is that value: is , which keeps code migrated from StyleX working."
-  },
-  {
-    "id": "/docs/styling/fallbacks#when-to-use-supports-instead",
-    "href": "/docs/styling/fallbacks#when-to-use-supports-instead",
-    "page": "Fallback values",
-    "section": "styling",
-    "heading": "When to use  supports()  instead",
-    "text": "fits one property whose newer value a browser either parses or drops. When several properties have to change together, or the old browser parses the new value but renders it wrongly, use a condition instead."
-  },
-  {
-    "id": "/docs/styling/anchor-positioning",
-    "href": "/docs/styling/anchor-positioning",
-    "page": "Anchor positioning",
-    "section": "styling",
-    "text": "positionTry() defines an @position-try fallback for an anchored element, checked at build time. "
-  },
-  {
-    "id": "/docs/styling/anchor-positioning#anchor-positioning",
-    "href": "/docs/styling/anchor-positioning#anchor-positioning",
-    "page": "Anchor positioning",
-    "section": "styling",
-    "heading": "Anchor positioning",
-    "text": "CSS anchor positioning places an element against another one, and lists where to put it when the first place overflows. The built-in fallbacks ( , ) mirror the position; defines your own. returns a dashed ident, , and emits an rule with that name: The name is hashed from the declarations, like a keyframes name, so the same block defined in two modules is one rule. The rule ships only when something refers to it: a value, a template string, or an export another module reads."
-  },
-  {
-    "id": "/docs/styling/anchor-positioning#what-a-fallback-may-set",
-    "href": "/docs/styling/anchor-positioning#what-a-fallback-may-set",
-    "page": "Anchor positioning",
-    "section": "styling",
-    "heading": "What a fallback may set",
-    "text": "An block accepts the properties that place and size the box: inset ( , , …), margin, sizing ( , , …), self-alignment ( , , ), and . A browser ignores anything else without a word, so Kirana reports it instead: Values are plain: a fallback has no hover state or breakpoint of its own, so a conditional value is too. Tokens and work as they do in a style."
-  },
-  {
-    "id": "/docs/styling/anchor-positioning#anchors",
-    "href": "/docs/styling/anchor-positioning#anchors",
-    "page": "Anchor positioning",
-    "section": "styling",
-    "heading": "Anchors",
-    "text": "Kirana does not manage for you. An anchor name must be unique on the page, the same as an , so name it where you know the element is unique — a style on that element, or an inline when the name depends on data."
-  },
-  {
-    "id": "/docs/styling/view-transitions",
-    "href": "/docs/styling/view-transitions",
-    "page": "View transitions",
-    "section": "styling",
-    "text": "viewTransition() styles the pseudo-elements of a view transition, and is at once a style for sx and the class name a framework's transition API takes. "
-  },
-  {
-    "id": "/docs/styling/view-transitions#view-transitions",
-    "href": "/docs/styling/view-transitions#view-transitions",
-    "page": "View transitions",
-    "section": "styling",
-    "heading": "View transitions",
-    "text": "During a view transition the browser draws an element's old and new states in pseudo-elements — , , and . styles them for every element of one transition class. The result is a class, , that names itself as the element's . The parts select every element of that class:"
-  },
-  {
-    "id": "/docs/styling/view-transitions#using-it",
-    "href": "/docs/styling/view-transitions#using-it",
-    "page": "View transitions",
-    "section": "styling",
-    "heading": "Using it",
-    "text": "The value is a style handle and a class name at the same time. Put it in next to the element's other styles: or pass it where a framework asks for a transition class, such as React's . Kirana does not set . The browser needs it to be unique among the elements taking part in one transition, so it usually comes from data — an id, a slug — and belongs where that data is."
-  },
-  {
-    "id": "/docs/styling/view-transitions#the-parts",
-    "href": "/docs/styling/view-transitions#the-parts",
-    "page": "View transitions",
-    "section": "styling",
-    "heading": "The parts",
-    "text": "Each part is a style object. A property may be conditional on or ; the pseudo-elements have no hover or attribute state, so other conditions are , as is a key other than these four. Values take tokens, keyframes and . Like keyframes, the class is hashed from its parts, so the same transition defined twice is one rule, and it ships only where something uses it."
-  },
-  {
-    "id": "/docs/tokens/overview",
-    "href": "/docs/tokens/overview",
-    "page": "Tokens",
-    "section": "tokens",
-    "text": "defineTokens, inlined values versus custom properties, and how a token stays a typed constant. "
-  },
-  {
-    "id": "/docs/tokens/overview#tokens",
-    "href": "/docs/tokens/overview#tokens",
-    "page": "Tokens",
-    "section": "tokens",
-    "heading": "Tokens",
-    "text": "A token is a named value your styles refer to. In Kirana it is an ordinary imported constant, so your editor shows the value, \"go to definition\" works, and nothing needs code generation. The first argument is the namespace . It has to be unique in a project — two groups claiming one namespace is an error ( ), which is what keeps two libraries from quietly overwriting each other's variables."
-  },
-  {
-    "id": "/docs/tokens/overview#inlined-or-a-custom-property",
-    "href": "/docs/tokens/overview#inlined-or-a-custom-property",
-    "page": "Tokens",
-    "section": "tokens",
-    "heading": "Inlined or a custom property",
-    "text": "By default a token is inlined : compiles to . The token costs nothing, and unreferenced tokens emit nothing at all. Ask for a custom property when the value must be overridable at runtime — a theme, a mode, a value a parent hands down: Now compiles to , the defaults are declared once in the layer, and anything below can override them."
-  },
-  {
-    "id": "/docs/tokens/overview#per-mode-values",
-    "href": "/docs/tokens/overview#per-mode-values",
-    "page": "Tokens",
-    "section": "tokens",
-    "heading": "Per-mode values",
-    "text": "A token can carry a light and a dark value: Colours are usually better written as one value, which needs no variable at all and no mode plumbing. Use for values cannot express — a shadow's opacity, a blend mode, an image filter. Themes and modes covers the difference."
-  },
-  {
-    "id": "/docs/tokens/overview#registered-tokens",
-    "href": "/docs/tokens/overview#registered-tokens",
-    "page": "Tokens",
-    "section": "tokens",
-    "heading": "Registered tokens",
-    "text": "Give a token a syntax and it becomes a real registered property, which means the browser can animate it: This emits , and the token may then be used as a keyframe key. With the universal syntax a token may have no value at all. It starts unset, and every reference to it falls back to nothing ( ), so a chain of such tokens lists only the parts an element sets — how Tailwind composes :"
-  },
-  {
-    "id": "/docs/tokens/overview#a-token-as-a-style-key",
-    "href": "/docs/tokens/overview#a-token-as-a-style-key",
-    "page": "Tokens",
-    "section": "tokens",
-    "heading": "A token as a style key",
-    "text": "A variable token can be the key of a declaration, which sets that custom property for the subtree: That is how a control tells the icons inside it how big to be, without either side knowing the other's class names."
-  },
-  {
-    "id": "/docs/tokens/overview#what-the-compiler-checks",
-    "href": "/docs/tokens/overview#what-the-compiler-checks",
-    "page": "Tokens",
-    "section": "tokens",
-    "heading": "What the compiler checks",
-    "text": "A token that does not exist: . A token reference computed at runtime: — tokens are build-time values by design. on a token that is not a custom property: ."
-  },
-  {
-    "id": "/docs/tokens/overview#next",
-    "href": "/docs/tokens/overview#next",
-    "page": "Tokens",
-    "section": "tokens",
-    "heading": "Next",
-    "text": "Using the scales preset — Tailwind's vocabulary, ready to import. Semantic tokens — building your own layer on top."
-  },
-  {
-    "id": "/docs/tokens/preset-scales",
-    "href": "/docs/tokens/preset-scales",
-    "page": "Starting with no preset, then scales",
-    "section": "tokens",
-    "text": "Kirana ships no design decisions. Start with plain CSS values, adopt @kirana-style/preset-scales when you want a vocabulary, and keep the parts you need. "
-  },
-  {
-    "id": "/docs/tokens/preset-scales#from-no-preset-to-scales",
-    "href": "/docs/tokens/preset-scales#from-no-preset-to-scales",
-    "page": "Starting with no preset, then scales",
-    "section": "tokens",
-    "heading": "From no preset, to scales",
-    "text": "Kirana has no opinion about what your spacing scale is. There is no default theme to override and nothing to reset. You start with plain CSS, and adopt a vocabulary when you want one."
-  },
-  {
-    "id": "/docs/tokens/preset-scales#level-1-no-tokens-at-all",
-    "href": "/docs/tokens/preset-scales#level-1-no-tokens-at-all",
-    "page": "Starting with no preset, then scales",
-    "section": "tokens",
-    "heading": "Level 1 — no tokens at all",
-    "text": "Perfectly valid, and the right way to start a small thing: Nothing to install, nothing to learn. The compiler is already doing its job: atoms, merge rules, diagnostics."
-  },
-  {
-    "id": "/docs/tokens/preset-scales#level-2-the-scales-preset",
-    "href": "/docs/tokens/preset-scales#level-2-the-scales-preset",
-    "page": "Starting with no preset, then scales",
-    "section": "tokens",
-    "heading": "Level 2 — the scales preset",
-    "text": "When repeating raw values gets old, gives you a vocabulary: the palette, spacing, type ramp, radii, shadows, blurs, durations, easings and breakpoints of Tailwind CSS v4, generated from its own theme, as typed tokens. There is no configuration step: you import what you use. A token nothing references emits nothing, so importing the package costs nothing in the output."
-  },
-  {
-    "id": "/docs/tokens/preset-scales#what-is-in-it",
-    "href": "/docs/tokens/preset-scales#what-is-in-it",
-    "page": "Starting with no preset, then scales",
-    "section": "tokens",
-    "heading": "What is in it",
-    "text": "and are separate because they share step names and mean different things — one queries the viewport, the other a container."
-  },
-  {
-    "id": "/docs/tokens/preset-scales#level-3-your-own-semantic-layer",
-    "href": "/docs/tokens/preset-scales#level-3-your-own-semantic-layer",
-    "page": "Starting with no preset, then scales",
-    "section": "tokens",
-    "heading": "Level 3 — your own semantic layer",
-    "text": "The next step is naming the decisions: what is, what a card's surface is, what a border looks like in dark mode. That is semantic tokens , and it is where a design system starts."
-  },
-  {
-    "id": "/docs/tokens/preset-scales#level-4-packaging-a-preset-of-your-own",
-    "href": "/docs/tokens/preset-scales#level-4-packaging-a-preset-of-your-own",
-    "page": "Starting with no preset, then scales",
-    "section": "tokens",
-    "heading": "Level 4 — packaging a preset of your own",
-    "text": "A preset is a module that exports token groups. To share yours, export them from a package and import them like any other module: Nothing else is required — no registration, no plugin."
-  },
-  {
-    "id": "/docs/tokens/preset-scales#the-utility-grammar",
-    "href": "/docs/tokens/preset-scales#the-utility-grammar",
-    "page": "Starting with no preset, then scales",
-    "section": "tokens",
-    "heading": "The utility grammar",
-    "text": "declares Tailwind v4's utility names over these scales, so works once the preset is listed: The entry holds only data and imports no tokens, because a configuration file runs uncompiled. See utility strings . The grammar composes some utilities through , a group of registered, non-inheriting tokens mirroring Tailwind's properties ( , , , …). A style object can set them too, and then combines with those utilities on the same element: holds the keyframes the animation utilities play — Tailwind's , , and , and , , the accordion, collapsible and caret keyframes of (MIT, credited in the package README):"
-  },
-  {
-    "id": "/docs/tokens/preset-scales#how-the-grammar-behaves",
-    "href": "/docs/tokens/preset-scales#how-the-grammar-behaves",
-    "page": "Starting with no preset, then scales",
-    "section": "tokens",
-    "heading": "How the grammar behaves",
-    "text": "The grammar is data, but a few of its rules decide results you will notice. Each matches what Tailwind v4 renders, and a property test checks every one of the 7,391 utilities it generates against the equivalent style object. A font size carries its line height. sets and the paired with it. The pair is a default, not a declaration of its own: keeps whichever comes first, and replaces the pair with . Uniform box utilities are logical axes. sets and , so a later replaces an earlier the way did, and a later replaces only the inline axis. Composed utilities combine instead of replacing. and both end up in one ; and in one ; and in one . Each utility sets a layer ( , , …) — registered, non-inheriting custom properties, as Tailwind's ones are — and the property reads all of them. So class order does not change the result. Transitions read their timing from layers too. sets the list of properties and reads and from their layers, so and agree. Without either, the timing is Tailwind's: 150 ms, . also resets the duration and timing function, so it removes a component's transition entirely, as did by deleting the utility. keeps a style you set. sets a 1 px width and reads the border style from"
-  },
-  {
-    "id": "/docs/tokens/semantic-tokens",
-    "href": "/docs/tokens/semantic-tokens",
-    "page": "Semantic tokens",
-    "section": "tokens",
-    "text": "Naming your decisions - a variable layer with light-dark() pairs, so dark mode needs no variant. "
-  },
-  {
-    "id": "/docs/tokens/semantic-tokens#semantic-tokens",
-    "href": "/docs/tokens/semantic-tokens#semantic-tokens",
-    "page": "Semantic tokens",
-    "section": "tokens",
-    "heading": "Semantic tokens",
-    "text": "Scales tell you what values exist. Semantic tokens say what they mean : what a card's surface is, what \"primary\" is, what a border looks like. This is the layer that makes a component readable — says something does not. Two decisions in that snippet, and both matter."
-  },
-  {
-    "id": "/docs/tokens/semantic-tokens#every-colour-is-one-light-dark-pair",
-    "href": "/docs/tokens/semantic-tokens#every-colour-is-one-light-dark-pair",
-    "page": "Semantic tokens",
-    "section": "tokens",
-    "heading": "Every colour is one  light-dark()  pair",
-    "text": "resolves against the element's , so one declaration covers both schemes. There is no dark variant, no class, no duplicated block, and no way for the two halves to drift apart — they are written on the same line. The application sets once, at the root ( themes and modes )."
-  },
-  {
-    "id": "/docs/tokens/semantic-tokens#semantic-tokens-are-variables",
-    "href": "/docs/tokens/semantic-tokens#semantic-tokens-are-variables",
-    "page": "Semantic tokens",
-    "section": "tokens",
-    "heading": "Semantic tokens are variables",
-    "text": ", because these are the values a theme overrides. Scales stay inlined: nobody re-themes ."
-  },
-  {
-    "id": "/docs/tokens/semantic-tokens#intent-tokens-for-the-things-light-dark-cannot-hold",
-    "href": "/docs/tokens/semantic-tokens#intent-tokens-for-the-things-light-dark-cannot-hold",
-    "page": "Semantic tokens",
-    "section": "tokens",
-    "heading": "Intent tokens for the things  light-dark()  cannot hold",
-    "text": "Sometimes the two schemes differ in something that is not a colour: a shadow's strength, an image filter, a blend mode. Those get per-mode values: The same idea covers pairs where light and dark want different roles rather than different shades — a control that is a tint in light and a solid in dark. Naming that intent once ( ) beats repeating a conditional in every component that needs it."
-  },
-  {
-    "id": "/docs/tokens/semantic-tokens#deriving-values",
-    "href": "/docs/tokens/semantic-tokens#deriving-values",
-    "page": "Semantic tokens",
-    "section": "tokens",
-    "heading": "Deriving values",
-    "text": "Tokens are constants, so deriving one from another is just an expression: with a variable token keeps the relationship live: re-theme and every tint follows."
-  },
-  {
-    "id": "/docs/tokens/semantic-tokens#where-to-put-it",
-    "href": "/docs/tokens/semantic-tokens#where-to-put-it",
-    "page": "Semantic tokens",
-    "section": "tokens",
-    "heading": "Where to put it",
-    "text": "One module, exported, imported by every component. In this repository it is , and adding a colour is one line there rather than a decision in each component."
-  },
-  {
-    "id": "/docs/tokens/themes-and-modes",
-    "href": "/docs/tokens/themes-and-modes",
-    "page": "Themes and modes",
-    "section": "tokens",
-    "text": "mode.system, mode.light and mode.dark on the root element, and defineTheme for a subtree. "
-  },
-  {
-    "id": "/docs/tokens/themes-and-modes#modes",
-    "href": "/docs/tokens/themes-and-modes#modes",
-    "page": "Themes and modes",
-    "section": "tokens",
-    "heading": "Modes",
-    "text": "gives you three handles that set : Put it on the root element , not the body: the root decides the page's canvas and scrollbars, and an iframe whose root scheme differs from its frame gets an opaque backdrop. With every colour written as a pair , that single declaration is the whole dark-mode implementation. needs no JavaScript at all. A three-way switch is then ordinary state:"
-  },
-  {
-    "id": "/docs/tokens/themes-and-modes#themes",
-    "href": "/docs/tokens/themes-and-modes#themes",
-    "page": "Themes and modes",
-    "section": "tokens",
-    "heading": "Themes",
-    "text": "overrides variable tokens for a subtree: Everything inside the section reads the new value; everything outside is untouched. Themes nest, and a theme may override some tokens and leave the rest. Only variable tokens can be overridden — overriding an inlined one is an error ( ), because there is no variable to change. If a token needs a theme, declare its group with ."
-  },
-  {
-    "id": "/docs/tokens/themes-and-modes#per-mode-overrides",
-    "href": "/docs/tokens/themes-and-modes#per-mode-overrides",
-    "page": "Themes and modes",
-    "section": "tokens",
-    "heading": "Per-mode overrides",
-    "text": "A theme can set both halves of a token:"
-  },
-  {
-    "id": "/docs/tokens/themes-and-modes#where-the-values-live",
-    "href": "/docs/tokens/themes-and-modes#where-the-values-live",
-    "page": "Themes and modes",
-    "section": "tokens",
-    "heading": "Where the values live",
-    "text": "Token defaults go in the layer, on . Theme overrides go in , as a class. Both sit below your component styles, so a component that sets a colour directly always wins over a theme that suggests one."
-  },
-  {
-    "id": "/docs/tokens/themes-and-modes#switching-without-a-flash",
-    "href": "/docs/tokens/themes-and-modes#switching-without-a-flash",
-    "page": "Themes and modes",
-    "section": "tokens",
-    "heading": "Switching without a flash",
-    "text": "The mode handle is a class on the root element, so server-rendered HTML can carry it: render the user's stored preference into the root on the server, and there is no flash. needs nothing stored at all."
-  },
-  {
-    "id": "/docs/tokens/themes-and-modes#what-not-to-do",
-    "href": "/docs/tokens/themes-and-modes#what-not-to-do",
-    "page": "Themes and modes",
-    "section": "tokens",
-    "heading": "What not to do",
-    "text": "Do not put the mode on . The canvas belongs to the root. Do not write a variant. There is no dark variant; the pair is in the token. Do not theme scales. Re-theming makes a layout unpredictable; theme the semantic layer instead."
-  },
-  {
-    "id": "/docs/config/file",
-    "href": "/docs/config/file",
-    "page": "The configuration file",
-    "section": "config",
-    "text": "Where kirana.config.ts lives, how it is found, and what overrides what. "
-  },
-  {
-    "id": "/docs/config/file#the-configuration-file",
-    "href": "/docs/config/file#the-configuration-file",
-    "page": "The configuration file",
-    "section": "config",
-    "heading": "The configuration file",
-    "text": "Configuration is optional. Every key has a default, and a project with no compiles. is an identity function — it exists for the types."
-  },
-  {
-    "id": "/docs/config/file#how-it-is-found",
-    "href": "/docs/config/file#how-it-is-found",
-    "page": "The configuration file",
-    "section": "config",
-    "heading": "How it is found",
-    "text": "The compiler looks in the project root, in this order, and takes the first match: TypeScript and JavaScript files are imported natively; the default export is the configuration."
-  },
-  {
-    "id": "/docs/config/file#what-overrides-what",
-    "href": "/docs/config/file#what-overrides-what",
-    "page": "The configuration file",
-    "section": "config",
-    "heading": "What overrides what",
-    "text": "Options passed to the adapter override the file, key by key: The project root comes from the adapter (Vite's , or the CLI's working directory) and cannot be set in the file."
-  },
-  {
-    "id": "/docs/config/file#unknown-keys-are-errors",
-    "href": "/docs/config/file#unknown-keys-are-errors",
-    "page": "The configuration file",
-    "section": "config",
-    "heading": "Unknown keys are errors",
-    "text": "The validator rejects keys it does not know ( ), rather than ignoring them. A typo fails the build instead of silently doing nothing — and a key from a future version fails loudly rather than pretending to work."
-  },
-  {
-    "id": "/docs/config/file#sharing-configuration",
-    "href": "/docs/config/file#sharing-configuration",
-    "page": "The configuration file",
-    "section": "config",
-    "heading": "Sharing configuration",
-    "text": "A configuration is a plain object, so a shared one is a plain export: That is how a component library tells every app what its attributes guarantee — see ."
-  },
-  {
-    "id": "/docs/config/reference",
-    "href": "/docs/config/reference",
-    "page": "Configuration reference",
-    "section": "config",
-    "text": "Every key that exists today, with its type, default and what it changes. "
-  },
-  {
-    "id": "/docs/config/reference#configuration-reference",
-    "href": "/docs/config/reference#configuration-reference",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "Configuration reference",
-    "text": "Every key there is, and what each one changes."
-  },
-  {
-    "id": "/docs/config/reference#layers",
-    "href": "/docs/config/reference#layers",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "layers",
-    "text": "Layer names placed around Kirana's own layer, for your global CSS. Each must be a valid CSS identifier, and none may be . See layers ."
-  },
-  {
-    "id": "/docs/config/reference#targets",
-    "href": "/docs/config/reference#targets",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "targets",
-    "text": "Browser versions to compile for, as a major number ( ) or ( ). The default floor is Chrome 123, Safari 17.5, Firefox 120 . Setting a target below the floor makes Lightning CSS lower the output where it can, and emits (informational) so you know it happened. A minor above 255, or a value that is not a number, is ."
-  },
-  {
-    "id": "/docs/config/reference#names-prefix",
-    "href": "/docs/config/reference#names-prefix",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "names.prefix",
-    "text": "The prefix on every generated class and custom property. One to four lowercase ASCII letters. Give two independently built applications different prefixes and they can share a page without colliding."
-  },
-  {
-    "id": "/docs/config/reference#dynamic-branchbudget",
-    "href": "/docs/config/reference#dynamic-branchbudget",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "dynamic.branchBudget",
-    "text": "How many branches a class expression may have before the compiler stops and reports . Must be at least 1. See values known at runtime ."
-  },
-  {
-    "id": "/docs/config/reference#jsx",
-    "href": "/docs/config/reference#jsx",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "jsx",
-    "text": "Which attribute compiles to: for , for , and . Leave it out and the compiler reads from the project's — means Preact, means Solid, means Qwik, anything else React — so most projects never set it. See supported frameworks ."
-  },
-  {
-    "id": "/docs/config/reference#libraries",
-    "href": "/docs/config/reference#libraries",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "libraries",
-    "text": "Installed packages whose styles this app compiles as it compiles its own. A published Kirana library ships its calls uncompiled; listing it here puts its styles in your stylesheet, deduplicated with yours and under your prefix, targets and layers. Leave a library out and its first throws with a message naming this key. See publishing a library ."
-  },
-  {
-    "id": "/docs/config/reference#presets",
-    "href": "/docs/config/reference#presets",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "presets",
-    "text": "Presets contribute data to the configuration — today, a utility grammar that turns on utility strings . A preset is ; later presets replace earlier ones scale by scale, root by root and variant by variant."
-  },
-  {
-    "id": "/docs/config/reference#utilities",
-    "href": "/docs/config/reference#utilities",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "utilities",
-    "text": "The application's own grammar, merged after every preset. — where a scale's values come from: exports of modules, looked up as an would be (relative modules from the project root). Several sources are searched in order. — what each root sets, as rules tried in order: for fixed declarations; for a scale, with optional ( : a bare number that is not a key, as is 50 × ; a rule may have and no ), , , (colour opacity), (a second property from another scale, as sets a line height — yielding to a utility that sets that property itself, as does, and replaced by a modifier, as in ), , (the value inside other text, ) and (extra declarations); for keywords. — a name for any condition accepts; one starting with is a pseudo-element block. In any text of a rule, is that token ( ), and a property written sets the token's custom property — how composed utilities such as and share one ."
-  },
-  {
-    "id": "/docs/config/reference#diagnostics",
-    "href": "/docs/config/reference#diagnostics",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "diagnostics",
-    "text": "Re-level a diagnostic by its kebab-case name: Errors cannot be re-levelled. An error means the output would be wrong, so turning it into a warning would only hide a broken build. Trying is , as is naming a diagnostic that does not exist. The diagnostics reference lists which ones can move."
-  },
-  {
-    "id": "/docs/config/reference#conditions-exclusive",
-    "href": "/docs/config/reference#conditions-exclusive",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "conditions.exclusive",
-    "text": "Groups of conditions that a library guarantees never hold together on one element. Each group needs at least two entries, and each entry must be exactly one attribute or pseudo-class selector. This is how you silence for pairs the selectors cannot prove are exclusive. The compiler already knows about two values of one attribute, a selector and its negation, and fixed positions counted from the same end — you only need to declare what a library promises."
-  },
-  {
-    "id": "/docs/config/reference#classes",
-    "href": "/docs/config/reference#classes",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "classes",
-    "text": "The class map for server templates. are files or folders, relative to the root, whose exported handles Blade, Twig, ERB, HEEx and Edge templates name; and write their class strings to , and compile the modules whatever paths they were given. A recipe or a runtime value among the exports is . See server templates ."
-  },
-  {
-    "id": "/docs/config/reference#externals",
-    "href": "/docs/config/reference#externals",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "externals",
-    "text": "Specifier prefixes the bundler provides and Node.js resolution cannot find. An import from one is a runtime value, as an installed package's is, instead of an warning. adds Ember's own ( , , ); Meteor sets ."
-  },
-  {
-    "id": "/docs/config/reference#root",
-    "href": "/docs/config/reference#root",
-    "page": "Configuration reference",
-    "section": "config",
-    "heading": "root",
-    "text": "Set by the adapter, not by you: the project root, which scopes a build and makes diagnostic paths relative."
-  },
-  {
-    "id": "/docs/config/layers",
-    "href": "/docs/config/layers",
-    "page": "Layers and global CSS",
-    "section": "config",
-    "text": "Where a reset goes, why Kirana emits nothing unlayered, and how to keep third-party CSS below your styles. "
-  },
-  {
-    "id": "/docs/config/layers#layers-and-global-css",
-    "href": "/docs/config/layers#layers-and-global-css",
-    "page": "Layers and global CSS",
-    "section": "config",
-    "heading": "Layers and global CSS",
-    "text": "Kirana writes every rule inside a layer, and declares the order in one statement at the top of the stylesheet: The first line is yours: the names from and . The second is Kirana's own, and its order is fixed. Nothing Kirana emits is unlayered, custom-property assignments included. That is what lets a reset stay a reset: it cannot accidentally outrank a component style, and a component style cannot accidentally outrank a theme."
-  },
-  {
-    "id": "/docs/config/layers#your-own-layers",
-    "href": "/docs/config/layers#your-own-layers",
-    "page": "Layers and global CSS",
-    "section": "config",
-    "heading": "Your own layers",
-    "text": "Then write your global CSS into those layers: Because and come before in the order statement, every Kirana rule wins over them, whatever their selectors look like."
-  },
-  {
-    "id": "/docs/config/layers#load-order-matters-once",
-    "href": "/docs/config/layers#load-order-matters-once",
-    "page": "Layers and global CSS",
-    "section": "config",
-    "heading": "Load order matters once",
-    "text": "Import Kirana's stylesheet before your global CSS. Its statement is what fixes the order, and a layer first seen inside would otherwise be ordered by where it appeared."
-  },
-  {
-    "id": "/docs/config/layers#third-party-css",
-    "href": "/docs/config/layers#third-party-css",
-    "page": "Layers and global CSS",
-    "section": "config",
-    "heading": "Third-party CSS",
-    "text": "A package's stylesheet you cannot edit — a date picker, a carousel — goes into a layer you name, so your styles beat it without :"
-  },
-  {
-    "id": "/docs/config/layers#when-to-write-global-css-at-all",
-    "href": "/docs/config/layers#when-to-write-global-css-at-all",
-    "page": "Layers and global CSS",
-    "section": "config",
-    "heading": "When to write global CSS at all",
-    "text": "Rarely. Two cases hold up: A reset , and base element styles that must apply to bare tags. Markup you do not render , where no component can carry a class — scoped by an attribute the library sets, as narrowly as you can manage. Everything else belongs in , where the compiler can see it, check it and tell you when two declarations fight."
+    "id": "/docs/integrations/bundlers#same-styles-on-every-host",
+    "href": "/docs/integrations/bundlers#same-styles-on-every-host",
+    "page": "Choose a bundler",
+    "section": "bundlers",
+    "heading": "Same styles on every host",
+    "text": "Kirana's adapters only hand modules to one compiler and put its stylesheet where the bundler expects it, so the same source gives the same CSS whichever bundler builds it. CI checks exactly that: one React example, built with every bundler, must produce the same set of classes as with Vite."
   },
   {
     "id": "/docs/integrations/vite",
     "href": "/docs/integrations/vite",
     "page": "Vite",
-    "section": "integrations",
-    "text": "The @kirana-style/vite plugin - options, the stylesheet entry, hot updates and the built asset. "
+    "section": "bundlers",
+    "text": "The @kirana-style/vite plugin: its options, the stylesheet entry, hot updates and the built asset. "
   },
   {
     "id": "/docs/integrations/vite#vite",
     "href": "/docs/integrations/vite#vite",
     "page": "Vite",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Vite",
     "text": "is the adapter for Vite 8 and Rolldown. It owns a compiler session, compiles the modules that carry styles, serves the stylesheet in development and writes it in a build. Order matters. Kirana runs , before the framework plugin, so React (or anything else) only ever sees compiled JavaScript."
   },
@@ -8323,7 +8277,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/vite#options",
     "href": "/docs/integrations/vite#options",
     "page": "Vite",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Options",
     "text": "Both are optional, and most projects pass nothing: the plugin finds in the Vite root on its own."
   },
@@ -8331,77 +8285,46 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/vite#which-modules-it-compiles",
     "href": "/docs/integrations/vite#which-modules-it-compiles",
     "page": "Vite",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Which modules it compiles",
-    "text": "Script files only — , , , , , — outside , and only when the text contains or an attribute. That prefilter is why adding Kirana to a large application does not slow the build down in proportion to its size. Markdown, HTML and other assets are never compiled, so written there does nothing."
+    "text": "Script files only (TypeScript and JavaScript, with or without JSX, ES modules included) outside , and only when the text contains or an attribute. That prefilter is why adding Kirana to a large application does not slow the build down in proportion to its size. Markdown, HTML and other assets are never compiled, so written there does nothing."
   },
   {
     "id": "/docs/integrations/vite#the-stylesheet",
     "href": "/docs/integrations/vite#the-stylesheet",
     "page": "Vite",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "The stylesheet",
-    "text": "Import the entry once: In development the plugin serves the live stylesheet and pushes updates over Vite's hot channel, so a style change restyles the page without a reload. In a build it replaces the placeholder rule with the real stylesheet and renames the asset to a content hash. returns two plugins, which Vite flattens, so it is still one entry in . The second, , runs at the end of a build for a stylesheet asset a framework adds after the first has filled the others (Qwik does). , and behave the way they do for any other Vite asset."
+    "text": "Import the entry once, in your entry; a framework that renders the document as a component imports it as a URL for its : In development the plugin serves the live stylesheet and pushes updates over Vite's hot channel, so a style change restyles the page without a reload. In a build it replaces the placeholder rule with the real stylesheet and renames the asset to a content hash. returns two plugins, which Vite flattens, so it is still one entry in . The second, , runs at the end of a build for a stylesheet asset a framework adds after the first has filled the others (Qwik does). , and behave the way they do for any other Vite asset."
   },
   {
     "id": "/docs/integrations/vite#diagnostics-in-the-terminal",
     "href": "/docs/integrations/vite#diagnostics-in-the-terminal",
     "page": "Vite",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Diagnostics in the terminal",
-    "text": "Errors fail the build; warnings print with their file, line and help text. Info diagnostics are quiet unless you pass — useful when you want to see every runtime bridge in an application."
+    "text": "Errors fail the build; warnings print with their file, line and help text. Info diagnostics are quiet unless you pass , which is useful when you want to see every runtime bridge in an application."
   },
   {
     "id": "/docs/integrations/vite#rolldown",
     "href": "/docs/integrations/vite#rolldown",
     "page": "Vite",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Rolldown",
     "text": "Vite 8 is Rolldown-backed, and the plugin uses Rolldown's filters, so a Rolldown-only setup works the same way."
-  },
-  {
-    "id": "/docs/integrations/bundlers",
-    "href": "/docs/integrations/bundlers",
-    "page": "Bundlers",
-    "section": "integrations",
-    "text": "Kirana on every bundler - Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun, esbuild, PostCSS and Jest, each with its own guide and tested example. "
-  },
-  {
-    "id": "/docs/integrations/bundlers#bundlers",
-    "href": "/docs/integrations/bundlers#bundlers",
-    "page": "Bundlers",
-    "section": "integrations",
-    "heading": "Bundlers",
-    "text": "Every adapter does the same small job: it hands modules that carry styles to the compiler, and puts the finished stylesheet where the bundler expects it. None of them interprets a style, so the atoms, the class names and the stylesheet are byte-for-byte the same whichever bundler built them."
-  },
-  {
-    "id": "/docs/integrations/bundlers#development-servers",
-    "href": "/docs/integrations/bundlers#development-servers",
-    "page": "Bundlers",
-    "section": "integrations",
-    "heading": "Development servers",
-    "text": "Every host updates the stylesheet while you work. Vite, webpack, Rspack, Rsbuild and Next.js send it as a CSS hot update; Bun and esbuild as their reload. Each is checked on every change: the dev server starts, a style is edited, and the page must show it."
-  },
-  {
-    "id": "/docs/integrations/bundlers#same-styles-on-every-host",
-    "href": "/docs/integrations/bundlers#same-styles-on-every-host",
-    "page": "Bundlers",
-    "section": "integrations",
-    "heading": "Same styles on every host",
-    "text": "Kirana's adapters only hand modules to one compiler and put its stylesheet where the bundler expects it, so the same source gives the same CSS whichever bundler builds it. CI checks exactly that: one React example, built with every bundler, must produce the same set of classes as with Vite."
   },
   {
     "id": "/docs/integrations/rolldown",
     "href": "/docs/integrations/rolldown",
     "page": "Rolldown",
-    "section": "integrations",
-    "text": "Kirana on Rolldown without Vite - the plugin compiles styles and writes the stylesheet as its own asset. "
+    "section": "bundlers",
+    "text": "Kirana on Rolldown without Vite, where the plugin compiles styles and writes the stylesheet as its own asset. "
   },
   {
     "id": "/docs/integrations/rolldown#rolldown",
     "href": "/docs/integrations/rolldown#rolldown",
     "page": "Rolldown",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Rolldown",
     "text": "Rolldown on its own does not bundle CSS, so the adapter writes the stylesheet itself and your HTML links it. On Vite, which is Rolldown-backed and does bundle CSS, use the Vite plugin instead. Tested by ."
   },
@@ -8409,7 +8332,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/rolldown#3-link-the-stylesheet",
     "href": "/docs/integrations/rolldown#3-link-the-stylesheet",
     "page": "Rolldown",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "3. Link the stylesheet",
     "text": "Importing from a module gives you the stylesheet's file name, by default ( changes it); the build writes it as ."
   },
@@ -8417,7 +8340,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/rolldown#next",
     "href": "/docs/integrations/rolldown#next",
     "page": "Rolldown",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Next",
     "text": "Styles and conditions . Every bundler ."
   },
@@ -8425,30 +8348,30 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/webpack",
     "href": "/docs/integrations/webpack",
     "page": "webpack",
-    "section": "integrations",
-    "text": "Kirana on webpack 5 - a pre loader that reads sx before your JSX compiler, and a plugin that writes the stylesheet before minification. "
+    "section": "bundlers",
+    "text": "Kirana on webpack 5, with a pre loader that reads sx before your JSX compiler and a plugin that writes the stylesheet before minification. "
   },
   {
     "id": "/docs/integrations/webpack#webpack",
     "href": "/docs/integrations/webpack#webpack",
     "page": "webpack",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "webpack",
-    "text": "The plugin adds its loader in front of your own ( ), so it reads before or compiles JSX away, and writes the finished stylesheet once every module is built. Tested by . Next.js has its own guide , and Gatsby, which runs webpack, its own too ."
+    "text": "The plugin adds its loader in front of your own ( ), so it reads before your JSX compiler (swc or Babel) compiles it away, and writes the finished stylesheet once every module is built. Tested by . Next.js has its own guide , and Gatsby, which runs webpack, its own too ."
   },
   {
     "id": "/docs/integrations/webpack#3-import-the-stylesheet",
     "href": "/docs/integrations/webpack#3-import-the-stylesheet",
     "page": "webpack",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "3. Import the stylesheet",
-    "text": "The stylesheet entry is ordinary CSS to webpack: it names, links and minifies it like any other. The plugin fills it in before the minifier runs and before names the file after its real content — which is on by default in production; turn it off and the file name stops tracking the styles."
+    "text": "The stylesheet entry is ordinary CSS to webpack: it names, links and minifies it like any other. The plugin fills it in before the minifier runs and before names the file after its real content, which is on by default in production; turn it off and the file name stops tracking the styles."
   },
   {
     "id": "/docs/integrations/webpack#next",
     "href": "/docs/integrations/webpack#next",
     "page": "webpack",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Next",
     "text": "Styles and conditions . Every bundler ."
   },
@@ -8456,14 +8379,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/rspack",
     "href": "/docs/integrations/rspack",
     "page": "Rspack and Rsbuild",
-    "section": "integrations",
-    "text": "Kirana on Rspack and Rsbuild - Rsbuild's pluginKirana, or the webpack plugin, which Rspack runs unchanged. "
+    "section": "bundlers",
+    "text": "Kirana on Rspack and Rsbuild, through Rsbuild's pluginKirana or the webpack plugin, which Rspack runs unchanged. "
   },
   {
     "id": "/docs/integrations/rspack#rspack-and-rsbuild",
     "href": "/docs/integrations/rspack#rspack-and-rsbuild",
     "page": "Rspack and Rsbuild",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Rspack and Rsbuild",
     "text": "Rspack runs webpack's plugins unchanged, so Kirana's webpack plugin is its plugin too; Rsbuild gets a one-line . Tested by and ."
   },
@@ -8471,7 +8394,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/rspack#next",
     "href": "/docs/integrations/rspack#next",
     "page": "Rspack and Rsbuild",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Next",
     "text": "Styles and conditions . Every bundler ."
   },
@@ -8479,14 +8402,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/parcel",
     "href": "/docs/integrations/parcel",
     "page": "Parcel",
-    "section": "integrations",
-    "text": "Kirana on Parcel - a transformer compiles styles in scripts, and @kirana-style/postcss writes the stylesheet where @kirana; stands. "
+    "section": "bundlers",
+    "text": "Kirana on Parcel, where a transformer compiles styles in scripts and @kirana-style/postcss writes the stylesheet where @kirana; stands. "
   },
   {
     "id": "/docs/integrations/parcel#parcel",
     "href": "/docs/integrations/parcel#parcel",
     "page": "Parcel",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Parcel",
     "text": "Parcel runs transformers in worker processes, with no step that sees every module. So the work is split as for Next.js on Turbopack: a transformer rewrites the styles in each script into class names, and the PostCSS plugin compiles the whole project into the stylesheet. Tested on every change by , built and on ."
   },
@@ -8494,7 +8417,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/parcel#3-add-the-postcss-plugin-and-mark-the-stylesheet",
     "href": "/docs/integrations/parcel#3-add-the-postcss-plugin-and-mark-the-stylesheet",
     "page": "Parcel",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "3. Add the PostCSS plugin and mark the stylesheet",
     "text": "Link that stylesheet from your HTML, as any other."
   },
@@ -8502,7 +8425,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/parcel#next",
     "href": "/docs/integrations/parcel#next",
     "page": "Parcel",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Next",
     "text": "PostCSS , and its options. Every bundler ."
   },
@@ -8510,14 +8433,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/bun",
     "href": "/docs/integrations/bun",
     "page": "Bun",
-    "section": "integrations",
-    "text": "Kirana with Bun's bundler and dev server - one plugin for Bun.build and bunfig.toml. "
+    "section": "bundlers",
+    "text": "Kirana with Bun's bundler and dev server, through one plugin for Bun.build and bunfig.toml. "
   },
   {
     "id": "/docs/integrations/bun#bun",
     "href": "/docs/integrations/bun#bun",
     "page": "Bun",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Bun",
     "text": "Bun writes CSS imported from an entry next to it ( ), and the plugin finishes it once every module has loaded. Tested by ."
   },
@@ -8525,7 +8448,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/bun#2-add-the-plugin",
     "href": "/docs/integrations/bun#2-add-the-plugin",
     "page": "Bun",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "2. Add the plugin",
     "text": "For Bun's dev server ( ), register it in ; there the stylesheet follows every edit:"
   },
@@ -8533,7 +8456,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/bun#limits",
     "href": "/docs/integrations/bun#limits",
     "page": "Bun",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Limits",
     "text": "A pattern that hashes CSS assets keeps the placeholder's hash, and a build with keeps the placeholder, because there is no file to finish."
   },
@@ -8541,7 +8464,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/bun#next",
     "href": "/docs/integrations/bun#next",
     "page": "Bun",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Next",
     "text": "Styles and conditions . Every bundler ."
   },
@@ -8549,22 +8472,22 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/esbuild",
     "href": "/docs/integrations/esbuild",
     "page": "esbuild",
-    "section": "integrations",
-    "text": "Kirana on esbuild - a plugin that compiles styles and finishes the bundled CSS, on disk, in memory, in watch mode and when serving. "
+    "section": "bundlers",
+    "text": "Kirana on esbuild, through a plugin that compiles styles and finishes the bundled CSS, on disk, in memory, in watch mode and when serving. "
   },
   {
     "id": "/docs/integrations/esbuild#esbuild",
     "href": "/docs/integrations/esbuild#esbuild",
     "page": "esbuild",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "esbuild",
-    "text": "esbuild writes CSS imported from an entry beside it ( ), and the plugin finishes it once every module has loaded — on disk, or in with . Tested by ."
+    "text": "esbuild writes CSS imported from an entry beside it ( ), and the plugin finishes it once every module has loaded, on disk or in with . Tested by ."
   },
   {
     "id": "/docs/integrations/esbuild#2-add-the-plugin",
     "href": "/docs/integrations/esbuild#2-add-the-plugin",
     "page": "esbuild",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "2. Add the plugin",
     "text": "With and the stylesheet follows every edit, delivered by esbuild's live reload."
   },
@@ -8572,7 +8495,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/esbuild#next",
     "href": "/docs/integrations/esbuild#next",
     "page": "esbuild",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Next",
     "text": "Styles and conditions . Every bundler ."
   },
@@ -8580,22 +8503,22 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/postcss",
     "href": "/docs/integrations/postcss",
     "page": "PostCSS",
-    "section": "integrations",
-    "text": "The @kirana-style/postcss plugin - the whole project's stylesheet where @kirana; stands, for pipelines whose scripts another step compiles. "
+    "section": "bundlers",
+    "text": "The @kirana-style/postcss plugin writes the whole project's stylesheet where @kirana; stands, for pipelines whose scripts another step compiles. "
   },
   {
     "id": "/docs/integrations/postcss#postcss",
     "href": "/docs/integrations/postcss#postcss",
     "page": "PostCSS",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "PostCSS",
-    "text": "replaces (or the stylesheet entry's placeholder) with the project's stylesheet. It compiles every script of the project, incrementally by modification time, and reports project-wide diagnostics as PostCSS warnings. It writes the stylesheet only: the scripts still need Kirana's compiler to turn into class names. That is why it comes with a script step wherever it is used — the loader in Next.js on Turbopack , the transformer in Parcel ."
+    "text": "replaces (or the stylesheet entry's placeholder) with the project's stylesheet. It compiles every script of the project, incrementally by modification time, and reports project-wide diagnostics as PostCSS warnings. It writes the stylesheet only: the scripts still need Kirana's compiler to turn into class names. That is why it comes with a script step wherever it is used: the loader in Next.js on Turbopack , the transformer in Parcel ."
   },
   {
     "id": "/docs/integrations/postcss#next",
     "href": "/docs/integrations/postcss#next",
     "page": "PostCSS",
-    "section": "integrations",
+    "section": "bundlers",
     "heading": "Next",
     "text": "Next.js , which uses it with Turbopack. Every bundler ."
   },
@@ -8603,14 +8526,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/jest",
     "href": "/docs/integrations/jest",
     "page": "Jest",
-    "section": "integrations",
-    "text": "Kirana under Jest - a transformer that compiles styles, then hands the module to the transformer you already use. "
+    "section": "testing",
+    "text": "Kirana under Jest, through a transformer that compiles styles, then hands the module to the transformer you already use. "
   },
   {
     "id": "/docs/integrations/jest#jest",
     "href": "/docs/integrations/jest#jest",
     "page": "Jest",
-    "section": "integrations",
+    "section": "testing",
     "heading": "Jest",
     "text": "Jest runs no bundler, so Kirana is a transformer: it compiles a module's styles, then hands it to the transformer you already use. Tests see the class names your app ships; no stylesheet is written. Tested by . With Vitest, the Vite plugin does this already."
   },
@@ -8618,7 +8541,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/jest#caching",
     "href": "/docs/integrations/jest#caching",
     "page": "Jest",
-    "section": "integrations",
+    "section": "testing",
     "heading": "Caching",
     "text": "Jest caches a module by its own source. After changing tokens another module reads, run Jest once with ."
   },
@@ -8626,603 +8549,9 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/integrations/jest#next",
     "href": "/docs/integrations/jest#next",
     "page": "Jest",
-    "section": "integrations",
+    "section": "testing",
     "heading": "Next",
     "text": "Every bundler ."
-  },
-  {
-    "id": "/docs/integrations/ecosystem",
-    "href": "/docs/integrations/ecosystem",
-    "page": "Ecosystem and status",
-    "section": "integrations",
-    "text": "What works today, what is planned, and which milestone each thing belongs to. "
-  },
-  {
-    "id": "/docs/integrations/ecosystem#ecosystem-and-status",
-    "href": "/docs/integrations/ecosystem#ecosystem-and-status",
-    "page": "Ecosystem and status",
-    "section": "integrations",
-    "heading": "Ecosystem and status",
-    "text": "What exists, honestly. Anything marked planned is in the specification and not in the build."
-  },
-  {
-    "id": "/docs/integrations/ecosystem#bundlers",
-    "href": "/docs/integrations/ecosystem#bundlers",
-    "page": "Ecosystem and status",
-    "section": "integrations",
-    "heading": "Bundlers",
-    "text": "See other bundlers for each one's setup."
-  },
-  {
-    "id": "/docs/integrations/ecosystem#configuration-keys-in-the-specification-but-not-the-build",
-    "href": "/docs/integrations/ecosystem#configuration-keys-in-the-specification-but-not-the-build",
-    "page": "Ecosystem and status",
-    "section": "integrations",
-    "heading": "Configuration keys in the specification but not the build",
-    "text": "— compose preset packages. Import preset modules directly instead. It fails validation today. ( works: see publishing a library .) See the roadmap for when they are scheduled."
-  },
-  {
-    "id": "/docs/tooling/cli",
-    "href": "/docs/tooling/cli",
-    "page": "The CLI",
-    "section": "tooling",
-    "text": "kirana init, doctor, dev, build, check, analyze, export, trace, migrate and lsp - what each one does, and what it prints. "
-  },
-  {
-    "id": "/docs/tooling/cli#the-cli",
-    "href": "/docs/tooling/cli#the-cli",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "The CLI",
-    "text": "The binary sets a project up ( ), checks the setup ( ), compiles without a bundler ( , ), reports ( , , , ), rewrites other styling systems ( ) and serves your editor ( ). In this repository the binary runs through its entry script:"
-  },
-  {
-    "id": "/docs/tooling/cli#kirana-init",
-    "href": "/docs/tooling/cli#kirana-init",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "kirana init",
-    "text": "Set a project up: the configuration file, the adapter in your bundler's configuration, the stylesheet, and the types for . It reads and the lockfile to find the framework, the bundler and the package manager, then prints every change as a diff before it writes anything: It knows Next.js (Turbopack and webpack), Nuxt, SvelteKit, Astro, TanStack Start, Qwik, Angular (the CLI, whose builders it swaps, and Analog), React Router, Gatsby, Ember, Meteor, Parcel, the server frameworks — Laravel, Symfony, Rails, Phoenix and AdonisJS, which get a class map and a starter style module — and React, Preact, Solid, Vue, Svelte or plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown. Edits follow the file's own quotes and semicolons. Where a configuration is not in a shape it can edit safely — , a function, a plugin list built elsewhere — it prints the step to do by hand instead of guessing. The install command is printed, never run unless you pass , so your lockfile stays yours. Its setups were checked the way the examples are: sixteen examples, stripped of Kirana and set up again by , built from packed tarballs and styled exactly like the hand-written ones in a browser."
-  },
-  {
-    "id": "/docs/tooling/cli#kirana-doctor",
-    "href": "/docs/tooling/cli#kirana-doctor",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "kirana doctor",
-    "text": "Check a project's setup, and say what is missing. It reports the engine in use (native, or the WebAssembly fallback), every installed version and whether they match, whether the configuration loads, and whether the adapter, stylesheet and types are in place — by running 's plan without writing. The exit code is 1 when something fails. There is no cache to clear: Kirana keeps nothing on disk between builds."
-  },
-  {
-    "id": "/docs/tooling/cli#a-bug-report",
-    "href": "/docs/tooling/cli#a-bug-report",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "A bug report",
-    "text": "writes (or the file after the flag): an issue body with a place at the top for what happened and the smallest reproduction, then what Kirana collected — the engine version, Node.js and OS, framework and bundler, every version, the doctor's checks, each diagnostic code with how often it occurred and where first, the stylesheet's size and the resolved configuration. adds output. prints the same data instead of writing the file. The report is safe to paste. It contains no source code, the project directory reads , the home directory and your user name , configuration values under keys that name a secret are masked, and no environment variable is read. Read it before you post it anyway."
-  },
-  {
-    "id": "/docs/tooling/cli#kirana-dev",
-    "href": "/docs/tooling/cli#kirana-dev",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "kirana dev",
-    "text": "Watch mode for projects without a bundler — plain HTML, web components, server templates. It compiles every script under the paths ( , or the project when there is none), writes the stylesheet ( unless says otherwise), and on each change recompiles that file and the modules that read a value from it. The stylesheet is rewritten only when it changed, and diagnostics print as they appear:"
-  },
-  {
-    "id": "/docs/tooling/cli#kirana-check",
-    "href": "/docs/tooling/cli#kirana-check",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "kirana check",
-    "text": "Report diagnostics without writing anything. It walks the paths you give it, skipping , , dotfiles and files. Human output underlines the span and prints the help line: prints an array of , for an editor or a script. The exit code is 1 when anything is an error. prints one GitHub Actions workflow command per diagnostic, which annotates the line in the pull request's diff — errors as errors, warnings as warnings, infos as notices. Paths are relative to the project root, so run it from the repository root or a project at the root. fails the run, exit code 1, when there are more than warnings; makes every warning block a merge, without re-levelling them in the configuration."
-  },
-  {
-    "id": "/docs/tooling/cli#kirana-build",
-    "href": "/docs/tooling/cli#kirana-build",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "kirana build",
-    "text": "Compile files and write the stylesheet. Useful when a bundler is not in the picture — a library build, a check in CI, or looking at the CSS for yourself. Applications normally let the Vite plugin do this."
-  },
-  {
-    "id": "/docs/tooling/cli#kirana-analyze",
-    "href": "/docs/tooling/cli#kirana-analyze",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "kirana analyze",
-    "text": "What the stylesheet holds, and why. That is this documentation site. The report goes on with the largest modules — the bytes of their rules, and of the rules only they use, which is what deleting them would save — then values bridged to runtime, recipes resolved at runtime, themes and the tokens they override, relation reads no anchor proves, and tokens your project declares that nothing reads. prints all of it; writes one self-contained page, readable in light and dark. The exit code is the same as 's."
-  },
-  {
-    "id": "/docs/tooling/cli#kirana-export",
-    "href": "/docs/tooling/cli#kirana-export",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "kirana export",
-    "text": "The design system, as JSON: every token with its value (and both halves of a pair), each theme and the tokens it overrides, each recipe with its variant groups, options and defaults, every relation and where it is anchored and read, and the keyframes, and names — each with the file and line that declares it. It is what a coding agent should read before writing a style — the tokens and recipes that exist, by their real names — and what a design tool or a review needs to see what a change did to the system. Names, values and project-relative locations only, never source text; everything is sorted, so the file diffs cleanly when it is committed. changes only when a field does. The exit code is 1 when the project has errors, as for ."
-  },
-  {
-    "id": "/docs/tooling/cli#kirana-trace",
-    "href": "/docs/tooling/cli#kirana-trace",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "kirana trace",
-    "text": "Explain which declaration wins for a property, and why. It prints one line per candidate: a marker for the winner, the value, the conditions, the layer, and the ladder step that decided it. The property may be written the way you wrote it ( ) or the way CSS does ( ). Give it the line the style is on. This is the tool for \"why is this not applying\". It answers from the compiled result, not from reading the source."
-  },
-  {
-    "id": "/docs/tooling/cli#kirana-migrate",
-    "href": "/docs/tooling/cli#kirana-migrate",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "kirana migrate",
-    "text": "Rewrite another styling system's sources into Kirana, and report what it will not decide for you. Nothing is written without . The report is printed either way: each line is a file position and something a person has to do, and the utility it is about is also left in a comment beside the style it belongs to. needs a utility grammar — the preset and your theme's scales — and reads and from any CSS file among its paths. See migrating from Tailwind ."
-  },
-  {
-    "id": "/docs/tooling/cli#kirana-lsp",
-    "href": "/docs/tooling/cli#kirana-lsp",
-    "page": "The CLI",
-    "section": "tooling",
-    "heading": "kirana lsp",
-    "text": "Start the language server on stdin and stdout. Editors run it for you — see editor support — but any LSP client can: It loads like every other command, indexes the project, and then answers hover, colour, completion, inlay-hint, code-lens, definition, reference and code-action requests from the same compiler session the build uses."
-  },
-  {
-    "id": "/docs/tooling/editor",
-    "href": "/docs/tooling/editor",
-    "page": "Editor support",
-    "section": "tooling",
-    "text": "The Kirana language server in VS Code, Cursor, Windsurf, Antigravity, Zed, Neovim and Helix — the compiled CSS on hover, which entry wins and why, swatches, an inline summary, completion and the compiler's diagnostics as you type. "
-  },
-  {
-    "id": "/docs/tooling/editor#editor-support",
-    "href": "/docs/tooling/editor#editor-support",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Editor support",
-    "text": "Object styles move the CSS out of the markup: you read , not a class list. The Kirana language server brings it back where you are reading — and answers questions a class list never could: which value wins, and why . It is , a command of the compiler you already installed. It runs on the same compiler session as your build, so what the editor tells you is what the build does, never an approximation of it."
-  },
-  {
-    "id": "/docs/tooling/editor#light-through-every-line-of-your-styles",
-    "href": "/docs/tooling/editor#light-through-every-line-of-your-styles",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Light through every line of your styles",
-    "text": "A Tailwind class list shows what an element gets; object styles hid it. The language server puts it back on every line, coloured by kind, and answers the rest on hover. Pick a feature to see what it shows: every picture is the server's real output for one file."
-  },
-  {
-    "id": "/docs/tooling/editor#pick-your-editor",
-    "href": "/docs/tooling/editor#pick-your-editor",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Pick your editor",
-    "text": "Every editor runs your project's own , from . Upgrading Kirana upgrades the editor with it — there is no extension version to keep in step."
-  },
-  {
-    "id": "/docs/tooling/editor#vs-code-and-its-forks",
-    "href": "/docs/tooling/editor#vs-code-and-its-forks",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "VS Code and its forks",
-    "text": "VS Code, Cursor, Windsurf and Antigravity take the same extension. It finds the server in your project, walking up to a monorepo's root, and starts it for TypeScript, JavaScript, Vue, Svelte, Astro and HTML files (HTML for Angular templates). Install Kirana from the VS Code Marketplace in VS Code, or from Open VSX in Cursor, Windsurf, Antigravity and VSCodium: search \"Kirana\" in the Extensions view. In a remote workspace (WSL, SSH, a container), install it on the remote side, where your project and Node.js live. If your project has no — a checkout of Kirana itself, say — point the extension at a binary or script: A relative path is resolved against the workspace folder; a or path runs with (22.18 or later)."
-  },
-  {
-    "id": "/docs/tooling/editor#zed",
-    "href": "/docs/tooling/editor#zed",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Zed",
-    "text": "The Kirana extension registers the server for TypeScript, TSX, JavaScript, and — with Zed's Vue, Svelte and Astro extensions installed — their components, and HTML for Angular templates. Until it is published, add it with zed: install dev extension from . To run another binary:"
-  },
-  {
-    "id": "/docs/tooling/editor#neovim",
-    "href": "/docs/tooling/editor#neovim",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Neovim",
-    "text": "Neovim 0.11 and later:"
-  },
-  {
-    "id": "/docs/tooling/editor#helix",
-    "href": "/docs/tooling/editor#helix",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Helix",
-    "text": "In :"
-  },
-  {
-    "id": "/docs/tooling/editor#any-other-editor",
-    "href": "/docs/tooling/editor#any-other-editor",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Any other editor",
-    "text": "Run from the project root and connect over stdio. It runs beside the TypeScript server and answers styling questions only — property names and token keys are TypeScript's, through 's types."
-  },
-  {
-    "id": "/docs/tooling/editor#the-style-card",
-    "href": "/docs/tooling/editor#the-style-card",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "The style card",
-    "text": "Hover an element's , a call or a recipe and you get its card, laid out the way you read a style: What it is : the expression ( ) and the handles it merges, each a link to where it is defined — . The box model , drawn as DevTools draws it: margin, border, padding and content nested, each side's value on its side, the content's size and layout in the middle, the corners rounded by the border radius. Resolved : every property that applies, in source order within layout, box, size, colour, type, border, effects and motion, with in pixels, the token a value reads, and a swatch for each colour — split light and dark for a pair. When : the values that depend on a breakpoint ( ), a state ( ), a pseudo-element, or a guard in the ( for ). Compiled CSS : the rules the stylesheet carries, with their size. Hover a property instead and you get its entries in precedence order, with the ladder step that put each one where it is — the answer gives on the command line. Hover a token for its value in both colour modes, and whether a theme can reassign it. VS Code draws the box model as a picture in your theme's colours, with the properties beside it, each property name in its group's colour — layout "
-  },
-  {
-    "id": "/docs/tooling/editor#inline-summary",
-    "href": "/docs/tooling/editor#inline-summary",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Inline summary",
-    "text": "At the end of every element's line, a muted hint says what it ends up with, in the vocabulary of a class list: . The mark is its layout ( grid, flex); margin and padding read as their shorthand; values under a guard lead with it ( ). Hover the hint for the card. A spread is summarized too, from the handles it names. In VS Code each part is coloured by its group, as the card colours properties — layout blue, box green, size cyan, colour orange, type yellow, border purple; no red, which reads as an error — in your theme's own colours, and Kirana's icon leads it. and tune it; other editors | | | How strongly the summary reads, from to . | show it in the hint colour. Above each and , a code lens counts declarations, conditional entries and bridged values, and used by N elements lists the elements whose names it, in every file. Clicking the counts opens the compiled CSS beside the file, read-only, in one reused tab."
-  },
-  {
-    "id": "/docs/tooling/editor#style-inspector-vs-code",
-    "href": "/docs/tooling/editor#style-inspector-vs-code",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Style Inspector (VS Code)",
-    "text": "Kirana: Open Style Inspector opens a panel in the Explorer that follows the cursor. It draws the box model, the layout, the colours with a light and dark switch, and every declaration with its source. Its chips turn conditions and guards on and off — , , — and the values that apply then are the compiler's answer, not a guess: the server simulates the cascade for exactly that set."
-  },
-  {
-    "id": "/docs/tooling/editor#style-fold-vs-code",
-    "href": "/docs/tooling/editor#style-fold-vs-code",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Style Fold (VS Code)",
-    "text": "With (or Kirana: Toggle Style Fold ), a long one-line | | | writes the summary in place; lowers the object's opacity. | | | | The opacity of a dimmed object. | | | | Shorter objects stay as written. | | | | Kirana's icon before a folded summary. | reads as its summary, after Kirana's icon, until the cursor is on its line — Tailwind Fold, for object styles. keeps the text and lowers its opacity instead ( ), and sets how long an object must be to fold. Kirana: Fold Styles folds every multi-line style object with the editor's own folding."
-  },
-  {
-    "id": "/docs/tooling/editor#colours",
-    "href": "/docs/tooling/editor#colours",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Colours",
-    "text": "Colour literals and colour tokens get a swatch. A pair gets one per mode, and the picker edits that mode alone. The picker writes the format the colour is written in — an stays ; click the colour at the top of the picker to switch to hex or . It edits literals only, never a token reference, so a theme stays the source of a token's colour. A token's swatch shows its light value, and hover shows both."
-  },
-  {
-    "id": "/docs/tooling/editor#completion",
-    "href": "/docs/tooling/editor#completion",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Completion",
-    "text": "Where TypeScript cannot help: Condition keys inside a property's value — pseudo-classes, attributes, , , , — listed weakest to strongest, the order the precedence ladder applies them. offers and . Keyword values for the property you are writing ( → ), from the CSS specification's own grammar. Utility strings in : your grammar's variants, roots and scale keys, each with its value."
-  },
-  {
-    "id": "/docs/tooling/editor#diagnostics-fixes-and-refactorings",
-    "href": "/docs/tooling/editor#diagnostics-fixes-and-refactorings",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Diagnostics, fixes and refactorings",
-    "text": "Every compiler diagnostic appears as you type, at the property it is about. Two have one exact fix, offered as a quick fix: ( → ) and a misspelled property ( → ). Code actions also offer: Extract to on an inline in an element's : a named handle above the component. Inline a handle used once. Vary at md and Vary on :hover on a plain value: it becomes , ready to change. Show compiled CSS , Explain precedence for the property under the cursor, and Convert Tailwind classes to on a string — the engine of ."
-  },
-  {
-    "id": "/docs/tooling/editor#structure-and-navigation",
-    "href": "/docs/tooling/editor#structure-and-navigation",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Structure and navigation",
-    "text": "The outline lists a file's styles, recipes, tokens and relations. With the cursor on a key, every element in the file that receives it is highlighted, and on an element, the keys it receives. Go to definition on a token opens its entry in ; on a relation read ( ) it goes to where the anchor is applied. Find references lists a token's or relation's uses, and workspace symbols search every token and relation in the project."
-  },
-  {
-    "id": "/docs/tooling/editor#vue-svelte-and-astro",
-    "href": "/docs/tooling/editor#vue-svelte-and-astro",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Vue, Svelte and Astro",
-    "text": "Components get all of it: script blocks compile as the build compiles them, and each template binding — Vue's , Svelte's and Astro's — gets its hint, card and colours, inside , and too. A diagnostic in a script lands on its line in the component."
-  },
-  {
-    "id": "/docs/tooling/editor#server-templates",
-    "href": "/docs/tooling/editor#server-templates",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Server templates",
-    "text": "In Blade, Twig, ERB, HEEx and Edge files, each name passed to gets the same hover, colours and summary as an , from the class map's modules ( in ). A name no module exports is underlined as , before the helper would fail on it at runtime. VS Code sends these files to the server under the , , , , and languages; Zed under PHP, Blade, HTML/ERB, Twig and HEEX."
-  },
-  {
-    "id": "/docs/tooling/editor#angular",
-    "href": "/docs/tooling/editor#angular",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Angular",
-    "text": "bindings get the same hint, card and colours, in a component's inline and in the file its names. A template reaches the handles through a member of the same name ( ), and the server reads that member as the module's own . An HTML file that no component names as its template is left alone."
-  },
-  {
-    "id": "/docs/tooling/editor#settings",
-    "href": "/docs/tooling/editor#settings",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Settings",
-    "text": "Other editors pass the same switches as : . A client that renders images in hovers sends and its ( or , updated with the notification); one that runs trusted links sends ."
-  },
-  {
-    "id": "/docs/tooling/editor#how-fast",
-    "href": "/docs/tooling/editor#how-fast",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "How fast",
-    "text": "On our shadcn/ui port — and three applications indexed in 166 ms, 61 component files open — a hover answers in 1.2 ms at the 95th percentile, diagnostics refresh 7.1 ms after an edit, and the server holds 65 MB . The budgets are 50 ms, 200 ms and 300 MB."
-  },
-  {
-    "id": "/docs/tooling/editor#limits",
-    "href": "/docs/tooling/editor#limits",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Limits",
-    "text": "Components are read by a scanner. The build parses Vue, Svelte and Astro with their own compilers (and Angular's templates are its own, merged at runtime); the server, which cannot load them, scans the same blocks and bindings — held to the frameworks' parsers by a test over every example. A template binding that reads only a Svelte handle gets no hint. The summary shows what the compiler knows at build time. A value returned by a function it cannot see into ( , a hand-written variant helper) has nothing to summarise, where the same values as an array, , do. A recipe called with a variant known only at run time ( ) is not summarised yet, and passed to one of your components is summarised inside it, on the element that receives it. One project per server. The root is your workspace folder or 's directory; editing restarts the server. Uses are found by name. Declarations, anchors and reads come from the compiler; uses in other files are matched by their written names, so a token imported under another alias is found under that alias."
-  },
-  {
-    "id": "/docs/tooling/editor#troubleshooting",
-    "href": "/docs/tooling/editor#troubleshooting",
-    "page": "Editor support",
-    "section": "tooling",
-    "heading": "Troubleshooting",
-    "text": "The status bar shows Kirana with a warning sign. No binary was found: install in the project, or set . Answers look stale after changing the configuration. Run Kirana: Restart Language Server . No hint after . Check that your editor shows inlay hints at all: must be (some editors default to , which shows them only while you hold Ctrl+Alt). Set it in your workspace's : The summary ends in . VS Code cuts every inlay hint at 43 characters ( ); set it to and Kirana's own limit applies, , which counts what it leaves out as . The card is taller than the hover. VS Code fixes a hover's height at a quarter of the editor, at least 250 px; no extension can change that. Drag the hover's edge once and it keeps that size until the window reloads — or open the Style Inspector, which has the whole height of the sidebar. You want to see what is said. Set to and open the Kirana output channel."
-  },
-  {
-    "id": "/docs/tooling/lint",
-    "href": "/docs/tooling/lint",
-    "page": "Lint",
-    "section": "tooling",
-    "text": "@kirana-style/eslint-plugin under Oxlint or ESLint, and @kirana-style/biome-plugin under Biome: the compiler's diagnostics, and the overrides and forwarding mistakes that lose styles silently. "
-  },
-  {
-    "id": "/docs/tooling/lint#lint",
-    "href": "/docs/tooling/lint#lint",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "Lint",
-    "text": "reports what the compiler knows, where the code is written, in the linter you already run. Other styling lint plugins re-implement CSS validation in JavaScript, and drift from the compiler they check. Kirana's rules read the compiler itself — the diagnostics, the atoms each style compiles to, every token, how imports resolve — so lint and build never disagree, and the plugin is mostly about the mistakes no compiler can see: an override that silently loses, a forwarded in the wrong place, a class that never reaches the DOM."
-  },
-  {
-    "id": "/docs/tooling/lint#pick-your-linter",
-    "href": "/docs/tooling/lint#pick-your-linter",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "Pick your linter",
-    "text": "Under Oxlint and ESLint the rules are the same objects, and so are their results — the same reports at the same places, and the same fixed text. A test runs every rule through both linters on each change. Biome cannot run JavaScript rules, so it gets the four that need no compiler, rewritten as GritQL plugins."
-  },
-  {
-    "id": "/docs/tooling/lint#oxlint",
-    "href": "/docs/tooling/lint#oxlint",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "Oxlint",
-    "text": "Through Oxlint's JavaScript plugins, at Oxlint's speed:"
-  },
-  {
-    "id": "/docs/tooling/lint#eslint",
-    "href": "/docs/tooling/lint#eslint",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "ESLint",
-    "text": "Flat config:"
-  },
-  {
-    "id": "/docs/tooling/lint#biome",
-    "href": "/docs/tooling/lint#biome",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "Biome",
-    "text": "carries , , and as GritQL plugins : A test runs each of them through Biome and through its ESLint original, and the reports — line, column and message — must match. Each message starts with the rule's name, since Biome files every plugin diagnostic under . The presets name the rules as , because Biome resolves a plugin path from the project; in a workspace member whose sits higher up, list the files from there in . A Biome plugin matches syntax: it cannot ask the compiler or read another file. What the other rules would report reaches a Biome project two other ways — in CI, as pull-request annotations, and the language server in the editor: and stay ESLint and Oxlint only: counting member reads and ordering keys against the property table are beyond what GritQL can express."
-  },
-  {
-    "id": "/docs/tooling/lint#the-project-root",
-    "href": "/docs/tooling/lint#the-project-root",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "The project root",
-    "text": "The project root is the nearest above the file being linted. In a monorepo whose packages share a configuration, give the package its own that exports it, or set . The project is compiled once per lint run and each file once, however many rules ask; the native engine must be installed, as for a build."
-  },
-  {
-    "id": "/docs/tooling/lint#configs",
-    "href": "/docs/tooling/lint#configs",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "Configs",
-    "text": "— the problems: what the build reports, and what loses a style without any error. , , , , , , . — adds the stylistic and advisory rules: , , , . Biome's presets have the same names and hold the rules it can run."
-  },
-  {
-    "id": "/docs/tooling/lint#diagnostics",
-    "href": "/docs/tooling/lint#diagnostics",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "diagnostics",
-    "text": "Every compiler diagnostic , at the property it is about, so a CI that only lints still fails on what the build would report. Warnings and errors by default; adds the informational ones and drops names."
-  },
-  {
-    "id": "/docs/tooling/lint#sx-last",
-    "href": "/docs/tooling/lint#sx-last",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "sx-last",
-    "text": "A component that forwards its caller's must put it last, or the styles after it override the caller's — and the caller cannot tell why their style does not apply. Autofix. A handed down by a parent's may follow it."
-  },
-  {
-    "id": "/docs/tooling/lint#no-conflicting-props",
-    "href": "/docs/tooling/lint#no-conflicting-props",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "no-conflicting-props",
-    "text": "or written next to on one element: JSX keeps the last one, so either the compiled styles or the attribute never reach the DOM. Move those styles into a handle passed to ."
-  },
-  {
-    "id": "/docs/tooling/lint#override-keeps-conditions",
-    "href": "/docs/tooling/lint#override-keeps-conditions",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "override-keeps-conditions",
-    "text": "The pitfall of coming from StyleX: StyleX replaced a whole property, Kirana merges per condition . A plain value passed to a component that sets the same property under an attribute condition keeps losing there: Two suggestions: set the value under the component's conditions too, or to drop the component's entries. Interaction states ( ) are not reported — keeping a component's hover over your plain value is usually what you want."
-  },
-  {
-    "id": "/docs/tooling/lint#no-classname-on-sx",
-    "href": "/docs/tooling/lint#no-classname-on-sx",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "no-classname-on-sx",
-    "text": "given to one of your components that takes and not : the class never reaches the DOM. A component that spreads the rest of its props may pass it on, so it is not reported."
-  },
-  {
-    "id": "/docs/tooling/lint#no-unused",
-    "href": "/docs/tooling/lint#no-unused",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "no-unused",
-    "text": "A style nothing applies: a key of a module-local styles object that no reads, or a recipe option no call selects and no default names. Exported objects and ones used whole are left alone, and so are Vue, Svelte and Astro files, whose templates the linter does not see. Suggestion: remove it."
-  },
-  {
-    "id": "/docs/tooling/lint#no-dark-variant",
-    "href": "/docs/tooling/lint#no-dark-variant",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "no-dark-variant",
-    "text": "Dark mode written the way other systems write it, which compiles without complaint and which the page then ignores. A condition in a style — a key of a or object, or a query — follows the operating system, not the mode the page chose, so a theme toggle that sets never reaches it. A Tailwind class left in a , or string names a class no stylesheet defines. Put both values in a token , which follows . A call outside a style is left alone. Also under Biome."
-  },
-  {
-    "id": "/docs/tooling/lint#sort-properties",
-    "href": "/docs/tooling/lint#sort-properties",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "sort-properties",
-    "text": "In . One order in every style object: layout, box, typography, visual, the rest, custom properties, then nested blocks. A conditional value goes , then at-rules, relations, pseudo-classes and attributes — weakest to strongest, the order the ladder applies them — so the source reads in cascade order. Order never changes what Kirana compiles, so the fix is always safe; an object with a spread is left alone. Autofix."
-  },
-  {
-    "id": "/docs/tooling/lint#prefer-token",
-    "href": "/docs/tooling/lint#prefer-token",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "prefer-token",
-    "text": "In . A literal equal to a token's value ( where is ) suggests the token, with its import, so a theme or a design change reaches it."
-  },
-  {
-    "id": "/docs/tooling/lint#finite-bridge",
-    "href": "/docs/tooling/lint#finite-bridge",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "finite-bridge",
-    "text": "In . A style factory whose value is bridged at runtime — — but only ever called with a few literals is a variant in disguise. A recipe variant compiles to static classes; the bridge costs a custom property and a attribute on every element."
-  },
-  {
-    "id": "/docs/tooling/lint#no-class-helpers",
-    "href": "/docs/tooling/lint#no-class-helpers",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "no-class-helpers",
-    "text": "In . An import of , , or . Joined class strings do not merge: two atoms for one property both apply, and which wins depends on the stylesheet, not on the order written. and merge per property , and compiles the variants would pick at runtime. Also under Biome."
-  },
-  {
-    "id": "/docs/tooling/lint#this-repository",
-    "href": "/docs/tooling/lint#this-repository",
-    "page": "Lint",
-    "section": "tooling",
-    "heading": "This repository",
-    "text": "The docs and demo apps lint themselves with . Its first run found 19 ties the UI configuration had already declared impossible but that a tool run inside could not see, three real precedence ties, a shorthand that could not be split, and 21 unused styles."
-  },
-  {
-    "id": "/docs/tooling/diagnostics",
-    "href": "/docs/tooling/diagnostics",
-    "page": "Diagnostics reference",
-    "section": "tooling",
-    "text": "Every code the compiler can emit, its default severity, and which ones you can re-level. "
-  },
-  {
-    "id": "/docs/tooling/diagnostics#diagnostics-reference",
-    "href": "/docs/tooling/diagnostics#diagnostics-reference",
-    "page": "Diagnostics reference",
-    "section": "tooling",
-    "heading": "Diagnostics reference",
-    "text": "Every diagnostic has a stable code and a kebab-case name. Neither changes meaning once released, so you can suppress or raise one by name and trust it to keep meaning the same thing. A diagnostic about one property points at that property — in — not at the whole call, even when the style object is declared in one place and passed to somewhere else in the same module. The editor underlines exactly that property, and the lint plugin reports it there. The table below is generated from the compiler's own catalogue at build time, so it cannot drift from what the compiler actually emits."
-  },
-  {
-    "id": "/docs/tooling/diagnostics#severities",
-    "href": "/docs/tooling/diagnostics#severities",
-    "page": "Diagnostics reference",
-    "section": "tooling",
-    "heading": "Severities",
-    "text": "error — the output would be wrong. The build fails, and the level cannot be changed. warning — the output is valid but probably not what you meant. info — something worth knowing: a runtime bridge, a lowered target. Any non-error can be re-levelled, including to , in ."
-  },
-  {
-    "id": "/docs/tooling/diagnostics#the-ones-you-will-actually-meet",
-    "href": "/docs/tooling/diagnostics#the-ones-you-will-actually-meet",
-    "page": "Diagnostics reference",
-    "section": "tooling",
-    "heading": "The ones you will actually meet",
-    "text": "— you gave to a component that does not read it. Spread compiled props instead: styling other people's components . — a component takes and never applies it, so callers think they can style it and cannot. — two values could both apply and the ladder cannot order them. Nest one condition inside the other, or declare the pair exclusive: precedence . — a box has both logical and physical longhands set, in a way whose outcome could mislead. Pick one axis family. — a shorthand whose value cannot be split into longhands exactly, usually . It stays whole, which means a later style cannot remove just one of its longhands. (info) — a value became a custom property because it is only known at runtime: values known at runtime . — a style reads a relation whose anchor is never applied, so it can never match: relations . A build checks the relations whose module it compiled; checks them all. , , — a , or the browser would drop or misread: a fallback run whose values set different longhands, a property an block ignores, a transition part that is not one of the four. — an import a style depends on could not be resolved, so its value compiles as a runtime value. Check the specifier and your tsconf"
-  },
-  {
-    "id": "/docs/tooling/diagnostics#reading-one",
-    "href": "/docs/tooling/diagnostics#reading-one",
-    "page": "Diagnostics reference",
-    "section": "tooling",
-    "heading": "Reading one",
-    "text": "Code, name, message, location, and a help line that says what to do. gives the same fields as data."
-  },
-  {
-    "id": "/docs/tooling/debugging",
-    "href": "/docs/tooling/debugging",
-    "page": "Debugging styles",
-    "section": "tooling",
-    "text": "Why doesn't my style apply? A short list, in the order worth checking. "
-  },
-  {
-    "id": "/docs/tooling/debugging#debugging-styles",
-    "href": "/docs/tooling/debugging#debugging-styles",
-    "page": "Debugging styles",
-    "section": "tooling",
-    "heading": "Debugging styles",
-    "text": "A style is not doing what you expect. In rough order of likelihood:"
-  },
-  {
-    "id": "/docs/tooling/debugging#1-is-the-module-compiled",
-    "href": "/docs/tooling/debugging#1-is-the-module-compiled",
-    "page": "Debugging styles",
-    "section": "tooling",
-    "heading": "1 · Is the module compiled?",
-    "text": "If runs in a module the compiler never saw, it throws with a message that says exactly that. If you see the error, the fix is the adapter: must be in the bundler's plugin list, and before the framework plugin."
-  },
-  {
-    "id": "/docs/tooling/debugging#2-is-the-element-yours",
-    "href": "/docs/tooling/debugging#2-is-the-element-yours",
-    "page": "Debugging styles",
-    "section": "tooling",
-    "heading": "2 · Is the element yours?",
-    "text": "on a component from a package does nothing. The compiler warns ( ), so check the terminal — and see styling other people's components ."
-  },
-  {
-    "id": "/docs/tooling/debugging#3-did-a-merge-keep-an-entry-you-meant-to-replace",
-    "href": "/docs/tooling/debugging#3-did-a-merge-keep-an-entry-you-meant-to-replace",
-    "page": "Debugging styles",
-    "section": "tooling",
-    "heading": "3 · Did a merge keep an entry you meant to replace?",
-    "text": "The most common surprise. A later style replaces the entries it names: Use when you mean \"and nothing else\". Merging ."
-  },
-  {
-    "id": "/docs/tooling/debugging#4-ask-the-compiler",
-    "href": "/docs/tooling/debugging#4-ask-the-compiler",
-    "page": "Debugging styles",
-    "section": "tooling",
-    "heading": "4 · Ask the compiler",
-    "text": "It lists every candidate declaration for that property, marks the winner, and names the ladder step that decided. If your value is not in the list at all, the problem is upstream — the style is not on that element."
-  },
-  {
-    "id": "/docs/tooling/debugging#5-check-the-conditions",
-    "href": "/docs/tooling/debugging#5-check-the-conditions",
-    "page": "Debugging styles",
-    "section": "tooling",
-    "heading": "5 · Check the conditions",
-    "text": "A condition as a top-level key is an error, and the message says so. A state beats a breakpoint — that is the ladder, not a bug. A relation read needs its anchor on the element whose state you are reading."
-  },
-  {
-    "id": "/docs/tooling/debugging#6-look-at-the-css",
-    "href": "/docs/tooling/debugging#6-look-at-the-css",
-    "page": "Debugging styles",
-    "section": "tooling",
-    "heading": "6 · Look at the CSS",
-    "text": "The stylesheet is plain CSS with one declaration per rule, so devtools tell you the truth quickly: inspect the element, read the class list, and look for the declaration. A class that is present but crossed out is a precedence question (step 4, ask ). A declaration that is missing entirely is a compile question (check the terminal)."
-  },
-  {
-    "id": "/docs/tooling/debugging#7-animations-that-do-nothing",
-    "href": "/docs/tooling/debugging#7-animations-that-do-nothing",
-    "page": "Debugging styles",
-    "section": "tooling",
-    "heading": "7 · Animations that do nothing",
-    "text": "Transition the property you actually set: , and are not . See animation ."
   },
   {
     "id": "/docs/migration/from-tailwind",
@@ -9237,7 +8566,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from Tailwind",
     "section": "migration",
     "heading": "Migrating from Tailwind",
-    "text": "We have done this migration at full scale — every shadcn/ui component, three applications — twice: once by hand (by way of the StyleX port), and once with , until the result matched the Tailwind original with zero computed-style differences. So this page is what it costs, not what it should cost in theory."
+    "text": "We have done this migration at full scale (every shadcn/ui component, three applications) twice: once by hand (by way of the StyleX port), and once with , until the result matched the Tailwind original with zero computed-style differences. So this page is what it costs, not what it should cost in theory."
   },
   {
     "id": "/docs/migration/from-tailwind#the-shift-in-four-lines",
@@ -9261,7 +8590,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from Tailwind",
     "section": "migration",
     "heading": "The four that do not translate directly",
-    "text": "sets two properties. Tailwind's type utilities set a size and a line height. Write both, every time — a size without its line height is the most common visual drift in a port. sets a colour. Tailwind's preflight gives every element a default border colour, so alone is visible. Kirana has no preflight: sets widths only, and you name the colour. conflict resolution is gone, and that is the point. kept the last. Kirana merges per entry, so the same intent is written once — but a conditional value you did not name survives. Read merging before porting a component with states. Arbitrary variants that read classes ( ) have no equivalent, because Kirana's class names are hashes. Use : contextual styles sit in a lower layer, so the child's own style wins without a guard."
+    "text": "sets two properties. Tailwind's type utilities set a size and a line height. Write both, every time: a size without its line height is the most common visual drift in a port. sets a colour. Tailwind's preflight gives every element a default border colour, so alone is visible. Kirana has no preflight: sets widths only, and you name the colour. conflict resolution is gone, and that is the point. kept the last. Kirana merges per entry, so the same intent is written once. But a conditional value you did not name survives. Read merging before porting a component with states. Arbitrary variants that read classes ( ) have no equivalent, because Kirana's class names are hashes. Use : contextual styles sit in a lower layer, so the child's own style wins without a guard."
   },
   {
     "id": "/docs/migration/from-tailwind#the-codemod",
@@ -9269,7 +8598,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from Tailwind",
     "section": "migration",
     "heading": "The codemod",
-    "text": "rewrites class strings into objects, into arrays, into , / into relations and into . It uses the same utility grammar as utility strings, so the object it writes compiles to exactly the atoms of the class string it replaces. First give the project the vocabulary, and point the colour scale at your theme: Then run it over your sources and your CSS — the CSS is read for and , so a custom variant nobody declared is reported instead of silently getting Tailwind's default meaning: A colour's value becomes a pair; any other property's becomes a token in a small group at the top of the file, which follows the color scheme and Kirana's handles — so where your theme switch sets , set too. A Base UI part rendering one of your components ( ) hands its styles to that component as , since both are one element and a class merged into the component's props would replace the component's own. and become a block, which, like Tailwind's rule, loses to a child's own margin or border. Components' props become , in their props types too; a component from an installed package (Base UI parts) gets instead, because it does not read ; a class string known only at runtime stays in , where the compiler merges"
+    "text": "rewrites Tailwind's constructs into Kirana's: It uses the same utility grammar as utility strings, so the object it writes compiles to exactly the atoms of the class string it replaces. First give the project the vocabulary, and point the colour scale at your theme: Then run it over your sources and your CSS. The CSS is read for and , so a custom variant nobody declared is reported instead of silently getting Tailwind's default meaning: A colour's value becomes a pair. Any other property's becomes a token in a small group at the top of the file, which follows the colour scheme and Kirana's handles. So where your theme switch sets , set too. A Base UI part rendering one of your components ( ) hands its styles to that component as , since both are one element and a class merged into the component's props would replace the component's own. and become a block, which, like Tailwind's rule, loses to a child's own margin or border. Where a class goes: A component's prop becomes , in its props type too. A component from an installed package (Base UI parts) gets instead, because it does not read . A class string known only at runtime stays in , where the compiler merges it with . A class st"
   },
   {
     "id": "/docs/migration/from-tailwind#measured-the-tailwind-original-of-our-shadcn-ui-port",
@@ -9277,7 +8606,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from Tailwind",
     "section": "migration",
     "heading": "Measured: the Tailwind original of our shadcn/ui port",
-    "text": "We ran the codemod over the whole Tailwind original — , the shared shell, and the demo, blocks and examples applications — and compared the result with the original, element by element. \"Conformance\" is the computed style of every element, including and , diffed against the Tailwind build. What it does not prove: right-to-left layouts, focus rings and states outside the harness's list, and elements without a . Check those by reading or by hand. The 199 items, by reason: 39 under a variant, 35 class strings built at runtime (they stay classes), 33 contextual targets under a condition, 20 targets that are class names or siblings, 16 contextual rules the target outranks, 13 arbitrary selectors, 12 utilities the preset lacks (gradients, , and a few misspelt classes that render nothing in Tailwind either), 9 values on non-colours, and 22 informational. Most need no change; the 38 patches are the ones that did."
+    "text": "We ran the codemod over the whole Tailwind original ( , the shared shell, and the demo, blocks and examples applications) and compared the result with the original, element by element. \"Conformance\" is the computed style of every element, including and , diffed against the Tailwind build. What it does not prove: right-to-left layouts, focus rings and states outside the harness's list, and elements without a . Check those by reading or by hand. The 199 items, by reason: 39 under a variant, 35 class strings built at runtime (they stay classes), 33 contextual targets under a condition, 20 targets that are class names or siblings, 16 contextual rules the target outranks, 13 arbitrary selectors, 12 utilities the preset lacks (gradients, , and a few misspelt classes that render nothing in Tailwind either), 9 values on non-colours, and 22 informational. Most need no change; the 38 patches are the ones that did."
   },
   {
     "id": "/docs/migration/from-tailwind#pitfalls-we-hit",
@@ -9285,7 +8614,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from Tailwind",
     "section": "migration",
     "heading": "Pitfalls we hit",
-    "text": "Every one of these compiled cleanly and rendered differently. They are listed roughly by how often they cost us time. A parent's rule no longer beats the child's own. In Tailwind, on a field beat the label's own , because a variant's rule is printed after plain utilities, or is more specific. In Kirana a block ranks below the target's own styles — that is what lets an icon keep its own size without a guard. The codemod moves such rules onto the target when both ends carry a ; when it cannot, it reports \"sets itself, which outranks a contextual rule\". Fix it by letting the target read the parent: a relation ( ), or a condition on its own position ( ). It was our most common hand fix. has no equivalent. Without a variant, becomes , which removes every other padding entry — what achieved. Under a variant ( ) it is reported: decide where the value belongs, usually as a condition on the element that must win. A class name passed to a migrated component replaces its styles. A migrated component reads ; a that still reaches it lands in the props spread, after the component's own class, and replaces it. Look for libraries that hand your components a class you never see — react-day-picker's"
+    "text": "Every one of these compiled cleanly and rendered differently. They are listed roughly by how often they cost us time. A parent's rule no longer beats the child's own. In Tailwind, on a field beat the label's own , because a variant's rule is printed after plain utilities, or is more specific. In Kirana a block ranks below the target's own styles. That is what lets an icon keep its own size without a guard. The codemod moves such rules onto the target when both ends carry a ; when it cannot, it reports \"sets itself, which outranks a contextual rule\". Fix it by letting the target read the parent, with a relation ( ) or a condition on its own position ( ). It was our most common hand fix. has no equivalent. Without a variant, becomes , which removes every other padding entry, as the important flag did. Under a variant ( ) it is reported: decide where the value belongs, usually as a condition on the element that must win. A class name passed to a migrated component replaces its styles. A migrated component reads ; a that still reaches it lands in the props spread, after the component's own class, and replaces it. Look for libraries that hand your components a class you never see: react"
   },
   {
     "id": "/docs/migration/from-tailwind#utility-strings-or-objects",
@@ -9301,7 +8630,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from Tailwind",
     "section": "migration",
     "heading": "Migrating by hand",
-    "text": "Without the codemod — a handful of components, or a codebase whose class strings are mostly dynamic — work component by component with the mapping above, and: Give every component in place of , and replace with . Turn each into a ; carry over. Replace each / with a declared relation ; the compiler errors on a read nobody anchors. Replace and with , and delete the guards — the child's own size wins anyway. Delete every on a colour; write the colour as a token. Run and resolve every diagnostic before moving on."
+    "text": "Without the codemod (a handful of components, or a codebase whose class strings are mostly dynamic), work component by component with the mapping above, and: Give every component in place of , and replace with . Turn each into a ; carry over. Replace each / with a declared relation ; the compiler errors on a read nobody anchors. Replace and with , and delete the guards: the child's own size wins anyway. Delete every on a colour; write the colour as a token. Run and resolve every diagnostic before moving on."
   },
   {
     "id": "/docs/migration/from-tailwind#the-process-that-worked",
@@ -9324,7 +8653,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "href": "/docs/migration/from-stylex",
     "page": "Migrating from StyleX",
     "section": "migration",
-    "text": "The API maps almost directly - and the one semantic difference that will bite you. "
+    "text": "The API maps almost directly; this page shows the mapping, and the one difference in how styles merge that will bite you. "
   },
   {
     "id": "/docs/migration/from-stylex#migrating-from-stylex",
@@ -9333,6 +8662,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "migration",
     "heading": "Migrating from StyleX",
     "text": "If you write StyleX today, most of your styles are already Kirana styles: both systems put typed style objects next to components and conditions inside values, so the mapping below is close to mechanical. The differences that matter are in merge semantics and in what the compiler checks."
+  },
+  {
+    "id": "/docs/migration/from-stylex#the-mapping",
+    "href": "/docs/migration/from-stylex#the-mapping",
+    "page": "Migrating from StyleX",
+    "section": "migration",
+    "heading": "The mapping",
+    "text": "Four names carry most of a StyleX codebase; the table after them has the rest."
   },
   {
     "id": "/docs/migration/from-stylex#the-difference-that-bites",
@@ -9348,7 +8685,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from StyleX",
     "section": "migration",
     "heading": "What Kirana has that StyleX does not",
-    "text": "The mapping above is close to one-to-one because both systems share a premise. These are the things that have no StyleX counterpart — and between them, they are most of the reason Kirana exists. A stated precedence ladder, and a tool that reads it back. StyleX offers two modes — later-wins and property-specificity — and neither reproduced what the Tailwind components needed. Kirana has one ladder, and prints every candidate declaration, the winner, and the step that decided it. Ambiguity is reported. When two values could both apply and nothing orders them, the compiler says so ( ) instead of silently picking. is how you tell it that a library never sets two attributes together. A diagnostics catalogue. 45 codes with stable names, severities and help text, and a configuration key to re-level the non-errors. StyleX reports compilation failures; it does not have a catalogue you can suppress, raise, or look up. Relations are declared and checked. gives you an anchor and three reads, and the compiler errors when a relation is read but never anchored ( ) or anchored in a position that cannot match ( ). StyleX's with marker classes compiles either way, and a mis-placed marker is a rule t"
+    "text": "The mapping above is close to one-to-one because both systems share a premise. These are the things that have no StyleX counterpart, and between them they are most of the reason Kirana exists. A stated precedence ladder, and a tool that reads it back. StyleX offers two modes (later-wins and property-specificity), and neither reproduced what the Tailwind components needed. Kirana has one ladder, and prints every candidate declaration, the winner, and the step that decided it. Ambiguity is reported. When two values could both apply and nothing orders them, the compiler says so ( ) instead of silently picking. is how you tell it that a library never sets two attributes together. A diagnostics catalogue. 45 codes with stable names, severities and help text, and a configuration key to re-level the non-errors. StyleX reports compilation failures; it does not have a catalogue you can suppress, raise, or look up. Relations are declared and checked. gives you an anchor and three reads, and the compiler errors when a relation is read but never anchored ( ) or anchored in a position that cannot match ( ). StyleX's with marker classes compiles either way, and a mis-placed marker is a rule that"
   },
   {
     "id": "/docs/migration/from-stylex#what-stylex-has-that-kirana-does-not",
@@ -9356,7 +8693,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from StyleX",
     "section": "migration",
     "heading": "What StyleX has that Kirana does not",
-    "text": "Fairness matters more than a feature list: It is published, versioned and used in production at Meta scale. Kirana is 0.1.0 and not on npm. A larger ecosystem — community plugins, documentation, examples, articles and people who have already hit your problem. A few helpers have no direct equivalent — and among them; write a condition. names each one it meets in its report. If you need a styling compiler in production this quarter, StyleX is the defensible choice. Kirana is worth it when predictability and diagnostics are the thing you are missing."
+    "text": "Fairness matters more than a feature list: It is published, versioned and used in production at Meta scale. Kirana is 0.1.0 and not on npm. A larger ecosystem : community plugins, documentation, examples, articles and people who have already hit your problem. A few helpers have no direct equivalent, and among them; write a condition. names each one it meets in its report. If you need a styling compiler in production this quarter, StyleX is the defensible choice. Kirana is worth it when predictability and diagnostics are the thing you are missing."
   },
   {
     "id": "/docs/migration/from-stylex#what-else-is-different",
@@ -9364,7 +8701,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from StyleX",
     "section": "migration",
     "heading": "What else is different",
-    "text": "Precedence. StyleX has two modes — later-wins and property-specificity — and neither reproduced what the Tailwind components needed. Kirana has one ladder , and reports the cases it cannot order instead of picking silently. Relations are declared. StyleX's and marker classes become a with an , which the compiler then checks : a read with no anchor is an error rather than a rule that never matches. Contextual styles have a layer. lands below element styles, so a child that sets its own size keeps it — no hand-down custom properties, no guards. Everything is layered. StyleX left custom-property assignments unlayered; Kirana emits nothing outside its layers."
+    "text": "Precedence. StyleX has two modes (later-wins and property-specificity), and neither reproduced what the Tailwind components needed. Kirana has one ladder , and reports the cases it cannot order instead of picking silently. Relations are declared. StyleX's and marker classes become a with an , which the compiler then checks : a read with no anchor is an error rather than a rule that never matches. Contextual styles have a layer. lands below element styles, so a child that sets its own size keeps it, with no hand-down custom properties and no guards. Everything is layered. StyleX left custom-property assignments unlayered; Kirana emits nothing outside its layers."
   },
   {
     "id": "/docs/migration/from-stylex#the-codemod",
@@ -9372,7 +8709,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from StyleX",
     "section": "migration",
     "heading": "The codemod",
-    "text": "It makes the mechanical rewrites — → , → , → , markers → , and → — renames files, and prints a report of everything it would not decide. Two follow-up passes still live as scripts in the compiler's repository: on an element you own → , and on a component from a package → , because those never read ."
+    "text": "It makes the mechanical rewrites, renames files, and prints a report of everything it would not decide: Two follow-up passes still live as scripts in the compiler's repository: on an element you own becomes ; on a component from a package becomes , because those never read ."
   },
   {
     "id": "/docs/migration/from-stylex#after-the-codemod",
@@ -9383,96 +8720,207 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Work through the report, then let the compiler finish the job: will find the relations without anchors, the components that swallow , and the ambiguous pairs. Fix those and the port is done."
   },
   {
-    "id": "/docs/advanced/output",
-    "href": "/docs/advanced/output",
-    "page": "The output",
-    "section": "advanced",
-    "text": "What the stylesheet looks like, how classes are named, and what determinism buys you. "
+    "id": "/docs/advanced/conformance",
+    "href": "/docs/advanced/conformance",
+    "page": "Verifying a migration",
+    "section": "migration",
+    "text": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels. "
   },
   {
-    "id": "/docs/advanced/output#one-declaration-per-rule",
-    "href": "/docs/advanced/output#one-declaration-per-rule",
-    "page": "The output",
-    "section": "advanced",
-    "heading": "One declaration per rule",
-    "text": "Every rule is one class with one declaration, at specificity (0,1,0). Two modules that write the same declaration get the same class, so the stylesheet grows with the number of distinct declarations in a project, not with the number of components or usages. One declaration can still reach several rules — the same colour under , under an attribute and at rest — and there the writer gives one rule all three selectors: It does that only when no rule in between decides the same property, because inside the layer the order of the rules is the precedence ladder . A merge that could move a rule past a competing declaration is not taken."
+    "id": "/docs/advanced/conformance#verifying-a-migration",
+    "href": "/docs/advanced/conformance#verifying-a-migration",
+    "page": "Verifying a migration",
+    "section": "migration",
+    "heading": "Verifying a migration",
+    "text": "When you rewrite an application's styling, the question is not \"does it look about right\" but \"is any computed value different, anywhere, in any state\". Screenshots answer that badly: they miss a 1 px border, and they fail loudly over a font that loaded a frame late. This project compares computed styles ."
   },
   {
-    "id": "/docs/advanced/output#class-names",
-    "href": "/docs/advanced/output#class-names",
-    "page": "The output",
-    "section": "advanced",
-    "heading": "Class names",
-    "text": "A name is . The prefix is configurable and defaults to ; the property code is an index into the property table; then come optional 3- and 4-character hashes for a pseudo-element or contextual target and for the condition set; and after the , four characters of the value's hash. Names are content-derived, so they are stable across builds and machines, and two applications with different prefixes can share a page. The widths are fixed and never grow. A name that depended on what else the project contained would change as the project grew, which would break incremental builds; so if two values on one property ever took the same name, the build stops with instead of guessing. Four characters make that about one build in two thousand for an application the size of the ones this compiler is tested on."
+    "id": "/docs/advanced/conformance#the-method",
+    "href": "/docs/advanced/conformance#the-method",
+    "page": "Verifying a migration",
+    "section": "migration",
+    "heading": "The method",
+    "text": "Serve the same application twice: the build you came from and the new one. Open the same route in both, at several widths, in both colour schemes. Walk every element and read the same property list from , including the things that usually hide, like , and the geometry of pseudo-elements. Diff, per element and per property. Anything that differs is either a bug in the new build, a bug in the old one, or a difference you list explicitly with a reason. That last point is the discipline: an expected difference is written down, with why. A file of exceptions that nobody reads is the same as no test."
   },
   {
-    "id": "/docs/advanced/output#conditions-in-the-selector",
-    "href": "/docs/advanced/output#conditions-in-the-selector",
-    "page": "The output",
-    "section": "advanced",
-    "heading": "Conditions in the selector",
-    "text": "Conditions compile into the selector or the at-rule, and order inside the layer carries the ladder — no , no specificity tricks, no sublayers per bucket."
+    "id": "/docs/advanced/conformance#things-worth-knowing-if-you-build-one",
+    "href": "/docs/advanced/conformance#things-worth-knowing-if-you-build-one",
+    "page": "Verifying a migration",
+    "section": "migration",
+    "heading": "Things worth knowing if you build one",
+    "text": "Normalise colours. Read them through a probe element rather than comparing strings, or and values compare unequal for silly reasons. Wait for a stable DOM , not a fixed timeout, and stop animations before reading. Confirm a difference on a second read. A late render is not a regression. Check states too : open a menu, focus a field, hover a row, because that is where precedence bugs live."
   },
   {
-    "id": "/docs/advanced/output#determinism",
-    "href": "/docs/advanced/output#determinism",
-    "page": "The output",
-    "section": "advanced",
-    "heading": "Determinism",
-    "text": "The same sources produce byte-identical CSS: same rule order, same names, independent of thread count or file-system order. Which means a content hash is meaningful, a diff in CI means a real change, and two developers see the same output."
+    "id": "/docs/advanced/conformance#how-it-runs",
+    "href": "/docs/advanced/conformance#how-it-runs",
+    "page": "Verifying a migration",
+    "section": "migration",
+    "heading": "How it runs",
+    "text": "The harness builds the Kirana app and the two baselines, serves all three, crawls every route and diffs. It is how 60+ blocks and every component were verified, and it is what caught the merge-order bugs that a human review had passed. The harness runs in a separate repository beside the StyleX port and the Tailwind original, which this one does not carry."
   },
   {
-    "id": "/docs/advanced/output#minification-and-targets",
-    "href": "/docs/advanced/output#minification-and-targets",
-    "page": "The output",
-    "section": "advanced",
-    "heading": "Minification and targets",
-    "text": "The compiler's own writer minifies, so your values reach the browser as you wrote them: a colour is never re-serialized into another colour space, and is never \"simplified\". Lightning CSS runs only when your configured are below the default floor, and then only to lower what those browsers need. Lowering is reported as so you know a modern feature was rewritten."
+    "id": "/docs/start/tips",
+    "href": "/docs/start/tips",
+    "page": "Habits for a new project",
+    "section": "building",
+    "text": "The habits that would have saved us the most time on day one, learnt building and migrating three applications on Kirana. "
   },
   {
-    "id": "/docs/advanced/output#dead-styles",
-    "href": "/docs/advanced/output#dead-styles",
-    "page": "The output",
-    "section": "advanced",
-    "heading": "Dead styles",
-    "text": "A style nothing references emits nothing. Tokens, keyframes and recipes all follow the same rule, so an imported preset costs nothing until it is used."
+    "id": "/docs/start/tips#habits-for-a-new-project",
+    "href": "/docs/start/tips#habits-for-a-new-project",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "Habits for a new project",
+    "text": "These come from building every shadcn/ui component on Kirana, migrating the same three applications from StyleX and from Tailwind, and diffing the results element by element. Each one is here because not doing it cost us a bug. Each habit is a rule, why it matters, what to write and what not to, and the check that catches it when there is one."
   },
   {
-    "id": "/docs/advanced/output#what-ships-to-the-browser",
-    "href": "/docs/advanced/output#what-ships-to-the-browser",
-    "page": "The output",
-    "section": "advanced",
-    "heading": "What ships to the browser",
-    "text": "The stylesheet. Class strings in your JavaScript. The private runtime (under 1 kB, gzipped) only in modules that merge at runtime or bridge a value. There is no style engine, no CSS-in-JS injection, and no rule generation at runtime."
+    "id": "/docs/start/tips#1-one-styles-object-per-module-named-by-part",
+    "href": "/docs/start/tips#1-one-styles-object-per-module-named-by-part",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "1. One  styles  object per module, named by part",
+    "text": "Declare styles after the imports and name each after the part it styles, so the markup stays readable and a search for the name finds both ends. The element's is a good name: becomes ."
+  },
+  {
+    "id": "/docs/start/tips#2-components-take-sx-sx-and-put-it-last",
+    "href": "/docs/start/tips#2-components-take-sx-sx-and-put-it-last",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "2. Components take  sx?: Sx , and put it last",
+    "text": "An array is merge order, so the caller's styles go last and win. Checked by , in the lint plugin ."
+  },
+  {
+    "id": "/docs/start/tips#3-take-sx-out-of-the-rest-spread",
+    "href": "/docs/start/tips#3-take-sx-out-of-the-rest-spread",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "3. Take  sx  out of the rest spread",
+    "text": "A wrapper that spreads its props carries inside the spread, where nothing compiles it. Checked by , which reports a wrapper that drops it."
+  },
+  {
+    "id": "/docs/start/tips#4-installed-components-do-not-read-sx",
+    "href": "/docs/start/tips#4-installed-components-do-not-read-sx",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "4. Installed components do not read  sx",
+    "text": "Base UI parts and anything else from take compiled props instead. Checked by ."
+  },
+  {
+    "id": "/docs/start/tips#5-start-with-plain-values-adopt-scales-when-they-repeat",
+    "href": "/docs/start/tips#5-start-with-plain-values-adopt-scales-when-they-repeat",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "5. Start with plain values; adopt scales when they repeat",
+    "text": "You do not need a preset to begin. When you want a vocabulary, is Tailwind v4's, and a token nothing references emits nothing."
+  },
+  {
+    "id": "/docs/start/tips#6-put-product-decisions-in-your-own-tokens",
+    "href": "/docs/start/tips#6-put-product-decisions-in-your-own-tokens",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "6. Put product decisions in your own tokens",
+    "text": ", and are yours: define them once as semantic tokens , each colour a pair."
+  },
+  {
+    "id": "/docs/start/tips#7-a-font-size-comes-with-its-line-height",
+    "href": "/docs/start/tips#7-a-font-size-comes-with-its-line-height",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "7. A font size comes with its line height",
+    "text": "A size without its line height was the most common drift in our ports."
+  },
+  {
+    "id": "/docs/start/tips#8-name-the-longhands-you-set",
+    "href": "/docs/start/tips#8-name-the-longhands-you-set",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "8. Name the longhands you set",
+    "text": "Prefer logical properties throughout, so right-to-left works without a second style. Checked by ."
+  },
+  {
+    "id": "/docs/start/tips#9-override-under-the-same-condition",
+    "href": "/docs/start/tips#9-override-under-the-same-condition",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "9. Override under the same condition",
+    "text": "Styles merge per entry : a caller's replaces the base entry and keeps the component's vertical one. Omitting a key keeps it; removes it. Checked by , in the lint plugin."
+  },
+  {
+    "id": "/docs/start/tips#10-nest-the-winner-inside-the-other-condition",
+    "href": "/docs/start/tips#10-nest-the-winner-inside-the-other-condition",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "10. Nest the winner inside the other condition",
+    "text": "When two conditions of the same kind can match together and set different values, the compiler reports them rather than letting source order decide. Do not re-level the diagnostic to hide a tie; twice it hid a real bug. Checked by ."
+  },
+  {
+    "id": "/docs/start/tips#11-put-the-relation-anchor-where-the-state-lives",
+    "href": "/docs/start/tips#11-put-the-relation-anchor-where-the-state-lives",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "11. Put the relation anchor where the state lives",
+    "text": "reads an ancestor and an earlier sibling, so the anchor goes on the element whose state is read, not on the element being styled. See relations ."
+  },
+  {
+    "id": "/docs/start/tips#12-a-parent-s-rule-ranks-below-the-child-s-own",
+    "href": "/docs/start/tips#12-a-parent-s-rule-ranks-below-the-child-s-own",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "12. A parent's rule ranks below the child's own",
+    "text": "A block styles children from a parent, below their own styles, so an icon that sets its own size keeps it without a guard."
+  },
+  {
+    "id": "/docs/start/tips#13-animate-the-property-you-set",
+    "href": "/docs/start/tips#13-animate-the-property-you-set",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "13. Animate the property you set",
+    "text": ", and are properties of their own."
+  },
+  {
+    "id": "/docs/start/tips#14-prefer-a-finite-set",
+    "href": "/docs/start/tips#14-prefer-a-finite-set",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "14. Prefer a finite set",
+    "text": "A choice between known values compiles to a choice between classes and costs nothing. Bridge only what varies continuously, such as a width in percent or a colour from data, and read in the report to see where runtime values enter. See values known at runtime . Checked by , in the lint plugin's config."
+  },
+  {
+    "id": "/docs/start/tips#15-let-the-tools-answer-why",
+    "href": "/docs/start/tips#15-let-the-tools-answer-why",
+    "page": "Habits for a new project",
+    "section": "building",
+    "heading": "15. Let the tools answer \"why\"",
+    "text": "in CI: every diagnostic, with an exit code. when a value is not the one you expected: every entry, the winner, and the ladder step that decided it. To verify a port or a refactor, compare computed styles , not screenshots, in both colour schemes and at several widths. A 1 px border, an easing curve and a missing hover state were all invisible in screenshots and obvious in a diff. See conformance ."
   },
   {
     "id": "/docs/advanced/design-system",
     "href": "/docs/advanced/design-system",
     "page": "Building a design system",
-    "section": "advanced",
+    "section": "building",
     "text": "How the layered system in this repository is put together, and why each layer exists. "
   },
   {
     "id": "/docs/advanced/design-system#building-a-design-system",
     "href": "/docs/advanced/design-system#building-a-design-system",
     "page": "Building a design system",
-    "section": "advanced",
+    "section": "building",
     "heading": "Building a design system",
-    "text": "Kirana is a compiler, not a design system. This repository builds one on top of it — the shadcn/ui component set, rebuilt — and its shape is worth copying."
+    "text": "Kirana is a compiler, not a design system. This repository builds one on top of it (the shadcn/ui component set, rebuilt), and its shape is worth copying."
   },
   {
     "id": "/docs/advanced/design-system#six-layers",
     "href": "/docs/advanced/design-system#six-layers",
     "page": "Building a design system",
-    "section": "advanced",
+    "section": "building",
     "heading": "Six layers",
-    "text": "1 · Scales. Plain constants: the palette, spacing, type ramp, radii, durations. Inlined, so they cost nothing. gives you Tailwind's. 2 · Semantic tokens. What the scales mean — , , , , — as variable tokens, every colour a pair. This is the layer a theme overrides. Semantic tokens . 3 · Conditions. The relations components share (a menu item reading its menu's state), context tokens a parent hands down ( , ), and the keyframes. Declared once, in one module each. 4 · Recipes. Variant tables for the components that have variants, plus the shared chrome — a focus ring, an overlay surface, a menu surface — so twelve components do not each invent their own. 5 · Primitives. , , , , : thin elements that carry the system's defaults and nothing else. 6 · Components. The real thing. Each takes last, so callers can override without forking."
+    "text": "1 · Scales. Plain constants: the palette, spacing, type ramp, radii, durations. Inlined, so they cost nothing. gives you Tailwind's. 2 · Semantic tokens. What the scales mean , such as , and , as variable tokens, every colour a pair. This is the layer a theme overrides. Semantic tokens . 3 · Conditions. The relations components share (a menu item reading its menu's state), context tokens a parent hands down ( , ), and the keyframes. Declared once, in one module each. 4 · Recipes. Variant tables for the components that have variants, plus the shared chrome (a focus ring, an overlay surface, a menu surface), so twelve components do not each invent their own. 5 · Primitives. Thin elements such as , and that carry the system's defaults and nothing else. 6 · Components. The real thing. Each takes last, so callers can override without forking."
   },
   {
     "id": "/docs/advanced/design-system#rules-that-keep-it-from-drifting",
     "href": "/docs/advanced/design-system#rules-that-keep-it-from-drifting",
     "page": "Building a design system",
-    "section": "advanced",
+    "section": "building",
     "heading": "Rules that keep it from drifting",
     "text": "A colour is one pair , written once. No dark variant anywhere. A parent hands values down through context tokens , never through class names it hopes a child reads. A component's variants live in its recipe , not scattered through the JSX. New things have one home : a scale value goes to the scales, a per-mode colour to the semantic layer, a parent-to-child value to the context tokens, a group or peer to the relations. Global CSS is the last resort , for markup you do not render."
   },
@@ -9480,7 +8928,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/advanced/design-system#what-the-compiler-gives-you-here",
     "href": "/docs/advanced/design-system#what-the-compiler-gives-you-here",
     "page": "Building a design system",
-    "section": "advanced",
+    "section": "building",
     "heading": "What the compiler gives you here",
     "text": "A design system is mostly discipline, and the compiler enforces some of it for you: that goes nowhere is a warning, a relation without an anchor is an error, two conditions that could both apply are reported, and a mixed logical/physical box is flagged. Those are precisely the mistakes that make a system slowly stop being one."
   },
@@ -9488,14 +8936,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/advanced/libraries",
     "href": "/docs/advanced/libraries",
     "page": "Publishing a library",
-    "section": "advanced",
-    "text": "Ship a component library styled with Kirana - styles uncompiled in the package, compiled by each app that lists it in libraries. "
+    "section": "building",
+    "text": "Ship a component library styled with Kirana: the package keeps its styles uncompiled, and each app that lists it in libraries compiles them. "
   },
   {
     "id": "/docs/advanced/libraries#publishing-a-library",
     "href": "/docs/advanced/libraries#publishing-a-library",
     "page": "Publishing a library",
-    "section": "advanced",
+    "section": "building",
     "heading": "Publishing a library",
     "text": "A Kirana library publishes its styles uncompiled , and each app that uses it compiles them together with its own. That is what lets an app override a library's style property by property, keeps every declaration in the stylesheet once, and applies the app's prefix, targets and layers to the library too. Tested by , which installs a packed library from a tarball."
   },
@@ -9503,64 +8951,88 @@ export const SEARCH: readonly SearchRecord[] = [
     "id": "/docs/advanced/libraries#in-the-library",
     "href": "/docs/advanced/libraries#in-the-library",
     "page": "Publishing a library",
-    "section": "advanced",
+    "section": "building",
     "heading": "In the library",
-    "text": "Build your package without Kirana's plugin — , or any bundler — so the calls stay in the published JavaScript, and ship no CSS: Apply styles with (or into ): both compile in plain JavaScript. needs JSX, which a library's build usually compiles away; ship or if you want to keep it. Make a peer dependency, so the library and the app share one."
+    "text": "Build your package without Kirana's plugin (with , or any bundler), so the calls stay in the published JavaScript, and ship no CSS: Apply styles with (or into ): both compile in plain JavaScript. needs JSX, which a library's build usually compiles away; ship or if you want to keep it. Make a peer dependency, so the library and the app share one."
   },
   {
     "id": "/docs/advanced/libraries#in-the-app",
     "href": "/docs/advanced/libraries#in-the-app",
     "page": "Publishing a library",
-    "section": "advanced",
+    "section": "building",
     "heading": "In the app",
-    "text": "List the package: Its modules are now compiled from like your own, and its exported tokens work in your styles. With Vite nothing else is needed — the adapter keeps listed libraries out of dependency pre-bundling and server externals. With Next.js, also add the package to ."
+    "text": "List the package: Its modules are now compiled from like your own, and its exported tokens work in your styles. With Vite nothing else is needed: the adapter keeps listed libraries out of dependency pre-bundling and server externals. With Next.js, also add the package to ."
   },
   {
     "id": "/docs/advanced/libraries#why-not-ship-compiled-css",
     "href": "/docs/advanced/libraries#why-not-ship-compiled-css",
     "page": "Publishing a library",
-    "section": "advanced",
+    "section": "building",
     "heading": "Why not ship compiled CSS",
-    "text": "A library compiled on its own bakes its compiler version and configuration into its class names. With a different prefix, an app's override can no longer replace the library's value — both classes stay, and whichever rule comes later in the stylesheet wins. With an older compiler, the same declaration ships twice. The reasoning, with the measurements, is in the design note . The one cost: an app that does not use Kirana cannot use a Kirana library."
+    "text": "A library compiled on its own bakes its compiler version and configuration into its class names. With a different prefix, an app's override can no longer replace the library's value: both classes stay, and whichever rule comes later in the stylesheet wins. With an older compiler, the same declaration ships twice. The reasoning, with the measurements, is in the design note . The one cost: an app that does not use Kirana cannot use a Kirana library."
   },
   {
-    "id": "/docs/advanced/conformance",
-    "href": "/docs/advanced/conformance",
-    "page": "Verifying a migration",
-    "section": "advanced",
-    "text": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels. "
+    "id": "/docs/advanced/output",
+    "href": "/docs/advanced/output",
+    "page": "The output",
+    "section": "building",
+    "text": "What the stylesheet looks like, how classes are named, and what determinism buys you. "
   },
   {
-    "id": "/docs/advanced/conformance#verifying-a-migration",
-    "href": "/docs/advanced/conformance#verifying-a-migration",
-    "page": "Verifying a migration",
-    "section": "advanced",
-    "heading": "Verifying a migration",
-    "text": "When you rewrite an application's styling, the question is not \"does it look about right\" — it is \"is any computed value different, anywhere, in any state\". Screenshots answer that badly: they miss a 1 px border, and they fail loudly over a font that loaded a frame late. This project compares computed styles ."
+    "id": "/docs/advanced/output#one-declaration-per-rule",
+    "href": "/docs/advanced/output#one-declaration-per-rule",
+    "page": "The output",
+    "section": "building",
+    "heading": "One declaration per rule",
+    "text": "Every rule is one class with one declaration, at specificity (0,1,0), shared by every module that writes that declaration ( why ). One declaration can still reach several rules (the same colour under , under an attribute and at rest), and there the writer gives one rule all three selectors: It does that only when no rule in between decides the same property, because inside the layer the order of the rules is the precedence ladder . A merge that could move a rule past a competing declaration is not taken."
   },
   {
-    "id": "/docs/advanced/conformance#the-method",
-    "href": "/docs/advanced/conformance#the-method",
-    "page": "Verifying a migration",
-    "section": "advanced",
-    "heading": "The method",
-    "text": "Serve the same application twice: the build you came from and the new one. Open the same route in both, at several widths, in both colour schemes. Walk every element, read the same property list from — including the things that usually hide, like , and the geometry of / . Diff, per element and per property. Anything that differs is either a bug in the new build, a bug in the old one, or a difference you list explicitly with a reason. That last point is the discipline: an expected difference is written down, with why. A file of exceptions that nobody reads is the same as no test."
+    "id": "/docs/advanced/output#class-names",
+    "href": "/docs/advanced/output#class-names",
+    "page": "The output",
+    "section": "building",
+    "heading": "Class names",
+    "text": "A name is . The prefix is configurable and defaults to ; the property code is an index into the property table; then come optional 3- and 4-character hashes for a pseudo-element or contextual target and for the condition set; and after the , four characters of the value's hash. Names are content-derived, so they are stable across builds and machines, and two applications with different prefixes can share a page. The widths are fixed and never grow. A name that depended on what else the project contained would change as the project grew, which would break incremental builds; so if two values on one property ever took the same name, the build stops with instead of guessing. Four characters make that about one build in two thousand for an application the size of the ones this compiler is tested on."
   },
   {
-    "id": "/docs/advanced/conformance#things-worth-knowing-if-you-build-one",
-    "href": "/docs/advanced/conformance#things-worth-knowing-if-you-build-one",
-    "page": "Verifying a migration",
-    "section": "advanced",
-    "heading": "Things worth knowing if you build one",
-    "text": "Normalise colours. Read them through a probe element rather than comparing strings, or and values compare unequal for silly reasons. Wait for a stable DOM , not a fixed timeout, and stop animations before reading. Confirm a difference on a second read. A late render is not a regression. Check states too — open a menu, focus a field, hover a row — because that is where precedence bugs live."
+    "id": "/docs/advanced/output#conditions-in-the-selector",
+    "href": "/docs/advanced/output#conditions-in-the-selector",
+    "page": "The output",
+    "section": "building",
+    "heading": "Conditions in the selector",
+    "text": "Conditions compile into the selector or the at-rule, and order inside the layer carries the ladder , with no , no specificity tricks and no sublayers per bucket."
   },
   {
-    "id": "/docs/advanced/conformance#how-it-runs",
-    "href": "/docs/advanced/conformance#how-it-runs",
-    "page": "Verifying a migration",
-    "section": "advanced",
-    "heading": "How it runs",
-    "text": "The harness builds the Kirana app and the two baselines, serves all three, crawls every route and diffs. It is how 60+ blocks and every component were verified, and it is what caught the merge-order bugs that a human review had passed. The harness runs in a separate repository beside the StyleX port and the Tailwind original, which this one does not carry."
+    "id": "/docs/advanced/output#determinism",
+    "href": "/docs/advanced/output#determinism",
+    "page": "The output",
+    "section": "building",
+    "heading": "Determinism",
+    "text": "The same sources produce byte-identical CSS: same rule order, same names, independent of thread count or file-system order. Which means a content hash is meaningful, a diff in CI means a real change, and two developers see the same output."
+  },
+  {
+    "id": "/docs/advanced/output#minification-and-targets",
+    "href": "/docs/advanced/output#minification-and-targets",
+    "page": "The output",
+    "section": "building",
+    "heading": "Minification and targets",
+    "text": "The compiler's own writer minifies, so your values reach the browser as you wrote them: a colour is never re-serialized into another colour space, and is never \"simplified\". Lightning CSS runs only when your configured are below the default floor, and then only to lower what those browsers need. Lowering is reported as so you know a modern feature was rewritten."
+  },
+  {
+    "id": "/docs/advanced/output#dead-styles",
+    "href": "/docs/advanced/output#dead-styles",
+    "page": "The output",
+    "section": "building",
+    "heading": "Dead styles",
+    "text": "A style nothing references emits nothing. Tokens, keyframes and recipes all follow the same rule, so an imported preset costs nothing until it is used."
+  },
+  {
+    "id": "/docs/advanced/output#what-ships-to-the-browser",
+    "href": "/docs/advanced/output#what-ships-to-the-browser",
+    "page": "The output",
+    "section": "building",
+    "heading": "What ships to the browser",
+    "text": "The stylesheet. Class strings in your JavaScript. The private runtime (under 1 kB, gzipped) only in modules that merge at runtime or bridge a value. There is no style engine, no CSS-in-JS injection, and no rule generation at runtime."
   },
   {
     "id": "/docs/reference/api",
@@ -9690,11 +9162,693 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Condition values for computed keys. Conditions ."
   },
   {
+    "id": "/docs/config/reference",
+    "href": "/docs/config/reference",
+    "page": "Configuration reference",
+    "section": "reference",
+    "text": "Every key that exists today, with its type, default and what it changes. "
+  },
+  {
+    "id": "/docs/config/reference#configuration-reference",
+    "href": "/docs/config/reference#configuration-reference",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "Configuration reference",
+    "text": "Every key there is, and what each one changes."
+  },
+  {
+    "id": "/docs/config/reference#layers",
+    "href": "/docs/config/reference#layers",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "layers",
+    "text": "Layer names placed around Kirana's own layer, for your global CSS. Each must be a valid CSS identifier, and none may be . See layers ."
+  },
+  {
+    "id": "/docs/config/reference#targets",
+    "href": "/docs/config/reference#targets",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "targets",
+    "text": "Browser versions to compile for, as a major number ( ) or ( ). The default floor is Chrome 123, Safari 17.5, Firefox 120 . Setting a target below the floor makes Lightning CSS lower the output where it can, and emits (informational) so you know it happened. A minor above 255, or a value that is not a number, is ."
+  },
+  {
+    "id": "/docs/config/reference#names-prefix",
+    "href": "/docs/config/reference#names-prefix",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "names.prefix",
+    "text": "The prefix on every generated class and custom property. One to four lowercase ASCII letters. Give two independently built applications different prefixes and they can share a page without colliding."
+  },
+  {
+    "id": "/docs/config/reference#dynamic-branchbudget",
+    "href": "/docs/config/reference#dynamic-branchbudget",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "dynamic.branchBudget",
+    "text": "How many branches a class expression may have before the compiler stops and reports . Must be at least 1. See values known at runtime ."
+  },
+  {
+    "id": "/docs/config/reference#jsx",
+    "href": "/docs/config/reference#jsx",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "jsx",
+    "text": "Which attribute compiles to. Leave it out and the compiler reads from the project's , so most projects never set it: See supported frameworks ."
+  },
+  {
+    "id": "/docs/config/reference#libraries",
+    "href": "/docs/config/reference#libraries",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "libraries",
+    "text": "Installed packages whose styles this app compiles as it compiles its own. A published Kirana library ships its calls uncompiled; listing it here puts its styles in your stylesheet, deduplicated with yours and under your prefix, targets and layers. Leave a library out and its first throws with a message naming this key. See publishing a library ."
+  },
+  {
+    "id": "/docs/config/reference#presets",
+    "href": "/docs/config/reference#presets",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "presets",
+    "text": "Presets contribute data to the configuration: today, a utility grammar that turns on utility strings . A preset is ; later presets replace earlier ones scale by scale, root by root and variant by variant."
+  },
+  {
+    "id": "/docs/config/reference#utilities",
+    "href": "/docs/config/reference#utilities",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "utilities",
+    "text": "The application's own grammar, merged after every preset. It has three parts: A rule is one of three kinds: A scale rule takes these options: In any text of a rule, is that token, and a property written sets the token's custom property. That is how a ring and a shadow share one : its value is , and each utility sets one of the two."
+  },
+  {
+    "id": "/docs/config/reference#diagnostics",
+    "href": "/docs/config/reference#diagnostics",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "diagnostics",
+    "text": "Re-level a diagnostic by its kebab-case name: Errors cannot be re-levelled. An error means the output would be wrong, so turning it into a warning would only hide a broken build. Trying is , as is naming a diagnostic that does not exist. The diagnostics reference lists which ones can move."
+  },
+  {
+    "id": "/docs/config/reference#conditions-exclusive",
+    "href": "/docs/config/reference#conditions-exclusive",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "conditions.exclusive",
+    "text": "Groups of conditions that a library guarantees never hold together on one element. Each group needs at least two entries, and each entry must be exactly one attribute or pseudo-class selector. This is how you silence for pairs the selectors cannot prove are exclusive. The compiler already knows about two values of one attribute, a selector and its negation, and fixed positions counted from the same end; you only need to declare what a library promises."
+  },
+  {
+    "id": "/docs/config/reference#classes",
+    "href": "/docs/config/reference#classes",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "classes",
+    "text": "The class map for server templates. are files or folders, relative to the root, whose exported handles Blade, Twig, ERB, HEEx and Edge templates name. The build and dev commands write their class strings to , and compile the modules whatever paths they were given. A recipe or a runtime value among the exports is . See server templates ."
+  },
+  {
+    "id": "/docs/config/reference#externals",
+    "href": "/docs/config/reference#externals",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "externals",
+    "text": "Specifier prefixes the bundler provides and Node.js resolution cannot find. An import from one is a runtime value, as an installed package's is, instead of an warning. The Ember adapter adds Ember's own ( , , ), and Meteor sets ."
+  },
+  {
+    "id": "/docs/config/reference#root",
+    "href": "/docs/config/reference#root",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "root",
+    "text": "Set by the adapter, not by you: the project root, which scopes a build and makes diagnostic paths relative."
+  },
+  {
+    "id": "/docs/tooling/cli",
+    "href": "/docs/tooling/cli",
+    "page": "The CLI",
+    "section": "tooling",
+    "text": "What each kirana command does and what it prints, for init, doctor, dev, build, check, analyze, export, trace, migrate and lsp. "
+  },
+  {
+    "id": "/docs/tooling/cli#the-cli",
+    "href": "/docs/tooling/cli#the-cli",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "The CLI",
+    "text": "The binary's commands, by what they do: The command comes with the compiler package. In a project that does not have Kirana yet, run : is the command line's package on npm, and it runs the same command. Once has added the compiler, every command is plain . In this repository the binary runs through its entry script:"
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-init",
+    "href": "/docs/tooling/cli#kirana-init",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana init",
+    "text": "Set a project up: the configuration file, the adapter in your bundler's configuration, the stylesheet, and the types for . It reads and the lockfile to find the framework, the bundler and the package manager, then prints every change as a diff before it writes anything: It knows Next.js (Turbopack and webpack), Nuxt, SvelteKit, Astro, TanStack Start, Qwik, Angular (the CLI, whose builders it swaps, and Analog), React Router, Gatsby, Ember, Meteor and Parcel; React, Preact, Solid, Vue, Svelte or plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown; and the server frameworks Laravel, Symfony, Rails, Phoenix and AdonisJS, which get a class map and a starter style module. Edits follow the file's own quotes and semicolons. Where a configuration is not in a shape it can edit safely ( , a function, a plugin list built elsewhere), it prints the step to do by hand instead of guessing. The install command is printed, never run unless you pass , so your lockfile stays yours. Its setups were checked the way the examples are: sixteen examples, stripped of Kirana and set up again by , built from packed tarballs and styled exactly like the hand-written ones in a browser."
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-doctor",
+    "href": "/docs/tooling/cli#kirana-doctor",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana doctor",
+    "text": "Check a project's setup, and say what is missing. It reports the engine in use (native, or the WebAssembly fallback), every installed version and whether they match, whether the configuration loads, and whether the adapter, stylesheet and types are in place, which it learns by running 's plan without writing. The exit code is 1 when something fails. There is no cache to clear: Kirana keeps nothing on disk between builds."
+  },
+  {
+    "id": "/docs/tooling/cli#a-bug-report",
+    "href": "/docs/tooling/cli#a-bug-report",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "A bug report",
+    "text": "writes (or the file after the flag): an issue body with a place at the top for what happened and the smallest reproduction, then what Kirana collected: the engine version, Node.js and OS, the framework and the bundler; every version, and the doctor's checks; each diagnostic code, how often it occurred and where first; the stylesheet's size and the resolved configuration. adds output, and prints the same data instead of writing the file. The report is safe to paste. It contains no source code, the project directory reads , the home directory and your user name , configuration values under keys that name a secret are masked, and no environment variable is read. Read it before you post it anyway."
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-dev",
+    "href": "/docs/tooling/cli#kirana-dev",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana dev",
+    "text": "Watch mode for projects without a bundler: plain HTML, web components, server templates. It compiles every script under the paths ( , or the project when there is none), writes the stylesheet ( unless says otherwise), and on each change recompiles that file and the modules that read a value from it. The stylesheet is rewritten only when it changed, and diagnostics print as they appear:"
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-check",
+    "href": "/docs/tooling/cli#kirana-check",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana check",
+    "text": "Report diagnostics without writing anything. It walks the paths you give it, skipping , , dotfiles and files. Human output underlines the span and prints the help line: prints an array of , for an editor or a script. The exit code is 1 when anything is an error. prints one GitHub Actions workflow command per diagnostic, which annotates the line in the pull request's diff: errors as errors, warnings as warnings, infos as notices. Paths are relative to the project root, so run it from the repository root or a project at the root. fails the run, exit code 1, when there are more than warnings; makes every warning block a merge, without re-levelling them in the configuration."
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-build",
+    "href": "/docs/tooling/cli#kirana-build",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana build",
+    "text": "Compile files and write the stylesheet. Useful when a bundler is not in the picture: a library build, a check in CI, or looking at the CSS for yourself. Applications normally let the Vite plugin do this."
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-analyze",
+    "href": "/docs/tooling/cli#kirana-analyze",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana analyze",
+    "text": "What the stylesheet holds, and why. That is this documentation site. The report goes on with the largest modules (the bytes of their rules, and of the rules only they use, which is what deleting them would save), then values bridged to runtime, recipes resolved at runtime, themes and the tokens they override, relation reads no anchor proves, and tokens your project declares that nothing reads. prints all of it; writes one self-contained page, readable in light and dark. The exit code is the same as 's."
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-export",
+    "href": "/docs/tooling/cli#kirana-export",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana export",
+    "text": "The design system, as JSON: every token with its value (and both halves of a pair), each theme and the tokens it overrides, each recipe with its variant groups, options and defaults, every relation and where it is anchored and read, and the keyframes, and names. Each comes with the file and line that declares it. It is what a coding agent should read before writing a style (the tokens and recipes that exist, by their real names), and what a design tool or a review needs to see what a change did to the system. Names, values and project-relative locations only, never source text; everything is sorted, so the file diffs cleanly when it is committed. changes only when a field does. The exit code is 1 when the project has errors, as for ."
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-trace",
+    "href": "/docs/tooling/cli#kirana-trace",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana trace",
+    "text": "Explain which declaration wins for a property, and why. It prints one line per candidate: a marker for the winner, the value, the conditions, the layer, and the ladder step that decided it. The property may be written the way you wrote it ( ) or the way CSS does ( ). Give it the line the style is on. This is the tool for \"why is this not applying\". It answers from the compiled result, not from reading the source."
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-migrate",
+    "href": "/docs/tooling/cli#kirana-migrate",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana migrate",
+    "text": "Rewrite another styling system's sources into Kirana, and report what it will not decide for you. Nothing is written without . The report is printed either way: each line is a file position and something a person has to do, and the utility it is about is also left in a comment beside the style it belongs to. needs a utility grammar (the preset and your theme's scales), and reads and from any CSS file among its paths. See migrating from Tailwind ."
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-lsp",
+    "href": "/docs/tooling/cli#kirana-lsp",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana lsp",
+    "text": "Start the language server on stdin and stdout. Editors run it for you (see editor support ), but any LSP client can: It loads like every other command, indexes the project, and then answers hover, colour, completion, inlay-hint, code-lens, definition, reference and code-action requests from the same compiler session the build uses."
+  },
+  {
+    "id": "/docs/tooling/editor",
+    "href": "/docs/tooling/editor",
+    "page": "Editor support",
+    "section": "tooling",
+    "text": "The Kirana language server shows each element's compiled CSS, which entry wins and why, colour swatches and the compiler's diagnostics as you type, in VS Code, Cursor, Windsurf, Antigravity, Zed, Neovim and Helix. "
+  },
+  {
+    "id": "/docs/tooling/editor#editor-support",
+    "href": "/docs/tooling/editor#editor-support",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Editor support",
+    "text": "Object styles move the CSS out of the markup: you read , not a class list. The Kirana language server brings it back where you are reading, and answers questions a class list never could: which value wins, and why . It is , a command of the compiler you already installed. It runs on the same compiler session as your build, so what the editor tells you is what the build does, never an approximation of it."
+  },
+  {
+    "id": "/docs/tooling/editor#light-through-every-line-of-your-styles",
+    "href": "/docs/tooling/editor#light-through-every-line-of-your-styles",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Light through every line of your styles",
+    "text": "A Tailwind class list shows what an element gets; object styles hid it. The language server puts it back on every line, coloured by kind, and answers the rest on hover. Pick a feature to see what it shows: every picture is the server's real output for one file."
+  },
+  {
+    "id": "/docs/tooling/editor#pick-your-editor",
+    "href": "/docs/tooling/editor#pick-your-editor",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Pick your editor",
+    "text": "Every editor runs your project's own , from . Upgrading Kirana upgrades the editor with it; there is no extension version to keep in step."
+  },
+  {
+    "id": "/docs/tooling/editor#vs-code-and-its-forks",
+    "href": "/docs/tooling/editor#vs-code-and-its-forks",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "VS Code and its forks",
+    "text": "VS Code, Cursor, Windsurf and Antigravity take the same extension. It finds the server in your project, walking up to a monorepo's root, and starts it for TypeScript, JavaScript, Vue, Svelte, Astro and HTML files (HTML for Angular templates). Install Kirana from the VS Code Marketplace in VS Code, or from Open VSX in Cursor, Windsurf, Antigravity and VSCodium: search \"Kirana\" in the Extensions view. In a remote workspace (WSL, SSH, a container), install it on the remote side, where your project and Node.js live. If your project has no (a checkout of Kirana itself, say), point the extension at a binary or script: A relative path is resolved against the workspace folder; a or path runs with (22.18 or later)."
+  },
+  {
+    "id": "/docs/tooling/editor#zed",
+    "href": "/docs/tooling/editor#zed",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Zed",
+    "text": "The Kirana extension registers the server for TypeScript, TSX and JavaScript, for Vue, Svelte and Astro components once Zed's extensions for them are installed, and for HTML in Angular templates. Until it is published, add it with zed: install dev extension from . To run another binary:"
+  },
+  {
+    "id": "/docs/tooling/editor#neovim",
+    "href": "/docs/tooling/editor#neovim",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Neovim",
+    "text": "Neovim 0.11 and later:"
+  },
+  {
+    "id": "/docs/tooling/editor#helix",
+    "href": "/docs/tooling/editor#helix",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Helix",
+    "text": "In :"
+  },
+  {
+    "id": "/docs/tooling/editor#any-other-editor",
+    "href": "/docs/tooling/editor#any-other-editor",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Any other editor",
+    "text": "Run from the project root and connect over stdio. It runs beside the TypeScript server and answers styling questions only: property names and token keys are TypeScript's, through 's types."
+  },
+  {
+    "id": "/docs/tooling/editor#the-style-card",
+    "href": "/docs/tooling/editor#the-style-card",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "The style card",
+    "text": "Hover an element's , a call or a recipe and you get its card, laid out the way you read a style: What it is : the expression ( ) and the handles it merges, each a link to where it is defined, as in . The box model , drawn as DevTools draws it: margin, border, padding and content nested, each side's value on its side, the content's size and layout in the middle, the corners rounded by the border radius. Resolved : every property that applies, in source order within layout, box, size, colour, type, border, effects and motion, with in pixels, the token a value reads, and a swatch for each colour, split light and dark for a pair. When : the values that depend on a breakpoint ( ), a state ( ), a pseudo-element, or a guard in the , shown as . Compiled CSS : the rules the stylesheet carries, with their size. Hover a property instead and you get its entries in precedence order, with the ladder step that put each one where it is: the answer gives on the command line. Hover a token for its value in both colour modes, and whether a theme can reassign it. VS Code draws the box model as a picture in your theme's colours, with the properties beside it, each property name in its group's colour: l"
+  },
+  {
+    "id": "/docs/tooling/editor#inline-summary",
+    "href": "/docs/tooling/editor#inline-summary",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Inline summary",
+    "text": "At the end of every element's line, a muted hint says what it ends up with, in the vocabulary of a class list: . Hover the hint for the card. The mark is the layout: for grid, for flex. Margin and padding read as their shorthand. A value under a guard leads with it: . A spread is summarised too, from the handles it names. In VS Code each part is coloured by its group, as the card colours properties: layout blue, box green, size cyan, colour orange, type yellow, border purple. There is no red, which reads as an error, and the colours are your theme's own. Kirana's icon leads the hint; and tune it. Other editors show it in the hint colour. Above each and , a code lens counts declarations, conditional entries and bridged values, and used by N elements lists the elements whose names it, in every file. Clicking the counts opens the compiled CSS beside the file, read-only, in one reused tab."
+  },
+  {
+    "id": "/docs/tooling/editor#style-inspector-vs-code",
+    "href": "/docs/tooling/editor#style-inspector-vs-code",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Style Inspector (VS Code)",
+    "text": "Kirana: Open Style Inspector opens a panel in the Explorer that follows the cursor. It draws the box model, the layout, the colours with a light and dark switch, and every declaration with its source. Its chips turn conditions and guards on and off ( , , ), and the values that apply then are the compiler's answer, not a guess: the server simulates the cascade for exactly that set."
+  },
+  {
+    "id": "/docs/tooling/editor#style-fold-vs-code",
+    "href": "/docs/tooling/editor#style-fold-vs-code",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Style Fold (VS Code)",
+    "text": "With (or Kirana: Toggle Style Fold ), a long one-line reads as its summary, after Kirana's icon, until the cursor is on its line: Tailwind Fold, for object styles. In mode the text stays and its opacity drops instead, and a minimum length keeps short objects as written; the settings are below . Kirana: Fold Styles folds every multi-line style object with the editor's own folding."
+  },
+  {
+    "id": "/docs/tooling/editor#colours",
+    "href": "/docs/tooling/editor#colours",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Colours",
+    "text": "Colour literals and colour tokens get a swatch. A pair gets one per mode, and the picker edits that mode alone. The picker writes the format the colour is written in, so an stays ; click the colour at the top of the picker to switch to hex or . It edits literals only, never a token reference, so a theme stays the source of a token's colour. A token's swatch shows its light value, and hover shows both."
+  },
+  {
+    "id": "/docs/tooling/editor#completion",
+    "href": "/docs/tooling/editor#completion",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Completion",
+    "text": "Where TypeScript cannot help: Condition keys inside a property's value (pseudo-classes, attributes, , , and ), listed weakest to strongest, the order the precedence ladder applies them. offers and . Keyword values for the property you are writing ( → ), from the CSS specification's own grammar. Utility strings in : your grammar's variants, roots and scale keys, each with its value."
+  },
+  {
+    "id": "/docs/tooling/editor#diagnostics-fixes-and-refactorings",
+    "href": "/docs/tooling/editor#diagnostics-fixes-and-refactorings",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Diagnostics, fixes and refactorings",
+    "text": "Every compiler diagnostic appears as you type, at the property it is about. Two have one exact fix, offered as a quick fix: Code actions also offer: Extract to on an inline in an element's : a named handle above the component. Inline a handle used once. Vary at md and Vary on :hover on a plain value: it becomes , ready to change. Show compiled CSS , Explain precedence for the property under the cursor, and Convert Tailwind classes to on a string, with the engine of ."
+  },
+  {
+    "id": "/docs/tooling/editor#structure-and-navigation",
+    "href": "/docs/tooling/editor#structure-and-navigation",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Structure and navigation",
+    "text": "The outline lists a file's styles, recipes, tokens and relations. With the cursor on a key, every element in the file that receives it is highlighted, and on an element, the keys it receives. Go to definition on a token opens its entry in ; on a relation read ( ) it goes to where the anchor is applied. Find references lists a token's or relation's uses, and workspace symbols search every token and relation in the project."
+  },
+  {
+    "id": "/docs/tooling/editor#vue-svelte-and-astro",
+    "href": "/docs/tooling/editor#vue-svelte-and-astro",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Vue, Svelte and Astro",
+    "text": "Components get all of it. Script blocks compile as the build compiles them, and each template binding gets its hint, card and colours, inside a loop too: A diagnostic in a script lands on its line in the component."
+  },
+  {
+    "id": "/docs/tooling/editor#server-templates",
+    "href": "/docs/tooling/editor#server-templates",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Server templates",
+    "text": "In Blade, Twig, ERB, HEEx and Edge files, each name passed to gets the same hover, colours and summary as an , from the class map's modules (the setting of your configuration). A name no module exports is underlined as , before the helper would fail on it at runtime. The editors send these files to the server as:"
+  },
+  {
+    "id": "/docs/tooling/editor#angular",
+    "href": "/docs/tooling/editor#angular",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Angular",
+    "text": "bindings get the same hint, card and colours, in a component's inline and in the file its names. A template reaches the handles through a member of the same name, which the server reads as the module's own handles: An HTML file that no component names as its template is left alone."
+  },
+  {
+    "id": "/docs/tooling/editor#settings",
+    "href": "/docs/tooling/editor#settings",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Settings",
+    "text": "Other editors pass the same switches as :"
+  },
+  {
+    "id": "/docs/tooling/editor#how-fast",
+    "href": "/docs/tooling/editor#how-fast",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "How fast",
+    "text": "On our shadcn/ui port ( and three applications, indexed in 166 ms, with 61 component files open), a hover answers in 1.2 ms at the 95th percentile, diagnostics refresh 7.1 ms after an edit, and the server holds 65 MB . The budgets are 50 ms, 200 ms and 300 MB."
+  },
+  {
+    "id": "/docs/tooling/editor#limits",
+    "href": "/docs/tooling/editor#limits",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Limits",
+    "text": "Components are read by a scanner. The build parses Vue, Svelte and Astro with their own compilers (and Angular's templates are its own, merged at runtime); the server, which cannot load them, scans the same blocks and bindings, and a test over every example holds the scan to the frameworks' parsers. A template binding that reads only a Svelte handle gets no hint. The summary shows what the compiler knows at build time. A value returned by a function it cannot see into ( , a hand-written variant helper) has nothing to summarise, where the same values as an array, , do. A recipe called with a variant known only at run time ( ) is not summarised yet, and passed to one of your components is summarised inside it, on the element that receives it. One project per server. The root is your workspace folder or 's directory; editing restarts the server. Uses are found by name. Declarations, anchors and reads come from the compiler; uses in other files are matched by their written names, so a token imported under another alias is found under that alias."
+  },
+  {
+    "id": "/docs/tooling/editor#troubleshooting",
+    "href": "/docs/tooling/editor#troubleshooting",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "Troubleshooting",
+    "text": "The status bar shows Kirana with a warning sign. No binary was found: install in the project, or set . Answers look stale after changing the configuration. Run Kirana: Restart Language Server . No hint after . Check that your editor shows inlay hints at all: must be (some editors default to showing them only while you hold Ctrl+Alt). Set it in your workspace's : The summary ends in . VS Code cuts every inlay hint at 43 characters. Set to and Kirana's own limit applies ( ), counting what it leaves out at the end. The card is taller than the hover. VS Code fixes a hover's height at a quarter of the editor, at least 250 px; no extension can change that. Drag the hover's edge once and it keeps that size until the window reloads. Or open the Style Inspector, which has the whole height of the sidebar. You want to see what is said. Set to and open the Kirana output channel."
+  },
+  {
+    "id": "/docs/tooling/lint",
+    "href": "/docs/tooling/lint",
+    "page": "Lint",
+    "section": "tooling",
+    "text": "Kirana's rules under Oxlint, ESLint and Biome: the compiler's diagnostics, and the overrides and forwarding mistakes that lose styles silently. "
+  },
+  {
+    "id": "/docs/tooling/lint#lint",
+    "href": "/docs/tooling/lint#lint",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "Lint",
+    "text": "reports what the compiler knows, where the code is written, in the linter you already run. Other styling lint plugins re-implement CSS validation in JavaScript, and drift from the compiler they check. Kirana's rules read the compiler itself (the diagnostics, the atoms each style compiles to, every token, how imports resolve), so lint and build never disagree, and the plugin is mostly about the mistakes no compiler can see: an override that silently loses, a forwarded in the wrong place, a class that never reaches the DOM."
+  },
+  {
+    "id": "/docs/tooling/lint#pick-your-linter",
+    "href": "/docs/tooling/lint#pick-your-linter",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "Pick your linter",
+    "text": "Under Oxlint and ESLint the rules are the same objects, and so are their results: the same reports at the same places, and the same fixed text. A test runs every rule through both linters on each change. Biome cannot run JavaScript rules, so it gets the four that need no compiler, rewritten as GritQL plugins."
+  },
+  {
+    "id": "/docs/tooling/lint#oxlint",
+    "href": "/docs/tooling/lint#oxlint",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "Oxlint",
+    "text": "Through Oxlint's JavaScript plugins, at Oxlint's speed:"
+  },
+  {
+    "id": "/docs/tooling/lint#eslint",
+    "href": "/docs/tooling/lint#eslint",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "ESLint",
+    "text": "Flat config:"
+  },
+  {
+    "id": "/docs/tooling/lint#biome",
+    "href": "/docs/tooling/lint#biome",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "Biome",
+    "text": "carries the rules that need no compiler, as GritQL plugins : Its presets turn them on: A test runs each of them through Biome and through its ESLint original, and the reports (line, column and message) must match. Each message starts with the rule's name, since Biome files every plugin diagnostic under . The presets name the rules as , because Biome resolves a plugin path from the project; in a workspace member whose sits higher up, list the files from there in . A Biome plugin matches syntax: it cannot ask the compiler or read another file. What the other rules would report reaches a Biome project two other ways: in CI, as pull-request annotations, and the language server in the editor: and stay ESLint and Oxlint only: counting member reads and ordering keys against the property table are beyond what GritQL can express."
+  },
+  {
+    "id": "/docs/tooling/lint#the-project-root",
+    "href": "/docs/tooling/lint#the-project-root",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "The project root",
+    "text": "The project root is the nearest above the file being linted. In a monorepo whose packages share a configuration, give the package its own that exports it, or set . The project is compiled once per lint run and each file once, however many rules ask; the native engine must be installed, as for a build."
+  },
+  {
+    "id": "/docs/tooling/lint#configs",
+    "href": "/docs/tooling/lint#configs",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "Configs",
+    "text": "Biome's presets have the same names and hold the rules it can run."
+  },
+  {
+    "id": "/docs/tooling/lint#diagnostics",
+    "href": "/docs/tooling/lint#diagnostics",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "diagnostics",
+    "text": "Every compiler diagnostic , at the property it is about, so a CI that only lints still fails on what the build would report. Warnings and errors by default; adds the informational ones and drops names."
+  },
+  {
+    "id": "/docs/tooling/lint#sx-last",
+    "href": "/docs/tooling/lint#sx-last",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "sx-last",
+    "text": "A component that forwards its caller's must put it last, or the styles after it override the caller's, and the caller cannot tell why their style does not apply. Autofix. A handed down by a parent's may follow it."
+  },
+  {
+    "id": "/docs/tooling/lint#no-conflicting-props",
+    "href": "/docs/tooling/lint#no-conflicting-props",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "no-conflicting-props",
+    "text": "or written next to on one element: JSX keeps the last one, so either the compiled styles or the attribute never reach the DOM. Move those styles into a handle and pass it to the same call."
+  },
+  {
+    "id": "/docs/tooling/lint#override-keeps-conditions",
+    "href": "/docs/tooling/lint#override-keeps-conditions",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "override-keeps-conditions",
+    "text": "The pitfall of coming from StyleX: StyleX replaced a whole property, Kirana merges per condition . A plain value passed to a component that sets the same property under an attribute condition keeps losing there: Two suggestions: set the value under the component's conditions too, or to drop the component's entries. Interaction states ( ) are not reported: keeping a component's hover over your plain value is usually what you want."
+  },
+  {
+    "id": "/docs/tooling/lint#no-classname-on-sx",
+    "href": "/docs/tooling/lint#no-classname-on-sx",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "no-classname-on-sx",
+    "text": "given to one of your components that takes and not : the class never reaches the DOM. A component that spreads the rest of its props may pass it on, so it is not reported."
+  },
+  {
+    "id": "/docs/tooling/lint#no-unused",
+    "href": "/docs/tooling/lint#no-unused",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "no-unused",
+    "text": "A style nothing applies: a key of a module-local styles object that no reads, or a recipe option no call selects and no default names. Exported objects and ones used whole are left alone, and so are Vue, Svelte and Astro files, whose templates the linter does not see. Suggestion: remove it."
+  },
+  {
+    "id": "/docs/tooling/lint#no-dark-variant",
+    "href": "/docs/tooling/lint#no-dark-variant",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "no-dark-variant",
+    "text": "Dark mode written the way other systems write it, which compiles without complaint and which the page then ignores: A condition in a style (a key of a style object, or a query) follows the operating system, not the mode the page chose, so a theme toggle that sets never reaches it. A Tailwind class left in a , or string names a class no stylesheet defines. Put both values in a token , which follows . A call outside a style is left alone. Also under Biome."
+  },
+  {
+    "id": "/docs/tooling/lint#sort-properties",
+    "href": "/docs/tooling/lint#sort-properties",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "sort-properties",
+    "text": "In . One order in every style object: layout, box, typography, visual, the rest, custom properties, then nested blocks. A conditional value goes , then at-rules, relations, pseudo-classes and attributes: weakest to strongest, the order the ladder applies them, so the source reads in cascade order. Order never changes what Kirana compiles, so the fix is always safe; an object with a spread is left alone. Autofix."
+  },
+  {
+    "id": "/docs/tooling/lint#prefer-token",
+    "href": "/docs/tooling/lint#prefer-token",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "prefer-token",
+    "text": "In . A literal equal to a token's value ( where is ) suggests the token, with its import, so a theme or a design change reaches it."
+  },
+  {
+    "id": "/docs/tooling/lint#finite-bridge",
+    "href": "/docs/tooling/lint#finite-bridge",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "finite-bridge",
+    "text": "In . A style factory whose value is bridged at runtime, such as , but only ever called with a few literals is a variant in disguise. A recipe variant compiles to static classes; the bridge costs a custom property and a attribute on every element."
+  },
+  {
+    "id": "/docs/tooling/lint#no-class-helpers",
+    "href": "/docs/tooling/lint#no-class-helpers",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "no-class-helpers",
+    "text": "In . An import of a class-string helper: and , which join strings; , which settles conflicts between them; , which picks variants at runtime. Joined class strings do not merge: two atoms for one property both apply, and which wins depends on the stylesheet, not on the order written. and merge per property , and compiles the variants would pick at runtime. Also under Biome."
+  },
+  {
+    "id": "/docs/tooling/lint#this-repository",
+    "href": "/docs/tooling/lint#this-repository",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "This repository",
+    "text": "The docs and demo apps lint themselves with . Its first run found 19 ties the UI configuration had already declared impossible but that a tool run inside could not see, three real precedence ties, a shorthand that could not be split, and 21 unused styles."
+  },
+  {
+    "id": "/docs/tooling/diagnostics",
+    "href": "/docs/tooling/diagnostics",
+    "page": "Diagnostics reference",
+    "section": "tooling",
+    "text": "Every code the compiler can emit, its default severity, and which ones you can re-level. "
+  },
+  {
+    "id": "/docs/tooling/diagnostics#diagnostics-reference",
+    "href": "/docs/tooling/diagnostics#diagnostics-reference",
+    "page": "Diagnostics reference",
+    "section": "tooling",
+    "heading": "Diagnostics reference",
+    "text": "Every diagnostic has a stable code and a kebab-case name. Neither changes meaning once released, so you can suppress or raise one by name and trust it to keep meaning the same thing. A diagnostic about one property points at that property ( in ), not at the whole call, even when the style object is declared in one place and passed to somewhere else in the same module. The editor underlines exactly that property, and the lint plugin reports it there. The table below is generated from the compiler's own catalogue at build time, so it cannot drift from what the compiler actually emits."
+  },
+  {
+    "id": "/docs/tooling/diagnostics#severities",
+    "href": "/docs/tooling/diagnostics#severities",
+    "page": "Diagnostics reference",
+    "section": "tooling",
+    "heading": "Severities",
+    "text": "error : the output would be wrong. The build fails, and the level cannot be changed. warning : the output is valid but probably not what you meant. info : something worth knowing: a runtime bridge, a lowered target. Any non-error can be re-levelled, including to , in ."
+  },
+  {
+    "id": "/docs/tooling/diagnostics#the-ones-you-will-actually-meet",
+    "href": "/docs/tooling/diagnostics#the-ones-you-will-actually-meet",
+    "page": "Diagnostics reference",
+    "section": "tooling",
+    "heading": "The ones you will actually meet",
+    "text": ": you gave to a component that does not read it. Spread compiled props instead: styling other people's components . : a component takes and never applies it, so callers think they can style it and cannot. : two values could both apply and the ladder cannot order them. Nest one condition inside the other, or declare the pair exclusive: precedence . : a box has both logical and physical longhands set, in a way whose outcome could mislead. Pick one axis family. : a shorthand whose value cannot be split into longhands exactly, usually . It stays whole, which means a later style cannot remove just one of its longhands. (info): a value became a custom property because it is only known at runtime: values known at runtime . : a style reads a relation whose anchor is never applied, so it can never match: relations . A build checks the relations whose module it compiled; checks them all. , and report a value the browser would drop or misread: : an import a style depends on could not be resolved, so its value compiles as a runtime value. Check the specifier and your tsconfig paths."
+  },
+  {
+    "id": "/docs/tooling/diagnostics#reading-one",
+    "href": "/docs/tooling/diagnostics#reading-one",
+    "page": "Diagnostics reference",
+    "section": "tooling",
+    "heading": "Reading one",
+    "text": "Code, name, message, location, and a help line that says what to do. gives the same fields as data."
+  },
+  {
+    "id": "/docs/tooling/debugging",
+    "href": "/docs/tooling/debugging",
+    "page": "Debugging styles",
+    "section": "tooling",
+    "text": "Why doesn't my style apply? A short list, in the order worth checking. "
+  },
+  {
+    "id": "/docs/tooling/debugging#debugging-styles",
+    "href": "/docs/tooling/debugging#debugging-styles",
+    "page": "Debugging styles",
+    "section": "tooling",
+    "heading": "Debugging styles",
+    "text": "A style is not doing what you expect. In rough order of likelihood:"
+  },
+  {
+    "id": "/docs/tooling/debugging#1-is-the-module-compiled",
+    "href": "/docs/tooling/debugging#1-is-the-module-compiled",
+    "page": "Debugging styles",
+    "section": "tooling",
+    "heading": "1 · Is the module compiled?",
+    "text": "If runs in a module the compiler never saw, it throws with a message that says exactly that. If you see the error, the fix is the adapter: must be in the bundler's plugin list, and before the framework plugin."
+  },
+  {
+    "id": "/docs/tooling/debugging#2-is-the-element-yours",
+    "href": "/docs/tooling/debugging#2-is-the-element-yours",
+    "page": "Debugging styles",
+    "section": "tooling",
+    "heading": "2 · Is the element yours?",
+    "text": "on a component from a package does nothing. The compiler warns ( ), so check the terminal, and see styling other people's components ."
+  },
+  {
+    "id": "/docs/tooling/debugging#3-did-a-merge-keep-an-entry-you-meant-to-replace",
+    "href": "/docs/tooling/debugging#3-did-a-merge-keep-an-entry-you-meant-to-replace",
+    "page": "Debugging styles",
+    "section": "tooling",
+    "heading": "3 · Did a merge keep an entry you meant to replace?",
+    "text": "The most common surprise: a later replaces only the base entry, so an earlier colour still applies. Write when you mean \"and nothing else\"; Merging has the rule."
+  },
+  {
+    "id": "/docs/tooling/debugging#4-ask-the-compiler",
+    "href": "/docs/tooling/debugging#4-ask-the-compiler",
+    "page": "Debugging styles",
+    "section": "tooling",
+    "heading": "4 · Ask the compiler",
+    "text": "It lists every candidate declaration for that property, marks the winner, and names the ladder step that decided. If your value is not in the list at all, the problem is upstream: the style is not on that element."
+  },
+  {
+    "id": "/docs/tooling/debugging#5-check-the-conditions",
+    "href": "/docs/tooling/debugging#5-check-the-conditions",
+    "page": "Debugging styles",
+    "section": "tooling",
+    "heading": "5 · Check the conditions",
+    "text": "A condition as a top-level key is an error, and the message says so. A state beats a breakpoint: that is the ladder, not a bug. A relation read needs its anchor on the element whose state you are reading."
+  },
+  {
+    "id": "/docs/tooling/debugging#6-look-at-the-css",
+    "href": "/docs/tooling/debugging#6-look-at-the-css",
+    "page": "Debugging styles",
+    "section": "tooling",
+    "heading": "6 · Look at the CSS",
+    "text": "The stylesheet is plain CSS with one declaration per rule, so devtools tell you the truth quickly: inspect the element, read the class list, and look for the declaration. A class that is present but crossed out is a precedence question (step 4, ask ). A declaration that is missing entirely is a compile question (check the terminal)."
+  },
+  {
+    "id": "/docs/tooling/debugging#7-animations-that-do-nothing",
+    "href": "/docs/tooling/debugging#7-animations-that-do-nothing",
+    "page": "Debugging styles",
+    "section": "tooling",
+    "heading": "7 · Animations that do nothing",
+    "text": "Transition the property you actually set: , and are not . See animation ."
+  },
+  {
     "id": "/docs/project/status",
     "href": "/docs/project/status",
     "page": "What works today",
     "section": "project",
-    "text": "A single honest table of the built, the partial and the planned. "
+    "text": "What is built, what is partial and what is planned. "
   },
   {
     "id": "/docs/project/status#what-works-today",
@@ -9702,7 +9856,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "What works today",
-    "text": "Kirana is pre-release. It compiles three real applications in our shadcn/ui port — a demo, 60+ shadcn blocks and one page per component — and its own test suite keeps 100 % line coverage. It is not published, and the name is a working name."
+    "text": "Kirana is pre-release. It compiles three real applications in our shadcn/ui port (a demo, 60+ shadcn blocks and one page per component), and its own test suite keeps 100 % line coverage. It is not published, and the name is a working name."
   },
   {
     "id": "/docs/project/status#built",
@@ -9710,7 +9864,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Built",
-    "text": ", , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember — as in Angular templates and the helper in Ember's — see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the <1 kB runtime 45 diagnostics with stable codes for Vite 8, with hot updates , , (with Rsbuild), , and and : Next.js on Turbopack and on webpack — see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog — see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS — see server templates , (with for a bug report), , , (with and for CI), , (the design system as JSON), , and — see the CLI , and : value fallbacks, rules and view-transition classes, each checked at build time — see fallback values , anchor positioning and view transitions"
+    "text": ", , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1 kB 45 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, the design system as JSON, tracing a property, and bo"
   },
   {
     "id": "/docs/project/status#partial",
@@ -9726,7 +9880,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Not built",
-    "text": "Publishing to npm Publishing the editor extensions to the VS Code Marketplace, Open VSX and Zed's registry / and gradients ( , , ) in the scales preset A persistent cache on disk: deliberately not built, because the engine is 0.05 s of a 16 s build and a cache that skips it would save nothing"
+    "text": "Publishing to npm Publishing the editor extensions to the VS Code Marketplace, Open VSX and Zed's registry The and animations, and gradients ( and its stops), in the scales preset A persistent cache on disk: deliberately not built, because the engine is 0.05 s of a 16 s build and a cache that skips it would save nothing"
   },
   {
     "id": "/docs/project/status#known-rough-edges",
@@ -9756,7 +9910,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "href": "/docs/project/roadmap#m0-foundations-done",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M0 — Foundations · done",
+    "heading": "M0: Foundations · done",
     "text": "The workspace, the IR, longhand expansion and normalisation, the ladder and layer plan, the CSS writer, golden fixtures, ."
   },
   {
@@ -9764,7 +9918,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "href": "/docs/project/roadmap#m1-feasibility-slice-done",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M1 — Feasibility slice · done",
+    "heading": "M1: Feasibility slice · done",
     "text": "The Vite adapter, cross-file resolution, for React, relations, , keyframes, modes and themes, the scales preset, and the first conformance runs against the StyleX and Tailwind originals."
   },
   {
@@ -9772,39 +9926,39 @@ export const SEARCH: readonly SearchRecord[] = [
     "href": "/docs/project/roadmap#m2-recipes-and-dynamic-styles-done",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M2 — Recipes and dynamic styles · done",
-    "text": "with slots, finite and open dynamic values, the private runtime, incremental rebuilds and hot updates, , and the full component set built on it — which is what found most of the compiler's bugs. One thing in this milestone's scope is deliberately not built: a persistent cache on disk. The engine is 0.05 s of a 16 s build, so a cache that skips it saves nothing you could measure, and every key it has to get right is a way to serve stale CSS."
+    "heading": "M2: Recipes and dynamic styles · done",
+    "text": "with slots, finite and open dynamic values, the private runtime, incremental rebuilds and hot updates, , and the full component set built on it, which is what found most of the compiler's bugs. One thing in this milestone's scope is deliberately not built: a persistent cache on disk. The engine is 0.05 s of a 16 s build, so a cache that skips it saves nothing you could measure, and every key it has to get right is a way to serve stale CSS."
   },
   {
     "id": "/docs/project/roadmap#m4-ecosystem-done-pending-publication",
     "href": "/docs/project/roadmap#m4-ecosystem-done-pending-publication",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M4 — Ecosystem · done, pending publication",
-    "text": "Kirana installable outside this repository, and proven so on every change. Built so far: the packages and the eight per-platform engine packages are packed as tarballs, and CI installs them with npm, pnpm, Yarn and Bun on Linux, macOS, Windows and Alpine, builds an example and checks it in a browser. Also built: adapters for Rolldown, webpack (with Next.js on webpack), Rspack (with Rsbuild) and Bun, each with an example the same CI builds and checks. Also built: Preact and Solid, where compiles to , and plain TypeScript through class strings. Also built: Vue, Nuxt, Svelte, SvelteKit and Astro, with in their templates, an install guide per framework, and every Vite-based one checked in its dev server on every change. Also built: Qwik 2, where compiles to ; and Angular, through an directive, with builders for the Angular CLI and a Vite plugin for Analog. Each has an example CI builds and checks in a browser and in its dev server. Also built: a guide and a tested example for every framework Tailwind documents — React Router, Gatsby, Ember, Meteor and Parcel — and server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS, through a class map and a helper per template language. "
+    "heading": "M4: Ecosystem · done, pending publication",
+    "text": "Kirana installable outside this repository, and proven so on every change. Built so far: the packages and the eight per-platform engine packages are packed as tarballs, and CI installs them with npm, pnpm, Yarn and Bun on Linux, macOS, Windows and Alpine, builds an example and checks it in a browser. Also built: adapters for Rolldown, webpack (with Next.js on webpack), Rspack (with Rsbuild) and Bun, each with an example the same CI builds and checks. Also built: Preact and Solid, where compiles to , and plain TypeScript through class strings. Also built: Vue, Nuxt, Svelte, SvelteKit and Astro, with in their templates, an install guide per framework, and every Vite-based one checked in its dev server on every change. Also built: Qwik 2, where compiles to ; and Angular, through an directive, with builders for the Angular CLI and a Vite plugin for Analog. Each has an example CI builds and checks in a browser and in its dev server. Also built: a guide and a tested example for every framework Tailwind documents (React Router, Gatsby, Ember, Meteor and Parcel), and server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS, through a class map and a helper per template language. A"
   },
   {
     "id": "/docs/project/roadmap#m5-utility-surface-done",
     "href": "/docs/project/roadmap#m5-utility-surface-done",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M5 — Utility surface · done",
-    "text": "Utility strings in , from a grammar a preset declares as data; ships Tailwind v4's names, including composed utilities ( , , , filters) and pseudo-elements. A property test compiles all 7,391 utilities the grammar generates and checks each gives the same atoms as its object. is built on the same lowering. The exit criterion was to migrate the Tailwind original of our shadcn/ui port with it and match the original: after the codemod and 38 hand fixes, conformance finds zero computed-style differences on all 189 routes of the three applications, at three widths, in both colour schemes, at rest and with overlays, menus and other interactive states open. The migration guide has the numbers and every pitfall the hand fixes resolved. The language server's support for utility strings moved to M3."
+    "heading": "M5: Utility surface · done",
+    "text": "Utility strings in , from a grammar a preset declares as data; ships Tailwind v4's names, including composed utilities (rings, shadows, translations, filters) and pseudo-elements. A property test compiles all 7,391 utilities the grammar generates and checks each gives the same atoms as its object. is built on the same lowering. The exit criterion was to migrate the Tailwind original of our shadcn/ui port with it and match the original: after the codemod and 38 hand fixes, conformance finds zero computed-style differences on all 189 routes of the three applications, at three widths, in both colour schemes, at rest and with overlays, menus and other interactive states open. The migration guide has the numbers and every pitfall the hand fixes resolved. The language server's support for utility strings moved to M3."
   },
   {
     "id": "/docs/project/roadmap#m3-developer-experience-done-pending-publication",
     "href": "/docs/project/roadmap#m3-developer-experience-done-pending-publication",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M3 — Developer experience · done, pending publication",
-    "text": "Editor and lint support, read from the compiler rather than re-implemented, so they never disagree with the build. Built (sprint 6): Language server — : diagnostics at the property, hover with the compiled CSS and the winning entry's ladder step, token values in both modes, colour swatches, an inline summary after every , code lenses, completion for conditions, targets, keyword values and utility strings, navigation for tokens and relations, and code actions — quick fixes, show compiled CSS, explain precedence, and convert Tailwind classes to . Hover answers in 1.2 ms at the 95th percentile on our shadcn/ui port. VS Code and Zed extensions , running the project's own server; Neovim and Helix through their own LSP configuration. — nine rules under Oxlint and ESLint with identical results: , , , , , , , , . This repository lints itself with them. Built (sprint 7): Editors in Vue, Svelte and Astro components , the style card (box model, every declaration, compiled CSS), coloured summaries at the end of each line, the Style Inspector and Style Fold. CLI : sets a project up from a diff, checks it, watches without a bundler, and reports atoms, reuse and bytes by layer and module. Next.js"
+    "heading": "M3: Developer experience · done, pending publication",
+    "text": "Editor and lint support, read from the compiler rather than re-implemented, so they never disagree with the build. Built (sprint 6): Language server , : diagnostics at the property, hover with the compiled CSS and the winning entry's ladder step, token values in both modes, colour swatches, an inline summary after every , code lenses, completion for conditions, targets, keyword values and utility strings, navigation for tokens and relations, and code actions (quick fixes, show compiled CSS, explain precedence, and convert Tailwind classes to ). Hover answers in 1.2 ms at the 95th percentile on our shadcn/ui port. VS Code and Zed extensions , running the project's own server; Neovim and Helix through their own LSP configuration. : nine rules under Oxlint and ESLint with identical results, each described on the lint page. This repository lints itself with them. Built (sprint 7): Editors in Vue, Svelte and Astro components , the style card (box model, every declaration, compiled CSS), coloured summaries at the end of each line, the Style Inspector and Style Fold. CLI : sets a project up from a diff, checks it, watches without a bundler, and reports atoms, reuse and bytes by layer and "
   },
   {
     "id": "/docs/project/roadmap#m6-1-0-planned",
     "href": "/docs/project/roadmap#m6-1-0-planned",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M6 — 1.0 · planned",
+    "heading": "M6: 1.0 · planned",
     "text": "API freeze, the full conformance suite, a public benchmark report under the claims policy, trademark clearance, the documentation site at its own domain, and a security review of the evaluator."
   },
   {
@@ -9828,7 +9982,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Releases and upgrading",
     "section": "project",
     "heading": "Today",
-    "text": "Every package is 0.1.0 , and none is published. There is nothing to upgrade from yet, and no changelog — the record of what changed is the implementation tracker in the repository, written per sprint."
+    "text": "Every package is 0.1.0 , and none is published. There is nothing to upgrade from yet, and no changelog: the record of what changed is the implementation tracker in the repository, written per sprint."
   },
   {
     "id": "/docs/project/releases#how-versions-will-work",
@@ -9836,7 +9990,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Releases and upgrading",
     "section": "project",
     "heading": "How versions will work",
-    "text": "One version for everything. The compiler, the adapters, the CLI, the language server and the packages release together at the same number. A diagnostic touches the engine, the lint rules, the editor and the documentation at once, so a version where those disagree would be a version that lies. Pre-1.0 means the API can move. Minor versions may change behaviour before 1.0. Every such change gets an entry saying what moved and what to do — the same way the specification's decision log records why a decision was superseded. After 1.0 , semantic versioning: a breaking change means a major."
+    "text": "One version for everything. The compiler, the adapters, the CLI, the language server and the packages release together at the same number. A diagnostic touches the engine, the lint rules, the editor and the documentation at once, so a version where those disagree would be a version that lies. Pre-1.0 means the API can move. Minor versions may change behaviour before 1.0. Every such change gets an entry saying what moved and what to do, the same way the specification's decision log records why a decision was superseded. After 1.0 , semantic versioning: a breaking change means a major."
   },
   {
     "id": "/docs/project/releases#what-counts-as-breaking",
@@ -9844,7 +9998,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Releases and upgrading",
     "section": "project",
     "heading": "What counts as breaking",
-    "text": "Removing or renaming an export, or changing what it returns. Changing which style wins — the ladder, merge semantics, layer order. Changing a diagnostic's meaning. (Codes and names are stable once released; a code may gain a better message, never a different subject.) Changing generated class names in a way that breaks a shared page, other than through the configured prefix. What is not breaking: new diagnostics, new API, better messages, smaller output."
+    "text": "Removing or renaming an export, or changing what it returns. Changing which style wins: the ladder, merge semantics, layer order. Changing a diagnostic's meaning. (Codes and names are stable once released; a code may gain a better message, never a different subject.) Changing generated class names in a way that breaks a shared page, other than through the configured prefix. What is not breaking: new diagnostics, new API, better messages, smaller output."
   },
   {
     "id": "/docs/project/releases#when-you-upgrade",
@@ -9852,14 +10006,132 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Releases and upgrading",
     "section": "project",
     "heading": "When you upgrade",
-    "text": "Read the release note for behaviour changes. — new diagnostics surface here first, and a new warning is usually a real problem that was invisible before. Build, and diff the stylesheet. Output is deterministic, so a diff is meaningful: it shows exactly which declarations changed. If the project has a visual baseline, compare computed styles rather than screenshots. Conformance explains the method."
+    "text": "Read the release note for behaviour changes. : new diagnostics surface here first, and a new warning is usually a real problem that was invisible before. Build, and diff the stylesheet. Output is deterministic, so a diff is meaningful: it shows exactly which declarations changed. If the project has a visual baseline, compare computed styles rather than screenshots. Conformance explains the method."
+  },
+  {
+    "id": "/docs/integrations/ecosystem",
+    "href": "/docs/integrations/ecosystem",
+    "page": "Ecosystem and status",
+    "section": "project",
+    "text": "What works today, what is planned, and which milestone each thing belongs to. "
+  },
+  {
+    "id": "/docs/integrations/ecosystem#ecosystem-and-status",
+    "href": "/docs/integrations/ecosystem#ecosystem-and-status",
+    "page": "Ecosystem and status",
+    "section": "project",
+    "heading": "Ecosystem and status",
+    "text": "What exists, honestly. Anything marked planned is in the specification and not in the build."
+  },
+  {
+    "id": "/docs/integrations/ecosystem#bundlers",
+    "href": "/docs/integrations/ecosystem#bundlers",
+    "page": "Ecosystem and status",
+    "section": "project",
+    "heading": "Bundlers",
+    "text": "See other bundlers for each one's setup."
+  },
+  {
+    "id": "/docs/integrations/ecosystem#configuration-keys-in-the-specification-but-not-the-build",
+    "href": "/docs/integrations/ecosystem#configuration-keys-in-the-specification-but-not-the-build",
+    "page": "Ecosystem and status",
+    "section": "project",
+    "heading": "Configuration keys in the specification but not the build",
+    "text": ", to compose preset packages. Import preset modules directly instead. It fails validation today. ( works: see publishing a library .) See the roadmap for when they are scheduled."
+  },
+  {
+    "id": "/docs/project/contributing",
+    "href": "/docs/project/contributing",
+    "page": "Contributing",
+    "section": "project",
+    "text": "How to report a bug, fix the docs, get a pull request merged, and support Kirana. "
+  },
+  {
+    "id": "/docs/project/contributing#contributing-to-kirana",
+    "href": "/docs/project/contributing#contributing-to-kirana",
+    "page": "Contributing",
+    "section": "project",
+    "heading": "Contributing to Kirana",
+    "text": "Thank you for wanting to help. Kirana is small and independent, so every good bug report, docs fix and pull request moves it noticeably. This page says what helps most and how to get a change merged without a round of back-and-forth. The same guide is in the repository, and the ways to support the project with money are on the sponsors page ."
+  },
+  {
+    "id": "/docs/project/contributing#report-a-bug",
+    "href": "/docs/project/contributing#report-a-bug",
+    "page": "Contributing",
+    "section": "project",
+    "heading": "Report a bug",
+    "text": "The most valuable contribution at this stage. A good report has: What you ran : the Kirana version, your framework and bundler, and the smallest source that shows the problem. What you expected and what happened : the computed style you expected, and the one you got. prints every entry for a style and the one that won; paste its output. The diagnostic , if there was one, with its code ( ). A style that compiles and renders wrong is a bug even when no diagnostic fired; report it. So is a diagnostic whose help text did not tell you what to do."
+  },
+  {
+    "id": "/docs/project/contributing#improve-the-docs",
+    "href": "/docs/project/contributing#improve-the-docs",
+    "page": "Contributing",
+    "section": "project",
+    "heading": "Improve the docs",
+    "text": "If a page made you guess, it is wrong. Open an issue naming the page and the sentence, or send the fix. Docs live in ; run in after editing, so the generated pages and the search index follow. Every statement in the docs should be true of the code today. A claim about performance, size or another project needs a source or a measurement beside it."
+  },
+  {
+    "id": "/docs/project/contributing#before-you-start",
+    "href": "/docs/project/contributing#before-you-start",
+    "page": "Contributing",
+    "section": "project",
+    "heading": "Before you start",
+    "text": "Open an issue first for anything beyond a small, obvious fix, and wait for a maintainer to agree on the approach. It saves you writing a pull request that cannot be merged. Pull requests that only reformat, rename or reorder code are not accepted: the formatters and linters own that."
+  },
+  {
+    "id": "/docs/project/contributing#set-up",
+    "href": "/docs/project/contributing#set-up",
+    "page": "Contributing",
+    "section": "project",
+    "heading": "Set up",
+    "text": "Vite+ ( ) and Rust (through rustup) are the two installs. The README's Scripts table lists what each command needs. The pre-push hook ( ) runs the checks, the Rust lints and the tests with 100 % coverage, from the cache when nothing changed."
+  },
+  {
+    "id": "/docs/project/contributing#try-it-on-this-repository",
+    "href": "/docs/project/contributing#try-it-on-this-repository",
+    "page": "Contributing",
+    "section": "project",
+    "heading": "Try it on this repository",
+    "text": "Every component in is written with Kirana. Open one, say : style handles at the top, an prop on the elements below. Then start this site and change a value in any call: The page on <http://localhost:3000> updates without a reload: the compiler rebuilds the stylesheet and sends it through Vite's hot update channel. To ask the compiler what it found, and which declaration wins a property and why: prints one line per candidate declaration, marks the winner, and names the step of the precedence ladder that decided it."
+  },
+  {
+    "id": "/docs/project/contributing#what-a-pull-request-needs",
+    "href": "/docs/project/contributing#what-a-pull-request-needs",
+    "page": "Contributing",
+    "section": "project",
+    "heading": "What a pull request needs",
+    "text": "Tests, and 100 % coverage. Kirana's packages keep 100 % coverage of Rust lines, functions and regions, and of TypeScript statements, branches, functions and lines. checks it. A change that lowers it fails CI. The specification, in the same change. A change to the compiler's behaviour updates the matching document in , and a design choice gets a decision in . The docs, in the same change. A new token, diagnostic, option or behaviour is not finished until says so. Evidence for a trade-off. If your change makes something worse to make something else better, show the failing case, the numbers and a test. A sign-off on every commit. Contributions are accepted under the Developer Certificate of Origin : add with , certifying you have the right to submit the work under the project's licence."
+  },
+  {
+    "id": "/docs/project/contributing#security",
+    "href": "/docs/project/contributing#security",
+    "page": "Contributing",
+    "section": "project",
+    "heading": "Security",
+    "text": "Do not change files under in the same pull request as other work; a workflow change is reviewed on its own. Report a vulnerability privately, never in a public issue: see . CI actions and runner images are pinned to an exact version, never written from memory: check the action's latest release and that it runs on a supported runtime."
+  },
+  {
+    "id": "/docs/project/contributing#support-the-project",
+    "href": "/docs/project/contributing#support-the-project",
+    "page": "Contributing",
+    "section": "project",
+    "heading": "Support the project",
+    "text": "Kirana is MIT licensed and free to use. If it saves you time, the sponsors page lists every way to support it (GitHub Sponsors, Open Collective, Polar, and invoices for companies) once each channel opens."
+  },
+  {
+    "id": "/docs/project/contributing#conduct",
+    "href": "/docs/project/contributing#conduct",
+    "page": "Contributing",
+    "section": "project",
+    "heading": "Conduct",
+    "text": "Be kind, be specific, and assume good intent. Critique code and ideas, never people. The full code of conduct is the Contributor Covenant, in ."
   },
   {
     "id": "/docs/project/llms",
     "href": "/docs/project/llms",
     "page": "For LLMs",
     "section": "project",
-    "text": "Plain-text endpoints of this documentation, written for coding agents - llms.txt, the full text, and a markdown twin of every page. "
+    "text": "Plain-text endpoints of this documentation, written for coding agents: llms.txt, the full text, and a markdown twin of every page. "
   },
   {
     "id": "/docs/project/llms#for-llms",
@@ -9899,14 +10171,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "For LLMs",
     "section": "project",
     "heading": "Machine-readable extras",
-    "text": "The diagnostics are also available as data on the diagnostics page — code, message, and what to do about it. prints your project's own design system — tokens, themes, recipes and relations, with where each is declared — as JSON, so an agent uses the names that exist. The API reference is generated from the packages' type declarations, so its signatures are the real ones. The playground shows curated examples with the CSS, class names and diagnostics the real compiler produced from them at build time. It does not compile pasted source yet — that needs the WASM engine — so to check an agent's suggestion, run or on it."
+    "text": "The diagnostics are also available as data on the diagnostics page : code, message, and what to do about it. prints your project's own design system (tokens, themes, recipes and relations, with where each is declared) as JSON, so an agent uses the names that exist. The API reference is generated from the packages' type declarations, so its signatures are the real ones. The playground shows curated examples with the CSS, class names and diagnostics the real compiler produced from them at build time. It does not compile pasted source yet (that needs the WASM engine), so to check an agent's suggestion, run or on it."
   },
   {
     "id": "/docs/project/agent-skills",
     "href": "/docs/project/agent-skills",
     "page": "Agent skills",
     "section": "project",
-    "text": "Two installable skills that teach a coding agent to write Kirana and to migrate to it - the rules that cause real bugs, the check-trace-report loop, and every diagnostic and lint rule. "
+    "text": "Two installable skills teach a coding agent to write Kirana and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule. "
   },
   {
     "id": "/docs/project/agent-skills#agent-skills",
@@ -9914,7 +10186,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Agent skills",
     "section": "project",
     "heading": "Agent skills",
-    "text": "A model's training data does not contain Kirana, so a coding agent left to itself writes Tailwind or StyleX and calls it Kirana. The plain-text docs explain the system; the two skills in Kirana's repository tell an agent how to work in it — what to check first, which mistakes compile and still render wrong, and what to run when something does. The command installs them for the agent you use — Claude Code, Cursor, Codex, OpenCode and the others it supports — in your project or globally ( ), and keeps them current. They live in the repository's folder; until the repository is public, point the command at a checkout instead ( )."
+    "text": "A model's training data does not contain Kirana, so a coding agent left to itself writes Tailwind or StyleX and calls it Kirana. The plain-text docs explain the system; the two skills in Kirana's repository tell an agent how to work in it: what to check first, which mistakes compile and still render wrong, and what to run when something does. The command installs them for the agent you use (Claude Code, Cursor, Codex, OpenCode and the others it supports), in your project or globally with , and keeps them current. They live in the repository's folder; until the repository is public, point the command at a checkout instead ( )."
   },
   {
     "id": "/docs/project/agent-skills#what-each-one-teaches",
@@ -9922,7 +10194,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Agent skills",
     "section": "project",
     "heading": "What each one teaches",
-    "text": "Each skill is short — the rules and the workflow — and keeps the detail in reference files the agent reads only when it needs them: the API, how is spelled in each framework, the Tailwind and StyleX mappings, and two files generated from the compiler's source on every build: every diagnostic with what to do about it, and every lint rule with the linters that run it. A diagnostic added to the compiler without a line saying what to do about it fails the build."
+    "text": "Each skill is short (the rules and the workflow), and keeps the detail in reference files the agent reads only when it needs them: the API, how is spelled in each framework, the Tailwind and StyleX mappings, and two files generated from the compiler's source on every build: every diagnostic with what to do about it, and every lint rule with the linters that run it. A diagnostic added to the compiler without a line saying what to do about it fails the build."
   },
   {
     "id": "/docs/project/agent-skills#the-loop-it-follows",
@@ -9930,7 +10202,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Agent skills",
     "section": "project",
     "heading": "The loop it follows",
-    "text": "Learn the project. — the tokens, themes, recipes and relations that exist, by their real names — then . Write the style , with the rules: conditions inside the value, entries merge per condition, forwarded last, for installed components, colours as pairs. , and fix every error by its code. Lint , with whichever of ESLint, Oxlint or Biome the project runs. when it compiles and looks wrong. when it looks like a Kirana bug — and ask before filing it. Every step answers from the compiler, so an agent that follows it checks its own work instead of guessing whether a class string it remembered still exists."
+    "text": "Learn the project. Run for the tokens, themes, recipes and relations that exist, by their real names, then . Write the style , with the rules: conditions inside the value, entries merge per condition, forwarded last, for installed components, colours as pairs. , and fix every error by its code. Lint , with whichever of ESLint, Oxlint or Biome the project runs. when it compiles and looks wrong. when it looks like a Kirana bug, and ask before filing it. Every step answers from the compiler, so an agent that follows it checks its own work instead of guessing whether a class string it remembered still exists."
   },
   {
     "id": "/docs/project/agent-skills#with-llms-txt",
@@ -9939,85 +10211,6 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "project",
     "heading": "With llms.txt",
     "text": "The skills and the plain-text docs do different jobs. A skill is instructions an agent loads by itself when the task matches; is reference it reads when it needs to know more. The skills link to the markdown pages instead of copying them, so the two never disagree."
-  },
-  {
-    "id": "/docs/project/contributing",
-    "href": "/docs/project/contributing",
-    "page": "Contributing",
-    "section": "project",
-    "text": "How to report a bug, fix the docs, get a pull request merged, and support Kirana. "
-  },
-  {
-    "id": "/docs/project/contributing#contributing-to-kirana",
-    "href": "/docs/project/contributing#contributing-to-kirana",
-    "page": "Contributing",
-    "section": "project",
-    "heading": "Contributing to Kirana",
-    "text": "Thank you for wanting to help. Kirana is small and independent, so every good bug report, docs fix and pull request moves it noticeably. This page says what helps most and how to get a change merged without a round of back-and-forth. The same guide is in the repository, and the ways to support the project with money are on the sponsors page ."
-  },
-  {
-    "id": "/docs/project/contributing#report-a-bug",
-    "href": "/docs/project/contributing#report-a-bug",
-    "page": "Contributing",
-    "section": "project",
-    "heading": "Report a bug",
-    "text": "The most valuable contribution at this stage. A good report has: What you ran : the Kirana version, your framework and bundler, and the smallest source that shows the problem. What you expected and what happened : the computed style you expected, and the one you got. prints every entry for a style and the one that won; paste its output. The diagnostic , if there was one, with its code ( ). A style that compiles and renders wrong is a bug even when no diagnostic fired — report it. So is a diagnostic whose help text did not tell you what to do."
-  },
-  {
-    "id": "/docs/project/contributing#improve-the-docs",
-    "href": "/docs/project/contributing#improve-the-docs",
-    "page": "Contributing",
-    "section": "project",
-    "heading": "Improve the docs",
-    "text": "If a page made you guess, it is wrong. Open an issue naming the page and the sentence, or send the fix. Docs live in ; run in after editing, so the generated pages and the search index follow. Every statement in the docs should be true of the code today. A claim about performance, size or another project needs a source or a measurement beside it."
-  },
-  {
-    "id": "/docs/project/contributing#before-you-start",
-    "href": "/docs/project/contributing#before-you-start",
-    "page": "Contributing",
-    "section": "project",
-    "heading": "Before you start",
-    "text": "Open an issue first for anything beyond a small, obvious fix, and wait for a maintainer to agree on the approach. It saves you writing a pull request that cannot be merged. Pull requests that only reformat, rename or reorder code are not accepted: the formatters and linters own that."
-  },
-  {
-    "id": "/docs/project/contributing#set-up",
-    "href": "/docs/project/contributing#set-up",
-    "page": "Contributing",
-    "section": "project",
-    "heading": "Set up",
-    "text": "Vite+ ( ) and Rust (through rustup) are the two installs. The README's Scripts table lists what each command needs. The pre-push hook ( ) runs the checks, the Rust lints and the tests with 100 % coverage, from the cache when nothing changed."
-  },
-  {
-    "id": "/docs/project/contributing#what-a-pull-request-needs",
-    "href": "/docs/project/contributing#what-a-pull-request-needs",
-    "page": "Contributing",
-    "section": "project",
-    "heading": "What a pull request needs",
-    "text": "Tests, and 100 % coverage. Kirana's packages keep 100 % coverage — Rust lines, functions and regions; TypeScript statements, branches, functions and lines. checks it. A change that lowers it fails CI. The specification, in the same change. A change to the compiler's behaviour updates the matching document in , and a design choice gets a decision in . The docs, in the same change. A new token, diagnostic, option or behaviour is not finished until says so. Evidence for a trade-off. If your change makes something worse to make something else better, show the failing case, the numbers and a test. A sign-off on every commit. Contributions are accepted under the Developer Certificate of Origin : add with , certifying you have the right to submit the work under the project's licence."
-  },
-  {
-    "id": "/docs/project/contributing#security",
-    "href": "/docs/project/contributing#security",
-    "page": "Contributing",
-    "section": "project",
-    "heading": "Security",
-    "text": "Do not change files under in the same pull request as other work; a workflow change is reviewed on its own. Report a vulnerability privately, never in a public issue: see . CI actions and runner images are pinned to an exact version, never written from memory: check the action's latest release and that it runs on a supported runtime."
-  },
-  {
-    "id": "/docs/project/contributing#support-the-project",
-    "href": "/docs/project/contributing#support-the-project",
-    "page": "Contributing",
-    "section": "project",
-    "heading": "Support the project",
-    "text": "Kirana is MIT licensed and free to use. If it saves you time, the sponsors page lists every way to support it — GitHub Sponsors, Open Collective, Polar, and invoices for companies — once each channel opens."
-  },
-  {
-    "id": "/docs/project/contributing#conduct",
-    "href": "/docs/project/contributing#conduct",
-    "page": "Contributing",
-    "section": "project",
-    "heading": "Conduct",
-    "text": "Be kind, be specific, and assume good intent. Critique code and ideas, never people. The full code of conduct is the Contributor Covenant, in ."
   }
 ]
 

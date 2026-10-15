@@ -3,10 +3,20 @@ Source: https://kirana.style/docs/tooling/cli
 
 # The CLI
 
-The `kirana` binary sets a project up (`init`), checks the setup (`doctor`),
-compiles without a bundler (`build`, `dev`), reports (`check`, `analyze`,
-`export`, `trace`), rewrites other styling systems (`migrate`) and serves your editor
-(`lsp`).
+The `kirana` binary's commands, by what they do:
+
+| What it does                            | Commands                              |
+| --------------------------------------- | ------------------------------------- |
+| Sets a project up, and checks the setup | `init`, `doctor`                      |
+| Compiles without a bundler              | `build`, `dev`                        |
+| Reports                                 | `check`, `analyze`, `export`, `trace` |
+| Rewrites other styling systems          | `migrate`                             |
+| Serves your editor                      | `lsp`                                 |
+
+The command comes with the compiler package. In a project that does not have
+Kirana yet, run `npx kirana-style init`: `kirana-style` is the command line's
+package on npm, and it runs the same command. Once `init` has added the compiler,
+every command is plain `kirana`.
 
 In this repository the binary runs through its entry script:
 
@@ -51,14 +61,13 @@ Next.js · turbopack · npm · TypeScript
 
 It knows Next.js (Turbopack and webpack), Nuxt, SvelteKit, Astro, TanStack Start,
 Qwik, Angular (the CLI, whose `angular.json` builders it swaps, and Analog), React
-Router, Gatsby, Ember, Meteor, Parcel, the server frameworks — Laravel, Symfony,
-Rails, Phoenix and AdonisJS, which get a class map and a starter style module —
-and
-React, Preact, Solid, Vue, Svelte or plain DOM on Vite, Rsbuild, Rspack, webpack
-and Rolldown. Edits follow the file's own quotes and semicolons. Where a
-configuration is not in a shape it can edit safely — `module.exports`, a
-function, a plugin list built elsewhere — it prints the step to do by hand
-instead of guessing. The install command is printed, never run unless you pass
+Router, Gatsby, Ember, Meteor and Parcel; React, Preact, Solid, Vue, Svelte or
+plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown; and the server frameworks
+Laravel, Symfony, Rails, Phoenix and AdonisJS, which get a class map and a starter
+style module. Edits follow the file's own quotes and semicolons. Where a
+configuration is not in a shape it can edit safely (`module.exports`, a function,
+a plugin list built elsewhere), it prints the step to do by hand instead of
+guessing. The install command is printed, never run unless you pass
 `--install`, so your lockfile stays yours.
 
 Its setups were checked the way the examples are: sixteen examples, stripped of
@@ -92,19 +101,23 @@ All good.
 
 It reports the engine in use (native, or the WebAssembly fallback), every
 installed `@kirana-style/*` version and whether they match, whether the configuration
-loads, and whether the adapter, stylesheet and types are in place — by running
-`kirana init`'s plan without writing. The exit code is 1 when something fails.
+loads, and whether the adapter, stylesheet and types are in place, which it learns
+by running `kirana init`'s plan without writing. The exit code is 1 when something fails.
 There is no cache to clear: Kirana keeps nothing on disk between builds.
 
 ### A bug report
 
 `--report` writes `kirana-report.md` (or the file after the flag): an issue body
-with a place at the top for what happened and the smallest reproduction, then
-what Kirana collected — the engine version, Node.js and OS, framework and
-bundler, every `@kirana-style/*` version, the doctor's checks, each diagnostic code with
-how often it occurred and where first, the stylesheet's size and the resolved
-configuration. `--trace <file>:<line> <property>` adds `kirana trace` output.
-`--json` prints the same data instead of writing the file.
+with a place at the top for what happened and the smallest reproduction, then what
+Kirana collected:
+
+- the engine version, Node.js and OS, the framework and the bundler;
+- every `@kirana-style/*` version, and the doctor's checks;
+- each diagnostic code, how often it occurred and where first;
+- the stylesheet's size and the resolved configuration.
+
+`--trace <file>:<line> <property>` adds `kirana trace` output, and `--json` prints
+the same data instead of writing the file.
 
 ```console
 $ kirana doctor --report --trace src/card.tsx:12 minHeight
@@ -118,7 +131,7 @@ variable is read. Read it before you post it anyway.
 
 ## `kirana dev`
 
-Watch mode for projects without a bundler — plain HTML, web components, server
+Watch mode for projects without a bundler: plain HTML, web components, server
 templates.
 
 ```bash
@@ -165,7 +178,7 @@ receives `sx`, which it does not read (src/menu.tsx:14:7)
 for an editor or a script. The exit code is 1 when anything is an error.
 
 `--format github` prints one GitHub Actions workflow command per diagnostic, which
-annotates the line in the pull request's diff — errors as errors, warnings as
+annotates the line in the pull request's diff: errors as errors, warnings as
 warnings, infos as notices. Paths are relative to the project root, so run it from
 the repository root or a project at the root.
 
@@ -187,7 +200,7 @@ kirana build src --out dist/kirana.css
 kirana build src --out dist/kirana.css --minify
 ```
 
-Useful when a bundler is not in the picture — a library build, a check in CI, or
+Useful when a bundler is not in the picture: a library build, a check in CI, or
 looking at the CSS for yourself. Applications normally let the
 [Vite plugin](/docs/integrations/vite) do this.
 
@@ -221,9 +234,9 @@ Most reused
    263 site(s) in  44 module(s)  k50_6mrG  color: var(--kviZP2)
 ```
 
-That is this documentation site. The report goes on with the largest modules —
-the bytes of their rules, and of the rules only they use, which is what deleting
-them would save — then values bridged to runtime, recipes resolved at runtime,
+That is this documentation site. The report goes on with the largest modules (the
+bytes of their rules, and of the rules only they use, which is what deleting them
+would save), then values bridged to runtime, recipes resolved at runtime,
 themes and the tokens they override, relation reads no anchor proves, and tokens
 your project declares that nothing reads. `--json` prints all of it;
 `--html` writes one self-contained page, readable in light and dark. The exit
@@ -234,8 +247,8 @@ code is the same as `check`'s.
 The design system, as JSON: every token with its value (and both halves of a
 `light-dark()` pair), each theme and the tokens it overrides, each recipe with
 its variant groups, options and defaults, every relation and where it is
-anchored and read, and the keyframes, `positionTry` and `viewTransition` names —
-each with the file and line that declares it.
+anchored and read, and the keyframes, `positionTry` and `viewTransition` names.
+Each comes with the file and line that declares it.
 
 ```bash
 kirana export                       # print it
@@ -294,9 +307,9 @@ kirana export src --out design-system.json
 }
 ```
 
-It is what a coding agent should read before writing a style — the tokens and
-recipes that exist, by their real names — and what a design tool or a review
-needs to see what a change did to the system. Names, values and project-relative
+It is what a coding agent should read before writing a style (the tokens and
+recipes that exist, by their real names), and what a design tool or a review needs
+to see what a change did to the system. Names, values and project-relative
 locations only, never source text; everything is sorted, so the file diffs cleanly
 when it is committed. `schema` changes only when a field does. The exit code is
 1 when the project has errors, as for `check`.
@@ -350,15 +363,15 @@ Nothing is written without `--write`. The report is printed either way: each
 line is a file position and something a person has to do, and the utility it is
 about is also left in a comment beside the style it belongs to.
 
-`migrate tailwind` needs a [utility grammar](/docs/styling/utilities) — the
-preset and your theme's scales — and reads `@custom-variant` and `@utility` from
-any CSS file among its paths. See
+`migrate tailwind` needs a [utility grammar](/docs/styling/utilities) (the preset
+and your theme's scales), and reads `@custom-variant` and `@utility` from any CSS
+file among its paths. See
 [migrating from Tailwind](/docs/migration/from-tailwind#the-codemod).
 
 ## `kirana lsp`
 
-Start the language server on stdin and stdout. Editors run it for you — see
-[editor support](/docs/tooling/editor) — but any LSP client can:
+Start the language server on stdin and stdout. Editors run it for you (see
+[editor support](/docs/tooling/editor)), but any LSP client can:
 
 ```bash
 kirana lsp

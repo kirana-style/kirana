@@ -20,7 +20,7 @@ import {
 
 import { DocsLink } from "@/components/docs-link"
 import { SPONSORS } from "@/components/sponsors/data"
-import { LIFT, REST } from "@/components/site/lift"
+import { LIFT, REST } from "@workspace/ui/recipes/lift"
 
 const styles = {
   rail: css({ display: "grid", gap: spacing[3] }),

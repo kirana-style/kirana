@@ -27,7 +27,7 @@ const place = (d: string) =>
 export const PETAL_K: Exploration = {
   id: "petal-k",
   name: "Petal K",
-  idea: "A K of three petals — stem, arm and leg — each 5u wide and showing the same area, built from Fibonacci circles on a 16 × 21.5 grid.",
+  idea: "A K of three petals (stem, arm and leg), each 5u wide and showing the same area, built from Fibonacci circles on a 16 × 21.5 grid.",
   formula: [
     "Every part 5u wide (F5); the stem rises 2u above the arm's tip; the leg at 36°, the golden triangle's angle",
     "Curves are arcs of 3, 5, 8, 13 and 55u circles, each tangent to the next edge",

@@ -15,7 +15,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import { SVGL } from "@/generated/svgl-icons.gen"
 
-import { accent, accents, tint } from "@workspace/docs-ui/accent.ts"
+import { accent, tint } from "@workspace/docs-ui/accent.ts"
 import type { AccentName } from "@workspace/docs-ui/accent.ts"
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
@@ -36,9 +36,9 @@ import {
   Tag,
   Tile,
 } from "@/components/site/visuals"
-import { LIFT, REST } from "@/components/site/lift"
+import { LIFT, REST } from "@workspace/ui/recipes/lift"
 
-import { HomeSection, frame } from "./frame"
+import { frame } from "@/components/home/frame"
 
 const styles = {
   grid: css({
@@ -279,40 +279,31 @@ const ITEMS: {
   },
 ]
 
-export function Connect() {
+/** The command line, agents, editors and lint, each linking to its documentation: a chapter of `/compiler`. */
+export function Tools() {
   return (
-    <HomeSection
-      eyebrow="Tooling"
-      title="Connect Kirana to the rest of your tools"
-      lede="The command line, language models, editors and lint — each one links to its documentation."
-    >
-      <div sx={styles.grid}>
-        {ITEMS.map((item) => (
-          <DocsLink
-            key={item.title}
-            href={item.href}
-            sx={[accents[item.accent], styles.card]}
-          >
-            <div sx={styles.art}>
-              <item.art />
+    <div sx={styles.grid}>
+      {ITEMS.map((item) => (
+        <DocsLink key={item.title} href={item.href} sx={styles.card}>
+          <div sx={styles.art}>
+            <item.art />
+          </div>
+          <div sx={styles.copy}>
+            <div sx={styles.titleRow}>
+              <span sx={frame.cardTitle}>{item.title}</span>
+              <span
+                sx={[
+                  styles.status,
+                  item.status === "Planned" ? styles.planned : null,
+                ]}
+              >
+                {item.status}
+              </span>
             </div>
-            <div sx={styles.copy}>
-              <div sx={styles.titleRow}>
-                <span sx={frame.cardTitle}>{item.title}</span>
-                <span
-                  sx={[
-                    styles.status,
-                    item.status === "Planned" ? styles.planned : null,
-                  ]}
-                >
-                  {item.status}
-                </span>
-              </div>
-              <p sx={[frame.cardText, styles.text]}>{item.text}</p>
-            </div>
-          </DocsLink>
-        ))}
-      </div>
-    </HomeSection>
+            <p sx={[frame.cardText, styles.text]}>{item.text}</p>
+          </div>
+        </DocsLink>
+      ))}
+    </div>
   )
 }

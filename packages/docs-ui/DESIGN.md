@@ -9,7 +9,7 @@ between them and an app, and the decisions that are not obvious from the code.
 | Package                | Owns                                                                                                                                                                                                                                              | Knows about React? |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
 | `@workspace/docs-core` | Content: frontmatter, the markdown parse and its build-time extensions, highlighting, the manifest (pages, nav, posts), the search index and scorer, `llms.txt`, `llms-full.txt` and a markdown twin per page, and `createPages` for lazy loading | No                 |
-| `@workspace/docs-ui`   | Presentation: the docs frame (top bar with section tabs, sidebar, page, table of contents), search dialog, copy-page menu, markdown components, accents, brand icons                                                                              | Yes                |
+| `@workspace/docs-ui`   | Presentation: the docs frame (top bar, section tab row, sidebar, page, table of contents), search dialog, copy-page menu, markdown components, accents, brand icons                                                                               | Yes                |
 | the app (`apps/docs`)  | The site: routes, the site header and footer, marketing pages, the content itself, and the configuration that binds the two                                                                                                                       | —                  |
 
 docs-core runs at build time (`generate()`), writes plain files into the app, and has no runtime of its own
@@ -57,14 +57,25 @@ section.
   site's seven scene hues (forest, tea, crater, lake, terracotta, ochre, dusk), each a `light-dark()` pair
   checked against WCAG AA by `apps/docs/scripts/check-contrast.ts`; `SUN` is the gold fill the site uses
   for light, never for text. Which tab and page wears each hue: `apps/docs/src/brand/scenes.ts`.
+- **The chrome is two rows from `lg` up.** The bar holds the logo, the full-text search and the actions;
+  the tab row under it holds the five tabs, the active one underlined in its accent over the bar's bottom
+  border. The sidebar, the table of contents and every heading a link scrolls to sit under both
+  (`DOCS_CHROME` in `chrome.ts`). Below `lg` the tabs are in the menu sheet.
+- **The sidebar is flat.** Each section is a labelled group (mono, uppercase: the site's label voice),
+  with no collapsible sub-groups; a reference page carries a quiet mono tag (`api`, `cli`), the same on
+  every tab. The highlight follows the row under the pointer and returns to the current page as soon as
+  the pointer is between rows, so it never rests on a page you are not on.
+- **Callouts** take a hue per kind and tint the whole surface and its hairline, never a stripe down one
+  side; their role is `note`, not `alert`. **Steps** are a guide's numbered headings, drawn with the
+  number in a marker, so no frontmatter is needed.
 - **Brand logos** come from simple-icons (CC0) and are drawn in the product's colour, unless that colour
   would vanish in one scheme (luminance below 0.08 or above 0.75), in which case they take the text colour.
   One rule, both schemes.
 
 ## Motion
 
-`motion` moves three things: the tab pill (shared layout), the sidebar's highlight (a spring to a measured
-row) and the table-of-contents marker. Every one reads `useReducedMotion()` and uses a zero-length
+`motion` moves three things: the active tab's underline (shared layout), the sidebar's highlight (a spring
+to a measured row) and the table-of-contents marker. Every one reads `useReducedMotion()` and uses a zero-length
 transition when it is set. Nothing animates on its own.
 
 ## Accessibility

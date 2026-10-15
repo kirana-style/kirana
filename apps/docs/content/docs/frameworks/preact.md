@@ -1,6 +1,6 @@
 ---
 title: Preact
-description: Install Kirana in a Preact app on Vite - sx compiles to class, detected from jsxImportSource.
+description: Install Kirana in a Preact app on Vite, where sx compiles to class, detected from jsxImportSource.
 section: frameworks
 order: 5
 keywords: [preact, vite, install, class, jsxImportSource]
@@ -8,15 +8,11 @@ keywords: [preact, vite, install, class, jsxImportSource]
 
 # Preact
 
-`sx` compiles to `class` (and `style` for values known only at runtime). Kirana
-picks that up from `jsxImportSource` in your `tsconfig.json`, so there is nothing
-to configure. Tested by `examples/vite-preact`.
+`sx` compiles to `class` (and a style attribute for values known only at
+runtime). Kirana picks that up from the JSX import source in your `tsconfig.json`,
+so there is nothing to configure. Tested by `examples/vite-preact`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## 1. Install
 
@@ -73,5 +69,7 @@ it ends up with, and so is a `className`.
 
 ## Next
 
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
 - [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).
 - [The Vite plugin](/docs/integrations/vite).

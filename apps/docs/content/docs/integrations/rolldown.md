@@ -1,7 +1,7 @@
 ---
 title: Rolldown
-description: Kirana on Rolldown without Vite - the plugin compiles styles and writes the stylesheet as its own asset.
-section: integrations
+description: Kirana on Rolldown without Vite, where the plugin compiles styles and writes the stylesheet as its own asset.
+section: bundlers
 order: 3
 keywords: [rolldown, bundler, plugin, stylesheet, asset]
 ---
@@ -13,11 +13,7 @@ itself and your HTML links it. On Vite, which is Rolldown-backed and does bundle
 CSS, use [the Vite plugin](/docs/integrations/vite) instead. Tested by
 `examples/rolldown-react`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## 1. Install
 

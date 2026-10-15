@@ -23,7 +23,7 @@ export default withKirana({})
 - **Loader.** The plugin registers a `pre` loader for scripts, so `sx` is read before `swc-loader`,
   `babel-loader` or Next.js compile JSX away.
 - **Stylesheet.** `@kirana-style/core/stylesheet.css` is ordinary CSS to webpack. The plugin writes the
-  finished stylesheet into the emitted asset at `processAssets`' optimize stage — after every module,
+  finished stylesheet into the emitted asset at `processAssets`' optimize stage: after every module,
   before the CSS minimizer and before `realContentHash` renames the file by its content.
 - **Several compilers.** Every compiler of a project (Next.js's server, edge and client) shares one
   compiler session, so atoms from server components reach the client's stylesheet.

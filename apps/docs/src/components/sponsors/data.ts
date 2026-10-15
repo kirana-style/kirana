@@ -61,7 +61,7 @@ export const TIERS: Tier[] = [
     benefits: [
       "The first and largest logo on the homepage, beside every docs page, on this page and in the README",
       "Named in every release note",
-      "A quarterly call with the maintainers about the roadmap — you are heard; decisions stay public",
+      "A quarterly call with the maintainers about the roadmap: you are heard, and decisions stay public",
       "Help moving one of your codebases onto Kirana, scoped together",
     ],
   },
@@ -106,7 +106,7 @@ export const TIERS: Tier[] = [
     kind: "Custom",
     audience: "organisation",
     amount: null,
-    text: "You need something specific — an adapter, a framework, a migration.",
+    text: "You need something specific: an adapter, a framework, a migration.",
     benefits: [
       "Scope, schedule and amount agreed in writing",
       "The placements of the tier your amount matches",
@@ -141,13 +141,13 @@ export const TERMS: Terms = {
     },
     {
       title: "A public ledger",
-      text: "Where the channel keeps one — Open Collective publishes every contribution and expense.",
+      text: "Where the channel keeps one. Open Collective publishes every contribution and expense.",
     },
   ],
   excludes: [
     {
       title: "Control of the roadmap",
-      text: "No say over the roadmap, the API or the diagnostics. Those are decided in public issues, on technical grounds, for every user — Platinum included.",
+      text: "No say over the roadmap, the API or the diagnostics. Those are decided in public issues, on technical grounds, for every user, Platinum included.",
     },
     {
       title: "Promised features or dates",

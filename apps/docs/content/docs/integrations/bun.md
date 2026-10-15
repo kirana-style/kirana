@@ -1,7 +1,7 @@
 ---
 title: Bun
-description: Kirana with Bun's bundler and dev server - one plugin for Bun.build and bunfig.toml.
-section: integrations
+description: Kirana with Bun's bundler and dev server, through one plugin for Bun.build and bunfig.toml.
+section: bundlers
 order: 7
 keywords: [bun, bun build, bunfig, dev server, plugin]
 ---
@@ -11,11 +11,7 @@ keywords: [bun, bun build, bunfig, dev server, plugin]
 Bun writes CSS imported from an entry next to it (`main.css`), and the plugin
 finishes it once every module has loaded. Tested by `examples/bun-react`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## 1. Install
 

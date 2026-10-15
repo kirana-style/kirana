@@ -80,7 +80,7 @@ const TABS: readonly Tab[] = [
     label: "Tokens",
     icon: PaintBoardIcon,
     caption:
-      "A token is a typed constant. With variable: true it becomes a custom property that a subtree can override — one light-dark() pair, no dark variant.",
+      "A token is a typed constant. With variable: true it becomes a custom property that a subtree can override: one light-dark() pair, no dark variant.",
     href: "/docs/tokens/overview",
   },
   {
@@ -627,9 +627,10 @@ export function Showcase() {
 
   return (
     <HomeSection
+      number="01"
       eyebrow="Source in, CSS out"
       title="Every panel is the compiler's own output"
-      lede="Each tab is a file in this site and what the compiler in this repository made of it — generated at build time, never written by hand."
+      lede="Each tab is a file in this site and what the compiler in this repository made of it, generated at build time and never written by hand."
     >
       <div sx={[styles.shell, sunlit]}>
         <div sx={styles.titleBar}>

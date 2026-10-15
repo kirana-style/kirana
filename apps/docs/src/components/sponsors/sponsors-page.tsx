@@ -31,7 +31,7 @@ import { Accent, PageHero, PageSection } from "@/components/site/page"
 
 import { CHANNELS, FAQ, GOALS, SPONSORS, TERMS, TIERS } from "./data"
 import type { Channel, Tier } from "./data"
-import { LIFT, REST } from "@/components/site/lift"
+import { LIFT, REST } from "@workspace/ui/recipes/lift"
 
 /** The Platinum tier's edge: a cool grey, lighter on a dark page. */
 const PLATINUM = "light-dark(oklch(0.62 0.03 255), oklch(0.8 0.03 255))"
@@ -530,7 +530,7 @@ function Wall() {
           ))}
           {platinum.length === 0 ? (
             <a href="#tiers" sx={[styles.slot, styles.slotPlatinum]}>
-              Your logo here — the first place on every page
+              Your logo here, in the first place on every page
             </a>
           ) : null}
         </div>
@@ -643,7 +643,7 @@ export function SponsorsPage() {
             Sponsor <Accent>Kirana</Accent>
           </>
         }
-        lede="Kirana is built in the open and MIT licensed. Sponsorship pays for the machines that test every change, the work a 1.0 needs, and the time to maintain it — for everyone who uses it."
+        lede="Kirana is built in the open and MIT licensed. Sponsorship pays for the machines that test every change, the work a 1.0 needs, and the time to maintain it, for everyone who uses it."
         actions={
           <>
             <Button

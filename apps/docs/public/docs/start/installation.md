@@ -8,23 +8,29 @@ Source: https://kirana.style/docs/start/installation
 In your project's root:
 
 ```bash
-npx kirana init
+npx kirana-style init
 ```
 
 It reads `package.json` and your lockfile, recognises the framework, bundler and
-package manager, and shows every change it would make — the configuration file,
-the adapter in your bundler's configuration, the stylesheet and the `sx` types —
-as a diff. Nothing is written until you say yes, and the install command is
+package manager, and shows every change it would make as a diff: the configuration
+file, the adapter in your bundler's configuration, the stylesheet and the `sx`
+types. Nothing is written until you say yes, and the install command is
 printed for you to run (or pass `--install`). Then:
 
 ```bash
-npx kirana doctor
+npx kirana-style doctor
 ```
 
 checks the engine, the installed versions, the configuration and the wiring, and
 says what is missing. Both are described in [the CLI](/docs/tooling/cli#kirana-init).
-Until the packages are on npm, install `@kirana-style/compiler` from the tarballs below
-first, so `npx kirana` finds it.
+
+The first run goes through `kirana-style`, the command line's package on npm.
+After that the project has its own `kirana` command, which came with the compiler
+the first run added, so the rest of these docs write `kirana check`, `kirana build` and so
+on.
+
+Until the packages are on npm, install `@kirana-style/compiler` from the tarballs
+below first, and run its `kirana init` instead.
 
 ## Pick your framework
 
@@ -33,57 +39,57 @@ example that CI builds and checks in a browser on every change.
 
 Frameworks:
 
-- [React](/docs/frameworks/react) — The library for web and native user interfaces, on Vite.
-- [Next.js](/docs/frameworks/nextjs) — The React framework, with server components, on Turbopack.
-- [React Router](/docs/frameworks/react-router) — A standards-focused router and framework you can deploy anywhere.
-- [TanStack Start](/docs/frameworks/tanstack-start) — Full-stack React powered by TanStack Router. This site runs on it.
-- [Gatsby](/docs/frameworks/gatsby) — Static sites with React and GraphQL, built by webpack.
-- [Preact](/docs/frameworks/preact) — A fast 3 kB alternative to React with the same API.
-- [Solid](/docs/frameworks/solid) — Simple, performant reactivity for user interfaces.
-- [Vue](/docs/frameworks/vue) — The progressive framework, with :sx in single-file components.
-- [Nuxt](/docs/frameworks/nuxt) — The intuitive Vue framework for universal applications.
-- [Svelte](/docs/frameworks/svelte) — Cybernetically enhanced web apps, with sx on elements.
-- [SvelteKit](/docs/frameworks/sveltekit) — The fastest way to build apps of all sizes with Svelte.
-- [Astro](/docs/frameworks/astro) — The web framework for content-driven sites, sx in .astro files.
-- [Qwik](/docs/frameworks/qwik) — Instantly interactive apps, rendered on the server and resumed.
-- [Angular](/docs/frameworks/angular) — The platform for web apps, with an [sx] directive in templates.
-- [Ember.js](/docs/frameworks/ember) — A framework for ambitious web apps, on Embroider and Vite.
-- [Meteor](/docs/frameworks/meteor) — The full-stack JavaScript platform for web and mobile apps.
-- [No framework](/docs/frameworks/vanilla) — Plain TypeScript and web components: handles are class strings.
+- [React](/docs/frameworks/react): The library for web and native user interfaces, on Vite.
+- [Next.js](/docs/frameworks/nextjs): The React framework, with server components, on Turbopack.
+- [React Router](/docs/frameworks/react-router): A standards-focused router and framework you can deploy anywhere.
+- [TanStack Start](/docs/frameworks/tanstack-start): Full-stack React powered by TanStack Router. This site runs on it.
+- [Gatsby](/docs/frameworks/gatsby): Static sites with React and GraphQL, built by webpack.
+- [Preact](/docs/frameworks/preact): A fast 3 kB alternative to React with the same API.
+- [Solid](/docs/frameworks/solid): Simple, performant reactivity for user interfaces.
+- [Vue](/docs/frameworks/vue): The progressive framework, with :sx in single-file components.
+- [Nuxt](/docs/frameworks/nuxt): The intuitive Vue framework for universal applications.
+- [Svelte](/docs/frameworks/svelte): Cybernetically enhanced web apps, with sx on elements.
+- [SvelteKit](/docs/frameworks/sveltekit): The fastest way to build apps of all sizes with Svelte.
+- [Astro](/docs/frameworks/astro): The web framework for content-driven sites, sx in .astro files.
+- [Qwik](/docs/frameworks/qwik): Instantly interactive apps, rendered on the server and resumed.
+- [Angular](/docs/frameworks/angular): The platform for web apps, with an [sx] directive in templates.
+- [Ember.js](/docs/frameworks/ember): A framework for ambitious web apps, on Embroider and Vite.
+- [Meteor](/docs/frameworks/meteor): The full-stack JavaScript platform for web and mobile apps.
+- [No framework](/docs/frameworks/vanilla): Plain TypeScript and web components: handles are class strings.
 
 Server frameworks:
 
-- [Laravel](/docs/frameworks/laravel) — The PHP framework for web artisans: @kirana in Blade.
-- [Symfony](/docs/frameworks/symfony) — The PHP framework for websites and apps: kirana() in Twig.
-- [Ruby on Rails](/docs/frameworks/rails) — The full-stack Ruby framework: a kirana helper in ERB views.
-- [Phoenix](/docs/frameworks/phoenix) — Rich, interactive Elixir apps: kirana/1 in HEEx templates.
-- [AdonisJS](/docs/frameworks/adonisjs) — The fully featured Node.js framework: kirana() in Edge.
+- [Laravel](/docs/frameworks/laravel): The PHP framework for web artisans: @kirana in Blade.
+- [Symfony](/docs/frameworks/symfony): The PHP framework for websites and apps: kirana() in Twig.
+- [Ruby on Rails](/docs/frameworks/rails): The full-stack Ruby framework: a kirana helper in ERB views.
+- [Phoenix](/docs/frameworks/phoenix): Rich, interactive Elixir apps: kirana/1 in HEEx templates.
+- [AdonisJS](/docs/frameworks/adonisjs): The fully featured Node.js framework: kirana() in Edge.
 
 Bundlers:
 
-- [Vite](/docs/integrations/vite) — The build tool most frameworks run on, with hot style updates.
-- [Rolldown](/docs/integrations/rolldown) — The Rust bundler under Vite, on its own.
-- [webpack](/docs/integrations/webpack) — A pre loader for sx and a plugin that writes the stylesheet.
-- [Rspack and Rsbuild](/docs/integrations/rspack) — The fast Rust-based web bundler, and its build tool.
-- [Parcel](/docs/integrations/parcel) — The zero-configuration build tool for the web.
-- [Bun](/docs/integrations/bun) — Bun's bundler and its dev server, from one plugin.
-- [esbuild](/docs/integrations/esbuild) — An extremely fast bundler, in watch and serve modes too.
-- [PostCSS](/docs/integrations/postcss) — The project's stylesheet wherever @kirana; stands.
-- [Jest](/docs/integrations/jest) — A transformer, so tests see the class names you ship.
+- [Vite](/docs/integrations/vite): The build tool most frameworks run on, with hot style updates.
+- [Rolldown](/docs/integrations/rolldown): The Rust bundler under Vite, on its own.
+- [webpack](/docs/integrations/webpack): A pre loader for sx and a plugin that writes the stylesheet.
+- [Rspack and Rsbuild](/docs/integrations/rspack): The fast Rust-based web bundler, and its build tool.
+- [Parcel](/docs/integrations/parcel): The zero-configuration build tool for the web.
+- [Bun](/docs/integrations/bun): Bun's bundler and its dev server, from one plugin.
+- [esbuild](/docs/integrations/esbuild): An extremely fast bundler, in watch and serve modes too.
+- [PostCSS](/docs/integrations/postcss): The project's stylesheet wherever @kirana; stands.
+- [Jest](/docs/integrations/jest): A transformer, so tests see the class names you ship.
 
 The overview of all of them, with what `sx` compiles to in each, is
 [supported frameworks](/docs/frameworks/overview).
 
 ## Not on npm yet
 
-The packages — `@kirana-style/core`, the compiler, and one adapter per host — are at
+The packages (`@kirana-style/core`, the compiler, and one adapter per host) are at
 version 0.1.0 and **not published**: the API is still moving and the name is not
 cleared. Two ways work today; the guides are the same for both.
 
 ### Install from tarballs
 
-A checkout can pack every package the way it would be published — compiled
-JavaScript with declarations, and the engine as its own per-platform package:
+A checkout can pack every package the way it would be published, as compiled
+JavaScript with declarations and the engine as its own per-platform package:
 
 ```bash
 vp run engine          # the engine for this machine
@@ -122,8 +128,8 @@ install script, so there is nothing to allow-list.
 
 ### Machines without a native build
 
-The engine is native code for eight platforms. Anywhere else — a WebContainer, an
-unusual CPU — install its WebAssembly build as well; Kirana uses it when no native
+The engine is native code for eight platforms. Anywhere else (a WebContainer, an
+unusual CPU), install its WebAssembly build as well; Kirana uses it when no native
 engine loads, and it writes exactly the same CSS, about twice as slowly:
 
 ```bash
@@ -163,7 +169,7 @@ The native engine comes from the checkout's build (`vp run build` there, or
 ### Once published
 
 Once the packages are released, installation becomes the ordinary thing. Do not
-run this yet — the registry has nothing to give you.
+run this yet: the registry has nothing to give you.
 
 ```bash
 npm install @kirana-style/core
@@ -195,8 +201,8 @@ export default defineConfig({
 
 ### 2. The configuration file
 
-`kirana.config.ts` sits in the project root. It is optional — every key has a
-default — but this is where layers, targets and diagnostic levels live.
+`kirana.config.ts` sits in the project root. It is optional, since every key has a
+default, but this is where layers, targets and diagnostic levels live.
 
 ```ts file="kirana.config.ts"
 import { defineConfig } from "@kirana-style/core/config"
@@ -211,16 +217,26 @@ Every key is listed in the [configuration reference](/docs/config/reference).
 
 ### 3. The stylesheet entry
 
-Kirana writes one stylesheet. Import it once, in the entry that renders your
-document, and the adapter fills it in:
+Kirana writes one stylesheet. Import it once, in your entry, before your own
+global CSS, and the adapter fills it in:
+
+```tsx file="src/main.tsx"
+import "@kirana-style/core/stylesheet.css"
+```
+
+A framework that renders the whole document as a component, such as
+[TanStack Start](/docs/frameworks/tanstack-start), links it from that component
+instead:
 
 ```tsx file="root.tsx"
 import kiranaCss from "@kirana-style/core/stylesheet.css?url"
 
-// In a document component, before your own global stylesheet: its
-// `@layer reset, base, kirana` statement fixes the layer order.
+// Before your own global stylesheet: its `@layer reset, base, kirana`
+// statement fixes the layer order.
 <link rel="stylesheet" href={kiranaCss} />
 ```
+
+Your framework's guide shows which of the two it uses.
 
 In development the adapter serves the live stylesheet and updates it over HMR. In
 a production build it replaces the placeholder rule and renames the file to a
@@ -236,9 +252,11 @@ compiles. TypeScript needs one reference to know about it:
 ```
 
 Put it in a `.d.ts` file that your `tsconfig.json` includes, and every host
-element accepts `sx`. The other frameworks have their own: `@kirana-style/core/preact`,
-`/solid`, `/qwik`, `/vue`, `/svelte` and `/astro` — each guide names the one to
-use. Angular needs none: the `[sx]` directive carries its type.
+element accepts `sx`.
+
+The other frameworks have their own entry, such as `@kirana-style/core/vue`, and
+each guide names the one to use. Angular needs none: the `[sx]` directive carries
+its type.
 
 ## Browsers
 
@@ -257,7 +275,7 @@ kirana check src
 ```
 
 If a module that uses `css()` was never compiled, calling it throws at runtime
-with a message that says exactly that — the failure is loud, never a silently
+with a message that says exactly that: the failure is loud, never a silently
 unstyled page.
 
 > [!TIP] Troubleshooting
@@ -266,5 +284,5 @@ unstyled page.
 > **`unresolved-import` warnings?** The compiler follows imports to find token
 > and style definitions; check the specifier and your `tsconfig.json` paths.
 > **A component ignores `sx`?** Components from installed packages do not read it.
-> Spread the compiled props instead — see
+> Spread the compiled props instead; see
 > [styling other people's components](/docs/styling/external-components).

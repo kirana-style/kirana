@@ -4,12 +4,10 @@ Source: https://kirana.style/docs/frameworks/tanstack-start
 # TanStack Start
 
 This site, and the three applications of our shadcn/ui port, are TanStack
-Start apps — this page is the setup they use.
+Start apps; this page is the setup they use.
 
 > [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows.
+> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
 
 ## Install and add the plugin
 
@@ -77,8 +75,8 @@ One reference, anywhere your `tsconfig.json` includes:
 ## Server rendering
 
 There is nothing to do. Styles are in a stylesheet the document links, and class
-names are in the markup, so server-rendered HTML is already styled — no style
-collection step, no flash, no double render.
+names are in the markup, so server-rendered HTML is already styled, with no style
+collection step, no flash and no double render.
 
 Server components work the same way: the compiler runs at build time, so nothing
 of Kirana has to run on the server at request time.
@@ -87,3 +85,8 @@ of Kirana has to run on the server at request time.
 
 Every other framework has its own guide in [supported frameworks](/docs/frameworks/overview),
 and React on other bundlers is in [other bundlers](/docs/integrations/bundlers).
+
+## Next
+
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.

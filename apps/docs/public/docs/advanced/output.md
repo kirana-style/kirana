@@ -19,13 +19,11 @@ Source: https://kirana.style/docs/advanced/output
 }
 ```
 
-Every rule is one class with one declaration, at specificity (0,1,0). Two modules
-that write the same declaration get the same class, so the stylesheet grows with
-the number of distinct declarations in a project, not with the number of
-components or usages.
+Every rule is one class with one declaration, at specificity (0,1,0), shared by
+every module that writes that declaration ([why](/docs/start/how-it-works#the-pipeline)).
 
-One declaration can still reach several rules — the same colour under `:hover`,
-under an attribute and at rest — and there the writer gives one rule all three
+One declaration can still reach several rules (the same colour under `:hover`,
+under an attribute and at rest), and there the writer gives one rule all three
 selectors:
 
 ```css
@@ -64,8 +62,8 @@ tested on.
 ## Conditions in the selector
 
 Conditions compile into the selector or the at-rule, and order inside the layer
-carries the [ladder](/docs/styling/precedence) — no `!important`, no specificity
-tricks, no sublayers per bucket.
+carries the [ladder](/docs/styling/precedence), with no `!important`, no
+specificity tricks and no sublayers per bucket.
 
 ## Determinism
 

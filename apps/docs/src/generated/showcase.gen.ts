@@ -18,6 +18,13 @@ export const SHOWCASE: Readonly<Record<string, ShowcaseSnippet>> = {
       }
     ]
   },
+  "kirana-init": {
+    "name": "kirana-init",
+    "lang": "bash",
+    "source": "# set up this project, showing each change as a diff\nnpx kirana-style init\n# then check the engine, the versions and the wiring\nnpx kirana-style doctor\n",
+    "html": "<span class=\"th-token th-comment\"># set up this project, showing each change as a diff</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style init\n<span class=\"th-token th-comment\"># then check the engine, the versions and the wiring</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style doctor",
+    "diagnostics": []
+  },
   "migrate-after": {
     "name": "migrate-after",
     "lang": "tsx",

@@ -1,6 +1,6 @@
 ---
 title: Next.js
-description: Install Kirana in a Next.js app - Turbopack (the default) or webpack, one withKirana, the stylesheet through PostCSS, and server components.
+description: Install Kirana in a Next.js app on Turbopack (the default) or webpack, with one withKirana, the stylesheet through PostCSS, and server components.
 section: frameworks
 order: 3
 keywords:
@@ -20,28 +20,24 @@ keywords:
 # Next.js
 
 Kirana works with both of Next.js's bundlers: **Turbopack**, the default for
-`next dev` and `next build`, and webpack (`--webpack`). Server components work
+development and production builds, and webpack (`--webpack`). Server components work
 unchanged. Tested on every change by `examples/next-turbopack` and
 `examples/next-webpack`, with npm and pnpm, in a production build and on the dev
 server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana init
+npx kirana-style init
 ```
 
 It detects Next.js and its bundler, shows every change below as a diff, writes
 them once you say yes, and prints the install command (`--install` runs it). Then
-`npx kirana doctor` checks the result. The steps it takes are the ones this page
+`npx kirana-style doctor` checks the result. The steps it takes are the ones this page
 shows, so you can also do them by hand.
 
 ## 1. Install
@@ -107,14 +103,14 @@ export default function Page() {
 
 That is a server component: `sx` compiles to a class string at build time, so
 nothing of Kirana runs at request time. In your editor, the line shows what the
-element gets — see [editor support](/docs/tooling/editor).
+element gets; see [editor support](/docs/tooling/editor).
 
 ## How the stylesheet gets built
 
 Turbopack runs loaders, not bundler plugins, so no single step sees every module.
 Kirana splits the work the way Tailwind CSS v4 does: the loader rewrites each
 module's styles into class names, and the PostCSS plugin compiles the project into
-the stylesheet. The two never talk — they agree because a class name is a hash of
+the stylesheet. The two never talk: they agree because a class name is a hash of
 what it styles, never of the order modules were built in. In development the
 plugin tells Next.js which folders to watch, so an edit to a component reaches the
 page without a restart.
@@ -148,3 +144,8 @@ Details in [other bundlers](/docs/integrations/bundlers#nextjs).
 
 With webpack, a style change in `next dev --webpack` shows after a reload: CSS
 hot updates are not implemented for webpack.
+
+## Next
+
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.

@@ -20,9 +20,9 @@
 /* Text and interface: Plus Jakarta Sans, with its real italic. */
 @import "@fontsource-variable/plus-jakarta-sans";
 @import "@fontsource-variable/plus-jakarta-sans/wght-italic.css";
-/* Display and headings: Newsreader with its optical-size axis, and its real italic. */
-@import "@fontsource-variable/newsreader/opsz.css";
-@import "@fontsource-variable/newsreader/opsz-italic.css";
+/* Display, headings and the wordmark: EB Garamond, with its drawn italic. */
+@import "@fontsource-variable/eb-garamond/wght.css";
+@import "@fontsource-variable/eb-garamond/wght-italic.css";
 @import "@fontsource-variable/jetbrains-mono";
 
 @layer reset {

@@ -1,13 +1,16 @@
+/**
+ * What the product pages say about Kirana in lists: then and now, the three promises and the
+ * features behind them, and the frameworks with a guide. Each item links to the page that shows it.
+ */
+import { RUNTIME_SIZE } from "@/data/benchmarks"
 import {
   Alert02Icon,
   Bug01Icon,
-  CommandLineIcon,
   CpuIcon,
   DashboardSpeed01Icon,
   GitMergeIcon,
   Layers01Icon,
   Moon02Icon,
-  PackageIcon,
   Route01Icon,
   SourceCodeIcon,
   Target02Icon,
@@ -30,7 +33,7 @@ export const THEN_AND_NOW: { before: string; after: string }[] = [
   },
   {
     before: "A styling library shipped to every user",
-    after: "Nothing for static styles; under 1 kB for runtime values",
+    after: `Nothing for static styles; under ${RUNTIME_SIZE} for runtime values`,
   },
   {
     before: "Server rendering collects styles into the HTML",
@@ -52,7 +55,7 @@ export const PILLARS: WithIcon[] = [
   {
     icon: TextIcon,
     title: "Readable",
-    text: "Properties and values, with conditions inside the value they change — not a class-name grammar.",
+    text: "Properties and values, with conditions inside the value they change, not a class-name grammar.",
     href: "/docs/start/mental-model",
   },
   {
@@ -67,7 +70,7 @@ export const FEATURES: WithIcon[] = [
   {
     icon: CpuIcon,
     title: "No runtime style engine",
-    text: "A stylesheet and class names. The optional helper is under 1 kB.",
+    text: `A stylesheet and class names. The optional helper is under ${RUNTIME_SIZE}.`,
     href: "/docs/start/how-it-works",
   },
   {
@@ -122,44 +125,3 @@ export const FRAMEWORKS: Linked[] = FRAMEWORK_GUIDES.filter(
   text: guide.runsOn,
   href: guide.href,
 }))
-
-export const MIGRATIONS: (WithIcon & { figure: string })[] = [
-  {
-    icon: CommandLineIcon,
-    title: "From Tailwind",
-    figure: "0 differences on 189 routes",
-    text: "kirana migrate tailwind rewrites class strings, cn and cva. On shadcn/ui's three apps it matched the original in every computed style, at rest and with menus open.",
-    href: "/docs/migration/from-tailwind",
-  },
-  {
-    icon: PackageIcon,
-    title: "From StyleX",
-    figure: "Close to one-to-one",
-    text: "kirana migrate stylex maps create, defineVars and markers across, then the compiler finds the relations without anchors and the components that drop sx.",
-    href: "/docs/migration/from-stylex",
-  },
-]
-
-/** Figures shown under the hero; each is measured and stated on the linked page. */
-export const STATS: Linked[] = [
-  {
-    title: "0",
-    text: "computed-style differences after migrating shadcn/ui from Tailwind",
-    href: "/docs/migration/from-tailwind",
-  },
-  {
-    title: "< 1 kB",
-    text: "runtime, and only in modules with runtime values",
-    href: "/docs/styling/dynamic",
-  },
-  {
-    title: String(DIAGNOSTICS.length),
-    text: "diagnostics for mistakes that used to be silent",
-    href: "/docs/tooling/diagnostics",
-  },
-  {
-    title: String(FRAMEWORKS.length),
-    text: "framework guides, from React to Rails, each checked on every change",
-    href: "/docs/frameworks/overview",
-  },
-]

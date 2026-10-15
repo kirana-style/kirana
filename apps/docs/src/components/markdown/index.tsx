@@ -27,9 +27,12 @@ import {
   StylexFigure,
   LintFigure,
   ClassNameFigure,
+  MentalModelFigure,
 } from "./figures"
 import { EditorScene, EditorShowcase } from "@/components/home/editor"
 import { EditorBanner } from "@/components/site/editor-banner"
+import { InstallExplorer } from "@/components/site/install-explorer"
+import { NpmStatus } from "./npm-status"
 import { SiteCodeBlock } from "@/components/site/editor-window"
 import { FrameworkGrid, GuideGrid } from "./frameworks"
 import { EditorGrid, LintRuleGrid, LinterGrid } from "./tooling"
@@ -52,6 +55,8 @@ export const markdownComponents = createMarkdownComponents(
     "figure-merge": MergeFigure as CommentRegistry[string],
     "figure-relation": RelationFigure as CommentRegistry[string],
     "docs-shortcuts": DocsShortcuts as CommentRegistry[string],
+    "install-explorer": InstallExplorer as CommentRegistry[string],
+    "npm-status": NpmStatus as CommentRegistry[string],
     "figure-pipeline": PipelineFigure as CommentRegistry[string],
     "figure-precedence": PrecedenceFigure as CommentRegistry[string],
     "figure-conditions": ConditionsFigure as CommentRegistry[string],
@@ -61,6 +66,7 @@ export const markdownComponents = createMarkdownComponents(
     "figure-trace": TraceFigure as CommentRegistry[string],
     "figure-lint": LintFigure as CommentRegistry[string],
     "figure-class-name": ClassNameFigure as CommentRegistry[string],
+    "figure-mental-model": MentalModelFigure as CommentRegistry[string],
     editors: EditorGrid as CommentRegistry[string],
     linters: LinterGrid as CommentRegistry[string],
     "lint-rules": LintRuleGrid as CommentRegistry[string],

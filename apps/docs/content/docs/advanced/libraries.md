@@ -1,7 +1,7 @@
 ---
 title: Publishing a library
-description: Ship a component library styled with Kirana - styles uncompiled in the package, compiled by each app that lists it in libraries.
-section: advanced
+description: Ship a component library styled with Kirana: the package keeps its styles uncompiled, and each app that lists it in libraries compiles them.
+section: building
 order: 3
 keywords: [library, design system, publish, npm, libraries, package, props]
 ---
@@ -19,8 +19,8 @@ Tested by `examples/vite-library`, which installs a packed library from a tarbal
 
 ## In the library
 
-Build your package without Kirana's plugin — `tsc`, `tsdown` or any bundler — so
-the `css()` calls stay in the published JavaScript, and ship no CSS:
+Build your package without Kirana's plugin (with `tsc`, `tsdown` or any bundler),
+so the `css()` calls stay in the published JavaScript, and ship no CSS:
 
 ```js file="acme-ui/index.js"
 import { css, props } from "@kirana-style/core"
@@ -36,8 +36,10 @@ export function Button({ sx, ...rest }) {
 ```
 
 Apply styles with `props()` (or `cx` into `className`): both compile in plain
-JavaScript. `sx` needs JSX, which a library's build usually compiles away; ship
-`.jsx` or `.tsx` if you want to keep it.
+JavaScript.
+
+`sx` needs JSX, which a library's build usually compiles away; ship `.jsx` or
+`.tsx` if you want to keep it.
 
 Make `@kirana-style/core` a peer dependency, so the library and the app share one.
 
@@ -52,7 +54,7 @@ export default defineConfig({ libraries: ["acme-ui"] })
 ```
 
 Its modules are now compiled from `node_modules` like your own, and its exported
-tokens work in your styles. With Vite nothing else is needed — the adapter keeps
+tokens work in your styles. With Vite nothing else is needed: the adapter keeps
 listed libraries out of dependency pre-bundling and server externals. With
 Next.js, also add the package to `transpilePackages`.
 
@@ -60,7 +62,7 @@ Next.js, also add the package to `transpilePackages`.
 
 A library compiled on its own bakes its compiler version and configuration into
 its class names. With a different prefix, an app's override can no longer replace
-the library's value — both classes stay, and whichever rule comes later in the
+the library's value: both classes stay, and whichever rule comes later in the
 stylesheet wins. With an older compiler, the same declaration ships twice. The
 reasoning, with the measurements, is in the design note
 `packages/kirana/design-notes/published-libraries.md`.

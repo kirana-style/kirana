@@ -5,7 +5,7 @@ Source: https://kirana.style/docs/tokens/semantic-tokens
 
 Scales tell you what values exist. Semantic tokens say what they _mean_: what a
 card's surface is, what "primary" is, what a border looks like. This is the layer
-that makes a component readable — `backgroundColor: theme.card` says something
+that makes a component readable: `backgroundColor: theme.card` says something
 `color.zinc50` does not.
 
 ```tsx
@@ -31,7 +31,7 @@ Two decisions in that snippet, and both matter.
 
 `light-dark()` resolves against the element's `color-scheme`, so one declaration
 covers both schemes. There is no dark variant, no `.dark` class, no duplicated
-block, and no way for the two halves to drift apart — they are written on the same
+block, and no way for the two halves to drift apart: they are written on the same
 line.
 
 ```tsx
@@ -63,7 +63,7 @@ export const surface = defineTokens(
 ```
 
 The same idea covers pairs where light and dark want _different roles_ rather than
-different shades — a control that is a tint in light and a solid in dark. Naming
+different shades, such as a control that is a tint in light and a solid in dark. Naming
 that intent once (`surface.control`) beats repeating a conditional in every
 component that needs it.
 

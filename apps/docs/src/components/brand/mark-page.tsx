@@ -450,7 +450,7 @@ export function MarkPage() {
       <Section tinted>
         <SectionHeader eyebrow="Balance" title="One width for three parts">
           The reference grew heavier from stem to leg. Here each part is 5u at
-          its widest — measured as the widest circle that fits inside it — and
+          its widest (measured as the widest circle that fits inside it), and
           the lengths are set so each shows the same area once the arm is
           painted over the others: stem {VISIBLE.stem.toFixed(1)}, arm{" "}
           {VISIBLE.arm.toFixed(1)}, leg {VISIBLE.leg.toFixed(1)}u².
@@ -551,13 +551,13 @@ export function MarkPage() {
 
       <Section tinted id="gradients">
         <SectionHeader eyebrow="Gradients" title="Colour sets to choose from">
-          The reference's leg ends in a deep indigo that sinks into dark grounds
-          — the editor's hints and a dark browser tab show it worst. Each set
-          below is drawn large on paper and on ink, at 14 px in a dark editor's
-          hint and at 16 px in a dark tab. Under each, every part's contrast
-          with the ground: S, A and L for stem, arm and leg, flagged under 3 :
-          1, the minimum for graphics. Every set copies or downloads as the mark
-          alone, with no ground.
+          The reference's leg ends in a deep indigo that sinks into dark
+          grounds, and the editor's hints and a dark browser tab show it worst.
+          Each set below is drawn large on paper and on ink, at 14 px in a dark
+          editor's hint and at 16 px in a dark tab. Under each, every part's
+          contrast with the ground: S, A and L for stem, arm and leg, flagged
+          under 3 : 1, the minimum for graphics. Every set copies or downloads
+          as the mark alone, with no ground.
         </SectionHeader>
         <Palettes sets={PALETTES} chosen="ocean" />
       </Section>
@@ -646,7 +646,7 @@ export function MarkPage() {
       <Section tinted id="wording">
         <SectionHeader eyebrow="Wording" title="What we say beside the mark">
           Headlines and descriptions under review, each written to sell what
-          only Kirana does — and each with the page that backs it, so no line
+          only Kirana does, and each with the page that backs it, so no line
           claims more than the docs and the measurements show.
         </SectionHeader>
         <Wording />

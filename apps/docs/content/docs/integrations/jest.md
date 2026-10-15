@@ -1,8 +1,8 @@
 ---
 title: Jest
-description: Kirana under Jest - a transformer that compiles styles, then hands the module to the transformer you already use.
-section: integrations
-order: 10
+description: Kirana under Jest, through a transformer that compiles styles, then hands the module to the transformer you already use.
+section: testing
+order: 1
 keywords: [jest, transformer, babel-jest, testing, class names]
 ---
 
@@ -13,11 +13,7 @@ then hands it to the transformer you already use. Tests see the class names your
 app ships; no stylesheet is written. Tested by `examples/jest-react`. With
 Vitest, [the Vite plugin](/docs/integrations/vite) does this already.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## 1. Install
 

@@ -1,7 +1,7 @@
 ---
 title: Parcel
-description: Kirana on Parcel - a transformer compiles styles in scripts, and @kirana-style/postcss writes the stylesheet where @kirana; stands.
-section: integrations
+description: Kirana on Parcel, where a transformer compiles styles in scripts and @kirana-style/postcss writes the stylesheet where @kirana; stands.
+section: bundlers
 order: 6
 keywords: [parcel, transformer, postcss, parcelrc, zero configuration]
 ---
@@ -14,12 +14,7 @@ the styles in each script into class names, and the PostCSS plugin compiles the
 whole project into the stylesheet. Tested on every change by `examples/parcel`,
 built and on `parcel serve`.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change,
-> but not published. Until they are, install the npm packages from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows, and the
-> helper from a checkout of the repository by path; the rest of this page is the
-> same either way.
+<!-- ::npm-status -->
 
 ## 1. Install
 

@@ -24,8 +24,8 @@ const screen = css({
 ```
 
 The preferred value is written last because the last declaration a browser
-understands is the one it keeps. The arguments go in reading order — the value
-you want, then what to fall back to — the same order as StyleX's helper and as
+understands is the one it keeps. The arguments go in reading order (the value
+you want, then what to fall back to), the same order as StyleX's helper and as
 `var(--x, fallback)`.
 
 ## Where it works
@@ -49,13 +49,13 @@ Hover, `kirana trace` and `kirana analyze` show it as `firstThatWorks(100dvh, 10
 
 ## What it refuses
 
-| Written                                            | Diagnostic                                                             |
-| -------------------------------------------------- | ---------------------------------------------------------------------- |
-| `firstThatWorks()`                                 | `invalid-fallback` — it needs at least one value                       |
-| `firstThatWorks(firstThatWorks(a, b), c)`          | `invalid-fallback` — runs do not nest                                  |
-| `firstThatWorks(value, "100vh")`, value at runtime | `invalid-fallback` — every value must be known at build time           |
-| `padding: firstThatWorks("1rem 2rem", "var(--p)")` | `invalid-fallback` — the values must set the same longhands            |
-| `"--gap": firstThatWorks("1rem", "16px")`          | `fallback-on-variable` (warning) — a custom property accepts any value |
+| Written                                            | Diagnostic                                                            |
+| -------------------------------------------------- | --------------------------------------------------------------------- |
+| `firstThatWorks()`                                 | `invalid-fallback`: it needs at least one value                       |
+| `firstThatWorks(firstThatWorks(a, b), c)`          | `invalid-fallback`: runs do not nest                                  |
+| `firstThatWorks(value, "100vh")`, value at runtime | `invalid-fallback`: every value must be known at build time           |
+| `padding: firstThatWorks("1rem 2rem", "var(--p)")` | `invalid-fallback`: the values must set the same longhands            |
+| `"--gap": firstThatWorks("1rem", "16px")`          | `fallback-on-variable` (warning): a custom property accepts any value |
 
 The longhand rule exists because a shorthand with a `var()` cannot be split at
 build time: one value would set four longhands and the other the shorthand, and a

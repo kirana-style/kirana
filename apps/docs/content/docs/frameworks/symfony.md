@@ -1,6 +1,6 @@
 ---
 title: Symfony
-description: Install Kirana in a Symfony app - styles in TypeScript modules, the Kirana CLI, and kirana() in Twig.
+description: Install Kirana in a Symfony app, with styles in TypeScript modules, the Kirana CLI, and kirana() in Twig.
 section: server
 order: 3
 keywords: [symfony, php, twig, composer, class map, install]
@@ -13,12 +13,7 @@ stylesheet and the class map into `public/kirana`. How it fits together:
 [server templates](/docs/frameworks/server-templates). Tested on every change by
 `examples/symfony`, with a style edit checked on reload.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change,
-> but not published. Until they are, install the npm packages from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows, and the
-> helper from a checkout of the repository by path; the rest of this page is the
-> same either way.
+<!-- ::npm-status kind="helpers" -->
 
 ## 1. Install
 
@@ -74,4 +69,6 @@ npx kirana dev resources/styles --out public/kirana/kirana.css
 
 ## Next
 
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
 - [Server templates](/docs/frameworks/server-templates): merging and the limits.

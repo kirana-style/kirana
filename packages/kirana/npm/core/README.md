@@ -58,11 +58,11 @@ export function Field({
 
 Subpaths:
 
-- `@kirana-style/core/react` — adds `sx` to React's element types: `/// <reference types="@kirana-style/core/react" />`.
-- `@kirana-style/core/config` — `defineConfig` for `kirana.config.ts`.
-- `@kirana-style/core/stylesheet.css` — the stylesheet entry. Import it once (`?url` for a `<link>`); the
+- `@kirana-style/core/react`: adds `sx` to React's element types: `/// <reference types="@kirana-style/core/react" />`.
+- `@kirana-style/core/config`: `defineConfig` for `kirana.config.ts`.
+- `@kirana-style/core/stylesheet.css`: the stylesheet entry. Import it once (`?url` for a `<link>`); the
   adapter fills it.
-- `@kirana-style/core/internal` — the private runtime compiled modules import. Not for application code.
+- `@kirana-style/core/internal`: the private runtime compiled modules import. Not for application code.
 
 ## Styles
 

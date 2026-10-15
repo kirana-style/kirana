@@ -82,6 +82,7 @@ for (const name of [
   "parcel-transformer",
   "adonis",
   "compiler",
+  "cli",
   "preset-scales",
   "eslint-plugin",
   "biome-plugin",

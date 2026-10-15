@@ -21,7 +21,7 @@ import {
 import { DocsLink } from "@/components/docs-link"
 
 import { Keycap } from "./accents"
-import { LIFT, REST } from "@/components/site/lift"
+import { LIFT, REST } from "@workspace/ui/recipes/lift"
 
 const styles = {
   grid: css({

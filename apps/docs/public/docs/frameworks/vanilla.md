@@ -8,10 +8,7 @@ is all plain TypeScript, a web component or a server template needs. Tested by
 `examples/vite-vanilla`.
 
 > [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
 
 ## 1. Install
 
@@ -54,3 +51,8 @@ merge you want and `cx(primary, button)` the reverse.
 
 `kirana build src --out styles.css` writes the stylesheet from the command line;
 see the [CLI](/docs/tooling/cli).
+
+## Next
+
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.

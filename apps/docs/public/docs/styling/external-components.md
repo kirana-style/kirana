@@ -70,7 +70,7 @@ merge:
 ```
 
 If instead you style the inner element and the outer part also sets classes, the
-outer part's classes can be dropped — the part is not merging anything, it is
+outer part's classes can be dropped: the part is not merging anything, it is
 rendering your element.
 
 ## When you cannot pass props at all
@@ -81,4 +81,4 @@ Two options, in order:
    [`select.descendant`](/docs/styling/contextual). Contextual styles sit in a
    lower layer, so the element's own styles still win.
 2. **Global CSS**, scoped by an attribute the library sets. This is the last
-   resort — it is markup you do not own, and nothing checks it.
+   resort: it is markup you do not own, and nothing checks it.

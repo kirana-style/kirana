@@ -28,7 +28,7 @@ import { NextStep } from "@/components/site/accents"
 import { Page, PageHero, PageSection } from "@/components/site/page"
 import { SCENES, sceneImage } from "@/brand/scenes"
 import type { SceneId } from "@/brand/scenes"
-import { LIFT, REST } from "@/components/site/lift"
+import { LIFT, REST } from "@workspace/ui/recipes/lift"
 
 export const Route = createFileRoute("/showcase")({
   component: Showcase,
@@ -169,7 +169,7 @@ const ENTRIES: Entry[] = [
     name: "The demo application",
     category: "Application",
     description:
-      "A full page of composed UI — navigation, forms, tables, overlays and a three-way theme toggle — kept structurally identical to independent builds of the same markup.",
+      "A full page of composed UI (navigation, forms, tables, overlays and a three-way theme toggle) kept structurally identical to independent builds of the same markup.",
     facts: [
       "Every component in the design system, on one page",
       "Light, dark and system modes",
@@ -201,7 +201,7 @@ const ENTRIES: Entry[] = [
     name: "Component examples",
     category: "Reference",
     description:
-      "One page per component, each exercising its states — hover, focus, disabled, open, checked — because that is where precedence bugs live rather than in the default render.",
+      "One page per component, each exercising its states (hover, focus, disabled, open, checked), because that is where precedence bugs live rather than in the default render.",
     facts: [
       "Every component, in every state it has",
       "Relations and contextual styles in anger",
@@ -217,7 +217,7 @@ const ENTRIES: Entry[] = [
     name: "This documentation site",
     category: "Documentation",
     description:
-      "TanStack Start, markdown compiled at build time, a search index, a playground and a syntax theme whose colours are Kirana tokens — styled entirely with the compiler it documents.",
+      "TanStack Start, markdown compiled at build time, a search index, a playground and a syntax theme whose colours are Kirana tokens, styled entirely with the compiler it documents.",
     facts: [
       "Server-rendered, with styles in route files",
       "Syntax highlighting themed with light-dark() pairs",
@@ -287,9 +287,9 @@ function Showcase() {
           }
         >
           This page fills up once Kirana is published and people can install it.
-          Until then, if you have built something on it, open an issue — an
-          entry here needs a name, a link and one line about what it put through
-          the compiler.
+          Until then, if you have built something on it, open an issue. An entry
+          here needs a name, a link and one line about what it put through the
+          compiler.
         </NextStep>
       </PageSection>
     </Page>

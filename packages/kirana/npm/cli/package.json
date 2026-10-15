@@ -1,0 +1,24 @@
+{
+  "name": "kirana-style",
+  "version": "0.1.0",
+  "description": "Kirana's command line for a project that does not have Kirana yet: npx kirana-style init sets it up.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "bin": {
+    "kirana-style": "./bin/kirana-style.ts"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*"
+  }
+}

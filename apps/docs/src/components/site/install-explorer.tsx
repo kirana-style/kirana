@@ -1,6 +1,6 @@
 /**
  * Pick a framework, see its setup. The steps are read out of that framework's
- * own guide — its install line and its first two code blocks — so this can
+ * own guide (its install line and its first two code blocks), so this can
  * never drift from the docs it links to.
  */
 import { useEffect, useState } from "react"
@@ -18,7 +18,6 @@ import {
 } from "@workspace/ui/components/select"
 import { Skeleton } from "@workspace/ui/components/skeleton"
 import { radius, theme } from "@workspace/ui/theme/semantic"
-import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
@@ -33,8 +32,7 @@ import { LogoIcon, PAGE_LOGOS } from "@/components/site/brands"
 import { More } from "@/components/page-section"
 import { loadDocument } from "@/lib/pages"
 
-import { FRAMEWORKS } from "./content"
-import { HomeSection } from "./frame"
+import { FRAMEWORKS } from "@/data/claims"
 
 type Node = {
   type: string
@@ -81,22 +79,33 @@ function readSetup(document: MarkdownDocument): Setup {
   return setup
 }
 
+/**
+ * The explorer sits in a docs column as often as across a page, so it measures itself: the list
+ * of frameworks goes beside the steps only when there is room for both.
+ */
+const WIDE = "@container install-explorer (min-width: 56rem)"
+
 const styles = {
+  frame: css({
+    containerType: "inline-size",
+    containerName: "install-explorer",
+    marginBlock: spacing[6],
+  }),
   layout: css({
     display: "grid",
-    gap: { base: spacing[6], [breakpoint.lg]: spacing[12] },
+    gap: { base: spacing[6], [WIDE]: spacing[12] },
     gridTemplateColumns: {
       base: "minmax(0, 1fr)",
-      [breakpoint.lg]: "17rem minmax(0, 1fr)",
+      [WIDE]: "17rem minmax(0, 1fr)",
     },
   }),
-  // Beside the steps on a wide screen; on a narrow one, a dropdown in its place.
+  // Beside the steps when the explorer is wide; otherwise a dropdown in its place.
   list: css({
-    display: { base: "none", [breakpoint.lg]: "grid" },
+    display: { base: "none", [WIDE]: "grid" },
     alignContent: "start",
     gap: spacing[1],
   }),
-  dropdown: css({ display: { base: "block", [breakpoint.lg]: "none" } }),
+  dropdown: css({ display: { base: "block", [WIDE]: "none" } }),
   trigger: css({ width: "100%", height: "2.75rem" }),
   pick: css({
     display: "flex",
@@ -135,7 +144,6 @@ const styles = {
     color: theme.foreground,
   }),
   pickText: css({
-    display: { base: "none", [breakpoint.lg]: "inline" },
     minWidth: 0,
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -228,11 +236,7 @@ export function InstallExplorer() {
   }, [href, setups])
 
   return (
-    <HomeSection
-      eyebrow="Frameworks"
-      title="Works with your stack"
-      lede={`${FRAMEWORKS.length} install guides, each built from the packages and checked on every change. Pick one — the steps below are read from its guide.`}
-    >
+    <div sx={styles.frame} data-slot="install-explorer">
       <div sx={styles.layout}>
         <div sx={styles.dropdown}>
           <Select
@@ -301,6 +305,6 @@ export function InstallExplorer() {
           </div>
         </div>
       </div>
-    </HomeSection>
+    </div>
   )
 }

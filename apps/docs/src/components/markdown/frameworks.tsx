@@ -1,7 +1,7 @@
 /**
  * `<!-- ::frameworks -->`: every guide, grouped, as the installation page lists
  * them; `<!-- ::guides group="bundlers" -->`: one group, as tiles with a logo,
- * the name and a line about it (the "Get started" page's tabs). The markdown
+ * the name and a line about it (the "Choose a framework" page's tabs). The markdown
  * twins get the same lists as plain links (`frameworksMarkdown`,
  * `guidesMarkdown`, wired in `scripts/generate-content.ts`).
  */

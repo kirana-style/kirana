@@ -9,6 +9,15 @@
  *   logos         a product named in a heading next to a generic icon instead of its logo
  *   lint rules    a rule missing from the lint page, the site's rule cards, the spec or a README
  *   commands      a `kirana` command missing from the CLI page or the spec
+ *   ideas         a number of mental-model ideas other than the page's own
+ *   runtime size  the runtime's size written by hand instead of {{fact:runtime-size}}
+ *   style         an em dash in prose or site copy (code is exempt); a paragraph or list item with
+ *                 more than four inline code spans, which reads better as a list, a table or a
+ *                 code block; a description written as metadata ("X - y"), since it is the lede
+ *   npm           "not on npm" anywhere once the packages are published
+ *   first run     `npx kirana init` or `doctor` (or bunx, pnpm dlx, yarn dlx): in a project without
+ *                 Kirana the runner fetches a package named `kirana`, a name npm does not give
+ *                 Kirana, so the first run is `npx kirana-style init`
  *
  * A passage that records history (a sprint) is exempt when the line before it is
  * `<!-- consistency: history -->`, and a list that is a deliberate subset (the frameworks with
@@ -23,7 +32,7 @@ import { join, relative } from "node:path"
 
 import { COMMANDS } from "../src/generated/cli.gen.ts"
 import { LINT } from "../src/generated/lint.gen.ts"
-import { COUNTS, LISTS } from "../src/data/facts.ts"
+import { COUNTS, LISTS, PUBLISHED } from "../src/data/facts.ts"
 import { LINT_RULES } from "../src/data/tooling.ts"
 
 const app = new URL("..", import.meta.url).pathname
@@ -36,6 +45,8 @@ const HISTORY = new Set([
   "apps/docs/content/blog",
   // The page about llms.txt itself; it links the skills.
   "apps/docs/content/docs/project/llms.md",
+  // The "not on npm yet" note itself, which no page shows once the packages are published.
+  "apps/docs/src/data/npm-status.ts",
 ])
 
 /** Brand names a heading may carry, with the logo key the site has for them. */
@@ -154,9 +165,36 @@ function sentences(
 const NUMBER =
   "(\\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)"
 const COUNTED = new RegExp(
-  `\\b${NUMBER}\\s+(diagnostics|diagnostic codes|codes with stable|(?:lint |Kirana |more |new )?rules|packages|commands|framework guides)\\b`,
+  `\\b${NUMBER}\\s+(diagnostics|diagnostic codes|codes with stable|checks with codes|(?:lint |Kirana |more |new )?rules|packages|commands|framework guides)\\b`,
   "gi"
 )
+
+/** The mental model's ideas: its numbered headings (`## 1 · …`). */
+const IDEAS = (
+  await readFile(join(app, "content/docs/start/mental-model.md"), "utf8")
+).match(/^## \d+ · /gm)!.length
+const WORDS = [
+  "zero",
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "six",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+]
+const IDEA_COUNT = new RegExp(`\\b${NUMBER}\\s+ideas\\b`, "gi")
+
+/** The runtime's size, which `{{fact:runtime-size}}` and RUNTIME_SIZE carry. */
+const RUNTIME_SIZE =
+  /\b\d+(?:\.\d+)?\s?kB\s+(?:runtime|gzip|minified)|(?:under|<)\s?\d+(?:\.\d+)?\s?kB\b/i
+
+/** What the pages say while the packages are unpublished; wrong once they are on npm. */
+const UNPUBLISHED =
+  /\bnot (?:yet )?(?:on|published to) npm\b|\bnot (?:yet )?published\b|\buntil the packages are (?:on npm|published)\b/i
 const HEDGED =
   /\b(and more|among them|for example|such as|e\.g\.|including|like)\b/i
 
@@ -176,6 +214,29 @@ function checkProse(path: string, text: string) {
         path,
         line,
         `"${count[0]}" is written by hand; use {{fact:…}} in markdown or COUNTS in a component`
+      )
+    for (const count of sentence.matchAll(IDEA_COUNT)) {
+      const said = /^\d+$/.test(count[1]!)
+        ? Number(count[1])
+        : WORDS.indexOf(count[1]!.toLowerCase())
+      if (said !== IDEAS)
+        report(
+          path,
+          line,
+          `"${count[0]}": the mental model has ${IDEAS} ideas (its numbered headings)`
+        )
+    }
+    if (RUNTIME_SIZE.test(sentence))
+      report(
+        path,
+        line,
+        "the runtime's size is written by hand; use {{fact:runtime-size}} in markdown or RUNTIME_SIZE in a component"
+      )
+    if (PUBLISHED && UNPUBLISHED.test(sentence))
+      report(
+        path,
+        line,
+        "the packages are published (PUBLISHED in facts.ts), but this says they are not"
       )
     for (const [kind, fact, all] of [
       ["frameworks", "frameworks", LISTS.frameworks],
@@ -255,6 +316,96 @@ function checkLogos(path: string, text: string) {
   }
 }
 
+/** More inline code than this in one paragraph or list item reads as code, not prose. */
+const MAX_CODE_SPANS = 4
+
+/**
+ * How the docs are written (the design notes' rules): no em dash outside code, no paragraph that is
+ * mostly inline code, and a description that reads as the page's first sentence. Unlike the fact
+ * checks, these hold for dated pages too: a blog post is history, its punctuation is not.
+ */
+function checkStyle(path: string, text: string) {
+  // The READMEs and the contributor's guide are about the repository, where a paragraph of paths
+  // and commands is the point: they keep the em-dash rule and skip density.
+  const dense = path.startsWith("apps/docs/")
+  if (path.endsWith(".md")) {
+    const front = /^---\n([\s\S]*?)\n---\n/.exec(text)
+    const description = front && /^description:\s*(.*)$/m.exec(front[1]!)
+    if (description && /\s-\s|—/.test(description[1]!))
+      report(
+        path,
+        lineOf(text, (front!.index ?? 0) + front![0].indexOf(description[0])),
+        'the description is the page\'s lede: write it as a sentence, without " - " or a dash'
+      )
+    const lines = text.split("\n")
+    let fenced = false
+    let block: { text: string; line: number } | undefined
+    const flush = () => {
+      if (block) {
+        const spans = block.text.match(/`[^`\n]+`/g)?.length ?? 0
+        if (dense && spans > MAX_CODE_SPANS)
+          report(
+            path,
+            block.line,
+            `${spans} inline code spans in one paragraph; make it a list, a table or a code block`
+          )
+      }
+      block = undefined
+    }
+    lines.forEach((line, index) => {
+      if (index < (front ? front[0].split("\n").length - 1 : 0)) return
+      if (line.startsWith("```")) {
+        flush()
+        fenced = !fenced
+        return
+      }
+      if (fenced) return
+      if (line.replace(/`[^`\n]*`/g, "").includes("—"))
+        report(
+          path,
+          index + 1,
+          "an em dash in prose; use a comma, a colon, brackets or a full stop"
+        )
+      const trimmed = line.trim()
+      if (trimmed === "" || /^(#{1,6} |\||<!--)/.test(trimmed)) return flush()
+      if (/^(- |\* |\d+\. )/.test(trimmed)) flush()
+      if (block) block.text += ` ${trimmed}`
+      else block = { text: trimmed, line: index + 1 }
+    })
+    flush()
+    return
+  }
+  // A component: its strings and JSX text, not its comments.
+  text.split("\n").forEach((line, index) => {
+    const trimmed = line.trim()
+    if (/^(\/\/|\*|\/\*|\{\/\*)/.test(trimmed)) return
+    const comment = line.search(/\s\/\/\s/)
+    const dash = line.indexOf("—")
+    if (dash !== -1 && (comment === -1 || dash < comment))
+      report(
+        path,
+        index + 1,
+        "an em dash in site copy; use a comma, a colon, brackets or a full stop"
+      )
+  })
+}
+
+/**
+ * A first run through a package runner that names `kirana`: in a project without Kirana it fetches
+ * whatever npm calls `kirana`, which is not Kirana. Commands live in code blocks, which the prose
+ * checks skip, so this reads the raw text. `kirana init` with the compiler installed is fine.
+ */
+function checkFirstRun(path: string, text: string) {
+  for (const match of text.matchAll(
+    /\b(?:npx|bunx|pnpx|pnpm dlx|yarn dlx) kirana (init|doctor)\b/g
+  ))
+    report(
+      path,
+      lineOf(text, match.index ?? 0),
+      `\`${match[0]}\` fetches a package named \`kirana\`, not Kirana; the first run is \`npx kirana-style ${match[1]}\``
+    )
+}
+
 const relativePath = (path: string) => relative(repository, path)
 const exempt = (path: string) =>
   [...HISTORY].some((prefix) => relativePath(path).startsWith(prefix))
@@ -265,11 +416,25 @@ for (const path of [
   ...(await files(join(repository, "packages/kirana/npm"), /^README\.md$/)),
   join(repository, "README.md"),
 ]) {
-  if (exempt(path) || path.endsWith("facts.ts")) continue
   const text = await readFile(path, "utf8")
+  checkStyle(relativePath(path), text)
+  if (exempt(path) || path.endsWith("facts.ts")) continue
   checkProse(relativePath(path), text)
   if (path.endsWith(".tsx")) checkLogos(relativePath(path), text)
+  checkFirstRun(relativePath(path), text)
 }
+// The contributor's guide is read on GitHub; it keeps the em-dash rule too.
+checkStyle(
+  "CONTRIBUTING.md",
+  await readFile(join(repository, "CONTRIBUTING.md"), "utf8")
+)
+// The homepage's and the Quick start's terminal snippets, and the agent skills, outside src and
+// content.
+for (const path of [
+  ...(await files(join(app, "showcase"), /\.txt$/)),
+  ...(await files(join(repository, "skills"), /\.md$/)),
+])
+  checkFirstRun(relativePath(path), await readFile(path, "utf8"))
 
 /** Every lint rule, everywhere rules are listed. */
 const rules = LINT.map((rule) => rule.name).sort()

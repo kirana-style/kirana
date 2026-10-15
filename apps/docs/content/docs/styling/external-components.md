@@ -1,9 +1,8 @@
 ---
 title: Styling other people's components
-description: props() for components that do not read sx, and what the sx-on-external-component diagnostic is telling you.
-section: styling
-parent: composition
-order: 6
+description: Style components that do not read sx with props(), and read what the sx-on-external-component diagnostic is telling you.
+section: composition
+order: 1
 keywords: [props, styleProps, external, base ui, third party, className]
 ---
 
@@ -77,7 +76,7 @@ merge:
 ```
 
 If instead you style the inner element and the outer part also sets classes, the
-outer part's classes can be dropped — the part is not merging anything, it is
+outer part's classes can be dropped: the part is not merging anything, it is
 rendering your element.
 
 ## When you cannot pass props at all
@@ -88,4 +87,4 @@ Two options, in order:
    [`select.descendant`](/docs/styling/contextual). Contextual styles sit in a
    lower layer, so the element's own styles still win.
 2. **Global CSS**, scoped by an attribute the library sets. This is the last
-   resort — it is markup you do not own, and nothing checks it.
+   resort: it is markup you do not own, and nothing checks it.

@@ -1,6 +1,6 @@
 ---
 title: Svelte
-description: Install Kirana in a Svelte app on Vite - styles in the script, sx on elements, compiled before Svelte sees the component.
+description: Install Kirana in a Svelte app on Vite, with styles in the script and sx on elements, compiled before Svelte sees the component.
 section: frameworks
 order: 9
 keywords: [svelte, svelte 5, vite, runes, class, install]
@@ -12,11 +12,7 @@ Declare styles in the component's `<script>` and apply them with `sx`. Kirana
 compiles the component as it is read, before Svelte does. Tested by
 `examples/vite-svelte`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## 1. Install
 
@@ -65,12 +61,12 @@ For `svelte-check`:
 </div>
 ```
 
-The element's own `class` and `style` are merged into what `sx` produces, in
-order, and `class:` and `style:` directives keep working beside it.
+The element's own class and style attributes are merged into what `sx` produces,
+in order, and `class:` and `style:` directives keep working beside it.
 
 ## How it compiles
 
-The script compiles like any module — `css()` becomes class strings, and the
+The script compiles like any module: `css()` becomes class strings, and the
 stylesheet gets the atoms. Each `sx` becomes a spread of a call to Kirana's small
 runtime, which merges the styles as the component renders, so a condition like
 `wide && full` stays reactive. Keep `css()` calls in the script: one written
@@ -80,3 +76,8 @@ inside the markup is not compiled, and says so when it runs.
 
 On SvelteKit, follow the [SvelteKit guide](/docs/frameworks/sveltekit): the
 plugin goes before `sveltekit()`, and the stylesheet in the root layout.
+
+## Next
+
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
