@@ -109,9 +109,10 @@ jobs:
         run: |
           bun install
           (cd packages/kirana && cargo update --workspace)
-          # The generators that read versions; none of them needs the native engine.
-          bun run --cwd apps/docs generate:content
+          # The generators that read versions; none of them needs the native engine. Reference first:
+          # the pages' facts (`{{fact:version}}`, the counts) are read from the files it writes.
           bun run --cwd apps/docs generate:reference
+          bun run --cwd apps/docs generate:content
           bun run --cwd apps/docs generate:skills
 
       - name: Commit them to the Release PR
