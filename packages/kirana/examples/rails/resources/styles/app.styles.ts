@@ -1,7 +1,7 @@
 import { css } from "@kirana-style/core"
 
 /**
- * The styles the ERB views name. `kirana build` and `kirana dev` write their class strings to the
+ * The styles the ERB views name. `kirana-style build` and `kirana-style dev` write their class strings to the
  * class map, which the `kirana` helper reads.
  */
 export const probe = css({

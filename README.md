@@ -27,8 +27,8 @@ export function Badge(props: React.ComponentProps<"span">) {
 }
 ```
 
-> Kirana is in development and not released yet. Package names and APIs may still
-> change before 0.1.0. Documentation: <https://kirana.style>.
+> Kirana is a pre-release on npm: start with `npx kirana-style@latest init`. APIs may still
+> change before 1.0. Documentation: <https://kirana.style>.
 
 ## What is here
 
@@ -154,7 +154,7 @@ do about it, or `verify:generated` fails.
 ### The language server in VS Code, Cursor, Windsurf or Antigravity
 
 The extension lives in `packages/kirana/editors/vscode` and starts the project's
-own `kirana lsp`. It is not on a marketplace yet, so build and install it by hand:
+own `kirana-style lsp`. It is not on a marketplace yet, so build and install it by hand:
 
 ```bash
 vp run engine                                          # the engine the server runs
@@ -174,7 +174,7 @@ points the extension at the compiler entry instead:
 
 ```json
 {
-  "kirana.server.path": "packages/kirana/npm/compiler/bin/kirana.ts",
+  "kirana.server.path": "packages/kirana/npm/cli/bin/kirana-style.ts",
   "kirana.trace.server": "verbose"
 }
 ```

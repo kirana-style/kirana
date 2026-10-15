@@ -702,7 +702,10 @@ const WRITING = [
     term: "In prose",
     text: "Kirana: never KIRANA, kirana or Kirana CSS. The lower case of the wordmark belongs to the drawing, not the name.",
   },
-  { term: "In code", text: "Lower case: @kirana-style/core, kirana build." },
+  {
+    term: "In code",
+    text: "Lower case: @kirana-style/core, kirana-style build.",
+  },
   {
     term: "Product parts",
     text: "The Kirana compiler, the Kirana language server: descriptive, lower case after the name.",

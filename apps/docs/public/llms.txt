@@ -22,7 +22,7 @@ what is planned.
 - [Introduction](https://kirana.style/docs/index.md): Kirana is a compile-time styling system: write typed styles next to your components, and ship small, predictable CSS.
 - [Why Kirana](https://kirana.style/docs/start/why-kirana.md): Why CSS-in-JS got a bad name, what a compiler changes, and what Kirana answers that StyleX left open.
 - [Quick start](https://kirana.style/docs/start/quick-start.md): Add Kirana to your project in three steps (install it, add the plugin, import the stylesheet), read from your framework's own guide.
-- [Installation](https://kirana.style/docs/start/installation.md): Set a project up with kirana init or with your framework's guide, see what every setup has, and install from tarballs while the packages are unpublished.
+- [Installation](https://kirana.style/docs/start/installation.md): Set a project up with kirana-style init or your framework's guide, see what every setup has, and try unreleased changes from a checkout.
 - [Your first component](https://kirana.style/docs/start/first-component.md): Build a button with a hover state and a quiet variant, and read the CSS the compiler produced from it.
 - [Mental model](https://kirana.style/docs/start/mental-model.md): Five ideas make Kirana predictable: properties instead of classes, entries instead of properties, a ladder instead of specificity, styling only what you render, and an editor that shows what each element gets.
 - [How it works](https://kirana.style/docs/start/how-it-works.md): What happens between the file you write and the stylesheet the browser loads, and what is left at runtime.

@@ -1,7 +1,7 @@
-# `kirana migrate tailwind` (2026-09-23)
+# `kirana-style migrate tailwind` (2026-09-23)
 
 KRN-API-013's second codemod, and M5 phase 2. It rewrites the mechanical half of a Tailwind
-migration and reports the other half, like `kirana migrate stylex`:
+migration and reports the other half, like `kirana-style migrate stylex`:
 
 | Rewrites                                                        | Into                                                  |
 | --------------------------------------------------------------- | ----------------------------------------------------- |

@@ -1,8 +1,8 @@
 /**
- * `kirana doctor [--json]` (KRN-DX-008): what a project's Kirana setup is, and what is missing. It
+ * `kirana-style doctor [--json]` (KRN-DX-008): what a project's Kirana setup is, and what is missing. It
  * reports the engine in use, the installed `@kirana-style/*` packages, the configuration, the detected
  * framework, bundler and package manager, whether the adapter, stylesheet and `sx` types are wired
- * (by running `kirana init`'s plan without writing), and the cache: there is none (D-049). It exits
+ * (by running `kirana-style init`'s plan without writing), and the cache: there is none (D-049). It exits
  * with 1 when something fails. `--report` writes a bug report instead (`report.ts`).
  */
 import { createRequire } from "node:module"
@@ -20,14 +20,19 @@ export type Check = {
   detail: string
 }
 
-/** The version of every `@kirana-style/*` package the project lists, as installed; `undefined` if not. */
+/**
+ * The version of every Kirana package the project lists (`kirana-style` and `@kirana-style/*`), as
+ * installed; `undefined` if not.
+ */
 export function installedVersions(
   root: string
 ): Record<string, string | undefined> {
   const pkg = readPackage(root)
   const require = createRequire(path.join(root, "package.json"))
   const names = Object.keys({ ...pkg.dependencies, ...pkg.devDependencies })
-    .filter((name) => name.startsWith("@kirana-style/"))
+    .filter(
+      (name) => name === "kirana-style" || name.startsWith("@kirana-style/")
+    )
     .sort()
   return Object.fromEntries(
     names.map((name) => {
@@ -78,7 +83,7 @@ export async function diagnose(
       ? {
           name: "packages",
           status: "fail",
-          detail: "no @kirana-style/* package in package.json",
+          detail: "no Kirana package in package.json",
         }
       : missing.length
         ? {
@@ -132,7 +137,7 @@ export async function diagnose(
         step.status === "done"
           ? step.detail
           : step.status === "change"
-            ? `not set up: kirana init would ${step.detail}`
+            ? `not set up: kirana-style init would ${step.detail}`
             : `not set up: ${step.detail}`,
     })
   }
@@ -151,7 +156,7 @@ export async function diagnose(
   return checks
 }
 
-/** `kirana doctor [--json]`. */
+/** `kirana-style doctor [--json]`. */
 export async function runDoctor(
   argv: readonly string[],
   root: string,
@@ -168,7 +173,7 @@ export async function runDoctor(
     const failed = checks.filter((check) => check.status === "fail").length
     write(
       failed
-        ? `\n${failed} problem(s). kirana init sets up what it can.\n`
+        ? `\n${failed} problem(s). kirana-style init sets up what it can.\n`
         : "\nAll good.\n"
     )
   }

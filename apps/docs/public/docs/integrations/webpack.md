@@ -9,8 +9,7 @@ finished stylesheet once every module is built. Tested by
 `examples/webpack-react`. Next.js has [its own guide](/docs/frameworks/nextjs),
 and Gatsby, which runs webpack, [its own too](/docs/frameworks/gatsby).
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 

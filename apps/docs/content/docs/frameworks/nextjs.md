@@ -13,7 +13,7 @@ keywords:
     app router,
     server components,
     install,
-    kirana init,
+    kirana-style init,
   ]
 ---
 
@@ -32,7 +32,7 @@ server.
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects Next.js and its bundler, shows every change below as a diff, writes

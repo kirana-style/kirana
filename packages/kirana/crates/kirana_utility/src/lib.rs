@@ -2,7 +2,7 @@
 //! to the declarations it stands for, under the conditions its variants name.
 //!
 //! It is shared by the engine, which turns each value into the token it names, and by
-//! `kirana migrate tailwind`, which turns it into source (`color.blue[600]`), so which utilities
+//! `kirana-style migrate tailwind`, which turns it into source (`color.blue[600]`), so which utilities
 //! exist and what they set is decided in one place (`design-notes/migrate-tailwind.md`). Values are
 //! therefore symbolic: an [`Expr`] says where a value came from, and each caller renders it.
 
@@ -295,7 +295,7 @@ pub fn lower(grammar: &Grammar, scales: &dyn Scales, utility: &str) -> Result<Ve
         return Err(fail(
             Code::UtilityUnsupported,
             format!("`{utility}`: `!important` has no place in Kirana's cascade"),
-            Some("the precedence ladder decides which value wins; see `kirana trace`".to_owned()),
+            Some("the precedence ladder decides which value wins; see `kirana-style trace`".to_owned()),
         ));
     }
     let mut block = None;

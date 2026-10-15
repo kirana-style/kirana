@@ -426,7 +426,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "Language server",
         tone: "good",
-        text: "kirana lsp, with VS Code and Zed extensions: the compiled CSS and the winning entry on hover, colour swatches, a summary after every sx, completion and the compiler's diagnostics as you type",
+        text: "kirana-style lsp, with VS Code and Zed extensions: the compiled CSS and the winning entry on hover, colour swatches, a summary after every sx, completion and the compiler's diagnostics as you type",
         source: "/docs/tooling/editor",
         brands: ["vscode", "cursor", "zed", "neovim"],
       },
@@ -477,7 +477,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "Two codemods",
         tone: "good",
-        text: "kirana migrate tailwind and kirana migrate stylex, measured on our shadcn/ui port: zero computed-style differences after the Tailwind codemod and its hand fixes",
+        text: "kirana-style migrate tailwind and kirana-style migrate stylex, measured on our shadcn/ui port: zero computed-style differences after the Tailwind codemod and its hand fixes",
         source: "/docs/migration/from-tailwind",
       },
     },
@@ -538,10 +538,10 @@ export const ROWS: readonly Row[] = [
       },
       tailwind: none,
       kirana: {
-        short: "kirana export",
+        short: "kirana-style export",
         tone: "good",
-        text: "kirana export prints tokens, themes, recipes with their variants, relations and named definitions, each with the file and line that declares it",
-        source: "/docs/tooling/cli#kirana-export",
+        text: "kirana-style export prints tokens, themes, recipes with their variants, relations and named definitions, each with the file and line that declares it",
+        source: "/docs/tooling/cli#kirana-style-export",
       },
     },
   },
@@ -562,8 +562,8 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "github + max-warnings",
         tone: "good",
-        text: "kirana check --format github annotates the changed lines, and --max-warnings fails the run on warnings",
-        source: "/docs/tooling/cli#kirana-check",
+        text: "kirana-style check --format github annotates the changed lines, and --max-warnings fails the run on warnings",
+        source: "/docs/tooling/cli#kirana-style-check",
         brands: ["github"],
       },
     },
@@ -667,7 +667,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "doctor --report",
         tone: "good",
-        text: "kirana doctor --report writes a paste-ready issue body: versions, checks, diagnostics by code and an optional trace, with no source and no machine paths",
+        text: "kirana-style doctor --report writes a paste-ready issue body: versions, checks, diagnostics by code and an optional trace, with no source and no machine paths",
         source: "/docs/tooling/cli",
       },
     },

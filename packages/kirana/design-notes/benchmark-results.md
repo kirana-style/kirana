@@ -30,14 +30,14 @@ value hash is bought deliberately — it takes the chance of a build failing on 
 
 Build-system measurements from the same round:
 
-| Measure                                                     | Before  | After   |
-| ----------------------------------------------------------- | ------- | ------- |
-| `turbo run typecheck --force` (7 packages)                  | 1.95 s  | 1.64 s  |
-| `bun run build`, nothing changed since the last run         | 26.5 s  | 1.7 s   |
-| `kirana build` over `packages/ui` and the three apps' `src` | —       | 0.05 s  |
-| Peak engine memory over that build (KRN-PERF-005, ≤ 200 MB) | —       | 44 MB   |
-| Stylesheet pushes, 8 cold routes requested at once (dev)    | 16      | 6       |
-| Edit to updated stylesheet, median (KRN-PERF-004)           | 46.6 ms | 36.8 ms |
+| Measure                                                           | Before  | After   |
+| ----------------------------------------------------------------- | ------- | ------- |
+| `turbo run typecheck --force` (7 packages)                        | 1.95 s  | 1.64 s  |
+| `bun run build`, nothing changed since the last run               | 26.5 s  | 1.7 s   |
+| `kirana-style build` over `packages/ui` and the three apps' `src` | —       | 0.05 s  |
+| Peak engine memory over that build (KRN-PERF-005, ≤ 200 MB)       | —       | 44 MB   |
+| Stylesheet pushes, 8 cold routes requested at once (dev)          | 16      | 6       |
+| Edit to updated stylesheet, median (KRN-PERF-004)                 | 46.6 ms | 36.8 ms |
 
 KRN-PERF-004 asks for the updated stylesheet within 50 ms of an edit (p95). Measured end to end —
 write the file, then poll the dev server's stylesheet from a second process while a browser holds
@@ -66,7 +66,7 @@ the dependency graph costs. Counted at the adapter boundary, on a production bui
 | Peak engine memory over the same build             | 44 MB                          | KRN-PERF-005: < 200 MB ✓    |
 | Edit to updated stylesheet in the browser, median  | 36.8 ms                        | KRN-PERF-004: < 50 ms p95 ✓ |
 
-`kirana check <paths> --stats` prints the engine's own view of the same thing — modules seen,
+`kirana-style check <paths> --stats` prints the engine's own view of the same thing — modules seen,
 rejected, parsed, and parsed again to read another module's imports — so the number can be taken
 again on any tree rather than trusted from here.
 
@@ -243,11 +243,11 @@ removed both costs.
 
 ## Engine
 
-| Measure                                              | Value                             |
-| ---------------------------------------------------- | --------------------------------- |
-| `kirana build packages/ui/src apps/web/src --minify` | 0.02 s, 20 MB peak memory         |
-| Modules in that build                                | 83                                |
-| Private runtime, minified and gzipped                | 995 B (budget 1,000 B; was 685 B) |
+| Measure                                                    | Value                             |
+| ---------------------------------------------------------- | --------------------------------- |
+| `kirana-style build packages/ui/src apps/web/src --minify` | 0.02 s, 20 MB peak memory         |
+| Modules in that build                                      | 83                                |
+| Private runtime, minified and gzipped                      | 995 B (budget 1,000 B; was 685 B) |
 
 The engine is about 1 % of the application build; the rest is Vite, Rolldown and TanStack Start.
 

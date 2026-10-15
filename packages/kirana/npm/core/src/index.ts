@@ -92,7 +92,7 @@ type Missing = never
 
 function uncompiled(name: string): Missing {
   throw new Error(
-    `Kirana: ${name}() ran without being compiled. Add Kirana's plugin to the bundler (or run \`kirana build\`) so this module is compiled; if it comes from an installed library, list the package in \`libraries\` in kirana.config.ts.`
+    `Kirana: ${name}() ran without being compiled. Add Kirana's plugin to the bundler (or run \`kirana-style build\`) so this module is compiled; if it comes from an installed library, list the package in \`libraries\` in kirana.config.ts.`
   )
 }
 

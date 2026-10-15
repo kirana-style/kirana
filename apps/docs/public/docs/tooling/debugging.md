@@ -26,7 +26,7 @@ you mean "and nothing else"; [Merging](/docs/styling/merging) has the rule.
 ## 4 · Ask the compiler
 
 ```bash
-kirana trace src/components/card.tsx:24 padding-top
+kirana-style trace src/components/card.tsx:24 padding-top
 ```
 
 It lists every candidate declaration for that property, marks the winner, and

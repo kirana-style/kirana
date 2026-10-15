@@ -1,4 +1,4 @@
-//! `kirana analyze` (KRN-DX-008): what a compiled project puts in its stylesheet and why — atoms and
+//! `kirana-style analyze` (KRN-DX-008): what a compiled project puts in its stylesheet and why — atoms and
 //! how often they are reused, bytes by layer and by module, values bridged to runtime, recipes
 //! resolved at runtime, themes, relation reads no anchor proves and tokens nothing reads.
 //!

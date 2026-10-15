@@ -1,4 +1,4 @@
-//! `kirana export` (KRN-DX-011): the project's design system as data — tokens, themes, recipes,
+//! `kirana-style export` (KRN-DX-011): the project's design system as data — tokens, themes, recipes,
 //! relations and named definitions, each with the file that declares it — for agents, design tools
 //! and review. It holds names, values and project-relative origins, never source text, and is
 //! sorted so that the file diffs cleanly.
@@ -14,7 +14,7 @@ use crate::Project;
 use crate::inspect::RelationInfo;
 use crate::resolve::ModuleHost;
 
-/// Everything `kirana export` describes, apart from what the configuration says.
+/// Everything `kirana-style export` describes, apart from what the configuration says.
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
 pub struct DesignSystem {
     pub tokens: Vec<TokenExport>,

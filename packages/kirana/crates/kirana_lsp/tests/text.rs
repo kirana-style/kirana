@@ -97,7 +97,7 @@ fn offsets_inside_a_character_read_from_its_start() {
 fn a_panic_fails_one_message_not_the_server() {
     assert_eq!(kirana_lsp::guarded("x", || 1), Ok(1));
     let error = kirana_lsp::guarded("textDocument/hover", || -> u8 { panic!("boom") }).unwrap_err();
-    assert_eq!(error, "kirana lsp: textDocument/hover failed: boom");
+    assert_eq!(error, "kirana-style lsp: textDocument/hover failed: boom");
     let error = kirana_lsp::guarded("x", || -> u8 { panic!("{}", String::from("owned")) }).unwrap_err();
     assert!(error.ends_with("owned"));
     let error = kirana_lsp::guarded("x", || -> u8 { std::panic::panic_any(7) }).unwrap_err();

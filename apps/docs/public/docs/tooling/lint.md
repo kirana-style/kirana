@@ -89,12 +89,12 @@ whose `node_modules` sits higher up, list the files from there in `plugins`.
 
 A Biome plugin matches syntax: it cannot ask the compiler or read another file.
 What the other rules would report reaches a Biome project two other ways:
-`kirana check` in CI, as pull-request annotations, and the
+`kirana-style check` in CI, as pull-request annotations, and the
 [language server](/docs/tooling/editor) in the editor:
 
 ```yaml
 # .github/workflows/ci.yml
-- run: npx kirana check src --format github --max-warnings 0
+- run: npx kirana-style check src --format github --max-warnings 0
 ```
 
 

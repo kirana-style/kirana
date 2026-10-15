@@ -88,12 +88,17 @@ if (!existsSync(path.join(source, "package.json"))) {
   process.exit(2)
 }
 
-/** `kirana-style-compiler-linux-x64-gnu-0.1.0.tgz` → `@kirana-style/compiler-linux-x64-gnu`. */
+/**
+ * `kirana-style-compiler-linux-x64-gnu-0.1.0.tgz` → `@kirana-style/compiler-linux-x64-gnu`, and the
+ * command line's own `kirana-style-0.1.0.tgz` → `kirana-style`.
+ */
 const tarballs = new Map<string, string>()
 for (const file of existsSync(packages) ? readdirSync(packages) : []) {
   const match = file.match(/^kirana-style-(.+)-\d+\.\d+\.\d+(?:-[\w.]+)?\.tgz$/)
   if (match)
     tarballs.set(`@kirana-style/${match[1]}`, path.join(packages, file))
+  else if (/^kirana-style-\d+\.\d+\.\d+(?:-[\w.]+)?\.tgz$/.test(file))
+    tarballs.set("kirana-style", path.join(packages, file))
 }
 if (!tarballs.has("@kirana-style/compiler")) {
   console.error(
@@ -170,7 +175,7 @@ try {
      * framework's own dependencies. `{kirana}` stands for this repository's `packages/kirana`.
      */
     prepare?: string[][]
-    /** A command started beside the dev server for its duration (`kirana dev` for a server app). */
+    /** A command started beside the dev server for its duration (`kirana-style dev` for a server app). */
     devAlso?: string[]
     /**
      * The page has no live-reload client (a server-rendered app): after the edit the check reloads
@@ -208,7 +213,9 @@ try {
     `file:${tarballs.get(name)!.replaceAll("\\", "/")}`
   for (const field of ["dependencies", "devDependencies"]) {
     for (const name of Object.keys(manifest[field] ?? {})) {
-      if (name.startsWith("@kirana-style/")) manifest[field][name] = file(name)
+      // Every package there is a tarball for, the unscoped `kirana-style` included: npm refuses an
+      // override that differs from a direct dependency's own range.
+      if (tarballs.has(name)) manifest[field][name] = file(name)
     }
   }
   const overrides = Object.fromEntries(

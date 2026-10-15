@@ -110,7 +110,7 @@ inside `[…]`, so `bg-[rgb(1, 2, 3)]` is one utility; Tailwind's `_` for a spac
 
 ## Extended for the migration (2026-09-23)
 
-Measuring `kirana migrate tailwind` on the Tailwind original showed the grammar missing whole
+Measuring `kirana-style migrate tailwind` on the Tailwind original showed the grammar missing whole
 mechanisms, not just names. Each is data in the grammar, lowered by the shared crate
 (`kirana_utility`), so utility strings gained them too:
 

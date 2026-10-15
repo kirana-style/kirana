@@ -14,7 +14,7 @@ fn temp(files: &[(&str, &[u8])]) -> PathBuf {
 
 fn run(args: &[&str]) -> (i32, String) {
     let mut out = Vec::new();
-    let mut all = vec!["kirana".to_owned()];
+    let mut all = vec!["kirana-style".to_owned()];
     all.extend(args.iter().map(|arg| (*arg).to_owned()));
     let code = kirana_cli::run(&all, &mut out);
     (code, String::from_utf8(out).unwrap())
@@ -136,9 +136,9 @@ fn builds_write_the_class_map() {
 
 #[test]
 fn the_binary_runs_the_same_command_line() {
-    let output = std::process::Command::new(env!("CARGO_BIN_EXE_kirana")).arg("--version").output().unwrap();
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_kirana-style")).arg("--version").output().unwrap();
     assert!(output.status.success());
-    assert!(String::from_utf8_lossy(&output.stdout).contains("kirana"));
+    assert!(String::from_utf8_lossy(&output.stdout).contains("kirana-style"));
 }
 
 #[test]
@@ -148,7 +148,7 @@ fn rejects_bad_invocations() {
     assert!(output.contains("unexpected argument"));
     let (code, output) = run(&["--version"]);
     assert_eq!(code, 0);
-    assert!(output.contains("kirana"));
+    assert!(output.contains("kirana-style"));
     let (code, output) = run(&["--config-json", "{", "check"]);
     assert_eq!(code, 2);
     assert!(output.contains("invalid --config-json"));
@@ -160,7 +160,7 @@ fn rejects_bad_invocations() {
     assert_eq!(code, 0, "{output}");
 }
 
-/// `kirana migrate stylex`: shows the rewrite, then applies it.
+/// `kirana-style migrate stylex`: shows the rewrite, then applies it.
 #[test]
 fn migrates_stylex_sources() {
     let source = b"import * as stylex from \"@stylexjs/stylex\"\nexport const t = stylex.defineVars({ a: \"1px\" })\nconst el = <div {...stylex.props(stylex.defaultMarker())} />\n";
@@ -191,7 +191,7 @@ fn migrates_stylex_sources() {
     fs::remove_dir_all(root).unwrap();
 }
 
-/// `kirana migrate tailwind`: needs a grammar, reads the CSS's custom variants, rewrites.
+/// `kirana-style migrate tailwind`: needs a grammar, reads the CSS's custom variants, rewrites.
 #[test]
 fn migrates_tailwind_sources() {
     let root = temp(&[
@@ -351,7 +351,7 @@ fn lsp_serves_over_stdio_and_fails_without_a_client() {
     use std::process::{Command, Stdio};
     let frame = |body: &str| format!("Content-Length: {}\r\n\r\n{body}", body.len());
     let root = temp(&[("a.tsx", STYLE)]);
-    let mut child = Command::new(env!("CARGO_BIN_EXE_kirana"))
+    let mut child = Command::new(env!("CARGO_BIN_EXE_kirana-style"))
         .args(["--config-json", "{}", "lsp"])
         .current_dir(&root)
         .stdin(Stdio::piped())
@@ -374,7 +374,7 @@ fn lsp_serves_over_stdio_and_fails_without_a_client() {
     assert!(output.contains("\"hoverProvider\":true"), "{output}");
     fs::remove_dir_all(&root).unwrap();
     // Without an `initialize`, the server stops with an error.
-    let status = Command::new(env!("CARGO_BIN_EXE_kirana"))
+    let status = Command::new(env!("CARGO_BIN_EXE_kirana-style"))
         .args(["--config-json", r#"{"root":"/nonexistent-kirana-root"}"#, "lsp"])
         .stdin(Stdio::null())
         .stdout(Stdio::null())
@@ -470,7 +470,7 @@ fn analyzes_a_project_as_a_summary_json_and_a_page() {
     fs::remove_dir_all(root).unwrap();
 }
 
-/// `kirana report`: the engine's half of `kirana doctor --report`, without any source text.
+/// `kirana-style report`: the engine's half of `kirana-style doctor --report`, without any source text.
 #[test]
 fn reports_what_a_bug_report_needs_from_the_engine() {
     let root = temp(&[

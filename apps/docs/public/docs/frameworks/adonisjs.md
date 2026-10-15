@@ -9,15 +9,14 @@ it fits together: [server templates](/docs/frameworks/server-templates). Tested 
 every change by `examples/adonisjs`, with a style edit checked on reload. An
 Inertia front end uses [the Vite plugin](/docs/integrations/vite) as usual.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change, but not published. Until they are, install the npm packages from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows, and the helper from a checkout of the repository by path; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It adds the provider, the configuration and a style module, shows each as a diff,
@@ -27,7 +26,7 @@ and prints the install command.
 
 ```bash
 npm install @kirana-style/core @kirana-style/adonis
-npm install -D @kirana-style/compiler
+npm install -D kirana-style
 ```
 
 ## 2. Register the provider
@@ -59,7 +58,7 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ## 4. Run the CLI
 
 ```bash
-npx kirana dev resources/styles --out public/kirana/kirana.css
+npx kirana-style dev resources/styles --out public/kirana/kirana.css
 ```
 
 ## 5. Use it in Edge
@@ -70,7 +69,7 @@ npx kirana dev resources/styles --out public/kirana/kirana.css
 <div class="{{ kirana('card', active && 'active') }}">…</div>
 ```
 
-The global reads the class map again whenever `kirana dev` rewrites it.
+The global reads the class map again whenever `kirana-style dev` rewrites it.
 
 ## Next
 

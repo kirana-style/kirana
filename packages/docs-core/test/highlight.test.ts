@@ -33,17 +33,16 @@ describe("highlighting names the grammar leaves plain", () => {
   })
 
   it("colours a command line's flags, and leaves other languages as the grammar wrote them", () => {
-    expect(tokens(enrich("kirana init --dry-run -y", "bash"), "attr")).toEqual([
-      "--dry-run",
-      "-y",
-    ])
+    expect(
+      tokens(enrich("kirana-style init --dry-run -y", "bash"), "attr")
+    ).toEqual(["--dry-run", "-y"])
     expect(enrich("a { color: red }", "css")).toBe("a { color: red }")
   })
 })
 
 describe("inline code", () => {
   it("guesses the language from the text", () => {
-    expect(inlineLang("kirana init")).toBe("shell")
+    expect(inlineLang("kirana-style init")).toBe("shell")
     expect(inlineLang("--dry-run")).toBe("shell")
     expect(inlineLang("package.json")).toBe("plaintext")
     expect(inlineLang("@kirana-style/preset-scales")).toBe("plaintext")
@@ -80,7 +79,9 @@ describe("inline code", () => {
     expect(tokens(utility, "number")).toEqual(["4", "600", "/50"])
     expect(tokens(utility, "variable")).toEqual(["(--x)"])
     expect(tokens(utility, "string")).toEqual(["[3px]"])
-    expect(tokens(highlightInline("kirana lsp"), "command")).toEqual(["kirana"])
+    expect(tokens(highlightInline("kirana-style lsp"), "command")).toEqual([
+      "kirana-style",
+    ])
   })
 })
 
@@ -88,7 +89,7 @@ describe("terminal sessions", () => {
   it("puts a prompt before commands and colours output the way a terminal does", () => {
     const html = highlightTerminal(
       [
-        "$ kirana check src",
+        "$ kirana-style check src",
         "error[KRN1401] relation-without-anchor: never applied (a.tsx)",
         "warning[KRN1703] sx-on-external-component: not read",
         "error: plain",
@@ -139,7 +140,7 @@ describe("terminal sessions", () => {
 
   it("treats every line of a shell block as a command, except comments and blank lines", () => {
     const html = highlightTerminal(
-      "kirana init\n\n# a note\nkirana doctor\n",
+      "kirana-style init\n\n# a note\nkirana-style doctor\n",
       true
     ).split("\n")
     expect(html[0]).toContain("th-prompt")
@@ -174,11 +175,11 @@ describe("the markdown pipeline", () => {
     const document = parse(
       [
         "```bash",
-        "kirana init",
+        "kirana-style init",
         "```",
         "",
         "```console",
-        "$ kirana check src",
+        "$ kirana-style check src",
         "```",
         "",
         '```tsx editor file="a.tsx"',

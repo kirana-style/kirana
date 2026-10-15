@@ -112,14 +112,14 @@ export function DiagnosticsFigure() {
   return (
     <figure
       sx={[accents.crater, styles.root]}
-      aria-label="kirana check over a project: one file fails with KRN1401"
+      aria-label="kirana-style check over a project: one file fails with KRN1401"
     >
       <div sx={styles.panel}>
         <Check />
       </div>
       <figcaption sx={styles.caption}>
-        kirana check reads every module; a relation read without its anchor is
-        an error with a stable code, in the file that has it.
+        kirana-style check reads every module; a relation read without its
+        anchor is an error with a stable code, in the file that has it.
       </figcaption>
     </figure>
   )

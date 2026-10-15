@@ -1,4 +1,4 @@
 # print the diff and the report, then apply it
-kirana migrate stylex src
-kirana migrate stylex src --write
-kirana check src
+kirana-style migrate stylex src
+kirana-style migrate stylex src --write
+kirana-style check src

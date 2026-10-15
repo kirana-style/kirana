@@ -57,5 +57,5 @@ browser. It does not try to style markup you do not render: the compiler works o
 the source it can see.
 
 > [!NOTE] Pre-release
-> Kirana is built and used inside this repository, but it is not published to npm
-> yet, and the name is a working name. Every page tells you what works today.
+> Kirana is on npm as a 0.x pre-release: the API can still change before 1.0, and
+> the name is a working name. Every page tells you what works today.

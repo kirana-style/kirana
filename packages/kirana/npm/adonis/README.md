@@ -1,7 +1,7 @@
 # @kirana-style/adonis
 
 Kirana for AdonisJS (D-069): `kirana()` in Edge templates, merging styles named from the class map
-`kirana build` and `kirana dev` write.
+`kirana-style build` and `kirana-style dev` write.
 
 ```ts
 // adonisrc.ts

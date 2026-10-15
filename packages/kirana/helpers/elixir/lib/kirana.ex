@@ -9,7 +9,7 @@ defmodule Kirana do
       <div class={kirana(["card", @active && "card.active"])}>
 
   The class map is read from `config :kirana, classes: "priv/static/kirana/classes.json"` (the
-  default), and read again whenever `kirana dev` rewrites it.
+  default), and read again whenever `kirana-style dev` rewrites it.
   """
 
   @doc "The merged classes of the named handles, from the configured class map."

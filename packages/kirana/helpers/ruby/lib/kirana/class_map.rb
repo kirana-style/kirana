@@ -4,7 +4,7 @@ require "json"
 
 module Kirana
   # A class map (D-069): the class string of every handle a server app's style modules export, by
-  # name, as `kirana build` and `kirana dev` write it. `classes` merges named handles the way `sx`
+  # name, as `kirana-style build` and `kirana-style dev` write it. `classes` merges named handles the way `sx`
   # merges them, later ones winning.
   class ClassMap
     # A name the class map does not list.
@@ -18,9 +18,9 @@ module Kirana
       @merge = Merge.new(map.fetch("prefix", "k"), families.fetch("four", 0), families.fetch("two", 0))
     end
 
-    # Reads the class map `kirana build` or `kirana dev` wrote.
+    # Reads the class map `kirana-style build` or `kirana-style dev` wrote.
     def self.from_file(path)
-      raise Errno::ENOENT, "kirana: no class map at #{path}; run `kirana dev` or `kirana build` first" unless File.file?(path)
+      raise Errno::ENOENT, "kirana: no class map at #{path}; run `kirana-style dev` or `kirana-style build` first" unless File.file?(path)
 
       new(JSON.parse(File.read(path)))
     end
@@ -48,7 +48,7 @@ module Kirana
       @classes_path || "public/kirana/classes.json"
     end
 
-    # The class map at `classes_path`, read again when the file changes (`kirana dev` rewrites it).
+    # The class map at `classes_path`, read again when the file changes (`kirana-style dev` rewrites it).
     def class_map
       stamp = File.file?(classes_path) && File.mtime(classes_path)
       @class_map = nil unless @stamp == stamp && @path == classes_path

@@ -9,15 +9,14 @@ every stage, and the stages share one compiler session, so the HTML and the
 browser agree on every class. Tested on every change by `examples/gatsby`, built
 and on its dev server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you

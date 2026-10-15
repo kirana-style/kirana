@@ -1,11 +1,11 @@
 ---
 name: kirana-migrate
-description: Migrate a codebase from Tailwind CSS (including shadcn/ui, cn() and class-variance-authority) or from StyleX to Kirana (@kirana-style/core). Use when asked to port, convert or move components or a whole app to Kirana, to run kirana migrate tailwind or kirana migrate stylex, or to fix styles that changed after such a port. Covers the codemods, their reports, the hand fixes they leave, and how to prove the port renders the same.
+description: Migrate a codebase from Tailwind CSS (including shadcn/ui, cn() and class-variance-authority) or from StyleX to Kirana (@kirana-style/core). Use when asked to port, convert or move components or a whole app to Kirana, to run kirana-style migrate tailwind or kirana-style migrate stylex, or to fix styles that changed after such a port. Covers the codemods, their reports, the hand fixes they leave, and how to prove the port renders the same.
 ---
 
 # Migrating to Kirana
 
-Install and wire Kirana first (`npx kirana-style init`, then `npx kirana-style doctor`), and read the `kirana`
+Install and wire Kirana first (`npx kirana-style@latest init`, then `npx kirana-style doctor`), and read the `kirana`
 skill: its rules apply to the migrated code. Migrate on a branch, keep the original build runnable
 beside it, and port in small steps.
 
@@ -17,14 +17,14 @@ beside it, and port in small steps.
    shadcn's `@custom-variant`s under `utilities.variants`, or pass the CSS file to the codemod.
 2. **Dry-run the codemod, read the diff and the report:**
    ```bash
-   npx kirana migrate tailwind src src/globals.css   # Tailwind: sources plus the CSS that declares variants and utilities
-   npx kirana migrate stylex src                     # StyleX
+   npx kirana-style migrate tailwind src src/globals.css   # Tailwind: sources plus the CSS that declares variants and utilities
+   npx kirana-style migrate stylex src                     # StyleX
    ```
    Add `--report migration.md` to keep the report. Every report item is something the codemod
    refused to guess; for Tailwind it is also left as a `// tailwind:` comment beside the style.
 3. **Apply it:** the same command with `--write`.
 4. **Resolve the report by hand,** with `references/tailwind-map.md` or `references/stylex-map.md`.
-5. **`npx kirana check src` until it is clean.** `sx-on-external-component`, `unused-sx`,
+5. **`npx kirana-style check src` until it is clean.** `sx-on-external-component`, `unused-sx`,
    `relation-without-anchor` and `ambiguous-precedence` are the diagnostics a port produces; the
    `kirana` skill's diagnostics reference says what to do about each.
 6. **Prove it renders the same.** Compare **computed styles**, not screenshots: for each element,

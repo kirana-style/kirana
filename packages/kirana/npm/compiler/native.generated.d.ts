@@ -20,7 +20,7 @@ export declare class Compiler {
   remove(id: string): boolean
   /**
    * Compiles every source file under `paths` (files or directories) into the session; returns
-   * every diagnostic as JSON, project-wide ones included, as `kirana check` reports them.
+   * every diagnostic as JSON, project-wide ones included, as `kirana-style check` reports them.
    */
   check(paths: Array<string>): string
   /** The style sites of a transformed module as JSON (byte spans). */
@@ -45,12 +45,12 @@ export interface ClassMapResult {
   diagnostics: string
 }
 
-/** Runs the `kirana` command line; returns `[exitCode, output]`. */
+/** Runs the `kirana-style` command line; returns `[exitCode, output]`. */
 export declare function runCli(args: Array<string>): [number, string]
 
 /**
  * Runs the language server on this process's stdin and stdout until the client shuts it down;
- * returns the exit code. It blocks: `kirana lsp` is a process of its own.
+ * returns the exit code. It blocks: `kirana-style lsp` is a process of its own.
  */
 export declare function runLsp(configJson: string): number
 

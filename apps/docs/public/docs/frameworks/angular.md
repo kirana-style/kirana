@@ -9,8 +9,7 @@ Vite, through a Vite plugin. Templates style elements with an `[sx]` directive.
 Tested on every change by `examples/angular-cli` and `examples/analog-angular`,
 with npm and pnpm, in a production build and on the dev server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## How Angular differs
 
@@ -27,7 +26,7 @@ when two handles set the same property.
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects Angular and whether it builds with the CLI or Analog, shows every

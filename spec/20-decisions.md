@@ -15,7 +15,8 @@ reopened by a named experiment).
 - **Status:** Provisional — reopened by trademark clearance (the licensing notes).
 - **Decision:** The product is **Kirana**, tagline **"Styling, compiled."** Canonical domain
   `kirana.style`. `kirana.build` and `kirana.tools` are defensive registrations only. npm scope
-  `@kirana`, CLI binary `kirana`, Rust crates `kirana_*`, GitHub organisation `kirana`.
+  `@kirana`, CLI binary `kirana`, Rust crates `kirana_*`, GitHub organisation `kirana`. The npm
+  names and the binary are superseded by D-082: scope `@kirana-style`, command `kirana-style`.
 - **Rationale:** `.style` states the category and separates the name from its Indian retail meaning.
 - **Elaborated in:** the brand notes.
 
@@ -34,7 +35,7 @@ reopened by a named experiment).
 - **Status:** Accepted.
 - **Decision:** Kirana has its own authoring API and semantics. It is not source-compatible with
   StyleX, Panda or Tailwind. Existing projects migrate through one-shot codemods
-  (`kirana migrate stylex`, `kirana migrate tailwind`).
+  (`kirana-style migrate stylex`, `kirana-style migrate tailwind`).
 - **Rationale:** Compatibility would bind Kirana to another project's release cadence — the exact
   problem the community StyleX SWC port lives with — and would import the API frictions recorded in
   the StyleX comparison.
@@ -368,7 +369,7 @@ the implementation tracker names its evidence.
   and production use the same names and the same cascade order; they differ only in source maps and
   minification. Hash inputs never include file paths.
 - **Rationale:** Lengthening names on collision (D-024) made a name depend on which modules compiled
-  first. Readable names now come from `kirana trace` and the language server. The value segment is
+  first. Readable names now come from `kirana-style trace` and the language server. The value segment is
   four characters, not the three first shipped: measured over the three applications, three left a
   1.5–3.1 % chance per build of a collision, which fails the build with nothing the author can do
   about it, and widening is the only fix that keeps a name a function of its own atom
@@ -520,7 +521,7 @@ the implementation tracker names its evidence.
   CSS from a stale entry — against a requirement that says deleting the cache must never change
   output. Turborepo already replays an unchanged build in 1.7 s, which is the saving people actually
   wanted. Revisit if the engine's share ever becomes visible; the measurement to re-run is
-  `kirana check --stats` and the corpus benchmark.
+  `kirana-style check --stats` and the corpus benchmark.
 - **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md),
   the roadmap.
 
@@ -610,10 +611,10 @@ the implementation tracker names its evidence.
 
 ### D-054 — Published libraries ship styles uncompiled
 
-- **Status:** Accepted. Supersedes the `kirana build --library` manifest in KRN-INT-008.
+- **Status:** Accepted. Supersedes the `kirana-style build --library` manifest in KRN-INT-008.
 - **Decision:** A published Kirana library ships its `css()` calls uncompiled and no CSS; an
   application lists it in `libraries`, and every adapter compiles that package's modules from
-  `node_modules` with the application's own. `kirana build --library` and `kirana.manifest.json`
+  `node_modules` with the application's own. `kirana-style build --library` and `kirana.manifest.json`
   are withdrawn.
 - **Rationale:** A precompiled library bakes its compiler version and configuration into class
   names. Through the real runtime, `cx(libraryStyle, appOverride)` keeps both classes when the
@@ -683,7 +684,7 @@ the implementation tracker names its evidence.
 ### D-058 — The Tailwind codemod shares the utility lowering
 
 - **Status:** Accepted. Builds the second row of KRN-API-013.
-- **Decision:** `kirana migrate tailwind` has no Tailwind parser of its own. The utility lowering moves
+- **Decision:** `kirana-style migrate tailwind` has no Tailwind parser of its own. The utility lowering moves
   into `kirana_utility`, which describes values symbolically (a token by module, export and path;
   negation, alpha, text around tokens); the engine renders them as IR, the codemod as source
   (`color.blue[600]`, `` `calc(${space[2]} * -1)` ``). What a string cannot say but an object can —
@@ -755,9 +756,9 @@ the implementation tracker names its evidence.
 
 ### D-062 — A build checks R1 only for relations it compiled
 
-- **Status:** Accepted. Narrows R1 (08) in a bundler build; `kirana check` is unchanged.
+- **Status:** Accepted. Narrows R1 (08) in a bundler build; `kirana-style check` is unchanged.
 - **Decision:** in a build, a relation read whose declaring module the build never compiled is not
-  reported as `relation-without-anchor`. `kirana check`, which compiles every module of the project,
+  reported as `relation-without-anchor`. `kirana-style check`, which compiles every module of the project,
   still reports it when no module anywhere applies the anchor.
 - **Rationale:** a style's import of a relation is removed with the style, so the declaring module
   enters the build only when something else imports it. A shared component reading an ancestor that
@@ -819,10 +820,10 @@ the implementation tracker names its evidence.
   (53 ms for the 104 scripts of `apps/docs` cold, 5 ms after an edit).
 - **Elaborated in:** [11-integrations](./11-integrations.md#bundlers-and-build-tools).
 
-### D-066 — `kirana init` edits after showing a diff, and never installs unasked
+### D-066 — `kirana-style init` edits after showing a diff, and never installs unasked
 
 - **Status:** Accepted.
-- **Decision:** `kirana init` detects the framework, bundler and package manager, then writes
+- **Decision:** `kirana-style init` detects the framework, bundler and package manager, then writes
   `kirana.config.ts`, wires the adapter into the host's configuration and adds the stylesheet. It shows
   every change as a diff and asks before writing (`--yes` skips the question, `--dry-run` only shows).
   It prints the install command and runs it only with `--install`. Where a configuration file is not in
@@ -867,7 +868,7 @@ the implementation tracker names its evidence.
 ### D-069 — Server templates read a class map
 
 - **Status:** Accepted.
-- **Decision:** `classes: { modules, out }` in `kirana.config` makes `kirana build` and `kirana dev`
+- **Decision:** `classes: { modules, out }` in `kirana.config` makes `kirana-style build` and `kirana-style dev`
   write a class map: every handle the modules export, by name (dotted inside objects), as its class
   string, with the prefix and the two box-family bounds. Template helpers in PHP (Laravel's `@kirana`,
   Symfony's Twig `kirana()`), Ruby (Rails' `kirana`), Elixir (Phoenix's `kirana/1`) and Node.js
@@ -960,12 +961,12 @@ the implementation tracker names its evidence.
   transition name must be unique per element, so it belongs with the data that makes it unique.
 - **Elaborated in:** [06-authoring-api](./06-authoring-api.md#viewtransition).
 
-### D-077 — `kirana doctor --report`: a bug report that is safe to paste
+### D-077 — `kirana-style doctor --report`: a bug report that is safe to paste
 
 - **Status:** Accepted.
-- **Decision:** `kirana doctor --report` writes a Markdown issue body (or JSON with `--json`) from the
-  doctor's checks, the engine's hidden `kirana report` (version, work counts, stylesheet size, each
-  diagnostic code with its count and first location) and, with `--trace`, `kirana trace` output. It
+- **Decision:** `kirana-style doctor --report` writes a Markdown issue body (or JSON with `--json`) from the
+  doctor's checks, the engine's hidden `kirana-style report` (version, work counts, stylesheet size, each
+  diagnostic code with its count and first location) and, with `--trace`, `kirana-style trace` output. It
   never includes source text; the project root, home directory and user name are replaced, and
   configuration values under keys that name a secret are masked.
 - **Rationale:** a bug report should carry what CONTRIBUTING asks for without a second round trip, and
@@ -992,11 +993,11 @@ the implementation tracker names its evidence.
   the ESLint originals' reports by a test. Rules that need the compiler or another file, and the two
   whose analysis GritQL cannot express (`no-unused`, `sort-properties`), are not approximated.
 - **Rationale:** an approximate rule that disagrees with the ESLint one would undo the promise that lint
-  and build never disagree. `kirana check --format github` gives a Biome project the compiler's own
+  and build never disagree. `kirana-style check --format github` gives a Biome project the compiler's own
   diagnostics in CI.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#lint).
 
-### D-080 — `kirana export`, schema 1
+### D-080 — `kirana-style export`, schema 1
 
 - **Status:** Accepted.
 - **Decision:** the design system as JSON, from the session's own records: tokens from the token
@@ -1016,6 +1017,21 @@ the implementation tracker names its evidence.
   on the line it concerns.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#cli).
 
+### D-082 — One command name, `kirana-style`
+
+- **Status:** Accepted.
+- **Decision:** The command line is the unscoped npm package `kirana-style`, and its binary is
+  `kirana-style`, the same name everywhere: `npx kirana-style@latest init` for a first run, then the
+  project's own install for every other command. `kirana init` adds `kirana-style` to the dev
+  dependencies; `@kirana-style/compiler` no longer declares a binary, and the Rust standalone binary
+  is `kirana-style` too. The editor extensions look for `node_modules/.bin/kirana-style` and then
+  `kirana`, the 0.1.0 name.
+- **Rationale:** npm refuses the unscoped `kirana` as a typosquat of an existing package and will not
+  make an exception, so `npx kirana` can never run Kirana. Two names (`kirana-style` for the first
+  run, `kirana` after it) taught a command that only worked half the time; one name works in every
+  context, and a project that wants a shorter one adds a script.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#cli).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                             |
@@ -1027,7 +1043,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043                                                                                            |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045                                           |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073        |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081                                           |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082                                    |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048                                                                |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                 |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                          |

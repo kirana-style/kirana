@@ -1,6 +1,6 @@
 /**
  * What a project is built with (KRN-DX-008): its framework, bundler and package manager, read from
- * `package.json` and lockfiles. `kirana init` sets a project up from it and `kirana doctor` checks
+ * `package.json` and lockfiles. `kirana-style init` sets a project up from it and `kirana-style doctor` checks
  * the setup against it, so the two never disagree about what a project needs.
  */
 import { existsSync, readFileSync } from "node:fs"
@@ -247,7 +247,7 @@ export function adapterOf(project: Detected): string[] {
       "@kirana-style/postcss",
       "postcss",
     ],
-    // A server framework runs `kirana dev` and `kirana build`, from `@kirana-style/compiler`.
+    // A server framework runs `kirana-style dev` and `kirana-style build`, from `kirana-style`.
     cli: [],
     none: [],
   }

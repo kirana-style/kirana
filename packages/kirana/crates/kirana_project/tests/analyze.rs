@@ -1,4 +1,4 @@
-//! `kirana analyze` (KRN-DX-008): every section of the report, from one compiled project.
+//! `kirana-style analyze` (KRN-DX-008): every section of the report, from one compiled project.
 
 use std::path::PathBuf;
 use std::sync::Arc;

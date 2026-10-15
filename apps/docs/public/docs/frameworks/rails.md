@@ -8,14 +8,13 @@ every view; the Kirana CLI writes the stylesheet and the class map. How it fits
 together: [server templates](/docs/frameworks/server-templates). Tested on every
 change by `examples/rails`, served by Puma, with a style edit checked on reload.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change, but not published. Until they are, install the npm packages from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows, and the helper from a checkout of the repository by path; the rest of this page is the same either way.
+
 
 ## 1. Install
 
 ```bash
 npm install @kirana-style/core
-npm install -D @kirana-style/compiler
+npm install -D kirana-style
 ```
 
 ```ruby file="Gemfile"
@@ -40,10 +39,10 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 
 ```bash file="Procfile.dev"
 web: bin/rails server
-kirana: npx kirana dev app/styles --out public/kirana/kirana.css
+kirana: npx kirana-style dev app/styles --out public/kirana/kirana.css
 ```
 
-For production, run `npx kirana build app/styles --out public/kirana/kirana.css --minify`
+For production, run `npx kirana-style build app/styles --out public/kirana/kirana.css --minify`
 before `assets:precompile`.
 
 ## 4. Use it in a view
@@ -54,7 +53,7 @@ before `assets:precompile`.
 <div class="<%= kirana :card, active && :active %>">…</div>
 ```
 
-The helper reads the class map again whenever `kirana dev` rewrites it. Set
+The helper reads the class map again whenever `kirana-style dev` rewrites it. Set
 `config.kirana.classes` to read it from somewhere other than
 `public/kirana/classes.json`.
 

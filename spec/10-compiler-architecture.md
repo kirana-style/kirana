@@ -62,7 +62,7 @@ of host-only dependencies.
 | 3    | `kirana_project`     | Façade: project state, cross-file resolution with provenance, atom registry, project-wide checks, trace, parallel build.   |
 | 4    | `kirana_napi`        | Node-API binding (NAPI-RS).                                                                                                |
 | 4    | `kirana_migrate`     | The codemods: `migrate stylex` and `migrate tailwind` (KRN-API-013).                                                       |
-| 4    | `kirana_cli`         | `kirana build`, `check`, `trace` and `migrate`; a library the binding also exposes as `runCli`.                            |
+| 4    | `kirana_cli`         | `kirana-style build`, `check`, `trace` and `migrate`; a library the binding also exposes as `runCli`.                      |
 
 Planned when their milestones need them: `kirana_wasm` (`wasm32-wasip1` and `wasm32-unknown-unknown`) and
 `kirana_lsp` (12). The prefilter, token model and resolver each had one caller and under a few hundred
@@ -219,7 +219,7 @@ prefix `k`, development and production use the same names:
   first.
 - Tombstones and unfold tokens travel inside class strings so a later runtime merge can apply removals
   and shorthand atoms exactly; the host element's `class` attribute never receives them.
-- Readable names come from `kirana trace` and the language server, not from a second naming scheme.
+- Readable names come from `kirana-style trace` and the language server, not from a second naming scheme.
 
 ## Source rewrite
 

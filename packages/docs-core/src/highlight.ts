@@ -114,7 +114,7 @@ const escape = (text: string) =>
 
 /** Commands an inline span starts with that make it a shell line. */
 const COMMANDS =
-  /^(kirana|npx|npm|pnpm|yarn|bun|bunx|node|cargo|git|deno|cd)(\s|$)/
+  /^(kirana-style|kirana|npx|npm|pnpm|yarn|bun|bunx|node|cargo|git|deno|cd)(\s|$)/
 
 /** CSS functions an inline value starts with: `calc(…)`, `var(--x)`, `light-dark(…)`. */
 const CSS_VALUE =

@@ -55,7 +55,7 @@ final class ClassMapTest extends TestCase
         file_put_contents($file, json_encode(self::MAP));
         self::assertSame('k3_cccc', ClassMap::fromFile($file)->classes('card.active'));
         unlink($file);
-        $this->expectExceptionMessage('run `kirana dev` or `kirana build` first');
+        $this->expectExceptionMessage('run `kirana-style dev` or `kirana-style build` first');
         ClassMap::fromFile($file);
     }
 }

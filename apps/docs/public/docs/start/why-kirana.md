@@ -48,15 +48,15 @@ class names. Kirana is this kind, and it is exactly what the React team
 recommends: static CSS files for static styles, and a custom property in
 `style` for a value only known at runtime.
 
-| The complaint                       | Runtime CSS-in-JS         | Kirana                                                                                                                                                                       |
-| ----------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Styles are computed while rendering | Yes                       | No. Styles become CSS during the build                                                                                                                                       |
-| A styling runtime in the bundle     | Yes, the whole library    | A module with only static styles imports nothing; merging and bridging need a helper under 1 kB gzipped                                                     |
-| Server rendering collects styles    | Yes                       | No. The stylesheet is a file, linked like any other                                                                                                                          |
-| `<style>` tags inserted at runtime  | Yes                       | Never. The runtime [never generates CSS](/docs/styling/dynamic)                                                                                                              |
-| CSS grows with markup               | Often, one rule per usage | [Atomic](/docs/advanced/output): one rule per distinct declaration, shared by every element that uses it                                                                     |
-| Class names you cannot read         | Hashed                    | Hashed too, but `kirana trace file:line property` prints every entry for a style and the one that wins, and [hovering it in the editor](/docs/tooling/editor) shows the same |
-| Order bugs between style sheets     | Insertion order decided   | One [precedence ladder](/docs/styling/precedence), in [layers](/docs/config/layers)                                                                                          |
+| The complaint                       | Runtime CSS-in-JS         | Kirana                                                                                                                                                                             |
+| ----------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Styles are computed while rendering | Yes                       | No. Styles become CSS during the build                                                                                                                                             |
+| A styling runtime in the bundle     | Yes, the whole library    | A module with only static styles imports nothing; merging and bridging need a helper under 1 kB gzipped                                                           |
+| Server rendering collects styles    | Yes                       | No. The stylesheet is a file, linked like any other                                                                                                                                |
+| `<style>` tags inserted at runtime  | Yes                       | Never. The runtime [never generates CSS](/docs/styling/dynamic)                                                                                                                    |
+| CSS grows with markup               | Often, one rule per usage | [Atomic](/docs/advanced/output): one rule per distinct declaration, shared by every element that uses it                                                                           |
+| Class names you cannot read         | Hashed                    | Hashed too, but `kirana-style trace file:line property` prints every entry for a style and the one that wins, and [hovering it in the editor](/docs/tooling/editor) shows the same |
+| Order bugs between style sheets     | Insertion order decided   | One [precedence ladder](/docs/styling/precedence), in [layers](/docs/config/layers)                                                                                                |
 
 What you keep from CSS-in-JS is the part people liked: styles are values, next to
 the component, typed, passed as props, and deleted with the component.
@@ -118,7 +118,7 @@ answers them:
 | Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [45 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
 | The official compiler is Babel; the Rust one is a community port behind it                                                                      | The engine is Kirana's own, in Rust on [oxc](https://oxc.rs), with a WASI build that writes the same bytes where no native one runs                                                                  |
 | No utility vocabulary: a Tailwind team rebuilt the scales by hand                                                                               | [`@kirana-style/preset-scales`](/docs/tokens/preset-scales) is Tailwind v4's scales, and [utility strings](/docs/styling/utilities) compile to the same atoms as the object form                     |
-| A port from Tailwind was done by hand                                                                                                           | [`kirana migrate tailwind`](/docs/migration/from-tailwind), measured below                                                                                                                           |
+| A port from Tailwind was done by hand                                                                                                           | [`kirana-style migrate tailwind`](/docs/migration/from-tailwind), measured below                                                                                                                     |
 
 Framework reach is the other half: `sx` works in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (Angular
 templates take it as a directive, Ember's as a helper), and Kirana has adapters
@@ -201,7 +201,7 @@ is still one rule.
 
 ## Where Kirana costs you something
 
-- **It is pre-release.** Not published to npm yet; see
+- **It is pre-release.** On npm, but before 1.0 the API can still change; see
   [what works today](/docs/project/status).
 - **It is a compiler.** Styles must be statically known in shape: a computed key
   or a spread object is an error, and a value the compiler cannot enumerate goes

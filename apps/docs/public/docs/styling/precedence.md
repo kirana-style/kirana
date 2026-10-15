@@ -92,7 +92,7 @@ Kirana writes is unlayered, custom-property assignments included.
 When a value does not win and you want the reason, ask:
 
 ```bash
-kirana trace src/components/card.tsx:24 padding-top
+kirana-style trace src/components/card.tsx:24 padding-top
 ```
 
 It prints one line per candidate declaration (value, conditions, layer), marks

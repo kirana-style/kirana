@@ -53,7 +53,7 @@ most of the reason Kirana exists.
 
 **A stated precedence ladder, and a tool that reads it back.** StyleX offers two
 modes (later-wins and property-specificity), and neither reproduced what the
-Tailwind components needed. Kirana has one ladder, and `kirana trace file:line
+Tailwind components needed. Kirana has one ladder, and `kirana-style trace file:line
 property` prints every candidate declaration, the winner, and the step that
 decided it.
 
@@ -114,12 +114,12 @@ The longer argument, with the StyleX port's problems and what answers each, is
 Fairness matters more than a feature list:
 
 - **It is published, versioned and used in production** at Meta scale. Kirana is
-  0.1.0 and not on npm.
+  a 0.x pre-release.
 - **A larger ecosystem**: community plugins, documentation, examples, articles and people who have
   already hit your problem.
 - **A few helpers** have no direct equivalent, `stylex.when.descendant` and
   `stylex.when.anySibling` among them; write a `:has()` condition.
-  `kirana migrate stylex` names each one it meets in its report.
+  `kirana-style migrate stylex` names each one it meets in its report.
 
 If you need a styling compiler in production this quarter, StyleX is the
 defensible choice. Kirana is worth it when predictability and diagnostics are the
@@ -151,8 +151,8 @@ Kirana emits nothing outside its layers.
 > port renders the same.
 
 ```bash
-kirana migrate stylex src          # print the diff and the report
-kirana migrate stylex src --write  # apply it
+kirana-style migrate stylex src          # print the diff and the report
+kirana-style migrate stylex src --write  # apply it
 ```
 
 It makes the mechanical rewrites, renames `*.stylex.ts` files, and prints a report
@@ -174,6 +174,6 @@ Two follow-up passes still live as scripts in the compiler's repository:
 
 ## After the codemod
 
-Work through the report, then let the compiler finish the job: `kirana check`
+Work through the report, then let the compiler finish the job: `kirana-style check`
 will find the relations without anchors, the components that swallow `sx`, and the
 ambiguous pairs. Fix those and the port is done.

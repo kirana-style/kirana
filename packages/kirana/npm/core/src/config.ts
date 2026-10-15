@@ -105,7 +105,7 @@ export type KiranaConfig = {
   }
   /**
    * The class map for server templates (D-069): Blade, ERB, HEEx, Twig and Edge templates name the
-   * handles these modules export, and `kirana build` and `kirana dev` write their class strings to
+   * handles these modules export, and `kirana-style build` and `kirana-style dev` write their class strings to
    * `out` as JSON for the template helpers.
    */
   /**

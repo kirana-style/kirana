@@ -1,21 +1,22 @@
 # @kirana-style/compiler
 
-The Kirana Driver, the native engine loader and the `kirana` command
+The Kirana Driver, the native engine loader and the subcommands of `kirana-style` (the command
+itself is the `kirana-style` package)
 ([11-integrations](../../../../spec/11-integrations.md)). Host adapters such as
 `@kirana-style/vite` are thin wrappers over the Driver; the Rust engine does every styling decision.
 
 ## Command line
 
 ```bash
-kirana build <paths…> --out dist/kirana.css [--minify]   # compile and write the stylesheet
-kirana check <paths…> [--format human|json]             # diagnostics; exits 1 on errors
-kirana trace <file>:<line> <property>                   # why a value wins at one site
+kirana-style build <paths…> --out dist/kirana.css [--minify]   # compile and write the stylesheet
+kirana-style check <paths…> [--format human|json]             # diagnostics; exits 1 on errors
+kirana-style trace <file>:<line> <property>                   # why a value wins at one site
 ```
 
 `kirana.config.ts` (or `.mts`, `.js`, `.mjs`, `.json`) is read from the working directory.
 
 ```text
-$ kirana trace src/components/drawer.tsx:88 justifyContent
+$ kirana-style trace src/components/drawer.tsx:88 justifyContent
 justifyContent at src/components/drawer.tsx:88
   ✓ center                   @media (width >= 48rem)          kirana.atoms       step 2 (1 condition > 0)
     start                    base                             kirana.atoms

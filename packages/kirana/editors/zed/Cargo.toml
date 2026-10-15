@@ -1,6 +1,6 @@
 [package]
 name = "kirana_zed"
-description = "The Kirana extension for Zed: registers the project's own `kirana lsp`."
+description = "The Kirana extension for Zed: registers the project's own `kirana-style lsp`."
 version = "0.1.0"
 edition = "2024"
 license = "MIT"

@@ -14,7 +14,7 @@ The most valuable contribution at this stage. A good report has:
 - **What you ran**: the Kirana version, your framework and bundler, and the
   smallest source that shows the problem.
 - **What you expected and what happened**: the computed style you expected,
-  and the one you got. `kirana trace <file>:<line> <property>` prints every
+  and the one you got. `kirana-style trace <file>:<line> <property>` prints every
   entry for a style and the one that won; paste its output.
 - **The diagnostic**, if there was one, with its code (`KRN…`).
 

@@ -17,7 +17,7 @@ stylesheet and the class map into `public/kirana`. How it fits together:
 
 ## 1. Install
 
-<!-- ::install packages="@kirana-style/core" dev="@kirana-style/compiler" -->
+<!-- ::install packages="@kirana-style/core" dev="kirana-style" -->
 
 ```bash
 composer require kirana-style/kirana
@@ -32,7 +32,7 @@ services:
 ```
 
 Autoconfiguration tags it as a Twig extension. It reads the class map on first
-use, so `cache:clear` works before the first `kirana build`.
+use, so `cache:clear` works before the first `kirana-style build`.
 
 ## 3. Name the style modules and write styles
 
@@ -54,10 +54,10 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ## 4. Run the CLI
 
 ```bash
-npx kirana dev resources/styles --out public/kirana/kirana.css
+npx kirana-style dev resources/styles --out public/kirana/kirana.css
 ```
 
-`kirana build --minify` writes both files once, for production.
+`kirana-style build --minify` writes both files once, for production.
 
 ## 5. Use it in Twig
 

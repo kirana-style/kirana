@@ -1,4 +1,4 @@
-//! The Tailwind codemod behind `kirana migrate tailwind` (KRN-API-013, D-058,
+//! The Tailwind codemod behind `kirana-style migrate tailwind` (KRN-API-013, D-058,
 //! `design-notes/migrate-tailwind.md`).
 //!
 //! Class strings become `css()` objects through the utility surface's own lowering

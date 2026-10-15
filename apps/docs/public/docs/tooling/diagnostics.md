@@ -53,7 +53,7 @@ known at runtime: [values known at runtime](/docs/styling/dynamic).
 
 **`relation-without-anchor`**: a style reads a relation whose anchor is never
 applied, so it can never match: [relations](/docs/styling/relations). A build
-checks the relations whose module it compiled; `kirana check` checks them all.
+checks the relations whose module it compiled; `kirana-style check` checks them all.
 
 **`invalid-fallback`**, **`invalid-position-try`** and **`invalid-view-transition`**
 report a value the browser would drop or misread:
@@ -71,13 +71,13 @@ paths.
 ## Reading one
 
 ```console
-$ kirana check src
+$ kirana-style check src
 error[KRN1301] unknown-condition: ":hover" is a condition, and conditions nest
 inside property values (src/card.tsx:12:3)
   help: write `property: { [condition]: value }`
 ```
 
-Code, name, message, location, and a help line that says what to do. `kirana check
+Code, name, message, location, and a help line that says what to do. `kirana-style check
 --format json` gives the same fields as data.
 
 <!-- ::diagnostics-figure -->

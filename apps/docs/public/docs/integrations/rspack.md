@@ -7,8 +7,7 @@ Rspack runs webpack's plugins unchanged, so Kirana's webpack plugin is its
 plugin too; Rsbuild gets a one-line `pluginKirana`. Tested by
 `examples/rsbuild-react` and `examples/rspack-react`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 

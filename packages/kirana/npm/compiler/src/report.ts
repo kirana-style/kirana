@@ -1,7 +1,7 @@
 /**
- * `kirana doctor --report [file] [--trace <file>:<line> <property>] [--json]` (KRN-DX-008): a bug
+ * `kirana-style doctor --report [file] [--trace <file>:<line> <property>] [--json]` (KRN-DX-008): a bug
  * report to paste into an issue. It holds what CONTRIBUTING asks for — versions, framework and
- * bundler, the diagnostics by code, and `kirana trace` output when asked — plus the doctor's checks,
+ * bundler, the diagnostics by code, and `kirana-style trace` output when asked — plus the doctor's checks,
  * the stylesheet's size and the resolved configuration.
  *
  * Nothing in it identifies the machine or its owner (D-077): the project root becomes `<project>`,
@@ -18,7 +18,7 @@ import { diagnose, installedVersions } from "./doctor.ts"
 import type { NativeBinding } from "./native.ts"
 import { loadNative } from "./native.ts"
 
-/** What the engine reports about a compile of the project (`kirana report`). */
+/** What the engine reports about a compile of the project (`kirana-style report`). */
 export type EngineReport = {
   engine: string
   work: { seen: number; prefiltered: number; parsed: number; resolved: number }
@@ -92,7 +92,7 @@ export async function collect(
     const { json } = await resolveConfig(root)
     config = JSON.parse(json)
     const run = (...args: string[]) =>
-      native.runCli(["kirana", "--config-json", json, ...args])
+      native.runCli(["kirana-style", "--config-json", json, ...args])
     engine = JSON.parse(run("report")[1]) as EngineReport
     if (trace) {
       // The location is relative to the project, wherever the command runs from.
@@ -188,8 +188,8 @@ export function markdown(report: Report): string {
 }
 
 /**
- * `kirana doctor --report`: writes the Markdown report (`kirana-report.md` unless a file follows
- * the flag) or, with `--json`, prints the data. Exits as `kirana doctor` does.
+ * `kirana-style doctor --report`: writes the Markdown report (`kirana-report.md` unless a file follows
+ * the flag) or, with `--json`, prints the data. Exits as `kirana-style doctor` does.
  */
 export async function runReport(
   argv: readonly string[],

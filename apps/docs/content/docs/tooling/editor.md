@@ -29,7 +29,7 @@ Object styles move the CSS out of the markup: you read `sx={styles.card}`, not a
 class list. The Kirana language server brings it back where you are reading, and
 answers questions a class list never could: **which value wins, and why**.
 
-It is `kirana lsp`, a command of the compiler you already installed. It runs on the
+It is `kirana-style lsp`, a command of the compiler you already installed. It runs on the
 same compiler session as your build, so what the editor tells you is what the build
 does, never an approximation of it.
 
@@ -46,9 +46,10 @@ output for one file.
 
 <!-- ::editors -->
 
-Every editor runs your project's own `node_modules/.bin/kirana lsp`, from
-`@kirana-style/compiler`. Upgrading Kirana upgrades the editor with it; there is no
-extension version to keep in step.
+Every editor runs your project's own `node_modules/.bin/kirana-style lsp`, from the
+`kirana-style` package. Upgrading Kirana upgrades the editor with it; there is no
+extension version to keep in step. A project still on 0.1.0 has `kirana` there
+instead, and the extensions find that too.
 
 ### VS Code and its forks
 
@@ -64,11 +65,11 @@ in Cursor, Windsurf, Antigravity and VSCodium: search "Kirana" in the
 Extensions view. In a remote workspace (WSL, SSH, a container), install it on
 the remote side, where your project and Node.js live.
 
-If your project has no `node_modules/.bin/kirana` (a checkout of Kirana itself,
+If your project has no `node_modules/.bin/kirana-style` (a checkout of Kirana itself,
 say), point the extension at a binary or script:
 
 ```json
-{ "kirana.server.path": "packages/kirana/npm/compiler/bin/kirana.ts" }
+{ "kirana.server.path": "packages/kirana/npm/cli/bin/kirana-style.ts" }
 ```
 
 A relative path is resolved against the workspace folder; a `.js` or `.ts` path
@@ -96,7 +97,7 @@ Neovim 0.11 and later:
 
 ```lua
 vim.lsp.config("kirana", {
-  cmd = { "node_modules/.bin/kirana", "lsp" },
+  cmd = { "node_modules/.bin/kirana-style", "lsp" },
   filetypes = {
     "typescript", "typescriptreact", "javascript", "javascriptreact",
     "vue", "svelte", "astro", "html",
@@ -112,7 +113,7 @@ In `languages.toml`:
 
 ```toml
 [language-server.kirana]
-command = "node_modules/.bin/kirana"
+command = "node_modules/.bin/kirana-style"
 args = ["lsp"]
 
 [[language]]
@@ -126,7 +127,7 @@ language-servers = ["vuels", "kirana"]
 
 ### Any other editor
 
-Run `kirana lsp` from the project root and connect over stdio. It runs beside the
+Run `kirana-style lsp` from the project root and connect over stdio. It runs beside the
 TypeScript server and answers styling questions only: property names and token
 keys are TypeScript's, through `@kirana-style/core`'s types.
 
@@ -151,7 +152,7 @@ the way you read a style:
 
 Hover a **property** instead and you get its entries in precedence order, with the
 ladder step that put each one where it is: the answer
-[`kirana trace`](/docs/tooling/cli) gives on the command line. Hover a **token** for
+[`kirana-style trace`](/docs/tooling/cli) gives on the command line. Hover a **token** for
 its value in both colour modes, and whether a theme can reassign it.
 
 VS Code draws the box model as a picture in your theme's colours, with the
@@ -240,7 +241,7 @@ Code actions also offer:
   `{ base: …, "@media (width >= 48rem)": … }`, ready to change.
 - **Show compiled CSS**, **Explain precedence** for the property under the cursor,
   and **Convert Tailwind classes to `css()`** on a `className` string, with the
-  engine of [`kirana migrate tailwind`](/docs/migration/from-tailwind).
+  engine of [`kirana-style migrate tailwind`](/docs/migration/from-tailwind).
 
 ### Structure and navigation
 
@@ -349,7 +350,7 @@ budgets are 50 ms, 200 ms and 300 MB.
 ## Troubleshooting
 
 - **The status bar shows Kirana with a warning sign.** No binary was found:
-  install `@kirana-style/compiler` in the project, or set `kirana.server.path`.
+  install `kirana-style` in the project, or set `kirana.server.path`.
 - **Answers look stale after changing the configuration.** Run **Kirana: Restart
   Language Server**.
 - **No hint after `sx={…}`.** Check that your editor shows inlay hints at all:

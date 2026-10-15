@@ -25,6 +25,7 @@ import {
 import { DocsLink } from "@/components/docs-link"
 import { Rail } from "@/components/site/patterns"
 import { ScenePixels } from "@/components/site/scene-pixels"
+import { VERSION } from "@/data/facts"
 import {
   At,
   Card,
@@ -270,7 +271,7 @@ export function Hero() {
               />
             </div>
             <p sx={styles.status}>
-              Version 0.1.0, a pre-release, not yet on npm.{" "}
+              Version {VERSION} on npm, a pre-release.{" "}
               <DocsLink href="/docs/project/status" sx={styles.statusLink}>
                 What works today
               </DocsLink>

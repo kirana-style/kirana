@@ -1,4 +1,4 @@
 # set up this project, showing each change as a diff
-npx kirana-style init
+npx kirana-style@latest init
 # then check the engine, the versions and the wiring
 npx kirana-style doctor

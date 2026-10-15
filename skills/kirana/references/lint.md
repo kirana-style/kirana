@@ -4,7 +4,7 @@
 
 `@kirana-style/eslint-plugin` runs under ESLint and Oxlint with identical results; its rules
 read the compiler. `@kirana-style/biome-plugin` carries the rules that need no compiler as
-Biome GritQL plugins. Under Biome, run `kirana check --format github --max-warnings 0`
+Biome GritQL plugins. Under Biome, run `kirana-style check --format github --max-warnings 0`
 in CI for what the compiler-backed rules would report.
 
 Full page: https://kirana.style/docs/tooling/lint.md
@@ -47,5 +47,5 @@ export default [kirana.configs.recommended] // or kirana.configs.strict
 
 ```yaml
 # CI under Biome: the compiler's own diagnostics, as pull-request annotations
-- run: npx kirana check src --format github --max-warnings 0
+- run: npx kirana-style check src --format github --max-warnings 0
 ```

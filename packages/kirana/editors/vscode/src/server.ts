@@ -1,7 +1,8 @@
 /**
- * Finding the language server (D-064): the project's own `node_modules/.bin/kirana`, so the editor
- * runs the engine release the build does, searched upwards for a monorepo's hoisted install; or the
- * `kirana.server.path` setting. Nothing here imports `vscode`, so it is tested on its own.
+ * Finding the language server (D-064): the project's own `node_modules/.bin/kirana-style`, so the
+ * editor runs the engine release the build does, searched upwards for a monorepo's hoisted install;
+ * or the `kirana.server.path` setting. A project still on 0.1.0 has `kirana` there instead (the
+ * command's name before it became `kirana-style`), which is the fallback in each directory. Nothing here imports `vscode`, so it is tested on its own.
  */
 import path from "node:path"
 
@@ -40,22 +41,23 @@ export function locateServer(
 ): ServerCommand | undefined {
   if (configured) {
     const file = folder ? path.resolve(folder, configured) : configured
-    // A script runs with Node, as `node_modules/.bin/kirana` itself does.
+    // A script runs with Node, as `node_modules/.bin/kirana-style` itself does.
     return /\.[cm]?[jt]s$/.test(file)
       ? { command: "node", args: [file, "lsp"] }
       : { command: file, args: ["lsp"] }
   }
   if (!folder) return undefined
-  const name = platform === "win32" ? "kirana.cmd" : "kirana"
+  const names = ["kirana-style", "kirana"].map((name) =>
+    platform === "win32" ? `${name}.cmd` : name
+  )
   let directory = folder
-  while (!exists(path.join(directory, "node_modules", ".bin", name))) {
+  for (;;) {
+    const bin = path.join(directory, "node_modules", ".bin")
+    const name = names.find((candidate) => exists(path.join(bin, candidate)))
+    if (name) return { command: path.join(bin, name), args: ["lsp"] }
     const parent = path.dirname(directory)
     if (parent === directory) return undefined
     directory = parent
-  }
-  return {
-    command: path.join(directory, "node_modules", ".bin", name),
-    args: ["lsp"],
   }
 }
 

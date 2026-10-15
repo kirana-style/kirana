@@ -57,7 +57,7 @@ Because the compiler checks it. Two errors you get for free:
   its anchor. In a class-string system this is a `group-hover:` that silently
   never fires. An application's build checks the relations whose module it
   compiled, so a shared component may read an ancestor that only some
-  applications render; `kirana check` checks every relation in the project.
+  applications render; `kirana-style check` checks every relation in the project.
 - **`relation-placement`**: the anchor cannot be proven to be in the right
   position: `after()` used where the anchor is not an earlier sibling, for
   example.

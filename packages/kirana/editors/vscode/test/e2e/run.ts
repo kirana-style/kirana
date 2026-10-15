@@ -4,8 +4,8 @@
  *
  *   bun run test:e2e        # Linux CI runs it under `xvfb-run`
  *
- * The fixture finds its server the way a project does, through `node_modules/.bin/kirana`; this
- * script writes that shim to point at this repository's compiler entry, so the native addon must be
+ * The fixture finds its server the way a project does, through `node_modules/.bin/kirana-style`;
+ * this script writes that shim to point at this repository's command entry, so the native addon must be
  * built first (`bun run build` in `npm/compiler`).
  */
 import { chmodSync, mkdirSync, writeFileSync } from "node:fs"
@@ -15,14 +15,14 @@ import { runTests } from "@vscode/test-electron"
 
 const extension = path.resolve(import.meta.dirname, "../..")
 const fixture = path.join(extension, "test/fixture")
-const entry = path.resolve(extension, "../../npm/compiler/bin/kirana.ts")
+const entry = path.resolve(extension, "../../npm/cli/bin/kirana-style.ts")
 const bin = path.join(fixture, "node_modules/.bin")
 mkdirSync(bin, { recursive: true })
 writeFileSync(
-  path.join(bin, "kirana"),
+  path.join(bin, "kirana-style"),
   `#!/bin/sh\nexec node ${JSON.stringify(entry)} "$@"\n`
 )
-chmodSync(path.join(bin, "kirana"), 0o755)
+chmodSync(path.join(bin, "kirana-style"), 0o755)
 
 await runTests({
   extensionDevelopmentPath: extension,

@@ -160,8 +160,8 @@ values enter. See [values known at runtime](/docs/styling/dynamic).
 
 ### 15. Let the tools answer "why"
 
-- `kirana check` in CI: every diagnostic, with an exit code.
-- `kirana trace <file>:<line> <property>` when a value is not the one you
+- `kirana-style check` in CI: every diagnostic, with an exit code.
+- `kirana-style trace <file>:<line> <property>` when a value is not the one you
   expected: every entry, the winner, and the ladder step that decided it.
 - To verify a port or a refactor, compare **computed styles**, not screenshots,
   in both colour schemes and at several widths. A 1 px border, an easing curve

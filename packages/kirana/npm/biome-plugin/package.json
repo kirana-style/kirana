@@ -14,6 +14,9 @@
     "url": "https://github.com/kirana-style/kirana/issues"
   },
   "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "rules",
     "recommended.json",

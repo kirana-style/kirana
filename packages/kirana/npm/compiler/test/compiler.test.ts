@@ -480,7 +480,7 @@ describe("kirana command", () => {
     expect(output).toContain("kirana")
   })
 
-  it("hands `kirana lsp` to the language server with the resolved configuration", async () => {
+  it("hands `kirana-style lsp` to the language server with the resolved configuration", async () => {
     const root = project({ "kirana.config.json": '{"names":{"prefix":"q"}}' })
     let received = ""
     const native = {
@@ -498,7 +498,7 @@ describe("kirana command", () => {
       "package.json": '{"name":"app"}',
       "src/a.tsx": INPUT,
     })
-    const bin = path.join(import.meta.dirname, "../bin/kirana.ts")
+    const bin = path.join(import.meta.dirname, "../../cli/bin/kirana-style.ts")
     const child = spawn(process.execPath, [bin, "lsp"], { cwd: root })
     const frame = (message: object) => {
       const body = JSON.stringify({ jsonrpc: "2.0", ...message })

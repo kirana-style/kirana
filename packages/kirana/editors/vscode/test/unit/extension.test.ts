@@ -106,6 +106,20 @@ describe("locating the server", () => {
     ).toMatch(/kirana\.cmd$/)
   })
 
+  it("prefers kirana-style, and finds the 0.1.0 name kirana after it", () => {
+    const both = (file: string) =>
+      file === path.join("/repo", "node_modules", ".bin", "kirana-style") ||
+      file === path.join("/repo", "node_modules", ".bin", "kirana")
+    expect(locateServer("/repo", "", "linux", both)?.command).toBe(
+      path.join("/repo", "node_modules", ".bin", "kirana-style")
+    )
+    expect(
+      locateServer("/repo", "", "win32", (file) =>
+        file.endsWith("kirana-style.cmd")
+      )?.command
+    ).toMatch(/kirana-style\.cmd$/)
+  })
+
   it("prefers the setting, running scripts with Node", () => {
     expect(locateServer("/repo", "bin/kirana.ts", "linux", exists)).toEqual({
       command: "node",

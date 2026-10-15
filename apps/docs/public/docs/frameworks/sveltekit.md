@@ -8,8 +8,7 @@ SvelteKit compiles Svelte components with Vite, so Kirana works as it does in
 rendered on the server, or prerendered, are styled from the first byte. Tested by
 `examples/sveltekit`, built with the static adapter and run on the dev server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 

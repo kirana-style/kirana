@@ -169,7 +169,7 @@ function Codemod() {
             icon={CommandLineIcon}
             size={54}
             variant="accent"
-            caption="kirana migrate"
+            caption="kirana-style migrate"
           />
         </At>
         <At x={85} y={26}>
@@ -186,7 +186,7 @@ function Codemod() {
 export function CodemodFigure() {
   return (
     <Figure
-      label="kirana migrate tailwind rewrites class strings into css() objects and writes a report"
+      label="kirana-style migrate tailwind rewrites class strings into css() objects and writes a report"
       panels={[<Codemod key="flat" />]}
       caption="The codemod turns class strings into css() objects and lists what it would not decide in a report; nothing is written until you pass --write."
     />
@@ -231,7 +231,7 @@ export function StylexFigure() {
           </Scene>
         </Stage>,
       ]}
-      caption="The codemod makes these rewrites mechanically; kirana check then finds the relations without anchors and the components that swallow sx."
+      caption="The codemod makes these rewrites mechanically; kirana-style check then finds the relations without anchors and the components that swallow sx."
     />
   )
 }
@@ -884,7 +884,7 @@ export function ExternalFigure() {
   )
 }
 
-/* ── Debugging: kirana trace ─────────────────────────────────────────── */
+/* ── Debugging: kirana-style trace ─────────────────────────────────────────── */
 
 /** Output of the real command, for the card.tsx in the caption. */
 const TRACE = [
@@ -901,7 +901,7 @@ const TRACE = [
 export function TraceFigure() {
   return (
     <Figure
-      label="kirana trace listing the candidates for padding-top and the step that decided"
+      label="kirana-style trace listing the candidates for padding-top and the step that decided"
       panels={[
         <Stage key="flat">
           <Scene width={380} height={170}>
@@ -909,7 +909,9 @@ export function TraceFigure() {
               <Card title="terminal" icon={CommandLineIcon} width={372}>
                 <Row flat typed={0}>
                   <T tone="prompt">$</T>
-                  <T tone="strong">kirana trace src/card.tsx:4 paddingTop</T>
+                  <T tone="strong">
+                    kirana-style trace src/card.tsx:4 paddingTop
+                  </T>
                 </Row>
                 {TRACE.map((line, i) => (
                   <Row key={line.value} flat typed={i + 1} lit={"wins" in line}>

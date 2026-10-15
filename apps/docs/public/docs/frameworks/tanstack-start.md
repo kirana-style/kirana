@@ -6,8 +6,7 @@ Source: https://kirana.style/docs/frameworks/tanstack-start
 This site, and the three applications of our shadcn/ui port, are TanStack
 Start apps; this page is the setup they use.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## Install and add the plugin
 

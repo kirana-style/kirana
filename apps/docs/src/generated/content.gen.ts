@@ -115,7 +115,7 @@ export const PAGES: readonly PageMeta[] = [
       "getting started",
       "setup",
       "install",
-      "kirana init"
+      "kirana-style init"
     ],
     "headings": [
       {
@@ -129,7 +129,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/start/installation",
     "file": "content/docs/start/installation.md",
     "title": "Installation",
-    "description": "Set a project up with kirana init or with your framework's guide, see what every setup has, and install from tarballs while the packages are unpublished.",
+    "description": "Set a project up with kirana-style init or your framework's guide, see what every setup has, and try unreleased changes from a checkout.",
     "section": "start",
     "order": 4,
     "keywords": [
@@ -146,13 +146,13 @@ export const PAGES: readonly PageMeta[] = [
       "preact",
       "solid",
       "tarballs",
-      "kirana init",
-      "kirana doctor"
+      "kirana-style init",
+      "kirana-style doctor"
     ],
     "headings": [
       {
-        "id": "let-kirana-init-do-it",
-        "text": "Let kirana init do it",
+        "id": "let-kirana-style-init-do-it",
+        "text": "Let kirana-style init do it",
         "level": 2
       },
       {
@@ -161,29 +161,14 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
-        "id": "not-on-npm-yet",
-        "text": "Not on npm yet",
+        "id": "install-by-hand",
+        "text": "Install by hand",
         "level": 2
-      },
-      {
-        "id": "install-from-tarballs",
-        "text": "Install from tarballs",
-        "level": 3
       },
       {
         "id": "machines-without-a-native-build",
         "text": "Machines without a native build",
-        "level": 3
-      },
-      {
-        "id": "from-a-checkout-of-the-repository",
-        "text": "From a checkout of the repository",
-        "level": 3
-      },
-      {
-        "id": "once-published",
-        "text": "Once published",
-        "level": 3
+        "level": 2
       },
       {
         "id": "what-every-setup-has",
@@ -219,6 +204,21 @@ export const PAGES: readonly PageMeta[] = [
         "id": "check-it-worked",
         "text": "Check it worked",
         "level": 2
+      },
+      {
+        "id": "unreleased-changes",
+        "text": "Unreleased changes",
+        "level": 2
+      },
+      {
+        "id": "from-tarballs",
+        "text": "From tarballs",
+        "level": 3
+      },
+      {
+        "id": "from-a-checkout-of-the-repository",
+        "text": "From a checkout of the repository",
+        "level": 3
       }
     ]
   },
@@ -1316,7 +1316,7 @@ export const PAGES: readonly PageMeta[] = [
       "app router",
       "server components",
       "install",
-      "kirana init"
+      "kirana-style init"
     ],
     "headings": [
       {
@@ -1954,7 +1954,7 @@ export const PAGES: readonly PageMeta[] = [
       "sx",
       "templates",
       "install",
-      "kirana init"
+      "kirana-style init"
     ],
     "headings": [
       {
@@ -3463,13 +3463,18 @@ export const PAGES: readonly PageMeta[] = [
     "kind": "cli",
     "headings": [
       {
-        "id": "kirana-init",
-        "text": "kirana init",
+        "id": "a-shorter-name",
+        "text": "A shorter name",
+        "level": 3
+      },
+      {
+        "id": "kirana-style-init",
+        "text": "kirana-style init",
         "level": 2
       },
       {
-        "id": "kirana-doctor",
-        "text": "kirana doctor",
+        "id": "kirana-style-doctor",
+        "text": "kirana-style doctor",
         "level": 2
       },
       {
@@ -3478,33 +3483,33 @@ export const PAGES: readonly PageMeta[] = [
         "level": 3
       },
       {
-        "id": "kirana-dev",
-        "text": "kirana dev",
+        "id": "kirana-style-dev",
+        "text": "kirana-style dev",
         "level": 2
       },
       {
-        "id": "kirana-check",
-        "text": "kirana check",
+        "id": "kirana-style-check",
+        "text": "kirana-style check",
         "level": 2
       },
       {
-        "id": "kirana-build",
-        "text": "kirana build",
+        "id": "kirana-style-build",
+        "text": "kirana-style build",
         "level": 2
       },
       {
-        "id": "kirana-analyze",
-        "text": "kirana analyze",
+        "id": "kirana-style-analyze",
+        "text": "kirana-style analyze",
         "level": 2
       },
       {
-        "id": "kirana-export",
-        "text": "kirana export",
+        "id": "kirana-style-export",
+        "text": "kirana-style export",
         "level": 2
       },
       {
-        "id": "kirana-trace",
-        "text": "kirana trace",
+        "id": "kirana-style-trace",
+        "text": "kirana-style trace",
         "level": 2
       },
       {
@@ -3513,13 +3518,13 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
-        "id": "kirana-migrate",
-        "text": "kirana migrate",
+        "id": "kirana-style-migrate",
+        "text": "kirana-style migrate",
         "level": 2
       },
       {
-        "id": "kirana-lsp",
-        "text": "kirana lsp",
+        "id": "kirana-style-lsp",
+        "text": "kirana-style lsp",
         "level": 2
       }
     ]
@@ -4177,7 +4182,7 @@ export const PAGES: readonly PageMeta[] = [
       "cursor",
       "codex",
       "coding agent",
-      "kirana export"
+      "kirana-style export"
     ],
     "headings": [
       {
@@ -4244,13 +4249,13 @@ export const NAV: readonly NavGroup[] = [
           "getting started",
           "setup",
           "install",
-          "kirana init"
+          "kirana-style init"
         ]
       },
       {
         "title": "Installation",
         "href": "/docs/start/installation",
-        "description": "Set a project up with kirana init or with your framework's guide, see what every setup has, and install from tarballs while the packages are unpublished.",
+        "description": "Set a project up with kirana-style init or your framework's guide, see what every setup has, and try unreleased changes from a checkout.",
         "keywords": [
           "install",
           "setup",
@@ -4265,8 +4270,8 @@ export const NAV: readonly NavGroup[] = [
           "preact",
           "solid",
           "tarballs",
-          "kirana init",
-          "kirana doctor"
+          "kirana-style init",
+          "kirana-style doctor"
         ]
       },
       {
@@ -4672,7 +4677,7 @@ export const NAV: readonly NavGroup[] = [
           "app router",
           "server components",
           "install",
-          "kirana init"
+          "kirana-style init"
         ]
       },
       {
@@ -4835,7 +4840,7 @@ export const NAV: readonly NavGroup[] = [
           "sx",
           "templates",
           "install",
-          "kirana init"
+          "kirana-style init"
         ]
       },
       {
@@ -5456,7 +5461,7 @@ export const NAV: readonly NavGroup[] = [
           "cursor",
           "codex",
           "coding agent",
-          "kirana export"
+          "kirana-style export"
         ]
       }
     ]
@@ -5675,7 +5680,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Why Kirana",
     "section": "start",
     "heading": "Where Kirana costs you something",
-    "text": "It is pre-release. Not published to npm yet; see what works today . It is a compiler. Styles must be statically known in shape: a computed key or a spread object is an error, and a value the compiler cannot enumerate goes through a custom property. It is stricter than CSS. Contextual rules rank below the target's own styles, and two conditions that tie are reported instead of left to source order. That is what makes the result predictable, and it is why a migration from Tailwind needs a few hand fixes (the migration guide lists every one we met). The richest editor is VS Code. Every LSP editor gets the card, the hints and the fixes; the Style Inspector, Style Fold and coloured hints are VS Code's. The extensions are not on the marketplaces until the first release."
+    "text": "It is pre-release. On npm, but before 1.0 the API can still change; see what works today . It is a compiler. Styles must be statically known in shape: a computed key or a spread object is an error, and a value the compiler cannot enumerate goes through a custom property. It is stricter than CSS. Contextual rules rank below the target's own styles, and two conditions that tie are reported instead of left to source order. That is what makes the result predictable, and it is why a migration from Tailwind needs a few hand fixes (the migration guide lists every one we met). The richest editor is VS Code. Every LSP editor gets the card, the hints and the fixes; the Style Inspector, Style Fold and coloured hints are VS Code's. The extensions are not on the marketplaces until the first release."
   },
   {
     "id": "/docs/start/quick-start",
@@ -5690,7 +5695,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Quick start",
     "section": "start",
     "heading": "Quick start",
-    "text": "Pick your framework. The steps below are read from its guide, so they always match it. Or let the command line set it up. In your project's root: recognises the framework, the bundler and the package manager, and shows every change it would make as a diff; nothing is written until you say yes. then checks the engine, the installed versions and the wiring. Installation has the details, including how to install while the packages are not on npm yet."
+    "text": "Pick your framework. The steps below are read from its guide, so they always match it. Or let the command line set it up. In your project's root: recognises the framework, the bundler and the package manager, and shows every change it would make as a diff; nothing is written until you say yes. then checks the engine, the installed versions and the wiring. Installation has the same first run for pnpm, Yarn and Bun."
   },
   {
     "id": "/docs/start/quick-start#where-to-go-next",
@@ -5705,15 +5710,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "href": "/docs/start/installation",
     "page": "Installation",
     "section": "start",
-    "text": "Set a project up with kirana init or with your framework's guide, see what every setup has, and install from tarballs while the packages are unpublished. "
+    "text": "Set a project up with kirana-style init or your framework's guide, see what every setup has, and try unreleased changes from a checkout. "
   },
   {
-    "id": "/docs/start/installation#let-kirana-init-do-it",
-    "href": "/docs/start/installation#let-kirana-init-do-it",
+    "id": "/docs/start/installation#let-kirana-style-init-do-it",
+    "href": "/docs/start/installation#let-kirana-style-init-do-it",
     "page": "Installation",
     "section": "start",
-    "heading": "Let  kirana init  do it",
-    "text": "In your project's root: It reads and your lockfile, recognises the framework, bundler and package manager, and shows every change it would make as a diff: the configuration file, the adapter in your bundler's configuration, the stylesheet and the types. Nothing is written until you say yes, and the install command is printed for you to run (or pass ). Then: checks the engine, the installed versions, the configuration and the wiring, and says what is missing. Both are described in the CLI . The first run goes through , the command line's package on npm. After that the project has its own command, which came with the compiler the first run added, so the rest of these docs write , and so on. Until the packages are on npm, install from the tarballs below first, and run its instead."
+    "heading": "Let  kirana-style init  do it",
+    "text": "In your project's root, through your package manager's runner. It fetches the command for this one run, the way does, and writes nothing until you say yes: It reads and your lockfile, recognises the framework, bundler and package manager, and shows every change it would make as a diff: the configuration file, the adapter in your bundler's configuration, the stylesheet and the types. Nothing is written until you say yes, and the install command is printed for you to run (or pass ). Then: checks the engine, the installed versions, the configuration and the wiring, and says what is missing. Both are described in the CLI . adds to your dev dependencies, so every later command runs the version your project pins: , and the rest. A shorter name is one script away."
   },
   {
     "id": "/docs/start/installation#pick-your-framework",
@@ -5724,20 +5729,12 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Each guide takes you from an empty project to a styled component, and names the example that CI builds and checks in a browser on every change. The overview of all of them, with what compiles to in each, is supported frameworks ."
   },
   {
-    "id": "/docs/start/installation#not-on-npm-yet",
-    "href": "/docs/start/installation#not-on-npm-yet",
+    "id": "/docs/start/installation#install-by-hand",
+    "href": "/docs/start/installation#install-by-hand",
     "page": "Installation",
     "section": "start",
-    "heading": "Not on npm yet",
-    "text": "The packages ( , the compiler, and one adapter per host) are at version 0.1.0 and not published : the API is still moving and the name is not cleared. Two ways work today; the guides are the same for both."
-  },
-  {
-    "id": "/docs/start/installation#install-from-tarballs",
-    "href": "/docs/start/installation#install-from-tarballs",
-    "page": "Installation",
-    "section": "start",
-    "heading": "Install from tarballs",
-    "text": "A checkout can pack every package the way it would be published, as compiled JavaScript with declarations and the engine as its own per-platform package: Point your project at those tarballs, including the ones it does not name itself, through your package manager's overrides. With npm or Bun: pnpm reads the same map from in , and Yarn from . This is exactly what CI does on every change: it installs the tarballs with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and Alpine, builds an example, and checks its styles in a browser. No package runs an install script, so there is nothing to allow-list."
+    "heading": "Install by hand",
+    "text": "The runtime package, the command line and your bundler's adapter (Vite here; your guide names yours):"
   },
   {
     "id": "/docs/start/installation#machines-without-a-native-build",
@@ -5746,22 +5743,6 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "start",
     "heading": "Machines without a native build",
     "text": "The engine is native code for eight platforms. Anywhere else (a WebContainer, an unusual CPU), install its WebAssembly build as well; Kirana uses it when no native engine loads, and it writes exactly the same CSS, about twice as slowly: uses it even where the native engine works."
-  },
-  {
-    "id": "/docs/start/installation#from-a-checkout-of-the-repository",
-    "href": "/docs/start/installation#from-a-checkout-of-the-repository",
-    "page": "Installation",
-    "section": "start",
-    "heading": "From a checkout of the repository",
-    "text": "Kirana lives in a Bun workspace alongside the apps that use it. In that setup an app depends on the packages by workspace protocol: To use Kirana from a project outside the repository, link the packages from a checkout: The native engine comes from the checkout's build ( there, or )."
-  },
-  {
-    "id": "/docs/start/installation#once-published",
-    "href": "/docs/start/installation#once-published",
-    "page": "Installation",
-    "section": "start",
-    "heading": "Once published",
-    "text": "Once the packages are released, installation becomes the ordinary thing. Do not run this yet: the registry has nothing to give you."
   },
   {
     "id": "/docs/start/installation#what-every-setup-has",
@@ -5818,6 +5799,30 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "start",
     "heading": "Check it worked",
     "text": "If a module that uses was never compiled, calling it throws at runtime with a message that says exactly that: the failure is loud, never a silently unstyled page."
+  },
+  {
+    "id": "/docs/start/installation#unreleased-changes",
+    "href": "/docs/start/installation#unreleased-changes",
+    "page": "Installation",
+    "section": "start",
+    "heading": "Unreleased changes",
+    "text": "The published packages are the release. To try a change that is on but not released yet, use the packages from a checkout."
+  },
+  {
+    "id": "/docs/start/installation#from-tarballs",
+    "href": "/docs/start/installation#from-tarballs",
+    "page": "Installation",
+    "section": "start",
+    "heading": "From tarballs",
+    "text": "A checkout packs every package the way it would be published, as compiled JavaScript with declarations and the engine as its own per-platform package: Point your project at those tarballs, including the ones it does not name itself, through your package manager's overrides. With npm or Bun: pnpm reads the same map from in , and Yarn from . This is what CI does on every change: it installs the tarballs with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and Alpine, builds an example, and checks its styles in a browser. No package runs an install script, so there is nothing to allow-list."
+  },
+  {
+    "id": "/docs/start/installation#from-a-checkout-of-the-repository",
+    "href": "/docs/start/installation#from-a-checkout-of-the-repository",
+    "page": "Installation",
+    "section": "start",
+    "heading": "From a checkout of the repository",
+    "text": "Kirana lives in a Bun workspace alongside the apps that use it. In that setup an app depends on the packages by workspace protocol: To use Kirana from a project outside the repository, link the packages from a checkout: The native engine comes from the checkout's build ( there, or )."
   },
   {
     "id": "/docs/start/first-component",
@@ -8693,7 +8698,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from StyleX",
     "section": "migration",
     "heading": "What StyleX has that Kirana does not",
-    "text": "Fairness matters more than a feature list: It is published, versioned and used in production at Meta scale. Kirana is 0.1.0 and not on npm. A larger ecosystem : community plugins, documentation, examples, articles and people who have already hit your problem. A few helpers have no direct equivalent, and among them; write a condition. names each one it meets in its report. If you need a styling compiler in production this quarter, StyleX is the defensible choice. Kirana is worth it when predictability and diagnostics are the thing you are missing."
+    "text": "Fairness matters more than a feature list: It is published, versioned and used in production at Meta scale. Kirana is a 0.x pre-release. A larger ecosystem : community plugins, documentation, examples, articles and people who have already hit your problem. A few helpers have no direct equivalent, and among them; write a condition. names each one it meets in its report. If you need a styling compiler in production this quarter, StyleX is the defensible choice. Kirana is worth it when predictability and diagnostics are the thing you are missing."
   },
   {
     "id": "/docs/migration/from-stylex#what-else-is-different",
@@ -9293,22 +9298,30 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "The CLI",
-    "text": "The binary's commands, by what they do: The command comes with the compiler package. In a project that does not have Kirana yet, run : is the command line's package on npm, and it runs the same command. Once has added the compiler, every command is plain . In this repository the binary runs through its entry script:"
+    "text": "The command, by what it does: In a project without Kirana, run it without installing anything: your package manager's runner fetches it for one run, as does. adds to the project's dev dependencies, so every later run uses the version the project pins, and the editor's language server comes from the same install."
   },
   {
-    "id": "/docs/tooling/cli#kirana-init",
-    "href": "/docs/tooling/cli#kirana-init",
+    "id": "/docs/tooling/cli#a-shorter-name",
+    "href": "/docs/tooling/cli#a-shorter-name",
     "page": "The CLI",
     "section": "tooling",
-    "heading": "kirana init",
+    "heading": "A shorter name",
+    "text": "The command is everywhere: npm does not give out the plain name , so a bare cannot run Kirana. For a shorter name in your own project, add a script: Then ; pnpm, Yarn and Bun run scripts the same way. In your shell, does the same for every project. In this repository the binary runs through its entry script:"
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-style-init",
+    "href": "/docs/tooling/cli#kirana-style-init",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana-style init",
     "text": "Set a project up: the configuration file, the adapter in your bundler's configuration, the stylesheet, and the types for . It reads and the lockfile to find the framework, the bundler and the package manager, then prints every change as a diff before it writes anything: It knows Next.js (Turbopack and webpack), Nuxt, SvelteKit, Astro, TanStack Start, Qwik, Angular (the CLI, whose builders it swaps, and Analog), React Router, Gatsby, Ember, Meteor and Parcel; React, Preact, Solid, Vue, Svelte or plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown; and the server frameworks Laravel, Symfony, Rails, Phoenix and AdonisJS, which get a class map and a starter style module. Edits follow the file's own quotes and semicolons. Where a configuration is not in a shape it can edit safely ( , a function, a plugin list built elsewhere), it prints the step to do by hand instead of guessing. The install command is printed, never run unless you pass , so your lockfile stays yours. Its setups were checked the way the examples are: sixteen examples, stripped of Kirana and set up again by , built from packed tarballs and styled exactly like the hand-written ones in a browser."
   },
   {
-    "id": "/docs/tooling/cli#kirana-doctor",
-    "href": "/docs/tooling/cli#kirana-doctor",
+    "id": "/docs/tooling/cli#kirana-style-doctor",
+    "href": "/docs/tooling/cli#kirana-style-doctor",
     "page": "The CLI",
     "section": "tooling",
-    "heading": "kirana doctor",
+    "heading": "kirana-style doctor",
     "text": "Check a project's setup, and say what is missing. It reports the engine in use (native, or the WebAssembly fallback), every installed version and whether they match, whether the configuration loads, and whether the adapter, stylesheet and types are in place, which it learns by running 's plan without writing. The exit code is 1 when something fails. There is no cache to clear: Kirana keeps nothing on disk between builds."
   },
   {
@@ -9320,67 +9333,67 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "writes (or the file after the flag): an issue body with a place at the top for what happened and the smallest reproduction, then what Kirana collected: the engine version, Node.js and OS, the framework and the bundler; every version, and the doctor's checks; each diagnostic code, how often it occurred and where first; the stylesheet's size and the resolved configuration. adds output, and prints the same data instead of writing the file. The report is safe to paste. It contains no source code, the project directory reads , the home directory and your user name , configuration values under keys that name a secret are masked, and no environment variable is read. Read it before you post it anyway."
   },
   {
-    "id": "/docs/tooling/cli#kirana-dev",
-    "href": "/docs/tooling/cli#kirana-dev",
+    "id": "/docs/tooling/cli#kirana-style-dev",
+    "href": "/docs/tooling/cli#kirana-style-dev",
     "page": "The CLI",
     "section": "tooling",
-    "heading": "kirana dev",
+    "heading": "kirana-style dev",
     "text": "Watch mode for projects without a bundler: plain HTML, web components, server templates. It compiles every script under the paths ( , or the project when there is none), writes the stylesheet ( unless says otherwise), and on each change recompiles that file and the modules that read a value from it. The stylesheet is rewritten only when it changed, and diagnostics print as they appear:"
   },
   {
-    "id": "/docs/tooling/cli#kirana-check",
-    "href": "/docs/tooling/cli#kirana-check",
+    "id": "/docs/tooling/cli#kirana-style-check",
+    "href": "/docs/tooling/cli#kirana-style-check",
     "page": "The CLI",
     "section": "tooling",
-    "heading": "kirana check",
+    "heading": "kirana-style check",
     "text": "Report diagnostics without writing anything. It walks the paths you give it, skipping , , dotfiles and files. Human output underlines the span and prints the help line: prints an array of , for an editor or a script. The exit code is 1 when anything is an error. prints one GitHub Actions workflow command per diagnostic, which annotates the line in the pull request's diff: errors as errors, warnings as warnings, infos as notices. Paths are relative to the project root, so run it from the repository root or a project at the root. fails the run, exit code 1, when there are more than warnings; makes every warning block a merge, without re-levelling them in the configuration."
   },
   {
-    "id": "/docs/tooling/cli#kirana-build",
-    "href": "/docs/tooling/cli#kirana-build",
+    "id": "/docs/tooling/cli#kirana-style-build",
+    "href": "/docs/tooling/cli#kirana-style-build",
     "page": "The CLI",
     "section": "tooling",
-    "heading": "kirana build",
+    "heading": "kirana-style build",
     "text": "Compile files and write the stylesheet. Useful when a bundler is not in the picture: a library build, a check in CI, or looking at the CSS for yourself. Applications normally let the Vite plugin do this."
   },
   {
-    "id": "/docs/tooling/cli#kirana-analyze",
-    "href": "/docs/tooling/cli#kirana-analyze",
+    "id": "/docs/tooling/cli#kirana-style-analyze",
+    "href": "/docs/tooling/cli#kirana-style-analyze",
     "page": "The CLI",
     "section": "tooling",
-    "heading": "kirana analyze",
+    "heading": "kirana-style analyze",
     "text": "What the stylesheet holds, and why. That is this documentation site. The report goes on with the largest modules (the bytes of their rules, and of the rules only they use, which is what deleting them would save), then values bridged to runtime, recipes resolved at runtime, themes and the tokens they override, relation reads no anchor proves, and tokens your project declares that nothing reads. prints all of it; writes one self-contained page, readable in light and dark. The exit code is the same as 's."
   },
   {
-    "id": "/docs/tooling/cli#kirana-export",
-    "href": "/docs/tooling/cli#kirana-export",
+    "id": "/docs/tooling/cli#kirana-style-export",
+    "href": "/docs/tooling/cli#kirana-style-export",
     "page": "The CLI",
     "section": "tooling",
-    "heading": "kirana export",
+    "heading": "kirana-style export",
     "text": "The design system, as JSON: every token with its value (and both halves of a pair), each theme and the tokens it overrides, each recipe with its variant groups, options and defaults, every relation and where it is anchored and read, and the keyframes, and names. Each comes with the file and line that declares it. It is what a coding agent should read before writing a style (the tokens and recipes that exist, by their real names), and what a design tool or a review needs to see what a change did to the system. Names, values and project-relative locations only, never source text; everything is sorted, so the file diffs cleanly when it is committed. changes only when a field does. The exit code is 1 when the project has errors, as for ."
   },
   {
-    "id": "/docs/tooling/cli#kirana-trace",
-    "href": "/docs/tooling/cli#kirana-trace",
+    "id": "/docs/tooling/cli#kirana-style-trace",
+    "href": "/docs/tooling/cli#kirana-style-trace",
     "page": "The CLI",
     "section": "tooling",
-    "heading": "kirana trace",
+    "heading": "kirana-style trace",
     "text": "Explain which declaration wins for a property, and why. It prints one line per candidate: a marker for the winner, the value, the conditions, the layer, and the ladder step that decided it. The property may be written the way you wrote it ( ) or the way CSS does ( ). Give it the line the style is on. This is the tool for \"why is this not applying\". It answers from the compiled result, not from reading the source."
   },
   {
-    "id": "/docs/tooling/cli#kirana-migrate",
-    "href": "/docs/tooling/cli#kirana-migrate",
+    "id": "/docs/tooling/cli#kirana-style-migrate",
+    "href": "/docs/tooling/cli#kirana-style-migrate",
     "page": "The CLI",
     "section": "tooling",
-    "heading": "kirana migrate",
+    "heading": "kirana-style migrate",
     "text": "Rewrite another styling system's sources into Kirana, and report what it will not decide for you. Nothing is written without . The report is printed either way: each line is a file position and something a person has to do, and the utility it is about is also left in a comment beside the style it belongs to. needs a utility grammar (the preset and your theme's scales), and reads and from any CSS file among its paths. See migrating from Tailwind ."
   },
   {
-    "id": "/docs/tooling/cli#kirana-lsp",
-    "href": "/docs/tooling/cli#kirana-lsp",
+    "id": "/docs/tooling/cli#kirana-style-lsp",
+    "href": "/docs/tooling/cli#kirana-style-lsp",
     "page": "The CLI",
     "section": "tooling",
-    "heading": "kirana lsp",
+    "heading": "kirana-style lsp",
     "text": "Start the language server on stdin and stdout. Editors run it for you (see editor support ), but any LSP client can: It loads like every other command, indexes the project, and then answers hover, colour, completion, inlay-hint, code-lens, definition, reference and code-action requests from the same compiler session the build uses."
   },
   {
@@ -9412,7 +9425,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Editor support",
     "section": "tooling",
     "heading": "Pick your editor",
-    "text": "Every editor runs your project's own , from . Upgrading Kirana upgrades the editor with it; there is no extension version to keep in step."
+    "text": "Every editor runs your project's own , from the package. Upgrading Kirana upgrades the editor with it; there is no extension version to keep in step. A project still on 0.1.0 has there instead, and the extensions find that too."
   },
   {
     "id": "/docs/tooling/editor#vs-code-and-its-forks",
@@ -9856,7 +9869,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "What works today",
-    "text": "Kirana is pre-release. It compiles three real applications in our shadcn/ui port (a demo, 60+ shadcn blocks and one page per component), and its own test suite keeps 100 % line coverage. It is not published, and the name is a working name."
+    "text": "Kirana is pre-release. It compiles three real applications in our shadcn/ui port (a demo, 60+ shadcn blocks and one page per component), and its own test suite keeps 100 % line coverage. It is on npm as a 0.x pre-release, and the name is a working name."
   },
   {
     "id": "/docs/project/status#built",
@@ -9872,7 +9885,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Partial",
-    "text": "is in the catalogue but not emitted yet. Benchmarks are advisory: hosted CI numbers, not dedicated hardware. Packaging is built but not published: produces every package and the eight per-platform engine packages as tarballs, and CI installs them with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and Alpine."
+    "text": "is in the catalogue but not emitted yet. Benchmarks are advisory: hosted CI numbers, not dedicated hardware. Packaging : every package and the per-platform engine packages are on npm. produces them as tarballs before a release, and CI installs them with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and Alpine."
   },
   {
     "id": "/docs/project/status#not-built",

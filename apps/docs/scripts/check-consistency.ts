@@ -8,16 +8,16 @@
  *   agents        a sentence offering agents llms.txt without the skills
  *   logos         a product named in a heading next to a generic icon instead of its logo
  *   lint rules    a rule missing from the lint page, the site's rule cards, the spec or a README
- *   commands      a `kirana` command missing from the CLI page or the spec
+ *   commands      a `kirana-style` command missing from the CLI page or the spec
  *   ideas         a number of mental-model ideas other than the page's own
  *   runtime size  the runtime's size written by hand instead of {{fact:runtime-size}}
  *   style         an em dash in prose or site copy (code is exempt); a paragraph or list item with
  *                 more than four inline code spans, which reads better as a list, a table or a
  *                 code block; a description written as metadata ("X - y"), since it is the lede
  *   npm           "not on npm" anywhere once the packages are published
- *   first run     `npx kirana init` or `doctor` (or bunx, pnpm dlx, yarn dlx): in a project without
- *                 Kirana the runner fetches a package named `kirana`, a name npm does not give
- *                 Kirana, so the first run is `npx kirana-style init`
+ *   command name  the command written as `kirana <command>`, or run as `npx kirana`, `bunx
+ *                 kirana` and the like: it is `kirana-style` (D-082), since npm does not give out
+ *                 the name `kirana`, and a runner would fetch whatever has it
  *
  * A passage that records history (a sprint) is exempt when the line before it is
  * `<!-- consistency: history -->`, and a list that is a deliberate subset (the frameworks with
@@ -390,19 +390,25 @@ function checkStyle(path: string, text: string) {
   })
 }
 
+/** A subcommand of the CLI, after a name that is not the command's. */
+const SUBCOMMAND =
+  "(?:init|doctor|dev|build|check|analyze|export|trace|migrate|lsp|report)\\b"
+
 /**
- * A first run through a package runner that names `kirana`: in a project without Kirana it fetches
- * whatever npm calls `kirana`, which is not Kirana. Commands live in code blocks, which the prose
- * checks skip, so this reads the raw text. `kirana init` with the compiler installed is fine.
+ * The command under its old name: `kirana <command>`, or a runner (`npx`, `bunx`, `pnpm dlx`,
+ * `yarn dlx`) given a bare `kirana`. The command is `kirana-style` (D-082). Commands live in code
+ * blocks, which the prose checks skip, so this reads the raw text.
  */
-function checkFirstRun(path: string, text: string) {
-  for (const match of text.matchAll(
-    /\b(?:npx|bunx|pnpx|pnpm dlx|yarn dlx) kirana (init|doctor)\b/g
-  ))
+function checkCommandName(path: string, text: string) {
+  const stale = new RegExp(
+    `\\b(?:npx|bunx|pnpx|pnpm dlx|yarn dlx) kirana(?:@\\S+)?(?= )|(?<![\\w@/.-])kirana (?=${SUBCOMMAND})`,
+    "g"
+  )
+  for (const match of text.matchAll(stale))
     report(
       path,
       lineOf(text, match.index ?? 0),
-      `\`${match[0]}\` fetches a package named \`kirana\`, not Kirana; the first run is \`npx kirana-style ${match[1]}\``
+      `\`${match[0].trim()}\`: the command is \`kirana-style\` (D-082); npm does not give out \`kirana\``
     )
 }
 
@@ -421,7 +427,7 @@ for (const path of [
   if (exempt(path) || path.endsWith("facts.ts")) continue
   checkProse(relativePath(path), text)
   if (path.endsWith(".tsx")) checkLogos(relativePath(path), text)
-  checkFirstRun(relativePath(path), text)
+  checkCommandName(relativePath(path), text)
 }
 // The contributor's guide is read on GitHub; it keeps the em-dash rule too.
 checkStyle(
@@ -434,7 +440,7 @@ for (const path of [
   ...(await files(join(app, "showcase"), /\.txt$/)),
   ...(await files(join(repository, "skills"), /\.md$/)),
 ])
-  checkFirstRun(relativePath(path), await readFile(path, "utf8"))
+  checkCommandName(relativePath(path), await readFile(path, "utf8"))
 
 /** Every lint rule, everywhere rules are listed. */
 const rules = LINT.map((rule) => rule.name).sort()
@@ -497,13 +503,13 @@ const spec = await readFile(
   "utf8"
 )
 for (const command of COMMANDS) {
-  if (!new RegExp(`^## \`kirana ${command}`, "m").test(cliPage))
+  if (!new RegExp(`^## \`kirana-style ${command}`, "m").test(cliPage))
     problems.push(
-      `apps/docs/content/docs/tooling/cli.md: no section for kirana ${command}`
+      `apps/docs/content/docs/tooling/cli.md: no section for kirana-style ${command}`
     )
-  if (!new RegExp(`\\| \`kirana ${command}\\b`).test(spec))
+  if (!new RegExp(`\\| \`kirana-style ${command}\\b`).test(spec))
     problems.push(
-      `spec/12-tooling-and-dx.md: kirana ${command} is not in the CLI table`
+      `spec/12-tooling-and-dx.md: kirana-style ${command} is not in the CLI table`
     )
 }
 const described = /^description: (.*)$/m.exec(cliPage)?.[1] ?? ""

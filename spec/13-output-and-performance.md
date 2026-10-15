@@ -13,7 +13,7 @@ D-036, D-037, D-039, D-044), [08-conditions-and-cascade](./08-conditions-and-cas
 | Transformed modules    | every build                          | Class strings, class expressions, bridged `style` objects, `@kirana-style/core/internal` imports, source maps. |
 | Stylesheet             | every build                          | One CSS file per application build: layer order statement, tokens, themes, contextual styles, atoms.           |
 | Stylesheet source map  | development; production when enabled | Maps each atom rule to the source spans that produced it.                                                      |
-| `kirana.manifest.json` | `kirana build --library` only        | Library atoms, tokens, relations and exports ([11](./11-integrations.md#monorepos-and-published-libraries)).   |
+| `kirana.manifest.json` | `kirana-style build --library` only  | Library atoms, tokens, relations and exports ([11](./11-integrations.md#monorepos-and-published-libraries)).   |
 | Name map               | development only                     | Class name → source spans, for the language server and future devtools.                                        |
 
 ## Output requirements
@@ -64,7 +64,7 @@ Summary of [10](./10-compiler-architecture.md#hashing-and-names): classes look l
 (prefix, property code, condition hash, 4-character value hash); definition names — relation markers,
 theme classes, keyframes and variable tokens — are the prefix, a kind letter and 4 characters
 (`--kvD9ur`); bridged values use `--k` plus the conflict key. Development builds use the same names;
-`kirana trace` explains them.
+`kirana-style trace` explains them.
 
 The value hash is four characters because three is not enough for the values one property carries in
 a real application: measured over the shadcn/ui port's three applications, three left a 1.5–3.1 % chance
@@ -115,4 +115,4 @@ These rules guide implementation; changing a default requires benchmark data rec
 7. **The stylesheet is written once per change**, not per module, and Lightning CSS runs only when targets
    require lowering ([10](./10-compiler-architecture.md#css-emission)).
 8. **Instrumentation:** `tracing` spans around every pipeline stage, exportable as a Chrome trace from
-   `kirana build --trace`, and disabled at zero cost in release builds unless requested.
+   `kirana-style build --trace`, and disabled at zero cost in release builds unless requested.

@@ -93,12 +93,16 @@ for (const name of [
     name: string
     version: string
     private?: boolean
+    publishConfig?: { access?: string }
     description?: string
   }
   packages.push({
     name: manifest.name,
     version: manifest.version,
-    published: manifest.private !== true,
+    // `private` stays true in the workspace, so a folder of TypeScript source can never be published
+    // by mistake; `publishConfig.access: "public"` says the package is on npm (the pack script keeps
+    // it in the tarball, and drops `private`).
+    published: manifest.publishConfig?.access === "public",
     description: manifest.description ?? "",
   })
 }
@@ -211,7 +215,7 @@ export const DIAGNOSTICS: readonly DiagnosticEntry[] = ${JSON.stringify(diagnost
 export type PackageEntry = {
   readonly name: string
   readonly version: string
-  /** False while the package is private, which is what the site says on every install page. */
+  /** True once the package is on npm (its publishConfig.access is "public"); every install page reads it. */
   readonly published: boolean
   readonly description: string
 }

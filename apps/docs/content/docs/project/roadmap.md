@@ -14,7 +14,7 @@ by one person with AI assistance, and a date would be fiction.
 ## M0: Foundations · done
 
 The workspace, the IR, longhand expansion and normalisation, the ladder and layer
-plan, the CSS writer, golden fixtures, `kirana build`.
+plan, the CSS writer, golden fixtures, `kirana-style build`.
 
 ## M1: Feasibility slice · done
 
@@ -25,7 +25,7 @@ against the StyleX and Tailwind originals.
 ## M2: Recipes and dynamic styles · done
 
 `recipe()` with slots, finite and open dynamic values, the private runtime,
-incremental rebuilds and hot updates, `kirana migrate stylex`, and the full
+incremental rebuilds and hot updates, `kirana-style migrate stylex`, and the full
 component set built on it, which is what found most of the compiler's bugs.
 
 One thing in this milestone's scope is deliberately not built: a persistent
@@ -80,7 +80,7 @@ composed utilities (rings, shadows, translations, filters) and pseudo-elements.
 A property test compiles all 7,391 utilities the grammar generates and checks
 each gives the same atoms as its object.
 
-`kirana migrate tailwind` is built on the same lowering. The exit criterion was
+`kirana-style migrate tailwind` is built on the same lowering. The exit criterion was
 to migrate the Tailwind original of our shadcn/ui port with it and match the original:
 after the codemod and 38 hand fixes, conformance finds **zero computed-style
 differences** on all 189 routes of the three applications, at three widths, in
@@ -97,7 +97,7 @@ they never disagree with the build.
 
 **Built** (sprint 6):
 
-- **Language server**, [`kirana lsp`](/docs/tooling/editor): diagnostics at the
+- **Language server**, [`kirana-style lsp`](/docs/tooling/editor): diagnostics at the
   property, hover with the compiled CSS and the winning entry's ladder step,
   token values in both modes, colour swatches, an inline summary after every
   `sx`, code lenses, completion for conditions, `select` targets, keyword values
@@ -118,10 +118,10 @@ they never disagree with the build.
 - **Editors in Vue, Svelte and Astro components**, the style card (box model,
   every declaration, compiled CSS), coloured summaries at the end of each line,
   the Style Inspector and Style Fold.
-- **CLI**: [`init`](/docs/tooling/cli#kirana-init) sets a project up from a diff,
-  [`doctor`](/docs/tooling/cli#kirana-doctor) checks it,
-  [`dev`](/docs/tooling/cli#kirana-dev) watches without a bundler, and
-  [`analyze`](/docs/tooling/cli#kirana-analyze) reports atoms, reuse and bytes by
+- **CLI**: [`init`](/docs/tooling/cli#kirana-style-init) sets a project up from a diff,
+  [`doctor`](/docs/tooling/cli#kirana-style-doctor) checks it,
+  [`dev`](/docs/tooling/cli#kirana-style-dev) watches without a bundler, and
+  [`analyze`](/docs/tooling/cli#kirana-style-analyze) reports atoms, reuse and bytes by
   layer and module.
 - **Next.js with Turbopack**, through `@kirana-style/next` and `@kirana-style/postcss`.
 
@@ -131,9 +131,9 @@ they never disagree with the build.
   [`positionTry()`](/docs/styling/anchor-positioning) and
   [`viewTransition()`](/docs/styling/view-transitions)**, each checked at build
   time, and a redacted bug report from
-  [`kirana doctor --report`](/docs/tooling/cli#a-bug-report).
-- **[`kirana export`](/docs/tooling/cli#kirana-export)**, the design system as
-  JSON, and **[`kirana check`](/docs/tooling/cli#kirana-check)** with
+  [`kirana-style doctor --report`](/docs/tooling/cli#a-bug-report).
+- **[`kirana-style export`](/docs/tooling/cli#kirana-style-export)**, the design system as
+  JSON, and **[`kirana-style check`](/docs/tooling/cli#kirana-style-check)** with
   `--format github` and `--max-warnings` for CI.
 - **Two more lint rules**, `no-dark-variant` and `no-class-helpers`, and
   **[`@kirana-style/biome-plugin`](/docs/tooling/lint#biome)** with the {{fact:biome-rules-word}} rules

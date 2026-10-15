@@ -102,7 +102,7 @@
         "kirana.server.path": {
           "type": "string",
           "default": "",
-          "markdownDescription": "The `kirana` binary to run. Empty: the project's own `node_modules/.bin/kirana`, so the editor runs the engine the build does. A `.js` or `.ts` path runs with `node`."
+          "markdownDescription": "The `kirana-style` binary to run. Empty: the project's own `node_modules/.bin/kirana-style` (or `kirana` from 0.1.0), so the editor runs the engine the build does. A `.js` or `.ts` path runs with `node`."
         },
         "kirana.inlayHints.enabled": {
           "type": "boolean",

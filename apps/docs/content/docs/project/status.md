@@ -10,7 +10,7 @@ keywords: [status, support, what works, pre-release, limitations]
 
 Kirana is pre-release. It compiles three real applications in our shadcn/ui port
 (a demo, 60+ shadcn blocks and one page per component), and its own test suite
-keeps 100 % line coverage. It is not published, and the name is a working name.
+keeps 100 % line coverage. It is on npm as a 0.x pre-release, and the name is a working name.
 
 ## Built
 
@@ -32,7 +32,7 @@ keeps 100 % line coverage. It is not published, and the name is a working name.
   Vite plugin for Analog; see [Angular](/docs/frameworks/angular)
 - React Router, Gatsby (`@kirana-style/gatsby`), Ember (`@kirana-style/ember`), Meteor and
   Parcel (`@kirana-style/parcel-transformer`), each with a tested example
-- Server templates: the class map `kirana build` and `kirana dev` write, and
+- Server templates: the class map `kirana-style build` and `kirana-style dev` write, and
   helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and
   AdonisJS; see [server templates](/docs/frameworks/server-templates)
 - The command line: setting a project up and checking it (with a bug report),
@@ -46,11 +46,11 @@ keeps 100 % line coverage. It is not published, and the name is a working name.
   [view transitions](/docs/styling/view-transitions)
 - `@kirana-style/preset-scales`: Tailwind v4 scales as tokens, and its utility names as
   [utility strings](/docs/styling/utilities) in `sx`
-- `kirana migrate tailwind`, proven on the Tailwind original of our shadcn/ui port: zero
+- `kirana-style migrate tailwind`, proven on the Tailwind original of our shadcn/ui port: zero
   computed-style differences after the codemod and 38 hand fixes
   ([the numbers](/docs/migration/from-tailwind#measured-this-repository-s-tailwind-original))
 
-- `kirana lsp`, the language server, with VS Code and Zed extensions, in
+- `kirana-style lsp`, the language server, with VS Code and Zed extensions, in
   TypeScript, Vue, Svelte and Astro files and Angular templates; see
   [editor support](/docs/tooling/editor)
 - `@kirana-style/eslint-plugin` under Oxlint and ESLint, identical results, and
@@ -63,8 +63,8 @@ keeps 100 % line coverage. It is not published, and the name is a working name.
 
 - **`variable-default-scope`** is in the catalogue but not emitted yet.
 - **Benchmarks** are advisory: hosted CI numbers, not dedicated hardware.
-- **Packaging** is built but not published: `bun run kirana:pack` produces every
-  package and the eight per-platform engine packages as tarballs, and CI installs
+- **Packaging**: every package and the per-platform engine packages are on npm.
+  `bun run kirana:pack` produces them as tarballs before a release, and CI installs
   them with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and
   Alpine.
 

@@ -29,5 +29,5 @@ StyleX replaced a whole property; Kirana merges per entry. Ported code that over
 with a plain value (`alignSelf: "auto"`) no longer beats the component's conditional entries: write
 the override under the same condition, or drop the entries with `{ "*": null, base: … }`.
 
-Then `kirana check`: it finds relations without anchors, components that swallow `sx`, and the
+Then `kirana-style check`: it finds relations without anchors, components that swallow `sx`, and the
 ambiguous pairs StyleX ordered silently.

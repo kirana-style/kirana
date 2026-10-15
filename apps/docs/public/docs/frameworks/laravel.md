@@ -10,14 +10,13 @@ stylesheet and the class map into `public/kirana`. How it fits together:
 reload. A React, Vue or Svelte front end (Inertia) uses [the Vite
 plugin](/docs/integrations/vite) as usual.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change, but not published. Until they are, install the npm packages from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows, and the helper from a checkout of the repository by path; the rest of this page is the same either way.
+
 
 ## 1. Install
 
 ```bash
 npm install @kirana-style/core
-npm install -D @kirana-style/compiler
+npm install -D kirana-style
 ```
 
 ```bash
@@ -49,10 +48,10 @@ export const active = css({ outline: "2px solid" })
 ## 4. Run the CLI beside the server
 
 ```bash
-npx kirana dev resources/styles --out public/kirana/kirana.css
+npx kirana-style dev resources/styles --out public/kirana/kirana.css
 ```
 
-For production, `npx kirana build resources/styles --out public/kirana/kirana.css --minify`
+For production, `npx kirana-style build resources/styles --out public/kirana/kirana.css --minify`
 in your deploy step.
 
 ## 5. Use it in Blade

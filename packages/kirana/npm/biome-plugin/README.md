@@ -42,11 +42,11 @@ A Biome plugin matches syntax. It cannot call the compiler or read another file,
 
 <!-- consistency: subset -->
 
-| Rule                                                                               | Instead, under Biome                                      |
-| ---------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| `diagnostics`                                                                      | `kirana check --format github --max-warnings 0` in CI     |
-| `override-keeps-conditions`, `no-classname-on-sx`, `prefer-token`, `finite-bridge` | the language server in the editor; ESLint or Oxlint in CI |
-| `no-unused`, `sort-properties`                                                     | ESLint or Oxlint: GritQL cannot count reads or order keys |
+| Rule                                                                               | Instead, under Biome                                        |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `diagnostics`                                                                      | `kirana-style check --format github --max-warnings 0` in CI |
+| `override-keeps-conditions`, `no-classname-on-sx`, `prefer-token`, `finite-bridge` | the language server in the editor; ESLint or Oxlint in CI   |
+| `no-unused`, `sort-properties`                                                     | ESLint or Oxlint: GritQL cannot count reads or order keys   |
 
 The plugins also match names, not imports: `styleProps` is the documented local name of
 `@kirana-style/core`'s `props`, and `css`, `recipe` and `media` are matched as written.

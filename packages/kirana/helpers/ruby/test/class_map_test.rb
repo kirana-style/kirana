@@ -32,7 +32,7 @@ class ClassMapTest < Minitest::Test
       path = File.join(dir, "classes.json")
       Kirana.classes_path = path
       error = assert_raises(Errno::ENOENT) { Kirana.class_map }
-      assert_includes error.message, "run `kirana dev` or `kirana build` first"
+      assert_includes error.message, "run `kirana-style dev` or `kirana-style build` first"
       File.write(path, JSON.generate(MAP))
       first = Kirana.class_map
       assert_same first, Kirana.class_map

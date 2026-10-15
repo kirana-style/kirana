@@ -23,7 +23,7 @@ every change by `examples/ember`, built and on its dev server.
 In the project's root:
 
 ```bash
-npx kirana-style init
+npx kirana-style@latest init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you

@@ -19,7 +19,7 @@ plugin](/docs/integrations/vite) as usual.
 
 ## 1. Install
 
-<!-- ::install packages="@kirana-style/core" dev="@kirana-style/compiler" -->
+<!-- ::install packages="@kirana-style/core" dev="kirana-style" -->
 
 ```bash
 composer require kirana-style/kirana
@@ -50,10 +50,10 @@ export const active = css({ outline: "2px solid" })
 ## 4. Run the CLI beside the server
 
 ```bash
-npx kirana dev resources/styles --out public/kirana/kirana.css
+npx kirana-style dev resources/styles --out public/kirana/kirana.css
 ```
 
-For production, `npx kirana build resources/styles --out public/kirana/kirana.css --minify`
+For production, `npx kirana-style build resources/styles --out public/kirana/kirana.css --minify`
 in your deploy step.
 
 ## 5. Use it in Blade

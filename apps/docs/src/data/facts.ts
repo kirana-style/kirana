@@ -53,10 +53,16 @@ if (LIBRARIES.some((name) => !guides("frameworks").includes(name)))
   throw new Error("facts.ts: a component layer has no framework guide")
 
 /**
- * Whether the packages are on npm, read from their `package.json` (`private` until they are). Every
- * "not on npm yet" notice reads this one flag, so publishing removes them all at once.
+ * Whether the packages are on npm, read from their `package.json` (`publishConfig.access` is
+ * "public"; `private` stays true in the workspace). Every pre-release install note reads this one
+ * flag, so publishing removed them all at once.
  */
 export const PUBLISHED = PACKAGES.every((entry) => entry.published)
+
+/** The release every package is at: one version for everything. */
+export const VERSION = PACKAGES[0]!.version
+if (PACKAGES.some((entry) => entry.version !== VERSION))
+  throw new Error("facts.ts: the packages are not at one version")
 
 export const COUNTS = {
   diagnostics: DIAGNOSTICS.length,

@@ -17,7 +17,7 @@ and the class map into `priv/static/kirana`. How it fits together:
 
 ## 1. Install
 
-<!-- ::install packages="@kirana-style/core" dev="@kirana-style/compiler" -->
+<!-- ::install packages="@kirana-style/core" dev="kirana-style" -->
 
 ```elixir file="mix.exs"
 defp deps do
@@ -61,13 +61,13 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 ```elixir file="config/dev.exs"
 config :my_app, MyAppWeb.Endpoint,
   watchers: [
-    kirana: {System, :cmd, ["npx", ~w(kirana dev assets/styles --out priv/static/kirana/kirana.css)]}
+    kirana: {System, :cmd, ["npx", ~w(kirana-style dev assets/styles --out priv/static/kirana/kirana.css)]}
   ]
 ```
 
 Add `kirana` to the `only:` list of `Plug.Static` (in `static_paths/0`).
 
-In your deploy, run `npx kirana build … --minify` before `mix phx.digest`.
+In your deploy, run `npx kirana-style build … --minify` before `mix phx.digest`.
 
 ## 5. Use it in HEEx
 

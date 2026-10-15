@@ -5,7 +5,7 @@ Source: https://kirana.style/docs/migration/from-tailwind
 
 We have done this migration at full scale (every shadcn/ui component, three
 applications) twice: once by hand (by way of the StyleX port), and once with
-`kirana migrate tailwind`, until the result matched the Tailwind original with zero computed-style differences.
+`kirana-style migrate tailwind`, until the result matched the Tailwind original with zero computed-style differences.
 So this page is what it costs, not what it should cost in theory.
 
 ## The shift, in four lines
@@ -67,7 +67,7 @@ the child's own style wins without a guard.
 > page's process: the codemod and its report, the traps, and how to prove the
 > port renders the same.
 
-`kirana migrate tailwind` rewrites Tailwind's constructs into Kirana's:
+`kirana-style migrate tailwind` rewrites Tailwind's constructs into Kirana's:
 
 | Tailwind        | Kirana                               |
 | --------------- | ------------------------------------ |
@@ -108,9 +108,9 @@ and `@utility`, so a custom variant nobody declared is reported instead of
 silently getting Tailwind's default meaning:
 
 ```bash
-kirana migrate tailwind src src/globals.css            # read the diff and the report
-kirana migrate tailwind src src/globals.css --write
-kirana check src
+kirana-style migrate tailwind src src/globals.css            # read the diff and the report
+kirana-style migrate tailwind src src/globals.css --write
+kirana-style check src
 ```
 
 A colour's `dark:` value becomes a `light-dark()` pair. Any other property's
@@ -277,7 +277,7 @@ are mostly dynamic), work component by component with the mapping above, and:
 4. Replace `[&_svg]:` and `*:` with [`select`](/docs/styling/contextual), and
    delete the `:not([class*='size-'])` guards: the child's own size wins anyway.
 5. Delete every `dark:` on a colour; write the colour as a `light-dark()` token.
-6. Run `kirana check` and resolve every diagnostic before moving on.
+6. Run `kirana-style check` and resolve every diagnostic before moving on.
 
 ## The process that worked
 
@@ -285,7 +285,7 @@ are mostly dynamic), work component by component with the mapping above, and:
    the shape.
 2. **Port structure verbatim.** Keep the same elements and attributes; change only
    how the styles are expressed. Then a visual diff means something.
-3. **Run `kirana check` after each component.** `sx-on-external-component` and
+3. **Run `kirana-style check` after each component.** `sx-on-external-component` and
    `unused-sx` catch the two mistakes everyone makes with wrapper components.
 4. **Compare computed styles, not screenshots.** We kept the
    Tailwind build alongside the Kirana one and diffed the computed styles of every

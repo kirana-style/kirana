@@ -17,7 +17,7 @@ use Twig\TwigFunction;
  *       arguments: ['%kernel.project_dir%/public/kirana/classes.json']
  *
  * A path is read on first use, not when the container warms Twig up (`cache:clear` runs before
- * any `kirana build`).
+ * any `kirana-style build`).
  */
 final class KiranaExtension extends AbstractExtension
 {

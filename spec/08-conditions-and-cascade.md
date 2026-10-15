@@ -234,23 +234,23 @@ A relation named `field` owns one marker class (`.kr…`), applied through `fiel
 
 In a bundler build, R1 covers the relations whose declaring module the build compiled; one declared in a
 module the build never compiled (a shared component reading an ancestor this application does not
-render) is left to `kirana check`, which compiles every module (D-062).
+render) is left to `kirana-style check`, which compiles every module (D-062).
 
 Any reference to `field.anchor` counts as applying it for R1 and R2 — in an `sx` array, a component prop,
 `props()` or a render prop — because anchors routinely travel through components. Placement that crosses
 component boundaries cannot always be proven statically. Such reads produce no
-diagnostic, and `kirana analyze` lists them as "unproven relation reads" so they can be covered by the
+diagnostic, and `kirana-style analyze` lists them as "unproven relation reads" so they can be covered by the
 conformance suite.
 
 ## Precedence tracing
 
 **KRN-CAS-008** — For any element (by source span) and longhand, the compiler MUST be able to explain the
 winning value: every matching entry, the ladder step that ordered each pair, and the layer each atom
-landed in. This explanation backs `kirana trace` and the language server's hover
+landed in. This explanation backs `kirana-style trace` and the language server's hover
 ([12-tooling-and-dx](./12-tooling-and-dx.md)).
 
 ```text
-$ kirana trace src/components/drawer.tsx:88 justifyContent
+$ kirana-style trace src/components/drawer.tsx:88 justifyContent
 justifyContent at src/components/drawer.tsx:88
   ✓ center                   @media (width >= 48rem)          kirana.atoms       step 2 (1 condition > 0)
     start                    base                             kirana.atoms

@@ -9,8 +9,7 @@ the styles in each script into class names, and the PostCSS plugin compiles the
 whole project into the stylesheet. Tested on every change by `examples/parcel`,
 built and on `parcel serve`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 

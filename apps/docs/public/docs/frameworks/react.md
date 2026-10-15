@@ -6,8 +6,7 @@ Source: https://kirana.style/docs/frameworks/react
 `sx` compiles to `className` (and `style` for values known only at runtime).
 Tested by `examples/vite-react`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
+
 
 ## 1. Install
 

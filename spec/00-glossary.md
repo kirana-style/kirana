@@ -28,7 +28,7 @@ not listed, add it here first.
 | **Slot**            | A named part of a multi-element recipe (for example `root`, `label`, `icon`).                                                                                   |
 | **`sx` prop**       | The compiler-recognised prop that applies style handles. On host elements it compiles to `class`/`style`; on components it is an ordinary prop.                 |
 | **Utility surface** | The deferred authoring form in which styles are written as class-like strings (`"px-4 hover:bg-primary"`) parsed by a preset grammar.                           |
-| **Codemod**         | A one-shot source migration (`kirana migrate stylex`, `kirana migrate tailwind`) that rewrites existing code into Kirana authoring.                             |
+| **Codemod**         | A one-shot source migration (`kirana-style migrate stylex`, `kirana-style migrate tailwind`) that rewrites existing code into Kirana authoring.                 |
 
 ## Tokens and theming
 

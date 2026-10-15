@@ -1,4 +1,4 @@
-//! The StyleX codemod behind `kirana migrate stylex` (KRN-API-013, D-003).
+//! The StyleX codemod behind `kirana-style migrate stylex` (KRN-API-013, D-003).
 //!
 //! It rewrites the mechanical half of a migration and **reports** the other half rather than
 //! guessing at it. Every line in the report is a mistake a hand port from StyleX

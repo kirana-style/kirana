@@ -45,7 +45,7 @@ describe("D-069 the class map in Node.js", () => {
   it("reads the file, and again when it changes", () => {
     const file = path.join(directory, "classes.json")
     expect(() => classMap(file)).toThrow(
-      "run `kirana dev` or `kirana build` first"
+      "run `kirana-style dev` or `kirana-style build` first"
     )
     writeFileSync(file, JSON.stringify(MAP))
     const first = classMap(file)

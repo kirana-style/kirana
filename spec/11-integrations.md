@@ -80,7 +80,7 @@ export default defineConfig({
 | `libraries`   | `[]`                                                     | See [published libraries](#monorepos-and-published-libraries).                                                                                                                                                             |
 | `diagnostics` | all at catalogue severity                                | Only warnings and infos may be re-levelled; errors cannot be disabled because they mean output would be wrong.                                                                                                             |
 | `conditions`  | `{ exclusive: [] }`                                      | Groups of single attribute or pseudo-class conditions a library never sets together; `ambiguous-precedence` treats them as exclusive (08). A design system exports its groups for apps to spread into their configuration. |
-| `classes`     | none                                                     | The class map for server templates (D-069): `{ modules, out }`; `kirana build` and `kirana dev` write every exported handle's class string to `out`.                                                                       |
+| `classes`     | none                                                     | The class map for server templates (D-069): `{ modules, out }`; `kirana-style build` and `kirana-style dev` write every exported handle's class string to `out`.                                                           |
 | `externals`   | `[]`                                                     | Specifier prefixes a bundler provides (`@ember/`, `meteor/`): imports from them are runtime values without `unresolved-import` (D-072).                                                                                    |
 
 Invalid configuration is the `invalid-config` diagnostic with the offending key path.
@@ -98,7 +98,7 @@ pipeline — as a side-effect import, a `?url` import for a `<link>`, or without
 serve its content: in development the live stylesheet, updated through CSS HMR; in production the
 placeholder rule, which the adapter replaces with the finished stylesheet once every module has compiled,
 renaming the asset by its content hash and patching every chunk and asset that names it (including
-`index.html` and server chunks). The CLI writes the stylesheet to a chosen path (`kirana build --out`).
+`index.html` and server chunks). The CLI writes the stylesheet to a chosen path (`kirana-style build --out`).
 Development and production share layer order and precedence (D-037, KRN-OUT-007 in
 [13](./13-output-and-performance.md)).
 
@@ -128,10 +128,10 @@ builds and library mode.
 | Angular CLI                                     | P2       | `@kirana-style/angular:application`, `:dev-server`: Angular's builders given a compiled mirror (D-068)      | Built (`examples/angular-cli`); Analog runs on the Vite adapter (`examples/analog-angular`).                                             |
 | React Router, Gatsby, Meteor                    | P2       | `className` + `style` object                                                                                | Vite; webpack through `@kirana-style/gatsby` (D-071); Rspack (D-073). Built                                                              |
 | Ember (`.gjs`, `.gts`)                          | P2       | Handles in scope, merged by the `sx` helper                                                                 | The Vite adapter after Embroider (D-072). Built (`ember`)                                                                                |
-| Server templates (Blade, Twig, ERB, HEEx, Edge) | P2       | A class map and a helper per language (D-069)                                                               | `kirana build`/`dev` with `classes`. Built (`laravel`, `symfony`, `rails`, `phoenix`, `adonisjs`)                                        |
+| Server templates (Blade, Twig, ERB, HEEx, Edge) | P2       | A class map and a helper per language (D-069)                                                               | `kirana-style build`/`dev` with `classes`. Built (`laravel`, `symfony`, `rails`, `phoenix`, `adonisjs`)                                  |
 | Parcel                                          | P2       | `@kirana-style/parcel-transformer` for scripts; `@kirana-style/postcss` fills `@kirana;` (D-070)            | Built (`examples/parcel`).                                                                                                               |
 | Jest                                            | P2       | `@kirana-style/jest`: a transformer that compiles, then hands off to `babel-jest` (or another)              | Built (`examples/jest-react`). Vitest is covered by the Vite plugin.                                                                     |
-| CLI (no bundler)                                | P0       | `kirana build`, `kirana dev`                                                                                | Both built (`kirana dev` watches and rewrites the stylesheet). Plain HTML, web components, server templates.                             |
+| CLI (no bundler)                                | P0       | `kirana-style build`, `kirana-style dev`                                                                    | Both built (`kirana-style dev` watches and rewrites the stylesheet). Plain HTML, web components, server templates.                       |
 
 **How each host ends up with the stylesheet** (D-052). Vite bundles CSS, so the entry is the
 placeholder stylesheet Vite processes and the adapter fills in and renames. Rolldown alone does not,
@@ -230,7 +230,7 @@ on the server or the client.
 
 **KRN-INT-006** — The Driver and adapters MUST run on Node.js active LTS releases, Bun, and Deno (through
 npm specifiers and Node-API). When the native addon cannot load, the Driver MUST fall back to the WASI
-build automatically and report which engine is in use in `kirana doctor`.
+build automatically and report which engine is in use in `kirana-style doctor`.
 
 Deno runs the Driver and adapters through its Node compatibility and the native addon through
 Node-API; CI builds examples with Deno as the runtime. (Deno as the installer waits for the registry:
@@ -239,7 +239,7 @@ Node-API; CI builds examples with Deno as the runtime. (Deno as the installer wa
 The WASI build (D-055) is `@kirana-style/compiler-wasm32-wasi`, loaded after the native package and the
 workspace's native build: when neither is installed, when one is installed but fails to load (with a
 warning naming its error), or when `KIRANA_FORCE_WASI=1`. `Driver.engine` reports `"native"` or
-`"wasi"`, which `kirana doctor` prints. Its output is byte-identical to the native
+`"wasi"`, which `kirana-style doctor` prints. Its output is byte-identical to the native
 engine's; CI forces it for a full example build and compares the two stylesheets.
 
 ## Package managers and distribution
@@ -286,7 +286,7 @@ a workspace package, or a published library, and duplicate atoms MUST be emitted
   relations resolve through the same evaluator. The Vite adapter keeps listed libraries out of
   dependency pre-bundling and SSR externals. A library that is not listed throws at its first `css()`
   with a message naming `libraries`. Libraries apply styles with `props()` or `cx`, which compile in
-  plain JavaScript; `sx` needs JSX. (`kirana build --library` and `kirana.manifest.json`, specified
+  plain JavaScript; `sx` needs JSX. (`kirana-style build --library` and `kirana.manifest.json`, specified
   before, are withdrawn: `packages/kirana/design-notes/published-libraries.md`.)
 
 ```mermaid

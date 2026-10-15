@@ -1,7 +1,7 @@
 /**
- * The `kirana` command: `init`, `doctor` and `dev` run here, in Node.js, because they read and
+ * The `kirana-style` command (its binary lives in the `kirana-style` package): `init`, `doctor` and `dev` run here, in Node.js, because they read and
  * write the project around the compiler; everything else loads configuration and runs the native
- * command line, or the language server for `kirana lsp`.
+ * command line, or the language server for `kirana-style lsp`.
  */
 import { spawnSync } from "node:child_process"
 import { createInterface } from "node:readline/promises"
@@ -16,7 +16,7 @@ import type { NativeBinding } from "./native.ts"
 import { loadNative } from "./native.ts"
 import { runReport } from "./report.ts"
 
-/** A terminal's questions and commands for `kirana init`. */
+/** A terminal's questions and commands for `kirana-style init`. */
 export function terminal(
   input: Readable & { isTTY?: boolean },
   output: Writable,
@@ -71,7 +71,7 @@ export async function main(
   // The language server owns stdin and stdout until the editor shuts it down (KRN-DX-001).
   if (command === "lsp") return binding.runLsp(json)
   const [code, output] = binding.runCli([
-    "kirana",
+    "kirana-style",
     "--config-json",
     json,
     ...argv,

@@ -17,7 +17,7 @@ The most valuable contribution at this stage. A good report has:
 - **What you ran**: the Kirana version, your framework and bundler, and the
   smallest source that shows the problem.
 - **What you expected and what happened**: the computed style you expected,
-  and the one you got. `kirana trace <file>:<line> <property>` prints every
+  and the one you got. `kirana-style trace <file>:<line> <property>` prints every
   entry for a style and the one that won; paste its output.
 - **The diagnostic**, if there was one, with its code (`KRN…`).
 
@@ -73,8 +73,8 @@ and sends it through Vite's hot update channel. To ask the compiler what it foun
 declaration wins a property and why:
 
 ```console
-$ node packages/kirana/npm/compiler/bin/kirana.ts check packages/ui/src
-$ node packages/kirana/npm/compiler/bin/kirana.ts trace packages/ui/src/components/badge.tsx:12 color
+$ node packages/kirana/npm/cli/bin/kirana-style.ts check packages/ui/src
+$ node packages/kirana/npm/cli/bin/kirana-style.ts trace packages/ui/src/components/badge.tsx:12 color
 ```
 
 `trace` prints one line per candidate declaration, marks the winner, and names the step of the

@@ -6,7 +6,7 @@ namespace Kirana;
 
 /**
  * A class map (D-069): the class string of every handle a server app's style modules export, by
- * name, as `kirana build` and `kirana dev` write it. `classes()` merges named handles the way `sx`
+ * name, as `kirana-style build` and `kirana-style dev` write it. `classes()` merges named handles the way `sx`
  * merges them, later ones winning.
  */
 final class ClassMap
@@ -26,12 +26,12 @@ final class ClassMap
         $this->merge = new Merge($map['prefix'] ?? 'k', $map['families']['four'] ?? 0, $map['families']['two'] ?? 0);
     }
 
-    /** Reads the class map `kirana build` or `kirana dev` wrote. */
+    /** Reads the class map `kirana-style build` or `kirana-style dev` wrote. */
     public static function fromFile(string $path): self
     {
         $text = is_file($path) ? file_get_contents($path) : false;
         if ($text === false) {
-            throw new \RuntimeException("kirana: no class map at {$path}; run `kirana dev` or `kirana build` first");
+            throw new \RuntimeException("kirana: no class map at {$path}; run `kirana-style dev` or `kirana-style build` first");
         }
         return new self(json_decode($text, true, flags: JSON_THROW_ON_ERROR));
     }

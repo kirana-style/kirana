@@ -2,7 +2,7 @@
 
 # Diagnostics
 
-Every code the compiler reports, and what to do about it. `kirana check` prints
+Every code the compiler reports, and what to do about it. `kirana-style check` prints
 `severity[CODE] name: message` with the location and a `help:` line; the help line is
 specific to the case and wins over this table. Errors fail the build; warnings and infos
 can be re-levelled in `kirana.config.*` under `diagnostics` (errors cannot).
@@ -31,7 +31,7 @@ Full page: https://kirana.style/docs/tooling/diagnostics.md
 | KRN1402 | `relation-unused` | warning | A relation is anchored but never read. Remove the anchor, or read it with `within`/`after`/`before`. |
 | KRN1403 | `relation-placement` | error | A relation is read from a position its anchor cannot be in (`within` needs the anchor on an ancestor, `after` on an earlier sibling). Move the anchor or use the other read. |
 | KRN1404 | `relation-name-collision` | error | Two modules declare a relation with one name, so they share a marker. Declare it once, export it, and import it where it is read. |
-| KRN1501 | `unknown-token` | error | The token group has no token by that name. Check the name against `kirana export`. |
+| KRN1501 | `unknown-token` | error | The token group has no token by that name. Check the name against `kirana-style export`. |
 | KRN1502 | `token-namespace-collision` | error | Two modules declare one token namespace. Give each `defineTokens()` its own namespace. |
 | KRN1503 | `variable-default-scope` | warning | Reserved, not emitted yet: a variable token's default reads a custom property that exists only on a descendant. Assign the value on the element that owns it. |
 | KRN1504 | `dynamic-token` | error | A token value is not known at build time. Token values must be static; bridge runtime values in the style instead. |
@@ -48,11 +48,11 @@ Full page: https://kirana.style/docs/tooling/diagnostics.md
 | KRN1704 | `unknown-utility` | error | A utility the configured grammar does not know. Check the name, or write the style as an object. |
 | KRN1705 | `unknown-utility-variant` | error | A utility variant the grammar does not declare. Declare it under `utilities.variants`, or write the condition in an object. |
 | KRN1706 | `utility-not-static` | error | An interpolated utility string. Write whole strings, or an object with the value. |
-| KRN1707 | `utility-unsupported` | error | A utility feature Kirana does not have (`!important`, two pseudo-elements). The precedence ladder decides; see `kirana trace`. |
-| KRN1801 | `unknown-variant` | error | A recipe call names a variant group or option the recipe does not have. Check it against the recipe (`kirana export` lists them). |
+| KRN1707 | `utility-unsupported` | error | A utility feature Kirana does not have (`!important`, two pseudo-elements). The precedence ladder decides; see `kirana-style trace`. |
+| KRN1801 | `unknown-variant` | error | A recipe call names a variant group or option the recipe does not have. Check it against the recipe (`kirana-style export` lists them). |
 | KRN1802 | `unknown-slot` | error | A recipe names a slot not listed in `slots`. Add it to `slots`, or fix the key. |
 | KRN1901 | `invalid-config` | error | `kirana.config.*` does not match the schema. The message names the key. |
 | KRN1902 | `target-lowering` | info | Info: the stylesheet is lowered for browser targets below the default floor. Expected when you set old targets. |
-| KRN1903 | `class-name-collision` | error | Two different atoms hashed to one class name. The build cannot be trusted: report it with `kirana doctor --report`. |
+| KRN1903 | `class-name-collision` | error | Two different atoms hashed to one class name. The build cannot be trusted: report it with `kirana-style doctor --report`. |
 | KRN1904 | `classes-not-static` | error | A module listed in `classes.modules` exports a style with no class string a template can use. Export static handles. |
 | KRN1905 | `unknown-class-name` | error | A template asks the class map for a style it does not list. Export it from a module in `classes.modules`, or fix the name. |

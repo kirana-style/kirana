@@ -1,6 +1,6 @@
 //! Code actions (KRN-DX-007): quick fixes for diagnostics that have one exact fix, "Show compiled
 //! CSS", "Explain precedence", and "Convert Tailwind classes to `css()`" through the migration
-//! engine (`kirana migrate tailwind`, D-058).
+//! engine (`kirana-style migrate tailwind`, D-058).
 
 use std::collections::BTreeSet;
 use std::path::Path;
@@ -213,7 +213,7 @@ fn compiled_css(server: &Server, path: &Path, text: &str, only: Option<u64>) -> 
 }
 
 /// "Convert Tailwind classes to `css()`": a `className="…"` string at `offset` becomes
-/// `sx={css({…})}`, lowered by the same engine as `kirana migrate tailwind`, with the imports the
+/// `sx={css({…})}`, lowered by the same engine as `kirana-style migrate tailwind`, with the imports the
 /// object needs. Returns the action's title and workspace edit.
 fn convert(server: &Server, path: &Path, text: &str, offset: usize) -> Option<(String, Value)> {
     let grammar = server.project.config().utilities.as_ref()?;
