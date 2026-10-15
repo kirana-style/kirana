@@ -40,8 +40,9 @@ on:
 - **a paragraph or list item with more than four inline code spans** in the docs: make it a list, a
   table or a code block;
 - **a description written as metadata** ("X - y"): it is the page's lede, shown under its title;
-- **the command under its old name** in pages, components, showcase snippets, READMEs and the agent
-  skills: a subcommand after a bare `kirana`, or `npx`, `bunx`, `pnpm dlx` or `yarn dlx` given a bare
+- **the command under its old name** in pages, components, showcase snippets, READMEs, the agent
+  skills and the examples' commands (their `package.json` scripts and `kirana-example` arrays, each
+  array read as the command line it starts): a subcommand after a bare `kirana`, or `npx`, `bunx`, `pnpm dlx` or `yarn dlx` given a bare
   `kirana`. The command is `kirana-style` everywhere (D-082): npm does not give out `kirana`, so a
   runner would fetch whatever has that name;
 - **a partial list that reads as complete** — half or more of the frameworks, component layers,

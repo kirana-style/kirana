@@ -441,6 +441,29 @@ for (const path of [
   ...(await files(join(repository, "skills"), /\.md$/)),
 ])
   checkCommandName(relativePath(path), await readFile(path, "utf8"))
+// The examples' commands, which the runner starts as JSON arrays (`["kirana-style", "dev", …]`):
+// each array is read as the command line it starts. Its scripts are plain strings, read as they are.
+for (const path of await files(
+  join(repository, "packages/kirana/examples"),
+  /^package\.json$/
+)) {
+  if (path.includes("node_modules")) continue
+  const commands: string[] = []
+  const walk = (value: unknown): void => {
+    if (Array.isArray(value) && value.every((part) => typeof part === "string"))
+      commands.push(value.join(" "))
+    else if (Array.isArray(value)) value.forEach(walk)
+    else if (typeof value === "string") commands.push(value)
+    else if (value && typeof value === "object")
+      Object.values(value).forEach(walk)
+  }
+  const manifest = JSON.parse(await readFile(path, "utf8")) as Record<
+    string,
+    unknown
+  >
+  walk([manifest.scripts, manifest["kirana-example"]])
+  checkCommandName(relativePath(path), commands.join("\n"))
+}
 
 /** Every lint rule, everywhere rules are listed. */
 const rules = LINT.map((rule) => rule.name).sort()

@@ -32,7 +32,7 @@
       "config.ru"
     ],
     "devAlso": [
-      "kirana",
+      "kirana-style",
       "dev",
       "resources/styles",
       "--out",

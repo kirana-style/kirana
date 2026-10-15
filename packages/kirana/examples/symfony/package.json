@@ -24,7 +24,7 @@
       "public"
     ],
     "devAlso": [
-      "kirana",
+      "kirana-style",
       "dev",
       "resources/styles",
       "--out",
