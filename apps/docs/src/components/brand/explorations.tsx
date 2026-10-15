@@ -45,7 +45,7 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: fontSize["3xl"],
     lineHeight: lineHeight["3xl"],
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
   }),
   idea: css({
     fontSize: fontSize.lg,

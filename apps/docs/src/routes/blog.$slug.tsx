@@ -101,8 +101,8 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: { base: fontSize["3xl"], [breakpoint.md]: fontSize["5xl"] },
     lineHeight: { base: lineHeight["3xl"], [breakpoint.md]: lineHeight["5xl"] },
-    fontWeight: fontWeight.bold,
-    letterSpacing: letterSpacing.tighter,
+    fontWeight: fontWeight.normal,
+    letterSpacing: letterSpacing.tight,
     textWrap: "balance",
   }),
   meta: css({
@@ -219,10 +219,9 @@ const styles = {
   }),
   product: css({ backgroundColor: tint(8), borderColor: tint(30) }),
   productTitle: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.lg,
     lineHeight: lineHeight.lg,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   productText: css({
     fontSize: fontSize.sm,
@@ -282,7 +281,7 @@ function Post() {
   return (
     <>
       <SiteHeader />
-      <main sx={accents.amber}>
+      <main sx={accents.dusk}>
         <header sx={styles.header}>
           <Rail>
             <div sx={styles.headerInner}>
@@ -383,7 +382,7 @@ function Post() {
           </aside>
         </Rail>
       </main>
-      <SiteFooter />
+      <SiteFooter scene="city-dusk" />
     </>
   )
 }

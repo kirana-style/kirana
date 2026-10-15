@@ -19,7 +19,7 @@ export const Route = createFileRoute("/sponsors")({
 
 function Sponsors() {
   return (
-    <Page accent="neutral">
+    <Page scene="golden-fields">
       <SponsorsPage />
     </Page>
   )

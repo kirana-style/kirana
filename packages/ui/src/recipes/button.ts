@@ -23,6 +23,7 @@ import { ctx } from "../theme/context"
 import { buttonGroupMarker } from "../theme/button-group-marker"
 import { alpha, radius, surface, theme } from "../theme/semantic"
 import { duration, easing } from "../tokens/motion"
+import { pointer } from "../tokens/breakpoints"
 import { ring } from "../tokens/ring"
 import { spacing } from "../tokens/spacing"
 import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
@@ -38,7 +39,7 @@ const styles = {
    * The label inside a button, trimmed to its capital letters.
    *
    * A flex container centres the text's line box, but the capitals are not at
-   * that box's centre. With Inter they sit up to 2px high once Chrome snaps the
+   * that box's centre. In the text face they sit up to 2px high once Chrome snaps the
    * baseline to a whole pixel, and how far depends on the button's sub-pixel
    * position on the page, so two identical buttons can look different.
    * `text-box` trims the box to cap height and baseline, so the capitals are
@@ -222,8 +223,9 @@ const styles = {
     lineHeight: "inherit",
     [ctx.iconSize]: "0.875rem",
   }),
+  // A call to action: 44 px tall on a touch screen.
   lg: css({
-    height: spacing[9],
+    height: { base: spacing[9], [pointer.coarse]: "2.75rem" },
     gap: spacing["1.5"],
     borderRadius: {
       base: radius.lg,

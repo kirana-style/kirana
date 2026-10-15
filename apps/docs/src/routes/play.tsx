@@ -18,7 +18,6 @@ import {
   Alert02Icon,
   CheckmarkCircle02Icon,
   InformationCircleIcon,
-  PlayIcon,
 } from "@hugeicons/core-free-icons"
 import { Icon } from "@workspace/ui/primitives/icon"
 import { theme } from "@workspace/ui/theme/semantic"
@@ -117,11 +116,9 @@ function Play() {
   const current = examples.find((item) => item.name === selected) ?? examples[0]
 
   return (
-    <Page accent="emerald">
+    <Page scene="turquoise-lake">
       <PageHero
-        icon={PlayIcon}
-        pattern="clouds"
-        eyebrow="Playground"
+        label="Playground"
         title="See what the compiler made"
         lede="Pick an example: its source, the CSS the compiler emitted for it, and the classes it defines."
       />

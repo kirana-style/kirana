@@ -1,16 +1,22 @@
 /**
  * One of Kirana's landscapes with frosted glass on it: the stage a desktop scene sits on. The
- * picture is a painted highland morning (`public/scenes/`, WebP at 800 and 1600 pixels); the
- * glass is a pane of white at low opacity that blurs what is behind it, with a light rim, and
- * whatever sits on the stage sits inside the pane.
+ * picture is the page's scene (`src/brand/scenes.ts`, WebP at 800 and 1600 pixels), or the one
+ * given; the glass is a pane of white at low opacity that blurs what is behind it, with a light
+ * rim, and whatever sits on the stage sits inside the pane. It is the page's one glass element.
  *
  * The picture is the same in both colour schemes: it is a scene, not a surface.
  */
 import { css } from "@kirana-style/core"
 
 import type { Sx } from "@workspace/ui/lib/sx"
+import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
+
+import { SCENES, sceneImage, sceneSrcSet } from "@/brand/scenes"
+import type { SceneId } from "@/brand/scenes"
+
+import { useScene } from "./scene-context"
 
 const styles = {
   stage: css({
@@ -21,7 +27,8 @@ const styles = {
     paddingInline: { base: spacing[3], [breakpoint.md]: "6%" },
     paddingBlockStart: { base: spacing[4], [breakpoint.md]: "6%" },
     paddingBlockEnd: { base: spacing[16], [breakpoint.md]: "11%" },
-    backgroundColor: "#6d8fa8",
+    // Under the picture until it loads.
+    backgroundColor: theme.muted,
   }),
   picture: css({
     position: "absolute",
@@ -30,7 +37,6 @@ const styles = {
     width: "100%",
     height: "100%",
     objectFit: "cover",
-    objectPosition: "50% 40%",
   }),
   glass: css({
     position: "relative",
@@ -48,6 +54,7 @@ const styles = {
 
 export function Backdrop({
   label,
+  scene: given,
   sx,
   glassSx,
   children,
@@ -56,6 +63,8 @@ export function Backdrop({
 }: {
   /** What the scene shows, for assistive tech; the picture itself is decoration. */
   label: string
+  /** The landscape; the page's scene when not given. */
+  scene?: SceneId
   sx?: Sx
   glassSx?: Sx
   /** The pane's content. */
@@ -65,12 +74,15 @@ export function Backdrop({
   /** Anything on the stage outside the pane (a link pinned to its corner). */
   after?: React.ReactNode
 }) {
+  const fromPage = useScene()
+  const scene = given ?? fromPage
   return (
     <div sx={[styles.stage, sx]} role="img" aria-label={label}>
       <img
         sx={styles.picture}
-        src="/scenes/highlands-800.webp"
-        srcSet="/scenes/highlands-800.webp 800w, /scenes/highlands-1600.webp 1600w"
+        src={sceneImage(scene, 800)}
+        srcSet={sceneSrcSet(scene)}
+        style={{ objectPosition: SCENES[scene].position }}
         sizes="(min-width: 64rem) 60vw, 100vw"
         alt=""
         loading="lazy"

@@ -51,10 +51,9 @@ const styles = {
     flexDirection: "column",
   }),
   title: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.base,
     lineHeight: leading.snug,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
     textWrap: "pretty",
     // Only spaced away from the choices when no description follows it.
     marginBottom: {

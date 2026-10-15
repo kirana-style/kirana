@@ -107,7 +107,7 @@ export function LintRuleGrid() {
           key={rule.name}
           href={`/docs/tooling/lint#${rule.name}`}
           sx={[
-            accents[rule.config === "recommended" ? "pink" : "violet"],
+            accents[rule.config === "recommended" ? "crater" : "neutral"],
             styles.rule,
           ]}
         >

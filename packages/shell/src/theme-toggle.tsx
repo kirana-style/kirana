@@ -8,6 +8,7 @@ import { Icon } from "@workspace/ui/primitives"
 import { VisuallyHidden } from "@workspace/ui/primitives/visually-hidden"
 import type { ThemeMode } from "@workspace/ui/theme/themes"
 import { useTheme } from "@workspace/ui/theme/theme-provider"
+import { touchTarget } from "@workspace/ui/recipes/touch"
 
 const MODES: { value: ThemeMode; icon: typeof Sun03Icon; label: string }[] = [
   { value: "system", icon: ComputerIcon, label: "Follow system" },
@@ -31,7 +32,7 @@ export function ThemeToggle() {
       aria-label="Colour scheme"
     >
       {MODES.map(({ value, icon, label }) => (
-        <ToggleGroupItem key={value} value={value}>
+        <ToggleGroupItem key={value} value={value} sx={touchTarget}>
           <Icon icon={icon} strokeWidth={2} />
           <VisuallyHidden>{label}</VisuallyHidden>
         </ToggleGroupItem>

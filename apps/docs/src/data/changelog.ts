@@ -14,12 +14,13 @@ export type Entry = {
   href?: string
 }
 
+/** Each tag in the hue of the place its subject lives on the site (`src/brand/scenes.ts`). */
 export const TAG_ACCENTS = {
-  compiler: "blue",
-  migrate: "orange",
-  ecosystem: "emerald",
-  docs: "violet",
-  milestone: "pink",
+  compiler: "crater",
+  migrate: "terracotta",
+  ecosystem: "tea",
+  docs: "forest",
+  milestone: "ochre",
 } as const
 
 export const CHANGELOG: readonly Entry[] = [

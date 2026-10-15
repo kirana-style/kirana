@@ -12,12 +12,7 @@ import { alpha, radius, theme } from "../theme/semantic"
 import { blur } from "../tokens/blur"
 import { breakpoint } from "../tokens/breakpoints"
 import { spacing } from "../tokens/spacing"
-import {
-  fontFamily,
-  fontSize,
-  fontWeight,
-  lineHeight,
-} from "../tokens/typography"
+import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
 import { zIndex } from "../tokens/z-index"
 
 const styles = {
@@ -76,10 +71,9 @@ const styles = {
     padding: spacing[4],
   }),
   title: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.base,
     lineHeight: 1,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   description: css({ fontSize: fontSize.sm, color: theme.mutedForeground }),
 }

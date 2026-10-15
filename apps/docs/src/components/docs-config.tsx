@@ -20,14 +20,18 @@ import { RailSponsor, SidebarSponsor } from "@/components/site/sponsor-slots"
 import { NAV, PAGES } from "@/generated/content.gen"
 import { search } from "@/lib/search"
 
-/** Tabs group sections; a page's URL never depends on its tab. */
+/**
+ * Tabs group sections; a page's URL never depends on its tab. Each tab wears the hue of the scene
+ * it stands in (`src/brand/scenes.ts`): Learn the highlands, Frameworks the tea hills, Guides the
+ * heritage street, Reference the crater, Project the old hall.
+ */
 export const TABS: readonly DocsTab[] = [
   {
     id: "docs",
-    label: "Documentation",
+    label: "Learn",
     href: "/docs",
     sections: ["start", "styling", "tokens", "config"],
-    accent: "blue",
+    accent: "forest",
     icon: BookOpen01Icon,
   },
   {
@@ -35,7 +39,7 @@ export const TABS: readonly DocsTab[] = [
     label: "Frameworks",
     href: "/docs/frameworks/overview",
     sections: ["frameworks", "server", "integrations"],
-    accent: "emerald",
+    accent: "tea",
     icon: Layers01Icon,
   },
   {
@@ -43,7 +47,7 @@ export const TABS: readonly DocsTab[] = [
     label: "Guides",
     href: "/docs/migration/from-tailwind",
     sections: ["migration", "advanced"],
-    accent: "amber",
+    accent: "terracotta",
     icon: Route01Icon,
   },
   {
@@ -51,7 +55,7 @@ export const TABS: readonly DocsTab[] = [
     label: "Reference",
     href: "/docs/reference/api",
     sections: ["reference", "tooling"],
-    accent: "violet",
+    accent: "crater",
     icon: SourceCodeIcon,
   },
   {
@@ -59,7 +63,7 @@ export const TABS: readonly DocsTab[] = [
     label: "Project",
     href: "/docs/project/status",
     sections: ["project"],
-    accent: "pink",
+    accent: "ochre",
     icon: Flag01Icon,
   },
 ]

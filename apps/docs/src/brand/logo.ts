@@ -9,10 +9,9 @@
  * - `icon`: the mark on a rounded 24u tile, 15u tall, for app icons and
  *   avatars.
  *
- * The brand colours are the Ocean gradients (`GRADIENTS`): they mark the
- * places that should stand out — the favicon, app icons, the editors'
- * icon. The solid colours take one colour for all three parts, as the site's
- * header does.
+ * The brand colours are the Highland morning gradients (`GRADIENTS`): they mark the places that
+ * should stand out, such as the favicon, app icons and the editors' icon. The solid colours take
+ * one colour for all three parts, as the site's header does.
  */
 
 import { GRADIENTS, MARK, PAINT_ORDER, PARTS } from "./kirana-mark"
@@ -20,8 +19,8 @@ import type { Palette, Part } from "./kirana-mark"
 
 /** Neutral colours, as hex so every file works everywhere (the site uses the same values in oklch). */
 export const COLOURS = {
-  ink: { label: "Ink", hex: "#0a0a0a", oklch: "oklch(0.145 0 0)" },
-  paper: { label: "Paper", hex: "#fafafa", oklch: "oklch(0.985 0 0)" },
+  ink: { label: "Ink", hex: "#1a1510", oklch: "oklch(0.2 0.012 70)" },
+  paper: { label: "Paper", hex: "#fcfbf8", oklch: "oklch(0.988 0.004 85)" },
 } as const
 
 /** The app icon: a 24u tile with corners of 5.5u, the mark 15u tall in its centre. */
@@ -84,7 +83,7 @@ export function placement(lockup: Lockup) {
 
 const n = (value: number) => +value.toFixed(4)
 
-/** One linear gradient per part, along the part's Ocean vector, in the stops given. */
+/** One linear gradient per part, along the part's vector, in the stops given. */
 function gradients(
   id: string,
   stopsOf: (part: Part) => readonly (readonly [number, string])[]

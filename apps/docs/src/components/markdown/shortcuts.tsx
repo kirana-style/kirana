@@ -19,7 +19,6 @@ import { SVGL } from "@/generated/svgl-icons.gen"
 
 import { accent, tint } from "@workspace/docs-ui/accent.ts"
 import { Icon } from "@workspace/ui/primitives/icon"
-import type { IconProps } from "@workspace/ui/primitives/icon"
 import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
@@ -228,7 +227,6 @@ export function DocsShortcuts() {
             tone={tab.accent}
             wide={index === 0}
             art={<SceneFor />}
-            icon={tab.icon as IconProps["icon"]}
             title={tab.label}
             href={tab.href}
             text={group.text}

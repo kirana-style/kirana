@@ -9,6 +9,7 @@ import { css, props as styleProps } from "@kirana-style/core"
 import { DocsLayout } from "@workspace/docs-ui/docs-layout.tsx"
 import { ThemeToggle } from "@workspace/shell/theme-toggle"
 import { theme } from "@workspace/ui/theme/semantic"
+import { pointer } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
 
 import { KiranaMark } from "@/brand/kirana-mark-svg"
@@ -17,6 +18,8 @@ import { StatusBanner } from "@/components/status-banner"
 
 const styles = {
   brand: css({
+    // A finger-sized target on a touch screen.
+    minHeight: { [pointer.coarse]: "2.75rem" },
     display: "flex",
     alignItems: "center",
     gap: spacing[2],

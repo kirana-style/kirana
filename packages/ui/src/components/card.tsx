@@ -6,13 +6,7 @@ import { cardMarker } from "../theme/markers"
 import { alpha, radius, theme } from "../theme/semantic"
 import { containerName } from "../tokens/container"
 import { spacing } from "../tokens/spacing"
-import {
-  fontFamily,
-  fontSize,
-  fontWeight,
-  leading,
-  lineHeight,
-} from "../tokens/typography"
+import { fontSize, fontWeight, leading, lineHeight } from "../tokens/typography"
 
 /** A footer sits flush to the bottom edge, so the card drops its own bottom pad. */
 
@@ -80,13 +74,12 @@ const styles = {
   }),
 
   title: css({
-    fontFamily: fontFamily.heading,
     fontSize: {
       base: fontSize.base,
       [cardMarker.within('[data-size="sm"]')]: fontSize.sm,
     },
     lineHeight: leading.snug,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   description: css({ fontSize: fontSize.sm, color: theme.mutedForeground }),
   action: css({

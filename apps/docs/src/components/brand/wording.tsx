@@ -65,7 +65,7 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: { base: fontSize["2xl"], [breakpoint.md]: fontSize["3xl"] },
     lineHeight: 1.15,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.tight,
     textWrap: "balance",
     // An improved headline may carry its second line.

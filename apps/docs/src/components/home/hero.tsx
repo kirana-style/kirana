@@ -1,35 +1,30 @@
 /**
- * The hero: the claim and the ways in on the left, a real component on the
- * right, the measured figures underneath — all inside the rail, over a dither
- * field in the page's accent that fades out towards the copy.
+ * The hero: the claim and the ways in on the left; on the right the master scene, the highlands,
+ * in pixels, dissolving into the paper towards the words, with a real component compiling on top
+ * of it. The measured figures are further down the page, in one place (`proof.tsx`).
  */
 import { Link } from "@tanstack/react-router"
 import { css, props as styleProps } from "@kirana-style/core"
-import {
-  ArrowRight01Icon,
-  Css3Icon,
-  FileCodeIcon,
-  FlashIcon,
-} from "@hugeicons/core-free-icons"
+import { Css3Icon, FileCodeIcon, FlashIcon } from "@hugeicons/core-free-icons"
 
-import { accents } from "@workspace/docs-ui/accent.ts"
+import { accent } from "@workspace/docs-ui/accent.ts"
 import { Button } from "@workspace/ui/components/button"
-import { Icon } from "@workspace/ui/primitives/icon"
-import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
+import { alpha, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
-import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
   fontFamily,
   fontSize,
   fontWeight,
-  letterSpacing,
   lineHeight,
+  textLeading,
+  textSize,
+  textTracking,
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
-import { PixelField } from "@/components/site/pixel-field"
-import { Rail, patterns } from "@/components/site/patterns"
+import { Rail } from "@/components/site/patterns"
+import { ScenePixels } from "@/components/site/scene-pixels"
 import {
   At,
   Card,
@@ -40,8 +35,6 @@ import {
   Tag,
   Tile,
 } from "@/components/site/visuals"
-
-import { STATS } from "./content"
 
 /**
  * One atomic rule per declaration, as the compiler wrote them for this site's
@@ -55,9 +48,20 @@ const RULES = [
 
 const styles = {
   hero: css({ position: "relative", overflow: "hidden" }),
-  field: css({
-    maskImage:
-      "radial-gradient(ellipse 55% 75% at 100% 0%, black 5%, transparent 72%)",
+  // Behind the compile scene: under it on a phone, the right side of the hero from `lg` up.
+  scene: css({
+    position: "absolute",
+    insetInline: { base: 0, [breakpoint.lg]: "auto 0" },
+    insetBlockEnd: 0,
+    insetBlockStart: { base: "auto", [breakpoint.lg]: 0 },
+    insetInlineEnd: { [breakpoint.lg]: 0 },
+    insetInlineStart: { [breakpoint.lg]: "auto" },
+    width: { base: "100%", [breakpoint.lg]: "50%" },
+    height: {
+      base: "27rem",
+      [breakpoint.sm]: "30rem",
+      [breakpoint.lg]: "auto",
+    },
   }),
   grid: css({
     position: "relative",
@@ -66,58 +70,66 @@ const styles = {
     alignItems: "center",
     paddingInline: { base: spacing[5], [breakpoint.md]: spacing[10] },
     paddingBlockStart: { base: spacing[14], [breakpoint.md]: spacing[24] },
-    paddingBlockEnd: { base: spacing[12], [breakpoint.md]: spacing[16] },
+    paddingBlockEnd: { base: spacing[6], [breakpoint.lg]: spacing[24] },
     gridTemplateColumns: {
       base: "minmax(0, 1fr)",
-      [breakpoint.lg]: "minmax(0, 1.1fr) minmax(0, 0.9fr)",
+      [breakpoint.lg]: "minmax(0, 1fr) minmax(0, 1fr)",
     },
   }),
-  copy: css({ display: "grid", gap: spacing[6], justifyItems: "start" }),
-  pill: css({
+  copy: css({
+    display: "grid",
+    gap: spacing[7],
+    justifyItems: "start",
+    // Clear of the scene's dissolving edge, so no pixel lands among the words.
+    maxWidth: "33rem",
+  }),
+  label: css({
     display: "inline-flex",
     alignItems: "center",
-    gap: spacing[2],
-    borderRadius: radius.full,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    backgroundColor: theme.background,
-    paddingInlineStart: spacing[1],
-    paddingInlineEnd: spacing[3],
-    paddingBlock: spacing[1],
-    fontSize: fontSize.xs,
-    lineHeight: lineHeight.xs,
-    color: theme.mutedForeground,
-    textDecorationLine: "none",
-    transitionProperty: "border-color",
-    transitionDuration: duration[150],
+    gap: spacing["2.5"],
+    fontFamily: fontFamily.mono,
+    fontSize: textSize.label,
+    lineHeight: textLeading.label,
+    letterSpacing: textTracking.label,
+    textTransform: "uppercase",
+    color: theme.foreground,
   }),
-  pillHover: css({ borderColor: { ":hover": alpha.primary40 } }),
-  pillTag: css({
-    borderRadius: radius.full,
-    backgroundColor: theme.primary,
-    color: theme.primaryForeground,
-    paddingInline: spacing[2],
-    paddingBlock: "1px",
-    fontWeight: fontWeight.semibold,
+  pixel: css({
+    width: "0.5rem",
+    height: "0.5rem",
+    backgroundColor: accent.base,
   }),
   title: css({
     fontFamily: fontFamily.heading,
-    fontSize: { base: fontSize["5xl"], [breakpoint.md]: fontSize["7xl"] },
-    lineHeight: { base: lineHeight["5xl"], [breakpoint.md]: lineHeight["7xl"] },
-    fontWeight: fontWeight.bold,
-    letterSpacing: letterSpacing.tighter,
+    fontSize: textSize.display1,
+    lineHeight: textLeading.display1,
+    letterSpacing: textTracking.display1,
+    fontWeight: fontWeight.normal,
     textWrap: "balance",
   }),
-  titleMuted: css({ display: "block", color: theme.mutedForeground }),
+  titleAccent: css({
+    display: "block",
+    fontStyle: "italic",
+    color: accent.base,
+  }),
   lede: css({
-    maxWidth: "36rem",
-    fontSize: { base: fontSize.lg, [breakpoint.md]: fontSize.xl },
-    lineHeight: "1.6",
+    fontSize: textSize.lede,
+    lineHeight: textLeading.lede,
     color: theme.mutedForeground,
     textWrap: "pretty",
   }),
   actions: css({ display: "flex", flexWrap: "wrap", gap: spacing[3] }),
+  status: css({
+    fontSize: fontSize.sm,
+    lineHeight: lineHeight.sm,
+    color: theme.mutedForeground,
+  }),
+  statusLink: css({
+    color: theme.foreground,
+    textDecorationLine: "underline",
+    textDecorationColor: alpha.foreground10,
+    textUnderlineOffset: "4px",
+  }),
 
   // The compile scene: its own canvas, enlarged on wide screens where the
   // column has room, shrunk on phones where it does not.
@@ -133,49 +145,6 @@ const styles = {
   }),
   // A row lays its children out with a gap; source keeps its own spacing.
   line: css({ whiteSpace: "pre" }),
-
-  stats: css({
-    position: "relative",
-    display: "grid",
-    gridTemplateColumns: {
-      base: "repeat(2, minmax(0, 1fr))",
-      [breakpoint.lg]: "repeat(4, minmax(0, 1fr))",
-    },
-    gap: "1px",
-    borderBlockStartWidth: "1px",
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: theme.border,
-    backgroundColor: theme.border,
-  }),
-  stat: css({
-    display: "grid",
-    gap: spacing[1],
-    alignContent: "start",
-    paddingInline: { base: spacing[5], [breakpoint.md]: spacing[8] },
-    paddingBlock: spacing[6],
-    backgroundColor: { base: theme.background, ":hover": theme.card },
-    textDecorationLine: "none",
-    transitionProperty: "background-color",
-    transitionDuration: duration[150],
-  }),
-  statFigure: css({
-    fontFamily: fontFamily.numeric,
-    fontSize: fontSize["3xl"],
-    lineHeight: lineHeight["3xl"],
-    fontWeight: fontWeight.semibold,
-    color: theme.foreground,
-  }),
-  statText: css({
-    fontSize: fontSize.sm,
-    lineHeight: "1.55",
-    color: theme.mutedForeground,
-  }),
-  hatchStrip: css({
-    height: spacing[6],
-    borderBlockStartWidth: "1px",
-    borderBlockStartStyle: "solid",
-    borderBlockStartColor: theme.border,
-  }),
 }
 
 /** Source in, one compile, atomic CSS out: what the claim beside it says. */
@@ -252,34 +221,38 @@ export function CompileScene() {
 
 export function Hero() {
   return (
-    <header sx={[styles.hero, accents.blue]}>
+    <header sx={styles.hero}>
       <Rail>
-        <PixelField sx={styles.field} opacity={0.5} />
+        <ScenePixels
+          scene="highlands"
+          dissolve="hero"
+          fade={0.62}
+          sx={styles.scene}
+        />
         <div sx={styles.grid}>
           <div sx={styles.copy}>
-            <DocsLink
-              href="/docs/project/status"
-              sx={[styles.pill, styles.pillHover]}
-            >
-              <span sx={styles.pillTag}>v0.1.0</span>
-              Pre-release · not on npm yet
-              <Icon icon={ArrowRight01Icon} size="0.75rem" />
-            </DocsLink>
+            <p sx={styles.label}>
+              <span sx={styles.pixel} aria-hidden="true" />
+              CSS-in-JS, compiled
+            </p>
             <h1 sx={styles.title}>
               Write objects. Read classes.
-              <span sx={styles.titleMuted}>Ship CSS.</span>
+              <em sx={styles.titleAccent}>Ship CSS.</em>
             </h1>
             <p sx={styles.lede}>
-              CSS-in-JS with a Rust engine of its own. Start with plain style
-              objects and grow into tokens and themes; Kirana compiles them into
-              one atomic stylesheet at native speed, turns mistakes into compile
-              errors, and shows every element's CSS on its line in your editor.
+              Typed style objects next to your components, compiled by a Rust
+              engine into one atomic stylesheet. Mistakes become compile errors,
+              and your editor shows every element&apos;s CSS on its line.
             </p>
             <div sx={styles.actions}>
               <Button
                 size="lg"
                 nativeButton={false}
-                render={<DocsLink href="/docs">Read the docs</DocsLink>}
+                render={
+                  <DocsLink href="/docs/start/quick-start">
+                    Quick start
+                  </DocsLink>
+                }
               />
               <Button
                 size="lg"
@@ -295,27 +268,16 @@ export function Hero() {
                   </Link>
                 }
               />
-              <Button
-                size="lg"
-                variant="ghost"
-                nativeButton={false}
-                render={
-                  <DocsLink href="/docs/start/why-kirana">Why Kirana?</DocsLink>
-                }
-              />
             </div>
+            <p sx={styles.status}>
+              Version 0.1.0, a pre-release, not yet on npm.{" "}
+              <DocsLink href="/docs/project/status" sx={styles.statusLink}>
+                What works today
+              </DocsLink>
+            </p>
           </div>
           <CompileScene />
         </div>
-        <div sx={styles.stats}>
-          {STATS.map((stat) => (
-            <DocsLink key={stat.href} href={stat.href} sx={styles.stat}>
-              <span sx={styles.statFigure}>{stat.title}</span>
-              <span sx={styles.statText}>{stat.text}</span>
-            </DocsLink>
-          ))}
-        </div>
-        <div sx={[styles.hatchStrip, patterns.hatch]} aria-hidden="true" />
       </Rail>
     </header>
   )

@@ -845,8 +845,6 @@ export function EditorShowcase({ compact = false }: { compact?: boolean }) {
 export function Editor() {
   return (
     <HomeSection
-      accent="sky"
-      icon={VisualStudioCodeIcon}
       eyebrow="In your editor"
       title="Light through every line of your styles."
       lede="A Tailwind class list shows what an element gets; object styles hid it, and that is why teams left CSS-in-JS. Kirana's language server puts it back on every line, coloured by kind — and you keep typed styles, atomic output and a Rust compiler. The build's own compiler answers, so it is never a guess."

@@ -7,7 +7,6 @@ import { css } from "@kirana-style/core"
 import {
   BookOpen01Icon,
   CheckListIcon,
-  FileNotFoundIcon,
   Rocket01Icon,
   SourceCodeIcon,
   Wrench01Icon,
@@ -74,10 +73,9 @@ const PLACES = [
 export function NotFound() {
   const address = useRouterState({ select: (state) => state.location.href })
   return (
-    <Page accent="neutral">
+    <Page scene="misty-hills">
       <PageHero
-        icon={FileNotFoundIcon}
-        eyebrow="404"
+        label="404"
         title="Nothing lives at this address"
         lede={
           <>

@@ -9,7 +9,6 @@ import {
   CommandLineIcon,
   FileCodeIcon,
   FileScriptIcon,
-  PlugSocketIcon,
   RoboticIcon,
   SparklesIcon,
   Tick02Icon,
@@ -249,7 +248,7 @@ const ITEMS: {
   {
     title: "The CLI",
     status: "Works",
-    accent: "orange",
+    accent: "crater",
     text: "kirana build, check, export and trace: compile a tree, report every diagnostic (as GitHub annotations in CI), describe the design system, and ask which declaration wins a property and why.",
     href: "/docs/tooling/cli",
     art: CliArt,
@@ -257,7 +256,7 @@ const ITEMS: {
   {
     title: "Language models and agents",
     status: "Works",
-    accent: "violet",
+    accent: "ochre",
     text: "Agent skills for writing Kirana and migrating to it, installed with npx skills add; llms.txt, llms-full.txt and a markdown twin of every page, with Copy page and Open in ChatGPT or Claude.",
     href: "/docs/project/llms",
     art: LlmArt,
@@ -265,7 +264,7 @@ const ITEMS: {
   {
     title: "Editors",
     status: "Works",
-    accent: "sky",
+    accent: "crater",
     text: "kirana lsp with VS Code and Zed extensions: the CSS on hover, swatches, a summary after every sx, completion and diagnostics as you type.",
     href: "/docs/tooling/editor",
     art: EditorArt,
@@ -273,7 +272,7 @@ const ITEMS: {
   {
     title: "Lint",
     status: "Works",
-    accent: "pink",
+    accent: "crater",
     text: "@kirana-style/eslint-plugin under Oxlint or ESLint with identical results, and @kirana-style/biome-plugin under Biome: the compiler's diagnostics and the overrides that silently lose.",
     href: "/docs/tooling/lint",
     art: LintArt,
@@ -283,8 +282,6 @@ const ITEMS: {
 export function Connect() {
   return (
     <HomeSection
-      accent="violet"
-      icon={PlugSocketIcon}
       eyebrow="Tooling"
       title="Connect Kirana to the rest of your tools"
       lede="The command line, language models, editors and lint — each one links to its documentation."

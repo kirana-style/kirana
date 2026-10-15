@@ -1,15 +1,15 @@
 /**
- * Accents: one colour a subtree is tinted with — a docs tab, a homepage
- * section, a feature page.
+ * Accents: the one colour a subtree is tinted with: a page, a docs tab, a homepage door.
  *
- * `accent.base` is a variable token. A wrapper assigns it (`sx={accents.blue}`)
- * and everything inside reads it. Shades are mixed where they are used, with
- * `tint()`, never in the token's default: a default resolves on `:root`, so a
- * shade written there would ignore the wrapper's colour.
+ * `accent.base` is a variable token. A wrapper assigns it (`sx={accents.forest}`) and everything
+ * inside reads it. Shades are mixed where they are used, with `tint()`, never in the token's
+ * default: a default resolves on `:root`, so a shade written there would ignore the wrapper.
  *
- * Every palette entry is a `light-dark()` pair (Tailwind's 600 for light
- * surfaces, 400 for dark ones), so an accent follows the colour scheme like
- * every other colour in this system.
+ * The hues are the scene hues: each is sampled from one of the landscapes in the brand's
+ * photography and named for what it is in the picture, never for a place. Every entry is a
+ * `light-dark()` pair, deep enough to be text on paper and light enough to be text on the night
+ * background; `scripts/check-contrast.ts` in apps/docs measures both. Which page wears which hue
+ * is `apps/docs/src/brand/scenes.ts`; why, the brand page (`/brand`, Colour).
  */
 import { css, defineTokens } from "@kirana-style/core"
 import type { StyleHandle } from "@kirana-style/core"
@@ -20,8 +20,11 @@ export const accent = defineTokens(
   "accent",
   {
     base: theme.foreground,
-    /** What is drawn on the accent (a keycap's glyph): white, or the page's background on neutral. */
-    on: "white",
+    /**
+     * What is drawn on the accent (a keycap's glyph). The background colour: paper on the deep
+     * hues of the light scheme, night on the light hues of the dark one.
+     */
+    on: theme.background,
   },
   { variable: true }
 )
@@ -32,31 +35,48 @@ export function tint(percent: number): string {
 }
 
 export const PALETTE = {
+  /** No hue: the ink itself. */
   neutral: theme.foreground,
-  blue: "light-dark(oklch(0.546 0.245 262.881), oklch(0.707 0.165 254.624))",
-  violet: "light-dark(oklch(0.541 0.281 293.009), oklch(0.702 0.183 293.541))",
-  amber: "light-dark(oklch(0.666 0.179 58.318), oklch(0.828 0.189 84.429))",
-  pink: "light-dark(oklch(0.592 0.249 0.584), oklch(0.718 0.202 349.761))",
-  sky: "light-dark(oklch(0.588 0.158 241.966), oklch(0.746 0.16 232.661))",
-  emerald: "light-dark(oklch(0.596 0.145 163.225), oklch(0.765 0.177 163.223))",
-  orange: "light-dark(oklch(0.646 0.222 41.116), oklch(0.75 0.183 55.934))",
+  /** Forest on the ridges, the master scene. */
+  forest: "light-dark(oklch(0.5 0.1 150), oklch(0.8 0.11 150))",
+  /** Tea rows and grass in the morning. */
+  tea: "light-dark(oklch(0.5 0.11 128), oklch(0.83 0.13 128))",
+  /** The pale sulphur water of a crater. */
+  crater: "light-dark(oklch(0.5 0.09 185), oklch(0.82 0.1 185))",
+  /** A lake under a clear sky. */
+  lake: "light-dark(oklch(0.5 0.12 245), oklch(0.78 0.1 245))",
+  /** Clay roof tiles. */
+  terracotta: "light-dark(oklch(0.53 0.15 42), oklch(0.78 0.12 45))",
+  /** Lime-washed walls in evening light, and ripe fields. */
+  ochre: "light-dark(oklch(0.52 0.11 68), oklch(0.82 0.12 80))",
+  /** The sky over a city after sunset. */
+  dusk: "light-dark(oklch(0.5 0.15 290), oklch(0.78 0.11 290))",
 } as const
 
 export type AccentName = keyof typeof PALETTE
 
-/** Assigns an accent to a subtree: `<section sx={accents.orange}>`. */
+/**
+ * The sun: the gold light every landscape shares, the brand's one constant accent. A fill only,
+ * never text: the light sweeping through a scene's pixels, a live wire's spark, text selection.
+ */
+export const SUN = {
+  sun: "light-dark(oklch(0.82 0.15 80), oklch(0.84 0.14 82))",
+} as const
+
+/** Assigns an accent to a subtree: `<section sx={accents.terracotta}>`. */
 export const accents: Record<AccentName, StyleHandle> = {
-  // Neutral is the foreground colour itself, white in dark mode: a glyph drawn on
-  // it takes the background colour, or it disappears.
   neutral: css({
     [accent.base]: PALETTE.neutral,
     [accent.on]: theme.background,
   }),
-  blue: css({ [accent.base]: PALETTE.blue, [accent.on]: "white" }),
-  violet: css({ [accent.base]: PALETTE.violet, [accent.on]: "white" }),
-  amber: css({ [accent.base]: PALETTE.amber, [accent.on]: "white" }),
-  pink: css({ [accent.base]: PALETTE.pink, [accent.on]: "white" }),
-  sky: css({ [accent.base]: PALETTE.sky, [accent.on]: "white" }),
-  emerald: css({ [accent.base]: PALETTE.emerald, [accent.on]: "white" }),
-  orange: css({ [accent.base]: PALETTE.orange, [accent.on]: "white" }),
+  forest: css({ [accent.base]: PALETTE.forest, [accent.on]: theme.background }),
+  tea: css({ [accent.base]: PALETTE.tea, [accent.on]: theme.background }),
+  crater: css({ [accent.base]: PALETTE.crater, [accent.on]: theme.background }),
+  lake: css({ [accent.base]: PALETTE.lake, [accent.on]: theme.background }),
+  terracotta: css({
+    [accent.base]: PALETTE.terracotta,
+    [accent.on]: theme.background,
+  }),
+  ochre: css({ [accent.base]: PALETTE.ochre, [accent.on]: theme.background }),
+  dusk: css({ [accent.base]: PALETTE.dusk, [accent.on]: theme.background }),
 }

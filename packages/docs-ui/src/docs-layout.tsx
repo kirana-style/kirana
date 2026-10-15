@@ -28,7 +28,7 @@ import {
 import { Icon } from "@workspace/ui/primitives/icon"
 import type { IconProps } from "@workspace/ui/primitives/icon"
 import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
-import { breakpoint } from "@workspace/ui/tokens/breakpoints"
+import { breakpoint, pointer } from "@workspace/ui/tokens/breakpoints"
 import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
@@ -120,7 +120,7 @@ const styles = {
       base: "auto",
       [breakpoint.lg]: { base: SIDEBAR, "[data-collapsed]": "auto" },
     },
-    paddingInline: spacing[4],
+    paddingInline: { base: spacing[3], [breakpoint.sm]: spacing[4] },
     borderInlineEndWidth: {
       base: "0",
       [breakpoint.lg]: { base: "1px", "[data-collapsed]": "0" },
@@ -128,7 +128,9 @@ const styles = {
     borderInlineEndStyle: "solid",
     borderInlineEndColor: theme.border,
   }),
+  // Hidden on a phone, where the bar has room for the mark, the name and the tools only.
   badge: css({
+    display: { base: "none", [breakpoint.sm]: "inline-block" },
     borderRadius: radius.full,
     backgroundColor: alpha.muted50,
     paddingInline: spacing[2],
@@ -189,15 +191,19 @@ const styles = {
     marginInlineStart: "auto",
     display: "flex",
     alignItems: "center",
-    gap: spacing[2],
-    paddingInline: spacing[4],
+    gap: { base: spacing[1], [breakpoint.sm]: spacing[2] },
+    paddingInline: { base: spacing[2], [breakpoint.sm]: spacing[4] },
   }),
   menuButton: css({
     display: { base: "inline-flex", [breakpoint.lg]: "none" },
+    minWidth: { [pointer.coarse]: "2.75rem" },
+    minHeight: { [pointer.coarse]: "2.75rem" },
   }),
   // Below lg the sidebar, and its search field, are in the sheet.
   mobileSearch: css({
     display: { base: "inline-grid", [breakpoint.lg]: "none" },
+    minWidth: { [pointer.coarse]: "2.75rem" },
+    minHeight: { [pointer.coarse]: "2.75rem" },
   }),
   // The page width only matters where there is width to give.
   widthButton: css({

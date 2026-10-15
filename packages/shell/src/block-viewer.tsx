@@ -19,7 +19,6 @@ import { useTheme } from "@workspace/ui/theme/theme-provider"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
-  fontFamily,
   fontSize,
   fontWeight,
   lineHeight,
@@ -53,7 +52,6 @@ const styles = {
     gap: spacing["1"],
   }),
   title: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.xl,
     lineHeight: lineHeight.xl,
     fontWeight: fontWeight.medium,

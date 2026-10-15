@@ -1,7 +1,8 @@
 /**
- * The site's card: a picture on top — a scene from the illustration kit on its grid
- * and glow — then the title with its icon, a line of text, whatever the card lists,
- * and pill links. One card in one accent; the scene rises a little on hover.
+ * The site's card: a picture on top (a scene from the illustration kit on its grid and glow),
+ * then the title, a line of text, whatever the card lists, and pill links. The scene rises a
+ * little on hover. The title is in the sans: the serif is for headings from 1.5rem up, where a
+ * small bold serif beside a coloured icon read as decoration.
  *
  * Every card section on the site is built from it (the docs home's ways in, the
  * homepage's paths, packages and choices), so they read as one family. Wide cards
@@ -14,9 +15,8 @@ import { accent, accents, tint } from "@workspace/docs-ui/accent.ts"
 import type { AccentName } from "@workspace/docs-ui/accent.ts"
 import type { Sx } from "@workspace/ui/lib/sx"
 import { Icon } from "@workspace/ui/primitives/icon"
-import type { IconProps } from "@workspace/ui/primitives/icon"
 import { radius, theme } from "@workspace/ui/theme/semantic"
-import { breakpoint } from "@workspace/ui/tokens/breakpoints"
+import { breakpoint, pointer } from "@workspace/ui/tokens/breakpoints"
 import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
@@ -24,6 +24,9 @@ import {
   fontSize,
   fontWeight,
   lineHeight,
+  textLeading,
+  textSize,
+  textTracking,
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
@@ -84,16 +87,15 @@ const styles = {
   }),
   title: css({
     display: "flex",
-    alignItems: "center",
+    alignItems: "baseline",
     gap: spacing[2],
-    fontFamily: fontFamily.heading,
-    fontSize: fontSize.lg,
-    lineHeight: lineHeight.lg,
-    fontWeight: fontWeight.bold,
-    color: theme.foreground,
+    fontSize: textSize.subheading,
+    lineHeight: textLeading.subheading,
+    letterSpacing: textTracking.subheading,
+    fontWeight: fontWeight.semibold,
+    color: { base: theme.foreground, ":is(a):hover": accent.base },
     textDecorationLine: "none",
   }),
-  titleIcon: css({ color: accent.base }),
   note: css({
     marginInlineStart: "auto",
     fontFamily: fontFamily.mono,
@@ -122,6 +124,8 @@ export const pill = css({
   alignItems: "center",
   gap: spacing[1],
   height: spacing[7],
+  // A finger's height on a touch screen.
+  minHeight: { [pointer.coarse]: "2.75rem" },
   paddingInline: spacing["2.5"],
   borderRadius: radius.full,
   borderWidth: "1px",
@@ -160,7 +164,6 @@ export function IllustratedCard({
   art,
   wide,
   tall,
-  icon,
   title,
   note,
   href,
@@ -169,13 +172,13 @@ export function IllustratedCard({
   sx,
   children,
 }: {
-  tone: AccentName
+  /** A hue of its own, for a card that leads to a page in another scene; else the page's. */
+  tone?: AccentName
   /** The scene, drawn on the stage's grid and glow. */
   art: React.ReactNode
   wide?: boolean
   /** A taller picture, for a scene with more in it (a code window). */
   tall?: boolean
-  icon: IconProps["icon"]
   title: React.ReactNode
   /** A quiet mono note at the title's end: a count, a step. */
   note?: React.ReactNode
@@ -187,7 +190,6 @@ export function IllustratedCard({
 }) {
   const heading = (
     <>
-      <Icon icon={icon} size="1.125rem" sx={styles.titleIcon} />
       {title}
       {note ? <span sx={styles.note}>{note}</span> : null}
     </>
@@ -195,7 +197,12 @@ export function IllustratedCard({
   return (
     <section
       data-card=""
-      sx={[accents[tone], styles.card, wide ? styles.wide : null, sx]}
+      sx={[
+        tone ? accents[tone] : null,
+        styles.card,
+        wide ? styles.wide : null,
+        sx,
+      ]}
     >
       <div
         sx={[

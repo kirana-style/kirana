@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
-import { Clock01Icon } from "@hugeicons/core-free-icons"
 
 import { accent, accents, tint } from "@workspace/docs-ui/accent.ts"
 import { radius, theme } from "@workspace/ui/theme/semantic"
@@ -104,7 +103,7 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: fontSize["2xl"],
     lineHeight: lineHeight["2xl"],
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
   }),
   summary: css({
     fontSize: fontSize.base,
@@ -137,11 +136,9 @@ function ChangelogPage() {
     : CHANGELOG
 
   return (
-    <Page accent="violet">
+    <Page scene="city-dusk">
       <PageHero
-        icon={Clock01Icon}
-        pattern="scan"
-        eyebrow="Changelog"
+        label="Changelog"
         title="What changed, and when"
         lede="Nothing is published yet, so there are no versions to list. Until there are, this is the record: each milestone and sprint from the implementation tracker, dated by the commit that landed it."
       />

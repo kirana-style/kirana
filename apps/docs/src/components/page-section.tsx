@@ -63,7 +63,7 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: { base: fontSize["3xl"], [breakpoint.md]: fontSize["4xl"] },
     lineHeight: { base: lineHeight["3xl"], [breakpoint.md]: lineHeight["4xl"] },
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.tight,
     textWrap: "balance",
   }),

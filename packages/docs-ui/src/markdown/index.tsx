@@ -36,7 +36,7 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: fontSize["4xl"],
     lineHeight: lineHeight["4xl"],
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.tight,
     marginBlockEnd: spacing[4],
     scrollMarginBlockStart: spacing[20],
@@ -45,17 +45,16 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: fontSize["2xl"],
     lineHeight: lineHeight["2xl"],
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.tight,
     marginBlockStart: spacing[12],
     marginBlockEnd: spacing[3],
     scrollMarginBlockStart: spacing[20],
   }),
   h3: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.lg,
     lineHeight: lineHeight.lg,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
     marginBlockStart: spacing[8],
     marginBlockEnd: spacing[2],
     scrollMarginBlockStart: spacing[20],
@@ -88,6 +87,9 @@ const styles = {
   list: css({
     marginBlockEnd: spacing[4],
     display: "grid",
+    // One column that may shrink below its content, so a long item wraps instead of widening
+    // the page on a phone.
+    gridTemplateColumns: "minmax(0, 1fr)",
     gap: spacing[2],
     paddingInlineStart: spacing[6],
     lineHeight: "1.75",
@@ -103,6 +105,8 @@ const styles = {
     fontFamily: fontFamily.mono,
     fontSize: "0.875em",
     color: theme.foreground,
+    // A long string or path breaks rather than pushing a phone's page sideways.
+    overflowWrap: "anywhere",
   }),
   codeCell: css({ whiteSpace: "nowrap" }),
   blockquote: css({

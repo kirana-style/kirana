@@ -6,7 +6,6 @@ import {
   DashboardSquare01Icon,
   GridViewIcon,
   Layers01Icon,
-  SparklesIcon,
 } from "@hugeicons/core-free-icons"
 
 import { accent, accents, tint } from "@workspace/docs-ui/accent.ts"
@@ -19,16 +18,16 @@ import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
-  fontFamily,
   fontSize,
   fontWeight,
   lineHeight,
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
-import { GlowBand } from "@/components/site/accents"
+import { NextStep } from "@/components/site/accents"
 import { Page, PageHero, PageSection } from "@/components/site/page"
-import { patterns } from "@/components/site/patterns"
+import { SCENES, sceneImage } from "@/brand/scenes"
+import type { SceneId } from "@/brand/scenes"
 import { LIFT, REST } from "@/components/site/lift"
 
 export const Route = createFileRoute("/showcase")({
@@ -67,25 +66,27 @@ const styles = {
     transitionProperty: "box-shadow",
     transitionDuration: duration[200],
   }),
-  // A placeholder until each entry has a screenshot: the entry's accent, a
-  // pattern and its icon — tokens, not an image, so it themes with the page.
+  // Until each entry has a screenshot: a landscape crop with the entry's glyph on it, marked as
+  // a picture of the place, not of the application.
   thumbnail: css({
     position: "relative",
+    isolation: "isolate",
     display: "grid",
     placeItems: "center",
     aspectRatio: "16 / 7",
     overflow: "hidden",
-    backgroundImage: `radial-gradient(80% 120% at 100% 0%, ${tint(22)}, transparent 65%), linear-gradient(${tint(6)}, ${tint(6)})`,
+    backgroundColor: theme.muted,
     borderBlockEndWidth: "1px",
     borderBlockEndStyle: "solid",
     borderBlockEndColor: theme.border,
   }),
-  pattern: css({
+  photo: css({
     position: "absolute",
     inset: 0,
-    color: tint(22),
-    maskImage:
-      "radial-gradient(70% 90% at 100% 0%, black 10%, transparent 75%)",
+    zIndex: -1,
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
   }),
   mark: css({
     position: "relative",
@@ -112,10 +113,9 @@ const styles = {
     color: accent.base,
   }),
   name: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.xl,
     lineHeight: lineHeight.xl,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
   }),
   description: css({
     fontSize: fontSize.sm,
@@ -145,7 +145,8 @@ const styles = {
 type Entry = {
   accent: AccentName
   icon: IconProps["icon"]
-  pattern: "dots" | "petals" | "hatch"
+  /** The landscape behind its glyph, until there is a screenshot. */
+  scene: SceneId
   name: string
   category: string
   description: string
@@ -162,9 +163,9 @@ type Entry = {
  */
 const ENTRIES: Entry[] = [
   {
-    accent: "blue",
+    accent: "dusk",
     icon: DashboardSquare01Icon,
-    pattern: "dots",
+    scene: "highlands",
     name: "The demo application",
     category: "Application",
     description:
@@ -178,9 +179,9 @@ const ENTRIES: Entry[] = [
     hrefLabel: "How it is verified",
   },
   {
-    accent: "emerald",
+    accent: "dusk",
     icon: GridViewIcon,
-    pattern: "dots",
+    scene: "misty-hills",
     name: "60+ shadcn blocks",
     category: "Blocks",
     description:
@@ -194,9 +195,9 @@ const ENTRIES: Entry[] = [
     hrefLabel: "Merging and removal",
   },
   {
-    accent: "violet",
+    accent: "dusk",
     icon: Layers01Icon,
-    pattern: "hatch",
+    scene: "rock-garden",
     name: "Component examples",
     category: "Reference",
     description:
@@ -210,9 +211,9 @@ const ENTRIES: Entry[] = [
     hrefLabel: "Relations",
   },
   {
-    accent: "amber",
+    accent: "dusk",
     icon: BookOpen01Icon,
-    pattern: "dots",
+    scene: "city-dusk",
     name: "This documentation site",
     category: "Documentation",
     description:
@@ -229,11 +230,9 @@ const ENTRIES: Entry[] = [
 
 function Showcase() {
   return (
-    <Page accent="violet">
+    <Page scene="city-dusk">
       <PageHero
-        icon={SparklesIcon}
-        pattern="blocks"
-        eyebrow="Showcase"
+        label="Showcase"
         title="Built with Kirana"
         lede="Kirana is pre-release, so this page is short and honest: these are the four applications built on it today, all of them in the repository, all of them verified against independent builds of the same markup."
       />
@@ -242,7 +241,14 @@ function Showcase() {
           {ENTRIES.map((entry) => (
             <article key={entry.name} sx={[accents[entry.accent], styles.card]}>
               <div sx={styles.thumbnail} aria-hidden="true">
-                <span sx={[patterns[entry.pattern], styles.pattern]} />
+                <img
+                  src={sceneImage(entry.scene, 800)}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  style={{ objectPosition: SCENES[entry.scene].position }}
+                  sx={styles.photo}
+                />
                 <span sx={styles.mark}>
                   <Icon icon={entry.icon} size="1.75rem" />
                 </span>
@@ -266,7 +272,7 @@ function Showcase() {
         </div>
       </PageSection>
       <PageSection flush>
-        <GlowBand
+        <NextStep
           title="Built something with it?"
           actions={
             <Button
@@ -284,7 +290,7 @@ function Showcase() {
           Until then, if you have built something on it, open an issue — an
           entry here needs a name, a link and one line about what it put through
           the compiler.
-        </GlowBand>
+        </NextStep>
       </PageSection>
     </Page>
   )

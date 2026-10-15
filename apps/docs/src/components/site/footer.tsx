@@ -1,36 +1,36 @@
 /**
- * The site footer: the link columns, a dithered field in the page's accent
- * fading in from one corner. (The name drawn large in outline is off for now.)
+ * The site footer: who Kirana is in two lines, the three link groups, then the page's own scene
+ * in pixels, dissolving up into the paper. Every page ends in the place it stood in, so the
+ * footer changes with the page instead of being one colour everywhere.
  */
-import { css } from "@kirana-style/core"
-import { useRouterState } from "@tanstack/react-router"
+import { css, props as styleProps } from "@kirana-style/core"
+import { Link } from "@tanstack/react-router"
 
-import { accent, accents } from "@workspace/docs-ui/accent.ts"
-import type { AccentName } from "@workspace/docs-ui/accent.ts"
+import { accents } from "@workspace/docs-ui/accent.ts"
 import { theme } from "@workspace/ui/theme/semantic"
-import { breakpoint } from "@workspace/ui/tokens/breakpoints"
+import { breakpoint, pointer } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
   fontFamily,
   fontSize,
   fontWeight,
+  letterSpacing,
   lineHeight,
+  textLeading,
+  textSize,
+  textTracking,
 } from "@workspace/ui/tokens/typography"
 
+import { KiranaMark } from "@/brand/kirana-mark-svg"
+import { SCENES } from "@/brand/scenes"
+import type { SceneId } from "@/brand/scenes"
 import { DocsLink } from "@/components/docs-link"
 
 import { FOOTER } from "./nav"
 import { Rail } from "./patterns"
-import { PixelField } from "./pixel-field"
-
-/** Which accent the footer takes on a given page; everything else is neutral blue. */
-const ROUTE_ACCENTS: readonly [prefix: string, accent: AccentName][] = [
-  ["/sponsors", "neutral"],
-  ["/brand", "violet"],
-  ["/blog", "amber"],
-  ["/docs/migration", "orange"],
-  ["/play", "emerald"],
-]
+import { useScene } from "./scene-context"
+import { ScenePixels } from "./scene-pixels"
+import { Wordmark } from "./wordmark"
 
 const styles = {
   footer: css({
@@ -39,115 +39,109 @@ const styles = {
     borderTopColor: theme.border,
   }),
   inner: css({
-    position: "relative",
-    overflow: "hidden",
     display: "grid",
-    gap: spacing[12],
-    paddingInline: { base: spacing[4], [breakpoint.md]: spacing[10] },
-    paddingBlockStart: spacing[14],
-    // Was the wordmark's job; kept while the wordmark is off.
-    paddingBlockEnd: spacing[14],
+    gap: { base: spacing[12], [breakpoint.lg]: spacing[10] },
+    gridTemplateColumns: {
+      base: "minmax(0, 1fr)",
+      [breakpoint.lg]: "minmax(0, 1fr) minmax(0, 2fr)",
+    },
+    paddingInline: { base: spacing[5], [breakpoint.md]: spacing[10] },
+    paddingBlock: { base: spacing[14], [breakpoint.md]: spacing[16] },
   }),
-  field: css({
-    maskImage:
-      "radial-gradient(ellipse 60% 80% at 100% 0%, black 10%, transparent 70%)",
+  identity: css({ display: "grid", gap: spacing[4], alignContent: "start" }),
+  brand: css({
+    // A finger-sized target on a touch screen.
+    minHeight: { [pointer.coarse]: "2.75rem" },
+    display: "inline-flex",
+    alignItems: "center",
+    gap: spacing[2],
+    justifySelf: "start",
+    color: theme.foreground,
+    textDecorationLine: "none",
   }),
-  columns: css({
-    position: "relative",
+  logo: css({ height: "21px", width: "auto" }),
+  line: css({
+    maxWidth: "24rem",
+    fontFamily: fontFamily.heading,
+    fontSize: fontSize["2xl"],
+    lineHeight: lineHeight["2xl"],
+    letterSpacing: letterSpacing.tight,
+    color: theme.foreground,
+    textWrap: "balance",
+  }),
+  note: css({
+    maxWidth: "22rem",
+    fontSize: fontSize.sm,
+    lineHeight: "1.6",
+    color: theme.mutedForeground,
+  }),
+  groups: css({
     display: "grid",
     gap: spacing[8],
     gridTemplateColumns: {
       base: "repeat(2, minmax(0, 1fr))",
-      [breakpoint.md]: "repeat(4, minmax(0, 1fr))",
+      [breakpoint.md]: "repeat(3, minmax(0, 1fr))",
     },
   }),
-  column: css({ display: "grid", gap: spacing["2.5"], alignContent: "start" }),
-  columnTitle: css({
+  group: css({ display: "grid", gap: spacing["2.5"], alignContent: "start" }),
+  groupTitle: css({
     marginBlockEnd: spacing[1],
-    fontSize: fontSize.xs,
-    lineHeight: lineHeight.xs,
-    fontWeight: fontWeight.semibold,
+    fontFamily: fontFamily.mono,
+    fontSize: textSize.label,
+    lineHeight: textLeading.label,
+    letterSpacing: textTracking.label,
     textTransform: "uppercase",
-    letterSpacing: "0.06em",
-    color: theme.mutedForeground,
+    fontWeight: fontWeight.medium,
+    color: theme.foreground,
   }),
   link: css({
+    justifySelf: "start",
     fontSize: fontSize.sm,
     lineHeight: lineHeight.sm,
     textDecorationLine: "none",
     color: { base: theme.mutedForeground, ":hover": theme.foreground },
   }),
-  note: css({
+  // The scene: the rail's width, dissolving up into the links.
+  scene: css({
     position: "relative",
-    fontSize: fontSize.sm,
-    lineHeight: lineHeight.sm,
-    color: theme.mutedForeground,
-  }),
-  wordmark: css({
-    position: "relative",
-    display: "block",
-    width: "100%",
-    height: "auto",
-    marginBlockEnd: { base: "-0.6rem", [breakpoint.md]: "-1.4rem" },
-    fontFamily: fontFamily.heading,
-    fontWeight: fontWeight.bold,
-    color: accent.base,
+    height: { base: "9rem", [breakpoint.md]: "13rem" },
   }),
 }
 
-/** The giant outlined wordmark; not rendered for now (see the footer below). */
-export function Wordmark() {
+export function SiteFooter({ scene: given }: { scene?: SceneId }) {
+  const fromPage = useScene()
+  const scene = given ?? fromPage
   return (
-    <svg viewBox="0 0 1000 190" sx={styles.wordmark} aria-hidden="true">
-      <defs>
-        <linearGradient id="footer-wordmark" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0.9" />
-        </linearGradient>
-      </defs>
-      <text
-        x="0"
-        y="170"
-        textLength="1000"
-        lengthAdjust="spacingAndGlyphs"
-        fontSize="220"
-        fill="none"
-        stroke="url(#footer-wordmark)"
-        strokeWidth="1.5"
-      >
-        kirana
-      </text>
-    </svg>
-  )
-}
-
-export function SiteFooter() {
-  const path = useRouterState({ select: (state) => state.location.pathname })
-  const name =
-    ROUTE_ACCENTS.find(([prefix]) => path.startsWith(prefix))?.[1] ?? "blue"
-
-  return (
-    <footer sx={[styles.footer, accents[name]]}>
+    <footer sx={[styles.footer, accents[SCENES[scene].hue]]}>
       <Rail sx={styles.inner}>
-        <PixelField sx={styles.field} opacity={0.4} />
-        <div sx={styles.columns}>
-          {FOOTER.map((column) => (
-            <div key={column.title} sx={styles.column}>
-              <p sx={styles.columnTitle}>{column.title}</p>
-              {column.links.map((link) => (
+        <div sx={styles.identity}>
+          <Link to="/" aria-label="Kirana, home" {...styleProps(styles.brand)}>
+            <KiranaMark variant="solid" title={null} sx={styles.logo} />
+            <Wordmark />
+          </Link>
+          <p sx={styles.line}>
+            Styles next to your components, one stylesheet in the build.
+          </p>
+          <p sx={styles.note}>
+            Built in the open, MIT licensed. Pre-release, and not yet published
+            to npm.
+          </p>
+        </div>
+        <nav sx={styles.groups} aria-label="Footer">
+          {FOOTER.map((group) => (
+            <div key={group.title} sx={styles.group}>
+              <p sx={styles.groupTitle}>{group.title}</p>
+              {group.links.map((link) => (
                 <DocsLink key={link.href} href={link.href} sx={styles.link}>
                   {link.label}
                 </DocsLink>
               ))}
             </div>
           ))}
-        </div>
-        <p sx={styles.note}>
-          Built in the open, for the web. MIT licensed, pre-release, and not yet
-          published to npm.
-        </p>
-        {/* The outlined wordmark is off until the logo is settled.
-            <Wordmark /> */}
+        </nav>
+      </Rail>
+      <Rail sx={styles.scene}>
+        <ScenePixels scene={scene} dissolve="up" fade={0.85} />
       </Rail>
     </footer>
   )

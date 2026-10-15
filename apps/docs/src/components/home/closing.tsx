@@ -6,9 +6,7 @@
  */
 import { Link } from "@tanstack/react-router"
 import { css, props as styleProps } from "@kirana-style/core"
-import { FavouriteIcon, HelpCircleIcon } from "@hugeicons/core-free-icons"
 
-import { accent } from "@workspace/docs-ui/accent.ts"
 import { Button } from "@workspace/ui/components/button"
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
@@ -26,6 +24,7 @@ import { DocsLink } from "@/components/docs-link"
 import { More } from "@/components/page-section"
 import { FaqGroups } from "@/components/site/faq"
 import { Rail } from "@/components/site/patterns"
+import { ScenePixels } from "@/components/site/scene-pixels"
 import { SPONSORS } from "@/components/sponsors/data"
 import { SponsorLogo, SponsorVacancy } from "@/components/site/sponsor-slots"
 
@@ -108,6 +107,10 @@ const FAQ: {
   },
 ]
 
+/** The night ground and the paper, fixed: the card is dark in both schemes. */
+const NIGHT = "oklch(0.165 0.008 70)"
+const PAPER = "oklch(0.988 0.004 85)"
+
 const styles = {
   answerLink: css({
     color: theme.foreground,
@@ -132,10 +135,6 @@ const styles = {
     marginBlockStart: spacing[5],
   }),
 
-  // A deep blue in both schemes, so white stays readable on it.
-  ground: css({
-    [accent.base]: "light-dark(oklch(0.49 0.22 264), oklch(0.44 0.2 264))",
-  }),
   ctaWrap: css({
     borderBlockStartWidth: "1px",
     borderBlockStartStyle: "solid",
@@ -145,6 +144,8 @@ const styles = {
     paddingInline: { base: spacing[5], [breakpoint.md]: spacing[10] },
     paddingBlock: { base: spacing[14], [breakpoint.md]: spacing[20] },
   }),
+  // A night ground in both schemes, with sunrise over the hills dissolving into it from the
+  // right; the words sit on the night side in the paper's colour.
   cta: css({
     position: "relative",
     overflow: "hidden",
@@ -153,41 +154,20 @@ const styles = {
     alignItems: "center",
     isolation: "isolate",
     borderRadius: radius.xl,
-    // Under the picture until it loads: the sky's own blue.
-    backgroundColor: "#4a7fb0",
-    color: "#ffffff",
+    backgroundColor: NIGHT,
+    color: PAPER,
     padding: { base: spacing[8], [breakpoint.md]: spacing[12] },
     gridTemplateColumns: {
       base: "minmax(0, 1fr)",
       [breakpoint.md]: "minmax(0, 1fr) minmax(0, 20rem)",
     },
   }),
-  // The landscape (as the editor scenes use), and a shade on the copy's side so white reads.
-  ctaPicture: css({
-    position: "absolute",
-    inset: 0,
-    zIndex: -2,
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    objectPosition: "50% 35%",
-  }),
-  ctaShade: css({
-    position: "absolute",
-    inset: 0,
+  // Right of the words from `md` up, dissolving left towards them; on a phone, a low band under
+  // the night, so no pixel lands among the words.
+  ctaScene: css({
     zIndex: -1,
-    backgroundImage:
-      "linear-gradient(to right, rgb(8 18 30 / 0.72), rgb(8 18 30 / 0.45) 55%, rgb(8 18 30 / 0.15))",
-  }),
-  // A blueprint grid under everything, in the text colour.
-  ctaGrid: css({
-    position: "absolute",
-    inset: 0,
-    pointerEvents: "none",
-    backgroundImage:
-      "linear-gradient(rgb(255 255 255 / 0.08) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px)",
-    backgroundSize: "24px 24px",
-    maskImage: "linear-gradient(to right, transparent, black 70%)",
+    insetInlineStart: { base: 0, [breakpoint.md]: "46%" },
+    insetBlockStart: { base: "62%", [breakpoint.md]: 0 },
   }),
   ctaCopy: css({
     position: "relative",
@@ -199,7 +179,7 @@ const styles = {
     fontFamily: fontFamily.heading,
     fontSize: { base: fontSize["3xl"], [breakpoint.md]: fontSize["5xl"] },
     lineHeight: { base: lineHeight["3xl"], [breakpoint.md]: lineHeight["5xl"] },
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.tight,
     textWrap: "balance",
   }),
@@ -207,7 +187,7 @@ const styles = {
     maxWidth: "32rem",
     fontSize: fontSize.base,
     lineHeight: "1.65",
-    opacity: 0.85,
+    color: `color-mix(in oklab, ${PAPER} 82%, transparent)`,
   }),
   ctaActions: css({
     display: "flex",
@@ -216,24 +196,26 @@ const styles = {
     paddingBlockStart: spacing[2],
   }),
   ctaPrimary: css({
-    backgroundColor: { base: "white", ":hover": "rgb(255 255 255 / 0.9)" },
-    color: "black",
+    backgroundColor: {
+      base: PAPER,
+      ":hover": `color-mix(in oklab, ${PAPER} 88%, transparent)`,
+    },
+    color: NIGHT,
   }),
-  // White on the picture in every state: the outline button darkens its text on `:hover`, so
-  // the override names `:hover` too (Kirana merges per condition).
+  // Paper on the night in every state: the outline button darkens its text on `:hover`, so the
+  // override names `:hover` too (Kirana merges per condition).
   ctaSecondary: css({
     borderColor: {
-      base: "rgb(255 255 255 / 0.45)",
-      ":hover": "rgb(255 255 255 / 0.7)",
+      base: `color-mix(in oklab, ${PAPER} 40%, transparent)`,
+      ":hover": `color-mix(in oklab, ${PAPER} 70%, transparent)`,
     },
     backgroundColor: {
-      base: "rgb(255 255 255 / 0.06)",
-      ":hover": "rgb(255 255 255 / 0.18)",
+      base: `color-mix(in oklab, ${PAPER} 6%, transparent)`,
+      ":hover": `color-mix(in oklab, ${PAPER} 16%, transparent)`,
     },
-    backdropFilter: "blur(8px)",
-    color: { base: "white", ":hover": "white" },
+    color: { base: PAPER, ":hover": PAPER },
   }),
-  // In the card's text colour, white.
+  // In the card's text colour, the paper.
   drawing: css({ position: "relative", maxWidth: "17rem" }),
 }
 
@@ -248,8 +230,7 @@ export function Sponsors() {
   const vacancies = Math.max(0, 4 - gold.length)
   return (
     <HomeSection
-      accent="pink"
-      icon={FavouriteIcon}
+      accent="ochre"
       eyebrow="Sponsors"
       title={gold.length > 0 ? "Backed by" : "Back the compiler you build on"}
       lede={
@@ -280,12 +261,7 @@ export function Sponsors() {
 
 export function Faq() {
   return (
-    <HomeSection
-      accent="emerald"
-      icon={HelpCircleIcon}
-      eyebrow="Questions"
-      title="Asked before you ask"
-    >
+    <HomeSection eyebrow="Questions" title="Asked before you ask">
       <FaqGroups
         groups={FAQ.map((group) => ({
           topic: group.topic,
@@ -308,20 +284,15 @@ export function Faq() {
 
 export function Blueprint() {
   return (
-    <section sx={[styles.ctaWrap, styles.ground]}>
+    <section sx={styles.ctaWrap}>
       <Rail sx={styles.ctaInner}>
         <div sx={styles.cta}>
-          <img
-            sx={styles.ctaPicture}
-            src="/scenes/highlands-800.webp"
-            srcSet="/scenes/highlands-800.webp 800w, /scenes/highlands-1600.webp 1600w"
-            sizes="(min-width: 64rem) 70vw, 100vw"
-            alt=""
-            loading="lazy"
-            decoding="async"
+          <ScenePixels
+            scene="misty-hills"
+            dissolve="left"
+            fade={0.55}
+            sx={styles.ctaScene}
           />
-          <div sx={styles.ctaShade} aria-hidden="true" />
-          <div sx={styles.ctaGrid} aria-hidden="true" />
           <div sx={styles.ctaCopy}>
             <h2 sx={styles.ctaTitle}>
               From your first style to the CSS you ship.

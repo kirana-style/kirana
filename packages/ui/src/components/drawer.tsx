@@ -10,12 +10,7 @@ import { blur } from "../tokens/blur"
 import { breakpoint } from "../tokens/breakpoints"
 import { duration, easing } from "../tokens/motion"
 import { spacing } from "../tokens/spacing"
-import {
-  fontFamily,
-  fontSize,
-  fontWeight,
-  lineHeight,
-} from "../tokens/typography"
+import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
 import { zIndex } from "../tokens/z-index"
 
 /**
@@ -391,10 +386,9 @@ const styles = {
     paddingTop: 0,
   }),
   title: css({
-    fontFamily: fontFamily.heading,
     fontSize: fontSize.base,
     lineHeight: lineHeight.base,
-    fontWeight: fontWeight.bold,
+    fontWeight: fontWeight.semibold,
     color: theme.foreground,
   }),
   description: css({

@@ -89,18 +89,13 @@ const FALLBACK: Record<Kind, string> = {
   mono: "ui-monospace, monospace",
 }
 
-type Role = "sans" | "heading" | "display" | "serif" | "mono" | "numeric"
+type Role = "sans" | "heading" | "serif" | "mono" | "numeric"
 
 /** Each role, what it sets and what the site uses today. */
 const ROLES: readonly { role: Role; label: string; current: string }[] = [
-  { role: "heading", label: "Headings", current: "Cormorant Garamond" },
-  { role: "display", label: "Display", current: "Plus Jakarta Sans" },
-  { role: "sans", label: "Body text", current: "Inter" },
-  {
-    role: "serif",
-    label: "Serif accents, logo",
-    current: "Cormorant Garamond",
-  },
+  { role: "heading", label: "Headings", current: "Newsreader" },
+  { role: "sans", label: "Body text", current: "Plus Jakarta Sans" },
+  { role: "serif", label: "Serif accents, wordmark", current: "Newsreader" },
   { role: "mono", label: "Code", current: "JetBrains Mono" },
   { role: "numeric", label: "Numbers", current: "JetBrains Mono" },
 ]
@@ -194,7 +189,7 @@ const styles = {
     insetInlineEnd: spacing[4],
     insetBlockEnd: spacing[4],
     zIndex: zIndex.popover,
-    fontFamily: typeface.cormorantGaramond,
+    fontFamily: typeface.newsreader,
     fontStyle: "italic",
     fontWeight: fontWeight.bold,
     fontSize: fontSize.lg,
@@ -219,7 +214,7 @@ const styles = {
     backgroundColor: theme.popover,
     color: theme.popoverForeground,
     boxShadow: shadow.lg,
-    fontFamily: typeface.inter,
+    fontFamily: typeface.plusJakartaSans,
     fontSize: fontSize.sm,
   }),
   title: css({ fontWeight: fontWeight.semibold }),

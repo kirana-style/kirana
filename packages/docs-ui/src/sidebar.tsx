@@ -47,10 +47,10 @@ import { DocsSearch } from "./search.tsx"
 
 /** The tint of each reference kind's badge. */
 const KIND_ACCENTS: Record<string, AccentName> = {
-  api: "violet",
-  config: "amber",
-  cli: "emerald",
-  diagnostics: "pink",
+  api: "neutral",
+  config: "neutral",
+  cli: "neutral",
+  diagnostics: "neutral",
 }
 
 const SCROLL_KEY = "docs-ui:sidebar-scroll"

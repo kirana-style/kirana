@@ -54,7 +54,7 @@ const PARTS: readonly Part[] = [
     id: "compile",
     label: "Compile",
     icon: CpuIcon,
-    accent: "orange",
+    accent: "crater",
     title: "Not the CSS-in-JS you left",
     text: "The dislike is earned — by libraries that built CSS in the browser while rendering. Kirana keeps what people liked, styles as typed values next to the component, and moves all the work to the build.",
   },
@@ -62,7 +62,7 @@ const PARTS: readonly Part[] = [
     id: "benchmarks",
     label: "Benchmarks",
     icon: DashboardSpeed01Icon,
-    accent: "blue",
+    accent: "crater",
     title: "Measured against the same apps",
     text: "The three demo applications, built from three branches: Kirana, the StyleX port, and the Tailwind original. Every one of them passes the same conformance checks.",
   },
@@ -70,7 +70,7 @@ const PARTS: readonly Part[] = [
     id: "migrate",
     label: "Migrate",
     icon: CommandLineIcon,
-    accent: "violet",
+    accent: "terracotta",
     title: "Bring what you have",
     text: "Both codemods print a diff and a report of what they would not decide, and write nothing until you say so.",
   },
@@ -78,7 +78,7 @@ const PARTS: readonly Part[] = [
     id: "diagnostics",
     label: "Diagnostics",
     icon: Alert02Icon,
-    accent: "emerald",
+    accent: "crater",
     title: "Mistakes that used to be silent",
     text: `${DIAGNOSTICS.length} diagnostics with stable codes and help text, and kirana trace to ask which declaration wins a property and which rule decided it.`,
   },
@@ -311,7 +311,7 @@ function Panel({ part, children }: { part: Part; children: React.ReactNode }) {
   return (
     <div id={`system-${part.id}`} sx={[accents[part.accent], styles.panel]}>
       <div sx={frame.head}>
-        <Eyebrow icon={part.icon}>{part.label}</Eyebrow>
+        <Eyebrow>{part.label}</Eyebrow>
         <h3 sx={frame.title}>{part.title}</h3>
         <p sx={frame.lede}>{part.text}</p>
       </div>

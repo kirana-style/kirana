@@ -16,12 +16,13 @@
     "generate:skills": "bun scripts/generate-skills.ts",
     "check:consistency": "bun scripts/check-consistency.ts",
     "generate:examples": "bun scripts/generate-examples.ts",
-    "verify:generated": "bun scripts/generate-content.ts --check && bun scripts/generate-svgl.ts --check && bun scripts/generate-reference.ts --check && bun scripts/generate-skills.ts --check && bun scripts/generate-examples.ts --check && bun scripts/generate-brand.ts --check && bun scripts/generate-editor.ts --check && bun scripts/check-consistency.ts",
+    "verify:generated": "bun scripts/generate-content.ts --check && bun scripts/generate-svgl.ts --check && bun scripts/generate-reference.ts --check && bun scripts/generate-skills.ts --check && bun scripts/generate-examples.ts --check && bun scripts/generate-brand.ts --check && bun scripts/generate-editor.ts --check && bun scripts/check-consistency.ts && bun scripts/check-contrast.ts",
     "generate:brand": "bun scripts/generate-brand.ts",
     "generate:editor": "bun scripts/generate-editor.ts",
     "generate:svgl": "bun scripts/generate-svgl.ts",
     "deploy": "wrangler deploy",
-    "cf-typegen": "wrangler types"
+    "cf-typegen": "wrangler types",
+    "check:contrast": "bun scripts/check-contrast.ts"
   },
   "dependencies": {
     "@hugeicons/core-free-icons": "catalog:",

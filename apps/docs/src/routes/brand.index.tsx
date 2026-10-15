@@ -19,7 +19,7 @@ export const Route = createFileRoute("/brand/")({
 
 function Brand() {
   return (
-    <Page accent="violet">
+    <Page scene="highlands">
       <BrandPage />
     </Page>
   )
