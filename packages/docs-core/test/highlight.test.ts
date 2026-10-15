@@ -102,13 +102,14 @@ describe("terminal sessions", () => {
         "+ import x",
         "- export y",
         "  …",
+        "  --> src/card.tsx:4:3",
         "1 diagnostic(s), 1 error(s)",
         "plain <text>",
         "",
       ].join("\n")
     )
     const lines = html.split("\n")
-    expect(lines).toHaveLength(15)
+    expect(lines).toHaveLength(16)
     expect(lines[0]).toMatch(
       /^<span class="th-token th-prompt">\$<\/span> <span class="th-token th-command">kirana/
     )
@@ -133,6 +134,7 @@ describe("terminal sessions", () => {
     ])
     expect(tokens(html, "comment")).toEqual([
       "  …",
+      "  --&gt; src/card.tsx:4:3",
       "1 diagnostic(s), 1 error(s)",
     ])
     expect(lines.at(-1)).toBe("plain &lt;text&gt;")
