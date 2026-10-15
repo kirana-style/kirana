@@ -31,12 +31,19 @@ In your project's root, through your package manager's runner. It fetches the
 command for this one run, the way `npx shadcn@latest` does, and writes nothing
 until you say yes:
 
-| Package manager | First run                             |
-| --------------- | ------------------------------------- |
-| npm             | `npx kirana-style@latest init`        |
-| pnpm            | `pnpm dlx kirana-style@latest init`   |
-| Yarn            | `yarn dlx kirana-style@latest init`   |
-| Bun             | `bunx --bun kirana-style@latest init` |
+| Package manager | First run                                  |
+| --------------- | ------------------------------------------ |
+| npm             | `npx kirana-style@latest init`             |
+| pnpm            | `pnpm dlx kirana-style@latest init`        |
+| Yarn            | `yarn dlx kirana-style@latest init`        |
+| Bun             | `bunx --bun kirana-style@latest init`      |
+| Deno            | `deno run -A npm:kirana-style@latest init` |
+
+> [!NOTE] Right after a release
+> Yarn and Deno hold back a version for its first 24 hours on npm, a guard against
+> supply-chain attacks, and install the one before it meanwhile. To take a new
+> release on its first day, pass Deno `--minimum-dependency-age=0`, or set Yarn's
+> `npmMinimalAgeGate` lower.
 
 It reads `package.json` and your lockfile, recognises the framework, bundler and
 package manager, and shows every change it would make as a diff: the configuration

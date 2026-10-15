@@ -5,13 +5,14 @@
  * (by running `kirana-style init`'s plan without writing), and the cache: there is none (D-049). It exits
  * with 1 when something fails. `--report` writes a bug report instead (`report.ts`).
  */
+import { existsSync, readFileSync } from "node:fs"
 import { createRequire } from "node:module"
 import path from "node:path"
 
 import { Driver } from "./driver.ts"
 import type { NativeBinding } from "./native.ts"
 import { engineOf, loadNative } from "./native.ts"
-import { readPackage } from "./detect.ts"
+import { packageManagerOf, readPackage, runCommand } from "./detect.ts"
 import { describe, plan } from "./init.ts"
 
 export type Check = {
@@ -40,10 +41,22 @@ export function installedVersions(
         const file = require.resolve(`${name}/package.json`)
         return [name, (require(file) as { version: string }).version]
       } catch {
-        return [name, undefined]
+        // A package whose `exports` hides its package.json cannot be resolved by that path.
+        return [name, nodeModulesVersion(root, name)]
       }
     })
   )
+}
+
+/** An installed package's version, from the nearest `node_modules` that has it. */
+function nodeModulesVersion(root: string, name: string): string | undefined {
+  for (let directory = root; ; directory = path.dirname(directory)) {
+    const file = path.join(directory, "node_modules", name, "package.json")
+    if (existsSync(file))
+      return (JSON.parse(readFileSync(file, "utf8")) as { version: string })
+        .version
+    if (path.dirname(directory) === directory) return undefined
+  }
 }
 
 /** Every check, in the order they are printed. */
@@ -171,9 +184,13 @@ export async function runDoctor(
     for (const check of checks)
       write(`${marks[check.status]} ${check.name.padEnd(12)} ${check.detail}\n`)
     const failed = checks.filter((check) => check.status === "fail").length
+    const init = runCommand(
+      packageManagerOf(root, readPackage(root)),
+      "kirana-style init"
+    )
     write(
       failed
-        ? `\n${failed} problem(s). kirana-style init sets up what it can.\n`
+        ? `\n${failed} problem(s). ${init} sets up what it can.\n`
         : "\nAll good.\n"
     )
   }

@@ -24,7 +24,7 @@ fn prefers_the_setting_then_the_project_then_path() {
         locate("/repo/", None, Some("kirana-style"), Some("/usr/bin/kirana-style".to_owned())),
         Ok(Found { command: "/repo/node_modules/.bin/kirana-style".to_owned(), args: lsp.clone() })
     );
-    // A project still on 0.1.0, where the command was `kirana`.
+    // An older install, from before the command was named `kirana-style`.
     assert_eq!(
         locate("/repo", None, Some("kirana"), None),
         Ok(Found { command: "/repo/node_modules/.bin/kirana".to_owned(), args: lsp.clone() })

@@ -16,12 +16,13 @@ The `kirana-style` command, by what it does:
 In a project without Kirana, run it without installing anything: your package
 manager's runner fetches it for one run, as `npx shadcn@latest` does.
 
-| Package manager | Without installing                    | Once installed            |
-| --------------- | ------------------------------------- | ------------------------- |
-| npm             | `npx kirana-style@latest init`        | `npx kirana-style check`  |
-| pnpm            | `pnpm dlx kirana-style@latest init`   | `pnpm kirana-style check` |
-| Yarn            | `yarn dlx kirana-style@latest init`   | `yarn kirana-style check` |
-| Bun             | `bunx --bun kirana-style@latest init` | `bunx kirana-style check` |
+| Package manager | Without installing                         | Once installed                       |
+| --------------- | ------------------------------------------ | ------------------------------------ |
+| npm             | `npx kirana-style@latest init`             | `npx kirana-style check`             |
+| pnpm            | `pnpm dlx kirana-style@latest init`        | `pnpm exec kirana-style check`       |
+| Yarn            | `yarn dlx kirana-style@latest init`        | `yarn kirana-style check`            |
+| Bun             | `bunx --bun kirana-style@latest init`      | `bunx kirana-style check`            |
+| Deno            | `deno run -A npm:kirana-style@latest init` | `deno run -A npm:kirana-style check` |
 
 `init` adds `kirana-style` to the project's dev dependencies, so every later run
 uses the version the project pins, and the editor's language server comes from the
@@ -64,8 +65,8 @@ kirana-style init --preset    # with the scales preset (utilities)
 ```
 
 It reads `package.json` and the lockfile to find the framework, the bundler and
-the package manager, then prints every change as a diff before it writes
-anything:
+the package manager (npm, pnpm, Yarn, Bun, or Deno from a `deno.lock`), then prints
+every change as a diff before it writes anything:
 
 ```console
 $ kirana-style init --dry-run
@@ -93,8 +94,12 @@ Laravel, Symfony, Rails, Phoenix and AdonisJS, which get a class map and a start
 style module. Edits follow the file's own quotes and semicolons. Where a
 configuration is not in a shape it can edit safely (`module.exports`, a function,
 a plugin list built elsewhere), it prints the step to do by hand instead of
-guessing. The install command is printed, never run unless you pass
-`--install`, so your lockfile stays yours.
+guessing. The install command is your package manager's own (Deno's takes each
+package as `npm:…`), printed, never run unless you pass `--install`, so your
+lockfile stays yours.
+
+Its last line names the next command the way your package manager runs it, such
+as `pnpm exec kirana-style doctor`.
 
 Its setups were checked the way the examples are: sixteen examples, stripped of
 Kirana and set up again by `kirana-style init`, built from packed tarballs and styled

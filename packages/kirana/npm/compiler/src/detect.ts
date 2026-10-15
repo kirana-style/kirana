@@ -45,7 +45,7 @@ export type Bundler =
   | "cli"
   | "none"
 
-export type PackageManager = "npm" | "pnpm" | "yarn" | "bun"
+export type PackageManager = "npm" | "pnpm" | "yarn" | "bun" | "deno"
 
 export type PackageJson = {
   name?: string
@@ -83,6 +83,7 @@ const LOCKFILES: readonly [string, PackageManager][] = [
   ["bun.lockb", "bun"],
   ["pnpm-lock.yaml", "pnpm"],
   ["yarn.lock", "yarn"],
+  ["deno.lock", "deno"],
   ["package-lock.json", "npm"],
 ]
 
@@ -302,6 +303,20 @@ export function typesOf(framework: Framework): string | undefined {
   return name && `@kirana-style/core/${name}`
 }
 
+/** How a project runs an installed package's binary: `npx kirana-style doctor`, `pnpm exec …`. */
+export function runCommand(manager: PackageManager, command: string): string {
+  // What goes before the binary's name; Deno runs an npm package by specifier, which resolves to
+  // the version the project lists.
+  const prefix: Record<PackageManager, string> = {
+    npm: "npx ",
+    pnpm: "pnpm exec ",
+    yarn: "yarn ",
+    bun: "bunx ",
+    deno: "deno run -A npm:",
+  }
+  return `${prefix[manager]}${command}`
+}
+
 /** The command that installs runtime and development dependencies. */
 export function installCommand(
   manager: PackageManager,
@@ -310,8 +325,13 @@ export function installCommand(
 ): string[] {
   const add = manager === "npm" ? "install" : "add"
   const dev = manager === "bun" ? "-d" : "-D"
+  // Deno takes each npm package as an `npm:` specifier.
+  const names = (list: readonly string[]) =>
+    manager === "deno" ? list.map((name) => `npm:${name}`) : list
   return [
-    dependencies.length ? [manager, add, ...dependencies].join(" ") : "",
-    development.length ? [manager, add, dev, ...development].join(" ") : "",
+    dependencies.length ? [manager, add, ...names(dependencies)].join(" ") : "",
+    development.length
+      ? [manager, add, dev, ...names(development)].join(" ")
+      : "",
   ].filter(Boolean)
 }
