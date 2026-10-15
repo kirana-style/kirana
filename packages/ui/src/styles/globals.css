@@ -20,9 +20,11 @@
 /* Text and interface: Plus Jakarta Sans, with its real italic. */
 @import "@fontsource-variable/plus-jakarta-sans";
 @import "@fontsource-variable/plus-jakarta-sans/wght-italic.css";
-/* Display, headings and the wordmark: EB Garamond, with its drawn italic. */
+/* Display and headings: EB Garamond, with its drawn italic. */
 @import "@fontsource-variable/eb-garamond/wght.css";
 @import "@fontsource-variable/eb-garamond/wght-italic.css";
+/* The wordmark: Crimson Pro's italic only, the one style it is set in. */
+@import "@fontsource-variable/crimson-pro/wght-italic.css";
 @import "@fontsource-variable/jetbrains-mono";
 
 @layer reset {

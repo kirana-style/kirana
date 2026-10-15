@@ -197,7 +197,7 @@ const styles = {
     paddingInlineStart: spacing[4],
     paddingInlineEnd: spacing[2],
     paddingBlockStart: spacing[2],
-    backgroundColor: "#16171b",
+    backgroundColor: EDITOR.deep,
   }),
   lights: css({
     alignSelf: "center",
@@ -361,7 +361,7 @@ const styles = {
     placeItems: "center",
     minHeight: "8.5rem",
     padding: spacing[5],
-    backgroundColor: "#16171b",
+    backgroundColor: EDITOR.deep,
     color: EDITOR.text,
   }),
   terminal: css({

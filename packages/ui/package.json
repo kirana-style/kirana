@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "@base-ui/react": "^1.9.0",
+    "@fontsource-variable/crimson-pro": "^5.3.0",
     "@fontsource-variable/eb-garamond": "^5.3.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@fontsource-variable/plus-jakarta-sans": "^5.3.0",

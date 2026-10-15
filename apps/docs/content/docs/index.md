@@ -56,6 +56,7 @@ Kirana is not a utility-class framework, and it does not generate CSS in the
 browser. It does not try to style markup you do not render: the compiler works on
 the source it can see.
 
-> [!NOTE] Pre-release
-> Kirana is on npm as a 0.x pre-release: the API can still change before 1.0, and
-> the name is a working name. Every page tells you what works today.
+> [!NOTE] Before 1.0
+> Kirana is on npm and follows semantic versioning: before 1.0, a minor version
+> may change the API, and its release notes say how to move. Every page tells you
+> what works today.

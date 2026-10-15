@@ -22,6 +22,7 @@ import type { MarkdownDocument } from "@tanstack/markdown"
 import { parseFrontmatter } from "./frontmatter.ts"
 import { highlightCss } from "./highlight-css.ts"
 import { extensions } from "./markdown.ts"
+import { PACKAGE_MANAGERS, installLines } from "./package-managers.ts"
 import type {
   BlogMeta,
   NavItem,
@@ -566,11 +567,22 @@ export function plainInstall(markdown: string): string {
     /<!--\s*::install\b([^>]*?)-->/g,
     (_match, attributes: string) => {
       const value = (name: string) =>
-        new RegExp(`${name}="([^"]*)"`).exec(attributes)?.[1] ?? ""
-      const lines = [
-        value("packages") ? `npm install ${value("packages")}` : "",
-        value("dev") ? `npm install -D ${value("dev")}` : "",
-      ].filter(Boolean)
+        new RegExp(`\\b${name}="([^"]*)"`).exec(attributes)?.[1] ?? ""
+      const request = {
+        packages: value("packages"),
+        dev: value("dev"),
+        run: value("run"),
+        exec: value("exec"),
+      }
+      // An install is npm's command; a command to run differs by package manager, so the twin
+      // writes each one.
+      const lines =
+        request.run || request.exec
+          ? PACKAGE_MANAGERS.flatMap((manager) => [
+              `# ${manager}`,
+              ...installLines(manager, request),
+            ])
+          : installLines("npm", request)
       return ["```bash", ...lines, "```"].join("\n")
     }
   )

@@ -19,6 +19,7 @@ import {
 } from "@workspace/ui/tokens/typography"
 
 import { APPS, BENCH_SOURCE, METRICS, TOOLS } from "@/data/benchmarks"
+import { GITHUB } from "@/data/facts"
 import { InlineCode } from "@/components/site/code-tokens"
 
 const styles = {
@@ -165,7 +166,14 @@ export function BenchChart() {
       <figcaption sx={styles.note}>
         {metric.note} Lower is better. Median of five interleaved builds on one
         developer machine: advisory, not a published claim. Source:{" "}
-        <InlineCode>{BENCH_SOURCE}</InlineCode>.
+        <a
+          href={`${GITHUB}/blob/main/${BENCH_SOURCE}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <InlineCode>{BENCH_SOURCE}</InlineCode>
+        </a>
+        .
       </figcaption>
     </figure>
   )

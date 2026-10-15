@@ -1,5 +1,12 @@
 # Kirana
 
+[![npm](https://img.shields.io/npm/v/%40kirana-style%2Fcore?label=npm&color=3f7d4f)](https://www.npmjs.com/package/@kirana-style/core)
+[![Downloads](https://img.shields.io/npm/dm/%40kirana-style%2Fcore?color=3f7d4f)](https://www.npmjs.com/package/@kirana-style/core)
+[![CI](https://img.shields.io/github/actions/workflow/status/kirana-style/kirana/ci.yml?branch=main&label=ci)](https://github.com/kirana-style/kirana/actions/workflows/ci.yml)
+[![Editor extension](https://img.shields.io/open-vsx/v/kirana-style/kirana?label=extension&color=3f7d4f)](https://marketplace.visualstudio.com/items?itemName=kirana-style.kirana)
+[![License: MIT](https://img.shields.io/github/license/kirana-style/kirana?color=3f7d4f)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/kirana-style/kirana?style=flat&color=3f7d4f)](https://github.com/kirana-style/kirana/stargazers)
+
 **Write objects. Read classes. Ship CSS.**
 
 CSS-in-JS with a Rust engine of its own. Kirana compiles typed style objects into
@@ -27,8 +34,9 @@ export function Badge(props: React.ComponentProps<"span">) {
 }
 ```
 
-> Kirana is a pre-release on npm: start with `npx kirana-style@latest init`. APIs may still
-> change before 1.0. Documentation: <https://kirana.style>.
+> Start a project with `npx kirana-style@latest init`. Kirana follows semantic versioning:
+> before 1.0, a minor version may change the API, and its release notes say how to move.
+> Documentation: <https://kirana.style>. Changes: [CHANGELOG.md](CHANGELOG.md).
 
 ## What is here
 
@@ -154,7 +162,10 @@ do about it, or `verify:generated` fails.
 ### The language server in VS Code, Cursor, Windsurf or Antigravity
 
 The extension lives in `packages/kirana/editors/vscode` and starts the project's
-own `kirana-style lsp`. It is not on a marketplace yet, so build and install it by hand:
+own `kirana-style lsp`. Users install it from the
+[VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=kirana-style.kirana)
+or [Open VSX](https://open-vsx.org/extension/kirana-style/kirana). To work on it, build
+and install it by hand:
 
 ```bash
 vp run engine                                          # the engine the server runs

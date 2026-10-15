@@ -59,9 +59,10 @@ Kirana is not a utility-class framework, and it does not generate CSS in the
 browser. It does not try to style markup you do not render: the compiler works on
 the source it can see.
 
-> [!NOTE] Pre-release
-> Kirana is on npm as a 0.x pre-release: the API can still change before 1.0, and
-> the name is a working name. Every page tells you what works today.
+> [!NOTE] Before 1.0
+> Kirana is on npm and follows semantic versioning: before 1.0, a minor version
+> may change the API, and its release notes say how to move. Every page tells you
+> what works today.
 ---
 # Why Kirana
 Source: https://kirana.style/docs/start/why-kirana
@@ -265,8 +266,8 @@ is still one rule.
 
 ## Where Kirana costs you something
 
-- **It is pre-release.** On npm, but before 1.0 the API can still change; see
-  [what works today](/docs/project/status).
+- **It is before 1.0.** A minor version may still change the API, and its
+  release notes say how to move; see [what works today](/docs/project/status).
 - **It is a compiler.** Styles must be statically known in shape: a computed key
   or a spread object is an error, and a value the compiler cannot enumerate goes
   through a custom property.
@@ -277,7 +278,8 @@ is still one rule.
   lists every one we met).
 - **The richest editor is VS Code.** Every LSP editor gets the card, the hints
   and the fixes; the Style Inspector, Style Fold and coloured hints are VS
-  Code's. The extensions are not on the marketplaces until the first release.
+  Code's. The VS Code extension is on the Marketplace and Open VSX; Zed's
+  installs as a dev extension until it is in Zed's registry.
 ---
 # Quick start
 Source: https://kirana.style/docs/start/quick-start
@@ -316,13 +318,18 @@ In your project's root, through your package manager's runner. It fetches the
 command for this one run, the way `npx shadcn@latest` does, and writes nothing
 until you say yes:
 
-| Package manager | First run                                  |
-| --------------- | ------------------------------------------ |
-| npm             | `npx kirana-style@latest init`             |
-| pnpm            | `pnpm dlx kirana-style@latest init`        |
-| Yarn            | `yarn dlx kirana-style@latest init`        |
-| Bun             | `bunx --bun kirana-style@latest init`      |
-| Deno            | `deno run -A npm:kirana-style@latest init` |
+```bash
+# npm
+npx kirana-style@latest init
+# pnpm
+pnpm dlx kirana-style@latest init
+# yarn
+yarn dlx kirana-style@latest init
+# bun
+bunx --bun kirana-style@latest init
+# deno
+deno run -A npm:kirana-style@latest init
+```
 
 > [!NOTE] Right after a release
 > Yarn and Deno hold back a version for its first 24 hours on npm, a guard against
@@ -337,7 +344,16 @@ types. Nothing is written until you say yes, and the install command is
 printed for you to run (or pass `--install`). Then:
 
 ```bash
+# npm
 npx kirana-style doctor
+# pnpm
+pnpm exec kirana-style doctor
+# yarn
+yarn kirana-style doctor
+# bun
+bunx kirana-style doctor
+# deno
+deno run -A npm:kirana-style doctor
 ```
 
 checks the engine, the installed versions, the configuration and the wiring, and
@@ -549,16 +565,16 @@ through your package manager's overrides. With npm or Bun:
 ```json file="package.json"
 {
   "dependencies": {
-    "@kirana-style/core": "file:/path/to/dist-packages/kirana-style-core-0.1.0.tgz"
+    "@kirana-style/core": "file:/path/to/dist-packages/kirana-style-core-0.2.0.tgz"
   },
   "devDependencies": {
-    "kirana-style": "file:/path/to/dist-packages/kirana-style-0.1.0.tgz",
-    "@kirana-style/vite": "file:/path/to/dist-packages/kirana-style-vite-0.1.0.tgz"
+    "kirana-style": "file:/path/to/dist-packages/kirana-style-0.2.0.tgz",
+    "@kirana-style/vite": "file:/path/to/dist-packages/kirana-style-vite-0.2.0.tgz"
   },
   "overrides": {
-    "@kirana-style/compiler": "file:/path/to/dist-packages/kirana-style-compiler-0.1.0.tgz",
-    "@kirana-style/rolldown": "file:/path/to/dist-packages/kirana-style-rolldown-0.1.0.tgz",
-    "@kirana-style/compiler-linux-x64-gnu": "file:/path/to/dist-packages/kirana-style-compiler-linux-x64-gnu-0.1.0.tgz"
+    "@kirana-style/compiler": "file:/path/to/dist-packages/kirana-style-compiler-0.2.0.tgz",
+    "@kirana-style/rolldown": "file:/path/to/dist-packages/kirana-style-rolldown-0.2.0.tgz",
+    "@kirana-style/compiler-linux-x64-gnu": "file:/path/to/dist-packages/kirana-style-compiler-linux-x64-gnu-0.2.0.tgz"
   }
 }
 ```
@@ -2829,11 +2845,182 @@ export const brand = defineTheme(theme, {
 Both sit below your component styles, so a component that sets a colour directly
 always wins over a theme that suggests one.
 
-## Switching without a flash
+## Remembering the reader's choice
 
-The mode handle is a class on the root element, so server-rendered HTML can carry
-it: render the user's stored preference into the root on the server, and there is
-no flash. `system` needs nothing stored at all.
+A switch that only sets state forgets the choice on a reload, and another open tab
+keeps its own. Keeping it takes three things, whatever the framework:
+
+1. **Store the choice in a cookie**, not in `localStorage`. The server can read a
+   cookie, so it renders the page in the saved mode and nothing flashes.
+2. **Render the root in it on the server**: read the cookie, and put the matching
+   handle on `<html>`.
+3. **Tell the other tabs**: write the cookie in the browser when the reader
+   chooses, and post the new mode on a `BroadcastChannel` the other tabs listen to.
+
+`system` needs none of this: it is `color-scheme: light dark`, which follows the
+operating system without JavaScript. A reader who never chooses gets no cookie.
+
+<!-- ::figure-theme-flow -->
+
+### In TanStack Start
+
+The code below is for TanStack Start with server rendering; it is what this site
+runs. Other frameworks follow the same three steps (see the table after it).
+
+The cookie, read on the server from the request and in the browser from
+`document.cookie`, so a client-side navigation sends no request:
+
+```ts file="src/lib/theme.ts"
+import { createIsomorphicFn } from "@tanstack/react-start"
+import { getCookie } from "@tanstack/react-start/server"
+
+export type Scheme = "system" | "light" | "dark"
+export const COOKIE = "theme"
+
+export const isScheme = (value: unknown): value is Scheme =>
+  value === "system" || value === "light" || value === "dark"
+
+export const readScheme = createIsomorphicFn()
+  .server((): Scheme => {
+    const value = getCookie(COOKIE)
+    return isScheme(value) ? value : "system"
+  })
+  .client((): Scheme => {
+    const value = document.cookie.match(/(?:^|; )theme=(\w+)/)?.[1]
+    return isScheme(value) ? value : "system"
+  })
+```
+
+A provider that writes the cookie and keeps the tabs in step:
+
+```tsx file="src/components/theme.tsx"
+import { createContext, use, useEffect, useRef, useState } from "react"
+
+import { COOKIE, isScheme } from "@/lib/theme"
+import type { Scheme } from "@/lib/theme"
+
+const ThemeContext = createContext<{
+  scheme: Scheme
+  setScheme: (scheme: Scheme) => void
+} | null>(null)
+
+export function ThemeProvider({
+  initial,
+  children,
+}: {
+  initial: Scheme
+  children: React.ReactNode
+}) {
+  const [scheme, setState] = useState(initial)
+  const channel = useRef<BroadcastChannel | null>(null)
+
+  // Another tab chose: follow it.
+  useEffect(() => {
+    const tabs = new BroadcastChannel(COOKIE)
+    tabs.onmessage = (event) => {
+      if (isScheme(event.data)) setState(event.data)
+    }
+    channel.current = tabs
+    return () => tabs.close()
+  }, [])
+
+  const setScheme = (next: Scheme) => {
+    setState(next)
+    document.cookie = `${COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`
+    channel.current?.postMessage(next)
+  }
+
+  return <ThemeContext value={{ scheme, setScheme }}>{children}</ThemeContext>
+}
+
+export const useTheme = () => use(ThemeContext)!
+```
+
+The root route reads the cookie before the document renders, and `<html>` takes
+the handle:
+
+```tsx file="src/routes/__root.tsx"
+import { mode } from "@kirana-style/core"
+
+import { ThemeProvider, useTheme } from "@/components/theme"
+import { readScheme } from "@/lib/theme"
+
+export const Route = createRootRoute({
+  beforeLoad: () => ({ scheme: readScheme() }),
+  shellComponent: RootDocument,
+})
+
+function RootDocument({ children }: { children: React.ReactNode }) {
+  const { scheme } = Route.useRouteContext()
+  return (
+    <ThemeProvider initial={scheme}>
+      <Html>{children}</Html>
+    </ThemeProvider>
+  )
+}
+
+function Html({ children }: { children: React.ReactNode }) {
+  const { scheme } = useTheme()
+  return (
+    <html lang="en" sx={mode[scheme]}>
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  )
+}
+```
+
+The switch is then any control that calls `setScheme`:
+
+```tsx file="src/components/theme-switch.tsx"
+const { scheme, setScheme } = useTheme()
+
+<select value={scheme} onChange={(event) => setScheme(event.target.value as Scheme)}>
+  <option value="system">System</option>
+  <option value="light">Light</option>
+  <option value="dark">Dark</option>
+</select>
+```
+
+Two more details:
+
+- **The back-forward cache.** A page the browser restores from its cache missed the
+  messages sent while it was away. Read the cookie again on `pageshow` when
+  `event.persisted` is true.
+- **No shortcut on Ctrl or Cmd+D.** It is the browser's bookmark key.
+
+### In other frameworks
+
+The provider and the switch stay the same; what changes is where the server reads
+the cookie and where the root element is rendered.
+
+| Framework                  | Read the cookie on the server, then render the root with it |
+| -------------------------- | ----------------------------------------------------------- |
+| Next.js (App Router)       | `(await cookies()).get("theme")` in the root layout         |
+| Nuxt                       | `useCookie("theme")` in `app.vue`                           |
+| SvelteKit                  | `cookies.get("theme")` in the root `+layout.server.ts`      |
+| Astro                      | `Astro.cookies.get("theme")` in the layout                  |
+| Laravel, Symfony, Rails, Phoenix and AdonisJS | the request's cookie, in the layout template                |
+
+A site with no server (a static build) cannot read a cookie before the page is
+sent. Keep the choice in `localStorage` instead, and apply it with a small inline
+script at the top of `<head>`, which runs before the first paint:
+
+```html
+<script>
+  const scheme = localStorage.getItem("theme")
+  if (scheme === "light" || scheme === "dark")
+    document.documentElement.style.colorScheme = scheme
+</script>
+```
+
+Every colour is a `light-dark()` pair, so setting `color-scheme` is enough to
+switch them all.
 
 ## What not to do
 
@@ -3545,6 +3732,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
 `color-scheme` goes on `<html>`, not `<body>`: the root owns the page canvas and
 the scrollbars.
+
+`mode.system` follows the operating system. To let readers choose Light or Dark
+and keep the choice across reloads and tabs, see
+[remembering the reader's choice](/docs/tokens/themes-and-modes#remembering-the-reader-s-choice).
 
 ## Typing `sx`
 
@@ -6037,7 +6228,7 @@ The longer argument, with the StyleX port's problems and what answers each, is
 Fairness matters more than a feature list:
 
 - **It is published, versioned and used in production** at Meta scale. Kirana is
-  a 0.x pre-release.
+  at a 0.x version.
 - **A larger ecosystem**: community plugins, documentation, examples, articles and people who have
   already hit your problem.
 - **A few helpers** have no direct equivalent, `stylex.when.descendant` and
@@ -6931,13 +7122,33 @@ The `kirana-style` command, by what it does:
 In a project without Kirana, run it without installing anything: your package
 manager's runner fetches it for one run, as `npx shadcn@latest` does.
 
-| Package manager | Without installing                         | Once installed                       |
-| --------------- | ------------------------------------------ | ------------------------------------ |
-| npm             | `npx kirana-style@latest init`             | `npx kirana-style check`             |
-| pnpm            | `pnpm dlx kirana-style@latest init`        | `pnpm exec kirana-style check`       |
-| Yarn            | `yarn dlx kirana-style@latest init`        | `yarn kirana-style check`            |
-| Bun             | `bunx --bun kirana-style@latest init`      | `bunx kirana-style check`            |
-| Deno            | `deno run -A npm:kirana-style@latest init` | `deno run -A npm:kirana-style check` |
+```bash
+# npm
+npx kirana-style@latest init
+# pnpm
+pnpm dlx kirana-style@latest init
+# yarn
+yarn dlx kirana-style@latest init
+# bun
+bunx --bun kirana-style@latest init
+# deno
+deno run -A npm:kirana-style@latest init
+```
+
+Once it is installed, the package manager runs the project's own copy:
+
+```bash
+# npm
+npx kirana-style check
+# pnpm
+pnpm exec kirana-style check
+# yarn
+yarn kirana-style check
+# bun
+bunx kirana-style check
+# deno
+deno run -A npm:kirana-style check
+```
 
 `init` adds `kirana-style` to the project's dev dependencies, so every later run
 uses the version the project pins, and the editor's language server comes from the
@@ -7034,7 +7245,7 @@ kirana-style doctor --report bug.md --trace src/card.tsx:12 minHeight
 ```console
 $ kirana-style doctor
 ✓ engine       native (linux-x64)
-✓ packages     @kirana-style/core@0.1.0, @kirana-style/next@0.1.0, kirana-style@0.1.0
+✓ packages     @kirana-style/core@0.2.0, @kirana-style/next@0.2.0, kirana-style@0.2.0
 ✓ config       kirana.config.mts, prefix "k"
 ✓ project      Next.js · turbopack · npm · TypeScript
 ✓ adapter      next.config.ts, postcss.config.mjs
@@ -7204,7 +7415,7 @@ kirana-style export src --out design-system.json
 ```json file="design-system.json"
 {
   "schema": 1,
-  "engine": "0.1.0",
+  "engine": "0.2.0",
   "prefix": "k",
   "tokens": [
     {
@@ -8086,9 +8297,10 @@ not `transform`. See [animation](/docs/styling/animation).
 Source: https://kirana.style/docs/project/status
 # What works today
 
-Kirana is pre-release. It compiles three real applications in our shadcn/ui port
-(a demo, 60+ shadcn blocks and one page per component), and its own test suite
-keeps 100 % line coverage. It is on npm as a 0.x pre-release, and the name is a working name.
+Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the
+API. It compiles three real applications in our shadcn/ui port (a demo, 60+
+shadcn blocks and one page per component), and its own test suite keeps 100 %
+line coverage. The [changelog](/changelog) lists every release.
 
 ## Built
 
@@ -8136,20 +8348,21 @@ keeps 100 % line coverage. It is on npm as a 0.x pre-release, and the name is a 
   [lint](/docs/tooling/lint)
 - Agent skills for writing Kirana and migrating to it, installable with
   `npx skills add`; see [agent skills](/docs/project/agent-skills)
+- Every package on npm, with the native engine for eight platforms and a WASI
+  build, released together from CI with provenance; the template helpers on
+  Packagist, RubyGems and Hex; the VS Code extension on the Marketplace and Open
+  VSX. CI installs the packed packages with npm, pnpm, Yarn (both linkers) and Bun
+  on Linux, macOS, Windows and Alpine on every change
 
 ## Partial
 
 - **`variable-default-scope`** is in the catalogue but not emitted yet.
 - **Benchmarks** are advisory: hosted CI numbers, not dedicated hardware.
-- **Packaging**: every package and the per-platform engine packages are on npm.
-  `bun run kirana:pack` produces them as tarballs before a release, and CI installs
-  them with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and
-  Alpine.
+- **The Zed extension** works, but is not in Zed's registry yet: install it as a
+  dev extension; see [editor support](/docs/tooling/editor).
 
 ## Not built
 
-- Publishing to npm
-- Publishing the editor extensions to the VS Code Marketplace, Open VSX and Zed's registry
 - The `slide-in-from-start` and `-end` animations, and gradients (`bg-linear-*`
   and its stops), in the scales preset
 - A persistent cache on disk: deliberately not built, because the engine is
@@ -8167,157 +8380,142 @@ keeps 100 % line coverage. It is on npm as a 0.x pre-release, and the name is a 
 Source: https://kirana.style/docs/project/roadmap
 # Roadmap
 
-Seven milestones, two decision gates. Dates are deliberately absent: this is built
-by one person with AI assistance, and a date would be fiction.
+Seven milestones and two decision gates. Six are done and on npm; the seventh is
+1.0. Dates are deliberately absent: this is built by one person with AI
+assistance, and a date would be fiction.
 
-## M0: Foundations · done
+| Milestone | Status | What it covers |
+| --- | --- | --- |
+| M0: Foundations | Done | The IR, the cascade ladder, the CSS writer |
+| M1: Feasibility slice | Done | Vite, React, tokens and themes, the first conformance runs |
+| M2: Recipes and dynamic styles | Done | recipe(), dynamic values, hot updates, the StyleX codemod |
+| M3: Developer experience | Done | The language server, the editors, lint and the CLI |
+| M4: Ecosystem | Done | Every bundler and framework, published to npm |
+| M5: Utility surface | Done | Utility strings, the scales preset, the Tailwind codemod |
+| M6: 1.0 | Next | API freeze, a public benchmark, a security review |
 
-The workspace, the IR, longhand expansion and normalisation, the ladder and layer
-plan, the CSS writer, golden fixtures, `kirana-style build`.
+Until 1.0, releases come from the work below as it lands, each listed in the
+[changelog](/changelog).
 
-## M1: Feasibility slice · done
+## M0: Foundations
 
-The Vite adapter, cross-file resolution, `sx` for React, relations, `select`,
-keyframes, modes and themes, the scales preset, and the first conformance runs
-against the StyleX and Tailwind originals.
+**Done.** The core every later milestone builds on:
 
-## M2: Recipes and dynamic styles · done
+- the workspace, the IR, longhand expansion and normalisation;
+- the precedence ladder and the layer plan;
+- the CSS writer and its golden fixtures;
+- `kirana-style build`.
 
-`recipe()` with slots, finite and open dynamic values, the private runtime,
-incremental rebuilds and hot updates, `kirana-style migrate stylex`, and the full
-component set built on it, which is what found most of the compiler's bugs.
+## M1: Feasibility slice
 
-One thing in this milestone's scope is deliberately not built: a persistent
-cache on disk. The engine is 0.05 s of a 16 s build, so a cache that skips it
-saves nothing you could measure, and every key it has to get right is a way to
-serve stale CSS.
+**Done.** Enough of Kirana to style a real application:
 
-## M4: Ecosystem · done, pending publication
+- the Vite adapter and cross-file resolution;
+- `sx` for React, relations and `select`;
+- keyframes, modes and themes, and the scales preset;
+- the first conformance runs against the StyleX and Tailwind originals.
 
-Kirana installable outside this repository, and proven so on every change. Built
-so far: the packages and the eight per-platform engine packages are packed as
-tarballs, and CI installs them with npm, pnpm, Yarn and Bun on Linux, macOS,
-Windows and Alpine, builds an example and checks it in a browser.
+## M2: Recipes and dynamic styles
 
+**Done.** Styles that depend on props and state:
 
-Also built: adapters for Rolldown, webpack (with Next.js on webpack), Rspack
-(with Rsbuild) and Bun, each with an example the same CI builds and checks.
+- `recipe()` with slots, and finite and open dynamic values;
+- the private runtime, incremental rebuilds and hot updates;
+- `kirana-style migrate stylex`;
+- the full component set of our shadcn/ui port built on it, which is what
+  found most of the compiler's bugs.
 
-Also built: Preact and Solid, where `sx` compiles to `class`, and plain
-TypeScript through class strings.
+One thing in this milestone's scope is deliberately not built: a persistent cache
+on disk. The engine is 0.05 s of a 16 s build, so a cache that skips it saves
+nothing you could measure, and every key it has to get right is a way to serve
+stale CSS.
 
-Also built: Vue, Nuxt, Svelte, SvelteKit and Astro, with `sx` in their templates,
-an install guide per framework, and every Vite-based one checked in its dev server
+## M3: Developer experience
+
+**Done, and published.** Editor and lint support, read from the compiler rather
+than re-implemented, so they never disagree with the build.
+
+- **The language server**, [`kirana-style lsp`](/docs/tooling/editor):
+  diagnostics at the property, hover with the compiled CSS and the ladder step
+  that won, tokens in both modes, colour swatches, a summary after every `sx`,
+  completion, navigation and quick fixes. Hover answers in 1.2 ms at the 95th
+  percentile on our shadcn/ui port.
+- **Editors:** the extension on the VS Code Marketplace and Open VSX, and the
+  same server in Vue, Svelte and Astro files; Zed through a dev extension, and
+  Neovim and Helix through their own LSP configuration.
+- **Lint:** [`@kirana-style/eslint-plugin`](/docs/tooling/lint) under Oxlint and
+  ESLint, and [`@kirana-style/biome-plugin`](/docs/tooling/lint#biome) with the
+  four rules Biome can run.
+- **The command line:** setting a project up and checking it, with a redacted
+  bug report; compiling without a bundler; sizing the stylesheet; the design
+  system as JSON; and reports for CI with GitHub annotations. The
+  [CLI page](/docs/tooling/cli) has every command.
+- **CSS helpers checked at build time:**
+  [`firstThatWorks()`](/docs/styling/fallbacks),
+  [`positionTry()`](/docs/styling/anchor-positioning) and
+  [`viewTransition()`](/docs/styling/view-transitions).
+- **[Agent skills](/docs/project/agent-skills)**, `kirana` and `kirana-migrate`.
+
+Still to do: publishing the Zed extension to Zed's registry.
+
+## M4: Ecosystem
+
+**Done, and published.** Kirana installed outside this repository, and proven so
 on every change.
 
-Also built: Qwik 2, where `sx` compiles to `class`; and Angular, through an `[sx]`
-directive, with builders for the Angular CLI and a Vite plugin for Analog. Each
-has an example CI builds and checks in a browser and in its dev server.
 
-Also built: a guide and a tested example for every framework Tailwind documents
-(React Router, Gatsby, Ember, Meteor and Parcel), and server templates in Laravel,
-Symfony, Rails, Phoenix and AdonisJS, through a class map and a helper per
-template language.
+- **Every package on npm**, released together from CI with provenance, and the
+  native engine for eight platforms plus a WASI build that writes the same bytes.
+- **Installation tested on every change:** CI installs the packed tarballs with
+  npm, pnpm, Yarn and Bun on Linux, macOS, Windows and Alpine, builds an example
+  and checks it in a browser. Installing from the registry with Yarn and Deno,
+  which CI cannot test against tarballs, was checked by hand with 0.2.0.
+- **Bundlers:** Vite, Rolldown, webpack, Rspack and Rsbuild, Parcel, Bun,
+  esbuild, PostCSS and Jest, each with an example, and a check that every one
+  compiles the same source to the same classes as Vite.
+- **Frameworks:** a guide and a tested example for each, from React, Vue, Svelte,
+  Solid, Qwik, Angular and Ember to Next.js, Nuxt, SvelteKit, Astro and
+  Analog.
+- **Server templates:** Laravel, Symfony, Rails, Phoenix and AdonisJS, through a
+  class map and a helper per template language, published to Packagist,
+  RubyGems, Hex and npm.
 
-Also built: the **WASI engine**, which runs where no native build does and writes
-the same bytes; and published libraries, compiled by the apps that list them in
-`libraries`.
+## M5: Utility surface
 
-Also built: esbuild and Jest; style updates on every development server; Deno as
-a runtime; and a check that every bundler compiles the same source to the same
-classes as Vite.
+**Done.** [Utility strings](/docs/styling/utilities) in `sx`, from a grammar a
+preset declares as data.
 
-Installing from the registry with Yarn and Deno, which CI cannot test against packed
-tarballs, was checked by hand with 0.2.0: `init`, a build and `doctor` in a Vite and
-React app, with Yarn 4 (Plug'n'Play) and Deno 2.9.
+- `@kirana-style/preset-scales` ships Tailwind v4's names, including composed
+  utilities (rings, shadows, translations, filters) and pseudo-elements. A
+  property test compiles all 7,391 utilities the grammar generates and checks
+  each gives the same atoms as its object.
+- `kirana-style migrate tailwind` is built on the same lowering. Run over the
+  Tailwind original of our shadcn/ui port, then 38 hand fixes, conformance finds
+  **zero computed-style differences** on all 189 routes of the three
+  applications, at three widths, in both colour schemes, at rest and with
+  overlays and menus open. The [migration guide](/docs/migration/from-tailwind)
+  has the numbers and every pitfall the hand fixes resolved.
 
-## M5: Utility surface · done
+## M6: 1.0
 
-[Utility strings](/docs/styling/utilities) in `sx`, from a grammar a preset
-declares as data; `@kirana-style/preset-scales` ships Tailwind v4's names, including
-composed utilities (rings, shadows, translations, filters) and pseudo-elements.
-A property test compiles all 7,391 utilities the grammar generates and checks
-each gives the same atoms as its object.
+**Next.** What 1.0 promises, and what it takes to promise it:
 
-`kirana-style migrate tailwind` is built on the same lowering. The exit criterion was
-to migrate the Tailwind original of our shadcn/ui port with it and match the original:
-after the codemod and 38 hand fixes, conformance finds **zero computed-style
-differences** on all 189 routes of the three applications, at three widths, in
-both colour schemes, at rest and with overlays, menus and other interactive
-states open. The [migration guide](/docs/migration/from-tailwind) has the numbers
-and every pitfall the hand fixes resolved.
+- an API freeze, after which a breaking change waits for 2.0;
+- the full conformance suite;
+- a public benchmark report under the claims policy;
+- trademark clearance for the name;
+- a security review of the evaluator.
 
-The language server's support for utility strings moved to M3.
-
-## M3: Developer experience · done, pending publication
-
-Editor and lint support, read from the compiler rather than re-implemented, so
-they never disagree with the build.
-
-**Built** (sprint 6):
-
-- **Language server**, [`kirana-style lsp`](/docs/tooling/editor): diagnostics at the
-  property, hover with the compiled CSS and the winning entry's ladder step,
-  token values in both modes, colour swatches, an inline summary after every
-  `sx`, code lenses, completion for conditions, `select` targets, keyword values
-  and utility strings, navigation for tokens and relations, and code actions
-  (quick fixes, show compiled CSS, explain precedence, and convert Tailwind classes
-  to `css()`). Hover answers in 1.2 ms at the 95th percentile on our shadcn/ui port.
-- **VS Code and Zed extensions**, running the project's own server; Neovim and
-  Helix through their own LSP configuration.
-
-
-- **[`@kirana-style/eslint-plugin`](/docs/tooling/lint)**: nine rules under Oxlint and
-  ESLint with identical results, each described on the lint page. This repository
-  lints itself with them.
-
-**Built** (sprint 7):
-
-- **Editors in Vue, Svelte and Astro components**, the style card (box model,
-  every declaration, compiled CSS), coloured summaries at the end of each line,
-  the Style Inspector and Style Fold.
-- **CLI**: [`init`](/docs/tooling/cli#kirana-style-init) sets a project up from a diff,
-  [`doctor`](/docs/tooling/cli#kirana-style-doctor) checks it,
-  [`dev`](/docs/tooling/cli#kirana-style-dev) watches without a bundler, and
-  [`analyze`](/docs/tooling/cli#kirana-style-analyze) reports atoms, reuse and bytes by
-  layer and module.
-- **Next.js with Turbopack**, through `@kirana-style/next` and `@kirana-style/postcss`.
-
-**Built** (sprints 10 and 11):
-
-- **[`firstThatWorks()`](/docs/styling/fallbacks),
-  [`positionTry()`](/docs/styling/anchor-positioning) and
-  [`viewTransition()`](/docs/styling/view-transitions)**, each checked at build
-  time, and a redacted bug report from
-  [`kirana-style doctor --report`](/docs/tooling/cli#a-bug-report).
-- **[`kirana-style export`](/docs/tooling/cli#kirana-style-export)**, the design system as
-  JSON, and **[`kirana-style check`](/docs/tooling/cli#kirana-style-check)** with
-  `--format github` and `--max-warnings` for CI.
-- **Two more lint rules**, `no-dark-variant` and `no-class-helpers`, and
-  **[`@kirana-style/biome-plugin`](/docs/tooling/lint#biome)** with the four rules
-  Biome can run.
-- **[Agent skills](/docs/project/agent-skills)**, `kirana` and `kirana-migrate`,
-  installed with `npx skills add`.
-
-**Left for the first release:** publishing the extensions to the VS Code
-Marketplace, Open VSX and Zed, with the npm packages.
-
-**Next, outside M3's scope:** restricted overrides, a component declaring which
-properties its `sx` accepts (`Sx<"color" | "margin">`), checked by TypeScript at
-the call site.
-
-## M6: 1.0 · planned
-
-API freeze, the full conformance suite, a public benchmark report under the claims
-policy, trademark clearance, the documentation site at its own domain, and a
-security review of the evaluator.
+Before it, one change outside these milestones: restricted overrides, where a
+component declares which properties its `sx` accepts (`Sx<"color" | "margin">`),
+checked by TypeScript at the call site.
 
 ## The gates
 
-Two points where the project checks itself rather than continuing by momentum:
+Two points where the project checked itself rather than continuing by momentum:
 
-- **Gate 1**, after M1: does the output hold up against the originals, and is the
-  authoring API worth the trouble?
+- **Gate 1**, after M1: does the output hold up against the originals, and is
+  the authoring API worth the trouble?
 - **Gate 2**, after M2: do recipes and dynamic styles carry a real application?
 
 Both are passed. The [status page](/docs/project/status) lists what that means
@@ -8329,22 +8527,22 @@ Source: https://kirana.style/docs/project/releases
 
 ## Today
 
-Every package is **0.1.0**, and none is published. There is nothing to upgrade
-from yet, and no changelog: the record of what changed is the implementation
-tracker in the repository, written per sprint.
+Every package is at **0.2.0** on npm, released together. Every
+release and what came with it is on the [changelog](/changelog), read from
+`CHANGELOG.md` in the repository.
 
 <!-- ::packages -->
 
-## How versions will work
+## How versions work
 
 **One version for everything.** The compiler, the adapters, the CLI, the language
 server and the packages release together at the same number. A diagnostic touches
 the engine, the lint rules, the editor and the documentation at once, so a version
 where those disagree would be a version that lies.
 
-**Pre-1.0 means the API can move.** Minor versions may change behaviour before
-1.0. Every such change gets an entry saying what moved and what to do, the same
-way the specification's decision log records why a decision was superseded.
+**Before 1.0, the API can move.** A minor version may change behaviour; a patch
+only fixes. Every such change gets an entry in the release notes saying what
+moved and what to do.
 
 **After 1.0**, semantic versioning: a breaking change means a major.
 
@@ -8373,8 +8571,8 @@ What is _not_ breaking: new diagnostics, new API, better messages, smaller outpu
 Source: https://kirana.style/docs/integrations/ecosystem
 # Ecosystem and status
 
-What exists, honestly. Anything marked planned is in the specification and not in
-the build.
+What exists, and where to read about it. Every package below is on npm; anything
+planned is on the [roadmap](/docs/project/roadmap), not here.
 
 ## Packages
 
@@ -8382,56 +8580,58 @@ the build.
 
 ## Bundlers
 
-| Bundler                        | Status    | Package                                                         |
-| ------------------------------ | --------- | --------------------------------------------------------------- |
-| Vite 8                         | **Works** | `@kirana-style/vite`, with hot updates                          |
-| Rolldown                       | **Works** | `@kirana-style/rolldown`                                        |
-| webpack 5                      | **Works** | `@kirana-style/webpack`, with dev-server updates                |
-| Rspack, Rsbuild                | **Works** | `@kirana-style/rspack`, with dev-server updates                 |
-| Parcel                         | **Works** | `@kirana-style/parcel-transformer` with `@kirana-style/postcss` |
-| Bun                            | **Works** | `@kirana-style/bun`, builds and dev server                      |
-| esbuild                        | **Works** | `@kirana-style/esbuild`                                         |
-| PostCSS                        | **Works** | `@kirana-style/postcss`, for any PostCSS pipeline               |
-| Jest                           | **Works** | `@kirana-style/jest`                                            |
-| Next.js, Turbopack and webpack | **Works** | `@kirana-style/next` with `@kirana-style/postcss`               |
+Each one has an example CI builds and checks in a browser on every change.
+
+| Bundler                        | Package                                                         |
+| ------------------------------ | --------------------------------------------------------------- |
+| Vite 8                         | `@kirana-style/vite`, with hot updates                          |
+| Rolldown                       | `@kirana-style/rolldown`                                        |
+| webpack 5                      | `@kirana-style/webpack`, with dev-server updates                |
+| Rspack, Rsbuild                | `@kirana-style/rspack`, with dev-server updates                 |
+| Parcel                         | `@kirana-style/parcel-transformer` with `@kirana-style/postcss` |
+| Bun                            | `@kirana-style/bun`, builds and dev server                      |
+| esbuild                        | `@kirana-style/esbuild`                                         |
+| PostCSS                        | `@kirana-style/postcss`, for any PostCSS pipeline               |
+| Jest                           | `@kirana-style/jest`                                            |
+| Next.js, Turbopack and webpack | `@kirana-style/next` with `@kirana-style/postcss`               |
 
 See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 
 ## Frameworks
 
-|                                            | Status                                                                     |
-| ------------------------------------------ | -------------------------------------------------------------------------- |
-| React 19                                   | **Works**                                                                  |
-| TanStack Start                             | **Works**: this site is one                                                |
-| Preact, Solid                              | **Works**: `sx` compiles to `class`                                        |
-| No framework                               | **Works**: handles are class strings                                       |
-| Vue, Nuxt, Svelte, SvelteKit, Astro        | **Works**, see [frameworks](/docs/frameworks/overview)                     |
-| Qwik 2                                     | **Works**: `sx` compiles to `class`                                        |
-| Angular (CLI and Analog)                   | **Works**: `[sx]` in templates, merged at runtime                          |
-| React Router, Gatsby, Ember, Meteor        | **Works**, see [frameworks](/docs/frameworks/overview)                     |
-| Laravel, Symfony, Rails, Phoenix, AdonisJS | **Works**: templates read a [class map](/docs/frameworks/server-templates) |
+Every framework has a guide and a tested example; the
+[frameworks page](/docs/frameworks/overview) picks yours.
+
+| Framework                                  | How styles reach the markup                                     |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| React 19, TanStack Start                   | `sx` compiles to `className`; this site is a TanStack Start app |
+| Preact, Solid, Qwik 2                      | `sx` compiles to `class`                                        |
+| Vue, Nuxt, Svelte, SvelteKit, Astro        | `sx` in their templates                                         |
+| Angular (CLI and Analog)                   | `[sx]` in templates, merged at runtime                          |
+| React Router, Gatsby, Ember, Meteor        | as their component layer does                                   |
+| No framework                               | handles are class strings                                       |
+| Laravel, Symfony, Rails, Phoenix, AdonisJS | templates read a [class map](/docs/frameworks/server-templates) |
 
 ## Tooling
 
-|                                                             | Status                                                                                                     |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `kirana-style build`, `check`, `analyze`, `export`, `trace` | **Works**                                                                                                  |
-| `kirana-style init`, `doctor`, `doctor --report`, `dev`     | **Works**, see [the CLI](/docs/tooling/cli)                                                                |
-| `kirana-style migrate stylex`                               | **Works**, see [migration](/docs/migration/from-stylex)                                                    |
-| `kirana-style migrate tailwind`                             | **Works**, with a report of what it leaves; see [migration](/docs/migration/from-tailwind#the-codemod)     |
-| Language server, VS Code and Zed extensions                 | **Works**, see [editor support](/docs/tooling/editor)                                                      |
-| Lint plugin, `@kirana-style/eslint-plugin`                  | **Works**, see [lint](/docs/tooling/lint)                                                                  |
-| Lint plugin, for Biome                                      | **Works**, the four rules that need no compiler; see [lint](/docs/tooling/lint#biome) |
-| Agent skills                                                | **Works**, see [agent skills](/docs/project/agent-skills)                                                  |
+| Tool                                                                                    | Where                                                                |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `kirana-style build`, `check`, `analyze`, `export`, `trace`                             | [the CLI](/docs/tooling/cli)                                         |
+| `kirana-style init`, `doctor`, `doctor --report`, `dev`                                 | [the CLI](/docs/tooling/cli)                                         |
+| `kirana-style migrate stylex`                                                           | [migration from StyleX](/docs/migration/from-stylex)                 |
+| `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod) |
+| Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                               |
+| `@kirana-style/eslint-plugin`, for Oxlint and ESLint                                    | [lint](/docs/tooling/lint)                                           |
+| `@kirana-style/biome-plugin`: the four rules that need no compiler | [lint](/docs/tooling/lint#biome)                                     |
+| Agent skills                                                                            | [agent skills](/docs/project/agent-skills)                           |
 
 ## Runtime and distribution
 
-|                                                | Status                                                                 |
-| ---------------------------------------------- | ---------------------------------------------------------------------- |
-| Node.js ≥ 22.18, Bun, Deno                     | **Works**                                                              |
-| Native engine (Node-API)                       | **Works**, built from source in this repository                        |
-| Prebuilt per-platform packages                 | **Works**: on npm, and install-tested in CI                            |
-| WASI fallback (WebContainers, no native addon) | **Works**: `@kirana-style/compiler-wasm32-wasi`, byte-identical output |
+| What runs it                                   | Detail                                                                     |
+| ---------------------------------------------- | -------------------------------------------------------------------------- |
+| Node.js ≥ 22.18, Bun, Deno                     | Any of them runs the compiler and the command line                         |
+| Native engine (Node-API)                       | A prebuilt package per platform on npm, eight in all, install-tested in CI |
+| WASI fallback (WebContainers, no native addon) | `@kirana-style/compiler-wasm32-wasi`, with byte-identical output           |
 
 ## Configuration keys in the specification but not the build
 

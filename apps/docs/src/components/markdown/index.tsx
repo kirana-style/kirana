@@ -22,6 +22,7 @@ import {
   ConditionsFigure,
   DynamicFigure,
   ThemesFigure,
+  ThemeFlowFigure,
   ExternalFigure,
   TraceFigure,
   StylexFigure,
@@ -33,6 +34,7 @@ import { EditorScene, EditorShowcase } from "@/components/home/editor"
 import { EditorBanner } from "@/components/site/editor-banner"
 import { InstallExplorer } from "@/components/site/install-explorer"
 import { NpmStatus } from "./npm-status"
+import { RoadmapOverview } from "./roadmap"
 import { SiteCodeBlock } from "@/components/site/editor-window"
 import { FrameworkGrid, GuideGrid } from "./frameworks"
 import { EditorGrid, LintRuleGrid, LinterGrid } from "./tooling"
@@ -57,11 +59,13 @@ export const markdownComponents = createMarkdownComponents(
     "docs-shortcuts": DocsShortcuts as CommentRegistry[string],
     "install-explorer": InstallExplorer as CommentRegistry[string],
     "npm-status": NpmStatus as CommentRegistry[string],
+    roadmap: RoadmapOverview as CommentRegistry[string],
     "figure-pipeline": PipelineFigure as CommentRegistry[string],
     "figure-precedence": PrecedenceFigure as CommentRegistry[string],
     "figure-conditions": ConditionsFigure as CommentRegistry[string],
     "figure-dynamic": DynamicFigure as CommentRegistry[string],
     "figure-themes": ThemesFigure as CommentRegistry[string],
+    "figure-theme-flow": ThemeFlowFigure as CommentRegistry[string],
     "figure-external": ExternalFigure as CommentRegistry[string],
     "figure-trace": TraceFigure as CommentRegistry[string],
     "figure-lint": LintFigure as CommentRegistry[string],

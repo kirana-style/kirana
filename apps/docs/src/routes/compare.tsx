@@ -92,7 +92,6 @@ const styles = {
     zIndex: 2,
     alignItems: "end",
     backgroundColor: theme.background,
-    borderBlockEndColor: theme.foreground,
   }),
   headCell: css({
     display: "grid",
@@ -100,8 +99,10 @@ const styles = {
     paddingInline: { base: spacing[2], [breakpoint.md]: spacing[4] },
     paddingBlock: spacing[4],
   }),
+  // Level with the questions under it, which have no inline padding.
   questionHead: css({
     alignSelf: "end",
+    paddingInlineStart: { base: 0, [breakpoint.md]: 0 },
     fontFamily: fontFamily.mono,
     fontSize: textSize.label,
     lineHeight: textLeading.label,
@@ -142,9 +143,6 @@ const styles = {
     gridColumn: "1 / -1",
     paddingBlockStart: spacing[10],
     paddingBlockEnd: spacing[3],
-    borderBlockEndWidth: "1px",
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: theme.border,
     fontFamily: fontFamily.heading,
     fontSize: fontSize["2xl"],
     lineHeight: lineHeight["2xl"],

@@ -11,6 +11,7 @@ import {
   stripNotes,
 } from "../src/generate.ts"
 import type { DocsConfig } from "../src/generate.ts"
+import { installLines } from "../src/package-managers.ts"
 import { createPages } from "../src/pages.ts"
 import { search } from "../src/search.ts"
 import { flattenNav, isBranch } from "../src/types.ts"
@@ -174,6 +175,38 @@ describe("plainInstall", () => {
     expect(plainInstall('<!-- ::install dev="z" -->')).toBe(
       "```bash\nnpm install -D z\n```"
     )
+  })
+
+  it("writes a command to run for every package manager", () => {
+    expect(plainInstall('<!-- ::install run="tool@latest init" -->')).toBe(
+      [
+        "```bash",
+        "# npm",
+        "npx tool@latest init",
+        "# pnpm",
+        "pnpm dlx tool@latest init",
+        "# yarn",
+        "yarn dlx tool@latest init",
+        "# bun",
+        "bunx --bun tool@latest init",
+        "# deno",
+        "deno run -A npm:tool@latest init",
+        "```",
+      ].join("\n")
+    )
+    expect(plainInstall('<!-- ::install exec="tool check" -->')).toContain(
+      "# pnpm\npnpm exec tool check\n# yarn\nyarn tool check\n# bun\nbunx tool check"
+    )
+  })
+})
+
+describe("installLines", () => {
+  it("gives Deno each package as an npm: specifier", () => {
+    expect(installLines("deno", { packages: "x y", dev: "z" })).toEqual([
+      "deno add npm:x npm:y",
+      "deno add -D npm:z",
+    ])
+    expect(installLines("bun", { dev: "z" })).toEqual(["bun add -d z"])
   })
 })
 

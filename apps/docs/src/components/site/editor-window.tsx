@@ -27,17 +27,39 @@ import { fontFamily } from "@workspace/ui/tokens/typography"
 
 import { KiranaMark } from "@/brand/kirana-mark-svg"
 
-/** The editor's own colours: one dark theme, whatever the page's scheme. */
+/**
+ * The site's own windows (the homepage showcase, the migrate page): one dark theme, whatever the
+ * page's scheme, drawn from the site's night (the dark side of `theme.background` and
+ * `theme.card`), so a window sits in the page instead of on it.
+ */
 export const EDITOR = {
+  /** The page's night: title bars, previews and terminals. */
+  deep: "oklch(0.165 0.008 70)",
+  /** The window's body. */
+  sidebar: "oklch(0.185 0.009 70)",
+  /** Code panes: the night's card. */
+  background: "oklch(0.2 0.009 70)",
+  bar: "oklch(0.225 0.01 70)",
+  border: "oklch(0.97 0.01 85 / 8%)",
+  text: "oklch(0.9 0.008 85)",
+  muted: "oklch(0.68 0.012 80)",
+  gutter: "oklch(0.5 0.01 75)",
+  selection: "oklch(0.82 0.1 85 / 18%)",
+  current: "oklch(0.97 0.01 85 / 3.5%)",
+}
+
+/**
+ * The editor window's chrome (`EditorWindow`): a neutral dark editor theme, as VS Code shows it.
+ * The editor scenes, the docs' `editor` code blocks and the extension's marketplace images are
+ * drawn in it, so it imitates the editor rather than the site.
+ */
+const CHROME = {
   background: "#1e2024",
   bar: "#27292e",
-  sidebar: "#222429",
   border: "rgb(255 255 255 / 0.08)",
   text: "#d7dce4",
   muted: "#7d8590",
   gutter: "#4f5664",
-  selection: "rgb(110 140 230 / 0.22)",
-  current: "rgb(255 255 255 / 0.035)",
 }
 
 /**
@@ -105,8 +127,8 @@ const styles = {
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: "rgb(255 255 255 / 0.1)",
-    backgroundColor: EDITOR.background,
-    color: EDITOR.text,
+    backgroundColor: CHROME.background,
+    color: CHROME.text,
     boxShadow:
       "0 0 0 1px rgb(0 0 0 / 0.25), 0 2px 6px rgb(0 0 0 / 0.12), 0 28px 60px -24px rgb(0 0 0 / 0.55)",
   }),
@@ -116,12 +138,12 @@ const styles = {
     gap: spacing[3],
     height: "2.25rem",
     paddingInline: spacing["3.5"],
-    backgroundColor: EDITOR.bar,
+    backgroundColor: CHROME.bar,
     borderBlockEndWidth: "1px",
     borderBlockEndStyle: "solid",
-    borderBlockEndColor: EDITOR.border,
+    borderBlockEndColor: CHROME.border,
     fontSize: "0.75rem",
-    color: EDITOR.muted,
+    color: CHROME.muted,
     whiteSpace: "nowrap",
   }),
   path: css({
@@ -129,7 +151,7 @@ const styles = {
     alignItems: "center",
     gap: spacing["1.5"],
   }),
-  file: css({ color: EDITOR.text }),
+  file: css({ color: CHROME.text }),
   tabs: css({
     display: "flex",
     alignItems: "center",
@@ -147,7 +169,7 @@ const styles = {
   }),
   tabOn: css({
     backgroundColor: "rgb(255 255 255 / 0.08)",
-    color: EDITOR.text,
+    color: CHROME.text,
   }),
   code: css({
     margin: 0,
@@ -170,7 +192,7 @@ const styles = {
     width: "3rem",
     paddingInlineEnd: spacing[4],
     textAlign: "end",
-    color: EDITOR.gutter,
+    color: CHROME.gutter,
     userSelect: "none",
   }),
   // As the extension draws it: decorations after the line, the icon first, at the hint opacity

@@ -42,7 +42,7 @@ const PRINCIPLES = [
   {
     icon: UserGroupIcon,
     title: "Funds go to the organisation",
-    text: "Channels are registered to the kirana GitHub organisation wherever the platform allows it, not to a person.",
+    text: "Channels are registered to the kirana-style GitHub organisation wherever the platform allows it, not to a person.",
   },
   {
     icon: FavouriteIcon,
@@ -153,8 +153,8 @@ function OpenSourcePage() {
           </Card>
         </CardGrid>
         <p sx={styles.note}>
-          Kirana is pre-release and its repository is not public yet. Until it
-          is, a sponsorship channel without an account says “at launch”.
+          The repository is public on GitHub. A sponsorship channel that has no
+          account yet says “at launch” until it opens.
         </p>
       </PageSection>
 
@@ -162,7 +162,7 @@ function OpenSourcePage() {
         number="04"
         label="The name"
         title="One name we would like to ask about"
-        lede="Kirana's packages would read best as @kirana-style/core and @kirana-style/vite."
+        lede="Kirana's packages would read best as @kirana/core and @kirana/vite."
       >
         <p sx={styles.prose}>
           The @kirana organisation on npm already belongs to someone, and that
@@ -172,8 +172,8 @@ function OpenSourcePage() {
           <a href="mailto:hello@kirana.style" sx={styles.link}>
             hello@kirana.style
           </a>
-          . There is no expectation and no deadline, and Kirana ships under
-          another name in the meantime.
+          . There is no expectation and no deadline, and Kirana ships as
+          @kirana-style in the meantime.
         </p>
       </PageSection>
 

@@ -15,13 +15,12 @@ import {
 } from "@hugeicons/core-free-icons"
 import { SVGL } from "@/generated/svgl-icons.gen"
 
-import { accent, tint } from "@workspace/docs-ui/accent.ts"
 import type { AccentName } from "@workspace/docs-ui/accent.ts"
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
-import { fontSize, fontWeight } from "@workspace/ui/tokens/typography"
+import { fontSize } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
 import {
@@ -77,18 +76,6 @@ const styles = {
     alignItems: "center",
     gap: spacing[2],
   }),
-  status: css({
-    borderRadius: radius.full,
-    paddingInline: spacing[2],
-    fontSize: "0.625rem",
-    lineHeight: "1.125rem",
-    fontWeight: fontWeight.semibold,
-    letterSpacing: "0.04em",
-    textTransform: "uppercase",
-    color: accent.base,
-    backgroundColor: tint(12),
-  }),
-  planned: css({ color: theme.mutedForeground, backgroundColor: theme.muted }),
   text: css({ fontSize: fontSize.sm, lineHeight: "1.65" }),
 }
 
@@ -239,7 +226,6 @@ export function LintArt() {
 
 const ITEMS: {
   title: string
-  status: "Works" | "Planned"
   accent: AccentName
   text: string
   href: string
@@ -247,7 +233,6 @@ const ITEMS: {
 }[] = [
   {
     title: "The CLI",
-    status: "Works",
     accent: "crater",
     text: "kirana-style build, check, export and trace: compile a tree, report every diagnostic (as GitHub annotations in CI), describe the design system, and ask which declaration wins a property and why.",
     href: "/docs/tooling/cli",
@@ -255,7 +240,6 @@ const ITEMS: {
   },
   {
     title: "Language models and agents",
-    status: "Works",
     accent: "ochre",
     text: "Agent skills for writing Kirana and migrating to it, installed with npx skills add; llms.txt, llms-full.txt and a markdown twin of every page, with Copy page and Open in ChatGPT or Claude.",
     href: "/docs/project/llms",
@@ -263,7 +247,6 @@ const ITEMS: {
   },
   {
     title: "Editors",
-    status: "Works",
     accent: "crater",
     text: "kirana-style lsp with VS Code and Zed extensions: the CSS on hover, swatches, a summary after every sx, completion and diagnostics as you type.",
     href: "/docs/tooling/editor",
@@ -271,7 +254,6 @@ const ITEMS: {
   },
   {
     title: "Lint",
-    status: "Works",
     accent: "crater",
     text: "@kirana-style/eslint-plugin under Oxlint or ESLint with identical results, and @kirana-style/biome-plugin under Biome: the compiler's diagnostics and the overrides that silently lose.",
     href: "/docs/tooling/lint",
@@ -291,14 +273,6 @@ export function Tools() {
           <div sx={styles.copy}>
             <div sx={styles.titleRow}>
               <span sx={frame.cardTitle}>{item.title}</span>
-              <span
-                sx={[
-                  styles.status,
-                  item.status === "Planned" ? styles.planned : null,
-                ]}
-              >
-                {item.status}
-              </span>
             </div>
             <p sx={[frame.cardText, styles.text]}>{item.text}</p>
           </div>

@@ -5,7 +5,7 @@
  */
 import { generate } from "@workspace/docs-core/generate.ts"
 
-import { FACTS } from "../src/data/facts.ts"
+import { FACTS, VERSION } from "../src/data/facts.ts"
 
 import type { GuideGroup } from "../src/data/frameworks.ts"
 import { frameworksMarkdown, guidesMarkdown } from "../src/data/frameworks.ts"
@@ -17,6 +17,7 @@ import {
 } from "../src/data/tooling.ts"
 
 import { npmStatusMarkdown } from "../src/data/npm-status.ts"
+import { roadmapMarkdown } from "../src/data/roadmap.ts"
 
 await generate({
   root: new URL("..", import.meta.url).pathname,
@@ -36,6 +37,7 @@ await generate({
     linters: lintersMarkdown,
     "lint-rules": lintRulesMarkdown,
     "npm-status": ({ kind }) => npmStatusMarkdown(kind),
+    roadmap: roadmapMarkdown,
   },
   site: {
     url: "https://kirana.style",
@@ -47,9 +49,9 @@ await generate({
       "> styles next to your components, compiled into small, predictable CSS with no",
       "> runtime style engine.",
       "",
-      "Kirana is pre-release. The `@kirana-style/*` packages are version 0.1.0 and not",
-      "published to npm; the name is a working name. Pages state what is built and",
-      "what is planned.",
+      `Kirana is on npm: the \`@kirana-style/*\` packages are at ${VERSION}, and`,
+      "`npx kirana-style@latest init` sets a project up. Before 1.0, a minor version may",
+      "change the API. Pages state what is built and what is planned.",
       "",
       "## Beyond the docs",
       "",
@@ -57,7 +59,7 @@ await generate({
       "- [Migrate](https://kirana.style/migrate): the Tailwind and StyleX codemods, measured on a whole codebase",
       "- [Compare](https://kirana.style/compare): runtime CSS-in-JS, StyleX, Panda CSS and Tailwind, with sources",
       "- [Ecosystem](https://kirana.style/ecosystem): every package, bundler, framework and tool, with status",
-      "- [Changelog](https://kirana.style/changelog): milestones and sprints, until there are releases",
+      "- [Changelog](https://kirana.style/changelog): every release and what came with it",
       "- [Why Kirana](https://kirana.style/why), [Open source](https://kirana.style/open-source), [License](https://kirana.style/license)",
       "",
     ],

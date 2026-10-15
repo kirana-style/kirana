@@ -25,7 +25,8 @@ import {
 import { DocsLink } from "@/components/docs-link"
 import { Rail } from "@/components/site/patterns"
 import { ScenePixels } from "@/components/site/scene-pixels"
-import { VERSION } from "@/data/facts"
+import { GITHUB, NPM, VERSION } from "@/data/facts"
+import { compact, useRepoStats } from "@/lib/repo-stats"
 import {
   At,
   Card,
@@ -125,6 +126,13 @@ const styles = {
     lineHeight: lineHeight.sm,
     color: theme.mutedForeground,
   }),
+  statusRow: css({
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    columnGap: spacing[2],
+    rowGap: spacing[1],
+  }),
   statusLink: css({
     color: theme.foreground,
     textDecorationLine: "underline",
@@ -149,6 +157,45 @@ const styles = {
 }
 
 /** Source in, one compile, atomic CSS out: what the claim beside it says. */
+/**
+ * The release and the project's public numbers, in one quiet line: the version on npm, last
+ * week's downloads and the stars on GitHub once those answer, and the changelog.
+ */
+function Status() {
+  const { downloads, stars } = useRepoStats()
+  const dot = <span aria-hidden="true">·</span>
+  return (
+    <p sx={[styles.status, styles.statusRow]}>
+      <a href={NPM} target="_blank" rel="noreferrer" sx={styles.statusLink}>
+        v{VERSION} on npm
+      </a>
+      {downloads ? (
+        <>
+          {dot}
+          <span>{compact(downloads)} downloads last week</span>
+        </>
+      ) : null}
+      {stars ? (
+        <>
+          {dot}
+          <a
+            href={GITHUB}
+            target="_blank"
+            rel="noreferrer"
+            sx={styles.statusLink}
+          >
+            {compact(stars)} stars on GitHub
+          </a>
+        </>
+      ) : null}
+      {dot}
+      <DocsLink href="/changelog" sx={styles.statusLink}>
+        Changelog
+      </DocsLink>
+    </p>
+  )
+}
+
 export function CompileScene() {
   return (
     <Stage sx={styles.art}>
@@ -270,12 +317,7 @@ export function Hero() {
                 }
               />
             </div>
-            <p sx={styles.status}>
-              Version {VERSION} on npm, a pre-release.{" "}
-              <DocsLink href="/docs/project/status" sx={styles.statusLink}>
-                What works today
-              </DocsLink>
-            </p>
+            <Status />
           </div>
           <CompileScene />
         </div>

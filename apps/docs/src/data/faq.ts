@@ -14,7 +14,7 @@ export const FAQ: readonly {
     items: [
       {
         q: "Can I install it from npm?",
-        a: "Not yet. Kirana is a v0.1.0 pre-release. The packages are packed and install-tested on every change, and until they are published you install them from tarballs.",
+        a: "Yes. Every package is on npm, and npx kirana-style@latest init sets a project up. Before 1.0, a minor version may change the API, and its release notes say how to move.",
         href: "/docs/start/installation",
         link: "Installation",
       },

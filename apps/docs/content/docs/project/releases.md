@@ -1,6 +1,6 @@
 ---
 title: Releases and upgrading
-description: How versions will work, what pre-1.0 means, and how a breaking change will be communicated.
+description: How versions work, what before 1.0 means, and how a breaking change is announced.
 section: project
 order: 3
 keywords: [releases, versioning, upgrade, changelog, breaking changes, semver]
@@ -10,22 +10,22 @@ keywords: [releases, versioning, upgrade, changelog, breaking changes, semver]
 
 ## Today
 
-Every package is **0.1.0**, and none is published. There is nothing to upgrade
-from yet, and no changelog: the record of what changed is the implementation
-tracker in the repository, written per sprint.
+Every package is at **{{fact:version}}** on npm, released together. Every
+release and what came with it is on the [changelog](/changelog), read from
+`CHANGELOG.md` in the repository.
 
 <!-- ::packages -->
 
-## How versions will work
+## How versions work
 
 **One version for everything.** The compiler, the adapters, the CLI, the language
 server and the packages release together at the same number. A diagnostic touches
 the engine, the lint rules, the editor and the documentation at once, so a version
 where those disagree would be a version that lies.
 
-**Pre-1.0 means the API can move.** Minor versions may change behaviour before
-1.0. Every such change gets an entry saying what moved and what to do, the same
-way the specification's decision log records why a decision was superseded.
+**Before 1.0, the API can move.** A minor version may change behaviour; a patch
+only fixes. Every such change gets an entry in the release notes saying what
+moved and what to do.
 
 **After 1.0**, semantic versioning: a breaking change means a major.
 

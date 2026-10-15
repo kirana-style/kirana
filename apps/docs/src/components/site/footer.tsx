@@ -123,9 +123,7 @@ export function SiteFooter({ scene: given }: { scene?: SceneId }) {
           <p sx={styles.line}>
             Styles next to your components, one stylesheet in the build.
           </p>
-          <p sx={styles.note}>
-            Built in the open, MIT licensed. On npm as a pre-release.
-          </p>
+          <p sx={styles.note}>Built in the open, MIT licensed, on npm.</p>
         </div>
         <nav sx={styles.groups} aria-label="Footer">
           {FOOTER.map((group) => (

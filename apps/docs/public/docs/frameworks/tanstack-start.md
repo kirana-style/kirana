@@ -63,6 +63,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 `color-scheme` goes on `<html>`, not `<body>`: the root owns the page canvas and
 the scrollbars.
 
+`mode.system` follows the operating system. To let readers choose Light or Dark
+and keep the choice across reloads and tabs, see
+[remembering the reader's choice](/docs/tokens/themes-and-modes#remembering-the-reader-s-choice).
+
 ## Typing `sx`
 
 One reference, anywhere your `tsconfig.json` includes:

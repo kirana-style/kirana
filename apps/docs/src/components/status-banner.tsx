@@ -3,6 +3,7 @@ import { css } from "@kirana-style/core"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 
 import { DocsLink } from "@/components/docs-link"
+import { VERSION } from "@/data/facts"
 
 import { Icon } from "@workspace/ui/primitives/icon"
 import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
@@ -62,7 +63,8 @@ const styles = {
  * unavailable (a private window, blocked site data); then it simply shows
  * again next time.
  */
-const KEY = "kirana:status-banner-closed"
+/** Closing it hides this release's notice; the next release shows again. */
+const KEY = `kirana:status-banner-closed:${VERSION}`
 const EVENT = "kirana:status-banner"
 
 /** Closed during this visit, for when storage refuses the write. */
@@ -83,10 +85,9 @@ function subscribe(onChange: () => void) {
 }
 
 /**
- * The status line above the docs. Kirana is a pre-release and the name is a
- * working name; the docs say so rather than letting a reader find out after
- * `bun add`. The server always renders it; a reader who closed it does not
- * see it again after hydration.
+ * The line above the docs: the current release, and where to read about it.
+ * The server always renders it; a reader who closed it does not see it again
+ * after hydration, until the next release.
  */
 export function StatusBanner() {
   const hidden = useSyncExternalStore(subscribe, closed, () => false)
@@ -98,11 +99,11 @@ export function StatusBanner() {
       role="region"
       aria-label="Status"
     >
-      <span sx={styles.label}>Pre-release.</span>
+      <span sx={styles.label}>Kirana {VERSION} is on npm.</span>
       <span>
-        Kirana is on npm as a pre-release, and the name is a working name.{" "}
-        <DocsLink href="/docs/project/status" sx={styles.link}>
-          What works today
+        One command sets a project up.{" "}
+        <DocsLink href="/blog/kirana-on-npm" sx={styles.link}>
+          Read the release notes
         </DocsLink>
         .
       </span>

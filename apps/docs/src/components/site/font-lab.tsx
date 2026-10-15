@@ -95,7 +95,7 @@ type Role = "sans" | "heading" | "serif" | "mono" | "numeric"
 const ROLES: readonly { role: Role; label: string; current: string }[] = [
   { role: "heading", label: "Headings", current: "EB Garamond" },
   { role: "sans", label: "Body text", current: "Plus Jakarta Sans" },
-  { role: "serif", label: "Wordmark", current: "EB Garamond" },
+  { role: "serif", label: "Wordmark", current: "Crimson Pro" },
   { role: "mono", label: "Code", current: "JetBrains Mono" },
   { role: "numeric", label: "Numbers", current: "JetBrains Mono" },
 ]

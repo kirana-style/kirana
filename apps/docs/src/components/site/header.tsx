@@ -1,5 +1,6 @@
 /**
- * The site header: logo, the three menus, the sponsor heart, the theme toggle and "Quick start".
+ * The site header: logo, the three menus, the repository with its stars, the sponsor heart, the
+ * theme toggle and "Quick start".
  *
  * The menu is packages/ui's NavigationMenu (Base UI), which already morphs its
  * popup between panels of different sizes and slides content in from the side
@@ -14,6 +15,7 @@ import { FavouriteIcon, Menu01Icon } from "@hugeicons/core-free-icons"
 import { motion, useReducedMotion } from "motion/react"
 
 import { PALETTE, accents, tint } from "@workspace/docs-ui/accent.ts"
+import { BrandIcon } from "@workspace/docs-ui/brand-icon.tsx"
 import { ThemeMenu } from "@workspace/docs-ui/theme-menu.tsx"
 import { Button } from "@workspace/ui/components/button"
 import {
@@ -37,12 +39,16 @@ import { breakpoint, pointer } from "@workspace/ui/tokens/breakpoints"
 import { duration, easing } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
+  fontFamily,
   fontSize,
   fontWeight,
   lineHeight,
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
+import { GITHUB } from "@/data/facts"
+import { SVGL } from "@/generated/svgl-icons.gen"
+import { compact, useRepoStats } from "@/lib/repo-stats"
 
 import { KiranaMark } from "@/brand/kirana-mark-svg"
 import { SCENES, sceneImage } from "@/brand/scenes"
@@ -128,6 +134,18 @@ const styles = {
   getStarted: css({
     display: { base: "none", [breakpoint.sm]: "inline-flex" },
     minHeight: { [pointer.coarse]: "2.75rem" },
+  }),
+  // The repository, with its star count once GitHub has answered.
+  github: css({
+    display: { base: "none", [breakpoint.md]: "inline-flex" },
+    gap: spacing["1.5"],
+    paddingInline: spacing["2.5"],
+    color: { base: theme.mutedForeground, ":hover": theme.foreground },
+  }),
+  stars: css({
+    fontFamily: fontFamily.mono,
+    fontSize: fontSize.xs,
+    fontVariantNumeric: "tabular-nums",
   }),
   // The heart warms to the sponsor page's hue on hover.
   sponsor: css({
@@ -274,6 +292,12 @@ const styles = {
 
   // Mobile
   sheet: css({ overflowY: "auto" }),
+  // The sheet has the room the panels lack: the whole line, wrapped, instead of an ellipsis.
+  rowDescriptionWrap: css({
+    overflow: "visible",
+    whiteSpace: "normal",
+    textWrap: "pretty",
+  }),
   mobileGroups: css({
     display: "grid",
     gap: spacing[6],
@@ -464,7 +488,11 @@ function MobileNav() {
                     <Glyph link={link} />
                     <span sx={styles.rowText}>
                       <span sx={styles.rowTitle}>{link.title}</span>
-                      <span sx={styles.rowDescription}>{link.description}</span>
+                      <span
+                        sx={[styles.rowDescription, styles.rowDescriptionWrap]}
+                      >
+                        {link.description}
+                      </span>
                     </span>
                   </DocsLink>
                 )
@@ -476,13 +504,37 @@ function MobileNav() {
               <Glyph link={SPONSOR} />
               <span sx={styles.rowText}>
                 <span sx={styles.rowTitle}>{SPONSOR.title}</span>
-                <span sx={styles.rowDescription}>{SPONSOR.description}</span>
+                <span sx={[styles.rowDescription, styles.rowDescriptionWrap]}>
+                  {SPONSOR.description}
+                </span>
               </span>
             </DocsLink>
           </div>
         </nav>
       </SheetContent>
     </Sheet>
+  )
+}
+
+function GitHubLink() {
+  const { stars } = useRepoStats()
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      nativeButton={false}
+      aria-label={
+        stars === undefined
+          ? "Kirana on GitHub"
+          : `Kirana on GitHub, ${stars} stars`
+      }
+      title="Kirana on GitHub"
+      sx={styles.github}
+      render={<a href={GITHUB} target="_blank" rel="noreferrer" />}
+    >
+      <BrandIcon icon={SVGL.github} size="1rem" />
+      {stars ? <span sx={styles.stars}>{compact(stars)}</span> : null}
+    </Button>
   )
 }
 
@@ -497,6 +549,7 @@ export function SiteHeader() {
         </Link>
         <DesktopNav />
         <div sx={styles.actions}>
+          <GitHubLink />
           <Button
             variant="ghost"
             size="icon"

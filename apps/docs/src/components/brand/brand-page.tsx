@@ -697,7 +697,7 @@ const HUES: { name: Exclude<AccentName, "neutral">; from: string }[] = [
 ]
 
 const WRITING = [
-  { term: "Meaning", text: "A ray of light. Pronounced kee-RAH-nah." },
+  { term: "Meaning", text: "A ray of light." },
   {
     term: "In prose",
     text: "Kirana: never KIRANA, kirana or Kirana CSS. The lower case of the wordmark belongs to the drawing, not the name.",
@@ -942,7 +942,7 @@ export function BrandPage() {
           <div sx={[sectionStyles.bordered, styles.specimen]}>
             <div sx={styles.specimenHead}>
               <span sx={styles.assetName}>
-                EB Garamond, display, headings and the wordmark
+                EB Garamond, display and headings
               </span>
               <span sx={styles.mono}>
                 Georg Duffner and Octavio Pardo, SIL Open Font License
@@ -954,7 +954,8 @@ export function BrandPage() {
             <span sx={styles.cardText}>
               An old-style serif after Claude Garamont's types, calm at 84 px
               and readable at 24. Its drawn italic carries the one accented word
-              of a headline and the wordmark.
+              of a headline. The wordmark is Crimson Pro's italic, whose r stays
+              an r at 22 px.
             </span>
           </div>
           <div sx={[sectionStyles.bordered, styles.specimen]}>

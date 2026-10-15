@@ -222,8 +222,8 @@ is still one rule.
 
 ## Where Kirana costs you something
 
-- **It is pre-release.** On npm, but before 1.0 the API can still change; see
-  [what works today](/docs/project/status).
+- **It is before 1.0.** A minor version may still change the API, and its
+  release notes say how to move; see [what works today](/docs/project/status).
 - **It is a compiler.** Styles must be statically known in shape: a computed key
   or a spread object is an error, and a value the compiler cannot enumerate goes
   through a custom property.
@@ -234,4 +234,5 @@ is still one rule.
   lists every one we met).
 - **The richest editor is VS Code.** Every LSP editor gets the card, the hints
   and the fixes; the Style Inspector, Style Fold and coloured hints are VS
-  Code's. The extensions are not on the marketplaces until the first release.
+  Code's. The VS Code extension is on the Marketplace and Open VSX; Zed's
+  installs as a dev extension until it is in Zed's registry.

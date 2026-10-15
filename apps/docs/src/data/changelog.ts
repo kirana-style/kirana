@@ -1,7 +1,7 @@
 /**
- * The changelog, until there are releases. Nothing is published yet
- * (`/docs/project/releases`), so each entry is a milestone or sprint from
- * the implementation tracker, dated by the commit that landed it. Newest first.
+ * Before the first release: each milestone and sprint from the implementation tracker, dated by
+ * the commit that landed it, newest first. Published versions come from `CHANGELOG.md`
+ * (`releases.ts`); this record ends where they begin.
  */
 export type Tag = "compiler" | "migrate" | "ecosystem" | "docs" | "milestone"
 
@@ -13,15 +13,6 @@ export type Entry = {
   items: readonly string[]
   href?: string
 }
-
-/** Each tag in the hue of the place its subject lives on the site (`src/brand/scenes.ts`). */
-export const TAG_ACCENTS = {
-  compiler: "crater",
-  migrate: "terracotta",
-  ecosystem: "tea",
-  docs: "forest",
-  milestone: "ochre",
-} as const
 
 export const CHANGELOG: readonly Entry[] = [
   {

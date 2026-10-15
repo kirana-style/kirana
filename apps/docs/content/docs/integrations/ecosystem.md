@@ -8,8 +8,8 @@ keywords: [ecosystem, status, support, bundlers, frameworks, editors, roadmap]
 
 # Ecosystem and status
 
-What exists, honestly. Anything marked planned is in the specification and not in
-the build.
+What exists, and where to read about it. Every package below is on npm; anything
+planned is on the [roadmap](/docs/project/roadmap), not here.
 
 ## Packages
 
@@ -17,56 +17,58 @@ the build.
 
 ## Bundlers
 
-| Bundler                        | Status    | Package                                                         |
-| ------------------------------ | --------- | --------------------------------------------------------------- |
-| Vite 8                         | **Works** | `@kirana-style/vite`, with hot updates                          |
-| Rolldown                       | **Works** | `@kirana-style/rolldown`                                        |
-| webpack 5                      | **Works** | `@kirana-style/webpack`, with dev-server updates                |
-| Rspack, Rsbuild                | **Works** | `@kirana-style/rspack`, with dev-server updates                 |
-| Parcel                         | **Works** | `@kirana-style/parcel-transformer` with `@kirana-style/postcss` |
-| Bun                            | **Works** | `@kirana-style/bun`, builds and dev server                      |
-| esbuild                        | **Works** | `@kirana-style/esbuild`                                         |
-| PostCSS                        | **Works** | `@kirana-style/postcss`, for any PostCSS pipeline               |
-| Jest                           | **Works** | `@kirana-style/jest`                                            |
-| Next.js, Turbopack and webpack | **Works** | `@kirana-style/next` with `@kirana-style/postcss`               |
+Each one has an example CI builds and checks in a browser on every change.
+
+| Bundler                        | Package                                                         |
+| ------------------------------ | --------------------------------------------------------------- |
+| Vite 8                         | `@kirana-style/vite`, with hot updates                          |
+| Rolldown                       | `@kirana-style/rolldown`                                        |
+| webpack 5                      | `@kirana-style/webpack`, with dev-server updates                |
+| Rspack, Rsbuild                | `@kirana-style/rspack`, with dev-server updates                 |
+| Parcel                         | `@kirana-style/parcel-transformer` with `@kirana-style/postcss` |
+| Bun                            | `@kirana-style/bun`, builds and dev server                      |
+| esbuild                        | `@kirana-style/esbuild`                                         |
+| PostCSS                        | `@kirana-style/postcss`, for any PostCSS pipeline               |
+| Jest                           | `@kirana-style/jest`                                            |
+| Next.js, Turbopack and webpack | `@kirana-style/next` with `@kirana-style/postcss`               |
 
 See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 
 ## Frameworks
 
-|                                            | Status                                                                     |
-| ------------------------------------------ | -------------------------------------------------------------------------- |
-| React 19                                   | **Works**                                                                  |
-| TanStack Start                             | **Works**: this site is one                                                |
-| Preact, Solid                              | **Works**: `sx` compiles to `class`                                        |
-| No framework                               | **Works**: handles are class strings                                       |
-| Vue, Nuxt, Svelte, SvelteKit, Astro        | **Works**, see [frameworks](/docs/frameworks/overview)                     |
-| Qwik 2                                     | **Works**: `sx` compiles to `class`                                        |
-| Angular (CLI and Analog)                   | **Works**: `[sx]` in templates, merged at runtime                          |
-| React Router, Gatsby, Ember, Meteor        | **Works**, see [frameworks](/docs/frameworks/overview)                     |
-| Laravel, Symfony, Rails, Phoenix, AdonisJS | **Works**: templates read a [class map](/docs/frameworks/server-templates) |
+Every framework has a guide and a tested example; the
+[frameworks page](/docs/frameworks/overview) picks yours.
+
+| Framework                                  | How styles reach the markup                                     |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| React 19, TanStack Start                   | `sx` compiles to `className`; this site is a TanStack Start app |
+| Preact, Solid, Qwik 2                      | `sx` compiles to `class`                                        |
+| Vue, Nuxt, Svelte, SvelteKit, Astro        | `sx` in their templates                                         |
+| Angular (CLI and Analog)                   | `[sx]` in templates, merged at runtime                          |
+| React Router, Gatsby, Ember, Meteor        | as their component layer does                                   |
+| No framework                               | handles are class strings                                       |
+| Laravel, Symfony, Rails, Phoenix, AdonisJS | templates read a [class map](/docs/frameworks/server-templates) |
 
 ## Tooling
 
-|                                                             | Status                                                                                                     |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `kirana-style build`, `check`, `analyze`, `export`, `trace` | **Works**                                                                                                  |
-| `kirana-style init`, `doctor`, `doctor --report`, `dev`     | **Works**, see [the CLI](/docs/tooling/cli)                                                                |
-| `kirana-style migrate stylex`                               | **Works**, see [migration](/docs/migration/from-stylex)                                                    |
-| `kirana-style migrate tailwind`                             | **Works**, with a report of what it leaves; see [migration](/docs/migration/from-tailwind#the-codemod)     |
-| Language server, VS Code and Zed extensions                 | **Works**, see [editor support](/docs/tooling/editor)                                                      |
-| Lint plugin, `@kirana-style/eslint-plugin`                  | **Works**, see [lint](/docs/tooling/lint)                                                                  |
-| Lint plugin, for Biome                                      | **Works**, the {{fact:biome-rules-word}} rules that need no compiler; see [lint](/docs/tooling/lint#biome) |
-| Agent skills                                                | **Works**, see [agent skills](/docs/project/agent-skills)                                                  |
+| Tool                                                                                    | Where                                                                |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `kirana-style build`, `check`, `analyze`, `export`, `trace`                             | [the CLI](/docs/tooling/cli)                                         |
+| `kirana-style init`, `doctor`, `doctor --report`, `dev`                                 | [the CLI](/docs/tooling/cli)                                         |
+| `kirana-style migrate stylex`                                                           | [migration from StyleX](/docs/migration/from-stylex)                 |
+| `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod) |
+| Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                               |
+| `@kirana-style/eslint-plugin`, for Oxlint and ESLint                                    | [lint](/docs/tooling/lint)                                           |
+| `@kirana-style/biome-plugin`: the {{fact:biome-rules-word}} rules that need no compiler | [lint](/docs/tooling/lint#biome)                                     |
+| Agent skills                                                                            | [agent skills](/docs/project/agent-skills)                           |
 
 ## Runtime and distribution
 
-|                                                | Status                                                                 |
-| ---------------------------------------------- | ---------------------------------------------------------------------- |
-| Node.js ≥ 22.18, Bun, Deno                     | **Works**                                                              |
-| Native engine (Node-API)                       | **Works**, built from source in this repository                        |
-| Prebuilt per-platform packages                 | **Works**: on npm, and install-tested in CI                            |
-| WASI fallback (WebContainers, no native addon) | **Works**: `@kirana-style/compiler-wasm32-wasi`, byte-identical output |
+| What runs it                                   | Detail                                                                     |
+| ---------------------------------------------- | -------------------------------------------------------------------------- |
+| Node.js ≥ 22.18, Bun, Deno                     | Any of them runs the compiler and the command line                         |
+| Native engine (Node-API)                       | A prebuilt package per platform on npm, eight in all, install-tested in CI |
+| WASI fallback (WebContainers, no native addon) | `@kirana-style/compiler-wasm32-wasi`, with byte-identical output           |
 
 ## Configuration keys in the specification but not the build
 

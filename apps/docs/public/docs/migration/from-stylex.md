@@ -114,7 +114,7 @@ The longer argument, with the StyleX port's problems and what answers each, is
 Fairness matters more than a feature list:
 
 - **It is published, versioned and used in production** at Meta scale. Kirana is
-  a 0.x pre-release.
+  at a 0.x version.
 - **A larger ecosystem**: community plugins, documentation, examples, articles and people who have
   already hit your problem.
 - **A few helpers** have no direct equivalent, `stylex.when.descendant` and

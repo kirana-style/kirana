@@ -20,6 +20,7 @@ import { schemeMarker } from "@workspace/docs-ui/scheme.ts"
 
 import { SiteDocsProvider } from "@/components/docs-config"
 import { NotFound } from "@/components/not-found"
+import { THEME_COOKIE, readThemeMode } from "@/lib/theme-mode"
 
 // The font lab is a development tool: under `vite build` this branch is dead, so production bundles
 // leave the lab out entirely.
@@ -74,14 +75,17 @@ export const Route = createRootRoute({
       { rel: "manifest", href: "/manifest.json" },
     ],
   }),
+  // The saved colour mode, before the document renders: the server writes `<html>` in it.
+  beforeLoad: () => ({ mode: readThemeMode() }),
   notFoundComponent: NotFound,
   shellComponent: RootDocument,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { mode } = Route.useRouteContext()
   return (
     <DirectionProvider direction="ltr">
-      <ThemeProvider defaultMode="system">
+      <ThemeProvider defaultMode={mode} cookie={THEME_COOKIE}>
         <ThemedDocument>{children}</ThemedDocument>
       </ThemeProvider>
     </DirectionProvider>

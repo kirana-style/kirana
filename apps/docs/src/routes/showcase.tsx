@@ -234,7 +234,7 @@ function Showcase() {
       <PageHero
         label="Showcase"
         title="Built with Kirana"
-        lede="Kirana is pre-release, so this page is short and honest: these are the four applications built on it today, all of them in the repository, all of them verified against independent builds of the same markup."
+        lede="Kirana is new, so this page is short and honest: these are the four applications built on it today, all of them in the repository, all of them verified against independent builds of the same markup."
       />
       <PageSection>
         <div sx={styles.grid}>
