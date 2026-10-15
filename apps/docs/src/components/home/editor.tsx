@@ -458,7 +458,7 @@ const FEATURES: readonly Feature[] = [
     icon: TextFontIcon,
     label: "Inline summary",
     title: "Every element's CSS, on its line.",
-    text: "What the element ends up with, in a class list's words and coloured by kind — layout, box, size, colour, type, border. Guards lead their values.",
+    text: "What the element ends up with, in a class list's words and coloured by kind: layout, box, size, colour, type, border. Guards lead their values.",
     href: "/docs/tooling/editor#inline-summary",
   },
   {
@@ -474,7 +474,7 @@ const FEATURES: readonly Feature[] = [
     icon: LayoutRightIcon,
     label: "Style Inspector",
     title: "Turn :hover and md on.",
-    text: "A panel that follows the cursor. Toggle a condition or a guard and it shows what applies then — the compiler's answer, not a guess.",
+    text: "A panel that follows the cursor. Toggle a condition or a guard and it shows what applies then: the compiler's answer, not a guess.",
     href: "/docs/tooling/editor#style-inspector-vs-code",
   },
   {
@@ -482,7 +482,7 @@ const FEATURES: readonly Feature[] = [
     icon: ViewOffSlashIcon,
     label: "Style Fold",
     title: "Long objects, read short.",
-    text: "A one-line style object reads as its summary until the cursor reaches it — Tailwind Fold, for objects.",
+    text: "A one-line style object reads as its summary until the cursor reaches it, like Tailwind Fold, for objects.",
     href: "/docs/tooling/editor#style-fold-vs-code",
   },
   {
@@ -490,7 +490,7 @@ const FEATURES: readonly Feature[] = [
     icon: ColorsIcon,
     label: "Colours",
     title: "Every colour, where it is used.",
-    text: "A swatch beside every colour literal and colour token, and on hover the token's value — both sides of light-dark() when it has two.",
+    text: "A swatch beside every colour literal and colour token, and on hover the token's value, with both sides of light-dark() when it has two.",
     href: "/docs/tooling/editor#colours",
   },
   {
@@ -499,7 +499,7 @@ const FEATURES: readonly Feature[] = [
     label: "Diagnostics",
     title: "Wrong styles, caught as you type.",
     // consistency: subset — Biome cannot run the compiler's diagnostics
-    text: "The compiler's own diagnostics at the property, with a fix one keystroke away — the same under Oxlint and ESLint.",
+    text: "The compiler's own diagnostics at the property, with a fix one keystroke away. The same checks run under Oxlint and ESLint.",
     href: "/docs/tooling/diagnostics",
   },
   {
@@ -507,7 +507,7 @@ const FEATURES: readonly Feature[] = [
     icon: VisualStudioCodeIcon,
     label: "Everywhere",
     title: "Your editor, your framework.",
-    text: "VS Code and its forks, Zed, Neovim and Helix, in .tsx, .vue, .svelte and .astro — running your project's own engine.",
+    text: "VS Code and its forks, Zed, Neovim and Helix, in .tsx, .vue, .svelte and .astro, each running your project's own engine.",
     href: "/docs/tooling/editor#pick-your-editor",
   },
 ]
@@ -775,7 +775,7 @@ export function EditorScene({ feature = "card" }: { feature?: FeatureId }) {
         with the GitHub Dark theme.
       </figcaption>
       <Backdrop
-        label={`An editor with Kirana — ${chosen.label}: ${chosen.text}`}
+        label={`An editor with Kirana. ${chosen.label}: ${chosen.text}`}
         after={
           <DocsLink href={chosen.href} sx={styles.closer}>
             Take a closer look
@@ -845,9 +845,10 @@ export function EditorShowcase({ compact = false }: { compact?: boolean }) {
 export function Editor() {
   return (
     <HomeSection
+      number="02"
       eyebrow="In your editor"
       title="Light through every line of your styles."
-      lede="A Tailwind class list shows what an element gets; object styles hid it, and that is why teams left CSS-in-JS. Kirana's language server puts it back on every line, coloured by kind — and you keep typed styles, atomic output and a Rust compiler. The build's own compiler answers, so it is never a guess."
+      lede="A Tailwind class list shows what an element gets; object styles hid it, and that is why teams left CSS-in-JS. Kirana's language server puts it back on every line, coloured by kind, and you keep typed styles, atomic output and a Rust compiler. The build's own compiler answers, so it is never a guess."
     >
       <EditorShowcase />
     </HomeSection>

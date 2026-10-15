@@ -1,7 +1,7 @@
 ---
 title: Building a design system
 description: How the layered system in this repository is put together, and why each layer exists.
-section: advanced
+section: building
 order: 2
 keywords:
   [design system, layers, tokens, recipes, primitives, components, shadcn]
@@ -10,7 +10,7 @@ keywords:
 # Building a design system
 
 Kirana is a compiler, not a design system. This repository builds one on top of
-it — the shadcn/ui component set, rebuilt — and its shape is worth copying.
+it (the shadcn/ui component set, rebuilt), and its shape is worth copying.
 
 ## Six layers
 
@@ -20,8 +20,8 @@ it — the shadcn/ui component set, rebuilt — and its shape is worth copying.
 durations. Inlined, so they cost nothing.
 [`@kirana-style/preset-scales`](/docs/tokens/preset-scales) gives you Tailwind's.
 
-**2 · Semantic tokens.** What the scales _mean_ — `background`, `foreground`,
-`card`, `border`, `primary` — as variable tokens, every colour a `light-dark()`
+**2 · Semantic tokens.** What the scales _mean_, such as `background`,
+`foreground` and `primary`, as variable tokens, every colour a `light-dark()`
 pair. This is the layer a theme overrides.
 [Semantic tokens](/docs/tokens/semantic-tokens).
 
@@ -30,11 +30,11 @@ menu's state), context tokens a parent hands down (`iconSize`, `sidebarWidth`),
 and the keyframes. Declared once, in one module each.
 
 **4 · Recipes.** Variant tables for the components that have variants, plus the
-shared chrome — a focus ring, an overlay surface, a menu surface — so twelve
+shared chrome (a focus ring, an overlay surface, a menu surface), so twelve
 components do not each invent their own.
 
-**5 · Primitives.** `Box`, `Stack`, `Text`, `Icon`, `Link`: thin elements that
-carry the system's defaults and nothing else.
+**5 · Primitives.** Thin elements such as `Box`, `Stack` and `Text` that carry
+the system's defaults and nothing else.
 
 **6 · Components.** The real thing. Each takes `sx` last, so callers can override
 without forking.

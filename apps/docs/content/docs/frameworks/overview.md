@@ -1,6 +1,6 @@
 ---
-title: Get started
-description: Install Kirana with your framework, on your bundler, or from the command line for server templates - a guide for each, and every one tested on every change.
+title: Choose a framework
+description: Install Kirana with your framework, on your bundler, or from the command line for server templates, with a guide for each that is tested on every change.
 section: frameworks
 order: 1
 keywords:
@@ -24,7 +24,7 @@ keywords:
   ]
 ---
 
-# Get started
+# Choose a framework
 
 Kirana compiles the styles you write next to your components into class names
 and one static stylesheet, with no styling runtime left in the page. It works
@@ -97,7 +97,7 @@ one builds them.
 
 ## Kirana CLI
 
-For server-rendered templates — Blade, ERB, HEEx, Twig, Edge — and anything else
+For server-rendered templates (Blade, ERB, HEEx, Twig, Edge) and anything else
 without a bundler. You write styles in TypeScript modules; the CLI writes the
 stylesheet, and a class map your templates read the class names from.
 
@@ -131,7 +131,7 @@ npx kirana dev styles --out public/kirana/kirana.css
 
 `kirana dev` watches and rewrites both files; `kirana build` writes them once,
 minified with `--minify`. Your template helper then turns `card` into its class
-names — see [server templates](/docs/frameworks/server-templates).
+names; see [server templates](/docs/frameworks/server-templates).
 
 <!-- ::end:tabs -->
 
@@ -140,7 +140,7 @@ names — see [server templates](/docs/frameworks/server-templates).
 Every example lives in `packages/kirana/examples/`. On every change, CI packs the
 packages, installs each example from the tarballs, builds it, and checks a styled
 element's computed style and hover in a browser. It also starts each dev server
-and checks that a style edit reaches the page — in place, without a reload, where
+and checks that a style edit reaches the page in place, without a reload, where
 the framework updates components that way. A row in this table is a test that
 passes, not a claim.
 

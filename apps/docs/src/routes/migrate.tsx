@@ -55,7 +55,7 @@ const MAPPING: readonly { from: string; to: string; prose?: boolean }[] = [
   },
   {
     from: "dark:bg-zinc-900",
-    to: "Nothing to write — the colour token is already a light-dark() pair.",
+    to: "Nothing to write: the colour token is already a light-dark() pair.",
     prose: true,
   },
   {
@@ -81,7 +81,7 @@ const PROCESS = [
   },
   {
     title: "Compare computed styles, not screenshots",
-    text: "Diff every element in both schemes at three widths — and again with overlays open and rows highlighted.",
+    text: "Diff every element in both schemes at three widths, and again with overlays open and rows highlighted.",
   },
   {
     title: "Keep hand fixes as patches",
@@ -209,7 +209,7 @@ function MigratePage() {
         number="01"
         label="Example"
         title="One card, before and after"
-        lede="The right-hand file is what kirana migrate tailwind wrote for the left-hand one — one long line re-wrapped, nothing else changed. The dark variant became a light-dark() pair."
+        lede="The right-hand file is what kirana migrate tailwind wrote for the left-hand one: one long line re-wrapped, nothing else changed. The dark variant became a light-dark() pair."
       >
         <ShowcaseScene id="migrate" />
       </PageSection>
@@ -218,7 +218,7 @@ function MigratePage() {
         number="02"
         label="Evidence"
         title="Measured on a whole codebase"
-        lede="The codemod was run over the Tailwind original of our shadcn/ui port — packages/ui, the shared shell, and three applications — and the result compared with the original, element by element."
+        lede="The codemod was run over the Tailwind original of our shadcn/ui port (packages/ui, the shared shell, and three applications), and the result compared with the original, element by element."
       >
         <Figures
           items={[

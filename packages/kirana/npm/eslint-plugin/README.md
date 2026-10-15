@@ -3,8 +3,8 @@
 <!-- consistency: subset -->
 
 Kirana's lint rules for ESLint and Oxlint ([12-tooling-and-dx](../../../../spec/12-tooling-and-dx.md#lint)).
-The rules read the compiler — its diagnostics, the atoms each style compiles to, every token, how
-imports resolve — instead of re-implementing it, so lint and build never disagree.
+The rules read the compiler (its diagnostics, the atoms each style compiles to, every token, how
+imports resolve) instead of re-implementing it, so lint and build never disagree.
 
 ```js
 // eslint.config.js

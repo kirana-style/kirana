@@ -1,9 +1,8 @@
 ---
 title: Animation
-description: keyframes(), transitions, and animating a custom property that the browser can interpolate.
-section: styling
-parent: beyond-static
-order: 10
+description: Animate with keyframes() and transitions, including a custom property the browser can interpolate.
+section: dynamic
+order: 1
 keywords: [keyframes, animation, transition, motion, property]
 ---
 
@@ -47,8 +46,8 @@ const panel = css({
 ```
 
 **Animate the property you actually set.** `translate`, `scale` and `rotate` are
-separate properties from `transform`; a transition on `transform` does not
-interpolate them. This is one of the most common reasons an animation silently
+separate properties from `transform`, and a transition on it does not interpolate
+them. This is one of the most common reasons an animation silently
 does nothing.
 
 ## Animating a custom property
@@ -85,7 +84,7 @@ const item = css({
 ## Entry and exit states
 
 Libraries that animate elements in and out usually expose attributes for the two
-edges — `[data-starting-style]` and `[data-ending-style]`, for example. Those are
+edges, such as `[data-starting-style]` and `[data-ending-style]`. Those are
 plain attribute conditions. Because they never appear at the same time but the
 selectors cannot prove it, declare them as exclusive once in
 [`conditions.exclusive`](/docs/config/reference), and the compiler stops asking

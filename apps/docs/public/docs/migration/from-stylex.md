@@ -8,9 +8,11 @@ systems put typed style objects next to components and conditions inside values,
 so the mapping below is close to mechanical. The differences that matter are in
 merge semantics and in what the compiler checks.
 
-<!-- ::figure-stylex -->
-
 ## The mapping
+
+Four names carry most of a StyleX codebase; the table after them has the rest.
+
+<!-- ::figure-stylex -->
 
 | StyleX                               | Kirana                                                    |
 | ------------------------------------ | --------------------------------------------------------- |
@@ -46,11 +48,11 @@ if the intent was "nothing here", **omit the key**.
 ## What Kirana has that StyleX does not
 
 The mapping above is close to one-to-one because both systems share a premise.
-These are the things that have no StyleX counterpart — and between them, they
-are most of the reason Kirana exists.
+These are the things that have no StyleX counterpart, and between them they are
+most of the reason Kirana exists.
 
 **A stated precedence ladder, and a tool that reads it back.** StyleX offers two
-modes — later-wins and property-specificity — and neither reproduced what the
+modes (later-wins and property-specificity), and neither reproduced what the
 Tailwind components needed. Kirana has one ladder, and `kirana trace file:line
 property` prints every candidate declaration, the winner, and the step that
 decided it.
@@ -72,13 +74,12 @@ anchored (`relation-without-anchor`) or anchored in a position that cannot match
 way, and a mis-placed marker is a rule that silently never fires.
 
 **Contextual styles have a layer of their own.** `select.descendant("svg")` lands
-below element styles, so the target's own style always wins — no hand-down custom
-properties, and no `:not([class*='size-'])` guards.
+below element styles, so the target's own style always wins, with no hand-down
+custom properties and no `:not([class*='size-'])` guards.
 
-**`sx` is checked where it is used.** Passing `sx` to a component that does not
-read it is reported (`sx-on-external-component`), including one module away
-through a rest spread, and a component that takes `sx` and drops it gets
-`unused-sx`.
+**`sx` is checked where it is used.** Passing it to a component that does not read
+it is reported (`sx-on-external-component`), including one module away through a
+rest spread, and a component that takes it and drops it gets `unused-sx`.
 
 **Colour modes without plumbing.** Every colour is one `light-dark()` pair and
 `mode.system` needs no JavaScript at all. StyleX needs a theme per mode and a
@@ -88,8 +89,8 @@ mechanism to switch it.
 custom property can be animated and used as a keyframe key.
 
 **Layers you control.** `layers.before` / `layers.after` place your reset and
-vendor CSS around Kirana's own layers, and nothing is emitted unlayered —
-including custom-property assignments, which StyleX leaves outside any layer.
+vendor CSS around Kirana's own layers, and nothing is emitted unlayered, including
+custom-property assignments, which StyleX leaves outside any layer.
 
 **A branch budget for dynamic values.** A finite set of runtime values compiles
 to a class expression, an open value to a custom-property bridge, and exceeding
@@ -100,8 +101,8 @@ is Tailwind v4's scales as tokens, and [utility strings](/docs/styling/utilities
 (`sx="px-4 text-sm"`) compile to the same atoms as the object form. StyleX
 leaves the vocabulary to you.
 
-**Hosts and frameworks.** Adapters for Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, and `sx` in
-React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember and every framework built on them — React, Next.js, React Router, TanStack Start, Gatsby, Preact, Solid, Vue, Nuxt, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor — and
+**Hosts and frameworks.** Adapters for Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild; `sx` in
+React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember and every framework built on them (React, Next.js, React Router, TanStack Start, Gatsby, Preact, Solid, Vue, Nuxt, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor); and
 templates in Laravel, Symfony, Rails, Phoenix and AdonisJS, each with an example CI builds and checks. See
 [frameworks](/docs/frameworks/overview).
 
@@ -114,9 +115,9 @@ Fairness matters more than a feature list:
 
 - **It is published, versioned and used in production** at Meta scale. Kirana is
   0.1.0 and not on npm.
-- **A larger ecosystem** — community plugins, documentation, examples, articles and people who have
+- **A larger ecosystem**: community plugins, documentation, examples, articles and people who have
   already hit your problem.
-- **A few helpers** have no direct equivalent — `stylex.when.descendant` and
+- **A few helpers** have no direct equivalent, `stylex.when.descendant` and
   `stylex.when.anySibling` among them; write a `:has()` condition.
   `kirana migrate stylex` names each one it meets in its report.
 
@@ -126,8 +127,8 @@ thing you are missing.
 
 ## What else is different
 
-**Precedence.** StyleX has two modes — later-wins and property-specificity —
-and neither reproduced what the Tailwind components needed. Kirana has one
+**Precedence.** StyleX has two modes (later-wins and property-specificity), and
+neither reproduced what the Tailwind components needed. Kirana has one
 [ladder](/docs/styling/precedence), and reports the cases it cannot order instead
 of picking silently.
 
@@ -136,8 +137,8 @@ of picking silently.
 anchor is an error rather than a rule that never matches.
 
 **Contextual styles have a layer.** `select.descendant("svg")` lands below element
-styles, so a child that sets its own size keeps it — no hand-down custom
-properties, no guards.
+styles, so a child that sets its own size keeps it, with no hand-down custom
+properties and no guards.
 
 **Everything is layered.** StyleX left custom-property assignments unlayered;
 Kirana emits nothing outside its layers.
@@ -154,13 +155,22 @@ kirana migrate stylex src          # print the diff and the report
 kirana migrate stylex src --write  # apply it
 ```
 
-It makes the mechanical rewrites — `create` → `css`, `defineVars` →
-`defineTokens`, `createTheme` → `defineTheme`, markers → `relation`, and
-`{...stylex.props()}` → `sx` — renames `*.stylex.ts` files, and prints a report of
-everything it would not decide. Two follow-up passes still live as scripts in the
-compiler's repository: `{...props(a, b)}` on an element you own → `sx={[a, b]}`,
-and `sx` on a component from a package → `{...props(…)}`, because those never read
-`sx`.
+It makes the mechanical rewrites, renames `*.stylex.ts` files, and prints a report
+of everything it would not decide:
+
+| StyleX                | Kirana         |
+| --------------------- | -------------- |
+| `create`              | `css`          |
+| `defineVars`          | `defineTokens` |
+| `createTheme`         | `defineTheme`  |
+| markers               | `relation`     |
+| `{...stylex.props()}` | `sx`           |
+
+Two follow-up passes still live as scripts in the compiler's repository:
+
+- `{...props(a, b)}` on an element you own becomes `sx={[a, b]}`;
+- `sx` on a component from a package becomes `{...props(…)}`, because those never
+  read `sx`.
 
 ## After the codemod
 

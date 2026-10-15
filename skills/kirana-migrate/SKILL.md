@@ -5,7 +5,7 @@ description: Migrate a codebase from Tailwind CSS (including shadcn/ui, cn() and
 
 # Migrating to Kirana
 
-Install and wire Kirana first (`npx kirana init`, then `npx kirana doctor`), and read the `kirana`
+Install and wire Kirana first (`npx kirana-style init`, then `npx kirana-style doctor`), and read the `kirana`
 skill: its rules apply to the migrated code. Migrate on a branch, keep the original build runnable
 beside it, and port in small steps.
 

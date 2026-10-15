@@ -1,6 +1,6 @@
 /**
- * The name, set in type: both words in Newsreader's true italic, "kirana" semibold and "style"
- * light and muted, as the domain reads. It stands beside the drawn mark in the header and the
+ * The name, set in type: both words in EB Garamond's drawn italic, "kirana" semibold and "style"
+ * at the regular weight (the face's lightest), smaller and muted, as the domain reads. It stands beside the drawn mark in the header and the
  * footer; the brand page shows the lockup.
  */
 import { css } from "@kirana-style/core"
@@ -29,7 +29,7 @@ const styles = {
     fontFamily: fontFamily.serif,
     fontSize: "0.85em",
     fontStyle: "italic",
-    fontWeight: fontWeight.light,
+    fontWeight: fontWeight.normal,
     color: theme.mutedForeground,
   }),
 }

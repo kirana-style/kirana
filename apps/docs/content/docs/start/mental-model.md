@@ -1,6 +1,6 @@
 ---
 title: Mental model
-description: Five ideas that make Kirana predictable - properties not classes, entries not properties, a ladder not specificity, styling only what you render, and an editor that shows what each element gets.
+description: Five ideas make Kirana predictable: properties instead of classes, entries instead of properties, a ladder instead of specificity, styling only what you render, and an editor that shows what each element gets.
 section: start
 order: 6
 keywords:
@@ -19,6 +19,8 @@ keywords:
 
 Five ideas. Everything else in these docs is a consequence of one of them.
 
+<!-- ::figure-mental-model -->
+
 ## 1 · You write properties, not classes
 
 A style is an object of CSS properties with real values. There is no vocabulary
@@ -34,16 +36,15 @@ const card = css({
 ```
 
 Design tokens are ordinary imported values, so a token is just a constant your
-editor can show you — see [tokens](/docs/tokens/overview).
+editor can show you; see [tokens](/docs/tokens/overview).
 
 ## 2 · Merging replaces entries, not properties
 
 This is the one that catches people, and it is worth ten minutes now rather than
 an afternoon later.
 
-A property can hold several **entries**: one per condition. `backgroundColor`
-might have a base entry and a `:hover` entry. When you merge two styles, the later
-one replaces **the entries it names** and leaves the rest alone.
+A property can hold several **entries**: one per condition. When you merge two
+styles, the later one replaces **the entries it names** and leaves the rest alone.
 
 ```tsx
 const base = css({
@@ -56,43 +57,31 @@ const override = css({ color: "grey" })
 <a sx={[base, override]} /> // grey, and blue on hover
 ```
 
-If you meant "grey, and nothing on hover", say so:
-
-```tsx
-const override = css({ color: { "*": null, base: "grey" } })
-```
-
-`null` removes: `{ base: null }` removes the base entry, `prop: null` removes the
-property, `{ "*": null, … }` removes everything you do not list.
-[Merging](/docs/styling/merging) has the full set.
+[Merging](/docs/styling/merging) shows how to remove the entries you did not name.
 
 ## 3 · A ladder decides what wins, not specificity
 
-Every rule Kirana writes is one class, so every rule has the same specificity.
-What wins is decided by a stated ladder, and the two steps you will meet daily
-are:
+Every rule Kirana writes is one class, so every rule has the same specificity. A
+stated ladder decides instead, and two of its steps cover most days:
 
-- **More conditions win.** `{ ":hover": … }` beats a base value; a value under
-  both `:hover` and a breakpoint beats one under `:hover` alone.
-- **At equal conditions, the narrower declaration wins.** `paddingTop` beats
-  `padding`, whichever order they were written in.
+- **More conditions win.** A `:hover` value beats a base value.
+- **Then the narrower declaration.** `paddingTop` beats `padding`, in either order.
 
-When two values could both apply and the ladder cannot separate them, the
-compiler does not pick silently — it reports `ambiguous-precedence` and asks you
-to say which you meant. [Precedence](/docs/styling/precedence) is the whole story,
-and `kirana trace` prints the decision for a property on a line.
+When the ladder cannot separate two values, the compiler reports
+`ambiguous-precedence` instead of picking. [Precedence](/docs/styling/precedence)
+is the whole ladder.
 
 ## 4 · Style what you render
 
 The compiler styles elements it can see in your source. An element rendered inside
 a component from an installed package is not yours, so `sx` on that component does
-nothing unless the component reads it — and the compiler will tell you so
+nothing unless the component reads it, and the compiler will tell you so
 (`sx-on-external-component`).
 
 Three ways out, in order of preference:
 
-1. Pass compiled props: `{...props(styles.thing)}` — works with any component that
-   spreads props onto an element.
+1. Pass compiled props, `{...props(styles.thing)}`, which works with any component
+   that spreads props onto an element.
 2. Style it from an ancestor you do render, with
    [`select`](/docs/styling/contextual).
 3. Read its state from a parent with a [relation](/docs/styling/relations).
@@ -118,7 +107,7 @@ export function Plan({ featured }: { featured: boolean }) {
 Read it the way you read `grid gap-4 p-4`. Hover it for the box model, every
 declaration with `rem` in pixels and the token it reads, and the compiled rule;
 hover one property to see which entry wins and why. The answers come from the same
-compiler session as the build, so the editor never disagrees with the stylesheet —
+compiler session as the build, so the editor never disagrees with the stylesheet:
 if it shows `p 1rem`, the element gets `padding: 1rem`. See
 [editor support](/docs/tooling/editor).
 
@@ -127,7 +116,7 @@ if it shows `p 1rem`, the element gets `padding: 1rem`. See
 - **From Tailwind:** the vocabulary is the same (`@kirana-style/preset-scales` carries
   Tailwind's scales), but conditions nest inside values instead of prefixing class
   names, and the merge story is different from `cn()`. The class list you read is
-  still there — at the end of the line, in your editor (idea 5).
+  still there, at the end of the line in your editor (idea 5).
   [Migration guide](/docs/migration/from-tailwind).
 - **From StyleX:** the API will look familiar. The difference that bites is idea
   2: StyleX's `default: null` means "no base value", Kirana's `base: null`

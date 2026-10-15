@@ -81,6 +81,7 @@ function shared(stage: string, names: string[]) {
 const PACKAGES = [
   "core",
   "compiler",
+  "cli",
   "rolldown",
   "vite",
   "webpack",

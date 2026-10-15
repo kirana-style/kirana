@@ -171,25 +171,25 @@ Condition values for computed keys. [Conditions](/docs/styling/conditions).
 
 ## Types
 
-| Type                  | What it is                                                                               |
-| --------------------- | ---------------------------------------------------------------------------------------- |
-| `StyleHandle`         | A compiled style. Opaque.                                                                |
-| `Sx`                  | `StyleHandle \| null \| undefined \| false \| readonly Sx[]` — what `sx` and `cx` accept |
-| `Style`               | A style object: CSS properties, custom properties, pseudo-elements, `select` targets     |
-| `ConditionalValue<V>` | `{ base?: V, [condition]: V \| ConditionalValue<V> }`                                    |
-| `Condition`           | A condition value, from `media`/`container`/`supports` or a relation read                |
-| `SelectTarget`        | A contextual target, from `select.*`                                                     |
-| `Token`, `Keyframes`  | A token's CSS text; a keyframes name                                                     |
-| `PositionTry`         | An `@position-try` rule's dashed ident                                                   |
-| `Fallbacks<V>`        | A `firstThatWorks()` run of values `V`                                                   |
-| `ViewTransition`      | A `viewTransition()` class: a `StyleHandle` that is also its class name                  |
+| Type                  | What it is                                                                              |
+| --------------------- | --------------------------------------------------------------------------------------- |
+| `StyleHandle`         | A compiled style. Opaque.                                                               |
+| `Sx`                  | `StyleHandle \| null \| undefined \| false \| readonly Sx[]`: what `sx` and `cx` accept |
+| `Style`               | A style object: CSS properties, custom properties, pseudo-elements, `select` targets    |
+| `ConditionalValue<V>` | `{ base?: V, [condition]: V \| ConditionalValue<V> }`                                   |
+| `Condition`           | A condition value, from `media`/`container`/`supports` or a relation read               |
+| `SelectTarget`        | A contextual target, from `select.*`                                                    |
+| `Token`, `Keyframes`  | A token's CSS text; a keyframes name                                                    |
+| `PositionTry`         | An `@position-try` rule's dashed ident                                                  |
+| `Fallbacks<V>`        | A `firstThatWorks()` run of values `V`                                                  |
+| `ViewTransition`      | A `viewTransition()` class: a `StyleHandle` that is also its class name                 |
 
 ## Entry points
 
-| Import                              | What it gives                                  |
-| ----------------------------------- | ---------------------------------------------- |
-| `@kirana-style/core`                | the API above                                  |
-| `@kirana-style/core/config`         | `defineConfig` for `kirana.config.ts`          |
-| `@kirana-style/core/react`          | the `sx` prop's types                          |
-| `@kirana-style/core/stylesheet.css` | the stylesheet entry                           |
-| `@kirana-style/core/internal`       | the private runtime — not for application code |
+| Import                              | What it gives                                 |
+| ----------------------------------- | --------------------------------------------- |
+| `@kirana-style/core`                | the API above                                 |
+| `@kirana-style/core/config`         | `defineConfig` for `kirana.config.ts`         |
+| `@kirana-style/core/react`          | the `sx` prop's types                         |
+| `@kirana-style/core/stylesheet.css` | the stylesheet entry                          |
+| `@kirana-style/core/internal`       | the private runtime, not for application code |

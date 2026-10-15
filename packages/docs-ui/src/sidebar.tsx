@@ -1,7 +1,7 @@
 /**
- * The docs sidebar for the active tab: its sections as uppercase groups, pages
- * as rows, sub-groups as collapsible branches, reference pages with a kind
- * badge.
+ * The docs sidebar for the active tab: its sections as labelled groups, pages
+ * as rows, sub-groups (when a section has any) as collapsible branches,
+ * reference pages with a kind tag.
  *
  * One highlight slides to the hovered row and settles on the current page when
  * the pointer leaves — measured from the DOM, moved with a spring, jumping
@@ -35,23 +35,18 @@ import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
 import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
+  fontFamily,
   fontSize,
   fontWeight,
   lineHeight,
+  textLeading,
+  textSize,
+  textTracking,
 } from "@workspace/ui/tokens/typography"
 
-import { accents, tint } from "./accent.ts"
-import type { AccentName } from "./accent.ts"
+import { accent, tint } from "./accent.ts"
 import { tabFor, useDocs } from "./provider.tsx"
 import { DocsSearch } from "./search.tsx"
-
-/** The tint of each reference kind's badge. */
-const KIND_ACCENTS: Record<string, AccentName> = {
-  api: "neutral",
-  config: "neutral",
-  cli: "neutral",
-  diagnostics: "neutral",
-}
 
 const SCROLL_KEY = "docs-ui:sidebar-scroll"
 
@@ -145,7 +140,8 @@ const styles = {
     position: "relative",
     overflowY: "auto",
     overscrollBehavior: "contain",
-    paddingInline: spacing[3],
+    // Labels and page names start on the logo's and the tabs' edge.
+    paddingInline: spacing["1.5"],
     paddingBlockEnd: spacing[10],
     scrollbarWidth: "thin",
   }),
@@ -158,15 +154,18 @@ const styles = {
     pointerEvents: "none",
   }),
   group: css({ display: "grid", paddingBlockStart: spacing[4] }),
+  // The site's label voice: mono, uppercase, the section's name, in the tab's hue and weight so
+  // it never reads as one more page among the links under it.
   groupLabel: css({
     paddingInline: spacing["2.5"],
-    paddingBlockEnd: spacing["1.5"],
-    fontSize: "0.625rem",
-    lineHeight: "1rem",
+    paddingBlockEnd: spacing[2],
+    fontFamily: fontFamily.mono,
+    fontSize: textSize.label,
+    lineHeight: textLeading.label,
+    letterSpacing: textTracking.label,
     fontWeight: fontWeight.semibold,
-    letterSpacing: "0.06em",
     textTransform: "uppercase",
-    color: theme.mutedForeground,
+    color: accent.base,
   }),
   row: css({
     position: "relative",
@@ -181,7 +180,10 @@ const styles = {
     paddingBlock: spacing["1.5"],
     fontSize: fontSize.sm,
     lineHeight: lineHeight.sm,
-    fontWeight: fontWeight.medium,
+    fontWeight: {
+      base: fontWeight.medium,
+      '[aria-current="page"]': fontWeight.semibold,
+    },
     textAlign: "start",
     textDecorationLine: "none",
     color: {
@@ -189,22 +191,27 @@ const styles = {
       ":hover": theme.foreground,
       '[aria-current="page"]': theme.foreground,
     },
-    transitionProperty: "color",
+    // The current page keeps a fill in the tab's hue under the sliding hover highlight, so it
+    // stays marked in both schemes while the pointer is elsewhere: a light 9 % tint, its name in
+    // full ink, which every hue's tint leaves well above AA.
+    backgroundColor: { '[aria-current="page"]': tint(9) },
+    transitionProperty: "color, background-color",
     transitionDuration: duration[150],
   }),
   rowLabel: css({ flex: 1, minWidth: 0 }),
+  // What a reference page documents: a quiet mono tag, the same on every tab.
   badge: css({
     flexShrink: 0,
     borderRadius: radius.sm,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: theme.border,
     paddingInline: "0.3rem",
-    paddingBlock: "1px",
-    fontSize: "0.5625rem",
-    lineHeight: "0.875rem",
-    fontWeight: fontWeight.semibold,
-    letterSpacing: "0.04em",
-    textTransform: "uppercase",
-    color: tint(100),
-    backgroundColor: tint(14),
+    fontFamily: fontFamily.mono,
+    fontSize: textSize.micro,
+    lineHeight: textLeading.micro,
+    letterSpacing: textTracking.micro,
+    color: theme.mutedForeground,
   }),
   chevron: css({
     transitionProperty: "rotate",
@@ -235,7 +242,6 @@ function Row({
 }) {
   const { Link, pageIcon } = useDocs()
   const active = item.href === current
-  const kind = item.kind ? (KIND_ACCENTS[item.kind] ?? "neutral") : undefined
   return (
     <Link
       href={item.href}
@@ -248,9 +254,7 @@ function Row({
         {label ?? item.title}
         {trail ? <span sx={styles.trail}>{trail}</span> : null}
       </span>
-      {kind ? (
-        <span sx={[accents[kind], styles.badge]}>{item.kind}</span>
-      ) : null}
+      {item.kind ? <span sx={styles.badge}>{item.kind}</span> : null}
     </Link>
   )
 }
@@ -466,11 +470,13 @@ export function DocsSidebar({
           ref={list}
           aria-label="Documentation"
           sx={styles.list}
+          // Between rows (a group's label, the gap above it) nothing is hovered, so the
+          // highlight goes back to the current page instead of staying on the last row.
           onPointerOver={(event) => {
             const row = (event.target as HTMLElement).closest<HTMLElement>(
               "[data-row]"
             )
-            if (row) setHover(row.dataset.row ?? null)
+            setHover(row?.dataset.row ?? null)
           }}
           onPointerLeave={() => setHover(null)}
         >

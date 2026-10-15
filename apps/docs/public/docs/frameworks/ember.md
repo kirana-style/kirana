@@ -6,26 +6,25 @@ Source: https://kirana.style/docs/frameworks/ember
 Ember's template-tag components (`.gjs`, `.gts`) hold a `<template>` next to
 their JavaScript. Kirana's plugin runs after Embroider has turned them into
 JavaScript, so `css()` works in them as anywhere else, and templates reach the
-handles in scope. The `sx` helper merges them, later ones winning. Tested on
+handles in scope.
+
+The `sx` helper merges them, later ones winning. Tested on
 every change by `examples/ember`, built and on its dev server.
 
 > [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana init
+npx kirana-style init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you
 say yes, and prints the install command (`--install` runs it). Then
-`npx kirana doctor` checks the result.
+`npx kirana-style doctor` checks the result.
 
 ## 1. Install
 
@@ -54,7 +53,7 @@ export default defineConfig({
 })
 ```
 
-`kiranaEmber()` also tells the compiler that `@ember/`, `@glimmer/` and
+The Ember plugin also tells the compiler that `@ember/`, `@glimmer/` and
 `@embroider/virtual/` are modules only Embroider resolves
 ([`externals`](/docs/config/reference)).
 
@@ -87,5 +86,7 @@ from the component's code.
 
 ## Next
 
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
 - [Styles](/docs/styling/styles) and [merging](/docs/styling/merging).
 - [The Vite plugin](/docs/integrations/vite).

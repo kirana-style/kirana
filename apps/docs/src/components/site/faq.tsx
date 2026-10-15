@@ -1,7 +1,7 @@
 /**
  * Questions, or any short items with a longer answer, in groups: the group's
  * name on the left in its accent, an accordion across the rest of the width.
- * Below lg the name sits above its accordion. The homepage's questions, the
+ * Below lg the name sits above its accordion. The questions `/why` ends on, the
  * sponsors page's terms and its questions all use it.
  */
 import { css } from "@kirana-style/core"
@@ -21,6 +21,9 @@ import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import { fontSize, fontWeight } from "@workspace/ui/tokens/typography"
 
+import { DocsLink } from "@/components/docs-link"
+import { FAQ } from "@/data/faq"
+
 export type FaqItem = { title: string; body: React.ReactNode }
 
 export type FaqGroup = {
@@ -33,6 +36,13 @@ export type FaqGroup = {
 }
 
 const styles = {
+  answerLink: css({
+    color: theme.foreground,
+    fontWeight: fontWeight.medium,
+    textDecorationLine: "underline",
+    textDecorationStyle: "dashed",
+    textUnderlineOffset: "4px",
+  }),
   groups: css({ display: "grid", gap: spacing[10] }),
   group: css({
     display: "grid",
@@ -103,5 +113,27 @@ export function FaqGroups({ groups }: { groups: readonly FaqGroup[] }) {
         </div>
       ))}
     </div>
+  )
+}
+
+/** The questions people ask before they try Kirana, each answer ending on the page that states it. */
+export function Faq() {
+  return (
+    <FaqGroups
+      groups={FAQ.map((group) => ({
+        topic: group.topic,
+        items: group.items.map((item) => ({
+          title: item.q,
+          body: (
+            <>
+              <p>{item.a}</p>
+              <DocsLink href={item.href} sx={styles.answerLink}>
+                {item.link}
+              </DocsLink>
+            </>
+          ),
+        })),
+      }))}
+    />
   )
 }

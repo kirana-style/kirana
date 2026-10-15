@@ -1,6 +1,6 @@
 ---
 title: Ruby on Rails
-description: Install Kirana in a Rails app - styles in TypeScript modules, the Kirana CLI in bin/dev, and the kirana helper in ERB views.
+description: Install Kirana in a Rails app, with styles in TypeScript modules, the Kirana CLI in bin/dev, and the kirana helper in ERB views.
 section: server
 order: 4
 keywords: [rails, ruby, erb, gem, propshaft, class map, install]
@@ -13,12 +13,7 @@ every view; the Kirana CLI writes the stylesheet and the class map. How it fits
 together: [server templates](/docs/frameworks/server-templates). Tested on every
 change by `examples/rails`, served by Puma, with a style edit checked on reload.
 
-> [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change,
-> but not published. Until they are, install the npm packages from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows, and the
-> helper from a checkout of the repository by path; the rest of this page is the
-> same either way.
+<!-- ::npm-status kind="helpers" -->
 
 ## 1. Install
 
@@ -66,4 +61,6 @@ The helper reads the class map again whenever `kirana dev` rewrites it. Set
 
 ## Next
 
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
 - [Server templates](/docs/frameworks/server-templates): merging and the limits.

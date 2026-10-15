@@ -5,7 +5,7 @@ Source: https://kirana.style/docs/styling/dynamic
 
 Kirana compiles styles, but some values are only known when the component runs: a
 progress width, a colour from data, a variant from props. Those are fine to write
-where you write everything else — the compiler classifies each one and picks a
+where you write everything else: the compiler classifies each one and picks a
 representation.
 
 ## Three classes of value
@@ -18,8 +18,8 @@ representation.
 <div sx={css({ color: tone === "danger" ? "crimson" : "black" })} />
 ```
 
-Both values are compiled to classes, and the element gets a class _expression_ —
-a ternary between two class strings. Still no CSS at runtime.
+Both values are compiled to classes, and the element gets a class _expression_, a
+ternary between two class strings. Still no CSS at runtime.
 
 **Open dynamic.** A value the compiler cannot enumerate:
 
@@ -37,7 +37,7 @@ where runtime values enter your styles.
 ## The branch budget
 
 A finite dynamic value with too many branches would multiply classes, so there is
-a budget — 16 branches by default, configurable as
+a budget: 16 branches by default, configurable as
 [`dynamic.branchBudget`](/docs/config/reference). Past it, the compiler stops and
 reports `branch-budget-exceeded` rather than emitting a combinatorial explosion.
 Usually that is a sign the value should be a bridge, or a
@@ -72,7 +72,7 @@ different property depending on state, write both and choose between handles:
 
 - Prefer a finite set when there is one: a class expression costs nothing in the
   browser, a bridge costs a custom property.
-- Bridge lengths, colours and numbers — values that vary continuously.
+- Bridge lengths, colours and numbers: values that vary continuously.
 - If a page reports many `dynamic-bridged` values you did not expect, something
   that could be static is not: usually a token read through an intermediate
   variable the evaluator cannot follow.

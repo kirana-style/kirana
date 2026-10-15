@@ -24,8 +24,8 @@ If that reads as a bug, you have been writing class strings: `text-grey` after
 been writing CSS, where two rules for one property coexist and the cascade picks
 between them per state.
 
-Kirana takes the CSS reading. A property holds **entries** — one per condition set
-— and merging replaces the entries it names.
+Kirana takes the CSS reading. A property holds **entries**, one per condition set,
+and merging replaces the entries it names.
 
 ## Why that is the right default
 
@@ -48,7 +48,7 @@ css({ padding: "1rem" }, { paddingTop: "2rem" }) // 2rem top, 1rem elsewhere
 ```
 
 But a shorthand is not always splittable. `border: var(--line)` is one custom
-property standing in for width, style and colour at once — the compiler cannot
+property standing in for width, style and colour at once. The compiler cannot
 know which part is which, so it keeps the declaration whole as a _shorthand atom_
 and warns you that a later style cannot remove one of its longhands precisely.
 
@@ -76,13 +76,13 @@ instead of `0`.
 
 The cause was ordering. When `borderColor: null` unfolded the broad `border` atom
 into its remaining longhands, those longhands were appended at the _end_ of the
-merge order — after the narrower `borderWidth` atom that had been written later.
+merge order, after the narrower `borderWidth` atom that had been written later.
 So the next removal looked at them and concluded they were newer than they were.
 
 The fix: unfolded longhands take the place of the atom they came from, so merge
 order keeps matching the order the values were actually written. The same change
 had to land in the compiler and in the 1 kB runtime, because the two must agree
-exactly — a shared table of vectors checks that they do.
+exactly, and a shared table of vectors checks that they do.
 
 ## The moral
 

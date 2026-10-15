@@ -9,23 +9,22 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
-import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
-import {
-  fontSize,
-  fontWeight,
-  lineHeight,
-} from "@workspace/ui/tokens/typography"
+import { fontSize } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
-import { FRAMEWORKS } from "@/components/home/content"
 import { NextStep } from "@/components/site/accents"
-import { LogoIcon, PAGE_LOGOS } from "@/components/site/brands"
+import { BenchChart } from "@/components/site/bench-chart"
+import { RUNTIME_SIZE } from "@/data/benchmarks"
+import { chapter } from "@/components/site/chapter"
+import { DiagnosticFamilies } from "@/components/site/evidence"
+import { Tools } from "@/components/site/tools"
+import { DIAGNOSTICS } from "@/generated/diagnostics.gen"
+import { FrameworkGrid } from "@/components/site/framework-grid"
 import { Card, CardGrid, Figures, Steps } from "@/components/site/cards"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
 import { PipelineArt } from "@/components/art/compiler-art"
 import { InlineCode } from "@/components/site/code-tokens"
-import { LIFT, REST } from "@/components/site/lift"
 
 export const Route = createFileRoute("/compiler")({
   component: CompilerPage,
@@ -45,7 +44,7 @@ export const Route = createFileRoute("/compiler")({
 const PIPELINE = [
   {
     title: "Prefilter",
-    text: "Before parsing anything, the adapter skips every module whose text contains neither @kirana-style/ nor an sx attribute — the work scales with styled modules, not the dependency graph.",
+    text: "Before parsing anything, the adapter skips every module whose text contains neither @kirana-style/ nor an sx attribute, so the work scales with styled modules, not the dependency graph.",
   },
   {
     title: "Evaluate",
@@ -87,31 +86,6 @@ const styles = {
       base: "minmax(0, 1fr)",
       [breakpoint.lg]: "minmax(0, 1fr) minmax(0, 1fr)",
     },
-  }),
-  frameworks: css({
-    display: "grid",
-    gap: spacing[2],
-    gridTemplateColumns: "repeat(auto-fill, minmax(12rem, 1fr))",
-  }),
-  framework: css({
-    display: "flex",
-    alignItems: "center",
-    gap: spacing[3],
-    borderRadius: radius.lg,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    boxShadow: { base: REST, ":hover": LIFT },
-    backgroundColor: theme.card,
-    paddingInline: spacing[4],
-    paddingBlock: spacing[3],
-    textDecorationLine: "none",
-    color: theme.foreground,
-    fontSize: fontSize.sm,
-    lineHeight: lineHeight.sm,
-    fontWeight: fontWeight.medium,
-    transitionProperty: "box-shadow",
-    transitionDuration: duration[150],
   }),
   note: css({
     fontSize: fontSize.sm,
@@ -172,8 +146,8 @@ function CompilerPage() {
       <PageSection
         number="02"
         label="Output"
-        title="What reaches the browser"
-        lede="The only runtime code is a private helper under 1 kB, included only in modules that merge styles at runtime or bridge a value. It merges class strings; it never generates CSS."
+        title="What the browser receives"
+        lede={`The only runtime code is a private helper under ${RUNTIME_SIZE}, included only in modules that merge styles at runtime or bridge a value. It merges class strings; it never generates CSS.`}
       >
         <CardGrid>
           <Card icon={FileScriptIcon} title="One stylesheet">
@@ -216,7 +190,7 @@ function CompilerPage() {
           ]}
         />
         <p sx={styles.note}>
-          One developer machine, advisory — from{" "}
+          One developer machine, advisory. From{" "}
           <InlineCode>
             packages/kirana/design-notes/benchmark-results.md
           </InlineCode>
@@ -225,31 +199,51 @@ function CompilerPage() {
       </PageSection>
 
       <PageSection
+        id="measured"
         number="04"
-        label="Frameworks"
-        title="With the framework you already use"
-        lede="Every guide is installed from the packed packages and built on every change."
+        label="Measured"
+        title="Against the same apps, built three ways"
+        lede="The three demo applications, built from three branches: Kirana, the StyleX port and the Tailwind original. Every one passes the same conformance checks before it is timed."
       >
-        <div sx={styles.frameworks}>
-          {FRAMEWORKS.map((framework) => (
-            <DocsLink
-              key={framework.href}
-              href={framework.href}
-              sx={styles.framework}
-            >
-              {PAGE_LOGOS[framework.href] ? (
-                <LogoIcon logo={PAGE_LOGOS[framework.href]!} size="1.125rem" />
-              ) : null}
-              {framework.title}
-            </DocsLink>
-          ))}
-        </div>
+        <BenchChart />
       </PageSection>
 
       <PageSection
         number="05"
+        label="Diagnostics"
+        title="Mistakes that used to be silent"
+        lede={`${DIAGNOSTICS.length} diagnostics with stable codes and help text, and kirana trace to ask which declaration wins a property and which rule decided it.`}
+        aside={
+          <DocsLink href="/docs/tooling/diagnostics" sx={chapter.aside}>
+            Every diagnostic
+          </DocsLink>
+        }
+      >
+        <DiagnosticFamilies />
+      </PageSection>
+
+      <PageSection
+        number="06"
+        label="Tooling"
+        title="The tools around the compiler"
+        lede="The command line, files and skills for coding agents, editors and lint, each linking to its documentation."
+      >
+        <Tools />
+      </PageSection>
+
+      <PageSection
+        number="07"
+        label="Frameworks"
+        title="With the framework you already use"
+        lede="Every guide is installed from the packed packages and built on every change."
+      >
+        <FrameworkGrid />
+      </PageSection>
+
+      <PageSection
+        number="08"
         label="Limits"
-        title="What it deliberately does not do"
+        title="What it leaves to you"
         lede="Three lines the compiler does not cross, so the result stays something you can predict."
       >
         <CardGrid>

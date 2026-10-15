@@ -1,8 +1,8 @@
 ---
 title: For LLMs
-description: Plain-text endpoints of this documentation, written for coding agents - llms.txt, the full text, and a markdown twin of every page.
+description: Plain-text endpoints of this documentation, written for coding agents: llms.txt, the full text, and a markdown twin of every page.
 section: project
-order: 4
+order: 6
 keywords: [llms.txt, ai, agents, markdown, plain text, context]
 ---
 
@@ -22,7 +22,7 @@ writing something that looks like Tailwind.
 | ----------------- | ------------------------------------------------------------------------------------- |
 | `/llms.txt`       | The index: one line per page, with its description and a link to that page's markdown |
 | `/llms-full.txt`  | Every page, in reading order, as one file                                             |
-| `/docs/<path>.md` | One page as markdown — `/docs/styling/merging.md`                                     |
+| `/docs/<path>.md` | One page as markdown, such as `/docs/styling/merging.md`                              |
 
 `/docs/index.md` is the introduction. The markdown twin of a page carries its
 title and canonical URL in a two-line header, then the page body exactly as it
@@ -71,14 +71,14 @@ worth handing to an agent alongside the pages above.
 ## Machine-readable extras
 
 - The diagnostics are also available as data on the
-  [diagnostics page](/docs/tooling/diagnostics) — code, message, and what to do
+  [diagnostics page](/docs/tooling/diagnostics): code, message, and what to do
   about it.
 - [`kirana export`](/docs/tooling/cli#kirana-export) prints your project's own
-  design system — tokens, themes, recipes and relations, with where each is
-  declared — as JSON, so an agent uses the names that exist.
+  design system (tokens, themes, recipes and relations, with where each is
+  declared) as JSON, so an agent uses the names that exist.
 - The [API reference](/docs/reference/api) is generated from the packages'
   type declarations, so its signatures are the real ones.
 - The [playground](/play) shows curated examples with the CSS, class names and
   diagnostics the real compiler produced from them at build time. It does not
-  compile pasted source yet — that needs the WASM engine — so to check an agent's
+  compile pasted source yet (that needs the WASM engine), so to check an agent's
   suggestion, run `kirana build` or `kirana check` on it.

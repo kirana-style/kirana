@@ -16,6 +16,8 @@ import {
   lintersMarkdown,
 } from "../src/data/tooling.ts"
 
+import { npmStatusMarkdown } from "../src/data/npm-status.ts"
+
 await generate({
   root: new URL("..", import.meta.url).pathname,
   typesImport: "@/lib/content",
@@ -33,6 +35,7 @@ await generate({
     editors: editorsMarkdown,
     linters: lintersMarkdown,
     "lint-rules": lintRulesMarkdown,
+    "npm-status": ({ kind }) => npmStatusMarkdown(kind),
   },
   site: {
     url: "https://kirana.style",

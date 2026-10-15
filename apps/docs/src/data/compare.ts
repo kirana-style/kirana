@@ -6,7 +6,8 @@
  * Panda against 2.2.0, and the fallback, anchor, view-transition, bug-report,
  * agent-skill, design-system and CI rows, 2026-10-12.
  */
-import { COUNTS } from "@/data/facts"
+import { RUNTIME_SIZE } from "@/data/benchmarks"
+import { COUNTS, LISTS, sentence } from "@/data/facts"
 import { DIAGNOSTICS } from "@/generated/diagnostics.gen"
 import type { SVGL } from "@/generated/svgl-icons.gen"
 
@@ -103,7 +104,11 @@ const STYLEX_API = "https://stylexjs.com/docs/api/javascript"
 const PANDA_SKILLS = "https://github.com/chakra-ui/panda/tree/main/skills"
 const PANDA_SPEC = "https://panda-css.com/docs/theming/json-spec"
 
-const none: Cell = { short: "—", tone: "none", text: "Not compared here" }
+const none: Cell = {
+  short: "Not compared",
+  tone: "none",
+  text: "Not compared here",
+}
 
 export const ROWS: readonly Row[] = [
   {
@@ -173,7 +178,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "No",
         tone: "good",
-        text: "Never. Static styles import nothing; merging and bridging use a helper under 1 kB",
+        text: `Never. Static styles import nothing; merging and bridging use a helper under ${RUNTIME_SIZE}`,
         source: WHY,
       },
     },
@@ -377,9 +382,9 @@ export const ROWS: readonly Row[] = [
         brands: ["nextjs", "nuxt", "sveltekit", "astro"],
       },
       kirana: {
-        short: "21 frameworks",
+        short: `${COUNTS.frameworks + COUNTS.serverFrameworks} frameworks`,
         tone: "good",
-        text: "React, Next.js, React Router, TanStack Start, Gatsby, Preact, Solid, Vue, Nuxt, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor, and server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS, each built and checked in a browser on every change",
+        text: `${sentence(LISTS.frameworks)}, and server templates in ${sentence(LISTS.serverFrameworks)}, each built and checked in a browser on every change`,
         source: "/docs/frameworks/overview",
         brands: [
           "react",
@@ -668,3 +673,71 @@ export const ROWS: readonly Row[] = [
     },
   },
 ]
+
+/**
+ * The questions, in groups a newcomer reads in order: what the tool ships, how you write with it,
+ * what checks it, how you adopt it, and what it gives a coding agent. Every row is in exactly one
+ * group; `GROUPED` throws when one is missing, so a new row cannot fall out of the table.
+ */
+const GROUP_TOPICS: readonly { title: string; topics: readonly string[] }[] = [
+  {
+    title: "What it ships",
+    topics: [
+      "When CSS is produced",
+      "Styles injected at runtime",
+      "Shape of the CSS",
+    ],
+  },
+  {
+    title: "Writing styles",
+    topics: [
+      "Where a hover goes",
+      "When two styles set one property",
+      "Dark mode",
+      "Type-checked styles",
+      "Fallback values",
+      "Anchor fallbacks",
+      "View transitions",
+    ],
+  },
+  {
+    title: "Checks and tools",
+    topics: [
+      "Checks on your styles",
+      "Editor support",
+      "Lint in your linter",
+      "Diagnostics in CI",
+      "Bug reports",
+    ],
+  },
+  {
+    title: "Adopting it",
+    topics: ["Frameworks", "Moving an existing app", "Design system as data"],
+  },
+  {
+    title: "For coding agents",
+    topics: ["Docs for AI agents", "Agent skills"],
+  },
+]
+
+export const GROUPED: readonly { title: string; rows: readonly Row[] }[] =
+  (() => {
+    const byTopic = new Map(ROWS.map((row) => [row.topic, row]))
+    const grouped = GROUP_TOPICS.map((group) => ({
+      title: group.title,
+      rows: group.topics.map((topic) => {
+        const row = byTopic.get(topic)
+        if (!row)
+          throw new Error(
+            `compare: no row "${topic}" for group "${group.title}"`
+          )
+        byTopic.delete(topic)
+        return row
+      }),
+    }))
+    if (byTopic.size > 0)
+      throw new Error(
+        `compare: rows in no group: ${[...byTopic.keys()].join(", ")}`
+      )
+    return grouped
+  })()

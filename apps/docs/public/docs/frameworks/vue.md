@@ -7,10 +7,7 @@ Declare styles in `<script setup>` and apply them with `:sx`. Kirana compiles th
 component as it is read, before Vue does. Tested by `examples/vite-vue`.
 
 > [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
 
 ## 1. Install
 
@@ -65,7 +62,7 @@ the result with the element's own `class` and `style`.
 
 ## How it compiles
 
-The script compiles like any module — `css()` becomes class strings, and the
+The script compiles like any module: `css()` becomes class strings, and the
 stylesheet gets the atoms. Each `:sx` becomes
 `v-bind="…"` with a call to Kirana's small runtime, which merges the styles when
 the component renders. Keep `css()` calls in the script: one written inside the
@@ -75,3 +72,8 @@ template is not compiled, and says so when it runs.
 
 On Nuxt, follow the [Nuxt guide](/docs/frameworks/nuxt): the plugin goes in
 `nuxt.config.ts` instead.
+
+## Next
+
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.

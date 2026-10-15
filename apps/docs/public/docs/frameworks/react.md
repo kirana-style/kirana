@@ -7,10 +7,7 @@ Source: https://kirana.style/docs/frameworks/react
 Tested by `examples/vite-react`.
 
 > [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
 
 ## 1. Install
 
@@ -68,8 +65,10 @@ Run `vite`: the page is styled, and editing a value updates it without a reload.
 
 ## Next
 
-- [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions) — what
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
+- [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions): what
   goes inside `css()`.
-- [The Vite plugin](/docs/integrations/vite) — its options and what it does in
+- [The Vite plugin](/docs/integrations/vite): its options and what it does in
   development and in a build.
 - Not on Vite? [Other bundlers](/docs/integrations/bundlers).

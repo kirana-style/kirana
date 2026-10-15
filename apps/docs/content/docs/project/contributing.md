@@ -2,7 +2,7 @@
 title: Contributing
 description: How to report a bug, fix the docs, get a pull request merged, and support Kirana.
 section: project
-order: 6
+order: 5
 keywords: [contributing, bug report, pull request, dco, sign-off, sponsor, help]
 ---
 
@@ -26,7 +26,7 @@ The most valuable contribution at this stage. A good report has:
   entry for a style and the one that won; paste its output.
 - **The diagnostic**, if there was one, with its code (`KRN…`).
 
-A style that compiles and renders wrong is a bug even when no diagnostic fired —
+A style that compiles and renders wrong is a bug even when no diagnostic fired;
 report it. So is a diagnostic whose help text did not tell you what to do.
 
 ## Improve the docs
@@ -63,11 +63,33 @@ Scripts table lists what each command needs. The pre-push hook (`vp run prepush`
 runs the checks, the Rust lints and the tests with 100 % coverage, from the cache
 when nothing changed.
 
+### Try it on this repository
+
+Every component in `packages/ui` is written with Kirana. Open one, say
+`packages/ui/src/components/badge.tsx`: style handles at the top, an `sx` prop on the elements
+below. Then start this site and change a value in any `css({ … })` call:
+
+```console
+$ bun dev
+```
+
+The page on <http://localhost:3000> updates without a reload: the compiler rebuilds the stylesheet
+and sends it through Vite's hot update channel. To ask the compiler what it found, and which
+declaration wins a property and why:
+
+```console
+$ node packages/kirana/npm/compiler/bin/kirana.ts check packages/ui/src
+$ node packages/kirana/npm/compiler/bin/kirana.ts trace packages/ui/src/components/badge.tsx:12 color
+```
+
+`trace` prints one line per candidate declaration, marks the winner, and names the step of the
+[precedence ladder](/docs/styling/precedence) that decided it.
+
 ### What a pull request needs
 
-- **Tests, and 100 % coverage.** Kirana's packages keep 100 % coverage — Rust
-  lines, functions and regions; TypeScript statements, branches, functions and
-  lines. `vp run coverage` checks it. A change that lowers it fails CI.
+- **Tests, and 100 % coverage.** Kirana's packages keep 100 % coverage of Rust
+  lines, functions and regions, and of TypeScript statements, branches, functions
+  and lines. `vp run coverage` checks it. A change that lowers it fails CI.
 - **The specification, in the same change.** A change to the compiler's
   behaviour updates the matching document in `spec/`, and a design choice gets
   a decision in `spec/20-decisions.md`.
@@ -92,9 +114,8 @@ when nothing changed.
 ## Support the project
 
 Kirana is MIT licensed and free to use. If it saves you time,
-[the sponsors page](/sponsors) lists every way to support it — GitHub Sponsors,
-Open Collective, Polar, and invoices for companies — once
-each channel opens.
+[the sponsors page](/sponsors) lists every way to support it (GitHub Sponsors,
+Open Collective, Polar, and invoices for companies) once each channel opens.
 
 ## Conduct
 

@@ -10,18 +10,14 @@ every change by `examples/adonisjs`, with a style edit checked on reload. An
 Inertia front end uses [the Vite plugin](/docs/integrations/vite) as usual.
 
 > [!NOTE] Not on npm or the language registries yet
-> The packages and the template helpers are packed and tested on every change,
-> but not published. Until they are, install the npm packages from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows, and the
-> helper from a checkout of the repository by path; the rest of this page is the
-> same either way.
+> The packages and the template helpers are packed and tested on every change, but not published. Until they are, install the npm packages from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows, and the helper from a checkout of the repository by path; the rest of this page is the same either way.
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana init
+npx kirana-style init
 ```
 
 It adds the provider, the configuration and a style module, shows each as a diff,
@@ -78,4 +74,6 @@ The global reads the class map again whenever `kirana dev` rewrites it.
 
 ## Next
 
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
 - [Server templates](/docs/frameworks/server-templates): merging and the limits.

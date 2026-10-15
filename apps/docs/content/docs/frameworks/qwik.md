@@ -1,6 +1,6 @@
 ---
 title: Qwik
-description: Install Kirana in a Qwik 2 app on Vite - sx compiles to class, detected from jsxImportSource, rendered on the server and resumed in the browser.
+description: Install Kirana in a Qwik 2 app on Vite, where sx compiles to class, detected from jsxImportSource, rendered on the server and resumed in the browser.
 section: frameworks
 order: 12
 keywords:
@@ -18,29 +18,27 @@ keywords:
 
 # Qwik
 
-`sx` compiles to `class` (and `style` for values known only at runtime). Kirana
-picks that up from `jsxImportSource` in your `tsconfig.json`, so there is nothing
-to configure. Kirana supports **Qwik 2** (`@qwik.dev/core`): Qwik 1 runs only on
+`sx` compiles to `class` (and a style attribute for values known only at
+runtime). Kirana picks that up from the JSX import source in your `tsconfig.json`,
+so there is nothing to configure.
+
+Kirana supports **Qwik 2** (`@qwik.dev/core`): Qwik 1 runs only on
 Vite 7 and older, and Kirana's Vite plugin needs Vite 8. Tested on every change
 by `examples/qwik`, a Qwik Router app built and served with npm and pnpm.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana init
+npx kirana-style init
 ```
 
 It detects Qwik, shows every change below as a diff, writes them once you say
 yes, and prints the install command (`--install` runs it). Then
-`npx kirana doctor` checks the result.
+`npx kirana-style doctor` checks the result.
 
 ## 1. Install
 
@@ -114,5 +112,7 @@ style edit then reaches the page like any other edit.
 
 ## Next
 
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
 - [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).
 - [The Vite plugin](/docs/integrations/vite).

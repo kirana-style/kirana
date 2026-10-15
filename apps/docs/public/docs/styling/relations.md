@@ -43,22 +43,22 @@ it from a descendant.
 | ---------------- | ------------------------------------ | ------------------- |
 | `within(state?)` | the anchor is an **ancestor**        | `group-*`           |
 | `after(state?)`  | the anchor is an **earlier sibling** | `peer-*`            |
-| `before(state?)` | the anchor is a **later sibling**    | —                   |
+| `before(state?)` | the anchor is a **later sibling**    | none                |
 
-The `state` argument is any selector the anchor may match — `'[data-open]'`,
-`":hover"`, `'[data-size="lg"]'`. Omit it to mean "the anchor exists", which is
+The `state` argument is any selector the anchor may match, such as
+`'[data-open]'`, `":hover"` or `'[data-size="lg"]'`. Omit it to mean "the anchor exists", which is
 how you style by structure rather than state.
 
 ## Why declare it at all
 
 Because the compiler checks it. Two errors you get for free:
 
-- **`relation-without-anchor`** — a style reads a relation, but nothing applies
+- **`relation-without-anchor`**: a style reads a relation, but nothing applies
   its anchor. In a class-string system this is a `group-hover:` that silently
   never fires. An application's build checks the relations whose module it
   compiled, so a shared component may read an ancestor that only some
   applications render; `kirana check` checks every relation in the project.
-- **`relation-placement`** — the anchor cannot be proven to be in the right
+- **`relation-placement`**: the anchor cannot be proven to be in the right
   position: `after()` used where the anchor is not an earlier sibling, for
   example.
 
@@ -90,8 +90,8 @@ css({
 })
 ```
 
-Relations exist for the other direction — a descendant or sibling reading state
-that lives elsewhere — where CSS needs the two ends to agree on a class.
+Relations exist for the other direction (a descendant or sibling reading state
+that lives elsewhere), where CSS needs the two ends to agree on a class.
 
 ## Precedence
 

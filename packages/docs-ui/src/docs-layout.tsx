@@ -1,21 +1,15 @@
 /**
- * The docs frame: a top bar (logo, DOCS badge, section tabs, the app's
- * actions), a sticky sidebar for the active tab, and the page.
+ * The docs frame: a top bar (logo, DOCS badge, the search, the app's actions),
+ * the section tabs on a row of their own under it, a sticky sidebar for the
+ * active tab, and the page.
  *
  * Each tab has an accent. The whole frame takes the active tab's accent, so the
- * tab pill, the table-of-contents marker and anything else that reads
+ * tab's underline, the table-of-contents marker and anything else that reads
  * `accent.base` change colour together when you move between tabs.
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { css, props as styleProps } from "@kirana-style/core"
-import {
-  ArrowDown01Icon,
-  ArrowExpand01Icon,
-  ArrowShrink01Icon,
-  Menu01Icon,
-  PanelLeftCloseIcon,
-  PanelLeftOpenIcon,
-} from "@hugeicons/core-free-icons"
+import { ArrowDown01Icon, Menu01Icon } from "@hugeicons/core-free-icons"
 import { motion, useReducedMotion } from "motion/react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -38,6 +32,8 @@ import {
 } from "@workspace/ui/tokens/typography"
 
 import { accent, accents, tint } from "./accent.ts"
+import { BAR, DOCS_CHROME, TABS } from "./chrome.ts"
+import { collapsedPreference, widePreference } from "./preferences.ts"
 import { tabFor, useDocs } from "./provider.tsx"
 import type { DocsTab } from "./provider.tsx"
 import { DocsSearch } from "./search.tsx"
@@ -47,52 +43,13 @@ const SIDEBAR = "17rem"
 /** The collapsed sidebar: a column of the tabs' icons. */
 const RAIL = "3.25rem"
 
-/*
- * Layout choices — the page width, the collapsed sidebar — live in localStorage,
- * read as external stores: the server renders the default, the client switches
- * after hydration, and a change in one tab reaches the others through the
- * storage event.
- */
-function preference(key: string) {
-  const event = key
-  return {
-    read() {
-      try {
-        return localStorage.getItem(key) === "1"
-      } catch {
-        return false
-      }
-    },
-    write(value: boolean) {
-      try {
-        localStorage.setItem(key, value ? "1" : "0")
-      } catch {}
-      window.dispatchEvent(new Event(event))
-    },
-    subscribe(onChange: () => void) {
-      window.addEventListener("storage", onChange)
-      window.addEventListener(event, onChange)
-      return () => {
-        window.removeEventListener("storage", onChange)
-        window.removeEventListener(event, onChange)
-      }
-    },
-  }
-}
-const widePreference = preference("docs-ui:wide")
-const collapsedPreference = preference("docs-ui:sidebar-collapsed")
-
-const BAR = "3.5rem"
-
 const styles = {
   frame: css({ minHeight: "100dvh", backgroundColor: theme.background }),
-  bar: css({
+  // The bar and the tab row, sticky together.
+  header: css({
     position: "sticky",
     insetBlockStart: 0,
     zIndex: 30,
-    display: "flex",
-    alignItems: "center",
-    height: BAR,
     borderBottomWidth: "1px",
     borderBottomStyle: "solid",
     borderBottomColor: theme.border,
@@ -109,6 +66,14 @@ const styles = {
       backdropFilter: "blur(14px) saturate(1.5)",
     },
   }),
+  bar: css({ display: "flex", alignItems: "center", height: BAR }),
+  // The full-text search, wide enough to read what you type; below lg it is an icon.
+  search: css({
+    display: { base: "none", [breakpoint.lg]: "block" },
+    flex: "1 1 auto",
+    maxWidth: "26rem",
+    marginInlineStart: spacing[4],
+  }),
   brand: css({
     display: "flex",
     flexShrink: 0,
@@ -121,12 +86,6 @@ const styles = {
       [breakpoint.lg]: { base: SIDEBAR, "[data-collapsed]": "auto" },
     },
     paddingInline: { base: spacing[3], [breakpoint.sm]: spacing[4] },
-    borderInlineEndWidth: {
-      base: "0",
-      [breakpoint.lg]: { base: "1px", "[data-collapsed]": "0" },
-    },
-    borderInlineEndStyle: "solid",
-    borderInlineEndColor: theme.border,
   }),
   // Hidden on a phone, where the bar has room for the mark, the name and the tools only.
   badge: css({
@@ -142,14 +101,15 @@ const styles = {
     textTransform: "uppercase",
     color: theme.mutedForeground,
   }),
-  // From lg up; below it the menu sheet lists the tabs, since at tablet width
-  // five tabs and the actions do not fit on one bar.
+  // From lg up, a row of its own; below it the menu sheet lists the tabs.
   tabs: css({
     display: { base: "none", [breakpoint.lg]: "flex" },
     minWidth: 0,
-    alignItems: "center",
+    alignItems: "stretch",
     gap: spacing[1],
-    paddingInline: spacing[4],
+    height: TABS,
+    // The first tab starts on the logo's edge.
+    paddingInline: spacing["1.5"],
     overflowX: "auto",
     scrollbarWidth: "none",
   }),
@@ -158,27 +118,28 @@ const styles = {
     display: "inline-flex",
     alignItems: "center",
     gap: spacing["1.5"],
-    height: spacing[7],
-    borderRadius: radius.full,
     paddingInline: spacing["2.5"],
     whiteSpace: "nowrap",
-    fontSize: fontSize.xs,
-    lineHeight: lineHeight.xs,
-    fontWeight: fontWeight.semibold,
+    fontSize: fontSize.sm,
+    lineHeight: lineHeight.sm,
+    fontWeight: fontWeight.medium,
     textDecorationLine: "none",
     color: {
       base: theme.mutedForeground,
       ":hover": theme.foreground,
-      "[data-active]": accent.base,
+      "[data-active]": theme.foreground,
     },
     transitionProperty: "color",
     transitionDuration: duration[150],
   }),
-  tabPill: css({
+  // The active tab's underline, in its hue, over the header's bottom border.
+  tabLine: css({
     position: "absolute",
-    inset: 0,
+    insetInline: spacing["2.5"],
+    insetBlockEnd: "-1px",
+    height: "2px",
     borderRadius: radius.full,
-    backgroundColor: tint(12),
+    backgroundColor: accent.base,
   }),
   tabContent: css({
     position: "relative",
@@ -186,7 +147,10 @@ const styles = {
     alignItems: "center",
     gap: spacing["1.5"],
   }),
-  tabIcon: css({ opacity: { base: 0.6, ":is([data-active] *)": 1 } }),
+  tabIcon: css({
+    opacity: { base: 0.6, ":is([data-active] *)": 1 },
+    color: { base: "currentColor", ":is([data-active] *)": accent.base },
+  }),
   actions: css({
     marginInlineStart: "auto",
     display: "flex",
@@ -205,17 +169,6 @@ const styles = {
     minWidth: { [pointer.coarse]: "2.75rem" },
     minHeight: { [pointer.coarse]: "2.75rem" },
   }),
-  // The page width only matters where there is width to give.
-  widthButton: css({
-    display: { base: "none", [breakpoint.xl]: "inline-flex" },
-  }),
-
-  collapseButton: css({
-    display: { base: "none", [breakpoint.lg]: "inline-flex" },
-    marginInlineStart: "auto",
-    color: theme.mutedForeground,
-  }),
-
   body: css({
     display: "grid",
     gridTemplateColumns: {
@@ -231,8 +184,10 @@ const styles = {
   sidebar: css({
     display: { base: "none", [breakpoint.lg]: "block" },
     position: "sticky",
-    insetBlockStart: BAR,
-    height: `calc(100dvh - ${BAR} - var(--docs-banner, 0px))`,
+    insetBlockStart: DOCS_CHROME,
+    height: `calc(100dvh - ${DOCS_CHROME} - var(--docs-banner, 0px))`,
+    // The first label lines up with the breadcrumb and "On this page".
+    paddingBlockStart: spacing[6],
     borderInlineEndWidth: "1px",
     borderInlineEndStyle: "solid",
     borderInlineEndColor: theme.border,
@@ -477,7 +432,6 @@ export function DocsLayout({
     widePreference.read,
     () => false
   )
-  const toggleWide = () => widePreference.write(!wide)
   const collapsed = useSyncExternalStore(
     collapsedPreference.subscribe,
     collapsedPreference.read,
@@ -533,23 +487,64 @@ export function DocsLayout({
       data-wide={wide ? "" : undefined}
     >
       {banner ? <div ref={bannerBox}>{banner}</div> : null}
-      <header sx={styles.bar}>
-        <div sx={styles.brand} data-collapsed={collapsed ? "" : undefined}>
-          {logo}
-          <span sx={styles.badge}>Docs</span>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            sx={styles.collapseButton}
-            aria-pressed={collapsed}
-            aria-label={
-              collapsed ? "Expand the sidebar" : "Collapse the sidebar"
-            }
-            title={`${collapsed ? "Expand" : "Collapse"} the sidebar (Ctrl+B)`}
-            onClick={toggleCollapsed}
-          >
-            <Icon icon={collapsed ? PanelLeftOpenIcon : PanelLeftCloseIcon} />
-          </Button>
+      <header sx={styles.header}>
+        <div sx={styles.bar}>
+          <div sx={styles.brand} data-collapsed={collapsed ? "" : undefined}>
+            {logo}
+            <span sx={styles.badge}>Docs</span>
+          </div>
+          {/* A wrapper takes the display: on the field itself it would replace the field's own flex. */}
+          <div sx={styles.search}>
+            <DocsSearch />
+          </div>
+          <div sx={styles.actions}>
+            {actions}
+            <DocsSearch
+              variant="icon"
+              hotkey={false}
+              sx={styles.mobileSearch}
+            />
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Open the documentation menu"
+                    sx={styles.menuButton}
+                  />
+                }
+              >
+                <Icon icon={Menu01Icon} />
+              </SheetTrigger>
+              <SheetContent
+                side="left"
+                // The sheet is portalled out of the frame, so it takes the
+                // section's accent itself.
+                sx={[accents[active?.accent ?? "neutral"], styles.sheet]}
+              >
+                <SheetTitle sx={styles.sheetTitle}>Documentation</SheetTitle>
+                <SectionSwitcher
+                  active={active}
+                  onNavigate={() => setMenuOpen(false)}
+                />
+                <div
+                  sx={styles.sheetSidebar}
+                  onClick={(event) => {
+                    if ((event.target as HTMLElement).closest("a"))
+                      setMenuOpen(false)
+                  }}
+                >
+                  <DocsSidebar
+                    current={current}
+                    section={section}
+                    search="filter"
+                    onNavigate={() => setMenuOpen(false)}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
         <nav sx={styles.tabs} aria-label="Documentation sections">
           {tabs.map((tab) => {
@@ -563,13 +558,13 @@ export function DocsLayout({
               >
                 {isActive ? (
                   <motion.span
-                    layoutId="docs-ui-tab-pill"
+                    layoutId="docs-ui-tab-line"
                     transition={
                       reduce
                         ? { duration: 0 }
                         : { type: "spring", bounce: 0, duration: 0.3 }
                     }
-                    {...styleProps(styles.tabPill)}
+                    {...styleProps(styles.tabLine)}
                   />
                 ) : null}
                 <span sx={styles.tabContent}>
@@ -586,61 +581,6 @@ export function DocsLayout({
             )
           })}
         </nav>
-        <div sx={styles.actions}>
-          <Button
-            variant="ghost"
-            size="icon"
-            sx={styles.widthButton}
-            aria-pressed={wide}
-            aria-label={wide ? "Narrow the page" : "Widen the page"}
-            title={wide ? "Narrow the page" : "Widen the page"}
-            onClick={toggleWide}
-          >
-            <Icon icon={wide ? ArrowShrink01Icon : ArrowExpand01Icon} />
-          </Button>
-          {actions}
-          <DocsSearch variant="icon" hotkey={false} sx={styles.mobileSearch} />
-          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-            <SheetTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Open the documentation menu"
-                  sx={styles.menuButton}
-                />
-              }
-            >
-              <Icon icon={Menu01Icon} />
-            </SheetTrigger>
-            <SheetContent
-              side="left"
-              // The sheet is portalled out of the frame, so it takes the
-              // section's accent itself.
-              sx={[accents[active?.accent ?? "neutral"], styles.sheet]}
-            >
-              <SheetTitle sx={styles.sheetTitle}>Documentation</SheetTitle>
-              <SectionSwitcher
-                active={active}
-                onNavigate={() => setMenuOpen(false)}
-              />
-              <div
-                sx={styles.sheetSidebar}
-                onClick={(event) => {
-                  if ((event.target as HTMLElement).closest("a"))
-                    setMenuOpen(false)
-                }}
-              >
-                <DocsSidebar
-                  current={current}
-                  section={section}
-                  search="filter"
-                  onNavigate={() => setMenuOpen(false)}
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
       </header>
       <div sx={styles.body} data-collapsed={collapsed ? "" : undefined}>
         <aside sx={styles.sidebar}>
@@ -667,7 +607,8 @@ export function DocsLayout({
               ))}
             </nav>
           ) : (
-            <DocsSidebar current={current} section={section} />
+            // The search is in the bar from lg up, so the sidebar leads with its pages.
+            <DocsSidebar current={current} section={section} search={false} />
           )}
           <button
             type="button"
@@ -677,7 +618,7 @@ export function DocsLayout({
             aria-label={
               collapsed ? "Expand the sidebar" : "Collapse the sidebar"
             }
-            title={`${collapsed ? "Expand" : "Collapse"} the sidebar`}
+            title={`${collapsed ? "Expand" : "Collapse"} the sidebar (Ctrl+B)`}
             onClick={toggleCollapsed}
           />
         </aside>

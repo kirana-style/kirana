@@ -1,6 +1,6 @@
 ---
 title: Meteor
-description: Install Kirana in a Meteor 3.4+ app - Meteor bundles app code with Rspack, and Kirana's Rspack plugin goes in its configuration.
+description: Install Kirana in a Meteor 3.4+ app, where Meteor bundles app code with Rspack and Kirana's Rspack plugin goes in its configuration.
 section: frameworks
 order: 13.7
 keywords: [meteor, rspack, react, install, modern build stack]
@@ -12,23 +12,19 @@ Since Meteor 3.4 the `rspack` package bundles app code with Rspack, so Kirana's
 Rspack plugin is Meteor's plugin too. Tested on every change by
 `examples/meteor`, built with `meteor build` and on `meteor run`.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana init
+npx kirana-style init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you
 say yes, and prints the install command (`--install` runs it). Then
-`npx kirana doctor` checks the result.
+`npx kirana-style doctor` checks the result.
 
 ## 1. Install
 
@@ -78,5 +74,7 @@ export const App = () => <h1 sx={title}>Hello</h1>
 
 ## Next
 
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
 - [Rspack and Rsbuild](/docs/integrations/rspack).
 - [Styles](/docs/styling/styles).

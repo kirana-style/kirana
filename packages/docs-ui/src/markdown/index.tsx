@@ -1,4 +1,4 @@
-import { createContext, use } from "react"
+import { Children, createContext, use } from "react"
 import { css } from "@kirana-style/core"
 import type { MarkdownComponents } from "@tanstack/markdown/react"
 
@@ -19,9 +19,13 @@ import {
   fontWeight,
   letterSpacing,
   lineHeight,
+  textLeading,
+  textSize,
 } from "@workspace/ui/tokens/typography"
 
-import { accent } from "../accent.ts"
+import { accent, tint } from "../accent.ts"
+import { DOCS_CHROME } from "../chrome.ts"
+import { PageContext } from "../page-context.ts"
 import { useDocs } from "../provider.tsx"
 import { Callout } from "./callout.tsx"
 import { CodeBlock } from "./code-block.tsx"
@@ -31,6 +35,9 @@ import type { CommentRegistry } from "./comment-component.tsx"
 import { InstallTabs } from "./install-tabs.tsx"
 import { MarkdownTabPanel, MarkdownTabs } from "./tabs.tsx"
 
+/** Where a linked heading lands: under the docs chrome (or the site header), with room above it. */
+const ANCHOR = `calc(${DOCS_CHROME} + ${spacing[4]})`
+
 const styles = {
   h1: css({
     fontFamily: fontFamily.heading,
@@ -39,7 +46,14 @@ const styles = {
     fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.tight,
     marginBlockEnd: spacing[4],
-    scrollMarginBlockStart: spacing[20],
+    scrollMarginBlockStart: ANCHOR,
+  }),
+  lede: css({
+    marginBlockEnd: spacing[8],
+    fontSize: textSize.lede,
+    lineHeight: textLeading.lede,
+    color: theme.mutedForeground,
+    textWrap: "pretty",
   }),
   h2: css({
     fontFamily: fontFamily.heading,
@@ -49,7 +63,22 @@ const styles = {
     letterSpacing: letterSpacing.tight,
     marginBlockStart: spacing[12],
     marginBlockEnd: spacing[3],
-    scrollMarginBlockStart: spacing[20],
+    scrollMarginBlockStart: ANCHOR,
+  }),
+  step: css({ display: "flex", alignItems: "center", gap: spacing[3] }),
+  stepNumber: css({
+    display: "grid",
+    flexShrink: 0,
+    placeItems: "center",
+    width: spacing[8],
+    height: spacing[8],
+    borderRadius: radius.full,
+    backgroundColor: tint(14),
+    color: accent.base,
+    fontFamily: fontFamily.mono,
+    fontSize: fontSize.sm,
+    lineHeight: "1",
+    fontWeight: fontWeight.semibold,
   }),
   h3: css({
     fontSize: fontSize.lg,
@@ -57,7 +86,7 @@ const styles = {
     fontWeight: fontWeight.semibold,
     marginBlockStart: spacing[8],
     marginBlockEnd: spacing[2],
-    scrollMarginBlockStart: spacing[20],
+    scrollMarginBlockStart: ANCHOR,
   }),
   h4: css({
     fontSize: fontSize.base,
@@ -65,7 +94,7 @@ const styles = {
     fontWeight: fontWeight.semibold,
     marginBlockStart: spacing[6],
     marginBlockEnd: spacing[2],
-    scrollMarginBlockStart: spacing[20],
+    scrollMarginBlockStart: ANCHOR,
   }),
   p: css({
     marginBlockEnd: spacing[4],
@@ -146,12 +175,44 @@ const styles = {
 
 // Written out rather than built from `h${level}`: a tag held in a variable is a
 // component to JSX, so `sx` would ride along as an unknown prop and be dropped.
-const H1 = (props: React.ComponentProps<"h1">) => (
-  <h1 {...props} sx={styles.h1} />
-)
-const H2 = (props: React.ComponentProps<"h2">) => (
-  <h2 {...props} sx={styles.h2} />
-)
+/** The page title, and on a docs page its description as the lede under it. */
+function H1(props: React.ComponentProps<"h1">) {
+  const page = use(PageContext)
+  return (
+    <>
+      <h1 {...props} sx={styles.h1} />
+      {page?.description ? <p sx={styles.lede}>{page.description}</p> : null}
+    </>
+  )
+}
+/** A numbered heading ("2. Add the plugin") is a step. */
+const STEP = /^(\d+)\.\s+/
+
+/**
+ * An h2. A step (every install guide numbers its own) sets its number in a marker in the tab's
+ * hue, as the install explorer does, so a guide reads as a sequence at a glance.
+ */
+function H2({ children, ...props }: React.ComponentProps<"h2">) {
+  // The renderer passes the text as a nested array beside the anchor slot; flatten it.
+  const parts = Children.toArray(children)
+  const first = parts[0]
+  const step = typeof first === "string" ? STEP.exec(first) : null
+  if (!step)
+    return (
+      <h2 {...props} sx={styles.h2}>
+        {children}
+      </h2>
+    )
+  return (
+    <h2 {...props} sx={[styles.h2, styles.step]}>
+      <span sx={styles.stepNumber}>{step[1]}</span>
+      <span>
+        {(first as string).slice(step[0].length)}
+        {parts.slice(1)}
+      </span>
+    </h2>
+  )
+}
 const H3 = (props: React.ComponentProps<"h3">) => (
   <h3 {...props} sx={styles.h3} />
 )
@@ -176,7 +237,12 @@ function InlineCode({ html }: { html: string }) {
   )
 }
 
-function Anchor({ href = "", children, ...props }: React.ComponentProps<"a">) {
+/** A markdown link, for an embed that writes a sentence the way the page's own prose does. */
+export function MarkdownLink({
+  href = "",
+  children,
+  ...props
+}: React.ComponentProps<"a">) {
   const { Link, pageIcon } = useDocs()
   const icon = use(InCell) ? pageIcon?.(href.split("#")[0]!) : null
   return (
@@ -208,13 +274,18 @@ export function createMarkdownComponents(
   }
 }
 
+/** A markdown paragraph, for the same reason. */
+export function MarkdownParagraph(props: React.ComponentProps<"p">) {
+  return <p {...props} sx={styles.p} />
+}
+
 const base: MarkdownComponents = {
   h1: H1,
   h2: H2,
   h3: H3,
   h4: H4,
-  p: (props) => <p {...props} sx={styles.p} />,
-  a: Anchor,
+  p: MarkdownParagraph,
+  a: MarkdownLink,
   ul: (props) => <ul {...props} sx={[styles.list, styles.ul]} />,
   ol: (props) => <ol {...props} sx={[styles.list, styles.ol]} />,
   li: (props) => <li {...props} sx={styles.li} />,
@@ -238,6 +309,25 @@ const base: MarkdownComponents = {
     </InCell>
   ),
   "md-code": CodeBlock,
-  "md-callout": Callout,
+  // A callout's title is plain text from the `> [!NOTE] Title` line; its `code` spans are set
+  // as the body's are.
+  "md-callout": ({ title, ...props }: React.ComponentProps<typeof Callout>) => (
+    <Callout
+      {...props}
+      title={
+        typeof title === "string"
+          ? title.split("`").map((part, index) =>
+              index % 2 === 1 ? (
+                <code key={index} sx={styles.code}>
+                  {part}
+                </code>
+              ) : (
+                part
+              )
+            )
+          : title
+      }
+    />
+  ),
   "md-tab-panel": MarkdownTabPanel,
 }

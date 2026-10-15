@@ -7,7 +7,7 @@ one small, layered, atomic stylesheet at native speed. Start with plain objects 
 no preset; add tokens, themes and ready-made scales when your design system grows.
 A typo or a selector that can never match is a compile error, styles merge per
 property instead of colliding, and your editor shows every element's CSS at the end
-of its line — across the frameworks, bundlers and editors you already use. Nothing
+of its line, across the frameworks, bundlers and editors you already use. Nothing
 runs in the browser but a class-name merge.
 
 ```tsx
@@ -162,7 +162,7 @@ vp run engine                                          # the engine the server r
 ```
 
 Then, in the editor: **Extensions: Install from VSIX…** and pick
-`packages/kirana/editors/vscode/kirana.vsix` — or from a terminal:
+`packages/kirana/editors/vscode/kirana.vsix`, or install it from a terminal:
 
 ```bash
 code --install-extension packages/kirana/editors/vscode/kirana.vsix --force
@@ -207,9 +207,9 @@ The docs show product logos from [SVGL](https://svgl.app), and from
 kept in the repository, so nothing is fetched at runtime, in dev, in builds or
 in CI:
 
-- `packages/docs-ui/src/brands/*.svg` — the files, and `manifest.json`, what was
+- `packages/docs-ui/src/brands/*.svg`: the files, and `manifest.json`, what was
   fetched and from which source;
-- `apps/docs/src/generated/svgl-icons.gen.ts` — the `SVGL` map, each logo a Vite
+- `apps/docs/src/generated/svgl-icons.gen.ts`: the `SVGL` map, each logo a Vite
   asset import (`?url`).
 
 To add a logo, add its slug and SVGL title to `NEEDED` in

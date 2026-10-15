@@ -129,8 +129,8 @@ function Play() {
           <AlertDescription>
             Each window below was produced by the compiler in this repository
             when the site was built. Editing source in the browser needs the
-            compiler running in the page, which is not built yet — until then
-            the source is read-only rather than an editor that quietly compiles
+            compiler running in the page, which is not built yet. Until then the
+            source is read-only rather than an editor that quietly compiles
             nothing.{" "}
             <DocsLink href="/docs/project/roadmap">See the roadmap</DocsLink>.
           </AlertDescription>

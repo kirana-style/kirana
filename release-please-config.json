@@ -89,6 +89,11 @@
         },
         {
           "type": "json",
+          "path": "packages/kirana/npm/cli/package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
           "path": "packages/kirana/npm/compiler/package.json",
           "jsonpath": "$.version"
         },

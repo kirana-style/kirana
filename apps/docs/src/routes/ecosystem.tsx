@@ -1,9 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
 import { accent, accents, tint } from "@workspace/docs-ui/accent.ts"
-import { BrandIcon } from "@workspace/docs-ui/brand-icon.tsx"
-import type { SvglIcon } from "@workspace/docs-ui/brand-icon.tsx"
-import { SVGL } from "@/generated/svgl-icons.gen"
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
@@ -15,12 +12,13 @@ import {
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
-import { FRAMEWORKS } from "@/components/home/content"
 import { More } from "@/components/page-section"
 import { LogoIcon, PAGE_LOGOS } from "@/components/site/brands"
+import { InlineCode } from "@/components/site/code-tokens"
+import { FrameworkGrid } from "@/components/site/framework-grid"
+import { PackageGroups } from "@/components/site/packages"
 import { Page, PageHero, PageSection } from "@/components/site/page"
 import { PACKAGES } from "@/generated/packages.gen"
-import { LIFT, REST } from "@/components/site/lift"
 import { COUNTS } from "@/data/facts"
 
 export const Route = createFileRoute("/ecosystem")({
@@ -37,62 +35,72 @@ export const Route = createFileRoute("/ecosystem")({
   }),
 })
 
-type Status = "Works" | "Planned" | "Deferred" | "In this repository"
+type Status = "Works" | "Planned" | "Deferred" | "In this repository" | "On npm"
 
-/** From `/docs/integrations/ecosystem`, the source of truth for status. */
-const BUNDLERS: {
-  name: string
-  status: Status
-  note: string
-  icon?: SvglIcon
-}[] = [
-  {
-    name: "Vite 8",
-    status: "Works",
-    note: "@kirana-style/vite, with hot updates",
-    icon: SVGL.vite,
-  },
-  {
-    name: "Rolldown",
-    status: "Works",
-    note: "@kirana-style/rolldown",
-    icon: SVGL.rolldown,
-  },
-  {
-    name: "webpack 5",
-    status: "Works",
-    note: "@kirana-style/webpack, with dev-server updates",
-  },
-  {
-    name: "Rspack, Rsbuild",
-    status: "Works",
-    note: "@kirana-style/rspack, with dev-server updates",
-  },
-  {
-    name: "Bun",
-    status: "Works",
-    note: "@kirana-style/bun, builds and dev server",
-    icon: SVGL.bun,
-  },
-  {
-    name: "esbuild",
-    status: "Works",
-    note: "@kirana-style/esbuild",
-    icon: SVGL.esbuild,
-  },
-  {
-    name: "Jest",
-    status: "Works",
-    note: "@kirana-style/jest",
-    icon: SVGL.jest,
-  },
-  {
-    name: "Next.js, Turbopack and webpack",
-    status: "Works",
-    note: "@kirana-style/next with @kirana-style/postcss, on the dev server too",
-    icon: SVGL.nextjs,
-  },
-]
+/** From `/docs/integrations/ecosystem`, the source of truth for status; each row opens its guide. */
+const BUNDLERS: { name: string; status: Status; note: string; href: string }[] =
+  [
+    {
+      name: "Vite 8",
+      status: "Works",
+      note: "@kirana-style/vite, with hot updates",
+      href: "/docs/integrations/vite",
+    },
+    {
+      name: "Rolldown",
+      status: "Works",
+      note: "@kirana-style/rolldown",
+      href: "/docs/integrations/rolldown",
+    },
+    {
+      name: "webpack 5",
+      status: "Works",
+      note: "@kirana-style/webpack, with dev-server updates",
+      href: "/docs/integrations/webpack",
+    },
+    {
+      name: "Rspack, Rsbuild",
+      status: "Works",
+      note: "@kirana-style/rspack, with dev-server updates",
+      href: "/docs/integrations/rspack",
+    },
+    {
+      name: "Parcel",
+      status: "Works",
+      note: "@kirana-style/parcel-transformer with @kirana-style/postcss",
+      href: "/docs/integrations/parcel",
+    },
+    {
+      name: "Bun",
+      status: "Works",
+      note: "@kirana-style/bun, builds and dev server",
+      href: "/docs/integrations/bun",
+    },
+    {
+      name: "esbuild",
+      status: "Works",
+      note: "@kirana-style/esbuild",
+      href: "/docs/integrations/esbuild",
+    },
+    {
+      name: "PostCSS",
+      status: "Works",
+      note: "@kirana-style/postcss, for any PostCSS pipeline",
+      href: "/docs/integrations/postcss",
+    },
+    {
+      name: "Jest",
+      status: "Works",
+      note: "@kirana-style/jest",
+      href: "/docs/integrations/jest",
+    },
+    {
+      name: "Next.js, Turbopack and webpack",
+      status: "Works",
+      note: "@kirana-style/next with @kirana-style/postcss, on the dev server too",
+      href: "/docs/frameworks/nextjs",
+    },
+  ]
 
 const TOOLING: { name: string; status: Status; note: string; href: string }[] =
   [
@@ -117,7 +125,7 @@ const TOOLING: { name: string; status: Status; note: string; href: string }[] =
     {
       name: "kirana init, doctor, dev",
       status: "Works",
-      note: "Set a project up from a diff, check the setup or write a bug report, watch without a bundler",
+      note: "Set a project up from a diff (npx kirana-style init on the first run), check the setup or write a bug report, watch without a bundler",
       href: "/docs/tooling/cli",
     },
     {
@@ -127,7 +135,8 @@ const TOOLING: { name: string; status: Status; note: string; href: string }[] =
       href: "/docs/tooling/editor",
     },
     {
-      name: "Lint plugin (@kirana-style/eslint-plugin: Oxlint, ESLint)",
+      // consistency: subset (the ESLint plugin's hosts; Biome has its own row below)
+      name: "Lint plugin (Oxlint, ESLint)",
       status: "Works",
       note: "@kirana-style/eslint-plugin",
       href: "/docs/tooling/lint",
@@ -152,54 +161,64 @@ const TOOLING: { name: string; status: Status; note: string; href: string }[] =
     },
   ]
 
-/** A status's hue: works in forest, deferred in ochre, the rest in ink. */
+/** A status's hue: works and published in forest, deferred in ochre, the rest in ink. */
 const STATUS_ACCENT = {
   Works: "forest",
   Planned: "neutral",
   Deferred: "ochre",
   "In this repository": "neutral",
+  "On npm": "forest",
 } as const
 
+/** What the packages chapter says about npm, read from the packages so it flips when they publish. */
+const VERSIONS = [...new Set(PACKAGES.map((entry) => entry.version))]
+const ON_NPM = PACKAGES.filter((entry) => entry.published).length
+const NPM_LINE =
+  ON_NPM === 0
+    ? "none is on npm yet"
+    : ON_NPM === PACKAGES.length
+      ? "every one is on npm"
+      : `${ON_NPM} of ${PACKAGES.length} are on npm`
+const PACKAGES_LEDE = `${
+  VERSIONS.length === 1
+    ? `Every package is ${VERSIONS[0]} and ${NPM_LINE}`
+    : NPM_LINE.charAt(0).toUpperCase() + NPM_LINE.slice(1)
+}; each is packed and install-tested on every change.`
+
+/** A package description with its `code` spans set as code. */
+function Described({ text }: { text: string }) {
+  return text
+    .split("`")
+    .map((part, index) =>
+      index % 2 === 1 ? <InlineCode key={index}>{part}</InlineCode> : part
+    )
+}
+
 const styles = {
-  packages: css({
-    display: "grid",
-    gap: spacing[3],
+  // Package names are long and mono, so their column is wider than the other tables'.
+  packageRow: css({
     gridTemplateColumns: {
-      base: "minmax(0, 1fr)",
-      [breakpoint.md]: "repeat(2, minmax(0, 1fr))",
-      [breakpoint.lg]: "repeat(3, minmax(0, 1fr))",
+      base: "minmax(0, 1fr) auto",
+      [breakpoint.md]: "19rem minmax(0, 1fr) auto",
     },
   }),
-  pkg: css({
-    display: "grid",
-    gap: spacing[2],
-    alignContent: "start",
-    borderRadius: radius.xl,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    backgroundColor: theme.card,
-    padding: spacing[5],
-  }),
-  pkgName: css({
-    display: "flex",
-    alignItems: "baseline",
-    justifyContent: "space-between",
-    gap: spacing[2],
+  packageName: css({
     fontFamily: fontFamily.mono,
     fontSize: fontSize.sm,
     lineHeight: lineHeight.sm,
-    fontWeight: fontWeight.semibold,
+    fontWeight: fontWeight.medium,
     color: accent.base,
+    overflowWrap: "anywhere",
+  }),
+  packageStatus: css({
+    display: "inline-flex",
+    alignItems: "center",
+    justifySelf: "end",
+    gap: spacing[2],
   }),
   version: css({
+    fontFamily: fontFamily.mono,
     fontSize: fontSize.xs,
-    fontWeight: fontWeight.normal,
-    color: theme.mutedForeground,
-  }),
-  text: css({
-    fontSize: fontSize.sm,
-    lineHeight: "1.6",
     color: theme.mutedForeground,
   }),
   table: css({
@@ -253,28 +272,6 @@ const styles = {
     color: accent.base,
     backgroundColor: tint(12),
   }),
-  frameworks: css({
-    display: "grid",
-    gap: spacing[2],
-    gridTemplateColumns: "repeat(auto-fill, minmax(11rem, 1fr))",
-  }),
-  framework: css({
-    display: "flex",
-    alignItems: "center",
-    gap: spacing[3],
-    borderRadius: radius.lg,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    boxShadow: { base: REST, ":hover": LIFT },
-    backgroundColor: theme.card,
-    paddingInline: spacing[4],
-    paddingBlock: spacing[3],
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.medium,
-    textDecorationLine: "none",
-    color: theme.foreground,
-  }),
 }
 
 function Badge({ status }: { status: Status }) {
@@ -294,40 +291,31 @@ function EcosystemPage() {
 
       <PageSection
         number="01"
-        label="Packages"
+        label="How it fits"
         title="One engine, a thin package for each tool"
-        lede="Every package is 0.1.0 and none is on npm yet; each is packed and install-tested on every change."
+        lede="What you write with, what compiles it, the preset, an adapter for each bundler, and the lint rules."
       >
-        <div sx={styles.packages}>
-          {PACKAGES.map((entry) => (
-            <div key={entry.name} sx={styles.pkg}>
-              <span sx={styles.pkgName}>
-                {entry.name}
-                <span sx={styles.version}>
-                  {entry.version}
-                  {entry.published ? "" : " · not published"}
-                </span>
-              </span>
-              <span sx={styles.text}>{entry.description}</span>
-            </div>
-          ))}
-        </div>
+        <PackageGroups />
       </PageSection>
 
       <PageSection
         number="02"
-        label="Bundlers"
-        title="The same compiler under every bundler"
+        label="Packages"
+        title="Every package, and where it stands"
+        lede={PACKAGES_LEDE}
       >
         <div sx={styles.table}>
-          {BUNDLERS.map((item) => (
-            <div key={item.name} sx={styles.row}>
-              <span sx={styles.name}>
-                {item.icon ? <BrandIcon icon={item.icon} /> : null}
-                {item.name}
+          {PACKAGES.map((entry) => (
+            <div key={entry.name} sx={[styles.row, styles.packageRow]}>
+              <span sx={styles.packageName}>{entry.name}</span>
+              <span sx={styles.note}>
+                <Described text={entry.description} />
               </span>
-              <span sx={styles.note}>{item.note}</span>
-              <Badge status={item.status} />
+              <span sx={styles.packageStatus}>
+                <span sx={styles.version}>{entry.version}</span>
+                {/* Only a published package is marked: until then the lede says it for all of them. */}
+                {entry.published ? <Badge status="On npm" /> : null}
+              </span>
             </div>
           ))}
         </div>
@@ -335,21 +323,20 @@ function EcosystemPage() {
 
       <PageSection
         number="03"
-        label="Frameworks"
-        title="A guide and a checked example for each framework"
-        lede="All of them work; each guide names the example CI builds and checks."
+        label="Bundlers"
+        title="The same compiler under every bundler"
       >
-        <div sx={styles.frameworks}>
-          {FRAMEWORKS.map((framework) => (
-            <DocsLink
-              key={framework.href}
-              href={framework.href}
-              sx={styles.framework}
-            >
-              {PAGE_LOGOS[framework.href] ? (
-                <LogoIcon logo={PAGE_LOGOS[framework.href]!} />
-              ) : null}
-              {framework.title}
+        <div sx={styles.table}>
+          {BUNDLERS.map((item) => (
+            <DocsLink key={item.name} href={item.href} sx={styles.row}>
+              <span sx={styles.name}>
+                {PAGE_LOGOS[item.href] ? (
+                  <LogoIcon logo={PAGE_LOGOS[item.href]!} />
+                ) : null}
+                {item.name}
+              </span>
+              <span sx={styles.note}>{item.note}</span>
+              <Badge status={item.status} />
             </DocsLink>
           ))}
         </div>
@@ -357,8 +344,17 @@ function EcosystemPage() {
 
       <PageSection
         number="04"
+        label="Frameworks"
+        title="A guide and a checked example for each framework"
+        lede="All of them work; each guide names the example CI builds and checks."
+      >
+        <FrameworkGrid />
+      </PageSection>
+
+      <PageSection
+        number="05"
         label="Tooling"
-        title="The tools around the compiler"
+        title="What ships around the compiler"
       >
         <div sx={styles.table}>
           {TOOLING.map((item) => (

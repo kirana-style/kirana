@@ -569,7 +569,7 @@ function BrowserTab({ mode }: { mode: "light" | "dark" }) {
             sx={styles.tabIcon}
             title={null}
           />
-          Kirana — styling, compiled
+          Kirana: styling, compiled
         </div>
       </div>
       <div sx={styles.assetFoot}>
@@ -681,7 +681,7 @@ const IDEAS = [
   },
   {
     title: "One italic word",
-    text: "A headline in Newsreader at its regular weight, with one word in italic in the page's hue.",
+    text: "A headline in EB Garamond at its regular weight, with one word in italic in the page's hue.",
   },
 ]
 
@@ -939,18 +939,19 @@ export function BrandPage() {
           <div sx={[sectionStyles.bordered, styles.specimen]}>
             <div sx={styles.specimenHead}>
               <span sx={styles.assetName}>
-                Newsreader, display and headings
+                EB Garamond, display, headings and the wordmark
               </span>
               <span sx={styles.mono}>
-                Production Type, SIL Open Font License
+                Georg Duffner and Octavio Pardo, SIL Open Font License
               </span>
             </div>
             <span sx={styles.displayType}>
               Styles in, <em>one stylesheet</em> out.
             </span>
             <span sx={styles.cardText}>
-              An editorial serif with optical sizes: fine at 84 px, readable at
-              24, with a true italic for the one accented word and the wordmark.
+              An old-style serif after Claude Garamont's types, calm at 84 px
+              and readable at 24. Its drawn italic carries the one accented word
+              of a headline and the wordmark.
             </span>
           </div>
           <div sx={[sectionStyles.bordered, styles.specimen]}>

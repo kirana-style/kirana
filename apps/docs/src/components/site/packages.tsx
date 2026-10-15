@@ -21,7 +21,7 @@ import { accent } from "@workspace/docs-ui/accent.ts"
 import type { AccentName } from "@workspace/docs-ui/accent.ts"
 import { Icon } from "@workspace/ui/primitives/icon"
 import type { IconProps } from "@workspace/ui/primitives/icon"
-import { radius, theme } from "@workspace/ui/theme/semantic"
+import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
@@ -33,17 +33,14 @@ import {
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
-import { More } from "@/components/page-section"
 import { Keycap } from "@/components/site/accents"
 import { IllustratedCard, pill } from "@/components/site/illustrated-card"
 import { At, Card, Row, Scene, T, Tag, Tile } from "@/components/site/visuals"
 import { SVGL } from "@/generated/svgl-icons.gen"
-import { patterns } from "@/components/site/patterns"
 import { PACKAGES } from "@/generated/packages.gen"
 
-import { FEATURES, PILLARS } from "./content"
-import { HomeSection, frame } from "./frame"
-import { LIFT, REST } from "@/components/site/lift"
+import { FEATURES, PILLARS } from "@/data/claims"
+import { frame } from "@/components/home/frame"
 
 const GROUPS: {
   title: string
@@ -65,7 +62,8 @@ const GROUPS: {
     title: "Compiler and CLI",
     icon: CubeIcon,
     accent: "tea",
-    packages: ["@kirana-style/compiler"],
+    text: "The engine and the kirana command, and the small package npx runs on a project's first run, before Kirana is installed.",
+    packages: ["@kirana-style/compiler", "kirana-style"],
     href: "/docs/tooling/cli",
   },
   {
@@ -164,14 +162,16 @@ const styles = {
     transitionDuration: duration[150],
   }),
   // The features sit in cells separated by hatched gutters.
+  // Eight features in cells split by 1px gutters.
   features: css({
     display: "grid",
-    gap: spacing[3],
+    gap: "1px",
+    overflow: "hidden",
     borderRadius: radius.xl,
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: theme.border,
-    padding: spacing[3],
+    backgroundColor: theme.border,
     gridTemplateColumns: {
       base: "minmax(0, 1fr)",
       [breakpoint.sm]: "repeat(2, minmax(0, 1fr))",
@@ -182,16 +182,11 @@ const styles = {
     display: "grid",
     gap: spacing[2],
     alignContent: "start",
-    borderRadius: radius.lg,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    boxShadow: { base: REST, ":hover": LIFT },
-    backgroundColor: theme.background,
+    backgroundColor: { base: theme.card, ":hover": alpha.muted50 },
     padding: spacing[5],
     textDecorationLine: "none",
     color: theme.foreground,
-    transitionProperty: "box-shadow",
+    transitionProperty: "background-color",
     transitionDuration: duration[150],
   }),
   featureIcon: css({ color: accent.base }),
@@ -346,13 +341,10 @@ const ART: Record<string, () => React.ReactNode> = {
   Lint: LintArt,
 }
 
-export function Ecosystem() {
+/** The packages in their groups, each group drawn: `/ecosystem`'s first chapter. */
+export function PackageGroups() {
   return (
-    <HomeSection
-      eyebrow="Packages"
-      title="Small packages, one engine"
-      lede="One native engine, a thin adapter per bundler. None of them is on npm yet; each is packed and install-tested on every change."
-    >
+    <>
       <div sx={styles.groups}>
         {GROUPS.map((group) => {
           const entries = group.packages.flatMap(
@@ -363,8 +355,8 @@ export function Ecosystem() {
           return (
             <IllustratedCard
               key={group.title}
-              tone={group.accent}
-              wide={!single}
+              // The three small groups sit side by side; the adapters, wide, below them.
+              wide={entries.length > 2}
               art={<ArtFor />}
               title={group.title}
               note={single ? "1 package" : `${entries.length} packages`}
@@ -385,16 +377,14 @@ export function Ecosystem() {
           )
         })}
       </div>
-      <DocsLink href="/docs/integrations/ecosystem">
-        <More>Ecosystem and status</More>
-      </DocsLink>
-    </HomeSection>
+    </>
   )
 }
 
-export function Features() {
+/** The three promises and the features that keep them: a chapter of `/why`. */
+export function Principles() {
   return (
-    <HomeSection eyebrow="Principles" title="Three promises, and what they buy">
+    <>
       <div sx={styles.pillars}>
         {PILLARS.map((pillar) => (
           <DocsLink key={pillar.title} href={pillar.href} sx={styles.pillar}>
@@ -404,7 +394,7 @@ export function Features() {
           </DocsLink>
         ))}
       </div>
-      <div sx={[patterns.hatch, styles.features]}>
+      <div sx={styles.features}>
         {FEATURES.map((feature) => (
           <DocsLink key={feature.title} href={feature.href} sx={styles.feature}>
             <Icon icon={feature.icon} size="1.125rem" sx={styles.featureIcon} />
@@ -413,6 +403,6 @@ export function Features() {
           </DocsLink>
         ))}
       </div>
-    </HomeSection>
+    </>
   )
 }

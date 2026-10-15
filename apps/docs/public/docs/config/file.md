@@ -15,7 +15,7 @@ export default defineConfig({
 })
 ```
 
-`defineConfig` is an identity function — it exists for the types.
+`defineConfig` is an identity function: it exists for the types.
 
 ## How it is found
 
@@ -44,7 +44,7 @@ directory) and cannot be set in the file.
 ## Unknown keys are errors
 
 The validator rejects keys it does not know (`invalid-config`), rather than
-ignoring them. A typo fails the build instead of silently doing nothing — and a
+ignoring them. A typo fails the build instead of silently doing nothing, and a
 key from a future version fails loudly rather than pretending to work.
 
 ## Sharing configuration
@@ -63,5 +63,5 @@ export const uiConfig = {
 export default defineConfig({ ...uiConfig, layers: { before: ["reset"] } })
 ```
 
-That is how a component library tells every app what its attributes guarantee —
+That is how a component library tells every app what its attributes guarantee;
 see [`conditions.exclusive`](/docs/config/reference).

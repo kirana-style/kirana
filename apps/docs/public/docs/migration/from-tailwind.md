@@ -3,12 +3,10 @@ Source: https://kirana.style/docs/migration/from-tailwind
 
 # Migrating from Tailwind
 
-We have done this migration at full scale — every shadcn/ui component, three
-applications — twice: once by hand (by way of the StyleX port), and once with
+We have done this migration at full scale (every shadcn/ui component, three
+applications) twice: once by hand (by way of the StyleX port), and once with
 `kirana migrate tailwind`, until the result matched the Tailwind original with zero computed-style differences.
 So this page is what it costs, not what it should cost in theory.
-
-<!-- ::figure-codemod -->
 
 ## The shift, in four lines
 
@@ -26,11 +24,11 @@ So this page is what it costs, not what it should cost in theory.
 | ----------------------------- | --------------------------------------------------------------------------- |
 | `flex items-center gap-2`     | `{ display: "flex", alignItems: "center", gap: space[2] }`                  |
 | `px-4 py-2`                   | `{ paddingInline: space[4], paddingBlock: space[2] }`                       |
-| `text-sm`                     | `{ fontSize: fontSize.sm, lineHeight: lineHeight.sm }` — always both        |
-| `bg-primary/80`               | `{ backgroundColor: alpha.primary80 }` — a `color-mix` token                |
+| `text-sm`                     | `{ fontSize: fontSize.sm, lineHeight: lineHeight.sm }`, always both         |
+| `bg-primary/80`               | `{ backgroundColor: alpha.primary80 }`, a `color-mix` token                 |
 | `hover:underline`             | `{ textDecorationLine: { ":hover": "underline" } }`                         |
 | `md:grid-cols-2`              | `{ gridTemplateColumns: { [breakpoint.md]: "repeat(2, minmax(0, 1fr))" } }` |
-| `dark:bg-zinc-900`            | nothing — the token is a `light-dark()` pair                                |
+| `dark:bg-zinc-900`            | nothing: the token is a `light-dark()` pair                                 |
 | `group-hover:opacity-100`     | `{ opacity: { [group.within(":hover")]: 1 } }`                              |
 | `peer-checked:text-black`     | `{ color: { [peer.after(":checked")]: "black" } }`                          |
 | `[&_svg]:size-4`              | `{ [select.descendant("svg")]: { width: …, height: … } }`                   |
@@ -45,7 +43,7 @@ the values you already know.
 ## The four that do not translate directly
 
 **`text-sm` sets two properties.** Tailwind's type utilities set a size _and_ a
-line height. Write both, every time — a size without its line height is the most
+line height. Write both, every time: a size without its line height is the most
 common visual drift in a port.
 
 **`border` sets a colour.** Tailwind's preflight gives every element a default
@@ -54,7 +52,7 @@ sets widths only, and you name the colour.
 
 **`cn()` conflict resolution is gone, and that is the point.** `cn("p-2", "p-4")`
 kept the last. Kirana merges per entry, so the same intent is `padding: space[4]`
-written once — but a _conditional_ value you did not name survives. Read
+written once. But a _conditional_ value you did not name survives. Read
 [merging](/docs/styling/merging) before porting a component with states.
 
 **Arbitrary variants that read classes** (`[&:not([class*='size-'])]`) have no
@@ -69,12 +67,20 @@ the child's own style wins without a guard.
 > page's process: the codemod and its report, the traps, and how to prove the
 > port renders the same.
 
-`kirana migrate tailwind` rewrites class strings into `css()` objects, `cn(…)`
-into `sx` arrays, `cva` into [`recipe`](/docs/styling/recipes), `group`/`peer`
-into [relations](/docs/styling/relations) and `[&_svg]:` into
-[`select`](/docs/styling/contextual). It uses the same
-[utility grammar](/docs/styling/utilities) as utility strings, so the object it
-writes compiles to exactly the atoms of the class string it replaces.
+`kirana migrate tailwind` rewrites Tailwind's constructs into Kirana's:
+
+| Tailwind        | Kirana                               |
+| --------------- | ------------------------------------ |
+| class strings   | `css()` objects                      |
+| `cn(…)`         | `sx` arrays                          |
+| `cva`           | [`recipe`](/docs/styling/recipes)    |
+| `group`, `peer` | [relations](/docs/styling/relations) |
+| `[&_svg]:`      | [`select`](/docs/styling/contextual) |
+
+It uses the same [utility grammar](/docs/styling/utilities) as utility strings, so
+the object it writes compiles to exactly the atoms of the class string it replaces.
+
+<!-- ::figure-codemod -->
 
 First give the project the vocabulary, and point the colour scale at your theme:
 
@@ -97,9 +103,9 @@ export default defineConfig({
 })
 ```
 
-Then run it over your sources and your CSS — the CSS is read for
-`@custom-variant` and `@utility`, so a custom variant nobody declared is reported
-instead of silently getting Tailwind's default meaning:
+Then run it over your sources and your CSS. The CSS is read for `@custom-variant`
+and `@utility`, so a custom variant nobody declared is reported instead of
+silently getting Tailwind's default meaning:
 
 ```bash
 kirana migrate tailwind src src/globals.css            # read the diff and the report
@@ -107,10 +113,12 @@ kirana migrate tailwind src src/globals.css --write
 kirana check src
 ```
 
-A colour's `dark:` value becomes a `light-dark()` pair; any other property's
+A colour's `dark:` value becomes a `light-dark()` pair. Any other property's
 becomes a `{ light, dark }` token in a small group at the top of the file, which
-follows the color scheme and Kirana's [`mode`](/docs/tokens/themes-and-modes)
-handles — so where your theme switch sets `.dark`, set `mode.dark` too.
+follows the colour scheme and Kirana's [`mode`](/docs/tokens/themes-and-modes)
+handles.
+
+So where your theme switch sets `.dark`, set `mode.dark` too.
 
 A Base UI part rendering one of your components (`render={<Button />}`) hands
 its styles to that component as `sx`, since both are one element and a class
@@ -119,16 +127,19 @@ merged into the component's props would replace the component's own.
 `space-x-2` and `divide-y` become a `select.child(":not(:last-child)")` block,
 which, like Tailwind's `:where()` rule, loses to a child's own margin or border.
 
-Components' `className` props become `sx`, in their props types too; a component from an installed package
-(Base UI parts) gets `{...props(…)}` instead, because it does not read `sx`; a
-class string known only at runtime stays in `className`, where the compiler merges
-it with `sx`.
+Where a class goes:
+
+- A component's `className` prop becomes `sx`, in its props type too.
+- A component from an installed package (Base UI parts) gets `{...props(…)}`
+  instead, because it does not read `sx`.
+- A class string known only at runtime stays in `className`, where the compiler
+  merges it with `sx`.
 
 A class string that stays on one of your own components is reported too: once
 migrated, the component reads `sx`, so the class lands in its props and their
 spread replaces its styles. A library that hands your component a `className`
-(react-day-picker's `components`) does the same without any file showing it —
-take `className` out of the props there.
+(react-day-picker's `components`) does the same without any file showing it; take
+`className` out of the props there.
 
 A `select` block ranks below the target's own styles, where Tailwind's parent
 rule usually won. When the parent and the target both carry a `data-slot`, the
@@ -138,19 +149,26 @@ same. When it cannot (no `data-slot` on the parent, a recipe variant) and the
 target sets the property itself, it says so, and the fix is to read the parent
 from the target by hand.
 
-What it reports rather than guesses: `!important` under a variant, undeclared
-custom variants and utilities, a contextual target under a condition
-(`focus:**:text-x`), targets that are class names, `in-*` on anything but a
-`data-slot` (`in-data-[slot=x]:` becomes a relation every `data-slot="x"` element
-anchors), a colour's `dark:` with no value at rest, relations anchored in no
-migrated file, a dropped `w-`/`h-` guard, and dynamic class strings. Each report
-item is also left as a `// tailwind:` comment beside the style it concerns, so
-the diff shows where to look.
+What it reports rather than guesses:
+
+- `!important` under a variant;
+- custom variants and utilities nobody declared;
+- a contextual target under a condition (`focus:**:text-x`);
+- targets that are class names;
+- `in-*` on anything but a `data-slot` (`in-data-[slot=x]:` becomes a relation
+  every `data-slot="x"` element anchors);
+- a colour's `dark:` with no value at rest;
+- relations anchored in no migrated file;
+- a dropped `w-`/`h-` guard;
+- dynamic class strings.
+
+Each report item is also left as a `// tailwind:` comment beside the style it
+concerns, so the diff shows where to look.
 
 ## Measured: the Tailwind original of our shadcn/ui port
 
-We ran the codemod over the whole Tailwind original — `packages/ui`, the shared
-shell, and the demo, blocks and examples applications — and compared the result
+We ran the codemod over the whole Tailwind original (`packages/ui`, the shared
+shell, and the demo, blocks and examples applications) and compared the result
 with the original, element by element.
 
 | Step                            | Result                                                                                  |
@@ -180,26 +198,27 @@ roughly by how often they cost us time.
 
 **A parent's rule no longer beats the child's own.** In Tailwind,
 `*:data-[slot=label]:w-full` on a field beat the label's own `w-fit`, because a
-variant's rule is printed after plain utilities, or is more specific. In Kirana a `select` block ranks below the
-target's own styles — that is what lets an icon keep its own size without a
-`:not([class*='size-'])` guard. The codemod moves such rules onto the target when
-both ends carry a `data-slot`; when it cannot, it reports
-"sets `width` itself, which outranks a contextual rule". Fix it by letting the
-target read the parent: a relation (`inGroup.within()`), or a condition on its
-own position (`':is([data-slot="field"] > *)'`). It was our most common hand
-fix.
+variant's rule is printed after plain utilities, or is more specific. In Kirana a
+`select` block ranks below the target's own styles. That is what lets an icon keep
+its own size without a `:not([class*='size-'])` guard.
+
+The codemod moves such rules onto the target when both ends carry a `data-slot`;
+when it cannot, it reports "sets `width` itself, which outranks a contextual
+rule". Fix it by letting the target read the parent, with a relation
+(`inGroup.within()`) or a condition on its own position
+(`':is([data-slot="field"] > *)'`). It was our most common hand fix.
 
 **`!important` has no equivalent.** Without a variant, `p-0!` becomes
-`{ "*": null, base: 0 }`, which removes every other padding entry — what
-`!important` achieved. Under a variant (`hover:size-3!`) it is reported: decide
+`{ "*": null, base: 0 }`, which removes every other padding entry, as the
+important flag did. Under a variant (`hover:size-3!`) it is reported: decide
 where the value belongs, usually as a condition on the element that must win.
 
 **A class name passed to a migrated component replaces its styles.** A migrated
 component reads `sx`; a `className` that still reaches it lands in the props
 spread, after the component's own class, and replaces it. Look for libraries that
-hand your components a class you never see — react-day-picker's `components`
-gave `CalendarDayButton` one, and every day button lost its styles. Take
-`className` out of those props.
+hand your components a class you never see: react-day-picker's `components` gave
+its day button one, and every day button lost its styles. Take the class name out
+of those props.
 
 **A guard that was an escape hatch.** `*:[div:not([class*='w-'])]:w-full` let a
 child opt out by carrying any class starting with `w-`, including `max-w-*`.
@@ -211,7 +230,7 @@ whether the header had a bottom border class. There is no such class after the
 migration: set the padding where the border is set.
 
 **A `light-dark()` pair is replaced whole.** Tailwind's `bg-background` over
-`bg-transparent dark:bg-input/30` left the `dark:` rule in place, and it still won
+`bg-transparent dark:bg-input/30` left the dark rule in place, and it still won
 in dark mode.
 In Kirana the override replaces the pair, so an override that must keep the dark
 value carries both halves: `light-dark(var(--background), <input/30>)`.
@@ -220,11 +239,11 @@ value carries both halves: `light-dark(var(--background), <input/30>)`.
 `dark:hover:bg-muted/50` beat `aria-expanded:bg-muted`, Kirana's ladder decides
 instead: an attribute outranks `:hover`. The codemod already lets a colour's
 `dark:` value outrank the states it encloses; the rest you nest (hover inside the
-attribute — two conditions beat one).
+attribute, since two conditions beat one).
 
-**`sr-only` and margins.** Tailwind printed `sr-only`'s `margin: -1px` before a
-legend's own `mb-1.5`, which won. The migrated `sr-only` style leaves the bottom
-margin alone so the element's own margin still applies.
+**`sr-only` and margins.** Tailwind printed the screen-reader class's
+`margin: -1px` before a legend's own `mb-1.5`, which won. The migrated `sr-only`
+style leaves the bottom margin alone, so the element's own margin still applies.
 
 **Suffix selectors cannot be moved.** `**:data-[slot$=-item]:…` matches every
 slot ending in `-item`; the codemod cannot know which elements those are. We
@@ -246,8 +265,8 @@ objects for anything with states or tokens of your own. See
 
 ## Migrating by hand
 
-Without the codemod — a handful of components, or a codebase whose class strings
-are mostly dynamic — work component by component with the mapping above, and:
+Without the codemod (a handful of components, or a codebase whose class strings
+are mostly dynamic), work component by component with the mapping above, and:
 
 1. Give every component `sx?: Sx` in place of `className`, and replace
    `cn(base, className)` with `sx={[styles.base, sx]}`.
@@ -256,7 +275,7 @@ are mostly dynamic — work component by component with the mapping above, and:
 3. Replace each `group`/`peer` with a declared [relation](/docs/styling/relations);
    the compiler errors on a read nobody anchors.
 4. Replace `[&_svg]:` and `*:` with [`select`](/docs/styling/contextual), and
-   delete the `:not([class*='size-'])` guards — the child's own size wins anyway.
+   delete the `:not([class*='size-'])` guards: the child's own size wins anyway.
 5. Delete every `dark:` on a colour; write the colour as a `light-dark()` token.
 6. Run `kirana check` and resolve every diagnostic before moving on.
 

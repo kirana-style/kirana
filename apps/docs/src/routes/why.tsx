@@ -21,7 +21,11 @@ import {
 
 import { DocsLink } from "@/components/docs-link"
 import { EditorScene } from "@/components/home/editor"
+import { Choices } from "@/components/home/flexible"
+import { Faq } from "@/components/site/faq"
 import { NextStep } from "@/components/site/accents"
+import { ThenAndNow } from "@/components/site/evidence"
+import { Principles } from "@/components/site/packages"
 import { Card, CardGrid } from "@/components/site/cards"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
 import { BuildArt, RuntimeArt } from "@/components/art/why-art"
@@ -191,12 +195,12 @@ function WhyPage() {
       <PageSection
         number="01"
         label="History"
-        title="The CSS-in-JS people left"
+        title="Why teams walked away from CSS-in-JS"
       >
         <div sx={styles.prose}>
           <p>
-            The first generation — styled-components, Emotion and their
-            relatives — turned styles into CSS in the browser, while rendering.
+            The first generation (styled-components, Emotion and their
+            relatives) turned styles into CSS in the browser, while rendering.
             Every component serialised its styles, hashed them and inserted a
             rule. That meant work on every render, a styling library in every
             bundle, and server rendering that had to collect styles into the
@@ -220,12 +224,13 @@ function WhyPage() {
           That is a verdict on runtime CSS-in-JS. It is not a verdict on writing
           styles next to components.
         </Selection>
+        <ThenAndNow />
       </PageSection>
 
       <PageSection
         number="02"
         label="The change"
-        title="What a compiler changes"
+        title="A compiler moves the work to the build"
         lede="The same style objects, read at build time instead of while rendering."
       >
         <div sx={styles.figure}>
@@ -257,8 +262,8 @@ function WhyPage() {
         <div sx={styles.prose}>
           <p>
             Nothing about styling happens in the browser except applying class
-            names — which is what the React team recommends. Kirana is that
-            kind, and adds what a StyleX port of the same app showed: declared{" "}
+            names, which is what the React team recommends. Kirana is that kind,
+            and adds what a StyleX port of the same app showed: declared{" "}
             <A href="/docs/styling/relations">relations</A> the compiler checks,{" "}
             <A href="/docs/styling/merging">merging per entry</A>, one{" "}
             <A href="/docs/styling/precedence">precedence ladder</A>, and{" "}
@@ -270,8 +275,26 @@ function WhyPage() {
 
       <PageSection
         number="03"
+        label="Principles"
+        title="Three promises, and what keeps them"
+        lede="Each promise links to the page that shows how it is kept."
+      >
+        <Principles />
+      </PageSection>
+
+      <PageSection
+        number="04"
+        label="Choices"
+        title="Yours to decide, and easy for an agent"
+        lede="How you write, how strict the build is and where it runs are up to you; and what you write is easy for a model to write, check and fix."
+      >
+        <Choices />
+      </PageSection>
+
+      <PageSection
+        number="05"
         label="In the editor"
-        title="You can see the CSS again"
+        title="The CSS is on the line again"
         lede="The other reason teams left CSS-in-JS: the class list was gone, so nobody could read what an element gets."
       >
         <div sx={styles.seeing}>
@@ -279,7 +302,7 @@ function WhyPage() {
           <div sx={styles.prose}>
             <p>
               A Tailwind class list is the CSS, written where the element is.
-              Object styles moved it into another place, behind a name — and
+              Object styles moved it into another place, behind a name, and
               reading a component meant jumping to find out what{" "}
               <InlineCode>styles.card</InlineCode> does.
             </p>
@@ -294,36 +317,36 @@ function WhyPage() {
             </p>
             <p>
               And you keep what object styles are for: types that reject a typo
-              before it ships, atomic output — one rule per distinct
-              declaration, shared by every element — and a Rust compiler that
-              built the shadcn/ui port&apos;s three apps{" "}
-              <A href="/#system-benchmarks">
+              before it ships, atomic output (one rule per distinct declaration,
+              shared by every element), and a Rust compiler that built the
+              shadcn/ui port&apos;s three apps{" "}
+              <A href="/compiler#measured">
                 within 3 % of Tailwind and 2.9× faster than the StyleX port
-              </A>{" "}
-              — measured on one machine, and advisory until the benchmark runs
-              on dedicated hardware.
+              </A>
+              . That was measured on one machine, and stays advisory until the
+              benchmark runs on dedicated hardware.
             </p>
           </div>
         </div>
       </PageSection>
 
       <PageSection
-        number="04"
+        number="06"
         label="Costs"
-        title="Where it costs you something"
+        title="What it costs you"
         lede="A compiler is a trade. These are the parts you pay for."
       >
         <CardGrid cols={4}>
           <Card icon={Flag01Icon} title="It is pre-release">
-            Not published to npm yet — see what works today.
+            Not published to npm yet. The status page lists what works today.
           </Card>
           <Card icon={CpuIcon} title="It is a compiler">
             Styles must be statically known in shape; a value it cannot
             enumerate goes through a custom property.
           </Card>
           <Card icon={Alert02Icon} title="It is stricter than CSS">
-            Two conditions that tie are reported instead of left to source order
-            — which is why a migration needs a few hand fixes.
+            Two conditions that tie are reported instead of left to source
+            order, which is why a migration needs a few hand fixes.
           </Card>
           <Card icon={SourceCodeIcon} title="The richest editor is VS Code">
             Every LSP editor gets the card, the hints and the fixes; the Style
@@ -331,6 +354,11 @@ function WhyPage() {
           </Card>
         </CardGrid>
       </PageSection>
+
+      <PageSection number="07" label="Questions" title="Asked before you ask">
+        <Faq />
+      </PageSection>
+
       <PageSection flush>
         <NextStep
           title="The long version, with every source"
@@ -346,8 +374,8 @@ function WhyPage() {
             />
           }
         >
-          Including the objections — "it doubles the code", "why not Tailwind
-          and cn()" — answered with measurements.
+          Including the objections, "it doubles the code" and "why not Tailwind
+          and cn()", answered with measurements.
         </NextStep>
       </PageSection>
     </Page>

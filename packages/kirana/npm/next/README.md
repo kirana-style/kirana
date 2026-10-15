@@ -1,6 +1,6 @@
 # @kirana-style/next
 
-Kirana for Next.js — Turbopack (the default for `next build` and `next dev`) and webpack
+Kirana for Next.js, on Turbopack (the default for `next build` and `next dev`) and on webpack
 (`next build --webpack`), from one `withKirana`
 ([11-integrations](../../../../spec/11-integrations.md), KRN-INT-010).
 

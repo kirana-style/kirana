@@ -10,6 +10,7 @@ import { API, COMMANDS } from "../generated/cli.gen.ts"
 import { DIAGNOSTICS } from "../generated/diagnostics.gen.ts"
 import { LINT } from "../generated/lint.gen.ts"
 import { PACKAGES } from "../generated/packages.gen.ts"
+import { RUNTIME_SIZE } from "./benchmarks.ts"
 import { FRAMEWORK_GUIDES } from "./frameworks.ts"
 import type { GuideGroup } from "./frameworks.ts"
 import { LINTERS } from "./tooling.ts"
@@ -50,6 +51,12 @@ const LIBRARIES = [
 
 if (LIBRARIES.some((name) => !guides("frameworks").includes(name)))
   throw new Error("facts.ts: a component layer has no framework guide")
+
+/**
+ * Whether the packages are on npm, read from their `package.json` (`private` until they are). Every
+ * "not on npm yet" notice reads this one flag, so publishing removes them all at once.
+ */
+export const PUBLISHED = PACKAGES.every((entry) => entry.published)
 
 export const COUNTS = {
   diagnostics: DIAGNOSTICS.length,
@@ -121,4 +128,5 @@ export const FACTS: Readonly<Record<string, string>> = {
   // The compiler's default targets (`FLOOR` in kirana_config, D-026), the first versions with
   // `light-dark()`; the site's Vite config holds its build to the same floor.
   "browser-floor": "Chrome 123, Safari 17.5, Firefox 120",
+  "runtime-size": RUNTIME_SIZE,
 }

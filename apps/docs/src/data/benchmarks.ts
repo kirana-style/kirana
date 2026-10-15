@@ -1,5 +1,5 @@
 /**
- * The homepage's benchmark figures, copied from
+ * The site's benchmark figures, copied from
  * `packages/kirana/design-notes/benchmark-results.md`, "Full three-way corpus (sprint 2)": the
  * median of five interleaved `vite build` runs of the same three applications
  * built with Kirana, the StyleX port and the Tailwind original, on one
@@ -9,6 +9,13 @@
  */
 /** Where the numbers live in the repository; shown as text, since the repository is not public yet. */
 export const BENCH_SOURCE = "packages/kirana/design-notes/benchmark-results.md"
+
+/**
+ * The private runtime's cap, minified and gzipped: KRN-DYN-005 holds it under 1,000 bytes, and
+ * `npm/core/test/internal.test.ts` asserts it (design-notes/runtime-merge.md). Prose says "under
+ * {{fact:runtime-size}}"; a component reads this.
+ */
+export const RUNTIME_SIZE = "1 kB"
 
 export type Tool = "Kirana" | "StyleX" | "Tailwind"
 
@@ -64,5 +71,58 @@ export const METRICS: readonly Metric[] = [
     },
     total: { Kirana: 1601.1, StyleX: 1659.0, Tailwind: 1639.1 },
     note: "57.9 kB less than StyleX and 38.0 kB less than Tailwind over the three apps.",
+  },
+]
+
+const total = (id: string, tool: Tool) =>
+  METRICS.find((metric) => metric.id === id)!.total[tool]
+
+/**
+ * The figures the homepage leads with. Each is from a section of `BENCH_SOURCE` (or the design note
+ * named), measured on one developer machine: advisory, like every number in that file.
+ */
+export const HEADLINES: readonly {
+  id: string
+  value: string
+  label: string
+  /** Where in the repository the number comes from. */
+  source: string
+}[] = [
+  {
+    id: "build",
+    value: `${(total("build", "StyleX") / total("build", "Kirana")).toFixed(1)}×`,
+    label: "faster builds than the StyleX port of the same three applications",
+    source: "Full three-way corpus (sprint 2)",
+  },
+  {
+    id: "css",
+    value: `${total("css", "Kirana")} kB`,
+    label: `of CSS for all three, gzipped: StyleX ${total("css", "StyleX")} kB, Tailwind ${total("css", "Tailwind")} kB`,
+    source: "Full three-way corpus (sprint 2)",
+  },
+  {
+    id: "recalculation",
+    value: "3.1–3.7×",
+    label: "less style recalculation in the browser than the Tailwind original",
+    source: "Runtime (E-07, KRN-PERF-006)",
+  },
+  {
+    id: "edit",
+    value: "36.8 ms",
+    label: "from saving a file to the updated stylesheet, median",
+    source: "Output and build changes (sprint 3, 2026-09-21)",
+  },
+  {
+    id: "hover",
+    value: "1.2 ms",
+    label: "for a hover in the editor, at the 95th percentile",
+    source: "E-06 language server",
+  },
+  {
+    id: "runtime",
+    value: `< ${RUNTIME_SIZE}`,
+    label:
+      "of runtime, gzipped, and only in modules that merge styles or take runtime values",
+    source: "design-notes/runtime-merge.md",
   },
 ]

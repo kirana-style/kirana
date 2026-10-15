@@ -1,8 +1,7 @@
 ---
 title: The sx prop
 description: How sx works on elements and on components, what it compiles to, and how className and style survive it.
-section: styling
-parent: fundamentals
+section: writing
 order: 2
 keywords: [sx, className, style, props, components]
 ---
@@ -52,7 +51,7 @@ outside the component looks styleable and silently is not.
 ## On components you did not write
 
 A component from an installed package does not read `sx`. Passing it one does
-nothing, and the compiler says so (`sx-on-external-component`) — including the
+nothing, and the compiler says so (`sx-on-external-component`), including the
 case where your own component forwards its rest props into one. Pass compiled
 props instead:
 
@@ -68,7 +67,7 @@ cases.
 
 ## `className` and `style` still work
 
-If an element has both `sx` and a `className`, they are merged, not replaced —
+If an element has both `sx` and a `className`, they are merged, not replaced:
 the class from `sx` is appended to whatever the element already had, including a
 `className` arriving through a spread:
 

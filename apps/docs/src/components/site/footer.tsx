@@ -64,6 +64,7 @@ const styles = {
     maxWidth: "24rem",
     fontFamily: fontFamily.heading,
     fontSize: fontSize["2xl"],
+    fontWeight: fontWeight.medium,
     lineHeight: lineHeight["2xl"],
     letterSpacing: letterSpacing.tight,
     color: theme.foreground,

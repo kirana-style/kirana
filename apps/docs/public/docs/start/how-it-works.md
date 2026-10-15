@@ -26,15 +26,14 @@ cannot evaluate statically is reported rather than guessed at.
 `padding: "1rem"` and `paddingTop: "1rem"` compare as the same kind of thing, and
 `margin` written twice in two modules merges per side rather than per shorthand.
 
-**4 · Atomise.** Each declaration becomes one atom — one CSS rule with one
-declaration — named by hashing the property, the value and the conditions. Two
+**4 · Atomise.** Each declaration becomes one atom (one CSS rule with one
+declaration), named by hashing the property, the value and the conditions. Two
 modules that write `display: flex` get the same class. The stylesheet grows with
 distinct declarations, not with components.
 
 **5 · Order.** Atoms are placed in layers, and inside the layer their order comes
-from the [precedence ladder](/docs/styling/precedence): more conditions win, and
-at equal conditions the narrower declaration wins. Specificity is not used to
-express intent — every rule is a single class.
+from the [precedence ladder](/docs/styling/precedence). Specificity is not used to
+express intent: every rule is a single class.
 
 **6 · Rewrite.** `css({ … })` becomes a class string, and `sx` becomes
 `className`. A value known only at runtime becomes either a choice between class
@@ -48,7 +47,7 @@ strings or a custom-property bridge.
   runtime.
 
 The only runtime code is a private helper under 1 kB, and it is included only when
-a module needs it — when styles are merged at runtime, or a value is bridged
+a module needs it: when styles are merged at runtime, or a value is bridged
 through a custom property. It merges class strings; it never generates CSS.
 
 ## In development
@@ -70,8 +69,8 @@ order.
 - It does not generate CSS in the browser.
 - It does not read class names to decide what wins; it has a stated ladder.
 - It does not style markup it cannot see. If a component from a package renders
-  the element, you style it from the outside — with a
-  [contextual selector](/docs/styling/contextual), or by passing compiled props.
+  the element, you style it from the outside, with a
+  [contextual selector](/docs/styling/contextual) or by passing compiled props.
 
-Next: [the mental model](/docs/start/mental-model) — four ideas that follow from
+Next: [the mental model](/docs/start/mental-model), five ideas that follow from
 this design, and make everything else predictable.

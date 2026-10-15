@@ -7,14 +7,14 @@
  */
 
 /**
- * The typefaces, by name: the three variable fonts `globals.css` loads and the system stacks.
+ * The typefaces, by name: the variable fonts `globals.css` loads and the system stacks.
  * Each stack ends in a generic family, so glyphs a web font lacks (emoji) still render.
  * Components never use these directly: they use `fontFamily`, which says what a face is for, so
  * swapping a face is one line. Why these three: the brand page (`/brand`, Type).
  */
 export const typeface = {
-  /** Newsreader, Production Type: an editorial serif with optical sizes and a true italic. */
-  newsreader: '"Newsreader Variable", ui-serif, Georgia, serif',
+  /** EB Garamond, Georg Duffner and Octavio Pardo: an old-style serif with a drawn italic. */
+  ebGaramond: '"EB Garamond Variable", ui-serif, Georgia, serif',
   /** Plus Jakarta Sans, Tokotype: the text and interface face. */
   plusJakartaSans:
     '"Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif',
@@ -37,9 +37,9 @@ export const fontFamily = {
   /** Body text and interface labels. */
   sans: `var(--font-sans, ${typeface.plusJakartaSans})`,
   /** Display lines and headings from 1.5rem up. */
-  heading: `var(--font-heading, ${typeface.newsreader})`,
-  /** Serif accents: the wordmark, quotations. */
-  serif: `var(--font-serif, ${typeface.newsreader})`,
+  heading: `var(--font-heading, ${typeface.ebGaramond})`,
+  /** The wordmark: the name, set in EB Garamond's italic. */
+  serif: `var(--font-serif, ${typeface.ebGaramond})`,
   /** Code, commands, class names and chapter labels. */
   mono: `var(--font-mono, ${typeface.jetbrainsMono})`,
   /** Measured figures: stats, prices, timings. Mono, so digits line up. */
@@ -127,7 +127,7 @@ export const leading = {
  * `textTracking.title`. Pages use these instead of one-off sizes, so a role changes in one place.
  *
  * Display roles are fluid between a phone and a wide screen. The serif roles (display1, display2,
- * title, heading) are tracked in a little, as Newsreader's display optical size is set loose.
+ * title, heading) are tracked in a little, as a serif set large reads loose.
  */
 export const textSize = {
   /** The homepage headline. */

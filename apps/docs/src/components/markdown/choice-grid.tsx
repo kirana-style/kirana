@@ -1,7 +1,7 @@
 /**
  * A grid of choices with logos — frameworks, editors, linters: each a card with the logo, its
  * name, how it is used, and an arrow, linking to its guide or section. `tiles` is the guide grid
- * of the "Get started" page: a larger logo, and a line that wraps instead of being cut.
+ * of the "Choose a framework" page: a larger logo, and a line that wraps instead of being cut.
  */
 import { css } from "@kirana-style/core"
 import { ArrowRight01Icon, PackageIcon } from "@hugeicons/core-free-icons"
@@ -23,7 +23,7 @@ import {
 
 import { DocsLink } from "@/components/docs-link"
 import { LogoIcon } from "@/components/site/brands"
-import { LIFT, REST } from "@/components/site/lift"
+import { LIFT, REST } from "@workspace/ui/recipes/lift"
 import type { Logo } from "@/components/site/brands"
 
 const styles = {

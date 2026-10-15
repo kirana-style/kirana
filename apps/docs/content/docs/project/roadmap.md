@@ -11,29 +11,29 @@ keywords: [roadmap, milestones, plan, future, wasm, language server]
 Seven milestones, two decision gates. Dates are deliberately absent: this is built
 by one person with AI assistance, and a date would be fiction.
 
-## M0 — Foundations · done
+## M0: Foundations · done
 
 The workspace, the IR, longhand expansion and normalisation, the ladder and layer
 plan, the CSS writer, golden fixtures, `kirana build`.
 
-## M1 — Feasibility slice · done
+## M1: Feasibility slice · done
 
 The Vite adapter, cross-file resolution, `sx` for React, relations, `select`,
 keyframes, modes and themes, the scales preset, and the first conformance runs
 against the StyleX and Tailwind originals.
 
-## M2 — Recipes and dynamic styles · done
+## M2: Recipes and dynamic styles · done
 
 `recipe()` with slots, finite and open dynamic values, the private runtime,
 incremental rebuilds and hot updates, `kirana migrate stylex`, and the full
-component set built on it — which is what found most of the compiler's bugs.
+component set built on it, which is what found most of the compiler's bugs.
 
 One thing in this milestone's scope is deliberately not built: a persistent
 cache on disk. The engine is 0.05 s of a 16 s build, so a cache that skips it
 saves nothing you could measure, and every key it has to get right is a way to
 serve stale CSS.
 
-## M4 — Ecosystem · done, pending publication
+## M4: Ecosystem · done, pending publication
 
 Kirana installable outside this repository, and proven so on every change. Built
 so far: the packages and the eight per-platform engine packages are packed as
@@ -56,8 +56,8 @@ Also built: Qwik 2, where `sx` compiles to `class`; and Angular, through an `[sx
 directive, with builders for the Angular CLI and a Vite plugin for Analog. Each
 has an example CI builds and checks in a browser and in its dev server.
 
-Also built: a guide and a tested example for every framework Tailwind documents —
-React Router, Gatsby, Ember, Meteor and Parcel — and server templates in Laravel,
+Also built: a guide and a tested example for every framework Tailwind documents
+(React Router, Gatsby, Ember, Meteor and Parcel), and server templates in Laravel,
 Symfony, Rails, Phoenix and AdonisJS, through a class map and a helper per
 template language.
 
@@ -72,11 +72,11 @@ classes as Vite.
 What remains waits on publishing to npm: installing with Yarn and Deno from the
 registry.
 
-## M5 — Utility surface · done
+## M5: Utility surface · done
 
 [Utility strings](/docs/styling/utilities) in `sx`, from a grammar a preset
 declares as data; `@kirana-style/preset-scales` ships Tailwind v4's names, including
-composed utilities (`ring`, `shadow`, `translate`, filters) and pseudo-elements.
+composed utilities (rings, shadows, translations, filters) and pseudo-elements.
 A property test compiles all 7,391 utilities the grammar generates and checks
 each gives the same atoms as its object.
 
@@ -90,30 +90,28 @@ and every pitfall the hand fixes resolved.
 
 The language server's support for utility strings moved to M3.
 
-## M3 — Developer experience · done, pending publication
+## M3: Developer experience · done, pending publication
 
 Editor and lint support, read from the compiler rather than re-implemented, so
 they never disagree with the build.
 
 **Built** (sprint 6):
 
-- **Language server** — [`kirana lsp`](/docs/tooling/editor): diagnostics at the
+- **Language server**, [`kirana lsp`](/docs/tooling/editor): diagnostics at the
   property, hover with the compiled CSS and the winning entry's ladder step,
   token values in both modes, colour swatches, an inline summary after every
   `sx`, code lenses, completion for conditions, `select` targets, keyword values
-  and utility strings, navigation for tokens and relations, and code actions —
-  quick fixes, show compiled CSS, explain precedence, and convert Tailwind classes
-  to `css()`. Hover answers in 1.2 ms at the 95th percentile on our shadcn/ui port.
+  and utility strings, navigation for tokens and relations, and code actions
+  (quick fixes, show compiled CSS, explain precedence, and convert Tailwind classes
+  to `css()`). Hover answers in 1.2 ms at the 95th percentile on our shadcn/ui port.
 - **VS Code and Zed extensions**, running the project's own server; Neovim and
   Helix through their own LSP configuration.
 
 <!-- consistency: history -->
 
-- **[`@kirana-style/eslint-plugin`](/docs/tooling/lint)** — nine rules under Oxlint and
-  ESLint with identical results: `diagnostics`, `sx-last`,
-  `no-conflicting-props`, `override-keeps-conditions`, `no-classname-on-sx`,
-  `no-unused`, `sort-properties`, `prefer-token`, `finite-bridge`. This
-  repository lints itself with them.
+- **[`@kirana-style/eslint-plugin`](/docs/tooling/lint)**: nine rules under Oxlint and
+  ESLint with identical results, each described on the lint page. This repository
+  lints itself with them.
 
 **Built** (sprint 7):
 
@@ -146,11 +144,11 @@ they never disagree with the build.
 **Left for the first release:** publishing the extensions to the VS Code
 Marketplace, Open VSX and Zed, with the npm packages.
 
-**Next, outside M3's scope:** restricted overrides — a component declaring which
+**Next, outside M3's scope:** restricted overrides, a component declaring which
 properties its `sx` accepts (`Sx<"color" | "margin">`), checked by TypeScript at
 the call site.
 
-## M6 — 1.0 · planned
+## M6: 1.0 · planned
 
 API freeze, the full conformance suite, a public benchmark report under the claims
 policy, trademark clearance, the documentation site at its own domain, and a

@@ -5,14 +5,11 @@ Source: https://kirana.style/docs/frameworks/sveltekit
 
 SvelteKit compiles Svelte components with Vite, so Kirana works as it does in
 [Svelte](/docs/frameworks/svelte): styles in `<script>`, `sx` on elements. Pages
-rendered on the server — or prerendered — are styled from the first byte. Tested
-by `examples/sveltekit`, built with `adapter-static` and run with `vite dev`.
+rendered on the server, or prerendered, are styled from the first byte. Tested by
+`examples/sveltekit`, built with the static adapter and run on the dev server.
 
 > [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
 
 ## 1. Install
 
@@ -74,6 +71,8 @@ In `vite dev`, editing a style updates the page in place, without a reload.
 
 ## Next
 
-- [Svelte](/docs/frameworks/svelte) — how `sx` compiles, and what to keep in the
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
+- [Svelte](/docs/frameworks/svelte): how `sx` compiles, and what to keep in the
   script.
 - [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).

@@ -1,8 +1,8 @@
 ---
 title: The output
 description: What the stylesheet looks like, how classes are named, and what determinism buys you.
-section: advanced
-order: 1
+section: building
+order: 4
 keywords: [output, css, atoms, class names, hashing, determinism, minification]
 ---
 
@@ -24,13 +24,11 @@ keywords: [output, css, atoms, class names, hashing, determinism, minification]
 }
 ```
 
-Every rule is one class with one declaration, at specificity (0,1,0). Two modules
-that write the same declaration get the same class, so the stylesheet grows with
-the number of distinct declarations in a project, not with the number of
-components or usages.
+Every rule is one class with one declaration, at specificity (0,1,0), shared by
+every module that writes that declaration ([why](/docs/start/how-it-works#the-pipeline)).
 
-One declaration can still reach several rules — the same colour under `:hover`,
-under an attribute and at rest — and there the writer gives one rule all three
+One declaration can still reach several rules (the same colour under `:hover`,
+under an attribute and at rest), and there the writer gives one rule all three
 selectors:
 
 ```css
@@ -69,8 +67,8 @@ tested on.
 ## Conditions in the selector
 
 Conditions compile into the selector or the at-rule, and order inside the layer
-carries the [ladder](/docs/styling/precedence) — no `!important`, no specificity
-tricks, no sublayers per bucket.
+carries the [ladder](/docs/styling/precedence), with no `!important`, no
+specificity tricks and no sublayers per bucket.
 
 ## Determinism
 
@@ -99,7 +97,7 @@ the same rule, so an imported preset costs nothing until it is used.
 
 - The stylesheet.
 - Class strings in your JavaScript.
-- The private runtime (under 1 kB, gzipped) **only** in modules that merge at
+- The private runtime (under {{fact:runtime-size}}, gzipped) **only** in modules that merge at
   runtime or bridge a value.
 
 There is no style engine, no CSS-in-JS injection, and no rule generation at

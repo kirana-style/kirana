@@ -19,25 +19,14 @@ be in the bundler's plugin list, and before the framework plugin.
 ## 2 · Is the element yours?
 
 `sx` on a component from a package does nothing. The compiler warns
-(`sx-on-external-component`), so check the terminal — and see
+(`sx-on-external-component`), so check the terminal, and see
 [styling other people's components](/docs/styling/external-components).
 
 ## 3 · Did a merge keep an entry you meant to replace?
 
-The most common surprise. A later style replaces the entries it names:
-
-```tsx
-// still blue on hover
-<a
-  sx={[
-    css({ color: { base: "black", ":hover": "blue" } }),
-    css({ color: "grey" }),
-  ]}
-/>
-```
-
-Use `{ "*": null, base: "grey" }` when you mean "and nothing else".
-[Merging](/docs/styling/merging).
+The most common surprise: a later `color: "grey"` replaces only the base entry, so
+an earlier `:hover` colour still applies. Write `{ "*": null, base: "grey" }` when
+you mean "and nothing else"; [Merging](/docs/styling/merging) has the rule.
 
 ## 4 · Ask the compiler
 
@@ -47,14 +36,14 @@ kirana trace src/components/card.tsx:24 padding-top
 
 It lists every candidate declaration for that property, marks the winner, and
 names the ladder step that decided. If your value is not in the list at all, the
-problem is upstream — the style is not on that element.
+problem is upstream: the style is not on that element.
 
 <!-- ::figure-trace -->
 
 ## 5 · Check the conditions
 
 - A condition as a **top-level key** is an error, and the message says so.
-- A state beats a breakpoint — that is the ladder, not a bug.
+- A state beats a breakpoint: that is the ladder, not a bug.
 - A relation read needs its anchor on the element whose state you are reading.
 
 ## 6 · Look at the CSS

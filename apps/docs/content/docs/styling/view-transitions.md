@@ -1,9 +1,8 @@
 ---
 title: View transitions
-description: viewTransition() styles the pseudo-elements of a view transition, and is at once a style for sx and the class name a framework's transition API takes.
-section: styling
-parent: beyond-static
-order: 15
+description: Style the pseudo-elements of a view transition with viewTransition(), which is at once a style for sx and the class name a framework's transition API takes.
+section: dynamic
+order: 5
 keywords:
   [
     viewTransition,
@@ -19,9 +18,13 @@ keywords:
 # View transitions
 
 During a view transition the browser draws an element's old and new states in
-pseudo-elements — `::view-transition-group`, `::view-transition-image-pair`,
-`::view-transition-old` and `::view-transition-new`. `viewTransition()` styles
-them for every element of one transition class.
+four pseudo-elements, and `viewTransition()` styles them for every element of one
+transition class:
+
+- `::view-transition-group`
+- `::view-transition-image-pair`
+- `::view-transition-old`
+- `::view-transition-new`
 
 ```tsx
 import { css, keyframes, media, viewTransition } from "@kirana-style/core"
@@ -79,7 +82,7 @@ or pass it where a framework asks for a transition class, such as React's
 
 Kirana does not set `view-transition-name`. The browser needs it to be unique
 among the elements taking part in one transition, so it usually comes from data
-— an id, a slug — and belongs where that data is.
+(an id, a slug) and belongs where that data is.
 
 ## The parts
 

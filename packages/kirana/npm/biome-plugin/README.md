@@ -57,4 +57,4 @@ The plugins also match names, not imports: `styleProps` is the documented local 
 
 Biome's GritQL grammar can change between releases. The rules are tested against the Biome version
 pinned in this repository's catalog; `test/biome.test.ts` runs every rule through Biome and through
-its ESLint original, and the reports — line, column and message — must match.
+its ESLint original, and the reports (line, column and message) must match.

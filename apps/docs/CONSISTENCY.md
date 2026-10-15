@@ -6,17 +6,20 @@ Every one of those happened. This file is how the site keeps from saying two thi
 
 ## The rule: state a fact once, read it everywhere
 
-| Fact                                            | Its source                                                                                           | How a page uses it                                                                                                          |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Diagnostics: codes, names, count                | `crates/kirana_diagnostics` → `src/generated/diagnostics.gen.ts`                                     | `DIAGNOSTICS`, `COUNTS.diagnostics`; markdown `{{fact:diagnostics}}`                                                        |
-| Lint rules: names, configs, Biome               | `npm/eslint-plugin`, `npm/biome-plugin` → `src/generated/lint.gen.ts`                                | `LINT`, `COUNTS.lintRules`, `COUNTS.biomeRules`; `{{fact:lint-rules}}`, `{{fact:biome-rules-word}}`                         |
-| Packages and versions                           | `npm/*/package.json` → `src/generated/packages.gen.ts`                                               | `PACKAGES` (the home page's groups, `/ecosystem`)                                                                           |
-| `kirana` commands, `@kirana-style/core` exports | `crates/kirana_cli`, `npm/compiler/src/cli.ts`, `npm/core/src/index.ts` → `src/generated/cli.gen.ts` | `COMMANDS`, `API`; `{{fact:api}}`                                                                                           |
-| Frameworks, server frameworks, bundlers         | the install guides, `src/data/frameworks.ts`                                                         | `LISTS.*` with `sentence()`; `{{fact:frameworks}}`, `{{fact:libraries}}`, `{{fact:server-frameworks}}`, `{{fact:bundlers}}` |
-| Linters                                         | `src/data/tooling.ts` (`LINTERS`)                                                                    | `LISTS.linters`; `{{fact:linters}}`, `{{fact:linters-or}}`                                                                  |
-| What agents get                                 | `src/data/facts.ts` (`LISTS.agents`)                                                                 | `{{fact:agents}}`                                                                                                           |
-| Brand logos                                     | `scripts/generate-svgl.ts` → `SVGL`                                                                  | `BrandIcon`, `Tile brand=`, a tool's `logo`                                                                                 |
-| Compare cells                                   | `src/data/compare.ts`, each with its source                                                          | the `/compare` table                                                                                                        |
+| Fact                                            | Its source                                                                                             | How a page uses it                                                                                                          |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| Diagnostics: codes, names, count                | `crates/kirana_diagnostics` → `src/generated/diagnostics.gen.ts`                                       | `DIAGNOSTICS`, `COUNTS.diagnostics`; markdown `{{fact:diagnostics}}`                                                        |
+| Lint rules: names, configs, Biome               | `npm/eslint-plugin`, `npm/biome-plugin` → `src/generated/lint.gen.ts`                                  | `LINT`, `COUNTS.lintRules`, `COUNTS.biomeRules`; `{{fact:lint-rules}}`, `{{fact:biome-rules-word}}`                         |
+| Packages and versions                           | `npm/*/package.json` → `src/generated/packages.gen.ts`                                                 | `PACKAGES` (the home page's groups, `/ecosystem`)                                                                           |
+| `kirana` commands, `@kirana-style/core` exports | `crates/kirana_cli`, `npm/compiler/src/cli.ts`, `npm/core/src/index.ts` → `src/generated/cli.gen.ts`   | `COMMANDS`, `API`; `{{fact:api}}`                                                                                           |
+| Frameworks, server frameworks, bundlers         | the install guides, `src/data/frameworks.ts`                                                           | `LISTS.*` with `sentence()`; `{{fact:frameworks}}`, `{{fact:libraries}}`, `{{fact:server-frameworks}}`, `{{fact:bundlers}}` |
+| Linters                                         | `src/data/tooling.ts` (`LINTERS`)                                                                      | `LISTS.linters`; `{{fact:linters}}`, `{{fact:linters-or}}`                                                                  |
+| What agents get                                 | `src/data/facts.ts` (`LISTS.agents`)                                                                   | `{{fact:agents}}`                                                                                                           |
+| Brand logos                                     | `scripts/generate-svgl.ts` → `SVGL`                                                                    | `BrandIcon`, `Tile brand=`, a tool's `logo`                                                                                 |
+| Compare cells                                   | `src/data/compare.ts`, each with its source                                                            | the `/compare` table                                                                                                        |
+| The runtime's size                              | KRN-DYN-005, asserted in `npm/core/test/internal.test.ts` → `RUNTIME_SIZE` in `src/data/benchmarks.ts` | `RUNTIME_SIZE`; `{{fact:runtime-size}}`                                                                                     |
+| Whether the packages are on npm                 | `npm/*/package.json` (`private`) → `PUBLISHED` in `src/data/facts.ts`                                  | the `<!-- ::npm-status -->` embed (`kind="helpers"` on a server framework's guide), from `src/data/npm-status.ts`           |
+| The mental model's ideas                        | its numbered headings (`## 1 · …`) in `content/docs/start/mental-model.md`                             | the number is checked wherever a page says "N ideas"                                                                        |
 
 `src/data/facts.ts` gathers the counts and lists. Components import `COUNTS`, `LISTS` and
 `sentence()`; markdown writes `{{fact:name}}`, which the content generator fills in from `FACTS` —
@@ -27,7 +30,20 @@ an unknown name fails the build, and a new diagnostic or rule changes every page
 `vp run check` and CI's `verify:generated` run `apps/docs/scripts/check-consistency.ts`. It fails
 on:
 
-- **a count written by hand** — "45 diagnostics", "four rules", "20 packages";
+- **a count written by hand** — "45 diagnostics", "45 checks with codes", "four rules", "20 packages";
+- **a number of ideas** other than the mental model's own;
+- **the runtime's size written by hand** ("under 1 kB") instead of `{{fact:runtime-size}}`;
+- **"not on npm" anywhere** once `PUBLISHED` is true, so publishing cannot leave a stale notice
+  behind (the note's own source, `npm-status.ts`, is exempt: no page shows it then);
+- **an em dash** in a page, a blog post, the site's copy, a README or the contributor's guide (code
+  is exempt): a comma, a colon, brackets or a full stop says it better;
+- **a paragraph or list item with more than four inline code spans** in the docs: make it a list, a
+  table or a code block;
+- **a description written as metadata** ("X - y"): it is the page's lede, shown under its title;
+- **`npx kirana init` or `npx kirana doctor`** (or through bunx, pnpm dlx or yarn dlx) in pages,
+  components, showcase snippets and the agent skills: in a project without Kirana the runner
+  fetches a package named `kirana`, which is not Kirana, so the first run is `npx kirana-style init`
+  (`kirana init` with the compiler installed is fine);
 - **a partial list that reads as complete** — half or more of the frameworks, component layers,
   server frameworks, bundlers, linters or `@kirana-style/core` exports, but not all of them;
 - **agents offered llms.txt without the skills**;

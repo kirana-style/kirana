@@ -9,22 +9,19 @@ alike. Tested on every change by `examples/react-router`, built and on its dev
 server.
 
 > [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
 
 ## The fast way
 
 In the project's root:
 
 ```bash
-npx kirana init
+npx kirana-style init
 ```
 
 It detects the project, shows every change below as a diff, writes them once you
 say yes, and prints the install command (`--install` runs it). Then
-`npx kirana doctor` checks the result.
+`npx kirana-style doctor` checks the result.
 
 ## 1. Install
 
@@ -77,5 +74,7 @@ export default function Home() {
 
 ## Next
 
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
 - [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).
 - [The Vite plugin](/docs/integrations/vite).

@@ -75,13 +75,13 @@ export const DESCRIPTIONS: Line[] = [
     href: "/docs/styling/contextual",
   },
   {
-    text: `Everything people liked about StyleX — atomic output, styles as values, one prop — on a compiler of its own in Rust, with ${DIAGNOSTICS.length} diagnostics, descendant selectors, and Tailwind's scales when you want them.`,
+    text: `Everything people liked about StyleX (atomic output, styles as values, one prop) on a compiler of its own in Rust, with ${DIAGNOSTICS.length} diagnostics, descendant selectors, and Tailwind's scales when you want them.`,
     tone: "For StyleX users",
     proof: "The StyleX port's problems, each answered, in Why Kirana.",
     href: "/docs/start/why-kirana",
   },
   {
-    text: `One way to style ${sentence(LISTS.libraries)} — and ${sentence(LISTS.serverFrameworks)} templates — compiled by one engine into plain CSS.`,
+    text: `One way to style ${sentence(LISTS.libraries)}, and ${sentence(LISTS.serverFrameworks)} templates, compiled by one engine into plain CSS.`,
     tone: "Reach",
     proof: `Adapters for ${sentence(LISTS.bundlers)}; helpers for server templates.`,
     href: "/docs/frameworks/overview",
@@ -162,7 +162,7 @@ export const IMPROVED_HEADLINES: Line[] = [
 
 export const IMPROVED_DESCRIPTIONS: Line[] = [
   {
-    text: "CSS-in-JS with a Rust engine of its own. Kirana compiles typed style objects into one small, atomic stylesheet at native speed. Start with plain objects and no preset; add tokens, themes and ready-made scales when your design system grows. A typo or a selector that can never match is a compile error, styles merge per property instead of colliding, and your editor shows every element's CSS at the end of its line — across the frameworks, bundlers and editors you already use.",
+    text: "CSS-in-JS with a Rust engine of its own. Kirana compiles typed style objects into one small, atomic stylesheet at native speed. Start with plain objects and no preset; add tokens, themes and ready-made scales when your design system grows. A typo or a selector that can never match is a compile error, styles merge per property instead of colliding, and your editor shows every element's CSS at the end of its line, across the frameworks, bundlers and editors you already use.",
     tone: "The whole case, complete",
     proof:
       "Engine, speed, starting small, safety, merging, the editor and the ecosystem.",

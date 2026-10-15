@@ -80,7 +80,7 @@ function OpenSourcePage() {
             Built in the open, <Accent>kept free.</Accent>
           </>
         }
-        lede="A styling compiler sits under everything you ship. It should be something you can read, fork and keep running whatever happens to the people who started it — so Kirana is MIT licensed, and paid for by the people who use it."
+        lede="A styling compiler sits under everything you ship. It should be something you can read, fork and keep running whatever happens to the people who started it. So Kirana is MIT licensed, and paid for by the people who use it."
         actions={
           <>
             <Button

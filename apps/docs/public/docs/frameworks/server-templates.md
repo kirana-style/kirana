@@ -6,11 +6,11 @@ Source: https://kirana.style/docs/frameworks/server-templates
 A server-rendered template cannot call `css()`. So a server app keeps its styles
 in TypeScript modules, Kirana's CLI compiles them, and the templates name them.
 
-- [Laravel](/docs/frameworks/laravel) — The PHP framework for web artisans: @kirana in Blade.
-- [Symfony](/docs/frameworks/symfony) — The PHP framework for websites and apps: kirana() in Twig.
-- [Ruby on Rails](/docs/frameworks/rails) — The full-stack Ruby framework: a kirana helper in ERB views.
-- [Phoenix](/docs/frameworks/phoenix) — Rich, interactive Elixir apps: kirana/1 in HEEx templates.
-- [AdonisJS](/docs/frameworks/adonisjs) — The fully featured Node.js framework: kirana() in Edge.
+- [Laravel](/docs/frameworks/laravel): The PHP framework for web artisans: @kirana in Blade.
+- [Symfony](/docs/frameworks/symfony): The PHP framework for websites and apps: kirana() in Twig.
+- [Ruby on Rails](/docs/frameworks/rails): The full-stack Ruby framework: a kirana helper in ERB views.
+- [Phoenix](/docs/frameworks/phoenix): Rich, interactive Elixir apps: kirana/1 in HEEx templates.
+- [AdonisJS](/docs/frameworks/adonisjs): The fully featured Node.js framework: kirana() in Edge.
 
 ## How it works
 
@@ -28,7 +28,7 @@ in TypeScript modules, Kirana's CLI compiles them, and the templates name them.
    }
    ```
 
-2. **The CLI writes two files**: the stylesheet, and a class map — every name,
+2. **The CLI writes two files**: the stylesheet, and a class map of every name
    with the classes it compiles to:
 
    ```ts file="kirana.config.ts"
@@ -70,7 +70,7 @@ change. Nothing about a style is decided in the template.
   variable has no class string a template can use; the build reports it as
   `classes-not-static`. Pick between variants in the template instead:
   `kirana('button.base', $primary ? 'button.primary' : null)`.
-- **An unknown name fails loudly** — at runtime in the helper, and in the editor,
+- **An unknown name fails loudly**: at runtime in the helper, and in the editor,
   where the [language server](/docs/tooling/editor) underlines it
   (`unknown-class-name`) and hovers a known one with its styles.
 - **The stylesheet holds every style the modules export**, used or not: no

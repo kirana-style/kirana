@@ -3,17 +3,14 @@ Source: https://kirana.style/docs/frameworks/angular
 
 # Angular
 
-Kirana works with both ways of building Angular: the **Angular CLI** (`ng build`,
-`ng serve`), through two builders that replace Angular's own, and **Analog** on
+Kirana works with both ways of building Angular: the **Angular CLI**, through two
+builders that replace Angular's own for building and serving, and **Analog** on
 Vite, through a Vite plugin. Templates style elements with an `[sx]` directive.
 Tested on every change by `examples/angular-cli` and `examples/analog-angular`,
 with npm and pnpm, in a production build and on the dev server.
 
 > [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+> The packages are packed and install-tested on every change, but not published. Until they are, install them from tarballs as [Installation](/docs/start/installation#install-from-tarballs) shows; the rest of this page is the same either way.
 
 ## How Angular differs
 
@@ -30,12 +27,12 @@ when two handles set the same property.
 In the project's root:
 
 ```bash
-npx kirana init
+npx kirana-style init
 ```
 
 It detects Angular and whether it builds with the CLI or Analog, shows every
 change below as a diff, writes them once you say yes, and prints the install
-command (`--install` runs it). Then `npx kirana doctor` checks the result.
+command (`--install` runs it). Then `npx kirana-style doctor` checks the result.
 
 ## With the Angular CLI
 
@@ -69,10 +66,12 @@ it is:
 ```
 
 Angular compiles TypeScript from disk and has no hook to change a file first. So
-the builders keep a compiled copy of `src/` in `.kirana/`, hand Angular that copy
-through `fileReplacements`, and add the stylesheet, `.kirana/kirana.css`, to
-`styles`. `ng serve` and `ng build --watch` update the copy as you edit. Ignore
-the folder:
+the builders keep a compiled copy of `src/` in `.kirana/`, and hand Angular:
+
+- that copy, through `fileReplacements`;
+- the stylesheet, `.kirana/kirana.css`, in `styles`.
+
+The dev server and watch builds update the copy as you edit. Ignore the folder:
 
 ```bash file=".gitignore"
 .kirana/
@@ -140,7 +139,7 @@ export class Card {
 ```
 
 `[sx]` takes what `sx` takes anywhere: one handle, or an array with falsy guards.
-Angular type-checks it against `Sx`. The element's own `class` and `style` stay;
+Angular type-checks it against `Sx`. The element's own class and style attributes stay;
 the directive adds and removes only what it set. Templates in a `templateUrl`
 file work the same way.
 
@@ -166,5 +165,7 @@ and diagnostics, as in JSX.
 
 ## Next
 
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
 - [Styles](/docs/styling/styles) and [merging](/docs/styling/merging).
 - [The Vite plugin](/docs/integrations/vite), for Analog.

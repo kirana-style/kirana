@@ -21,7 +21,7 @@ second is Kirana's own, and its order is fixed.
 | `kirana.tokens`     | Variable token defaults on `:root`, and their per-mode overrides |
 | `kirana.themes`     | `defineTheme` overrides                                          |
 | `kirana.contextual` | `select.*` styles                                                |
-| `kirana.atoms`      | Element styles — everything you write with `css()`               |
+| `kirana.atoms`      | Element styles: everything you write with `css()`                |
 
 Nothing Kirana emits is unlayered, custom-property assignments included. That is
 what lets a reset stay a reset: it cannot accidentally outrank a component style,
@@ -72,7 +72,7 @@ be ordered by where it appeared.
 
 ## Third-party CSS
 
-A package's stylesheet you cannot edit — a date picker, a carousel — goes into a
+A package's stylesheet you cannot edit (a date picker, a carousel) goes into a
 layer you name, so your styles beat it without `!important`:
 
 ```ts
@@ -90,7 +90,7 @@ layers: {
 Rarely. Two cases hold up:
 
 - **A reset**, and base element styles that must apply to bare tags.
-- **Markup you do not render**, where no component can carry a class — scoped by
+- **Markup you do not render**, where no component can carry a class, scoped by
   an attribute the library sets, as narrowly as you can manage.
 
 Everything else belongs in `css()`, where the compiler can see it, check it and

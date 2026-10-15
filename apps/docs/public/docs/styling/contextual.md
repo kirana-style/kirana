@@ -26,7 +26,7 @@ children. Both are top-level keys holding a style object, like a pseudo-element.
 ## They lose to the element's own styles
 
 Contextual rules are written to a layer below element styles, so anything the
-target sets for itself wins — whatever conditions it carries.
+target sets for itself wins, whatever conditions it carries.
 
 That is the point. In a class-based system a parent's `[&_svg]:size-4` competes
 with the icon's own size class and usually wins, which is why such rules grow
@@ -55,7 +55,7 @@ select.descendant("a:hover") // a link while it is hovered
 
 No combinators (`a > b`) and no pseudo-elements: a target is the element itself.
 
-Class selectors are not targets — Kirana's class names are hashes, and a
+Class selectors are not targets: Kirana's class names are hashes, and a
 handwritten class is markup the compiler cannot verify. An unsupported target is
 an error (`unsupported-contextual-target`).
 

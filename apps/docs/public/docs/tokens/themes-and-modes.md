@@ -49,11 +49,11 @@ export const brand = defineTheme(theme, {
 Everything inside the section reads the new value; everything outside is
 untouched. Themes nest, and a theme may override some tokens and leave the rest.
 
-Only **variable** tokens can be overridden — overriding an inlined one is an error
+<!-- ::figure-themes -->
+
+Only **variable** tokens can be overridden: overriding an inlined one is an error
 (`token-not-variable`), because there is no variable to change. If a token needs a
 theme, declare its group with `variable: true`.
-
-<!-- ::figure-themes -->
 
 ### Per-mode overrides
 

@@ -49,13 +49,13 @@ css({ color: { "*": null, base: "grey" } })
 ```
 
 `{ "*": null, base: "grey" }` is the one to reach for when you want a component's
-conditional chrome gone and your own value in its place — an input inside a group
-that should lose the group's focus ring, for example.
+conditional chrome gone and your own value in its place, such as an input inside a
+group that should lose the group's focus ring.
 
 > [!WARNING] `base: null` is not "no value"
 > In StyleX, `default: null` means "this variant sets nothing here". In Kirana,
 > `base: null` **removes** a base value an earlier style set. If you are porting,
-> this is the line to re-read — see
+> this is the line to re-read; see
 > [migrating from StyleX](/docs/migration/from-stylex).
 
 ## `cx()`
@@ -70,7 +70,7 @@ const handle = cx(styles.root, isOpen && styles.open, props.sx)
 ```
 
 `sx={[a, b]}` accepts the same shapes, including nested arrays, so you rarely need
-`cx()` on an element — it is for building a handle to pass on.
+`cx()` on an element: it is for building a handle to pass on.
 
 ## Order is the order you wrote
 

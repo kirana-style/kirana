@@ -1,7 +1,7 @@
-# Get started
+# Choose a framework
 Source: https://kirana.style/docs/frameworks/overview
 
-# Get started
+# Choose a framework
 
 Kirana compiles the styles you write next to your components into class names
 and one static stylesheet, with no styling runtime left in the page. It works
@@ -16,29 +16,29 @@ Guides for each framework, covering the recommended way to install Kirana in it.
 Each is complete on its own: install, configure, import the stylesheet, type
 `sx`, write a component.
 
-- [React](/docs/frameworks/react) — The library for web and native user interfaces, on Vite.
-- [Next.js](/docs/frameworks/nextjs) — The React framework, with server components, on Turbopack.
-- [React Router](/docs/frameworks/react-router) — A standards-focused router and framework you can deploy anywhere.
-- [TanStack Start](/docs/frameworks/tanstack-start) — Full-stack React powered by TanStack Router. This site runs on it.
-- [Gatsby](/docs/frameworks/gatsby) — Static sites with React and GraphQL, built by webpack.
-- [Preact](/docs/frameworks/preact) — A fast 3 kB alternative to React with the same API.
-- [Solid](/docs/frameworks/solid) — Simple, performant reactivity for user interfaces.
-- [Vue](/docs/frameworks/vue) — The progressive framework, with :sx in single-file components.
-- [Nuxt](/docs/frameworks/nuxt) — The intuitive Vue framework for universal applications.
-- [Svelte](/docs/frameworks/svelte) — Cybernetically enhanced web apps, with sx on elements.
-- [SvelteKit](/docs/frameworks/sveltekit) — The fastest way to build apps of all sizes with Svelte.
-- [Astro](/docs/frameworks/astro) — The web framework for content-driven sites, sx in .astro files.
-- [Qwik](/docs/frameworks/qwik) — Instantly interactive apps, rendered on the server and resumed.
-- [Angular](/docs/frameworks/angular) — The platform for web apps, with an [sx] directive in templates.
-- [Ember.js](/docs/frameworks/ember) — A framework for ambitious web apps, on Embroider and Vite.
-- [Meteor](/docs/frameworks/meteor) — The full-stack JavaScript platform for web and mobile apps.
-- [No framework](/docs/frameworks/vanilla) — Plain TypeScript and web components: handles are class strings.
+- [React](/docs/frameworks/react): The library for web and native user interfaces, on Vite.
+- [Next.js](/docs/frameworks/nextjs): The React framework, with server components, on Turbopack.
+- [React Router](/docs/frameworks/react-router): A standards-focused router and framework you can deploy anywhere.
+- [TanStack Start](/docs/frameworks/tanstack-start): Full-stack React powered by TanStack Router. This site runs on it.
+- [Gatsby](/docs/frameworks/gatsby): Static sites with React and GraphQL, built by webpack.
+- [Preact](/docs/frameworks/preact): A fast 3 kB alternative to React with the same API.
+- [Solid](/docs/frameworks/solid): Simple, performant reactivity for user interfaces.
+- [Vue](/docs/frameworks/vue): The progressive framework, with :sx in single-file components.
+- [Nuxt](/docs/frameworks/nuxt): The intuitive Vue framework for universal applications.
+- [Svelte](/docs/frameworks/svelte): Cybernetically enhanced web apps, with sx on elements.
+- [SvelteKit](/docs/frameworks/sveltekit): The fastest way to build apps of all sizes with Svelte.
+- [Astro](/docs/frameworks/astro): The web framework for content-driven sites, sx in .astro files.
+- [Qwik](/docs/frameworks/qwik): Instantly interactive apps, rendered on the server and resumed.
+- [Angular](/docs/frameworks/angular): The platform for web apps, with an [sx] directive in templates.
+- [Ember.js](/docs/frameworks/ember): A framework for ambitious web apps, on Embroider and Vite.
+- [Meteor](/docs/frameworks/meteor): The full-stack JavaScript platform for web and mobile apps.
+- [No framework](/docs/frameworks/vanilla): Plain TypeScript and web components: handles are class strings.
 
-- [Laravel](/docs/frameworks/laravel) — The PHP framework for web artisans: @kirana in Blade.
-- [Symfony](/docs/frameworks/symfony) — The PHP framework for websites and apps: kirana() in Twig.
-- [Ruby on Rails](/docs/frameworks/rails) — The full-stack Ruby framework: a kirana helper in ERB views.
-- [Phoenix](/docs/frameworks/phoenix) — Rich, interactive Elixir apps: kirana/1 in HEEx templates.
-- [AdonisJS](/docs/frameworks/adonisjs) — The fully featured Node.js framework: kirana() in Edge.
+- [Laravel](/docs/frameworks/laravel): The PHP framework for web artisans: @kirana in Blade.
+- [Symfony](/docs/frameworks/symfony): The PHP framework for websites and apps: kirana() in Twig.
+- [Ruby on Rails](/docs/frameworks/rails): The full-stack Ruby framework: a kirana helper in ERB views.
+- [Phoenix](/docs/frameworks/phoenix): Rich, interactive Elixir apps: kirana/1 in HEEx templates.
+- [AdonisJS](/docs/frameworks/adonisjs): The fully featured Node.js framework: kirana() in Edge.
 
 > [!NOTE] Don't see your framework?
 > Most frameworks build with Vite: use [the Vite plugin](/docs/integrations/vite).
@@ -93,19 +93,19 @@ One adapter for each bundler. Every one hands the modules that carry styles to
 the same compiler, so the class names and the stylesheet are the same whichever
 one builds them.
 
-- [Vite](/docs/integrations/vite) — The build tool most frameworks run on, with hot style updates.
-- [Rolldown](/docs/integrations/rolldown) — The Rust bundler under Vite, on its own.
-- [webpack](/docs/integrations/webpack) — A pre loader for sx and a plugin that writes the stylesheet.
-- [Rspack and Rsbuild](/docs/integrations/rspack) — The fast Rust-based web bundler, and its build tool.
-- [Parcel](/docs/integrations/parcel) — The zero-configuration build tool for the web.
-- [Bun](/docs/integrations/bun) — Bun's bundler and its dev server, from one plugin.
-- [esbuild](/docs/integrations/esbuild) — An extremely fast bundler, in watch and serve modes too.
-- [PostCSS](/docs/integrations/postcss) — The project's stylesheet wherever @kirana; stands.
-- [Jest](/docs/integrations/jest) — A transformer, so tests see the class names you ship.
+- [Vite](/docs/integrations/vite): The build tool most frameworks run on, with hot style updates.
+- [Rolldown](/docs/integrations/rolldown): The Rust bundler under Vite, on its own.
+- [webpack](/docs/integrations/webpack): A pre loader for sx and a plugin that writes the stylesheet.
+- [Rspack and Rsbuild](/docs/integrations/rspack): The fast Rust-based web bundler, and its build tool.
+- [Parcel](/docs/integrations/parcel): The zero-configuration build tool for the web.
+- [Bun](/docs/integrations/bun): Bun's bundler and its dev server, from one plugin.
+- [esbuild](/docs/integrations/esbuild): An extremely fast bundler, in watch and serve modes too.
+- [PostCSS](/docs/integrations/postcss): The project's stylesheet wherever @kirana; stands.
+- [Jest](/docs/integrations/jest): A transformer, so tests see the class names you ship.
 
 ## Kirana CLI
 
-For server-rendered templates — Blade, ERB, HEEx, Twig, Edge — and anything else
+For server-rendered templates (Blade, ERB, HEEx, Twig, Edge) and anything else
 without a bundler. You write styles in TypeScript modules; the CLI writes the
 stylesheet, and a class map your templates read the class names from.
 
@@ -141,7 +141,7 @@ npx kirana dev styles --out public/kirana/kirana.css
 
 `kirana dev` watches and rewrites both files; `kirana build` writes them once,
 minified with `--minify`. Your template helper then turns `card` into its class
-names — see [server templates](/docs/frameworks/server-templates).
+names; see [server templates](/docs/frameworks/server-templates).
 
 
 
@@ -150,7 +150,7 @@ names — see [server templates](/docs/frameworks/server-templates).
 Every example lives in `packages/kirana/examples/`. On every change, CI packs the
 packages, installs each example from the tarballs, builds it, and checks a styled
 element's computed style and hover in a browser. It also starts each dev server
-and checks that a style edit reaches the page — in place, without a reload, where
+and checks that a style edit reaches the page in place, without a reload, where
 the framework updates components that way. A row in this table is a test that
 passes, not a claim.
 

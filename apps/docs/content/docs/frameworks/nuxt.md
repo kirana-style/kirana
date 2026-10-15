@@ -1,6 +1,6 @@
 ---
 title: Nuxt
-description: Install Kirana in a Nuxt app - the Vite plugin in nuxt.config, the stylesheet in css, and :sx in components rendered on the server.
+description: Install Kirana in a Nuxt app, with the Vite plugin in nuxt.config, the stylesheet in css, and :sx in components rendered on the server.
 section: frameworks
 order: 8
 keywords: [nuxt, vue, ssr, nuxt.config, generate, install]
@@ -11,14 +11,10 @@ keywords: [nuxt, vue, ssr, nuxt.config, generate, install]
 Nuxt compiles Vue components with Vite, so Kirana works as it does in
 [Vue](/docs/frameworks/vue): styles in `<script setup>`, `:sx` in the template.
 Pages rendered on the server and hydrated in the browser are styled from the first
-byte. Tested by `examples/nuxt`, built with `nuxt generate` and run with
-`nuxt dev`.
+byte. Tested by `examples/nuxt`, built as a static site and run on the dev
+server.
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## 1. Install
 
@@ -64,5 +60,7 @@ In `nuxt dev`, editing a style updates the page in place, without a reload.
 
 ## Next
 
-- [Vue](/docs/frameworks/vue) — how `:sx` compiles, and what to keep in the script.
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
+- [Vue](/docs/frameworks/vue): how `:sx` compiles, and what to keep in the script.
 - [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).

@@ -45,10 +45,16 @@ another module reads.
 ## What a fallback may set
 
 An `@position-try` block accepts the properties that place and size the box:
-inset (`top`, `insetInline`, …), margin, sizing (`width`, `maxInlineSize`, …),
-self-alignment (`alignSelf`, `justifySelf`, `placeSelf`), `positionAnchor` and
-`positionArea`. A browser ignores anything else without a word, so Kirana reports
-it instead:
+
+| Group          | Properties                              |
+| -------------- | --------------------------------------- |
+| Inset          | `top`, `insetInline`, …                 |
+| Margin         | the margin properties                   |
+| Sizing         | `width`, `maxInlineSize`, …             |
+| Self-alignment | `alignSelf`, `justifySelf`, `placeSelf` |
+| Anchoring      | `positionAnchor`, `positionArea`        |
+
+A browser ignores anything else without a word, so Kirana reports it instead:
 
 ```tsx
 positionTry({ color: "red" })
@@ -62,6 +68,6 @@ conditional value is `invalid-position-try` too. Tokens and
 ## Anchors
 
 Kirana does not manage `anchor-name` for you. An anchor name must be unique on
-the page, the same as an `id`, so name it where you know the element is unique —
+the page, the same as an `id`, so name it where you know the element is unique:
 a `css()` style on that element, or an inline `style` when the name depends on
 data.

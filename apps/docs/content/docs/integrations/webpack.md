@@ -1,7 +1,7 @@
 ---
 title: webpack
-description: Kirana on webpack 5 - a pre loader that reads sx before your JSX compiler, and a plugin that writes the stylesheet before minification.
-section: integrations
+description: Kirana on webpack 5, with a pre loader that reads sx before your JSX compiler and a plugin that writes the stylesheet before minification.
+section: bundlers
 order: 4
 keywords:
   [webpack, loader, plugin, css, realContentHash, mini-css-extract-plugin]
@@ -10,16 +10,12 @@ keywords:
 # webpack
 
 The plugin adds its loader in front of your own (`enforce: "pre"`), so it reads
-`sx` before `swc-loader` or `babel-loader` compiles JSX away, and writes the
+`sx` before your JSX compiler (swc or Babel) compiles it away, and writes the
 finished stylesheet once every module is built. Tested by
 `examples/webpack-react`. Next.js has [its own guide](/docs/frameworks/nextjs),
 and Gatsby, which runs webpack, [its own too](/docs/frameworks/gatsby).
 
-> [!NOTE] Not on npm yet
-> The packages are packed and install-tested on every change, but not published.
-> Until they are, install them from tarballs as
-> [Installation](/docs/start/installation#install-from-tarballs) shows; the rest
-> of this page is the same either way.
+<!-- ::npm-status -->
 
 ## 1. Install
 
@@ -45,7 +41,7 @@ import "@kirana-style/core/stylesheet.css"
 
 The stylesheet entry is ordinary CSS to webpack: it names, links and minifies it
 like any other. The plugin fills it in before the minifier runs and before
-`realContentHash` names the file after its real content — which is on by default
+`realContentHash` names the file after its real content, which is on by default
 in production; turn it off and the file name stops tracking the styles.
 
 ## Next
