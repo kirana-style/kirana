@@ -5,6 +5,7 @@ import {
   utimesSync,
   writeFileSync,
 } from "node:fs"
+import { tmpdir } from "node:os"
 import path from "node:path"
 
 import postcss from "postcss"
@@ -148,6 +149,17 @@ describe("KRN-INT-010 PostCSS", () => {
         dir: path.join(root, "node_modules/ui-kit"),
       })
     )
+  })
+
+  it("compiles Kirana's own preset when the project has it, and requires a listed library", () => {
+    // Outside the repository, where neither resolves.
+    const root = mkdtempSync(path.join(tmpdir(), "kirana-postcss-"))
+    created.push(root)
+    writeFileSync(path.join(root, "package.json"), "{}")
+    const directories = (libraries: string[]) =>
+      new Project(root).directories({ libraries } as never)
+    expect(directories(["@kirana-style/preset-scales"])).toEqual([root])
+    expect(() => directories(["ui-kit"])).toThrow(/ui-kit/)
   })
 
   it("finds sources without installed packages, build output, hidden folders or declarations", () => {

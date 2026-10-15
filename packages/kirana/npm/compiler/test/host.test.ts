@@ -1,8 +1,13 @@
+import { readdirSync, readFileSync } from "node:fs"
+import path from "node:path"
+
 import { describe, expect, it } from "vite-plus/test"
 
 import type { Diagnostic } from "../src/index.ts"
 import {
+  KIRANA_LIBRARIES,
   PLACEHOLDER,
+  compiledLibraries,
   createReporter,
   digestOf,
   fillStylesheet,
@@ -52,6 +57,60 @@ describe("host helpers", () => {
       false
     )
     expect(compilesModule("/app/src/a.ts", [])).toBe(true)
+  })
+
+  it("compiles Kirana's own style packages from node_modules without listing them", () => {
+    const libraries = compiledLibraries([
+      "acme-ui",
+      "@kirana-style/preset-scales",
+    ])
+    expect(libraries).toEqual(["@kirana-style/preset-scales", "acme-ui"])
+    const preset =
+      "/app/node_modules/@kirana-style/preset-scales/src/compose.ts"
+    expect(compilesModule(preset, compiledLibraries([]))).toBe(true)
+    expect(compilesModule(preset, [])).toBe(false)
+    // The runtime itself is what compiled calls are written against, never compiled.
+    expect(
+      compilesModule(
+        "/app/node_modules/@kirana-style/core/src/index.ts",
+        compiledLibraries([])
+      )
+    ).toBe(false)
+  })
+
+  it("lists every Kirana package that declares tokens or styles", () => {
+    // A package whose own modules call these at the top level ships them uncompiled; an
+    // application must compile it, or the first call throws in the browser.
+    const packages = path.resolve(import.meta.dirname, "../..")
+    const declaring =
+      /^(?:export )?(?:const|let) \w+ = (?:defineTokens|css|keyframes|recipe|defineTheme)\(/m
+    const found = readdirSync(packages)
+      // The runtime is what compiled calls are written against; the compiler only quotes these
+      // calls, in the sample file `init` writes.
+      .filter((name) => name !== "core" && name !== "compiler")
+      .filter((name) => {
+        const sources = path.join(packages, name, "src")
+        let files: string[]
+        try {
+          files = readdirSync(sources, { recursive: true }) as string[]
+        } catch {
+          return false
+        }
+        return files.some(
+          (file) =>
+            /\.[cm]?tsx?$/.test(file) &&
+            declaring.test(readFileSync(path.join(sources, file), "utf8"))
+        )
+      })
+      .map(
+        (name) =>
+          (
+            JSON.parse(
+              readFileSync(path.join(packages, name, "package.json"), "utf8")
+            ) as { name: string }
+          ).name
+      )
+    expect([...found].sort()).toEqual([...KIRANA_LIBRARIES].sort())
   })
 
   it("fills the placeholder, or says there is none", () => {

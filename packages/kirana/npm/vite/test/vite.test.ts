@@ -76,11 +76,14 @@ describe("KRN-INT-008 listed libraries", () => {
       '{"libraries":["acme-ui"]}'
     )
     expect(await (kirana()[0].config as ConfigHook)({ root })).toEqual({
-      optimizeDeps: { exclude: ["acme-ui"] },
-      ssr: { noExternal: ["acme-ui"] },
+      optimizeDeps: { exclude: ["@kirana-style/preset-scales", "acme-ui"] },
+      ssr: { noExternal: ["@kirana-style/preset-scales", "acme-ui"] },
     })
-    // Without libraries (the working directory has none), Vite's defaults stand.
-    expect(await (kirana()[0].config as ConfigHook)({})).toBeUndefined()
+    // Without libraries, Kirana's own preset still is one: an app that installs it compiles it.
+    expect(await (kirana()[0].config as ConfigHook)({})).toEqual({
+      optimizeDeps: { exclude: ["@kirana-style/preset-scales"] },
+      ssr: { noExternal: ["@kirana-style/preset-scales"] },
+    })
   })
 })
 

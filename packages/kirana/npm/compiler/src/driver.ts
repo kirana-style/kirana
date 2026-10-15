@@ -13,7 +13,7 @@ import type { RelationInfo, Site, TokenInfo } from "./inspect.ts"
 import { parseDiagnostics } from "./diagnostics.ts"
 import type { Engine, NativeBinding } from "./native.ts"
 import { engineOf, loadNative } from "./native.ts"
-import { compilesModule } from "./host.ts"
+import { compiledLibraries, compilesModule } from "./host.ts"
 import { compileComponent } from "./sfc.ts"
 
 export type DriverOptions = {
@@ -45,7 +45,10 @@ export class Driver {
   readonly prefix: string
   /** Which engine compiles: the native addon, or the WASI fallback (KRN-INT-006). */
   readonly engine: Engine
-  /** Installed packages compiled as the application's own (`libraries`, KRN-INT-008). */
+  /**
+   * Installed packages compiled as the application's own (KRN-INT-008): Kirana's own style
+   * packages (`KIRANA_LIBRARIES`), then the configuration's `libraries`.
+   */
   readonly libraries: readonly string[]
   /** The class map's modules (`classes.modules`), absolute; empty without one (D-069). */
   readonly classModules: readonly string[]
@@ -68,7 +71,7 @@ export class Driver {
     this.configFile = configFile
     this.prefix = prefix
     this.engine = engine
-    this.libraries = libraries
+    this.libraries = compiledLibraries(libraries)
     this.classModules = classModules
     this.#compiler = compiler
     this.#import = load

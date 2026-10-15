@@ -60,6 +60,21 @@ export function sources(directory: string, out: string[] = []): string[] {
 }
 
 /**
+ * Kirana's own packages that declare tokens or styles. An application compiles them from
+ * `node_modules` as it compiles a listed library, without listing them: the evaluator already folds
+ * their values as Kirana's (KRN-TOK-008), and a module of theirs that the application imports at
+ * runtime would otherwise reach the browser with its `defineTokens()` calls uncompiled.
+ */
+export const KIRANA_LIBRARIES: readonly string[] = [
+  "@kirana-style/preset-scales",
+]
+
+/** The installed packages an application compiles: Kirana's own, then its `libraries`. */
+export function compiledLibraries(libraries: readonly string[]): string[] {
+  return [...new Set([...KIRANA_LIBRARIES, ...libraries])]
+}
+
+/**
  * Whether a module is the application's to compile: anything outside `node_modules`, and inside it
  * only the packages listed in `libraries` (KRN-INT-008). The path is matched as
  * `node_modules/<name>/`, which holds for npm's, pnpm's and Bun's layouts alike.

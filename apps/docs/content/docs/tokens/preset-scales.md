@@ -45,8 +45,10 @@ const card = css({
 })
 ```
 
-There is no configuration step: you import what you use. A token nothing
-references emits nothing, so importing the package costs nothing in the output.
+There is no configuration step: you import what you use, and the bundler adapter
+compiles the preset from `node_modules` as it compiles your own modules. A token
+nothing references emits nothing, so importing the package costs nothing in the
+output.
 
 ### What is in it
 
@@ -88,7 +90,10 @@ export const brand = defineTokens("brand", { … }, { variable: true })
 import { brand } from "@acme/tokens"
 ```
 
-Nothing else is required: no registration, no plugin.
+No registration and no plugin. Inside a workspace the package is compiled with
+your own modules. Installed from npm, list it in [`libraries`](/docs/config/reference#libraries),
+so its `defineTokens()` calls are compiled too; a token the app reads at runtime
+would otherwise throw in the browser.
 
 ## The utility grammar
 

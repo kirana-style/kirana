@@ -131,14 +131,14 @@ export default function kirana(
     api: { filled },
 
     /**
-     * Listed libraries (KRN-INT-008) must reach the plugin: Vite would otherwise pre-bundle them in
-     * development and leave them external in server builds, and their `css()` calls would run
-     * uncompiled.
+     * Compiled libraries (KRN-INT-008), Kirana's own preset among them, must reach the plugin: Vite
+     * would otherwise pre-bundle them in development and leave them external in server builds, and
+     * their `css()` and `defineTokens()` calls would run uncompiled. Naming a package the project
+     * does not have changes nothing.
      */
     async config(userConfig) {
       state.root = path.resolve(userConfig.root ?? process.cwd())
       const { libraries } = await session()
-      if (libraries.length === 0) return undefined
       return {
         optimizeDeps: { exclude: [...libraries] },
         ssr: { noExternal: [...libraries] },
