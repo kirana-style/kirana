@@ -287,12 +287,16 @@ async function packOne(name: string): Promise<string> {
   refuseInstallScripts(manifest)
   const published: Manifest = {
     ...manifest,
-    exports: Object.fromEntries(
-      Object.entries(manifest.exports ?? {}).map(([key, value]) => [
-        key,
-        compiled(value),
-      ])
-    ),
+    // A package with nothing to import gets no `exports` at all: an empty one would hide even its
+    // `package.json` from `require.resolve`.
+    exports: manifest.exports
+      ? Object.fromEntries(
+          Object.entries(manifest.exports).map(([key, value]) => [
+            key,
+            compiled(value),
+          ])
+        )
+      : undefined,
     dependencies: resolve(manifest.dependencies),
     peerDependencies: manifest.peerDependencies,
     files: [

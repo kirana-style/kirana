@@ -63,8 +63,9 @@ Also built: esbuild and Jest; style updates on every development server; Deno as
 a runtime; and a check that every bundler compiles the same source to the same
 classes as Vite.
 
-What remains waits on publishing to npm: installing with Yarn and Deno from the
-registry.
+Installing from the registry with Yarn and Deno, which CI cannot test against packed
+tarballs, was checked by hand with 0.2.0: `init`, a build and `doctor` in a Vite and
+React app, with Yarn 4 (Plug'n'Play) and Deno 2.9.
 
 ## M5: Utility surface · done
 

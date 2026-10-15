@@ -23,6 +23,7 @@ import {
   detect,
   installCommand,
   isServer,
+  runCommand,
   runtimeOf,
   typesOf,
 } from "./detect.ts"
@@ -1112,7 +1113,7 @@ export async function runInit(
   }
   io.write(
     changes.length || commands.length || manualSteps.length
-      ? "\nThen check the setup with: kirana-style doctor\n"
+      ? `\nThen check the setup with: ${runCommand(result.project.packageManager, "kirana-style doctor")}\n`
       : "\nAlready set up.\n"
   )
   return 0

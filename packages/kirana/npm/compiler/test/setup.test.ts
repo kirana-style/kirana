@@ -19,6 +19,7 @@ import {
   installCommand,
   packageManagerOf,
   readPackage,
+  runCommand,
   runtimeOf,
   typesOf,
 } from "../src/detect.ts"
@@ -103,8 +104,9 @@ describe("KRN-DX-008 detecting a project", () => {
     expect(packageManagerOf(nested, { packageManager: "yarn@4.0.0" })).toBe(
       "yarn"
     )
-    expect(packageManagerOf(nested, { packageManager: "deno@2" })).toBe("pnpm")
+    expect(packageManagerOf(nested, { packageManager: "cnpm@9" })).toBe("pnpm")
     expect(packageManagerOf(project({ "bun.lock": "" }), {})).toBe("bun")
+    expect(packageManagerOf(project({ "deno.lock": "{}" }), {})).toBe("deno")
     expect(packageManagerOf(project({}), {})).toBe("npm")
     expect(readPackage(project({}))).toEqual({})
   })
@@ -130,6 +132,21 @@ describe("KRN-DX-008 detecting a project", () => {
     ])
     expect(installCommand("bun", [], ["b"])).toEqual(["bun add -d b"])
     expect(installCommand("pnpm", ["a"], [])).toEqual(["pnpm add a"])
+    expect(installCommand("deno", ["@x/a"], ["b", "c"])).toEqual([
+      "deno add npm:@x/a",
+      "deno add -D npm:b npm:c",
+    ])
+    expect(
+      (["npm", "pnpm", "yarn", "bun", "deno"] as const).map((manager) =>
+        runCommand(manager, "kirana-style doctor")
+      )
+    ).toEqual([
+      "npx kirana-style doctor",
+      "pnpm exec kirana-style doctor",
+      "yarn kirana-style doctor",
+      "bunx kirana-style doctor",
+      "deno run -A npm:kirana-style doctor",
+    ])
   })
 })
 
@@ -680,7 +697,7 @@ describe("KRN-DX-008 kirana-style init", () => {
       "To do by hand:\n  adapter: add kirana() to esbuild's plugins"
     )
     expect(session.output).toContain(
-      "Then check the setup with: kirana-style doctor"
+      "Then check the setup with: npx kirana-style doctor"
     )
     const failing = io(false, 3)
     expect(await runInit(["--install"], root, failing)).toBe(3)
@@ -781,6 +798,34 @@ describe("KRN-DX-008 kirana-style doctor", () => {
     expect(JSON.parse(output)).toEqual(checks)
   })
 
+  it("finds a package whose exports hide its package.json, in a parent's node_modules too", async () => {
+    const parent = project({
+      "node_modules/kirana-style/package.json": `{"name":"kirana-style","version":"0.2.0","exports":{}}`,
+    })
+    const root = path.join(parent, "app")
+    mkdirSync(root)
+    writeFileSync(
+      path.join(root, "package.json"),
+      pkg({ "kirana-style": "0", "@kirana-style/missing": "0" })
+    )
+    writeFileSync(path.join(root, "pnpm-lock.yaml"), "")
+    expect(installedVersions(root)).toEqual({
+      "@kirana-style/missing": undefined,
+      "kirana-style": "0.2.0",
+    })
+    let output = ""
+    await runDoctor(
+      [],
+      root,
+      (text) => (output += text),
+      () => native
+    )
+    expect(output).toContain("listed but not installed: @kirana-style/missing")
+    expect(output).toMatch(
+      /problem\(s\)\. pnpm exec kirana-style init sets up what it can\.\n$/
+    )
+  })
+
   it("warns when installed versions differ, and fails without packages or an engine", async () => {
     const root = project({
       "package.json": pkg({
@@ -829,7 +874,7 @@ describe("KRN-DX-008 kirana-style doctor", () => {
       )
     ).toBe(1)
     expect(output).toMatch(
-      /\d problem\(s\)\. kirana-style init sets up what it can\.\n$/
+      /\d problem\(s\)\. npx kirana-style init sets up what it can\.\n$/
     )
   })
 })

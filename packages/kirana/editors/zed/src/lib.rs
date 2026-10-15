@@ -3,8 +3,8 @@
 //! templates in HTML files, and server templates — Blade, ERB, Twig and HEEx (D-069).
 //! The server is the project's own `node_modules/.bin/kirana-style`, so the editor runs the engine
 //! the build does; `lsp.kirana.binary` in Zed's settings overrides it, and a `kirana-style` on `PATH`
-//! is the last resort. A project still on 0.1.0 has `kirana` instead (the command's name before it
-//! became `kirana-style`), tried after it in both places.
+//! is the last resort. An older install's `kirana`, the command's name before it was
+//! `kirana-style`, is tried after it in both places.
 
 use zed_extension_api::{self as zed, LanguageServerId, Result, settings::LspSettings};
 
@@ -15,7 +15,7 @@ pub struct Found {
     pub args: Vec<String>,
 }
 
-/// The command's names, newest first: `kirana-style`, then `kirana` from 0.1.0.
+/// The command's names, newest first: `kirana-style`, then its earlier name `kirana`.
 pub const NAMES: [&str; 2] = ["kirana-style", "kirana"];
 
 /// Chooses the server command: the configured binary (with its arguments, or `lsp`), the

@@ -1,8 +1,8 @@
 /**
  * Finding the language server (D-064): the project's own `node_modules/.bin/kirana-style`, so the
  * editor runs the engine release the build does, searched upwards for a monorepo's hoisted install;
- * or the `kirana.server.path` setting. A project still on 0.1.0 has `kirana` there instead (the
- * command's name before it became `kirana-style`), which is the fallback in each directory. Nothing here imports `vscode`, so it is tested on its own.
+ * or the `kirana.server.path` setting. In each directory an older install's `kirana`, the command's
+ * name before it was `kirana-style`, is the fallback.
  */
 import path from "node:path"
 
