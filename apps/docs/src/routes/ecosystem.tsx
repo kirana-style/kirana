@@ -1,14 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
-import { accent, accents, tint } from "@workspace/docs-ui/accent.ts"
+import { ArrowRight01Icon, LinkSquare02Icon } from "@hugeicons/core-free-icons"
+
+import { accent, tint } from "@workspace/docs-ui/accent.ts"
+import { Icon } from "@workspace/ui/primitives/icon"
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
+import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
   fontFamily,
   fontSize,
   fontWeight,
   lineHeight,
+  textLeading,
+  textSize,
+  textTracking,
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
@@ -35,155 +42,125 @@ export const Route = createFileRoute("/ecosystem")({
   }),
 })
 
-type Status = "Works" | "Planned" | "Deferred" | "In this repository" | "On npm"
+/** What a row says when it is not simply there to use; a row without one works today. */
+type Status = "Planned" | "Deferred" | "Not packaged"
 
 /** From `/docs/integrations/ecosystem`, the source of truth for status; each row opens its guide. */
-const BUNDLERS: { name: string; status: Status; note: string; href: string }[] =
-  [
-    {
-      name: "Vite 8",
-      status: "Works",
-      note: "@kirana-style/vite, with hot updates",
-      href: "/docs/integrations/vite",
-    },
-    {
-      name: "Rolldown",
-      status: "Works",
-      note: "@kirana-style/rolldown",
-      href: "/docs/integrations/rolldown",
-    },
-    {
-      name: "webpack 5",
-      status: "Works",
-      note: "@kirana-style/webpack, with dev-server updates",
-      href: "/docs/integrations/webpack",
-    },
-    {
-      name: "Rspack, Rsbuild",
-      status: "Works",
-      note: "@kirana-style/rspack, with dev-server updates",
-      href: "/docs/integrations/rspack",
-    },
-    {
-      name: "Parcel",
-      status: "Works",
-      note: "@kirana-style/parcel-transformer with @kirana-style/postcss",
-      href: "/docs/integrations/parcel",
-    },
-    {
-      name: "Bun",
-      status: "Works",
-      note: "@kirana-style/bun, builds and dev server",
-      href: "/docs/integrations/bun",
-    },
-    {
-      name: "esbuild",
-      status: "Works",
-      note: "@kirana-style/esbuild",
-      href: "/docs/integrations/esbuild",
-    },
-    {
-      name: "PostCSS",
-      status: "Works",
-      note: "@kirana-style/postcss, for any PostCSS pipeline",
-      href: "/docs/integrations/postcss",
-    },
-    {
-      name: "Jest",
-      status: "Works",
-      note: "@kirana-style/jest",
-      href: "/docs/integrations/jest",
-    },
-    {
-      name: "Next.js, Turbopack and webpack",
-      status: "Works",
-      note: "@kirana-style/next with @kirana-style/postcss, on the dev server too",
-      href: "/docs/frameworks/nextjs",
-    },
-  ]
+const BUNDLERS: {
+  name: string
+  status?: Status
+  note: string
+  href: string
+}[] = [
+  {
+    name: "Vite 8",
+    note: "@kirana-style/vite, with hot updates",
+    href: "/docs/integrations/vite",
+  },
+  {
+    name: "Rolldown",
+    note: "@kirana-style/rolldown",
+    href: "/docs/integrations/rolldown",
+  },
+  {
+    name: "webpack 5",
+    note: "@kirana-style/webpack, with dev-server updates",
+    href: "/docs/integrations/webpack",
+  },
+  {
+    name: "Rspack, Rsbuild",
+    note: "@kirana-style/rspack, with dev-server updates",
+    href: "/docs/integrations/rspack",
+  },
+  {
+    name: "Parcel",
+    note: "@kirana-style/parcel-transformer with @kirana-style/postcss",
+    href: "/docs/integrations/parcel",
+  },
+  {
+    name: "Bun",
+    note: "@kirana-style/bun, builds and dev server",
+    href: "/docs/integrations/bun",
+  },
+  {
+    name: "esbuild",
+    note: "@kirana-style/esbuild",
+    href: "/docs/integrations/esbuild",
+  },
+  {
+    name: "PostCSS",
+    note: "@kirana-style/postcss, for any PostCSS pipeline",
+    href: "/docs/integrations/postcss",
+  },
+  {
+    name: "Jest",
+    note: "@kirana-style/jest",
+    href: "/docs/integrations/jest",
+  },
+  {
+    name: "Next.js, Turbopack and webpack",
+    note: "@kirana-style/next with @kirana-style/postcss, on the dev server too",
+    href: "/docs/frameworks/nextjs",
+  },
+]
 
-const TOOLING: { name: string; status: Status; note: string; href: string }[] =
+const TOOLING: { name: string; status?: Status; note: string; href: string }[] =
   [
     {
       name: "kirana-style build, check, analyze, export, trace",
-      status: "Works",
       note: "Compile, report (GitHub annotations, a warning cap), size the stylesheet, describe the design system, and explain which declaration wins",
       href: "/docs/tooling/cli",
     },
     {
       name: "kirana-style migrate tailwind / stylex",
-      status: "Works",
       note: "Codemods with a diff and a report",
       href: "/migrate",
     },
     {
       name: "WASI build",
-      status: "Works",
       note: "Byte-identical output where no native addon runs",
       href: "/docs/integrations/ecosystem#runtime-and-distribution",
     },
     {
       name: "kirana-style init, doctor, dev",
-      status: "Works",
       note: "Set a project up from a diff (npx kirana-style@latest init on the first run), check the setup or write a bug report, watch without a bundler",
       href: "/docs/tooling/cli",
     },
     {
       name: "Language server, VS Code and Zed",
-      status: "Works",
       note: "kirana-style lsp",
       href: "/docs/tooling/editor",
     },
     {
       // consistency: subset (the ESLint plugin's hosts; Biome has its own row below)
       name: "Lint plugin (Oxlint, ESLint)",
-      status: "Works",
       note: "@kirana-style/eslint-plugin",
       href: "/docs/tooling/lint",
     },
     {
       name: "Lint plugin (Biome)",
-      status: "Works",
       note: `@kirana-style/biome-plugin: the ${COUNTS.biomeRules} rules that need no compiler`,
       href: "/docs/tooling/lint#biome",
     },
     {
       name: "Agent skills",
-      status: "Works",
       note: "kirana and kirana-migrate, for npx skills add",
       href: "/docs/project/agent-skills",
     },
     {
       name: "Docs framework (docs-core, docs-ui)",
-      status: "In this repository",
-      note: "What this site runs on; not packaged yet",
+      status: "Not packaged",
+      note: "What this site runs on, in this repository",
       href: "/docs",
     },
   ]
 
-/** A status's hue: works and published in forest, deferred in ochre, the rest in ink. */
-const STATUS_ACCENT = {
-  Works: "forest",
-  Planned: "neutral",
-  Deferred: "ochre",
-  "In this repository": "neutral",
-  "On npm": "forest",
-} as const
-
-/** What the packages chapter says about npm, read from the packages so it flips when they publish. */
 const VERSIONS = [...new Set(PACKAGES.map((entry) => entry.version))]
-const ON_NPM = PACKAGES.filter((entry) => entry.published).length
-const NPM_LINE =
-  ON_NPM === 0
-    ? "none is on npm yet"
-    : ON_NPM === PACKAGES.length
-      ? "every one is on npm"
-      : `${ON_NPM} of ${PACKAGES.length} are on npm`
 const PACKAGES_LEDE = `${
   VERSIONS.length === 1
-    ? `Every package is ${VERSIONS[0]} and ${NPM_LINE}`
-    : NPM_LINE.charAt(0).toUpperCase() + NPM_LINE.slice(1)
-}; each is packed and install-tested on every change.`
+    ? `Every package is at ${VERSIONS[0]}, released together`
+    : "Every package is released together"
+}, and each is installed from its tarball and checked on every change.`
 
 /** A package description with its `code` spans set as code. */
 function Described({ text }: { text: string }) {
@@ -209,17 +186,6 @@ const styles = {
     fontWeight: fontWeight.medium,
     color: accent.base,
     overflowWrap: "anywhere",
-  }),
-  packageStatus: css({
-    display: "inline-flex",
-    alignItems: "center",
-    justifySelf: "end",
-    gap: spacing[2],
-  }),
-  version: css({
-    fontFamily: fontFamily.mono,
-    fontSize: fontSize.xs,
-    color: theme.mutedForeground,
   }),
   table: css({
     display: "grid",
@@ -259,24 +225,41 @@ const styles = {
     gridColumn: { base: "1 / -1", [breakpoint.md]: "auto" },
     gridRow: { base: "2", [breakpoint.md]: "auto" },
   }),
+  // An exception, in quiet mono words: most rows have none.
   status: css({
     justifySelf: "end",
-    borderRadius: radius.full,
-    paddingInline: spacing[2],
-    fontSize: "0.625rem",
-    lineHeight: "1.125rem",
-    fontWeight: fontWeight.semibold,
-    letterSpacing: "0.04em",
+    fontFamily: fontFamily.mono,
+    fontSize: textSize.label,
+    lineHeight: textLeading.label,
+    letterSpacing: textTracking.label,
     textTransform: "uppercase",
     whiteSpace: "nowrap",
-    color: accent.base,
-    backgroundColor: tint(12),
+    color: theme.mutedForeground,
+  }),
+  arrow: css({
+    justifySelf: "end",
+    color: { base: theme.mutedForeground, ":is(a:hover *)": theme.foreground },
+    transitionProperty: "color",
+    transitionDuration: duration[150],
+  }),
+  npm: css({
+    display: "inline-flex",
+    alignItems: "center",
+    justifySelf: "end",
+    gap: spacing[1],
+    fontFamily: fontFamily.mono,
+    fontSize: fontSize.xs,
+    color: { base: theme.mutedForeground, ":hover": theme.foreground },
+    textDecorationLine: "none",
   }),
 }
 
-function Badge({ status }: { status: Status }) {
-  return (
-    <span sx={[accents[STATUS_ACCENT[status]], styles.status]}>{status}</span>
+/** A row's end: its exception when it has one, else the arrow into its page. */
+function End({ status }: { status?: Status }) {
+  return status ? (
+    <span sx={styles.status}>{status}</span>
+  ) : (
+    <Icon icon={ArrowRight01Icon} size="0.875rem" sx={styles.arrow} />
   )
 }
 
@@ -286,7 +269,7 @@ function EcosystemPage() {
       <PageHero
         label="Ecosystem"
         title="What exists, honestly"
-        lede={`${PACKAGES.length} packages, one engine behind them, and the tools around it. Anything marked planned is in the specification, not in the build.`}
+        lede={`${PACKAGES.length} packages, one engine behind them, and the tools around it. A row says so when something is not there to use yet.`}
       />
 
       <PageSection
@@ -301,7 +284,7 @@ function EcosystemPage() {
       <PageSection
         number="02"
         label="Packages"
-        title="Every package, and where it stands"
+        title="Every package, on npm"
         lede={PACKAGES_LEDE}
       >
         <div sx={styles.table}>
@@ -311,11 +294,16 @@ function EcosystemPage() {
               <span sx={styles.note}>
                 <Described text={entry.description} />
               </span>
-              <span sx={styles.packageStatus}>
-                <span sx={styles.version}>{entry.version}</span>
-                {/* Only a published package is marked: until then the lede says it for all of them. */}
-                {entry.published ? <Badge status="On npm" /> : null}
-              </span>
+              <a
+                href={`https://www.npmjs.com/package/${entry.name}`}
+                target="_blank"
+                rel="noreferrer"
+                sx={styles.npm}
+                aria-label={`${entry.name} ${entry.version} on npm`}
+              >
+                {entry.version}
+                <Icon icon={LinkSquare02Icon} size="0.75rem" />
+              </a>
             </div>
           ))}
         </div>
@@ -336,7 +324,7 @@ function EcosystemPage() {
                 {item.name}
               </span>
               <span sx={styles.note}>{item.note}</span>
-              <Badge status={item.status} />
+              <End status={item.status} />
             </DocsLink>
           ))}
         </div>
@@ -361,7 +349,7 @@ function EcosystemPage() {
             <DocsLink key={item.name} href={item.href} sx={styles.row}>
               <span sx={styles.name}>{item.name}</span>
               <span sx={styles.note}>{item.note}</span>
-              <Badge status={item.status} />
+              <End status={item.status} />
             </DocsLink>
           ))}
         </div>

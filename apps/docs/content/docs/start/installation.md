@@ -31,13 +31,7 @@ In your project's root, through your package manager's runner. It fetches the
 command for this one run, the way `npx shadcn@latest` does, and writes nothing
 until you say yes:
 
-| Package manager | First run                                  |
-| --------------- | ------------------------------------------ |
-| npm             | `npx kirana-style@latest init`             |
-| pnpm            | `pnpm dlx kirana-style@latest init`        |
-| Yarn            | `yarn dlx kirana-style@latest init`        |
-| Bun             | `bunx --bun kirana-style@latest init`      |
-| Deno            | `deno run -A npm:kirana-style@latest init` |
+<!-- ::install run="kirana-style@latest init" -->
 
 > [!NOTE] Right after a release
 > Yarn and Deno hold back a version for its first 24 hours on npm, a guard against
@@ -51,9 +45,7 @@ file, the adapter in your bundler's configuration, the stylesheet and the `sx`
 types. Nothing is written until you say yes, and the install command is
 printed for you to run (or pass `--install`). Then:
 
-```bash
-npx kirana-style doctor
-```
+<!-- ::install exec="kirana-style doctor" -->
 
 checks the engine, the installed versions, the configuration and the wiring, and
 says what is missing. Both are described in [the CLI](/docs/tooling/cli#kirana-style-init).
@@ -224,16 +216,16 @@ through your package manager's overrides. With npm or Bun:
 ```json file="package.json"
 {
   "dependencies": {
-    "@kirana-style/core": "file:/path/to/dist-packages/kirana-style-core-0.1.0.tgz"
+    "@kirana-style/core": "file:/path/to/dist-packages/kirana-style-core-{{fact:version}}.tgz"
   },
   "devDependencies": {
-    "kirana-style": "file:/path/to/dist-packages/kirana-style-0.1.0.tgz",
-    "@kirana-style/vite": "file:/path/to/dist-packages/kirana-style-vite-0.1.0.tgz"
+    "kirana-style": "file:/path/to/dist-packages/kirana-style-{{fact:version}}.tgz",
+    "@kirana-style/vite": "file:/path/to/dist-packages/kirana-style-vite-{{fact:version}}.tgz"
   },
   "overrides": {
-    "@kirana-style/compiler": "file:/path/to/dist-packages/kirana-style-compiler-0.1.0.tgz",
-    "@kirana-style/rolldown": "file:/path/to/dist-packages/kirana-style-rolldown-0.1.0.tgz",
-    "@kirana-style/compiler-linux-x64-gnu": "file:/path/to/dist-packages/kirana-style-compiler-linux-x64-gnu-0.1.0.tgz"
+    "@kirana-style/compiler": "file:/path/to/dist-packages/kirana-style-compiler-{{fact:version}}.tgz",
+    "@kirana-style/rolldown": "file:/path/to/dist-packages/kirana-style-rolldown-{{fact:version}}.tgz",
+    "@kirana-style/compiler-linux-x64-gnu": "file:/path/to/dist-packages/kirana-style-compiler-linux-x64-gnu-{{fact:version}}.tgz"
   }
 }
 ```

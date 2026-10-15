@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { css, props as styleProps } from "@kirana-style/core"
 import { Search01Icon } from "@hugeicons/core-free-icons"
 
-import type { BlogMeta } from "@workspace/docs-core/types.ts"
 import { accent, tint } from "@workspace/docs-ui/accent.ts"
 import { Icon } from "@workspace/ui/primitives/icon"
 import { radius, theme } from "@workspace/ui/theme/semantic"
@@ -14,13 +13,15 @@ import {
   fontFamily,
   fontSize,
   fontWeight,
-  letterSpacing,
   lineHeight,
+  textLeading,
+  textSize,
+  textTracking,
 } from "@workspace/ui/tokens/typography"
 
+import { PostLabel, PostRow, blog, slugOf } from "@/components/blog/post-row"
 import { Page, PageHero, PageSection } from "@/components/site/page"
-import { Rail, patterns } from "@/components/site/patterns"
-import { LIFT, REST } from "@workspace/ui/recipes/lift"
+import { Rail } from "@/components/site/patterns"
 import { POSTS } from "@/generated/content.gen"
 
 export const Route = createFileRoute("/blog/")({
@@ -110,140 +111,51 @@ const styles = {
     color: theme.foreground,
     outlineStyle: "none",
   }),
+  // The latest post, large: its cover across the rail, then its title beside its summary.
   featured: css({
     display: "grid",
-    overflow: "hidden",
-    borderRadius: radius.xl,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    boxShadow: { base: REST, ":hover": LIFT },
-    backgroundColor: theme.card,
+    gap: { base: spacing[6], [breakpoint.md]: spacing[8] },
+    paddingBlockEnd: { base: spacing[8], [breakpoint.md]: spacing[12] },
     textDecorationLine: "none",
     color: theme.foreground,
-    transitionProperty: "box-shadow",
-    transitionDuration: duration[200],
-    gridTemplateColumns: {
-      base: "minmax(0, 1fr)",
-      [breakpoint.lg]: "minmax(0, 1.15fr) minmax(0, 1fr)",
-    },
+  }),
+  featuredCover: css({
+    display: "block",
+    width: "100%",
+    aspectRatio: { base: "4 / 3", [breakpoint.md]: "21 / 9" },
+    objectFit: "cover",
+    borderRadius: radius.xl,
+    backgroundColor: theme.muted,
   }),
   featuredBody: css({
     display: "grid",
-    alignContent: "center",
-    gap: spacing[4],
-    padding: { base: spacing[6], [breakpoint.md]: spacing[10] },
-  }),
-  featuredTitle: css({
-    fontFamily: fontFamily.heading,
-    fontSize: { base: fontSize["2xl"], [breakpoint.md]: fontSize["4xl"] },
-    lineHeight: { base: lineHeight["2xl"], [breakpoint.md]: lineHeight["4xl"] },
-    fontWeight: fontWeight.normal,
-    letterSpacing: letterSpacing.tight,
-    textWrap: "balance",
-  }),
-  grid: css({
-    display: "grid",
-    gap: spacing[5],
+    gap: { base: spacing[4], [breakpoint.lg]: spacing[16] },
+    alignItems: "start",
     gridTemplateColumns: {
       base: "minmax(0, 1fr)",
-      [breakpoint.md]: "repeat(2, minmax(0, 1fr))",
-      [breakpoint.lg]: "repeat(3, minmax(0, 1fr))",
+      [breakpoint.lg]: "minmax(0, 1.2fr) minmax(0, 1fr)",
     },
   }),
-  card: css({
-    display: "grid",
-    gridTemplateRows: "auto 1fr",
-    overflow: "hidden",
-    borderRadius: radius.xl,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    boxShadow: { base: REST, ":hover": LIFT },
-    backgroundColor: theme.card,
-    textDecorationLine: "none",
-    color: theme.foreground,
-    transitionProperty: "box-shadow",
-    transitionDuration: duration[200],
-  }),
-  cover: css({
-    display: "block",
-    width: "100%",
-    height: "100%",
-    minHeight: "14rem",
-    aspectRatio: "16 / 10",
-    objectFit: "cover",
-    backgroundColor: theme.muted,
-  }),
-  noCover: css({ minHeight: "14rem", aspectRatio: "16 / 10" }),
-  body: css({
-    display: "grid",
-    alignContent: "start",
-    gap: spacing[3],
-    padding: spacing[6],
-  }),
-  title: css({
-    fontSize: fontSize.xl,
-    lineHeight: lineHeight.xl,
-    fontWeight: fontWeight.semibold,
+  featuredHead: css({ display: "grid", gap: spacing[4] }),
+  featuredTitle: css({
+    fontFamily: fontFamily.heading,
+    fontSize: textSize.title,
+    lineHeight: textLeading.title,
+    letterSpacing: textTracking.title,
+    fontWeight: fontWeight.normal,
     textWrap: "balance",
+    textDecorationLine: { base: "none", ":is(a:hover *)": "underline" },
+    textDecorationThickness: "1px",
+    textUnderlineOffset: "0.15em",
   }),
-  summary: css({
-    fontSize: fontSize.sm,
-    lineHeight: "1.65",
+  featuredSummary: css({
+    fontSize: textSize.lede,
+    lineHeight: textLeading.lede,
     color: theme.mutedForeground,
-  }),
-  meta: css({
-    display: "flex",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: spacing[2],
-    fontSize: fontSize.xs,
-    lineHeight: lineHeight.xs,
-    color: theme.mutedForeground,
-  }),
-  kicker: css({
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.semibold,
-    letterSpacing: "0.06em",
-    textTransform: "uppercase",
-    color: accent.base,
+    textWrap: "pretty",
+    paddingBlockStart: { [breakpoint.lg]: spacing[2] },
   }),
   empty: css({ color: theme.mutedForeground }),
-}
-
-function format(date: string) {
-  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  })
-}
-
-function Meta({ post }: { post: BlogMeta }) {
-  return (
-    <span sx={styles.meta}>
-      <time dateTime={post.date}>{format(post.date)}</time>
-      <span>·</span>
-      <span>{post.author}</span>
-      <span>·</span>
-      <span>{post.readingMinutes} min read</span>
-    </span>
-  )
-}
-
-function Cover({ post }: { post: BlogMeta }) {
-  return post.cover ? (
-    <img
-      src={post.cover}
-      alt={post.coverAlt ?? ""}
-      loading="lazy"
-      sx={styles.cover}
-    />
-  ) : (
-    <span sx={[patterns.hatch, styles.noCover]} aria-hidden="true" />
-  )
 }
 
 function BlogIndex() {
@@ -306,38 +218,32 @@ function BlogIndex() {
         {first && !filtered ? (
           <Link
             to="/blog/$slug"
-            params={{ slug: first.href.replace("/blog/", "") }}
+            params={{ slug: slugOf(first) }}
             {...styleProps(styles.featured)}
           >
-            <Cover post={first} />
-            <div sx={styles.featuredBody}>
-              <span sx={styles.kicker}>Latest</span>
-              <span sx={styles.featuredTitle}>{first.title}</span>
-              <span sx={styles.summary}>{first.summary}</span>
-              <Meta post={first} />
-            </div>
+            {first.cover ? (
+              <img
+                src={first.cover}
+                alt={first.coverAlt ?? ""}
+                sx={styles.featuredCover}
+              />
+            ) : null}
+            <span sx={styles.featuredBody}>
+              <span sx={styles.featuredHead}>
+                <PostLabel post={first} />
+                <span sx={styles.featuredTitle}>{first.title}</span>
+              </span>
+              <span sx={styles.featuredSummary}>{first.summary}</span>
+            </span>
           </Link>
         ) : null}
 
         {posts.length === 0 ? (
           <p sx={styles.empty}>No post matches.</p>
         ) : (
-          <div sx={styles.grid}>
+          <div sx={blog.list}>
             {(filtered ? posts : rest).map((post) => (
-              <Link
-                key={post.href}
-                to="/blog/$slug"
-                params={{ slug: post.href.replace("/blog/", "") }}
-                {...styleProps(styles.card)}
-              >
-                <Cover post={post} />
-                <div sx={styles.body}>
-                  <span sx={styles.kicker}>{post.tags[0]}</span>
-                  <span sx={styles.title}>{post.title}</span>
-                  <span sx={styles.summary}>{post.summary}</span>
-                  <Meta post={post} />
-                </div>
-              </Link>
+              <PostRow key={post.href} post={post} />
             ))}
           </div>
         )}

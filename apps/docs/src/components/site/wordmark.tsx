@@ -1,7 +1,8 @@
 /**
- * The name, set in type: both words in EB Garamond's drawn italic, "kirana" semibold and "style"
- * at the regular weight (the face's lightest), smaller and muted, as the domain reads. It stands beside the drawn mark in the header and the
- * footer; the brand page shows the lockup.
+ * The name, set in type: both words in Crimson Pro's drawn italic, "kirana" semibold and "style"
+ * light, smaller and muted, as the domain reads. The headings are EB Garamond, but its italic r
+ * reads as a v at this size. It stands beside the drawn mark in the header and the footer; the
+ * brand page shows the lockup.
  */
 import { css } from "@kirana-style/core"
 
@@ -29,7 +30,7 @@ const styles = {
     fontFamily: fontFamily.serif,
     fontSize: "0.85em",
     fontStyle: "italic",
-    fontWeight: fontWeight.normal,
+    fontWeight: fontWeight.light,
     color: theme.mutedForeground,
   }),
 }

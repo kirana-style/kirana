@@ -39,13 +39,11 @@ The `kirana-style` command, by what it does:
 In a project without Kirana, run it without installing anything: your package
 manager's runner fetches it for one run, as `npx shadcn@latest` does.
 
-| Package manager | Without installing                         | Once installed                       |
-| --------------- | ------------------------------------------ | ------------------------------------ |
-| npm             | `npx kirana-style@latest init`             | `npx kirana-style check`             |
-| pnpm            | `pnpm dlx kirana-style@latest init`        | `pnpm exec kirana-style check`       |
-| Yarn            | `yarn dlx kirana-style@latest init`        | `yarn kirana-style check`            |
-| Bun             | `bunx --bun kirana-style@latest init`      | `bunx kirana-style check`            |
-| Deno            | `deno run -A npm:kirana-style@latest init` | `deno run -A npm:kirana-style check` |
+<!-- ::install run="kirana-style@latest init" -->
+
+Once it is installed, the package manager runs the project's own copy:
+
+<!-- ::install exec="kirana-style check" -->
 
 `init` adds `kirana-style` to the project's dev dependencies, so every later run
 uses the version the project pins, and the editor's language server comes from the
@@ -143,7 +141,7 @@ kirana-style doctor --report bug.md --trace src/card.tsx:12 minHeight
 ```console
 $ kirana-style doctor
 ✓ engine       native (linux-x64)
-✓ packages     @kirana-style/core@0.1.0, @kirana-style/next@0.1.0, kirana-style@0.1.0
+✓ packages     @kirana-style/core@{{fact:version}}, @kirana-style/next@{{fact:version}}, kirana-style@{{fact:version}}
 ✓ config       kirana.config.mts, prefix "k"
 ✓ project      Next.js · turbopack · npm · TypeScript
 ✓ adapter      next.config.ts, postcss.config.mjs
@@ -313,7 +311,7 @@ kirana-style export src --out design-system.json
 ```json file="design-system.json"
 {
   "schema": 1,
-  "engine": "0.1.0",
+  "engine": "{{fact:version}}",
   "prefix": "k",
   "tokens": [
     {

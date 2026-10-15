@@ -1135,9 +1135,19 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
-        "id": "switching-without-a-flash",
-        "text": "Switching without a flash",
+        "id": "remembering-the-reader-s-choice",
+        "text": "Remembering the reader's choice",
         "level": 2
+      },
+      {
+        "id": "in-tanstack-start",
+        "text": "In TanStack Start",
+        "level": 3
+      },
+      {
+        "id": "in-other-frameworks",
+        "text": "In other frameworks",
+        "level": 3
       },
       {
         "id": "what-not-to-do",
@@ -3888,7 +3898,7 @@ export const PAGES: readonly PageMeta[] = [
       "status",
       "support",
       "what works",
-      "pre-release",
+      "version",
       "limitations"
     ],
     "headings": [
@@ -3918,7 +3928,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/project/roadmap",
     "file": "content/docs/project/roadmap.md",
     "title": "Roadmap",
-    "description": "The milestones, what each one contains, and where the work is now.",
+    "description": "The milestones, what each one delivered, and what comes before 1.0.",
     "section": "project",
     "order": 2,
     "keywords": [
@@ -3927,42 +3937,43 @@ export const PAGES: readonly PageMeta[] = [
       "plan",
       "future",
       "wasm",
-      "language server"
+      "language server",
+      "1"
     ],
     "headings": [
       {
-        "id": "m0-foundations-done",
-        "text": "M0: Foundations · done",
+        "id": "m0-foundations",
+        "text": "M0: Foundations",
         "level": 2
       },
       {
-        "id": "m1-feasibility-slice-done",
-        "text": "M1: Feasibility slice · done",
+        "id": "m1-feasibility-slice",
+        "text": "M1: Feasibility slice",
         "level": 2
       },
       {
-        "id": "m2-recipes-and-dynamic-styles-done",
-        "text": "M2: Recipes and dynamic styles · done",
+        "id": "m2-recipes-and-dynamic-styles",
+        "text": "M2: Recipes and dynamic styles",
         "level": 2
       },
       {
-        "id": "m4-ecosystem-done-pending-publication",
-        "text": "M4: Ecosystem · done, pending publication",
+        "id": "m3-developer-experience",
+        "text": "M3: Developer experience",
         "level": 2
       },
       {
-        "id": "m5-utility-surface-done",
-        "text": "M5: Utility surface · done",
+        "id": "m4-ecosystem",
+        "text": "M4: Ecosystem",
         "level": 2
       },
       {
-        "id": "m3-developer-experience-done-pending-publication",
-        "text": "M3: Developer experience · done, pending publication",
+        "id": "m5-utility-surface",
+        "text": "M5: Utility surface",
         "level": 2
       },
       {
-        "id": "m6-1-0-planned",
-        "text": "M6: 1.0 · planned",
+        "id": "m6-1-0",
+        "text": "M6: 1.0",
         "level": 2
       },
       {
@@ -3976,7 +3987,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/project/releases",
     "file": "content/docs/project/releases.md",
     "title": "Releases and upgrading",
-    "description": "How versions will work, what pre-1.0 means, and how a breaking change will be communicated.",
+    "description": "How versions work, what before 1.0 means, and how a breaking change is announced.",
     "section": "project",
     "order": 3,
     "keywords": [
@@ -3994,8 +4005,8 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
-        "id": "how-versions-will-work",
-        "text": "How versions will work",
+        "id": "how-versions-work",
+        "text": "How versions work",
         "level": 2
       },
       {
@@ -5377,27 +5388,28 @@ export const NAV: readonly NavGroup[] = [
           "status",
           "support",
           "what works",
-          "pre-release",
+          "version",
           "limitations"
         ]
       },
       {
         "title": "Roadmap",
         "href": "/docs/project/roadmap",
-        "description": "The milestones, what each one contains, and where the work is now.",
+        "description": "The milestones, what each one delivered, and what comes before 1.0.",
         "keywords": [
           "roadmap",
           "milestones",
           "plan",
           "future",
           "wasm",
-          "language server"
+          "language server",
+          "1"
         ]
       },
       {
         "title": "Releases and upgrading",
         "href": "/docs/project/releases",
-        "description": "How versions will work, what pre-1.0 means, and how a breaking change will be communicated.",
+        "description": "How versions work, what before 1.0 means, and how a breaking change is announced.",
         "keywords": [
           "releases",
           "versioning",
@@ -5680,7 +5692,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Why Kirana",
     "section": "start",
     "heading": "Where Kirana costs you something",
-    "text": "It is pre-release. On npm, but before 1.0 the API can still change; see what works today . It is a compiler. Styles must be statically known in shape: a computed key or a spread object is an error, and a value the compiler cannot enumerate goes through a custom property. It is stricter than CSS. Contextual rules rank below the target's own styles, and two conditions that tie are reported instead of left to source order. That is what makes the result predictable, and it is why a migration from Tailwind needs a few hand fixes (the migration guide lists every one we met). The richest editor is VS Code. Every LSP editor gets the card, the hints and the fixes; the Style Inspector, Style Fold and coloured hints are VS Code's. The extensions are not on the marketplaces until the first release."
+    "text": "It is before 1.0. A minor version may still change the API, and its release notes say how to move; see what works today . It is a compiler. Styles must be statically known in shape: a computed key or a spread object is an error, and a value the compiler cannot enumerate goes through a custom property. It is stricter than CSS. Contextual rules rank below the target's own styles, and two conditions that tie are reported instead of left to source order. That is what makes the result predictable, and it is why a migration from Tailwind needs a few hand fixes (the migration guide lists every one we met). The richest editor is VS Code. Every LSP editor gets the card, the hints and the fixes; the Style Inspector, Style Fold and coloured hints are VS Code's. The VS Code extension is on the Marketplace and Open VSX; Zed's installs as a dev extension until it is in Zed's registry."
   },
   {
     "id": "/docs/start/quick-start",
@@ -6955,12 +6967,28 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Token defaults go in the layer, on . Theme overrides go in , as a class. Both sit below your component styles, so a component that sets a colour directly always wins over a theme that suggests one."
   },
   {
-    "id": "/docs/tokens/themes-and-modes#switching-without-a-flash",
-    "href": "/docs/tokens/themes-and-modes#switching-without-a-flash",
+    "id": "/docs/tokens/themes-and-modes#remembering-the-reader-s-choice",
+    "href": "/docs/tokens/themes-and-modes#remembering-the-reader-s-choice",
     "page": "Themes and modes",
     "section": "tokens",
-    "heading": "Switching without a flash",
-    "text": "The mode handle is a class on the root element, so server-rendered HTML can carry it: render the user's stored preference into the root on the server, and there is no flash. needs nothing stored at all."
+    "heading": "Remembering the reader's choice",
+    "text": "A switch that only sets state forgets the choice on a reload, and another open tab keeps its own. Keeping it takes three things, whatever the framework: Store the choice in a cookie , not in . The server can read a cookie, so it renders the page in the saved mode and nothing flashes. Render the root in it on the server : read the cookie, and put the matching handle on . Tell the other tabs : write the cookie in the browser when the reader chooses, and post the new mode on a the other tabs listen to. needs none of this: it is , which follows the operating system without JavaScript. A reader who never chooses gets no cookie."
+  },
+  {
+    "id": "/docs/tokens/themes-and-modes#in-tanstack-start",
+    "href": "/docs/tokens/themes-and-modes#in-tanstack-start",
+    "page": "Themes and modes",
+    "section": "tokens",
+    "heading": "In TanStack Start",
+    "text": "The code below is for TanStack Start with server rendering; it is what this site runs. Other frameworks follow the same three steps (see the table after it). The cookie, read on the server from the request and in the browser from , so a client-side navigation sends no request: A provider that writes the cookie and keeps the tabs in step: The root route reads the cookie before the document renders, and takes the handle: The switch is then any control that calls : Two more details: The back-forward cache. A page the browser restores from its cache missed the messages sent while it was away. Read the cookie again on when is true. No shortcut on Ctrl or Cmd+D. It is the browser's bookmark key."
+  },
+  {
+    "id": "/docs/tokens/themes-and-modes#in-other-frameworks",
+    "href": "/docs/tokens/themes-and-modes#in-other-frameworks",
+    "page": "Themes and modes",
+    "section": "tokens",
+    "heading": "In other frameworks",
+    "text": "The provider and the switch stay the same; what changes is where the server reads the cookie and where the root element is rendered. A site with no server (a static build) cannot read a cookie before the page is sent. Keep the choice in instead, and apply it with a small inline script at the top of , which runs before the first paint: Every colour is a pair, so setting is enough to switch them all."
   },
   {
     "id": "/docs/tokens/themes-and-modes#what-not-to-do",
@@ -7273,7 +7301,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "TanStack Start",
     "section": "frameworks",
     "heading": "The root document",
-    "text": "Two things belong at the root: the stylesheets, in order, and the colour scheme. goes on , not : the root owns the page canvas and the scrollbars."
+    "text": "Two things belong at the root: the stylesheets, in order, and the colour scheme. goes on , not : the root owns the page canvas and the scrollbars. follows the operating system. To let readers choose Light or Dark and keep the choice across reloads and tabs, see remembering the reader's choice ."
   },
   {
     "id": "/docs/frameworks/tanstack-start#typing-sx",
@@ -8698,7 +8726,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from StyleX",
     "section": "migration",
     "heading": "What StyleX has that Kirana does not",
-    "text": "Fairness matters more than a feature list: It is published, versioned and used in production at Meta scale. Kirana is a 0.x pre-release. A larger ecosystem : community plugins, documentation, examples, articles and people who have already hit your problem. A few helpers have no direct equivalent, and among them; write a condition. names each one it meets in its report. If you need a styling compiler in production this quarter, StyleX is the defensible choice. Kirana is worth it when predictability and diagnostics are the thing you are missing."
+    "text": "Fairness matters more than a feature list: It is published, versioned and used in production at Meta scale. Kirana is at a 0.x version. A larger ecosystem : community plugins, documentation, examples, articles and people who have already hit your problem. A few helpers have no direct equivalent, and among them; write a condition. names each one it meets in its report. If you need a styling compiler in production this quarter, StyleX is the defensible choice. Kirana is worth it when predictability and diagnostics are the thing you are missing."
   },
   {
     "id": "/docs/migration/from-stylex#what-else-is-different",
@@ -9298,7 +9326,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "The CLI",
-    "text": "The command, by what it does: In a project without Kirana, run it without installing anything: your package manager's runner fetches it for one run, as does. adds to the project's dev dependencies, so every later run uses the version the project pins, and the editor's language server comes from the same install."
+    "text": "The command, by what it does: In a project without Kirana, run it without installing anything: your package manager's runner fetches it for one run, as does. Once it is installed, the package manager runs the project's own copy: adds to the project's dev dependencies, so every later run uses the version the project pins, and the editor's language server comes from the same install."
   },
   {
     "id": "/docs/tooling/cli#a-shorter-name",
@@ -9869,7 +9897,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "What works today",
-    "text": "Kirana is pre-release. It compiles three real applications in our shadcn/ui port (a demo, 60+ shadcn blocks and one page per component), and its own test suite keeps 100 % line coverage. It is on npm as a 0.x pre-release, and the name is a working name."
+    "text": "Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the API. It compiles three real applications in our shadcn/ui port (a demo, 60+ shadcn blocks and one page per component), and its own test suite keeps 100 % line coverage. The changelog lists every release."
   },
   {
     "id": "/docs/project/status#built",
@@ -9885,7 +9913,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Partial",
-    "text": "is in the catalogue but not emitted yet. Benchmarks are advisory: hosted CI numbers, not dedicated hardware. Packaging : every package and the per-platform engine packages are on npm. produces them as tarballs before a release, and CI installs them with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and Alpine."
+    "text": "is in the catalogue but not emitted yet. Benchmarks are advisory: hosted CI numbers, not dedicated hardware. The Zed extension works, but is not in Zed's registry yet: install it as a dev extension; see editor support ."
   },
   {
     "id": "/docs/project/status#not-built",
@@ -9893,7 +9921,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Not built",
-    "text": "Publishing to npm Publishing the editor extensions to the VS Code Marketplace, Open VSX and Zed's registry The and animations, and gradients ( and its stops), in the scales preset A persistent cache on disk: deliberately not built, because the engine is 0.05 s of a 16 s build and a cache that skips it would save nothing"
+    "text": "The and animations, and gradients ( and its stops), in the scales preset A persistent cache on disk: deliberately not built, because the engine is 0.05 s of a 16 s build and a cache that skips it would save nothing"
   },
   {
     "id": "/docs/project/status#known-rough-edges",
@@ -9908,7 +9936,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "href": "/docs/project/roadmap",
     "page": "Roadmap",
     "section": "project",
-    "text": "The milestones, what each one contains, and where the work is now. "
+    "text": "The milestones, what each one delivered, and what comes before 1.0. "
   },
   {
     "id": "/docs/project/roadmap#roadmap",
@@ -9916,63 +9944,63 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Roadmap",
     "section": "project",
     "heading": "Roadmap",
-    "text": "Seven milestones, two decision gates. Dates are deliberately absent: this is built by one person with AI assistance, and a date would be fiction."
+    "text": "Seven milestones and two decision gates. Six are done and on npm; the seventh is 1.0. Dates are deliberately absent: this is built by one person with AI assistance, and a date would be fiction. Until 1.0, releases come from the work below as it lands, each listed in the changelog ."
   },
   {
-    "id": "/docs/project/roadmap#m0-foundations-done",
-    "href": "/docs/project/roadmap#m0-foundations-done",
+    "id": "/docs/project/roadmap#m0-foundations",
+    "href": "/docs/project/roadmap#m0-foundations",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M0: Foundations · done",
-    "text": "The workspace, the IR, longhand expansion and normalisation, the ladder and layer plan, the CSS writer, golden fixtures, ."
+    "heading": "M0: Foundations",
+    "text": "Done. The core every later milestone builds on: the workspace, the IR, longhand expansion and normalisation; the precedence ladder and the layer plan; the CSS writer and its golden fixtures; ."
   },
   {
-    "id": "/docs/project/roadmap#m1-feasibility-slice-done",
-    "href": "/docs/project/roadmap#m1-feasibility-slice-done",
+    "id": "/docs/project/roadmap#m1-feasibility-slice",
+    "href": "/docs/project/roadmap#m1-feasibility-slice",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M1: Feasibility slice · done",
-    "text": "The Vite adapter, cross-file resolution, for React, relations, , keyframes, modes and themes, the scales preset, and the first conformance runs against the StyleX and Tailwind originals."
+    "heading": "M1: Feasibility slice",
+    "text": "Done. Enough of Kirana to style a real application: the Vite adapter and cross-file resolution; for React, relations and ; keyframes, modes and themes, and the scales preset; the first conformance runs against the StyleX and Tailwind originals."
   },
   {
-    "id": "/docs/project/roadmap#m2-recipes-and-dynamic-styles-done",
-    "href": "/docs/project/roadmap#m2-recipes-and-dynamic-styles-done",
+    "id": "/docs/project/roadmap#m2-recipes-and-dynamic-styles",
+    "href": "/docs/project/roadmap#m2-recipes-and-dynamic-styles",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M2: Recipes and dynamic styles · done",
-    "text": "with slots, finite and open dynamic values, the private runtime, incremental rebuilds and hot updates, , and the full component set built on it, which is what found most of the compiler's bugs. One thing in this milestone's scope is deliberately not built: a persistent cache on disk. The engine is 0.05 s of a 16 s build, so a cache that skips it saves nothing you could measure, and every key it has to get right is a way to serve stale CSS."
+    "heading": "M2: Recipes and dynamic styles",
+    "text": "Done. Styles that depend on props and state: with slots, and finite and open dynamic values; the private runtime, incremental rebuilds and hot updates; ; the full component set of our shadcn/ui port built on it, which is what found most of the compiler's bugs. One thing in this milestone's scope is deliberately not built: a persistent cache on disk. The engine is 0.05 s of a 16 s build, so a cache that skips it saves nothing you could measure, and every key it has to get right is a way to serve stale CSS."
   },
   {
-    "id": "/docs/project/roadmap#m4-ecosystem-done-pending-publication",
-    "href": "/docs/project/roadmap#m4-ecosystem-done-pending-publication",
+    "id": "/docs/project/roadmap#m3-developer-experience",
+    "href": "/docs/project/roadmap#m3-developer-experience",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M4: Ecosystem · done, pending publication",
-    "text": "Kirana installable outside this repository, and proven so on every change. Built so far: the packages and the eight per-platform engine packages are packed as tarballs, and CI installs them with npm, pnpm, Yarn and Bun on Linux, macOS, Windows and Alpine, builds an example and checks it in a browser. Also built: adapters for Rolldown, webpack (with Next.js on webpack), Rspack (with Rsbuild) and Bun, each with an example the same CI builds and checks. Also built: Preact and Solid, where compiles to , and plain TypeScript through class strings. Also built: Vue, Nuxt, Svelte, SvelteKit and Astro, with in their templates, an install guide per framework, and every Vite-based one checked in its dev server on every change. Also built: Qwik 2, where compiles to ; and Angular, through an directive, with builders for the Angular CLI and a Vite plugin for Analog. Each has an example CI builds and checks in a browser and in its dev server. Also built: a guide and a tested example for every framework Tailwind documents (React Router, Gatsby, Ember, Meteor and Parcel), and server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS, through a class map and a helper per template language. A"
+    "heading": "M3: Developer experience",
+    "text": "Done, and published. Editor and lint support, read from the compiler rather than re-implemented, so they never disagree with the build. The language server , : diagnostics at the property, hover with the compiled CSS and the ladder step that won, tokens in both modes, colour swatches, a summary after every , completion, navigation and quick fixes. Hover answers in 1.2 ms at the 95th percentile on our shadcn/ui port. Editors: the extension on the VS Code Marketplace and Open VSX, and the same server in Vue, Svelte and Astro files; Zed through a dev extension, and Neovim and Helix through their own LSP configuration. Lint: under Oxlint and ESLint, and with the four rules Biome can run. The command line: setting a project up and checking it, with a redacted bug report; compiling without a bundler; sizing the stylesheet; the design system as JSON; and reports for CI with GitHub annotations. The CLI page has every command. CSS helpers checked at build time: , and . Agent skills , and . Still to do: publishing the Zed extension to Zed's registry."
   },
   {
-    "id": "/docs/project/roadmap#m5-utility-surface-done",
-    "href": "/docs/project/roadmap#m5-utility-surface-done",
+    "id": "/docs/project/roadmap#m4-ecosystem",
+    "href": "/docs/project/roadmap#m4-ecosystem",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M5: Utility surface · done",
-    "text": "Utility strings in , from a grammar a preset declares as data; ships Tailwind v4's names, including composed utilities (rings, shadows, translations, filters) and pseudo-elements. A property test compiles all 7,391 utilities the grammar generates and checks each gives the same atoms as its object. is built on the same lowering. The exit criterion was to migrate the Tailwind original of our shadcn/ui port with it and match the original: after the codemod and 38 hand fixes, conformance finds zero computed-style differences on all 189 routes of the three applications, at three widths, in both colour schemes, at rest and with overlays, menus and other interactive states open. The migration guide has the numbers and every pitfall the hand fixes resolved. The language server's support for utility strings moved to M3."
+    "heading": "M4: Ecosystem",
+    "text": "Done, and published. Kirana installed outside this repository, and proven so on every change. Every package on npm , released together from CI with provenance, and the native engine for eight platforms plus a WASI build that writes the same bytes. Installation tested on every change: CI installs the packed tarballs with npm, pnpm, Yarn and Bun on Linux, macOS, Windows and Alpine, builds an example and checks it in a browser. Installing from the registry with Yarn and Deno, which CI cannot test against tarballs, was checked by hand with 0.2.0. Bundlers: Vite, Rolldown, webpack, Rspack and Rsbuild, Parcel, Bun, esbuild, PostCSS and Jest, each with an example, and a check that every one compiles the same source to the same classes as Vite. Frameworks: a guide and a tested example for each, from React, Vue, Svelte, Solid, Qwik, Angular and Ember to Next.js, Nuxt, SvelteKit, Astro and Analog. Server templates: Laravel, Symfony, Rails, Phoenix and AdonisJS, through a class map and a helper per template language, published to Packagist, RubyGems, Hex and npm."
   },
   {
-    "id": "/docs/project/roadmap#m3-developer-experience-done-pending-publication",
-    "href": "/docs/project/roadmap#m3-developer-experience-done-pending-publication",
+    "id": "/docs/project/roadmap#m5-utility-surface",
+    "href": "/docs/project/roadmap#m5-utility-surface",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M3: Developer experience · done, pending publication",
-    "text": "Editor and lint support, read from the compiler rather than re-implemented, so they never disagree with the build. Built (sprint 6): Language server , : diagnostics at the property, hover with the compiled CSS and the winning entry's ladder step, token values in both modes, colour swatches, an inline summary after every , code lenses, completion for conditions, targets, keyword values and utility strings, navigation for tokens and relations, and code actions (quick fixes, show compiled CSS, explain precedence, and convert Tailwind classes to ). Hover answers in 1.2 ms at the 95th percentile on our shadcn/ui port. VS Code and Zed extensions , running the project's own server; Neovim and Helix through their own LSP configuration. : nine rules under Oxlint and ESLint with identical results, each described on the lint page. This repository lints itself with them. Built (sprint 7): Editors in Vue, Svelte and Astro components , the style card (box model, every declaration, compiled CSS), coloured summaries at the end of each line, the Style Inspector and Style Fold. CLI : sets a project up from a diff, checks it, watches without a bundler, and reports atoms, reuse and bytes by layer and "
+    "heading": "M5: Utility surface",
+    "text": "Done. Utility strings in , from a grammar a preset declares as data. ships Tailwind v4's names, including composed utilities (rings, shadows, translations, filters) and pseudo-elements. A property test compiles all 7,391 utilities the grammar generates and checks each gives the same atoms as its object. is built on the same lowering. Run over the Tailwind original of our shadcn/ui port, then 38 hand fixes, conformance finds zero computed-style differences on all 189 routes of the three applications, at three widths, in both colour schemes, at rest and with overlays and menus open. The migration guide has the numbers and every pitfall the hand fixes resolved."
   },
   {
-    "id": "/docs/project/roadmap#m6-1-0-planned",
-    "href": "/docs/project/roadmap#m6-1-0-planned",
+    "id": "/docs/project/roadmap#m6-1-0",
+    "href": "/docs/project/roadmap#m6-1-0",
     "page": "Roadmap",
     "section": "project",
-    "heading": "M6: 1.0 · planned",
-    "text": "API freeze, the full conformance suite, a public benchmark report under the claims policy, trademark clearance, the documentation site at its own domain, and a security review of the evaluator."
+    "heading": "M6: 1.0",
+    "text": "Next. What 1.0 promises, and what it takes to promise it: an API freeze, after which a breaking change waits for 2.0; the full conformance suite; a public benchmark report under the claims policy; trademark clearance for the name; a security review of the evaluator. Before it, one change outside these milestones: restricted overrides, where a component declares which properties its accepts ( ), checked by TypeScript at the call site."
   },
   {
     "id": "/docs/project/roadmap#the-gates",
@@ -9980,14 +10008,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Roadmap",
     "section": "project",
     "heading": "The gates",
-    "text": "Two points where the project checks itself rather than continuing by momentum: Gate 1 , after M1: does the output hold up against the originals, and is the authoring API worth the trouble? Gate 2 , after M2: do recipes and dynamic styles carry a real application? Both are passed. The status page lists what that means concretely."
+    "text": "Two points where the project checked itself rather than continuing by momentum: Gate 1 , after M1: does the output hold up against the originals, and is the authoring API worth the trouble? Gate 2 , after M2: do recipes and dynamic styles carry a real application? Both are passed. The status page lists what that means concretely."
   },
   {
     "id": "/docs/project/releases",
     "href": "/docs/project/releases",
     "page": "Releases and upgrading",
     "section": "project",
-    "text": "How versions will work, what pre-1.0 means, and how a breaking change will be communicated. "
+    "text": "How versions work, what before 1.0 means, and how a breaking change is announced. "
   },
   {
     "id": "/docs/project/releases#today",
@@ -9995,15 +10023,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Releases and upgrading",
     "section": "project",
     "heading": "Today",
-    "text": "Every package is 0.1.0 , and none is published. There is nothing to upgrade from yet, and no changelog: the record of what changed is the implementation tracker in the repository, written per sprint."
+    "text": "Every package is at 0.2.0 on npm, released together. Every release and what came with it is on the changelog , read from in the repository."
   },
   {
-    "id": "/docs/project/releases#how-versions-will-work",
-    "href": "/docs/project/releases#how-versions-will-work",
+    "id": "/docs/project/releases#how-versions-work",
+    "href": "/docs/project/releases#how-versions-work",
     "page": "Releases and upgrading",
     "section": "project",
-    "heading": "How versions will work",
-    "text": "One version for everything. The compiler, the adapters, the CLI, the language server and the packages release together at the same number. A diagnostic touches the engine, the lint rules, the editor and the documentation at once, so a version where those disagree would be a version that lies. Pre-1.0 means the API can move. Minor versions may change behaviour before 1.0. Every such change gets an entry saying what moved and what to do, the same way the specification's decision log records why a decision was superseded. After 1.0 , semantic versioning: a breaking change means a major."
+    "heading": "How versions work",
+    "text": "One version for everything. The compiler, the adapters, the CLI, the language server and the packages release together at the same number. A diagnostic touches the engine, the lint rules, the editor and the documentation at once, so a version where those disagree would be a version that lies. Before 1.0, the API can move. A minor version may change behaviour; a patch only fixes. Every such change gets an entry in the release notes saying what moved and what to do. After 1.0 , semantic versioning: a breaking change means a major."
   },
   {
     "id": "/docs/project/releases#what-counts-as-breaking",
@@ -10034,7 +10062,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Ecosystem and status",
     "section": "project",
     "heading": "Ecosystem and status",
-    "text": "What exists, honestly. Anything marked planned is in the specification and not in the build."
+    "text": "What exists, and where to read about it. Every package below is on npm; anything planned is on the roadmap , not here."
   },
   {
     "id": "/docs/integrations/ecosystem#bundlers",
@@ -10042,7 +10070,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Ecosystem and status",
     "section": "project",
     "heading": "Bundlers",
-    "text": "See other bundlers for each one's setup."
+    "text": "Each one has an example CI builds and checks in a browser on every change. See other bundlers for each one's setup."
+  },
+  {
+    "id": "/docs/integrations/ecosystem#frameworks",
+    "href": "/docs/integrations/ecosystem#frameworks",
+    "page": "Ecosystem and status",
+    "section": "project",
+    "heading": "Frameworks",
+    "text": "Every framework has a guide and a tested example; the frameworks page picks yours."
   },
   {
     "id": "/docs/integrations/ecosystem#configuration-keys-in-the-specification-but-not-the-build",
@@ -10229,18 +10265,60 @@ export const SEARCH: readonly SearchRecord[] = [
 
 export const POSTS: readonly BlogMeta[] = [
   {
+    "href": "/blog/kirana-on-npm",
+    "file": "content/blog/kirana-on-npm.md",
+    "title": "Kirana 0.2.0 is on npm",
+    "summary": "Every package published from CI with provenance, one command name, the editor extension on both marketplaces, and what to expect on the first day.",
+    "date": "2026-10-15",
+    "author": "Kirana team",
+    "tags": [
+      "announcement",
+      "release"
+    ],
+    "cover": "https://images.unsplash.com/photo-1615800098779-1be32e60cca3?w=1600&q=80&auto=format&fit=crop",
+    "coverAlt": "White paper, close up",
+    "readingMinutes": 3,
+    "headings": [
+      {
+        "id": "one-command-name",
+        "text": "One command name",
+        "level": 2
+      },
+      {
+        "id": "where-it-is-published",
+        "text": "Where it is published",
+        "level": 2
+      },
+      {
+        "id": "the-first-day-of-a-release",
+        "text": "The first day of a release",
+        "level": 2
+      },
+      {
+        "id": "what-a-0-x-version-means",
+        "text": "What a 0.x version means",
+        "level": 2
+      },
+      {
+        "id": "try-it",
+        "text": "Try it",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/blog/what-we-measured",
     "file": "content/blog/what-we-measured.md",
     "title": "What we measured",
-    "summary": "Build time and output size against StyleX and Tailwind on the same three applications - with the method, and with the caveats stated first.",
+    "summary": "Build time and output size against StyleX and Tailwind on the same three applications, with the method and with the caveats stated first.",
     "date": "2026-09-20",
     "author": "Kirana team",
     "tags": [
       "benchmark",
       "performance"
     ],
-    "cover": "https://images.unsplash.com/photo-1517999144091-3d9dca6d1e43?w=1600&q=80&auto=format&fit=crop",
-    "coverAlt": "Black stones, close up",
+    "cover": "https://images.unsplash.com/photo-1517816743773-6e0fd518b4a6?w=1600&q=80&auto=format&fit=crop",
+    "coverAlt": "White walls meeting at an angle",
     "readingMinutes": 3,
     "headings": [
       {

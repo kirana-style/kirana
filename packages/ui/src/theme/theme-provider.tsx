@@ -4,7 +4,9 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react"
 import { mode as modes, props as styleProps } from "@kirana-style/core"
@@ -23,20 +25,90 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 const CYCLE: readonly ThemeMode[] = THEME_MODES
 
+/** A year: the choice outlives the session, and every choice renews it. */
+const MAX_AGE = 60 * 60 * 24 * 365
+
+export function isThemeMode(value: unknown): value is ThemeMode {
+  return THEME_MODES.includes(value as ThemeMode)
+}
+
+/** The mode saved in a `Cookie` header or `document.cookie`, if it names one. */
+export function readThemeCookie(
+  cookies: string | undefined,
+  name: string
+): ThemeMode | undefined {
+  const value = cookies
+    ?.split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${name}=`))
+    ?.slice(name.length + 1)
+  return isThemeMode(value) ? value : undefined
+}
+
+/**
+ * Holds the colour mode for everything under it.
+ *
+ * With `cookie`, the choice is kept: the provider writes it to that cookie, so the server can
+ * render the next page in it (pass what it reads as `defaultMode`) and a reload keeps it, and
+ * tells every other tab of the site over a `BroadcastChannel` of the same name, so they switch
+ * with it. A page restored from the back-forward cache missed those messages and reads the
+ * cookie again. Without `cookie`, the mode lasts as long as the page.
+ */
 export function ThemeProvider({
   children,
   defaultMode = "system",
+  cookie,
 }: {
   children: React.ReactNode
   defaultMode?: ThemeMode
+  /** The cookie, and the channel, that keep the choice across reloads and tabs. */
+  cookie?: string
 }) {
-  const [mode, setMode] = useState<ThemeMode>(defaultMode)
+  const [mode, setModeState] = useState<ThemeMode>(defaultMode)
+  const channel = useRef<BroadcastChannel | null>(null)
+
+  useEffect(() => {
+    if (!cookie) return
+    const other =
+      typeof BroadcastChannel === "undefined"
+        ? null
+        : new BroadcastChannel(cookie)
+    channel.current = other
+    if (other)
+      other.onmessage = (event: MessageEvent) => {
+        if (isThemeMode(event.data)) setModeState(event.data)
+      }
+    const onShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return
+      const saved = readThemeCookie(document.cookie, cookie)
+      if (saved) setModeState(saved)
+    }
+    window.addEventListener("pageshow", onShow)
+    return () => {
+      other?.close()
+      channel.current = null
+      window.removeEventListener("pageshow", onShow)
+    }
+  }, [cookie])
+
+  const setMode = useCallback(
+    (next: ThemeMode) => {
+      setModeState(next)
+      if (!cookie) return
+      document.cookie = `${cookie}=${next}; path=/; max-age=${MAX_AGE}; samesite=lax`
+      channel.current?.postMessage(next)
+    },
+    [cookie]
+  )
 
   const cycleMode = useCallback(() => {
-    setMode((current) => CYCLE[(CYCLE.indexOf(current) + 1) % CYCLE.length]!)
-  }, [])
+    setMode(CYCLE[(CYCLE.indexOf(mode) + 1) % CYCLE.length]!)
+  }, [mode, setMode])
 
-  const value = useMemo(() => ({ mode, setMode, cycleMode }), [mode, cycleMode])
+  const value = useMemo(
+    () => ({ mode, setMode, cycleMode }),
+    [mode, setMode, cycleMode]
+  )
 
   return <ThemeContext value={value}>{children}</ThemeContext>
 }

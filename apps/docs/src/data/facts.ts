@@ -15,6 +15,13 @@ import { FRAMEWORK_GUIDES } from "./frameworks.ts"
 import type { GuideGroup } from "./frameworks.ts"
 import { LINTERS } from "./tooling.ts"
 
+/** The repository on GitHub, as `owner/name`, and its page. */
+export const REPOSITORY = "kirana-style/kirana"
+export const GITHUB = `https://github.com/${REPOSITORY}`
+/** The package every Kirana project installs: its npm page and downloads stand for the project's. */
+export const CORE_PACKAGE = "@kirana-style/core"
+export const NPM = `https://www.npmjs.com/package/${CORE_PACKAGE}`
+
 /** `a, b and c` (or `or`): how the site writes a list in a sentence. */
 export function sentence(items: readonly string[], last = "and"): string {
   if (items.length <= 1) return items.join("")
@@ -91,7 +98,7 @@ export const LISTS = {
     "llms-full.txt",
     "a markdown twin of every page",
   ],
-  commands: COMMANDS.map((command) => `kirana ${command}`),
+  commands: COMMANDS.map((command) => `kirana-style ${command}`),
   api: [...API],
   biomeRules: LINT.filter((rule) => rule.biome).map((rule) => rule.name),
 } as const
@@ -135,4 +142,6 @@ export const FACTS: Readonly<Record<string, string>> = {
   // `light-dark()`; the site's Vite config holds its build to the same floor.
   "browser-floor": "Chrome 123, Safari 17.5, Firefox 120",
   "runtime-size": RUNTIME_SIZE,
+  /** The release every package is at. */
+  version: VERSION,
 }

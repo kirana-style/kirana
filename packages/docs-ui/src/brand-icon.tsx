@@ -17,6 +17,8 @@ import { css } from "@kirana-style/core"
 import type { Sx } from "@workspace/ui/lib/sx"
 
 import logoBun from "./brands/bun.svg?url"
+import logoDenoDark from "./brands/deno_dark.svg?url"
+import logoDenoLight from "./brands/deno.svg?url"
 import logoNpm from "./brands/npm.svg?url"
 import logoPnpmDark from "./brands/pnpm_dark.svg?url"
 import logoPnpmLight from "./brands/pnpm.svg?url"
@@ -101,4 +103,9 @@ export const PACKAGE_MANAGER_ICONS: Record<string, SvglIcon> = {
   },
   yarn: { title: "Yarn", url: "https://yarnpkg.com/", route: logoYarn },
   bun: { title: "Bun", url: "https://bun.sh", route: logoBun },
+  deno: {
+    title: "Deno",
+    url: "https://deno.com/",
+    route: { light: logoDenoLight, dark: logoDenoDark },
+  },
 }

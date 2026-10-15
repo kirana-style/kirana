@@ -21,6 +21,7 @@ import { DocsLink } from "@/components/docs-link"
 import { chapter } from "@/components/site/chapter"
 import { InlineCode } from "@/components/site/code-tokens"
 import { BENCH_SOURCE, HEADLINES } from "@/data/benchmarks"
+import { GITHUB } from "@/data/facts"
 
 import { HomeSection } from "./frame"
 
@@ -100,8 +101,15 @@ export function Proof() {
       </div>
       <p sx={styles.note}>
         Each figure names where it comes from: a section of{" "}
-        <InlineCode>{BENCH_SOURCE}</InlineCode>, or a design note beside it.
-        Those files give the machine, the date and the commands.
+        <a
+          href={`${GITHUB}/blob/main/${BENCH_SOURCE}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <InlineCode>{BENCH_SOURCE}</InlineCode>
+        </a>
+        , or a design note beside it. Those files give the machine, the date and
+        the commands.
       </p>
     </HomeSection>
   )

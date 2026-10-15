@@ -46,7 +46,7 @@ const styles = {
     insetBlock: { [breakpoint.lg]: 0 },
     insetInlineEnd: { [breakpoint.lg]: 0 },
     insetInlineStart: { [breakpoint.lg]: "auto" },
-    width: { base: "100%", [breakpoint.lg]: "54%" },
+    width: { base: "100%", [breakpoint.lg]: "50%", [breakpoint.xl]: "54%" },
     height: {
       base: "12rem",
       [breakpoint.sm]: "15rem",
@@ -58,8 +58,12 @@ const styles = {
     display: "grid",
     gap: spacing[6],
     justifyItems: "start",
-    // Clear of the scene's dissolving edge, so no pixel lands among the words.
-    maxWidth: { [breakpoint.lg]: "37rem" },
+    // The words keep to the half the scene leaves them, so no pixel lands among them on a
+    // tablet, where 37rem would reach past the middle.
+    maxWidth: {
+      [breakpoint.lg]: "min(37rem, 50%)",
+      [breakpoint.xl]: "min(37rem, 46%)",
+    },
     paddingInline: { base: spacing[5], [breakpoint.md]: spacing[10] },
     paddingBlockStart: { base: spacing[14], [breakpoint.md]: spacing[24] },
     paddingBlockEnd: { base: spacing[8], [breakpoint.lg]: spacing[24] },

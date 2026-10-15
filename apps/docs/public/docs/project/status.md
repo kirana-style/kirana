@@ -3,9 +3,10 @@ Source: https://kirana.style/docs/project/status
 
 # What works today
 
-Kirana is pre-release. It compiles three real applications in our shadcn/ui port
-(a demo, 60+ shadcn blocks and one page per component), and its own test suite
-keeps 100 % line coverage. It is on npm as a 0.x pre-release, and the name is a working name.
+Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the
+API. It compiles three real applications in our shadcn/ui port (a demo, 60+
+shadcn blocks and one page per component), and its own test suite keeps 100 %
+line coverage. The [changelog](/changelog) lists every release.
 
 ## Built
 
@@ -53,20 +54,21 @@ keeps 100 % line coverage. It is on npm as a 0.x pre-release, and the name is a 
   [lint](/docs/tooling/lint)
 - Agent skills for writing Kirana and migrating to it, installable with
   `npx skills add`; see [agent skills](/docs/project/agent-skills)
+- Every package on npm, with the native engine for eight platforms and a WASI
+  build, released together from CI with provenance; the template helpers on
+  Packagist, RubyGems and Hex; the VS Code extension on the Marketplace and Open
+  VSX. CI installs the packed packages with npm, pnpm, Yarn (both linkers) and Bun
+  on Linux, macOS, Windows and Alpine on every change
 
 ## Partial
 
 - **`variable-default-scope`** is in the catalogue but not emitted yet.
 - **Benchmarks** are advisory: hosted CI numbers, not dedicated hardware.
-- **Packaging**: every package and the per-platform engine packages are on npm.
-  `bun run kirana:pack` produces them as tarballs before a release, and CI installs
-  them with npm, pnpm, Yarn (both linkers) and Bun on Linux, macOS, Windows and
-  Alpine.
+- **The Zed extension** works, but is not in Zed's registry yet: install it as a
+  dev extension; see [editor support](/docs/tooling/editor).
 
 ## Not built
 
-- Publishing to npm
-- Publishing the editor extensions to the VS Code Marketplace, Open VSX and Zed's registry
 - The `slide-in-from-start` and `-end` animations, and gradients (`bg-linear-*`
   and its stops), in the scales preset
 - A persistent cache on disk: deliberately not built, because the engine is

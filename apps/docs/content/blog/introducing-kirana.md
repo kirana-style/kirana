@@ -8,6 +8,10 @@ cover: https://images.unsplash.com/photo-1566041510394-cf7c8fe21800?w=1600&q=80&
 coverAlt: White marble with faint grey veins
 ---
 
+> [!NOTE] Since this post
+> Kirana is on npm now, along with much of what this post lists as not built.
+> [Kirana 0.2.0 is on npm](/blog/kirana-on-npm) says what changed.
+
 Kirana exists because we spent two years losing the same argument with our own
 stylesheets.
 

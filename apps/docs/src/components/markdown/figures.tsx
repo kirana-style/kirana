@@ -7,6 +7,10 @@
  */
 import { css } from "@kirana-style/core"
 import {
+  BrowserIcon,
+  Globe02Icon,
+  Moon02Icon,
+  ServerStack01Icon,
   ArrowExpandIcon,
   Atom01Icon,
   Calculator01Icon,
@@ -828,6 +832,84 @@ export function ThemesFigure() {
         </Stage>,
       ]}
       caption="The token's default sits on :root; defineTheme overrides it for one subtree, and the mode handle on the root picks the light or dark half of every pair."
+    />
+  )
+}
+
+/* ── Remembering the reader's colour mode ─────────────────────────────── */
+
+/**
+ * Where the reader's colour mode lives: on a request the cookie travels with it and the server
+ * renders `<html>` in the saved mode; when the reader chooses, the page writes the cookie and posts
+ * the mode to the other tabs.
+ */
+export function ThemeFlowFigure() {
+  return (
+    <Figure
+      label="The colour mode's flow: the cookie on each request, the server rendering html in the saved mode, and a choice written to the cookie and posted to the other tabs"
+      tall
+      panels={[
+        <Stage key="request">
+          <Scene
+            width={330}
+            height={220}
+            live={["M 72 56 H 258", "M 282 80 V 168 H 266"]}
+            wires={["M 64 168 H 48 V 80"]}
+          >
+            <At x={(48 / 330) * 100} y={(56 / 220) * 100}>
+              <Tile icon={Globe02Icon} caption="Browser" />
+            </At>
+            <At x={50} y={(56 / 220) * 100}>
+              <Pill mono>Cookie: theme=dark</Pill>
+            </At>
+            <At x={(282 / 330) * 100} y={(56 / 220) * 100}>
+              <Tile
+                icon={ServerStack01Icon}
+                variant="accent"
+                caption="Server"
+              />
+            </At>
+            <At x={50} y={(168 / 220) * 100}>
+              <Card title="<html>" width={200}>
+                <Row flat>
+                  <T tone="strong">{"sx={mode.dark}"}</T>
+                </Row>
+                <Row flat>
+                  <T tone="muted">color-scheme: dark</T>
+                </Row>
+              </Card>
+            </At>
+          </Scene>
+        </Stage>,
+        <Stage key="choose">
+          <Scene
+            width={330}
+            height={220}
+            live={["M 72 56 H 258", "M 48 80 V 168 H 64"]}
+          >
+            <At x={(48 / 330) * 100} y={(56 / 220) * 100}>
+              <Tile icon={Moon02Icon} variant="accent" caption="Tab A: Dark" />
+            </At>
+            <At x={50} y={(56 / 220) * 100}>
+              <Pill mono>BroadcastChannel</Pill>
+            </At>
+            <At x={(282 / 330) * 100} y={(56 / 220) * 100}>
+              <Tile icon={BrowserIcon} caption="Tab B follows" />
+            </At>
+            <At x={50} y={(168 / 220) * 100}>
+              <Card title="document.cookie" width={200}>
+                <Row flat>
+                  <T tone="strong">theme=dark</T>
+                </Row>
+                <Row flat>
+                  <T tone="muted">read by the next request</T>
+                </Row>
+              </Card>
+            </At>
+          </Scene>
+        </Stage>,
+      ]}
+      caption="On each request the cookie goes with it, and the server renders <html> in the saved mode, so the first paint is right. When the reader chooses, the page writes the cookie and posts the mode to the other tabs, which switch at once. System sets no cookie: color-scheme: light dark follows the operating system."
     />
   )
 }

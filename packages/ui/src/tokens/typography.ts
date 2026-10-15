@@ -10,11 +10,16 @@
  * The typefaces, by name: the variable fonts `globals.css` loads and the system stacks.
  * Each stack ends in a generic family, so glyphs a web font lacks (emoji) still render.
  * Components never use these directly: they use `fontFamily`, which says what a face is for, so
- * swapping a face is one line. Why these three: the brand page (`/brand`, Type).
+ * swapping a face is one line. Why these: the brand page (`/brand`, Type).
  */
 export const typeface = {
   /** EB Garamond, Georg Duffner and Octavio Pardo: an old-style serif with a drawn italic. */
   ebGaramond: '"EB Garamond Variable", ui-serif, Georgia, serif',
+  /**
+   * Crimson Pro, Jacques Le Bailly: the wordmark's italic. EB Garamond's italic r opens wide enough
+   * to read as a v at the wordmark's size; Crimson Pro's does not.
+   */
+  crimsonPro: '"Crimson Pro Variable", ui-serif, Georgia, serif',
   /** Plus Jakarta Sans, Tokotype: the text and interface face. */
   plusJakartaSans:
     '"Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif',
@@ -38,8 +43,8 @@ export const fontFamily = {
   sans: `var(--font-sans, ${typeface.plusJakartaSans})`,
   /** Display lines and headings from 1.5rem up. */
   heading: `var(--font-heading, ${typeface.ebGaramond})`,
-  /** The wordmark: the name, set in EB Garamond's italic. */
-  serif: `var(--font-serif, ${typeface.ebGaramond})`,
+  /** The wordmark: the name, set in Crimson Pro's italic. */
+  serif: `var(--font-serif, ${typeface.crimsonPro})`,
   /** Code, commands, class names and chapter labels. */
   mono: `var(--font-mono, ${typeface.jetbrainsMono})`,
   /** Measured figures: stats, prices, timings. Mono, so digits line up. */

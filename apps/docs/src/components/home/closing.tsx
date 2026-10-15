@@ -70,17 +70,19 @@ const styles = {
     backgroundColor: NIGHT,
     color: PAPER,
     padding: { base: spacing[8], [breakpoint.md]: spacing[12] },
+    paddingBlockEnd: { base: "11rem", [breakpoint.md]: spacing[12] },
     gridTemplateColumns: {
       base: "minmax(0, 1fr)",
       [breakpoint.md]: "minmax(0, 1fr) minmax(0, 20rem)",
     },
   }),
   // Right of the words from `md` up, dissolving left towards them; on a phone, a low band under
-  // the night, so no pixel lands among the words.
+  // the buttons, in room the card keeps for it, so no pixel lands among the words.
   ctaScene: css({
     zIndex: -1,
     insetInlineStart: { base: 0, [breakpoint.md]: "46%" },
-    insetBlockStart: { base: "62%", [breakpoint.md]: 0 },
+    insetBlockStart: { base: "auto", [breakpoint.md]: 0 },
+    height: { base: "11rem", [breakpoint.md]: "100%" },
   }),
   ctaCopy: css({
     position: "relative",
@@ -130,8 +132,13 @@ const styles = {
     },
     color: { base: PAPER, ":hover": PAPER },
   }),
-  // In the card's text colour, the paper.
-  drawing: css({ position: "relative", maxWidth: "17rem" }),
+  // In the card's text colour, the paper. Beside the words from `md` up; a phone has no room
+  // for it beside them, and under them it would cover the scene.
+  drawing: css({
+    position: "relative",
+    maxWidth: "17rem",
+    display: { base: "none", [breakpoint.md]: "block" },
+  }),
 }
 
 export function Sponsors() {

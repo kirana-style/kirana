@@ -1,11 +1,11 @@
 ---
 title: What we measured
-summary: Build time and output size against StyleX and Tailwind on the same three applications - with the method, and with the caveats stated first.
+summary: Build time and output size against StyleX and Tailwind on the same three applications, with the method and with the caveats stated first.
 date: 2026-09-20
 author: Kirana team
 tags: [benchmark, performance]
-cover: https://images.unsplash.com/photo-1517999144091-3d9dca6d1e43?w=1600&q=80&auto=format&fit=crop
-coverAlt: Black stones, close up
+cover: https://images.unsplash.com/photo-1517816743773-6e0fd518b4a6?w=1600&q=80&auto=format&fit=crop
+coverAlt: White walls meeting at an angle
 ---
 
 Performance claims in styling tools are usually a number without a method. This

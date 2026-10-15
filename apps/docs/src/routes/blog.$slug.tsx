@@ -10,10 +10,9 @@ import {
 } from "@hugeicons/core-free-icons"
 import { SVGL } from "@/generated/svgl-icons.gen"
 
-import { accent, accents, tint } from "@workspace/docs-ui/accent.ts"
+import { accents } from "@workspace/docs-ui/accent.ts"
 import { BrandIcon } from "@workspace/docs-ui/brand-icon.tsx"
 import { TableOfContents } from "@workspace/docs-ui/toc.tsx"
-import { Button } from "@workspace/ui/components/button"
 import { Icon } from "@workspace/ui/primitives/icon"
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
@@ -23,15 +22,17 @@ import {
   fontFamily,
   fontSize,
   fontWeight,
-  letterSpacing,
   lineHeight,
+  textLeading,
+  textSize,
+  textTracking,
 } from "@workspace/ui/tokens/typography"
 
-import { DocsLink } from "@/components/docs-link"
+import { PostLabel, PostRow, blog } from "@/components/blog/post-row"
 import { markdownComponents } from "@/components/markdown"
 import { SiteFooter, SiteHeader } from "@/components/site-chrome"
+import { ChapterLabel, chapter } from "@/components/site/chapter"
 import { Rail } from "@/components/site/patterns"
-import { LIFT, REST } from "@workspace/ui/recipes/lift"
 import { POSTS } from "@/generated/content.gen"
 
 const documents = import.meta.glob<{ default: MarkdownDocument }>(
@@ -62,191 +63,122 @@ export const Route = createFileRoute("/blog/$slug")({
   component: Post,
 })
 
+/**
+ * One grid for the header and the body, so the title, the cover and the text share a left edge:
+ * the contents on the left from `xl` up, the reading column, and the rest of the rail.
+ */
+const COLUMNS = {
+  base: "minmax(0, 1fr)",
+  [breakpoint.xl]: "13rem minmax(0, 44rem) minmax(0, 1fr)",
+}
+
 const styles = {
   header: css({
     borderBlockEndWidth: "1px",
     borderBlockEndStyle: "solid",
     borderBlockEndColor: theme.border,
   }),
+  headerGrid: css({
+    display: "grid",
+    columnGap: spacing[12],
+    gridTemplateColumns: COLUMNS,
+    paddingInline: { base: spacing[5], [breakpoint.md]: spacing[10] },
+    paddingBlockStart: { base: spacing[10], [breakpoint.md]: spacing[16] },
+    paddingBlockEnd: { base: spacing[10], [breakpoint.md]: spacing[14] },
+  }),
   headerInner: css({
+    gridColumn: { base: "1", [breakpoint.xl]: "2 / 4" },
     display: "grid",
     gap: spacing[5],
     justifyItems: "start",
-    maxWidth: "52rem",
-    paddingInline: { base: spacing[5], [breakpoint.md]: spacing[10] },
-    paddingBlockStart: { base: spacing[10], [breakpoint.md]: spacing[16] },
-    paddingBlockEnd: spacing[10],
+    maxWidth: "50rem",
   }),
   back: css({
     display: "inline-flex",
     alignItems: "center",
     gap: spacing[1],
+    marginBlockEnd: spacing[3],
     fontSize: fontSize.sm,
     color: { base: theme.mutedForeground, ":hover": theme.foreground },
     textDecorationLine: "none",
   }),
-  tags: css({ display: "flex", flexWrap: "wrap", gap: spacing[2] }),
-  tag: css({
-    borderRadius: radius.full,
-    backgroundColor: tint(12),
-    color: accent.base,
-    paddingInline: spacing[2],
-    fontSize: "0.6875rem",
-    lineHeight: "1.25rem",
-    fontWeight: fontWeight.semibold,
-    letterSpacing: "0.04em",
-    textTransform: "uppercase",
-  }),
   title: css({
     fontFamily: fontFamily.heading,
-    fontSize: { base: fontSize["3xl"], [breakpoint.md]: fontSize["5xl"] },
-    lineHeight: { base: lineHeight["3xl"], [breakpoint.md]: lineHeight["5xl"] },
+    fontSize: textSize.display2,
+    lineHeight: textLeading.display2,
+    letterSpacing: textTracking.display2,
     fontWeight: fontWeight.normal,
-    letterSpacing: letterSpacing.tight,
     textWrap: "balance",
   }),
-  meta: css({
-    display: "flex",
-    flexWrap: "wrap",
-    gap: spacing[2],
-    fontSize: fontSize.sm,
-    lineHeight: lineHeight.sm,
+  lede: css({
+    maxWidth: "42rem",
+    fontSize: textSize.lede,
+    lineHeight: textLeading.lede,
     color: theme.mutedForeground,
+    textWrap: "pretty",
   }),
   layout: css({
     display: "grid",
-    gap: spacing[10],
+    columnGap: spacing[12],
+    gridTemplateColumns: COLUMNS,
     paddingInline: { base: spacing[5], [breakpoint.md]: spacing[10] },
-    paddingBlock: spacing[10],
-    gridTemplateColumns: {
-      base: "minmax(0, 1fr)",
-      [breakpoint.lg]: "minmax(0, 1fr) 16rem",
-      [breakpoint.xl]: "13rem minmax(0, 1fr) 16rem",
-    },
+    paddingBlock: { base: spacing[10], [breakpoint.md]: spacing[14] },
   }),
   toc: css({
     display: { base: "none", [breakpoint.xl]: "block" },
     position: "sticky",
-    insetBlockStart: spacing[20],
+    insetBlockStart: spacing[24],
     alignSelf: "start",
   }),
-  article: css({ minWidth: 0, maxWidth: "44rem" }),
+  article: css({ minWidth: 0 }),
   cover: css({
     display: "block",
     width: "100%",
     aspectRatio: "16 / 9",
     objectFit: "cover",
     borderRadius: radius.xl,
-    marginBlockEnd: spacing[8],
+    marginBlockEnd: spacing[10],
     backgroundColor: theme.muted,
   }),
-  summary: css({
-    display: "grid",
-    gap: spacing[2],
-    marginBlockEnd: spacing[8],
-    borderRadius: radius.xl,
-    borderInlineStartWidth: "3px",
-    borderInlineStartStyle: "solid",
-    borderInlineStartColor: accent.base,
-    backgroundColor: tint(7),
-    paddingInline: spacing[5],
-    paddingBlock: spacing[4],
-    fontSize: fontSize.base,
-    lineHeight: "1.65",
-  }),
-  summaryLabel: css({
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.semibold,
-    letterSpacing: "0.06em",
-    textTransform: "uppercase",
-    color: accent.base,
-  }),
-  aside: css({
-    display: "grid",
-    alignContent: "start",
+  // The end of the post: who wrote it and how to pass it on, on one ruled line.
+  colophon: css({
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
     gap: spacing[4],
-    position: { base: "static", [breakpoint.lg]: "sticky" },
-    insetBlockStart: spacing[20],
-    alignSelf: "start",
+    marginBlockStart: spacing[14],
+    paddingBlock: spacing[5],
+    borderBlockWidth: "1px",
+    borderBlockStyle: "solid",
+    borderBlockColor: theme.border,
   }),
-  box: css({
-    display: "grid",
-    gap: spacing[3],
-    borderRadius: radius.xl,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    backgroundColor: theme.card,
-    padding: spacing[5],
-  }),
-  boxLabel: css({
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.semibold,
-    letterSpacing: "0.06em",
-    textTransform: "uppercase",
+  byline: css({
+    fontSize: fontSize.sm,
+    lineHeight: lineHeight.sm,
     color: theme.mutedForeground,
   }),
-  author: css({ display: "flex", alignItems: "center", gap: spacing[3] }),
-  avatar: css({
-    display: "grid",
-    placeItems: "center",
-    width: spacing[10],
-    height: spacing[10],
-    borderRadius: radius.full,
-    backgroundColor: tint(18),
-    color: accent.base,
-    fontWeight: fontWeight.semibold,
-  }),
-  authorName: css({ fontWeight: fontWeight.semibold, fontSize: fontSize.sm }),
-  share: css({ display: "flex", gap: spacing[2] }),
-  shareButton: css({
+  bylineName: css({ color: theme.foreground, fontWeight: fontWeight.medium }),
+  share: css({ display: "flex", gap: spacing[5] }),
+  shareLink: css({
     display: "inline-flex",
     alignItems: "center",
     gap: spacing["1.5"],
-    borderRadius: radius.md,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    boxShadow: { base: REST, ":hover": LIFT },
-    paddingInline: spacing["2.5"],
-    paddingBlock: spacing["1.5"],
-    fontSize: fontSize.xs,
-    color: theme.foreground,
+    fontSize: fontSize.sm,
+    lineHeight: lineHeight.sm,
+    color: { base: theme.mutedForeground, ":hover": theme.foreground },
     textDecorationLine: "none",
     cursor: "pointer",
-    transitionProperty: "box-shadow",
+    transitionProperty: "color",
     transitionDuration: duration[150],
   }),
-  product: css({ backgroundColor: tint(8), borderColor: tint(30) }),
-  productTitle: css({
-    fontSize: fontSize.lg,
-    lineHeight: lineHeight.lg,
-    fontWeight: fontWeight.semibold,
-  }),
-  productText: css({
-    fontSize: fontSize.sm,
-    lineHeight: "1.6",
-    color: theme.mutedForeground,
-  }),
-  more: css({
+  next: css({
     display: "grid",
     gap: spacing[2],
+    marginBlockStart: spacing[16],
   }),
-  moreLink: css({
-    fontSize: fontSize.sm,
-    lineHeight: "1.5",
-    color: { base: theme.foreground, ":hover": accent.base },
-    textDecorationLine: "none",
-  }),
-}
-
-function format(date: string) {
-  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  })
+  // The label row's hairline already sits above the first post.
+  nextList: css({ borderBlockStartWidth: 0 }),
 }
 
 function CopyLink({ url }: { url: string }) {
@@ -254,7 +186,7 @@ function CopyLink({ url }: { url: string }) {
   return (
     <button
       type="button"
-      sx={styles.shareButton}
+      sx={styles.shareLink}
       onClick={() => {
         void navigator.clipboard.writeText(url).then(() => {
           setCopied(true)
@@ -262,7 +194,7 @@ function CopyLink({ url }: { url: string }) {
         })
       }}
     >
-      <Icon icon={copied ? Tick02Icon : Copy01Icon} size="0.8125rem" />
+      <Icon icon={copied ? Tick02Icon : Copy01Icon} size="0.875rem" />
       {copied ? "Copied" : "Copy link"}
     </button>
   )
@@ -272,36 +204,21 @@ function Post() {
   const { meta, document } = Route.useLoaderData()
   const url = `${SITE}${meta.href}`
   const others = POSTS.filter((post) => post.href !== meta.href).slice(0, 3)
-  const initials = meta.author
-    .split(/\s+/)
-    .map((word) => word[0])
-    .slice(0, 2)
-    .join("")
 
   return (
     <>
       <SiteHeader />
       <main sx={accents.dusk}>
         <header sx={styles.header}>
-          <Rail>
+          <Rail sx={styles.headerGrid}>
             <div sx={styles.headerInner}>
               <Link to="/blog" {...styleProps(styles.back)}>
                 <Icon icon={ArrowLeft01Icon} size="0.875rem" />
                 All posts
               </Link>
-              <div sx={styles.tags}>
-                {meta.tags.map((tag) => (
-                  <span key={tag} sx={styles.tag}>
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              <PostLabel post={meta} />
               <h1 sx={styles.title}>{meta.title}</h1>
-              <p sx={styles.meta}>
-                <time dateTime={meta.date}>{format(meta.date)}</time>
-                <span>·</span>
-                <span>{meta.readingMinutes} min read</span>
-              </p>
+              <p sx={styles.lede}>{meta.summary}</p>
             </div>
           </Rail>
         </header>
@@ -317,69 +234,43 @@ function Post() {
                 sx={styles.cover}
               />
             ) : null}
-            <div sx={styles.summary}>
-              <span sx={styles.summaryLabel}>In short</span>
-              {meta.summary}
-            </div>
             <Markdown components={markdownComponents}>{document}</Markdown>
-          </article>
-          <aside sx={styles.aside}>
-            <div sx={styles.box}>
-              <span sx={styles.boxLabel}>Written by</span>
-              <div sx={styles.author}>
-                <span sx={styles.avatar} aria-hidden="true">
-                  {initials}
-                </span>
-                <span sx={styles.authorName}>{meta.author}</span>
-              </div>
-            </div>
-            <div sx={styles.box}>
-              <span sx={styles.boxLabel}>Share</span>
-              <div sx={styles.share}>
+            <div sx={styles.colophon}>
+              <span sx={styles.byline}>
+                Written by <span sx={styles.bylineName}>{meta.author}</span>
+              </span>
+              <span sx={styles.share}>
                 <CopyLink url={url} />
                 <a
                   href={`https://x.com/intent/post?url=${encodeURIComponent(url)}&text=${encodeURIComponent(meta.title)}`}
                   target="_blank"
                   rel="noreferrer"
-                  sx={styles.shareButton}
+                  sx={styles.shareLink}
                 >
-                  <BrandIcon icon={SVGL.x} size="0.75rem" />
-                  Post
+                  <BrandIcon icon={SVGL.x} size="0.8125rem" />
+                  Share on X
                 </a>
-              </div>
-            </div>
-            <div sx={[styles.box, styles.product]}>
-              <span sx={styles.productTitle}>Try Kirana</span>
-              <span sx={styles.productText}>
-                Install, configure and style a first component in a few minutes.
               </span>
-              <Button
-                nativeButton={false}
-                render={
-                  <DocsLink href="/docs/start/quick-start">
-                    Quick start
-                  </DocsLink>
-                }
-              />
             </div>
             {others.length > 0 ? (
-              <div sx={styles.box}>
-                <span sx={styles.boxLabel}>More posts</span>
-                <div sx={styles.more}>
-                  {others.map((post) => (
-                    <Link
-                      key={post.href}
-                      to="/blog/$slug"
-                      params={{ slug: post.href.replace("/blog/", "") }}
-                      {...styleProps(styles.moreLink)}
-                    >
-                      {post.title}
+              <div sx={styles.next}>
+                <ChapterLabel
+                  aside={
+                    <Link to="/blog" {...styleProps(chapter.aside)}>
+                      All posts
                     </Link>
+                  }
+                >
+                  More from the blog
+                </ChapterLabel>
+                <div sx={[blog.list, styles.nextList]}>
+                  {others.map((post) => (
+                    <PostRow key={post.href} post={post} />
                   ))}
                 </div>
               </div>
             ) : null}
-          </aside>
+          </article>
         </Rail>
       </main>
       <SiteFooter scene="city-dusk" />

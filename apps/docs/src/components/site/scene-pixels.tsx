@@ -21,7 +21,7 @@ import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { SCENES, sceneImage, sceneSrcSet } from "@/brand/scenes"
 import type { SceneId } from "@/brand/scenes"
 
-import { BAYER, VERTEX, compile, rgb } from "./pixel-field"
+import { BAYER, PRECISION, VERTEX, compile, rgb } from "./pixel-field"
 
 /**
  * Which edge the picture dissolves towards. `hero` is a page hero's: up into the words above it on
@@ -38,8 +38,7 @@ const TOWARD: Record<Exclude<Dissolve, "hero">, [number, number]> = {
   right: [1, 0],
 }
 
-const FRAGMENT = `
-precision mediump float;
+const FRAGMENT = `${PRECISION}
 uniform vec2 uResolution;
 uniform float uTime;
 uniform float uCell;

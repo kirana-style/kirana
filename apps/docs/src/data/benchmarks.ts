@@ -7,7 +7,7 @@
  *
  * Update both together: the numbers here are the ones in that table.
  */
-/** Where the numbers live in the repository; shown as text, since the repository is not public yet. */
+/** Where the numbers live in the repository; the pages link it on GitHub. */
 export const BENCH_SOURCE = "packages/kirana/design-notes/benchmark-results.md"
 
 /**
