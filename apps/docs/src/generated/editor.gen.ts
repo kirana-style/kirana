@@ -85,7 +85,7 @@ export const EDITOR_SAMPLE = {
       "line": 10,
       "titles": [
         "css() · 3 declarations",
-        "used by 2 elements"
+        "used by 1 element"
       ]
     }
   ],
