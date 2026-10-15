@@ -25,6 +25,7 @@
     "@kirana-style/vite": "0.1.0",
     "@qwik.dev/core": "2.0.0-rc.0",
     "@qwik.dev/router": "2.0.0-rc.0",
-    "vite": "^8.3.0"
+    "vite": "^8.3.0",
+    "vitest": "^4.1.12"
   }
 }
