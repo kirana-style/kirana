@@ -683,21 +683,35 @@ async function checkHotUpdate(
       file,
       readFileSync(file, "utf8").replace("rgb(1, 2, 3)", "rgb(9, 8, 7)")
     )
-    const edited = () =>
-      page.waitForFunction(
-        () =>
-          getComputedStyle(document.querySelector("[data-probe]")!).color ===
-          "rgb(9, 8, 7)",
-        null,
-        { timeout: reloads ? 1000 : 20_000 }
-      )
+    const edited = (timeout: number) =>
+      page
+        .waitForFunction(
+          () =>
+            getComputedStyle(document.querySelector("[data-probe]")!).color ===
+            "rgb(9, 8, 7)",
+          null,
+          { timeout }
+        )
+        .then(
+          () => true,
+          () => false
+        )
     let reached = false
-    for (let attempt = 0; attempt < (reloads ? 20 : 1) && !reached; attempt++) {
-      if (reloads) await page.reload()
-      reached = await edited().then(
-        () => true,
-        () => false
-      )
+    if (reloads) {
+      for (let attempt = 0; attempt < 20 && !reached; attempt++) {
+        await page.reload()
+        reached = await edited(1000)
+      }
+    } else {
+      // One budget of 20 s. A page that reloads itself mid-check (Ember re-runs the edited template
+      // module, and the stylesheet update may land before or after) takes the check's context with
+      // it; wait for the new page and look again. A hot-update example still fails below if the
+      // page reloaded.
+      const deadline = Date.now() + 20_000
+      while (!reached && Date.now() < deadline) {
+        reached = await edited(Math.max(1, deadline - Date.now()))
+        if (!reached) await page.waitForLoadState("load").catch(() => {})
+      }
     }
     if (!reached) throw new Error("the edited colour never reached the page")
     if (
