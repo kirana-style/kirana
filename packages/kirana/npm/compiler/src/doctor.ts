@@ -10,10 +10,15 @@ import { createRequire } from "node:module"
 import path from "node:path"
 
 import { Driver } from "./driver.ts"
+import { KIRANA_LIBRARIES } from "./host.ts"
 import type { NativeBinding } from "./native.ts"
 import { engineOf, loadNative } from "./native.ts"
 import { packageManagerOf, readPackage, runCommand } from "./detect.ts"
 import { describe, plan } from "./init.ts"
+
+/** The libraries the configuration lists: Kirana's own are compiled without being named. */
+const configuredLibraries = (driver: Driver) =>
+  driver.libraries.filter((name) => !KIRANA_LIBRARIES.includes(name))
 
 export type Check = {
   name: string
@@ -122,7 +127,7 @@ export async function diagnose(
         name: "config",
         status: "ok",
         detail: driver.configFile
-          ? `${path.relative(root, driver.configFile)}, prefix "${driver.prefix}"${driver.libraries.length ? `, libraries ${driver.libraries.join(", ")}` : ""}`
+          ? `${path.relative(root, driver.configFile)}, prefix "${driver.prefix}"${configuredLibraries(driver).length ? `, libraries ${configuredLibraries(driver).join(", ")}` : ""}`
           : "no kirana.config: every key at its default",
       })
     } catch (error) {

@@ -6830,7 +6830,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Starting with no preset, then scales",
     "section": "tokens",
     "heading": "Level 2: the scales preset",
-    "text": "When repeating raw values gets old, gives you a vocabulary: the palette, spacing, type ramp, radii, shadows, blurs, durations, easings and breakpoints of Tailwind CSS v4, generated from its own theme, as typed tokens. There is no configuration step: you import what you use. A token nothing references emits nothing, so importing the package costs nothing in the output."
+    "text": "When repeating raw values gets old, gives you a vocabulary: the palette, spacing, type ramp, radii, shadows, blurs, durations, easings and breakpoints of Tailwind CSS v4, generated from its own theme, as typed tokens. There is no configuration step: you import what you use, and the bundler adapter compiles the preset from as it compiles your own modules. A token nothing references emits nothing, so importing the package costs nothing in the output."
   },
   {
     "id": "/docs/tokens/preset-scales#what-is-in-it",
@@ -6854,7 +6854,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Starting with no preset, then scales",
     "section": "tokens",
     "heading": "Level 4: packaging a preset of your own",
-    "text": "A preset is a module that exports token groups. To share yours, export them from a package and import them like any other module: Nothing else is required: no registration, no plugin."
+    "text": "A preset is a module that exports token groups. To share yours, export them from a package and import them like any other module: No registration and no plugin. Inside a workspace the package is compiled with your own modules. Installed from npm, list it in , so its calls are compiled too; a token the app reads at runtime would otherwise throw in the browser."
   },
   {
     "id": "/docs/tokens/preset-scales#the-utility-grammar",
@@ -9255,7 +9255,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Configuration reference",
     "section": "reference",
     "heading": "libraries",
-    "text": "Installed packages whose styles this app compiles as it compiles its own. A published Kirana library ships its calls uncompiled; listing it here puts its styles in your stylesheet, deduplicated with yours and under your prefix, targets and layers. Leave a library out and its first throws with a message naming this key. See publishing a library ."
+    "text": "Installed packages whose styles this app compiles as it compiles its own. A published Kirana library ships its calls uncompiled; listing it here puts its styles in your stylesheet, deduplicated with yours and under your prefix, targets and layers. Leave a library out and its first throws with a message naming this key. Kirana's own scales preset is compiled without being listed. See publishing a library ."
   },
   {
     "id": "/docs/config/reference#presets",

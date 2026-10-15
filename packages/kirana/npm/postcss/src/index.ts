@@ -15,6 +15,7 @@ import path from "node:path"
 
 import { Driver } from "@kirana-style/compiler"
 import {
+  KIRANA_LIBRARIES,
   PLACEHOLDER_RULE,
   createReporter,
   sources,
@@ -55,9 +56,15 @@ export class Project {
   /** The directories compiled: the project, and the packages it compiles as its own. */
   directories(driver: Driver): string[] {
     const require = createRequire(path.join(this.root, "package.json"))
-    const libraries = driver.libraries.map((name) =>
-      path.dirname(require.resolve(`${name}/package.json`))
-    )
+    const libraries = driver.libraries.flatMap((name) => {
+      try {
+        return [path.dirname(require.resolve(`${name}/package.json`))]
+      } catch (error) {
+        // Kirana's own are compiled when the project has them; a listed library must resolve.
+        if (KIRANA_LIBRARIES.includes(name)) return []
+        throw error
+      }
+    })
     return [this.root, ...libraries]
   }
 

@@ -2532,8 +2532,10 @@ const card = css({
 })
 ```
 
-There is no configuration step: you import what you use. A token nothing
-references emits nothing, so importing the package costs nothing in the output.
+There is no configuration step: you import what you use, and the bundler adapter
+compiles the preset from `node_modules` as it compiles your own modules. A token
+nothing references emits nothing, so importing the package costs nothing in the
+output.
 
 ### What is in it
 
@@ -2575,7 +2577,10 @@ export const brand = defineTokens("brand", { … }, { variable: true })
 import { brand } from "@acme/tokens"
 ```
 
-Nothing else is required: no registration, no plugin.
+No registration and no plugin. Inside a workspace the package is compiled with
+your own modules. Installed from npm, list it in [`libraries`](/docs/config/reference#libraries),
+so its `defineTokens()` calls are compiled too; a token the app reads at runtime
+would otherwise throw in the browser.
 
 ## The utility grammar
 
@@ -6972,7 +6977,8 @@ Installed packages whose styles this app compiles as it compiles its own. A
 published Kirana library ships its `css()` calls uncompiled; listing it here puts
 its styles in your stylesheet, deduplicated with yours and under your prefix,
 targets and layers. Leave a library out and its first `css()` throws with a message
-naming this key. See [publishing a library](/docs/advanced/libraries).
+naming this key. Kirana's own scales preset is compiled without being listed. See
+[publishing a library](/docs/advanced/libraries).
 
 ## `presets`
 

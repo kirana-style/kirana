@@ -93,7 +93,8 @@ Installed packages whose styles this app compiles as it compiles its own. A
 published Kirana library ships its `css()` calls uncompiled; listing it here puts
 its styles in your stylesheet, deduplicated with yours and under your prefix,
 targets and layers. Leave a library out and its first `css()` throws with a message
-naming this key. See [publishing a library](/docs/advanced/libraries).
+naming this key. Kirana's own scales preset is compiled without being listed. See
+[publishing a library](/docs/advanced/libraries).
 
 ## `presets`
 
