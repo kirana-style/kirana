@@ -88,9 +88,9 @@ brotli at quality 11.
 | CSS | 262.5 kB | 228.2 kB | 232.3 kB | 586.5 kB | 1.15× (1.15–1.15) higher | 1.13× (1.13–1.13) higher | 0.45× (0.45–0.45) lower |
 | CSS, gzip | 64.1 kB | 62.8 kB | 62.8 kB | 87.1 kB | 1.02× (1.02–1.02) higher | 1.02× (1.02–1.02) higher | 0.74× (0.74–0.74) lower |
 | CSS, brotli | 54.9 kB | 55.3 kB | 55.5 kB | 69.5 kB | 0.99× (0.99–0.99) lower | 0.99× (0.99–0.99) lower | 0.79× (0.79–0.79) lower |
-| JavaScript | 4837.1 kB | 4880.7 kB | 4842.5 kB | 4963.2 kB | 0.99× (0.99–0.99) lower | 0.999× (0.999–0.999) lower | 0.97× (0.97–0.97) lower |
-| JavaScript, gzip | 1558.9 kB | 1606.8 kB | 1586.5 kB | 1572.6 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.99× (0.99–0.99) lower |
-| CSS + JavaScript, gzip | 1623.0 kB | 1669.6 kB | 1649.3 kB | 1659.7 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.98× (0.98–0.98) lower |
+| JavaScript | 4.84 MB | 4.88 MB | 4.84 MB | 4.96 MB | 0.99× (0.99–0.99) lower | 0.999× (0.999–0.999) lower | 0.97× (0.97–0.97) lower |
+| JavaScript, gzip | 1.56 MB | 1.61 MB | 1.59 MB | 1.57 MB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.99× (0.99–0.99) lower |
+| CSS + JavaScript, gzip | 1.62 MB | 1.67 MB | 1.65 MB | 1.66 MB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.98× (0.98–0.98) lower |
 | Style rules | 4,304 | 3,878 | 4,016 | 2,460 | not judged | not judged | not judged |
 | Declarations | 4,820 | 4,370 | 4,499 | 3,674 | not judged | not judged | not judged |
 
@@ -120,7 +120,7 @@ the browser times.
 | CSS | 90.9 kB | 80.9 kB | 82.3 kB | 204.0 kB | 1.12× (1.12–1.12) higher | 1.10× (1.10–1.10) higher | 0.45× (0.45–0.45) lower |
 | CSS, gzip | 22.3 kB | 22.2 kB | 22.2 kB | 30.4 kB | 1.01× (1.01–1.01) higher | 1.01× (1.01–1.01) higher | 0.73× (0.73–0.73) lower |
 | CSS, brotli | 19.0 kB | 19.4 kB | 19.5 kB | 24.1 kB | 0.98× (0.98–0.98) lower | 0.97× (0.97–0.97) lower | 0.79× (0.79–0.79) lower |
-| JavaScript | 1911.6 kB | 1927.5 kB | 1907.9 kB | 1985.8 kB | 0.99× (0.99–0.99) lower | 1.002× (1.002–1.002) higher | 0.96× (0.96–0.96) lower |
+| JavaScript | 1.91 MB | 1.93 MB | 1.91 MB | 1.99 MB | 0.99× (0.99–0.99) lower | 1.002× (1.002–1.002) higher | 0.96× (0.96–0.96) lower |
 | JavaScript, gzip | 645.0 kB | 665.7 kB | 657.5 kB | 657.4 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.98× (0.98–0.98) lower |
 | CSS + JavaScript, gzip | 667.3 kB | 687.9 kB | 679.7 kB | 687.8 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.97× (0.97–0.97) lower |
 | Style rules | 1,524 | 1,404 | 1,452 | 881 | not judged | not judged | not judged |
@@ -134,7 +134,7 @@ the browser times.
 | CSS | 94.9 kB | 81.9 kB | 83.5 kB | 198.4 kB | 1.16× (1.16–1.16) higher | 1.14× (1.14–1.14) higher | 0.48× (0.48–0.48) lower |
 | CSS, gzip | 23.3 kB | 22.8 kB | 22.8 kB | 29.7 kB | 1.02× (1.02–1.02) higher | 1.02× (1.02–1.02) higher | 0.78× (0.78–0.78) lower |
 | CSS, brotli | 19.8 kB | 20.0 kB | 20.1 kB | 23.7 kB | 0.99× (0.99–0.99) lower | 0.99× (0.99–0.99) lower | 0.84× (0.84–0.84) lower |
-| JavaScript | 2059.1 kB | 2077.9 kB | 2060.1 kB | 2087.7 kB | 0.99× (0.99–0.99) lower | 1.000× (1.000–1.000) lower | 0.99× (0.99–0.99) lower |
+| JavaScript | 2.06 MB | 2.08 MB | 2.06 MB | 2.09 MB | 0.99× (0.99–0.99) lower | 1.000× (1.000–1.000) lower | 0.99× (0.99–0.99) lower |
 | JavaScript, gzip | 634.9 kB | 656.2 kB | 644.3 kB | 632.8 kB | 0.97× (0.97–0.97) lower | 0.99× (0.99–0.99) lower | 1.003× (1.003–1.003) higher |
 | CSS + JavaScript, gzip | 658.2 kB | 679.0 kB | 667.1 kB | 662.6 kB | 0.97× (0.97–0.97) lower | 0.99× (0.99–0.99) lower | 0.99× (0.99–0.99) lower |
 | Style rules | 1,591 | 1,415 | 1,463 | 855 | not judged | not judged | not judged |
@@ -169,14 +169,28 @@ style recalculation when the colour scheme switches, a hover, layout, and the
 | Layout | 25.2 ms | 24.0 ms | 25.8 ms | 26.4 ms | 1.05× (0.94–1.10) no clear difference | 0.98× (0.89–1.04) no clear difference | 0.955× (0.879–1.005) no clear difference |
 | Frame time, p95 | 367.2 ms | 362.6 ms | 376.5 ms | 2.38 s | 1.01× (0.99–1.04) no clear difference | 0.98× (0.96–1.02) no clear difference | 0.15× (0.15–0.16) lower |
 
+## A large page
+
+The demos above are small pages. The large-dom corpus is an order table of
+thousands of rows, as an admin screen has, written in each implementation with its
+own components: a status badge, a select, an icon button, and an Approve button on
+pending orders. Every build renders the same rows, from one seeded generator.
+
+Each round filters the table to the overdue orders and back to all of them, each
+timed from the click to the next frame, scrolls through it, moves the pointer
+across rows, and reads the JavaScript heap after a garbage collection. The page's
+HTML and `class` attributes are its size.
+
+This run did not measure the large-dom table.
+
 ## What it does not say
 
 - **The machine is a shared CI runner.** Absolute times move from run to run,
   and GitHub does not promise the same processor twice: the run above names the
   one it had. Compare ratios within one run, never times from two runs.
-- **Three applications are one corpus.** They are a shadcn/ui port: many small
-  components, shared tokens. A codebase with other habits may measure otherwise,
-  and the lab's corpus will grow.
+- **The applications are one shadcn/ui port.** Many small components, shared
+  tokens, and one large table. A codebase with other habits may measure
+  otherwise, and the lab's corpus will grow.
 - **The editor is not measured here yet.** The language server's latency and the
   time from saving a file to the updated stylesheet are from one developer
   machine, in

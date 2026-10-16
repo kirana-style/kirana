@@ -13,11 +13,20 @@ import { theme } from "@workspace/ui/theme/semantic"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import { fontFamily, fontSize } from "@workspace/ui/tokens/typography"
 
+import { Icon } from "@workspace/ui/primitives/icon"
+import { familyIcon } from "@/data/diagnostic-families"
 import { DIAGNOSTICS } from "@/generated/diagnostics.gen"
 
 const styles = {
   wrapper: css({ marginBlockEnd: spacing[6], overflowX: "auto" }),
   code: css({ fontFamily: fontFamily.mono, fontSize: fontSize.xs }),
+  // The family's icon before the code, so the column says what kind of mistake it is.
+  codeWithIcon: css({
+    display: "inline-flex",
+    alignItems: "center",
+    gap: spacing[2],
+  }),
+  icon: css({ color: theme.mutedForeground }),
   name: css({ fontFamily: fontFamily.mono, fontSize: fontSize.sm }),
   family: css({ color: theme.mutedForeground }),
 }
@@ -42,7 +51,17 @@ export function DiagnosticsTable({ family }: { family?: string }) {
         <TableBody>
           {rows.map((entry) => (
             <TableRow key={entry.code}>
-              <TableCell sx={styles.code}>{entry.code}</TableCell>
+              <TableCell sx={styles.code}>
+                <span sx={styles.codeWithIcon}>
+                  <Icon
+                    icon={familyIcon(entry.family)}
+                    size="1rem"
+                    sx={styles.icon}
+                    aria-hidden="true"
+                  />
+                  {entry.code}
+                </span>
+              </TableCell>
               <TableCell sx={styles.name}>{entry.name}</TableCell>
               <TableCell>
                 <Badge

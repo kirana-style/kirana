@@ -102,14 +102,28 @@ style recalculation when the colour scheme switches, a hover, layout, and the
 
 <!-- ::benchmarks part="browser" corpus="web" scenario="1" -->
 
+## A large page
+
+The demos above are small pages. The large-dom corpus is an order table of
+thousands of rows, as an admin screen has, written in each implementation with its
+own components: a status badge, a select, an icon button, and an Approve button on
+pending orders. Every build renders the same rows, from one seeded generator.
+
+Each round filters the table to the overdue orders and back to all of them, each
+timed from the click to the next frame, scrolls through it, moves the pointer
+across rows, and reads the JavaScript heap after a garbage collection. The page's
+HTML and `class` attributes are its size.
+
+<!-- ::benchmarks part="large-dom" -->
+
 ## What it does not say
 
 - **The machine is a shared CI runner.** Absolute times move from run to run,
   and GitHub does not promise the same processor twice: the run above names the
   one it had. Compare ratios within one run, never times from two runs.
-- **Three applications are one corpus.** They are a shadcn/ui port: many small
-  components, shared tokens. A codebase with other habits may measure otherwise,
-  and the lab's corpus will grow.
+- **The applications are one shadcn/ui port.** Many small components, shared
+  tokens, and one large table. A codebase with other habits may measure
+  otherwise, and the lab's corpus will grow.
 - **The editor is not measured here yet.** The language server's latency and the
   time from saving a file to the updated stylesheet are from one developer
   machine, in

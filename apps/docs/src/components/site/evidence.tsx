@@ -22,6 +22,7 @@ import {
 } from "@workspace/ui/tokens/typography"
 
 import { THEN_AND_NOW } from "@/data/claims"
+import { familyIcon } from "@/data/diagnostic-families"
 import { DIAGNOSTICS } from "@/generated/diagnostics.gen"
 
 const styles = {
@@ -90,13 +91,28 @@ const styles = {
       [breakpoint.md]: "repeat(5, minmax(0, 1fr))",
     },
   }),
+  // The family's icon and its name on the left; the count in the cell's top-right corner.
   family: css({
     display: "grid",
-    gap: spacing[1],
+    gridTemplateColumns: "minmax(0, 1fr) auto",
+    columnGap: spacing[3],
+    rowGap: spacing[1],
     padding: spacing[4],
     backgroundColor: theme.card,
   }),
+  familyIcon: css({
+    gridColumn: "1",
+    gridRow: "1",
+    justifySelf: "start",
+    alignSelf: "center",
+    // Lighter than the family's name, so the count stays the cell's one accent.
+    color: theme.mutedForeground,
+    opacity: 0.5,
+  }),
   familyCount: css({
+    gridColumn: "2",
+    gridRow: "1",
+    justifySelf: "end",
     fontFamily: fontFamily.numeric,
     fontSize: fontSize["2xl"],
     lineHeight: lineHeight["2xl"],
@@ -104,6 +120,7 @@ const styles = {
     color: accent.base,
   }),
   familyName: css({
+    gridColumn: "1 / -1",
     fontSize: fontSize.xs,
     lineHeight: lineHeight.xs,
     color: theme.mutedForeground,
@@ -155,6 +172,13 @@ export function DiagnosticFamilies() {
       {FAMILIES.map(([family, count]) => (
         <div key={family} sx={styles.family}>
           <span sx={styles.familyCount}>{count}</span>
+          <Icon
+            icon={familyIcon(family)}
+            size="1.75rem"
+            strokeWidth={1.5}
+            sx={styles.familyIcon}
+            aria-hidden="true"
+          />
           <span sx={styles.familyName}>{family}</span>
         </div>
       ))}

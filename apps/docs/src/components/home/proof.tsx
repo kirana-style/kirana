@@ -1,7 +1,8 @@
 /**
- * "Measured": the homepage's one place for numbers. Every figure is in `HEADLINES`, worded from
- * kirana-lab's newest run or, for the editor, from the design note it names, so a number on the
- * homepage always links where it was measured and is never typed twice.
+ * "Measured": the homepage's one place for numbers. The chart is the compiler page's, from
+ * kirana-lab's newest run; every other figure is in `HEADLINES`, worded from that run or, for the
+ * editor, from the design note it names, so a number on the homepage always links where it was
+ * measured and is never typed twice.
  */
 import { css } from "@kirana-style/core"
 
@@ -18,6 +19,7 @@ import {
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
+import { BenchChart } from "@/components/site/bench-chart"
 import { chapter } from "@/components/site/chapter"
 import { BENCH, HEADLINES, LAB } from "@/data/benchmarks"
 import { GITHUB } from "@/data/facts"
@@ -91,6 +93,7 @@ export function Proof() {
         </DocsLink>
       }
     >
+      <BenchChart />
       <div sx={styles.grid}>
         {HEADLINES.map((headline) => (
           <div key={headline.id} sx={styles.cell}>

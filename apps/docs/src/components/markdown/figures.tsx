@@ -1320,6 +1320,115 @@ const IDEAS: { id: string; name: string; art: React.ReactNode }[] = [
   },
 ]
 
+const HABITS: {
+  id: string
+  name: string
+  range: string
+  art: React.ReactNode
+}[] = [
+  {
+    id: "structure",
+    name: "Structure",
+    range: "01–04",
+    art: (
+      <Card title="styles" width={112}>
+        <Row>
+          <T tone="strong">card</T>
+        </Row>
+        <Row lit>
+          <T tone="strong">cardHeader</T>
+        </Row>
+      </Card>
+    ),
+  },
+  {
+    id: "values",
+    name: "Values",
+    range: "05–08",
+    art: (
+      <Card title="text" width={112}>
+        <Row>
+          <T tone="muted">size</T>
+          <T>sm</T>
+        </Row>
+        <Row lit>
+          <T tone="muted">leading</T>
+          <T>sm</T>
+        </Row>
+      </Card>
+    ),
+  },
+  {
+    id: "overrides-and-states",
+    name: "Overrides and states",
+    range: "09–13",
+    art: (
+      <Card title="alignSelf" width={112}>
+        <Row lit>
+          <Tag tone="success" icon={Tick02Icon} />
+          <T tone="strong">vertical</T>
+        </Row>
+        <Row>
+          <T tone="muted">base</T>
+          <T tone="muted">auto</T>
+        </Row>
+      </Card>
+    ),
+  },
+  {
+    id: "runtime-values",
+    name: "Runtime values",
+    range: "14",
+    art: (
+      <Card title="tone" width={112}>
+        <Row lit>
+          <T tone="muted">danger</T>
+          <T tone="strong">a</T>
+        </Row>
+        <Row>
+          <T tone="muted">else</T>
+          <T tone="strong">b</T>
+        </Row>
+      </Card>
+    ),
+  },
+  {
+    id: "checking",
+    name: "Checking",
+    range: "15",
+    art: (
+      <Card title="trace" width={112}>
+        <Row lit>
+          <Tag tone="success" icon={Tick02Icon} />
+          <T tone="strong">:hover</T>
+        </Row>
+        <Row>
+          <T tone="muted">the winner</T>
+        </Row>
+      </Card>
+    ),
+  },
+]
+
+/** The habits page's five groups at a glance, each a small drawing that links to its section. */
+export function HabitsFigure() {
+  return (
+    <nav aria-label="The habits, by group" sx={thumbs.grid}>
+      {HABITS.map((group) => (
+        <a key={group.id} href={`#${group.id}`} sx={thumbs.cell}>
+          <span sx={thumbs.art}>
+            <Stage sx={thumbs.stage}>{group.art}</Stage>
+          </span>
+          <span sx={thumbs.name}>
+            <span sx={thumbs.number}>{group.range}</span>
+            {group.name}
+          </span>
+        </a>
+      ))}
+    </nav>
+  )
+}
+
 /** The page's five ideas at a glance, each a small drawing that links to its section. */
 export function MentalModelFigure() {
   return (

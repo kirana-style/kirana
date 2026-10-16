@@ -6351,20 +6351,19 @@ Tailwind original, which this one does not carry.
 Source: https://kirana.style/docs/start/tips
 # Habits for a new project
 
-These come from building every shadcn/ui component on Kirana, migrating the
-same three applications from StyleX and from Tailwind, and diffing the results
-element by element. Each one is here because not doing it cost us a bug.
+Fifteen habits from building every shadcn/ui component on Kirana and migrating
+the same three applications from StyleX and from Tailwind. Each one is here
+because skipping it cost us a bug.
 
-Each habit is a rule, why it matters, what to write and what not to, and the
-check that catches it when there is one.
+<!-- ::figure-habits -->
 
 ## Structure
 
 ### 1. One `styles` object per module, named by part
 
-Declare styles after the imports and name each after the part it styles, so the
-markup stays readable and a search for the name finds both ends. The element's
-`data-slot` is a good name: `card-header` becomes `styles.cardHeader`.
+Declare the styles after the imports, one per part. The element's `data-slot` is
+a good name: `card-header` becomes `styles.cardHeader`, and a search for it finds
+both ends.
 
 ```tsx
 const styles = {
@@ -6373,13 +6372,18 @@ const styles = {
 }
 ```
 
-### 2. Components take `sx?: Sx`, and put it last
+### 2. Components take `sx`, and put it last
 
-An `sx` array is merge order, so the caller's styles go last and win.
+An `sx` array is merge order, so the caller's styles go last and win. A
+`className` prop for styles is never needed.
 
-| Do                       | Don't                                                      |
-| ------------------------ | ---------------------------------------------------------- |
-| `sx={[styles.card, sx]}` | `sx={[sx, styles.card]}`, or a `className` prop for styles |
+```tsx do
+<div sx={[styles.card, sx]} />
+```
+
+```tsx dont
+<div sx={[sx, styles.card]} />
+```
 
 **Checked by** `sx-last`, in the [lint plugin](/docs/tooling/lint).
 
@@ -6388,19 +6392,32 @@ An `sx` array is merge order, so the caller's styles go last and win.
 A wrapper that spreads its props carries `sx` inside the spread, where nothing
 compiles it.
 
-| Do                                      | Don't                                           |
-| --------------------------------------- | ----------------------------------------------- |
-| `({ sx, ...props })`, then pass `sx` on | `({ ...props }) => <Menu.Trigger {...props} />` |
+```tsx do
+function Trigger({ sx, ...props }: Props) {
+  return <Button sx={[styles.trigger, sx]} {...props} />
+}
+```
+
+```tsx dont
+function Trigger(props: Props) {
+  return <Button {...props} />
+}
+```
 
 **Checked by** `unused-sx`, which reports a wrapper that drops it.
 
 ### 4. Installed components do not read `sx`
 
-Base UI parts and anything else from `node_modules` take compiled props instead.
+Base UI parts and anything else from `node_modules` take compiled props:
+`props` from `@kirana-style/core` turns styles into them.
 
-| Do                                                                 | Don't                             |
-| ------------------------------------------------------------------ | --------------------------------- |
-| `{...props(styles.x, sx)}`, with `props` from `@kirana-style/core` | `sx={styles.x}` on a Base UI part |
+```tsx do
+<Menu.Popup {...props(styles.popup, sx)} />
+```
+
+```tsx dont
+<Menu.Popup sx={styles.popup} />
+```
 
 **Checked by** `sx-on-external-component`.
 
@@ -6414,29 +6431,52 @@ token nothing references emits nothing.
 
 ### 6. Put product decisions in your own tokens
 
-`primary`, `muted` and `border` are yours: define them once as
-[semantic tokens](/docs/tokens/semantic-tokens), each colour a `light-dark()` pair.
+`primary`, `muted` and `border` are yours. Define each once as a
+[semantic token](/docs/tokens/semantic-tokens), a `light-dark()` pair.
 
-| Do                                                                                             | Don't              |
-| ---------------------------------------------------------------------------------------------- | ------------------ |
-| Set the theme's `color-scheme` on `<html>`: the root decides scrollbars and an iframe's canvas | Set it on `<body>` |
+Set the theme's `color-scheme` on `<html>`: the root decides the scrollbars and an
+iframe's canvas.
+
+```tsx do
+export const theme = defineTokens("theme", {
+  primary: "light-dark(oklch(0.21 0 0), oklch(0.92 0 0))",
+})
+```
+
+```tsx dont
+const button = css({
+  backgroundColor: "oklch(0.21 0 0)",
+})
+```
 
 ### 7. A font size comes with its line height
 
 A size without its line height was the most common drift in our ports.
 
-| Do                                                 | Don't                         |
-| -------------------------------------------------- | ----------------------------- |
-| `fontSize: fontSize.sm, lineHeight: lineHeight.sm` | `fontSize: fontSize.sm` alone |
+```tsx do
+css({
+  fontSize: fontSize.sm,
+  lineHeight: lineHeight.sm,
+})
+```
+
+```tsx dont
+css({ fontSize: fontSize.sm })
+```
 
 ### 8. Name the longhands you set
 
-Prefer logical properties throughout, so right-to-left works without a second
-style.
+Logical properties make right-to-left work without a second style. To replace a
+longhand a component's base sets, name that longhand: a shorthand sits beside it
+instead.
 
-| Do                                  | Don't                                                                                                       |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `paddingInline`, `marginBlockStart` | `padding: 0` on a component whose base sets `paddingInlineStart`: it sits beside it instead of replacing it |
+```tsx do
+css({ paddingInlineStart: 0 })
+```
+
+```tsx dont
+css({ padding: 0 })
+```
 
 **Checked by** `mixed-logical-physical`.
 
@@ -6444,63 +6484,131 @@ style.
 
 ### 9. Override under the same condition
 
-Styles [merge per entry](/docs/styling/merging): a caller's `alignSelf: "auto"`
-replaces the base entry and keeps the component's vertical one. Omitting a key
-keeps it; `null` removes it.
+Styles [merge per entry](/docs/styling/merging). A plain value replaces the base
+entry only, and the component's conditional entries still win under their
+conditions. Omitting a key keeps it; `null` removes it.
 
-| Do                                                                                                | Don't                                                                           |
-| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `{ '[data-orientation="vertical"]': "auto" }`, or `{ "*": null, base: "auto" }` to clear the rest | `alignSelf: "auto"` alone, expecting it to win under the component's conditions |
+```tsx do
+alignSelf: {
+  '[data-orientation="vertical"]': "auto",
+}
+```
+
+```tsx dont
+alignSelf: "auto"
+```
+
+To clear every entry first: `alignSelf: { "*": null, base: "auto" }`.
 
 **Checked by** `override-keeps-conditions`, in the lint plugin.
 
 ### 10. Nest the winner inside the other condition
 
-When two conditions of the same kind can match together and set different
-values, the compiler reports them rather than letting source order decide. Do not
-re-level the diagnostic to hide a tie; twice it hid a real bug.
+When two conditions of the same kind can match together and set different values,
+the compiler reports them rather than letting source order decide. Twice, turning
+the report off hid a real bug.
 
-| Do                                                                                                                                                            | Don't                      |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| `'[aria-invalid="true"]': { base: x, "[data-checked]": y }`, or the pair in [`conditions.exclusive`](/docs/config/reference) when the library never sets both | Turning the diagnostic off |
+```tsx do
+backgroundColor: {
+  '[aria-invalid="true"]': {
+    base: red,
+    "[data-checked]": blue,
+  },
+}
+```
+
+```ts dont
+// kirana.config.ts
+diagnostics: {
+  "ambiguous-precedence": "off",
+}
+```
+
+When a library never sets both, name the pair in
+[`conditions.exclusive`](/docs/config/reference) instead.
 
 **Checked by** `ambiguous-precedence`.
 
 ### 11. Put the relation anchor where the state lives
 
-`rel.within(sel)` reads an ancestor and `rel.after(sel)` an earlier sibling, so
-the anchor goes on the element whose state is read, not on the element being
-styled. See [relations](/docs/styling/relations).
+A [relation](/docs/styling/relations) reads the state of the element that carries
+its anchor, so the anchor goes on that element, not on the one being styled.
+
+```tsx do
+<div
+  data-state={state}
+  sx={[menu.anchor, styles.root]}
+>
+```
+
+```tsx dont
+<div data-state={state}>
+  <div sx={[menu.anchor, styles.inner]}>
+```
+
+**Checked by** `relation-placement`.
 
 ### 12. A parent's rule ranks below the child's own
 
 A [`select`](/docs/styling/contextual) block styles children from a parent, below
-their own styles, so an icon that sets its own size keeps it without a guard.
+their own styles, so an icon that sets its own size keeps it. When the parent must
+win, let the child read the parent.
 
-| Do                                                                                                                                                 | Don't                                             |
-| -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| When the parent must win (a field forcing its label to full width), let the child read the parent: a relation, or `':is([data-slot="field"] > *)'` | A `select` block that fights the child's own size |
+```tsx do
+label: css({
+  width: {
+    base: "auto",
+    ':is([data-slot="field"] > *)': "100%",
+  },
+})
+```
+
+```tsx dont
+field: css({
+  [select.child("label")]: { width: "100%" },
+})
+```
 
 ### 13. Animate the property you set
 
-`translate`, `scale` and `rotate` are properties of their own.
+`translate`, `scale` and `rotate` are properties of their own, and a transition on
+`transform` does not cover them.
 
-| Do                                | Don't                                                        |
-| --------------------------------- | ------------------------------------------------------------ |
-| `transitionProperty: "translate"` | `transitionProperty: "transform"`, which does not cover them |
+```tsx do
+css({
+  translate: "0 4px",
+  transitionProperty: "translate",
+})
+```
+
+```tsx dont
+css({
+  translate: "0 4px",
+  transitionProperty: "transform",
+})
+```
 
 ## Runtime values
 
 ### 14. Prefer a finite set
 
 A choice between known values compiles to a choice between classes and costs
-nothing. Bridge only what varies continuously, such as a width in percent or a
-colour from data, and read `dynamic-bridged` in the report to see where runtime
-values enter. See [values known at runtime](/docs/styling/dynamic).
+nothing. Bridge only what varies continuously, such as a width in percent; the
+`dynamic-bridged` report shows where runtime values enter. See
+[values known at runtime](/docs/styling/dynamic).
 
-| Do                          | Don't                                         |
-| --------------------------- | --------------------------------------------- |
-| `tone === "danger" ? a : b` | A bridged value for something with two states |
+```tsx do
+<div
+  sx={css({
+    color: tone === "danger" ? "crimson" : "black",
+  })}
+/>
+```
+
+```tsx dont
+// "crimson" or "black", known only at runtime
+<div sx={css({ color })} />
+```
 
 **Checked by** `finite-bridge`, in the lint plugin's `strict` config.
 
@@ -6508,13 +6616,19 @@ values enter. See [values known at runtime](/docs/styling/dynamic).
 
 ### 15. Let the tools answer "why"
 
-- `kirana-style check` in CI: every diagnostic, with an exit code.
-- `kirana-style trace <file>:<line> <property>` when a value is not the one you
-  expected: every entry, the winner, and the ladder step that decided it.
-- To verify a port or a refactor, compare **computed styles**, not screenshots,
-  in both colour schemes and at several widths. A 1 px border, an easing curve
-  and a missing hover state were all invisible in screenshots and obvious in a
-  diff. See [conformance](/docs/advanced/conformance).
+`kirana-style check` reports every diagnostic with an exit code, for CI.
+`kirana-style trace` answers when a value is not the one you expected: every
+entry, the winner, and the step of the ladder that decided it.
+
+```console
+$ kirana-style check src
+$ kirana-style trace src/card.tsx:12 minHeight
+```
+
+To verify a port or a refactor, compare **computed styles**, not screenshots, in
+both colour schemes and at several widths. A 1 px border, an easing curve and a
+missing hover state were all invisible in screenshots and obvious in a diff. See
+[conformance](/docs/advanced/conformance).
 ---
 # Building a design system
 Source: https://kirana.style/docs/advanced/design-system
@@ -8758,9 +8872,9 @@ brotli at quality 11.
 | CSS | 262.5 kB | 228.2 kB | 232.3 kB | 586.5 kB | 1.15× (1.15–1.15) higher | 1.13× (1.13–1.13) higher | 0.45× (0.45–0.45) lower |
 | CSS, gzip | 64.1 kB | 62.8 kB | 62.8 kB | 87.1 kB | 1.02× (1.02–1.02) higher | 1.02× (1.02–1.02) higher | 0.74× (0.74–0.74) lower |
 | CSS, brotli | 54.9 kB | 55.3 kB | 55.5 kB | 69.5 kB | 0.99× (0.99–0.99) lower | 0.99× (0.99–0.99) lower | 0.79× (0.79–0.79) lower |
-| JavaScript | 4837.1 kB | 4880.7 kB | 4842.5 kB | 4963.2 kB | 0.99× (0.99–0.99) lower | 0.999× (0.999–0.999) lower | 0.97× (0.97–0.97) lower |
-| JavaScript, gzip | 1558.9 kB | 1606.8 kB | 1586.5 kB | 1572.6 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.99× (0.99–0.99) lower |
-| CSS + JavaScript, gzip | 1623.0 kB | 1669.6 kB | 1649.3 kB | 1659.7 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.98× (0.98–0.98) lower |
+| JavaScript | 4.84 MB | 4.88 MB | 4.84 MB | 4.96 MB | 0.99× (0.99–0.99) lower | 0.999× (0.999–0.999) lower | 0.97× (0.97–0.97) lower |
+| JavaScript, gzip | 1.56 MB | 1.61 MB | 1.59 MB | 1.57 MB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.99× (0.99–0.99) lower |
+| CSS + JavaScript, gzip | 1.62 MB | 1.67 MB | 1.65 MB | 1.66 MB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.98× (0.98–0.98) lower |
 | Style rules | 4,304 | 3,878 | 4,016 | 2,460 | not judged | not judged | not judged |
 | Declarations | 4,820 | 4,370 | 4,499 | 3,674 | not judged | not judged | not judged |
 
@@ -8790,7 +8904,7 @@ the browser times.
 | CSS | 90.9 kB | 80.9 kB | 82.3 kB | 204.0 kB | 1.12× (1.12–1.12) higher | 1.10× (1.10–1.10) higher | 0.45× (0.45–0.45) lower |
 | CSS, gzip | 22.3 kB | 22.2 kB | 22.2 kB | 30.4 kB | 1.01× (1.01–1.01) higher | 1.01× (1.01–1.01) higher | 0.73× (0.73–0.73) lower |
 | CSS, brotli | 19.0 kB | 19.4 kB | 19.5 kB | 24.1 kB | 0.98× (0.98–0.98) lower | 0.97× (0.97–0.97) lower | 0.79× (0.79–0.79) lower |
-| JavaScript | 1911.6 kB | 1927.5 kB | 1907.9 kB | 1985.8 kB | 0.99× (0.99–0.99) lower | 1.002× (1.002–1.002) higher | 0.96× (0.96–0.96) lower |
+| JavaScript | 1.91 MB | 1.93 MB | 1.91 MB | 1.99 MB | 0.99× (0.99–0.99) lower | 1.002× (1.002–1.002) higher | 0.96× (0.96–0.96) lower |
 | JavaScript, gzip | 645.0 kB | 665.7 kB | 657.5 kB | 657.4 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.98× (0.98–0.98) lower |
 | CSS + JavaScript, gzip | 667.3 kB | 687.9 kB | 679.7 kB | 687.8 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.97× (0.97–0.97) lower |
 | Style rules | 1,524 | 1,404 | 1,452 | 881 | not judged | not judged | not judged |
@@ -8804,7 +8918,7 @@ the browser times.
 | CSS | 94.9 kB | 81.9 kB | 83.5 kB | 198.4 kB | 1.16× (1.16–1.16) higher | 1.14× (1.14–1.14) higher | 0.48× (0.48–0.48) lower |
 | CSS, gzip | 23.3 kB | 22.8 kB | 22.8 kB | 29.7 kB | 1.02× (1.02–1.02) higher | 1.02× (1.02–1.02) higher | 0.78× (0.78–0.78) lower |
 | CSS, brotli | 19.8 kB | 20.0 kB | 20.1 kB | 23.7 kB | 0.99× (0.99–0.99) lower | 0.99× (0.99–0.99) lower | 0.84× (0.84–0.84) lower |
-| JavaScript | 2059.1 kB | 2077.9 kB | 2060.1 kB | 2087.7 kB | 0.99× (0.99–0.99) lower | 1.000× (1.000–1.000) lower | 0.99× (0.99–0.99) lower |
+| JavaScript | 2.06 MB | 2.08 MB | 2.06 MB | 2.09 MB | 0.99× (0.99–0.99) lower | 1.000× (1.000–1.000) lower | 0.99× (0.99–0.99) lower |
 | JavaScript, gzip | 634.9 kB | 656.2 kB | 644.3 kB | 632.8 kB | 0.97× (0.97–0.97) lower | 0.99× (0.99–0.99) lower | 1.003× (1.003–1.003) higher |
 | CSS + JavaScript, gzip | 658.2 kB | 679.0 kB | 667.1 kB | 662.6 kB | 0.97× (0.97–0.97) lower | 0.99× (0.99–0.99) lower | 0.99× (0.99–0.99) lower |
 | Style rules | 1,591 | 1,415 | 1,463 | 855 | not judged | not judged | not judged |
@@ -8839,14 +8953,28 @@ style recalculation when the colour scheme switches, a hover, layout, and the
 | Layout | 25.2 ms | 24.0 ms | 25.8 ms | 26.4 ms | 1.05× (0.94–1.10) no clear difference | 0.98× (0.89–1.04) no clear difference | 0.955× (0.879–1.005) no clear difference |
 | Frame time, p95 | 367.2 ms | 362.6 ms | 376.5 ms | 2.38 s | 1.01× (0.99–1.04) no clear difference | 0.98× (0.96–1.02) no clear difference | 0.15× (0.15–0.16) lower |
 
+## A large page
+
+The demos above are small pages. The large-dom corpus is an order table of
+thousands of rows, as an admin screen has, written in each implementation with its
+own components: a status badge, a select, an icon button, and an Approve button on
+pending orders. Every build renders the same rows, from one seeded generator.
+
+Each round filters the table to the overdue orders and back to all of them, each
+timed from the click to the next frame, scrolls through it, moves the pointer
+across rows, and reads the JavaScript heap after a garbage collection. The page's
+HTML and `class` attributes are its size.
+
+This run did not measure the large-dom table.
+
 ## What it does not say
 
 - **The machine is a shared CI runner.** Absolute times move from run to run,
   and GitHub does not promise the same processor twice: the run above names the
   one it had. Compare ratios within one run, never times from two runs.
-- **Three applications are one corpus.** They are a shadcn/ui port: many small
-  components, shared tokens. A codebase with other habits may measure otherwise,
-  and the lab's corpus will grow.
+- **The applications are one shadcn/ui port.** Many small components, shared
+  tokens, and one large table. A codebase with other habits may measure
+  otherwise, and the lab's corpus will grow.
 - **The editor is not measured here yet.** The language server's latency and the
   time from saving a file to the updated stylesheet are from one developer
   machine, in

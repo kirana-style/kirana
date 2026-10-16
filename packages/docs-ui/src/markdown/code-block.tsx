@@ -7,10 +7,14 @@
  * terminal window instead: traffic lights, a prompt before each command, and
  * output coloured the way a terminal colours it. Copying one copies only its
  * commands.
+ *
+ * A rule's two sides (```tsx do` and ```tsx dont`) render with a tick or a cross in
+ * their header; a pair of them (`variant: "pair"`) side by side, the right way first.
  */
 import { useState } from "react"
 import { css } from "@kirana-style/core"
 import {
+  Cancel01Icon,
   CommandLineIcon,
   Copy01Icon,
   File01Icon,
@@ -18,9 +22,11 @@ import {
   Tick02Icon,
 } from "@hugeicons/core-free-icons"
 
+import { PALETTE } from "../accent.ts"
 import type { Sx } from "@workspace/ui/lib/sx"
 import { Icon } from "@workspace/ui/primitives/icon"
 import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
+import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
@@ -122,6 +128,31 @@ const styles = {
     lineHeight: "1.7",
     scrollbarWidth: "thin",
   }),
+  // Do and Don't: side by side from a tablet up, the right way first.
+  pair: css({
+    display: "grid",
+    gap: spacing[3],
+    marginBlockEnd: spacing[5],
+    gridTemplateColumns: {
+      base: "minmax(0, 1fr)",
+      [breakpoint.md]: "repeat(2, minmax(0, 1fr))",
+    },
+  }),
+  // Code too wide for half the page: Do above Don't, each at full width.
+  // Under the same condition as the two columns it replaces, or that entry still wins.
+  pairStacked: css({
+    gridTemplateColumns: { [breakpoint.md]: "minmax(0, 1fr)" },
+  }),
+  sideInPair: css({ marginBlockEnd: 0 }),
+  sideLabel: css({
+    fontFamily: fontFamily.sans,
+    fontSize: fontSize.xs,
+    lineHeight: lineHeight.xs,
+    fontWeight: fontWeight.semibold,
+  }),
+  // The kit's own success green, not the page's accent: on an orange page "Do" must not read as a warning.
+  do: css({ color: PALETTE.forest }),
+  dont: css({ color: theme.destructive }),
   pre: css({
     margin: 0,
     paddingInline: spacing[4],
@@ -153,8 +184,13 @@ export function TrafficLights() {
 export type CodeBlockProps = {
   /** Markup from the build-time highlighter. */
   html: string
-  /** `terminal` for shell blocks and sessions; `editor` for a block with hints. */
-  variant?: "terminal" | "editor"
+  /**
+   * `terminal` for shell blocks and sessions; `editor` for a block with hints; `do` and
+   * `dont` for a rule's two sides, and `pair` for both, the `dont` side in `pairHtml`.
+   */
+  variant?: "terminal" | "editor" | "do" | "dont" | "pair"
+  pairHtml?: string
+  pairSource?: string
   /** An editor block's hints, as JSON (`[{ line, text }]`). */
   hints?: string
   /** The text a reader copies. */
@@ -171,7 +207,30 @@ export function CodeBlock({
   file,
   title,
   variant,
+  pairHtml,
+  pairSource,
 }: CodeBlockProps) {
+  if (variant === "pair")
+    return (
+      <div
+        sx={[
+          styles.pair,
+          longest(source, pairSource!) > HALF ? styles.pairStacked : null,
+        ]}
+        data-slot="code-pair"
+      >
+        <Side kind="do" html={html} source={source} lang={lang} paired />
+        <Side
+          kind="dont"
+          html={pairHtml!}
+          source={pairSource!}
+          lang={lang}
+          paired
+        />
+      </div>
+    )
+  if (variant === "do" || variant === "dont")
+    return <Side kind={variant} html={html} source={source} lang={lang} />
   if (variant === "terminal")
     return (
       <TerminalBlock
@@ -203,6 +262,52 @@ export function CodeBlock({
           data-lang={lang}
           data-line-numbers={numbered ? "" : undefined}
         >
+          <code dangerouslySetInnerHTML={{ __html: html }} />
+        </pre>
+      </div>
+    </figure>
+  )
+}
+
+/** The longest line a half-width card shows without scrolling, in characters. */
+const HALF = 36
+
+const longest = (...sources: string[]) =>
+  Math.max(
+    ...sources.flatMap((text) => text.split("\n").map((line) => line.length))
+  )
+
+/** One side of a rule: a code card whose header is a tick and "Do", or a cross and "Don't". */
+function Side({
+  kind,
+  html,
+  source,
+  lang,
+  paired,
+}: {
+  kind: "do" | "dont"
+  html: string
+  source: string
+  lang: string
+  paired?: boolean
+}) {
+  return (
+    <figure
+      sx={[styles.root, paired ? styles.sideInPair : null]}
+      data-slot="code-block"
+      data-variant={kind}
+    >
+      <figcaption sx={[styles.header, styles[kind]]}>
+        <Icon
+          icon={kind === "do" ? Tick02Icon : Cancel01Icon}
+          size="0.875rem"
+          strokeWidth={2.5}
+        />
+        <span sx={styles.sideLabel}>{kind === "do" ? "Do" : "Don't"}</span>
+        <CopyButton source={source} />
+      </figcaption>
+      <div sx={styles.panel}>
+        <pre sx={styles.pre} data-slot="code-block-source" data-lang={lang}>
           <code dangerouslySetInnerHTML={{ __html: html }} />
         </pre>
       </div>
