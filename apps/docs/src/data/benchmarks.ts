@@ -37,14 +37,15 @@ export const NAME: Record<Other, string> = {
 
 export const APPS = ["web", "blocks", "examples"] as const
 /**
- * A three-way app or their total, or the large-dom corpus: `large-dom` is its app's build and
- * `large-dom/<rows>` its table at one size.
+ * A three-way app or their total; the large-dom corpus (`large-dom` is its app's build and
+ * `large-dom/<rows>` its table at one size); or the scale curve at one size, `scale-curve/<n>`.
  */
 export type Corpus =
   | (typeof APPS)[number]
   | "total"
   | "large-dom"
   | `large-dom/${number}`
+  | `scale-curve/${number}`
 
 export type Verdict = "lower" | "higher" | "no clear difference"
 
@@ -89,8 +90,14 @@ type Bench = {
       runtime: number
       warmup: number
       largeDom?: number
+      scaleCurve?: number
     }
     conformance: Record<string, string>
+    /** The scale curve's own runner, when a job of its own measured it. */
+    scaleCurve?: {
+      hardware: { cpu: string; cores: number; ramGb: number; os: string }
+      runner?: string
+    }
   }
   rows: Row[]
   comparisons: Comparison[]
@@ -135,7 +142,9 @@ export const BENCH_DATE = BENCH.meta.date.slice(0, 10)
 export const BENCH_MACHINE = `${BENCH.meta.runner ? "GitHub-hosted runner" : "developer machine"}, ${BENCH.meta.hardware.cores} cores (${BENCH.meta.hardware.cpu.replace(/ \d+-Core Processor$/, "")}), ${BENCH.meta.hardware.ramGb} GB`
 
 export const corpusId = (corpus: Corpus) =>
-  corpus.startsWith("large-dom") ? corpus : `three-way/${corpus}`
+  corpus.startsWith("large-dom") || corpus.startsWith("scale-curve/")
+    ? corpus
+    : `three-way/${corpus}`
 
 /** The `web` app's browser scenarios, in the run's order: `CPU throttled 4×, about 6211 elements`. */
 export const BROWSER: readonly string[] = [
@@ -174,6 +183,16 @@ export const LARGE_DOM: readonly {
         entry.corpus === `large-dom/${rows}` && entry.scenario !== "build"
     )!.scenario,
   }))
+
+/** The scale curve's sizes this run measured, smallest first; none for a run without it. */
+export const SCALE_CURVE: readonly number[] = [
+  ...new Set(
+    BENCH.rows
+      .map((entry) => /^scale-curve\/(\d+)$/.exec(entry.corpus)?.[1])
+      .filter((size): size is string => size !== undefined)
+      .map(Number)
+  ),
+].sort((a, b) => a - b)
 
 export function row(
   corpus: Corpus,
@@ -618,6 +637,8 @@ export function reportTable(
 const CORPUS_LABEL = (corpus: string) => {
   if (corpus === "three-way/total") return "all three apps"
   const [name, part] = corpus.split("/")
+  if (name === "scale-curve")
+    return `the scale curve, ${Number(part).toLocaleString("en")} components`
   if (name !== "large-dom") return `apps/${part}`
   return part
     ? `the large-dom table, ${Number(part).toLocaleString("en")} rows`
@@ -660,6 +681,50 @@ export function largeDomTables(): { title: string; table: ReportTable }[] {
 /** What a page says where the large-dom tables would be, for a run that did not measure them. */
 export const LARGE_DOM_MISSING = "This run did not measure the large-dom table."
 
+/**
+ * The scale curve as tables: build time and CSS + JavaScript gzipped at every size, a row per tool
+ * and Kirana's ratio beneath; then each size's every measure. Empty for a run without it.
+ */
+export function scaleCurveTables(): { title: string; table: ReportTable }[] {
+  if (SCALE_CURVE.length === 0) return []
+  const head = ["", ...SCALE_CURVE.map((size) => size.toLocaleString("en"))]
+  const corpus = (size: number) => `scale-curve/${size}` as Corpus
+  const curve = (metric: string) => ({
+    head,
+    rows: [
+      ...TOOLS.map((tool) => ({
+        measure: tool,
+        values: SCALE_CURVE.map((size) => {
+          const entry = row(corpus(size), "build", metric, tool)
+          return formatValue(entry.median, entry.unit)
+        }),
+        ratios: [],
+      })),
+      ...OTHERS.map((other) => ({
+        measure: `Kirana ÷ ${NAME[other]}`,
+        values: [],
+        ratios: SCALE_CURVE.map(
+          (size) => comparison(corpus(size), "build", metric, other) ?? null
+        ),
+      })),
+    ],
+  })
+  return [
+    { title: "Build, cold, at every size", table: curve("build") },
+    {
+      title: "CSS + JavaScript, gzip, at every size",
+      table: curve("totalGzip"),
+    },
+    ...SCALE_CURVE.map((size) => ({
+      title: `${size.toLocaleString("en")} components`,
+      table: reportTable(corpus(size), "build"),
+    })),
+  ]
+}
+
+/** What a page says where the scale curve would be, for a run that did not measure it. */
+export const SCALE_CURVE_MISSING = "This run did not measure the scale curve."
+
 /** The run, as label and value pairs: what produced the numbers. */
 export const RUN_FACTS: readonly [string, string][] = [
   ["Kirana", `${BENCH.meta.kirana}, from npm`],
@@ -684,8 +749,16 @@ export const RUN_FACTS: readonly [string, string][] = [
   ],
   [
     "Rounds",
-    `${BENCH.meta.rounds.build} cold builds per app after ${BENCH.meta.rounds.warmup} warm-up; ${BENCH.meta.rounds.runtime} browser runs${BENCH.meta.rounds.largeDom ? `; ${BENCH.meta.rounds.largeDom} rounds at each large-dom size` : ""}`,
+    `${BENCH.meta.rounds.build} cold builds per app after ${BENCH.meta.rounds.warmup} warm-up; ${BENCH.meta.rounds.runtime} browser runs${BENCH.meta.rounds.largeDom ? `; ${BENCH.meta.rounds.largeDom} rounds at each large-dom size` : ""}${BENCH.meta.rounds.scaleCurve ? `; ${BENCH.meta.rounds.scaleCurve} cold builds at each scale-curve size` : ""}`,
   ],
+  ...(BENCH.meta.scaleCurve?.runner
+    ? ([
+        [
+          "Scale curve",
+          `its own GitHub-hosted runner, ${BENCH.meta.scaleCurve.hardware.cores} cores (${BENCH.meta.scaleCurve.hardware.cpu.replace(/ \d+-Core Processor$/, "")}), ${BENCH.meta.scaleCurve.hardware.ramGb} GB`,
+        ],
+      ] as [string, string][])
+    : []),
   [
     "Conformance",
     Object.entries(BENCH.meta.conformance)
@@ -711,6 +784,14 @@ export function benchmarksMarkdown({
     return BEHIND.length === 0
       ? "Nothing: every judged measure is lower for Kirana or level."
       : BEHIND.map((line) => `- ${line}`).join("\n")
+  if (part === "scale-curve") {
+    const tables = scaleCurveTables()
+    return tables.length === 0
+      ? SCALE_CURVE_MISSING
+      : tables
+          .map(({ title, table }) => `**${title}**\n\n${markdownTable(table)}`)
+          .join("\n\n")
+  }
   if (part === "large-dom") {
     const tables = largeDomTables()
     return tables.length === 0

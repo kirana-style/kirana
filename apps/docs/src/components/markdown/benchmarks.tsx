@@ -6,6 +6,7 @@
  *   part="build" corpus="total|web|…"   build and output, one app or all three
  *   part="browser" corpus="web" scenario="0|1"   the browser measures at one throttling rate
  *   part="large-dom"                    the large-dom table: its app's build, then each size
+ *   part="scale-curve"                  the scale curve: each measure at every size, then each size
  *
  * Each table cell is a median; each ratio is Kirana's median over the other's with its 95 %
  * confidence interval and the verdict it supports.
@@ -38,7 +39,9 @@ import {
   METHODOLOGY,
   LARGE_DOM_MISSING,
   RUN_FACTS,
+  SCALE_CURVE_MISSING,
   largeDomTables,
+  scaleCurveTables,
   ratioText,
   reportTable,
 } from "@/data/benchmarks"
@@ -205,9 +208,12 @@ export function Benchmarks({
   scenario?: string
 }) {
   if (part === "run") return <Run />
-  if (part === "large-dom") {
-    const tables = largeDomTables()
-    if (tables.length === 0) return <p>{LARGE_DOM_MISSING}</p>
+  if (part === "large-dom" || part === "scale-curve") {
+    const tables = part === "large-dom" ? largeDomTables() : scaleCurveTables()
+    if (tables.length === 0)
+      return (
+        <p>{part === "large-dom" ? LARGE_DOM_MISSING : SCALE_CURVE_MISSING}</p>
+      )
     return tables.map(({ title, table }) => (
       <section key={title} aria-label={title}>
         <p sx={styles.caption}>{title}</p>

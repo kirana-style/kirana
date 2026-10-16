@@ -4146,6 +4146,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "the-same-components-more-of-them",
+        "text": "The same components, more of them",
+        "level": 2
+      },
+      {
         "id": "what-it-does-not-say",
         "text": "What it does not say",
         "level": 2
@@ -10250,6 +10255,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "project",
     "heading": "A large page",
     "text": "The demos above are small pages. The large-dom corpus is an order table of thousands of rows, as an admin screen has, written in each implementation with its own components: a status badge, a select, an icon button, and an Approve button on pending orders. Every build renders the same rows, from one seeded generator. Each round filters the table to the overdue orders and back to all of them, each timed from the click to the next frame, scrolls through it, moves the pointer across rows, and reads the JavaScript heap after a garbage collection. The page's HTML and attributes are its size."
+  },
+  {
+    "id": "/docs/project/benchmarks#the-same-components-more-of-them",
+    "href": "/docs/project/benchmarks#the-same-components-more-of-them",
+    "page": "Benchmarks",
+    "section": "project",
+    "heading": "The same components, more of them",
+    "text": "The scale curve asks how the cost grows. A generator writes the same components for every implementation, each in its own idiom: tokens, a recipe and a font size with its line height in every one, and in fixed shares a hover state, a breakpoint, a relation and a value known only at runtime. Each size is built cold, and the curve is read across the sizes, never from one of them. It runs on a runner of its own beside the rest, so compare its numbers with each other, not with the tables above."
   },
   {
     "id": "/docs/project/benchmarks#what-it-does-not-say",
