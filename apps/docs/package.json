@@ -10,7 +10,7 @@
     "build": "vp build",
     "preview": "wrangler dev",
     "test": "vp test run",
-    "generate": "bun run generate:content && bun run generate:reference && bun run generate:skills && bun run generate:examples && bun run generate:brand && bun run generate:editor",
+    "generate": "bun run generate:reference && bun run generate:content && bun run generate:skills && bun run generate:examples && bun run generate:brand && bun run generate:editor",
     "generate:content": "bun scripts/generate-content.ts",
     "generate:reference": "bun scripts/generate-reference.ts",
     "generate:skills": "bun scripts/generate-skills.ts",

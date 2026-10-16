@@ -172,11 +172,22 @@ function compile(source: string, file: string): string {
     .join(" ")
 }
 
+/**
+ * A string as a JavaScript string literal for generated source: JSON's escaping, plus `<`, `>`, `/`
+ * and the two line separators as `\u` escapes, so no utility can end the literal or the line it
+ * sits on. It goes in an expression (`sx={…}`): a JSX attribute string reads no escapes at all.
+ */
+const literal = (text: string) =>
+  JSON.stringify(text).replace(
+    /[<>/\u2028\u2029]/g,
+    (char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}`
+  )
+
 let counter = 0
 function same(utility: string, object: string) {
   const index = counter++
   const fromUtility = compile(
-    `export const A = () => <p sx=${JSON.stringify(utility)} />\n`,
+    `export const A = () => <p sx={${literal(utility)}} />\n`,
     `u${index}.tsx`
   )
   const fromObject = compile(
