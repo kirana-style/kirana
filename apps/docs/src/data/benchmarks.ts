@@ -2,8 +2,9 @@
  * The site's measured numbers, read from `benchmarks.json`: kirana-lab's newest run whose
  * conformance passed, taken by `scripts/take-benchmarks.ts` (the `benchmarks` workflow opens the
  * PR). The lab builds the same three applications with the published Kirana release, the StyleX
- * port and the Tailwind original, cold and interleaved, and compares each pair by the ratio of
- * their medians with a 95 % confidence interval (its METHODOLOGY.md).
+ * port (compiled by StyleX's Babel plugin and by its SWC compiler) and the Tailwind original, cold
+ * and interleaved, and compares each pair by the ratio of their medians with a 95 % confidence
+ * interval (its METHODOLOGY.md).
  *
  * Nothing here is typed by hand except the editor figures, which the lab does not measure yet and
  * which name the design note they come from. Every claim is worded from a comparison's verdict: a
@@ -18,18 +19,19 @@ import data from "./benchmarks.json"
  */
 export const RUNTIME_SIZE = "1 kB"
 
-export type Tool = "Kirana" | "StyleX" | "Tailwind"
-export const TOOLS: readonly Tool[] = ["Kirana", "StyleX", "Tailwind"]
-type Target = "kirana" | "stylex" | "tailwind"
+export type Tool = "Kirana" | "StyleX" | "StyleX (SWC)" | "Tailwind"
+type Target = "kirana" | "stylex" | "stylex-swc" | "tailwind"
 type Other = Exclude<Target, "kirana">
 const TARGET: Record<Tool, Target> = {
   Kirana: "kirana",
   StyleX: "stylex",
+  "StyleX (SWC)": "stylex-swc",
   Tailwind: "tailwind",
 }
-export const OTHERS: readonly Other[] = ["stylex", "tailwind"]
+/** "StyleX" is its Babel plugin, the compiler StyleX documents first; SWC is named. */
 export const NAME: Record<Other, string> = {
   stylex: "StyleX",
+  "stylex-swc": "StyleX (SWC)",
   tailwind: "Tailwind",
 }
 
@@ -82,20 +84,32 @@ type Bench = {
 }
 
 const taken = data as Bench
+const named = Object.values(TARGET)
 
 /**
  * The run as the site reads it: the targets it names. A target the lab measures that the site does
- * not name yet stays off the pages until `TOOLS` and `NAME` include it.
+ * not name yet stays off the pages until `TARGET` and `NAME` include it.
  */
 export const BENCH: Bench = {
   ...taken,
-  rows: taken.rows.filter((entry) =>
-    Object.values(TARGET).includes(entry.target)
-  ),
+  rows: taken.rows.filter((entry) => named.includes(entry.target)),
   comparisons: taken.comparisons.filter((entry) =>
-    OTHERS.includes(entry.against)
+    named.includes(entry.against)
   ),
 }
+
+/**
+ * The tools this run measured, in the site's order. A run from before the lab built StyleX with
+ * SWC has no `stylex-swc` rows, and then no page shows it.
+ */
+export const TOOLS: readonly Tool[] = (Object.keys(TARGET) as Tool[]).filter(
+  (tool) => BENCH.rows.some((entry) => entry.target === TARGET[tool])
+)
+export const OTHERS: readonly Other[] = TOOLS.filter(
+  (tool) => tool !== "Kirana"
+).map((tool) => TARGET[tool] as Other)
+/** StyleX's builds in this run: its Babel plugin, and its SWC compiler when measured. */
+const STYLEX = OTHERS.filter((other) => other !== "tailwind")
 
 export const LAB = "https://github.com/kirana-style/kirana-lab"
 export const METHODOLOGY = `${LAB}/blob/main/METHODOLOGY.md`
@@ -196,20 +210,29 @@ export function claim(entry: Comparison, kind: "time" | "size"): string {
     : `${percent(entry.ratio - 1)} ${more} than ${name}`
 }
 
-const total = (metric: string, against: Other, kind: "time" | "size") =>
-  claim(required("total", "build", metric, against), kind)
+/**
+ * Kirana against StyleX on one measure over all three apps: against whichever of StyleX's builds
+ * Kirana does least well against, so a claim about StyleX holds whichever compiler a reader uses.
+ */
+const stylex = (metric: string): Comparison =>
+  STYLEX.map((other) => required("total", "build", metric, other)).reduce(
+    (worst, entry) => (entry.ratio > worst.ratio ? entry : worst)
+  )
+
+const total = (metric: string, kind: "time" | "size") =>
+  claim(required("total", "build", metric, "tailwind"), kind)
 
 /**
  * The claims prose may make, each worded from its comparison over all three apps. Markdown writes
  * them as `{{fact:bench-…}}` (facts.ts); components read them here.
  */
 export const CLAIMS = {
-  buildStylex: total("build", "stylex", "time"),
-  buildTailwind: total("build", "tailwind", "time"),
-  cssStylex: total("cssGzip", "stylex", "size"),
-  cssTailwind: total("cssGzip", "tailwind", "size"),
-  bytesStylex: total("totalGzip", "stylex", "size"),
-  bytesTailwind: total("totalGzip", "tailwind", "size"),
+  buildStylex: claim(stylex("build"), "time"),
+  buildTailwind: total("build", "time"),
+  cssStylex: claim(stylex("cssGzip"), "size"),
+  cssTailwind: total("cssGzip", "size"),
+  bytesStylex: claim(stylex("totalGzip"), "size"),
+  bytesTailwind: total("totalGzip", "size"),
 }
 
 export const capital = (text: string) =>
@@ -319,7 +342,7 @@ export const HEADLINES: readonly {
 }[] = [
   {
     id: "build",
-    ...multiple(required("total", "build", "build", "stylex"), {
+    ...multiple(stylex("build"), {
       lower: "faster cold builds than",
       higher: "slower cold builds than",
       level: "cold builds level with",
@@ -330,7 +353,11 @@ export const HEADLINES: readonly {
   {
     id: "bytes",
     value: bytes("Kirana"),
-    label: `of CSS and JavaScript for all three apps, gzipped: StyleX ${bytes("StyleX")}, Tailwind ${bytes("Tailwind")}`,
+    label: `of CSS and JavaScript for all three apps, gzipped: ${TOOLS.filter(
+      (tool) => tool !== "Kirana"
+    )
+      .map((tool) => `${tool} ${bytes(tool)}`)
+      .join(", ")}`,
     source: LAB_SOURCE,
     link: BENCH_RUN,
   },

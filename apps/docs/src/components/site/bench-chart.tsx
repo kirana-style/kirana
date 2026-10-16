@@ -1,5 +1,5 @@
 /**
- * The three-way benchmark from kirana-lab's newest run: one metric at a time,
+ * The benchmark from kirana-lab's newest run: one metric at a time,
  * the corpus total as a bar per tool and the three apps underneath. Bars grow
  * in when the chart is first seen; under reduced motion they are simply there.
  */
@@ -57,7 +57,7 @@ const styles = {
   rows: css({ display: "grid", gap: spacing[3] }),
   row: css({
     display: "grid",
-    gridTemplateColumns: "4.5rem minmax(0, 1fr) 5.5rem",
+    gridTemplateColumns: "6.5rem minmax(0, 1fr) 5.5rem",
     alignItems: "center",
     gap: spacing[3],
   }),
@@ -86,7 +86,7 @@ const styles = {
   }),
   apps: css({
     display: "grid",
-    gridTemplateColumns: "4.5rem repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: "6.5rem repeat(3, minmax(0, 1fr))",
     gap: spacing[3],
     borderBlockStartWidth: "1px",
     borderBlockStartStyle: "dashed",
