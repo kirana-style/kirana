@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/rolldown",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Kirana for Rolldown: compiles modules and emits the stylesheet.",
   "license": "MIT",
   "author": "The Kirana authors",
