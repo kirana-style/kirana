@@ -417,4 +417,112 @@ describe("KRN-INT-009 development server", () => {
       await server.close()
     }
   })
+
+  it("discards a stylesheet read before a change while its transform runs, then updates it", async () => {
+    const root = app()
+    // Holds the stylesheet's transform after `load` has read it, as a busy server does.
+    let release = () => {}
+    const held = new Promise<void>((resolve) => (release = resolve))
+    const server = await createServer({
+      root,
+      logLevel: "silent",
+      configFile: false,
+      plugins: [
+        kirana(),
+        {
+          name: "hold",
+          async transform(_code, id) {
+            if (id.endsWith("stylesheet.css")) await held
+          },
+        },
+      ],
+      server: { middlewareMode: true, ws: false, watch: null },
+    })
+    try {
+      const client = server.environments.client
+      await client.transformRequest("/src/main.ts")
+      const stylesheet = (await client.pluginContainer.resolveId(
+        "@kirana-style/core/stylesheet.css",
+        path.join(root, "src/main.ts")
+      ))!.id
+      const reload = vi.spyOn(client, "reloadModule")
+      const request = client.transformRequest(stylesheet)
+      await vi.waitFor(() =>
+        expect(client.moduleGraph.getModuleById(stylesheet)).toBeTruthy()
+      )
+      // Let `load` read the stylesheet before the module below adds to it.
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      const plugin = server.config.plugins.find(
+        (candidate) => candidate.name === "kirana"
+      )!
+      await (
+        plugin.transform as {
+          handler: (this: unknown, ...args: unknown[]) => Promise<unknown>
+        }
+      ).handler.call(
+        { addWatchFile() {}, warn() {}, error() {} },
+        'import { css } from "@kirana-style/core"\nexport const late = css({ order: 5 })',
+        path.join(root, "src/late.ts")
+      )
+      release()
+      expect(String((await request)!.code)).not.toContain("order: 5")
+      expect(
+        client.moduleGraph.getModuleById(stylesheet)!.transformResult
+      ).toBeNull()
+      // Analysed now: the update reloads it, and a reload of the page reads the change.
+      await vi.waitFor(() => expect(reload).toHaveBeenCalled())
+      expect(
+        String((await client.transformRequest(stylesheet))!.code)
+      ).toContain("order: 5")
+    } finally {
+      await server.close()
+    }
+  })
+
+  it("stops waiting for a stylesheet no browser asks for", async () => {
+    const root = app()
+    const server = await createServer({
+      root,
+      logLevel: "silent",
+      configFile: false,
+      plugins: [kirana()],
+      server: {
+        middlewareMode: true,
+        ws: false,
+        watch: null,
+        // Otherwise serving main.ts transforms the stylesheet it imports, as a browser would ask for it.
+        preTransformRequests: false,
+      },
+    })
+    try {
+      const client = server.environments.client
+      await client.transformRequest("/src/main.ts")
+      const stylesheet = (await client.pluginContainer.resolveId(
+        "@kirana-style/core/stylesheet.css",
+        path.join(root, "src/main.ts")
+      ))!.id
+      const module = client.moduleGraph.getModuleById(stylesheet)!
+      const invalidate = vi.spyOn(client.moduleGraph, "invalidateModule")
+      const tries = () =>
+        invalidate.mock.calls.filter(([called]) => called === module).length
+      const plugin = server.config.plugins.find(
+        (candidate) => candidate.name === "kirana"
+      )!
+      await (
+        plugin.transform as {
+          handler: (this: unknown, ...args: unknown[]) => Promise<unknown>
+        }
+      ).handler.call(
+        { addWatchFile() {}, warn() {}, error() {} },
+        'import { css } from "@kirana-style/core"\nexport const idle = css({ order: 6 })',
+        path.join(root, "src/idle.ts")
+      )
+      // The first try and twenty more, `QUIET` apart, then none.
+      await vi.waitFor(() => expect(tries()).toBe(21), { timeout: 5000 })
+      await new Promise((resolve) => setTimeout(resolve, 200))
+      expect(tries()).toBe(21)
+    } finally {
+      await server.close()
+    }
+  })
 })
