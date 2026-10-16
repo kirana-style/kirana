@@ -134,8 +134,11 @@ const checks: Check[] = [
   },
 ]
 
-/** Registries index on their own schedule (Packagist crawls the tag); wait up to ten minutes. */
-const ATTEMPTS = once ? 1 : 20
+/**
+ * Registries index on their own schedule (Packagist crawls the tag, and npm can serve a version many
+ * minutes after accepting it); wait up to half an hour.
+ */
+const ATTEMPTS = once ? 1 : 60
 const PAUSE = 30_000
 
 const pending = new Map(checks.map((check) => [check.name, check]))
