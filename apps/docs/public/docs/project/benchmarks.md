@@ -12,18 +12,18 @@ comparison with StyleX holds whichever one you use. It measures on every Kirana
 release and once a week, so an update to StyleX or Tailwind shows up too, and the
 site takes the newest run through a pull request.
 
-The figures below are Kirana 0.2.0.
+The figures below are Kirana 0.2.1.
 
 | | |
 | --- | --- |
-| Kirana | 0.2.0, from npm |
-| Date | 2026-10-15 |
-| Versions | @stylexjs/stylex 0.19.1, @stylexjs/unplugin 0.19.1, tailwindcss 4.3.3, @tailwindcss/vite 4.3.3, vite 8.3.4, react 19.3.1 |
+| Kirana | 0.2.1, from npm |
+| Date | 2026-10-16 |
+| Versions | @stylexjs/stylex 0.19.1, @stylexjs/unplugin 0.19.1, @stylexswc/unplugin 0.19.1, @stylexswc/rs-compiler 0.19.1, tailwindcss 4.3.3, @tailwindcss/vite 4.3.3, vite 8.3.4, react 19.3.1 |
 | Machine | GitHub-hosted runner, 4 cores (AMD EPYC 7763), 16 GB, Linux 7.0.0-1017-azure |
 | Tools | Node.js 26.3.0, Bun 1.4.3, Chrome 155.0.8059.84 |
 | Rounds | 10 cold builds per app after 1 warm-up; 20 browser runs |
 | Conformance | web passed, blocks passed, examples passed |
-| Run | https://github.com/kirana-style/kirana-lab/actions/runs/38826139395 |
+| Run | https://github.com/kirana-style/kirana-lab/actions/runs/38868790222 |
 
 ## How to read it
 
@@ -49,19 +49,28 @@ take them.
 
 Every measure on which Kirana measured higher, by its interval:
 
-- Build, cold, apps/blocks: 1.04× Tailwind (1.04–1.05)
-- Build, cold, apps/examples: 1.013× Tailwind (1.002–1.024)
+- Build, cold, apps/blocks: 1.05× Tailwind (1.04–1.06)
 - CSS, apps/web: 1.17× StyleX (1.17–1.17)
+- CSS, apps/web: 1.15× StyleX (SWC) (1.15–1.15)
 - CSS, apps/blocks: 1.12× StyleX (1.12–1.12)
+- CSS, apps/blocks: 1.10× StyleX (SWC) (1.10–1.10)
 - CSS, apps/examples: 1.16× StyleX (1.16–1.16)
+- CSS, apps/examples: 1.14× StyleX (SWC) (1.14–1.14)
 - CSS, all three apps: 1.15× StyleX (1.15–1.15)
+- CSS, all three apps: 1.13× StyleX (SWC) (1.13–1.13)
 - CSS, gzip, apps/web: 1.04× StyleX (1.04–1.04)
+- CSS, gzip, apps/web: 1.04× StyleX (SWC) (1.04–1.04)
 - CSS, gzip, apps/blocks: 1.01× StyleX (1.01–1.01)
+- CSS, gzip, apps/blocks: 1.01× StyleX (SWC) (1.01–1.01)
 - CSS, gzip, apps/examples: 1.02× StyleX (1.02–1.02)
+- CSS, gzip, apps/examples: 1.02× StyleX (SWC) (1.02–1.02)
 - CSS, gzip, all three apps: 1.02× StyleX (1.02–1.02)
+- CSS, gzip, all three apps: 1.02× StyleX (SWC) (1.02–1.02)
 - CSS, brotli, apps/web: 1.02× StyleX (1.02–1.02)
+- CSS, brotli, apps/web: 1.01× StyleX (SWC) (1.01–1.01)
+- JavaScript, apps/blocks: 1.002× StyleX (SWC) (1.002–1.002)
 - JavaScript, gzip, apps/examples: 1.003× Tailwind (1.003–1.003)
-- Colour-scheme switch, style recalc, apps/web, CPU throttled 4×, about 6211 elements: 1.04× StyleX (1.01–1.06)
+- Layout, apps/web, CPU throttled 4×, about 6211 elements: 1.06× StyleX (SWC) (1.01–1.15)
 
 ## Build and output
 
@@ -73,17 +82,17 @@ brotli at quality 11.
 
 ### All three apps
 
-| Measure | Kirana | StyleX | Tailwind | Kirana ÷ StyleX | Kirana ÷ Tailwind |
-| --- | --- | --- | --- | --- | --- |
-| Build, cold | 10.97 s | 35.22 s | 10.93 s | 0.31× (0.31–0.31) lower | 1.004× (0.997–1.011) no clear difference |
-| CSS | 262.5 kB | 228.2 kB | 586.5 kB | 1.15× (1.15–1.15) higher | 0.45× (0.45–0.45) lower |
-| CSS, gzip | 64.1 kB | 62.8 kB | 87.1 kB | 1.02× (1.02–1.02) higher | 0.74× (0.74–0.74) lower |
-| CSS, brotli | 54.9 kB | 55.3 kB | 69.5 kB | 0.99× (0.99–0.99) lower | 0.79× (0.79–0.79) lower |
-| JavaScript | 4837.1 kB | 4880.7 kB | 4963.2 kB | 0.99× (0.99–0.99) lower | 0.97× (0.97–0.97) lower |
-| JavaScript, gzip | 1558.9 kB | 1606.8 kB | 1572.6 kB | 0.97× (0.97–0.97) lower | 0.99× (0.99–0.99) lower |
-| CSS + JavaScript, gzip | 1623.0 kB | 1669.6 kB | 1659.7 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower |
-| Style rules | 4,304 | 3,878 | 2,460 | not judged | not judged |
-| Declarations | 4,820 | 4,370 | 3,674 | not judged | not judged |
+| Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Build, cold | 11.22 s | 36.10 s | 18.48 s | 11.16 s | 0.31× (0.31–0.31) lower | 0.61× (0.60–0.61) lower | 1.01× (0.99–1.01) no clear difference |
+| CSS | 262.5 kB | 228.2 kB | 232.3 kB | 586.5 kB | 1.15× (1.15–1.15) higher | 1.13× (1.13–1.13) higher | 0.45× (0.45–0.45) lower |
+| CSS, gzip | 64.1 kB | 62.8 kB | 62.8 kB | 87.1 kB | 1.02× (1.02–1.02) higher | 1.02× (1.02–1.02) higher | 0.74× (0.74–0.74) lower |
+| CSS, brotli | 54.9 kB | 55.3 kB | 55.5 kB | 69.5 kB | 0.99× (0.99–0.99) lower | 0.99× (0.99–0.99) lower | 0.79× (0.79–0.79) lower |
+| JavaScript | 4837.1 kB | 4880.7 kB | 4842.5 kB | 4963.2 kB | 0.99× (0.99–0.99) lower | 0.999× (0.999–0.999) lower | 0.97× (0.97–0.97) lower |
+| JavaScript, gzip | 1558.9 kB | 1606.8 kB | 1586.5 kB | 1572.6 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.99× (0.99–0.99) lower |
+| CSS + JavaScript, gzip | 1623.0 kB | 1669.6 kB | 1649.3 kB | 1659.7 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.98× (0.98–0.98) lower |
+| Style rules | 4,304 | 3,878 | 4,016 | 2,460 | not judged | not judged | not judged |
+| Declarations | 4,820 | 4,370 | 4,499 | 3,674 | not judged | not judged | not judged |
 
 Style rules and declarations are shown without a verdict: an atomic stylesheet
 always has more, smaller rules, and what that costs is measured by the sizes and
@@ -91,45 +100,45 @@ the browser times.
 
 ### apps/web
 
-| Measure | Kirana | StyleX | Tailwind | Kirana ÷ StyleX | Kirana ÷ Tailwind |
-| --- | --- | --- | --- | --- | --- |
-| Build, cold | 2.81 s | 6.90 s | 3.00 s | 0.41× (0.40–0.42) lower | 0.94× (0.92–0.95) lower |
-| CSS | 76.7 kB | 65.4 kB | 184.2 kB | 1.17× (1.17–1.17) higher | 0.42× (0.42–0.42) lower |
-| CSS, gzip | 18.5 kB | 17.8 kB | 26.9 kB | 1.04× (1.04–1.04) higher | 0.69× (0.69–0.69) lower |
-| CSS, brotli | 16.1 kB | 15.8 kB | 21.7 kB | 1.02× (1.02–1.02) higher | 0.74× (0.74–0.74) lower |
-| JavaScript | 866.3 kB | 875.3 kB | 889.8 kB | 0.99× (0.99–0.99) lower | 0.97× (0.97–0.97) lower |
-| JavaScript, gzip | 278.9 kB | 284.9 kB | 282.5 kB | 0.98× (0.98–0.98) lower | 0.99× (0.99–0.99) lower |
-| CSS + JavaScript, gzip | 297.4 kB | 302.7 kB | 309.4 kB | 0.98× (0.98–0.98) lower | 0.96× (0.96–0.96) lower |
-| Style rules | 1,189 | 1,059 | 724 | not judged | not judged |
-| Declarations | 1,361 | 1,223 | 1,090 | not judged | not judged |
+| Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Build, cold | 2.89 s | 7.05 s | 4.65 s | 3.06 s | 0.41× (0.40–0.41) lower | 0.62× (0.62–0.63) lower | 0.94× (0.94–0.95) lower |
+| CSS | 76.7 kB | 65.4 kB | 66.5 kB | 184.2 kB | 1.17× (1.17–1.17) higher | 1.15× (1.15–1.15) higher | 0.42× (0.42–0.42) lower |
+| CSS, gzip | 18.5 kB | 17.8 kB | 17.8 kB | 26.9 kB | 1.04× (1.04–1.04) higher | 1.04× (1.04–1.04) higher | 0.69× (0.69–0.69) lower |
+| CSS, brotli | 16.1 kB | 15.8 kB | 15.9 kB | 21.7 kB | 1.02× (1.02–1.02) higher | 1.01× (1.01–1.01) higher | 0.74× (0.74–0.74) lower |
+| JavaScript | 866.3 kB | 875.3 kB | 874.5 kB | 889.8 kB | 0.99× (0.99–0.99) lower | 0.99× (0.99–0.99) lower | 0.97× (0.97–0.97) lower |
+| JavaScript, gzip | 278.9 kB | 284.9 kB | 284.6 kB | 282.5 kB | 0.98× (0.98–0.98) lower | 0.98× (0.98–0.98) lower | 0.99× (0.99–0.99) lower |
+| CSS + JavaScript, gzip | 297.4 kB | 302.7 kB | 302.5 kB | 309.4 kB | 0.98× (0.98–0.98) lower | 0.98× (0.98–0.98) lower | 0.96× (0.96–0.96) lower |
+| Style rules | 1,189 | 1,059 | 1,101 | 724 | not judged | not judged | not judged |
+| Declarations | 1,361 | 1,223 | 1,262 | 1,090 | not judged | not judged | not judged |
 
 ### apps/blocks
 
-| Measure | Kirana | StyleX | Tailwind | Kirana ÷ StyleX | Kirana ÷ Tailwind |
-| --- | --- | --- | --- | --- | --- |
-| Build, cold | 4.20 s | 16.05 s | 4.02 s | 0.26× (0.26–0.26) lower | 1.04× (1.04–1.05) higher |
-| CSS | 90.9 kB | 80.9 kB | 204.0 kB | 1.12× (1.12–1.12) higher | 0.45× (0.45–0.45) lower |
-| CSS, gzip | 22.3 kB | 22.2 kB | 30.4 kB | 1.01× (1.01–1.01) higher | 0.73× (0.73–0.73) lower |
-| CSS, brotli | 19.0 kB | 19.4 kB | 24.1 kB | 0.98× (0.98–0.98) lower | 0.79× (0.79–0.79) lower |
-| JavaScript | 1911.6 kB | 1927.5 kB | 1985.8 kB | 0.99× (0.99–0.99) lower | 0.96× (0.96–0.96) lower |
-| JavaScript, gzip | 645.0 kB | 665.7 kB | 657.4 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower |
-| CSS + JavaScript, gzip | 667.3 kB | 687.9 kB | 687.8 kB | 0.97× (0.97–0.97) lower | 0.97× (0.97–0.97) lower |
-| Style rules | 1,524 | 1,404 | 881 | not judged | not judged |
-| Declarations | 1,696 | 1,568 | 1,298 | not judged | not judged |
+| Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Build, cold | 4.28 s | 16.55 s | 7.14 s | 4.09 s | 0.26× (0.26–0.26) lower | 0.60× (0.59–0.61) lower | 1.05× (1.04–1.06) higher |
+| CSS | 90.9 kB | 80.9 kB | 82.3 kB | 204.0 kB | 1.12× (1.12–1.12) higher | 1.10× (1.10–1.10) higher | 0.45× (0.45–0.45) lower |
+| CSS, gzip | 22.3 kB | 22.2 kB | 22.2 kB | 30.4 kB | 1.01× (1.01–1.01) higher | 1.01× (1.01–1.01) higher | 0.73× (0.73–0.73) lower |
+| CSS, brotli | 19.0 kB | 19.4 kB | 19.5 kB | 24.1 kB | 0.98× (0.98–0.98) lower | 0.97× (0.97–0.97) lower | 0.79× (0.79–0.79) lower |
+| JavaScript | 1911.6 kB | 1927.5 kB | 1907.9 kB | 1985.8 kB | 0.99× (0.99–0.99) lower | 1.002× (1.002–1.002) higher | 0.96× (0.96–0.96) lower |
+| JavaScript, gzip | 645.0 kB | 665.7 kB | 657.5 kB | 657.4 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.98× (0.98–0.98) lower |
+| CSS + JavaScript, gzip | 667.3 kB | 687.9 kB | 679.7 kB | 687.8 kB | 0.97× (0.97–0.97) lower | 0.98× (0.98–0.98) lower | 0.97× (0.97–0.97) lower |
+| Style rules | 1,524 | 1,404 | 1,452 | 881 | not judged | not judged | not judged |
+| Declarations | 1,696 | 1,568 | 1,613 | 1,298 | not judged | not judged | not judged |
 
 ### apps/examples
 
-| Measure | Kirana | StyleX | Tailwind | Kirana ÷ StyleX | Kirana ÷ Tailwind |
-| --- | --- | --- | --- | --- | --- |
-| Build, cold | 3.96 s | 12.25 s | 3.90 s | 0.32× (0.32–0.33) lower | 1.013× (1.002–1.024) higher |
-| CSS | 94.9 kB | 81.9 kB | 198.4 kB | 1.16× (1.16–1.16) higher | 0.48× (0.48–0.48) lower |
-| CSS, gzip | 23.3 kB | 22.8 kB | 29.7 kB | 1.02× (1.02–1.02) higher | 0.78× (0.78–0.78) lower |
-| CSS, brotli | 19.8 kB | 20.0 kB | 23.7 kB | 0.99× (0.99–0.99) lower | 0.84× (0.84–0.84) lower |
-| JavaScript | 2059.1 kB | 2077.9 kB | 2087.7 kB | 0.99× (0.99–0.99) lower | 0.99× (0.99–0.99) lower |
-| JavaScript, gzip | 634.9 kB | 656.2 kB | 632.8 kB | 0.97× (0.97–0.97) lower | 1.003× (1.003–1.003) higher |
-| CSS + JavaScript, gzip | 658.2 kB | 679.0 kB | 662.6 kB | 0.97× (0.97–0.97) lower | 0.99× (0.99–0.99) lower |
-| Style rules | 1,591 | 1,415 | 855 | not judged | not judged |
-| Declarations | 1,763 | 1,579 | 1,286 | not judged | not judged |
+| Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Build, cold | 4.04 s | 12.55 s | 6.69 s | 4.02 s | 0.32× (0.32–0.32) lower | 0.60× (0.60–0.61) lower | 1.003× (0.989–1.019) no clear difference |
+| CSS | 94.9 kB | 81.9 kB | 83.5 kB | 198.4 kB | 1.16× (1.16–1.16) higher | 1.14× (1.14–1.14) higher | 0.48× (0.48–0.48) lower |
+| CSS, gzip | 23.3 kB | 22.8 kB | 22.8 kB | 29.7 kB | 1.02× (1.02–1.02) higher | 1.02× (1.02–1.02) higher | 0.78× (0.78–0.78) lower |
+| CSS, brotli | 19.8 kB | 20.0 kB | 20.1 kB | 23.7 kB | 0.99× (0.99–0.99) lower | 0.99× (0.99–0.99) lower | 0.84× (0.84–0.84) lower |
+| JavaScript | 2059.1 kB | 2077.9 kB | 2060.1 kB | 2087.7 kB | 0.99× (0.99–0.99) lower | 1.000× (1.000–1.000) lower | 0.99× (0.99–0.99) lower |
+| JavaScript, gzip | 634.9 kB | 656.2 kB | 644.3 kB | 632.8 kB | 0.97× (0.97–0.97) lower | 0.99× (0.99–0.99) lower | 1.003× (1.003–1.003) higher |
+| CSS + JavaScript, gzip | 658.2 kB | 679.0 kB | 667.1 kB | 662.6 kB | 0.97× (0.97–0.97) lower | 0.99× (0.99–0.99) lower | 0.99× (0.99–0.99) lower |
+| Style rules | 1,591 | 1,415 | 1,463 | 855 | not judged | not judged | not judged |
+| Declarations | 1,763 | 1,579 | 1,624 | 1,286 | not judged | not judged | not judged |
 
 ## In the browser
 
@@ -140,13 +149,13 @@ style recalculation when the colour scheme switches, a hover, layout, and the
 
 ### CPU throttled 4×
 
-| Measure | Kirana | StyleX | Tailwind | Kirana ÷ StyleX | Kirana ÷ Tailwind |
-| --- | --- | --- | --- | --- | --- |
+| Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 
 ### CPU throttled 6×
 
-| Measure | Kirana | StyleX | Tailwind | Kirana ÷ StyleX | Kirana ÷ Tailwind |
-| --- | --- | --- | --- | --- | --- |
+| Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 
 ## What it does not say
 
