@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.2.2](https://github.com/kirana-style/kirana/compare/v0.2.1...v0.2.2) (2026-10-16)
+
+
+### Features
+
+* **site:** show stylex's swc build beside its babel one ([#44](https://github.com/kirana-style/kirana/issues/44)) ([8d7c870](https://github.com/kirana-style/kirana/commit/8d7c870781c66ae9168774072e75c22772d92c40))
+
+
+### Bug fixes
+
+* **cli:** let doctor and init see a monorepo's shared setup ([#49](https://github.com/kirana-style/kirana/issues/49)) ([34d4e77](https://github.com/kirana-style/kirana/commit/34d4e774c300d817b591bc77f468fac701a353f3))
+* **site:** fill the browser tables and add editors and skills to the ecosystem ([#48](https://github.com/kirana-style/kirana/issues/48)) ([16b83c0](https://github.com/kirana-style/kirana/commit/16b83c0dcf054dda5b2cb1d34e60b7a6c382a431))
+* **site:** show only the benchmark targets the site names ([#43](https://github.com/kirana-style/kirana/issues/43)) ([7519e55](https://github.com/kirana-style/kirana/commit/7519e552dd9b65fbd81c2d8524614846e1529d1b))
+* **vite:** keep a stylesheet change made while vite is still serving it ([#41](https://github.com/kirana-style/kirana/issues/41)) ([1225bf2](https://github.com/kirana-style/kirana/commit/1225bf28e5f10915626c7c9ed0d3502a9c87cdb9))
+* **zed:** find the project's kirana-style through package.json ([#47](https://github.com/kirana-style/kirana/issues/47)) ([5bcbe16](https://github.com/kirana-style/kirana/commit/5bcbe16050fea8f60f5ea538c9b924aa8b3bb966))
+
+
+### Documentation
+
+* take the benchmarks of kirana 0.2.1 from kirana-lab ([#46](https://github.com/kirana-style/kirana/issues/46)) ([0d8b91b](https://github.com/kirana-style/kirana/commit/0d8b91b99027cd494a68d145a6dd651941aeed23))
+
 ## [0.2.1](https://github.com/kirana-style/kirana/compare/v0.2.0...v0.2.1) (2026-10-16)
 
 

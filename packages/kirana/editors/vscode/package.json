@@ -2,7 +2,7 @@
   "name": "kirana",
   "displayName": "Kirana",
   "description": "Hover the CSS a style compiles to, see token colours, an inline summary of what each element receives, completion for conditions and utilities, and the compiler's diagnostics as you type.",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "kirana-style",
   "license": "MIT",
   "author": "The Kirana authors",
