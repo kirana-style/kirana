@@ -1,7 +1,7 @@
 /**
  * Publishes the packed tarballs (`bun run kirana:pack --natives <dir>`) to npm, in dependency order:
  * the platform packages first, then each package after every `@kirana-style/*` package it depends
- * on, so no published version ever points at one that is not there yet.
+ * on is published and served, so no published version ever points at one that is not there yet.
  *
  *   bun scripts/publish-npm.ts <dir>             # publish
  *   bun scripts/publish-npm.ts <dir> --dry-run   # print the order and what would be skipped
@@ -79,11 +79,34 @@ for (const tarball of [...tarballs].sort((a, b) =>
 ))
   visit(tarball)
 
+/** Whether the registry serves a version: asked afresh, past npm's local cache. */
+const served = (spec: string) =>
+  run("npm", ["view", spec, "version", "--prefer-online"]).stdout.trim() !== ""
+
+/** What another tarball here depends on: it must install before any dependent is published. */
+const required = new Set(tarballs.flatMap((tarball) => tarball.depends))
+
+/**
+ * npm can accept a publish and serve it many minutes later. A dependent published in that window
+ * names a version nobody can install, so the next package waits, for up to half an hour.
+ */
+const ATTEMPTS = 60
+const PAUSE = 30_000
+async function untilServed(spec: string): Promise<boolean> {
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+    if (served(spec)) return true
+    console.log(
+      `waiting  ${spec} is not served yet, attempt ${attempt} of ${ATTEMPTS}`
+    )
+    await new Promise((resolve) => setTimeout(resolve, PAUSE))
+  }
+  return false
+}
+
 let failed = false
 for (const tarball of order) {
   const spec = `${tarball.name}@${tarball.version}`
-  const exists = run("npm", ["view", spec, "version"]).stdout.trim() !== ""
-  if (exists) {
+  if (served(spec)) {
     console.log(`skip     ${spec} (already published)`)
     continue
   }
@@ -103,5 +126,10 @@ for (const tarball of order) {
     break
   }
   console.log(`done     ${spec}`)
+  if (required.has(tarball.name) && !(await untilServed(spec))) {
+    console.error(`failed   ${spec} was published but is still not served`)
+    failed = true
+    break
+  }
 }
 process.exit(failed ? 1 : 0)
