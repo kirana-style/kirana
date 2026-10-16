@@ -40,6 +40,13 @@ const QUIET = 50
 const BURST = 250
 
 /**
+ * How many times, `QUIET` apart, an update waits for a stylesheet module Vite has not analysed yet:
+ * one second, far longer than a transform in flight takes, and soon over for a module no browser
+ * asked for.
+ */
+const RETRIES = 20
+
+/**
  * The plugin, and a second pass after every other plugin's `generateBundle`. The first pass fills the
  * stylesheet asset early, before Astro inlines small stylesheets; a framework that adds its CSS asset
  * later in that hook (Qwik) is filled by the second. Vite flattens the pair in `plugins`.
@@ -56,6 +63,7 @@ export default function kirana(
   let pending: ReturnType<typeof setTimeout> | undefined
   let deadline = 0
   let sent = 0
+  let retry: ReturnType<typeof setTimeout> | undefined
 
   /**
    * Tells browsers the stylesheet changed, once per burst of transforms (KRN-INT-009).
@@ -89,14 +97,27 @@ export default function kirana(
    * Reloads the stylesheet module and tells the client to swap it, under the URL the client knows it
    * by: `/node_modules/@kirana-style/core/stylesheet.css` in an installed app, `/@fs/…` when the package
    * lives outside the project root (a workspace).
+   *
+   * A module Vite has not analysed yet is one whose transform is still running, or one no browser
+   * asked for. Vite's update stops at it without a word, and its HMR invalidation lets a running
+   * transform cache the stylesheet it read before this change, which a reload would then serve. It is
+   * invalidated as an edited file is instead, which discards that result, and the update is tried
+   * again once Vite has analysed it.
    */
-  const push = () => {
+  const push = (attempt = 0) => {
+    clearTimeout(retry)
+    let unanalysed = false
     for (const server of servers) {
       const environment = server.environments.client
       const modules = [
         ...(environment.moduleGraph.getModulesByFile(stylesheetFile) ?? []),
       ]
-      for (const module of modules) void environment.reloadModule(module)
+      for (const module of modules) {
+        if (module.isSelfAccepting === undefined) {
+          environment.moduleGraph.invalidateModule(module)
+          unanalysed = true
+        } else void environment.reloadModule(module)
+      }
       const urls = new Set(modules.map((module) => module.url))
       if (urls.size === 0) urls.add(`/@fs${stylesheetFile}`)
       server.ws.send({
@@ -109,6 +130,8 @@ export default function kirana(
         })),
       })
     }
+    if (unanalysed && attempt < RETRIES)
+      retry = setTimeout(() => push(attempt + 1), QUIET)
   }
 
   const { renameStylesheet, ...rest } = options
