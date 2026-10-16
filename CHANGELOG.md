@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.1](https://github.com/kirana-style/kirana/compare/v0.2.0...v0.2.1) (2026-10-16)
+
+
+### Features
+
+* deno in kirana-style init and doctor, and doctor finds kirana-style ([#33](https://github.com/kirana-style/kirana/issues/33)) ([3730d82](https://github.com/kirana-style/kirana/commit/3730d827815164ab32e22f09ad739e0b92502ad3))
+* **site:** mobile scenes, release changelog, blog and roadmap redesign ([#34](https://github.com/kirana-style/kirana/issues/34)) ([f9330a8](https://github.com/kirana-style/kirana/commit/f9330a8b8788847609bfcd6b5ea2b795ffbc86f9))
+* **site:** read every benchmark number from kirana-lab's runs ([#39](https://github.com/kirana-style/kirana/issues/39)) ([718f253](https://github.com/kirana-style/kirana/commit/718f253dd8ef64d95f3299c2256463458283ec20))
+
+
+### Bug fixes
+
+* compile the scales preset from node_modules without listing it ([#37](https://github.com/kirana-style/kirana/issues/37)) ([12d8b67](https://github.com/kirana-style/kirana/commit/12d8b67f4fc9359a9534af68ea10f51c0a2a637d))
+* let the dev example check look again after the page reloads ([#31](https://github.com/kirana-style/kirana/issues/31)) ([8d21bfd](https://github.com/kirana-style/kirana/commit/8d21bfd39d8b95327f346e1bc38ed2e433be1879))
+* pin vitest 4 in the qwik example, inside qwik's peer range ([#36](https://github.com/kirana-style/kirana/issues/36)) ([5317eed](https://github.com/kirana-style/kirana/commit/5317eed4f0293b2befe64bbfda00b18601b3d24b))
+
 ## [0.2.0](https://github.com/kirana-style/kirana/compare/v0.1.0...v0.2.0) (2026-10-15)
 
 

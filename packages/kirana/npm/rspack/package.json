@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/rspack",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Kirana for Rspack and Rsbuild: the webpack adapter, which Rspack runs unchanged, and an Rsbuild plugin.",
   "license": "MIT",
   "author": "The Kirana authors",
