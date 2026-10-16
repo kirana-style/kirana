@@ -4,7 +4,7 @@
  *   part="run"                          what produced the numbers, with links to the run
  *   part="behind"                       every judged measure where Kirana measured higher
  *   part="build" corpus="total|web|…"   build and output, one app or all three
- *   part="browser" scenario="0|1"       the browser measures at one throttling rate
+ *   part="browser" corpus="web" scenario="0|1"   the browser measures at one throttling rate
  *
  * Each table cell is a median; each ratio is Kirana's median over the other's with its 95 %
  * confidence interval and the verdict it supports.
@@ -45,15 +45,19 @@ const styles = {
   wrapper: css({ marginBlockEnd: spacing[6], overflowX: "auto" }),
   // "Kirana ÷ StyleX (SWC)" breaks across lines rather than widening its column.
   head: css({ whiteSpace: "normal", verticalAlign: "bottom" }),
-  measure: css({ whiteSpace: "normal", minWidth: "7rem" }),
+  measure: css({ whiteSpace: "normal", minWidth: "6rem" }),
   number: css({
     fontFamily: fontFamily.mono,
     fontSize: fontSize.xs,
     fontVariantNumeric: "tabular-nums",
     whiteSpace: "nowrap",
+    // Eight columns in the measure of a docs page: a little less space before each number.
+    paddingInlineStart: spacing["1.5"],
   }),
+  // The verdict wraps ("no clear difference"), so the ratio columns fit beside each other.
   verdict: css({
     display: "block",
+    whiteSpace: "normal",
     fontFamily: fontFamily.sans,
     color: theme.mutedForeground,
   }),

@@ -96,11 +96,11 @@ style recalculation when the colour scheme switches, a hover, layout, and the
 
 ### CPU throttled 4×
 
-<!-- ::benchmarks part="browser" scenario="0" -->
+<!-- ::benchmarks part="browser" corpus="web" scenario="0" -->
 
 ### CPU throttled 6×
 
-<!-- ::benchmarks part="browser" scenario="1" -->
+<!-- ::benchmarks part="browser" corpus="web" scenario="1" -->
 
 ## What it does not say
 

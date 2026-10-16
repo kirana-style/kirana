@@ -276,7 +276,7 @@ function EcosystemPage() {
         number="01"
         label="How it fits"
         title="One engine, a thin package for each tool"
-        lede="What you write with, what compiles it, the preset, an adapter for each bundler, and the lint rules."
+        lede="What you write with, what compiles it, the preset, an adapter for each bundler, the lint rules, and what runs in your editor and your agent."
       >
         <PackageGroups />
       </PageSection>

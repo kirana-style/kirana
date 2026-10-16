@@ -15,6 +15,8 @@ import {
   GridViewIcon,
   PaintBrush01Icon,
   PlugSocketIcon,
+  RoboticIcon,
+  SparklesIcon,
 } from "@hugeicons/core-free-icons"
 
 import { accent } from "@workspace/docs-ui/accent.ts"
@@ -46,7 +48,9 @@ const GROUPS: {
   title: string
   icon: IconProps["icon"]
   accent: AccentName
+  /** npm packages, shown with their versions; a group of other tools names them in `tools`. */
   packages: readonly string[]
+  tools?: { names: readonly string[]; kind: string }
   href: string
   /** What a group of several packages is; a single package says it itself. */
   text?: string
@@ -104,6 +108,24 @@ const GROUPS: {
     text: "The compiler's checks in the linter your CI already runs: one plugin for Oxlint and ESLint that reads the compiler, and the rules Biome can run as GritQL plugins.",
     packages: ["@kirana-style/eslint-plugin", "@kirana-style/biome-plugin"],
     href: "/docs/tooling/lint",
+  },
+  {
+    title: "Editors",
+    icon: CodeIcon,
+    accent: "tea",
+    text: "kirana-style lsp runs the project's own engine as a language server: an extension for VS Code, on its Marketplace and Open VSX, one for Zed, and configurations for Neovim and Helix.",
+    packages: [],
+    tools: { names: ["VS Code", "Zed"], kind: "extension" },
+    href: "/docs/tooling/editor",
+  },
+  {
+    title: "Agent skills",
+    icon: SparklesIcon,
+    accent: "tea",
+    text: "Installed with npx skills add: one for writing Kirana, one for moving to it from Tailwind or StyleX. Their diagnostics and lint references are generated from the compiler.",
+    packages: [],
+    tools: { names: ["kirana", "kirana-migrate"], kind: "skill" },
+    href: "/docs/project/agent-skills",
   },
 ]
 
@@ -333,12 +355,70 @@ export function LintArt() {
   )
 }
 
+/** Editors: four editors, one language server. */
+export function EditorsArt() {
+  const xs = [14, 38, 62, 86]
+  const wires = xs.map((x) => {
+    const from = (x / 100) * 360
+    return `M ${from} 36 C ${from} 70, 180 60, 180 96`
+  })
+  return (
+    <Scene width={360} height={140} wires={wires.slice(1)} live={[wires[0]!]}>
+      {[SVGL.vscode, SVGL.zed, SVGL.neovim, SVGL.helix].map((brand, index) => (
+        <At key={brand.title} x={xs[index]!} y={18}>
+          <Tile brand={brand} size={36} />
+        </At>
+      ))}
+      <At x={50} y={72}>
+        <Tile
+          icon={CodeIcon}
+          size={44}
+          variant="accent"
+          caption="kirana-style lsp"
+        />
+      </At>
+    </Scene>
+  )
+}
+
+/** Agent skills: one install, read by any agent. */
+export function SkillsArt() {
+  const xs = [22, 50, 78]
+  const wires = xs.map((x) => {
+    const to = (x / 100) * 360
+    return `M 180 48 C 180 76, ${to} 70, ${to} 100`
+  })
+  return (
+    <Scene width={360} height={140} wires={wires.slice(1)} live={[wires[0]!]}>
+      <At x={50} y={24}>
+        <Tile
+          icon={SparklesIcon}
+          size={44}
+          variant="accent"
+          caption="npx skills add"
+        />
+      </At>
+      <At x={xs[0]!} y={82}>
+        <Tile brand={SVGL.claude} size={36} caption="Claude" />
+      </At>
+      <At x={xs[1]!} y={82}>
+        <Tile brand={SVGL.openai} size={36} caption="Codex" />
+      </At>
+      <At x={xs[2]!} y={82}>
+        <Tile icon={RoboticIcon} size={36} caption="your agent" />
+      </At>
+    </Scene>
+  )
+}
+
 const ART: Record<string, () => React.ReactNode> = {
   Authoring: AuthoringArt,
   "Compiler and CLI": CompilerArt,
   "Bundler adapters": AdaptersArt,
   Preset: PresetArt,
   Lint: LintArt,
+  Editors: EditorsArt,
+  "Agent skills": SkillsArt,
 }
 
 /** The packages in their groups, each group drawn: `/ecosystem`'s first chapter. */
@@ -352,6 +432,11 @@ export function PackageGroups() {
           )
           const ArtFor = ART[group.title]!
           const single = entries.length === 1
+          const count = group.tools
+            ? `${group.tools.names.length} ${group.tools.kind}s`
+            : single
+              ? "1 package"
+              : `${entries.length} packages`
           return (
             <IllustratedCard
               key={group.title}
@@ -359,7 +444,7 @@ export function PackageGroups() {
               wide={entries.length > 2}
               art={<ArtFor />}
               title={group.title}
-              note={single ? "1 package" : `${entries.length} packages`}
+              note={count}
               href={group.href}
               text={single ? entries[0]!.description : group.text}
             >
@@ -369,6 +454,13 @@ export function PackageGroups() {
                     <DocsLink href={group.href} sx={[pill, styles.pkg]}>
                       {entry.name}
                       <span sx={styles.version}>{entry.version}</span>
+                    </DocsLink>
+                  </li>
+                ))}
+                {group.tools?.names.map((name) => (
+                  <li key={name}>
+                    <DocsLink href={group.href} sx={[pill, styles.pkg]}>
+                      {name}
                     </DocsLink>
                   </li>
                 ))}
