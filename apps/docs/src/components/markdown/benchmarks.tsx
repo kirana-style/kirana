@@ -43,6 +43,9 @@ import type { Comparison, Corpus } from "@/data/benchmarks"
 
 const styles = {
   wrapper: css({ marginBlockEnd: spacing[6], overflowX: "auto" }),
+  // "Kirana ÷ StyleX (SWC)" breaks across lines rather than widening its column.
+  head: css({ whiteSpace: "normal", verticalAlign: "bottom" }),
+  measure: css({ whiteSpace: "normal", minWidth: "7rem" }),
   number: css({
     fontFamily: fontFamily.mono,
     fontSize: fontSize.xs,
@@ -54,6 +57,7 @@ const styles = {
     fontFamily: fontFamily.sans,
     color: theme.mutedForeground,
   }),
+  interval: css({ display: "block", color: theme.mutedForeground }),
   higher: css({ color: theme.foreground, fontWeight: fontWeight.semibold }),
   facts: css({
     display: "grid",
@@ -122,11 +126,14 @@ function Run() {
   )
 }
 
+/** The ratio on its line, and its interval and verdict beneath, so a column stays narrow. */
 function Ratio({ entry }: { entry: Comparison | null }) {
   if (!entry) return <span sx={styles.verdict}>not judged</span>
+  const [ratio, interval] = ratioText(entry).split(" ")
   return (
     <>
-      {ratioText(entry)}
+      {ratio}
+      <span sx={styles.interval}>{interval}</span>
       <span
         sx={[styles.verdict, entry.verdict === "higher" ? styles.higher : null]}
       >
@@ -144,14 +151,16 @@ function Report({ corpus, scenario }: { corpus: Corpus; scenario: string }) {
         <TableHeader>
           <TableRow>
             {table.head.map((cell) => (
-              <TableHead key={cell}>{cell}</TableHead>
+              <TableHead key={cell} sx={styles.head}>
+                {cell}
+              </TableHead>
             ))}
           </TableRow>
         </TableHeader>
         <TableBody>
           {table.rows.map((entry) => (
             <TableRow key={entry.measure}>
-              <TableCell>{entry.measure}</TableCell>
+              <TableCell sx={styles.measure}>{entry.measure}</TableCell>
               {entry.values.map((value, index) => (
                 <TableCell key={index} sx={styles.number}>
                   {value}

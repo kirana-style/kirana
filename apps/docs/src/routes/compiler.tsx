@@ -203,7 +203,7 @@ function CompilerPage() {
         number="04"
         label="Measured"
         title="Against the same apps, built three ways"
-        lede="The three demo applications, built three ways by kirana-lab on every release: with the published Kirana, as the StyleX port and as the Tailwind original. Every one passes the same conformance checks before it is timed."
+        lede="The three demo applications, built three ways by kirana-lab on every release: with the published Kirana, as the StyleX port (by StyleX's Babel plugin and by its SWC compiler) and as the Tailwind original. Every one passes the same conformance checks before it is timed."
       >
         <BenchChart />
       </PageSection>

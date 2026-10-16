@@ -6,9 +6,11 @@ Source: https://kirana.style/docs/project/benchmarks
 Every number the site quotes comes from
 [kirana-lab](https://github.com/kirana-style/kirana-lab), a public repository
 that builds the same three applications three ways: with the published Kirana
-release, with a StyleX port and with the Tailwind original. It measures on every
-Kirana release and once a week, so an update to StyleX or Tailwind shows up too,
-and the site takes the newest run through a pull request.
+release, with a StyleX port and with the Tailwind original. The StyleX port is
+built twice, by StyleX's Babel plugin and by its Rust compiler on SWC, so a
+comparison with StyleX holds whichever one you use. It measures on every Kirana
+release and once a week, so an update to StyleX or Tailwind shows up too, and the
+site takes the newest run through a pull request.
 
 The figures below are Kirana 0.2.0.
 
@@ -32,8 +34,14 @@ rounds, and a difference is called one only when that interval excludes 1. A
 ratio whose interval includes 1 is "no clear difference", and the site words it
 as "level".
 
-Before anything is timed, the three builds of each app are crawled and compared
-property by property, at three widths in both colour schemes. A run whose builds
+**StyleX** is the port built by StyleX's Babel plugin, and **StyleX (SWC)** the
+same port built by `@stylexswc/unplugin`. Where the site makes one claim about
+StyleX, it compares Kirana with whichever of the two Kirana does less well
+against on that measure, and names it.
+
+Before anything is timed, the builds of each app are crawled and compared
+property by property, at three widths in both colour schemes; the SWC build is
+compared with the Babel one. A run whose builds
 do not render alike publishes its numbers as a pre-release, and the site does not
 take them.
 
@@ -58,8 +66,8 @@ Every measure on which Kirana measured higher, by its interval:
 ## Build and output
 
 Builds are each app's own `vite build`, cold (its output and Vite's cache removed
-first), and interleaved, so a round builds Kirana, StyleX and Tailwind in turn and
-a machine that slows down slows all three. Sizes are every client asset of the
+first), and interleaved, so a round builds Kirana, StyleX, StyleX (SWC) and
+Tailwind in turn and a machine that slows down slows them all. Sizes are every client asset of the
 type, each compressed on its own as a browser receives it: gzip at level 9,
 brotli at quality 11.
 
@@ -142,8 +150,9 @@ style recalculation when the colour scheme switches, a hover, layout, and the
 
 ## What it does not say
 
-- **The machine is a shared CI runner.** Absolute times move from run to run;
-  compare ratios within one run, never numbers from two runs.
+- **The machine is a shared CI runner.** Absolute times move from run to run,
+  and GitHub does not promise the same processor twice: the run above names the
+  one it had. Compare ratios within one run, never times from two runs.
 - **Three applications are one corpus.** They are a shadcn/ui port: many small
   components, shared tokens. A codebase with other habits may measure otherwise,
   and the lab's corpus will grow.
