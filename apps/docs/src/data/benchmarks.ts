@@ -81,7 +81,21 @@ type Bench = {
   comparisons: Comparison[]
 }
 
-export const BENCH = data as Bench
+const taken = data as Bench
+
+/**
+ * The run as the site reads it: the targets it names. A target the lab measures that the site does
+ * not name yet stays off the pages until `TOOLS` and `NAME` include it.
+ */
+export const BENCH: Bench = {
+  ...taken,
+  rows: taken.rows.filter((entry) =>
+    Object.values(TARGET).includes(entry.target)
+  ),
+  comparisons: taken.comparisons.filter((entry) =>
+    OTHERS.includes(entry.against)
+  ),
+}
 
 export const LAB = "https://github.com/kirana-style/kirana-lab"
 export const METHODOLOGY = `${LAB}/blob/main/METHODOLOGY.md`
