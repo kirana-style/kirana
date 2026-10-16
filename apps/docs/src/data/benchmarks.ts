@@ -483,6 +483,10 @@ export function reportTable(corpus: Corpus, scenario: string): ReportTable {
       },
     ]
   })
+  if (rows.length === 0)
+    throw new Error(
+      `benchmarks.json: no measures for ${corpus}, ${scenario}; a page asks for a table the run does not have`
+    )
   return {
     head: [
       "Measure",
