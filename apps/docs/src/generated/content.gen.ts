@@ -9564,7 +9564,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Editor support",
     "section": "tooling",
     "heading": "Zed",
-    "text": "The Kirana extension registers the server for TypeScript, TSX and JavaScript, for Vue, Svelte and Astro components once Zed's extensions for them are installed, and for HTML in Angular templates. Until it is published, add it with zed: install dev extension from . To run another binary:"
+    "text": "The Kirana extension registers the server for TypeScript, TSX and JavaScript, for Vue, Svelte and Astro components once Zed's extensions for them are installed, and for HTML in Angular templates. Until it is published, add it with zed: install dev extension from . It finds the server in this order: the binary named in Zed's settings, below; the project's own, when the of the folder Zed opened lists ; a on . Zed does not let an extension look inside , so in a monorepo whose root does not list the package, name the binary in the settings:"
   },
   {
     "id": "/docs/tooling/editor#neovim",

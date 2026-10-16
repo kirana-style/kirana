@@ -3,10 +3,14 @@
 //! templates in HTML files, and server templates — Blade, ERB, Twig and HEEx (D-069).
 //! The server is the project's own `node_modules/.bin/kirana-style`, so the editor runs the engine
 //! the build does; `lsp.kirana.binary` in Zed's settings overrides it, and a `kirana-style` on `PATH`
-//! is the last resort. An older install's `kirana`, the command's name before it was
-//! `kirana-style`, is tried after it in both places.
+//! is the last resort, where an older install's `kirana`, the command's name before it was
+//! `kirana-style`, is tried after it.
+//!
+//! Zed reads only the files it indexes, and it does not index git-ignored folders such as
+//! `node_modules`, so the project's binary is found through `package.json`: a project that lists
+//! `kirana-style` has it in `node_modules/.bin`.
 
-use zed_extension_api::{self as zed, LanguageServerId, Result, settings::LspSettings};
+use zed_extension_api::{self as zed, LanguageServerId, Result, serde_json, settings::LspSettings};
 
 /// Where the binary comes from, in the order they are tried.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -18,8 +22,19 @@ pub struct Found {
 /// The command's names, newest first: `kirana-style`, then its earlier name `kirana`.
 pub const NAMES: [&str; 2] = ["kirana-style", "kirana"];
 
+/// The package that installs the command into `node_modules/.bin`.
+pub const PACKAGE: &str = "kirana-style";
+
+/// Whether a `package.json` lists [`PACKAGE`] among its dependencies or dev dependencies.
+pub fn lists_kirana(package_json: &str) -> bool {
+    serde_json::from_str::<serde_json::Value>(package_json).is_ok_and(|manifest| {
+        ["dependencies", "devDependencies"].iter().any(|field| manifest[field].get(PACKAGE).is_some())
+    })
+}
+
 /// Chooses the server command: the configured binary (with its arguments, or `lsp`), the
-/// worktree's `node_modules/.bin/<local>` when one of [`NAMES`] is there, else one on `PATH`.
+/// worktree's `node_modules/.bin/<local>` when its `package.json` lists [`PACKAGE`], else one of
+/// [`NAMES`] on `PATH`.
 pub fn locate(
     root: &str,
     configured: Option<(String, Option<Vec<String>>)>,
@@ -49,7 +64,7 @@ impl zed::Extension for Kirana {
         let binary = LspSettings::for_worktree(id.as_ref(), worktree).ok().and_then(|settings| settings.binary);
         let configured = binary.and_then(|binary| binary.path.map(|path| (path, binary.arguments)));
         let local =
-            NAMES.into_iter().find(|name| worktree.read_text_file(&format!("node_modules/.bin/{name}")).is_ok());
+            worktree.read_text_file("package.json").is_ok_and(|manifest| lists_kirana(&manifest)).then_some(PACKAGE);
         let on_path = NAMES.into_iter().find_map(|name| worktree.which(name));
         let found = locate(&worktree.root_path(), configured, local, on_path)?;
         Ok(zed::Command { command: found.command, args: found.args, env: worktree.shell_env() })
