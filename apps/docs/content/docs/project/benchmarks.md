@@ -116,6 +116,18 @@ HTML and `class` attributes are its size.
 
 <!-- ::benchmarks part="large-dom" -->
 
+## The same components, more of them
+
+The scale curve asks how the cost grows. A generator writes the same components
+for every implementation, each in its own idiom: tokens, a recipe and a font size
+with its line height in every one, and in fixed shares a hover state, a
+breakpoint, a relation and a value known only at runtime. Each size is built cold,
+and the curve is read across the sizes, never from one of them. It runs on a
+runner of its own beside the rest, so compare its numbers with each other, not
+with the tables above.
+
+<!-- ::benchmarks part="scale-curve" -->
+
 ## What it does not say
 
 - **The machine is a shared CI runner.** Absolute times move from run to run,
