@@ -56,6 +56,11 @@ jobs:
       - name: Generated docs and consistency
         run: vp run verify
 
+      # The docs content engine (packages/docs-core): Markdown, highlighting and the changelog,
+      # held to its coverage floor (its vitest.config.ts).
+      - name: Docs content engine tests
+        run: vp run test:docs
+
   kirana-rust:
     runs-on: ubuntu-26.04
     name: kirana · rust checks
