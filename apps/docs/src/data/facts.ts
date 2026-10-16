@@ -10,7 +10,7 @@ import { API, COMMANDS } from "../generated/cli.gen.ts"
 import { DIAGNOSTICS } from "../generated/diagnostics.gen.ts"
 import { LINT } from "../generated/lint.gen.ts"
 import { PACKAGES } from "../generated/packages.gen.ts"
-import { RUNTIME_SIZE } from "./benchmarks.ts"
+import { BENCH, CLAIMS, RUNTIME_SIZE } from "./benchmarks.ts"
 import { FRAMEWORK_GUIDES } from "./frameworks.ts"
 import type { GuideGroup } from "./frameworks.ts"
 import { LINTERS } from "./tooling.ts"
@@ -142,6 +142,14 @@ export const FACTS: Readonly<Record<string, string>> = {
   // `light-dark()`; the site's Vite config holds its build to the same floor.
   "browser-floor": "Chrome 123, Safari 17.5, Firefox 120",
   "runtime-size": RUNTIME_SIZE,
+  // kirana-lab's newest run (data/benchmarks.ts): each claim worded from its comparison's verdict.
+  "bench-version": BENCH.meta.kirana,
+  "bench-build-stylex": CLAIMS.buildStylex,
+  "bench-build-tailwind": CLAIMS.buildTailwind,
+  "bench-css-stylex": CLAIMS.cssStylex,
+  "bench-css-tailwind": CLAIMS.cssTailwind,
+  "bench-bytes-stylex": CLAIMS.bytesStylex,
+  "bench-bytes-tailwind": CLAIMS.bytesTailwind,
   /** The release every package is at. */
   version: VERSION,
 }

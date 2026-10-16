@@ -11,6 +11,8 @@
  *   commands      a `kirana-style` command missing from the CLI page or the spec
  *   ideas         a number of mental-model ideas other than the page's own
  *   runtime size  the runtime's size written by hand instead of {{fact:runtime-size}}
+ *   benchmarks    a measured claim written by hand ("2.9× faster", "within 3 % of", "the smallest
+ *                 CSS") instead of {{fact:bench-…}} or CLAIMS, which kirana-lab's run words
  *   style         an em dash in prose or site copy (code is exempt); a paragraph or list item with
  *                 more than four inline code spans, which reads better as a list, a table or a
  *                 code block; a description written as metadata ("X - y"), since it is the lede
@@ -47,6 +49,8 @@ const HISTORY = new Set([
   "apps/docs/content/docs/project/llms.md",
   // The "not on npm yet" note itself, which no page shows once the packages are published.
   "apps/docs/src/data/npm-status.ts",
+  // Where the measured claims are worded; its comments show what the words look like.
+  "apps/docs/src/data/benchmarks.ts",
 ])
 
 /** Brand names a heading may carry, with the logo key the site has for them. */
@@ -192,6 +196,14 @@ const IDEA_COUNT = new RegExp(`\\b${NUMBER}\\s+ideas\\b`, "gi")
 const RUNTIME_SIZE =
   /\b\d+(?:\.\d+)?\s?kB\s+(?:runtime|gzip|minified)|(?:under|<)\s?\d+(?:\.\d+)?\s?kB\b/i
 
+/**
+ * A measured claim: a multiple or a percentage, or "the smallest CSS", in a sentence that compares
+ * with StyleX or Tailwind. A figure quoted from someone else's measurement names no such tool.
+ */
+const COMPARED = /\b(?:StyleX|Tailwind)\b/
+const BENCHMARK =
+  /\b\d+(?:\.\d+)?\s?(?:×|%)\s+(?:faster|slower|smaller|larger|less|more)\b|\bwithin\s+\d+(?:\.\d+)?\s?%\s+of\b|\bsmallest\s+(?:\w+\s+)?CSS\b/i
+
 /** What the pages say while the packages are unpublished; wrong once they are on npm. */
 const UNPUBLISHED =
   /\bnot (?:yet )?(?:on|published to) npm\b|\bnot (?:yet )?published\b|\buntil the packages are (?:on npm|published)\b/i
@@ -231,6 +243,12 @@ function checkProse(path: string, text: string) {
         path,
         line,
         "the runtime's size is written by hand; use {{fact:runtime-size}} in markdown or RUNTIME_SIZE in a component"
+      )
+    if (COMPARED.test(sentence) && BENCHMARK.test(sentence))
+      report(
+        path,
+        line,
+        "a measured claim is written by hand; use {{fact:bench-…}} in markdown or CLAIMS from data/benchmarks.ts in a component"
       )
     if (PUBLISHED && UNPUBLISHED.test(sentence))
       report(

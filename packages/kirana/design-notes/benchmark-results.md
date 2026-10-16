@@ -1,5 +1,10 @@
 # Benchmark results
 
+The numbers the site publishes are kirana-lab's: every release and every week, on a CI runner,
+with confidence intervals, on [the benchmarks page](https://kirana.style/docs/project/benchmarks).
+This file keeps the developer-machine measurements made while the compiler was built, and the editor
+and rebuild figures the lab does not measure yet.
+
 Advisory numbers under the claims policy of
 [14-benchmark-methodology](../../../spec/14-benchmark-methodology.md): one developer machine,
 not a dedicated benchmark host. They exist so each change can be compared with the last; they are not

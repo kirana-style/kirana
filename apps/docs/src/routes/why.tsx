@@ -30,6 +30,7 @@ import { Card, CardGrid } from "@/components/site/cards"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
 import { BuildArt, RuntimeArt } from "@/components/art/why-art"
 import { InlineCode } from "@/components/site/code-tokens"
+import { CLAIMS } from "@/data/benchmarks"
 
 export const Route = createFileRoute("/why")({
   component: WhyPage,
@@ -321,10 +322,9 @@ function WhyPage() {
               shared by every element), and a Rust compiler that built the
               shadcn/ui port&apos;s three apps{" "}
               <A href="/compiler#measured">
-                within 3 % of Tailwind and 2.9× faster than the StyleX port
+                {CLAIMS.buildTailwind} and {CLAIMS.buildStylex}
               </A>
-              . That was measured on one machine, and stays advisory until the
-              benchmark runs on dedicated hardware.
+              , measured in public on every release.
             </p>
           </div>
         </div>

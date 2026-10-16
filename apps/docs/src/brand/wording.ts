@@ -1,10 +1,11 @@
 /**
  * Wording under review: headlines, descriptions and one line against each alternative. Every claim
  * points at the page that backs it, so none says more than the docs and the measurements do.
- * Numbers are advisory (one machine; `packages/kirana/design-notes/benchmark-results.md`).
+ * Measured claims are worded from kirana-lab's newest run (`data/benchmarks.ts`).
  */
 
 import { DIAGNOSTICS } from "@/generated/diagnostics.gen"
+import { CLAIMS } from "@/data/benchmarks"
 import { LISTS, sentence } from "@/data/facts"
 
 export type Line = {
@@ -33,9 +34,8 @@ export const HEADLINES: Line[] = [
   {
     text: "Tailwind's build speed. TypeScript's safety.",
     tone: "Competitive",
-    proof:
-      "Within 3 % of Tailwind's build time, 2.9× faster than the StyleX port, on this repository's three apps.",
-    href: "/blog/what-we-measured",
+    proof: `Cold builds ${CLAIMS.buildTailwind} and ${CLAIMS.buildStylex}, measured on every release in kirana-lab.`,
+    href: "/docs/project/benchmarks",
   },
   {
     text: "CSS-in-JS, with a Rust engine of its own.",

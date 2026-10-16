@@ -18,6 +18,7 @@ import {
 
 import { npmStatusMarkdown } from "../src/data/npm-status.ts"
 import { roadmapMarkdown } from "../src/data/roadmap.ts"
+import { benchmarksMarkdown } from "../src/data/benchmarks.ts"
 
 await generate({
   root: new URL("..", import.meta.url).pathname,
@@ -38,6 +39,7 @@ await generate({
     "lint-rules": lintRulesMarkdown,
     "npm-status": ({ kind }) => npmStatusMarkdown(kind),
     roadmap: roadmapMarkdown,
+    benchmarks: benchmarksMarkdown,
   },
   site: {
     url: "https://kirana.style",

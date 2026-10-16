@@ -44,6 +44,7 @@ import { KiranaMark } from "@/brand/kirana-mark-svg"
 import { DocsLink } from "@/components/docs-link"
 import { More } from "@/components/page-section"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
+import { CLAIMS } from "@/data/benchmarks"
 import { GROUPED, ROWS, TOOLS } from "@/data/compare"
 import type { Cell, Row, Tool } from "@/data/compare"
 import { SVGL } from "@/generated/svgl-icons.gen"
@@ -468,12 +469,13 @@ function ComparePage() {
             date, its source is the place to check, and a correction is welcome.
           </p>
           <p>
-            On the shadcn/ui port's applications Tailwind builds within 3 % of
-            Kirana and faster on two of the three, and StyleX's raw CSS is
-            smaller. The measured numbers, with their method, are on the
-            compiler page.
+            On the shadcn/ui port&apos;s applications Kirana&apos;s cold builds
+            are {CLAIMS.buildTailwind} and {CLAIMS.buildStylex}, and its CSS,
+            gzipped, is {CLAIMS.cssStylex} and {CLAIMS.cssTailwind}. Every
+            measure, with its confidence interval and where Kirana is behind, is
+            on the benchmarks page.
           </p>
-          <DocsLink href="/compiler#measured">
+          <DocsLink href="/docs/project/benchmarks">
             <More>The measured numbers</More>
           </DocsLink>
         </div>

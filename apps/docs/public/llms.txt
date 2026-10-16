@@ -144,6 +144,7 @@ change the API. Pages state what is built and what is planned.
 - [Roadmap](https://kirana.style/docs/project/roadmap.md): The milestones, what each one delivered, and what comes before 1.0.
 - [Releases and upgrading](https://kirana.style/docs/project/releases.md): How versions work, what before 1.0 means, and how a breaking change is announced.
 - [Ecosystem and status](https://kirana.style/docs/integrations/ecosystem.md): What works today, what is planned, and which milestone each thing belongs to.
+- [Benchmarks](https://kirana.style/docs/project/benchmarks.md): Kirana measured against StyleX and Tailwind on the same applications, on every release, with every number's confidence interval.
 - [Contributing](https://kirana.style/docs/project/contributing.md): How to report a bug, fix the docs, get a pull request merged, and support Kirana.
 - [For LLMs](https://kirana.style/docs/project/llms.md): Plain-text endpoints of this documentation, written for coding agents: llms.txt, the full text, and a markdown twin of every page.
 - [Agent skills](https://kirana.style/docs/project/agent-skills.md): Two installable skills teach a coding agent to write Kirana and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule.

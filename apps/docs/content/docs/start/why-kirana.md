@@ -109,10 +109,12 @@ editor and the stylesheet never disagree.
 So the trade is no longer readability for types. You keep what made object
 styles worth it (a typo is a compile error, a token is a typed import, a style is
 a value you pass and delete with its component), and the output is still atomic:
-one rule per distinct declaration, shared by every element that uses it. On this
-repository's three apps the Rust compiler built within 3 % of Tailwind's time and
-2.9× faster than the StyleX port, with the smallest gzipped CSS of the three
-(advisory: one machine, `packages/kirana/design-notes/benchmark-results.md`).
+one rule per distinct declaration, shared by every element that uses it. On the
+same three applications built three ways, Kirana {{fact:bench-version}}'s cold
+builds are {{fact:bench-build-tailwind}} and {{fact:bench-build-stylex}}, and its
+CSS and JavaScript, gzipped, are {{fact:bench-bytes-stylex}} and
+{{fact:bench-bytes-tailwind}}. Every measure, with its confidence interval, is on the
+[benchmarks page](/docs/project/benchmarks).
 
 ## What StyleX got right, and what Kirana adds
 
