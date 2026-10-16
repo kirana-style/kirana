@@ -3,7 +3,7 @@
  * `package.json` and lockfiles. `kirana-style init` sets a project up from it and `kirana-style doctor` checks
  * the setup against it, so the two never disagree about what a project needs.
  */
-import { existsSync, readFileSync } from "node:fs"
+import { existsSync, readFileSync, realpathSync } from "node:fs"
 import path from "node:path"
 
 export type Framework =
@@ -54,7 +54,11 @@ export type PackageJson = {
   dependencies?: Record<string, string>
   devDependencies?: Record<string, string>
   packageManager?: string
+  workspaces?: unknown
 }
+
+/** A package of the project's own workspace that it depends on, such as a shared Vite config. */
+export type LocalPackage = { name: string; directory: string }
 
 export type Detected = {
   root: string
@@ -67,7 +71,47 @@ export type Detected = {
   module: boolean
   /** Every dependency, development ones included. */
   dependencies: Record<string, string>
+  /** The dependencies that are packages of the same workspace, linked rather than installed. */
+  local: LocalPackage[]
+  /**
+   * What the rest of the workspace lists: its root's dependencies and its local packages'. An app
+   * that takes its adapter from a shared config package, or the command from the root, has them.
+   */
+  workspace: Record<string, string>
 }
+
+/** Where a dependency is linked from, when `node_modules` links it to a directory outside any. */
+function linkedDirectory(root: string, name: string): string | undefined {
+  for (let directory = root; ; directory = path.dirname(directory)) {
+    const link = path.join(directory, "node_modules", name)
+    if (existsSync(link)) {
+      const real = realpathSync(link)
+      return real.split(path.sep).includes("node_modules") ? undefined : real
+    }
+    if (path.dirname(directory) === directory) return undefined
+  }
+}
+
+/** The root of the workspace above a project: a `workspaces` field or `pnpm-workspace.yaml`. */
+function workspaceRoot(root: string): string | undefined {
+  for (
+    let directory = path.dirname(root);
+    directory !== path.dirname(directory);
+    directory = path.dirname(directory)
+  ) {
+    if (
+      readPackage(directory).workspaces !== undefined ||
+      existsSync(path.join(directory, "pnpm-workspace.yaml"))
+    )
+      return directory
+  }
+  return undefined
+}
+
+const listed = (pkg: PackageJson) => ({
+  ...pkg.dependencies,
+  ...pkg.devDependencies,
+})
 
 /** The project's `package.json`, or an empty one. */
 export function readPackage(root: string): PackageJson {
@@ -196,7 +240,7 @@ function bundlerOf(
 /** The framework and bundler a project's dependencies and scripts name. */
 export function detect(root: string): Detected {
   const pkg = readPackage(root)
-  const dependencies = { ...pkg.dependencies, ...pkg.devDependencies }
+  const dependencies = listed(pkg)
   const has = (name: string) => name in dependencies
   const scripts = Object.values(pkg.scripts ?? {}).join("\n")
   const manifest = (file: string) =>
@@ -211,6 +255,16 @@ export function detect(root: string): Detected {
     FRAMEWORKS.find(([name]) => has(name))?.[1] ??
     "vanilla"
   const bundler = bundlerOf(framework, has, scripts)
+  const local = Object.keys(dependencies).flatMap((name) => {
+    const directory = linkedDirectory(root, name)
+    return directory ? [{ name, directory }] : []
+  })
+  const above = workspaceRoot(root)
+  const workspace = Object.assign(
+    {},
+    above ? listed(readPackage(above)) : {},
+    ...local.map((entry) => listed(readPackage(entry.directory)))
+  ) as Record<string, string>
   return {
     root,
     framework,
@@ -219,6 +273,8 @@ export function detect(root: string): Detected {
     typescript: existsSync(path.join(root, "tsconfig.json")),
     module: pkg.type === "module",
     dependencies,
+    local,
+    workspace,
   }
 }
 

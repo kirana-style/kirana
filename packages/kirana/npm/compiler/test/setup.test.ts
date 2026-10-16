@@ -3,6 +3,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs"
 import { tmpdir } from "node:os"
@@ -544,6 +545,88 @@ describe("KRN-DX-008 kirana-style init's plan", () => {
         project({ "package.json": pkg({ "@tanstack/react-start": "1" }) })
       ).stylesheet
     ).toBe("manual")
+  })
+
+  it("finds the setup an app of a workspace takes from its shared packages and its root", () => {
+    const root = project({
+      "package.json": JSON.stringify({
+        name: "repo",
+        workspaces: ["apps/*", "packages/*"],
+        devDependencies: { "kirana-style": "0" },
+      }),
+      "packages/vite-config/package.json": pkg({ "@kirana-style/vite": "0" }),
+      "packages/vite-config/index.js": `import kirana from "@kirana-style/vite"\nexport const defineAppConfig = () => ({ plugins: [kirana()] })\n`,
+      "packages/ui/package.json": pkg({ "@kirana-style/core": "0" }),
+      "packages/ui/src/sx.ts": `import type {} from "@kirana-style/core/react"\n`,
+      "node_modules/@kirana-style/core/package.json": `{"name":"@kirana-style/core","version":"0.2.1"}`,
+      "apps/web/package.json": pkg({
+        "@tanstack/react-start": "1",
+        "@kirana-style/core": "0",
+        "@workspace/vite-config": "workspace:*",
+        "@workspace/ui": "workspace:*",
+      }),
+      "apps/web/tsconfig.json": "{}",
+      "apps/web/kirana.config.ts": "export default {}\n",
+      "apps/web/vite.config.ts": `import { defineAppConfig } from "@workspace/vite-config"\n\nexport default defineAppConfig()\n`,
+      "apps/web/src/routes/__root.tsx": `import kiranaCss from "@kirana-style/core/stylesheet.css?url"\n`,
+    })
+    mkdirSync(path.join(root, "node_modules/@workspace"))
+    for (const name of ["vite-config", "ui"])
+      symlinkSync(
+        path.join(root, "packages", name),
+        path.join(root, "node_modules/@workspace", name),
+        "dir"
+      )
+    const app = path.join(root, "apps/web")
+    expect(
+      detect(app)
+        .local.map((entry) => entry.name)
+        .sort()
+    ).toEqual(["@workspace/ui", "@workspace/vite-config"])
+    const result = plan(app)
+    expect(
+      Object.fromEntries(result.steps.map((step) => [step.name, step.detail]))
+    ).toMatchObject({
+      adapter: "vite.config.ts, through @workspace/vite-config",
+      stylesheet: "src/routes/__root.tsx",
+      types: "through @workspace/ui",
+    })
+    expect(statuses(app)).toMatchObject({
+      adapter: "done",
+      stylesheet: "done",
+      types: "done",
+    })
+    expect(result.development).toEqual([])
+  })
+
+  it("still asks for what a pnpm workspace's packages do not provide", () => {
+    const root = project({
+      "pnpm-workspace.yaml": "packages: [apps/*, packages/*]\n",
+      "package.json": JSON.stringify({ name: "repo" }),
+      "packages/config/package.json": pkg({}),
+      "packages/config/app.js": "export const plugins = []\n",
+      "apps/web/package.json": pkg({
+        "@tanstack/react-start": "1",
+        "@workspace/config": "workspace:*",
+      }),
+      "apps/web/vite.config.ts": `import { plugins } from "@workspace/config/app"\nimport { defineConfig } from "vite"\n\nexport default defineConfig({ plugins: [...plugins] })\n`,
+      "apps/web/src/routes/__root.tsx": "export const Route = {}\n",
+    })
+    mkdirSync(path.join(root, "node_modules/@workspace"), { recursive: true })
+    symlinkSync(
+      path.join(root, "packages/config"),
+      path.join(root, "node_modules/@workspace/config"),
+      "dir"
+    )
+    const app = path.join(root, "apps/web")
+    expect(statuses(app)).toMatchObject({
+      adapter: "change",
+      stylesheet: "manual",
+    })
+    expect(plan(app).development).toEqual([
+      "kirana-style",
+      "@kirana-style/vite",
+    ])
   })
 
   it("keeps an existing configuration, and adds the preset only when asked", () => {

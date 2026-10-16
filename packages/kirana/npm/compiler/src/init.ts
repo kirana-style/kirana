@@ -108,6 +108,31 @@ class Files {
   }
 }
 
+/** Whether a file of a workspace package's sources mentions `text`. */
+const mentions = (directory: string, text: string) =>
+  sources(directory).some((file) => readFileSync(file, "utf8").includes(text))
+
+/**
+ * The workspace package a configuration imports that sets up `marker`, such as a Vite config shared
+ * by every app of a monorepo: `import { defineAppConfig } from "@workspace/vite-config"`.
+ */
+function sharedConfig(
+  text: string,
+  project: Detected,
+  marker: string
+): string | undefined {
+  const imported = [
+    ...text.matchAll(/\b(?:from|import)\s*\(?\s*["']([^"'.][^"']*)["']/g),
+  ].map((match) => match[1]!)
+  return project.local.find(
+    (entry) =>
+      imported.some(
+        (specifier) =>
+          specifier === entry.name || specifier.startsWith(`${entry.name}/`)
+      ) && mentions(entry.directory, marker)
+  )?.name
+}
+
 /** `statement` in the module's own style: its quotes and its semicolons. */
 export function styled(text: string, statement: string): string {
   const single =
@@ -314,6 +339,8 @@ function adapterStep(files: Files, project: Detected): Step {
     }
     const text = files.read(file)!
     if (text.includes(marker)) return done("adapter", file)
+    const shared = sharedConfig(text, project, marker)
+    if (shared) return done("adapter", `${file}, through ${shared}`)
     const edited = apply(text)
     if (edited === undefined) return manual("adapter", `${file}: ${help}`)
     return step("adapter", `add ${marker} to ${file}`, [
@@ -832,11 +859,17 @@ function stylesheetStep(files: Files, project: Detected): Step {
         `${helper ? `${helper}; ` : ""}run kirana-style dev resources/styles --out ${out} beside your server (kirana-style build --minify for production), and link /kirana/kirana.css from your layout`
       )
     }
-    case "tanstack-start":
-      return manual(
-        "stylesheet",
-        `in the root route, import kiranaCss from "${STYLESHEET}?url" and add { rel: "stylesheet", href: kiranaCss } to head().links`
+    case "tanstack-start": {
+      const route = files.find(
+        entries(["src/routes/", "app/routes/"], ["__root"])
       )
+      return route && files.read(route)!.includes(STYLESHEET)
+        ? done("stylesheet", route)
+        : manual(
+            "stylesheet",
+            `in the root route, import kiranaCss from "${STYLESHEET}?url" and add { rel: "stylesheet", href: kiranaCss } to head().links`
+          )
+    }
   }
   if (project.bundler === "none")
     return done(
@@ -904,6 +937,9 @@ function typesStep(files: Files, project: Detected): Step {
     ...listDirectory(files, project.root, directory || ".", ".d.ts"),
   ].find((file) => files.read(file)?.includes("@kirana-style/core/"))
   if (declared) return done("types", declared)
+  // A shared UI package that imports the types brings them into every app that uses it.
+  const shared = project.local.find((entry) => mentions(entry.directory, types))
+  if (shared) return done("types", `through ${shared.name}`)
   const file = path.posix.join(directory, "kirana.d.ts")
   return step("types", `create ${file}`, [
     files.write(file, `/// <reference types="${types}" />\n`),
@@ -922,14 +958,17 @@ export function plan(root: string, options: InitOptions = {}): Plan {
   ]
   const missing = (names: readonly string[]) =>
     names.filter((name) => !(name in project.dependencies))
+  // The command and the adapter may come from the workspace: its root, or a shared config package.
+  const tools = ["kirana-style", ...adapterOf(project)].filter(
+    (name) => !(name in project.workspace)
+  )
   return {
     project,
     steps,
     dependencies: missing(runtimeOf(project)),
     // `kirana-style` carries the command and depends on the compiler, so the project gets both.
     development: missing([
-      "kirana-style",
-      ...adapterOf(project),
+      ...tools,
       ...(options.preset ? ["@kirana-style/preset-scales"] : []),
     ]),
   }
