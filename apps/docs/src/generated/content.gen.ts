@@ -4071,6 +4071,82 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
+    "href": "/docs/project/benchmarks",
+    "file": "content/docs/project/benchmarks.md",
+    "title": "Benchmarks",
+    "description": "Kirana measured against StyleX and Tailwind on the same applications, on every release, with every number's confidence interval.",
+    "section": "project",
+    "order": 4,
+    "keywords": [
+      "benchmarks",
+      "performance",
+      "build time",
+      "css size",
+      "bundle size",
+      "stylex",
+      "tailwind",
+      "confidence interval",
+      "kirana-lab"
+    ],
+    "headings": [
+      {
+        "id": "how-to-read-it",
+        "text": "How to read it",
+        "level": 2
+      },
+      {
+        "id": "where-kirana-is-behind",
+        "text": "Where Kirana is behind",
+        "level": 2
+      },
+      {
+        "id": "build-and-output",
+        "text": "Build and output",
+        "level": 2
+      },
+      {
+        "id": "all-three-apps",
+        "text": "All three apps",
+        "level": 3
+      },
+      {
+        "id": "apps-web",
+        "text": "apps/web",
+        "level": 3
+      },
+      {
+        "id": "apps-blocks",
+        "text": "apps/blocks",
+        "level": 3
+      },
+      {
+        "id": "apps-examples",
+        "text": "apps/examples",
+        "level": 3
+      },
+      {
+        "id": "in-the-browser",
+        "text": "In the browser",
+        "level": 2
+      },
+      {
+        "id": "cpu-throttled-4",
+        "text": "CPU throttled 4×",
+        "level": 3
+      },
+      {
+        "id": "cpu-throttled-6",
+        "text": "CPU throttled 6×",
+        "level": 3
+      },
+      {
+        "id": "what-it-does-not-say",
+        "text": "What it does not say",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/docs/project/contributing",
     "file": "content/docs/project/contributing.md",
     "title": "Contributing",
@@ -5434,6 +5510,22 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
+        "title": "Benchmarks",
+        "href": "/docs/project/benchmarks",
+        "description": "Kirana measured against StyleX and Tailwind on the same applications, on every release, with every number's confidence interval.",
+        "keywords": [
+          "benchmarks",
+          "performance",
+          "build time",
+          "css size",
+          "bundle size",
+          "stylex",
+          "tailwind",
+          "confidence interval",
+          "kirana-lab"
+        ]
+      },
+      {
         "title": "Contributing",
         "href": "/docs/project/contributing",
         "description": "How to report a bug, fix the docs, get a pull request merged, and support Kirana.",
@@ -5562,6 +5654,7 @@ export const ORDER: readonly string[] = [
   "/docs/project/roadmap",
   "/docs/project/releases",
   "/docs/integrations/ecosystem",
+  "/docs/project/benchmarks",
   "/docs/project/contributing",
   "/docs/project/llms",
   "/docs/project/agent-skills"
@@ -10087,6 +10180,69 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "project",
     "heading": "Configuration keys in the specification but not the build",
     "text": ", to compose preset packages. Import preset modules directly instead. It fails validation today. ( works: see publishing a library .) See the roadmap for when they are scheduled."
+  },
+  {
+    "id": "/docs/project/benchmarks",
+    "href": "/docs/project/benchmarks",
+    "page": "Benchmarks",
+    "section": "project",
+    "text": "Kirana measured against StyleX and Tailwind on the same applications, on every release, with every number's confidence interval. "
+  },
+  {
+    "id": "/docs/project/benchmarks#benchmarks",
+    "href": "/docs/project/benchmarks#benchmarks",
+    "page": "Benchmarks",
+    "section": "project",
+    "heading": "Benchmarks",
+    "text": "Every number the site quotes comes from kirana-lab , a public repository that builds the same three applications three ways: with the published Kirana release, with a StyleX port and with the Tailwind original. It measures on every Kirana release and once a week, so an update to StyleX or Tailwind shows up too, and the site takes the newest run through a pull request. The figures below are Kirana 0.2.0."
+  },
+  {
+    "id": "/docs/project/benchmarks#how-to-read-it",
+    "href": "/docs/project/benchmarks#how-to-read-it",
+    "page": "Benchmarks",
+    "section": "project",
+    "heading": "How to read it",
+    "text": "Each cell is the median of every round. Kirana ÷ StyleX is Kirana's median over StyleX's, so below 1 is lower for Kirana, and lower is better for every measure. Beside each ratio is its 95 % confidence interval, from resampling the rounds, and a difference is called one only when that interval excludes 1. A ratio whose interval includes 1 is \"no clear difference\", and the site words it as \"level\". Before anything is timed, the three builds of each app are crawled and compared property by property, at three widths in both colour schemes. A run whose builds do not render alike publishes its numbers as a pre-release, and the site does not take them."
+  },
+  {
+    "id": "/docs/project/benchmarks#where-kirana-is-behind",
+    "href": "/docs/project/benchmarks#where-kirana-is-behind",
+    "page": "Benchmarks",
+    "section": "project",
+    "heading": "Where Kirana is behind",
+    "text": "Every measure on which Kirana measured higher, by its interval:"
+  },
+  {
+    "id": "/docs/project/benchmarks#build-and-output",
+    "href": "/docs/project/benchmarks#build-and-output",
+    "page": "Benchmarks",
+    "section": "project",
+    "heading": "Build and output",
+    "text": "Builds are each app's own , cold (its output and Vite's cache removed first), and interleaved, so a round builds Kirana, StyleX and Tailwind in turn and a machine that slows down slows all three. Sizes are every client asset of the type, each compressed on its own as a browser receives it: gzip at level 9, brotli at quality 11."
+  },
+  {
+    "id": "/docs/project/benchmarks#all-three-apps",
+    "href": "/docs/project/benchmarks#all-three-apps",
+    "page": "Benchmarks",
+    "section": "project",
+    "heading": "All three apps",
+    "text": "Style rules and declarations are shown without a verdict: an atomic stylesheet always has more, smaller rules, and what that costs is measured by the sizes and the browser times."
+  },
+  {
+    "id": "/docs/project/benchmarks#in-the-browser",
+    "href": "/docs/project/benchmarks#in-the-browser",
+    "page": "Benchmarks",
+    "section": "project",
+    "heading": "In the browser",
+    "text": "The app is grown to the same number of elements in each build, the CPU is throttled, and Chrome's own counters are read through the DevTools protocol: the style recalculation when the colour scheme switches, a hover, layout, and the 95th percentile of frame times."
+  },
+  {
+    "id": "/docs/project/benchmarks#what-it-does-not-say",
+    "href": "/docs/project/benchmarks#what-it-does-not-say",
+    "page": "Benchmarks",
+    "section": "project",
+    "heading": "What it does not say",
+    "text": "The machine is a shared CI runner. Absolute times move from run to run; compare ratios within one run, never numbers from two runs. Three applications are one corpus. They are a shadcn/ui port: many small components, shared tokens. A codebase with other habits may measure otherwise, and the lab's corpus will grow. The editor is not measured here yet. The language server's latency and the time from saving a file to the updated stylesheet are from one developer machine, in the benchmark notes . The rules a quoted number has to meet, the fairness checks and the statistics are in the lab's METHODOLOGY.md ."
   },
   {
     "id": "/docs/project/contributing",

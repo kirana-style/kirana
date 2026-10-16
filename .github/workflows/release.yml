@@ -4,8 +4,8 @@ name: release
 # release-please keeps a Release PR open: the next version, read from the Conventional Commit titles
 # since the last tag, bumped in every package.json, Cargo.toml, the gemspec, mix.exs and the editor
 # extensions, with CHANGELOG.md. Merging that PR tags vX.Y.Z and creates the GitHub release; this
-# workflow then builds every platform, runs the installation matrix as the gate, publishes, and
-# last asks every registry for the version (`verify`):
+# workflow then builds every platform, runs the installation matrix as the gate, publishes, asks
+# every registry for the version (`verify`), and last asks kirana-lab to benchmark it (`bench`):
 #
 #   npm (21 packages + 9 engine packages: 8 native, 1 WASI) · RubyGems · Hex · VS Code Marketplace · Open VSX ·
 #   the kirana-php mirror and the kirana/kirana alias (Packagist reads their tags)
@@ -349,3 +349,23 @@ jobs:
         env:
           TAG: ${{ needs.release-please.outputs.tag || inputs.tag }}
         run: bun packages/kirana/scripts/verify-release.ts "$TAG"
+
+  # Once every registry serves the release, kirana-lab measures it against StyleX and Tailwind (its
+  # bench workflow, about two hours); the `benchmarks` workflow then takes the results into the site.
+  # KIRANA_LAB_DISPATCH is a fine-grained token with Contents read and write on kirana-lab only,
+  # which is what a repository_dispatch needs. Only a release is measured, not a re-publish.
+  bench:
+    needs: [release-please, verify]
+    if: needs.release-please.outputs.created == 'true'
+    runs-on: ubuntu-26.04
+    permissions: {}
+
+    steps:
+      - name: Ask kirana-lab to measure the release
+        env:
+          GH_TOKEN: ${{ secrets.KIRANA_LAB_DISPATCH }}
+          TAG: ${{ needs.release-please.outputs.tag }}
+        run: |
+          gh api repos/kirana-style/kirana-lab/dispatches \
+            -f event_type=kirana-release \
+            -f "client_payload[version]=${TAG#v}"

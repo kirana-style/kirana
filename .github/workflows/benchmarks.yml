@@ -1,0 +1,91 @@
+name: benchmarks
+
+# Takes kirana-lab's newest benchmark run into the site (apps/docs/src/data/benchmarks.json) as a
+# pull request. The lab measures every release (release.yml asks it to) and runs weekly on Monday at
+# 03:17 UTC for about two hours; this runs after that, and by hand after a release's run. A run whose
+# conformance failed is a pre-release in the lab and is never taken (scripts/take-benchmarks.ts).
+#
+# The pull request is opened with RELEASE_TOKEN rather than GITHUB_TOKEN: a pull request opened by
+# GITHUB_TOKEN starts no workflows, and this one needs CI like any other.
+
+on:
+  schedule:
+    - cron: "40 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmarks
+  cancel-in-progress: false
+
+# The commit below is CI's own: the developer git hooks that `vp config` installs must not run on it.
+env:
+  VP_GIT_HOOKS: "0"
+
+jobs:
+  take:
+    runs-on: ubuntu-26.04
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - name: Take the newest run
+        id: take
+        working-directory: apps/docs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          bun scripts/take-benchmarks.ts
+          echo "tag=$(node -p 'require("./src/data/benchmarks.json").source.tag')" >> "$GITHUB_OUTPUT"
+          echo "version=$(node -p 'require("./src/data/benchmarks.json").meta.kirana')" >> "$GITHUB_OUTPUT"
+
+      # The pages quote the run through `{{fact:bench-…}}`, so their generated copies change with it.
+      - name: Regenerate the pages
+        run: bun run --cwd apps/docs generate:content
+
+      - name: Open or update the pull request
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          TAG: ${{ steps.take.outputs.tag }}
+          VERSION: ${{ steps.take.outputs.version }}
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "The site already has $TAG."
+            exit 0
+          fi
+          BRANCH="benchmarks/$TAG"
+          git config user.name "Kirana"
+          git config user.email "dev@kirana.style"
+          git switch -c "$BRANCH"
+          git commit -m "docs: take the benchmarks of kirana $VERSION from kirana-lab"
+          git push --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$BRANCH"
+          if [ -n "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // ""')" ]; then
+            echo "The pull request for $TAG is open; its branch is updated."
+            exit 0
+          fi
+          gh pr create --head "$BRANCH" --base main \
+            --title "docs: take the benchmarks of kirana $VERSION from kirana-lab" \
+            --body "$(cat <<EOF
+          ## What
+
+          The site's measured numbers from kirana-lab's run \`$TAG\`: Kirana $VERSION against StyleX and Tailwind, with conformance passed.
+
+          - Release: https://github.com/kirana-style/kirana-lab/releases/tag/$TAG
+          - The report beside it: \`report.md\`; every raw sample: \`results.json\`
+
+          ## Why
+
+          Every benchmark number and claim on the site is read from this file, worded from each comparison's confidence interval.
+
+          ## How tested
+
+          CI on this pull request: the generated pages and the consistency check. Read the claims on \`/compiler\`, the homepage and \`/docs/project/benchmarks\` in the preview before merging, above all any that changed direction.
+          EOF
+          )"

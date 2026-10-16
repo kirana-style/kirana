@@ -1,7 +1,7 @@
 /**
- * The three-way benchmark: one metric at a time, the corpus total as a bar per
- * tool and the three apps underneath. Bars grow in when the chart is first
- * seen; under reduced motion they are simply there.
+ * The three-way benchmark from kirana-lab's newest run: one metric at a time,
+ * the corpus total as a bar per tool and the three apps underneath. Bars grow
+ * in when the chart is first seen; under reduced motion they are simply there.
  */
 import { useRef, useState } from "react"
 import { css, props as styleProps } from "@kirana-style/core"
@@ -18,9 +18,16 @@ import {
   lineHeight,
 } from "@workspace/ui/tokens/typography"
 
-import { APPS, BENCH_SOURCE, METRICS, TOOLS } from "@/data/benchmarks"
-import { GITHUB } from "@/data/facts"
-import { InlineCode } from "@/components/site/code-tokens"
+import { DocsLink } from "@/components/docs-link"
+import {
+  APPS,
+  BENCH,
+  BENCH_DATE,
+  BENCH_MACHINE,
+  BENCH_RUN,
+  METRICS,
+  TOOLS,
+} from "@/data/benchmarks"
 
 const styles = {
   root: css({
@@ -107,7 +114,10 @@ export function BenchChart() {
   const seen = useInView(ref, { once: true, margin: "-15% 0px" })
   const max = Math.max(...TOOLS.map((tool) => metric.total[tool]))
   const format = (value: number) =>
-    value.toLocaleString("en", { maximumFractionDigits: 2 })
+    value.toLocaleString("en", {
+      minimumFractionDigits: metric.digits,
+      maximumFractionDigits: metric.digits,
+    })
 
   return (
     <figure sx={styles.root}>
@@ -160,31 +170,36 @@ export function BenchChart() {
           </span>
         ))}
         {TOOLS.map((tool) => (
-          <Row key={tool} tool={tool} values={metric.values[tool]} />
+          <Row
+            key={tool}
+            tool={tool}
+            values={metric.values[tool].map(format)}
+          />
         ))}
       </div>
       <figcaption sx={styles.note}>
-        {metric.note} Lower is better. Median of five interleaved builds on one
-        developer machine: advisory, not a published claim. Source:{" "}
-        <a
-          href={`${GITHUB}/blob/main/${BENCH_SOURCE}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <InlineCode>{BENCH_SOURCE}</InlineCode>
+        {metric.note} Lower is better. Kirana {BENCH.meta.kirana} from npm, the
+        median of {BENCH.meta.rounds.build} cold, interleaved builds on a{" "}
+        {BENCH_MACHINE}, {BENCH_DATE}:{" "}
+        <a href={BENCH_RUN} target="_blank" rel="noreferrer">
+          the run
         </a>
+        , and{" "}
+        <DocsLink href="/docs/project/benchmarks">
+          every measure with its confidence interval
+        </DocsLink>
         .
       </figcaption>
     </figure>
   )
 }
 
-function Row({ tool, values }: { tool: string; values: readonly number[] }) {
+function Row({ tool, values }: { tool: string; values: readonly string[] }) {
   return (
     <>
       <span>{tool}</span>
       {values.map((value, i) => (
-        <span key={i}>{value.toLocaleString("en")}</span>
+        <span key={i}>{value}</span>
       ))}
     </>
   )

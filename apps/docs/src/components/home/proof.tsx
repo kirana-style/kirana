@@ -1,7 +1,7 @@
 /**
- * "Measured": the homepage's one place for numbers. Every figure is in `HEADLINES`, derived from
- * or copied out of the benchmark notes with the section it comes from, so a number on the homepage
- * always has a source and is never typed twice.
+ * "Measured": the homepage's one place for numbers. Every figure is in `HEADLINES`, worded from
+ * kirana-lab's newest run or, for the editor, from the design note it names, so a number on the
+ * homepage always links where it was measured and is never typed twice.
  */
 import { css } from "@kirana-style/core"
 
@@ -19,8 +19,7 @@ import {
 
 import { DocsLink } from "@/components/docs-link"
 import { chapter } from "@/components/site/chapter"
-import { InlineCode } from "@/components/site/code-tokens"
-import { BENCH_SOURCE, HEADLINES } from "@/data/benchmarks"
+import { BENCH, HEADLINES, LAB } from "@/data/benchmarks"
 import { GITHUB } from "@/data/facts"
 
 import { HomeSection } from "./frame"
@@ -63,11 +62,13 @@ const styles = {
     textWrap: "pretty",
   }),
   source: css({
+    justifySelf: "start",
     fontFamily: fontFamily.mono,
     fontSize: textSize.micro,
     lineHeight: textLeading.micro,
     letterSpacing: textTracking.micro,
-    color: theme.mutedForeground,
+    color: { base: theme.mutedForeground, ":hover": theme.foreground },
+    textDecorationLine: "none",
   }),
   note: css({
     fontSize: fontSize.sm,
@@ -83,9 +84,9 @@ export function Proof() {
       number="04"
       eyebrow="Measured"
       title="Measured on the same three applications"
-      lede="Kirana, the StyleX port and the Tailwind original of one set of applications, built and run on one machine. Advisory numbers, each with the measurement it comes from."
+      lede={`Kirana ${BENCH.meta.kirana}, the StyleX port and the Tailwind original of one set of applications, built and run in public by kirana-lab on every release. Each figure links the run it comes from.`}
       aside={
-        <DocsLink href="/blog/what-we-measured" sx={chapter.aside}>
+        <DocsLink href="/docs/project/benchmarks" sx={chapter.aside}>
           How we measured
         </DocsLink>
       }
@@ -95,21 +96,31 @@ export function Proof() {
           <div key={headline.id} sx={styles.cell}>
             <span sx={styles.value}>{headline.value}</span>
             <span sx={styles.label}>{headline.label}</span>
-            <span sx={styles.source}>{headline.source}</span>
+            <a
+              href={
+                headline.link.startsWith("https:")
+                  ? headline.link
+                  : `${GITHUB}/blob/main/${headline.link}`
+              }
+              target="_blank"
+              rel="noreferrer"
+              sx={styles.source}
+            >
+              {headline.source}
+            </a>
           </div>
         ))}
       </div>
       <p sx={styles.note}>
-        Each figure names where it comes from: a section of{" "}
-        <a
-          href={`${GITHUB}/blob/main/${BENCH_SOURCE}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <InlineCode>{BENCH_SOURCE}</InlineCode>
+        The build and browser figures are medians from{" "}
+        <a href={LAB} target="_blank" rel="noreferrer">
+          kirana-lab
         </a>
-        , or a design note beside it. Those files give the machine, the date and
-        the commands.
+        , each claimed only where its 95 % confidence interval shows a
+        difference. Every measure, including where Kirana is behind, is on the{" "}
+        <DocsLink href="/docs/project/benchmarks">benchmarks page</DocsLink>.
+        The editor figures are from one developer machine, in the design note
+        each links.
       </p>
     </HomeSection>
   )
