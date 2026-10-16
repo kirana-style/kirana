@@ -29,6 +29,7 @@ import {
   LintFigure,
   ClassNameFigure,
   MentalModelFigure,
+  HabitsFigure,
 } from "./figures"
 import { EditorScene, EditorShowcase } from "@/components/home/editor"
 import { EditorBanner } from "@/components/site/editor-banner"
@@ -73,6 +74,7 @@ export const markdownComponents = createMarkdownComponents(
     "figure-lint": LintFigure as CommentRegistry[string],
     "figure-class-name": ClassNameFigure as CommentRegistry[string],
     "figure-mental-model": MentalModelFigure as CommentRegistry[string],
+    "figure-habits": HabitsFigure as CommentRegistry[string],
     editors: EditorGrid as CommentRegistry[string],
     linters: LinterGrid as CommentRegistry[string],
     "lint-rules": LintRuleGrid as CommentRegistry[string],

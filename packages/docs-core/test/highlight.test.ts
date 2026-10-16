@@ -211,4 +211,53 @@ describe("the markdown pipeline", () => {
     expect(plain!.properties.variant).toBeUndefined()
     expect(plain!.properties.title).toBe("b.tsx")
   })
+
+  it("joins a `do` block and the `dont` block after it into a pair", () => {
+    const document = parse(
+      [
+        "```tsx do",
+        "sx={[styles.card, sx]}",
+        "```",
+        "",
+        "```tsx dont",
+        "sx={[sx, styles.card]}",
+        "```",
+        "",
+        "Between.",
+        "",
+        "```tsx dont",
+        "alone()",
+        "```",
+        "",
+        "```tsx do",
+        "first()",
+        "```",
+        "",
+        "```tsx",
+        "plain()",
+        "```",
+        "",
+        "```tsx do",
+        "last()",
+        "```",
+      ].join("\n")
+    )
+    const nodes = document.children as {
+      type: string
+      properties?: Record<string, string>
+    }[]
+    expect(nodes.map((node) => node.properties?.variant ?? node.type)).toEqual([
+      "pair",
+      "paragraph",
+      "dont",
+      "do",
+      "component",
+      "do",
+    ])
+    expect(nodes[0]!.properties).toMatchObject({
+      source: "sx={[styles.card, sx]}",
+      pairSource: "sx={[sx, styles.card]}",
+    })
+    expect(nodes[0]!.properties!.pairHtml).toContain("styles")
+  })
 })

@@ -3035,8 +3035,8 @@ export const PAGES: readonly PageMeta[] = [
         "level": 3
       },
       {
-        "id": "2-components-take-sx-sx-and-put-it-last",
-        "text": "2. Components take sx?: Sx, and put it last",
+        "id": "2-components-take-sx-and-put-it-last",
+        "text": "2. Components take sx, and put it last",
         "level": 3
       },
       {
@@ -4139,6 +4139,11 @@ export const PAGES: readonly PageMeta[] = [
         "id": "cpu-throttled-6",
         "text": "CPU throttled 6×",
         "level": 3
+      },
+      {
+        "id": "a-large-page",
+        "text": "A large page",
+        "level": 2
       },
       {
         "id": "what-it-does-not-say",
@@ -8899,7 +8904,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "Habits for a new project",
-    "text": "These come from building every shadcn/ui component on Kirana, migrating the same three applications from StyleX and from Tailwind, and diffing the results element by element. Each one is here because not doing it cost us a bug. Each habit is a rule, why it matters, what to write and what not to, and the check that catches it when there is one."
+    "text": "Fifteen habits from building every shadcn/ui component on Kirana and migrating the same three applications from StyleX and from Tailwind. Each one is here because skipping it cost us a bug."
   },
   {
     "id": "/docs/start/tips#1-one-styles-object-per-module-named-by-part",
@@ -8907,15 +8912,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "1. One  styles  object per module, named by part",
-    "text": "Declare styles after the imports and name each after the part it styles, so the markup stays readable and a search for the name finds both ends. The element's is a good name: becomes ."
+    "text": "Declare the styles after the imports, one per part. The element's is a good name: becomes , and a search for it finds both ends."
   },
   {
-    "id": "/docs/start/tips#2-components-take-sx-sx-and-put-it-last",
-    "href": "/docs/start/tips#2-components-take-sx-sx-and-put-it-last",
+    "id": "/docs/start/tips#2-components-take-sx-and-put-it-last",
+    "href": "/docs/start/tips#2-components-take-sx-and-put-it-last",
     "page": "Habits for a new project",
     "section": "building",
-    "heading": "2. Components take  sx?: Sx , and put it last",
-    "text": "An array is merge order, so the caller's styles go last and win. Checked by , in the lint plugin ."
+    "heading": "2. Components take  sx , and put it last",
+    "text": "An array is merge order, so the caller's styles go last and win. A prop for styles is never needed. Checked by , in the lint plugin ."
   },
   {
     "id": "/docs/start/tips#3-take-sx-out-of-the-rest-spread",
@@ -8931,7 +8936,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "4. Installed components do not read  sx",
-    "text": "Base UI parts and anything else from take compiled props instead. Checked by ."
+    "text": "Base UI parts and anything else from take compiled props: from turns styles into them. Checked by ."
   },
   {
     "id": "/docs/start/tips#5-start-with-plain-values-adopt-scales-when-they-repeat",
@@ -8947,7 +8952,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "6. Put product decisions in your own tokens",
-    "text": ", and are yours: define them once as semantic tokens , each colour a pair."
+    "text": ", and are yours. Define each once as a semantic token , a pair. Set the theme's on : the root decides the scrollbars and an iframe's canvas."
   },
   {
     "id": "/docs/start/tips#7-a-font-size-comes-with-its-line-height",
@@ -8963,7 +8968,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "8. Name the longhands you set",
-    "text": "Prefer logical properties throughout, so right-to-left works without a second style. Checked by ."
+    "text": "Logical properties make right-to-left work without a second style. To replace a longhand a component's base sets, name that longhand: a shorthand sits beside it instead. Checked by ."
   },
   {
     "id": "/docs/start/tips#9-override-under-the-same-condition",
@@ -8971,7 +8976,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "9. Override under the same condition",
-    "text": "Styles merge per entry : a caller's replaces the base entry and keeps the component's vertical one. Omitting a key keeps it; removes it. Checked by , in the lint plugin."
+    "text": "Styles merge per entry . A plain value replaces the base entry only, and the component's conditional entries still win under their conditions. Omitting a key keeps it; removes it. To clear every entry first: . Checked by , in the lint plugin."
   },
   {
     "id": "/docs/start/tips#10-nest-the-winner-inside-the-other-condition",
@@ -8979,7 +8984,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "10. Nest the winner inside the other condition",
-    "text": "When two conditions of the same kind can match together and set different values, the compiler reports them rather than letting source order decide. Do not re-level the diagnostic to hide a tie; twice it hid a real bug. Checked by ."
+    "text": "When two conditions of the same kind can match together and set different values, the compiler reports them rather than letting source order decide. Twice, turning the report off hid a real bug. When a library never sets both, name the pair in instead. Checked by ."
   },
   {
     "id": "/docs/start/tips#11-put-the-relation-anchor-where-the-state-lives",
@@ -8987,7 +8992,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "11. Put the relation anchor where the state lives",
-    "text": "reads an ancestor and an earlier sibling, so the anchor goes on the element whose state is read, not on the element being styled. See relations ."
+    "text": "A relation reads the state of the element that carries its anchor, so the anchor goes on that element, not on the one being styled. Checked by ."
   },
   {
     "id": "/docs/start/tips#12-a-parent-s-rule-ranks-below-the-child-s-own",
@@ -8995,7 +9000,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "12. A parent's rule ranks below the child's own",
-    "text": "A block styles children from a parent, below their own styles, so an icon that sets its own size keeps it without a guard."
+    "text": "A block styles children from a parent, below their own styles, so an icon that sets its own size keeps it. When the parent must win, let the child read the parent."
   },
   {
     "id": "/docs/start/tips#13-animate-the-property-you-set",
@@ -9003,7 +9008,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "13. Animate the property you set",
-    "text": ", and are properties of their own."
+    "text": ", and are properties of their own, and a transition on does not cover them."
   },
   {
     "id": "/docs/start/tips#14-prefer-a-finite-set",
@@ -9011,7 +9016,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "14. Prefer a finite set",
-    "text": "A choice between known values compiles to a choice between classes and costs nothing. Bridge only what varies continuously, such as a width in percent or a colour from data, and read in the report to see where runtime values enter. See values known at runtime . Checked by , in the lint plugin's config."
+    "text": "A choice between known values compiles to a choice between classes and costs nothing. Bridge only what varies continuously, such as a width in percent; the report shows where runtime values enter. See values known at runtime . Checked by , in the lint plugin's config."
   },
   {
     "id": "/docs/start/tips#15-let-the-tools-answer-why",
@@ -9019,7 +9024,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Habits for a new project",
     "section": "building",
     "heading": "15. Let the tools answer \"why\"",
-    "text": "in CI: every diagnostic, with an exit code. when a value is not the one you expected: every entry, the winner, and the ladder step that decided it. To verify a port or a refactor, compare computed styles , not screenshots, in both colour schemes and at several widths. A 1 px border, an easing curve and a missing hover state were all invisible in screenshots and obvious in a diff. See conformance ."
+    "text": "reports every diagnostic with an exit code, for CI. answers when a value is not the one you expected: every entry, the winner, and the step of the ladder that decided it. To verify a port or a refactor, compare computed styles , not screenshots, in both colour schemes and at several widths. A 1 px border, an easing curve and a missing hover state were all invisible in screenshots and obvious in a diff. See conformance ."
   },
   {
     "id": "/docs/advanced/design-system",
@@ -10239,12 +10244,20 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "The app is grown to the same number of elements in each build, the CPU is throttled, and Chrome's own counters are read through the DevTools protocol: the style recalculation when the colour scheme switches, a hover, layout, and the 95th percentile of frame times."
   },
   {
+    "id": "/docs/project/benchmarks#a-large-page",
+    "href": "/docs/project/benchmarks#a-large-page",
+    "page": "Benchmarks",
+    "section": "project",
+    "heading": "A large page",
+    "text": "The demos above are small pages. The large-dom corpus is an order table of thousands of rows, as an admin screen has, written in each implementation with its own components: a status badge, a select, an icon button, and an Approve button on pending orders. Every build renders the same rows, from one seeded generator. Each round filters the table to the overdue orders and back to all of them, each timed from the click to the next frame, scrolls through it, moves the pointer across rows, and reads the JavaScript heap after a garbage collection. The page's HTML and attributes are its size."
+  },
+  {
     "id": "/docs/project/benchmarks#what-it-does-not-say",
     "href": "/docs/project/benchmarks#what-it-does-not-say",
     "page": "Benchmarks",
     "section": "project",
     "heading": "What it does not say",
-    "text": "The machine is a shared CI runner. Absolute times move from run to run, and GitHub does not promise the same processor twice: the run above names the one it had. Compare ratios within one run, never times from two runs. Three applications are one corpus. They are a shadcn/ui port: many small components, shared tokens. A codebase with other habits may measure otherwise, and the lab's corpus will grow. The editor is not measured here yet. The language server's latency and the time from saving a file to the updated stylesheet are from one developer machine, in the benchmark notes . The rules a quoted number has to meet, the fairness checks and the statistics are in the lab's METHODOLOGY.md ."
+    "text": "The machine is a shared CI runner. Absolute times move from run to run, and GitHub does not promise the same processor twice: the run above names the one it had. Compare ratios within one run, never times from two runs. The applications are one shadcn/ui port. Many small components, shared tokens, and one large table. A codebase with other habits may measure otherwise, and the lab's corpus will grow. The editor is not measured here yet. The language server's latency and the time from saving a file to the updated stylesheet are from one developer machine, in the benchmark notes . The rules a quoted number has to meet, the fairness checks and the statistics are in the lab's METHODOLOGY.md ."
   },
   {
     "id": "/docs/project/contributing",

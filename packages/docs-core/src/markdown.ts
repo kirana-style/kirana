@@ -69,6 +69,9 @@ function codeProperties(
       source: code,
     }
   }
+  // A rule's two sides: ```tsx do` and ```tsx dont`, joined into a pair when they follow each other.
+  const side = /(^|\s)(do|dont)(\s|$)/.exec(node.meta ?? "")?.[2]
+  if (side) return { html: highlightSource(node.value, lang), variant: side }
   return {
     html: highlightSource(node.value, lang, {
       ...(node.meta ? { meta: node.meta } : {}),
@@ -81,8 +84,43 @@ function codeProperties(
 const highlightCode: MarkdownExtension = {
   name: "kirana-highlight",
   transformDocument(document) {
-    return { ...document, children: document.children.map(block) }
+    return { ...document, children: paired(document.children.map(block)) }
   },
+}
+
+const sideOf = (node: BlockNode | undefined) =>
+  node?.type === "component" && node.name === "code"
+    ? node.properties?.variant
+    : undefined
+
+/**
+ * A `do` block followed by a `dont` block becomes one `pair` node, the two drawn side by side:
+ * the `do` side's markup and source, and the `dont` side's as `pairHtml` and `pairSource`.
+ */
+function paired(nodes: BlockNode[]): BlockNode[] {
+  const out: BlockNode[] = []
+  for (let index = 0; index < nodes.length; index++) {
+    const node = nodes[index]!
+    const next = nodes[index + 1]
+    if (
+      sideOf(node) === "do" &&
+      sideOf(next) === "dont" &&
+      node.type === "component" &&
+      next?.type === "component"
+    ) {
+      out.push({
+        ...node,
+        properties: {
+          ...node.properties,
+          variant: "pair",
+          pairHtml: next.properties!.html!,
+          pairSource: next.properties!.source!,
+        },
+      })
+      index++
+    } else out.push(node)
+  }
+  return out
 }
 
 function block(node: BlockNode): BlockNode {

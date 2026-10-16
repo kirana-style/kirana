@@ -5,6 +5,7 @@
  *   part="behind"                       every judged measure where Kirana measured higher
  *   part="build" corpus="total|web|…"   build and output, one app or all three
  *   part="browser" corpus="web" scenario="0|1"   the browser measures at one throttling rate
+ *   part="large-dom"                    the large-dom table: its app's build, then each size
  *
  * Each table cell is a median; each ratio is Kirana's median over the other's with its 95 %
  * confidence interval and the verdict it supports.
@@ -35,11 +36,13 @@ import {
   BENCH_RUN,
   BROWSER,
   METHODOLOGY,
+  LARGE_DOM_MISSING,
   RUN_FACTS,
+  largeDomTables,
   ratioText,
   reportTable,
 } from "@/data/benchmarks"
-import type { Comparison, Corpus } from "@/data/benchmarks"
+import type { Comparison, Corpus, ReportTable } from "@/data/benchmarks"
 
 const styles = {
   wrapper: css({ marginBlockEnd: spacing[6], overflowX: "auto" }),
@@ -95,6 +98,12 @@ const styles = {
     lineHeight: "1.6",
   }),
   value: css({ color: theme.mutedForeground, overflowWrap: "anywhere" }),
+  caption: css({
+    marginBlockEnd: spacing[2],
+    fontSize: fontSize.sm,
+    lineHeight: lineHeight.sm,
+    fontWeight: fontWeight.medium,
+  }),
 }
 
 const LINKS: [string, string][] = [
@@ -148,7 +157,10 @@ function Ratio({ entry }: { entry: Comparison | null }) {
 }
 
 function Report({ corpus, scenario }: { corpus: Corpus; scenario: string }) {
-  const table = reportTable(corpus, scenario)
+  return <ReportTableView table={reportTable(corpus, scenario)} />
+}
+
+function ReportTableView({ table }: { table: ReportTable }) {
   return (
     <div sx={styles.wrapper}>
       <Table>
@@ -193,6 +205,16 @@ export function Benchmarks({
   scenario?: string
 }) {
   if (part === "run") return <Run />
+  if (part === "large-dom") {
+    const tables = largeDomTables()
+    if (tables.length === 0) return <p>{LARGE_DOM_MISSING}</p>
+    return tables.map(({ title, table }) => (
+      <section key={title} aria-label={title}>
+        <p sx={styles.caption}>{title}</p>
+        <ReportTableView table={table} />
+      </section>
+    ))
+  }
   if (part === "behind")
     return BEHIND.length === 0 ? (
       <p>Nothing: every judged measure is lower for Kirana or level.</p>

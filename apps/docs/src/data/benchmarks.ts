@@ -36,7 +36,15 @@ export const NAME: Record<Other, string> = {
 }
 
 export const APPS = ["web", "blocks", "examples"] as const
-export type Corpus = (typeof APPS)[number] | "total"
+/**
+ * A three-way app or their total, or the large-dom corpus: `large-dom` is its app's build and
+ * `large-dom/<rows>` its table at one size.
+ */
+export type Corpus =
+  | (typeof APPS)[number]
+  | "total"
+  | "large-dom"
+  | `large-dom/${number}`
 
 export type Verdict = "lower" | "higher" | "no clear difference"
 
@@ -76,7 +84,12 @@ type Bench = {
     runtime: { node: string; bun: string; chrome?: string }
     runner?: string
     run?: string
-    rounds: { build: number; runtime: number; warmup: number }
+    rounds: {
+      build: number
+      runtime: number
+      warmup: number
+      largeDom?: number
+    }
     conformance: Record<string, string>
   }
   rows: Row[]
@@ -121,16 +134,46 @@ export const BENCH_DATE = BENCH.meta.date.slice(0, 10)
 /** What the run measured on: "GitHub-hosted runner, 4 cores (AMD EPYC 7763), 16 GB". */
 export const BENCH_MACHINE = `${BENCH.meta.runner ? "GitHub-hosted runner" : "developer machine"}, ${BENCH.meta.hardware.cores} cores (${BENCH.meta.hardware.cpu.replace(/ \d+-Core Processor$/, "")}), ${BENCH.meta.hardware.ramGb} GB`
 
-export const corpusId = (corpus: Corpus) => `three-way/${corpus}`
+export const corpusId = (corpus: Corpus) =>
+  corpus.startsWith("large-dom") ? corpus : `three-way/${corpus}`
 
-/** The browser scenarios, in the run's order: `CPU throttled 4×, about 6211 elements`. */
+/** The `web` app's browser scenarios, in the run's order: `CPU throttled 4×, about 6211 elements`. */
 export const BROWSER: readonly string[] = [
   ...new Set(
     BENCH.rows
-      .filter((entry) => entry.scenario !== "build")
+      .filter(
+        (entry) =>
+          entry.corpus === corpusId("web") && entry.scenario !== "build"
+      )
       .map((entry) => entry.scenario)
   ),
 ]
+
+/**
+ * The large-dom table's sizes this run measured, smallest first, each with its browser scenario
+ * (`CPU throttled 4×, about 22552 elements`); none for a run from before the lab had the corpus.
+ */
+export const LARGE_DOM: readonly {
+  corpus: Corpus
+  rows: number
+  scenario: string
+}[] = [
+  ...new Set(
+    BENCH.rows
+      .map((entry) => /^large-dom\/(\d+)$/.exec(entry.corpus)?.[1])
+      .filter((rows): rows is string => rows !== undefined)
+  ),
+]
+  .map(Number)
+  .sort((a, b) => a - b)
+  .map((rows) => ({
+    corpus: `large-dom/${rows}` as Corpus,
+    rows,
+    scenario: BENCH.rows.find(
+      (entry) =>
+        entry.corpus === `large-dom/${rows}` && entry.scenario !== "build"
+    )!.scenario,
+  }))
 
 export function row(
   corpus: Corpus,
@@ -174,13 +217,16 @@ function required(...args: Parameters<typeof comparison>): Comparison {
   return found
 }
 
-/** A value in the unit a reader expects: seconds from a second up, kB for bytes. */
+/** A value in the unit a reader expects: seconds from a second up, kB for bytes, MB from a megabyte. */
 export function formatValue(value: number, unit: string): string {
   if (unit === "ms")
     return value >= 1000
       ? `${(value / 1000).toFixed(2)} s`
       : `${value.toFixed(1)} ms`
-  if (unit === "bytes") return `${(value / 1000).toFixed(1)} kB`
+  if (unit === "bytes")
+    return value >= 1_000_000
+      ? `${(value / 1_000_000).toFixed(2)} MB`
+      : `${(value / 1000).toFixed(1)} kB`
   return value.toLocaleString("en", { maximumFractionDigits: 0 })
 }
 
@@ -443,6 +489,68 @@ export const MEASURES: readonly {
   },
   { metric: "layout", label: "Layout", kind: "time", judged: true },
   { metric: "framesP95", label: "Frame time, p95", kind: "time", judged: true },
+  { metric: "html", label: "HTML", kind: "size", judged: true },
+  {
+    metric: "classBytes",
+    label: "class attributes",
+    kind: "size",
+    judged: true,
+  },
+  {
+    metric: "filter",
+    label: "Filter, to the next frame",
+    kind: "time",
+    judged: true,
+  },
+  {
+    metric: "filterRecalc",
+    label: "Filter, style recalc",
+    kind: "time",
+    judged: true,
+  },
+  {
+    metric: "filterLayout",
+    label: "Filter, layout",
+    kind: "time",
+    judged: true,
+  },
+  {
+    metric: "restore",
+    label: "Every row again, to the next frame",
+    kind: "time",
+    judged: true,
+  },
+  {
+    metric: "restoreRecalc",
+    label: "Every row again, style recalc",
+    kind: "time",
+    judged: true,
+  },
+  {
+    metric: "restoreLayout",
+    label: "Every row again, layout",
+    kind: "time",
+    judged: true,
+  },
+  {
+    metric: "scrollP95",
+    label: "Scroll, frame time p95",
+    kind: "time",
+    judged: true,
+  },
+  {
+    metric: "scrollRecalc",
+    label: "Scroll, style recalc",
+    kind: "time",
+    judged: true,
+  },
+  {
+    metric: "hoverRecalc",
+    label: "Hover across rows, style recalc",
+    kind: "time",
+    judged: true,
+  },
+  { metric: "heap", label: "JavaScript heap", kind: "size", judged: true },
 ]
 
 /** `0.31× (0.31–0.31)`: a ratio and its interval, to two places, or three when two would show one of them as 1.00. */
@@ -458,16 +566,26 @@ export type ReportTable = {
   rows: { measure: string; values: string[]; ratios: (Comparison | null)[] }[]
 }
 
-/** One report table: every measure the run has for a corpus and scenario. */
-export function reportTable(corpus: Corpus, scenario: string): ReportTable {
+/**
+ * One report table: every measure the run has for a corpus in a scenario, or in any of several (a
+ * large-dom size's page bytes, then its browser measures).
+ */
+export function reportTable(
+  corpus: Corpus,
+  scenarios: string | readonly string[]
+): ReportTable {
   const rows = MEASURES.flatMap((measure) => {
-    const has = BENCH.rows.some(
-      (entry) =>
-        entry.corpus === corpusId(corpus) &&
-        entry.scenario === scenario &&
-        entry.metric === measure.metric
-    )
-    if (!has) return []
+    const scenario = [scenarios]
+      .flat()
+      .find((candidate) =>
+        BENCH.rows.some(
+          (entry) =>
+            entry.corpus === corpusId(corpus) &&
+            entry.scenario === candidate &&
+            entry.metric === measure.metric
+        )
+      )
+    if (scenario === undefined) return []
     return [
       {
         measure: measure.label,
@@ -485,7 +603,7 @@ export function reportTable(corpus: Corpus, scenario: string): ReportTable {
   })
   if (rows.length === 0)
     throw new Error(
-      `benchmarks.json: no measures for ${corpus}, ${scenario}; a page asks for a table the run does not have`
+      `benchmarks.json: no measures for ${corpus}, ${[scenarios].flat().join(" or ")}; a page asks for a table the run does not have`
     )
   return {
     head: [
@@ -497,10 +615,14 @@ export function reportTable(corpus: Corpus, scenario: string): ReportTable {
   }
 }
 
-const CORPUS_LABEL = (corpus: string) =>
-  corpus === "three-way/total"
-    ? "all three apps"
-    : `apps/${corpus.split("/")[1]}`
+const CORPUS_LABEL = (corpus: string) => {
+  if (corpus === "three-way/total") return "all three apps"
+  const [name, part] = corpus.split("/")
+  if (name !== "large-dom") return `apps/${part}`
+  return part
+    ? `the large-dom table, ${Number(part).toLocaleString("en")} rows`
+    : "apps/large-dom"
+}
 
 /**
  * Every judged comparison where Kirana measured higher: the report's "where Kirana is behind",
@@ -519,6 +641,24 @@ export const BEHIND: readonly string[] = BENCH.comparisons
       `${measure.label}, ${where}: ${ratioText(entry).replace("×", `× ${NAME[entry.against]}`)}`,
     ]
   })
+
+/**
+ * The large-dom corpus as tables: its app's build, then the table at each size the run measured,
+ * each titled "1,000 rows, CPU throttled 4×, about 22552 elements". Empty for a run without it.
+ */
+export function largeDomTables(): { title: string; table: ReportTable }[] {
+  if (LARGE_DOM.length === 0) return []
+  return [
+    { title: "The app's build", table: reportTable("large-dom", "build") },
+    ...LARGE_DOM.map((size) => ({
+      title: `${size.rows.toLocaleString("en")} rows, ${size.scenario}`,
+      table: reportTable(size.corpus, ["build", size.scenario]),
+    })),
+  ]
+}
+
+/** What a page says where the large-dom tables would be, for a run that did not measure them. */
+export const LARGE_DOM_MISSING = "This run did not measure the large-dom table."
 
 /** The run, as label and value pairs: what produced the numbers. */
 export const RUN_FACTS: readonly [string, string][] = [
@@ -544,7 +684,7 @@ export const RUN_FACTS: readonly [string, string][] = [
   ],
   [
     "Rounds",
-    `${BENCH.meta.rounds.build} cold builds per app after ${BENCH.meta.rounds.warmup} warm-up; ${BENCH.meta.rounds.runtime} browser runs`,
+    `${BENCH.meta.rounds.build} cold builds per app after ${BENCH.meta.rounds.warmup} warm-up; ${BENCH.meta.rounds.runtime} browser runs${BENCH.meta.rounds.largeDom ? `; ${BENCH.meta.rounds.largeDom} rounds at each large-dom size` : ""}`,
   ],
   [
     "Conformance",
@@ -571,10 +711,24 @@ export function benchmarksMarkdown({
     return BEHIND.length === 0
       ? "Nothing: every judged measure is lower for Kirana or level."
       : BEHIND.map((line) => `- ${line}`).join("\n")
-  const table = reportTable(
-    (corpus ?? "total") as Corpus,
-    part === "browser" ? BROWSER[Number(scenario ?? 0)]! : "build"
+  if (part === "large-dom") {
+    const tables = largeDomTables()
+    return tables.length === 0
+      ? LARGE_DOM_MISSING
+      : tables
+          .map(({ title, table }) => `**${title}**\n\n${markdownTable(table)}`)
+          .join("\n\n")
+  }
+  return markdownTable(
+    reportTable(
+      (corpus ?? "total") as Corpus,
+      part === "browser" ? BROWSER[Number(scenario ?? 0)]! : "build"
+    )
   )
+}
+
+/** A report table as Markdown, a ratio's verdict beside it. */
+function markdownTable(table: ReportTable): string {
   return [
     `| ${table.head.join(" | ")} |`,
     `| ${table.head.map(() => "---").join(" | ")} |`,
