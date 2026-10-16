@@ -9445,7 +9445,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style doctor",
-    "text": "Check a project's setup, and say what is missing. It reports the engine in use (native, or the WebAssembly fallback), every installed version and whether they match, whether the configuration loads, and whether the adapter, stylesheet and types are in place, which it learns by running 's plan without writing. The exit code is 1 when something fails. There is no cache to clear: Kirana keeps nothing on disk between builds."
+    "text": "Check a project's setup, and say what is missing. It reports the engine in use (native, or the WebAssembly fallback), every installed version and whether they match, whether the configuration loads, and whether the adapter, stylesheet and types are in place, which it learns by running 's plan without writing. The exit code is 1 when something fails. There is no cache to clear: Kirana keeps nothing on disk between builds. In a monorepo, run it in the app. A setup the app takes from the workspace counts: the adapter, from a shared config package its own config imports ( ); the types for , from a shared UI package that imports them; and the adapter's package, listed at the workspace's root or in that shared package."
   },
   {
     "id": "/docs/tooling/cli#a-bug-report",

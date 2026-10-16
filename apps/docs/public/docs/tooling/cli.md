@@ -156,6 +156,14 @@ loads, and whether the adapter, stylesheet and types are in place, which it lear
 by running `kirana-style init`'s plan without writing. The exit code is 1 when something fails.
 There is no cache to clear: Kirana keeps nothing on disk between builds.
 
+In a monorepo, run it in the app. A setup the app takes from the workspace counts:
+
+- the adapter, from a shared config package its own config imports
+  (`vite.config.ts, through @workspace/vite-config`);
+- the types for `sx`, from a shared UI package that imports them;
+- `kirana-style` and the adapter's package, listed at the workspace's root or in that
+  shared package.
+
 ### A bug report
 
 `--report` writes `kirana-report.md` (or the file after the flag): an issue body
