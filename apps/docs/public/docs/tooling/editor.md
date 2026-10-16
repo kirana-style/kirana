@@ -68,12 +68,24 @@ The Kirana extension registers the server for TypeScript, TSX and JavaScript, fo
 Vue, Svelte and Astro components once Zed's extensions for them are installed, and
 for HTML in Angular templates.
 Until it is published, add it with **zed: install dev extension** from
-`packages/kirana/editors/zed`. To run another binary:
+`packages/kirana/editors/zed`.
+
+It finds the server in this order:
+
+- the binary named in Zed's settings, below;
+- the project's own, when the `package.json` of the folder Zed opened lists
+  `kirana-style`;
+- a `kirana-style` on `PATH`.
+
+Zed does not let an extension look inside `node_modules`, so in a monorepo whose
+root does not list the package, name the binary in the settings:
 
 ```json
 {
   "lsp": {
-    "kirana": { "binary": { "path": "/path/to/kirana", "arguments": ["lsp"] } }
+    "kirana": {
+      "binary": { "path": "/path/to/kirana-style", "arguments": ["lsp"] }
+    }
   }
 }
 ```

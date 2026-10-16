@@ -1,6 +1,17 @@
 //! The binary lookup, on the host (the extension itself runs as WebAssembly inside Zed).
 
-use kirana_zed::{Found, locate};
+use kirana_zed::{Found, lists_kirana, locate};
+
+#[test]
+fn finds_the_project_binary_through_package_json() {
+    assert!(lists_kirana(r#"{ "devDependencies": { "kirana-style": "^0.2.1" } }"#));
+    assert!(lists_kirana(r#"{ "dependencies": { "react": "19.2.0", "kirana-style": "0.2.1" } }"#));
+    // The library and the bundler plugin do not install the command.
+    assert!(!lists_kirana(r#"{ "dependencies": { "@kirana-style/core": "0.2.1", "@kirana-style/vite": "0.2.1" } }"#));
+    assert!(!lists_kirana(r#"{ "peerDependencies": { "kirana-style": "*" } }"#));
+    assert!(!lists_kirana("{}"));
+    assert!(!lists_kirana("not json"));
+}
 
 #[test]
 fn prefers_the_setting_then_the_project_then_path() {
