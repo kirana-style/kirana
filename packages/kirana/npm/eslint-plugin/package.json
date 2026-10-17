@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/eslint-plugin",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Kirana's lint rules for ESLint and Oxlint, read from the compiler: its diagnostics, property order, tokens, forwarded sx, and the overrides that silently lose.",
   "license": "MIT",
   "author": "The Kirana authors",

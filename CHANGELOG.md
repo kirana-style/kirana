@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.3](https://github.com/kirana-style/kirana/compare/v0.2.2...v0.2.3) (2026-10-17)
+
+
+### Features
+
+* **site:** show the lab's scale curve on the benchmarks page ([#53](https://github.com/kirana-style/kirana/issues/53)) ([006313d](https://github.com/kirana-style/kirana/commit/006313d61bc0331059b30cfcf2ea6a31c0772ea2))
+* **site:** the large-dom table, a homepage chart and visual habits ([#52](https://github.com/kirana-style/kirana/issues/52)) ([7af6734](https://github.com/kirana-style/kirana/commit/7af6734384f71add75ba12fb506aee11a24aa4d3))
+
+
+### Bug fixes
+
+* **release:** publish a package only once npm serves what it depends on ([#50](https://github.com/kirana-style/kirana/issues/50)) ([f52fc50](https://github.com/kirana-style/kirana/commit/f52fc50b5043826efbf87a867b2ef0d1aa9b2cae))
+
+
+### Performance
+
+* **core:** merge each combination of handles once at runtime ([#54](https://github.com/kirana-style/kirana/issues/54)) ([633486f](https://github.com/kirana-style/kirana/commit/633486f3d212ce2a132ccaac046fecf92516c518))
+
 ## [0.2.2](https://github.com/kirana-style/kirana/compare/v0.2.1...v0.2.2) (2026-10-16)
 
 
