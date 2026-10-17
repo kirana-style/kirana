@@ -116,7 +116,7 @@ recommends: static CSS files for static styles, and a custom property in
 | The complaint                       | Runtime CSS-in-JS         | Kirana                                                                                                                                                                             |
 | ----------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Styles are computed while rendering | Yes                       | No. Styles become CSS during the build                                                                                                                                             |
-| A styling runtime in the bundle     | Yes, the whole library    | A module with only static styles imports nothing; merging and bridging need a helper under 1 kB gzipped                                                           |
+| A styling runtime in the bundle     | Yes, the whole library    | A module with only static styles imports nothing; merging and bridging need a helper under 1.1 kB gzipped                                                           |
 | Server rendering collects styles    | Yes                       | No. The stylesheet is a file, linked like any other                                                                                                                                |
 | `<style>` tags inserted at runtime  | Yes                       | Never. The runtime [never generates CSS](/docs/styling/dynamic)                                                                                                                    |
 | CSS grows with markup               | Often, one rule per usage | [Atomic](/docs/advanced/output): one rule per distinct declaration, shared by every element that uses it                                                                           |
@@ -821,7 +821,7 @@ strings or a custom-property bridge.
 - **No style engine.** Nothing parses styles, computes classes, or injects CSS at
   runtime.
 
-The only runtime code is a private helper under 1 kB, and it is included only when
+The only runtime code is a private helper under 1.1 kB, and it is included only when
 a module needs it: when styles are merged at runtime, or a value is bridged
 through a custom property. It merges class strings; it never generates CSS.
 
@@ -2104,7 +2104,7 @@ Usually that is a sign the value should be a bridge, or a
 ## What ships
 
 A module that needs runtime merging or a bridge imports a private helper that is
-under 1 kB minified and gzipped. It merges class strings and sets custom
+under 1.1 kB minified and gzipped. It merges class strings and sets custom
 properties. It never parses styles and never generates CSS.
 
 Modules with only static styles import nothing.
@@ -4491,7 +4491,7 @@ with npm and pnpm, in a production build and on the dev server.
 Everywhere else, `sx` is compiled away: the build writes the class names into the
 element. An Angular template reaches only its component's members, so there the
 build compiles your `css({...})` calls into class strings, and the `[sx]`
-directive merges them in the browser with Kirana's runtime, which is under 1 kB gzipped.
+directive merges them in the browser with Kirana's runtime, which is under 1.1 kB gzipped.
 The stylesheet is still built ahead of time, and the classes are the same ones a
 JSX app would get. What moves to the browser is only the merge: which entry wins
 when two handles set the same property.
@@ -6841,7 +6841,7 @@ the same rule, so an imported preset costs nothing until it is used.
 
 - The stylesheet.
 - Class strings in your JavaScript.
-- The private runtime (under 1 kB, gzipped) **only** in modules that merge at
+- The private runtime (under 1.1 kB, gzipped) **only** in modules that merge at
   runtime or bridge a value.
 
 There is no style engine, no CSS-in-JS injection, and no rule generation at
@@ -8453,7 +8453,7 @@ line coverage. The [changelog](/changelog) lists every release.
 - The precedence ladder, layers, and the ambiguity diagnostic
 - Tokens: inlined, variable, per-mode, registered (`@property`)
 - Themes and colour modes
-- Dynamic values: class expressions, the custom-property bridge, the runtime of under 1 kB
+- Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB
 - 45 diagnostics with stable codes
 - `@kirana-style/vite` for Vite 8, with hot updates
 - An adapter package for every other bundler, and one for Jest; see

@@ -69,6 +69,52 @@ describe("KRN-DYN-005 private runtime", () => {
     })
   })
 
+  it("merges each combination once, and hands every element its own copy (D-083)", () => {
+    const fresh = runtime("k", "className")
+    const first = fresh.sx(
+      ["k3T_aaa k4I_bbb", [undefined, "k3T_ccc"]],
+      ["own"],
+      []
+    )
+    expect(first).toStrictEqual({ className: "own k4I_bbb k3T_ccc" })
+    first.className = "changed"
+    // The same inputs again: the merged result, unchanged by what a caller did with its copy.
+    const second = fresh.sx(
+      ["k3T_aaa k4I_bbb", [undefined, "k3T_ccc"]],
+      ["own"],
+      []
+    )
+    expect(second).toStrictEqual({ className: "own k4I_bbb k3T_ccc" })
+    expect(second).not.toBe(first)
+    // A style, inline or bridged, is copied too.
+    const styled = fresh.sx(
+      [fresh.b("k3T_var", "--k1", 2)],
+      [],
+      [{ color: "red" }]
+    )
+    styled.style!.color = "blue"
+    expect(
+      fresh.sx([fresh.b("k3T_var", "--k1", 2)], [], [{ color: "red" }])
+    ).toStrictEqual({
+      className: "k3T_var",
+      style: { color: "red", "--k1": "2" },
+    })
+    // Inputs that differ only in a runtime value are different combinations.
+    expect(fresh.sx([fresh.b("k3T_var", "--k1", 3)], [], [])).toStrictEqual({
+      className: "k3T_var",
+      style: { "--k1": "3" },
+    })
+  })
+
+  it("starts its cache over past a bound, so runtime values cannot grow it without end", () => {
+    const fresh = runtime("k", "className")
+    for (let index = 0; index < 4200; index++)
+      expect(fresh.sx([`k3T_${index}`], [], [])).toStrictEqual({
+        className: `k3T_${index}`,
+      })
+    expect(fresh.sx(["k3T_0"], [], [])).toStrictEqual({ className: "k3T_0" })
+  })
+
   it("resolves recipes with defaults, booleans and compound variants", () => {
     const button = k.recipe({
       s: null,
@@ -123,7 +169,7 @@ describe("KRN-DYN-005 private runtime", () => {
     expect(k.cx("kx_", "kx/5_")).toBe("kx_ kx/5_")
   })
 
-  it("stays within 1.0 kB minified and gzipped", () => {
+  it("stays within 1.1 kB minified and gzipped (KRN-DYN-005, D-083)", () => {
     // As bundled: the generated family constants inlined in place of their import.
     const families = readFileSync(
       new URL("../src/families.generated.ts", import.meta.url),
@@ -139,6 +185,6 @@ describe("KRN-DYN-005 private runtime", () => {
     expect(source).not.toContain("families.generated")
     const javascript = transformSync("internal.ts", source).code
     const minified = minifySync("internal.js", javascript).code
-    expect(gzipSync(minified).length).toBeLessThanOrEqual(1000)
+    expect(gzipSync(minified).length).toBeLessThanOrEqual(1100)
   })
 })

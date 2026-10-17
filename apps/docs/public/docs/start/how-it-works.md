@@ -46,7 +46,7 @@ strings or a custom-property bridge.
 - **No style engine.** Nothing parses styles, computes classes, or injects CSS at
   runtime.
 
-The only runtime code is a private helper under 1 kB, and it is included only when
+The only runtime code is a private helper under 1.1 kB, and it is included only when
 a module needs it: when styles are merged at runtime, or a value is bridged
 through a custom property. It merges class strings; it never generates CSS.
 

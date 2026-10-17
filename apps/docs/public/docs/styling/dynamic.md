@@ -46,7 +46,7 @@ Usually that is a sign the value should be a bridge, or a
 ## What ships
 
 A module that needs runtime merging or a bridge imports a private helper that is
-under 1 kB minified and gzipped. It merges class strings and sets custom
+under 1.1 kB minified and gzipped. It merges class strings and sets custom
 properties. It never parses styles and never generates CSS.
 
 Modules with only static styles import nothing.
