@@ -30,6 +30,13 @@ export type Handle =
   | false
   | readonly Handle[]
 
+/** A host element's props: its class attribute (`className` or `class`) and inline style. */
+type Props = {
+  className?: string
+  class?: string
+  style?: Record<string, string>
+}
+
 /** `c`: class per merge key, in merge order; `v`: bridged variables. */
 type Merged = { c: Map<string, string>; v: Record<string, string> }
 
@@ -142,30 +149,46 @@ export function runtime(prefix: string, attribute: string) {
     return Object.keys(merged.v).length ? { c, v: merged.v } : c
   }
 
+  /**
+   * Props already merged, by their inputs' text. An element renders the same few combinations over
+   * and over (a table cell with no `sx` of its own is one), so each is merged once and shared, with
+   * its `className`, by every element that renders it; past a bound the cache starts over, so text
+   * built at runtime cannot grow it without end.
+   */
+  const settled = new Map<string, Props>()
+
   /** The props for a host element: foreign classes first, then handles; bridged variables last. */
   const sx = (
     handles: readonly Handle[],
     classNames: readonly unknown[],
     styles: readonly unknown[]
-  ): { className?: string; class?: string; style?: Record<string, string> } => {
-    const merged = merge([
-      classNames.filter((name) => typeof name === "string") as string[],
-      handles,
-    ])
-    const className = [...merged.c.values()]
-      .filter((token) => !token.endsWith("_"))
-      .join(" ")
-    const style = Object.assign(
-      {},
-      ...styles.filter((value) => value && typeof value === "object"),
-      merged.v
-    ) as Record<string, string>
-    // Only the keys that carry something: spread after an element's own `style` or class (`style={…}
-    // {...props(a)}`), an `undefined` would erase it.
-    return {
-      ...(className ? { [attribute]: className } : {}),
-      ...(Object.keys(style).length ? { style } : {}),
+  ): Props => {
+    const key = JSON.stringify([handles, classNames, styles])
+    let props = settled.get(key)
+    if (!props) {
+      const merged = merge([
+        classNames.filter((name) => typeof name === "string") as string[],
+        handles,
+      ])
+      const className = [...merged.c.values()]
+        .filter((token) => !token.endsWith("_"))
+        .join(" ")
+      const style = Object.assign(
+        {},
+        ...styles.filter((value) => value && typeof value === "object"),
+        merged.v
+      ) as Record<string, string>
+      // Only the keys that carry something: spread after an element's own `style` or class
+      // (`style={…} {...props(a)}`), an `undefined` would erase it.
+      props = {
+        ...(className ? { [attribute]: className } : {}),
+        ...(Object.keys(style).length ? { style } : {}),
+      }
+      if (settled.size > 4095) settled.clear()
+      settled.set(key, props)
     }
+    // A copy: a caller may change what it is given, and the shared one must not change with it.
+    return props.style ? { ...props, style: { ...props.style } } : { ...props }
   }
 
   /** A bridged value: `null` and `undefined` become `initial` so the declaration falls back. */

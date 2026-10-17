@@ -6064,7 +6064,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "How it works",
     "section": "start",
     "heading": "What reaches the browser",
-    "text": "One stylesheet , containing the atoms your application actually uses. Class strings in your JavaScript. No style engine. Nothing parses styles, computes classes, or injects CSS at runtime. The only runtime code is a private helper under 1 kB, and it is included only when a module needs it: when styles are merged at runtime, or a value is bridged through a custom property. It merges class strings; it never generates CSS."
+    "text": "One stylesheet , containing the atoms your application actually uses. Class strings in your JavaScript. No style engine. Nothing parses styles, computes classes, or injects CSS at runtime. The only runtime code is a private helper under 1.1 kB, and it is included only when a module needs it: when styles are merged at runtime, or a value is bridged through a custom property. It merges class strings; it never generates CSS."
   },
   {
     "id": "/docs/start/how-it-works#in-development",
@@ -6724,7 +6724,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Values known at runtime",
     "section": "dynamic",
     "heading": "What ships",
-    "text": "A module that needs runtime merging or a bridge imports a private helper that is under 1 kB minified and gzipped. It merges class strings and sets custom properties. It never parses styles and never generates CSS. Modules with only static styles import nothing."
+    "text": "A module that needs runtime merging or a bridge imports a private helper that is under 1.1 kB minified and gzipped. It merges class strings and sets custom properties. It never parses styles and never generates CSS. Modules with only static styles import nothing."
   },
   {
     "id": "/docs/styling/dynamic#what-is-not-allowed",
@@ -7940,7 +7940,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Angular",
     "section": "frameworks",
     "heading": "How Angular differs",
-    "text": "Everywhere else, is compiled away: the build writes the class names into the element. An Angular template reaches only its component's members, so there the build compiles your calls into class strings, and the directive merges them in the browser with Kirana's runtime, which is under 1 kB gzipped. The stylesheet is still built ahead of time, and the classes are the same ones a JSX app would get. What moves to the browser is only the merge: which entry wins when two handles set the same property."
+    "text": "Everywhere else, is compiled away: the build writes the class names into the element. An Angular template reaches only its component's members, so there the build compiles your calls into class strings, and the directive merges them in the browser with Kirana's runtime, which is under 1.1 kB gzipped. The stylesheet is still built ahead of time, and the classes are the same ones a JSX app would get. What moves to the browser is only the merge: which entry wins when two handles set the same property."
   },
   {
     "id": "/docs/frameworks/angular#the-fast-way",
@@ -9170,7 +9170,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The output",
     "section": "building",
     "heading": "What ships to the browser",
-    "text": "The stylesheet. Class strings in your JavaScript. The private runtime (under 1 kB, gzipped) only in modules that merge at runtime or bridge a value. There is no style engine, no CSS-in-JS injection, and no rule generation at runtime."
+    "text": "The stylesheet. Class strings in your JavaScript. The private runtime (under 1.1 kB, gzipped) only in modules that merge at runtime or bridge a value. There is no style engine, no CSS-in-JS injection, and no rule generation at runtime."
   },
   {
     "id": "/docs/reference/api",
@@ -10010,7 +10010,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Built",
-    "text": ", , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1 kB 45 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, the design system as JSON, tracing a property, and bo"
+    "text": ", , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 45 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, the design system as JSON, tracing a property, and "
   },
   {
     "id": "/docs/project/status#partial",

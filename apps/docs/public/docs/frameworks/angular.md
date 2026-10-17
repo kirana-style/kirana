@@ -16,7 +16,7 @@ with npm and pnpm, in a production build and on the dev server.
 Everywhere else, `sx` is compiled away: the build writes the class names into the
 element. An Angular template reaches only its component's members, so there the
 build compiles your `css({...})` calls into class strings, and the `[sx]`
-directive merges them in the browser with Kirana's runtime, which is under 1 kB gzipped.
+directive merges them in the browser with Kirana's runtime, which is under 1.1 kB gzipped.
 The stylesheet is still built ahead of time, and the classes are the same ones a
 JSX app would get. What moves to the browser is only the merge: which entry wins
 when two handles set the same property.

@@ -3,7 +3,7 @@
 ## Summary
 
 `@kirana-style/core/internal` merges compiled handles in the browser with exactly the build-time merge
-semantics, in under 1 kB gzip, using nothing but the class names.
+semantics, in under 1.1 kB gzip, using nothing but the class names.
 
 ## Context <!-- requirements and decisions implemented: KRN-DYN-002, KRN-DYN-003, KRN-DYN-005, KRN-API-014, KRN-TEST-003, D-018, D-043 -->
 
@@ -29,6 +29,11 @@ conditional handles). The merge must not ship per-handle metadata and must agree
 - `sx(handles, classNames, styles)` merges foreign class names first, strips tombstones, and merges
   style objects with bridged variables last, which is how a host element keeps a library's
   `className`/`style`.
+- `sx` keeps what it merged, keyed by `JSON.stringify` of its three arguments, and answers the same
+  inputs again from that cache with a shallow copy (its `style` copied too). A page renders the same
+  few combinations many times over, so each is merged once and its `className` is one string that
+  every element shares. The cache starts over at 4,096 entries, so values known only at runtime
+  cannot grow it without end (D-083).
 - `recipe(table)` merges base, the chosen option per group and every matching compound entry, per
   slot. No mixed-radix table: output grows with the number of options, not their product.
 
@@ -43,7 +48,7 @@ conditional handles). The merge must not ship per-handle metadata and must agree
 - Equivalence is tested, not assumed: `crates/kirana_ir/tests/properties.rs` generates 400 seeded
   merge sequences into `fixtures/merge/vectors.json`, and `npm/core/test/merge-vectors.test.ts`
   replays them through the runtime.
-- The size budget is asserted in `npm/core/test/internal.test.ts` (minified with Oxc and gzipped; 995 of 1,000 bytes after D-045).
+- The size budget is asserted in `npm/core/test/internal.test.ts` (minified with Oxc and gzipped; 1,075 of 1,100 bytes after D-083).
 
 ## Related
 
@@ -79,3 +84,22 @@ them. That is the first thing to do when a feature needs room, and it is not wor
 
 **Measure with Node.** Bun's zlib reports 1,003 B for the same bytes. The test uses Node's, so the
 budget is Node's; a Bun measurement looks like a failure that is not one.
+
+## The cache, and a budget of 1,100 bytes (2026-10-17, D-083)
+
+kirana-lab's large-dom corpus (`bench-0.2.2-20261017-5`) found Kirana behind all three other builds on
+a table of thousands of rows: the filter 1.11–1.25× slower to the next frame, every row again
+1.06–1.16×, and the JavaScript heap 1.12–1.26× larger, while style recalculation and layout were level
+or better. The time was in `sx()`: every `TableCell`, `Badge` and `Button` called it on every render, and
+it split the component's class string, built a `Map` and joined a new string each time, even with no
+`sx` passed in. 0.76–1.3 µs a call, about 10,000 calls a render at 1,000 rows.
+
+Caching by the inputs' text brings a call to 0.26–0.30 µs. In one lab session on one machine (1,000
+rows, six rounds, the published 0.2.1 runtime patched in place), Kirana ÷ StyleX went from 1.171 to
+**0.962** on the filter, 1.157 to **0.977** on every row again, and 1.122 to **0.947** on the heap: the
+shared `className` strings are where the memory went.
+
+It costs 76 bytes: 999 to 1,075. KRN-DYN-005's budget was a first plan, not a measured limit, so it
+moves to 1,100 bytes rather than holding the fix back. A key built by walking the handles is faster
+still (0.07–0.10 µs) but costs 146 bytes, for no difference a page can show. The 147 bytes of
+`recipe()` (above) remain the way to win room back when the next feature needs it.

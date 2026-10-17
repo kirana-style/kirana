@@ -13,11 +13,11 @@
 import data from "./benchmarks.json"
 
 /**
- * The private runtime's cap, minified and gzipped: KRN-DYN-005 holds it under 1,000 bytes, and
+ * The private runtime's cap, minified and gzipped: KRN-DYN-005 holds it under 1,100 bytes (D-083), and
  * `npm/core/test/internal.test.ts` asserts it (design-notes/runtime-merge.md). Prose says "under
  * {{fact:runtime-size}}"; a component reads this.
  */
-export const RUNTIME_SIZE = "1 kB"
+export const RUNTIME_SIZE = "1.1 kB"
 
 export type Tool = "Kirana" | "StyleX" | "StyleX (SWC)" | "Tailwind"
 type Target = "kirana" | "stylex" | "stylex-swc" | "tailwind"

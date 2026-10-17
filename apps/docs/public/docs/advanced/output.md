@@ -92,7 +92,7 @@ the same rule, so an imported preset costs nothing until it is used.
 
 - The stylesheet.
 - Class strings in your JavaScript.
-- The private runtime (under 1 kB, gzipped) **only** in modules that merge at
+- The private runtime (under 1.1 kB, gzipped) **only** in modules that merge at
   runtime or bridge a value.
 
 There is no style engine, no CSS-in-JS injection, and no rule generation at
