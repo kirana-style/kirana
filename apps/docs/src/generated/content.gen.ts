@@ -10128,7 +10128,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Releases and upgrading",
     "section": "project",
     "heading": "Today",
-    "text": "Every package is at 0.2.2 on npm, released together. Every release and what came with it is on the changelog , read from in the repository."
+    "text": "Every package is at 0.2.3 on npm, released together. Every release and what came with it is on the changelog , read from in the repository."
   },
   {
     "id": "/docs/project/releases#how-versions-work",
