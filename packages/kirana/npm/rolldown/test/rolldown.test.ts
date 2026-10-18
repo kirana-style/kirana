@@ -55,6 +55,33 @@ describe("KRN-INT-002 Rolldown on its own", () => {
     expect(output.some((file) => file.fileName === "styles/app.css")).toBe(true)
   })
 
+  it("drops a recipe table whose every call resolved at build time", async () => {
+    const root = app()
+    writeFileSync(
+      path.join(root, "src/main.ts"),
+      [
+        'import { css, recipe } from "@kirana-style/core"',
+        "const button = recipe({",
+        '  base: css({ display: "flex" }),',
+        '  variants: { tone: { solid: css({ color: "red" }), ghost: css({ color: "blue" }) } },',
+        "})",
+        'export const solid = button({ tone: "solid" })',
+        "",
+      ].join("\n")
+    )
+    const output = await bundle(root)
+    const js = output.find((file) => file.type === "chunk") as OutputChunk
+    const css = output.find(
+      (file) => file.fileName === "kirana.css"
+    ) as OutputAsset
+    const ghost = /\.(k50_\w+)\{color:blue\}/.exec(String(css.source))?.[1]
+    expect(ghost).toBeDefined()
+    expect(js.code).toContain("k5O_")
+    expect(js.code).not.toContain(ghost)
+    expect(js.code).not.toContain("recipe")
+    expect(js.code).not.toContain("runtime")
+  })
+
   it("fails the build on error diagnostics", async () => {
     const root = app()
     writeFileSync(

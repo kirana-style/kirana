@@ -6,6 +6,11 @@ use kirana_ir::{Dep, Dynamic, Handle, Recipe, StylePart, Value};
 
 use crate::Piece;
 
+/// Marks a runtime call the compiler writes as free of side effects, so a bundler drops it when its
+/// result is unused: a recipe table or a runtime instance whose call sites all resolved at build time.
+/// Bundlers still keep the side effects of the call's arguments.
+pub(crate) const PURE: &str = "/* @__PURE__ */ ";
+
 /// Accumulates generated code and the handles it materializes.
 #[derive(Default)]
 pub(crate) struct Code {
@@ -82,6 +87,7 @@ impl Code {
                 }
                 StylePart::Bridge { handle, variable, value } => {
                     self.runtime = true;
+                    self.text(PURE);
                     self.text("__k.b(");
                     self.handle(names, handle);
                     self.text(", ");
@@ -102,6 +108,7 @@ impl Code {
                 // An open or conditional result is a runtime call that stays as written.
                 let Dynamic::Style(parts) = &**dynamic else { return false };
                 self.runtime = true;
+                self.text(PURE);
                 self.text("__k.cx(");
                 self.parts(names, parts);
                 self.text(")");
@@ -174,6 +181,7 @@ impl Code {
     /// `__k.recipe({ s, b, v, c, d })`: slots, base, variants, compounds, defaults.
     fn recipe(&mut self, names: &kirana_ir::Names, recipe: &Recipe) {
         self.runtime = true;
+        self.text(PURE);
         self.text("__k.recipe({\"s\": ");
         match &recipe.slots {
             Some(slots) => {
