@@ -84,7 +84,8 @@ pub fn transform(evaluator: &Evaluator<'_, '_, '_>) -> TransformOutput {
         let prefix = &evaluator.context().names.prefix;
         let class = evaluator.context().config.jsx.class_attribute();
         let import = format!(
-            "import {{ runtime as __kirana_runtime }} from \"@kirana-style/core/internal\";\nconst __k = __kirana_runtime({prefix:?}, {class:?});\n"
+            "import {{ runtime as __kirana_runtime }} from \"@kirana-style/core/internal\";\nconst __k = {pure}__kirana_runtime({prefix:?}, {class:?});\n",
+            pure = codegen::PURE
         );
         let position = insertion_point(parsed);
         if position == 0 {

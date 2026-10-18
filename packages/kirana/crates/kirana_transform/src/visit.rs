@@ -213,6 +213,7 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             Some(_) => code.text("{}"),
             None => {
                 code.runtime = true;
+                code.text(crate::codegen::PURE);
                 code.text("__k.sx([");
                 code.parts(names, &parts.0);
                 code.text("], [], [])");
