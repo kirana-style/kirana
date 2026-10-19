@@ -161,7 +161,7 @@ fn class_names() {
     let custom = names.class(&set_op("--gap", &[], "1rem"));
     assert_eq!(custom[1..].split_once('_').unwrap().0.len(), 5);
     // Other names.
-    let ds = Names { prefix: "ds".into() };
+    let ds = Names { prefix: "ds".into(), mark: false };
     assert_eq!(ds.bridge_variable(&key("color", &[])), format!("--ds{}", key("color", &[]).segment()));
     assert!(ds.named('r', &["pkg", "field"]).starts_with("dsr"));
     assert_eq!(ds.named('r', &["pkg", "field"]).len(), 3 + kirana_ir::NAME_HASH);

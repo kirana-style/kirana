@@ -266,3 +266,55 @@ fn an_edited_or_removed_module_forgets_its_declarations() {
     assert!(project.remove(&input));
     fs::remove_dir_all(root).unwrap();
 }
+
+#[test]
+fn dense_names_cover_the_build_and_keep_their_codes() {
+    // A shorthand that a later override unfolds (D-045), conditions, a bridged value, and a string
+    // that only looks like a class name.
+    let card = "import { css } from \"@kirana-style/core\"\nexport const card = css({ padding: \"1rem\", color: { base: \"red\", \":hover\": \"blue\" } })\n";
+    let page = "import { css, cx } from \"@kirana-style/core\"\nimport { card } from \"./card\"\nexport const quoted = \"k50_D9ur\"\nexport const page = (wide: boolean, size: number) => cx(card, wide && css({ paddingTop: 0, color: { \":hover\": null } }), css({ width: size }))\n";
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("card.ts", card), ("page.ts", page)]);
+    project.mark_dense();
+    let card_out = project.transform(&root.join("card.ts"), card).code.unwrap();
+    let page_out = project.transform(&root.join("page.ts"), page).code.unwrap();
+    assert!(card_out.contains(kirana_ir::dense::MARK) && page_out.contains("--k"));
+    let css = project.stylesheet(true);
+    assert!(!css.contains(kirana_ir::dense::MARK));
+    let dense_css = project.dense_rename(&css);
+    assert!(dense_css.len() < css.len());
+    // Rules and their order are untouched; only the hashes changed.
+    assert_eq!(dense_css.split('{').count(), css.split('{').count());
+    let apply = |code: &str| {
+        let mut out = String::new();
+        let mut last = 0;
+        for edit in project.dense_edits(code) {
+            out.push_str(&code[last..edit.start]);
+            out.push_str(&edit.text);
+            last = edit.end;
+        }
+        out + &code[last..]
+    };
+    for code in [&card_out, &page_out] {
+        let renamed = apply(code);
+        assert!(!renamed.contains(kirana_ir::dense::MARK), "{renamed}");
+        // Every atom the module names has its rule.
+        for atom in renamed
+            .split(['"', ' '])
+            .filter(|token| token.starts_with("k") && token.contains('_') && !token.ends_with('_'))
+        {
+            if atom != "k50_D9ur" {
+                assert!(dense_css.contains(&format!(".{atom}")), "{atom} in {dense_css}");
+            }
+        }
+    }
+    // The string the module wrote itself is left as it was.
+    assert!(apply(&page_out).contains("\"k50_D9ur\""));
+    // A module compiled later keeps every earlier code and adds its own.
+    let before = project.dense_rename(&css);
+    let extra = "import { css } from \"@kirana-style/core\"\nexport const x = css({ color: \"rebeccapurple\", margin: { \":focus\": \"2px\" } })\n";
+    fs::write(root.join("extra.ts"), extra).unwrap();
+    project.transform(&root.join("extra.ts"), extra);
+    assert_eq!(project.dense_rename(&css), before);
+    assert!(project.dense_rename(&project.stylesheet(true)).len() > before.len());
+    fs::remove_dir_all(root).unwrap();
+}

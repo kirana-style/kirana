@@ -4,6 +4,9 @@
  */
 import path from "node:path"
 
+import MagicString from "magic-string"
+import type { SourceMap } from "magic-string"
+
 import type { KiranaConfig } from "@kirana-style/core/config"
 
 import { importFile, resolveConfig, resolveConfigSync } from "./config.ts"
@@ -172,9 +175,43 @@ export class Driver {
     return rest
   }
 
-  /** The stylesheet for every module compiled so far. */
-  stylesheet(minify: boolean): string {
-    return this.#compiler.stylesheet(minify)
+  /** The stylesheet for every module compiled so far; with `dense`, in dense names (D-084). */
+  stylesheet(minify: boolean, dense = false): string {
+    const css = this.#compiler.stylesheet(minify)
+    return dense ? this.#compiler.denseRename(css) : css
+  }
+
+  /**
+   * Starts a dense build (D-084): from now on every module marks the names the compiler writes into
+   * it, and `dense` renames those and nothing else. Call it before the first transform.
+   */
+  markDense(): void {
+    this.#compiler.markDense()
+  }
+
+  /**
+   * `code` with dense names (D-084) and a source map of the renaming, or `undefined` when it names
+   * no Kirana class. Codes are assigned on first sight and kept for the session, so a chunk renamed
+   * early stays valid while later modules compile. `source` is the name the map gives the input.
+   */
+  dense(
+    code: string,
+    source: string
+  ): { code: string; map: SourceMap } | undefined {
+    const { starts, ends, texts } = this.#compiler.denseEdits(code)
+    if (starts.length === 0) return undefined
+    const magic = new MagicString(code)
+    starts.forEach((start, index) =>
+      magic.overwrite(start, ends[index]!, texts[index]!)
+    )
+    return {
+      code: magic.toString(),
+      map: magic.generateMap({
+        source,
+        hires: "boundary",
+        includeContent: true,
+      }),
+    }
   }
 
   /**

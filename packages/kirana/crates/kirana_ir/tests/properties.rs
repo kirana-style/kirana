@@ -173,6 +173,24 @@ fn merge_vectors_are_current() {
     }
     let current = std::fs::read_to_string(&path).unwrap_or_default();
     assert!(current == text, "fixtures/merge/vectors.json is stale; rerun with KIRANA_UPDATE_FIXTURES=1");
+
+    // The same vectors in dense names (D-084): the runtime must merge renamed classes into the
+    // renamed result. Every hash in the file gets a code, as a build would give them.
+    let mut dense = dense::DenseNames::default();
+    let uses: Vec<(dense::Segment, &str, usize)> = dense::names("k", &text, false)
+        .into_iter()
+        .flat_map(|name| [(dense::Segment::Condition, name.condition), (dense::Segment::Value, name.value)])
+        .filter_map(|(segment, range)| range.map(|(start, end)| (segment, &text[start..end], 1)))
+        .collect();
+    dense.extend(uses);
+    let renamed = dense.rename("k", &text, false);
+    assert!(renamed.len() < text.len());
+    let path = path.with_file_name("dense-vectors.json");
+    if std::env::var_os("KIRANA_UPDATE_FIXTURES").is_some() {
+        std::fs::write(&path, &renamed).unwrap();
+    }
+    let current = std::fs::read_to_string(&path).unwrap_or_default();
+    assert!(current == renamed, "fixtures/merge/dense-vectors.json is stale; rerun with KIRANA_UPDATE_FIXTURES=1");
 }
 
 fn op_seed() -> impl Strategy<Value = OpSeed> {

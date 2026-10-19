@@ -163,4 +163,5 @@ browser.
 
 ## Related
 
-`spec/10-compiler-architecture.md#hashing-and-names`, [runtime-merge.md](runtime-merge.md).
+`spec/10-compiler-architecture.md#hashing-and-names`, [runtime-merge.md](runtime-merge.md), and
+[dense-names.md](dense-names.md), which renames the hashes after a production build instead.

@@ -114,6 +114,64 @@ describe("KRN-INT-002 production build", () => {
     expect(js.code).not.toContain('@kirana-style/core"')
   })
 
+  it("gives the client and the server bundle the same dense names (D-084)", async () => {
+    const root = app()
+    const shared = [
+      'import { css } from "@kirana-style/core"',
+      'export const card = css({ display: "grid", color: { base: "red", ":hover": "blue" }, padding: "1rem" })',
+      "",
+    ].join("\n")
+    writeFileSync(path.join(root, "src/card.ts"), shared)
+    writeFileSync(
+      path.join(root, "src/main.ts"),
+      'import "@kirana-style/core/stylesheet.css"\nimport { card } from "./card"\ndocument.querySelector("#app")!.className = String(card)\n'
+    )
+    writeFileSync(
+      path.join(root, "src/server.ts"),
+      'import { card } from "./card"\nexport const render = () => `<div class="${String(card)}"></div>`\n'
+    )
+    const plugins = kirana({ names: "dense" })
+    const options = {
+      root,
+      logLevel: "silent" as const,
+      configFile: false as const,
+      plugins,
+    }
+    const client = (await build({
+      ...options,
+      build: { write: false, minify: false, assetsInlineLimit: 0 },
+    })) as Rolldown.RolldownOutput
+    const server = (await build({
+      ...options,
+      build: { write: false, minify: false, ssr: "src/server.ts" },
+    })) as Rolldown.RolldownOutput
+    const css = String(
+      (
+        client.output.find((file) =>
+          file.fileName.endsWith(".css")
+        ) as Rolldown.OutputAsset
+      ).source
+    )
+    const chunk = (output: Rolldown.RolldownOutput) =>
+      (
+        output.output.find(
+          (file) => file.type === "chunk"
+        ) as Rolldown.OutputChunk
+      ).code
+    const atoms = (code: string) =>
+      [
+        ...code.matchAll(
+          /\bk[0-9A-Za-z]+(?:-[0-9A-Za-z]{1,3})*_[0-9A-Za-z]{1,2}\b/g
+        ),
+      ].map(([atom]) => atom)
+    const fromClient = atoms(chunk(client))
+    const fromServer = atoms(chunk(server))
+    expect(fromServer.length).toBeGreaterThan(2)
+    expect(fromServer).toEqual(fromClient)
+    for (const atom of fromServer) expect(css).toContain("." + atom)
+    expect(css).not.toMatch(/_[0-9A-Za-z]{4}\b/)
+  })
+
   it("fails the build on error diagnostics and warns on warnings", async () => {
     const root = app()
     writeFileSync(

@@ -10,6 +10,15 @@ export declare class Compiler {
   constructor(configJson: string)
   transform(id: string, code: string): TransformResult
   stylesheet(minify: boolean): string
+  /** From now on, transforms mark the names they write, for a dense build (D-084). */
+  markDense(): void
+  /**
+   * The edits that give `code` dense names (D-084), against the codes the session has assigned
+   * so far; assigning any the build needs first.
+   */
+  denseEdits(code: string): DenseEdits
+  /** `text` with dense names (D-084). */
+  denseRename(text: string): string
   /** The class map of `classes.modules`, compiling them first; `None` without `classes`. */
   classMap(): ClassMapResult | null
   /** Project-wide diagnostics as JSON. */
@@ -43,6 +52,16 @@ export interface ClassMapResult {
   json: string
   /** Diagnostics as a JSON array. */
   diagnostics: string
+}
+
+/**
+ * Dense-name edits (D-084) for a text, in UTF-16 offsets as JavaScript strings index:
+ * `starts[i]..ends[i]` becomes `texts[i]`.
+ */
+export interface DenseEdits {
+  starts: Array<number>
+  ends: Array<number>
+  texts: Array<string>
 }
 
 /** Runs the `kirana-style` command line; returns `[exitCode, output]`. */

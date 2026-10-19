@@ -31,11 +31,31 @@ kirana({
   config: { names: { prefix: "app" } },
   // Surface info-level diagnostics (bridged values, lowered targets) in the terminal.
   reportInfo: true,
+  // Shorter class names in a production build (below).
+  names: "dense",
 })
 ```
 
-Both are optional, and most projects pass nothing: the plugin finds
+All are optional, and most projects pass nothing: the plugin finds
 `kirana.config.*` in the Vite root on its own.
+
+## Dense names
+
+With `names: "dense"`, a production build replaces the two hashes in every
+class name with codes of one or two characters, assigned from the whole build:
+`k50-KFHz_D9ur` becomes something like `k50-b_a`.
+
+- **The development server keeps the hashed names.** So do the language
+  server and `kirana-style trace`.
+- **Only names the compiler wrote are renamed.** A string that merely looks like
+  a class name, such as an example on a documentation page, is left alone.
+- **The client and server bundles agree.** Both are renamed from one map, and
+  the stylesheet with them.
+
+It is off by default while it is measured on more applications; see
+[dense names](/docs/advanced/output#dense-names) for what it saves. It cannot be
+combined with a [class map](/docs/frameworks/server-templates), whose server-side
+helpers read hashed names, and the build says so.
 
 ## Which modules it compiles
 

@@ -2525,6 +2525,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "dense-names",
+        "text": "Dense names",
+        "level": 2
+      },
+      {
         "id": "which-modules-it-compiles",
         "text": "Which modules it compiles",
         "level": 2
@@ -3220,6 +3225,11 @@ export const PAGES: readonly PageMeta[] = [
         "id": "class-names",
         "text": "Class names",
         "level": 2
+      },
+      {
+        "id": "dense-names",
+        "text": "Dense names",
+        "level": 3
       },
       {
         "id": "conditions-in-the-selector",
@@ -8417,7 +8427,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Vite",
     "section": "bundlers",
     "heading": "Options",
-    "text": "Both are optional, and most projects pass nothing: the plugin finds in the Vite root on its own."
+    "text": "All are optional, and most projects pass nothing: the plugin finds in the Vite root on its own."
+  },
+  {
+    "id": "/docs/integrations/vite#dense-names",
+    "href": "/docs/integrations/vite#dense-names",
+    "page": "Vite",
+    "section": "bundlers",
+    "heading": "Dense names",
+    "text": "With , a production build replaces the two hashes in every class name with codes of one or two characters, assigned from the whole build: becomes something like . The development server keeps the hashed names. So do the language server and . Only names the compiler wrote are renamed. A string that merely looks like a class name, such as an example on a documentation page, is left alone. The client and server bundles agree. Both are renamed from one map, and the stylesheet with them. It is off by default while it is measured on more applications; see dense names for what it saves. It cannot be combined with a class map , whose server-side helpers read hashed names, and the build says so."
   },
   {
     "id": "/docs/integrations/vite#which-modules-it-compiles",
@@ -9131,6 +9149,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "building",
     "heading": "Class names",
     "text": "A name is . The prefix is configurable and defaults to ; the property code is an index into the property table; then come optional 3- and 4-character hashes for a pseudo-element or contextual target and for the condition set; and after the , four characters of the value's hash. Names are content-derived, so they are stable across builds and machines, and two applications with different prefixes can share a page. The widths are fixed and never grow. A name that depended on what else the project contained would change as the project grew, which would break incremental builds; so if two values on one property ever took the same name, the build stops with instead of guessing. Four characters make that about one build in two thousand for an application the size of the ones this compiler is tested on."
+  },
+  {
+    "id": "/docs/advanced/output#dense-names",
+    "href": "/docs/advanced/output#dense-names",
+    "page": "The output",
+    "section": "building",
+    "heading": "Dense names",
+    "text": "A production build can go further with . After every module has compiled, the compiler knows every condition set and every value in the application, so it can number them instead of hashing them: Each condition hash becomes a code of one or two characters , never three, so it is never mistaken for a target. Each value hash becomes a code of one or two characters from one numbering shared by every property. A runtime merge that unfolds a shorthand builds a longhand's name from the shorthand's value, so a value has to mean the same thing under every key. The property code and the target stay. They are what the runtime reads to merge, so merging works exactly as before and no lookup table ships. The most used segments get the shortest codes. A code, once given, never changes for the rest of the build, so a chunk renamed early stays valid while later modules compile. The stylesheet keeps its rules in the same order; only the names in it change. On this site, dense names make the stylesheet 12.7 % smaller in gzip and brotli, and the client JavaScript 1.2–1.4 % smaller, for about 4 % more build time. They are opt-in until they have been measured on more applications."
   },
   {
     "id": "/docs/advanced/output#conditions-in-the-selector",

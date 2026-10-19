@@ -38,13 +38,13 @@ impl Code {
 
     /// A class string literal for a handle, recording the handle.
     pub fn handle(&mut self, names: &kirana_ir::Names, handle: &Handle) {
-        self.string(&names.class_string(handle));
+        self.string(&names.written(&names.class_string(handle)));
         self.record(handle);
     }
 
     /// A class literal for a host element (no tombstones), recording the handle.
     pub fn dom_handle(&mut self, names: &kirana_ir::Names, handle: &Handle) {
-        self.string(&names.dom_class_string(handle));
+        self.string(&names.written(&names.dom_class_string(handle)));
         self.record(handle);
     }
 
@@ -91,7 +91,7 @@ impl Code {
                     self.text("__k.b(");
                     self.handle(names, handle);
                     self.text(", ");
-                    self.string(variable);
+                    self.string(&names.written(variable));
                     self.text(", (");
                     self.source(*value);
                     self.text("))");

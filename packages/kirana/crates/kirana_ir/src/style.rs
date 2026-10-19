@@ -268,15 +268,37 @@ impl Handle {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Names {
     pub prefix: String,
+    /// A dense build (D-084): [`Names::written`] marks every name the compiler writes into code.
+    pub mark: bool,
 }
 
 impl Default for Names {
     fn default() -> Self {
-        Self { prefix: "k".to_owned() }
+        Self { prefix: "k".to_owned(), mark: false }
     }
 }
 
 impl Names {
+    /// Names as the compiler writes them into code: `text` is a class string or a bridged
+    /// variable. In a dense build every name in it gets [`crate::dense::MARK`], so that renaming
+    /// touches what the compiler wrote and nothing else.
+    pub fn written(&self, text: &str) -> String {
+        if !self.mark {
+            return text.to_owned();
+        }
+        let variable = format!("--{}", self.prefix);
+        text.split(' ')
+            .map(|token| {
+                if token.starts_with(&self.prefix) || token.starts_with(&variable) {
+                    format!("{}{token}", crate::dense::MARK)
+                } else {
+                    token.to_owned()
+                }
+            })
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+
     /// `{prefix}{key}_{value}` for a set entry; `{prefix}{key}_` (a tombstone) for a removal;
     /// `{prefix}{property segment}*_` for a property removal;
     /// `{prefix}{shorthand code}/{kept codes joined by .}{target}{-conditions | *}_` for an unfold.
