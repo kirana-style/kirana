@@ -64,6 +64,31 @@ so if two values on one property ever took the same name, the build stops with
 build in two thousand for an application the size of the ones this compiler is
 tested on.
 
+### Dense names
+
+A production build can go further with
+[`names: "dense"`](/docs/integrations/vite#dense-names). After every module has
+compiled, the compiler knows every condition set and every value in the
+application, so it can number them instead of hashing them:
+
+- **Each condition hash becomes a code of one or two characters**, never three, so
+  it is never mistaken for a target.
+- **Each value hash becomes a code of one or two characters** from one numbering
+  shared by every property. A runtime merge that unfolds a shorthand builds a
+  longhand's name from the shorthand's value, so a value has to mean the same
+  thing under every key.
+- **The property code and the target stay.** They are what the runtime reads to
+  merge, so merging works exactly as before and no lookup table ships.
+
+The most used segments get the shortest codes. A code, once given, never changes
+for the rest of the build, so a chunk renamed early stays valid while later modules
+compile. The stylesheet keeps its rules in the same order; only the names in it
+change.
+
+On this site, dense names make the stylesheet 12.7 % smaller in gzip and brotli,
+and the client JavaScript 1.2–1.4 % smaller, for about 4 % more build time.
+They are opt-in until they have been measured on more applications.
+
 ## Conditions in the selector
 
 Conditions compile into the selector or the at-rule, and order inside the layer

@@ -5376,11 +5376,31 @@ kirana({
   config: { names: { prefix: "app" } },
   // Surface info-level diagnostics (bridged values, lowered targets) in the terminal.
   reportInfo: true,
+  // Shorter class names in a production build (below).
+  names: "dense",
 })
 ```
 
-Both are optional, and most projects pass nothing: the plugin finds
+All are optional, and most projects pass nothing: the plugin finds
 `kirana.config.*` in the Vite root on its own.
+
+## Dense names
+
+With `names: "dense"`, a production build replaces the two hashes in every
+class name with codes of one or two characters, assigned from the whole build:
+`k50-KFHz_D9ur` becomes something like `k50-b_a`.
+
+- **The development server keeps the hashed names.** So do the language
+  server and `kirana-style trace`.
+- **Only names the compiler wrote are renamed.** A string that merely looks like
+  a class name, such as an example on a documentation page, is left alone.
+- **The client and server bundles agree.** Both are renamed from one map, and
+  the stylesheet with them.
+
+It is off by default while it is measured on more applications; see
+[dense names](/docs/advanced/output#dense-names) for what it saves. It cannot be
+combined with a [class map](/docs/frameworks/server-templates), whose server-side
+helpers read hashed names, and the build says so.
 
 ## Which modules it compiles
 
@@ -6807,6 +6827,31 @@ so if two values on one property ever took the same name, the build stops with
 `class-name-collision` instead of guessing. Four characters make that about one
 build in two thousand for an application the size of the ones this compiler is
 tested on.
+
+### Dense names
+
+A production build can go further with
+[`names: "dense"`](/docs/integrations/vite#dense-names). After every module has
+compiled, the compiler knows every condition set and every value in the
+application, so it can number them instead of hashing them:
+
+- **Each condition hash becomes a code of one or two characters**, never three, so
+  it is never mistaken for a target.
+- **Each value hash becomes a code of one or two characters** from one numbering
+  shared by every property. A runtime merge that unfolds a shorthand builds a
+  longhand's name from the shorthand's value, so a value has to mean the same
+  thing under every key.
+- **The property code and the target stay.** They are what the runtime reads to
+  merge, so merging works exactly as before and no lookup table ships.
+
+The most used segments get the shortest codes. A code, once given, never changes
+for the rest of the build, so a chunk renamed early stays valid while later modules
+compile. The stylesheet keeps its rules in the same order; only the names in it
+change.
+
+On this site, dense names make the stylesheet 12.7 % smaller in gzip and brotli,
+and the client JavaScript 1.2–1.4 % smaller, for about 4 % more build time.
+They are opt-in until they have been measured on more applications.
 
 ## Conditions in the selector
 

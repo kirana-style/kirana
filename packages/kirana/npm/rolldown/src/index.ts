@@ -43,6 +43,14 @@ export type KiranaRolldownOptions = {
    * bundles CSS, the stylesheet follows Vite's asset naming instead.
    */
   fileName?: string
+  /**
+   * `"dense"` gives a production build short class names (D-084): the condition and value hashes
+   * in every chunk and in the stylesheet become codes of one or two characters, assigned from the
+   * whole build, and everything the runtime merge reads stays. A development server keeps the
+   * hashed names. Not available with a class map (`classes`), whose server-side helpers read hashed
+   * names. Default `"hashed"`.
+   */
+  names?: "hashed" | "dense"
   /** Injected Driver options (tests). */
   driver?: Pick<DriverOptions, "native" | "importModule">
 }
@@ -79,6 +87,7 @@ export function createKirana(
   const filled = new Set<string>()
   const development = () => host.development?.() ?? false
   const fileName = options.fileName ?? "kirana.css"
+  const dense = () => options.names === "dense" && !development()
 
   const session = () => {
     driver ??= Driver.create({
@@ -95,7 +104,20 @@ export function createKirana(
     name: "kirana",
 
     async buildStart() {
-      await session()
+      const compiler = await session()
+      if (dense()) {
+        if (compiler.classModules.length > 0) {
+          throw new Error(
+            'kirana: `names: "dense"` cannot be used with a class map (`classes`): server templates read hashed names'
+          )
+        }
+        compiler.markDense()
+      }
+    },
+
+    async renderChunk(code: string, chunk: { fileName: string }) {
+      if (!dense()) return null
+      return (await session()).dense(code, chunk.fileName) ?? null
     },
 
     load: {
@@ -182,7 +204,7 @@ export function createKirana(
       order: "pre",
       async handler(_output, bundle) {
         if (!host.bundlesCss) {
-          const css = (await session()).stylesheet(true)
+          const css = (await session()).stylesheet(true, dense())
           this.emitFile({ type: "asset", fileName, source: css })
           return
         }
@@ -205,7 +227,7 @@ export function createKirana(
       source: string
     }) => unknown
   ) => {
-    const css = (await session()).stylesheet(true)
+    const css = (await session()).stylesheet(true, dense())
     for (const [key, asset] of Object.entries(bundle)) {
       if (asset.type !== "asset") continue
       const source = fillStylesheet(String(asset.source), css)

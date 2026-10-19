@@ -7,6 +7,7 @@ use std::sync::Arc;
 use kirana_diagnostics::{Code, Diagnostic, Span, apply_level};
 use kirana_emit::{EmitOptions, emit};
 use kirana_evaluator::{Definitions, relation_reads};
+use kirana_ir::dense::{self, Edit, Segment};
 use kirana_ir::{Atom, Dep, EntryKey, Handle, Names, Op, Property, Target};
 use kirana_transform::TransformOutput;
 use lightningcss::targets::{Browsers, Targets};
@@ -130,6 +131,57 @@ impl Project {
             lower_for: self.lowering_targets(),
         };
         emit(&atoms, &deps, &options).css
+    }
+
+    /// From now on, transforms mark every name they write (D-084), so that [`Project::dense_edits`]
+    /// renames what the compiler wrote and nothing else. A host turns this on before a dense build.
+    pub fn mark_dense(&self) {
+        self.dense.store(true, std::sync::atomic::Ordering::Relaxed);
+    }
+
+    /// The edits that give a chunk `text` dense names (D-084), renaming marked names and removing marks: every condition and value hash in the build
+    /// has a code, assigned the first time it is seen and kept for the rest of the session, so text
+    /// renamed earlier stays valid as later modules compile.
+    pub fn dense_edits(&self, text: &str) -> Vec<Edit> {
+        self.assign_dense();
+        self.state.read().expect("not poisoned").dense.edits(&self.names.prefix, text, true)
+    }
+
+    /// A stylesheet `text` with dense names (D-084): every name in it is the compiler's.
+    pub fn dense_rename(&self, text: &str) -> String {
+        self.assign_dense();
+        self.state.read().expect("not poisoned").dense.rename(&self.names.prefix, text, false)
+    }
+
+    /// Codes for the hashes of every name the modules write and the stylesheet holds, counted once
+    /// per site that writes them.
+    fn assign_dense(&self) {
+        if !self.state.read().expect("not poisoned").dense_stale {
+            return;
+        }
+        let mut classes: Vec<String> = self.live().0.into_iter().map(|atom| atom.class).collect();
+        {
+            let state = self.state.read().expect("not poisoned");
+            for record in state.modules.values() {
+                for (_, handle) in &record.handles {
+                    classes.extend(handle.ops.iter().map(|op| self.names.class(op)));
+                }
+            }
+        }
+        let prefix = &self.names.prefix;
+        let mut uses = Vec::new();
+        for class in &classes {
+            for name in dense::names(prefix, class, false) {
+                for (segment, range) in [(Segment::Condition, name.condition), (Segment::Value, name.value)] {
+                    if let Some((start, end)) = range.filter(|(start, end)| end - start == 4) {
+                        uses.push((segment, &class[start..end], 1));
+                    }
+                }
+            }
+        }
+        let mut state = self.state.write().expect("not poisoned");
+        state.dense.extend(uses);
+        state.dense_stale = false;
     }
 
     fn lowering_targets(&self) -> Option<Targets> {

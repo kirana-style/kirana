@@ -1,5 +1,5 @@
 /**
- * Where the private runtime's 1,000 bytes go (KRN-DYN-005).
+ * Where the private runtime's 1,100 bytes go (KRN-DYN-005).
  *
  *   bun scripts/runtime-budget.ts
  *
@@ -40,7 +40,7 @@ function between(from: string, to: string): string | undefined {
 
 const whole = size(source)
 console.log(
-  `runtime: ${compile(source).length} B minified, ${whole} B gzip of 1000, ${1000 - whole} to spare\n`
+  `runtime: ${compile(source).length} B minified, ${whole} B gzip of 1100, ${1100 - whole} to spare\n`
 )
 
 const parts: [string, string | undefined][] = [

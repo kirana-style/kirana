@@ -17,10 +17,16 @@ const code = (index: number): string =>
     (index %= 62) < 10 ? index + 48 : index < 36 ? index + 87 : index + 29
   )
 
-/** `key` is `base`, or — for every condition set — `base` plus `-` and a 4-character condition hash. */
+/**
+ * `key` is `base`, or — for every condition set — `base` plus `-` and a condition segment: a
+ * 4-character hash, or a 1–2 character code in dense names. A 3-character segment is a target, and
+ * a second `-` starts another segment, so neither is a condition of `base`.
+ */
 const scoped = (key: string, base: string, every: boolean) =>
   key === base ||
-  (every && key.startsWith(base + "-") && key.length === base.length + 5)
+  (every &&
+    key.startsWith(base + "-") &&
+    !/-|^...$/.test(key.slice(base.length + 1)))
 
 export type Handle =
   | string

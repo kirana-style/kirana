@@ -3,6 +3,7 @@
 
 pub mod condition;
 pub mod defs;
+pub mod dense;
 pub mod style;
 pub mod value;
 

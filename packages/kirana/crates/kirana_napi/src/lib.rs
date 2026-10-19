@@ -31,6 +31,15 @@ pub struct ClassMapResult {
     pub diagnostics: String,
 }
 
+/// Dense-name edits (D-084) for a text, in UTF-16 offsets as JavaScript strings index:
+/// `starts[i]..ends[i]` becomes `texts[i]`.
+#[napi(object)]
+pub struct DenseEdits {
+    pub starts: Vec<u32>,
+    pub ends: Vec<u32>,
+    pub texts: Vec<String>,
+}
+
 /// A compilation session.
 #[napi]
 pub struct Compiler {
@@ -63,6 +72,39 @@ impl Compiler {
     #[napi]
     pub fn stylesheet(&self, minify: bool) -> String {
         self.project.stylesheet(minify)
+    }
+
+    /// From now on, transforms mark the names they write, for a dense build (D-084).
+    #[napi]
+    pub fn mark_dense(&self) {
+        self.project.mark_dense();
+    }
+
+    /// The edits that give `code` dense names (D-084), against the codes the session has assigned
+    /// so far; assigning any the build needs first.
+    #[napi]
+    pub fn dense_edits(&self, code: String) -> DenseEdits {
+        let edits = self.project.dense_edits(&code);
+        let mut out = DenseEdits { starts: Vec::new(), ends: Vec::new(), texts: Vec::new() };
+        // Byte offsets to UTF-16 ones, in one pass: edits arrive in order.
+        let (mut byte, mut unit) = (0usize, 0u32);
+        let mut advance = |to: usize| {
+            unit += code[byte..to].encode_utf16().count() as u32;
+            byte = to;
+            unit
+        };
+        for edit in edits {
+            out.starts.push(advance(edit.start));
+            out.ends.push(advance(edit.end));
+            out.texts.push(edit.text);
+        }
+        out
+    }
+
+    /// `text` with dense names (D-084).
+    #[napi]
+    pub fn dense_rename(&self, text: String) -> String {
+        self.project.dense_rename(&text)
     }
 
     /// The class map of `classes.modules`, compiling them first; `None` without `classes`.

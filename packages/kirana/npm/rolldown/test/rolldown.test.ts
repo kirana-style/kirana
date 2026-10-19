@@ -5,6 +5,7 @@ import type { OutputAsset, OutputChunk } from "rolldown"
 import { afterAll, describe, expect, it } from "vite-plus/test"
 
 import kirana, { createKirana } from "../src/index.ts"
+import type { KiranaRolldownOptions } from "../src/index.ts"
 
 const created: string[] = []
 function app(): string {
@@ -19,14 +20,18 @@ afterAll(() =>
   )
 )
 
-async function bundle(root: string, fileName?: string) {
+async function bundle(
+  root: string,
+  fileName?: string,
+  names?: KiranaRolldownOptions["names"]
+) {
   const build = await rolldown({
     input: path.join(root, "src/main.ts"),
     cwd: root,
     logLevel: "silent",
-    plugins: [kirana({ root, fileName })],
+    plugins: [kirana({ root, fileName, names })],
   })
-  return (await build.generate({ dir: "dist" })).output
+  return (await build.generate({ dir: "dist", sourcemap: true })).output
 }
 
 describe("KRN-INT-002 Rolldown on its own", () => {
@@ -80,6 +85,84 @@ describe("KRN-INT-002 Rolldown on its own", () => {
     expect(js.code).not.toContain(ghost)
     expect(js.code).not.toContain("recipe")
     expect(js.code).not.toContain("runtime")
+  })
+
+  it("gives a production build dense names, the same in its chunks and its stylesheet (D-084)", async () => {
+    const source = [
+      'import "@kirana-style/core/stylesheet.css"',
+      'import { css, cx, recipe } from "@kirana-style/core"',
+      "const box = css({",
+      '  display: "grid",',
+      '  color: { base: "red", ":hover": "blue", "@media (width >= 48rem)": "green" },',
+      '  padding: "1rem",',
+      "})",
+      "const tone = recipe({",
+      '  base: css({ borderStyle: "solid" }),',
+      '  variants: { tone: { a: css({ color: { ":hover": "red" } }), b: css({ color: "blue" }) } },',
+      "})",
+      "export const pick = (name: 'a' | 'b') => tone({ tone: name })",
+      // A chunk of its own with no class names in it.
+      'export const later = () => import("./plain.ts")',
+      "export const merged = (wide: boolean) => cx(box, wide && css({ paddingTop: 0, color: { ':hover': null } }))",
+      "",
+    ].join("\n")
+    const build = async (names: KiranaRolldownOptions["names"]) => {
+      const root = app()
+      writeFileSync(path.join(root, "src/main.ts"), source)
+      writeFileSync(path.join(root, "src/plain.ts"), "export const plain = 1\n")
+      const output = await bundle(root, undefined, names)
+      const chunks = output.filter((file) => file.type === "chunk")
+      expect(chunks).toHaveLength(2)
+      const js = chunks.find((chunk) => chunk.isEntry) as OutputChunk
+      const css = output.find(
+        (file) => file.fileName === "kirana.css"
+      ) as OutputAsset
+      return { js, css: String(css.source) }
+    }
+    const hashed = await build("hashed")
+    const dense = await build("dense")
+    const hash =
+      /\bk[0-9A-Za-z]+(?:-[0-9A-Za-z]{3})?-[0-9A-Za-z]{4}_|_[0-9A-Za-z]{4}\b/
+    expect(hashed.css).toMatch(hash)
+    expect(dense.css).not.toMatch(hash)
+    expect(dense.js.code).not.toMatch(hash)
+    expect(dense.css.length).toBeLessThan(hashed.css.length)
+    // The same rules in the same order: only names changed.
+    const rules = (css: string) => css.replace(/\.k[^{,:]*/g, ".k")
+    expect(rules(dense.css)).toBe(rules(hashed.css))
+    // Every atom a chunk names has its rule.
+    const atoms = [
+      ...dense.js.code.matchAll(
+        /\bk[0-9A-Za-z]+(?:-[0-9A-Za-z]{1,3})*_[0-9A-Za-z]{1,2}\b/g
+      ),
+    ]
+    expect(atoms.length).toBeGreaterThan(5)
+    for (const [atom] of atoms) expect(dense.css).toContain("." + atom)
+    // The renaming is in the chunk's source map.
+    expect(dense.js.map?.sources.some((file) => file.endsWith("main.ts"))).toBe(
+      true
+    )
+  })
+
+  it("refuses dense names with a class map", async () => {
+    const root = app()
+    const build = rolldown({
+      input: path.join(root, "src/main.ts"),
+      cwd: root,
+      logLevel: "silent",
+      plugins: [
+        kirana({
+          root,
+          names: "dense",
+          config: {
+            classes: { modules: ["src/tokens.ts"], out: "classes.json" },
+          },
+        }),
+      ],
+    })
+    await expect(
+      build.then((built) => built.generate({ dir: "dist" }))
+    ).rejects.toThrow("cannot be used with a class map")
   })
 
   it("fails the build on error diagnostics", async () => {

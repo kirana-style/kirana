@@ -11,12 +11,16 @@ type Vector = {
   dom: string[]
 }
 
-const vectors = JSON.parse(
-  readFileSync(
-    new URL("../../../fixtures/merge/vectors.json", import.meta.url),
-    "utf8"
-  )
-) as Vector[]
+const load = (file: string) =>
+  JSON.parse(
+    readFileSync(
+      new URL(`../../../fixtures/merge/${file}`, import.meta.url),
+      "utf8"
+    )
+  ) as Vector[]
+const vectors = load("vectors.json")
+// The same vectors in dense names (D-084): condition and value hashes as 1–2 character codes.
+const dense = load("dense-vectors.json")
 
 const k = runtime("k", "className")
 
@@ -31,20 +35,22 @@ const partition = (classes: string) => {
 }
 
 describe("KRN-TEST-003 runtime merge matches the build-time merge", () => {
-  it("has vectors", () => {
+  it("has vectors, and as many in dense names", () => {
     expect(vectors.length).toBeGreaterThan(200)
+    expect(dense.length).toBe(vectors.length)
+    expect(JSON.stringify(dense)).not.toEqual(JSON.stringify(vectors))
   })
 
-  it.each(vectors.map((vector, index) => [index, vector] as const))(
-    "vector %i",
-    (_, vector) => {
-      const merged = partition(k.cx(vector.inputs) as string)
-      expect(merged.atoms).toEqual(vector.atoms)
-      expect(merged.markers).toEqual(vector.markers)
-      const className = k.sx(vector.inputs, [], []).className as
-        | string
-        | undefined
-      expect(partition(className ?? "").atoms).toEqual(vector.dom)
-    }
-  )
+  it.each([
+    ...vectors.map((vector, index) => [`vector ${index}`, vector] as const),
+    ...dense.map((vector, index) => [`dense vector ${index}`, vector] as const),
+  ])("%s", (_, vector) => {
+    const merged = partition(k.cx(vector.inputs) as string)
+    expect(merged.atoms).toEqual(vector.atoms)
+    expect(merged.markers).toEqual(vector.markers)
+    const className = k.sx(vector.inputs, [], []).className as
+      | string
+      | undefined
+    expect(partition(className ?? "").atoms).toEqual(vector.dom)
+  })
 })

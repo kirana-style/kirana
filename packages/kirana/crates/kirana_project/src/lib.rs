@@ -48,6 +48,10 @@ pub struct Transformed {
 pub struct Project {
     pub(crate) config: Config,
     pub(crate) names: Names,
+    /// `names` marking what the compiler writes, for a dense build (D-084).
+    pub(crate) marked: Names,
+    /// Whether transforms write marked names: set by a host building with dense names.
+    pub(crate) dense: std::sync::atomic::AtomicBool,
     pub(crate) root: PathBuf,
     pub(crate) fs: Arc<dyn Fs>,
     pub(crate) resolver: oxc_resolver::Resolver,
@@ -81,6 +85,9 @@ pub(crate) struct State {
     /// File → `(package, tokens it declares)`, for tooling.
     pub catalogue: std::collections::BTreeMap<String, (String, Vec<kirana_evaluator::TokenEntry>)>,
     pub work: Work,
+    /// Dense-name codes assigned so far (D-084), and whether a module changed since they were.
+    pub dense: kirana_ir::dense::DenseNames,
+    pub dense_stale: bool,
 }
 
 /// What the session did, for KRN-PERF-002 and E-02.
@@ -105,9 +112,19 @@ impl Project {
     /// Creates a session from resolved configuration JSON.
     pub fn new(config_json: &str, fs: Arc<dyn Fs>) -> Result<Project, Vec<Diagnostic>> {
         let config = Config::from_json(config_json)?;
-        let names = Names { prefix: config.names.prefix.clone() };
+        let names = Names { prefix: config.names.prefix.clone(), mark: false };
+        let marked = Names { mark: true, ..names.clone() };
         let root = PathBuf::from(&config.root);
-        Ok(Project { resolver: resolve::resolver(), names, root, fs, config, state: RwLock::default() })
+        Ok(Project {
+            resolver: resolve::resolver(),
+            names,
+            marked,
+            dense: std::sync::atomic::AtomicBool::new(false),
+            root,
+            fs,
+            config,
+            state: RwLock::default(),
+        })
     }
 
     /// What this session has done so far (E-02).
@@ -183,7 +200,8 @@ impl Project {
         let file = self.display_name(path);
         let package = self.package_name(path);
         let host = resolve::ModuleHost::new(self, vec![path.to_path_buf()]);
-        let context = Context { path, file: &file, package: &package, names: &self.names, config: &self.config };
+        let names = if self.dense.load(std::sync::atomic::Ordering::Relaxed) { &self.marked } else { &self.names };
+        let context = Context { path, file: &file, package: &package, names, config: &self.config };
         let outcome = kirana_frontend::with_parsed_as(source_type, &file, source, |parsed| {
             let evaluator = Evaluator::new(parsed, context, &host);
             let output = kirana_transform::transform(&evaluator);
@@ -232,6 +250,7 @@ impl Project {
     fn set_record(&self, path: &Path, record: ModuleRecord) -> bool {
         let mut state = self.state.write().expect("not poisoned");
         let previous = state.modules.insert(path.to_path_buf(), record);
+        state.dense_stale = true;
         let current = state.modules.get(path).expect("just inserted");
         previous.as_ref().map_or(!current.is_empty(), |previous| previous.css_key() != current.css_key())
     }
