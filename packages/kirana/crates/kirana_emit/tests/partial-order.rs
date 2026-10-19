@@ -287,3 +287,31 @@ fn hidden_overlaps_block_the_merge() {
         assert_eq!(css.matches(&format!("{outer}:a")).count(), 2, "{outer} past {}: {css}", between.name);
     }
 }
+
+/// When adjacent keys could share more than one declaration, the longest is shared, and of two as
+/// long, the one that sorts first: the stylesheet is the same on every build.
+#[test]
+fn the_shared_declaration_is_the_longest_then_the_first() {
+    let margin = |condition: usize, value: &str| {
+        let conditions = CONDITIONS[condition].iter().flat_map(|key| parse_condition_key(key).unwrap()).collect();
+        let op = Op::Set(
+            EntryKey {
+                target: Target::Element,
+                property: Property::longhand("margin-left"),
+                conditions: ConditionSet::new(conditions),
+            },
+            AtomValue { css: value.into(), deps: vec![], longhands: 1 },
+        );
+        let Op::Set(key, value) = op.clone() else { unreachable!() };
+        Atom { class: Names::default().class(&op), key, value }
+    };
+    for (values, shared) in [(["1px", "0px"], "0px"), (["10px", "0px"], "10px")] {
+        let atoms: Vec<Atom> =
+            [0, 1].into_iter().flat_map(|condition| values.map(|value| margin(condition, value))).collect();
+        let css = emit(&atoms, &[], &EmitOptions { minify: true, ..EmitOptions::default() }).css;
+        for value in values {
+            let count = if value == shared { 1 } else { 2 };
+            assert_eq!(css.matches(&format!("margin-left:{value}}}")).count(), count, "{value}: {css}");
+        }
+    }
+}
