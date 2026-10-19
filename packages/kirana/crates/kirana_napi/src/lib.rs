@@ -40,6 +40,21 @@ pub struct DenseEdits {
     pub texts: Vec<String>,
 }
 
+/// A variable token a finished stylesheet left out (D-086).
+#[napi(object)]
+pub struct PrunedToken {
+    pub variable: String,
+    /// `namespace.path`, as `defineTokens` wrote it.
+    pub identity: String,
+}
+
+/// A finished bundle's stylesheet (D-086): the CSS, and the variable tokens left out of it.
+#[napi(object)]
+pub struct FinishedStylesheet {
+    pub css: String,
+    pub pruned: Vec<PrunedToken>,
+}
+
 /// A compilation session. The project is shared with transforms running on worker threads.
 #[napi]
 pub struct Compiler {
@@ -103,6 +118,17 @@ impl Compiler {
     #[napi]
     pub fn stylesheet(&self, minify: bool) -> String {
         self.project.stylesheet(minify)
+    }
+
+    /// The stylesheet of a finished bundle (D-086): `named` is every variable token its chunks and
+    /// other stylesheets still name.
+    #[napi]
+    pub fn finished_stylesheet(&self, minify: bool, named: Vec<String>) -> FinishedStylesheet {
+        let (css, pruned) = self.project.finished_stylesheet(minify, &named);
+        FinishedStylesheet {
+            css,
+            pruned: pruned.into_iter().map(|(variable, identity)| PrunedToken { variable, identity }).collect(),
+        }
     }
 
     /// From now on, a transform of unchanged input returns the previous one: a one-shot build that

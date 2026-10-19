@@ -986,6 +986,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "tokens-nothing-uses",
+        "text": "Tokens nothing uses",
+        "level": 2
+      },
+      {
         "id": "a-token-as-a-style-key",
         "text": "A token as a style key",
         "level": 2
@@ -6891,6 +6896,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "tokens",
     "heading": "Registered tokens",
     "text": "Give a token a syntax and it becomes a real registered property, which means the browser can animate it: This emits , and the token may then be used as a keyframe key. With the universal syntax a token may have no value at all. It starts unset, and every reference to it falls back to nothing ( ), so a chain of such tokens lists only the parts an element sets. That is how Tailwind composes :"
+  },
+  {
+    "id": "/docs/tokens/overview#tokens-nothing-uses",
+    "href": "/docs/tokens/overview#tokens-nothing-uses",
+    "page": "Tokens",
+    "section": "tokens",
+    "heading": "Tokens nothing uses",
+    "text": "A production build writes a variable token's declaration only when something uses it. That means a rule that reads it, or the finished JavaScript still naming it, as does. A design system can define a hundred variable tokens, and a page that reads ten ships ten. A token read by code the compiler never sees needs saying so. Examples: a plain script, a server-only template, a third party. Declare it , for one token or the whole group, and it is always written: implies . If code rendered after the stylesheet names a token it left out, as a server-only component can, the build stops and names the token, so a missing declaration never reaches a page. The dev server, and bundlers other than Vite and Rolldown write every variable token, as before."
   },
   {
     "id": "/docs/tokens/overview#a-token-as-a-style-key",

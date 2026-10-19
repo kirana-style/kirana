@@ -265,6 +265,7 @@ fn deps() {
         identity: "theme.x".into(),
         deps: vec![],
         registration: None,
+        runtime: false,
     }));
     let frames = Dep::Keyframes(Arc::new(KeyframesDef { name: "kfA".into(), frames: vec![], deps: vec![] }));
     let mut deps = vec![];

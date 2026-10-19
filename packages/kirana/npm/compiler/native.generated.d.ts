@@ -17,6 +17,11 @@ export declare class Compiler {
   transformAsync(id: string, code: string): Promise<TransformResult>
   stylesheet(minify: boolean): string
   /**
+   * The stylesheet of a finished bundle (D-086): `named` is every variable token its chunks and
+   * other stylesheets still name.
+   */
+  finishedStylesheet(minify: boolean, named: Array<string>): FinishedStylesheet
+  /**
    * From now on, a transform of unchanged input returns the previous one: a one-shot build that
    * compiles the same modules for more than one environment.
    */
@@ -73,6 +78,19 @@ export interface DenseEdits {
   starts: Array<number>
   ends: Array<number>
   texts: Array<string>
+}
+
+/** A finished bundle's stylesheet (D-086): the CSS, and the variable tokens left out of it. */
+export interface FinishedStylesheet {
+  css: string
+  pruned: Array<PrunedToken>
+}
+
+/** A variable token a finished stylesheet left out (D-086). */
+export interface PrunedToken {
+  variable: string
+  /** `namespace.path`, as `defineTokens` wrote it. */
+  identity: string
 }
 
 /** Runs the `kirana-style` command line; returns `[exitCode, output]`. */

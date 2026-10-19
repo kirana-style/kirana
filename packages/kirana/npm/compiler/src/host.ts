@@ -103,6 +103,21 @@ export function shouldCompile(
 }
 
 /** The module id without a query string. */
+/**
+ * The variable tokens a text names (`--{prefix}v` and four characters): what a finished bundle's
+ * chunks and stylesheets still use, so its stylesheet keeps them (D-086).
+ */
+export function tokenNames(text: string, prefix: string): string[] {
+  const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  return [
+    ...new Set(
+      text.match(
+        new RegExp(`--${escaped}v[0-9A-Za-z]{4}(?![0-9A-Za-z_-])`, "g")
+      ) ?? []
+    ),
+  ]
+}
+
 export function cleanId(id: string): string {
   return id.split("?", 1)[0]!
 }

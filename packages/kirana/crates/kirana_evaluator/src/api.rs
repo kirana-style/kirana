@@ -232,8 +232,10 @@ impl<'a> Evaluator<'_, 'a, '_> {
             return self.not_evaluable(span, "defineTokens(namespace, values) takes a string and an object");
         };
         self.definitions.borrow_mut().namespaces.push((namespace.to_string(), span));
-        let variable = matches!(arguments.get(2), Some((options, _)) if matches!(options.get("variable"), Some(Value::Bool(true))));
-        self.token_group(namespace, &[], values, span, variable)
+        let option = |name: &str| matches!(arguments.get(2), Some((options, _)) if matches!(options.get(name), Some(Value::Bool(true))));
+        // A runtime token is read through its custom property, so it is a variable too (D-086).
+        let runtime = option("runtime");
+        self.token_group(namespace, &[], values, span, option("variable") || runtime, runtime)
     }
 
     fn token_group(
@@ -243,6 +245,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
         values: &[(Key, Value)],
         span: (u32, u32),
         group_variable: bool,
+        group_runtime: bool,
     ) -> Value {
         let mut entries = Vec::new();
         for (key, value) in values {
@@ -261,6 +264,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
                     &inner_path,
                     TokenValue::Plain(ops::to_string(value).expect("printable")),
                     group_variable,
+                    group_runtime,
                     None,
                 ),
                 Value::Object(inner) => {
@@ -286,8 +290,11 @@ impl<'a> Evaluator<'_, 'a, '_> {
                             continue;
                         }
                     };
-                    let variable =
-                        group_variable || registration.is_some() || matches!(get("variable"), Some(Value::Bool(true)));
+                    let runtime = group_runtime || matches!(get("runtime"), Some(Value::Bool(true)));
+                    let variable = group_variable
+                        || runtime
+                        || registration.is_some()
+                        || matches!(get("variable"), Some(Value::Bool(true)));
                     match (
                         get("light").and_then(css_text),
                         get("dark").and_then(css_text),
@@ -307,7 +314,15 @@ impl<'a> Evaluator<'_, 'a, '_> {
                                 );
                                 continue;
                             };
-                            self.token(at, namespace, &inner_path, TokenValue::Plain(plain), true, registration)
+                            self.token(
+                                at,
+                                namespace,
+                                &inner_path,
+                                TokenValue::Plain(plain),
+                                true,
+                                runtime,
+                                registration,
+                            )
                         }
                         (Some(light), Some(dark), _) => {
                             let token_value = if is_color(&light) && is_color(&dark) {
@@ -315,16 +330,16 @@ impl<'a> Evaluator<'_, 'a, '_> {
                             } else {
                                 TokenValue::Modes { light, dark }
                             };
-                            self.token(at, namespace, &inner_path, token_value, variable, None)
+                            self.token(at, namespace, &inner_path, token_value, variable, runtime, None)
                         }
                         (_, _, Some(plain)) => {
-                            self.token(at, namespace, &inner_path, TokenValue::Plain(plain), variable, None)
+                            self.token(at, namespace, &inner_path, TokenValue::Plain(plain), variable, runtime, None)
                         }
                         _ if inner.iter().any(|(_, value)| !value.is_static()) => {
                             self.report(Code::DynamicToken, span, "token values must be known at build time", None);
                             continue;
                         }
-                        _ => self.token_group(namespace, &inner_path, inner, span, group_variable),
+                        _ => self.token_group(namespace, &inner_path, inner, span, group_variable, group_runtime),
                     }
                 }
                 _ if !value.is_static() => {
@@ -359,6 +374,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
         path: &[String],
         value: TokenValue,
         variable: bool,
+        runtime: bool,
         registration: Option<Registration>,
     ) -> Value {
         let identity = format!("{namespace}.{}", path.join("."));
@@ -388,6 +404,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
             identity: identity.clone(),
             deps: self.deps_in(&text),
             registration,
+            runtime,
         });
         let unset = matches!(&definition.value, TokenValue::Plain(css) if css.is_empty());
         self.definitions.borrow_mut().tokens.push(definition);

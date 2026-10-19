@@ -20,6 +20,7 @@ import {
   fillStylesheet,
   renameAsset,
   stylesheetPath,
+  tokenNames,
 } from "@kirana-style/compiler/host"
 import type { KiranaConfig } from "@kirana-style/core/config"
 import { readFile } from "node:fs/promises"
@@ -88,6 +89,13 @@ export function createKirana(
   const development = () => host.development?.() ?? false
   const fileName = options.fileName ?? "kirana.css"
   const dense = () => options.names === "dense" && !development()
+  /**
+   * Every variable token the bundle's chunks and other files name, across environments, and the
+   * ones the last stylesheet left out by identity (D-086): a token only code names is written when
+   * the finished bundle still names it, and a chunk rendered later must not name one left out.
+   */
+  const named = new Set<string>()
+  let pruned = new Map<string, string>()
 
   const session = () => {
     driver ??= Driver.create({
@@ -118,9 +126,26 @@ export function createKirana(
       }
     },
 
-    async renderChunk(code: string, chunk: { fileName: string }) {
+    async renderChunk(
+      this: { error: (message: string) => never },
+      code: string,
+      chunk: { fileName: string }
+    ) {
+      if (development()) return null
+      const compiler = await session()
+      const names = tokenNames(code, compiler.prefix)
+      const late = names.filter((name) => pruned.has(name))
+      if (late.length > 0) {
+        const list = late
+          .map((name) => `${pruned.get(name)} (${name})`)
+          .join(", ")
+        this.error(
+          `kirana: ${chunk.fileName} reads tokens the stylesheet left out: ${list}. Nothing the stylesheet's own build bundled named them at runtime. Declare each one \`runtime: true\` in defineTokens (D-086).`
+        )
+      }
+      for (const name of names) named.add(name)
       if (!dense()) return null
-      return (await session()).dense(code, chunk.fileName) ?? null
+      return compiler.dense(code, chunk.fileName) ?? null
     },
 
     load: {
@@ -212,7 +237,7 @@ export function createKirana(
       order: "pre",
       async handler(_output, bundle) {
         if (!host.bundlesCss) {
-          const css = (await session()).stylesheet(true, dense())
+          const css = await finished(bundle)
           this.emitFile({ type: "asset", fileName, source: css })
           return
         }
@@ -220,6 +245,24 @@ export function createKirana(
       },
     },
   } satisfies Plugin
+
+  /**
+   * The stylesheet for this bundle (D-086): the token names its other files hold join the chunks',
+   * and the tokens left out are kept for the chunks rendered after it.
+   */
+  const finished = async (bundle: OutputBundle) => {
+    const compiler = await session()
+    for (const file of Object.values(bundle)) {
+      if (file.type === "asset" && typeof file.source === "string")
+        for (const name of tokenNames(file.source, compiler.prefix))
+          named.add(name)
+    }
+    const result = compiler.finishedStylesheet(named, dense())
+    pruned = new Map(
+      result.pruned.map((token) => [token.variable, token.identity])
+    )
+    return result.css
+  }
 
   /**
    * Fills every stylesheet asset still holding the placeholder, renaming it by content unless the
@@ -235,7 +278,7 @@ export function createKirana(
       source: string
     }) => unknown
   ) => {
-    const css = (await session()).stylesheet(true, dense())
+    const css = await finished(bundle)
     for (const [key, asset] of Object.entries(bundle)) {
       if (asset.type !== "asset") continue
       const source = fillStylesheet(String(asset.source), css)

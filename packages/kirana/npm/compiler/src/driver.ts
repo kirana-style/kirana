@@ -194,10 +194,9 @@ export class Driver {
     return rest
   }
 
-  /** The stylesheet for every module compiled so far; with `dense`, in dense names (D-084). */
-  stylesheet(minify: boolean, dense = false): string {
-    const css = this.#compiler.stylesheet(minify)
-    return dense ? this.#compiler.denseRename(css) : css
+  /** The stylesheet for every module compiled so far. A finished bundle uses `finishedStylesheet`. */
+  stylesheet(minify: boolean): string {
+    return this.#compiler.stylesheet(minify)
   }
 
   /**
@@ -216,6 +215,20 @@ export class Driver {
    */
   markDense(): void {
     this.#compiler.markDense()
+  }
+
+  /**
+   * The stylesheet of a finished bundle (D-086): a variable token that only code names, and no rule
+   * reads, is written when `named` holds it (every token the bundle's chunks and other stylesheets
+   * still name) or it is declared `runtime: true`. Also returns the tokens left out, which a later
+   * chunk must not name. With `dense`, in dense names (D-084).
+   */
+  finishedStylesheet(
+    named: Iterable<string>,
+    dense = false
+  ): { css: string; pruned: { variable: string; identity: string }[] } {
+    const { css, pruned } = this.#compiler.finishedStylesheet(true, [...named])
+    return { css: dense ? this.#compiler.denseRename(css) : css, pruned }
   }
 
   /**

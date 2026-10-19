@@ -394,3 +394,35 @@ fn a_dependency_changed_on_disk_is_noticed_without_an_invalidation() {
     assert_ne!(again.code, first.code);
     fs::remove_dir_all(root).unwrap();
 }
+
+#[test]
+fn a_finished_stylesheet_keeps_runtime_tokens_and_what_the_bundle_names() {
+    let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const glow = defineTokens(\"glow\", { soft: \"1px\" }, { runtime: true })\nexport const size = defineTokens(\"size\", { read: \"2px\", named: \"3px\", unused: \"4px\", kept: { value: \"5px\", runtime: true } }, { variable: true })\n";
+    let page = "import { css } from \"@kirana-style/core\"\nimport { size } from \"./tokens\"\nexport const box = css({ gap: size.read })\n";
+    let (root, project) =
+        temp_project(&[("package.json", "{\"name\":\"app\"}"), ("tokens.ts", tokens), ("page.ts", page)]);
+    let tokens_out = project.transform(&root.join("tokens.ts"), tokens).code.unwrap();
+    project.transform(&root.join("page.ts"), page);
+    let variable = |identity: &str| {
+        let at = tokens_out.find(identity).unwrap_or_else(|| panic!("{identity} in {tokens_out}"));
+        let rest = &tokens_out[at..];
+        let start = rest.find("var(").unwrap() + 4;
+        rest[start..start + rest[start..].find(')').unwrap()].to_owned()
+    };
+    let [soft, read, named, unused, kept] =
+        ["\"soft\"", "\"read\"", "\"named\"", "\"unused\"", "\"kept\""].map(variable);
+
+    // Without a bundle, every token its code names is written.
+    let everything = project.stylesheet(true);
+    for token in [&soft, &read, &named, &unused, &kept] {
+        assert!(everything.contains(&format!("{token}:")), "{token} in {everything}");
+    }
+    // A finished bundle that names one of them.
+    let (finished, pruned) = project.finished_stylesheet(true, std::slice::from_ref(&named));
+    for token in [&soft, &read, &named, &kept] {
+        assert!(finished.contains(&format!("{token}:")), "{token} in {finished}");
+    }
+    assert!(!finished.contains(&unused), "{finished}");
+    assert_eq!(pruned, [(unused, "size.unused".to_owned())]);
+    fs::remove_dir_all(root).unwrap();
+}

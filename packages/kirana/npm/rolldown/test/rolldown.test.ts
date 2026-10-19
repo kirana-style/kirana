@@ -144,6 +144,131 @@ describe("KRN-INT-002 Rolldown on its own", () => {
     )
   })
 
+  it("writes the variable tokens the bundle uses, and runtime ones (D-086)", async () => {
+    const tokens = [
+      'import { defineTokens } from "@kirana-style/core"',
+      'export const size = defineTokens("size", { read: "2px", unused: "4px" }, { variable: true })',
+      'export const glow = defineTokens("glow", { soft: "1px" }, { runtime: true })',
+      "",
+    ].join("\n")
+    const build = async (main: string) => {
+      const root = app()
+      writeFileSync(path.join(root, "src/tokens.ts"), tokens)
+      writeFileSync(path.join(root, "src/main.ts"), main)
+      const output = await bundle(root)
+      const js = output.find((file) => file.type === "chunk") as OutputChunk
+      const css = String(
+        (output.find((file) => file.fileName === "kirana.css") as OutputAsset)
+          .source
+      )
+      return { js: js.code, css }
+    }
+    const declared = (css: string) =>
+      [...css.matchAll(/(--kv[0-9A-Za-z]{4}):/g)].map(([, name]) => name)
+
+    // Compiled code reads one token at build time; nothing reads the group at runtime.
+    const compiled = await build(
+      'import "@kirana-style/core/stylesheet.css"\nimport { css } from "@kirana-style/core"\nimport { size } from "./tokens.ts"\nexport const box = css({ gap: size.read })\n'
+    )
+    expect(compiled.css).toContain("gap:var(--kv")
+    // `size.read`, which a rule reads, and the runtime `glow.soft`; not `size.unused`.
+    expect(declared(compiled.css)).toHaveLength(2)
+
+    // A plain module reads the group at runtime: the bundle keeps its tokens, and so does the CSS.
+    const runtime = await build(
+      'import "@kirana-style/core/stylesheet.css"\nimport { size } from "./tokens.ts"\ndocument.body.style.gap = size.unused\n'
+    )
+    expect(runtime.js).toMatch(/--kv[0-9A-Za-z]{4}/)
+    expect(declared(runtime.css)).toHaveLength(3)
+  })
+
+  it("keeps a token another file of the bundle names (D-086)", async () => {
+    const root = app()
+    writeFileSync(
+      path.join(root, "src/tokens.ts"),
+      'import { defineTokens } from "@kirana-style/core"\nexport const size = defineTokens("size", { other: "6px" }, { variable: true })\n'
+    )
+    // The token's name, from a build that reads it at runtime.
+    writeFileSync(
+      path.join(root, "src/main.ts"),
+      'import "@kirana-style/core/stylesheet.css"\nimport { size } from "./tokens.ts"\ndocument.body.style.gap = size.other\n'
+    )
+    const [variable] = (await bundle(root))
+      .filter((file) => file.type === "chunk")
+      .flatMap(
+        (chunk) =>
+          (chunk as OutputChunk).code.match(/--kv[0-9A-Za-z]{4}/g) ?? []
+      )
+    expect(variable).toBeDefined()
+    // Now no chunk reads it, but a stylesheet another plugin adds to the bundle does.
+    writeFileSync(
+      path.join(root, "src/main.ts"),
+      'import "@kirana-style/core/stylesheet.css"\nimport "./tokens.ts"\n'
+    )
+    const other = {
+      name: "other-stylesheet",
+      renderStart(this: { emitFile: (file: object) => string }) {
+        this.emitFile({
+          type: "asset",
+          fileName: "other.css",
+          source: `.x{gap:var(${variable})}`,
+        })
+      },
+    }
+    const built = await rolldown({
+      input: path.join(root, "src/main.ts"),
+      cwd: root,
+      logLevel: "silent",
+      plugins: [kirana({ root }), other],
+    })
+    const { output } = await built.generate({ dir: "dist" })
+    const css = String(
+      (output.find((file) => file.fileName === "kirana.css") as OutputAsset)
+        .source
+    )
+    expect(css).toContain(`${variable}:6px`)
+  })
+
+  it("fails a later build that reads a token the stylesheet left out (D-086)", async () => {
+    const root = app()
+    writeFileSync(
+      path.join(root, "src/tokens.ts"),
+      'import { defineTokens } from "@kirana-style/core"\nexport const size = defineTokens("size", { unused: "4px" }, { variable: true })\n'
+    )
+    writeFileSync(
+      path.join(root, "src/main.ts"),
+      // Compiled, but nothing reads it at runtime: the bundler drops its token object.
+      'import "@kirana-style/core/stylesheet.css"\nimport "./tokens.ts"\n'
+    )
+    writeFileSync(
+      path.join(root, "src/server.ts"),
+      'import { size } from "./tokens.ts"\nexport const render = () => `<p style="gap:${size.unused}"></p>`\n'
+    )
+    // One plugin for both builds, as Vite shares it between the client and the server.
+    const plugin = kirana({ root })
+    const run = async (input: string) => {
+      const built = await rolldown({
+        input: path.join(root, input),
+        cwd: root,
+        logLevel: "silent",
+        plugins: [plugin],
+      })
+      return built.generate({ dir: "dist" })
+    }
+    const client = await run("src/main.ts")
+    const css = String(
+      (
+        client.output.find(
+          (file) => file.fileName === "kirana.css"
+        ) as OutputAsset
+      ).source
+    )
+    expect(css).not.toMatch(/--kv[0-9A-Za-z]{4}:4px/)
+    await expect(run("src/server.ts")).rejects.toThrow(
+      /size\.unused \(--kv[0-9A-Za-z]{4}\).*runtime: true/
+    )
+  })
+
   it("refuses dense names with a class map", async () => {
     const root = app()
     const build = rolldown({
@@ -196,6 +321,18 @@ describe("components and the stylesheet asset, hook by hook", () => {
     },
     emitFile: () => "",
   }
+
+  it("leaves chunks alone while a dev server runs", async () => {
+    const { plugin } = createKirana(
+      { root: app() },
+      { development: () => true }
+    )
+    expect(
+      await (plugin.renderChunk as Hook).call(context, "x", {
+        fileName: "a.js",
+      })
+    ).toBeNull()
+  })
 
   it("compiles each module once in a one-shot build, every time in a watch build", async () => {
     for (const [watchMode, expected] of [
