@@ -10232,7 +10232,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Benchmarks",
     "section": "project",
     "heading": "Benchmarks",
-    "text": "Every number the site quotes comes from kirana-lab , a public repository that builds the same three applications three ways: with the published Kirana release, with a StyleX port and with the Tailwind original. The StyleX port is built twice, by StyleX's Babel plugin and by its Rust compiler on SWC, so a comparison with StyleX holds whichever one you use. It measures on every Kirana release and once a week, so an update to StyleX or Tailwind shows up too, and the site takes the newest run through a pull request. The figures below are Kirana 0.2.1."
+    "text": "Every number the site quotes comes from kirana-lab , a public repository that builds the same three applications three ways: with the published Kirana release, with a StyleX port and with the Tailwind original. The StyleX port is built twice, by StyleX's Babel plugin and by its Rust compiler on SWC, so a comparison with StyleX holds whichever one you use. It measures on every Kirana release and once a week, so an update to StyleX or Tailwind shows up too, and the site takes the newest run through a pull request. The figures below are Kirana 0.2.3."
   },
   {
     "id": "/docs/project/benchmarks#how-to-read-it",
