@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.4](https://github.com/kirana-style/kirana/compare/v0.2.3...v0.2.4) (2026-10-19)
+
+
+### Performance
+
+* compile each module once in a one-shot build ([#59](https://github.com/kirana-style/kirana/issues/59)) ([df6d014](https://github.com/kirana-style/kirana/commit/df6d014fae6cd5c85a032056b1322db09427aed3))
+* compile modules in parallel in vite and rolldown builds ([#60](https://github.com/kirana-style/kirana/issues/60)) ([e2eb29a](https://github.com/kirana-style/kirana/commit/e2eb29a667bd563cee2e2cf20f51a5e1d46f8c0d))
+
+
+### Documentation
+
+* take the benchmarks of kirana 0.2.3 from kirana-lab ([#57](https://github.com/kirana-style/kirana/issues/57)) ([ab95357](https://github.com/kirana-style/kirana/commit/ab95357157fda97aad33007277c542118c89f5a9))
+
 ## [0.2.3](https://github.com/kirana-style/kirana/compare/v0.2.2...v0.2.3) (2026-10-19)
 
 
