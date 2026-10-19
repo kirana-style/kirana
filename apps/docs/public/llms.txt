@@ -4,7 +4,7 @@
 > styles next to your components, compiled into small, predictable CSS with no
 > runtime style engine.
 
-Kirana is on npm: the `@kirana-style/*` packages are at 0.2.3, and
+Kirana is on npm: the `@kirana-style/*` packages are at 0.2.4, and
 `npx kirana-style@latest init` sets a project up. Before 1.0, a minor version may
 change the API. Pages state what is built and what is planned.
 
