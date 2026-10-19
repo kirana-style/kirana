@@ -25,6 +25,7 @@ fn sample() -> (Vec<Atom>, Vec<Dep>) {
         identity: "theme.ring".into(),
         deps: vec![],
         registration: None,
+        runtime: false,
     });
     let blend = Arc::new(TokenDef {
         variable: "--kvBlend".into(),
@@ -32,6 +33,7 @@ fn sample() -> (Vec<Atom>, Vec<Dep>) {
         identity: "surface.blend".into(),
         deps: vec![Dep::Token(ring.clone())],
         registration: None,
+        runtime: false,
     });
     let spin = Arc::new(KeyframesDef {
         name: "kfSpin".into(),
@@ -158,6 +160,7 @@ fn only_keyframes_or_only_tokens() {
         identity: "a".into(),
         deps: vec![],
         registration: None,
+        runtime: false,
     });
     let with_token = vec![atom(Target::Element, "opacity", vec![], "var(--kvA)", vec![Dep::Token(token)])];
     let css = emit(&with_token, &[], &EmitOptions { minify: true, ..EmitOptions::default() }).css;
@@ -172,6 +175,7 @@ fn registered_tokens_are_properties_not_root_declarations() {
         identity: "a".into(),
         deps: vec![],
         registration: Some(Registration { syntax: "<length-percentage>".into(), inherits: false }),
+        runtime: false,
     });
     let atoms = vec![atom(Target::Element, "width", vec![], "var(--kvA)", vec![Dep::Token(token)])];
     let css = emit(&atoms, &[], &EmitOptions { minify: true, ..EmitOptions::default() }).css;
@@ -187,6 +191,7 @@ fn last_atom_inside_an_at_rule_and_nested_keyframe_deps() {
         identity: "a".into(),
         deps: vec![],
         registration: None,
+        runtime: false,
     });
     let frames = Arc::new(KeyframesDef {
         name: "kfA".into(),
@@ -205,7 +210,7 @@ fn lowering_that_fails_leaves_the_stylesheet_alone() {
     let targets =
         Targets { browsers: Some(Browsers { safari: Some(15 << 16), ..Browsers::default() }), ..Targets::default() };
     let output = lower("!!!".to_owned(), targets, true);
-    assert_eq!(output, EmitOutput { css: "!!!".to_owned(), lowered: false });
+    assert_eq!(output, EmitOutput { css: "!!!".to_owned(), lowered: false, pruned: vec![] });
 }
 
 #[test]
@@ -351,6 +356,7 @@ fn position_try_and_view_transition_definitions() {
         identity: "space.gap".into(),
         deps: vec![],
         registration: None,
+        runtime: false,
     });
     let below = Arc::new(PositionTryDef {
         name: "--kpBelo".into(),
@@ -415,4 +421,60 @@ fn transition_parts_name_their_pseudo_elements() {
             ("new", "::view-transition-new"),
         ]
     );
+}
+
+/// D-086: a token only code names is written when the bundle names it or it is a runtime token;
+/// one a rule reads always is, and so is one a kept token reads.
+#[test]
+fn a_token_only_code_names_needs_the_bundle_to_name_it() {
+    let token = |name: &str, value: &str, runtime: bool, deps: Vec<Dep>| {
+        Arc::new(TokenDef {
+            variable: name.into(),
+            value: TokenValue::Plain(value.into()),
+            identity: name.into(),
+            deps,
+            registration: None,
+            runtime,
+        })
+    };
+    let read = token("--kvRead", "1px", false, vec![]);
+    let base = token("--kvBase", "2px", false, vec![]);
+    let alias = token("--kvAlias", "var(--kvBase)", false, vec![Dep::Token(base.clone())]);
+    let named = token("--kvNamed", "3px", false, vec![]);
+    let gone = token("--kvGone", "4px", false, vec![]);
+    let runtime = token("--kvRun", "5px", true, vec![]);
+    let atoms = vec![atom(Target::Element, "gap", vec![], "var(--kvRead)", vec![Dep::Token(read.clone())])];
+    let marker = [&read, &base, &alias, &named, &gone, &runtime].map(|token| Dep::Token((*token).clone()));
+    let write = |named: Option<&[&str]>| {
+        emit(
+            &atoms,
+            &marker,
+            &EmitOptions {
+                minify: true,
+                named: named.map(|names| names.iter().map(|name| (*name).to_owned()).collect()),
+                ..EmitOptions::default()
+            },
+        )
+    };
+
+    // No bundle known: every token is written, as before.
+    let all = write(None);
+    for name in ["--kvRead", "--kvBase", "--kvAlias", "--kvNamed", "--kvGone", "--kvRun"] {
+        assert!(all.css.contains(&format!("{name}:")), "{name} in {}", all.css);
+    }
+    assert!(all.pruned.is_empty());
+
+    // The bundle names the alias and one token: the alias brings the token it reads.
+    let finished = write(Some(&["--kvAlias", "--kvNamed"]));
+    for name in ["--kvRead", "--kvAlias", "--kvBase", "--kvNamed", "--kvRun"] {
+        assert!(finished.css.contains(&format!("{name}:")), "{name} in {}", finished.css);
+    }
+    assert!(!finished.css.contains("--kvGone"), "{}", finished.css);
+    assert_eq!(finished.pruned, [("--kvGone".to_owned(), "--kvGone".to_owned())]);
+
+    // Named by nothing: only what rules read, and the runtime token.
+    let bare = write(Some(&[]));
+    assert!(bare.css.contains("--kvRead:") && bare.css.contains("--kvRun:"), "{}", bare.css);
+    let left: Vec<&str> = bare.pruned.iter().map(|(name, _)| name.as_str()).collect();
+    assert_eq!(left, ["--kvAlias", "--kvBase", "--kvGone", "--kvNamed"]);
 }

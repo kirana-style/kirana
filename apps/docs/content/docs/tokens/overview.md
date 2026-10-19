@@ -51,7 +51,7 @@ Now `theme.surface` compiles to `var(--k…)`, the defaults are declared once in
 | ---------------------- | ---------------------------- | --------------------------------- |
 | Compiles to            | the literal value            | `var(--k…)`                       |
 | Overridable at runtime | no                           | yes                               |
-| Cost                   | none                         | one declaration per token         |
+| Cost                   | none                         | one declaration per token used    |
 | Use for                | scales: spacing, radii, type | themes, modes, values handed down |
 
 ## Per-mode values
@@ -100,6 +100,32 @@ css({
   filter: `${step.blur} ${step.grey}`, // grayscale(100%)
 })
 ```
+
+## Tokens nothing uses
+
+A production build writes a variable token's declaration only when something uses
+it. That means a rule that reads it, or the finished JavaScript still naming it, as
+`el.style.gap = space.lg` does. A design system can define a hundred variable
+tokens, and a page that reads ten ships ten.
+
+A token read by code the compiler never sees needs saying so. Examples: a plain
+script, a server-only template, a third party. Declare it `runtime: true`, for one
+token or the whole group, and it is always written:
+
+```tsx
+export const brand = defineTokens(
+  "brand",
+  { accent: "oklch(0.7 0.15 150)" },
+  { runtime: true }
+)
+```
+
+`runtime: true` implies `variable: true`. If code rendered after the stylesheet
+names a token it left out, as a server-only component can, the build stops and
+names the token, so a missing declaration never reaches a page.
+
+The dev server, `kirana-style check` and bundlers other than Vite and Rolldown
+write every variable token, as before.
 
 ## A token as a style key
 

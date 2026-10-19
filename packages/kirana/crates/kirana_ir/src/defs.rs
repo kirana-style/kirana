@@ -23,6 +23,9 @@ pub struct TokenDef {
     pub deps: Vec<Dep>,
     /// Set when the custom property is registered with `@property` (KRN-TOK-011).
     pub registration: Option<Registration>,
+    /// Declared `runtime: true` (D-086): code the compiler never sees reads it, so its custom
+    /// property is written even where no rule and no part of the finished bundle names it.
+    pub runtime: bool,
 }
 
 /// An `@property` registration: the value's syntax and whether it inherits. The token's value is the

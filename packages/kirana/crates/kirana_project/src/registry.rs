@@ -122,6 +122,23 @@ impl Project {
 
     /// The stylesheet for every module in the build graph (KRN-OUT-001 – -003, -007, -008).
     pub fn stylesheet(&self, minify: bool) -> String {
+        self.write_stylesheet(minify, None).css
+    }
+
+    /// The stylesheet of a finished bundle (D-086): a variable token that only code names, and no
+    /// rule reads, is written when `named` (the token names the bundle's chunks and other
+    /// stylesheets still hold) includes it or it is declared `runtime: true`. Returns the stylesheet
+    /// and the tokens left out, as `(variable, identity)`.
+    pub fn finished_stylesheet(&self, minify: bool, named: &[String]) -> (String, Vec<(String, String)>) {
+        let output = self.write_stylesheet(minify, Some(named.iter().cloned().collect()));
+        (output.css, output.pruned)
+    }
+
+    fn write_stylesheet(
+        &self,
+        minify: bool,
+        named: Option<std::collections::BTreeSet<String>>,
+    ) -> kirana_emit::EmitOutput {
         let (atoms, deps) = self.live();
         let options = EmitOptions {
             layers_before: self.config.layers.before.clone(),
@@ -129,8 +146,9 @@ impl Project {
             minify,
             prefix: self.names.prefix.clone(),
             lower_for: self.lowering_targets(),
+            named,
         };
-        emit(&atoms, &deps, &options).css
+        emit(&atoms, &deps, &options)
     }
 
     /// From now on, transforms mark every name they write (D-084), so that [`Project::dense_edits`]

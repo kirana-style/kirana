@@ -205,8 +205,21 @@ type TokenLeaf =
       readonly light: Primitive | Token
       readonly dark: Primitive | Token
       readonly variable?: boolean
+      /**
+       * Read at runtime by code the compiler never sees (a plain script, a server-only template):
+       * its custom property is always written (D-086). Implies `variable`.
+       */
+      readonly runtime?: boolean
     }
-  | { readonly value: Primitive | Token; readonly variable?: boolean }
+  | {
+      readonly value: Primitive | Token
+      readonly variable?: boolean
+      /**
+       * Read at runtime by code the compiler never sees (a plain script, a server-only template):
+       * its custom property is always written (D-086). Implies `variable`.
+       */
+      readonly runtime?: boolean
+    }
   | {
       /** The initial value. */
       readonly value: Primitive
@@ -217,6 +230,11 @@ type TokenLeaf =
       readonly syntax: string
       /** Whether the property inherits; `true` unless set. */
       readonly inherits?: boolean
+      /**
+       * Read at runtime by code the compiler never sees (a plain script, a server-only template):
+       * its custom property is always written (D-086). Implies `variable`.
+       */
+      readonly runtime?: boolean
     }
   | {
       /**
@@ -225,6 +243,11 @@ type TokenLeaf =
        */
       readonly syntax: "*"
       readonly inherits?: boolean
+      /**
+       * Read at runtime by code the compiler never sees (a plain script, a server-only template):
+       * its custom property is always written (D-086). Implies `variable`.
+       */
+      readonly runtime?: boolean
     }
 
 /** Token values: leaves, mode objects, or nested groups. */
@@ -241,6 +264,11 @@ export function defineTokens<const T extends TokenValues>(
   _options?: {
     /** Emit every token of the group as a custom property (D-035). */
     readonly variable?: boolean
+    /**
+     * Every token of the group is read at runtime by code the compiler never sees: their custom
+     * properties are always written (D-086). Implies `variable`.
+     */
+    readonly runtime?: boolean
   }
 ): Tokens<T> {
   return uncompiled("defineTokens")

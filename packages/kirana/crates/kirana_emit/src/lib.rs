@@ -35,6 +35,11 @@ pub struct EmitOptions {
     pub prefix: String,
     /// Targets below the default floor; `None` when no lowering is needed.
     pub lower_for: Option<Targets>,
+    /// The variable tokens a finished bundle still names (D-086). A token that only code names, and
+    /// no rule reads, is written when it is in this set or declared `runtime: true`. `None` when
+    /// no bundle is known (a dev server, `check`, a host that does not report one): every such
+    /// token is written.
+    pub named: Option<std::collections::BTreeSet<String>>,
 }
 
 /// The written stylesheet.
@@ -43,6 +48,9 @@ pub struct EmitOutput {
     pub css: String,
     /// Whether Lightning CSS lowered syntax for the configured targets (`target-lowering`).
     pub lowered: bool,
+    /// Variable tokens left out because no rule reads them and the bundle does not name them, as
+    /// `(variable, identity)` in order (D-086). A host fails a later chunk that names one.
+    pub pruned: Vec<(String, String)>,
 }
 
 struct Writer {
@@ -388,7 +396,24 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
     for atom in atoms {
         atom.value.deps.iter().for_each(|dep| deps.add(dep));
     }
-    marker_deps.iter().for_each(|dep| deps.add(dep));
+    // What rules read is written. A token only code names (a token object, a runtime value) is
+    // written when the bundle still names it or it is declared `runtime: true` (D-086).
+    let mut left_out = Vec::new();
+    for dep in marker_deps {
+        match (dep, &options.named) {
+            (Dep::Token(token), Some(named))
+                if !token.runtime && !named.contains(&token.variable) && !deps.tokens.contains_key(&token.variable) =>
+            {
+                left_out.push((token.variable.clone(), token.identity.clone()));
+            }
+            _ => deps.add(dep),
+        }
+    }
+    // A kept token can read one left out (an alias): then it is written after all.
+    let mut pruned: Vec<(String, String)> =
+        left_out.into_iter().filter(|(name, _)| !deps.tokens.contains_key(name)).collect();
+    pruned.sort();
+    pruned.dedup();
 
     let mut writer = Writer { out: String::new(), minify: options.minify, depth: 0 };
     let separator = writer.separator();
@@ -497,10 +522,11 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
     }
 
     let css = writer.finish();
-    match &options.lower_for {
-        None => EmitOutput { css, lowered: false },
+    let output = match &options.lower_for {
+        None => EmitOutput { css, lowered: false, pruned: Vec::new() },
         Some(targets) => lower(css, *targets, options.minify),
-    }
+    };
+    EmitOutput { pruned, ..output }
 }
 
 /// Rewrites the stylesheet for browsers below the default floor.
@@ -516,7 +542,7 @@ pub fn lower(css: String, targets: Targets, minify: bool) -> EmitOutput {
             .and_then(|()| sheet.to_css(PrinterOptions { minify, targets, ..PrinterOptions::default() }).ok())
     });
     match printed {
-        Some(printed) => EmitOutput { css: printed.code, lowered: true },
-        None => EmitOutput { css, lowered: false },
+        Some(printed) => EmitOutput { css: printed.code, lowered: true, pruned: Vec::new() },
+        None => EmitOutput { css, lowered: false, pruned: Vec::new() },
     }
 }
