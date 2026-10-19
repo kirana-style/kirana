@@ -37,6 +37,52 @@ export function A({ w }: { w: number }) {
 `
 
 describe("KRN-INT-001 Driver", () => {
+  it("transforms on a worker thread, alike, and on the calling thread under WASI", async () => {
+    const files = Object.fromEntries(
+      Array.from({ length: 24 }, (_, index) => [
+        `src/m${index}.tsx`,
+        INPUT.replace("black", `#${String(index).padStart(6, "0")}`),
+      ])
+    )
+    const root = project({ "package.json": '{"name":"app"}', ...files })
+    const sync = await Driver.create({ root })
+    const parallel = await Driver.create({ root })
+    const ids = Object.keys(files).map((name) => path.join(root, name))
+    // All at once, as a bundler that runs module hooks concurrently asks for them.
+    const results = await Promise.all(
+      ids.map((id) =>
+        parallel.transformAsync(id, files[path.relative(root, id)]!)
+      )
+    )
+    ids.forEach((id, index) => {
+      const expected = sync.transform(id, files[path.relative(root, id)]!)
+      expect(results[index]).toEqual(expected)
+    })
+    // The stylesheet does not depend on the order transforms finished in.
+    expect(parallel.stylesheet(true)).toBe(sync.stylesheet(true))
+
+    // The WASI engine has no worker pool here: `transformAsync` compiles on the calling thread.
+    const native = loadNative()
+    const wasi = {
+      ...native,
+      __napiBindingTarget: "wasm32-wasi",
+      Compiler: class extends native.Compiler {
+        override transformAsync(): never {
+          throw new Error("not under WASI")
+        }
+      },
+    } as unknown as typeof native
+    const fallback = await Driver.create({ root, native: wasi })
+    expect(fallback.engine).toBe("wasi")
+    // A session of its own: its first transform changes its stylesheet.
+    expect(
+      await fallback.transformAsync(ids[0]!, files["src/m0.tsx"]!)
+    ).toEqual({
+      ...sync.transform(ids[0]!, files["src/m0.tsx"]!),
+      cssChanged: true,
+    })
+  })
+
   it("transforms modules and writes the stylesheet", async () => {
     const root = project({
       "package.json": '{"name":"app"}',

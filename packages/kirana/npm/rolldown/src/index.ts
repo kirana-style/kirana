@@ -179,7 +179,12 @@ export function createKirana(
         const file = cleanId(id)
         const compiler = await session()
         if (!compiler.compiles(file)) return null
-        const result = compiler.transform(file, code)
+        // A build compiles off the bundler's thread, so modules compile in parallel
+        // (`Driver.transformAsync`). A dev server keeps one transform at a time: its stylesheet
+        // updates follow the order transforms finish in.
+        const result = development()
+          ? compiler.transform(file, code)
+          : await compiler.transformAsync(file, code)
         for (const dependency of result.dependencies)
           this.addWatchFile(dependency)
         reporter.module(this, file, code, result.diagnostics)

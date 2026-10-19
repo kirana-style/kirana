@@ -41,6 +41,23 @@ export type TransformResult = {
   dependencies: string[]
 }
 
+/** A native transform result as the Driver hands it on. */
+function toResult(result: {
+  code?: string | null
+  map?: string | null
+  diagnostics: string
+  cssChanged: boolean
+  dependencies: string[]
+}): TransformResult {
+  return {
+    code: result.code ?? undefined,
+    map: result.map ?? undefined,
+    diagnostics: parseDiagnostics(result.diagnostics),
+    cssChanged: result.cssChanged,
+    dependencies: result.dependencies,
+  }
+}
+
 export class Driver {
   readonly root: string
   readonly configFile: string | undefined
@@ -135,14 +152,16 @@ export class Driver {
 
   /** Compiles one module (KRN-CMP-007). */
   transform(id: string, code: string): TransformResult {
-    const result = this.#compiler.transform(id, code)
-    return {
-      code: result.code ?? undefined,
-      map: result.map ?? undefined,
-      diagnostics: parseDiagnostics(result.diagnostics),
-      cssChanged: result.cssChanged,
-      dependencies: result.dependencies,
-    }
+    return toResult(this.#compiler.transform(id, code))
+  }
+
+  /**
+   * `transform` on a worker thread, so a bundler that runs module hooks concurrently compiles
+   * modules in parallel. The WASI engine compiles on the calling thread, as `transform` does.
+   */
+  async transformAsync(id: string, code: string): Promise<TransformResult> {
+    if (this.engine !== "native") return this.transform(id, code)
+    return toResult(await this.#compiler.transformAsync(id, code))
   }
 
   /** Whether a module is this application's to compile (its own, or a listed library's). */

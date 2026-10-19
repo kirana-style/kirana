@@ -40,10 +40,40 @@ pub struct DenseEdits {
     pub texts: Vec<String>,
 }
 
-/// A compilation session.
+/// A compilation session. The project is shared with transforms running on worker threads.
 #[napi]
 pub struct Compiler {
-    project: Project,
+    project: Arc<Project>,
+}
+
+fn transform_result(result: kirana_project::Transformed) -> TransformResult {
+    TransformResult {
+        code: result.code,
+        map: result.map,
+        diagnostics: render_json(&result.diagnostics),
+        css_changed: result.css_changed,
+        dependencies: result.dependencies.iter().map(|path| path.to_string_lossy().into_owned()).collect(),
+    }
+}
+
+/// One module's transform, run on the Node.js worker pool (`Compiler::transform_async`).
+pub struct TransformTask {
+    project: Arc<Project>,
+    id: String,
+    code: String,
+}
+
+impl napi::Task for TransformTask {
+    type Output = kirana_project::Transformed;
+    type JsValue = TransformResult;
+
+    fn compute(&mut self) -> napi::Result<Self::Output> {
+        Ok(self.project.transform(Path::new(&self.id), &self.code))
+    }
+
+    fn resolve(&mut self, _env: napi::Env, output: Self::Output) -> napi::Result<Self::JsValue> {
+        Ok(transform_result(output))
+    }
 }
 
 #[napi]
@@ -53,20 +83,21 @@ impl Compiler {
     #[napi(constructor)]
     pub fn new(config_json: String) -> napi::Result<Self> {
         Project::new(&config_json, Arc::new(OsFs))
-            .map(|project| Compiler { project })
+            .map(|project| Compiler { project: Arc::new(project) })
             .map_err(|diagnostics| napi::Error::from_reason(render_json(&diagnostics)))
     }
 
     #[napi]
     pub fn transform(&self, id: String, code: String) -> TransformResult {
-        let result = self.project.transform(Path::new(&id), &code);
-        TransformResult {
-            code: result.code,
-            map: result.map,
-            diagnostics: render_json(&result.diagnostics),
-            css_changed: result.css_changed,
-            dependencies: result.dependencies.iter().map(|path| path.to_string_lossy().into_owned()).collect(),
-        }
+        transform_result(self.project.transform(Path::new(&id), &code))
+    }
+
+    /// `transform` on a worker thread: a bundler that runs module hooks concurrently compiles
+    /// modules in parallel, and its own thread stays free. The registry is shared and the
+    /// stylesheet is written in path order, so the order transforms finish in changes nothing.
+    #[napi(ts_return_type = "Promise<TransformResult>")]
+    pub fn transform_async(&self, id: String, code: String) -> napi::bindgen_prelude::AsyncTask<TransformTask> {
+        napi::bindgen_prelude::AsyncTask::new(TransformTask { project: self.project.clone(), id, code })
     }
 
     #[napi]
