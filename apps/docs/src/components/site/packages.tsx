@@ -8,7 +8,6 @@ import { css } from "@kirana-style/core"
 import {
   CheckListIcon,
   CodeIcon,
-  CpuIcon,
   CubeIcon,
   FileCodeIcon,
   FileScriptIcon,
@@ -254,7 +253,7 @@ export function CompilerArt() {
         <Tile icon={FileCodeIcon} size={36} />
       </At>
       <At x={52} y={50}>
-        <Tile icon={CpuIcon} size={48} variant="accent" caption="kirana" />
+        <Tile mark size={48} variant="accent" caption="kirana" />
       </At>
       <At x={86} y={50}>
         <Tile icon={FileScriptIcon} size={38} caption="kirana.css" />

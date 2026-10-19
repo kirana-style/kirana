@@ -4,7 +4,6 @@
  */
 import {
   Cancel01Icon,
-  CpuIcon,
   FileCodeIcon,
   FileScriptIcon,
   Tick02Icon,
@@ -20,7 +19,7 @@ function Compile() {
         <Tile icon={FileCodeIcon} size={40} caption="card.tsx" />
       </At>
       <At x={50} y={46}>
-        <Tile icon={CpuIcon} size={44} variant="accent" caption="kirana" />
+        <Tile mark size={44} variant="accent" caption="kirana" />
       </At>
       <At x={86} y={46}>
         <Tile icon={FileScriptIcon} size={40} caption="app.css" />

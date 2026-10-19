@@ -4,11 +4,7 @@
  * measured numbers, each from `packages/kirana/design-notes/benchmark-results.md` or the docs that cite it.
  */
 import { css } from "@kirana-style/core"
-import {
-  CodeIcon,
-  CommandLineIcon,
-  Layers01Icon,
-} from "@hugeicons/core-free-icons"
+import { CodeIcon, CommandLineIcon } from "@hugeicons/core-free-icons"
 
 import { BrandIcon } from "@workspace/docs-ui/brand-icon.tsx"
 import { accent } from "@workspace/docs-ui/accent.ts"
@@ -303,7 +299,7 @@ export function ChoicesArt() {
         </At>
       ))}
       <At x={50} y={50}>
-        <Tile icon={Layers01Icon} size={50} variant="accent" caption="kirana" />
+        <Tile mark size={50} variant="accent" caption="kirana" />
       </At>
       {right.map((brand, index) => (
         <At key={brand.title} x={86} y={(ys[index]! / 140) * 100}>

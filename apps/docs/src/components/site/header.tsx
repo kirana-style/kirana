@@ -542,7 +542,11 @@ export function SiteHeader() {
   return (
     <header sx={styles.header}>
       <Rail sx={styles.bar}>
-        <Link to="/" aria-label="Kirana, home" {...styleProps(styles.brand)}>
+        <Link
+          to="/"
+          aria-label="kirana style, home"
+          {...styleProps(styles.brand)}
+        >
           {/* The petal K in one colour (the gradients are not final), beside the name. */}
           <KiranaMark variant="solid" title={null} sx={styles.logo} />
           <Wordmark />

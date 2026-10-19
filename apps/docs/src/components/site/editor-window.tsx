@@ -43,7 +43,7 @@ export const EDITOR = {
   border: "oklch(0.97 0.01 85 / 8%)",
   text: "oklch(0.9 0.008 85)",
   muted: "oklch(0.68 0.012 80)",
-  gutter: "oklch(0.5 0.01 75)",
+  gutter: "oklch(0.62 0.01 75)",
   selection: "oklch(0.82 0.1 85 / 18%)",
   current: "oklch(0.97 0.01 85 / 3.5%)",
 }
@@ -58,8 +58,10 @@ const CHROME = {
   bar: "#27292e",
   border: "rgb(255 255 255 / 0.08)",
   text: "#d7dce4",
-  muted: "#7d8590",
-  gutter: "#4f5664",
+  // GitHub Dark's secondary text, 4.7 : 1 on the bar.
+  muted: "#8b949e",
+  // VS Code's line numbers in GitHub Dark (`VSCODE.lineNumber`).
+  gutter: "#6e7681",
 }
 
 /**

@@ -3,7 +3,6 @@
  * kit can draw them too (a route file exports only its route).
  */
 import {
-  CpuIcon,
   FileCodeIcon,
   FileScriptIcon,
   GlobalIcon,
@@ -64,7 +63,7 @@ export function BuildArt() {
           <Tile icon={FileCodeIcon} size={40} caption="card.tsx" />
         </At>
         <At x={53} y={50}>
-          <Tile icon={CpuIcon} size={48} variant="accent" caption="kirana" />
+          <Tile mark size={48} variant="accent" caption="kirana" />
         </At>
         <At x={87} y={50}>
           <Tile icon={FileScriptIcon} size={44} caption="app.css" />

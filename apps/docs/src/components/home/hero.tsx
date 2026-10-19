@@ -5,7 +5,7 @@
  */
 import { Link } from "@tanstack/react-router"
 import { css, props as styleProps } from "@kirana-style/core"
-import { Css3Icon, FileCodeIcon, FlashIcon } from "@hugeicons/core-free-icons"
+import { Css3Icon, FileCodeIcon } from "@hugeicons/core-free-icons"
 
 import { accent } from "@workspace/docs-ui/accent.ts"
 import { Button } from "@workspace/ui/components/button"
@@ -240,7 +240,7 @@ export function CompileScene() {
           </Card>
         </At>
         <At x={82} y={27}>
-          <Tile icon={FlashIcon} size={56} variant="accent" caption="kirana" />
+          <Tile mark size={56} variant="accent" caption="kirana" />
         </At>
         <At x={50} y={79}>
           <Card
@@ -273,6 +273,7 @@ export function Hero() {
       <Rail>
         <ScenePixels
           scene="highlands"
+          priority
           dissolve="hero"
           fade={0.62}
           sx={styles.scene}

@@ -38,7 +38,8 @@ const styles = {
 export function Wordmark({ sx, styleSx }: { sx?: Sx; styleSx?: Sx }) {
   return (
     <span sx={[styles.root, sx]}>
-      <span sx={styles.name}>kirana</span>
+      {/* The space reads the two words apart; flex layout does not draw it, the gap does. */}
+      <span sx={styles.name}>kirana</span>{" "}
       <span sx={[styles.style, styleSx]}>style</span>
     </span>
   )

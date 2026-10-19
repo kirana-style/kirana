@@ -37,7 +37,7 @@ export const TIERS: Tier[] = [
     kind: "Recurring",
     audience: "individual",
     amount: 25,
-    text: "Helps cover CI and hosting, every month.",
+    text: "Helps cover the domain and hosting, every month.",
     benefits: [
       "Your name and avatar on this page",
       "Your avatar in the README",
@@ -231,8 +231,8 @@ export const GOALS: Goal[] = [
   {
     title: "Keep the lights on",
     text: "The costs that exist whether or not anyone writes code.",
+    // CI is not here: the repositories are public, so GitHub's standard runners cost nothing.
     items: [
-      "CI minutes for every pull request across eight platforms",
       "Domains, hosting for the docs and the playground",
       "npm organisation and release signing",
     ],
