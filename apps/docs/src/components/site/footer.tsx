@@ -116,7 +116,11 @@ export function SiteFooter({ scene: given }: { scene?: SceneId }) {
     <footer sx={[styles.footer, accents[SCENES[scene].hue]]}>
       <Rail sx={styles.inner}>
         <div sx={styles.identity}>
-          <Link to="/" aria-label="Kirana, home" {...styleProps(styles.brand)}>
+          <Link
+            to="/"
+            aria-label="kirana style, home"
+            {...styleProps(styles.brand)}
+          >
             <KiranaMark variant="solid" title={null} sx={styles.logo} />
             <Wordmark />
           </Link>

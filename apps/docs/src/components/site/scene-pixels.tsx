@@ -18,7 +18,7 @@ import { SUN } from "@workspace/docs-ui/accent.ts"
 import type { Sx } from "@workspace/ui/lib/sx"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 
-import { SCENES, sceneImage, sceneSrcSet } from "@/brand/scenes"
+import { SCENES, sceneImage } from "@/brand/scenes"
 import type { SceneId } from "@/brand/scenes"
 
 import { BAYER, PRECISION, VERTEX, compile, rgb } from "./pixel-field"
@@ -143,6 +143,7 @@ export function ScenePixels({
   dissolve = "up",
   fade = 0.6,
   cell = 4,
+  priority = false,
   sx,
 }: {
   scene: SceneId
@@ -152,22 +153,29 @@ export function ScenePixels({
   fade?: number
   /** Cell size in CSS pixels. */
   cell?: number
+  /**
+   * The page's largest picture (the homepage hero): fetched first. Every other scene waits until
+   * it is about to scroll into view.
+   */
+  priority?: boolean
   sx?: Sx
 }) {
   const root = useRef<HTMLDivElement>(null)
   const ref = useRef<HTMLCanvasElement>(null)
+  const image = useRef<HTMLImageElement>(null)
   const { position } = SCENES[scene]
 
   useEffect(() => {
     const canvas = ref.current
     const box = root.current
+    const picture = image.current
     const gl = canvas?.getContext("webgl", {
       alpha: true,
       antialias: false,
       premultipliedAlpha: true,
       powerPreference: "low-power",
     })
-    if (!canvas || !box || !gl) return
+    if (!canvas || !box || !picture || !gl) return
 
     const vertex = compile(gl, gl.VERTEX_SHADER, VERTEX)
     const fragment = compile(gl, gl.FRAGMENT_SHADER, FRAGMENT)
@@ -270,14 +278,16 @@ export function ScenePixels({
         frame = requestAnimationFrame(loop)
     }
 
-    // The smaller picture is enough for a canvas up to about 900 device pixels wide.
-    const picture = new Image()
-    picture.src = sceneImage(
-      scene,
-      canvas.clientWidth * ratio > 900 ? 1600 : 800
-    )
-    picture
-      .decode()
+    // The texture is the picture the <img> already loaded, so the scene is fetched once.
+    const ready =
+      picture.complete && picture.naturalWidth > 0
+        ? Promise.resolve()
+        : new Promise<void>((resolve, reject) => {
+            picture.addEventListener("load", () => resolve(), { once: true })
+            picture.addEventListener("error", reject, { once: true })
+          })
+    ready
+      .then(() => picture.decode())
       .then(() => {
         if (gone) return
         gl.texImage2D(
@@ -368,11 +378,15 @@ export function ScenePixels({
   return (
     <div ref={root} aria-hidden="true" sx={[styles.root, sx]}>
       <img
+        ref={image}
+        // The smaller picture only: once the canvas has drawn, this picture is hidden, and the
+        // canvas's cells show less detail than 800 pixels hold at any width. It is what shows
+        // until then, or instead where WebGL is not available.
         src={sceneImage(scene, 800)}
-        srcSet={sceneSrcSet(scene)}
-        sizes="(min-width: 64rem) 50vw, 100vw"
         alt=""
-        decoding="async"
+        {...(priority
+          ? { fetchPriority: "high" as const }
+          : { loading: "lazy" as const, decoding: "async" as const })}
         style={{ objectPosition: position }}
         sx={[styles.picture, styles[dissolve]]}
       />

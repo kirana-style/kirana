@@ -20,6 +20,8 @@ import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import { fontFamily, fontWeight } from "@workspace/ui/tokens/typography"
 
+import { KiranaMark } from "@/brand/kirana-mark-svg"
+
 /** What a drawing marks as wrong, right, a warning or a note: the theme's red and three scene hues. */
 export const DANGER = theme.destructive
 export const SUCCESS = PALETTE.forest
@@ -503,6 +505,7 @@ export function At({
 export function Tile({
   icon,
   brand,
+  mark,
   size = 44,
   variant = "plain",
   round,
@@ -513,6 +516,8 @@ export function Tile({
 }: {
   icon?: IconProps["icon"]
   brand?: SvglIcon
+  /** Kirana's own mark, solid in the tile's colour (`accent.on` on an accent tile). */
+  mark?: boolean
   size?: number
   variant?: "plain" | "accent" | "ink"
   round?: boolean
@@ -535,7 +540,13 @@ export function Tile({
       style={{ width: size, height: size }}
     >
       {variant === "accent" ? <span sx={styles.pingRing} /> : null}
-      {brand ? (
+      {mark ? (
+        <KiranaMark
+          variant="solid"
+          title={null}
+          height={Math.round(size * 0.48)}
+        />
+      ) : brand ? (
         <BrandIcon icon={brand} size={glyph} />
       ) : icon ? (
         <Icon icon={icon} size={glyph} />
