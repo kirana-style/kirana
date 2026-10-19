@@ -197,6 +197,23 @@ describe("components and the stylesheet asset, hook by hook", () => {
     emitFile: () => "",
   }
 
+  it("compiles each module once in a one-shot build, every time in a watch build", async () => {
+    for (const [watchMode, expected] of [
+      [false, 1],
+      [true, 0],
+    ] as const) {
+      const { plugin, session } = createKirana({ root: app() })
+      const driver = await session()
+      let reused = 0
+      driver.reuseTransforms = () => void reused++
+      await (plugin.buildStart as Hook).call({
+        ...context,
+        meta: { watchMode },
+      })
+      expect(reused).toBe(expected)
+    }
+  })
+
   it("compiles a component as it is read", async () => {
     const root = app()
     const changed: string[] = []

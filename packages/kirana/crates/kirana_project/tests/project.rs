@@ -318,3 +318,79 @@ fn dense_names_cover_the_build_and_keep_their_codes() {
     assert!(project.dense_rename(&project.stylesheet(true)).len() > before.len());
     fs::remove_dir_all(root).unwrap();
 }
+
+#[test]
+fn a_build_reuses_a_transform_whose_inputs_are_unchanged() {
+    let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { 1: \"1px\" })\n";
+    let input = "import { css } from \"@kirana-style/core\"\nimport { space } from \"./tokens\"\nexport const box = css({ gap: space[1] })\n";
+    let (root, project) =
+        temp_project(&[("package.json", "{\"name\":\"app\"}"), ("tokens.ts", tokens), ("input.ts", input)]);
+    let path = root.join("input.ts");
+    let reused = |project: &Project| project.work().reused;
+
+    // Off by default: the language server compiles every time.
+    project.transform(&path, input);
+    project.transform(&path, input);
+    assert_eq!(reused(&project), 0);
+
+    project.reuse_transforms();
+    let first = project.transform(&path, input);
+    let second = project.transform(&path, input);
+    assert_eq!(reused(&project), 1);
+    assert_eq!((second.code.as_deref(), second.map.as_deref()), (first.code.as_deref(), first.map.as_deref()));
+    assert_eq!(second.dependencies, first.dependencies);
+    assert!(!second.css_changed);
+
+    // A file the evaluation read changed on disk, with nothing telling the project: compiled again.
+    fs::write(root.join("tokens.ts"), tokens.replace("1px", "2px")).unwrap();
+    project.invalidate(&root.join("tokens.ts"));
+    let changed = project.transform(&path, input);
+    assert_eq!(reused(&project), 1);
+    assert_ne!(changed.code, first.code);
+    assert!(changed.css_changed);
+    project.transform(&path, input);
+    assert_eq!(reused(&project), 2);
+
+    // Another source, marked names, the module's own invalidation, its removal, a manifest: each
+    // compiles again.
+    let edited = input.replace("gap", "rowGap");
+    project.transform(&path, &edited);
+    project.transform(&path, input);
+    assert_eq!(reused(&project), 2);
+    project.mark_dense();
+    assert!(project.transform(&path, input).code.unwrap().contains(kirana_ir::dense::MARK));
+    assert_eq!(reused(&project), 2);
+    project.transform(&path, input);
+    assert_eq!(reused(&project), 3);
+    project.invalidate(&path);
+    project.transform(&path, input);
+    assert_eq!(reused(&project), 3);
+    project.remove(&path);
+    project.transform(&path, input);
+    assert_eq!(reused(&project), 3);
+    project.invalidate(&root.join("package.json"));
+    project.transform(&path, input);
+    assert_eq!(reused(&project), 3);
+    project.transform(&path, input);
+    assert_eq!(reused(&project), 4);
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn a_dependency_changed_on_disk_is_noticed_without_an_invalidation() {
+    let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { 1: \"1px\" })\n";
+    let input = "import { css } from \"@kirana-style/core\"\nimport { space } from \"./tokens\"\nexport const box = css({ gap: space[1] })\n";
+    let (root, project) =
+        temp_project(&[("package.json", "{\"name\":\"app\"}"), ("tokens.ts", tokens), ("input.ts", input)]);
+    project.reuse_transforms();
+    let path = root.join("input.ts");
+    let first = project.transform(&path, input);
+    // The token file is compiled with new contents, as a bundler would when it reaches it.
+    let tokens_path = root.join("tokens.ts");
+    let edited = tokens.replace("1px", "3px");
+    fs::write(&tokens_path, &edited).unwrap();
+    project.transform(&tokens_path, &edited);
+    let again = project.transform(&path, input);
+    assert_ne!(again.code, first.code);
+    fs::remove_dir_all(root).unwrap();
+}

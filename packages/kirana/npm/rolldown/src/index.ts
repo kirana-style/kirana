@@ -103,8 +103,11 @@ export function createKirana(
   const plugin = {
     name: "kirana",
 
-    async buildStart() {
+    async buildStart(this: { meta: { watchMode: boolean } }) {
       const compiler = await session()
+      // One build, every environment: Vite compiles the same modules for the client and again for
+      // the server, and the second time is answered from the first.
+      if (!development() && !this.meta.watchMode) compiler.reuseTransforms()
       if (dense()) {
         if (compiler.classModules.length > 0) {
           throw new Error(

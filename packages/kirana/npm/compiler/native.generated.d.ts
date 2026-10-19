@@ -10,6 +10,11 @@ export declare class Compiler {
   constructor(configJson: string)
   transform(id: string, code: string): TransformResult
   stylesheet(minify: boolean): string
+  /**
+   * From now on, a transform of unchanged input returns the previous one: a one-shot build that
+   * compiles the same modules for more than one environment.
+   */
+  reuseTransforms(): void
   /** From now on, transforms mark the names they write, for a dense build (D-084). */
   markDense(): void
   /**
