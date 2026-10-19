@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.2.3](https://github.com/kirana-style/kirana/compare/v0.2.2...v0.2.3) (2026-10-19)
+
+
+### Features
+
+* opt-in dense class names for production builds ([#56](https://github.com/kirana-style/kirana/issues/56)) ([8de7aa1](https://github.com/kirana-style/kirana/commit/8de7aa1860a3e2d090d46dd8ef7fd5ba74a03c83))
+* **site:** show the lab's scale curve on the benchmarks page ([#53](https://github.com/kirana-style/kirana/issues/53)) ([006313d](https://github.com/kirana-style/kirana/commit/006313d61bc0331059b30cfcf2ea6a31c0772ea2))
+* **site:** the large-dom table, a homepage chart and visual habits ([#52](https://github.com/kirana-style/kirana/issues/52)) ([7af6734](https://github.com/kirana-style/kirana/commit/7af6734384f71add75ba12fb506aee11a24aa4d3))
+
+
+### Bug fixes
+
+* **compiler:** let bundlers drop recipe tables resolved at build time ([#55](https://github.com/kirana-style/kirana/issues/55)) ([1a2eb9b](https://github.com/kirana-style/kirana/commit/1a2eb9bd50c549165cd69fc911b15f3a37f40fc7))
+* **release:** publish a package only once npm serves what it depends on ([#50](https://github.com/kirana-style/kirana/issues/50)) ([f52fc50](https://github.com/kirana-style/kirana/commit/f52fc50b5043826efbf87a867b2ef0d1aa9b2cae))
+
+
+### Performance
+
+* **core:** merge each combination of handles once at runtime ([#54](https://github.com/kirana-style/kirana/issues/54)) ([633486f](https://github.com/kirana-style/kirana/commit/633486f3d212ce2a132ccaac046fecf92516c518))
+
 ## [0.2.2](https://github.com/kirana-style/kirana/compare/v0.2.1...v0.2.2) (2026-10-16)
 
 
