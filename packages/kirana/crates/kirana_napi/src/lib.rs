@@ -74,6 +74,13 @@ impl Compiler {
         self.project.stylesheet(minify)
     }
 
+    /// From now on, a transform of unchanged input returns the previous one: a one-shot build that
+    /// compiles the same modules for more than one environment.
+    #[napi]
+    pub fn reuse_transforms(&self) {
+        self.project.reuse_transforms();
+    }
+
     /// From now on, transforms mark the names they write, for a dense build (D-084).
     #[napi]
     pub fn mark_dense(&self) {

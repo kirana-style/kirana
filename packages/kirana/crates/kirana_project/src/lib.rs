@@ -52,6 +52,8 @@ pub struct Project {
     pub(crate) marked: Names,
     /// Whether transforms write marked names: set by a host building with dense names.
     pub(crate) dense: std::sync::atomic::AtomicBool,
+    /// Whether a transform of unchanged input returns the previous one (`Project::reuse_transforms`).
+    pub(crate) reuse: std::sync::atomic::AtomicBool,
     pub(crate) root: PathBuf,
     pub(crate) fs: Arc<dyn Fs>,
     pub(crate) resolver: oxc_resolver::Resolver,
@@ -88,6 +90,19 @@ pub(crate) struct State {
     /// Dense-name codes assigned so far (D-084), and whether a module changed since they were.
     pub dense: kirana_ir::dense::DenseNames,
     pub dense_stale: bool,
+    /// The last transform of each module, when transforms are reused (`Project::reuse_transforms`).
+    pub reused: FxHashMap<PathBuf, Reusable>,
+}
+
+/// A module's last transform, and what it depended on: the source, how it was parsed and written,
+/// and every file its evaluation read, each with the hash it had.
+#[derive(Clone)]
+pub(crate) struct Reusable {
+    hash: u64,
+    jsx: bool,
+    marked: bool,
+    provenance: Vec<(PathBuf, u64)>,
+    output: Transformed,
 }
 
 /// What the session did, for KRN-PERF-002 and E-02.
@@ -106,6 +121,8 @@ pub struct Work {
     pub parsed: u64,
     /// Modules parsed to read another module's imports, after the cache missed.
     pub resolved: u64,
+    /// Transforms answered from the module's previous transform (`Project::reuse_transforms`).
+    pub reused: u64,
 }
 
 impl Project {
@@ -120,6 +137,7 @@ impl Project {
             names,
             marked,
             dense: std::sync::atomic::AtomicBool::new(false),
+            reuse: std::sync::atomic::AtomicBool::new(false),
             root,
             fs,
             config,
@@ -178,12 +196,27 @@ impl Project {
         self.transform_as(path, source, kirana_frontend::source_type(path).with_jsx(true))
     }
 
+    /// From now on, a transform of a module whose source, and every file its evaluation read, are
+    /// unchanged returns the previous transform instead of compiling it again. A bundler host turns
+    /// this on: Vite compiles the same modules for the client and again for the server.
+    pub fn reuse_transforms(&self) {
+        self.reuse.store(true, std::sync::atomic::Ordering::Relaxed);
+    }
+
     fn transform_as(&self, path: &Path, source: &str, source_type: kirana_frontend::SourceType) -> Transformed {
         let hash = hash64(source.as_bytes());
         {
             let mut state = self.state.write().expect("not poisoned");
             state.hashes.insert(path.to_path_buf(), hash);
             state.work.seen += 1;
+        }
+        let reuse = self.reuse.load(std::sync::atomic::Ordering::Relaxed);
+        let marked = self.dense.load(std::sync::atomic::Ordering::Relaxed);
+        let jsx = source_type.is_jsx();
+        if reuse && let Some(previous) = self.reusable(path, hash, jsx, marked) {
+            self.state.write().expect("not poisoned").work.reused += 1;
+            // The module's record is the one this transform wrote: the stylesheet is unchanged.
+            return Transformed { css_changed: false, ..previous };
         }
         if !kirana_frontend::may_be_style_bearing(source) {
             self.state.write().expect("not poisoned").work.prefiltered += 1;
@@ -218,6 +251,7 @@ impl Project {
         };
         self.register_definitions(&definitions, &package, &file);
         let dependencies = host.dependencies();
+        let provenance = if reuse { host.provenance() } else { Vec::new() };
         {
             let mut state = self.state.write().expect("not poisoned");
             for dependency in &dependencies {
@@ -234,7 +268,23 @@ impl Project {
             })
             .collect();
         diagnostics.sort_by(|a, b| a.span.start.cmp(&b.span.start).then(a.code.code().cmp(b.code.code())));
-        Transformed { code: output.code, map: output.map, diagnostics, css_changed, dependencies }
+        let transformed = Transformed { code: output.code, map: output.map, diagnostics, css_changed, dependencies };
+        if reuse {
+            let entry = Reusable { hash, jsx, marked, provenance, output: transformed.clone() };
+            self.state.write().expect("not poisoned").reused.insert(path.to_path_buf(), entry);
+        }
+        transformed
+    }
+
+    /// The previous transform of `path`, when it was of this source, parsed and written the same
+    /// way, and every file it read still has the hash it had then.
+    fn reusable(&self, path: &Path, hash: u64, jsx: bool, marked: bool) -> Option<Transformed> {
+        let entry = self.state.read().expect("not poisoned").reused.get(path).cloned()?;
+        let current = entry.hash == hash
+            && entry.jsx == jsx
+            && entry.marked == marked
+            && entry.provenance.iter().all(|(file, seen)| self.current_hash(file) == Some(*seen));
+        current.then_some(entry.output)
     }
 
     /// The content hash of a file as the project last saw it, reading it when unknown.
@@ -266,7 +316,10 @@ impl Project {
         // A new or changed manifest can rename a package, or make a directory a Kirana package.
         if path.file_name().is_some_and(|name| name == "package.json") {
             state.packages.clear();
+            // Package names are in class names and definitions: nothing compiled before is current.
+            state.reused.clear();
         }
+        state.reused.remove(path);
         state.hashes.remove(path);
         state.exports.remove(path);
         let mut affected = Vec::new();
@@ -292,6 +345,7 @@ impl Project {
         let file = self.display_name(path);
         let mut state = self.state.write().expect("not poisoned");
         forget_declarations(&mut state, &file);
+        state.reused.remove(path);
         state.modules.remove(path).is_some_and(|record| !record.is_empty())
     }
 

@@ -182,6 +182,16 @@ export class Driver {
   }
 
   /**
+   * Compiles each module once for the session: a transform of a module whose source, and every
+   * file its evaluation read, are unchanged returns the previous result. For a one-shot build that
+   * compiles the same modules for the client and again for the server; a dev server or a watch build
+   * leaves it off, since a file created later could change how an import resolves.
+   */
+  reuseTransforms(): void {
+    this.#compiler.reuseTransforms()
+  }
+
+  /**
    * Starts a dense build (D-084): from now on every module marks the names the compiler writes into
    * it, and `dense` renames those and nothing else. Call it before the first transform.
    */

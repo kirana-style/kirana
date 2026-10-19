@@ -57,6 +57,14 @@ impl<'p> ModuleHost<'p> {
         Self { project, stack, read: RefCell::default(), stars: RefCell::default() }
     }
 
+    /// `(file, hash seen)` for every file read, directly or through re-exports, deduplicated.
+    pub fn provenance(&self) -> Vec<(PathBuf, u64)> {
+        let mut read = self.read.borrow().clone();
+        read.sort();
+        read.dedup();
+        read
+    }
+
     /// Files read directly or through re-exports, deduplicated and sorted.
     pub fn dependencies(&self) -> Vec<PathBuf> {
         let mut paths: Vec<PathBuf> = self.read.borrow().iter().map(|(path, _)| path.clone()).collect();
