@@ -7,7 +7,8 @@
 //! 3. `kirana.themes`: scoped theme overrides;
 //! 4. `kirana.contextual`: `select.*` styles, ladder-ordered;
 //! 5. `kirana.atoms`: element atoms, ladder-ordered. Every selector is (0,1,0) through
-//!    `:where()`, so source order is the precedence ladder.
+//!    `:where()`, so source order is the precedence ladder. Atoms that share a conflict key are
+//!    ordered among themselves so that more rules share a declaration.
 //!
 //! Production output is minified by the writer itself, so colours and values are never
 //! re-serialized. Lightning CSS runs only when configured targets are below the default floor.
@@ -17,7 +18,7 @@ pub mod minify;
 use std::collections::BTreeMap;
 use std::fmt::Write as _;
 
-use kirana_css_data::{PropertyRank, physical_counterpart};
+use kirana_css_data::{PropertyRank, Sets, flow_group, sets};
 use kirana_ir::{
     Atom, Condition, Dep, KeyframesDef, PositionTryDef, RelationKind, Target, ThemeDef, TokenDef, TokenValue,
     ViewTransitionDef, fallback_values, ladder_key,
@@ -226,13 +227,15 @@ pub fn at_rules(atom: &Atom) -> Vec<String> {
     preludes
 }
 
-fn write_atoms(writer: &mut Writer, atoms: &[&Atom]) {
+/// Writes ladder-ordered atoms, one at-rule block at a time. `own` says the atoms style the element
+/// that carries their class, which lets [`arrange`] reorder atoms that share a conflict key.
+fn write_atoms(writer: &mut Writer, atoms: &[&Atom], own: bool) {
     let mut open: Vec<String> = Vec::new();
     let mut block: Vec<&Atom> = Vec::new();
     for atom in atoms {
         let wanted = at_rules(atom);
         if wanted != open {
-            write_block(writer, &mut block);
+            write_block(writer, &mut block, own);
         }
         let shared = open.iter().zip(&wanted).take_while(|(a, b)| a == b).count();
         while open.len() > shared {
@@ -245,7 +248,7 @@ fn write_atoms(writer: &mut Writer, atoms: &[&Atom]) {
         }
         block.push(atom);
     }
-    write_block(writer, &mut block);
+    write_block(writer, &mut block, own);
     for _ in open {
         writer.close();
     }
@@ -255,51 +258,173 @@ fn write_atoms(writer: &mut Writer, atoms: &[&Atom]) {
 /// atom costs before rules carrying the same declaration are merged (`kirana-style analyze`).
 pub fn atom_rule(atom: &Atom, minify: bool) -> String {
     let mut writer = Writer { out: String::new(), minify, depth: 0 };
-    write_atoms(&mut writer, &[atom]);
+    write_atoms(&mut writer, &[atom], true);
     writer.finish()
 }
 
-/// The properties an atom decides, for the purpose of rule order.
+/// Where the last rule deciding each property sits, so that a merge can tell whether it would move a
+/// rule past one that competes with it.
 ///
 /// Two declarations of different properties never compete, so their rules may be reordered freely.
-/// The exceptions are the two that look like different properties and are not: a logical longhand
-/// and its physical counterpart, and a shorthand, which covers longhands this does not try to
-/// enumerate and so blocks every merge across it.
-fn family(atom: &Atom) -> Option<&str> {
-    let name = atom.key.property.name.as_str();
-    match atom.key.property.rank {
-        PropertyRank::Shorthand => None,
-        _ => Some(physical_counterpart(name).unwrap_or(name)),
+/// The exceptions are the ones that look like different properties and are not
+/// ([`kirana_css_data::competes`]): a flow-relative longhand and the physical ones it can stand for,
+/// a shorthand and its longhands, and a vendor-prefixed alias.
+#[derive(Default)]
+struct Decided<'a> {
+    property: BTreeMap<&'a str, usize>,
+    /// By flow group, and whether the property is the flow-relative member.
+    group: BTreeMap<(String, bool), usize>,
+    /// The last rule that competes with every property: a vendor-prefixed one, or a shorthand whose
+    /// longhands are not in the property table.
+    everything: Option<usize>,
+    any: Option<usize>,
+}
+
+impl<'a> Decided<'a> {
+    /// Records that rule `index` decides `atom`'s property, or every longhand of its shorthand.
+    fn record(&mut self, atom: &'a Atom, index: usize) {
+        let name = atom.key.property.name.as_str();
+        self.any = Some(index);
+        self.property.insert(name, index);
+        match covered(atom) {
+            Some(longhands) => longhands.iter().for_each(|longhand| self.longhand(longhand, index)),
+            None => self.everything = Some(index),
+        }
     }
+
+    fn longhand(&mut self, name: &'a str, index: usize) {
+        if is_vendor(name) {
+            self.everything = Some(index);
+        }
+        self.property.insert(name, index);
+        self.group.insert(flow_group(name), index);
+    }
+
+    /// Whether `atom`'s declaration may join rule `index`: no rule after it decides the atom's
+    /// property, one of its longhands, or a property that competes with one.
+    fn free(&self, atom: &Atom, index: usize) -> bool {
+        let after = |at: Option<&usize>| at.is_some_and(|at| *at > index);
+        covered(atom).is_some_and(|longhands| {
+            !after(self.property.get(atom.key.property.name.as_str()))
+                && longhands.iter().all(|longhand| self.free_since(longhand, index))
+        })
+    }
+
+    fn free_since(&self, name: &str, index: usize) -> bool {
+        let after = |at: Option<&usize>| at.is_some_and(|at| *at > index);
+        if after(self.property.get(name)) || after(self.everything.as_ref()) {
+            return false;
+        }
+        if is_vendor(name) {
+            return !after(self.any.as_ref());
+        }
+        let (group, logical) = flow_group(name);
+        !after(self.group.get(&(group.clone(), true))) && !(logical && after(self.group.get(&(group, false))))
+    }
+}
+
+fn is_vendor(name: &str) -> bool {
+    name.starts_with('-') && !name.starts_with("--")
+}
+
+/// The longhands an atom decides ([`sets`]); `None` for a shorthand whose longhands are not all
+/// known, which competes with everything, and for a shorthand atom the property data does not know.
+fn covered(atom: &Atom) -> Option<Vec<&str>> {
+    let name = atom.key.property.name.as_str();
+    match sets(name) {
+        Sets::Itself if atom.key.property.rank == PropertyRank::Shorthand => None,
+        Sets::Itself => Some(vec![name]),
+        Sets::Longhands(longhands) => Some(longhands.to_vec()),
+        Sets::Unknown => None,
+    }
+}
+
+/// Orders the atoms inside each conflict key so that adjacent keys of one property can share a rule.
+///
+/// The ladder orders keys, not the atoms within one: an element carries one value per conflict key,
+/// because merging keeps one, so atoms with the same key never compete and any order of them
+/// renders the same. The writer merges two rules only when no rule between them decides a competing
+/// property, so a declaration that ends one key's run and starts the next one's is written once.
+/// Each boundary takes at most one such declaration, the longest, and a run whose first atom the
+/// previous boundary chose keeps it first.
+///
+/// Atoms of the contextual layer are left in ladder order: two ancestors can each bring one with the
+/// same key to a descendant, and there the order between them decides.
+fn arrange(block: &mut [&Atom]) {
+    let mut runs: Vec<std::ops::Range<usize>> = Vec::new();
+    for (index, atom) in block.iter().enumerate() {
+        match runs.last_mut() {
+            Some(run) if block[run.start].key == atom.key => run.end = index + 1,
+            _ => runs.push(index..index + 1),
+        }
+    }
+    let mut first: Vec<Option<&str>> = vec![None; runs.len()];
+    let mut last: Vec<Option<&str>> = vec![None; runs.len()];
+    let mut decided = Decided::default();
+    for (index, run) in runs.iter().enumerate() {
+        let atoms = &block[run.clone()];
+        let name = atoms[0].key.property.name.as_str();
+        let before =
+            decided.property.get(name).copied().filter(|before| {
+                block[runs[*before].start].key.property.name == name && decided.free(atoms[0], *before)
+            });
+        if let Some(before) = before {
+            let left = &block[runs[before].clone()];
+            // A run of one atom can end with the declaration it starts with; a longer one cannot.
+            let taken = first[before].filter(|_| left.len() > 1);
+            let shared = atoms
+                .iter()
+                .map(|atom| atom.value.css.as_str())
+                .filter(|css| Some(*css) != taken && left.iter().any(|atom| atom.value.css == *css))
+                .max_by(|a, b| a.len().cmp(&b.len()).then_with(|| b.cmp(a)));
+            if let Some(css) = shared {
+                last[before] = Some(css);
+                first[index] = Some(css);
+            }
+        }
+        decided.record(atoms[0], index);
+    }
+    let mut arranged: Vec<&Atom> = Vec::with_capacity(block.len());
+    for ((run, first), last) in runs.into_iter().zip(first).zip(last) {
+        let mut atoms = block[run].to_vec();
+        atoms.sort_by_key(|atom| {
+            let css = Some(atom.value.css.as_str());
+            if css == first {
+                0
+            } else if css == last {
+                2
+            } else {
+                1
+            }
+        });
+        arranged.extend(atoms);
+    }
+    block.copy_from_slice(&arranged);
 }
 
 /// Writes one at-rule block, merging rules that carry the same declaration.
 ///
 /// A selector list costs one comma where a second rule costs its whole body, and in a stylesheet of
 /// atoms the same declaration recurs under many condition sets. Two atoms are merged only when no
-/// atom between them decides the same property: the merge moves a rule, and moving it past a
-/// competing declaration would change which one wins.
-fn write_block(writer: &mut Writer, block: &mut Vec<&Atom>) {
+/// rule between them decides a competing property ([`Decided`]): the merge moves a rule, and moving
+/// it past a competing declaration would change which one wins.
+fn write_block(writer: &mut Writer, block: &mut Vec<&Atom>, own: bool) {
+    if own {
+        arrange(block);
+    }
     let mut rules: Vec<(Vec<String>, &str, &str)> = Vec::new();
     let mut merge_into: BTreeMap<(&str, &str), usize> = BTreeMap::new();
-    let mut last_for: BTreeMap<&str, usize> = BTreeMap::new();
+    let mut decided = Decided::default();
     for atom in block.drain(..) {
         let property = atom.key.property.name.as_str();
         let value = atom.value.css.as_str();
-        let Some(family) = family(atom) else {
-            // A shorthand's longhands are not enumerated here, so nothing may cross it.
-            rules.push((vec![selector(atom)], property, value));
-            merge_into.clear();
-            last_for.clear();
-            continue;
-        };
         match merge_into.get(&(property, value)) {
-            Some(index) if last_for.get(family) == Some(index) => rules[*index].0.push(selector(atom)),
+            Some(&index) if decided.free(atom, index) => rules[index].0.push(selector(atom)),
             _ => {
                 let index = rules.len();
                 rules.push((vec![selector(atom)], property, value));
                 merge_into.insert((property, value), index);
-                last_for.insert(family, index);
+                decided.record(atom, index);
             }
         }
     }
@@ -491,7 +616,7 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
     for (layer, list) in [("@layer kirana.contextual", &contextual), ("@layer kirana.atoms", &own)] {
         if !list.is_empty() {
             writer.open(layer);
-            write_atoms(&mut writer, list);
+            write_atoms(&mut writer, list, layer == "@layer kirana.atoms");
             writer.close();
         }
     }
