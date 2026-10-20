@@ -92,6 +92,11 @@ pub(crate) struct State {
     pub dense_stale: bool,
     /// The last transform of each module, when transforms are reused (`Project::reuse_transforms`).
     pub reused: FxHashMap<PathBuf, Reusable>,
+    /// Bumped whenever a module's record or a declaration changes. The stylesheet and the
+    /// project's diagnostics hold from one bump to the next, so they are kept with the revision
+    /// they were computed at.
+    pub revision: u64,
+    pub cached: registry::Cached,
 }
 
 /// A module's last transform, and what it depended on: the source, how it was parsed and written,
@@ -301,6 +306,9 @@ impl Project {
         let mut state = self.state.write().expect("not poisoned");
         let previous = state.modules.insert(path.to_path_buf(), record);
         state.dense_stale = true;
+        if previous.as_ref() != state.modules.get(path) {
+            state.revision += 1;
+        }
         let current = state.modules.get(path).expect("just inserted");
         previous.as_ref().map_or(!current.is_empty(), |previous| previous.css_key() != current.css_key())
     }
@@ -310,6 +318,7 @@ impl Project {
     pub fn invalidate(&self, path: &Path) -> Vec<PathBuf> {
         let file = self.display_name(path);
         let mut state = self.state.write().expect("not poisoned");
+        state.revision += 1;
         // Its declarations are recorded again when it is next evaluated; a long-lived session (the
         // language server) must not keep a namespace or relation the file no longer declares.
         forget_declarations(&mut state, &file);
@@ -344,6 +353,7 @@ impl Project {
     pub fn remove(&self, path: &Path) -> bool {
         let file = self.display_name(path);
         let mut state = self.state.write().expect("not poisoned");
+        state.revision += 1;
         forget_declarations(&mut state, &file);
         state.reused.remove(path);
         state.modules.remove(path).is_some_and(|record| !record.is_empty())
@@ -406,6 +416,7 @@ impl Project {
 
     fn register_definitions(&self, definitions: &kirana_evaluator::Definitions, package: &str, file: &str) {
         let mut state = self.state.write().expect("not poisoned");
+        state.revision += 1;
         for (namespace, _) in &definitions.namespaces {
             state.namespaces.entry((package.to_owned(), namespace.clone())).or_default().insert(file.to_owned());
         }
