@@ -1,0 +1,7 @@
+/*
+ * The site's one plain stylesheet: packages/ui's reset, base styles and fonts, then the code
+ * colours the content generator writes. Vite inlines both imports, so the page asks for one file
+ * here instead of two.
+ */
+@import "@workspace/ui/globals.css";
+@import "../generated/highlight.css";

@@ -25,7 +25,8 @@ import {
 import { DocsLink } from "@/components/docs-link"
 import { Rail } from "@/components/site/patterns"
 import { ScenePixels } from "@/components/site/scene-pixels"
-import { GITHUB, NPM, VERSION } from "@/data/facts"
+import { GITHUB, NPM } from "@/data/links"
+import { VERSION } from "@/data/release"
 import { compact, useRepoStats } from "@/lib/repo-stats"
 import {
   At,

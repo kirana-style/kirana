@@ -6,13 +6,12 @@
  * popup between panels of different sizes and slides content in from the side
  * the pointer came from. On top of it sits one pill that glides to whichever
  * trigger the pointer is over — or the open one — measured from the DOM and
- * moved with a spring. Under reduced motion it jumps.
+ * moved by a CSS transition. Under reduced motion it jumps.
  */
 import { useCallback, useLayoutEffect, useRef, useState } from "react"
 import { css, props as styleProps } from "@kirana-style/core"
 import { Link } from "@tanstack/react-router"
 import { FavouriteIcon, Menu01Icon } from "@hugeicons/core-free-icons"
-import { motion, useReducedMotion } from "motion/react"
 
 import { PALETTE, accents, tint } from "@workspace/docs-ui/accent.ts"
 import { BrandIcon } from "@workspace/docs-ui/brand-icon.tsx"
@@ -36,7 +35,7 @@ import {
 import { Icon } from "@workspace/ui/primitives/icon"
 import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint, pointer } from "@workspace/ui/tokens/breakpoints"
-import { duration, easing } from "@workspace/ui/tokens/motion"
+import { duration, easing, motion } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
   fontFamily,
@@ -46,7 +45,7 @@ import {
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
-import { GITHUB } from "@/data/facts"
+import { GITHUB } from "@/data/links"
 import { SVGL } from "@/generated/svgl-icons.gen"
 import { compact, useRepoStats } from "@/lib/repo-stats"
 
@@ -105,12 +104,19 @@ const styles = {
     position: "relative",
     display: { base: "none", [breakpoint.lg]: "flex" },
   }),
+  // It slides to the trigger under the pointer and fades out between them, keeping its place.
   pill: css({
     position: "absolute",
     insetBlock: "4px",
     borderRadius: radius.full,
     backgroundColor: alpha.muted50,
     pointerEvents: "none",
+    transitionProperty: "left, width, opacity",
+    transitionDuration: {
+      base: duration["300"],
+      [motion.reduce]: duration["0"],
+    },
+    transitionTimingFunction: easing.emphasized,
   }),
   // The pill is the hover state: the trigger keeps no background of its own.
   trigger: css({
@@ -387,21 +393,22 @@ function Panel({ menu }: { menu: Menu }) {
 type PillBox = { left: number; width: number } | null
 
 function DesktopNav() {
-  const reduce = useReducedMotion()
   const wrap = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState<string | null>(null)
   const [hover, setHover] = useState<string | null>(null)
   const [box, setBox] = useState<PillBox>(null)
+  const [shown, setShown] = useState(false)
 
   const measure = useCallback((key: string | null) => {
     const root = wrap.current
     const target = key
       ? root?.querySelector<HTMLElement>(`[data-pill="${key}"]`)
       : null
-    if (!root || !target) return setBox(null)
+    if (!root || !target) return setShown(false)
     const outer = root.getBoundingClientRect()
     const inner = target.getBoundingClientRect()
     setBox({ left: inner.left - outer.left, width: inner.width })
+    setShown(true)
   }, [])
 
   useLayoutEffect(() => measure(hover ?? open), [hover, open, measure])
@@ -418,20 +425,10 @@ function DesktopNav() {
       }}
       onPointerLeave={() => setHover(null)}
     >
-      <motion.span
+      <span
         aria-hidden="true"
-        initial={false}
-        animate={
-          box
-            ? { left: box.left, width: box.width, opacity: 1 }
-            : { opacity: 0 }
-        }
-        transition={
-          reduce
-            ? { duration: 0 }
-            : { type: "spring", bounce: 0, duration: 0.28 }
-        }
-        {...styleProps(styles.pill)}
+        sx={styles.pill}
+        style={{ left: box?.left, width: box?.width, opacity: shown ? 1 : 0 }}
       />
       <NavigationMenu
         value={open}

@@ -19,12 +19,17 @@ Every one of those happened. This file is how the site keeps from saying two thi
 | Compare cells                                   | `src/data/compare.ts`, each with its source                                                                    | the `/compare` table                                                                                                        |
 | Measured numbers and claims                     | kirana-lab's newest run → `src/data/benchmarks.json` (`scripts/take-benchmarks.ts`, the `benchmarks` workflow) | `METRICS`, `HEADLINES`, `CLAIMS`; `{{fact:bench-build-stylex}}` and the other `bench-` facts; `<!-- ::benchmarks -->`       |
 | The runtime's size                              | KRN-DYN-005, asserted in `npm/core/test/internal.test.ts` → `RUNTIME_SIZE` in `src/data/benchmarks.ts`         | `RUNTIME_SIZE`; `{{fact:runtime-size}}`                                                                                     |
-| Whether the packages are on npm                 | `npm/*/package.json` (`private`) → `PUBLISHED` in `src/data/facts.ts`                                          | the `<!-- ::npm-status -->` embed (`kind="helpers"` on a server framework's guide), from `src/data/npm-status.ts`           |
+| Whether the packages are on npm                 | `npm/*/package.json` (`private`) → `PUBLISHED` in `src/data/release.ts`                                        | the `<!-- ::npm-status -->` embed (`kind="helpers"` on a server framework's guide), from `src/data/npm-status.ts`           |
 | The mental model's ideas                        | its numbered headings (`## 1 · …`) in `content/docs/start/mental-model.md`                                     | the number is checked wherever a page says "N ideas"                                                                        |
 
 `src/data/facts.ts` gathers the counts and lists. Components import `COUNTS`, `LISTS` and
 `sentence()`; markdown writes `{{fact:name}}`, which the content generator fills in from `FACTS` —
 an unknown name fails the build, and a new diagnostic or rule changes every page on the next build.
+
+The links every page's header and footer carry (`GITHUB`, `NPM`) live in `src/data/links.ts`, and
+the release (`VERSION`, `PUBLISHED`) in `src/data/release.ts`. `facts.ts` re-exports both, but a
+component on every page imports them from there: `facts.ts` reads the diagnostics, the benchmark
+runs and the framework guides, and whatever imports it puts them in that page's first download.
 
 ## The check
 
@@ -49,6 +54,9 @@ on:
 - **a partial list that reads as complete** — half or more of the frameworks, component layers,
   server frameworks, bundlers, linters or `@kirana-style/core` exports, but not all of them;
 - **agents offered llms.txt without the skills**;
+- **a menu item in another scene than its page**: the header's icons wear the hue of the page they
+  lead to, so an item's `scene` in `nav.ts` must be the one its page's `<Page scene>` names, and a
+  docs link's hue its tab's;
 - **a product's name beside a generic icon** in a heading, where its logo belongs;
 - **a lint rule missing** from the lint page, the rule cards, spec 12 or a plugin README;
 - **a command missing** from the CLI page, its description or spec 12.

@@ -3,7 +3,7 @@ import { css } from "@kirana-style/core"
 import { Cancel01Icon } from "@hugeicons/core-free-icons"
 
 import { DocsLink } from "@/components/docs-link"
-import { VERSION } from "@/data/facts"
+import { VERSION } from "@/data/release"
 
 import { Icon } from "@workspace/ui/primitives/icon"
 import { alpha, radius, theme } from "@workspace/ui/theme/semantic"

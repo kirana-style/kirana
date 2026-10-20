@@ -528,6 +528,26 @@ export const SCENERY: readonly Palette[] = [
       ["#4F96B0", "#A2CBDA"],
     ]
   ),
+  ramp(
+    "Forest falls",
+    "scene-forest-falls",
+    "Sunlit leaves, deep foliage and the wood of a bridge.",
+    [
+      ["#D2A72A", "#F3D676"],
+      ["#6E8F2E", "#B9CF82"],
+      ["#A8743C", "#E2BA84"],
+    ]
+  ),
+  ramp(
+    "Lighthouse coast",
+    "scene-lighthouse-coast",
+    "A golden sky, turquoise surf and the blue of open sea.",
+    [
+      ["#E3A93C", "#FCD76A"],
+      ["#3B9DA6", "#9FDCD8"],
+      ["#3F86A8", "#9CC8E2"],
+    ]
+  ),
 ]
 
 /** Solid sets: one flat colour per part, for print, embroidery, small sizes and anywhere a gradient cannot go. */

@@ -8,7 +8,7 @@
  */
 import { useEffect, useState } from "react"
 
-import { CORE_PACKAGE, REPOSITORY } from "@/data/facts"
+import { CORE_PACKAGE, REPOSITORY } from "@/data/links"
 
 export type RepoStats = {
   stars?: number

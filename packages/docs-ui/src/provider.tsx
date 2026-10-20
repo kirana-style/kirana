@@ -36,6 +36,12 @@ export type DocsConfig = {
   pages: readonly PageMeta[]
   tabs: readonly DocsTab[]
   search: (query: string) => readonly SearchHit[]
+  /**
+   * Loads what `search` reads, when a site keeps its records out of the first page load. Search
+   * calls it when it opens, or when the pointer reaches its trigger, and renders again once it
+   * resolves.
+   */
+  loadSearch?: () => Promise<unknown>
   /** Client-side navigation to a docs href, hash included. */
   navigate: (href: string) => void
   /** Origin the markdown twins live under, for the copy-page menu. */

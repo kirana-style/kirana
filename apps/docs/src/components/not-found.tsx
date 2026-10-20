@@ -73,7 +73,7 @@ const PLACES = [
 export function NotFound() {
   const address = useRouterState({ select: (state) => state.location.href })
   return (
-    <Page scene="misty-hills">
+    <Page scene="forest-falls">
       <PageHero
         label="404"
         title="Nothing lives at this address"
