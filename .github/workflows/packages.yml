@@ -484,3 +484,38 @@ jobs:
           corepack enable; corepack prepare pnpm@12 --activate;
           npm install --global bun;
           node packages/kirana/examples/run.ts vite-react --pm ${{ matrix.pm }} --no-browser"
+
+  # The one check branch protection requires from this workflow. A skipped matrix job reports a
+  # single check under its unexpanded name (`install (${{ matrix.os }} · ${{ matrix.pm }})`), so a
+  # required check named after one matrix cell would wait forever whenever `changes` skips its job.
+  # This job always runs, and passes when every job passed or was skipped.
+  result:
+    name: packages result
+    if: always()
+    needs:
+      [
+        changes,
+        native,
+        pack,
+        install,
+        install-wasi,
+        examples,
+        compat-atoms,
+        runtime-deno,
+        install-musl,
+      ]
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Every job passed or was skipped
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          for result in $RESULTS; do
+            case "$result" in
+              success | skipped) ;;
+              *) echo "::error::a job ended in $result"; exit 1 ;;
+            esac
+          done
