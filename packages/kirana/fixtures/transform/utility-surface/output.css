@@ -1,17 +1,11 @@
 @layer kirana;
 @layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
 @layer kirana.atoms {
-  .k0-aje_Vpbm::after {
+  .k0-aje_Vpbm::after, .k0-k9l_Vpbm::before, .k0_Vpbm {
     padding: 0.25rem;
   }
-  .k0-k9l_Vpbm::before {
-    padding: 0.25rem;
-  }
-  .k0_HV2H {
+  .k0_HV2H, .k0-KFHz_HV2H:where(:hover) {
     padding: 1rem;
-  }
-  .k0_Vpbm {
-    padding: 0.25rem;
   }
   .k5_Aboe {
     margin: auto;
@@ -82,19 +76,10 @@
   .kan_mwGF {
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .k0-KFHz_HV2H:where(:hover) {
-    padding: 1rem;
-  }
   .k50-KFHz_OHmj:where(:hover) {
     color: color-mix(in oklab, oklch(54.6% 0.245 262.881) 50%, transparent);
   }
-  .k0-FRqb_Vpbm:where([aria-expanded]) {
-    padding: 0.25rem;
-  }
-  .k0-slFi_Vpbm:where([data-open]) {
-    padding: 0.25rem;
-  }
-  .k0-vv9I_Vpbm:where([data-state="open"]) {
+  .k0-FRqb_Vpbm:where([aria-expanded]), .k0-slFi_Vpbm:where([data-open]), .k0-vv9I_Vpbm:where([data-state="open"]) {
     padding: 0.25rem;
   }
   @media (width >= 48rem) {

@@ -569,6 +569,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "class-strings-come-from-a-merge",
+        "text": "Class strings come from a merge",
+        "level": 2
+      },
+      {
         "id": "shorthands-merge-per-longhand",
         "text": "Shorthands merge per longhand",
         "level": 2
@@ -6403,6 +6408,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "cascade",
     "heading": "Order is the order you wrote",
     "text": "Merging is left to right, and the last writer of an entry wins that entry . What order does not decide is a conflict between two different conditions: that is the precedence ladder , and it applies after merging."
+  },
+  {
+    "id": "/docs/styling/merging#class-strings-come-from-a-merge",
+    "href": "/docs/styling/merging#class-strings-come-from-a-merge",
+    "page": "Merging and removal",
+    "section": "cascade",
+    "heading": "Class strings come from a merge",
+    "text": "A merge leaves an element one class per entry, and the stylesheet relies on it: two classes for the same entry never reach one element, so the compiler orders them however writes the smallest stylesheet. Joining two compiled class strings by hand skips the merge, and when both name the same entry, which one applies is not defined. Pass handles instead, and combine them with , or ."
   },
   {
     "id": "/docs/styling/merging#shorthands-merge-per-longhand",

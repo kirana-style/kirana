@@ -169,3 +169,70 @@ fn keywords_follow_the_grammar() {
     assert!(pseudo_selectors().any(|name| name == ":hover"));
     assert!(pseudo_selectors().any(|name| name == "::before"));
 }
+
+/// A flow-relative longhand competes with every physical one it can stand for in some writing mode.
+#[test]
+fn flow_relative_longhands_compete_in_every_writing_mode() {
+    for (logical, physical) in [
+        ("margin-inline-start", "margin-left"),
+        ("margin-inline-start", "margin-right"),
+        ("margin-inline-start", "margin-top"),
+        ("padding-block-end", "padding-left"),
+        ("inset-inline-end", "top"),
+        ("inline-size", "height"),
+        ("min-block-size", "min-width"),
+        ("contain-intrinsic-inline-size", "contain-intrinsic-height"),
+        ("border-inline-start-width", "border-bottom-width"),
+        ("border-start-end-radius", "border-bottom-left-radius"),
+        ("corner-start-start-shape", "corner-top-right-shape"),
+        ("scroll-margin-block-start", "scroll-margin-left"),
+        ("overflow-inline", "overflow-y"),
+        ("overscroll-behavior-block", "overscroll-behavior-x"),
+    ] {
+        assert!(competes(logical, physical) && competes(physical, logical), "{logical} and {physical}");
+    }
+    for (a, b) in [
+        ("margin-left", "margin-top"),
+        ("width", "height"),
+        ("border-inline-start-width", "border-left-color"),
+        ("border-left-width", "border-top-width"),
+        ("animation-range-start", "animation-range-end"),
+        ("grid-column-start", "grid-row-start"),
+        ("--kvSpace", "top"),
+    ] {
+        assert!(!competes(a, b), "{a} and {b}");
+    }
+    assert!(competes("color", "color"));
+    assert_eq!(flow_group("left"), ("inset".to_owned(), false));
+    assert!(competes("-webkit-margin-start", "margin-right") && competes("top", "-webkit-margin-start"));
+    // Every flow-relative property in the data shares its group with a physical one.
+    let orphans: Vec<&str> = PROPERTIES
+        .iter()
+        .copied()
+        .filter(|name| !name.starts_with('-') && flow_group(name).1)
+        .filter(|name| {
+            let group = flow_group(name).0;
+            !PROPERTIES.iter().any(|other| flow_group(other) == (group.clone(), false))
+        })
+        .collect();
+    assert_eq!(orphans, Vec::<&str>::new());
+}
+
+/// What a declaration sets: a box family's longhands, a listed shorthand's or alias's, or, for any
+/// other shorthand, anything.
+#[test]
+fn what_a_declaration_sets() {
+    assert_eq!(sets("padding"), Sets::Longhands(family_longhands("padding").unwrap()));
+    assert_eq!(sets("text-wrap"), Sets::Longhands(&["text-wrap-mode", "text-wrap-style"]));
+    assert_eq!(sets("word-wrap"), Sets::Longhands(&["overflow-wrap"]));
+    assert_eq!(sets("border"), Sets::Unknown);
+    assert_eq!(sets("padding-top"), Sets::Itself);
+    assert_eq!(sets("--kvSpace"), Sets::Itself);
+    for name in PROPERTIES {
+        if let Sets::Longhands(longhands) = sets(name) {
+            for longhand in longhands {
+                assert!(is_known_property(longhand) && sets(longhand) == Sets::Itself, "{name}: {longhand}");
+            }
+        }
+    }
+}

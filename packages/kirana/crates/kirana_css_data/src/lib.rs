@@ -38,6 +38,54 @@ pub fn family_longhands(kebab: &str) -> Option<&'static [&'static str]> {
     Some(&PROPERTIES[index + 1..=index + size])
 }
 
+/// What a declaration of a property sets, for telling which declarations can decide the same thing.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Sets {
+    /// The property itself: a longhand, or a custom property.
+    Itself,
+    /// These longhands and nothing else: a shorthand, or a legacy alias.
+    Longhands(&'static [&'static str]),
+    /// A shorthand whose longhands are not all known, which may set any property.
+    Unknown,
+}
+
+/// What a declaration of `kebab` sets.
+///
+/// A box family's longhands come from the property table ([`family_longhands`]). The others listed
+/// here are the shorthands and aliases whose longhands are complete per their specifications: MDN's
+/// lists leave out the properties a shorthand only resets (`border` resets `border-image`, `font`
+/// resets `font-kerning`), and call `white-space` a longhand though CSS Text 4 made it a shorthand.
+/// Every other shorthand is [`Sets::Unknown`].
+pub fn sets(kebab: &str) -> Sets {
+    if let Some(longhands) = family_longhands(kebab) {
+        return Sets::Longhands(longhands);
+    }
+    let listed: &'static [&'static str] = match kebab {
+        "animation-range" => &["animation-range-start", "animation-range-end"],
+        "columns" => &["column-width", "column-count", "column-height"],
+        "contain-intrinsic-size" => &["contain-intrinsic-width", "contain-intrinsic-height"],
+        "corner-shape" => &[
+            "corner-top-left-shape",
+            "corner-top-right-shape",
+            "corner-bottom-left-shape",
+            "corner-bottom-right-shape",
+        ],
+        "interest-delay" => &["interest-delay-start", "interest-delay-end"],
+        "text-wrap" => &["text-wrap-mode", "text-wrap-style"],
+        "white-space" => &["white-space-collapse", "text-wrap-mode"],
+        "grid-gap" => &["row-gap", "column-gap"],
+        "grid-row-gap" => &["row-gap"],
+        "grid-column-gap" => &["column-gap"],
+        "word-wrap" => &["overflow-wrap"],
+        "page-break-after" => &["break-after"],
+        "page-break-before" => &["break-before"],
+        "page-break-inside" => &["break-inside"],
+        _ if is_shorthand(kebab) => return Sets::Unknown,
+        _ => return Sets::Itself,
+    };
+    Sets::Longhands(listed)
+}
+
 /// Whether the property is known: documented by MDN, or vendor-prefixed (`-webkit-box-orient`
 /// is still required for `-webkit-line-clamp` and is not in `mdn-data`).
 pub fn is_known_property(kebab: &str) -> bool {
@@ -167,6 +215,63 @@ pub fn physical_counterpart(kebab: &str) -> Option<&'static str> {
         "border-end-end-radius" => "border-bottom-right-radius",
         _ => return None,
     })
+}
+
+/// The group of longhands that can set the same thing on some element as `kebab`, whatever its
+/// writing mode, and whether `kebab` is the flow-relative member: `margin-inline-start` and all four
+/// physical margins share `margin`, `inline-size` and `height` share `size`.
+///
+/// Two longhands compete when they are the same property, or share a group and one of them is
+/// flow-relative: `margin-inline-start` is `margin-right` in right-to-left text and `margin-top` in
+/// vertical writing, while `margin-left` never sets the top margin. A group may hold properties that
+/// never meet, which only costs the stylesheet writer a merge.
+pub fn flow_group(kebab: &str) -> (String, bool) {
+    if kebab.starts_with("--") {
+        return (kebab.to_owned(), false);
+    }
+    let tokens: Vec<&str> = kebab.split('-').collect();
+    let mut kept: Vec<&str> = Vec::with_capacity(tokens.len());
+    let (mut logical, mut sided) = (false, false);
+    let mut index = 0;
+    while index < tokens.len() {
+        let token = tokens[index];
+        let next = tokens.get(index + 1).copied();
+        let pair = matches!(next, Some("start" | "end"));
+        match token {
+            "inline" | "block" => {
+                logical = true;
+                index += usize::from(pair);
+            }
+            "start" | "end" if pair => {
+                logical = true;
+                index += 1;
+            }
+            "top" | "bottom" if matches!(next, Some("left" | "right")) => {
+                sided = true;
+                index += 1;
+            }
+            "top" | "right" | "bottom" | "left" | "x" | "y" => sided = true,
+            _ => kept.push(token),
+        }
+        index += 1;
+    }
+    if let Some(last) = kept.last_mut().filter(|last| matches!(**last, "width" | "height") && !sided && !logical) {
+        *last = "size";
+    }
+    let group = if kept.iter().all(|token| token.is_empty()) { "inset".to_owned() } else { kept.join("-") };
+    (group, logical)
+}
+
+/// Whether a declaration of `a` and one of `b` can decide the same thing on one element ([`flow_group`]).
+/// A vendor-prefixed property competes with everything: `-webkit-margin-start` is an alias of
+/// `margin-inline-start` that its name does not spell.
+pub fn competes(a: &str, b: &str) -> bool {
+    let vendor = |name: &str| name.starts_with('-') && !name.starts_with("--");
+    if a == b || vendor(a) || vendor(b) {
+        return true;
+    }
+    let ((first, first_logical), (second, second_logical)) = (flow_group(a), flow_group(b));
+    first == second && (first_logical || second_logical)
 }
 
 /// Whether a value is a colour keyword: a named colour or a system colour (`CanvasText`), in any case.

@@ -1475,6 +1475,24 @@ merging.
 css({ color: "black" }, { color: { ":hover": "blue" } })
 ```
 
+## Class strings come from a merge
+
+A merge leaves an element one class per entry, and the stylesheet relies on it:
+two classes for the same entry never reach one element, so the compiler orders
+them however writes the smallest stylesheet. Joining two compiled class strings
+by hand skips the merge, and when both name the same entry, which one applies is
+not defined.
+
+```tsx
+// Both strings may set the base `color`: either can win.
+<a className={`${props(link).className} ${props(quiet).className}`} />
+
+// The merge keeps one: `quiet`'s.
+<a sx={[link, quiet]} />
+```
+
+Pass handles instead, and combine them with `sx`, `cx()` or `props()`.
+
 ## Shorthands merge per longhand
 
 ```tsx
