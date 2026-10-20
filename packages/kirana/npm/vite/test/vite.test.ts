@@ -63,6 +63,23 @@ describe("cssLayer", () => {
     ).toBe(
       '@charset "utf-8";\n@import "./a.css" layer(vendor);\n@import "./b.css" layer(own);\n@layer vendor {\np { margin: 0 }\n}\n'
     )
+
+    // A comment among the leading statements stays with them; an unclosed one, or an import
+    // without its semicolon, ends them, and the rest is wrapped as it is.
+    expect(wrapInLayer('/* © */\n@import "./a.css";\na {}', "v")).toBe(
+      '/* © */\n@import "./a.css" layer(v);\n@layer v {\na {}\n}\n'
+    )
+    expect(wrapInLayer("/* open\na {}", "v")).toBe(
+      "@layer v {\n/* open\na {}\n}\n"
+    )
+    expect(wrapInLayer('@import "./a.css"', "v")).toBe(
+      '@layer v {\n@import "./a.css"\n}\n'
+    )
+    // Linear on what a pattern could backtrack over: a long run of spaces after the keyword.
+    const spaces = `@import ${" ".repeat(200_000)}x`
+    const started = performance.now()
+    wrapInLayer(spaces, "v")
+    expect(performance.now() - started).toBeLessThan(100)
   })
 
   it("wraps only the stylesheets it is given, by path or pattern", () => {
