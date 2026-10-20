@@ -352,3 +352,38 @@ jobs:
         run: |
           cat determinism-*/stylesheet.sha256
           test "$(cat determinism-*/stylesheet.sha256 | sort -u | wc -l)" -eq 1
+
+  # The one check branch protection requires from this workflow. A skipped matrix job reports a
+  # single check under its unexpanded name (`kirana · ${{ matrix.language }} helper`), so a required check named after one matrix
+  # cell would wait forever whenever `changes` skips its job. This job always runs, and passes when
+  # every job passed or was skipped.
+  result:
+    name: ci result
+    if: always()
+    needs:
+      [
+        changes,
+        check,
+        kirana-rust,
+        kirana-coverage,
+        kirana-helpers,
+        kirana-editors,
+        build,
+        determinism,
+        determinism-compare,
+      ]
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Every job passed or was skipped
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          for result in $RESULTS; do
+            case "$result" in
+              success | skipped) ;;
+              *) echo "::error::a job ended in $result"; exit 1 ;;
+            esac
+          done
