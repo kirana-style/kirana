@@ -9,9 +9,12 @@ name: pr-title
 #   perf, docs, deps                       → patch, listed in the changelog
 #   refactor, test, build, ci, chore       → no release on their own
 
+# `title` is a required check, so it must report in the merge queue too; there the pull request's
+# title was checked before it was queued, and the queue cannot change it.
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
+  merge_group:
 
 permissions:
   pull-requests: read
@@ -20,7 +23,11 @@ jobs:
   title:
     runs-on: ubuntu-26.04
     steps:
-      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+      - if: github.event_name == 'merge_group'
+        run: echo "Checked on the pull request before it was queued."
+
+      - if: github.event_name == 'pull_request'
+        uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

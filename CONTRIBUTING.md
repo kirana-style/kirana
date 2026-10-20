@@ -85,6 +85,20 @@ extension's own Rust checks, from the cache when nothing changed.
   see. A breaking change adds `!` (`feat!: …`) and says what breaks in the
   description. Lower case, no full stop. A check on the pull request enforces it.
 
+### What CI runs
+
+Your pull request runs on Linux: lint, types, the tests at 100 % coverage, the
+examples on their dev servers, and installation with npm, pnpm and Bun. It
+needs no macOS or Windows runner, so it starts quickly however many pull
+requests are open. A change to the site or to prose alone skips the package
+jobs.
+
+When a maintainer queues it for merging, the merge queue runs the full matrix
+once on the commit that will land on `main`: every engine on every platform,
+macOS included, and installation with every package manager on every OS. A
+failure there sends the pull request back with the reason. A job that never got
+a runner is retried on its own, so a busy macOS pool needs nothing from you.
+
 ### How a change is released
 
 Everything ships under one version. Each merge to `main` updates a Release

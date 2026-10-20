@@ -1,10 +1,15 @@
 name: ci
 
+# A pull request runs everything except macOS determinism; the merge queue (`merge_group`) runs it
+# all, once per merge, on the commit that lands on `main` (packages.yml says why). The push to `main`
+# keeps the caches warm: only `main` saves them.
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  merge_group:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -305,7 +310,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-26.04, ubuntu-26.04-arm, macos-26, windows-2025]
+        # macOS in the merge queue and by hand only: the organisation has five macOS runners for
+        # every contributor's pull requests at once.
+        os: ${{ fromJSON(contains(fromJSON('["merge_group", "workflow_dispatch"]'), github.event_name) && '["ubuntu-26.04", "ubuntu-26.04-arm", "macos-26", "windows-2025"]' || '["ubuntu-26.04", "ubuntu-26.04-arm", "windows-2025"]') }}
 
     steps:
       # Byte-identical output must not depend on line endings in the checkout.

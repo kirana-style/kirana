@@ -6,19 +6,25 @@ name: packages
 # examples resolve the tarballs through each package manager's override mechanism
 # (packages/kirana/examples/run.ts).
 #
-# Pull requests run a smoke subset (Linux x64 with npm, pnpm and Bun, plus musl); pushes, the nightly
-# schedule and manual runs cover the full matrix. Each installation cell is its own job, so a red one
-# names the exact platform and package manager; the examples run in shards (see `examples`).
+# Two tiers, so the organisation's runner limits (20 jobs at once, 5 of them macOS, shared by every
+# contributor's pull request) hold however many pull requests are open:
 #
-# A pull request or push that changes nothing the packages are built from (the site, prose) skips
-# everything here (.github/actions/changes). So does the push that merges a Release PR: release.yml
-# runs this workflow on that same commit as its gate, and a second copy would only queue behind it.
+# - a pull request runs on Linux: the three engines its jobs install (Linux x64 glibc and musl, and
+#   WASI), the examples, and the installation smoke subset (npm, pnpm and Bun, plus musl). No macOS
+#   and no Windows runner;
+# - the merge queue (`merge_group`) runs the full matrix once per merge, on the commit that lands on
+#   `main`: all nine engines, the two macOS ones in one job, and the installation matrix on every OS
+#   with every package manager. The nightly schedule, manual runs and release.yml's gate do the same.
+#
+# There is no run on a push to `main`: the queue tested that commit already. Each installation cell is
+# its own job, so a red one names the platform and package manager; the examples run in shards (see
+# `examples`). A change that touches nothing the packages are built from (the site, prose) skips
+# everything here (.github/actions/changes).
 
 on:
-  push:
-    branches: [main, kirana]
   pull_request:
-    branches: [main, kirana]
+    branches: [main]
+  merge_group:
   schedule:
     - cron: "17 3 * * *"
   workflow_dispatch:
@@ -41,6 +47,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       kirana: ${{ steps.changes.outputs.kirana }}
+      natives: ${{ steps.natives.outputs.natives }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -51,59 +58,33 @@ jobs:
       - id: changes
         uses: ./.github/actions/changes
 
-  # One `kirana.<triple>.node` per target in KRN-INT-007. Linux gnu links against napi-rs's glibc 2.17
-  # toolchain, so the engine loads on any distribution from the last decade rather than only on the
-  # runner's much newer glibc; musl links through Zig; macOS x64 and Windows arm64 cross-compile on the
-  # other architecture's runner.
+      # The engines to build (.github/native-targets.json): on a pull request, the ones its jobs
+      # install; otherwise every one.
+      - id: natives
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          filter='.'
+          [ "$EVENT" = "pull_request" ] && filter='map(select(.pullRequest))'
+          echo "natives=$(jq -c "$filter" .github/native-targets.json)" >> "$GITHUB_OUTPUT"
+
+  # One `kirana.<triple>.node` per target in KRN-INT-007 (.github/native-targets.json). Linux gnu
+  # links against napi-rs's glibc 2.17 toolchain, so the engine loads on any distribution from the
+  # last decade rather than only on the runner's much newer glibc; musl links through Zig; both macOS
+  # engines build on one Apple silicon runner, Windows arm64 cross-compiles on x64, and the WASI
+  # fallback (KRN-INT-006) links against emnapi, with no WASI SDK.
   native:
-    name: native (${{ matrix.triple }})
+    name: native (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
     needs: [changes]
     # Called by release.yml (`github.workflow` is then the caller's): always. Otherwise only when the
-    # packages changed, and never on the Release PR's merge, which release.yml gates itself.
-    if: >-
-      github.workflow != 'packages' ||
-      (needs.changes.outputs.kirana == 'true' &&
-       !startsWith(github.event.head_commit.message, 'chore: release '))
+    # packages changed.
+    if: github.workflow != 'packages' || needs.changes.outputs.kirana == 'true'
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - triple: linux-x64-gnu
-            os: ubuntu-26.04
-            target: x86_64-unknown-linux-gnu
-            flags: --use-napi-cross
-          - triple: linux-arm64-gnu
-            os: ubuntu-26.04-arm
-            target: aarch64-unknown-linux-gnu
-            flags: --use-napi-cross
-          - triple: linux-x64-musl
-            os: ubuntu-26.04
-            target: x86_64-unknown-linux-musl
-            flags: --cross-compile
-            zig: true
-          - triple: linux-arm64-musl
-            os: ubuntu-26.04-arm
-            target: aarch64-unknown-linux-musl
-            flags: --cross-compile
-            zig: true
-          - triple: darwin-arm64
-            os: macos-26
-            target: aarch64-apple-darwin
-          - triple: darwin-x64
-            os: macos-26
-            target: x86_64-apple-darwin
-          - triple: win32-x64-msvc
-            os: windows-2025
-            target: x86_64-pc-windows-msvc
-          - triple: win32-arm64-msvc
-            os: windows-2025
-            target: aarch64-pc-windows-msvc
-          # The WASI fallback (KRN-INT-006): napi-rs links it against emnapi, no WASI SDK needed.
-          - triple: wasm32-wasi
-            os: ubuntu-26.04
-            target: wasm32-wasip1-threads
+        include: ${{ fromJSON(needs.changes.outputs.natives) }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -114,13 +95,13 @@ jobs:
 
       - uses: ./.github/actions/setup-rust
         with:
-          cache-key: native-${{ matrix.triple }}
+          cache-key: native-${{ matrix.name }}
           tools: ${{ matrix.zig && 'cargo-zigbuild' || '' }}
 
       - name: Add the Rust target
         working-directory: packages/kirana
         shell: bash
-        run: rustup target add ${{ matrix.target }}
+        run: rustup target add ${{ matrix.targets }}
 
       # Zig for cargo-zigbuild, from ziglang.org at a pinned version and checksum. Not
       # mlugg/setup-zig: every release of it still declares the deprecated Node 20 runtime.
@@ -141,14 +122,17 @@ jobs:
       - name: Build
         working-directory: packages/kirana/npm/compiler
         shell: bash
-        run: bun run build --target ${{ matrix.target }} ${{ matrix.flags }}
+        env:
+          TARGETS: ${{ matrix.targets }}
+          FLAGS: ${{ matrix.flags }}
+        run: for target in $TARGETS; do bun run build --target "$target" $FLAGS; done
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: native-${{ matrix.triple }}
+          name: native-${{ matrix.name }}
           # The WASI build is the `.wasm` plus the loaders napi-rs writes beside it.
           path: |
-            packages/kirana/npm/compiler/kirana.${{ matrix.triple }}.node
+            packages/kirana/npm/compiler/kirana.*.node
             packages/kirana/npm/compiler/kirana.wasm32-wasi.wasm
             packages/kirana/npm/compiler/kirana.wasi*
             packages/kirana/npm/compiler/wasi-worker*.mjs
@@ -179,11 +163,16 @@ jobs:
       - name: Pack
         run: bun run kirana:pack --natives "$GITHUB_WORKSPACE/natives"
 
+      # A pull request packs the three engines it built; everything else, all eight and WASI.
       - name: The compiler package carries no engine of its own
+        env:
+          EVENT: ${{ github.event_name }}
         run: |
           cd packages/kirana/dist-packages
           ! tar -tzf kirana-style-compiler-[0-9]*.tgz | grep -q '\.node$'
-          test "$(ls | grep -cE '^kirana-style-compiler-(darwin|linux|win32)-')" -eq 8
+          expected=8
+          [ "$EVENT" = "pull_request" ] && expected=2
+          test "$(ls | grep -cE '^kirana-style-compiler-(darwin|linux|win32)-')" -eq "$expected"
           test -f kirana-style-compiler-wasm32-wasi-[0-9]*.tgz
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

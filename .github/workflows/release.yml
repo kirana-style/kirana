@@ -128,8 +128,8 @@ jobs:
           git commit -m "chore: refresh lockfiles and generated files for the release"
           git push
 
-  # The same build, pack and installation matrix as every push to main, run again on the tagged
-  # commit: what is published is exactly what passed.
+  # The full build, pack and installation matrix the merge queue runs, again on the tagged commit:
+  # what is published is exactly what passed.
   packages:
     needs: release-please
     if: needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'npm')
