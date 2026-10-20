@@ -12,6 +12,7 @@ import { COMPONENT, Driver } from "@kirana-style/compiler"
 import type { DriverOptions } from "@kirana-style/compiler"
 import {
   ASSET_QUERY,
+  VIRTUAL,
   PLACEHOLDER,
   SCRIPT,
   STYLE_BEARING,
@@ -195,8 +196,9 @@ export function createKirana(
           include: SCRIPT,
           // A framework's own requests for a component's parts (`Card.vue?vue&type=script&lang.ts`)
           // hold what it derived from the component, which `load` compiled already.
+          // Generated modules (`virtual:…`, `\0…`) hold a plugin's code, never a project's styles.
           // Installed packages are excluded in the handler, which knows `libraries`.
-          exclude: [ASSET_QUERY, COMPONENT_PART],
+          exclude: [ASSET_QUERY, COMPONENT_PART, VIRTUAL],
         },
         code: STYLE_BEARING,
       },

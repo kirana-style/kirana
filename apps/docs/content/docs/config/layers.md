@@ -90,6 +90,11 @@ layers: {
 @import "some-package/dist/style.css" layer(vendor);
 ```
 
+When the package imports its CSS from JavaScript, as a theme does, there is no
+`@import` line to give a layer: on Vite, `cssLayer("vendor", "some-package/dist/")`
+from `@kirana-style/vite` wraps those stylesheets in the layer as they load
+([the Vite plugin](/docs/integrations/vite#a-dependency-s-css-in-a-layer)).
+
 ## When to write global CSS at all
 
 Rarely. Two cases hold up:

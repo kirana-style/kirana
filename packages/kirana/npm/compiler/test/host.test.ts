@@ -35,6 +35,11 @@ describe("host helpers", () => {
     )
     expect(shouldCompile("/a/b.css", '"@kirana-style/"')).toBe(false)
     expect(shouldCompile("/a/b.ts?raw", '"@kirana-style/"')).toBe(false)
+    // A plugin's generated module, though its id ends in `.js` (@vitejs/plugin-rsc's CSS module).
+    expect(
+      shouldCompile("virtual:vite-rsc/css?type=rsc&lang.js", '"@kirana-style/"')
+    ).toBe(false)
+    expect(shouldCompile("\0plugin:helper.js", "<a sx={x} />")).toBe(false)
     expect(shouldCompile("C:\\a\\node_modules\\b.js", '"@kirana-style/"')).toBe(
       false
     )

@@ -1,0 +1,33 @@
+{
+  "name": "kirana-example-waku",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "waku build"
+  },
+  "kirana-example": {
+    "output": "dist/public",
+    "dev": [
+      "waku",
+      "dev",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "src/pages/index.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "react": "~19.3.1",
+    "react-dom": "~19.3.1",
+    "react-server-dom-webpack": "~19.3.1",
+    "waku": "1.0.0-rc.3"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}

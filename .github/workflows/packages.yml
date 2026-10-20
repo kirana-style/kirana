@@ -295,8 +295,15 @@ jobs:
             build: vite-preact vite-solid vite-vanilla vite-vue vite-svelte vite-library vite-utilities jest-react
             dev: vite-preact vite-solid vite-vue vite-svelte vite-utilities
           - shard: meta-frameworks
-            build: sveltekit nuxt astro qwik
-            dev: sveltekit nuxt astro qwik
+            build: sveltekit nuxt astro qwik solid-start
+            dev: sveltekit nuxt astro qwik solid-start
+          - shard: react frameworks
+            build: tanstack-start vike waku
+            dev: tanstack-start vike waku
+          # Documentation sites and component workshops.
+          - shard: docs and stories
+            build: vitepress docusaurus storybook
+            dev: vitepress docusaurus storybook
           - shard: angular and ember
             build: analog-angular angular-cli ember
             dev: analog-angular angular-cli ember
@@ -414,6 +421,7 @@ jobs:
         run: >-
           bun packages/kirana/examples/compare-atoms.ts atoms vite-react rolldown-react
           webpack-react rsbuild-react next-webpack next-turbopack bun-react esbuild-react
+          tanstack-start vike waku docusaurus
 
   # Deno as the runtime (KRN-INT-006): installed with npm, built with Deno, native engine through
   # Node-API. (`deno install` links local tarballs as directories, so Deno as the installer waits for

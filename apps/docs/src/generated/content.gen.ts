@@ -1542,6 +1542,168 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
+    "href": "/docs/frameworks/waku",
+    "file": "content/docs/frameworks/waku.md",
+    "title": "Waku",
+    "description": "Install Kirana in a Waku app, where server components and client components compile sx to className, and static pages carry the class names in their HTML.",
+    "section": "frameworks",
+    "order": 4.6,
+    "keywords": [
+      "waku",
+      "react server components",
+      "rsc",
+      "vite",
+      "ssg",
+      "install"
+    ],
+    "headings": [
+      {
+        "id": "the-fast-way",
+        "text": "The fast way",
+        "level": 2
+      },
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-import-the-stylesheet",
+        "text": "3. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "4-type-sx",
+        "text": "4. Type sx",
+        "level": 2
+      },
+      {
+        "id": "5-write-a-page",
+        "text": "5. Write a page",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/frameworks/vike",
+    "file": "content/docs/frameworks/vike.md",
+    "title": "Vike",
+    "description": "Install Kirana in a Vike app on Vite, with vike-react, vike-vue or vike-solid, where sx compiles in pages, layouts and prerendered HTML.",
+    "section": "frameworks",
+    "order": 4.7,
+    "keywords": [
+      "vike",
+      "vike-react",
+      "vike-vue",
+      "vike-solid",
+      "vite",
+      "ssr",
+      "prerender",
+      "install"
+    ],
+    "headings": [
+      {
+        "id": "the-fast-way",
+        "text": "The fast way",
+        "level": 2
+      },
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-import-the-stylesheet",
+        "text": "3. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "4-type-sx",
+        "text": "4. Type sx",
+        "level": 2
+      },
+      {
+        "id": "5-write-a-page",
+        "text": "5. Write a page",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/frameworks/docusaurus",
+    "file": "content/docs/frameworks/docusaurus.md",
+    "title": "Docusaurus",
+    "description": "Install Kirana in a Docusaurus site through a local plugin that adds Kirana's webpack plugin, with Docusaurus's aliases declared and the stylesheet in the theme's Root.",
+    "section": "frameworks",
+    "order": 4.8,
+    "keywords": [
+      "docusaurus",
+      "react",
+      "documentation",
+      "webpack",
+      "plugin",
+      "theme",
+      "install"
+    ],
+    "headings": [
+      {
+        "id": "the-fast-way",
+        "text": "The fast way",
+        "level": 2
+      },
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-declare-docusaurus-s-aliases",
+        "text": "3. Declare Docusaurus's aliases",
+        "level": 2
+      },
+      {
+        "id": "4-import-the-stylesheet",
+        "text": "4. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "5-write-a-page",
+        "text": "5. Write a page",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/docs/frameworks/preact",
     "file": "content/docs/frameworks/preact.md",
     "title": "Preact",
@@ -1627,6 +1789,60 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "5-write-a-component",
         "text": "5. Write a component",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/frameworks/solid-start",
+    "file": "content/docs/frameworks/solid-start.md",
+    "title": "SolidStart",
+    "description": "Install Kirana in a SolidStart 2 app on Vite, where sx compiles to class for the server render and after hydration alike.",
+    "section": "frameworks",
+    "order": 6.5,
+    "keywords": [
+      "solid",
+      "solidstart",
+      "solid start",
+      "ssr",
+      "vite",
+      "nitro",
+      "install"
+    ],
+    "headings": [
+      {
+        "id": "the-fast-way",
+        "text": "The fast way",
+        "level": 2
+      },
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-import-the-stylesheet",
+        "text": "3. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "4-type-sx",
+        "text": "4. Type sx",
+        "level": 2
+      },
+      {
+        "id": "5-write-a-route",
+        "text": "5. Write a route",
         "level": 2
       },
       {
@@ -1729,6 +1945,60 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "4-write-a-component",
         "text": "4. Write a component",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/frameworks/vitepress",
+    "file": "content/docs/frameworks/vitepress.md",
+    "title": "VitePress",
+    "description": "Install Kirana in a VitePress site, with the default theme's CSS in a layer below your styles, and sx in the theme's and the pages' Vue components.",
+    "section": "frameworks",
+    "order": 8.5,
+    "keywords": [
+      "vitepress",
+      "vue",
+      "documentation",
+      "static site",
+      "layers",
+      "theme",
+      "install"
+    ],
+    "headings": [
+      {
+        "id": "the-fast-way",
+        "text": "The fast way",
+        "level": 2
+      },
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin-and-layer-the-theme",
+        "text": "2. Add the plugin, and layer the theme",
+        "level": 2
+      },
+      {
+        "id": "3-order-the-layer",
+        "text": "3. Order the layer",
+        "level": 2
+      },
+      {
+        "id": "4-import-the-stylesheet",
+        "text": "4. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "5-write-a-component",
+        "text": "5. Write a component",
         "level": 2
       },
       {
@@ -2545,6 +2815,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "a-dependency-s-css-in-a-layer",
+        "text": "A dependency's CSS in a layer",
+        "level": 2
+      },
+      {
         "id": "the-stylesheet",
         "text": "The stylesheet",
         "level": 2
@@ -2860,6 +3135,44 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "caching",
         "text": "Caching",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/integrations/storybook",
+    "file": "content/docs/integrations/storybook.md",
+    "title": "Storybook",
+    "description": "Use Kirana in Storybook with the Vite builder, which reads your project's vite.config, so stories compile and render as the app does.",
+    "section": "testing",
+    "order": 2,
+    "keywords": [
+      "storybook",
+      "stories",
+      "components",
+      "vite",
+      "react-vite",
+      "preview"
+    ],
+    "headings": [
+      {
+        "id": "1-kirana-in-vite-config",
+        "text": "1. Kirana in vite.config",
+        "level": 2
+      },
+      {
+        "id": "2-the-stylesheet-in-the-preview",
+        "text": "2. The stylesheet in the preview",
+        "level": 2
+      },
+      {
+        "id": "3-write-a-story",
+        "text": "3. Write a story",
         "level": 2
       },
       {
@@ -4839,6 +5152,48 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
+        "title": "Waku",
+        "href": "/docs/frameworks/waku",
+        "description": "Install Kirana in a Waku app, where server components and client components compile sx to className, and static pages carry the class names in their HTML.",
+        "keywords": [
+          "waku",
+          "react server components",
+          "rsc",
+          "vite",
+          "ssg",
+          "install"
+        ]
+      },
+      {
+        "title": "Vike",
+        "href": "/docs/frameworks/vike",
+        "description": "Install Kirana in a Vike app on Vite, with vike-react, vike-vue or vike-solid, where sx compiles in pages, layouts and prerendered HTML.",
+        "keywords": [
+          "vike",
+          "vike-react",
+          "vike-vue",
+          "vike-solid",
+          "vite",
+          "ssr",
+          "prerender",
+          "install"
+        ]
+      },
+      {
+        "title": "Docusaurus",
+        "href": "/docs/frameworks/docusaurus",
+        "description": "Install Kirana in a Docusaurus site through a local plugin that adds Kirana's webpack plugin, with Docusaurus's aliases declared and the stylesheet in the theme's Root.",
+        "keywords": [
+          "docusaurus",
+          "react",
+          "documentation",
+          "webpack",
+          "plugin",
+          "theme",
+          "install"
+        ]
+      },
+      {
         "title": "Preact",
         "href": "/docs/frameworks/preact",
         "description": "Install Kirana in a Preact app on Vite, where sx compiles to class, detected from jsxImportSource.",
@@ -4861,6 +5216,20 @@ export const NAV: readonly NavGroup[] = [
           "install",
           "class",
           "jsxImportSource"
+        ]
+      },
+      {
+        "title": "SolidStart",
+        "href": "/docs/frameworks/solid-start",
+        "description": "Install Kirana in a SolidStart 2 app on Vite, where sx compiles to class for the server render and after hydration alike.",
+        "keywords": [
+          "solid",
+          "solidstart",
+          "solid start",
+          "ssr",
+          "vite",
+          "nitro",
+          "install"
         ]
       },
       {
@@ -4887,6 +5256,20 @@ export const NAV: readonly NavGroup[] = [
           "ssr",
           "nuxt.config",
           "generate",
+          "install"
+        ]
+      },
+      {
+        "title": "VitePress",
+        "href": "/docs/frameworks/vitepress",
+        "description": "Install Kirana in a VitePress site, with the default theme's CSS in a layer below your styles, and sx in the theme's and the pages' Vue components.",
+        "keywords": [
+          "vitepress",
+          "vue",
+          "documentation",
+          "static site",
+          "layers",
+          "theme",
           "install"
         ]
       },
@@ -5232,6 +5615,19 @@ export const NAV: readonly NavGroup[] = [
           "babel-jest",
           "testing",
           "class names"
+        ]
+      },
+      {
+        "title": "Storybook",
+        "href": "/docs/integrations/storybook",
+        "description": "Use Kirana in Storybook with the Vite builder, which reads your project's vite.config, so stories compile and render as the app does.",
+        "keywords": [
+          "storybook",
+          "stories",
+          "components",
+          "vite",
+          "react-vite",
+          "preview"
         ]
       }
     ]
@@ -5640,10 +6036,15 @@ export const ORDER: readonly string[] = [
   "/docs/frameworks/react-router",
   "/docs/frameworks/tanstack-start",
   "/docs/frameworks/gatsby",
+  "/docs/frameworks/waku",
+  "/docs/frameworks/vike",
+  "/docs/frameworks/docusaurus",
   "/docs/frameworks/preact",
   "/docs/frameworks/solid",
+  "/docs/frameworks/solid-start",
   "/docs/frameworks/vue",
   "/docs/frameworks/nuxt",
+  "/docs/frameworks/vitepress",
   "/docs/frameworks/svelte",
   "/docs/frameworks/sveltekit",
   "/docs/frameworks/astro",
@@ -5668,6 +6069,7 @@ export const ORDER: readonly string[] = [
   "/docs/integrations/esbuild",
   "/docs/integrations/postcss",
   "/docs/integrations/jest",
+  "/docs/integrations/storybook",
   "/docs/migration/from-tailwind",
   "/docs/migration/from-stylex",
   "/docs/advanced/conformance",

@@ -202,8 +202,12 @@ Specifier prefixes the bundler provides and Node.js resolution cannot find. An
 import from one is a runtime value, as an installed package's is, instead of an
 `unresolved-import` warning.
 
-The Ember adapter adds Ember's own (`@ember/`, `@glimmer/`, `@embroider/virtual/`),
-and [Meteor](/docs/frameworks/meteor) sets `meteor/`.
+Who sets them:
+
+- the Ember adapter adds Ember's own: `@ember/`, `@glimmer/`, `@embroider/virtual/`;
+- [Meteor](/docs/frameworks/meteor) sets `meteor/`;
+- [Docusaurus](/docs/frameworks/docusaurus) sets its webpack aliases, such as
+  `@theme/` and `@docusaurus/`.
 
 ## `root`
 

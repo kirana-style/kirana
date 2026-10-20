@@ -61,7 +61,30 @@ That prefilter is why adding Kirana to a large application does not slow the bui
 down in proportion to its size.
 
 Markdown, HTML and other assets are never compiled, so `sx` written there does
-nothing.
+nothing. Neither are the modules a plugin generates rather than reads from a file
+(`virtual:` ids, and Rollup's null-prefixed ones), even when their id ends in a
+script extension: they hold that plugin's code, never your styles.
+
+## A dependency's CSS in a layer
+
+`cssLayer(name, include)` puts a dependency's stylesheets in a cascade layer as
+Vite loads them: every stylesheet whose path contains `include`, or matches it
+when it is a regular expression. It is for a package that imports unlayered CSS
+from JavaScript, where there is no import line to give a layer. Unlayered, a
+theme's reset would beat every style you write.
+
+```ts file="vite.config.ts"
+import kirana, { cssLayer } from "@kirana-style/vite"
+
+export default defineConfig({
+  plugins: [kirana(), cssLayer("vendor", "some-theme/dist/")],
+})
+```
+
+Then order the layer before Kirana's, `layers: { before: ["vendor"] }`
+([layers](/docs/config/layers)). `@charset` and `@import` stay at the top of a
+wrapped file, and an import without a layer of its own takes the same one.
+[VitePress](/docs/frameworks/vitepress) uses it for its default theme.
 
 ## The stylesheet
 

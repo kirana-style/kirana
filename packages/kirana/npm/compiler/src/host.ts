@@ -28,6 +28,12 @@ export const PLACEHOLDER_RULE = /\.kirana-placeholder\s*\{[^{}]*\}/
 export const SCRIPT = /\.[cm]?[jt]sx?(?:[?#]|$)/
 /** `?raw`, `?url` and `?inline` ask for the file itself, not for a module. */
 export const ASSET_QUERY = /[?&](url|raw|inline)\b/
+/**
+ * A module a plugin generates rather than reads from a file (`virtual:vite-rsc/css?…&lang.js`,
+ * Rollup's `\0`-prefixed ids): it holds the plugin's own code, never a project's styles, though its
+ * id can end in a script extension.
+ */
+export const VIRTUAL = /^(?:\0|virtual:)/
 /** Installed packages are compiled by their own build, or consumed through a manifest (KRN-INT-008). */
 export const NODE_MODULES = /[\\/]node_modules[\\/]/
 /** Source that can hold a style: imports Kirana or passes `sx`. The engine's prefilter is exact. */
@@ -97,6 +103,7 @@ export function shouldCompile(
   return (
     SCRIPT.test(id) &&
     !ASSET_QUERY.test(id) &&
+    !VIRTUAL.test(id) &&
     compilesModule(id, libraries) &&
     STYLE_BEARING.test(code)
   )

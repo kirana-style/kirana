@@ -71,9 +71,9 @@ export const LISTS = {
   frameworks: guides("frameworks"),
   libraries: LIBRARIES.filter((name) => guides("frameworks").includes(name)),
   serverFrameworks: guides("server"),
-  /** The bundlers proper; PostCSS and Jest have guides in the same group but are not bundlers. */
+  /** The bundlers proper; PostCSS, Jest and Storybook have guides in the group but are not bundlers. */
   bundlers: guides("bundlers").filter(
-    (name) => !["PostCSS", "Jest"].includes(name)
+    (name) => !["PostCSS", "Jest", "Storybook"].includes(name)
   ),
   linters: LINTERS.map((linter) => linter.title),
   /** What a coding agent gets, in the order the site names them. */

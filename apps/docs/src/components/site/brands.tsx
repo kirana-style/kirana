@@ -1,8 +1,8 @@
 /**
  * The logo each framework and bundler page is shown with: in the docs sidebar,
  * the guide grids, and the homepage's framework picker. Logos are from SVGL
- * (svgl.app), then LogoForge for a brand SVGL lacks (`scripts/generate-svgl.ts`); a
- * brand in neither shows a monogram, never another company's logo.
+ * (svgl.app), then LogoForge for a brand SVGL lacks, then the brand's own website
+ * (`scripts/generate-svgl.ts`); a brand with none shows a monogram, never another company's logo.
  */
 import { css } from "@kirana-style/core"
 
@@ -25,10 +25,15 @@ export const PAGE_LOGOS: Readonly<Record<string, Logo>> = {
   "/docs/frameworks/tanstack-start": SVGL.tanstack,
   "/docs/frameworks/react-router": SVGL.reactrouter,
   "/docs/frameworks/gatsby": SVGL.gatsby,
+  "/docs/frameworks/waku": { title: "Waku", monogram: "W" },
+  "/docs/frameworks/vike": SVGL.vike,
+  "/docs/frameworks/docusaurus": SVGL.docusaurus,
   "/docs/frameworks/preact": SVGL.preact,
   "/docs/frameworks/solid": SVGL.solidjs,
+  "/docs/frameworks/solid-start": SVGL.solidjs,
   "/docs/frameworks/vue": SVGL.vue,
   "/docs/frameworks/nuxt": SVGL.nuxt,
+  "/docs/frameworks/vitepress": SVGL.vitepress,
   "/docs/frameworks/svelte": SVGL.svelte,
   "/docs/frameworks/sveltekit": SVGL.sveltekit,
   "/docs/frameworks/astro": SVGL.astro,
@@ -51,6 +56,7 @@ export const PAGE_LOGOS: Readonly<Record<string, Logo>> = {
   "/docs/integrations/esbuild": SVGL.esbuild,
   "/docs/integrations/postcss": SVGL.postcss,
   "/docs/integrations/jest": SVGL.jest,
+  "/docs/integrations/storybook": SVGL.storybook,
 }
 
 const styles = {

@@ -61,8 +61,30 @@ export async function loadConfigFile(
   if (!file) return { config: {} }
   const module = file.endsWith(".json")
     ? undefined
-    : await load(pathToFileURL(file).href)
+    : await importOrRequire(file, load)
   return { file, config: configOf(file, () => module) }
+}
+
+/**
+ * The configuration module, by `import()`, or by `require()` where the host gives `Function` code
+ * no `import()`: a CommonJS project whose bundler `require()`s Kirana's ES-module loader (webpack's
+ * loader runner in Docusaurus) fails with `ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING`. `require()`
+ * reads ES modules and strips TypeScript on current Node.js, as `resolveConfigSync` relies on.
+ */
+async function importOrRequire(
+  file: string,
+  load: ImportFile
+): Promise<unknown> {
+  try {
+    return await load(pathToFileURL(file).href)
+  } catch (error) {
+    if (
+      (error as { code?: string }).code !==
+      "ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING"
+    )
+      throw error
+    return createRequire(file)(file)
+  }
 }
 
 /** The JSON the engine receives: file configuration, overridden key by key by inline options. */

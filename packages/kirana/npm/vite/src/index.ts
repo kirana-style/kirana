@@ -17,6 +17,8 @@ export {
   renameAsset,
 } from "@kirana-style/compiler/host"
 
+export { cssLayer, wrapInLayer } from "./layer.ts"
+
 export type KiranaViteOptions = Omit<
   KiranaRolldownOptions,
   "root" | "fileName"

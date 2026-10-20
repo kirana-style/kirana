@@ -1,0 +1,31 @@
+{
+  "name": "kirana-example-vitepress",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vitepress build docs"
+  },
+  "kirana-example": {
+    "output": "docs/.vitepress/dist",
+    "dev": [
+      "vitepress",
+      "dev",
+      "docs",
+      "--port",
+      "{port}",
+      "--strictPort",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "docs/.vitepress/theme/Probe.vue",
+    "hot": true
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "vitepress": "2.0.0-alpha.20",
+    "vue": "^3.5.44"
+  }
+}

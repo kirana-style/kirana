@@ -1,6 +1,7 @@
 /**
- * Brand logos, kept in the repository: from SVGL (svgl.app) first, and from LogoForge
- * (logoforge.terravidhal.me) for a brand SVGL has no logo for. A brand in neither shows a monogram.
+ * Brand logos, kept in the repository: from SVGL (svgl.app) first, from LogoForge
+ * (logoforge.terravidhal.me) for a brand SVGL has no logo for, and from the brand's own website
+ * (`OFFICIAL`) for one neither has. A brand with none of them shows a monogram.
  *
  *   bun scripts/generate-svgl.ts           # fetch, save the files, write the map
  *   bun scripts/generate-svgl.ts --check   # offline: the map matches the manifest, every file exists
@@ -49,6 +50,8 @@ const NEEDED: Record<string, string> = {
   ember: "Ember",
   laravel: "Laravel",
   tanstack: "TanStack",
+  docusaurus: "Docusaurus",
+  storybook: "Storybook",
   vite: "Vite",
   rolldown: "Rolldown",
   rspack: "Rspack",
@@ -95,6 +98,12 @@ const LOGOFORGE: Record<
     url: "https://rubyonrails.org/",
   },
   phoenix: { logo: "phoenix", light: "icon" },
+  // LogoForge lists no website for this entry.
+  vitepress: {
+    logo: "vitepress",
+    light: "icon",
+    url: "https://vitepress.dev/",
+  },
   adonisjs: { logo: "adonisjs", light: "icon" },
   webpack: { logo: "webpack", light: "icon" },
   stylex: { logo: "stylex", light: "icon" },
@@ -106,6 +115,23 @@ const LOGOFORGE: Record<
   },
 }
 
+/**
+ * A brand's own logo files, from its website, for a brand neither SVGL nor LogoForge has. Each file
+ * is checked to hold no script before it is saved.
+ */
+const OFFICIAL: Record<
+  string,
+  { title: string; url: string; light: string; dark: string; category: string }
+> = {
+  vike: {
+    title: "Vike",
+    url: "https://vike.dev/",
+    light: "https://vike.dev/assets/static/vike.DekpsbvE.svg",
+    dark: "https://vike.dev/assets/static/vike-dark.BNfTJN3o.svg",
+    category: "Framework",
+  },
+}
+
 type Route = string | { light: string; dark: string }
 type Entry = {
   title: string
@@ -113,7 +139,7 @@ type Entry = {
   url: string
   route: Route
   /** Where the files came from; SVGL when absent. */
-  source?: "logoforge"
+  source?: "logoforge" | "official"
 }
 
 function fail(message: string): never {
@@ -174,7 +200,11 @@ async function save(url: string, as?: string): Promise<string> {
   const name = as ?? basename(new URL(url).pathname)
   const response = await fetch(url)
   if (!response.ok) throw new Error(`logos: ${url} answered ${response.status}`)
-  await writeFile(join(brands, name), await response.text())
+  const svg = await response.text()
+  // A logo is drawn, never run: refuse a file that could carry code into the site.
+  if (/<script|<foreignObject|\son[a-z]+\s*=|javascript:/i.test(svg))
+    throw new Error(`logos: ${url} holds a script or an event handler`)
+  await writeFile(join(brands, name), svg)
   return name
 }
 
@@ -201,6 +231,21 @@ if (check) {
       throw new Error(`${slug} is in SVGL already: drop it from LOGOFORGE`)
     manifest[slug] = await fetchLogoForge(slug, logo)
     console.log(`logoforge: ${slug} ← ${logo.logo}`)
+  }
+  for (const [slug, logo] of Object.entries(OFFICIAL)) {
+    if (slug in manifest)
+      throw new Error(`${slug} has a logo already: drop it from OFFICIAL`)
+    manifest[slug] = {
+      title: logo.title,
+      category: logo.category,
+      url: logo.url,
+      route: {
+        light: await save(logo.light, `official-${slug}-light.svg`),
+        dark: await save(logo.dark, `official-${slug}-dark.svg`),
+      },
+      source: "official",
+    }
+    console.log(`official: ${slug} ← ${logo.url}`)
   }
   await writeFile(manifestFile, `${JSON.stringify(manifest, null, 2)}\n`)
 }

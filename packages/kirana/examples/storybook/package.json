@@ -1,0 +1,38 @@
+{
+  "name": "kirana-example-storybook",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "storybook build --quiet"
+  },
+  "kirana-example": {
+    "output": "storybook-static",
+    "page": "iframe.html?id=probe--styled&viewMode=story",
+    "dev": [
+      "storybook",
+      "dev",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--ci",
+      "--no-open"
+    ],
+    "edit": "src/probe.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "@storybook/react-vite": "^10.6.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "storybook": "^10.6.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4"
+  }
+}

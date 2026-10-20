@@ -211,11 +211,12 @@ Zed: **zed: install dev extension** and pick `packages/kirana/editors/zed`
 (it builds the WebAssembly itself; `rustup target add wasm32-wasip2` once).
 Neovim and Helix need only configuration, on the docs page `/docs/tooling/editor`.
 
-### Brand logos (SVGL, then LogoForge)
+### Brand logos (SVGL, then LogoForge, then the brand's own)
 
 The docs show product logos from [SVGL](https://svgl.app), and from
 [LogoForge](https://logoforge.terravidhal.me) for a brand SVGL has no logo for
-(LogoForge's artwork is CC0, from Simple Icons and gilbarbara/logos). They are
+(LogoForge's artwork is CC0, from Simple Icons and gilbarbara/logos), and from
+the brand's own website for one neither has (Vike's). They are
 kept in the repository, so nothing is fetched at runtime, in dev, in builds or
 in CI:
 
@@ -228,7 +229,9 @@ To add a logo, add its slug and SVGL title to `NEEDED` in
 `apps/docs/scripts/generate-svgl.ts` (search the title at
 `https://api.svgl.app?search=<name>`). If SVGL has none, add it to `LOGOFORGE`
 instead, with the logo's slug from `https://logoforge.terravidhal.me/api/logos.json`
-and a `dark` variant when the light one disappears on a dark background. Then:
+and a `dark` variant when the light one disappears on a dark background. If neither
+has it, add it to `OFFICIAL` with the light and dark files the brand publishes on
+its website; a file holding a script or an event handler is refused. Then:
 
 ```bash
 (cd apps/docs && bun run generate:svgl)   # downloads the files and rewrites the map
@@ -237,7 +240,7 @@ and a `dark` variant when the light one disappears on a dark background. Then:
 Use it as `<BrandIcon icon={SVGL.name} />` (`@workspace/docs-ui/brand-icon.tsx`).
 A logo with light and dark files follows the site's theme switch, not the
 operating system's. `bun run verify:generated` (in `apps/docs`) checks the map
-against the manifest offline. A brand in neither source shows a monogram.
+against the manifest offline. A brand with no logo in any source shows a monogram.
 
 ## Contributing, security and licence
 

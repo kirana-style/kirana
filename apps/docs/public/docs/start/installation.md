@@ -66,10 +66,15 @@ Frameworks:
 - [React Router](/docs/frameworks/react-router): A standards-focused router and framework you can deploy anywhere.
 - [TanStack Start](/docs/frameworks/tanstack-start): Full-stack React powered by TanStack Router. This site runs on it.
 - [Gatsby](/docs/frameworks/gatsby): Static sites with React and GraphQL, built by webpack.
+- [Waku](/docs/frameworks/waku): The minimal React framework, built on React Server Components.
+- [Vike](/docs/frameworks/vike): The framework you assemble: your renderer, your server, on Vite.
+- [Docusaurus](/docs/frameworks/docusaurus): Documentation websites with React, built by webpack.
 - [Preact](/docs/frameworks/preact): A fast 3 kB alternative to React with the same API.
 - [Solid](/docs/frameworks/solid): Simple, performant reactivity for user interfaces.
+- [SolidStart](/docs/frameworks/solid-start): Solid's full-stack framework: routes, server rendering and server functions.
 - [Vue](/docs/frameworks/vue): The progressive framework, with :sx in single-file components.
 - [Nuxt](/docs/frameworks/nuxt): The intuitive Vue framework for universal applications.
+- [VitePress](/docs/frameworks/vitepress): The Vite and Vue static site generator for documentation.
 - [Svelte](/docs/frameworks/svelte): Cybernetically enhanced web apps, with sx on elements.
 - [SvelteKit](/docs/frameworks/sveltekit): The fastest way to build apps of all sizes with Svelte.
 - [Astro](/docs/frameworks/astro): The web framework for content-driven sites, sx in .astro files.
@@ -98,6 +103,7 @@ Bundlers:
 - [esbuild](/docs/integrations/esbuild): An extremely fast bundler, in watch and serve modes too.
 - [PostCSS](/docs/integrations/postcss): The project's stylesheet wherever @kirana; stands.
 - [Jest](/docs/integrations/jest): A transformer, so tests see the class names you ship.
+- [Storybook](/docs/integrations/storybook): Stories built with your project's Vite config, styled as the app is.
 
 The overview of all of them, with what `sx` compiles to in each, is
 [supported frameworks](/docs/frameworks/overview).
