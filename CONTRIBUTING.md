@@ -88,9 +88,10 @@ extension's own Rust checks, from the cache when nothing changed.
 ### What CI runs
 
 Your pull request runs on Linux: lint, types, the tests at 100 % coverage, the
-examples on their dev servers, and installation with npm, pnpm and Bun. It
-needs no macOS or Windows runner, so it starts quickly however many pull
-requests are open. A change to the site or to prose alone skips the package
+examples on their dev servers, and installation with npm, pnpm and Bun, plus
+one Windows job (the stylesheet built twice, to compare). It needs no macOS
+runner, the scarce kind, so it starts quickly however many pull requests are
+open. A change to the site or to prose alone skips the package
 jobs.
 
 When a maintainer queues it for merging, the merge queue runs the full matrix

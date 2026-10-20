@@ -231,10 +231,11 @@ export const GOALS: Goal[] = [
   {
     title: "Keep the lights on",
     text: "The costs that exist whether or not anyone writes code.",
-    // CI is not here: the repositories are public, so GitHub's standard runners cost nothing.
+    // CI's standard runners cost nothing on public repositories; more runners are the third item.
     items: [
       "Domains, hosting for the docs and the playground",
       "npm organisation and release signing",
+      "CI runners beyond GitHub's free ones, so macOS and Windows run on every pull request",
     ],
   },
   {
