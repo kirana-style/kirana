@@ -172,57 +172,6 @@
 }
 
 /*
- * Recharts internals.
- *
- * Recharts renders its own SVG with its own fixed class names, and hard-codes
- * `#ccc` and `#fff` onto several of them. Restyling those means selecting
- * markup this design system does not own, which component styles deliberately
- * never do — so this is the one component whose internals stay in global CSS.
- *
- * Scoped under `[data-slot="chart"]` so nothing here escapes a chart, and placed
- * in the `base` layer so a component style can still win.
- *
- * ChartContainer hands the colours down as plain custom properties
- * (`--chart-grid`, `--chart-line`, `--chart-muted`, `--chart-fill`) set from
- * tokens, because a token's real name is hashed and cannot be written here.
- */
-@layer base {
-  [data-slot="chart"] .recharts-surface,
-  [data-slot="chart"] .recharts-layer,
-  [data-slot="chart"] .recharts-sector {
-    outline: none;
-  }
-
-  [data-slot="chart"] .recharts-cartesian-axis-tick text {
-    fill: var(--chart-muted);
-  }
-
-  [data-slot="chart"] .recharts-cartesian-grid line[stroke="#ccc"] {
-    stroke: var(--chart-grid);
-  }
-
-  [data-slot="chart"] .recharts-polar-grid [stroke="#ccc"],
-  [data-slot="chart"] .recharts-reference-line [stroke="#ccc"] {
-    stroke: var(--chart-line);
-  }
-
-  [data-slot="chart"] .recharts-curve.recharts-tooltip-cursor {
-    stroke: var(--chart-line);
-  }
-
-  [data-slot="chart"] .recharts-rectangle.recharts-tooltip-cursor,
-  [data-slot="chart"] .recharts-radial-bar-background-sector {
-    fill: var(--chart-fill);
-  }
-
-  /* Recharts outlines dots and sectors in white, which only works on white. */
-  [data-slot="chart"] .recharts-dot[stroke="#fff"],
-  [data-slot="chart"] .recharts-sector[stroke="#fff"] {
-    stroke: transparent;
-  }
-}
-
-/*
  * Inline content inside an alert, an accordion panel, or a field, empty or item
  * description.
  *
