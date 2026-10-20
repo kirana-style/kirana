@@ -1,14 +1,13 @@
 /**
  * The project's public numbers: stars on GitHub and last week's downloads of the core package on
- * npm. Both APIs answer cross-origin requests without a key, so the browser asks them directly
- * after the page has rendered; the server renders without the numbers and nothing waits on them.
+ * npm, from the site's own `/api/repo-stats` (`routes/api.repo-stats.ts`), which asks both APIs and
+ * keeps the answer. The browser asks after the page has rendered; the page renders without the
+ * numbers and nothing waits on them.
  *
- * One request per API per tab session: the answer is kept in sessionStorage, and every component
- * that asks shares the one promise. A failed request (offline, rate-limited) leaves the number out.
+ * One request per tab session: the answer is kept in sessionStorage, and every component that asks
+ * shares the one promise. A failed request (offline) leaves the numbers out.
  */
 import { useEffect, useState } from "react"
-
-import { CORE_PACKAGE, REPOSITORY } from "@/data/links"
 
 export type RepoStats = {
   stars?: number
@@ -20,14 +19,17 @@ const KEY = "kirana:repo-stats"
 
 let pending: Promise<RepoStats> | undefined
 
-async function number(url: string, read: (body: unknown) => unknown) {
+const count = (value: unknown) =>
+  typeof value === "number" ? value : undefined
+
+async function ask(): Promise<RepoStats> {
   try {
-    const response = await fetch(url)
-    if (!response.ok) return undefined
-    const value = read(await response.json())
-    return typeof value === "number" ? value : undefined
+    const response = await fetch("/api/repo-stats")
+    if (!response.ok) return {}
+    const body = (await response.json()) as Record<string, unknown>
+    return { stars: count(body.stars), downloads: count(body.downloads) }
   } catch {
-    return undefined
+    return {}
   }
 }
 
@@ -36,17 +38,7 @@ function load(): Promise<RepoStats> {
     const kept = sessionStorage.getItem(KEY)
     if (kept) return Promise.resolve(JSON.parse(kept) as RepoStats)
   } catch {}
-  pending ??= Promise.all([
-    number(
-      `https://api.github.com/repos/${REPOSITORY}`,
-      (body) => (body as { stargazers_count?: unknown }).stargazers_count
-    ),
-    number(
-      `https://api.npmjs.org/downloads/point/last-week/${CORE_PACKAGE}`,
-      (body) => (body as { downloads?: unknown }).downloads
-    ),
-  ]).then(([stars, downloads]) => {
-    const stats = { stars, downloads }
+  pending ??= ask().then((stats) => {
     try {
       sessionStorage.setItem(KEY, JSON.stringify(stats))
     } catch {}
