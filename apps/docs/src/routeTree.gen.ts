@@ -22,6 +22,7 @@ import { Route as PlayRouteImport } from "./routes/play"
 import { Route as ShowcaseRouteImport } from "./routes/showcase"
 import { Route as SponsorsRouteImport } from "./routes/sponsors"
 import { Route as WhyRouteImport } from "./routes/why"
+import { Route as ApiRepoStatsRouteImport } from "./routes/api.repo-stats"
 import { Route as BlogIndexRouteImport } from "./routes/blog.index"
 import { Route as BlogSlugRouteImport } from "./routes/blog.$slug"
 import { Route as BrandIndexRouteImport } from "./routes/brand.index"
@@ -93,6 +94,11 @@ const WhyRoute = WhyRouteImport.update({
   path: "/why",
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiRepoStatsRoute = ApiRepoStatsRouteImport.update({
+  id: "/api/repo-stats",
+  path: "/api/repo-stats",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: "/blog/",
   path: "/blog/",
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   "/showcase": typeof ShowcaseRoute
   "/sponsors": typeof SponsorsRoute
   "/why": typeof WhyRoute
+  "/api/repo-stats": typeof ApiRepoStatsRoute
   "/blog/$slug": typeof BlogSlugRoute
   "/brand/mark": typeof BrandMarkRoute
   "/docs/$": typeof DocsSplatRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   "/showcase": typeof ShowcaseRoute
   "/sponsors": typeof SponsorsRoute
   "/why": typeof WhyRoute
+  "/api/repo-stats": typeof ApiRepoStatsRoute
   "/blog/$slug": typeof BlogSlugRoute
   "/brand/mark": typeof BrandMarkRoute
   "/docs/$": typeof DocsSplatRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   "/showcase": typeof ShowcaseRoute
   "/sponsors": typeof SponsorsRoute
   "/why": typeof WhyRoute
+  "/api/repo-stats": typeof ApiRepoStatsRoute
   "/blog/$slug": typeof BlogSlugRoute
   "/brand/mark": typeof BrandMarkRoute
   "/docs/$": typeof DocsSplatRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | "/showcase"
     | "/sponsors"
     | "/why"
+    | "/api/repo-stats"
     | "/blog/$slug"
     | "/brand/mark"
     | "/docs/$"
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | "/showcase"
     | "/sponsors"
     | "/why"
+    | "/api/repo-stats"
     | "/blog/$slug"
     | "/brand/mark"
     | "/docs/$"
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | "/showcase"
     | "/sponsors"
     | "/why"
+    | "/api/repo-stats"
     | "/blog/$slug"
     | "/brand/mark"
     | "/docs/$"
@@ -257,6 +269,7 @@ export interface RootRouteChildren {
   ShowcaseRoute: typeof ShowcaseRoute
   SponsorsRoute: typeof SponsorsRoute
   WhyRoute: typeof WhyRoute
+  ApiRepoStatsRoute: typeof ApiRepoStatsRoute
   BlogSlugRoute: typeof BlogSlugRoute
   BrandMarkRoute: typeof BrandMarkRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -356,6 +369,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof WhyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/api/repo-stats": {
+      id: "/api/repo-stats"
+      path: "/api/repo-stats"
+      fullPath: "/api/repo-stats"
+      preLoaderRoute: typeof ApiRepoStatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/blog/": {
       id: "/blog/"
       path: "/blog"
@@ -418,6 +438,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShowcaseRoute: ShowcaseRoute,
   SponsorsRoute: SponsorsRoute,
   WhyRoute: WhyRoute,
+  ApiRepoStatsRoute: ApiRepoStatsRoute,
   BlogSlugRoute: BlogSlugRoute,
   BrandMarkRoute: BrandMarkRoute,
   BlogIndexRoute: BlogIndexRoute,

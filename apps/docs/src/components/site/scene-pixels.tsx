@@ -5,7 +5,8 @@
  * seconds, warming the cells it passes, and the cells near the pointer brighten.
  *
  * Every page hero, the footer and the closing card draw their scene with it. Until WebGL has
- * drawn a frame, and wherever it cannot, the plain picture shows with a CSS mask fading the same way, so nothing waits on the canvas.
+ * drawn a frame, and wherever it cannot or would run without a GPU, the plain picture shows with a
+ * CSS mask fading the same way, so nothing waits on the canvas.
  *
  * Same budget as `PixelField`: one triangle and one short fragment shader, drawn only while on
  * screen and the tab is visible, at most 30 frames a second and a device pixel ratio of 2, one
@@ -30,6 +31,19 @@ import { BAYER, PRECISION, VERTEX, compile, rgb } from "./pixel-field"
 export type Dissolve = "up" | "down" | "left" | "right" | "hero"
 
 const WIDE = "(min-width: 64rem)"
+
+/**
+ * Whether a context renders without a GPU. Chrome no longer refuses its software renderer for
+ * `failIfMajorPerformanceCaveat` (machines without a GPU, as Lighthouse's are, get SwiftShader),
+ * but it names the renderer.
+ */
+function software(gl: WebGLRenderingContext): boolean {
+  const info = gl.getExtension("WEBGL_debug_renderer_info")
+  const renderer = info
+    ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL))
+    : ""
+  return /swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer)
+}
 
 const TOWARD: Record<Exclude<Dissolve, "hero">, [number, number]> = {
   up: [0, 1],
@@ -174,8 +188,15 @@ export function ScenePixels({
       antialias: false,
       premultipliedAlpha: true,
       powerPreference: "low-power",
+      failIfMajorPerformanceCaveat: true,
     })
     if (!canvas || !box || !picture || !gl) return
+    // Drawing every frame on the CPU would keep the page busy: where WebGL runs in software, the
+    // plain picture shows instead.
+    if (software(gl)) {
+      gl.getExtension("WEBGL_lose_context")?.loseContext()
+      return
+    }
 
     const vertex = compile(gl, gl.VERTEX_SHADER, VERTEX)
     const fragment = compile(gl, gl.FRAGMENT_SHADER, FRAGMENT)
