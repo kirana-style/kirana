@@ -23,7 +23,11 @@ Being built in phases (see the docs overhaul plan):
   own colour, or in the text colour when that colour would vanish in one scheme. The install tabs use
   it for npm, pnpm, yarn and bun.
 - `ThemeMenu`: the bar's theme control: an icon button showing the sun or the moon the page is in
-  (it follows `schemeMarker`, so "system" shows the OS's), opening Light, Dark and System.
+  (it follows `schemeMarker`, so "system" shows the OS's), opening Light, Dark and System. `D` steps
+  the mode.
+- `ThemeToggle`: the site footer's theme control, one pill stepping through System, Light and Dark,
+  with the mode's name and the `D` key in a round chip at its end. `useThemeHotkey` is the key on its
+  own; one per page.
 - `WidthToggle`: beside "Copy page" from `xl` up, a button the size of that one, filled in the page's
   hue while the page fills the column. Full width sets `data-wide` on the frame and lifts the
   article's width cap.

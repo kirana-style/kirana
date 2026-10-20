@@ -67,11 +67,11 @@ const styles = {
     },
   }),
   bar: css({ display: "flex", alignItems: "center", height: BAR }),
-  // The full-text search, wide enough to read what you type, at the end of the tabs' row;
-  // below lg it is an icon among the bar's actions.
+  // The full-text search at the end of the tabs' row, as wide as its placeholder and shortcut
+  // need; below lg it is an icon among the bar's actions.
   search: css({
     display: { base: "none", [breakpoint.lg]: "block" },
-    flex: "0 1 22rem",
+    flex: "0 1 15rem",
     minWidth: 0,
     marginInlineStart: "auto",
     paddingInlineEnd: spacing[4],

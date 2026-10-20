@@ -10,6 +10,8 @@ import { barX, defineChart, text } from "@tanstack/charts"
 import { scaleBand } from "@tanstack/charts/scales/band"
 import { scaleLinear } from "@tanstack/charts/scales/linear"
 
+import { ArrowDown02Icon } from "@hugeicons/core-free-icons"
+
 import { accent, tint } from "@workspace/docs-ui/accent.ts"
 import {
   ChartContainer,
@@ -17,6 +19,7 @@ import {
   chartTheme,
   chartTooltip,
 } from "@workspace/ui/components/chart"
+import { Icon } from "@workspace/ui/primitives/icon"
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
@@ -55,7 +58,28 @@ const styles = {
     backgroundColor: theme.card,
     padding: spacing[5],
   }),
+  head: css({
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing[3],
+  }),
   metrics: css({ display: "flex", flexWrap: "wrap", gap: spacing[1] }),
+  // Every metric here is a cost: a shorter bar wins.
+  better: css({
+    display: "inline-flex",
+    alignItems: "center",
+    gap: spacing[1],
+    fontSize: fontSize.xs,
+    lineHeight: lineHeight.xs,
+    color: theme.mutedForeground,
+  }),
+  ratio: css({
+    marginInlineStart: spacing["1.5"],
+    fontWeight: fontWeight.normal,
+    color: theme.mutedForeground,
+  }),
   metric: css({
     borderRadius: radius.full,
     paddingInline: spacing[3],
@@ -97,6 +121,12 @@ const amount = (metric: Metric, value: number) =>
     minimumFractionDigits: metric.digits,
     maximumFractionDigits: metric.digits,
   })} ${metric.unit}`
+
+/** Another tool's value as a multiple of Kirana's: `3.2× Kirana`. */
+function ratio(value: number, kirana: number) {
+  const times = value / kirana
+  return `${times.toLocaleString("en", { maximumFractionDigits: times < 10 ? 2 : 1 })}× Kirana`
+}
 
 const HEIGHT = 46 * TOOLS.length
 
@@ -160,18 +190,24 @@ export function BenchChart() {
 
   return (
     <figure sx={styles.root}>
-      <div sx={styles.metrics} role="group" aria-label="Metric">
-        {METRICS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            aria-pressed={item.id === id}
-            sx={styles.metric}
-            onClick={() => setId(item.id)}
-          >
-            {item.label}
-          </button>
-        ))}
+      <div sx={styles.head}>
+        <div sx={styles.metrics} role="group" aria-label="Metric">
+          {METRICS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              aria-pressed={item.id === id}
+              sx={styles.metric}
+              onClick={() => setId(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        <span sx={styles.better}>
+          <Icon icon={ArrowDown02Icon} size="0.875rem" />
+          Lower is better
+        </span>
       </div>
       <ChartContainer
         config={highlightConfig}
@@ -182,9 +218,25 @@ export function BenchChart() {
         motion
         tooltip={
           <ChartTooltipContent
-            hideLabel
-            nameKey="series"
-            formatter={(value) => amount(metric, Number(value))}
+            label={`${metric.label}, lower is better`}
+            rows={(points) => {
+              const focused = (points[0]?.datum as { tool?: Tool } | undefined)
+                ?.tool
+              return TOOLS.map((tool) => ({
+                name: toolKey(tool),
+                active: tool === focused,
+                value: (
+                  <>
+                    {amount(metric, metric.total[tool])}
+                    {tool === "Kirana" ? null : (
+                      <span sx={styles.ratio}>
+                        {ratio(metric.total[tool], metric.total.Kirana)}
+                      </span>
+                    )}
+                  </>
+                ),
+              }))
+            }}
           />
         }
         sx={styles.chart}
@@ -205,9 +257,9 @@ export function BenchChart() {
         ))}
       </div>
       <figcaption sx={styles.note}>
-        {metric.note} Lower is better. Kirana {BENCH.meta.kirana} from npm, the
-        median of {BENCH.meta.rounds.build} cold, interleaved builds on a{" "}
-        {BENCH_MACHINE}, {BENCH_DATE}:{" "}
+        {metric.note} Kirana {BENCH.meta.kirana} from npm, the median of{" "}
+        {BENCH.meta.rounds.build} cold, interleaved builds on a {BENCH_MACHINE},{" "}
+        {BENCH_DATE}:{" "}
         <a href={BENCH_RUN} target="_blank" rel="noreferrer">
           the run
         </a>

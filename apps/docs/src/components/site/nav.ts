@@ -231,6 +231,13 @@ export const MENUS: readonly Menu[] = [
         title: "Take part",
         links: [
           {
+            title: "Open source",
+            description: "Why it is free, and stays so",
+            href: "/open-source",
+            icon: UserGroupIcon,
+            scene: "old-hall",
+          },
+          {
             title: "Contributing",
             description: "Report, document, write code",
             href: "/docs/project/contributing",
@@ -262,13 +269,6 @@ export const MENUS: readonly Menu[] = [
             description: "The services Kirana runs on",
             href: "/partners",
             icon: HandshakeIcon,
-            scene: "old-hall",
-          },
-          {
-            title: "Open source",
-            description: "Why it is free, and stays so",
-            href: "/open-source",
-            icon: UserGroupIcon,
             scene: "old-hall",
           },
         ],
