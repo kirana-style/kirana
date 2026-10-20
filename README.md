@@ -89,23 +89,24 @@ Every command runs from the repository root. `vp <command>` is a Vite+ built-in;
 a task whose inputs did not change replays its output in a second. **Needs** is
 what must be installed.
 
-| Command                  | What it does                                                                                      | Needs                           |
-| ------------------------ | ------------------------------------------------------------------------------------------------- | ------------------------------- |
-| `vp install`             | installs every workspace (Bun) and the git hooks                                                  | Vite+                           |
-| `vp run dev`             | builds the native engine, then serves the docs with hot reload (not cached)                       | Rust                            |
-| `vp run build`           | builds the native engine, then the docs into `apps/docs/dist`                                     | Rust                            |
-| `vp run engine`          | builds only the native engine (release)                                                           | Rust                            |
-| `vp check`               | Oxfmt check, Oxlint with the Kirana rules, TypeScript type check, in one pass                     | `vp run engine`                 |
-| `vp check --fix`         | the same, rewriting what the formatter and the fixable rules can                                  | `vp run engine`                 |
-| `vp run check`           | `vp check` plus the docs' consistency check, after building the engine                            | Rust                            |
-| `vp run verify`          | the docs' generated files match their sources                                                     | Rust                            |
-| `vp run rust`            | `cargo fmt`, Clippy, `cargo deny` (`vp run rust:lint` alone), then the Rust tests                 | cargo-nextest, cargo-deny       |
-| `vp run test`            | Vitest: the Kirana packages against the engine, and docs-core                                     | Rust                            |
-| `vp run coverage`        | Rust and TypeScript tests with coverage; fails below 100 % (Rust regions too)                     | cargo-nextest, cargo-llvm-cov   |
-| `vp run prepush`         | `check`, `verify`, `rust:lint`, `coverage`, docs-core tests, the Zed extension: the pre-push hook | the cargo tools                 |
-| `bun run kirana:pack`    | compiles every npm package with `vite-plus/pack`, packs it and the engine into `dist-packages/`   | `vp run engine`                 |
-| `bun run kirana:example` | installs the packed tarballs into an example, builds it and checks it in Chromium                 | `bun run kirana:pack`, Chromium |
-| `vp cache clean`         | empties the task cache                                                                            | Vite+                           |
+| Command                  | What it does                                                                                                  | Needs                           |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `vp install`             | installs every workspace (Bun) and the git hooks                                                              | Vite+                           |
+| `vp run dev`             | builds the native engine, then serves the docs with hot reload (not cached)                                   | Rust                            |
+| `vp run build`           | builds the native engine, then the docs into `apps/docs/dist`                                                 | Rust                            |
+| `vp run engine`          | builds only the native engine (release)                                                                       | Rust                            |
+| `vp check`               | Oxfmt check, Oxlint with the Kirana rules, TypeScript type check, in one pass                                 | `vp run engine`                 |
+| `vp check --fix`         | the same, rewriting what the formatter and the fixable rules can                                              | `vp run engine`                 |
+| `vp run check`           | `vp check` plus the docs' consistency check, after building the engine                                        | Rust                            |
+| `vp run verify`          | the docs' generated files match their sources                                                                 | Rust                            |
+| `vp run rust`            | `cargo fmt`, Clippy, `cargo deny` (`vp run rust:lint` alone), then the Rust tests                             | cargo-nextest, cargo-deny       |
+| `vp run test`            | Vitest: the Kirana packages against the engine, and docs-core                                                 | Rust                            |
+| `vp run coverage`        | Rust and TypeScript tests with coverage; fails below 100 % (Rust regions too)                                 | cargo-nextest, cargo-llvm-cov   |
+| `vp run licenses`        | every installed JavaScript dependency's licence against `scripts/check-licenses.ts`                           | `vp install`                    |
+| `vp run prepush`         | `check`, `verify`, `rust:lint`, `coverage`, docs-core tests, the Zed extension, `licenses`: the pre-push hook | the cargo tools                 |
+| `bun run kirana:pack`    | compiles every npm package with `vite-plus/pack`, packs it and the engine into `dist-packages/`               | `vp run engine`                 |
+| `bun run kirana:example` | installs the packed tarballs into an example, builds it and checks it in Chromium                             | `bun run kirana:pack`, Chromium |
+| `vp cache clean`         | empties the task cache                                                                                        | Vite+                           |
 
 `KIRANA_UPDATE_FIXTURES=1 bun run --cwd packages/kirana test:rust` rewrites the
 golden fixtures.

@@ -142,11 +142,17 @@ export default defineConfig({
           output: [],
         },
       },
+      // Every installed JavaScript dependency's licence against the policy in the script, as
+      // cargo-deny holds the Rust ones; it changes only with the lockfile.
+      licenses: {
+        command: "bun scripts/check-licenses.ts",
+        cache: { input: ["bun.lock", "scripts/check-licenses.ts"], output: [] },
+      },
       // Everything CI requires of a pull request that runs on this machine; the pre-push hook.
       // Coverage holds the Rust and Kirana tests to 100 %, docs-core to its own floor.
       prepush: {
         command: "echo All checks passed.",
-        dependsOn: ["coverage", "test:docs", "zed"],
+        dependsOn: ["coverage", "test:docs", "zed", "licenses"],
         cache: false,
       },
     },

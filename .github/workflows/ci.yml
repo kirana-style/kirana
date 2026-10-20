@@ -76,6 +76,11 @@ jobs:
       - name: Generated docs and consistency
         run: vp run verify
 
+      # Every installed JavaScript dependency's licence against scripts/check-licenses.ts; the Rust
+      # ones are cargo-deny's, in kirana · rust checks.
+      - name: Licences
+        run: vp run licenses
+
       # The docs content engine (packages/docs-core): Markdown, highlighting and the changelog,
       # held to its coverage floor (its vitest.config.ts).
       - name: Docs content engine tests
