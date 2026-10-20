@@ -1,0 +1,40 @@
+name: Changes
+description: Whether a pull request or push touches anything the Kirana packages are built from. Any other event answers yes.
+
+# A change to only the site, its components or prose cannot change a package, the engine or an
+# example, so the jobs that build and install them skip; skipped jobs count as passed for required
+# checks. Needs a checkout with `fetch-depth: 2`. On a pull request HEAD is the merge commit and
+# HEAD^1 the base branch, so their difference is exactly what the pull request changes; on a push it
+# is the difference from the commit the branch was at before. When that cannot be read (a new
+# branch, a force push), the answer is yes.
+
+outputs:
+  kirana:
+    description: "'true' when the Kirana packages, their toolchain or CI changed, or the event is neither a pull request nor a push."
+    value: ${{ steps.diff.outputs.kirana }}
+
+runs:
+  using: composite
+
+  steps:
+    - id: diff
+      shell: bash
+      env:
+        EVENT: ${{ github.event_name }}
+        BEFORE: ${{ github.event.before }}
+      run: |
+        answer() { echo "kirana=$1" >> "$GITHUB_OUTPUT"; exit 0; }
+        case "$EVENT" in
+          pull_request) base=HEAD^1 ;;
+          push)
+            git fetch --quiet --depth=1 origin "$BEFORE" 2> /dev/null || answer true
+            base=$BEFORE ;;
+          *) answer true ;;
+        esac
+        changed=$(git diff --name-only "$base" HEAD) || answer true
+        # The packages and the engine, the catalog and lockfile they resolve from, the Node.js pin,
+        # and CI itself.
+        pattern='^(packages/kirana/|package\.json$|bun\.lock$|bunfig\.toml$|\.npmrc$|\.node-version$|\.github/)'
+        if grep -qE "$pattern" <<< "$changed"; then answer true; fi
+        echo "::notice::Nothing the Kirana packages are built from changed; their jobs skip."
+        answer false

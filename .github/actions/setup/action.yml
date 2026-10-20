@@ -20,11 +20,21 @@ runs:
           - args: ["--frozen-lockfile"]
 
     # The `vp run` task cache (vite.config.ts → run.tasks): a task whose inputs did not change
-    # replays its output and restores its files, the native engine above all. Each run saves a new
-    # entry; the newest one for this job and platform is restored. Vite Task fingerprints the inputs
-    # itself, so none belong in the key.
+    # replays its output and restores its files, the native engine above all. Each run on `main`
+    # saves a new entry, and every run restores the newest one for its job and platform; other
+    # branches only restore, so their entries never evict main's (setup-rust does the same). Vite
+    # Task fingerprints the inputs itself, so none belong in the key.
     - name: Cache vp tasks
+      if: github.ref == 'refs/heads/main'
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: node_modules/.vite/task-cache
+        key: vite-task-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}
+        restore-keys: vite-task-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-
+
+    - name: Restore vp tasks
+      if: github.ref != 'refs/heads/main'
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: node_modules/.vite/task-cache
         key: vite-task-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}

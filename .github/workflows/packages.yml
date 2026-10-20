@@ -7,8 +7,12 @@ name: packages
 # (packages/kirana/examples/run.ts).
 #
 # Pull requests run a smoke subset (Linux x64 with npm, pnpm and Bun, plus musl); pushes, the nightly
-# schedule and manual runs cover the full matrix. Each cell is its own job, so a red one names the
-# exact platform and package manager.
+# schedule and manual runs cover the full matrix. Each installation cell is its own job, so a red one
+# names the exact platform and package manager; the examples run in shards (see `examples`).
+#
+# A pull request or push that changes nothing the packages are built from (the site, prose) skips
+# everything here (.github/actions/changes). So does the push that merges a Release PR: release.yml
+# runs this workflow on that same commit as its gate, and a second copy would only queue behind it.
 
 on:
   push:
@@ -29,6 +33,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # What changed (.github/actions/changes): everything below depends on `native`, so it all skips
+  # with it.
+  changes:
+    name: changes
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    outputs:
+      kirana: ${{ steps.changes.outputs.kirana }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+
+      - id: changes
+        uses: ./.github/actions/changes
+
   # One `kirana.<triple>.node` per target in KRN-INT-007. Linux gnu links against napi-rs's glibc 2.17
   # toolchain, so the engine loads on any distribution from the last decade rather than only on the
   # runner's much newer glibc; musl links through Zig; macOS x64 and Windows arm64 cross-compile on the
@@ -36,6 +58,14 @@ jobs:
   native:
     name: native (${{ matrix.triple }})
     runs-on: ${{ matrix.os }}
+    needs: [changes]
+    # Called by release.yml (`github.workflow` is then the caller's): always. Otherwise only when the
+    # packages changed, and never on the Release PR's merge, which release.yml gates itself.
+    if: >-
+      github.workflow != 'packages' ||
+      (needs.changes.outputs.kirana == 'true' &&
+       !startsWith(github.event.head_commit.message, 'chore: release '))
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -131,6 +161,7 @@ jobs:
     name: pack
     runs-on: ubuntu-26.04
     needs: [native]
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -168,6 +199,7 @@ jobs:
     name: install (${{ matrix.os }} · ${{ matrix.pm }})
     runs-on: ${{ matrix.os }}
     needs: [pack]
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -212,6 +244,7 @@ jobs:
     name: install (wasi · npm)
     runs-on: ubuntu-26.04
     needs: [pack]
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -232,50 +265,53 @@ jobs:
       - name: vite-react on the WASI engine
         run: bun run kirana:example vite-react --pm npm --wasi
 
-  # The compatibility matrix: one example per host and framework, on Linux with npm, since the
-  # installation matrix already covers the package managers. Each adapter and framework mode adds
-  # its example here as it lands (S4-E08-05).
-  compat:
-    name: compat (${{ matrix.example }})
+  # The compatibility matrix (one example per host and framework, built) and the development servers
+  # (KRN-INT-009: the page is styled, and a style edit reaches it, as a CSS hot update without a reload
+  # where the framework updates components in place). Linux with npm, since the installation matrix
+  # covers the package managers. Each adapter and framework mode adds its example to a shard as it
+  # lands (S4-E08-05).
+  #
+  # Shards, not a job per example: an example takes 20 to 60 seconds, and a job of its own spent as
+  # long again on setup and Chromium, then waited in the queue behind sixty others. A shard runs its
+  # examples in turn, warms npm's cache for the next one, keeps going past a failure, and names each
+  # failure as an annotation (`compat (qwik)`, `dev (qwik)`). Shards group the examples that need the
+  # same toolchain and are balanced to a few minutes each.
+  examples:
+    name: examples (${{ matrix.shard }})
     runs-on: ubuntu-26.04
     needs: [pack]
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        example:
-          - vite-react
-          - rolldown-react
-          - webpack-react
-          - next-webpack
-          - next-turbopack
-          - rsbuild-react
-          - bun-react
-          - vite-preact
-          - vite-solid
-          - vite-vanilla
-          - vite-vue
-          - vite-svelte
-          - astro
-          - vite-library
-          - esbuild-react
-          - jest-react
-          - vite-utilities
-          - sveltekit
-          - nuxt
-          - qwik
-          - analog-angular
-          - angular-cli
-          - react-router
-          - rspack-react
-          - ember
-          - parcel
-          - gatsby
-          - meteor
-          - laravel
-          - symfony
-          - rails
-          - phoenix
-          - adonisjs
+        include:
+          - shard: react bundlers
+            build: vite-react rolldown-react webpack-react rsbuild-react rspack-react esbuild-react bun-react
+            dev: vite-react webpack-react rsbuild-react rspack-react esbuild-react bun-react
+          - shard: next and react router
+            build: next-webpack next-turbopack react-router
+            dev: next-webpack next-turbopack react-router
+          - shard: vite
+            build: vite-preact vite-solid vite-vanilla vite-vue vite-svelte vite-library vite-utilities jest-react
+            dev: vite-preact vite-solid vite-vue vite-svelte vite-utilities
+          - shard: meta-frameworks
+            build: sveltekit nuxt astro qwik
+            dev: sveltekit nuxt astro qwik
+          - shard: angular and ember
+            build: analog-angular angular-cli ember
+            dev: analog-angular angular-cli ember
+          - shard: gatsby, parcel and adonisjs
+            build: gatsby parcel adonisjs
+            dev: gatsby parcel adonisjs
+          - shard: meteor
+            build: meteor
+            dev: meteor
+            meteor: true
+          # Server frameworks' own toolchains (D-069).
+          - shard: server frameworks
+            build: laravel symfony rails phoenix
+            dev: laravel symfony rails phoenix
+            servers: true
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -293,36 +329,62 @@ jobs:
         working-directory: packages/kirana
         run: bunx playwright install --with-deps chromium
 
-      # Server frameworks' own toolchains (D-069), and Meteor's tool, for the examples that need them.
-      - if: contains(fromJSON('["laravel","symfony"]'), matrix.example)
+      - if: matrix.servers
         uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: "8.4"
           tools: composer
 
-      - if: matrix.example == 'rails'
+      - if: matrix.servers
         uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
         with:
           ruby-version: "4.0"
 
-      - if: matrix.example == 'phoenix'
+      - if: matrix.servers
         uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
           otp-version: "28"
           elixir-version: "1.20"
 
       - name: Install Meteor
-        if: matrix.example == 'meteor'
+        if: matrix.meteor
         run: npx -y meteor@3.5.2 && echo "$HOME/.meteor" >> "$GITHUB_PATH"
 
-      - name: ${{ matrix.example }}
-        run: >-
-          bun run kirana:example ${{ matrix.example }} --pm npm
-          --atoms "$GITHUB_WORKSPACE/atoms/${{ matrix.example }}.json"
+      - name: Build, then develop, each example
+        env:
+          BUILD: ${{ matrix.build }}
+          DEV: ${{ matrix.dev }}
+        run: |
+          failed=()
+          attempt() {
+            local label=$1; shift
+            echo "::group::$label"
+            local started=$SECONDS
+            if "$@"; then
+              echo "::endgroup::"
+              echo "✓ $label in $((SECONDS - started)) s"
+            else
+              echo "::endgroup::"
+              echo "::error title=$label::$label failed; expand its group in this step's log."
+              failed+=("$label")
+            fi
+          }
+          for example in $BUILD; do
+            attempt "compat ($example)" bun run kirana:example "$example" --pm npm \
+              --atoms "$GITHUB_WORKSPACE/atoms/$example.json"
+          done
+          for example in $DEV; do
+            attempt "dev ($example)" bun run kirana:example "$example" --pm npm --dev
+          done
+          if [ ${#failed[@]} -gt 0 ]; then
+            printf 'failed: %s\n' "${failed[@]}"
+            exit 1
+          fi
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
         with:
-          name: atoms-${{ matrix.example }}
+          name: atoms-${{ strategy.job-index }}
           path: atoms
           if-no-files-found: ignore
           retention-days: 3
@@ -332,7 +394,8 @@ jobs:
   compat-atoms:
     name: compat (same atoms on every host)
     runs-on: ubuntu-26.04
-    needs: [compat]
+    needs: [examples]
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -359,6 +422,7 @@ jobs:
     name: runtime (deno · ${{ matrix.example }})
     runs-on: ubuntu-26.04
     needs: [pack]
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -387,87 +451,6 @@ jobs:
       - name: ${{ matrix.example }} built on Deno
         run: bun run kirana:example ${{ matrix.example }} --pm npm --runtime deno
 
-  # Development servers (KRN-INT-009): the page is styled, and a style edit reaches it — as a CSS hot
-  # update, without a reload, where the framework updates components in place.
-  dev:
-    name: dev (${{ matrix.example }})
-    runs-on: ubuntu-26.04
-    needs: [pack]
-    strategy:
-      fail-fast: false
-      matrix:
-        example:
-          - vite-react
-          - vite-preact
-          - vite-solid
-          - vite-vue
-          - vite-svelte
-          - sveltekit
-          - nuxt
-          - astro
-          - webpack-react
-          - rsbuild-react
-          - next-webpack
-          - next-turbopack
-          - bun-react
-          - esbuild-react
-          - vite-utilities
-          - qwik
-          - analog-angular
-          - angular-cli
-          - react-router
-          - rspack-react
-          - ember
-          - parcel
-          - gatsby
-          - meteor
-          - laravel
-          - symfony
-          - rails
-          - phoenix
-          - adonisjs
-
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: ./.github/actions/setup
-
-      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: kirana-packages
-          path: packages/kirana/dist-packages
-
-      - name: Install Chromium
-        working-directory: packages/kirana
-        run: bunx playwright install --with-deps chromium
-
-      # Server frameworks' own toolchains (D-069), and Meteor's tool, for the examples that need them.
-      - if: contains(fromJSON('["laravel","symfony"]'), matrix.example)
-        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
-        with:
-          php-version: "8.4"
-          tools: composer
-
-      - if: matrix.example == 'rails'
-        uses: ruby/setup-ruby@651ff0d62c5c79bed6d53ec518387aae20e72c1a # v1.329.0
-        with:
-          ruby-version: "4.0"
-
-      - if: matrix.example == 'phoenix'
-        uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
-        with:
-          otp-version: "28"
-          elixir-version: "1.20"
-
-      - name: Install Meteor
-        if: matrix.example == 'meteor'
-        run: npx -y meteor@3.5.2 && echo "$HOME/.meteor" >> "$GITHUB_PATH"
-
-      - name: ${{ matrix.example }} in development
-        run: bun run kirana:example ${{ matrix.example }} --pm npm --dev
-
   # Alpine: the musl platform packages. No Chromium to drive, so the stylesheet check stands in for
   # the browser one; Node runs the runner through its type stripping. Checkout and artifacts happen on
   # the host and only the install runs in Alpine, because GitHub runs JavaScript actions inside Alpine
@@ -477,6 +460,7 @@ jobs:
     name: install (alpine ${{ matrix.arch }} · ${{ matrix.pm }})
     runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-26.04-arm' || 'ubuntu-26.04' }}
     needs: [pack]
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:

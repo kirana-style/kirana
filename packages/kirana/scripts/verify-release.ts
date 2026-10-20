@@ -6,9 +6,17 @@
  *   bun scripts/verify-release.ts v0.2.0            # every target, retrying while registries index
  *   bun scripts/verify-release.ts v0.2.0 --once     # one pass, no retries
  *
- * npm (every package, the engines included), RubyGems, Hex, Open VSX and Packagist (the mirror and
- * the alias) must have it. The VS Code Marketplace is uploaded by hand when there is no VSCE_PAT, so
- * a missing version there is a notice, not a failure.
+ * npm (every package, the engines included), RubyGems, Hex and Packagist (the mirror and the alias)
+ * must have it. Two targets only report:
+ *
+ * - Open VSX holds an upload for review when its scan flags it (a namespace's first versions are
+ *   flagged by name), and its API answers 404 until the review clears. The `editors` job fails when
+ *   the upload itself fails, so a missing version here is a warning: the release ships, and the
+ *   extension appears once the review clears.
+ * - The VS Code Marketplace is uploaded by hand when there is no VSCE_PAT: a notice.
+ *
+ * The checks run together, each with a timeout, and the retries stop as soon as only these two are
+ * left, so a held review or a hand upload never keeps the job waiting.
  */
 import { readdirSync, readFileSync } from "node:fs"
 import path from "node:path"
@@ -45,12 +53,15 @@ type Check = {
   name: string
   /** True when the registry serves the version. */
   has: () => Promise<boolean>
-  /** Published by hand when CI has no token: reported, never failing. */
-  optional?: boolean
+  /** Reported when missing, never failing: the annotation and its explanation. */
+  optional?: { level: "warning" | "notice"; why: string }
 }
 
 async function json(url: string, init?: RequestInit): Promise<unknown> {
-  const response = await fetch(url, init)
+  const response = await fetch(url, {
+    ...init,
+    signal: AbortSignal.timeout(15_000),
+  })
   if (response.status === 404) return undefined
   if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`)
   return response.json()
@@ -97,6 +108,10 @@ const checks: Check[] = [
   },
   {
     name: "Open VSX kirana-style.kirana",
+    optional: {
+      level: "warning",
+      why: 'the upload was accepted (the editors job passed), so it is most likely held for review: open-vsx.org shows it as "Under review" until it clears. Nothing to re-run.',
+    },
     has: async () =>
       Boolean(
         await json(`https://open-vsx.org/api/kirana-style/kirana/${version}`)
@@ -109,7 +124,10 @@ const checks: Check[] = [
   { name: "Packagist kirana/kirana", has: () => packagist("kirana/kirana") },
   {
     name: "VS Code Marketplace kirana-style.kirana",
-    optional: true,
+    optional: {
+      level: "notice",
+      why: `upload the .vsix from the ${tag} GitHub release by hand.`,
+    },
     has: async () => {
       const data = (await json(
         "https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery",
@@ -135,40 +153,44 @@ const checks: Check[] = [
 ]
 
 /**
- * Registries index on their own schedule (Packagist crawls the tag, and npm can serve a version many
- * minutes after accepting it); wait up to half an hour.
+ * Registries index on their own schedule (Packagist crawls the tag); wait up to half an hour for
+ * the required ones.
  */
-const ATTEMPTS = once ? 1 : 60
-const PAUSE = 30_000
+const DEADLINE = Date.now() + (once ? 0 : 30 * 60_000)
+const PAUSE = 15_000
 
 const pending = new Map(checks.map((check) => [check.name, check]))
-for (let attempt = 1; attempt <= ATTEMPTS && pending.size; attempt++) {
-  for (const [name, check] of pending) {
-    try {
-      if (await check.has()) {
-        console.log(`✓ ${name} ${version}`)
-        pending.delete(name)
+const requiredPending = () =>
+  [...pending.values()].some((check) => !check.optional)
+
+for (let attempt = 1; ; attempt++) {
+  await Promise.all(
+    [...pending.values()].map(async (check) => {
+      try {
+        if (await check.has()) {
+          console.log(`✓ ${check.name} ${version}`)
+          pending.delete(check.name)
+        }
+      } catch (error) {
+        console.log(`… ${check.name}: ${(error as Error).message}`)
       }
-    } catch (error) {
-      console.log(`… ${name}: ${(error as Error).message}`)
-    }
-  }
-  if (pending.size && attempt < ATTEMPTS) {
-    console.log(
-      `waiting for ${pending.size} target(s), attempt ${attempt} of ${ATTEMPTS}`
-    )
-    await new Promise((resolve) => setTimeout(resolve, PAUSE))
-  }
+    })
+  )
+  if (!requiredPending() || Date.now() >= DEADLINE) break
+  console.log(
+    `attempt ${attempt}: waiting for ${[...pending.keys()].join(", ")}`
+  )
+  await new Promise((resolve) => setTimeout(resolve, PAUSE))
 }
 
 let failed = false
-for (const [name, check] of pending) {
+for (const check of pending.values()) {
   if (check.optional) {
     console.log(
-      `::notice::${name} does not have ${version} yet: upload the .vsix from the ${tag} GitHub release by hand.`
+      `::${check.optional.level}::${check.name} does not have ${version} yet: ${check.optional.why}`
     )
   } else {
-    console.log(`::error::${name} does not have ${version}`)
+    console.log(`::error::${check.name} does not have ${version}`)
     failed = true
   }
 }
