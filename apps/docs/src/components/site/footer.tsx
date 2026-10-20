@@ -7,6 +7,7 @@ import { css, props as styleProps } from "@kirana-style/core"
 import { Link } from "@tanstack/react-router"
 
 import { accents } from "@workspace/docs-ui/accent.ts"
+import { ThemeToggle } from "@workspace/docs-ui/theme-toggle.tsx"
 import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint, pointer } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
@@ -49,6 +50,7 @@ const styles = {
     paddingBlock: { base: spacing[14], [breakpoint.md]: spacing[16] },
   }),
   identity: css({ display: "grid", gap: spacing[4], alignContent: "start" }),
+  theme: css({ justifySelf: "start" }),
   brand: css({
     // A finger-sized target on a touch screen.
     minHeight: { [pointer.coarse]: "2.75rem" },
@@ -128,6 +130,7 @@ export function SiteFooter({ scene: given }: { scene?: SceneId }) {
             Styles next to your components, one stylesheet in the build.
           </p>
           <p sx={styles.note}>Built in the open, MIT licensed, on npm.</p>
+          <ThemeToggle sx={styles.theme} />
         </div>
         <nav sx={styles.groups} aria-label="Footer">
           {FOOTER.map((group) => (

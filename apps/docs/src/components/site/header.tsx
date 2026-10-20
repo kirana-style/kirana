@@ -1,6 +1,6 @@
 /**
- * The site header: logo, the three menus, the repository with its stars, the sponsor heart, the
- * theme toggle and "Quick start".
+ * The site header: logo, the three menus, the repository with its stars, the sponsor heart and
+ * "Quick start". The theme is chosen in the footer.
  *
  * The menu is packages/ui's NavigationMenu (Base UI), which already morphs its
  * popup between panels of different sizes and slides content in from the side
@@ -11,11 +11,14 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react"
 import { css, props as styleProps } from "@kirana-style/core"
 import { Link } from "@tanstack/react-router"
-import { FavouriteIcon, Menu01Icon } from "@hugeicons/core-free-icons"
+import {
+  ArrowRight01Icon,
+  FavouriteIcon,
+  Menu01Icon,
+} from "@hugeicons/core-free-icons"
 
-import { PALETTE, accents, tint } from "@workspace/docs-ui/accent.ts"
+import { PALETTE, accent, accents, tint } from "@workspace/docs-ui/accent.ts"
 import { BrandIcon } from "@workspace/docs-ui/brand-icon.tsx"
-import { ThemeMenu } from "@workspace/docs-ui/theme-menu.tsx"
 import { Button } from "@workspace/ui/components/button"
 import {
   NavigationMenu,
@@ -58,6 +61,7 @@ import { MENUS, SPONSOR } from "./nav"
 import type { Featured, Menu, NavLinkItem } from "./nav"
 import { LIFT, REST } from "@workspace/ui/recipes/lift"
 import { IconTile } from "./icon-tile"
+import { useScene } from "./scene-context"
 import { Rail } from "./patterns"
 
 const styles = {
@@ -137,9 +141,46 @@ const styles = {
     alignItems: "center",
     gap: spacing[2],
   }),
+  // An ink pill with the page's scene in a round chip at its end, the arrow in it stepping
+  // forward on hover. The chip sits 6px from the pill's top, end and bottom, so it is centred in
+  // the pill's round end; a soft inner highlight and lift set the pill apart from the bar's quiet
+  // buttons. On a touch screen both grow to a finger's size, keeping that inset.
   getStarted: css({
     display: { base: "none", [breakpoint.sm]: "inline-flex" },
-    minHeight: { [pointer.coarse]: "2.75rem" },
+    alignItems: "center",
+    height: { base: spacing[9], [pointer.coarse]: spacing[11] },
+    minHeight: "auto",
+    gap: spacing["2.5"],
+    borderRadius: radius.full,
+    paddingInlineStart: spacing[4],
+    // The button's 1px border sits outside the padding: one pixel less puts the chip as far
+    // from the end as from the top and bottom.
+    paddingInlineEnd: `calc(${spacing["1.5"]} - 1px)`,
+    fontSize: fontSize.sm,
+    lineHeight: 1,
+    fontWeight: fontWeight.medium,
+    boxShadow: {
+      base: `inset 0 1px 0 ${alpha.background20}, 0 1px 2px ${alpha.foreground10}`,
+      ":hover": `inset 0 1px 0 ${alpha.background20}, 0 4px 12px ${alpha.foreground10}`,
+    },
+    transitionProperty: "box-shadow",
+    transitionDuration: duration[200],
+  }),
+  getStartedChip: css({
+    display: "inline-grid",
+    placeItems: "center",
+    flexShrink: 0,
+    width: { base: spacing[6], [pointer.coarse]: spacing[8] },
+    height: { base: spacing[6], [pointer.coarse]: spacing[8] },
+    borderRadius: radius.full,
+    backgroundColor: accent.base,
+    color: accent.on,
+  }),
+  getStartedArrow: css({
+    translate: { base: "0 0", ":is(a:hover *)": "2px 0" },
+    transitionProperty: "translate",
+    transitionDuration: { base: duration[200], [motion.reduce]: duration[0] },
+    transitionTimingFunction: easing.emphasized,
   }),
   // The repository, with its star count once GitHub has answered.
   github: css({
@@ -360,7 +401,11 @@ function FeaturedCard({ item }: { item: Featured }) {
 }
 
 function Panel({ menu }: { menu: Menu }) {
-  const wide = menu.featured.length > 0 && menu.columns.length > 1
+  // A featured card beside two columns, or three columns of links, which need the room to keep
+  // each description on one line.
+  const wide =
+    (menu.featured.length > 0 && menu.columns.length > 1) ||
+    menu.columns.length >= 3
   const medium = menu.featured.length > 0 && !wide
   return (
     <div
@@ -536,6 +581,7 @@ function GitHubLink() {
 }
 
 export function SiteHeader() {
+  const scene = useScene()
   return (
     <header sx={styles.header}>
       <Rail sx={styles.bar}>
@@ -562,15 +608,21 @@ export function SiteHeader() {
           >
             <Icon icon={FavouriteIcon} />
           </Button>
-          <ThemeMenu />
           <Button
             size="sm"
             nativeButton={false}
             sx={styles.getStarted}
-            render={
-              <DocsLink href="/docs/start/quick-start">Quick start</DocsLink>
-            }
-          />
+            render={<DocsLink href="/docs/start/quick-start" />}
+          >
+            Quick start
+            <span sx={[accents[SCENES[scene].hue], styles.getStartedChip]}>
+              <Icon
+                icon={ArrowRight01Icon}
+                size="0.875rem"
+                sx={styles.getStartedArrow}
+              />
+            </span>
+          </Button>
           <MobileNav />
         </div>
       </Rail>

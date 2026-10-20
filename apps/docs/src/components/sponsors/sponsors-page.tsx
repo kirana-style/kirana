@@ -783,7 +783,18 @@ export function SponsorsPage() {
         <Wall />
       </PageSection>
 
-      <PageSection number="05" label="Other help" title="Other ways to help">
+      <PageSection
+        number="05"
+        label="Other help"
+        title="Other ways to help"
+        lede={
+          <>
+            A company that runs a service Kirana needs, hosting or email or AI,
+            can give it in kind:{" "}
+            <DocsLink href="/partners">become a partner</DocsLink>.
+          </>
+        }
+      >
         <div sx={styles.helps}>
           {HELP.map((item) => (
             <DocsLink

@@ -67,12 +67,20 @@ const styles = {
     },
   }),
   bar: css({ display: "flex", alignItems: "center", height: BAR }),
-  // The full-text search, wide enough to read what you type; below lg it is an icon.
+  // The full-text search, wide enough to read what you type, at the end of the tabs' row;
+  // below lg it is an icon among the bar's actions.
   search: css({
     display: { base: "none", [breakpoint.lg]: "block" },
-    flex: "1 1 auto",
-    maxWidth: "26rem",
-    marginInlineStart: spacing[4],
+    flex: "0 1 22rem",
+    minWidth: 0,
+    marginInlineStart: "auto",
+    paddingInlineEnd: spacing[4],
+  }),
+  // The tabs, then the search at the row's end.
+  tabRow: css({
+    display: { base: "none", [breakpoint.lg]: "flex" },
+    alignItems: "center",
+    gap: spacing[4],
   }),
   brand: css({
     display: "flex",
@@ -101,9 +109,9 @@ const styles = {
     textTransform: "uppercase",
     color: theme.mutedForeground,
   }),
-  // From lg up, a row of its own; below it the menu sheet lists the tabs.
+  // From lg up, a row of its own with the search; below it the menu sheet lists the tabs.
   tabs: css({
-    display: { base: "none", [breakpoint.lg]: "flex" },
+    display: "flex",
     minWidth: 0,
     alignItems: "stretch",
     gap: spacing[1],
@@ -493,10 +501,6 @@ export function DocsLayout({
             {logo}
             <span sx={styles.badge}>Docs</span>
           </div>
-          {/* A wrapper takes the display: on the field itself it would replace the field's own flex. */}
-          <div sx={styles.search}>
-            <DocsSearch />
-          </div>
           <div sx={styles.actions}>
             {actions}
             <DocsSearch
@@ -546,41 +550,47 @@ export function DocsLayout({
             </Sheet>
           </div>
         </div>
-        <nav sx={styles.tabs} aria-label="Documentation sections">
-          {tabs.map((tab) => {
-            const isActive = tab.id === active?.id
-            return (
-              <Link
-                key={tab.id}
-                href={tab.href}
-                data-active={isActive ? "" : undefined}
-                sx={[accents[tab.accent], styles.tab]}
-              >
-                {isActive ? (
-                  <motion.span
-                    layoutId="docs-ui-tab-line"
-                    transition={
-                      reduce
-                        ? { duration: 0 }
-                        : { type: "spring", bounce: 0, duration: 0.3 }
-                    }
-                    {...styleProps(styles.tabLine)}
-                  />
-                ) : null}
-                <span sx={styles.tabContent}>
-                  {tab.icon ? (
-                    <Icon
-                      icon={tab.icon as IconProps["icon"]}
-                      size="0.875rem"
-                      sx={styles.tabIcon}
+        <div sx={styles.tabRow}>
+          <nav sx={styles.tabs} aria-label="Documentation sections">
+            {tabs.map((tab) => {
+              const isActive = tab.id === active?.id
+              return (
+                <Link
+                  key={tab.id}
+                  href={tab.href}
+                  data-active={isActive ? "" : undefined}
+                  sx={[accents[tab.accent], styles.tab]}
+                >
+                  {isActive ? (
+                    <motion.span
+                      layoutId="docs-ui-tab-line"
+                      transition={
+                        reduce
+                          ? { duration: 0 }
+                          : { type: "spring", bounce: 0, duration: 0.3 }
+                      }
+                      {...styleProps(styles.tabLine)}
                     />
                   ) : null}
-                  {tab.label}
-                </span>
-              </Link>
-            )
-          })}
-        </nav>
+                  <span sx={styles.tabContent}>
+                    {tab.icon ? (
+                      <Icon
+                        icon={tab.icon as IconProps["icon"]}
+                        size="0.875rem"
+                        sx={styles.tabIcon}
+                      />
+                    ) : null}
+                    {tab.label}
+                  </span>
+                </Link>
+              )
+            })}
+          </nav>
+          {/* A wrapper takes the display: on the field itself it would replace the field's own flex. */}
+          <div sx={styles.search}>
+            <DocsSearch />
+          </div>
+        </div>
       </header>
       <div sx={styles.body} data-collapsed={collapsed ? "" : undefined}>
         <aside sx={styles.sidebar}>

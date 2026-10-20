@@ -6,11 +6,11 @@ import {
 } from "@tanstack/react-router"
 import { css, props as styleProps } from "@kirana-style/core"
 
-import { ThemeMenu } from "@workspace/docs-ui/theme-menu.tsx"
 import { DocsLayout } from "@workspace/docs-ui/docs-layout.tsx"
 import { theme } from "@workspace/ui/theme/semantic"
 import { pointer } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
+import { ThemeToggle } from "@workspace/docs-ui/theme-toggle.tsx"
 
 import { KiranaMark } from "@/brand/kirana-mark-svg"
 import { Wordmark } from "@/components/site/wordmark"
@@ -56,7 +56,7 @@ function Docs() {
           <Wordmark />
         </Link>
       }
-      actions={<ThemeMenu />}
+      actions={<ThemeToggle compact />}
       banner={<StatusBanner />}
     >
       <Outlet />

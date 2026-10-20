@@ -18,6 +18,7 @@ import { Route as EcosystemRouteImport } from "./routes/ecosystem"
 import { Route as LicenseRouteImport } from "./routes/license"
 import { Route as MigrateRouteImport } from "./routes/migrate"
 import { Route as OpenSourceRouteImport } from "./routes/open-source"
+import { Route as PartnersRouteImport } from "./routes/partners"
 import { Route as PlayRouteImport } from "./routes/play"
 import { Route as ShowcaseRouteImport } from "./routes/showcase"
 import { Route as SponsorsRouteImport } from "./routes/sponsors"
@@ -72,6 +73,11 @@ const MigrateRoute = MigrateRouteImport.update({
 const OpenSourceRoute = OpenSourceRouteImport.update({
   id: "/open-source",
   path: "/open-source",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnersRoute = PartnersRouteImport.update({
+  id: "/partners",
+  path: "/partners",
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlayRoute = PlayRouteImport.update({
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   "/license": typeof LicenseRoute
   "/migrate": typeof MigrateRoute
   "/open-source": typeof OpenSourceRoute
+  "/partners": typeof PartnersRoute
   "/play": typeof PlayRoute
   "/showcase": typeof ShowcaseRoute
   "/sponsors": typeof SponsorsRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   "/license": typeof LicenseRoute
   "/migrate": typeof MigrateRoute
   "/open-source": typeof OpenSourceRoute
+  "/partners": typeof PartnersRoute
   "/play": typeof PlayRoute
   "/showcase": typeof ShowcaseRoute
   "/sponsors": typeof SponsorsRoute
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   "/license": typeof LicenseRoute
   "/migrate": typeof MigrateRoute
   "/open-source": typeof OpenSourceRoute
+  "/partners": typeof PartnersRoute
   "/play": typeof PlayRoute
   "/showcase": typeof ShowcaseRoute
   "/sponsors": typeof SponsorsRoute
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
     | "/license"
     | "/migrate"
     | "/open-source"
+    | "/partners"
     | "/play"
     | "/showcase"
     | "/sponsors"
@@ -222,6 +232,7 @@ export interface FileRouteTypes {
     | "/license"
     | "/migrate"
     | "/open-source"
+    | "/partners"
     | "/play"
     | "/showcase"
     | "/sponsors"
@@ -243,6 +254,7 @@ export interface FileRouteTypes {
     | "/license"
     | "/migrate"
     | "/open-source"
+    | "/partners"
     | "/play"
     | "/showcase"
     | "/sponsors"
@@ -265,6 +277,7 @@ export interface RootRouteChildren {
   LicenseRoute: typeof LicenseRoute
   MigrateRoute: typeof MigrateRoute
   OpenSourceRoute: typeof OpenSourceRoute
+  PartnersRoute: typeof PartnersRoute
   PlayRoute: typeof PlayRoute
   ShowcaseRoute: typeof ShowcaseRoute
   SponsorsRoute: typeof SponsorsRoute
@@ -339,6 +352,13 @@ declare module "@tanstack/react-router" {
       path: "/open-source"
       fullPath: "/open-source"
       preLoaderRoute: typeof OpenSourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/partners": {
+      id: "/partners"
+      path: "/partners"
+      fullPath: "/partners"
+      preLoaderRoute: typeof PartnersRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/play": {
@@ -434,6 +454,7 @@ const rootRouteChildren: RootRouteChildren = {
   LicenseRoute: LicenseRoute,
   MigrateRoute: MigrateRoute,
   OpenSourceRoute: OpenSourceRoute,
+  PartnersRoute: PartnersRoute,
   PlayRoute: PlayRoute,
   ShowcaseRoute: ShowcaseRoute,
   SponsorsRoute: SponsorsRoute,
