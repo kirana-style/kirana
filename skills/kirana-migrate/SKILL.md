@@ -24,7 +24,7 @@ beside it, and port in small steps.
    refused to guess; for Tailwind it is also left as a `// tailwind:` comment beside the style.
 3. **Apply it:** the same command with `--write`.
 4. **Resolve the report by hand,** with `references/tailwind-map.md` or `references/stylex-map.md`.
-5. **`npx kirana-style check src` until it is clean.** `sx-on-external-component`, `unused-sx`,
+5. **`npx kirana-style check src` until it is clean** (`--format json` to work through the list). `sx-on-external-component`, `unused-sx`,
    `relation-without-anchor` and `ambiguous-precedence` are the diagnostics a port produces; the
    `kirana` skill's diagnostics reference says what to do about each.
 6. **Prove it renders the same.** Compare **computed styles**, not screenshots: for each element,
@@ -32,6 +32,9 @@ beside it, and port in small steps.
    widths, with overlays open and rows hovered. A 1 px border, an easing curve and a missing hover
    state are invisible in screenshots. When the original is the one that is wrong, fix it there.
 7. **Keep hand fixes as patches** over a fresh codemod run when the codemod may be re-run.
+8. **Clean up:** `npx kirana-style analyze src` lists tokens nothing reads any more and values bridged
+   to runtime (an arbitrary value the codemod could not make static); remove the first, and turn the
+   second into a finite set where the values are known.
 
 Port leaf components first, and keep the markup structure identical: change only how styles are
 expressed, so a difference means something.

@@ -3,7 +3,8 @@
  * (`stylex-swc`), and two colourings. The bars highlight Kirana in the page's accent against a
  * wash of it, since each bar is labelled. The lines need every tool told apart, so each takes its
  * own logo's colour: StyleX's magenta, a shade of it for its SWC build, and Tailwind CSS's sky
- * blue, each as a light-dark pair that holds on both papers.
+ * blue, each as a light-dark pair that holds on both papers, and softened, so Kirana's line in
+ * the accent reads first. The line, its points, the legend and the tooltip all take one colour.
  */
 import { accent, tint } from "@workspace/docs-ui/accent.ts"
 import type { ChartConfig } from "@workspace/ui/components/chart"
@@ -34,7 +35,9 @@ export const highlightConfig = configOf((tool) =>
 )
 
 export const distinctConfig = configOf((tool, index) =>
-  tool === "Kirana" ? accent.base : LOGOS[(index - 1) % LOGOS.length]!
+  tool === "Kirana"
+    ? accent.base
+    : `color-mix(in oklab, ${LOGOS[(index - 1) % LOGOS.length]!} 62%, transparent)`
 )
 
 /** The color scale for a definition: each tool's key to its `--color-<key>`. */

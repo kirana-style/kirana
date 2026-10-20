@@ -1,7 +1,7 @@
 /**
- * The theme control: one button that steps through System, Light and Dark, showing the mode it is
- * in, with `D` to do the same from the keyboard. The site's footer shows it with the mode's name;
- * the docs bar, which has no footer, as an icon (`compact`).
+ * The site footer's theme control: one button that steps through System, Light and Dark, showing
+ * the mode it is in, with `D` to do the same from the keyboard (`useThemeHotkey`, which the docs
+ * bar's menu, `ThemeMenu`, uses too).
  *
  * The mode's icon and name are chosen in CSS from `<html data-mode>`, as the brand logos are: a
  * prerendered page writes the system mode, and the saved one is on `<html>` before the first paint
@@ -21,17 +21,28 @@ import { radius, theme } from "@workspace/ui/theme/semantic"
 import { useTheme } from "@workspace/ui/theme/theme-provider"
 import type { Sx } from "@workspace/ui/lib/sx"
 import type { ThemeMode } from "@workspace/ui/theme/themes"
+import { pointer } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
 
 import { schemeMarker } from "./scheme.ts"
 
 const styles = {
+  // A pill with the key in a round chip at its end, inset as the header's "Quick start" chip is:
+  // 6px from the top, end and bottom (the 1px border sits outside the padding). On a touch screen
+  // both grow to a finger's size, keeping that inset.
   button: css({
+    height: { base: spacing[8], [pointer.coarse]: spacing[11] },
     gap: spacing[2],
     borderRadius: radius.full,
     paddingInlineStart: spacing[3],
-    paddingInlineEnd: spacing["1.5"],
+    paddingInlineEnd: `calc(${spacing["1.5"]} - 1px)`,
     color: { base: theme.mutedForeground, ":hover": theme.foreground },
+  }),
+  key: css({
+    width: { base: spacing[5], [pointer.coarse]: spacing[8] },
+    height: { base: spacing[5], [pointer.coarse]: spacing[8] },
+    paddingInline: 0,
+    borderRadius: radius.full,
   }),
   // One per mode; the one `<html data-mode>` names shows.
   mode: css({ display: "none", alignItems: "center", gap: spacing[2] }),
@@ -66,21 +77,11 @@ function typing(target: EventTarget | null): boolean {
   )
 }
 
-export function ThemeToggle({
-  hotkey = true,
-  compact = false,
-  sx,
-}: {
-  /** Whether `D` steps the theme; give it to one toggle per page. */
-  hotkey?: boolean
-  /** The mode's icon alone, a bar's icon button, without its name or the key. */
-  compact?: boolean
-  sx?: Sx
-}) {
+/** `D` steps the theme, unless the reader is typing or holds a modifier. One per page. */
+export function useThemeHotkey(enabled = true) {
   const { cycleMode } = useTheme()
-
   useEffect(() => {
-    if (!hotkey) return
+    if (!enabled) return
     const onKey = (event: KeyboardEvent) => {
       if (event.key.toLowerCase() !== "d" || event.repeat) return
       if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey)
@@ -91,25 +92,19 @@ export function ThemeToggle({
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [hotkey, cycleMode])
+  }, [enabled, cycleMode])
+}
 
-  if (compact)
-    return (
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={cycleMode}
-        aria-label="Theme: change between system, light and dark"
-        title="Change the theme (D)"
-        sx={[touchTarget, sx]}
-      >
-        {MODES.map((mode) => (
-          <span key={mode.value} sx={[styles.mode, mode.sx]}>
-            <Icon icon={mode.icon} />
-          </span>
-        ))}
-      </Button>
-    )
+export function ThemeToggle({
+  hotkey = true,
+  sx,
+}: {
+  /** Whether `D` steps the theme; give it to one toggle per page. */
+  hotkey?: boolean
+  sx?: Sx
+}) {
+  const { cycleMode } = useTheme()
+  useThemeHotkey(hotkey)
 
   return (
     <Button
@@ -126,7 +121,7 @@ export function ThemeToggle({
           {mode.label}
         </span>
       ))}
-      {hotkey ? <Kbd>D</Kbd> : null}
+      {hotkey ? <Kbd sx={styles.key}>D</Kbd> : null}
     </Button>
   )
 }

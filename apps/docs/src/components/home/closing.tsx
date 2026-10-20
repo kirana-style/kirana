@@ -6,7 +6,6 @@
 import { Link } from "@tanstack/react-router"
 import { css, props as styleProps } from "@kirana-style/core"
 
-import { Button } from "@workspace/ui/components/button"
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
@@ -21,6 +20,7 @@ import {
 import { Plan } from "@/components/brand/mark-plan"
 import { DocsLink } from "@/components/docs-link"
 import { More } from "@/components/page-section"
+import { QuickStart, SecondaryCta } from "@/components/site/cta"
 import { Rail } from "@/components/site/patterns"
 import { ScenePixels } from "@/components/site/scene-pixels"
 import { SPONSORS } from "@/components/sponsors/data"
@@ -112,12 +112,14 @@ const styles = {
     gap: spacing[3],
     paddingBlockStart: spacing[2],
   }),
+  // The night's raised surface, as the other Quick start pills are a shade off their ground.
   ctaPrimary: css({
     backgroundColor: {
-      base: PAPER,
-      ":hover": `color-mix(in oklab, ${PAPER} 88%, transparent)`,
+      base: `color-mix(in oklab, ${PAPER} 12%, ${NIGHT})`,
+      ":hover": `color-mix(in oklab, ${PAPER} 18%, ${NIGHT})`,
     },
-    color: NIGHT,
+    borderColor: `color-mix(in oklab, ${PAPER} 14%, transparent)`,
+    color: PAPER,
   }),
   // Paper on the night in every state: the outline button darkens its text on `:hover`, so the
   // override names `:hover` too (Kirana merges per condition).
@@ -203,31 +205,19 @@ export function Blueprint() {
               the compiler made of the examples.
             </p>
             <div sx={styles.ctaActions}>
-              <Button
-                size="lg"
-                nativeButton={false}
-                sx={styles.ctaPrimary}
-                render={
-                  <DocsLink href="/docs/start/quick-start">
-                    Quick start
-                  </DocsLink>
-                }
-              />
-              <Button
-                size="lg"
-                variant="outline"
-                nativeButton={false}
+              <QuickStart sx={styles.ctaPrimary} />
+              <SecondaryCta
                 sx={styles.ctaSecondary}
                 render={
                   <Link
                     to="/play"
                     search={{ example: undefined }}
                     {...styleProps()}
-                  >
-                    Open the playground
-                  </Link>
+                  />
                 }
-              />
+              >
+                Open the playground
+              </SecondaryCta>
             </div>
           </div>
           <Plan

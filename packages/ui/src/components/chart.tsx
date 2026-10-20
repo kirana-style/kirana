@@ -138,6 +138,10 @@ const styles = {
   tooltipBodyFlat: css({ alignItems: "center" }),
   tooltipNames: css({ display: "grid", gap: spacing["1.5"] }),
   tooltipName: css({ color: theme.mutedForeground }),
+  tooltipActive: css({
+    color: theme.foreground,
+    fontWeight: fontWeight.medium,
+  }),
   tooltipValue: css({
     fontFamily: fontFamily.mono,
     fontWeight: fontWeight.medium,
@@ -311,8 +315,20 @@ function pointConfig(config: ChartConfig, point: ChartPoint, nameKey?: string) {
   return { name, item: config[name] }
 }
 
+/**
+ * A row `ChartTooltipContent` shows in place of the focused points (its `rows`): the config key it
+ * takes its name and colour from, the value, and whether it is the focused one, which is set in
+ * the foreground.
+ */
+export type ChartTooltipRow = {
+  name: string
+  value: React.ReactNode
+  active?: boolean
+}
+
 function ChartTooltipContent({
   sx,
+  rows,
   indicator = "dot",
   hideLabel = false,
   hideIndicator = false,
@@ -341,6 +357,11 @@ function ChartTooltipContent({
   nameKey?: string
   /** The config key whose label heads the tooltip. */
   labelKey?: string
+  /**
+   * The rows to show instead of the focused points, e.g. every series at the focused category
+   * for a bar chart that focuses one bar.
+   */
+  rows?: (points: readonly ChartPoint[]) => readonly ChartTooltipRow[]
   sx?: Sx
   labelSx?: Sx
 }) {
@@ -365,7 +386,37 @@ function ChartTooltipContent({
 
   // With a single series and a line or dashed marker, the label reads better
   // tucked beside the value than sitting above the whole tooltip.
-  const nestLabel = points.length === 1 && indicator !== "dot"
+  const nestLabel = !rows && points.length === 1 && indicator !== "dot"
+
+  if (rows)
+    return (
+      <div sx={[styles.tooltip, sx]}>
+        {tooltipLabel}
+        <div sx={styles.tooltipRows}>
+          {rows(points).map((row) => (
+            <div key={row.name} sx={[styles.tooltipRow, styles.tooltipRowDot]}>
+              {hideIndicator ? null : (
+                <div
+                  sx={[
+                    styles.indicatorBase,
+                    styles.indicatorDot,
+                    styles.indicatorColor(color ?? `var(--color-${row.name})`),
+                  ]}
+                />
+              )}
+              <div sx={[styles.tooltipBody, styles.tooltipBodyFlat]}>
+                <span
+                  sx={[styles.tooltipName, row.active && styles.tooltipActive]}
+                >
+                  {config[row.name]?.label ?? row.name}
+                </span>
+                <span sx={styles.tooltipValue}>{row.value}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
 
   return (
     <div sx={[styles.tooltip, sx]}>

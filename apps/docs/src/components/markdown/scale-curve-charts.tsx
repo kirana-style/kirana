@@ -6,6 +6,7 @@
 import { css } from "@kirana-style/core"
 import { d3Curve, defineChart, lineY } from "@tanstack/charts"
 import { scalePoint } from "@tanstack/charts/scales/point"
+import { ArrowDown02Icon } from "@hugeicons/core-free-icons"
 import { scaleLog } from "d3-scale"
 import { curveMonotoneX } from "d3-shape"
 
@@ -16,8 +17,14 @@ import {
   chartTheme,
   chartTooltip,
 } from "@workspace/ui/components/chart"
+import { Icon } from "@workspace/ui/primitives/icon"
+import { theme } from "@workspace/ui/theme/semantic"
 import { spacing } from "@workspace/ui/tokens/spacing"
-import { fontSize } from "@workspace/ui/tokens/typography"
+import {
+  fontSize,
+  fontWeight,
+  lineHeight,
+} from "@workspace/ui/tokens/typography"
 
 import {
   distinctConfig,
@@ -29,7 +36,31 @@ import type { Corpus, Tool } from "@/data/benchmarks"
 
 const styles = {
   charts: css({ display: "grid", gap: spacing[6], marginBlock: spacing[4] }),
+  figure: css({ display: "grid", gap: spacing[2] }),
   chart: css({ fontSize: fontSize.xs }),
+  // The chart's title, and which way is better: every curve is a cost, so lower wins.
+  head: css({
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing[2],
+    fontSize: fontSize.sm,
+    lineHeight: lineHeight.sm,
+  }),
+  title: css({ fontWeight: fontWeight.medium, color: theme.foreground }),
+  better: css({
+    display: "inline-flex",
+    alignItems: "center",
+    gap: spacing[1],
+    fontSize: fontSize.xs,
+    lineHeight: lineHeight.xs,
+    color: theme.mutedForeground,
+  }),
+  ratio: css({
+    marginInlineStart: spacing["1.5"],
+    color: theme.mutedForeground,
+  }),
 }
 
 /** What a curve plots: its metric and the unit its axis reads in. */
@@ -49,17 +80,16 @@ const CURVES = [
 ] as const
 
 /**
- * How each tool's line is drawn: Kirana bold, whole and solid, so it reads first; the others
- * thinner, lighter and dashed, StyleX's SWC build dotted beside its Babel one's dashes, a shade
- * apart in one colour family.
+ * How each tool's line is drawn: Kirana bold and solid, so it reads first; the others thin and
+ * dashed in their softened colours (`distinctConfig`), StyleX's SWC build dotted beside its Babel
+ * one's dashes. A line's points take its colour, so the three others' points match.
  */
-const STROKES: Record<Tool, { width: number; opacity: number; dash?: string }> =
-  {
-    Kirana: { width: 3, opacity: 1 },
-    StyleX: { width: 1.75, opacity: 0.65, dash: "6 4" },
-    "StyleX (SWC)": { width: 1.75, opacity: 0.65, dash: "1.5 3.5" },
-    Tailwind: { width: 1.75, opacity: 0.65, dash: "6 4" },
-  }
+const STROKES: Record<Tool, { width: number; dash?: string }> = {
+  Kirana: { width: 3 },
+  StyleX: { width: 1.5, dash: "6 4" },
+  "StyleX (SWC)": { width: 1.5, dash: "1.5 3.5" },
+  Tailwind: { width: 1.5, dash: "6 4" },
+}
 
 const corpus = (size: number) => `scale-curve/${size}` as Corpus
 const sizeLabel = (size: number) => size.toLocaleString("en")
@@ -74,6 +104,9 @@ function curve(entry: (typeof CURVES)[number]) {
         series: toolKey(tool),
         value: measured.median * entry.scale,
         text: formatValue(measured.median, measured.unit),
+        times:
+          measured.median /
+          row(corpus(size), "build", entry.metric, "Kirana").median,
       }
     })
   )
@@ -91,7 +124,6 @@ function curve(entry: (typeof CURVES)[number]) {
             color: "series",
             key: (datum) => `${datum.size}:${datum.series}`,
             strokeWidth: STROKES[tool].width,
-            strokeOpacity: STROKES[tool].opacity,
             strokeDasharray: STROKES[tool].dash,
             // Through every measured point without overshooting one.
             curve: d3Curve(curveMonotoneX),
@@ -128,25 +160,54 @@ export function ScaleCurveCharts() {
   return (
     <div sx={styles.charts}>
       {DEFINITIONS.map(({ entry, definition }) => (
-        <ChartContainer
-          key={entry.metric}
-          config={distinctConfig}
-          definition={definition}
-          ariaLabel={`${entry.title}, by number of components, a line per tool`}
-          initialWidth={720}
-          height={260}
-          tooltip={
-            <ChartTooltipContent
-              nameKey="series"
-              labelFormatter={(size) =>
-                `${size} components, ${entry.title.toLowerCase()}`
-              }
-              formatter={(_, point) => (point.datum as { text: string }).text}
-            />
-          }
-          legend={<ChartLegendContent />}
-          sx={styles.chart}
-        />
+        <figure key={entry.metric} sx={styles.figure}>
+          <figcaption sx={styles.head}>
+            <span sx={styles.title}>
+              {entry.title}, in {entry.unit}
+            </span>
+            <span sx={styles.better}>
+              <Icon icon={ArrowDown02Icon} size="0.875rem" />
+              Lower is better
+            </span>
+          </figcaption>
+          <ChartContainer
+            config={distinctConfig}
+            definition={definition}
+            ariaLabel={`${entry.title}, by number of components, a line per tool`}
+            initialWidth={720}
+            height={260}
+            tooltip={
+              <ChartTooltipContent
+                nameKey="series"
+                labelFormatter={(size) =>
+                  `${size} components, ${entry.title.toLowerCase()}`
+                }
+                formatter={(_, point) => {
+                  const { text, times, tool } = point.datum as {
+                    text: string
+                    times: number
+                    tool: Tool
+                  }
+                  return (
+                    <>
+                      {text}
+                      {tool === "Kirana" ? null : (
+                        <span sx={styles.ratio}>
+                          {times.toLocaleString("en", {
+                            maximumFractionDigits: times < 10 ? 2 : 1,
+                          })}
+                          × Kirana
+                        </span>
+                      )}
+                    </>
+                  )
+                }}
+              />
+            }
+            legend={<ChartLegendContent />}
+            sx={styles.chart}
+          />
+        </figure>
       ))}
     </div>
   )

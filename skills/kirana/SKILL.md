@@ -45,22 +45,36 @@ borrows from all three:
 
 ## The loop
 
-Run the CLI through the project's package manager (`npx kirana-style …`, `bunx kirana-style …`); the command is `kirana-style`, never a bare `kirana`.
+Run the CLI through the project's package manager (`npx kirana-style …`, `bunx kirana-style …`); the
+command is `kirana-style`, never a bare `kirana` (npm does not give out that name). Exit code 1 means
+an error diagnostic, 2 a bad configuration or argument.
 
+0. **Setting a project up:** `npx kirana-style@latest init --dry-run` prints every change as a diff
+   (the adapter, the config, the stylesheet import) without writing; run it without `--dry-run` once
+   the user agrees, and `--install` only when they want the install run for them. Then
+   `kirana-style doctor`.
 1. **Learn the project first.** `kirana-style export` prints the design system as JSON: every token with
    its value and file, themes, recipes with their variants and options, relations, keyframes,
    `positionTry` and `viewTransition` names. Use the tokens and recipes that exist instead of
    inventing values. `kirana-style doctor` says whether the engine, packages and wiring are right.
 2. **Write the style** with the API below. Look up a signature in `references/api.md`.
 3. **Check it.** `kirana-style check src` prints every diagnostic as `severity[KRN1234] name: message`,
-   with the location and a `help:` line. Fix every error; `references/diagnostics.md` explains each
-   code. Do not silence a warning by re-levelling it in config unless the user agrees.
+   with the location and a `help:` line; `--format json` gives you
+   `{ code, name, severity, file, span, message, help }` to act on, and `--max-warnings 0` fails on
+   any warning. Fix every error; `references/diagnostics.md` explains each code. Do not silence a
+   warning by re-levelling it in config unless the user agrees.
 4. **Lint.** If the project has `@kirana-style/eslint-plugin` (ESLint or Oxlint) or
    `@kirana-style/biome-plugin` (Biome), run its linter; `references/lint.md` lists the rules.
 5. **When it compiles but looks wrong:** `kirana-style trace src/card.tsx:12 padding` prints every
    candidate value for that property at that line, the winner, and the precedence step that decided
-   it. Compare **computed styles** in the browser, not screenshots, in both colour schemes.
-6. **When it looks like a Kirana bug:** `kirana-style doctor --report` writes `kirana-report.md`, a redacted
+   it. Give it the line the style is on; the property may be `paddingTop` or `padding-top`. It
+   answers from the compiled result, so trust it over reading the source. Then compare **computed
+   styles** in the browser, not screenshots, in both colour schemes.
+6. **After a refactor, or before adding a token:** `kirana-style analyze src` reports the stylesheet by
+   layer, the most reused atoms, what each module costs, values bridged to runtime, and tokens
+   nothing reads (`--json` for all of it). Delete the dead tokens; a bridged value that could be a
+   finite set is a candidate for rule 6.
+7. **When it looks like a Kirana bug:** `kirana-style doctor --report` writes `kirana-report.md`, a redacted
    issue body (versions, environment, diagnostics by code, configuration; no source text, no paths
    or user names). Add `--trace file:line property` for the trace. Ask the user before filing it.
 
@@ -79,6 +93,9 @@ Run the CLI through the project's package manager (`npx kirana-style …`, `bunx
 | A value with a fallback for older browsers | `minHeight: firstThatWorks("100dvh", "100vh")`, preferred first                                                                                                                              |
 | Anchor-positioning fallbacks               | `const below = positionTry({ positionArea: "bottom" })`, then `positionTryFallbacks: \`${below}, flip-block\``                                                                               |
 | View-transition styles                     | `const slide = viewTransition({ old: {...}, new: {...} })`, applied as `sx={slide}` and passed as the class name to the framework's transition API; you set `viewTransitionName` per element |
+
+In a bundler project the adapter compiles the styles: do not add `kirana-style build` or `dev` there.
+Those two are for server templates and projects with no bundler.
 
 `references/frameworks.md` has how `sx` is spelled in each framework (Vue `:sx`, Angular `[sx]`,
 Ember's `sx` helper, server templates' `kirana(...)` helpers) and which package installs it.

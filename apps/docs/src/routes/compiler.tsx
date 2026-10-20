@@ -13,6 +13,7 @@ import { spacing } from "@workspace/ui/tokens/spacing"
 import { fontSize } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
+import { QuickStart, SecondaryCta } from "@/components/site/cta"
 import { NextStep } from "@/components/site/accents"
 import { BenchChart } from "@/components/site/bench-chart"
 import { RUNTIME_SIZE } from "@/data/benchmarks"
@@ -107,23 +108,10 @@ function CompilerPage() {
         lede="Kirana reads your modules at build time, works out every style they can produce, writes one stylesheet, and rewrites the modules to reference classes instead of style objects."
         actions={
           <>
-            <Button
-              size="lg"
-              nativeButton={false}
-              render={
-                <DocsLink href="/docs/start/quick-start">Quick start</DocsLink>
-              }
-            />
-            <Button
-              size="lg"
-              variant="outline"
-              nativeButton={false}
-              render={
-                <DocsLink href="/docs/start/how-it-works">
-                  How it works
-                </DocsLink>
-              }
-            />
+            <QuickStart />
+            <SecondaryCta render={<DocsLink href="/docs/start/how-it-works" />}>
+              How it works
+            </SecondaryCta>
           </>
         }
       />

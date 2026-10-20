@@ -4,8 +4,8 @@
 
 `npx kirana-style@latest init` detects the framework, bundler and package manager and shows every change as a
 diff before writing it; `npx kirana-style doctor` checks the result. Each app imports
-`@kirana-style/core/stylesheet.css` once. Until the packages are on npm they install from tarballs
-(https://kirana.style/docs/start/installation.md).
+`@kirana-style/core/stylesheet.css` once. Installation by hand, per package manager:
+https://kirana.style/docs/start/installation.md.
 
 | Framework                                                       | Adapter (dev dependency unless noted)                                                 | `sx` in markup                                             |
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------- |

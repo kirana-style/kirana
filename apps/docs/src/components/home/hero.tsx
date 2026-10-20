@@ -8,7 +8,6 @@ import { css, props as styleProps } from "@kirana-style/core"
 import { Css3Icon, FileCodeIcon } from "@hugeicons/core-free-icons"
 
 import { accent } from "@workspace/docs-ui/accent.ts"
-import { Button } from "@workspace/ui/components/button"
 import { alpha, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
@@ -23,6 +22,7 @@ import {
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
+import { QuickStart, SecondaryCta } from "@/components/site/cta"
 import { Rail } from "@/components/site/patterns"
 import { ScenePixels } from "@/components/site/scene-pixels"
 import { GITHUB, NPM } from "@/data/links"
@@ -295,29 +295,18 @@ export function Hero() {
               and your editor shows every element&apos;s CSS on its line.
             </p>
             <div sx={styles.actions}>
-              <Button
-                size="lg"
-                nativeButton={false}
-                render={
-                  <DocsLink href="/docs/start/quick-start">
-                    Quick start
-                  </DocsLink>
-                }
-              />
-              <Button
-                size="lg"
-                variant="outline"
-                nativeButton={false}
+              <QuickStart />
+              <SecondaryCta
                 render={
                   <Link
                     to="/play"
                     search={{ example: undefined }}
                     {...styleProps()}
-                  >
-                    See it compile
-                  </Link>
+                  />
                 }
-              />
+              >
+                See it compile
+              </SecondaryCta>
             </div>
             <Status />
           </div>
