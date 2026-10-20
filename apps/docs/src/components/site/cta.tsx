@@ -2,10 +2,11 @@
  * The site's calls to action, one shape everywhere: "Quick start" is a raised pill with the page's
  * scene in a round chip at its end, the arrow in it stepping forward on hover; the secondary one
  * beside it is the same pill outlined, quieter, with no chip. Both come in the header's size (`sm`,
- * 36 px) and a hero's (`lg`, 44 px), and grow to a finger's size on a touch screen.
+ * 32 px) and a hero's (`lg`, 40 px), and grow to a finger's size (44 px) on a touch screen.
  *
- * The chip sits 6px from the pill's top, end and bottom, so it is centred in the pill's round end.
- * The button's 1px border sits outside its padding, so the end padding is one pixel less.
+ * The chip sits as far from the pill's top and bottom as from its end (5 px in the header, 6 px in a
+ * hero and on a touch screen), so it is centred in the pill's round end. The button's 1 px border sits
+ * outside its padding, so the end padding is one pixel less.
  */
 import type { ReactElement, ReactNode } from "react"
 import { css } from "@kirana-style/core"
@@ -39,36 +40,39 @@ const styles = {
     fontWeight: fontWeight.medium,
   }),
   sm: css({
-    height: { base: spacing[9], [pointer.coarse]: spacing[11] },
-    paddingInlineStart: spacing[4],
+    height: { base: spacing[8], [pointer.coarse]: spacing[11] },
+    paddingInlineStart: spacing["3.5"],
     fontSize: fontSize.sm,
   }),
   lg: css({
-    height: { base: spacing[11], [pointer.coarse]: spacing[12] },
-    paddingInlineStart: spacing[5],
-    fontSize: fontSize.base,
+    height: { base: spacing[10], [pointer.coarse]: spacing[11] },
+    paddingInlineStart: spacing[4],
+    fontSize: fontSize.sm,
   }),
-  // Room for the chip at the end of the primary.
-  primaryEnd: css({ paddingInlineEnd: `calc(${spacing["1.5"]} - 1px)` }),
+  // Room for the chip at the end of the primary: its inset, less the border.
+  primarySmEnd: css({
+    paddingInlineEnd: { base: "4px", [pointer.coarse]: "5px" },
+  }),
+  primaryLgEnd: css({ paddingInlineEnd: "5px" }),
   // The secondary has no chip: the same padding on both sides.
-  secondarySm: css({ paddingInlineEnd: spacing[4] }),
-  secondaryLg: css({ paddingInlineEnd: spacing[5] }),
-  // A raised surface a shade off the page in both schemes, not an ink or white pill: the scene's
-  // chip is the brightest thing in it, and it never outweighs the hero's title or the logo. A soft
-  // inner highlight and a lift on hover set it apart from quiet buttons.
+  secondarySm: css({ paddingInlineEnd: spacing["3.5"] }),
+  secondaryLg: css({ paddingInlineEnd: spacing[4] }),
+  // Paper on paper in light mode, a shade off the night in dark: the scene's chip is the brightest
+  // thing in it, and it never outweighs the hero's title or the logo. No shadow; a hairline border
+  // that darkens, with the ground, on hover.
   primary: css({
     backgroundColor: {
       "*": null,
-      base: `light-dark(color-mix(in oklab, ${theme.foreground} 7%, ${theme.background}), color-mix(in oklab, ${theme.foreground} 12%, ${theme.background}))`,
-      ":hover": `light-dark(color-mix(in oklab, ${theme.foreground} 11%, ${theme.background}), color-mix(in oklab, ${theme.foreground} 18%, ${theme.background}))`,
+      base: `light-dark(${theme.card}, color-mix(in oklab, ${theme.foreground} 12%, ${theme.background}))`,
+      ":hover": `light-dark(color-mix(in oklab, ${theme.foreground} 4%, ${theme.card}), color-mix(in oklab, ${theme.foreground} 17%, ${theme.background}))`,
     },
-    borderColor: alpha.foreground10,
+    borderColor: {
+      base: `light-dark(color-mix(in oklab, ${theme.foreground} 16%, transparent), ${alpha.foreground10})`,
+      ":hover": `color-mix(in oklab, ${theme.foreground} 26%, transparent)`,
+    },
     color: theme.foreground,
-    boxShadow: {
-      base: `inset 0 1px 0 ${alpha.background20}, 0 1px 2px ${alpha.foreground10}`,
-      ":hover": `inset 0 1px 0 ${alpha.background20}, 0 4px 12px ${alpha.foreground10}`,
-    },
-    transitionProperty: "box-shadow",
+    boxShadow: "none",
+    transitionProperty: "background-color, border-color",
     transitionDuration: duration[200],
   }),
   secondary: css({
@@ -77,7 +81,7 @@ const styles = {
       base: `color-mix(in oklab, ${theme.background} 60%, transparent)`,
       ":hover": alpha.muted50,
     },
-    boxShadow: `0 1px 2px ${alpha.foreground10}`,
+    boxShadow: "none",
   }),
   chip: css({
     display: "inline-grid",
@@ -88,12 +92,12 @@ const styles = {
     color: accent.on,
   }),
   chipSm: css({
-    width: { base: spacing[6], [pointer.coarse]: spacing[8] },
-    height: { base: spacing[6], [pointer.coarse]: spacing[8] },
+    width: { base: "1.375rem", [pointer.coarse]: spacing[8] },
+    height: { base: "1.375rem", [pointer.coarse]: spacing[8] },
   }),
   chipLg: css({
-    width: { base: spacing[8], [pointer.coarse]: spacing[9] },
-    height: { base: spacing[8], [pointer.coarse]: spacing[9] },
+    width: { base: spacing[7], [pointer.coarse]: spacing[8] },
+    height: { base: spacing[7], [pointer.coarse]: spacing[8] },
   }),
   arrow: css({
     translate: { base: "0 0", ":is(a:hover *)": "2px 0" },
@@ -131,7 +135,7 @@ export function QuickStart({
       sx={[
         styles.pill,
         styles[size],
-        styles.primaryEnd,
+        size === "sm" ? styles.primarySmEnd : styles.primaryLgEnd,
         styles.primary,
         hideOnPhone && styles.fromSm,
         sx,
@@ -149,7 +153,7 @@ export function QuickStart({
       >
         <Icon
           icon={ArrowRight01Icon}
-          size={size === "sm" ? "0.875rem" : "1rem"}
+          size={size === "sm" ? "0.8125rem" : "0.9375rem"}
           sx={styles.arrow}
         />
       </span>

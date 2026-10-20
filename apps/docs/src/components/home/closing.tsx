@@ -118,7 +118,11 @@ const styles = {
       base: `color-mix(in oklab, ${PAPER} 12%, ${NIGHT})`,
       ":hover": `color-mix(in oklab, ${PAPER} 18%, ${NIGHT})`,
     },
-    borderColor: `color-mix(in oklab, ${PAPER} 14%, transparent)`,
+    // Both entries: the pill's own border darkens on hover, which on the night would read as ink.
+    borderColor: {
+      base: `color-mix(in oklab, ${PAPER} 14%, transparent)`,
+      ":hover": `color-mix(in oklab, ${PAPER} 26%, transparent)`,
+    },
     color: PAPER,
   }),
   // Paper on the night in every state: the outline button darkens its text on `:hover`, so the

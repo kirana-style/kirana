@@ -65,6 +65,29 @@ const styles = {
     color: theme.foreground,
   }),
   logo: css({ height: spacing[6], width: "auto" }),
+  // An area with two paragraphs to say takes the whole row.
+  wide: css({ gridColumn: { [breakpoint.sm]: "1 / -1" } }),
+  // Where an area stands without a partner, and what one would change: side by side in a wide
+  // cell from `md` up.
+  facts: css({
+    display: "grid",
+    gap: { base: spacing[3], [breakpoint.md]: spacing[8] },
+    gridTemplateColumns: {
+      base: "minmax(0, 1fr)",
+      [breakpoint.md]: "repeat(2, minmax(0, 1fr))",
+    },
+    borderBlockStartWidth: "1px",
+    borderBlockStartStyle: "dashed",
+    borderBlockStartColor: theme.border,
+    paddingBlockStart: spacing[3],
+  }),
+  fact: css({ display: "grid", alignContent: "start", gap: spacing[1] }),
+  factLabel: css({
+    fontSize: fontSize.xs,
+    lineHeight: lineHeight.xs,
+    fontWeight: fontWeight.medium,
+    color: theme.foreground,
+  }),
   open: css({
     justifySelf: "start",
     borderRadius: radius.full,
@@ -91,10 +114,28 @@ const styles = {
 function AreaCell({ area }: { area: Area }) {
   const partners = PARTNERS.filter((partner) => partner.area === area.id)
   return (
-    <div sx={styles.cell}>
+    <div
+      sx={[styles.cell, area.today || area.unlocks ? styles.wide : undefined]}
+    >
       <IconTile icon={area.icon} />
       <span sx={styles.cellTitle}>{area.title}</span>
       <p sx={styles.text}>{area.use}</p>
+      {area.today || area.unlocks ? (
+        <dl sx={styles.facts}>
+          {area.today ? (
+            <div sx={styles.fact}>
+              <dt sx={styles.factLabel}>Today</dt>
+              <dd sx={styles.text}>{area.today}</dd>
+            </div>
+          ) : null}
+          {area.unlocks ? (
+            <div sx={styles.fact}>
+              <dt sx={styles.factLabel}>With a partner</dt>
+              <dd sx={styles.text}>{area.unlocks}</dd>
+            </div>
+          ) : null}
+        </dl>
+      ) : null}
       {partners.length === 0 ? (
         <span sx={styles.open}>Open</span>
       ) : (
@@ -123,7 +164,7 @@ export function PartnersPage() {
             The services Kirana <Accent>runs on</Accent>
           </>
         }
-        lede="Partners give Kirana a service it runs on, in kind: hosting, machines for tests and benchmarks, email, AI. Each is listed for what it provides; there are no tiers, because a service is not an amount."
+        lede="Partners give Kirana a service it runs on, in kind: hosting, AI, and machines for tests and benchmarks. Each is listed for what it provides; there are no tiers, because a service is not an amount."
         actions={
           <>
             <Button
@@ -152,7 +193,7 @@ export function PartnersPage() {
       <PageSection
         number="01"
         label="What partners provide"
-        title="Four things Kirana runs on"
+        title="What Kirana runs on"
         lede={
           PARTNERS.length === 0
             ? "No partners yet. Each area shows its partner once the service is in use."
@@ -177,8 +218,8 @@ export function PartnersPage() {
             <span sx={styles.cellTitle}>A partner</span>
             <p sx={styles.text}>
               Gives a service Kirana uses, free or at a discount: a host, a
-              runner, a mail provider, model credits. Listed here by what it
-              provides, with no tiers.
+              runner, model credits. Listed here by what it provides, with no
+              tiers.
             </p>
           </div>
           <div sx={styles.cell}>

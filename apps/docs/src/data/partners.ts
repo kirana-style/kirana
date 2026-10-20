@@ -8,15 +8,19 @@ import {
   AiBrain01Icon,
   CloudServerIcon,
   CpuIcon,
-  Mail01Icon,
 } from "@hugeicons/core-free-icons"
 
-/** What a partner can provide, in the order the page lists it. */
+/** What a partner can provide, in the order the page lists it. An area with `today` and `unlocks`
+ * spans the grid's width, for the room its two paragraphs need. */
 export type Area = {
   id: string
   title: string
   /** What Kirana uses it for. */
   use: string
+  /** What Kirana runs on today without a partner, and where that stops. */
+  today?: string
+  /** What a partner's service would change. */
+  unlocks?: string
   icon: IconProps["icon"]
 }
 
@@ -28,22 +32,20 @@ export const AREAS: readonly Area[] = [
     icon: CloudServerIcon,
   },
   {
-    id: "machines",
-    title: "Machines for tests and benchmarks",
-    use: "Dedicated runners, so the lab measures on a quiet machine instead of a shared one.",
-    icon: CpuIcon,
-  },
-  {
-    id: "email",
-    title: "Email",
-    use: "Delivery for the project's addresses, and for release and security notices.",
-    icon: Mail01Icon,
-  },
-  {
     id: "ai",
     title: "AI",
     use: "Models and credits for the agent skills, the docs' answers and the work on the compiler.",
     icon: AiBrain01Icon,
+  },
+  {
+    id: "machines",
+    title: "Machines for tests and benchmarks",
+    use: "Runners for CI on every platform, and a quiet machine for the benchmarks.",
+    today:
+      "GitHub's free hosted runners: 20 jobs at once and 5 of them macOS, shared by every pull request. So a pull request runs no macOS job: macOS runs once per merge, in the merge queue.",
+    unlocks:
+      "Every platform on every pull request, a shorter queue for contributors, and benchmarks measured on dedicated hardware instead of shared CI.",
+    icon: CpuIcon,
   },
 ]
 
