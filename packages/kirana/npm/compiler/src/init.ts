@@ -496,6 +496,21 @@ function adapterStep(files: Files, project: Detected): Step {
         },
         `add "@kirana-style/gatsby" to plugins`
       )
+    case "remix":
+      // Kirana's load hook after node-tsx's, in every script that starts the server.
+      return edit(
+        ["package.json"],
+        "@kirana-style/remix/node",
+        (text) =>
+          text.includes("--import remix/node-tsx")
+            ? text.replaceAll(
+                "--import remix/node-tsx",
+                "--import remix/node-tsx --import @kirana-style/remix/node"
+              )
+            : undefined,
+        undefined,
+        "add --import @kirana-style/remix/node after --import remix/node-tsx where your scripts start the server"
+      )
     case "waku":
       return edit(
         CONFIG_NAMES("waku"),
@@ -920,6 +935,17 @@ function stylesheetStep(files: Files, project: Detected): Step {
       return entry(entries(["src/"], ["main"]), importHelp)
     case "react-router":
       return entry(entries(["app/"], ["root"]), importHelp)
+    case "remix": {
+      // Served by the session, not imported: middleware in the router, a link in the document, and
+      // the asset server's loader for client entries.
+      const router = files.find(entries(["app/"], ["router"]))
+      if (router && files.read(router)!.includes("@kirana-style/remix"))
+        return done("stylesheet", router)
+      return manual(
+        "stylesheet",
+        `in the router, add stylesheet() to middleware and link /kirana.css from the document; in createAssetServer, add kiranaLoader to scripts.loaders and "@kirana-style/core" to allowPackages (import { kiranaLoader, stylesheet } from "@kirana-style/remix")`
+      )
+    }
     case "waku":
       // The root layout wraps every page.
       return entry(
@@ -1165,6 +1191,7 @@ const NAMES: Record<Detected["framework"], string> = {
   angular: "Angular",
   "react-router": "React Router",
   waku: "Waku",
+  remix: "Remix",
   vitepress: "VitePress",
   docusaurus: "Docusaurus",
   gatsby: "Gatsby",

@@ -1,0 +1,14 @@
+[
+  {
+    "code": "KRN1704",
+    "name": "unknown-utility",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 384,
+      "end": 401
+    },
+    "message": "`unknown-utility` is not a utility",
+    "help": []
+  }
+]

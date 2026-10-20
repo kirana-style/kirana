@@ -35,6 +35,9 @@
     "./solid": {
       "types": "./src/solid.d.ts"
     },
+    "./remix": {
+      "types": "./src/remix.d.ts"
+    },
     "./qwik": {
       "types": "./src/qwik.d.ts"
     },

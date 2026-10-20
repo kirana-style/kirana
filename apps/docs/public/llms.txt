@@ -74,6 +74,7 @@ change the API. Pages state what is built and what is planned.
 - [React Router](https://kirana.style/docs/frameworks/react-router.md): Install Kirana in a React Router app in framework mode on Vite, where sx compiles to className for server rendering and single-page mode alike.
 - [TanStack Start](https://kirana.style/docs/frameworks/tanstack-start.md): Install Kirana in a TanStack Start app: the plugin, the root document, stylesheet order and server rendering.
 - [Gatsby](https://kirana.style/docs/frameworks/gatsby.md): Install Kirana in a Gatsby site, where one plugin adds Kirana to every webpack stage so the server render and the browser name the same classes.
+- [Remix](https://kirana.style/docs/frameworks/remix.md): Install Kirana in a Remix 3 app, where node-tsx and the asset server compile the JSX and Kirana compiles the styles after them, served as router middleware.
 - [Waku](https://kirana.style/docs/frameworks/waku.md): Install Kirana in a Waku app, where server components and client components compile sx to className, and static pages carry the class names in their HTML.
 - [Vike](https://kirana.style/docs/frameworks/vike.md): Install Kirana in a Vike app on Vite, with vike-react, vike-vue or vike-solid, where sx compiles in pages, layouts and prerendered HTML.
 - [Docusaurus](https://kirana.style/docs/frameworks/docusaurus.md): Install Kirana in a Docusaurus site through a local plugin that adds Kirana's webpack plugin, with Docusaurus's aliases declared and the stylesheet in the theme's Root.

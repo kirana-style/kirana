@@ -52,6 +52,7 @@ const NEEDED: Record<string, string> = {
   tanstack: "TanStack",
   docusaurus: "Docusaurus",
   storybook: "Storybook",
+  remix: "Remix",
   vite: "Vite",
   rolldown: "Rolldown",
   rspack: "Rspack",

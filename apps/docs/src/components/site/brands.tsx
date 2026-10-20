@@ -25,6 +25,7 @@ export const PAGE_LOGOS: Readonly<Record<string, Logo>> = {
   "/docs/frameworks/tanstack-start": SVGL.tanstack,
   "/docs/frameworks/react-router": SVGL.reactrouter,
   "/docs/frameworks/gatsby": SVGL.gatsby,
+  "/docs/frameworks/remix": SVGL.remix,
   "/docs/frameworks/waku": { title: "Waku", monogram: "W" },
   "/docs/frameworks/vike": SVGL.vike,
   "/docs/frameworks/docusaurus": SVGL.docusaurus,

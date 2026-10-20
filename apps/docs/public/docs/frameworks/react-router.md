@@ -6,7 +6,8 @@ Source: https://kirana.style/docs/frameworks/react-router
 React Router's framework mode builds with Vite, so Kirana's Vite plugin is all it
 needs: `sx` compiles to `className`, on the server render and in the browser
 alike. Tested on every change by `examples/react-router`, built and on its dev
-server.
+server. A Remix 2 app is a React Router app; [Remix 3](/docs/frameworks/remix) has
+a guide of its own.
 
 
 

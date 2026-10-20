@@ -1,0 +1,58 @@
+[
+  {
+    "code": "KRN1702",
+    "name": "utility-surface-disabled",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1172,
+      "end": 1183
+    },
+    "message": "string `sx` values need a utility grammar",
+    "help": [
+      "add a preset that declares one — presets: [scales()] — or write css({ … })"
+    ]
+  },
+  {
+    "code": "KRN1702",
+    "name": "utility-surface-disabled",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1212,
+      "end": 1223
+    },
+    "message": "string `sx` values need a utility grammar",
+    "help": [
+      "add a preset that declares one — presets: [scales()] — or write css({ … })"
+    ]
+  },
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1252,
+      "end": 1260
+    },
+    "message": "a component from \"headless\" receives `sx`, which it does not read",
+    "help": [
+      "spread the compiled props instead: {...props(styles.root, sx)}"
+    ]
+  },
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1294,
+      "end": 1302
+    },
+    "message": "a component from \"headless\" receives `sx`, which it does not read",
+    "help": [
+      "spread the compiled props instead: {...props(styles.root, sx)}"
+    ]
+  }
+]

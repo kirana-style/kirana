@@ -1692,6 +1692,60 @@ describe("D-069 to D-072: the frameworks Tailwind has a guide for", () => {
     )
   })
 
+  it("detects Remix 3 and puts Kirana's hook after node-tsx in its scripts", () => {
+    const remix = project({
+      "package.json": pkg(
+        { remix: "3" },
+        {
+          scripts: {
+            dev: "node --watch --import remix/node-tsx server.ts",
+            start: "node --import remix/node-tsx server.ts",
+          },
+        }
+      ),
+      "tsconfig.json": "{}",
+    })
+    const found = detect(remix)
+    expect(found).toMatchObject({ framework: "remix", bundler: "none" })
+    expect(runtimeOf(found)).toEqual([
+      "@kirana-style/core",
+      "@kirana-style/remix",
+    ])
+    expect(typesOf("remix")).toBe("@kirana-style/core/remix")
+    expect(describeProject(found)).toBe("Remix · no bundler · npm · TypeScript")
+    const manifest = files(remix)["package.json"]!
+    expect(manifest).toContain(
+      '"dev":"node --watch --import remix/node-tsx --import @kirana-style/remix/node server.ts"'
+    )
+    expect(manifest).toContain(
+      '"start":"node --import remix/node-tsx --import @kirana-style/remix/node server.ts"'
+    )
+    expect(steps(remix).stylesheet).toMatchObject({
+      status: "manual",
+      detail: expect.stringContaining("kiranaLoader"),
+    })
+    // Set up: the hook in the scripts, the middleware in the router.
+    const ready = project({
+      "package.json": pkg(
+        { remix: "3" },
+        {
+          scripts: {
+            start:
+              "node --import remix/node-tsx --import @kirana-style/remix/node server.ts",
+          },
+        }
+      ),
+      "app/router.ts":
+        'import { stylesheet } from "@kirana-style/remix"\nexport const router = 1\n',
+    })
+    expect(steps(ready).adapter!.status).toBe("done")
+    expect(steps(ready).stylesheet!.status).toBe("done")
+    // Scripts that start the server some other way are left to a person.
+    expect(
+      steps(project({ "package.json": pkg({ remix: "3" }) })).adapter!.status
+    ).toBe("manual")
+  })
+
   it("sets VitePress and Docusaurus up, in their source directory and theme", () => {
     // VitePress in docs/: Kirana's configuration where VitePress makes Vite's root, the theme's
     // CSS in a layer ordered before Kirana's, the stylesheet in the theme.

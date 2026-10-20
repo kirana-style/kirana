@@ -5,8 +5,9 @@ use kirana_evaluator::Evaluator;
 use kirana_ir::{Api, Value};
 use kirana_shared::FxHashSet;
 use oxc_ast::ast::{
-    BindingPattern, BindingProperty, CallExpression, Expression, IdentifierReference, JSXAttribute, JSXAttributeItem,
-    JSXAttributeName, JSXAttributeValue, JSXElementName, JSXOpeningElement, PropertyKey, Statement,
+    Argument, BindingPattern, BindingProperty, CallExpression, Expression, IdentifierReference, JSXAttribute,
+    JSXAttributeItem, JSXAttributeName, JSXAttributeValue, JSXElementName, JSXOpeningElement, ObjectExpression,
+    ObjectProperty, ObjectPropertyKind, PropertyKey, Statement,
 };
 use oxc_ast_visit::{Visit, walk};
 use oxc_span::GetSpan;
@@ -199,6 +200,141 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
         self.push((first, last), code);
     }
 
+    /// A JSX runtime's element call (`jsx("p", { sx })` and `jsxs`, `jsxDEV`): JSX compiled before
+    /// Kirana sees the module, as a host that only hands over compiled JavaScript does (Remix's
+    /// asset server and `node-tsx`). The `sx` property is rewritten as the attribute would be.
+    fn compiled_element(&mut self, call: &CallExpression<'a>) {
+        let (Some(Argument::ObjectExpression(object)), Some(kind)) = (call.arguments.get(1), call.arguments.first())
+        else {
+            return;
+        };
+        let Some(sx) = object.properties.iter().find_map(|item| match item {
+            ObjectPropertyKind::ObjectProperty(property) if property_name(&property.key) == Some("sx") => {
+                Some(&**property)
+            }
+            _ => None,
+        }) else {
+            return;
+        };
+        match kind {
+            Argument::StringLiteral(_) => self.compiled_host_sx(object, sx),
+            Argument::Identifier(_) | Argument::StaticMemberExpression(_) => {
+                let root = compiled_root(kind.to_expression());
+                if let Expression::StringLiteral(literal) = &sx.value {
+                    // A component receives the compiled handle, as it would from `sx={css(…)}`.
+                    let parts = self.evaluator.utility_parts(literal.value.as_str(), sp(literal.span));
+                    if self.evaluator.context().config.utilities.is_some()
+                        && let Some(handle) = parts.static_handle()
+                    {
+                        let mut code = Code::default();
+                        code.handle(self.evaluator.context().names, &handle);
+                        self.push(sp(literal.span), code);
+                    }
+                } else if let Some(source) = root.and_then(|root| self.evaluator.import_source(root))
+                    && self.evaluator.is_external(source)
+                {
+                    self.report(
+                        DiagnosticCode::SxOnExternalComponent,
+                        sp(sx.span),
+                        &format!("a component from {source:?} receives `sx`, which it does not read"),
+                        Some("spread the compiled props instead: {...props(styles.root, sx)}"),
+                    );
+                }
+            }
+            _ => {}
+        }
+    }
+
+    /// `sx` on a host element's props object, as `host_sx` does for the attribute: a static class
+    /// property in place of `sx` when nothing else sets the class or style, else every property kept
+    /// and the class and style merged at runtime.
+    fn compiled_host_sx(&mut self, object: &ObjectExpression<'a>, sx: &ObjectProperty<'a>) {
+        let names = self.evaluator.context().names;
+        let class = self.evaluator.context().config.jsx.class_attribute();
+        let parts = match &sx.value {
+            Expression::StringLiteral(literal) => {
+                let parts = self.evaluator.utility_parts(literal.value.as_str(), sp(literal.span));
+                if self.evaluator.context().config.utilities.is_none() {
+                    return;
+                }
+                parts
+            }
+            value => self.evaluator.sx_parts(value),
+        };
+        let mut class_sources: Vec<Vec<Piece>> = Vec::new();
+        let mut style_sources: Vec<Vec<Piece>> = Vec::new();
+        let mut kept: Vec<(u32, u32)> = Vec::new();
+        for item in &object.properties {
+            match item {
+                ObjectPropertyKind::SpreadProperty(spread) => {
+                    kept.push(sp(spread.span));
+                    let (start, end) = sp(spread.argument.span());
+                    class_sources.push(vec![
+                        Piece::Text("(".into()),
+                        Piece::Source(start, end),
+                        Piece::Text(format!(")?.{class}")),
+                    ]);
+                    style_sources.push(vec![
+                        Piece::Text("(".into()),
+                        Piece::Source(start, end),
+                        Piece::Text(")?.style".into()),
+                    ]);
+                }
+                ObjectPropertyKind::ObjectProperty(property) => match property_name(&property.key) {
+                    Some("sx") => {}
+                    Some(name) if !property.computed && carries(name, class) => {
+                        let target = if name == "style" { &mut style_sources } else { &mut class_sources };
+                        let (start, end) = sp(property.value.span());
+                        target.push(vec![Piece::Text("(".into()), Piece::Source(start, end), Piece::Text(")".into())]);
+                    }
+                    _ => kept.push(sp(property.span)),
+                },
+            }
+        }
+        let mut code = Code::default();
+        if class_sources.is_empty()
+            && style_sources.is_empty()
+            && let Some(handle) = parts.static_handle()
+        {
+            code.text(format!("{class}: "));
+            if names.dom_class_string(&handle).is_empty() {
+                // The property stays, so the object keeps its commas; an element with no class.
+                code.text("undefined");
+                code.record(&handle);
+            } else {
+                code.dom_handle(names, &handle);
+            }
+            self.push(sp(sx.span), code);
+            return;
+        }
+        code.text("{ ");
+        for span in kept {
+            code.source(span);
+            code.text(", ");
+        }
+        code.runtime = true;
+        code.text("...__k.sx([");
+        code.parts(names, &parts.0);
+        code.text("], [");
+        join(&mut code, class_sources);
+        code.text("], [");
+        join(&mut code, style_sources);
+        code.text("]) }");
+        self.push(sp(object.span), code);
+    }
+
+    /// Whether a call is a JSX runtime's element factory: `jsx`, `jsxs` or `jsxDEV` imported from a
+    /// `…/jsx-runtime` or `…/jsx-dev-runtime` module, whatever the local name.
+    fn is_jsx_factory(&self, call: &CallExpression<'a>) -> bool {
+        let Expression::Identifier(callee) = &call.callee else {
+            return false;
+        };
+        self.evaluator.import_of(callee).is_some_and(|(source, name)| {
+            (source.ends_with("/jsx-runtime") || source.ends_with("/jsx-dev-runtime"))
+                && matches!(name.as_str(), "jsx" | "jsxs" | "jsxDEV")
+        })
+    }
+
     fn props_call(&mut self, call: &CallExpression<'a>) {
         let names = self.evaluator.context().names;
         let class = self.evaluator.context().config.jsx.class_attribute();
@@ -293,6 +429,27 @@ fn attribute_name<'b>(attribute: &'b oxc_ast::ast::JSXAttribute<'_>) -> Option<&
     }
 }
 
+/// An object property's name, when it is written out: `sx`, `"sx"`.
+fn property_name<'b>(key: &'b PropertyKey<'_>) -> Option<&'b str> {
+    match key {
+        PropertyKey::StaticIdentifier(identifier) => Some(identifier.name.as_str()),
+        PropertyKey::StringLiteral(literal) => Some(literal.value.as_str()),
+        _ => None,
+    }
+}
+
+/// The identifier a compiled element's type starts with (`Dialog` in `Dialog.Popup`).
+fn compiled_root<'b, 'a>(kind: &'b Expression<'a>) -> Option<&'b IdentifierReference<'a>> {
+    let mut expression = kind;
+    loop {
+        match expression {
+            Expression::Identifier(identifier) => return Some(identifier),
+            Expression::StaticMemberExpression(member) => expression = &member.object,
+            _ => return None,
+        }
+    }
+}
+
 fn sx_span(attribute: &oxc_ast::ast::JSXAttribute<'_>) -> (u32, u32) {
     sp(attribute.span)
 }
@@ -338,6 +495,9 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
                 }
             }
             _ => {}
+        }
+        if self.is_jsx_factory(call) {
+            self.compiled_element(call);
         }
         if let Some(callee) = self.kirana_callee(&call.callee) {
             if callee == Value::Api(Api::Props) {

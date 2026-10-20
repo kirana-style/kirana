@@ -1542,6 +1542,70 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
+    "href": "/docs/frameworks/remix",
+    "file": "content/docs/frameworks/remix.md",
+    "title": "Remix",
+    "description": "Install Kirana in a Remix 3 app, where node-tsx and the asset server compile the JSX and Kirana compiles the styles after them, served as router middleware.",
+    "section": "frameworks",
+    "order": 4.55,
+    "keywords": [
+      "remix",
+      "remix 3",
+      "node-tsx",
+      "asset server",
+      "client entry",
+      "middleware",
+      "install"
+    ],
+    "headings": [
+      {
+        "id": "the-fast-way",
+        "text": "The fast way",
+        "level": 2
+      },
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-load-kirana-after-node-tsx",
+        "text": "2. Load Kirana after node-tsx",
+        "level": 2
+      },
+      {
+        "id": "3-serve-the-stylesheet",
+        "text": "3. Serve the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "4-compile-client-entries",
+        "text": "4. Compile client entries",
+        "level": 2
+      },
+      {
+        "id": "5-type-sx",
+        "text": "5. Type sx",
+        "level": 2
+      },
+      {
+        "id": "6-write-a-component",
+        "text": "6. Write a component",
+        "level": 2
+      },
+      {
+        "id": "diagnostics",
+        "text": "Diagnostics",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/docs/frameworks/waku",
     "file": "content/docs/frameworks/waku.md",
     "title": "Waku",
@@ -5152,6 +5216,20 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
+        "title": "Remix",
+        "href": "/docs/frameworks/remix",
+        "description": "Install Kirana in a Remix 3 app, where node-tsx and the asset server compile the JSX and Kirana compiles the styles after them, served as router middleware.",
+        "keywords": [
+          "remix",
+          "remix 3",
+          "node-tsx",
+          "asset server",
+          "client entry",
+          "middleware",
+          "install"
+        ]
+      },
+      {
         "title": "Waku",
         "href": "/docs/frameworks/waku",
         "description": "Install Kirana in a Waku app, where server components and client components compile sx to className, and static pages carry the class names in their HTML.",
@@ -6036,6 +6114,7 @@ export const ORDER: readonly string[] = [
   "/docs/frameworks/react-router",
   "/docs/frameworks/tanstack-start",
   "/docs/frameworks/gatsby",
+  "/docs/frameworks/remix",
   "/docs/frameworks/waku",
   "/docs/frameworks/vike",
   "/docs/frameworks/docusaurus",

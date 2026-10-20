@@ -56,6 +56,8 @@ import logo_qwik from "@workspace/docs-ui/brands/qwik.svg?url"
 import logo_react_dark from "@workspace/docs-ui/brands/react_dark.svg?url"
 import logo_react_light from "@workspace/docs-ui/brands/react_light.svg?url"
 import logo_reactrouter from "@workspace/docs-ui/brands/reactrouter.svg?url"
+import logo_remix_dark from "@workspace/docs-ui/brands/remix_dark.svg?url"
+import logo_remix_light from "@workspace/docs-ui/brands/remix_light.svg?url"
 import logo_rolldown from "@workspace/docs-ui/brands/rolldown.svg?url"
 import logo_rsbuild from "@workspace/docs-ui/brands/rsbuild.svg?url"
 import logo_rspack from "@workspace/docs-ui/brands/rspack.svg?url"
@@ -104,6 +106,7 @@ export const SVGL = {
   tanstack: { title: "TanStack", url: "https://tanstack.com/", route: { light: logo_tanstack_light, dark: logo_tanstack_dark } },
   docusaurus: { title: "Docusaurus", url: "https://docusaurus.io/", route: logo_docusaurus },
   storybook: { title: "Storybook", url: "https://storybook.js.org/", route: logo_storybook },
+  remix: { title: "Remix", url: "https://remix.run/", route: { light: logo_remix_light, dark: logo_remix_dark } },
   vite: { title: "Vite", url: "https://vitejs.dev", route: logo_vite },
   rolldown: { title: "Rolldown", url: "https://rolldown.rs/", route: logo_rolldown },
   rspack: { title: "Rspack", url: "https://rspack.rs/", route: logo_rspack },

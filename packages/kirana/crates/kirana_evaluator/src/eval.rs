@@ -319,6 +319,21 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         }
     }
 
+    /// The module an identifier is imported from and the name it is imported as (`default` for a
+    /// default import), or nothing for a local binding.
+    pub fn import_of(&self, identifier: &IdentifierReference<'a>) -> Option<(&'a str, String)> {
+        let scoping = self.parsed.semantic.scoping();
+        let declaration = scoping.symbol_declaration(self.symbol_of(identifier)?);
+        let AstKind::ImportDeclaration(import) = self.parsed.semantic.nodes().parent_kind(declaration) else {
+            return None;
+        };
+        let name = match self.parsed.semantic.nodes().kind(declaration) {
+            AstKind::ImportSpecifier(specifier) => export_name(&specifier.imported),
+            _ => "default".to_owned(),
+        };
+        Some((import.source.value.as_str(), name))
+    }
+
     /// For an element named by a component imported from project source: the component's name and
     /// the installed package it hands `sx` to without reading it.
     pub fn sx_forwarded_by(&self, identifier: &IdentifierReference<'a>) -> Option<(String, String)> {
