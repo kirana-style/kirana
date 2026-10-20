@@ -102,7 +102,7 @@ is Tailwind v4's scales as tokens, and [utility strings](/docs/styling/utilities
 leaves the vocabulary to you.
 
 **Hosts and frameworks.** Adapters for Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild; `sx` in
-React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember and every framework built on them (React, Next.js, React Router, TanStack Start, Gatsby, Preact, Solid, Vue, Nuxt, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor); and
+React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember and every framework built on them (React, Next.js, React Router, TanStack Start, Gatsby, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor); and
 templates in Laravel, Symfony, Rails, Phoenix and AdonisJS, each with an example CI builds and checks. See
 [frameworks](/docs/frameworks/overview).
 

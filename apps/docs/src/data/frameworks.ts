@@ -60,6 +60,29 @@ export const FRAMEWORK_GUIDES: readonly Guide[] = [
     runsOn: "webpack",
   },
   {
+    title: "Waku",
+    href: "/docs/frameworks/waku",
+    group: "frameworks",
+    description:
+      "The minimal React framework, built on React Server Components.",
+    runsOn: "Vite",
+  },
+  {
+    title: "Vike",
+    href: "/docs/frameworks/vike",
+    group: "frameworks",
+    description:
+      "The framework you assemble: your renderer, your server, on Vite.",
+    runsOn: "Vite",
+  },
+  {
+    title: "Docusaurus",
+    href: "/docs/frameworks/docusaurus",
+    group: "frameworks",
+    description: "Documentation websites with React, built by webpack.",
+    runsOn: "webpack",
+  },
+  {
     title: "Preact",
     href: "/docs/frameworks/preact",
     group: "frameworks",
@@ -71,6 +94,14 @@ export const FRAMEWORK_GUIDES: readonly Guide[] = [
     href: "/docs/frameworks/solid",
     group: "frameworks",
     description: "Simple, performant reactivity for user interfaces.",
+    runsOn: "Vite",
+  },
+  {
+    title: "SolidStart",
+    href: "/docs/frameworks/solid-start",
+    group: "frameworks",
+    description:
+      "Solid's full-stack framework: routes, server rendering and server functions.",
     runsOn: "Vite",
   },
   {
@@ -87,6 +118,13 @@ export const FRAMEWORK_GUIDES: readonly Guide[] = [
     group: "frameworks",
     description: "The intuitive Vue framework for universal applications.",
     runsOn: "Nuxt (Vite)",
+  },
+  {
+    title: "VitePress",
+    href: "/docs/frameworks/vitepress",
+    group: "frameworks",
+    description: "The Vite and Vue static site generator for documentation.",
+    runsOn: "Vite",
   },
   {
     title: "Svelte",
@@ -246,6 +284,14 @@ export const FRAMEWORK_GUIDES: readonly Guide[] = [
     group: "bundlers",
     description: "A transformer, so tests see the class names you ship.",
     runsOn: "Jest",
+  },
+  {
+    title: "Storybook",
+    href: "/docs/integrations/storybook",
+    group: "bundlers",
+    description:
+      "Stories built with your project's Vite config, styled as the app is.",
+    runsOn: "Vite",
   },
 ]
 

@@ -1,12 +1,12 @@
 name: Changes
-description: Whether a pull request or push touches anything the Kirana packages are built from. Any other event answers yes.
+description: Whether a pull request, a merge queue's group or a push touches anything the Kirana packages are built from. Any other event answers yes.
 
 # A change to only the site, its components or prose cannot change a package, the engine or an
 # example, so the jobs that build and install them skip; skipped jobs count as passed for required
 # checks. Needs a checkout with `fetch-depth: 2`. On a pull request HEAD is the merge commit and
-# HEAD^1 the base branch, so their difference is exactly what the pull request changes; on a push it
-# is the difference from the commit the branch was at before. When that cannot be read (a new
-# branch, a force push), the answer is yes.
+# HEAD^1 the base branch, so their difference is exactly what the pull request changes; in the
+# merge queue it is the difference from the queue's base; on a push, from the commit the branch was
+# at before. When that cannot be read (a new branch, a force push), the answer is yes.
 
 outputs:
   kirana:
@@ -22,6 +22,7 @@ runs:
       env:
         EVENT: ${{ github.event_name }}
         BEFORE: ${{ github.event.before }}
+        QUEUE_BASE: ${{ github.event.merge_group.base_sha }}
       run: |
         answer() { echo "kirana=$1" >> "$GITHUB_OUTPUT"; exit 0; }
         case "$EVENT" in
@@ -29,6 +30,9 @@ runs:
           push)
             git fetch --quiet --depth=1 origin "$BEFORE" 2> /dev/null || answer true
             base=$BEFORE ;;
+          merge_group)
+            git fetch --quiet --depth=1 origin "$QUEUE_BASE" 2> /dev/null || answer true
+            base=$QUEUE_BASE ;;
           *) answer true ;;
         esac
         changed=$(git diff --name-only "$base" HEAD) || answer true

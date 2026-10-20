@@ -1,0 +1,55 @@
+[
+  {
+    "name": "linux-x64-gnu",
+    "os": "ubuntu-26.04",
+    "targets": "x86_64-unknown-linux-gnu",
+    "flags": "--use-napi-cross",
+    "pullRequest": true
+  },
+  {
+    "name": "linux-x64-musl",
+    "os": "ubuntu-26.04",
+    "targets": "x86_64-unknown-linux-musl",
+    "flags": "--cross-compile",
+    "zig": true,
+    "pullRequest": true
+  },
+  {
+    "name": "wasm32-wasi",
+    "os": "ubuntu-26.04",
+    "targets": "wasm32-wasip1-threads",
+    "flags": "",
+    "pullRequest": true
+  },
+  {
+    "name": "linux-arm64-gnu",
+    "os": "ubuntu-26.04-arm",
+    "targets": "aarch64-unknown-linux-gnu",
+    "flags": "--use-napi-cross"
+  },
+  {
+    "name": "linux-arm64-musl",
+    "os": "ubuntu-26.04-arm",
+    "targets": "aarch64-unknown-linux-musl",
+    "flags": "--cross-compile",
+    "zig": true
+  },
+  {
+    "name": "darwin",
+    "os": "macos-26",
+    "targets": "aarch64-apple-darwin x86_64-apple-darwin",
+    "flags": ""
+  },
+  {
+    "name": "win32-x64-msvc",
+    "os": "windows-2025",
+    "targets": "x86_64-pc-windows-msvc",
+    "flags": ""
+  },
+  {
+    "name": "win32-arm64-msvc",
+    "os": "windows-2025",
+    "targets": "aarch64-pc-windows-msvc",
+    "flags": ""
+  }
+]

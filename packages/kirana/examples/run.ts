@@ -166,6 +166,11 @@ try {
     /** The file holding the probe's colour, edited to check hot updates. */
     edit?: string
     /**
+     * Where the probe is, relative to the server's root, when it is not the root page: Storybook
+     * renders a story at `iframe.html?id=…`, inside the frame of its own interface.
+     */
+    page?: string
+    /**
      * The framework updates that file in place (Vue, Svelte), so the page must not reload. Without
      * it — React with no refresh plugin, Astro pages — a reload that shows the new colour passes.
      */
@@ -183,6 +188,9 @@ try {
      */
     reloads?: boolean
   } = manifest["kirana-example"] ?? {}
+  /** The URL the checks open: the server's root, or the example's `page` under it. */
+  const at = (url: string) =>
+    settings.page ? new URL(settings.page, url).href : url
   // A server framework's manifest names Kirana's template helper by path: `{kirana}` is this
   // repository's `packages/kirana`, which the copy no longer sits inside.
   const kirana = path.resolve(import.meta.dirname, "..")
@@ -354,9 +362,9 @@ try {
         direct ? rest : settings.dev,
         {},
         async (url) => {
-          await checkPage(url, { development: true })
+          await checkPage(at(url), { development: true })
           await checkHotUpdate(
-            url,
+            at(url),
             path.join(directory, settings.edit!),
             settings.hot ?? false,
             settings.reloads ?? false
@@ -445,9 +453,9 @@ try {
             pm === "yarn-pnp" ? "yarn" : pm,
             ["run", "start"],
             {},
-            checkPage
+            (url) => checkPage(at(url))
           )
-        : withStatic(output, checkPage))
+        : withStatic(output, (url) => checkPage(at(url))))
     }
     step(`✓ ${example} · ${pm}`)
   }

@@ -1,0 +1,33 @@
+{
+  "name": "kirana-example-docusaurus",
+  "private": true,
+  "scripts": {
+    "build": "docusaurus build"
+  },
+  "kirana-example": {
+    "output": "build",
+    "dev": [
+      "docusaurus",
+      "start",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1",
+      "--no-open"
+    ],
+    "edit": "src/pages/index.tsx"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^3.10.2",
+    "@docusaurus/preset-classic": "^3.10.2",
+    "@kirana-style/core": "0.1.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@docusaurus/types": "^3.10.2",
+    "@kirana-style/webpack": "0.1.0",
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}

@@ -74,10 +74,15 @@ change the API. Pages state what is built and what is planned.
 - [React Router](https://kirana.style/docs/frameworks/react-router.md): Install Kirana in a React Router app in framework mode on Vite, where sx compiles to className for server rendering and single-page mode alike.
 - [TanStack Start](https://kirana.style/docs/frameworks/tanstack-start.md): Install Kirana in a TanStack Start app: the plugin, the root document, stylesheet order and server rendering.
 - [Gatsby](https://kirana.style/docs/frameworks/gatsby.md): Install Kirana in a Gatsby site, where one plugin adds Kirana to every webpack stage so the server render and the browser name the same classes.
+- [Waku](https://kirana.style/docs/frameworks/waku.md): Install Kirana in a Waku app, where server components and client components compile sx to className, and static pages carry the class names in their HTML.
+- [Vike](https://kirana.style/docs/frameworks/vike.md): Install Kirana in a Vike app on Vite, with vike-react, vike-vue or vike-solid, where sx compiles in pages, layouts and prerendered HTML.
+- [Docusaurus](https://kirana.style/docs/frameworks/docusaurus.md): Install Kirana in a Docusaurus site through a local plugin that adds Kirana's webpack plugin, with Docusaurus's aliases declared and the stylesheet in the theme's Root.
 - [Preact](https://kirana.style/docs/frameworks/preact.md): Install Kirana in a Preact app on Vite, where sx compiles to class, detected from jsxImportSource.
 - [Solid](https://kirana.style/docs/frameworks/solid.md): Install Kirana in a Solid app on Vite, where sx compiles to class, detected from jsxImportSource.
+- [SolidStart](https://kirana.style/docs/frameworks/solid-start.md): Install Kirana in a SolidStart 2 app on Vite, where sx compiles to class for the server render and after hydration alike.
 - [Vue](https://kirana.style/docs/frameworks/vue.md): Install Kirana in a Vue app on Vite, with styles in the script and :sx in the template, compiled before Vue sees the component.
 - [Nuxt](https://kirana.style/docs/frameworks/nuxt.md): Install Kirana in a Nuxt app, with the Vite plugin in nuxt.config, the stylesheet in css, and :sx in components rendered on the server.
+- [VitePress](https://kirana.style/docs/frameworks/vitepress.md): Install Kirana in a VitePress site, with the default theme's CSS in a layer below your styles, and sx in the theme's and the pages' Vue components.
 - [Svelte](https://kirana.style/docs/frameworks/svelte.md): Install Kirana in a Svelte app on Vite, with styles in the script and sx on elements, compiled before Svelte sees the component.
 - [SvelteKit](https://kirana.style/docs/frameworks/sveltekit.md): Install Kirana in a SvelteKit app, with the Vite plugin before sveltekit(), the stylesheet in the root layout, and sx in server-rendered components.
 - [Astro](https://kirana.style/docs/frameworks/astro.md): Install Kirana in an Astro site, with the integration, styles in the frontmatter, sx on elements, and the stylesheet Astro links or inlines.
@@ -111,6 +116,7 @@ change the API. Pages state what is built and what is planned.
 ## Testing
 
 - [Jest](https://kirana.style/docs/integrations/jest.md): Kirana under Jest, through a transformer that compiles styles, then hands the module to the transformer you already use.
+- [Storybook](https://kirana.style/docs/integrations/storybook.md): Use Kirana in Storybook with the Vite builder, which reads your project's vite.config, so stories compile and render as the app does.
 
 ## Migration
 

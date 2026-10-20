@@ -1625,6 +1625,144 @@ describe("D-069 to D-072: the frameworks Tailwind has a guide for", () => {
     expect(steps(configured).adapter!.status).toBe("manual")
   })
 
+  it("detects Waku, VitePress and Docusaurus, and sets Waku and Vike up", () => {
+    const of = (manifest: Record<string, string>) => detect(project(manifest))
+    expect(
+      of({ "package.json": pkg({ waku: "1", react: "19" }) })
+    ).toMatchObject({ framework: "waku", bundler: "vite" })
+    expect(
+      of({ "package.json": pkg({ vitepress: "2", vue: "3" }) })
+    ).toMatchObject({ framework: "vitepress", bundler: "vite" })
+    const docusaurus = of({
+      "package.json": pkg({ "@docusaurus/core": "3", react: "19" }),
+    })
+    expect(docusaurus).toMatchObject({
+      framework: "docusaurus",
+      bundler: "webpack",
+    })
+    expect(adapterOf(docusaurus)).toEqual(["@kirana-style/webpack"])
+    expect(typesOf("waku")).toBe("@kirana-style/core/react")
+    expect(typesOf("vitepress")).toBe("@kirana-style/core/vue")
+    expect(typesOf("docusaurus")).toBe("@kirana-style/core/react")
+    expect(describeProject(docusaurus)).toBe(
+      "Docusaurus · webpack · npm · JavaScript"
+    )
+
+    // Waku: `vite.plugins` in its own configuration, created when there is none; the layout.
+    const waku = project({
+      "package.json": pkg({ waku: "1", react: "19" }),
+      "tsconfig.json": "{}",
+      "src/pages/_layout.tsx": "export default 1\n",
+    })
+    expect(files(waku)["waku.config.ts"]).toContain(
+      "defineConfig({ vite: { plugins: [kirana()] } })"
+    )
+    expect(files(waku)["src/pages/_layout.tsx"]).toMatch(
+      /^import "@kirana-style\/core\/stylesheet.css"/
+    )
+    const configured = project({
+      "package.json": pkg({ waku: "1", react: "19" }),
+      "waku.config.ts":
+        "export default defineConfig({\n  vite: { plugins: [other()] },\n})\n",
+    })
+    expect(files(configured)["waku.config.ts"]).toContain(
+      "vite: { plugins: [kirana(), other()] }"
+    )
+    expect(steps(configured).stylesheet!.status).toBe("manual")
+    const bare = project({
+      "package.json": pkg({ waku: "1", react: "19" }),
+      "waku.config.ts": "export default defineConfig({})\n",
+    })
+    expect(files(bare)["waku.config.ts"]).toContain(
+      "defineConfig({ vite: { plugins: [kirana()] } })"
+    )
+    const vitePlain = project({
+      "package.json": pkg({ waku: "1", react: "19" }),
+      "waku.config.ts": "export default defineConfig({ vite: {} })\n",
+    })
+    expect(steps(vitePlain).adapter!.status).toBe("manual")
+
+    // Vike: the stylesheet in the page files every page shares.
+    const vike = project({
+      "package.json": pkg({ vike: "0.4", react: "19", vite: "8" }),
+      "pages/+Layout.tsx": "export default 1\n",
+    })
+    expect(files(vike)["pages/+Layout.tsx"]).toMatch(
+      /^import "@kirana-style\/core\/stylesheet.css"/
+    )
+  })
+
+  it("sets VitePress and Docusaurus up, in their source directory and theme", () => {
+    // VitePress in docs/: Kirana's configuration where VitePress makes Vite's root, the theme's
+    // CSS in a layer ordered before Kirana's, the stylesheet in the theme.
+    const docs = project({
+      "package.json": pkg({ vitepress: "2", vue: "3" }, { type: "module" }),
+      "tsconfig.json": "{}",
+      "docs/.vitepress/config.ts":
+        'import { defineConfig } from "vitepress"\n\nexport default defineConfig({ title: "A" })\n',
+      "docs/.vitepress/theme/index.ts": "export default {}\n",
+    })
+    const written = files(docs)
+    expect(written["docs/kirana.config.ts"]).toContain(
+      'layers: { before: ["vitepress"] },'
+    )
+    expect(written["docs/.vitepress/config.ts"]).toContain(
+      'vite: { plugins: [kirana(), cssLayer("vitepress", "vitepress/dist/client/theme-default/")] }'
+    )
+    expect(written["docs/.vitepress/config.ts"]).toContain(
+      'import kirana, { cssLayer } from "@kirana-style/vite"'
+    )
+    expect(written["docs/.vitepress/theme/index.ts"]).toMatch(
+      /^import "@kirana-style\/core\/stylesheet.css"/
+    )
+    // At the root, with a configuration that lacks the layer, and without a theme.
+    const root = project({
+      "package.json": pkg({ vitepress: "2" }),
+      ".vitepress/config.mjs": "export default {}\n",
+      "kirana.config.json": "{}",
+    })
+    expect(steps(root).config).toMatchObject({
+      status: "manual",
+      detail: expect.stringContaining('layers: { before: ["vitepress"] }'),
+    })
+    expect(steps(root).adapter!.status).toBe("manual")
+    expect(steps(root).stylesheet).toMatchObject({
+      status: "manual",
+      detail: expect.stringContaining("create .vitepress/theme/index.ts"),
+    })
+
+    // Docusaurus: its aliases as externals, Root.tsx created, the webpack plugin by hand.
+    const site = project({
+      "package.json": pkg({ "@docusaurus/core": "3", react: "19" }),
+      "tsconfig.json": "{}",
+      "docusaurus.config.ts": "export default { plugins: [] }\n",
+    })
+    expect(files(site)["kirana.config.mts"]).toContain('"@theme/"')
+    expect(files(site)["src/theme/Root.tsx"]).toContain(
+      "export default function Root({ children }: { children: React.ReactNode })"
+    )
+    expect(steps(site).adapter).toMatchObject({
+      status: "manual",
+      detail: expect.stringContaining("configureWebpack"),
+    })
+    const js = project({
+      "package.json": pkg({ "@docusaurus/core": "3", react: "19" }),
+      "docusaurus.config.js":
+        'const { KiranaPlugin } = require("@kirana-style/webpack")\n',
+      "src/theme/Root.js": "export default 1\n",
+    })
+    expect(steps(js).adapter!.status).toBe("done")
+    expect(files(js)["src/theme/Root.js"]).toMatch(
+      /^import "@kirana-style\/core\/stylesheet.css"/
+    )
+    const fresh = files(
+      project({ "package.json": pkg({ "@docusaurus/core": "3" }) })
+    )
+    expect(fresh["src/theme/Root.js"]).toContain(
+      "export default function Root({ children }) {"
+    )
+  })
+
   it("runs in a server framework's root before it has a package.json", async () => {
     const root = project({ Gemfile: "gem 'rails'\n" })
     const session = io()

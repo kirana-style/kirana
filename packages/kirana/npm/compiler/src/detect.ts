@@ -20,6 +20,9 @@ export type Framework =
   | "qwik"
   | "angular"
   | "react-router"
+  | "waku"
+  | "vitepress"
+  | "docusaurus"
   | "gatsby"
   | "ember"
   | "meteor"
@@ -159,6 +162,9 @@ const FRAMEWORKS: readonly [string, Framework][] = [
   ["astro", "astro"],
   ["@tanstack/react-start", "tanstack-start"],
   ["@react-router/dev", "react-router"],
+  ["waku", "waku"],
+  ["vitepress", "vitepress"],
+  ["@docusaurus/core", "docusaurus"],
   ["gatsby", "gatsby"],
   ["ember-source", "ember"],
   ["@qwik.dev/core", "qwik"],
@@ -179,6 +185,8 @@ const ON_VITE: readonly Framework[] = [
   "tanstack-start",
   "qwik",
   "react-router",
+  "waku",
+  "vitepress",
   "ember",
 ]
 
@@ -219,6 +227,7 @@ function bundlerOf(
   if (isServer(framework)) return "cli"
   switch (framework) {
     case "gatsby":
+    case "docusaurus":
       return "webpack"
     case "meteor":
       return "rspack"
@@ -345,6 +354,9 @@ export function typesOf(framework: Framework): string | undefined {
     qwik: "qwik",
     angular: undefined,
     "react-router": "react",
+    waku: "react",
+    vitepress: "vue",
+    docusaurus: "react",
     gatsby: "react",
     meteor: "react",
     ember: undefined,

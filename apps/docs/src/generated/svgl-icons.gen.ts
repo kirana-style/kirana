@@ -14,6 +14,7 @@ import logo_cursor_dark from "@workspace/docs-ui/brands/cursor_dark.svg?url"
 import logo_cursor_light from "@workspace/docs-ui/brands/cursor_light.svg?url"
 import logo_deno from "@workspace/docs-ui/brands/deno.svg?url"
 import logo_deno_dark from "@workspace/docs-ui/brands/deno_dark.svg?url"
+import logo_docusaurus from "@workspace/docs-ui/brands/docusaurus.svg?url"
 import logo_ember from "@workspace/docs-ui/brands/ember.svg?url"
 import logo_esbuild from "@workspace/docs-ui/brands/esbuild.svg?url"
 import logo_eslint_icon_dark from "@workspace/docs-ui/brands/eslint-icon-dark.svg?url"
@@ -33,12 +34,15 @@ import logo_logoforge_rails_icon from "@workspace/docs-ui/brands/logoforge-rails
 import logo_logoforge_stylex_icon from "@workspace/docs-ui/brands/logoforge-stylex-icon.svg?url"
 import logo_logoforge_symfony_icon_dark from "@workspace/docs-ui/brands/logoforge-symfony-icon-dark.svg?url"
 import logo_logoforge_symfony_icon from "@workspace/docs-ui/brands/logoforge-symfony-icon.svg?url"
+import logo_logoforge_vitepress_icon from "@workspace/docs-ui/brands/logoforge-vitepress-icon.svg?url"
 import logo_logoforge_webpack_icon from "@workspace/docs-ui/brands/logoforge-webpack-icon.svg?url"
 import logo_neovim from "@workspace/docs-ui/brands/neovim.svg?url"
 import logo_nextjs_icon_dark from "@workspace/docs-ui/brands/nextjs_icon_dark.svg?url"
 import logo_nodejs from "@workspace/docs-ui/brands/nodejs.svg?url"
 import logo_npm from "@workspace/docs-ui/brands/npm.svg?url"
 import logo_nuxt from "@workspace/docs-ui/brands/nuxt.svg?url"
+import logo_official_vike_dark from "@workspace/docs-ui/brands/official-vike-dark.svg?url"
+import logo_official_vike_light from "@workspace/docs-ui/brands/official-vike-light.svg?url"
 import logo_openai from "@workspace/docs-ui/brands/openai.svg?url"
 import logo_openai_dark from "@workspace/docs-ui/brands/openai_dark.svg?url"
 import logo_oxc from "@workspace/docs-ui/brands/oxc.svg?url"
@@ -56,6 +60,7 @@ import logo_rolldown from "@workspace/docs-ui/brands/rolldown.svg?url"
 import logo_rsbuild from "@workspace/docs-ui/brands/rsbuild.svg?url"
 import logo_rspack from "@workspace/docs-ui/brands/rspack.svg?url"
 import logo_solidjs from "@workspace/docs-ui/brands/solidjs.svg?url"
+import logo_storybook from "@workspace/docs-ui/brands/storybook.svg?url"
 import logo_svelte from "@workspace/docs-ui/brands/svelte.svg?url"
 import logo_tailwindcss from "@workspace/docs-ui/brands/tailwindcss.svg?url"
 import logo_tanstack_dark from "@workspace/docs-ui/brands/tanstack_dark.svg?url"
@@ -97,6 +102,8 @@ export const SVGL = {
   ember: { title: "Ember", url: "https://emberjs.com/", route: logo_ember },
   laravel: { title: "Laravel", url: "https://laravel.com/", route: logo_laravel },
   tanstack: { title: "TanStack", url: "https://tanstack.com/", route: { light: logo_tanstack_light, dark: logo_tanstack_dark } },
+  docusaurus: { title: "Docusaurus", url: "https://docusaurus.io/", route: logo_docusaurus },
+  storybook: { title: "Storybook", url: "https://storybook.js.org/", route: logo_storybook },
   vite: { title: "Vite", url: "https://vitejs.dev", route: logo_vite },
   rolldown: { title: "Rolldown", url: "https://rolldown.rs/", route: logo_rolldown },
   rspack: { title: "Rspack", url: "https://rspack.rs/", route: logo_rspack },
@@ -128,8 +135,10 @@ export const SVGL = {
   symfony: { title: "Symfony", url: "https://symfony.com/", route: { light: logo_logoforge_symfony_icon, dark: logo_logoforge_symfony_icon_dark } },
   rails: { title: "Ruby on Rails", url: "https://rubyonrails.org/", route: logo_logoforge_rails_icon },
   phoenix: { title: "Phoenix", url: "https://www.phoenixframework.org/", route: logo_logoforge_phoenix_icon },
+  vitepress: { title: "VitePress", url: "https://vitepress.dev/", route: logo_logoforge_vitepress_icon },
   adonisjs: { title: "AdonisJS", url: "https://adonisjs.com/", route: logo_logoforge_adonisjs_icon },
   webpack: { title: "webpack", url: "https://webpack.github.io/", route: logo_logoforge_webpack_icon },
   stylex: { title: "StyleX", url: "https://stylexjs.com", route: logo_logoforge_stylex_icon },
   helix: { title: "Helix", url: "https://helix-editor.com/", route: { light: logo_logoforge_helix_icon, dark: logo_logoforge_helix_icon_dark } },
+  vike: { title: "Vike", url: "https://vike.dev/", route: { light: logo_official_vike_light, dark: logo_official_vike_dark } },
 } satisfies Record<string, SvglIcon>

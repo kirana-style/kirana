@@ -4,7 +4,8 @@ Source: https://kirana.style/docs/frameworks/tanstack-start
 # TanStack Start
 
 This site, and the three applications of our shadcn/ui port, are TanStack
-Start apps; this page is the setup they use.
+Start apps; this page is the setup they use. Tested on every change by
+`examples/tanstack-start`, prerendered and on its dev server.
 
 
 

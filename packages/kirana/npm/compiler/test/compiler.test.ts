@@ -196,6 +196,17 @@ export const Card = () => <article sx={card.anchor}><h2 sx={title} /></article>
       jsx: "react",
       root: json,
     })
+    // A host whose `Function` code has no `import()` (a CommonJS project's webpack) falls back to
+    // `require()`; any other failure to load is the configuration's own and is thrown.
+    const noImport = Object.assign(new Error("no callback"), {
+      code: "ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING",
+    })
+    expect(
+      (await loadConfigFile(ts, () => Promise.reject(noImport))).config
+    ).toEqual({ names: { prefix: "ds" } })
+    await expect(
+      loadConfigFile(ts, () => Promise.reject(new Error("syntax")))
+    ).rejects.toThrow("syntax")
     const empty = project({ "kirana.config.mjs": "export const unused = 1" })
     expect((await loadConfigFile(empty, load)).config).toEqual({})
     expect((await loadConfigFile(project({}))).file).toBeUndefined()

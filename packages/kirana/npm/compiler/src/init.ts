@@ -236,6 +236,24 @@ function withPlugin(
   return edited && addImport(edited, importLine)
 }
 
+const KIRANA_VITE = `import kirana from "@kirana-style/vite"`
+
+/**
+ * Vite plugins in a framework's own configuration, under its `vite` key (Waku, VitePress): first
+ * in `vite: { plugins: [` when there is one, or a new `vite` property in `defineConfig({`. A `vite`
+ * key without a `plugins` list is left to a person.
+ */
+function withVitePlugins(
+  text: string,
+  entry: string,
+  importLine: string
+): string | undefined {
+  const edited = /\bvite\s*:/.test(text)
+    ? insertFirst(text, /\bvite\s*:\s*\{[^}]*?\bplugins\s*:\s*\[/, entry)
+    : addProperty(text, /defineConfig\(\s*\{/, `vite: { plugins: [${entry}] }`)
+  return edited && addImport(edited, importLine)
+}
+
 /** The default export wrapped in `wrapper(…)`, when it is the module's last statement. */
 export function wrapDefault(text: string, wrapper: string): string | undefined {
   const match = /export default ([\s\S]+?)(;?)\s*$/.exec(text)
@@ -257,19 +275,53 @@ function done(name: StepName, detail: string): Step {
   return { name, status: "done", detail }
 }
 
+/**
+ * Where a VitePress site's `.vitepress` folder is: its source directory, which VitePress makes
+ * Vite's root, so Kirana reads its configuration there. `""` for the project's root, else `docs/`.
+ */
+function vitepressSource(files: Files): string {
+  return files.find(vitepressConfig("")) ? "" : "docs/"
+}
+
+/** VitePress's configuration files in a source directory. */
+const vitepressConfig = (source: string) =>
+  ["ts", "mts", "js", "mjs"].map(
+    (extension) => `${source}.vitepress/config.${extension}`
+  )
+
+/**
+ * What a framework adds to the configuration, and the word that shows it is there: modules only
+ * the framework's bundler resolves (Meteor's `meteor/`, Docusaurus's aliases), or the layer
+ * VitePress's theme CSS goes in (`cssLayer`), ordered before Kirana's.
+ */
+const FRAMEWORK_CONFIG: Partial<
+  Record<Detected["framework"], { entry: string; marker: string }>
+> = {
+  meteor: { entry: `externals: ["meteor/"]`, marker: "externals" },
+  docusaurus: {
+    entry: `externals: ["@theme/", "@theme-original/", "@theme-init/", "@site/", "@generated/", "@docusaurus/"]`,
+    marker: "externals",
+  },
+  vitepress: {
+    entry: `layers: { before: ["vitepress"] }`,
+    marker: "vitepress",
+  },
+}
+
 /** The project's configuration file. */
 function configStep(
   files: Files,
   project: Detected,
   options: InitOptions
 ): Step {
+  const directory =
+    project.framework === "vitepress" ? vitepressSource(files) : ""
   const existing = files.find(
-    CONFIG_NAMES("kirana", ["ts", "mts", "js", "mjs", "json"])
+    CONFIG_NAMES(`${directory}kirana`, ["ts", "mts", "js", "mjs", "json"])
   )
   const server = isServer(project.framework)
   const classes = `classes: { modules: ["resources/styles"], out: "${staticDirectory(project.framework)}/kirana/classes.json" }`
-  // Meteor's own modules (`meteor/meteor`) only its bundler resolves.
-  const externals = `externals: ["meteor/"]`
+  const own = FRAMEWORK_CONFIG[project.framework]
   if (existing) {
     const text = files.read(existing)!
     if (options.preset && !text.includes("@kirana-style/preset-scales"))
@@ -279,21 +331,23 @@ function configStep(
       )
     if (server && !text.includes("classes"))
       return manual("config", `add ${classes} to ${existing}`)
-    if (project.framework === "meteor" && !text.includes("externals"))
-      return manual("config", `add ${externals} to ${existing}`)
+    if (own && !text.includes(own.marker))
+      return manual("config", `add ${own.entry} to ${existing}`)
     return done("config", existing)
   }
   // Node.js warns on every load of an ES module whose package is not `"type": "module"`.
-  const file = !project.typescript
-    ? "kirana.config.mjs"
-    : project.module
-      ? "kirana.config.ts"
-      : "kirana.config.mts"
+  const file = `${directory}${
+    !project.typescript
+      ? "kirana.config.mjs"
+      : project.module
+        ? "kirana.config.ts"
+        : "kirana.config.mts"
+  }`
   const preset = options.preset
   const entries = [
     ...(preset ? ["presets: [scales()]"] : []),
     ...(server ? [classes] : []),
-    ...(project.framework === "meteor" ? [externals] : []),
+    ...(own ? [own.entry] : []),
   ]
   const text = [
     `import { defineConfig } from "@kirana-style/core/config"`,
@@ -441,6 +495,37 @@ function adapterStep(files: Files, project: Detected): Step {
           text: `module.exports = { jsxRuntime: "automatic", plugins: ["@kirana-style/gatsby"] }\n`,
         },
         `add "@kirana-style/gatsby" to plugins`
+      )
+    case "waku":
+      return edit(
+        CONFIG_NAMES("waku"),
+        "@kirana-style/vite",
+        (text) => withVitePlugins(text, "kirana()", KIRANA_VITE),
+        {
+          file: `waku.config.${extension}`,
+          text: `${KIRANA_VITE}\nimport { defineConfig } from "waku/config"\n\nexport default defineConfig({ vite: { plugins: [kirana()] } })\n`,
+        },
+        `add vite: { plugins: [kirana()] } (${KIRANA_VITE})`
+      )
+    case "vitepress": {
+      const source = vitepressSource(files)
+      const layer = `cssLayer("vitepress", "vitepress/dist/client/theme-default/")`
+      const importLine = `import kirana, { cssLayer } from "@kirana-style/vite"`
+      return edit(
+        vitepressConfig(source),
+        "@kirana-style/vite",
+        (text) => withVitePlugins(text, `kirana(), ${layer}`, importLine),
+        undefined,
+        `add vite: { plugins: [kirana(), ${layer}] } to ${source}.vitepress/config (${importLine})`
+      )
+    }
+    case "docusaurus":
+      return edit(
+        CONFIG_NAMES("docusaurus"),
+        "@kirana-style/webpack",
+        () => undefined,
+        undefined,
+        `add a plugin that adds Kirana's webpack plugin to plugins: () => ({ name: "kirana", configureWebpack: () => ({ plugins: [new KiranaPlugin()] }) }) (import { KiranaPlugin } from "@kirana-style/webpack")`
       )
     case "ember":
       return edit(
@@ -835,6 +920,31 @@ function stylesheetStep(files: Files, project: Detected): Step {
       return entry(entries(["src/"], ["main"]), importHelp)
     case "react-router":
       return entry(entries(["app/"], ["root"]), importHelp)
+    case "waku":
+      // The root layout wraps every page.
+      return entry(
+        entries(["src/pages/"], ["_layout", "_root"]),
+        `import "${STYLESHEET}" in src/pages/_layout.tsx`
+      )
+    case "vitepress": {
+      const theme = `${vitepressSource(files)}.vitepress/theme/`
+      return entry(
+        entries([theme], ["index"]),
+        `create ${theme}index.ts that imports "${STYLESHEET}" and extends DefaultTheme from "vitepress/theme"`
+      )
+    }
+    case "docusaurus": {
+      // The theme's Root component wraps every page; created when the site has none.
+      const root = files.find(entries(["src/theme/"], ["Root"]))
+      if (root) return prepend(root)
+      const file = `src/theme/Root.${project.typescript ? "tsx" : "js"}`
+      return step("stylesheet", `create ${file}`, [
+        files.write(
+          file,
+          `import "${STYLESHEET}"\n\nexport default function Root({ children }${project.typescript ? ": { children: React.ReactNode }" : ""}) {\n  return <>{children}</>\n}\n`
+        ),
+      ])
+    }
     case "ember":
       return entry(entries(["app/"], ["app"]), importHelp)
     case "meteor":
@@ -886,6 +996,9 @@ function stylesheetStep(files: Files, project: Detected): Step {
       "stylesheet",
       "the Rolldown adapter emits kirana.css: link it from your HTML"
     )
+  // Vike renders the document from the page files' `+Layout` or `+Head`, which every page shares.
+  if ("vike" in project.dependencies)
+    return entry(entries(["pages/"], ["+Layout", "+Head"]), importHelp)
   return entry(
     entries(["src/"], ["main", "index", "app", "entry-client"]),
     importHelp
@@ -1051,6 +1164,9 @@ const NAMES: Record<Detected["framework"], string> = {
   qwik: "Qwik",
   angular: "Angular",
   "react-router": "React Router",
+  waku: "Waku",
+  vitepress: "VitePress",
+  docusaurus: "Docusaurus",
   gatsby: "Gatsby",
   ember: "Ember.js",
   meteor: "Meteor",

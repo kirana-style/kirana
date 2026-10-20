@@ -17,6 +17,7 @@ byte-for-byte the same whichever bundler built them.
 - [esbuild](/docs/integrations/esbuild): An extremely fast bundler, in watch and serve modes too.
 - [PostCSS](/docs/integrations/postcss): The project's stylesheet wherever @kirana; stands.
 - [Jest](/docs/integrations/jest): A transformer, so tests see the class names you ship.
+- [Storybook](/docs/integrations/storybook): Stories built with your project's Vite config, styled as the app is.
 
 ## Development servers
 

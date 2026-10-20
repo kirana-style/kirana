@@ -1,0 +1,35 @@
+{
+  "name": "kirana-example-solid-start",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "start": "node .output/server/index.mjs"
+  },
+  "kirana-example": {
+    "output": ".output/public",
+    "dev": [
+      "vite",
+      "dev",
+      "--port",
+      "{port}",
+      "--strictPort",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "src/routes/index.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "@solidjs/meta": "^0.29.4",
+    "@solidjs/router": "^1.0.0",
+    "@solidjs/start": "^2.0.6",
+    "nitro": "^3.0.260903-beta",
+    "solid-js": "^1.9.17",
+    "vite": "^8.3.4"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "typescript": "^7.0.2"
+  }
+}

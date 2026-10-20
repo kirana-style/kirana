@@ -39,7 +39,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Introduction",
     "section": "start",
     "heading": "Works with your framework",
-    "text": "React, Next.js, React Router, TanStack Start, Gatsby, Preact, Solid, Vue, Nuxt, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete install guide, and each is built and checked in a browser on every change: pick yours ."
+    "text": "React, Next.js, React Router, TanStack Start, Gatsby, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete install guide, and each is built and checked in a browser on every change: pick yours ."
   },
   {
     "id": "/docs#what-it-gives-you",
@@ -1532,7 +1532,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Layers and global CSS",
     "section": "config",
     "heading": "Third-party CSS",
-    "text": "A package's stylesheet you cannot edit (a date picker, a carousel) goes into a layer you name, so your styles beat it without :"
+    "text": "A package's stylesheet you cannot edit (a date picker, a carousel) goes into a layer you name, so your styles beat it without : When the package imports its CSS from JavaScript, as a theme does, there is no line to give a layer: on Vite, from wraps those stylesheets in the layer as they load ( the Vite plugin )."
   },
   {
     "id": "/docs/config/layers#when-to-write-global-css-at-all",
@@ -1743,7 +1743,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "TanStack Start",
     "section": "frameworks",
     "heading": "TanStack Start",
-    "text": "This site, and the three applications of our shadcn/ui port, are TanStack Start apps; this page is the setup they use."
+    "text": "This site, and the three applications of our shadcn/ui port, are TanStack Start apps; this page is the setup they use. Tested on every change by , prerendered and on its dev server."
   },
   {
     "id": "/docs/frameworks/tanstack-start#the-root-document",
@@ -1831,6 +1831,163 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "frameworks",
     "heading": "Next",
     "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. The webpack plugin , which does the work. Styles ."
+  },
+  {
+    "id": "/docs/frameworks/waku",
+    "href": "/docs/frameworks/waku",
+    "page": "Waku",
+    "section": "frameworks",
+    "text": "Install Kirana in a Waku app, where server components and client components compile sx to className, and static pages carry the class names in their HTML. "
+  },
+  {
+    "id": "/docs/frameworks/waku#waku",
+    "href": "/docs/frameworks/waku#waku",
+    "page": "Waku",
+    "section": "frameworks",
+    "heading": "Waku",
+    "text": "Waku builds with Vite, and takes Vite plugins under in . Kirana compiles server components and client components alike, so a page rendered at build time ( ) has the class names in its HTML, and the browser has the same ones. Tested on every change by , built and on its dev server."
+  },
+  {
+    "id": "/docs/frameworks/waku#the-fast-way",
+    "href": "/docs/frameworks/waku#the-fast-way",
+    "page": "Waku",
+    "section": "frameworks",
+    "heading": "The fast way",
+    "text": "In the project's root: It detects the project, shows every change below as a diff, writes them once you say yes, and prints the install command ( runs it). Then checks the result."
+  },
+  {
+    "id": "/docs/frameworks/waku#3-import-the-stylesheet",
+    "href": "/docs/frameworks/waku#3-import-the-stylesheet",
+    "page": "Waku",
+    "section": "frameworks",
+    "heading": "3. Import the stylesheet",
+    "text": "In the root layout, which wraps every page:"
+  },
+  {
+    "id": "/docs/frameworks/waku#5-write-a-page",
+    "href": "/docs/frameworks/waku#5-write-a-page",
+    "page": "Waku",
+    "section": "frameworks",
+    "heading": "5. Write a page",
+    "text": "A server component styles itself the way a client component does; there is no runtime to keep out of it, because the styles are compiled away:"
+  },
+  {
+    "id": "/docs/frameworks/waku#next",
+    "href": "/docs/frameworks/waku#next",
+    "page": "Waku",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "React : in React components. Next.js , the other framework with server components that Kirana supports. The Vite plugin ."
+  },
+  {
+    "id": "/docs/frameworks/vike",
+    "href": "/docs/frameworks/vike",
+    "page": "Vike",
+    "section": "frameworks",
+    "text": "Install Kirana in a Vike app on Vite, with vike-react, vike-vue or vike-solid, where sx compiles in pages, layouts and prerendered HTML. "
+  },
+  {
+    "id": "/docs/frameworks/vike#vike",
+    "href": "/docs/frameworks/vike#vike",
+    "page": "Vike",
+    "section": "frameworks",
+    "heading": "Vike",
+    "text": "Vike builds with Vite, so Kirana's Vite plugin compiles every page, layout and file before the renderer's plugin sees it, and prerendered HTML carries the class names. Tested on every change by , built and on its dev server. This page uses React. With Vue or Solid as the renderer, the steps are the same, with the types of Vue or Solid ."
+  },
+  {
+    "id": "/docs/frameworks/vike#the-fast-way",
+    "href": "/docs/frameworks/vike#the-fast-way",
+    "page": "Vike",
+    "section": "frameworks",
+    "heading": "The fast way",
+    "text": "In the project's root: It detects the project, shows every change below as a diff, writes them once you say yes, and prints the install command ( runs it). Then checks the result."
+  },
+  {
+    "id": "/docs/frameworks/vike#2-add-the-plugin",
+    "href": "/docs/frameworks/vike#2-add-the-plugin",
+    "page": "Vike",
+    "section": "frameworks",
+    "heading": "2. Add the plugin",
+    "text": "Kirana goes first, so pages reach the renderer's plugin and Vike's with already a class name:"
+  },
+  {
+    "id": "/docs/frameworks/vike#3-import-the-stylesheet",
+    "href": "/docs/frameworks/vike#3-import-the-stylesheet",
+    "page": "Vike",
+    "section": "frameworks",
+    "heading": "3. Import the stylesheet",
+    "text": "In a file every page shares, or :"
+  },
+  {
+    "id": "/docs/frameworks/vike#next",
+    "href": "/docs/frameworks/vike#next",
+    "page": "Vike",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "React : in React components. Your first component . The Vite plugin ."
+  },
+  {
+    "id": "/docs/frameworks/docusaurus",
+    "href": "/docs/frameworks/docusaurus",
+    "page": "Docusaurus",
+    "section": "frameworks",
+    "text": "Install Kirana in a Docusaurus site through a local plugin that adds Kirana's webpack plugin, with Docusaurus's aliases declared and the stylesheet in the theme's Root. "
+  },
+  {
+    "id": "/docs/frameworks/docusaurus#docusaurus",
+    "href": "/docs/frameworks/docusaurus#docusaurus",
+    "page": "Docusaurus",
+    "section": "frameworks",
+    "heading": "Docusaurus",
+    "text": "Docusaurus builds with webpack, twice: the browser bundle, and the server render that writes each page's HTML. A plugin of a few lines adds Kirana's webpack plugin to both, and the two share one compiler session, so a class name is the same in the HTML and in the browser. Tested on every change by , built and on its dev server."
+  },
+  {
+    "id": "/docs/frameworks/docusaurus#the-fast-way",
+    "href": "/docs/frameworks/docusaurus#the-fast-way",
+    "page": "Docusaurus",
+    "section": "frameworks",
+    "heading": "The fast way",
+    "text": "In the project's root: It writes the configuration and the stylesheet's import, and tells you the plugin to add (step 2). Then checks the result."
+  },
+  {
+    "id": "/docs/frameworks/docusaurus#2-add-the-plugin",
+    "href": "/docs/frameworks/docusaurus#2-add-the-plugin",
+    "page": "Docusaurus",
+    "section": "frameworks",
+    "heading": "2. Add the plugin",
+    "text": "Kirana's loader runs ahead of Docusaurus's own, so it reads before JSX is compiled away."
+  },
+  {
+    "id": "/docs/frameworks/docusaurus#3-declare-docusaurus-s-aliases",
+    "href": "/docs/frameworks/docusaurus#3-declare-docusaurus-s-aliases",
+    "page": "Docusaurus",
+    "section": "frameworks",
+    "heading": "3. Declare Docusaurus's aliases",
+    "text": ", and the rest are webpack aliases that Node.js resolution cannot follow. Listed as externals, imports from them are runtime values, without an warning on every page:"
+  },
+  {
+    "id": "/docs/frameworks/docusaurus#4-import-the-stylesheet",
+    "href": "/docs/frameworks/docusaurus#4-import-the-stylesheet",
+    "page": "Docusaurus",
+    "section": "frameworks",
+    "heading": "4. Import the stylesheet",
+    "text": "In the theme's , which wraps every page (create it if the site has none):"
+  },
+  {
+    "id": "/docs/frameworks/docusaurus#5-write-a-page",
+    "href": "/docs/frameworks/docusaurus#5-write-a-page",
+    "page": "Docusaurus",
+    "section": "frameworks",
+    "heading": "5. Write a page",
+    "text": "Infima, the classic theme's CSS framework, is unlayered: on an element it styles itself (a link's colour, a heading's margin), its rule beats yours. Style your own elements, or wrappers around Infima's, and it does not come up."
+  },
+  {
+    "id": "/docs/frameworks/docusaurus#next",
+    "href": "/docs/frameworks/docusaurus#next",
+    "page": "Docusaurus",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "React : in React components. The webpack plugin . Layers ."
   },
   {
     "id": "/docs/frameworks/preact",
@@ -1927,6 +2084,53 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Styles and conditions . The Vite plugin ."
   },
   {
+    "id": "/docs/frameworks/solid-start",
+    "href": "/docs/frameworks/solid-start",
+    "page": "SolidStart",
+    "section": "frameworks",
+    "text": "Install Kirana in a SolidStart 2 app on Vite, where sx compiles to class for the server render and after hydration alike. "
+  },
+  {
+    "id": "/docs/frameworks/solid-start#solidstart",
+    "href": "/docs/frameworks/solid-start#solidstart",
+    "page": "SolidStart",
+    "section": "frameworks",
+    "heading": "SolidStart",
+    "text": "SolidStart 2 builds with Vite, with its configuration in , so Kirana's Vite plugin is all it needs: compiles to , on the server render and after hydration alike. Tested on every change by , built and on its dev server."
+  },
+  {
+    "id": "/docs/frameworks/solid-start#the-fast-way",
+    "href": "/docs/frameworks/solid-start#the-fast-way",
+    "page": "SolidStart",
+    "section": "frameworks",
+    "heading": "The fast way",
+    "text": "In the project's root: It detects the project, shows every change below as a diff, writes them once you say yes, and prints the install command ( runs it). Then checks the result."
+  },
+  {
+    "id": "/docs/frameworks/solid-start#2-add-the-plugin",
+    "href": "/docs/frameworks/solid-start#2-add-the-plugin",
+    "page": "SolidStart",
+    "section": "frameworks",
+    "heading": "2. Add the plugin",
+    "text": "Kirana goes before SolidStart's plugin, so routes reach Solid's compiler with already a class:"
+  },
+  {
+    "id": "/docs/frameworks/solid-start#3-import-the-stylesheet",
+    "href": "/docs/frameworks/solid-start#3-import-the-stylesheet",
+    "page": "SolidStart",
+    "section": "frameworks",
+    "heading": "3. Import the stylesheet",
+    "text": "In the root component, which every route renders inside:"
+  },
+  {
+    "id": "/docs/frameworks/solid-start#next",
+    "href": "/docs/frameworks/solid-start#next",
+    "page": "SolidStart",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "Solid : in Solid components, and what it compiles to. Your first component . The Vite plugin ."
+  },
+  {
     "id": "/docs/frameworks/vue",
     "href": "/docs/frameworks/vue",
     "page": "Vue",
@@ -2019,6 +2223,69 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "frameworks",
     "heading": "Next",
     "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Vue : how compiles, and what to keep in the script. Styles and conditions ."
+  },
+  {
+    "id": "/docs/frameworks/vitepress",
+    "href": "/docs/frameworks/vitepress",
+    "page": "VitePress",
+    "section": "frameworks",
+    "text": "Install Kirana in a VitePress site, with the default theme's CSS in a layer below your styles, and sx in the theme's and the pages' Vue components. "
+  },
+  {
+    "id": "/docs/frameworks/vitepress#vitepress",
+    "href": "/docs/frameworks/vitepress#vitepress",
+    "page": "VitePress",
+    "section": "frameworks",
+    "heading": "VitePress",
+    "text": "VitePress builds with Vite, and takes Vite plugins under in . Kirana compiles your theme's components and the components pages use, written with as in any Vue component. One thing is particular to it: the default theme's CSS. Tested on every change by , built and on its dev server, on VitePress 2. VitePress 2 builds on Vite 8, which Kirana's plugin needs. VitePress 1 is on Vite 5 and is not supported."
+  },
+  {
+    "id": "/docs/frameworks/vitepress#the-fast-way",
+    "href": "/docs/frameworks/vitepress#the-fast-way",
+    "page": "VitePress",
+    "section": "frameworks",
+    "heading": "The fast way",
+    "text": "In the project's root: It finds the source directory ( , or the root), shows every change below as a diff, and writes them once you say yes. Then checks the result."
+  },
+  {
+    "id": "/docs/frameworks/vitepress#2-add-the-plugin-and-layer-the-theme",
+    "href": "/docs/frameworks/vitepress#2-add-the-plugin-and-layer-the-theme",
+    "page": "VitePress",
+    "section": "frameworks",
+    "heading": "2. Add the plugin, and layer the theme",
+    "text": "Most of the default theme's CSS is unlayered, and its reset ( ) sits in a layer declared after Kirana's. Either one beats every style you write with , whatever its selector: an unlayered rule outranks all layered ones. puts the theme's stylesheets in a layer as Vite loads them, and the configuration orders it before Kirana's ( layers )."
+  },
+  {
+    "id": "/docs/frameworks/vitepress#3-order-the-layer",
+    "href": "/docs/frameworks/vitepress#3-order-the-layer",
+    "page": "VitePress",
+    "section": "frameworks",
+    "heading": "3. Order the layer",
+    "text": "Kirana reads its configuration from Vite's root, which VitePress makes its source directory, so the file goes beside :"
+  },
+  {
+    "id": "/docs/frameworks/vitepress#4-import-the-stylesheet",
+    "href": "/docs/frameworks/vitepress#4-import-the-stylesheet",
+    "page": "VitePress",
+    "section": "frameworks",
+    "heading": "4. Import the stylesheet",
+    "text": "In the theme's entry, before the default theme's styles:"
+  },
+  {
+    "id": "/docs/frameworks/vitepress#5-write-a-component",
+    "href": "/docs/frameworks/vitepress#5-write-a-component",
+    "page": "VitePress",
+    "section": "frameworks",
+    "heading": "5. Write a component",
+    "text": "Register it in the theme's , and use in any page."
+  },
+  {
+    "id": "/docs/frameworks/vitepress#next",
+    "href": "/docs/frameworks/vitepress#next",
+    "page": "VitePress",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "Vue : in single-file components. Layers : where third-party CSS goes. The Vite plugin , and ."
   },
   {
     "id": "/docs/frameworks/svelte",
@@ -2778,7 +3045,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Vite",
     "section": "bundlers",
     "heading": "Which modules it compiles",
-    "text": "Script files only (TypeScript and JavaScript, with or without JSX, ES modules included) outside , and only when the text contains or an attribute. That prefilter is why adding Kirana to a large application does not slow the build down in proportion to its size. Markdown, HTML and other assets are never compiled, so written there does nothing."
+    "text": "Script files only (TypeScript and JavaScript, with or without JSX, ES modules included) outside , and only when the text contains or an attribute. That prefilter is why adding Kirana to a large application does not slow the build down in proportion to its size. Markdown, HTML and other assets are never compiled, so written there does nothing. Neither are the modules a plugin generates rather than reads from a file ( ids, and Rollup's null-prefixed ones), even when their id ends in a script extension: they hold that plugin's code, never your styles."
+  },
+  {
+    "id": "/docs/integrations/vite#a-dependency-s-css-in-a-layer",
+    "href": "/docs/integrations/vite#a-dependency-s-css-in-a-layer",
+    "page": "Vite",
+    "section": "bundlers",
+    "heading": "A dependency's CSS in a layer",
+    "text": "puts a dependency's stylesheets in a cascade layer as Vite loads them: every stylesheet whose path contains , or matches it when it is a regular expression. It is for a package that imports unlayered CSS from JavaScript, where there is no import line to give a layer. Unlayered, a theme's reset would beat every style you write. Then order the layer before Kirana's, ( layers ). and stay at the top of a wrapped file, and an import without a layer of its own takes the same one. VitePress uses it for its default theme."
   },
   {
     "id": "/docs/integrations/vite#the-stylesheet",
@@ -3043,6 +3318,53 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "testing",
     "heading": "Next",
     "text": "Every bundler ."
+  },
+  {
+    "id": "/docs/integrations/storybook",
+    "href": "/docs/integrations/storybook",
+    "page": "Storybook",
+    "section": "testing",
+    "text": "Use Kirana in Storybook with the Vite builder, which reads your project's vite.config, so stories compile and render as the app does. "
+  },
+  {
+    "id": "/docs/integrations/storybook#storybook",
+    "href": "/docs/integrations/storybook#storybook",
+    "page": "Storybook",
+    "section": "testing",
+    "heading": "Storybook",
+    "text": "Storybook's Vite builders ( , and the rest) read your project's , so a project already set up for Kirana needs no Storybook configuration of its own for the styles: stories compile with the same plugin, to the same class names. Tested on every change by , built and on its dev server."
+  },
+  {
+    "id": "/docs/integrations/storybook#1-kirana-in-vite-config",
+    "href": "/docs/integrations/storybook#1-kirana-in-vite-config",
+    "page": "Storybook",
+    "section": "testing",
+    "heading": "1. Kirana in  vite.config",
+    "text": "As for the app ( the Vite plugin ):"
+  },
+  {
+    "id": "/docs/integrations/storybook#2-the-stylesheet-in-the-preview",
+    "href": "/docs/integrations/storybook#2-the-stylesheet-in-the-preview",
+    "page": "Storybook",
+    "section": "testing",
+    "heading": "2. The stylesheet in the preview",
+    "text": "Stories render in the preview's frame, which has a document of its own:"
+  },
+  {
+    "id": "/docs/integrations/storybook#3-write-a-story",
+    "href": "/docs/integrations/storybook#3-write-a-story",
+    "page": "Storybook",
+    "section": "testing",
+    "heading": "3. Write a story",
+    "text": "A story for each variant of a recipe shows every class the variant compiles to, and editing a style updates the story on the dev server."
+  },
+  {
+    "id": "/docs/integrations/storybook#next",
+    "href": "/docs/integrations/storybook#next",
+    "page": "Storybook",
+    "section": "testing",
+    "heading": "Next",
+    "text": "Recipes : variants worth a story each. Themes and modes : a toolbar switch for and in the preview."
   },
   {
     "id": "/docs/migration/from-tailwind",
@@ -3769,7 +4091,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Configuration reference",
     "section": "reference",
     "heading": "externals",
-    "text": "Specifier prefixes the bundler provides and Node.js resolution cannot find. An import from one is a runtime value, as an installed package's is, instead of an warning. The Ember adapter adds Ember's own ( , , ), and Meteor sets ."
+    "text": "Specifier prefixes the bundler provides and Node.js resolution cannot find. An import from one is a runtime value, as an installed package's is, instead of an warning. Who sets them: the Ember adapter adds Ember's own: , , ; Meteor sets ; Docusaurus sets its webpack aliases, such as and ."
   },
   {
     "id": "/docs/config/reference#root",

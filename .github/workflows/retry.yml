@@ -1,0 +1,46 @@
+name: retry
+
+# GitHub re-runs nothing on its own. When `ci` or `packages` fails only because jobs never reached a
+# runner (a busy macOS pool: "not acquired by Runner", abandoned, cancelled while queued), this
+# re-runs the failed jobs, which re-runs the result checks after them. A job that ran and failed in
+# its own steps is never retried, and a run is retried twice at most.
+#
+# `workflow_run` runs in this repository with its own token, for pull requests from forks too; it
+# checks out nothing, so no code from a pull request runs with that token.
+
+on:
+  workflow_run:
+    workflows: [ci, packages]
+    types: [completed]
+
+permissions:
+  actions: write
+
+jobs:
+  retry:
+    if: github.event.workflow_run.conclusion == 'failure' && github.event.workflow_run.run_attempt < 3
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+
+    steps:
+      - name: Re-run the failed jobs when no runner took them
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN: ${{ github.event.workflow_run.id }}
+        run: |
+          jobs=$(gh api --paginate "repos/$REPO/actions/runs/$RUN/jobs?filter=latest&per_page=100" --jq '.jobs[]' | jq -s .)
+          # What did not pass, apart from the result checks, which only report the others.
+          failed=$(jq '[.[]
+            | select(.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")
+            | select(.name | endswith(" result") | not)]' <<< "$jobs")
+          # A job that never reached a runner has no runner name and ran no step.
+          unrun=$(jq '[.[] | select((.runner_name // "") == "" and ((.steps // []) | length) == 0)]' <<< "$failed")
+          jq -r '.[] | "\(.name): \(.conclusion), runner: \(if (.runner_name // "") == "" then "none" else .runner_name end)"' <<< "$failed"
+          count=$(jq length <<< "$failed")
+          if [ "$count" -eq 0 ] || [ "$(jq length <<< "$unrun")" -ne "$count" ]; then
+            echo "A job failed in its own steps, or nothing did: not retried."
+            exit 0
+          fi
+          echo "::notice::$count job(s) never reached a runner: re-running them."
+          gh api -X POST "repos/$REPO/actions/runs/$RUN/rerun-failed-jobs"

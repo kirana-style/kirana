@@ -146,6 +146,18 @@
       "dark": "tanstack_dark.svg"
     }
   },
+  "docusaurus": {
+    "title": "Docusaurus",
+    "category": "Software",
+    "url": "https://docusaurus.io/",
+    "route": "docusaurus.svg"
+  },
+  "storybook": {
+    "title": "Storybook",
+    "category": "Software",
+    "url": "https://storybook.js.org/",
+    "route": "storybook.svg"
+  },
   "vite": {
     "title": "Vite",
     "category": ["Devtool", "VoidZero"],
@@ -360,6 +372,13 @@
     "route": "logoforge-phoenix-icon.svg",
     "source": "logoforge"
   },
+  "vitepress": {
+    "title": "VitePress",
+    "category": ["frameworks"],
+    "url": "https://vitepress.dev/",
+    "route": "logoforge-vitepress-icon.svg",
+    "source": "logoforge"
+  },
   "adonisjs": {
     "title": "AdonisJS",
     "category": ["frameworks"],
@@ -390,5 +409,15 @@
       "dark": "logoforge-helix-icon-dark.svg"
     },
     "source": "logoforge"
+  },
+  "vike": {
+    "title": "Vike",
+    "category": "Framework",
+    "url": "https://vike.dev/",
+    "route": {
+      "light": "official-vike-light.svg",
+      "dark": "official-vike-dark.svg"
+    },
+    "source": "official"
   }
 }

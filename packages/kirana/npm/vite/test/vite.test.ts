@@ -15,6 +15,8 @@ import type { Rolldown } from "vite"
 import kirana, {
   PLACEHOLDER,
   cleanId,
+  cssLayer,
+  wrapInLayer,
   readSource,
   renameAsset,
 } from "../src/index.ts"
@@ -45,6 +47,58 @@ describe("helpers", () => {
   it("reads a diagnostic's source relative to the root, or nothing", () => {
     expect(readSource(import.meta.dirname, "app/index.html")).toContain("<")
     expect(readSource(import.meta.dirname, "missing.tsx")).toBeUndefined()
+  })
+})
+
+describe("cssLayer", () => {
+  it("wraps a stylesheet in the layer, keeping @charset and @import first", () => {
+    expect(wrapInLayer("* { padding: 0 }", "vendor")).toBe(
+      "@layer vendor {\n* { padding: 0 }\n}\n"
+    )
+    expect(
+      wrapInLayer(
+        '@charset "utf-8";\n@import "./a.css";\n@import "./b.css" layer(own);\np { margin: 0 }',
+        "vendor"
+      )
+    ).toBe(
+      '@charset "utf-8";\n@import "./a.css" layer(vendor);\n@import "./b.css" layer(own);\n@layer vendor {\np { margin: 0 }\n}\n'
+    )
+
+    // A comment among the leading statements stays with them; an unclosed one, or an import
+    // without its semicolon, ends them, and the rest is wrapped as it is.
+    expect(wrapInLayer('/* © */\n@import "./a.css";\na {}', "v")).toBe(
+      '/* © */\n@import "./a.css" layer(v);\n@layer v {\na {}\n}\n'
+    )
+    expect(wrapInLayer("/* open\na {}", "v")).toBe(
+      "@layer v {\n/* open\na {}\n}\n"
+    )
+    expect(wrapInLayer('@import "./a.css"', "v")).toBe(
+      '@layer v {\n@import "./a.css"\n}\n'
+    )
+    // Linear on what a pattern could backtrack over: a long run of spaces after the keyword.
+    const spaces = `@import ${" ".repeat(200_000)}x`
+    const started = performance.now()
+    wrapInLayer(spaces, "v")
+    expect(performance.now() - started).toBeLessThan(100)
+  })
+
+  it("wraps only the stylesheets it is given, by path or pattern", () => {
+    type Handler = (code: string, id: string) => { code: string } | null
+    const handler = (plugin: ReturnType<typeof cssLayer>) =>
+      (plugin.transform as { handler: Handler }).handler
+    const byPath = handler(cssLayer("vitepress", "vitepress/dist/client/"))
+    expect(
+      byPath(
+        "p {}",
+        "C:\\app\\node_modules\\vitepress\\dist\\client\\base.css?direct"
+      )?.code
+    ).toBe("@layer vitepress {\np {}\n}\n")
+    expect(byPath("p {}", "/app/src/own.css")).toBeNull()
+    const byPattern = handler(cssLayer("vendor", /\/carousel\//))
+    expect(
+      byPattern("p {}", "/app/node_modules/carousel/style.css")?.code
+    ).toBe("@layer vendor {\np {}\n}\n")
+    expect(cssLayer("vendor", "x").name).toBe("kirana:css-layer:vendor")
   })
 })
 

@@ -35,7 +35,7 @@ of Kirana is left at runtime.
 
 ## Works with your framework
 
-React, Next.js, React Router, TanStack Start, Gatsby, Preact, Solid, Vue, Nuxt, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no
+React, Next.js, React Router, TanStack Start, Gatsby, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no
 framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete
 install guide, and each is built and checked in a browser on every change:
 **[pick yours](/docs/frameworks/overview)**.
@@ -377,10 +377,15 @@ Frameworks:
 - [React Router](/docs/frameworks/react-router): A standards-focused router and framework you can deploy anywhere.
 - [TanStack Start](/docs/frameworks/tanstack-start): Full-stack React powered by TanStack Router. This site runs on it.
 - [Gatsby](/docs/frameworks/gatsby): Static sites with React and GraphQL, built by webpack.
+- [Waku](/docs/frameworks/waku): The minimal React framework, built on React Server Components.
+- [Vike](/docs/frameworks/vike): The framework you assemble: your renderer, your server, on Vite.
+- [Docusaurus](/docs/frameworks/docusaurus): Documentation websites with React, built by webpack.
 - [Preact](/docs/frameworks/preact): A fast 3 kB alternative to React with the same API.
 - [Solid](/docs/frameworks/solid): Simple, performant reactivity for user interfaces.
+- [SolidStart](/docs/frameworks/solid-start): Solid's full-stack framework: routes, server rendering and server functions.
 - [Vue](/docs/frameworks/vue): The progressive framework, with :sx in single-file components.
 - [Nuxt](/docs/frameworks/nuxt): The intuitive Vue framework for universal applications.
+- [VitePress](/docs/frameworks/vitepress): The Vite and Vue static site generator for documentation.
 - [Svelte](/docs/frameworks/svelte): Cybernetically enhanced web apps, with sx on elements.
 - [SvelteKit](/docs/frameworks/sveltekit): The fastest way to build apps of all sizes with Svelte.
 - [Astro](/docs/frameworks/astro): The web framework for content-driven sites, sx in .astro files.
@@ -409,6 +414,7 @@ Bundlers:
 - [esbuild](/docs/integrations/esbuild): An extremely fast bundler, in watch and serve modes too.
 - [PostCSS](/docs/integrations/postcss): The project's stylesheet wherever @kirana; stands.
 - [Jest](/docs/integrations/jest): A transformer, so tests see the class names you ship.
+- [Storybook](/docs/integrations/storybook): Stories built with your project's Vite config, styled as the app is.
 
 The overview of all of them, with what `sx` compiles to in each, is
 [supported frameworks](/docs/frameworks/overview).
@@ -3234,6 +3240,11 @@ layers: {
 @import "some-package/dist/style.css" layer(vendor);
 ```
 
+When the package imports its CSS from JavaScript, as a theme does, there is no
+`@import` line to give a layer: on Vite, `cssLayer("vendor", "some-package/dist/")`
+from `@kirana-style/vite` wraps those stylesheets in the layer as they load
+([the Vite plugin](/docs/integrations/vite#a-dependency-s-css-in-a-layer)).
+
 ## When to write global CSS at all
 
 Rarely. Two cases hold up:
@@ -3267,10 +3278,15 @@ Each is complete on its own: install, configure, import the stylesheet, type
 - [React Router](/docs/frameworks/react-router): A standards-focused router and framework you can deploy anywhere.
 - [TanStack Start](/docs/frameworks/tanstack-start): Full-stack React powered by TanStack Router. This site runs on it.
 - [Gatsby](/docs/frameworks/gatsby): Static sites with React and GraphQL, built by webpack.
+- [Waku](/docs/frameworks/waku): The minimal React framework, built on React Server Components.
+- [Vike](/docs/frameworks/vike): The framework you assemble: your renderer, your server, on Vite.
+- [Docusaurus](/docs/frameworks/docusaurus): Documentation websites with React, built by webpack.
 - [Preact](/docs/frameworks/preact): A fast 3 kB alternative to React with the same API.
 - [Solid](/docs/frameworks/solid): Simple, performant reactivity for user interfaces.
+- [SolidStart](/docs/frameworks/solid-start): Solid's full-stack framework: routes, server rendering and server functions.
 - [Vue](/docs/frameworks/vue): The progressive framework, with :sx in single-file components.
 - [Nuxt](/docs/frameworks/nuxt): The intuitive Vue framework for universal applications.
+- [VitePress](/docs/frameworks/vitepress): The Vite and Vue static site generator for documentation.
 - [Svelte](/docs/frameworks/svelte): Cybernetically enhanced web apps, with sx on elements.
 - [SvelteKit](/docs/frameworks/sveltekit): The fastest way to build apps of all sizes with Svelte.
 - [Astro](/docs/frameworks/astro): The web framework for content-driven sites, sx in .astro files.
@@ -3348,6 +3364,7 @@ one builds them.
 - [esbuild](/docs/integrations/esbuild): An extremely fast bundler, in watch and serve modes too.
 - [PostCSS](/docs/integrations/postcss): The project's stylesheet wherever @kirana; stands.
 - [Jest](/docs/integrations/jest): A transformer, so tests see the class names you ship.
+- [Storybook](/docs/integrations/storybook): Stories built with your project's Vite config, styled as the app is.
 
 ## Kirana CLI
 
@@ -3725,7 +3742,8 @@ Source: https://kirana.style/docs/frameworks/tanstack-start
 # TanStack Start
 
 This site, and the three applications of our shadcn/ui port, are TanStack
-Start apps; this page is the setup they use.
+Start apps; this page is the setup they use. Tested on every change by
+`examples/tanstack-start`, prerendered and on its dev server.
 
 
 
@@ -3885,6 +3903,288 @@ Type `sx` with `"types": ["@kirana-style/core/react"]` in `tsconfig.json`.
 - [The webpack plugin](/docs/integrations/webpack), which does the work.
 - [Styles](/docs/styling/styles).
 ---
+# Waku
+Source: https://kirana.style/docs/frameworks/waku
+# Waku
+
+Waku builds with Vite, and takes Vite plugins under `vite` in `waku.config.ts`.
+Kirana compiles server components and client components alike, so a page
+rendered at build time (`render: "static"`) has the class names in its HTML, and
+the browser has the same ones. Tested on every change by `examples/waku`, built
+and on its dev server.
+
+
+
+## The fast way
+
+In the project's root:
+
+```bash
+npx kirana-style@latest init
+```
+
+It detects the project, shows every change below as a diff, writes them once you
+say yes, and prints the install command (`--install` runs it). Then
+`npx kirana-style doctor` checks the result.
+
+## 1. Install
+
+```bash
+npm install @kirana-style/core
+npm install -D @kirana-style/vite
+```
+
+## 2. Add the plugin
+
+```ts file="waku.config.ts"
+import kirana from "@kirana-style/vite"
+import { defineConfig } from "waku/config"
+
+export default defineConfig({
+  vite: { plugins: [kirana()] },
+})
+```
+
+## 3. Import the stylesheet
+
+In the root layout, which wraps every page:
+
+```tsx file="src/pages/_layout.tsx"
+import "@kirana-style/core/stylesheet.css"
+```
+
+## 4. Type `sx`
+
+```json file="tsconfig.json"
+{
+  "compilerOptions": { "types": ["@kirana-style/core/react"] }
+}
+```
+
+## 5. Write a page
+
+A server component styles itself the way a client component does; there is no
+runtime to keep out of it, because the styles are compiled away:
+
+```tsx file="src/pages/index.tsx"
+import { css } from "@kirana-style/core"
+
+const title = css({ fontSize: "2rem", fontWeight: 600 })
+
+export default async function Home() {
+  return <h1 sx={title}>Hello</h1>
+}
+
+export const getConfig = async () => ({ render: "static" }) as const
+```
+
+## Next
+
+- [React](/docs/frameworks/react): `sx` in React components.
+- [Next.js](/docs/frameworks/nextjs), the other framework with server
+  components that Kirana supports.
+- [The Vite plugin](/docs/integrations/vite).
+---
+# Vike
+Source: https://kirana.style/docs/frameworks/vike
+# Vike
+
+Vike builds with Vite, so Kirana's Vite plugin compiles every page, layout and
+`+` file before the renderer's plugin sees it, and prerendered HTML carries the
+class names. Tested on every change by `examples/vike`, built and on its dev
+server.
+
+This page uses React. With Vue or Solid as the renderer, the steps are the same,
+with the `sx` types of [Vue](/docs/frameworks/vue) or
+[Solid](/docs/frameworks/solid).
+
+
+
+## The fast way
+
+In the project's root:
+
+```bash
+npx kirana-style@latest init
+```
+
+It detects the project, shows every change below as a diff, writes them once you
+say yes, and prints the install command (`--install` runs it). Then
+`npx kirana-style doctor` checks the result.
+
+## 1. Install
+
+```bash
+npm install @kirana-style/core
+npm install -D @kirana-style/vite
+```
+
+## 2. Add the plugin
+
+Kirana goes first, so pages reach the renderer's plugin and Vike's with `sx`
+already a class name:
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import react from "@vitejs/plugin-react"
+import vike from "vike/plugin"
+import { defineConfig } from "vite"
+
+export default defineConfig({
+  plugins: [kirana(), react(), vike()],
+})
+```
+
+## 3. Import the stylesheet
+
+In a file every page shares, `+Layout` or `+Head`:
+
+```tsx file="pages/+Head.tsx"
+import "@kirana-style/core/stylesheet.css"
+
+export function Head() {
+  return <meta charSet="utf-8" />
+}
+```
+
+## 4. Type `sx`
+
+```json file="tsconfig.json"
+{
+  "compilerOptions": { "types": ["@kirana-style/core/react"] }
+}
+```
+
+## 5. Write a page
+
+```tsx file="pages/index/+Page.tsx"
+import { css } from "@kirana-style/core"
+
+const title = css({ fontSize: "2rem", fontWeight: 600 })
+
+export default function Page() {
+  return <h1 sx={title}>Hello</h1>
+}
+```
+
+## Next
+
+- [React](/docs/frameworks/react): `sx` in React components.
+- [Your first component](/docs/start/first-component).
+- [The Vite plugin](/docs/integrations/vite).
+---
+# Docusaurus
+Source: https://kirana.style/docs/frameworks/docusaurus
+# Docusaurus
+
+Docusaurus builds with webpack, twice: the browser bundle, and the server render
+that writes each page's HTML. A plugin of a few lines adds Kirana's webpack
+plugin to both, and the two share one compiler session, so a class name is the
+same in the HTML and in the browser. Tested on every change by
+`examples/docusaurus`, built and on its dev server.
+
+
+
+## The fast way
+
+In the project's root:
+
+```bash
+npx kirana-style@latest init
+```
+
+It writes the configuration and the stylesheet's import, and tells you the
+plugin to add (step 2). Then `npx kirana-style doctor` checks the result.
+
+## 1. Install
+
+```bash
+npm install @kirana-style/core
+npm install -D @kirana-style/webpack
+```
+
+## 2. Add the plugin
+
+```ts file="docusaurus.config.ts"
+import type { Config, Plugin } from "@docusaurus/types"
+import { KiranaPlugin } from "@kirana-style/webpack"
+
+function kirana(): Plugin {
+  return {
+    name: "kirana",
+    configureWebpack: () => ({ plugins: [new KiranaPlugin()] }),
+  }
+}
+
+export default {
+  // …
+  plugins: [kirana],
+} satisfies Config
+```
+
+Kirana's loader runs ahead of Docusaurus's own, so it reads `sx` before JSX is
+compiled away.
+
+## 3. Declare Docusaurus's aliases
+
+`@theme/Layout`, `@docusaurus/Link` and the rest are webpack aliases that
+Node.js resolution cannot follow. Listed as externals, imports from them are
+runtime values, without an `unresolved-import` warning on every page:
+
+```ts file="kirana.config.mts"
+import { defineConfig } from "@kirana-style/core/config"
+
+export default defineConfig({
+  externals: [
+    "@theme/",
+    "@theme-original/",
+    "@theme-init/",
+    "@site/",
+    "@generated/",
+    "@docusaurus/",
+  ],
+})
+```
+
+## 4. Import the stylesheet
+
+In the theme's `Root`, which wraps every page (create it if the site has none):
+
+```tsx file="src/theme/Root.tsx"
+import "@kirana-style/core/stylesheet.css"
+
+export default function Root({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
+}
+```
+
+## 5. Write a page
+
+```tsx file="src/pages/index.tsx"
+import { css } from "@kirana-style/core"
+import Layout from "@theme/Layout"
+
+const title = css({ fontSize: "2rem", fontWeight: 600 })
+
+export default function Home() {
+  return (
+    <Layout>
+      <h1 sx={title}>Hello</h1>
+    </Layout>
+  )
+}
+```
+
+Infima, the classic theme's CSS framework, is unlayered: on an element it
+styles itself (a link's colour, a heading's margin), its rule beats yours.
+Style your own elements, or wrappers around Infima's, and it does not come up.
+
+## Next
+
+- [React](/docs/frameworks/react): `sx` in React components.
+- [The webpack plugin](/docs/integrations/webpack).
+- [Layers](/docs/config/layers).
+---
 # Preact
 Source: https://kirana.style/docs/frameworks/preact
 # Preact
@@ -4031,6 +4331,87 @@ it ends up with, and so is a `className`.
 - [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).
 - [The Vite plugin](/docs/integrations/vite).
 ---
+# SolidStart
+Source: https://kirana.style/docs/frameworks/solid-start
+# SolidStart
+
+SolidStart 2 builds with Vite, with its configuration in `vite.config.ts`, so
+Kirana's Vite plugin is all it needs: `sx` compiles to `class`, on the server
+render and after hydration alike. Tested on every change by
+`examples/solid-start`, built and on its dev server.
+
+
+
+## The fast way
+
+In the project's root:
+
+```bash
+npx kirana-style@latest init
+```
+
+It detects the project, shows every change below as a diff, writes them once you
+say yes, and prints the install command (`--install` runs it). Then
+`npx kirana-style doctor` checks the result.
+
+## 1. Install
+
+```bash
+npm install @kirana-style/core
+npm install -D @kirana-style/vite
+```
+
+## 2. Add the plugin
+
+Kirana goes before SolidStart's plugin, so routes reach Solid's compiler with
+`sx` already a class:
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import { solidStart } from "@solidjs/start/config"
+import { nitro } from "nitro/vite"
+import { defineConfig } from "vite"
+
+export default defineConfig({
+  plugins: [kirana(), solidStart(), nitro()],
+})
+```
+
+## 3. Import the stylesheet
+
+In the root component, which every route renders inside:
+
+```tsx file="src/app.tsx"
+import "@kirana-style/core/stylesheet.css"
+```
+
+## 4. Type `sx`
+
+```json file="tsconfig.json"
+{
+  "compilerOptions": { "types": ["@kirana-style/core/solid"] }
+}
+```
+
+## 5. Write a route
+
+```tsx file="src/routes/index.tsx"
+import { css } from "@kirana-style/core"
+
+const title = css({ fontSize: "2rem", fontWeight: 600 })
+
+export default function Home() {
+  return <h1 sx={title}>Hello</h1>
+}
+```
+
+## Next
+
+- [Solid](/docs/frameworks/solid): `sx` in Solid components, and what it
+  compiles to.
+- [Your first component](/docs/start/first-component).
+- [The Vite plugin](/docs/integrations/vite).
+---
 # Vue
 Source: https://kirana.style/docs/frameworks/vue
 # Vue
@@ -4172,6 +4553,107 @@ In `nuxt dev`, editing a style updates the page in place, without a reload.
   and a variant, and the CSS it compiles to.
 - [Vue](/docs/frameworks/vue): how `:sx` compiles, and what to keep in the script.
 - [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).
+---
+# VitePress
+Source: https://kirana.style/docs/frameworks/vitepress
+# VitePress
+
+VitePress builds with Vite, and takes Vite plugins under `vite` in
+`.vitepress/config`. Kirana compiles your theme's components and the components
+pages use, written with `:sx` as in any [Vue](/docs/frameworks/vue) component.
+One thing is particular to it: the default theme's CSS. Tested on every change
+by `examples/vitepress`, built and on its dev server, on VitePress 2.
+
+
+
+VitePress 2 builds on Vite 8, which Kirana's plugin needs. VitePress 1 is on
+Vite 5 and is not supported.
+
+## The fast way
+
+In the project's root:
+
+```bash
+npx kirana-style@latest init
+```
+
+It finds the source directory (`docs/`, or the root), shows every change below
+as a diff, and writes them once you say yes. Then `npx kirana-style doctor`
+checks the result.
+
+## 1. Install
+
+```bash
+npm install @kirana-style/core
+npm install -D @kirana-style/vite
+```
+
+## 2. Add the plugin, and layer the theme
+
+```ts file="docs/.vitepress/config.ts"
+import kirana, { cssLayer } from "@kirana-style/vite"
+import { defineConfig } from "vitepress"
+
+export default defineConfig({
+  vite: {
+    plugins: [
+      kirana(),
+      cssLayer("vitepress", "vitepress/dist/client/theme-default/"),
+    ],
+  },
+})
+```
+
+Most of the default theme's CSS is unlayered, and its reset
+(`* { padding: 0 }`) sits in a layer declared after Kirana's. Either one beats
+every style you write with `css()`, whatever its selector: an unlayered rule
+outranks all layered ones. `cssLayer` puts the theme's stylesheets in a
+`vitepress` layer as Vite loads them, and the configuration orders it before
+Kirana's ([layers](/docs/config/layers)).
+
+## 3. Order the layer
+
+Kirana reads its configuration from Vite's root, which VitePress makes its
+source directory, so the file goes beside `.vitepress`:
+
+```ts file="docs/kirana.config.ts"
+import { defineConfig } from "@kirana-style/core/config"
+
+export default defineConfig({ layers: { before: ["vitepress"] } })
+```
+
+## 4. Import the stylesheet
+
+In the theme's entry, before the default theme's styles:
+
+```ts file="docs/.vitepress/theme/index.ts"
+import "@kirana-style/core/stylesheet.css"
+import DefaultTheme from "vitepress/theme"
+
+export default DefaultTheme
+```
+
+## 5. Write a component
+
+```vue file="docs/.vitepress/theme/Note.vue"
+<script setup lang="ts">
+import { css } from "@kirana-style/core"
+
+const note = css({ borderLeftWidth: "3px", paddingInline: "1rem" })
+</script>
+
+<template>
+  <aside :sx="note"><slot /></aside>
+</template>
+```
+
+Register it in the theme's `enhanceApp`, and use `<Note>` in any page.
+
+## Next
+
+- [Vue](/docs/frameworks/vue): `:sx` in single-file components.
+- [Layers](/docs/config/layers): where third-party CSS goes.
+- [The Vite plugin](/docs/integrations/vite), and `cssLayer`.
 ---
 # Svelte
 Source: https://kirana.style/docs/frameworks/svelte
@@ -5377,6 +5859,7 @@ byte-for-byte the same whichever bundler built them.
 - [esbuild](/docs/integrations/esbuild): An extremely fast bundler, in watch and serve modes too.
 - [PostCSS](/docs/integrations/postcss): The project's stylesheet wherever @kirana; stands.
 - [Jest](/docs/integrations/jest): A transformer, so tests see the class names you ship.
+- [Storybook](/docs/integrations/storybook): Stories built with your project's Vite config, styled as the app is.
 
 ## Development servers
 
@@ -5455,7 +5938,30 @@ That prefilter is why adding Kirana to a large application does not slow the bui
 down in proportion to its size.
 
 Markdown, HTML and other assets are never compiled, so `sx` written there does
-nothing.
+nothing. Neither are the modules a plugin generates rather than reads from a file
+(`virtual:` ids, and Rollup's null-prefixed ones), even when their id ends in a
+script extension: they hold that plugin's code, never your styles.
+
+## A dependency's CSS in a layer
+
+`cssLayer(name, include)` puts a dependency's stylesheets in a cascade layer as
+Vite loads them: every stylesheet whose path contains `include`, or matches it
+when it is a regular expression. It is for a package that imports unlayered CSS
+from JavaScript, where there is no import line to give a layer. Unlayered, a
+theme's reset would beat every style you write.
+
+```ts file="vite.config.ts"
+import kirana, { cssLayer } from "@kirana-style/vite"
+
+export default defineConfig({
+  plugins: [kirana(), cssLayer("vendor", "some-theme/dist/")],
+})
+```
+
+Then order the layer before Kirana's, `layers: { before: ["vendor"] }`
+([layers](/docs/config/layers)). `@charset` and `@import` stay at the top of a
+wrapped file, and an import without a layer of its own takes the same one.
+[VitePress](/docs/frameworks/vitepress) uses it for its default theme.
 
 ## The stylesheet
 
@@ -5876,6 +6382,60 @@ reads, run Jest once with `--no-cache`.
 
 - [Every bundler](/docs/integrations/bundlers).
 ---
+# Storybook
+Source: https://kirana.style/docs/integrations/storybook
+# Storybook
+
+Storybook's Vite builders (`@storybook/react-vite`, `@storybook/vue3-vite` and
+the rest) read your project's `vite.config`, so a project already set up for
+Kirana needs no Storybook configuration of its own for the styles: stories
+compile with the same plugin, to the same class names. Tested on every change by
+`examples/storybook`, built and on its dev server.
+
+## 1. Kirana in `vite.config`
+
+As for the app ([the Vite plugin](/docs/integrations/vite)):
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
+
+export default defineConfig({ plugins: [kirana(), react()] })
+```
+
+## 2. The stylesheet in the preview
+
+Stories render in the preview's frame, which has a document of its own:
+
+```ts file=".storybook/preview.ts"
+import "@kirana-style/core/stylesheet.css"
+import type { Preview } from "@storybook/react-vite"
+
+export default {} satisfies Preview
+```
+
+## 3. Write a story
+
+```tsx file="src/button.stories.tsx"
+import type { Meta, StoryObj } from "@storybook/react-vite"
+
+import { Button } from "./button"
+
+export default { component: Button } satisfies Meta<typeof Button>
+
+export const Primary: StoryObj<typeof Button> = { args: { tone: "primary" } }
+```
+
+A story for each variant of a [recipe](/docs/styling/recipes) shows every class
+the variant compiles to, and editing a style updates the story on the dev server.
+
+## Next
+
+- [Recipes](/docs/styling/recipes): variants worth a story each.
+- [Themes and modes](/docs/tokens/themes-and-modes): a toolbar switch for
+  `mode.light` and `mode.dark` in the preview.
+---
 # Migrating from Tailwind
 Source: https://kirana.style/docs/migration/from-tailwind
 # Migrating from Tailwind
@@ -6287,7 +6847,7 @@ is Tailwind v4's scales as tokens, and [utility strings](/docs/styling/utilities
 leaves the vocabulary to you.
 
 **Hosts and frameworks.** Adapters for Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild; `sx` in
-React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember and every framework built on them (React, Next.js, React Router, TanStack Start, Gatsby, Preact, Solid, Vue, Nuxt, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor); and
+React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember and every framework built on them (React, Next.js, React Router, TanStack Start, Gatsby, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor); and
 templates in Laravel, Symfony, Rails, Phoenix and AdonisJS, each with an example CI builds and checks. See
 [frameworks](/docs/frameworks/overview).
 
@@ -7308,8 +7868,12 @@ Specifier prefixes the bundler provides and Node.js resolution cannot find. An
 import from one is a runtime value, as an installed package's is, instead of an
 `unresolved-import` warning.
 
-The Ember adapter adds Ember's own (`@ember/`, `@glimmer/`, `@embroider/virtual/`),
-and [Meteor](/docs/frameworks/meteor) sets `meteor/`.
+Who sets them:
+
+- the Ember adapter adds Ember's own: `@ember/`, `@glimmer/`, `@embroider/virtual/`;
+- [Meteor](/docs/frameworks/meteor) sets `meteor/`;
+- [Docusaurus](/docs/frameworks/docusaurus) sets its webpack aliases, such as
+  `@theme/` and `@docusaurus/`.
 
 ## `root`
 
