@@ -5,7 +5,8 @@ name: release
 # since the last tag, bumped in every package.json, Cargo.toml, the gemspec, mix.exs and the editor
 # extensions, with CHANGELOG.md. Merging that PR tags vX.Y.Z and creates the GitHub release; this
 # workflow then builds every platform, runs the installation matrix as the gate, publishes, asks
-# every registry for the version (`verify`), and last asks kirana-lab to benchmark it (`bench`):
+# every registry for the version (`verify`), and asks kirana-lab to benchmark it once npm serves it
+# (`bench`):
 #
 #   npm (21 packages + 9 engine packages: 8 native, 1 WASI) · RubyGems · Hex · VS Code Marketplace · Open VSX ·
 #   the kirana-php mirror and the kirana/kirana alias (Packagist reads their tags)
@@ -45,6 +46,7 @@ concurrency:
 jobs:
   release-please:
     runs-on: ubuntu-26.04
+    timeout-minutes: 10
     permissions:
       contents: write
       pull-requests: write
@@ -72,6 +74,7 @@ jobs:
     needs: release-please
     if: needs.release-please.outputs.created != 'true' && inputs.publish == ''
     runs-on: ubuntu-26.04
+    timeout-minutes: 20
 
     steps:
       - name: Find the open Release PR
@@ -141,6 +144,7 @@ jobs:
       !failure() && !cancelled() &&
       (needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'npm'))
     runs-on: ubuntu-26.04
+    timeout-minutes: 45
     environment: release
     permissions:
       contents: read
@@ -161,15 +165,17 @@ jobs:
           node-version-file: .node-version
           registry-url: https://registry.npmjs.org
 
-      # Trusted publishing needs npm 11.5.1 or later.
-      - run: npm install --global npm@11
+      # Trusted publishing needs npm 11.5.1 or later, and moving a dist-tag through it 11.21 or 12.2.
+      - run: npm install --global npm@12
 
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: kirana-packages
           path: dist-packages
 
-      - name: Publish in dependency order
+      # Every package under `staging` in dependency order, one wait until no CDN edge can serve the
+      # old metadata, then `latest` on all of them (the script's header says why).
+      - name: Publish, then move latest
         run: bun packages/kirana/scripts/publish-npm.ts dist-packages
 
   rubygems:
@@ -179,6 +185,7 @@ jobs:
       !failure() && !cancelled() &&
       (needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'rubygems'))
     runs-on: ubuntu-26.04
+    timeout-minutes: 15
     environment: release
     permissions:
       contents: read
@@ -210,6 +217,7 @@ jobs:
       !failure() && !cancelled() &&
       (needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'hex'))
     runs-on: ubuntu-26.04
+    timeout-minutes: 15
     environment: release
     defaults:
       run:
@@ -239,6 +247,7 @@ jobs:
       !failure() && !cancelled() &&
       (needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'editors'))
     runs-on: ubuntu-26.04
+    timeout-minutes: 20
     environment: release
     permissions:
       contents: write
@@ -292,6 +301,7 @@ jobs:
       !failure() && !cancelled() &&
       (needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'php'))
     runs-on: ubuntu-26.04
+    timeout-minutes: 15
     environment: release
 
     steps:
@@ -324,14 +334,17 @@ jobs:
           git push origin "$TAG"
 
   # Every registry serves the version: a target that quietly did not publish (Packagist missing the
-  # tag, a skipped Marketplace upload) shows as a failed job instead of being found later. It runs
-  # after the publish jobs even when one failed, so the summary is complete; public APIs only.
+  # tag) shows as a failed job instead of being found later. Open VSX holding the upload for review
+  # is a warning and a missing hand upload to the Marketplace a notice, so neither keeps the release
+  # waiting. It runs after the publish jobs even when one failed, so the summary is complete; public
+  # APIs only.
   verify:
     needs: [release-please, npm, rubygems, hex, editors, php]
     if: >-
       !cancelled() &&
       (needs.release-please.outputs.created == 'true' || inputs.publish != '')
     runs-on: ubuntu-26.04
+    timeout-minutes: 40
     permissions:
       contents: read
 
@@ -350,14 +363,16 @@ jobs:
           TAG: ${{ needs.release-please.outputs.tag || inputs.tag }}
         run: bun packages/kirana/scripts/verify-release.ts "$TAG"
 
-  # Once every registry serves the release, kirana-lab measures it against StyleX and Tailwind (its
-  # bench workflow, about two hours); the `benchmarks` workflow then takes the results into the site.
+  # Once npm serves the release (the `npm` job ends only when it does), kirana-lab measures it against
+  # StyleX and Tailwind (its bench workflow, about three hours); the `benchmarks` workflow then takes
+  # the results into the site. The lab installs from npm only, so it waits for no other registry.
   # KIRANA_LAB_DISPATCH is a fine-grained token with Contents read and write on kirana-lab only,
   # which is what a repository_dispatch needs. Only a release is measured, not a re-publish.
   bench:
-    needs: [release-please, verify]
+    needs: [release-please, npm]
     if: needs.release-please.outputs.created == 'true'
     runs-on: ubuntu-26.04
+    timeout-minutes: 5
     permissions: {}
 
     steps:

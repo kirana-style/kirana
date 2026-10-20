@@ -22,11 +22,14 @@ runs:
       working-directory: packages/kirana
       run: rustup show active-toolchain || rustup toolchain install
 
+    # Saved from `main` only. Every branch restores main's cache, and a pull request's own entries
+    # would count against the repository's cache quota and evict main's, which every run starts from.
     - name: Cache Cargo
       uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       with:
         workspaces: packages/kirana
         key: ${{ inputs.cache-key }}
+        save-if: ${{ github.ref == 'refs/heads/main' }}
 
     - name: Install Cargo tools
       if: inputs.tools != ''
