@@ -10,6 +10,7 @@ import {
   FavouriteIcon,
   GitBranchIcon,
   GitCompareIcon,
+  HandshakeIcon,
   Idea01Icon,
   Image01Icon,
   JusticeScale01Icon,
@@ -47,6 +48,15 @@ export type Menu = {
   title: string
   featured: readonly Featured[]
   columns: readonly { title?: string; links: readonly NavLinkItem[] }[]
+}
+
+/** The sponsor link: the heart beside the menus, and a row in the mobile menu. */
+export const SPONSOR: NavLinkItem = {
+  title: "Sponsor",
+  description: "Keep Kirana independent",
+  href: "/sponsors",
+  icon: FavouriteIcon,
+  scene: "golden-fields",
 }
 
 /**
@@ -228,13 +238,6 @@ export const MENUS: readonly Menu[] = [
             scene: "old-hall",
           },
           {
-            title: "Open source",
-            description: "Why it is free, and stays so",
-            href: "/open-source",
-            icon: UserGroupIcon,
-            scene: "old-hall",
-          },
-          {
             title: "License",
             description: "MIT, and what it builds on",
             href: "/license",
@@ -250,18 +253,29 @@ export const MENUS: readonly Menu[] = [
           },
         ],
       },
+      {
+        title: "Support",
+        links: [
+          SPONSOR,
+          {
+            title: "Partners",
+            description: "The services Kirana runs on",
+            href: "/partners",
+            icon: HandshakeIcon,
+            scene: "old-hall",
+          },
+          {
+            title: "Open source",
+            description: "Why it is free, and stays so",
+            href: "/open-source",
+            icon: UserGroupIcon,
+            scene: "old-hall",
+          },
+        ],
+      },
     ],
   },
 ]
-
-/** The sponsor link: the heart beside the menus, and a row in the mobile menu. */
-export const SPONSOR: NavLinkItem = {
-  title: "Sponsor",
-  description: "Keep Kirana independent",
-  href: "/sponsors",
-  icon: FavouriteIcon,
-  scene: "golden-fields",
-}
 
 /** The footer's link groups. */
 export const FOOTER: readonly {
@@ -307,6 +321,7 @@ export const FOOTER: readonly {
       { label: "Showcase", href: "/showcase" },
       { label: "Contributing", href: "/docs/project/contributing" },
       { label: "Sponsor", href: "/sponsors" },
+      { label: "Partners", href: "/partners" },
       { label: "Open source", href: "/open-source" },
       { label: "License", href: "/license" },
       { label: "Brand", href: "/brand" },
