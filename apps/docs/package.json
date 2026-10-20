@@ -30,7 +30,7 @@
     "@tanstack/charts": "catalog:",
     "@tanstack/highlight": "^1.1.0",
     "@tanstack/markdown": "^1.0.0",
-    "@tanstack/react-hotkeys": "^0.13.0",
+    "@tanstack/react-hotkeys": "^0.14.5",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
     "@workspace/docs-core": "workspace:*",
@@ -51,7 +51,7 @@
     "@workspace/vite-config": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "wrangler": "^4.151.0",
+    "wrangler": "^4.151.1",
     "vite-plus": "catalog:"
   }
 }
