@@ -255,7 +255,7 @@ function ReleaseRow({
 
 function ChangelogPage() {
   return (
-    <Page scene="city-dusk">
+    <Page scene="forest-falls">
       <PageHero
         label="Changelog"
         title={

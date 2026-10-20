@@ -1,9 +1,9 @@
 /**
- * The scenes: the ten landscapes of the brand's photography, and what each one gives the site.
+ * The scenes: the landscapes of the brand's photography, and what each one gives the site.
  *
  * Every page and docs tab stands in one scene. The scene supplies its picture (the hero and the
  * footer draw it in pixels), its hue (the page's `accent`, from `PALETTE` in docs-ui) and its mark
- * colours (a `SCENERY` ramp). One golden-hour light runs through all ten, which is what keeps
+ * colours (a `SCENERY` ramp). One golden-hour light runs through every one, which is what keeps
  * pages that each have their own colour feeling like one site. Which page stands where, and why,
  * is in each scene's `uses` and `reason`, shown on the brand page.
  *
@@ -22,6 +22,8 @@ export type SceneId =
   | "old-hall"
   | "golden-fields"
   | "city-dusk"
+  | "forest-falls"
+  | "lighthouse-coast"
 
 export type Scene = {
   id: SceneId
@@ -59,7 +61,7 @@ export const SCENES: Record<SceneId, Scene> = {
     ramp: "scene-misty-hills",
     position: "50% 45%",
     alt: "The sun rising over rows of tea on rolling hills, morning mist between them.",
-    uses: "The Frameworks tab, the homepage's closing card, the missing page",
+    uses: "The Frameworks tab, the homepage's closing card",
     reason:
       "Rows of tea, many alike and each its own; and sunrise, for a start.",
   },
@@ -140,17 +142,44 @@ export const SCENES: Record<SceneId, Scene> = {
     ramp: "scene-city-dusk",
     position: "50% 45%",
     alt: "A cable-stayed bridge and the lights of a city at dusk, mountains on the horizon.",
-    uses: "The blog, the changelog, the showcase",
-    reason: "The city in the evening: news, time passing, things built.",
+    uses: "The showcase",
+    reason: "The city in the evening: things built, and lit.",
+  },
+  "forest-falls": {
+    id: "forest-falls",
+    name: "Forest falls",
+    hue: "tea",
+    ramp: "scene-forest-falls",
+    position: "60% 55%",
+    alt: "A tall waterfall in a forest valley in late light, a wooden hut and a bridge over the stream, stone steps climbing the slope.",
+    uses: "The changelog, the missing page",
+    reason:
+      "Water that keeps falling, release after release; and off the path, the steps back up and the bridge back across.",
+  },
+  "lighthouse-coast": {
+    id: "lighthouse-coast",
+    name: "Lighthouse coast",
+    hue: "crater",
+    ramp: "scene-lighthouse-coast",
+    position: "30% 50%",
+    alt: "A white lighthouse on a wooded point above a sandy beach, turquoise surf rolling in under a golden evening sky.",
+    uses: "The blog",
+    reason:
+      "A light sent out to sea: what we found and what is new, for whoever is out there.",
   },
 }
 
-/** The picture at `width` pixels wide (800 or 1600), from `public/scenes`. */
-export function sceneImage(id: SceneId, width: 800 | 1600): string {
+/**
+ * The picture at `width` pixels wide, from `public/scenes` (the brand kit's
+ * `render:site-scenes` writes them).
+ */
+export function sceneImage(id: SceneId, width: 800 | 1200 | 1600): string {
   return `/scenes/${id}-${width}.webp`
 }
 
-/** Both sizes, for an `<img srcSet>`. */
+/** Every size, for an `<img srcSet>`. */
 export function sceneSrcSet(id: SceneId): string {
-  return `${sceneImage(id, 800)} 800w, ${sceneImage(id, 1600)} 1600w`
+  return ([800, 1200, 1600] as const)
+    .map((width) => `${sceneImage(id, width)} ${width}w`)
+    .join(", ")
 }

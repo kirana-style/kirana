@@ -308,6 +308,13 @@ describe("generate", () => {
     expect(manifest).toContain('"cover": "https://example.test/a.jpg"')
     expect(manifest).toContain('"coverAlt": ""')
     expect(manifest).toContain('"coverAlt": "A picture"')
+    expect(manifest).not.toContain("SEARCH")
+    const records = await readFile(
+      join(root, "src/generated/search.gen.ts"),
+      "utf8"
+    )
+    expect(records).toContain("export const SEARCH")
+    expect(records).toContain('"/docs/start/install"')
     const llms = await readFile(join(root, "public/llms.txt"), "utf8")
     expect(llms).toContain(
       "[Install](https://example.test/docs/start/install.md)"

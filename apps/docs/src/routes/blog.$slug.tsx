@@ -273,7 +273,7 @@ function Post() {
           </article>
         </Rail>
       </main>
-      <SiteFooter scene="city-dusk" />
+      <SiteFooter scene="lighthouse-coast" />
     </>
   )
 }

@@ -877,7 +877,7 @@ export function BrandPage() {
         number="05"
         label="Colour"
         title="Paper, ink, and a hue for every place"
-        lede="The site has no primary colour: it is paper and ink, and each page takes one hue from the landscape it stands in. The sun, the gold all ten share, is the one constant accent, and it is only ever a fill."
+        lede="The site has no primary colour: it is paper and ink, and each page takes one hue from the landscape it stands in. The sun, the gold every landscape shares, is the one constant accent, and it is only ever a fill."
       >
         <div sx={styles.swatches}>
           {Object.values(COLOURS).map((colour) => (

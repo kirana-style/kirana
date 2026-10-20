@@ -36,6 +36,8 @@ import { COMMANDS } from "../src/generated/cli.gen.ts"
 import { LINT } from "../src/generated/lint.gen.ts"
 import { COUNTS, LISTS, PUBLISHED } from "../src/data/facts.ts"
 import { LINT_RULES } from "../src/data/tooling.ts"
+import { SCENES } from "../src/brand/scenes.ts"
+import type { SceneId } from "../src/brand/scenes.ts"
 
 const app = new URL("..", import.meta.url).pathname
 const repository = join(app, "../..")
@@ -559,6 +561,46 @@ for (const command of COMMANDS)
     problems.push(
       `apps/docs/content/docs/tooling/cli.md: the description leaves out ${command}`
     )
+
+/**
+ * A menu item's scene is its page's: the item's icon wears the hue of the page it leads to. A
+ * route's page names its scene (`<Page scene>`); a docs page takes its tab's hue (`TABS`).
+ */
+const nav = await readFile(join(app, "src/components/site/nav.ts"), "utf8")
+const docsConfig = await readFile(
+  join(app, "src/components/docs-config.tsx"),
+  "utf8"
+)
+const tabHue = new Map<string, string>()
+for (const [, sections, hue] of docsConfig.matchAll(
+  /sections: \[([^\]]*)\],\s*accent: "(\w+)"/g
+))
+  for (const [, section] of sections!.matchAll(/"(\w+)"/g))
+    tabHue.set(section!, hue!)
+for (const [, title, href, scene] of nav.matchAll(
+  /title: "([^"]+)",\s*description: "[^"]*",\s*href: "([^"]+)",\s*icon: \w+,\s*scene: "([\w-]+)"/g
+)) {
+  const hue = SCENES[scene as SceneId]?.hue
+  if (href!.startsWith("/docs")) {
+    const section = href!.split("/")[2] ?? "start"
+    const expected = tabHue.get(section) ?? tabHue.get("start")
+    if (hue !== expected)
+      problems.push(
+        `apps/docs/src/components/site/nav.ts: "${title}" wears ${hue}, but ${href} is in a tab of ${expected}`
+      )
+    continue
+  }
+  const route = href === "/" ? "index" : href!.slice(1).replaceAll("/", ".")
+  const page = await readFile(
+    join(app, "src/routes", `${route}.tsx`),
+    "utf8"
+  ).catch(() => readFile(join(app, "src/routes", `${route}.index.tsx`), "utf8"))
+  const own = /<Page scene="([\w-]+)"/.exec(page)?.[1]
+  if (own !== scene)
+    problems.push(
+      `apps/docs/src/components/site/nav.ts: "${title}" is in ${scene}, but ${href} stands in ${own}`
+    )
+}
 
 if (problems.length) {
   console.error(problems.join("\n"))

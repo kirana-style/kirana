@@ -60,8 +60,8 @@ const CHROME = {
   text: "#d7dce4",
   // GitHub Dark's secondary text, 4.7 : 1 on the bar.
   muted: "#8b949e",
-  // VS Code's line numbers in GitHub Dark (`VSCODE.lineNumber`).
-  gutter: "#6e7681",
+  // The line numbers, as `VSCODE.lineNumber` below.
+  gutter: "#848d97",
 }
 
 /**
@@ -76,7 +76,9 @@ export const VSCODE = {
   link: "#58a6ff",
   codeBlock: "rgb(110 118 129 / 0.4)",
   codeLens: "#8b949e",
-  lineNumber: "#6e7681",
+  // A step lighter than GitHub Dark's line numbers (`#6e7681`, 3.6 : 1 on the editor's
+  // background), so they read at 4.8 : 1.
+  lineNumber: "#848d97",
   lineHighlight: "rgb(110 118 129 / 0.1)",
   badge: "#1f6feb",
   button: "#238636",
@@ -197,13 +199,13 @@ const styles = {
     color: CHROME.gutter,
     userSelect: "none",
   }),
-  // As the extension draws it: decorations after the line, the icon first, at the hint opacity
-  // (`kirana.inlayHints.opacity`, 0.85), with no background of their own.
+  // As the extension draws it: decorations after the line, the icon first, with no background of
+  // their own. At full opacity rather than the extension's 0.85 (`kirana.inlayHints.opacity`),
+  // which leaves the orange and grey groups under 4.5 : 1 on this background.
   hint: css({
     display: "inline-flex",
     alignItems: "center",
     marginInlineStart: "1ch",
-    opacity: 0.85,
     whiteSpace: "pre",
   }),
   mark: css({

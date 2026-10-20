@@ -18,7 +18,7 @@ import { DocsLink } from "@/components/docs-link"
 import { pageIcon } from "@/components/site/brands"
 import { RailSponsor, SidebarSponsor } from "@/components/site/sponsor-slots"
 import { NAV, PAGES } from "@/generated/content.gen"
-import { search } from "@/lib/search"
+import { loadSearch, search } from "@/lib/search"
 
 /**
  * Tabs group sections; a page's URL never depends on its tab. Each tab wears the hue of the scene
@@ -86,6 +86,7 @@ export function SiteDocsProvider({ children }: { children: React.ReactNode }) {
     railFooter: <RailSponsor />,
     sidebarFooter: <SidebarSponsor />,
     search: (query) => search(query),
+    loadSearch,
     navigate: (href) => {
       const [path = "", hash] = href.split("#")
       void router.navigate({

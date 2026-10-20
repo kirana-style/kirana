@@ -3,7 +3,7 @@
  * and the markdown twin writes it. It shows while the packages are unpublished (`PUBLISHED` in
  * facts.ts) and is gone from every page, and every twin, once they are.
  */
-import { PUBLISHED } from "./facts.ts"
+import { PUBLISHED } from "./release.ts"
 
 /** Where the tarball install is written down. */
 export const TARBALLS = {

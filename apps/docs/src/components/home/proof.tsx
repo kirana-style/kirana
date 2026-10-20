@@ -22,7 +22,7 @@ import { DocsLink } from "@/components/docs-link"
 import { BenchChart } from "@/components/site/bench-chart"
 import { chapter } from "@/components/site/chapter"
 import { BENCH, HEADLINES, LAB } from "@/data/benchmarks"
-import { GITHUB } from "@/data/facts"
+import { GITHUB } from "@/data/links"
 
 import { HomeSection } from "./frame"
 

@@ -244,10 +244,23 @@ export function DocsSearch({
   hotkey?: boolean
   sx?: Sx
 }) {
-  const { search, navigate, nav, pages, pageIcon } = useDocs()
+  const { search, loadSearch, navigate, nav, pages, pageIcon } = useDocs()
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState("")
+  const [, setLoaded] = useState(false)
   const input = useRef<HTMLInputElement>(null)
+  const prepare = () => void loadSearch?.()
+
+  useEffect(() => {
+    if (!open || !loadSearch) return
+    let live = true
+    void loadSearch().then(() => {
+      if (live) setLoaded(true)
+    })
+    return () => {
+      live = false
+    }
+  }, [open, loadSearch])
 
   useEffect(() => {
     if (!hotkey) return
@@ -293,6 +306,8 @@ export function DocsSearch({
           type="button"
           sx={[styles.iconTrigger, sx]}
           aria-label="Search documentation"
+          onPointerEnter={prepare}
+          onFocus={prepare}
           onClick={() => setOpen(true)}
         >
           <Icon icon={Search01Icon} size="1rem" />
@@ -301,6 +316,8 @@ export function DocsSearch({
         <button
           type="button"
           sx={[styles.trigger, sx]}
+          onPointerEnter={prepare}
+          onFocus={prepare}
           onClick={() => setOpen(true)}
         >
           <Icon icon={Search01Icon} size="0.875rem" />

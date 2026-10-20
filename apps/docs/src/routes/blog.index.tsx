@@ -172,7 +172,7 @@ function BlogIndex() {
   const filtered = tag !== null || needle !== ""
 
   return (
-    <Page scene="city-dusk">
+    <Page scene="lighthouse-coast">
       <PageHero
         label="Blog"
         title="Notes from building Kirana"

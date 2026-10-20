@@ -192,14 +192,14 @@ export const MENUS: readonly Menu[] = [
             description: "Notes from building Kirana",
             href: "/blog",
             icon: News01Icon,
-            scene: "city-dusk",
+            scene: "lighthouse-coast",
           },
           {
             title: "Changelog",
             description: "What changed, and when",
             href: "/changelog",
             icon: Clock01Icon,
-            scene: "city-dusk",
+            scene: "forest-falls",
           },
           {
             title: "Roadmap",

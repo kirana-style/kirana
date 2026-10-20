@@ -1,10 +1,9 @@
 import { Suspense, lazy } from "react"
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
-import { css } from "@kirana-style/core"
+import { css, props as styleProps } from "@kirana-style/core"
 
 import kiranaCss from "@kirana-style/core/stylesheet.css?url"
-import appCss from "@workspace/ui/globals.css?url"
-import highlightCss from "@/generated/highlight.css?url"
+import siteCss from "@/styles/site.css?url"
 import { DirectionProvider } from "@workspace/ui/components/direction"
 import { Toaster } from "@workspace/ui/components/toast"
 import { TooltipProvider } from "@workspace/ui/components/tooltip"
@@ -14,6 +13,8 @@ import {
   useTheme,
 } from "@workspace/ui/theme/theme-provider"
 import { theme } from "@workspace/ui/theme/semantic"
+import { THEME_MODES } from "@workspace/ui/theme/themes"
+import type { ThemeMode } from "@workspace/ui/theme/themes"
 import { fontFamily } from "@workspace/ui/tokens/typography"
 
 import { schemeMarker } from "@workspace/docs-ui/scheme.ts"
@@ -67,8 +68,7 @@ export const Route = createRootRoute({
       // First, so its `@layer reset, base, kirana` statement fixes the layer
       // order before globals.css opens the reset and base layers.
       { rel: "stylesheet", href: kiranaCss },
-      { rel: "stylesheet", href: appCss },
-      { rel: "stylesheet", href: highlightCss },
+      { rel: "stylesheet", href: siteCss },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
@@ -92,6 +92,25 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   )
 }
 
+/** `<html>`'s classes in a mode: its theme, and the anchor an image per scheme reads. */
+function documentProps(mode: ThemeMode) {
+  return styleProps(themeStyles(mode), schemeMarker.anchor)
+}
+
+/**
+ * Puts the saved mode on `<html>` before the first paint. A prerendered page is written in the
+ * system mode, and the provider applies the saved one only once the page's scripts run, so without
+ * this a reader who chose dark would see the light page first on a slow connection. It writes the
+ * classes the document renders for that mode, so React finds them as it renders them.
+ */
+const MODE_SCRIPT = `(() => {
+  const classes = ${JSON.stringify(Object.fromEntries(THEME_MODES.map((mode) => [mode, documentProps(mode).className ?? ""])))}
+  const saved = document.cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith("${THEME_COOKIE}="))?.slice(${THEME_COOKIE.length + 1})
+  if (!saved || !(saved in classes)) return
+  document.documentElement.className = classes[saved]
+  document.documentElement.dataset.mode = saved
+})()`
+
 function ThemedDocument({ children }: { children: React.ReactNode }) {
   const { mode } = useTheme()
 
@@ -100,12 +119,17 @@ function ThemedDocument({ children }: { children: React.ReactNode }) {
   return (
     // `data-mode` with the scheme anchor: what an image per scheme (a brand
     // logo) reads, since `light-dark()` only switches colours.
+    // The classes come from `documentProps`, as MODE_SCRIPT's do. Until the provider reads the
+    // cookie, a prerendered page hydrates in the system mode while the script has already set the
+    // saved one: React keeps the attributes it finds rather than warning about them.
     <html
       lang="en"
       data-mode={mode}
-      sx={[themeStyles(mode), schemeMarker.anchor]}
+      {...documentProps(mode)}
+      suppressHydrationWarning
     >
       <head>
+        <script dangerouslySetInnerHTML={{ __html: MODE_SCRIPT }} />
         <HeadContent />
       </head>
       <body sx={styles.body}>

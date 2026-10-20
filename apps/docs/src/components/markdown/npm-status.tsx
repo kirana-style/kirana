@@ -8,7 +8,7 @@ import {
   MarkdownParagraph,
 } from "@workspace/docs-ui/markdown/index.tsx"
 
-import { PUBLISHED } from "@/data/facts"
+import { PUBLISHED } from "@/data/release"
 import { TARBALLS, npmNote } from "@/data/npm-status"
 
 export function NpmStatus({ kind }: { kind?: string }) {

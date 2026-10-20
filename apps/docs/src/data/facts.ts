@@ -13,14 +13,11 @@ import { PACKAGES } from "../generated/packages.gen.ts"
 import { BENCH, CLAIMS, RUNTIME_SIZE } from "./benchmarks.ts"
 import { FRAMEWORK_GUIDES } from "./frameworks.ts"
 import type { GuideGroup } from "./frameworks.ts"
+import { PUBLISHED, VERSION } from "./release.ts"
 import { LINTERS } from "./tooling.ts"
 
-/** The repository on GitHub, as `owner/name`, and its page. */
-export const REPOSITORY = "kirana-style/kirana"
-export const GITHUB = `https://github.com/${REPOSITORY}`
-/** The package every Kirana project installs: its npm page and downloads stand for the project's. */
-export const CORE_PACKAGE = "@kirana-style/core"
-export const NPM = `https://www.npmjs.com/package/${CORE_PACKAGE}`
+export { CORE_PACKAGE, GITHUB, NPM, REPOSITORY } from "./links.ts"
+export { PUBLISHED, VERSION }
 
 /** `a, b and c` (or `or`): how the site writes a list in a sentence. */
 export function sentence(items: readonly string[], last = "and"): string {
@@ -58,18 +55,6 @@ const LIBRARIES = [
 
 if (LIBRARIES.some((name) => !guides("frameworks").includes(name)))
   throw new Error("facts.ts: a component layer has no framework guide")
-
-/**
- * Whether the packages are on npm, read from their `package.json` (`publishConfig.access` is
- * "public"; `private` stays true in the workspace). Every pre-release install note reads this one
- * flag, so publishing removed them all at once.
- */
-export const PUBLISHED = PACKAGES.every((entry) => entry.published)
-
-/** The release every package is at: one version for everything. */
-export const VERSION = PACKAGES[0]!.version
-if (PACKAGES.some((entry) => entry.version !== VERSION))
-  throw new Error("facts.ts: the packages are not at one version")
 
 export const COUNTS = {
   diagnostics: DIAGNOSTICS.length,

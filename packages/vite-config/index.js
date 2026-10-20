@@ -15,9 +15,11 @@ import { defineConfig } from "vite"
 import { lazyPlugins } from "vite-plus"
 
 /**
- * @param {{ cloudflare?: boolean }} [options] `cloudflare`: the app deploys as a Cloudflare Worker
- *   (its `wrangler.jsonc`); `vite dev` and `vite build` then run the server half inside workerd, the
- *   runtime production uses, so a Node-only API fails locally rather than after deploying.
+ * @param {{ cloudflare?: boolean, prerender?: boolean }} [options] `cloudflare`: the app deploys as
+ *   a Cloudflare Worker (its `wrangler.jsonc`); `vite dev` and `vite build` then run the server half
+ *   inside workerd, the runtime production uses, so a Node-only API fails locally rather than after
+ *   deploying. `prerender`: `vite build` renders every page it can reach from `/` into the static
+ *   files, which are served without running the server.
  * @returns {import("vite").UserConfigFnObject}
  */
 export function defineAppConfig(options = {}) {
@@ -39,12 +41,29 @@ export function defineAppConfig(options = {}) {
       // Ahead of the framework plugins, so modules reach them already compiled.
       // Layers, targets and diagnostics come from each app's kirana.config.ts.
       kirana(),
-      tanstackStart({ router: { quoteStyle: "double", semicolons: false } }),
+      tanstackStart({
+        router: { quoteStyle: "double", semicolons: false },
+        ...(options.prerender
+          ? {
+              prerender: {
+                enabled: true,
+                crawlLinks: true,
+                failOnError: true,
+                // `docs.html`, not `docs/index.html`: Cloudflare serves the first at `/docs` and
+                // redirects `/docs` to `/docs/` for the second.
+                autoSubfolderIndex: false,
+              },
+            }
+          : {}),
+      }),
       viteReact(),
     ]),
     build: {
       cssMinify: true,
       minify: true,
+      // Published beside the bundles, so a stack trace from the deployed site, and Lighthouse's
+      // look at the largest chunks, read the source. The code is open source anyway.
+      sourcemap: true,
       // Kirana's browser floor (D-026: Chrome 123, Safari 17.5, Firefox 120), the first versions with
       // `light-dark()`. Vite's default target is older, so its CSS minifier rewrote `light-dark()` in
       // plain stylesheets (the syntax colours in highlight.css) into `--lightningcss-light/dark`
