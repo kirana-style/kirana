@@ -14,14 +14,14 @@
     "@kirana-style/core": "workspace:*",
     "@kirana-style/preset-scales": "workspace:*",
     "@shadcn/react": "^0.3.1",
+    "@tanstack/charts": "catalog:",
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "catalog:",
     "react": "catalog:",
     "react-day-picker": "catalog:",
     "react-dom": "catalog:",
-    "react-resizable-panels": "catalog:",
-    "recharts": "catalog:"
+    "react-resizable-panels": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

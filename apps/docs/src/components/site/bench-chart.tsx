@@ -1,13 +1,22 @@
 /**
- * The benchmark from kirana-lab's newest run: one metric at a time,
- * the corpus total as a bar per tool and the three apps underneath. Bars grow
- * in when the chart is first seen; under reduced motion they are simply there.
+ * The benchmark from kirana-lab's newest run: one metric at a time, the corpus total as a bar per
+ * tool with its value at the bar's end, and the three apps underneath. The bars are a TanStack
+ * Charts definition, so the server renders them and a prerendered page shows them before any
+ * script runs; switching the metric springs them to their new lengths, which reduced motion snaps.
  */
-import { useRef, useState } from "react"
-import { css, props as styleProps } from "@kirana-style/core"
-import { motion, useInView, useReducedMotion } from "motion/react"
+import { useMemo, useState } from "react"
+import { css } from "@kirana-style/core"
+import { barX, defineChart, text } from "@tanstack/charts"
+import { scaleBand } from "@tanstack/charts/scales/band"
+import { scaleLinear } from "@tanstack/charts/scales/linear"
 
 import { accent, tint } from "@workspace/docs-ui/accent.ts"
+import {
+  ChartContainer,
+  ChartTooltipContent,
+  chartTheme,
+  chartTooltip,
+} from "@workspace/ui/components/chart"
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
@@ -20,6 +29,11 @@ import {
 
 import { DocsLink } from "@/components/docs-link"
 import {
+  highlightConfig,
+  toolColors,
+  toolKey,
+} from "@/components/site/tool-series"
+import {
   APPS,
   BENCH,
   BENCH_DATE,
@@ -28,6 +42,7 @@ import {
   METRICS,
   TOOLS,
 } from "@/data/benchmarks"
+import type { Metric, Tool } from "@/data/benchmarks"
 
 const styles = {
   root: css({
@@ -54,36 +69,7 @@ const styles = {
     transitionProperty: "color, background-color",
     transitionDuration: duration[150],
   }),
-  rows: css({ display: "grid", gap: spacing[3] }),
-  row: css({
-    display: "grid",
-    gridTemplateColumns: "6.5rem minmax(0, 1fr) 5.5rem",
-    alignItems: "center",
-    gap: spacing[3],
-  }),
-  tool: css({
-    fontSize: fontSize.sm,
-    lineHeight: lineHeight.sm,
-    fontWeight: fontWeight.medium,
-  }),
-  track: css({
-    height: spacing[6],
-    borderRadius: radius.md,
-    backgroundColor: theme.muted,
-    overflow: "hidden",
-  }),
-  bar: css({
-    height: "100%",
-    borderRadius: radius.md,
-    backgroundColor: tint(35),
-  }),
-  barOurs: css({ backgroundColor: accent.base }),
-  value: css({
-    fontFamily: fontFamily.mono,
-    fontSize: fontSize.sm,
-    textAlign: "end",
-    fontVariantNumeric: "tabular-nums",
-  }),
+  chart: css({ fontFamily: fontFamily.sans, fontSize: fontSize.sm }),
   apps: css({
     display: "grid",
     gridTemplateColumns: "6.5rem repeat(3, minmax(0, 1fr))",
@@ -106,13 +92,66 @@ const styles = {
   }),
 }
 
+const amount = (metric: Metric, value: number) =>
+  `${value.toLocaleString("en", {
+    minimumFractionDigits: metric.digits,
+    maximumFractionDigits: metric.digits,
+  })} ${metric.unit}`
+
+const HEIGHT = 46 * TOOLS.length
+
+function totals(metric: Metric) {
+  const rows = TOOLS.map((tool) => ({
+    tool,
+    series: toolKey(tool),
+    value: metric.total[tool],
+    label: amount(metric, metric.total[tool]),
+  }))
+  return defineChart(
+    {
+      marks: [
+        barX(rows, {
+          id: "totals",
+          x: "value",
+          y: "tool",
+          color: "series",
+          radius: 6,
+        }),
+        text(rows, {
+          id: "values",
+          x: "value",
+          y: "tool",
+          text: "label",
+          anchor: "start",
+          dx: 8,
+          fill: theme.foreground,
+          fontSize: 13,
+        }),
+      ],
+      scales: {
+        x: { scale: scaleLinear, axis: false },
+        y: {
+          scale: () => scaleBand<Tool>().paddingInner(0.3).paddingOuter(0.1),
+          axis: { line: false, ticks: { size: 0 } },
+        },
+      },
+      color: toolColors,
+      // Room for the tool names on the left and the longest value on the right.
+      margin: { top: 0, right: 96, bottom: 0, left: 104 },
+      // A bar is focused whole: a ring at its end would cover the value.
+      theme: { ...chartTheme, focusRing: false },
+    },
+    {
+      focus: "nearest-y",
+      tooltip: { ...chartTooltip, anchor: "pointer" },
+    }
+  )
+}
+
 export function BenchChart() {
   const [id, setId] = useState(METRICS[0]!.id)
   const metric = METRICS.find((item) => item.id === id)!
-  const reduce = useReducedMotion()
-  const ref = useRef<HTMLDivElement>(null)
-  const seen = useInView(ref, { once: true, margin: "-15% 0px" })
-  const max = Math.max(...TOOLS.map((tool) => metric.total[tool]))
+  const definition = useMemo(() => totals(metric), [metric])
   const format = (value: number) =>
     value.toLocaleString("en", {
       minimumFractionDigits: metric.digits,
@@ -134,34 +173,22 @@ export function BenchChart() {
           </button>
         ))}
       </div>
-      <div ref={ref} sx={styles.rows}>
-        {TOOLS.map((tool) => (
-          <div key={tool} sx={styles.row}>
-            <span sx={styles.tool}>{tool}</span>
-            <div sx={styles.track}>
-              <motion.div
-                initial={reduce ? false : { width: 0 }}
-                animate={{
-                  width:
-                    seen || reduce ? `${(metric.total[tool] / max) * 100}%` : 0,
-                }}
-                transition={
-                  reduce
-                    ? { duration: 0 }
-                    : { type: "spring", bounce: 0, duration: 0.7 }
-                }
-                {...styleProps(
-                  styles.bar,
-                  tool === "Kirana" ? styles.barOurs : null
-                )}
-              />
-            </div>
-            <span sx={styles.value}>
-              {format(metric.total[tool])} {metric.unit}
-            </span>
-          </div>
-        ))}
-      </div>
+      <ChartContainer
+        config={highlightConfig}
+        definition={definition}
+        ariaLabel={`${metric.label}, all three apps, by tool`}
+        initialWidth={960}
+        height={HEIGHT}
+        motion
+        tooltip={
+          <ChartTooltipContent
+            hideLabel
+            nameKey="series"
+            formatter={(value) => amount(metric, Number(value))}
+          />
+        }
+        sx={styles.chart}
+      />
       <div sx={styles.apps}>
         <span />
         {APPS.map((app) => (

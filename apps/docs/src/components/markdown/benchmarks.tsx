@@ -46,6 +46,7 @@ import {
   reportTable,
 } from "@/data/benchmarks"
 import type { Comparison, Corpus, ReportTable } from "@/data/benchmarks"
+import { ScaleCurveCharts } from "./scale-curve-charts"
 
 const styles = {
   wrapper: css({ marginBlockEnd: spacing[6], overflowX: "auto" }),
@@ -214,12 +215,17 @@ export function Benchmarks({
       return (
         <p>{part === "large-dom" ? LARGE_DOM_MISSING : SCALE_CURVE_MISSING}</p>
       )
-    return tables.map(({ title, table }) => (
-      <section key={title} aria-label={title}>
-        <p sx={styles.caption}>{title}</p>
-        <ReportTableView table={table} />
-      </section>
-    ))
+    return (
+      <>
+        {part === "scale-curve" ? <ScaleCurveCharts /> : null}
+        {tables.map(({ title, table }) => (
+          <section key={title} aria-label={title}>
+            <p sx={styles.caption}>{title}</p>
+            <ReportTableView table={table} />
+          </section>
+        ))}
+      </>
+    )
   }
   if (part === "behind")
     return BEHIND.length === 0 ? (

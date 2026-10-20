@@ -27,6 +27,7 @@
   "dependencies": {
     "@hugeicons/core-free-icons": "catalog:",
     "@kirana-style/core": "workspace:*",
+    "@tanstack/charts": "catalog:",
     "@tanstack/highlight": "^1.1.0",
     "@tanstack/markdown": "^1.0.0",
     "@tanstack/react-hotkeys": "^0.13.0",
@@ -36,12 +37,15 @@
     "@workspace/docs-ui": "workspace:*",
     "@workspace/shell": "workspace:*",
     "@workspace/ui": "workspace:*",
-    "motion": "catalog:",
+    "d3-scale": "4.0.2",
+    "d3-shape": "3.2.0",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
   "devDependencies": {
     "@kirana-style/compiler": "workspace:*",
+    "@types/d3-scale": "^4.0.9",
+    "@types/d3-shape": "^3.1.8",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@workspace/vite-config": "workspace:*",
