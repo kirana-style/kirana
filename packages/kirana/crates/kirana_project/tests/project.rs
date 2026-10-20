@@ -426,3 +426,57 @@ fn a_finished_stylesheet_keeps_runtime_tokens_and_what_the_bundle_names() {
     assert_eq!(pruned, [(unused, "size.unused".to_owned())]);
     fs::remove_dir_all(root).unwrap();
 }
+
+/// The stylesheet and the project's diagnostics are kept until a module's record or a declaration
+/// changes: asking again returns them as they were, and every change is seen.
+#[test]
+fn the_stylesheet_and_diagnostics_are_kept_until_something_changes() {
+    let source = "import { css } from \"@kirana-style/core\"\nexport const box = css({ color: \"red\" })\n";
+    let relation = "import { relation } from \"@kirana-style/core\"\nexport const card = relation(\"card\")\n";
+    let reader = |from: &str| {
+        format!(
+            "import {{ css }} from \"@kirana-style/core\"\nimport {{ card }} from \"./{from}\"\nexport const x = css({{ color: {{ [card.within(\":hover\")]: \"red\" }} }})\n"
+        )
+    };
+    let (root, project) = temp_project(&[
+        ("package.json", "{\"name\":\"kept\"}"),
+        ("input.ts", source),
+        ("a.ts", relation),
+        ("b.ts", relation),
+    ]);
+    let input = root.join("input.ts");
+    let collisions =
+        |project: &Project| project.diagnostics().iter().filter(|d| d.code == Code::RelationNameCollision).count();
+    project.transform(&input, source);
+    let (css, diagnostics) = (project.stylesheet(true), project.diagnostics());
+    assert_eq!((project.stylesheet(true), project.diagnostics()), (css.clone(), diagnostics.clone()));
+    // The same source again writes an equal record, which changes nothing.
+    project.transform(&input, source);
+    assert_eq!(project.stylesheet(true), css);
+    // Other arguments are another stylesheet.
+    assert_ne!(project.stylesheet(false), css);
+    assert_eq!(project.finished_stylesheet(true, &[]).0, css);
+    assert_eq!(project.stylesheet(true), css);
+    // A module that no longer holds a style leaves the stylesheet without a full transform.
+    project.transform(&input, "export const nothing = 1\n");
+    assert!(!project.stylesheet(true).contains("red"));
+    // A module with a style, then without one, and then removed.
+    project.transform(&input, &source.replace("red", "blue"));
+    assert!(project.stylesheet(true).contains("blue"));
+    assert!(project.remove(&input));
+    assert!(!project.stylesheet(true).contains("blue"));
+    // A declaration read through an import, never transformed itself, is seen. Reading the
+    // relation from b.ts instead of a.ts writes the same record (one name, one marker), yet b.ts
+    // now declares it a second time.
+    project.transform(&root.join("one.ts"), &reader("a"));
+    project.transform(&root.join("two.ts"), &reader("a"));
+    assert_eq!(collisions(&project), 0);
+    project.transform(&root.join("two.ts"), &reader("b"));
+    assert_eq!(collisions(&project), 1);
+    project.invalidate(&root.join("b.ts"));
+    assert_eq!(collisions(&project), 0);
+    // A forced collision is seen too.
+    project.debug_force_collision(&root.join("one.ts"));
+    assert!(project.diagnostics().iter().any(|d| d.code == Code::ClassNameCollision));
+    fs::remove_dir_all(root).unwrap();
+}

@@ -5,7 +5,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 
 use kirana_diagnostics::{Code, Diagnostic, Span, apply_level};
-use kirana_emit::{EmitOptions, emit};
+use kirana_emit::{EmitOptions, EmitOutput, emit};
 use kirana_evaluator::{Definitions, relation_reads};
 use kirana_ir::dense::{self, Edit, Segment};
 use kirana_ir::{Atom, Dep, EntryKey, Handle, Names, Op, Property, Target};
@@ -74,6 +74,16 @@ impl ModuleRecord {
     }
 }
 
+/// The last stylesheet and the last project diagnostics, with the revision they were computed at
+/// ([`crate::State::revision`]). A bundler asks for both once per environment, and a production
+/// build has two or more environments compiling the same modules.
+#[derive(Debug, Default)]
+pub(crate) struct Cached {
+    /// `(revision, minify, named, output)`.
+    stylesheet: Option<(u64, bool, Option<BTreeSet<String>>, EmitOutput)>,
+    diagnostics: Option<(u64, Vec<Diagnostic>)>,
+}
+
 impl Project {
     fn live(&self) -> (Vec<Atom>, Vec<Dep>) {
         let state = self.state.read().expect("not poisoned");
@@ -134,11 +144,18 @@ impl Project {
         (output.css, output.pruned)
     }
 
-    fn write_stylesheet(
-        &self,
-        minify: bool,
-        named: Option<std::collections::BTreeSet<String>>,
-    ) -> kirana_emit::EmitOutput {
+    fn write_stylesheet(&self, minify: bool, named: Option<std::collections::BTreeSet<String>>) -> EmitOutput {
+        let revision = {
+            let state = self.state.read().expect("not poisoned");
+            if let Some((at, cached_minify, cached_named, output)) = &state.cached.stylesheet
+                && *at == state.revision
+                && *cached_minify == minify
+                && *cached_named == named
+            {
+                return output.clone();
+            }
+            state.revision
+        };
         let (atoms, deps) = self.live();
         let options = EmitOptions {
             layers_before: self.config.layers.before.clone(),
@@ -146,9 +163,11 @@ impl Project {
             minify,
             prefix: self.names.prefix.clone(),
             lower_for: self.lowering_targets(),
-            named,
+            named: named.clone(),
         };
-        emit(&atoms, &deps, &options)
+        let output = emit(&atoms, &deps, &options);
+        self.state.write().expect("not poisoned").cached.stylesheet = Some((revision, minify, named, output.clone()));
+        output
     }
 
     /// From now on, transforms mark every name they write (D-084), so that [`Project::dense_edits`]
@@ -223,6 +242,21 @@ impl Project {
     /// Project-wide diagnostics: relation R1/R2, token namespace and class-name collisions,
     /// target lowering (KRN-CAS-005, KRN-TOK-010, D-037).
     pub fn diagnostics(&self) -> Vec<Diagnostic> {
+        let revision = {
+            let state = self.state.read().expect("not poisoned");
+            if let Some((at, diagnostics)) = &state.cached.diagnostics
+                && *at == state.revision
+            {
+                return diagnostics.clone();
+            }
+            state.revision
+        };
+        let diagnostics = self.check_project();
+        self.state.write().expect("not poisoned").cached.diagnostics = Some((revision, diagnostics.clone()));
+        diagnostics
+    }
+
+    fn check_project(&self) -> Vec<Diagnostic> {
         let state = self.state.read().expect("not poisoned");
         let mut out = Vec::new();
         let mut paths: Vec<_> = state.modules.keys().collect();
@@ -347,6 +381,7 @@ impl Project {
     #[doc(hidden)]
     pub fn debug_force_collision(&self, path: &std::path::Path) {
         let mut state = self.state.write().expect("not poisoned");
+        state.revision += 1;
         let atom = state.modules.get(path).and_then(|record| record.atoms.first().cloned()).expect("an atom");
         let mut different_value = atom.clone();
         different_value.value.css = "a different value".to_owned();
