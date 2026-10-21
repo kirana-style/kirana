@@ -149,6 +149,11 @@
         },
         {
           "type": "json",
+          "path": "packages/kirana/npm/remix/package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
           "path": "packages/kirana/npm/rolldown/package.json",
           "jsonpath": "$.version"
         },
