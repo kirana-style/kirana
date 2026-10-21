@@ -54,6 +54,10 @@ pub struct Project {
     pub(crate) dense: std::sync::atomic::AtomicBool,
     /// Whether a transform of unchanged input returns the previous one (`Project::reuse_transforms`).
     pub(crate) reuse: std::sync::atomic::AtomicBool,
+    /// Whether every source file was compiled (`compile_paths`), as `kirana-style check` and the
+    /// language server do. A bundler build compiles only what it reaches, so it cannot tell that an
+    /// exported relation has no reader (D-090).
+    pub(crate) walked: std::sync::atomic::AtomicBool,
     pub(crate) root: PathBuf,
     pub(crate) fs: Arc<dyn Fs>,
     pub(crate) resolver: oxc_resolver::Resolver,
@@ -143,6 +147,7 @@ impl Project {
             marked,
             dense: std::sync::atomic::AtomicBool::new(false),
             reuse: std::sync::atomic::AtomicBool::new(false),
+            walked: std::sync::atomic::AtomicBool::new(false),
             root,
             fs,
             config,

@@ -1,21 +1,26 @@
 /**
- * Publishes the packed tarballs (`bun run kirana:pack --natives <dir>`) to npm as one release: every
- * package first under the `staging` dist-tag, in dependency order, then `latest` moves to the new
- * version on all of them once every edge of the registry can serve them.
+ * Publishes the packed tarballs (`bun run kirana:pack --natives <dir>`) to npm as one release, each
+ * package straight under its final tag (`latest`, or `next` for a prerelease), one dependency level
+ * at a time.
  *
  *   bun scripts/publish-npm.ts <dir>             # publish
- *   bun scripts/publish-npm.ts <dir> --dry-run   # print the order and what would be skipped
+ *   bun scripts/publish-npm.ts <dir> --dry-run   # print the levels and what would be skipped
  *
- * Why staged: npm's CDN caches a package's metadata for `max-age` (300 s), so for up to that long
- * after a publish an edge can serve a dependent's new version without its dependency's. Installs
- * follow `latest`, and `latest` moves only once every version has been published for longer than
- * that, so no install sees a new package without the new packages it depends on, and a release that
- * stops halfway leaves `latest` on the previous version.
+ * Why levels: npm's CDN caches a package's metadata for `max-age` (300 s), so for up to that long
+ * after a publish an edge can serve a dependent's new version without its dependency's. A level is
+ * published only once every edge must serve the level before it (served here, and `max-age` past
+ * its last publish), so no install sees a new package without the new packages it depends on. A
+ * release that stops halfway leaves every package it did not reach on its previous version, and
+ * what it did publish already has its dependencies.
  *
- * A version already on the registry is skipped and a tag already moved is moved again harmlessly, so
- * a release that failed halfway can run again. A prerelease (`0.2.0-rc.1`) moves `next`, never
- * `latest`. In CI, npm authenticates with trusted publishing (OIDC) and attaches provenance; moving a
- * tag needs "Allow npm dist-tag" on each package's trusted publisher and npm 11.21 or later.
+ * Why not publish everything under a staging tag and move `latest` afterwards: in CI, npm
+ * authenticates with trusted publishing (OIDC), and while `npm publish` works through it, moving a
+ * tag with `npm dist-tag` failed with E401 on every package in 0.3.0 although each trusted publisher
+ * allowed it. Publishing under the final tag needs nothing but the publish.
+ *
+ * A version already on the registry is skipped, so a release that failed halfway can run again. One
+ * left on another tag by an older, staged release has its tag moved, and the command is printed when
+ * npm refuses.
  */
 import { spawnSync } from "node:child_process"
 import { readdirSync } from "node:fs"
@@ -29,7 +34,6 @@ if (!directory) {
 const dryRun = flags.includes("--dry-run")
 
 const REGISTRY = "https://registry.npmjs.org"
-const STAGING = "staging"
 
 type Tarball = {
   file: string
@@ -92,7 +96,7 @@ for (const tarball of [...tarballs].sort((a, b) =>
 const url = (name: string) => `${REGISTRY}/${encodeURIComponent(name)}`
 
 /** Whether the registry holds a version. This endpoint is not cached at the edge. */
-async function published({ name, version }: Tarball): Promise<boolean> {
+async function published_({ name, version }: Tarball): Promise<boolean> {
   const response = await fetch(`${url(name)}/${version}`, {
     signal: AbortSignal.timeout(15_000),
   })
@@ -123,107 +127,148 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 const finalTag = (version: string) =>
   version.includes("-") ? "next" : "latest"
 
-// 1. Publish what is missing, under `staging`.
-let lastPublish = 0
-for (const tarball of order) {
-  const spec = `${tarball.name}@${tarball.version}`
-  if (await published(tarball)) {
-    console.log(`skip     ${spec} (already published)`)
-    continue
+/** Whether version `a` is later than `b` (`x.y.z`, a prerelease before its release). */
+function later(a: string, b: string): boolean {
+  const parse = (version: string) => {
+    const [core = "", pre] = version.split("-", 2)
+    return { parts: core.split(".").map(Number), pre }
   }
-  if (dryRun) {
-    console.log(
-      `publish  ${spec} --tag ${STAGING}, then ${finalTag(tarball.version)}`
-    )
-    continue
+  const [x, y] = [parse(a), parse(b)]
+  for (let index = 0; index < 3; index++) {
+    const difference = (x.parts[index] ?? 0) - (y.parts[index] ?? 0)
+    if (difference !== 0) return difference > 0
   }
-  const result = spawnSync(
-    "npm",
-    ["publish", tarball.file, "--access", "public", "--tag", STAGING],
-    { stdio: "inherit" }
-  )
-  if (result.status !== 0) {
-    console.error(`failed   ${spec}`)
-    process.exit(1)
-  }
-  lastPublish = Date.now()
-  console.log(`done     ${spec}`)
-}
-if (dryRun) process.exit(0)
-
-// 2. Wait until this edge serves every version, and until every edge must: none has kept the old
-//    metadata longer than `max-age` past the last publish. Every package is asked at once.
-const DEADLINE = Date.now() + 20 * 60_000
-let pause = 5_000
-for (;;) {
-  const missing: string[] = []
-  await Promise.all(
-    order.map(async ({ name, version }) => {
-      try {
-        if (!(await versions(name)).has(version)) missing.push(name)
-      } catch (error) {
-        missing.push(`${name} (${(error as Error).message})`)
-      }
-    })
-  )
-  const settles = lastPublish + maxAge * 1000
-  if (missing.length === 0 && Date.now() >= settles) break
-  if (Date.now() > DEADLINE) {
-    console.error(
-      `failed   published but not served after 20 minutes: ${missing.join(", ")}`
-    )
-    process.exit(1)
-  }
-  if (missing.length > 0) {
-    console.log(
-      `waiting  not served yet: ${missing.sort().join(", ")}; next check in ${pause / 1000} s`
-    )
-    await sleep(pause)
-    pause = Math.min(pause * 2, 30_000)
-  } else {
-    const wait = settles - Date.now()
-    console.log(
-      `waiting  every version is served here; ${Math.ceil(wait / 1000)} s until no edge can serve the old metadata`
-    )
-    await sleep(wait)
-  }
+  if (x.pre === y.pre) return false
+  if (x.pre === undefined) return true
+  if (y.pre === undefined) return false
+  return x.pre.localeCompare(y.pre, "en", { numeric: true }) > 0
 }
 
-// 3. Move the final tag, dependencies first, and drop `staging`.
+/** Each package's level: 0 for one that depends on nothing published here, else one past its deepest. */
+const level = new Map<string, number>()
+for (const tarball of order)
+  level.set(
+    tarball.name,
+    Math.max(
+      -1,
+      ...tarball.depends
+        .filter((name) => byName.has(name))
+        .map((name) => level.get(name)!)
+    ) + 1
+  )
+const levels: Tarball[][] = []
+for (const tarball of order)
+  (levels[level.get(tarball.name)!] ??= []).push(tarball)
+
+/** The dist-tags of a package, from the registry (not cached at the edge). */
+async function tags(name: string): Promise<Record<string, string>> {
+  const response = await fetch(
+    `${REGISTRY}/-/package/${encodeURIComponent(name)}/dist-tags`,
+    {
+      signal: AbortSignal.timeout(15_000),
+    }
+  )
+  if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`)
+  return (await response.json()) as Record<string, string>
+}
+
+/**
+ * Wait until this edge serves every version of `published`, and until every edge must: none has
+ * kept the old metadata longer than `max-age` past `lastPublish`. Every package is asked at once.
+ */
+async function settle(published: readonly Tarball[], lastPublish: number) {
+  const deadline = Date.now() + 20 * 60_000
+  let pause = 5_000
+  for (;;) {
+    const missing: string[] = []
+    await Promise.all(
+      published.map(async ({ name, version }) => {
+        try {
+          if (!(await versions(name)).has(version)) missing.push(name)
+        } catch (error) {
+          missing.push(`${name} (${(error as Error).message})`)
+        }
+      })
+    )
+    const settles = lastPublish + maxAge * 1000
+    if (missing.length === 0 && Date.now() >= settles) return
+    if (Date.now() > deadline) {
+      console.error(
+        `failed   published but not served after 20 minutes: ${missing.join(", ")}`
+      )
+      process.exit(1)
+    }
+    if (missing.length > 0) {
+      console.log(
+        `waiting  not served yet: ${missing.sort().join(", ")}; next check in ${pause / 1000} s`
+      )
+      await sleep(pause)
+      pause = Math.min(pause * 2, 30_000)
+    } else {
+      const wait = settles - Date.now()
+      console.log(
+        `waiting  every version is served here; ${Math.ceil(wait / 1000)} s until no edge can serve the old metadata`
+      )
+      await sleep(wait)
+    }
+  }
+}
+
 const unmoved: string[] = []
-for (const tarball of order) {
-  const spec = `${tarball.name}@${tarball.version}`
-  const tag = finalTag(tarball.version)
-  const result = run("npm", ["dist-tag", "add", spec, tag])
-  if (result.status !== 0) {
-    // npm falls back to the configured token when the OIDC exchange fails, and logs why only at
-    // verbose level: ask again once with it, and keep the exchange's own lines.
-    const verbose = run("npm", [
-      "dist-tag",
-      "add",
-      spec,
-      tag,
-      "--loglevel=verbose",
-    ])
-    if (verbose.status === 0) {
-      console.log(`${tag.padEnd(8)} ${spec} (on the second attempt)`)
-      run("npm", ["dist-tag", "rm", tarball.name, STAGING])
+let previous: { published: Tarball[]; lastPublish: number } | undefined
+for (const [index, members] of levels.entries()) {
+  // The level before must be served everywhere before anything that depends on it is published.
+  if (previous && previous.published.length > 0 && !dryRun)
+    await settle(previous.published, previous.lastPublish)
+  const published: Tarball[] = []
+  let lastPublish = 0
+  for (const tarball of members) {
+    const spec = `${tarball.name}@${tarball.version}`
+    const tag = finalTag(tarball.version)
+    if (await published_(tarball)) {
+      const current = (await tags(tarball.name))[tag]
+      // Only ever forward: an older tarball never pulls the tag back.
+      if (current !== undefined && !later(tarball.version, current)) {
+        console.log(`skip     ${spec} (already published)`)
+        continue
+      }
+      // Published by an older, staged release whose tag never moved.
+      if (dryRun) {
+        console.log(
+          `tag      ${spec} ${tag} (published, tagged ${current ?? "nothing"})`
+        )
+        continue
+      }
+      const moved = run("npm", ["dist-tag", "add", spec, tag])
+      if (moved.status === 0) console.log(`${tag.padEnd(8)} ${spec}`)
+      else {
+        console.error(moved.stderr.trim())
+        unmoved.push(`npm dist-tag add ${spec} ${tag}`)
+      }
       continue
     }
-    const reasons = verbose.stderr
-      .split("\n")
-      .filter((line) => / oidc /.test(line))
-    console.error([result.stderr.trim(), ...reasons].join("\n"))
-    unmoved.push(`npm dist-tag add ${spec} ${tag}`)
-    continue
+    if (dryRun) {
+      console.log(`publish  ${spec} --tag ${tag} (level ${index})`)
+      continue
+    }
+    const result = spawnSync(
+      "npm",
+      ["publish", tarball.file, "--access", "public", "--tag", tag],
+      { stdio: "inherit" }
+    )
+    if (result.status !== 0) {
+      console.error(`failed   ${spec}`)
+      process.exit(1)
+    }
+    lastPublish = Date.now()
+    published.push(tarball)
+    console.log(`done     ${spec} (${tag})`)
   }
-  console.log(`${tag.padEnd(8)} ${spec}`)
-  // Best effort: a leftover `staging` tag is harmless, and on a re-run it may be gone already.
-  run("npm", ["dist-tag", "rm", tarball.name, STAGING])
+  previous = { published, lastPublish }
 }
 if (unmoved.length > 0) {
   console.error(
-    `failed   every version is published under \`${STAGING}\`, but these tags did not move. Check "Allow npm dist-tag" on each package's trusted publisher and re-run the job, or run them signed in as kirana-maintainer:\n${unmoved.join("\n")}`
+    `failed   these versions are published, but their tags did not move. Run them signed in as kirana-maintainer:\n${unmoved.join("\n")}`
   )
   process.exit(1)
 }

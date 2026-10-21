@@ -10,7 +10,7 @@ import { API, COMMANDS } from "../generated/cli.gen.ts"
 import { DIAGNOSTICS } from "../generated/diagnostics.gen.ts"
 import { LINT } from "../generated/lint.gen.ts"
 import { PACKAGES } from "../generated/packages.gen.ts"
-import { BENCH, CLAIMS, RUNTIME_SIZE } from "./benchmarks.ts"
+import { BENCH, CLAIMS, DENSE, RUNTIME_SIZE } from "./benchmarks.ts"
 import { FRAMEWORK_GUIDES } from "./frameworks.ts"
 import type { GuideGroup } from "./frameworks.ts"
 import { PUBLISHED, VERSION } from "./release.ts"
@@ -135,6 +135,10 @@ export const FACTS: Readonly<Record<string, string>> = {
   "bench-css-tailwind": CLAIMS.cssTailwind,
   "bench-bytes-stylex": CLAIMS.bytesStylex,
   "bench-bytes-tailwind": CLAIMS.bytesTailwind,
+  // Dense names against the default ones in the same run (D-084).
+  "bench-dense-css": DENSE.css,
+  "bench-dense-bytes": DENSE.bytes,
+  "bench-dense-build": DENSE.build,
   /** The release every package is at. */
   version: VERSION,
 }

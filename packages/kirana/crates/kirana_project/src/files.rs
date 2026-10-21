@@ -57,6 +57,7 @@ impl Project {
         for path in paths {
             collect_sources(path, &mut files, SCRIPT_EXTENSIONS);
         }
+        self.walked.store(true, std::sync::atomic::Ordering::Relaxed);
         let mut diagnostics = Vec::new();
         let mut sources = Vec::new();
         for (path, result) in self.build(&files) {

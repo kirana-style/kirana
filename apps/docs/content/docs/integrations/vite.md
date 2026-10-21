@@ -52,8 +52,9 @@ class name with codes of one or two characters, assigned from the whole build:
 - **The client and server bundles agree.** Both are renamed from one map, and
   the stylesheet with them.
 
-It is off by default while it is measured on more applications; see
-[dense names](/docs/advanced/output#dense-names) for what it saves. It cannot be
+It is off by default: names can change between deploys in chunks whose source
+did not, so those chunks are downloaded again. See
+[dense names](/docs/advanced/output#dense-names) for what it saves and why. It cannot be
 combined with a [class map](/docs/frameworks/server-templates), whose server-side
 helpers read hashed names, and the build says so.
 

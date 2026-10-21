@@ -245,7 +245,7 @@ export const Card = () => <article sx={card.anchor}><h2 sx={title} /></article>
     ).toContain('<p class="')
   })
 
-  it("opens synchronously, for hosts whose hooks are (Jest)", () => {
+  it("opens synchronously, for hosts whose hooks are (Jest)", async () => {
     const root = project({
       "kirana.config.mjs": 'export default { names: { prefix: "ds" } }',
     })
@@ -259,6 +259,12 @@ export const Card = () => <article sx={card.anchor}><h2 sx={title} /></article>
       ).jsx
     ).toBe("solid")
     expect(Driver.createSync().root).toBe(process.cwd())
+    // A relative root is read from the working directory, its configuration module included.
+    const relative = path.relative(process.cwd(), root)
+    expect(Driver.createSync({ root: relative }).configFile).toBe(
+      path.join(root, "kirana.config.mjs")
+    )
+    expect((await Driver.create({ root: relative })).root).toBe(root)
   })
 
   it("merges presets' utility grammars in order, the project's last", async () => {

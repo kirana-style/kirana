@@ -480,3 +480,44 @@ fn the_stylesheet_and_diagnostics_are_kept_until_something_changes() {
     assert!(project.diagnostics().iter().any(|d| d.code == Code::ClassNameCollision));
     fs::remove_dir_all(root).unwrap();
 }
+
+#[test]
+fn an_exported_relation_is_unused_only_when_the_project_was_compiled_whole() {
+    let unused = |project: &Project| {
+        project
+            .diagnostics()
+            .iter()
+            .filter(|diagnostic| diagnostic.code == kirana_diagnostics::Code::RelationUnused)
+            .count()
+    };
+    let markers = r#"import { relation } from "@kirana-style/core"
+export const menu = relation("menu")
+"#;
+    let anchor = r#"import { menu } from "./markers"
+export const Menu = () => <div sx={menu.anchor} />
+"#;
+    let reader = r#"import { css } from "@kirana-style/core"
+import { menu } from "./markers"
+export const item = css({ padding: { base: "1rem", [menu.within("[data-slot]")]: 0 } })
+"#;
+    // A build that reaches the anchor but not the reader cannot tell the relation is unused.
+    let (root, project) = temp_project(&[("markers.ts", markers), ("menu.tsx", anchor), ("item.ts", reader)]);
+    let menu = root.join("menu.tsx");
+    project.transform(&menu, &fs::read_to_string(&menu).unwrap());
+    assert_eq!(unused(&project), 0);
+    // Compiled whole, the reader is found.
+    project.compile_paths(std::slice::from_ref(&root));
+    assert_eq!(unused(&project), 0);
+    // Compiled whole with no reader anywhere, it is reported.
+    let (root, project) = temp_project(&[("markers.ts", markers), ("menu.tsx", anchor)]);
+    project.compile_paths(std::slice::from_ref(&root));
+    assert_eq!(unused(&project), 1);
+    // A relation its module keeps to itself is reported by any build.
+    let (root, project) = temp_project(&[(
+        "local.tsx",
+        "import { relation } from \"@kirana-style/core\"\nconst card = relation(\"card\")\nexport const Card = () => <div sx={card.anchor} />\n",
+    )]);
+    let local = root.join("local.tsx");
+    project.transform(&local, &fs::read_to_string(&local).unwrap());
+    assert_eq!(unused(&project), 1);
+}

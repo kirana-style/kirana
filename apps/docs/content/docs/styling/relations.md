@@ -67,8 +67,12 @@ Because the compiler checks it. Two errors you get for free:
   position: `after()` used where the anchor is not an earlier sibling, for
   example.
 
-A relation that is declared and never read is reported too (`relation-unused`),
-so dead relations do not accumulate. And because a relation is identified by its
+A relation that is anchored and never read is reported too (`relation-unused`),
+so dead relations do not accumulate. One that its module keeps to itself is
+checked in every build. One that is exported is checked where the whole project
+is compiled, by `kirana-style check` and in your editor: a bundler build compiles
+only the modules it reaches, so a shared component's reader may simply not be
+in this application. And because a relation is identified by its
 package and name, two modules of one package that both write `relation("card")`
 would share one marker without meaning to: `relation-name-collision` names both
 files. Export the relation from one module and import it where it is read.
