@@ -85,8 +85,8 @@ export function Proof() {
       id="measured"
       number="04"
       eyebrow="Measured"
-      title="Measured on the same three applications"
-      lede={`Kirana ${BENCH.meta.kirana}, the StyleX port and the Tailwind original of one set of applications, built and run in public by kirana-lab on every release. Each figure links the run it comes from.`}
+      title="Measured on real applications, built whole"
+      lede={`Kirana ${BENCH.meta.kirana}, the StyleX port and the Tailwind original of the same shadcn/ui applications, built and run in public by kirana-lab on every release. A build is the app's own production build, cold, from source, of the release you would install. Each figure links the run it comes from.`}
       aside={
         <DocsLink href="/docs/project/benchmarks" sx={chapter.aside}>
           How we measured

@@ -103,6 +103,10 @@ const PANDA_VIEW_TRANSITION =
 const STYLEX_API = "https://stylexjs.com/docs/api/javascript"
 const PANDA_SKILLS = "https://github.com/chakra-ui/panda/tree/main/skills"
 const PANDA_SPEC = "https://panda-css.com/docs/theming/json-spec"
+const PANDA_WRITING = "https://panda-css.com/docs/concepts/writing-styles"
+const STYLEX_WHEN = "https://stylexjs.com/docs/api/javascript/when/"
+const STYLEX_ESLINT_RULES =
+  "https://github.com/facebook/stylex/tree/main/packages/%40stylexjs/eslint-plugin"
 
 const none: Cell = {
   short: "Not compared",
@@ -251,6 +255,42 @@ export const ROWS: readonly Row[] = [
     },
   },
   {
+    topic: "Headless component states",
+    help: "How you style a part's state from a headless library: checked, open, the side a popup opened on.",
+    cells: {
+      runtime: {
+        short: "Selector strings",
+        tone: "neutral",
+        text: "A nested selector string: '&…': { … }",
+        source: EMOTION,
+      },
+      stylex: {
+        short: "Attribute selectors",
+        tone: "neutral",
+        text: "Attribute selectors such as '[data-state=\"open\"]', in stylex.when on a marked element",
+        source: STYLEX_WHEN,
+      },
+      panda: {
+        short: "Built-in conditions",
+        tone: "good",
+        text: 'Conditions such as _checked and _open, each matching several conventions ([data-checked], [data-state="checked"]); other states as selector strings',
+        source: PANDA_CONDITIONS,
+      },
+      tailwind: {
+        short: "data-* variants",
+        tone: "neutral",
+        text: "data-* and aria-* variants in class names: data-checked:, data-[size=large]:",
+        source: TW_STATES,
+      },
+      kirana: {
+        short: "Typed per library",
+        tone: "good",
+        text: "Typed keys generated from the library's own declarations (Base UI), and a few lines for any other",
+        source: "/docs/styling/states",
+      },
+    },
+  },
+  {
     topic: "When two styles set one property",
     help: "What happens when you combine two styles.",
     cells: {
@@ -320,6 +360,32 @@ export const ROWS: readonly Row[] = [
         tone: "good",
         text: `${DIAGNOSTICS.length} diagnostics from the compiler itself, with stable codes`,
         source: "/docs/tooling/diagnostics",
+      },
+    },
+  },
+  {
+    topic: "Invalid values caught",
+    help: "Is a value the property does not take, such as padding: red, an error?",
+    cells: {
+      runtime: none,
+      stylex: {
+        short: "Lint rule",
+        tone: "good",
+        text: "A lint rule, no-nonstandard-styles, validates values against property specifications",
+        source: STYLEX_ESLINT_RULES,
+      },
+      panda: {
+        short: "Opt-in, some properties",
+        tone: "neutral",
+        text: "Opt-in strictPropertyValues rejects values outside a property's predefined list; other properties take any value",
+        source: PANDA_WRITING,
+      },
+      tailwind: none,
+      kirana: {
+        short: "In the compiler",
+        tone: "good",
+        text: "Every value checked against its property's grammar at build, tokens included; CSS newer than the data is never rejected",
+        source: "/docs/styling/styles",
       },
     },
   },
@@ -692,6 +758,7 @@ const GROUP_TOPICS: readonly { title: string; topics: readonly string[] }[] = [
     title: "Writing styles",
     topics: [
       "Where a hover goes",
+      "Headless component states",
       "When two styles set one property",
       "Dark mode",
       "Type-checked styles",
@@ -704,6 +771,7 @@ const GROUP_TOPICS: readonly { title: string; topics: readonly string[] }[] = [
     title: "Checks and tools",
     topics: [
       "Checks on your styles",
+      "Invalid values caught",
       "Editor support",
       "Lint in your linter",
       "Diagnostics in CI",

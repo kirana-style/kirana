@@ -4529,6 +4529,11 @@ export const PAGES: readonly PageMeta[] = [
     ],
     "headings": [
       {
+        "id": "what-the-numbers-include",
+        "text": "What the numbers include",
+        "level": 2
+      },
+      {
         "id": "how-to-read-it",
         "text": "How to read it",
         "level": 2
@@ -6232,6 +6237,51 @@ export const ORDER: readonly string[] = [
 ]
 
 export const POSTS: readonly BlogMeta[] = [
+  {
+    "href": "/blog/kirana-0.3",
+    "file": "content/blog/kirana-0.3.md",
+    "title": "Kirana 0.3.0",
+    "summary": "Typed states for headless components, values checked against the CSS grammar, Remix 3 and six more frameworks, and one breaking change to how variable tokens are written.",
+    "date": "2026-10-21",
+    "author": "Kirana team",
+    "tags": [
+      "announcement",
+      "release"
+    ],
+    "readingMinutes": 6,
+    "headings": [
+      {
+        "id": "breaking-a-variable-token-is-written-only-where-it-is-used",
+        "text": "Breaking: a variable token is written only where it is used",
+        "level": 2
+      },
+      {
+        "id": "component-states-typed",
+        "text": "Component states, typed",
+        "level": 2
+      },
+      {
+        "id": "values-checked-against-the-css-grammar",
+        "text": "Values checked against the CSS grammar",
+        "level": 2
+      },
+      {
+        "id": "remix-3-and-more-frameworks",
+        "text": "Remix 3, and more frameworks",
+        "level": 2
+      },
+      {
+        "id": "smaller-and-steadier",
+        "text": "Smaller and steadier",
+        "level": 2
+      },
+      {
+        "id": "what-0-3-0-measured",
+        "text": "What 0.3.0 measured",
+        "level": 2
+      }
+    ]
+  },
   {
     "href": "/blog/kirana-on-npm",
     "file": "content/blog/kirana-on-npm.md",

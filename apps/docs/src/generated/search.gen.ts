@@ -5015,7 +5015,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Benchmarks",
     "section": "project",
     "heading": "Benchmarks",
-    "text": "Every number the site quotes comes from kirana-lab , a public repository that builds the same three applications three ways: with the published Kirana release, with a StyleX port and with the Tailwind original. The StyleX port is built twice, by StyleX's Babel plugin and by its Rust compiler on SWC, so a comparison with StyleX holds whichever one you use. It measures on every Kirana release and once a week, so an update to StyleX or Tailwind shows up too, and the site takes the newest run through a pull request. The figures below are Kirana 0.2.3."
+    "text": "Every number the site quotes comes from kirana-lab , a public repository that builds the same three applications three ways: with the published Kirana release, with a StyleX port and with the Tailwind original. The StyleX port is built twice, by StyleX's Babel plugin and by its Rust compiler on SWC, so a comparison with StyleX holds whichever one you use. It measures on every Kirana release and once a week, so an update to StyleX or Tailwind shows up too, and the site takes the newest run through a pull request. The figures below are Kirana 0.3.0."
+  },
+  {
+    "id": "/docs/project/benchmarks#what-the-numbers-include",
+    "href": "/docs/project/benchmarks#what-the-numbers-include",
+    "page": "Benchmarks",
+    "section": "project",
+    "heading": "What the numbers include",
+    "text": "A styling compiler can be timed on a few lines in memory, or on an application. The two answer different questions, and only the second is the one you have. Every headline number here is the second kind: Real applications, built whole. The corpus is a demo page, sixty-odd shadcn/ui blocks and a page for every component, written three times, plus a large order table. Each number is that app's own production build, cold, from source. Parsing, extracting, transforming, bundling and minifying are all inside the time, and the sizes are the files a browser downloads. The release you would install. Kirana comes from npm at the measured version, never from a build of this repository, and StyleX and Tailwind from their own pinned releases. The same pages in every build. Before anything is timed, every element on every route is compared property by property, at three widths in both colour schemes. A run whose builds do not render alike is published as a pre-release, and the site does not take it. A difference only where the rounds show one. Each cell is a median over interleaved rounds, with a 95 % confidence interval. A ratio whose interval includes 1 is \"level\", in Kirana's favour or not. "
   },
   {
     "id": "/docs/project/benchmarks#how-to-read-it",
