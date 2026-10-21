@@ -5079,7 +5079,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Contributing",
     "section": "project",
     "heading": "Set up",
-    "text": "Vite+ ( ) and Rust (through rustup) are the two installs. The README's Scripts table lists what each command needs. The pre-push hook ( ) runs the checks, the Rust lints, the tests with 100 % coverage and the Zed extension's own Rust checks, from the cache when nothing changed."
+    "text": "Vite+ ( ) and Rust (through rustup) are the two installs. The README's Scripts table lists what each command needs. The pre-push hook ( ) runs the checks, the Rust lints, the tests with 100 % coverage, the Zed extension's own Rust checks and the budgets, from the cache when nothing changed."
   },
   {
     "id": "/docs/project/contributing#try-it-on-this-repository",
@@ -5095,7 +5095,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Contributing",
     "section": "project",
     "heading": "What a pull request needs",
-    "text": "Tests, and 100 % coverage. Kirana's packages keep 100 % coverage of Rust lines, functions and regions, and of TypeScript statements, branches, functions and lines. checks it. A change that lowers it fails CI. The specification, in the same change. A change to the compiler's behaviour updates the matching document in , and a design choice gets a decision in . The docs, in the same change. A new token, diagnostic, option or behaviour is not finished until says so. Evidence for a trade-off. If your change makes something worse to make something else better, show the failing case, the numbers and a test. A sign-off on every commit. Contributions are accepted under the Developer Certificate of Origin : add with , certifying you have the right to submit the work under the project's licence."
+    "text": "Tests, and 100 % coverage. Kirana's packages keep 100 % coverage of Rust lines, functions and regions, and of TypeScript statements, branches, functions and lines. checks it. A change that lowers it fails CI. The budgets record, when the output or the types change. It records: what the compiler's output weighs: each golden fixture, , and the runtime, raw, gzip and brotli; how many types and instantiations checking the API costs. A change to either fails until in rewrites the record. Commit it with the change, so the diff shows what moved; CI prints the difference as a table in the job summary. The specification, in the same change. A change to the compiler's behaviour updates the matching document in , and a design choice gets a decision in . The docs, in the same change. A new token, diagnostic, option or behaviour is not finished until says so. Evidence for a trade-off. If your change makes something worse to make something else better, show the failing case, the numbers and a test. A sign-off on every commit. Contributions are accepted under the Developer Certificate of Origin : add with , certifying you have the right to submit the work under the project's licence."
   },
   {
     "id": "/docs/project/contributing#security",

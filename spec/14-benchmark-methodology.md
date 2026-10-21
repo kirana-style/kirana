@@ -149,6 +149,28 @@ release with the statistics above.
 4. unfavourable results from the same run are published alongside favourable ones;
 5. vendor-reported numbers from other projects are labelled as such and never mixed into Kirana's tables.
 
+## Budgets on every pull request
+
+**KRN-BENCH-008** — The lab measures releases; a pull request is held to budgets instead. The lab's
+numbers need many rounds on one machine, so they cannot gate a pull request. What a pull request
+can change and a reviewer should see (what the output weighs and what the types cost to check) is
+deterministic, so it is recorded exactly, not sampled:
+
+- **The record:** `packages/kirana/budgets/budgets.json`, committed.
+- **Sizes:** raw, gzip (level 9) and brotli (quality 11) bytes, in Node's zlib, of:
+  - each golden fixture's committed output;
+  - `packages/ui` and `packages/docs-ui` compiled module by module in one session (the minified
+    stylesheet and the compiled modules);
+  - the private runtime (KRN-DYN-005 keeps its hard limit).
+- **Types:** the types and instantiations `tsc --extendedDiagnostics` reports for each project in
+  `budgets/types/`, less the `empty` project's. Each `sx` project also expects an error for a
+  wrong value, so it cannot pass with its augmentation missing.
+- **The gate:** CI regenerates the record and fails when it differs. The author rewrites it, and the
+  difference is then part of the pull request's diff, reviewed like the code; CI also prints it as
+  a table. There is no threshold: a growth is accepted by committing it, never by being small.
+- **Not recorded:** timings, which no single run can establish (tier A belongs to the lab), and the
+  docs site's stylesheet, which grows with the site's pages and is printed for information.
+
 ## Reproducing the baseline
 
 The first benchmark task (part of E-02, milestone M1) re-measures the baseline of

@@ -23,6 +23,7 @@ export default defineConfig({
           name: "packages",
           include: [
             "npm/{core,compiler,rolldown,vite,webpack,rspack,bun,astro,esbuild,jest,remix,eslint-plugin,biome-plugin,postcss,next,angular,adonis,ember,parcel-transformer,gatsby}/test/**/*.test.ts",
+            "scripts/test/**/*.test.ts",
           ],
         },
       },

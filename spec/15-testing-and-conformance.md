@@ -138,6 +138,8 @@ on Linux, macOS and Windows, plus a WASI-fallback run (experiment E-08).
 ## Other gates
 
 - The private runtime's size (KRN-DYN-005) is measured on every commit and fails CI above the limit.
+- Output size and type cost are recorded in `budgets/budgets.json` and checked on every pull request
+  (KRN-BENCH-008): a change to either is committed with the change that causes it.
 - The language server is tested by replaying the **editor** corpus and asserting responses and latency
   budgets (KRN-DX-011).
 - Lint rules run against fixtures under both Oxlint and ESLint and must report identical results; the

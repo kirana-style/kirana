@@ -16,6 +16,7 @@
     "migrate:stylex": "bun scripts/migrate-stylex.ts",
     "gen:preset-scales": "bun scripts/gen-preset-scales.ts",
     "budget": "node scripts/runtime-budget.ts",
+    "budgets": "node scripts/budgets.ts",
     "pack": "bun scripts/pack.ts",
     "example": "bun examples/run.ts"
   },

@@ -293,6 +293,11 @@ jobs:
       - name: Build
         run: vp run build
 
+      # Output size and type cost against packages/kirana/budgets/budgets.json, with the
+      # difference in the job summary; the site's stylesheet is printed beside it, not gated.
+      - name: Budgets
+        run: bun run --cwd packages/kirana budgets --check --summary
+
       # The site ships `light-dark()` as written (D-026). A CSS minifier aiming below that floor
       # rewrites it into `--lightningcss-light/dark` switches that nothing sets, and the colours
       # vanish in production only: the dev server does not minify.
