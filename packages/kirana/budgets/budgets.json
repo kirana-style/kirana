@@ -1,0 +1,939 @@
+{
+  "size": {
+    "fixtures": {
+      "ambiguity-and-axes": {
+        "css": {
+          "raw": 711,
+          "gzip": 349,
+          "brotli": 291
+        },
+        "js": {
+          "raw": 395,
+          "gzip": 238,
+          "brotli": 200
+        }
+      },
+      "api-conditions-and-pseudo-elements": {
+        "css": {
+          "raw": 1026,
+          "gzip": 494,
+          "brotli": 437
+        },
+        "js": {
+          "raw": 372,
+          "gzip": 268,
+          "brotli": 239
+        }
+      },
+      "api-functions": {
+        "css": {
+          "raw": 792,
+          "gzip": 382,
+          "brotli": 307
+        },
+        "js": {
+          "raw": 1338,
+          "gzip": 672,
+          "brotli": 590
+        }
+      },
+      "api-misuse": {
+        "css": {
+          "raw": 143,
+          "gzip": 110,
+          "brotli": 92
+        },
+        "js": {
+          "raw": 211,
+          "gzip": 145,
+          "brotli": 108
+        }
+      },
+      "api-unknown-and-invalid": {
+        "css": {
+          "raw": 155,
+          "gzip": 122,
+          "brotli": 99
+        },
+        "js": {
+          "raw": 81,
+          "gzip": 86,
+          "brotli": 72
+        }
+      },
+      "api-values-and-expressions": {
+        "css": {
+          "raw": 976,
+          "gzip": 472,
+          "brotli": 393
+        },
+        "js": {
+          "raw": 636,
+          "gzip": 427,
+          "brotli": 374
+        }
+      },
+      "comment-only-and-types": {
+        "css": {
+          "raw": 85,
+          "gzip": 72,
+          "brotli": 61
+        },
+        "js": {
+          "raw": 13,
+          "gzip": 33,
+          "brotli": 17
+        }
+      },
+      "config-invalid": {
+        "css": {
+          "raw": 0,
+          "gzip": 20,
+          "brotli": 1
+        },
+        "js": {
+          "raw": 26,
+          "gzip": 46,
+          "brotli": 18
+        }
+      },
+      "config-prefix-levels-targets": {
+        "css": {
+          "raw": 287,
+          "gzip": 188,
+          "brotli": 159
+        },
+        "js": {
+          "raw": 370,
+          "gzip": 275,
+          "brotli": 230
+        }
+      },
+      "cross-file-imports": {
+        "css": {
+          "raw": 186,
+          "gzip": 141,
+          "brotli": 138
+        },
+        "js": {
+          "raw": 449,
+          "gzip": 276,
+          "brotli": 242
+        }
+      },
+      "directives-and-hashbang": {
+        "css": {
+          "raw": 150,
+          "gzip": 117,
+          "brotli": 103
+        },
+        "js": {
+          "raw": 325,
+          "gzip": 246,
+          "brotli": 201
+        }
+      },
+      "dynamic-branch-budget": {
+        "css": {
+          "raw": 269,
+          "gzip": 146,
+          "brotli": 133
+        },
+        "js": {
+          "raw": 303,
+          "gzip": 234,
+          "brotli": 190
+        }
+      },
+      "dynamic-edge-cases": {
+        "css": {
+          "raw": 477,
+          "gzip": 264,
+          "brotli": 219
+        },
+        "js": {
+          "raw": 1311,
+          "gzip": 519,
+          "brotli": 489
+        }
+      },
+      "dynamic-values": {
+        "css": {
+          "raw": 552,
+          "gzip": 276,
+          "brotli": 249
+        },
+        "js": {
+          "raw": 1354,
+          "gzip": 535,
+          "brotli": 482
+        }
+      },
+      "evaluator-edges": {
+        "css": {
+          "raw": 1490,
+          "gzip": 611,
+          "brotli": 519
+        },
+        "js": {
+          "raw": 3010,
+          "gzip": 1202,
+          "brotli": 1059
+        }
+      },
+      "evaluator-functions": {
+        "css": {
+          "raw": 333,
+          "gzip": 196,
+          "brotli": 161
+        },
+        "js": {
+          "raw": 6189,
+          "gzip": 1242,
+          "brotli": 1115
+        }
+      },
+      "evaluator-syntax": {
+        "css": {
+          "raw": 1361,
+          "gzip": 592,
+          "brotli": 492
+        },
+        "js": {
+          "raw": 2679,
+          "gzip": 1155,
+          "brotli": 1033
+        }
+      },
+      "external-namespaced-component": {
+        "css": {
+          "raw": 147,
+          "gzip": 114,
+          "brotli": 90
+        },
+        "js": {
+          "raw": 240,
+          "gzip": 173,
+          "brotli": 150
+        }
+      },
+      "first-that-works": {
+        "css": {
+          "raw": 943,
+          "gzip": 439,
+          "brotli": 387
+        },
+        "js": {
+          "raw": 661,
+          "gzip": 332,
+          "brotli": 280
+        }
+      },
+      "host-elements": {
+        "css": {
+          "raw": 179,
+          "gzip": 133,
+          "brotli": 116
+        },
+        "js": {
+          "raw": 1491,
+          "gzip": 550,
+          "brotli": 492
+        }
+      },
+      "installed-packages": {
+        "css": {
+          "raw": 511,
+          "gzip": 276,
+          "brotli": 250
+        },
+        "js": {
+          "raw": 834,
+          "gzip": 453,
+          "brotli": 403
+        }
+      },
+      "jsx-compiled": {
+        "css": {
+          "raw": 179,
+          "gzip": 133,
+          "brotli": 116
+        },
+        "js": {
+          "raw": 1804,
+          "gzip": 662,
+          "brotli": 563
+        }
+      },
+      "jsx-compiled-utilities": {
+        "css": {
+          "raw": 145,
+          "gzip": 112,
+          "brotli": 92
+        },
+        "js": {
+          "raw": 408,
+          "gzip": 268,
+          "brotli": 212
+        }
+      },
+      "jsx-preact": {
+        "css": {
+          "raw": 311,
+          "gzip": 200,
+          "brotli": 167
+        },
+        "js": {
+          "raw": 915,
+          "gzip": 443,
+          "brotli": 376
+        }
+      },
+      "jsx-qwik": {
+        "css": {
+          "raw": 223,
+          "gzip": 163,
+          "brotli": 131
+        },
+        "js": {
+          "raw": 772,
+          "gzip": 461,
+          "brotli": 384
+        }
+      },
+      "jsx-solid": {
+        "css": {
+          "raw": 223,
+          "gzip": 163,
+          "brotli": 131
+        },
+        "js": {
+          "raw": 626,
+          "gzip": 388,
+          "brotli": 315
+        }
+      },
+      "keyframes-and-animation": {
+        "css": {
+          "raw": 866,
+          "gzip": 404,
+          "brotli": 350
+        },
+        "js": {
+          "raw": 390,
+          "gzip": 260,
+          "brotli": 209
+        }
+      },
+      "merge-01-omitted-keeps": {
+        "css": {
+          "raw": 233,
+          "gzip": 165,
+          "brotli": 139
+        },
+        "js": {
+          "raw": 57,
+          "gzip": 77,
+          "brotli": 61
+        }
+      },
+      "merge-02-value-replaces-base-only": {
+        "css": {
+          "raw": 199,
+          "gzip": 143,
+          "brotli": 121
+        },
+        "js": {
+          "raw": 48,
+          "gzip": 68,
+          "brotli": 52
+        }
+      },
+      "merge-03-condition-replaces-condition": {
+        "css": {
+          "raw": 197,
+          "gzip": 143,
+          "brotli": 120
+        },
+        "js": {
+          "raw": 48,
+          "gzip": 68,
+          "brotli": 52
+        }
+      },
+      "merge-04-base-null-removes-base": {
+        "css": {
+          "raw": 164,
+          "gzip": 131,
+          "brotli": 104
+        },
+        "js": {
+          "raw": 44,
+          "gzip": 64,
+          "brotli": 48
+        }
+      },
+      "merge-05-condition-null-removes-condition": {
+        "css": {
+          "raw": 144,
+          "gzip": 111,
+          "brotli": 94
+        },
+        "js": {
+          "raw": 44,
+          "gzip": 64,
+          "brotli": 48
+        }
+      },
+      "merge-06-star-null-then-entries": {
+        "css": {
+          "raw": 144,
+          "gzip": 111,
+          "brotli": 95
+        },
+        "js": {
+          "raw": 40,
+          "gzip": 60,
+          "brotli": 44
+        }
+      },
+      "merge-07-prop-null-removes-all": {
+        "css": {
+          "raw": 85,
+          "gzip": 72,
+          "brotli": 61
+        },
+        "js": {
+          "raw": 31,
+          "gzip": 51,
+          "brotli": 35
+        }
+      },
+      "merge-08-shorthand-then-longhand": {
+        "css": {
+          "raw": 182,
+          "gzip": 130,
+          "brotli": 112
+        },
+        "js": {
+          "raw": 41,
+          "gzip": 61,
+          "brotli": 45
+        }
+      },
+      "merge-09-longhand-then-shorthand": {
+        "css": {
+          "raw": 145,
+          "gzip": 112,
+          "brotli": 92
+        },
+        "js": {
+          "raw": 33,
+          "gzip": 53,
+          "brotli": 37
+        }
+      },
+      "merge-10-fewer-longhands-win": {
+        "css": {
+          "raw": 201,
+          "gzip": 143,
+          "brotli": 108
+        },
+        "js": {
+          "raw": 42,
+          "gzip": 62,
+          "brotli": 46
+        }
+      },
+      "merge-11-condition-normal-form": {
+        "css": {
+          "raw": 201,
+          "gzip": 153,
+          "brotli": 125
+        },
+        "js": {
+          "raw": 39,
+          "gzip": 59,
+          "brotli": 43
+        }
+      },
+      "merge-12-compound-condition-key": {
+        "css": {
+          "raw": 169,
+          "gzip": 132,
+          "brotli": 111
+        },
+        "js": {
+          "raw": 49,
+          "gzip": 66,
+          "brotli": 53
+        }
+      },
+      "merge-13-null-in-nested-condition": {
+        "css": {
+          "raw": 162,
+          "gzip": 129,
+          "brotli": 105
+        },
+        "js": {
+          "raw": 49,
+          "gzip": 66,
+          "brotli": 53
+        }
+      },
+      "merge-14-pseudo-element-target": {
+        "css": {
+          "raw": 200,
+          "gzip": 138,
+          "brotli": 119
+        },
+        "js": {
+          "raw": 57,
+          "gzip": 71,
+          "brotli": 61
+        }
+      },
+      "merge-15-shorthand-null-removes-longhands": {
+        "css": {
+          "raw": 85,
+          "gzip": 72,
+          "brotli": 61
+        },
+        "js": {
+          "raw": 50,
+          "gzip": 63,
+          "brotli": 53
+        }
+      },
+      "merge-16-later-argument-wins": {
+        "css": {
+          "raw": 146,
+          "gzip": 113,
+          "brotli": 94
+        },
+        "js": {
+          "raw": 34,
+          "gzip": 54,
+          "brotli": 38
+        }
+      },
+      "merge-17-skipped-inputs": {
+        "css": {
+          "raw": 182,
+          "gzip": 137,
+          "brotli": 122
+        },
+        "js": {
+          "raw": 43,
+          "gzip": 63,
+          "brotli": 47
+        }
+      },
+      "merge-18-cx-static": {
+        "css": {
+          "raw": 144,
+          "gzip": 111,
+          "brotli": 95
+        },
+        "js": {
+          "raw": 34,
+          "gzip": 54,
+          "brotli": 38
+        }
+      },
+      "merge-19-logical-physical-same-count": {
+        "css": {
+          "raw": 199,
+          "gzip": 141,
+          "brotli": 121
+        },
+        "js": {
+          "raw": 41,
+          "gzip": 61,
+          "brotli": 45
+        }
+      },
+      "merge-20-custom-properties": {
+        "css": {
+          "raw": 185,
+          "gzip": 137,
+          "brotli": 133
+        },
+        "js": {
+          "raw": 45,
+          "gzip": 65,
+          "brotli": 49
+        }
+      },
+      "merge-21-undefined-is-omitted": {
+        "css": {
+          "raw": 143,
+          "gzip": 110,
+          "brotli": 92
+        },
+        "js": {
+          "raw": 34,
+          "gzip": 54,
+          "brotli": 38
+        }
+      },
+      "parse-error": {
+        "css": {
+          "raw": 85,
+          "gzip": 72,
+          "brotli": 61
+        },
+        "js": {
+          "raw": 13,
+          "gzip": 33,
+          "brotli": 17
+        }
+      },
+      "position-try": {
+        "css": {
+          "raw": 728,
+          "gzip": 332,
+          "brotli": 279
+        },
+        "js": {
+          "raw": 537,
+          "gzip": 280,
+          "brotli": 225
+        }
+      },
+      "props-helper": {
+        "css": {
+          "raw": 187,
+          "gzip": 142,
+          "brotli": 133
+        },
+        "js": {
+          "raw": 490,
+          "gzip": 307,
+          "brotli": 288
+        }
+      },
+      "recipes": {
+        "css": {
+          "raw": 695,
+          "gzip": 333,
+          "brotli": 264
+        },
+        "js": {
+          "raw": 1734,
+          "gzip": 663,
+          "brotli": 628
+        }
+      },
+      "relations-declared-outside-build": {
+        "css": {
+          "raw": 165,
+          "gzip": 132,
+          "brotli": 108
+        },
+        "js": {
+          "raw": 166,
+          "gzip": 151,
+          "brotli": 117
+        }
+      },
+      "relations-name-collision": {
+        "css": {
+          "raw": 171,
+          "gzip": 138,
+          "brotli": 112
+        },
+        "js": {
+          "raw": 225,
+          "gzip": 169,
+          "brotli": 140
+        }
+      },
+      "relations-nested-trees": {
+        "css": {
+          "raw": 165,
+          "gzip": 132,
+          "brotli": 108
+        },
+        "js": {
+          "raw": 562,
+          "gzip": 291,
+          "brotli": 251
+        }
+      },
+      "relations-placement": {
+        "css": {
+          "raw": 358,
+          "gzip": 237,
+          "brotli": 200
+        },
+        "js": {
+          "raw": 1015,
+          "gzip": 377,
+          "brotli": 352
+        }
+      },
+      "relations-project-wide": {
+        "css": {
+          "raw": 165,
+          "gzip": 132,
+          "brotli": 110
+        },
+        "js": {
+          "raw": 98,
+          "gzip": 102,
+          "brotli": 92
+        }
+      },
+      "select-contextual": {
+        "css": {
+          "raw": 678,
+          "gzip": 359,
+          "brotli": 297
+        },
+        "js": {
+          "raw": 211,
+          "gzip": 162,
+          "brotli": 147
+        }
+      },
+      "shorthand-atoms": {
+        "css": {
+          "raw": 866,
+          "gzip": 364,
+          "brotli": 311
+        },
+        "js": {
+          "raw": 1227,
+          "gzip": 699,
+          "brotli": 601
+        }
+      },
+      "smoke": {
+        "css": {
+          "raw": 829,
+          "gzip": 406,
+          "brotli": 377
+        },
+        "js": {
+          "raw": 798,
+          "gzip": 439,
+          "brotli": 379
+        }
+      },
+      "spans-computed-keys": {
+        "css": {
+          "raw": 146,
+          "gzip": 113,
+          "brotli": 94
+        },
+        "js": {
+          "raw": 425,
+          "gzip": 285,
+          "brotli": 219
+        }
+      },
+      "sx-forwarded-to-external": {
+        "css": {
+          "raw": 147,
+          "gzip": 114,
+          "brotli": 90
+        },
+        "js": {
+          "raw": 852,
+          "gzip": 328,
+          "brotli": 271
+        }
+      },
+      "themes-and-modes": {
+        "css": {
+          "raw": 932,
+          "gzip": 339,
+          "brotli": 295
+        },
+        "js": {
+          "raw": 1067,
+          "gzip": 524,
+          "brotli": 438
+        }
+      },
+      "tokens-definitions": {
+        "css": {
+          "raw": 1108,
+          "gzip": 500,
+          "brotli": 432
+        },
+        "js": {
+          "raw": 238,
+          "gzip": 203,
+          "brotli": 171
+        }
+      },
+      "tokens-errors": {
+        "css": {
+          "raw": 85,
+          "gzip": 72,
+          "brotli": 61
+        },
+        "js": {
+          "raw": 189,
+          "gzip": 135,
+          "brotli": 112
+        }
+      },
+      "tokens-in-module-and-replication": {
+        "css": {
+          "raw": 670,
+          "gzip": 324,
+          "brotli": 279
+        },
+        "js": {
+          "raw": 272,
+          "gzip": 193,
+          "brotli": 190
+        }
+      },
+      "tokens-namespace-collision": {
+        "css": {
+          "raw": 275,
+          "gzip": 171,
+          "brotli": 140
+        },
+        "js": {
+          "raw": 88,
+          "gzip": 88,
+          "brotli": 84
+        }
+      },
+      "tokens-registered": {
+        "css": {
+          "raw": 832,
+          "gzip": 408,
+          "brotli": 356
+        },
+        "js": {
+          "raw": 607,
+          "gzip": 384,
+          "brotli": 320
+        }
+      },
+      "transform-edges": {
+        "css": {
+          "raw": 203,
+          "gzip": 155,
+          "brotli": 125
+        },
+        "js": {
+          "raw": 668,
+          "gzip": 391,
+          "brotli": 317
+        }
+      },
+      "tsconfig-paths": {
+        "css": {
+          "raw": 145,
+          "gzip": 112,
+          "brotli": 92
+        },
+        "js": {
+          "raw": 204,
+          "gzip": 169,
+          "brotli": 130
+        }
+      },
+      "unchanged-module": {
+        "css": {
+          "raw": 85,
+          "gzip": 72,
+          "brotli": 61
+        },
+        "js": {
+          "raw": 13,
+          "gzip": 33,
+          "brotli": 17
+        }
+      },
+      "utility-surface": {
+        "css": {
+          "raw": 1612,
+          "gzip": 726,
+          "brotli": 630
+        },
+        "js": {
+          "raw": 1141,
+          "gzip": 553,
+          "brotli": 504
+        }
+      },
+      "view-transition": {
+        "css": {
+          "raw": 1055,
+          "gzip": 396,
+          "brotli": 362
+        },
+        "js": {
+          "raw": 830,
+          "gzip": 406,
+          "brotli": 335
+        }
+      }
+    },
+    "libraries": {
+      "ui": {
+        "css": {
+          "raw": 79012,
+          "gzip": 19265,
+          "brotli": 16470
+        },
+        "js": {
+          "raw": 349358,
+          "gzip": 76366,
+          "brotli": 59650
+        }
+      },
+      "docs-ui": {
+        "css": {
+          "raw": 15575,
+          "gzip": 4953,
+          "brotli": 4342
+        },
+        "js": {
+          "raw": 99297,
+          "gzip": 27139,
+          "brotli": 22797
+        }
+      }
+    },
+    "runtime": {
+      "raw": 2022,
+      "gzip": 1087,
+      "brotli": 1006
+    }
+  },
+  "types": {
+    "css": {
+      "types": 1993,
+      "instantiations": 261
+    },
+    "recipe": {
+      "types": 2328,
+      "instantiations": 1336
+    },
+    "sx-react": {
+      "types": 2058,
+      "instantiations": 1108
+    },
+    "sx-svelte": {
+      "types": 282,
+      "instantiations": 80
+    },
+    "sx-vue": {
+      "types": 1243,
+      "instantiations": 68
+    },
+    "tokens": {
+      "types": 1702,
+      "instantiations": 416
+    }
+  }
+}

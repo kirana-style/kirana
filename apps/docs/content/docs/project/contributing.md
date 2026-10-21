@@ -60,8 +60,8 @@ vp run build           # native engine, then the docs site
 
 Vite+ (`vp`) and Rust (through rustup) are the two installs. The README's
 Scripts table lists what each command needs. The pre-push hook (`vp run prepush`)
-runs the checks, the Rust lints, the tests with 100 % coverage and the Zed
-extension's own Rust checks, from the cache when nothing changed.
+runs the checks, the Rust lints, the tests with 100 % coverage, the Zed
+extension's own Rust checks and the budgets, from the cache when nothing changed.
 
 ### Try it on this repository
 
@@ -90,6 +90,15 @@ $ node packages/kirana/npm/cli/bin/kirana-style.ts trace packages/ui/src/compone
 - **Tests, and 100 % coverage.** Kirana's packages keep 100 % coverage of Rust
   lines, functions and regions, and of TypeScript statements, branches, functions
   and lines. `vp run coverage` checks it. A change that lowers it fails CI.
+- **The budgets record, when the output or the types change.** It records:
+  - what the compiler's output weighs: each golden fixture, `packages/ui`,
+    `packages/docs-ui` and the runtime, raw, gzip and brotli;
+  - how many types and instantiations checking the API costs.
+
+  A change to either fails `vp run budgets` until `bun run budgets --update` in
+  `packages/kirana` rewrites the record. Commit it with the change, so the diff
+  shows what moved; CI prints the difference as a table in the job summary.
+
 - **The specification, in the same change.** A change to the compiler's
   behaviour updates the matching document in `spec/`, and a design choice gets
   a decision in `spec/20-decisions.md`.

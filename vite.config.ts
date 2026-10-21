@@ -142,6 +142,14 @@ export default defineConfig({
           output: [],
         },
       },
+      // What the compiler's output weighs and what its types cost, against budgets/budgets.json:
+      // deterministic measures, so a pull request that changes them shows it in its diff.
+      budgets: {
+        command: "bun run budgets --check",
+        cwd: "packages/kirana",
+        dependsOn: ["engine"],
+        cache: { input: SOURCES, output: [] },
+      },
       // Every installed JavaScript dependency's licence against the policy in the script, as
       // cargo-deny holds the Rust ones; it changes only with the lockfile.
       licenses: {
@@ -152,7 +160,7 @@ export default defineConfig({
       // Coverage holds the Rust and Kirana tests to 100 %, docs-core to its own floor.
       prepush: {
         command: "echo All checks passed.",
-        dependsOn: ["coverage", "test:docs", "zed", "licenses"],
+        dependsOn: ["coverage", "test:docs", "zed", "licenses", "budgets"],
         cache: false,
       },
     },
@@ -182,6 +190,7 @@ export default defineConfig({
       ".agents/**",
       ".claude/**",
       "packages/kirana/fixtures/**",
+      "packages/kirana/budgets/budgets.json",
       "packages/kirana/target/**",
       "packages/kirana/npm/compiler/native.generated.d.ts",
       "packages/kirana/crates/**",
@@ -223,6 +232,8 @@ export default defineConfig({
       "**/routeTree.gen.ts",
       "**/vite.config.*.timestamp-*.*",
       "packages/kirana/fixtures/**",
+      // Type-cost cases, measured by tsc; the `sx` ones pass a wrong value on purpose.
+      "packages/kirana/budgets/types/**",
       // Templates installed from packed tarballs in a temporary directory, never in place, so
       // their imports cannot be type checked here; packages.yml builds every one for real.
       "packages/kirana/examples/**",
