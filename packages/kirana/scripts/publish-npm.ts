@@ -196,7 +196,24 @@ for (const tarball of order) {
   const tag = finalTag(tarball.version)
   const result = run("npm", ["dist-tag", "add", spec, tag])
   if (result.status !== 0) {
-    console.error(result.stderr.trim())
+    // npm falls back to the configured token when the OIDC exchange fails, and logs why only at
+    // verbose level: ask again once with it, and keep the exchange's own lines.
+    const verbose = run("npm", [
+      "dist-tag",
+      "add",
+      spec,
+      tag,
+      "--loglevel=verbose",
+    ])
+    if (verbose.status === 0) {
+      console.log(`${tag.padEnd(8)} ${spec} (on the second attempt)`)
+      run("npm", ["dist-tag", "rm", tarball.name, STAGING])
+      continue
+    }
+    const reasons = verbose.stderr
+      .split("\n")
+      .filter((line) => / oidc /.test(line))
+    console.error([result.stderr.trim(), ...reasons].join("\n"))
     unmoved.push(`npm dist-tag add ${spec} ${tag}`)
     continue
   }

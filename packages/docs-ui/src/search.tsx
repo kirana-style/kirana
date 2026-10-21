@@ -97,7 +97,9 @@ const styles = {
     borderRadius: "1rem",
     boxShadow: "0 24px 60px -24px rgb(0 0 0 / 0.45)",
   }),
-  command: css({ display: "grid" }),
+  // The palette's head and foot run edge to edge, so the kit's inset (its padding, and a radius
+  // smaller than the dialog's) would leave a band around them: the dialog's rounding clips instead.
+  command: css({ display: "grid", padding: 0, borderRadius: "inherit" }),
   head: css({
     display: "flex",
     alignItems: "center",

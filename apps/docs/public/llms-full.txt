@@ -9714,6 +9714,32 @@ site takes the newest run through a pull request.
 
 The figures below are Kirana 0.3.0.
 
+## What the numbers include
+
+A styling compiler can be timed on a few lines in memory, or on an application.
+The two answer different questions, and only the second is the one you have.
+Every headline number here is the second kind:
+
+- **Real applications, built whole.** The corpus is a demo page, sixty-odd
+  shadcn/ui blocks and a page for every component, written three times, plus a
+  large order table. Each number is that app's own production build, cold, from
+  source. Parsing, extracting, transforming, bundling and minifying are all
+  inside the time, and the sizes are the files a browser downloads.
+- **The release you would install.** Kirana comes from npm at the measured
+  version, never from a build of this repository, and StyleX and Tailwind from
+  their own pinned releases.
+- **The same pages in every build.** Before anything is timed, every element on
+  every route is compared property by property, at three widths in both colour
+  schemes. A run whose builds do not render alike is published as a pre-release,
+  and the site does not take it.
+- **A difference only where the rounds show one.** Each cell is a median over
+  interleaved rounds, with a 95 % confidence interval. A ratio whose interval
+  includes 1 is "level", in Kirana's favour or not.
+- **What is not counted.** No input is prepared in advance, no compiler is timed
+  apart from its bundler, and no figure is one fast round. The scale curve,
+  generated components of growing size, is reported on its own and never as a
+  headline.
+
 | | |
 | --- | --- |
 | Kirana | 0.3.0, from npm |

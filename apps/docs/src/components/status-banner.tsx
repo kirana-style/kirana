@@ -4,6 +4,7 @@ import { Cancel01Icon } from "@hugeicons/core-free-icons"
 
 import { DocsLink } from "@/components/docs-link"
 import { VERSION } from "@/data/release"
+import { POSTS } from "@/generated/content.gen"
 
 import { Icon } from "@workspace/ui/primitives/icon"
 import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
@@ -89,6 +90,10 @@ function subscribe(onChange: () => void) {
  * The server always renders it; a reader who closed it does not see it again
  * after hydration, until the next release.
  */
+/** The newest post tagged `release` (posts are newest first), so the link follows each release. */
+const NOTES =
+  POSTS.find((post) => post.tags.includes("release"))?.href ?? "/changelog"
+
 export function StatusBanner() {
   const hidden = useSyncExternalStore(subscribe, closed, () => false)
   if (hidden) return null
@@ -102,7 +107,7 @@ export function StatusBanner() {
       <span sx={styles.label}>Kirana {VERSION} is on npm.</span>
       <span>
         One command sets a project up.{" "}
-        <DocsLink href="/blog/kirana-on-npm" sx={styles.link}>
+        <DocsLink href={NOTES} sx={styles.link}>
           Read the release notes
         </DocsLink>
         .
