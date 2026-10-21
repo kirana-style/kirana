@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.3.0](https://github.com/kirana-style/kirana/compare/v0.2.4...v0.3.0) (2026-10-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* declare a variable token only where something uses it ([#62](https://github.com/kirana-style/kirana/issues/62))
+
+### Features
+
+* component states as condition keys, and values checked by grammar ([#82](https://github.com/kirana-style/kirana/issues/82)) ([2c034e7](https://github.com/kirana-style/kirana/commit/2c034e7b3c1e51f35a120c5af02934e3f3fa5b4e))
+* declare a variable token only where something uses it ([#62](https://github.com/kirana-style/kirana/issues/62)) ([811fbdd](https://github.com/kirana-style/kirana/commit/811fbdd5d1276738306eb1e22cca6b5b3a77c92a))
+* remix 3, with sx in compiled jsx ([#80](https://github.com/kirana-style/kirana/issues/80)) ([b6e9d12](https://github.com/kirana-style/kirana/commit/b6e9d1284d23e89e70ca7b82ef5eab2ca2378a74))
+* **site:** a partners page, the theme in the footer, a new quick start ([#70](https://github.com/kirana-style/kirana/issues/70)) ([9f5552c](https://github.com/kirana-style/kirana/commit/9f5552c91801350ffe641f7482b1807096fed409))
+* **site:** quick start pills, full chart comparisons, updated skills ([#72](https://github.com/kirana-style/kirana/issues/72)) ([abc2363](https://github.com/kirana-style/kirana/commit/abc23638a3e47a2daf8b3af89705bb67544dc879))
+* **site:** what ci runs on, and a lighter quick start ([#79](https://github.com/kirana-style/kirana/issues/79)) ([5ef3c51](https://github.com/kirana-style/kirana/commit/5ef3c515b880c40fc4735954105b07ed7f4b3439))
+* solidstart, vike, waku, vitepress, docusaurus and storybook ([#78](https://github.com/kirana-style/kirana/issues/78)) ([de928d2](https://github.com/kirana-style/kirana/commit/de928d2bb9438e5a02b529ed5aacc69456b32401))
+* **ui:** charts on tanstack charts, with the benchmark and scale-curve charts ([#69](https://github.com/kirana-style/kirana/issues/69)) ([e33de7e](https://github.com/kirana-style/kirana/commit/e33de7e3fcb2d0ebe18c54cc2804a011782d47a1))
+
+
+### Performance
+
+* keep the stylesheet and project diagnostics until something changes ([#65](https://github.com/kirana-style/kirana/issues/65)) ([91b67fa](https://github.com/kirana-style/kirana/commit/91b67fa77f99e714a2485752291139c54900cfd0))
+* order atoms within a conflict key so adjacent keys share rules ([#63](https://github.com/kirana-style/kirana/issues/63)) ([42be523](https://github.com/kirana-style/kirana/commit/42be5231df063e5f9cece88a705808515bc13076))
+* **site:** load the homepage's chapters below the hero on their own ([#68](https://github.com/kirana-style/kirana/issues/68)) ([5ccf916](https://github.com/kirana-style/kirana/commit/5ccf916d00cb253616650e7146d5d75d8ffefb3b))
+* **site:** no software webgl, repository numbers through the worker ([#67](https://github.com/kirana-style/kirana/issues/67)) ([db11850](https://github.com/kirana-style/kirana/commit/db1185057b9048cb7296082318768f5307a9ed2d))
+* **site:** prerender pages, split shared chunks, two new scenes ([#66](https://github.com/kirana-style/kirana/issues/66)) ([8e5160e](https://github.com/kirana-style/kirana/commit/8e5160e271970859dddb844e0290005d3cdd797c))
+
+
+### Dependencies
+
+* bump the minor-and-patch group across 1 directory with 2 updates ([#75](https://github.com/kirana-style/kirana/issues/75)) ([bccbb0c](https://github.com/kirana-style/kirana/commit/bccbb0c42e50915943e53b8c0dc3fc623ad9d5fa))
+* bump the minor-and-patch group with 16 updates ([#76](https://github.com/kirana-style/kirana/issues/76)) ([9f4df94](https://github.com/kirana-style/kirana/commit/9f4df947dda37e45e80231fd36203cc08399e903))
+* bump the oxc group in /packages/kirana with 7 updates ([#74](https://github.com/kirana-style/kirana/issues/74)) ([7718a1c](https://github.com/kirana-style/kirana/commit/7718a1cc0acb57d6816146ded78b02853b16c928))
+* vite-plus 1.3.0, and a licence check for javascript dependencies ([#77](https://github.com/kirana-style/kirana/issues/77)) ([1ab86c3](https://github.com/kirana-style/kirana/commit/1ab86c33205b58ce714a5e605d7f9f0a3c63a4aa))
+
 ## [0.2.4](https://github.com/kirana-style/kirana/compare/v0.2.3...v0.2.4) (2026-10-19)
 
 

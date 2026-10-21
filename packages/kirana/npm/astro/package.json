@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/astro",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Kirana for Astro: the integration that compiles .astro components and finishes the stylesheet.",
   "license": "MIT",
   "author": "The Kirana authors",

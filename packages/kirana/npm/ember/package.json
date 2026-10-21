@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/ember",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Kirana for Ember on Embroider and Vite: css() in .gjs and .gts files, and the sx template helper.",
   "license": "MIT",
   "author": "The Kirana authors",

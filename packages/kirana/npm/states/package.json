@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/states",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Component states as Kirana condition keys: each part's data attributes, typed, generated from the UI library's own declarations. Base UI first.",
   "license": "MIT",
   "author": "The Kirana authors",
