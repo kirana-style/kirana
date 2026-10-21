@@ -21,6 +21,7 @@ export type Framework =
   | "angular"
   | "react-router"
   | "waku"
+  | "remix"
   | "vitepress"
   | "docusaurus"
   | "gatsby"
@@ -163,6 +164,9 @@ const FRAMEWORKS: readonly [string, Framework][] = [
   ["@tanstack/react-start", "tanstack-start"],
   ["@react-router/dev", "react-router"],
   ["waku", "waku"],
+  // Remix 3, which depends on the `remix` package; Remix 2 apps depend on `@remix-run/react` and
+  // are React Router apps now.
+  ["remix", "remix"],
   ["vitepress", "vitepress"],
   ["@docusaurus/core", "docusaurus"],
   ["gatsby", "gatsby"],
@@ -329,6 +333,8 @@ export function runtimeOf(project: Detected): string[] {
     angular: "@kirana-style/angular",
     ember: "@kirana-style/ember",
     adonisjs: "@kirana-style/adonis",
+    // The load hook, the asset server's loader and the stylesheet middleware run in the server.
+    remix: "@kirana-style/remix",
   }
   const extra = own[project.framework]
   return extra ? ["@kirana-style/core", extra] : ["@kirana-style/core"]
@@ -355,6 +361,7 @@ export function typesOf(framework: Framework): string | undefined {
     angular: undefined,
     "react-router": "react",
     waku: "react",
+    remix: "remix",
     vitepress: "vue",
     docusaurus: "react",
     gatsby: "react",

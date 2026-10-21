@@ -8,7 +8,7 @@ name: release
 # every registry for the version (`verify`), and asks kirana-lab to benchmark it once npm serves it
 # (`bench`):
 #
-#   npm (21 packages + 9 engine packages: 8 native, 1 WASI) · RubyGems · Hex · VS Code Marketplace · Open VSX ·
+#   npm (22 packages + 9 engine packages: 8 native, 1 WASI) · RubyGems · Hex · VS Code Marketplace · Open VSX ·
 #   the kirana-php mirror and the kirana/kirana alias (Packagist reads their tags)
 #
 # Publishing jobs run in the `release` environment, which requires an approval, so nothing reaches a

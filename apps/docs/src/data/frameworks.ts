@@ -60,6 +60,14 @@ export const FRAMEWORK_GUIDES: readonly Guide[] = [
     runsOn: "webpack",
   },
   {
+    title: "Remix",
+    href: "/docs/frameworks/remix",
+    group: "frameworks",
+    description:
+      "Remix 3: web standards, server-rendered components and client entries.",
+    runsOn: "node-tsx and the asset server",
+  },
+  {
     title: "Waku",
     href: "/docs/frameworks/waku",
     group: "frameworks",

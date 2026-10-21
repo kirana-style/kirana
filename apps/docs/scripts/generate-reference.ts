@@ -81,6 +81,7 @@ for (const name of [
   "gatsby",
   "parcel-transformer",
   "adonis",
+  "remix",
   "compiler",
   "cli",
   "preset-scales",

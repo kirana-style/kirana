@@ -166,6 +166,11 @@ try {
     /** The file holding the probe's colour, edited to check hot updates. */
     edit?: string
     /**
+     * The stylesheet's path on the running server, for a host that serves it rather than writing a
+     * file (Remix's middleware): no build runs, and the stylesheet checks read it from the server.
+     */
+    served?: string
+    /**
      * Where the probe is, relative to the server's root, when it is not the root page: Storybook
      * renders a story at `iframe.html?id=…`, inside the frame of its own interface.
      */
@@ -379,6 +384,25 @@ try {
       }
     }
     step(`✓ ${example} · ${pm} · dev`)
+  } else if (settings.served) {
+    // A host that compiles as it serves: start it, check the page, then the stylesheet it serves.
+    step("server")
+    await withServer(
+      directory,
+      pm === "yarn-pnp" ? "yarn" : pm,
+      ["run", "start"],
+      {},
+      async (url) => {
+        if (browser) await checkPage(at(url))
+        const response = await fetch(new URL(settings.served!, url))
+        if (!response.ok)
+          throw new Error(`${settings.served} answered ${response.status}`)
+        const css = await response.text()
+        checkStylesheet(css)
+        console.log(`✓ ${css.length} bytes served, probe atoms present`)
+      }
+    )
+    step(`✓ ${example} · ${pm}`)
   } else {
     step(wasi ? "build on the WASI engine" : `build on ${runtime}`)
     if (runtime === "deno") {
@@ -401,18 +425,7 @@ try {
     // under `.next/static` (an example names a directory other than `dist` in `kirana-example.output`).
     const output = path.join(directory, settings.output ?? "dist")
     const css = stylesheetText(output)
-    // Either spelling of the colour: a host's CSS minifier may shorten it (webpack writes `#010203`).
-    for (const expected of [
-      ["color:rgb(1,2,3)", "color:#010203"],
-      ["padding-top:7px"],
-      [":hover"],
-    ]) {
-      if (!expected.some((text) => css.replaceAll(" ", "").includes(text))) {
-        throw new Error(
-          `the built stylesheet has no \`${expected[0]}\`:\n${css}`
-        )
-      }
-    }
+    checkStylesheet(css)
     // Declarations the example writes in more than one place must reach the stylesheet once.
     for (const once of settings.once ?? []) {
       const count = css.replaceAll(" ", "").split(once).length - 1
@@ -640,6 +653,20 @@ async function checkPage(
 }
 
 /** Every stylesheet a build wrote: CSS files, and `<style>` blocks in HTML (Astro inlines small ones). */
+/** The probe's atoms are in a stylesheet, in either spelling of the colour: a host's CSS minifier may
+ * shorten it (webpack writes `#010203`). */
+function checkStylesheet(css: string) {
+  for (const expected of [
+    ["color:rgb(1,2,3)", "color:#010203"],
+    ["padding-top:7px"],
+    [":hover"],
+  ]) {
+    if (!expected.some((text) => css.replaceAll(" ", "").includes(text))) {
+      throw new Error(`the stylesheet has no \`${expected[0]}\`:\n${css}`)
+    }
+  }
+}
+
 function stylesheetText(output: string): string {
   return readdirSync(output, { recursive: true, encoding: "utf8" })
     .filter((name) => /\.(?:css|html)$/.test(name))

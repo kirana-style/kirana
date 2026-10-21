@@ -1,0 +1,31 @@
+{
+  "name": "kirana-example-remix",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "NODE_ENV=production node --import remix/node-tsx --import @kirana-style/remix/node server.ts"
+  },
+  "kirana-example": {
+    "served": "/kirana.css",
+    "dev": [
+      "node",
+      "--watch",
+      "--import",
+      "remix/node-tsx",
+      "--import",
+      "@kirana-style/remix/node",
+      "server.ts"
+    ],
+    "edit": "app/actions/public/probe.tsx",
+    "reloads": true
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "@kirana-style/remix": "0.1.0",
+    "remix": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2"
+  }
+}

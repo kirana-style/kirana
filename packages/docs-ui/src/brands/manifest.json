@@ -158,6 +158,15 @@
     "url": "https://storybook.js.org/",
     "route": "storybook.svg"
   },
+  "remix": {
+    "title": "Remix",
+    "category": "Framework",
+    "url": "https://remix.run/",
+    "route": {
+      "light": "remix_light.svg",
+      "dark": "remix_dark.svg"
+    }
+  },
   "vite": {
     "title": "Vite",
     "category": ["Devtool", "VoidZero"],

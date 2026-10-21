@@ -296,9 +296,9 @@ jobs:
           - shard: angular and ember
             build: analog-angular angular-cli ember
             dev: analog-angular angular-cli ember
-          - shard: gatsby, parcel and adonisjs
-            build: gatsby parcel adonisjs
-            dev: gatsby parcel adonisjs
+          - shard: gatsby, parcel, adonisjs and remix
+            build: gatsby parcel adonisjs remix
+            dev: gatsby parcel adonisjs remix
           - shard: meteor
             build: meteor
             dev: meteor

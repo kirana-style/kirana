@@ -342,6 +342,20 @@
         "@kirana-style/core": "workspace:*",
       },
     },
+    "packages/kirana/npm/remix": {
+      "name": "@kirana-style/remix",
+      "version": "0.2.4",
+      "dependencies": {
+        "@kirana-style/compiler": "workspace:*",
+        "@kirana-style/core": "workspace:*",
+      },
+      "peerDependencies": {
+        "remix": ">=3.0.0",
+      },
+      "optionalPeers": [
+        "remix",
+      ],
+    },
     "packages/kirana/npm/rolldown": {
       "name": "@kirana-style/rolldown",
       "version": "0.2.4",
@@ -1247,6 +1261,8 @@
     "@kirana-style/postcss": ["@kirana-style/postcss@workspace:packages/kirana/npm/postcss"],
 
     "@kirana-style/preset-scales": ["@kirana-style/preset-scales@workspace:packages/kirana/npm/preset-scales"],
+
+    "@kirana-style/remix": ["@kirana-style/remix@workspace:packages/kirana/npm/remix"],
 
     "@kirana-style/rolldown": ["@kirana-style/rolldown@workspace:packages/kirana/npm/rolldown"],
 

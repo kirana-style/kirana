@@ -1,0 +1,38 @@
+{
+  "name": "@kirana-style/remix",
+  "version": "0.2.4",
+  "description": "Kirana for Remix 3: compiles components after node-tsx and the asset server, and serves the stylesheet as middleware.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/remix"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./node": "./src/node.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*",
+    "@kirana-style/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "remix": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "remix": {
+      "optional": true
+    }
+  }
+}

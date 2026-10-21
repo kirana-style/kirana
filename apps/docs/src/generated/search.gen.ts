@@ -39,7 +39,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Introduction",
     "section": "start",
     "heading": "Works with your framework",
-    "text": "React, Next.js, React Router, TanStack Start, Gatsby, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete install guide, and each is built and checked in a browser on every change: pick yours ."
+    "text": "React, Next.js, React Router, TanStack Start, Gatsby, Remix, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete install guide, and each is built and checked in a browser on every change: pick yours ."
   },
   {
     "id": "/docs#what-it-gives-you",
@@ -1696,7 +1696,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "React Router",
     "section": "frameworks",
     "heading": "React Router",
-    "text": "React Router's framework mode builds with Vite, so Kirana's Vite plugin is all it needs: compiles to , on the server render and in the browser alike. Tested on every change by , built and on its dev server."
+    "text": "React Router's framework mode builds with Vite, so Kirana's Vite plugin is all it needs: compiles to , on the server render and in the browser alike. Tested on every change by , built and on its dev server. A Remix 2 app is a React Router app; Remix 3 has a guide of its own."
   },
   {
     "id": "/docs/frameworks/react-router#the-fast-way",
@@ -1831,6 +1831,85 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "frameworks",
     "heading": "Next",
     "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. The webpack plugin , which does the work. Styles ."
+  },
+  {
+    "id": "/docs/frameworks/remix",
+    "href": "/docs/frameworks/remix",
+    "page": "Remix",
+    "section": "frameworks",
+    "text": "Install Kirana in a Remix 3 app, where node-tsx and the asset server compile the JSX and Kirana compiles the styles after them, served as router middleware. "
+  },
+  {
+    "id": "/docs/frameworks/remix#remix",
+    "href": "/docs/frameworks/remix#remix",
+    "page": "Remix",
+    "section": "frameworks",
+    "heading": "Remix",
+    "text": "Remix 3 has no bundler. compiles TypeScript and JSX as Node loads the server, and the asset server compiles client entries as the browser asks for them. Both hand on only the JavaScript that comes out, so Kirana compiles after them, on the compiled JSX calls: becomes in the server render and in the browser alike. The server's compiler session has seen every module, client entries included, and serves the stylesheet. Tested on every change by , on its server and its dev server. This page is about Remix 3. A Remix 2 app is a React Router app now; follow that guide."
+  },
+  {
+    "id": "/docs/frameworks/remix#the-fast-way",
+    "href": "/docs/frameworks/remix#the-fast-way",
+    "page": "Remix",
+    "section": "frameworks",
+    "heading": "The fast way",
+    "text": "In the project's root: It adds the hook to your scripts (step 2) and tells you the lines to add to the router and the asset server (steps 3 and 4). Then checks the result."
+  },
+  {
+    "id": "/docs/frameworks/remix#1-install",
+    "href": "/docs/frameworks/remix#1-install",
+    "page": "Remix",
+    "section": "frameworks",
+    "heading": "1. Install",
+    "text": "is a dependency, not a dev dependency: the hook, the loader and the middleware run in your server."
+  },
+  {
+    "id": "/docs/frameworks/remix#2-load-kirana-after-node-tsx",
+    "href": "/docs/frameworks/remix#2-load-kirana-after-node-tsx",
+    "page": "Remix",
+    "section": "frameworks",
+    "heading": "2. Load Kirana after  node-tsx",
+    "text": "In every script that starts the server, after : Node runs the hook registered last first, so Kirana's hook asks for the compiled module and compiles its styles."
+  },
+  {
+    "id": "/docs/frameworks/remix#3-serve-the-stylesheet",
+    "href": "/docs/frameworks/remix#3-serve-the-stylesheet",
+    "page": "Remix",
+    "section": "frameworks",
+    "heading": "3. Serve the stylesheet",
+    "text": "answers from the server's compiler session: Link it from the document: It is minified when is ; changes either."
+  },
+  {
+    "id": "/docs/frameworks/remix#4-compile-client-entries",
+    "href": "/docs/frameworks/remix#4-compile-client-entries",
+    "page": "Remix",
+    "section": "frameworks",
+    "heading": "4. Compile client entries",
+    "text": "Client entries reach the browser through the asset server. Add Kirana's loader to its scripts, and allow , whose runtime a compiled module may import:"
+  },
+  {
+    "id": "/docs/frameworks/remix#6-write-a-component",
+    "href": "/docs/frameworks/remix#6-write-a-component",
+    "page": "Remix",
+    "section": "frameworks",
+    "heading": "6. Write a component",
+    "text": "A server-rendered component and a client entry style themselves the same way:"
+  },
+  {
+    "id": "/docs/frameworks/remix#diagnostics",
+    "href": "/docs/frameworks/remix#diagnostics",
+    "page": "Remix",
+    "section": "frameworks",
+    "heading": "Diagnostics",
+    "text": "The hook and the loader see compiled JavaScript, so a diagnostic they print points at the compiled module. reads your source and points at the line you wrote."
+  },
+  {
+    "id": "/docs/frameworks/remix#next",
+    "href": "/docs/frameworks/remix#next",
+    "page": "Remix",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Styles and conditions ."
   },
   {
     "id": "/docs/frameworks/waku",

@@ -105,6 +105,12 @@ export const PACKAGES: readonly PackageEntry[] = [
     "description": "Kirana for AdonisJS: the kirana() Edge global, reading the class map of a server app's styles."
   },
   {
+    "name": "@kirana-style/remix",
+    "version": "0.2.4",
+    "published": true,
+    "description": "Kirana for Remix 3: compiles components after node-tsx and the asset server, and serves the stylesheet as middleware."
+  },
+  {
     "name": "@kirana-style/compiler",
     "version": "0.2.4",
     "published": true,

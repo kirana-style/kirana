@@ -96,6 +96,7 @@ const PACKAGES = [
   "bun",
   "esbuild",
   "jest",
+  "remix",
   "astro",
   "preset-scales",
   "eslint-plugin",

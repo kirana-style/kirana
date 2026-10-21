@@ -66,6 +66,7 @@ Frameworks:
 - [React Router](/docs/frameworks/react-router): A standards-focused router and framework you can deploy anywhere.
 - [TanStack Start](/docs/frameworks/tanstack-start): Full-stack React powered by TanStack Router. This site runs on it.
 - [Gatsby](/docs/frameworks/gatsby): Static sites with React and GraphQL, built by webpack.
+- [Remix](/docs/frameworks/remix): Remix 3: web standards, server-rendered components and client entries.
 - [Waku](/docs/frameworks/waku): The minimal React framework, built on React Server Components.
 - [Vike](/docs/frameworks/vike): The framework you assemble: your renderer, your server, on Vite.
 - [Docusaurus](/docs/frameworks/docusaurus): Documentation websites with React, built by webpack.
