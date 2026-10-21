@@ -7,6 +7,7 @@
 // Written by scripts/gen-css-data.ts; CI regenerates it and diffs, so rustfmt must leave it as written.
 #[rustfmt::skip]
 pub mod generated;
+pub mod grammar;
 
 use generated::{
     COLOUR_KEYWORDS, FAMILY_2_END, FAMILY_4_END, KEYWORDS, NUMERIC, PROPERTIES, PROPERTY_INDEX, PSEUDO_CLASSES,

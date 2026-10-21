@@ -57,6 +57,7 @@ fn single_component_shorthands_are_atoms() {
         "--one" => Some(vec!["1px".to_owned()]),
         "--modes" => Some(vec!["1px".to_owned(), "2px".to_owned()]),
         "--pair" => Some(vec!["1px 2px".to_owned()]),
+        "--ink" => Some(vec!["red".to_owned()]),
         _ => None,
     };
     let names = |value: &str| {
@@ -76,7 +77,7 @@ fn single_component_shorthands_are_atoms() {
     assert!(is_single_component("calc(1px + 2px)"));
     assert!(!is_single_component("1px/2px"));
     assert!(!is_single_component("a, b"));
-    let color = declare_with("color", RawValue::Str("var(--one)"), &tokens).unwrap();
+    let color = declare_with("color", RawValue::Str("var(--ink)"), &tokens).unwrap();
     assert_eq!(color.longhands(), 1);
 }
 
@@ -226,7 +227,9 @@ const FAMILY: [&str; 24] = [
     "rowGap",
     "overflow",
 ];
-const FAMILY_VALUES: [&str; 4] = ["0", "1rem", "auto", "var(--v)"];
+/// Opaque single-component values: the families' members accept different values (`auto` is no
+/// padding, `0` no colour), and what this models is how writes merge, not which values are valid.
+const FAMILY_VALUES: [&str; 4] = ["first-value", "second-value", "third-value", "var(--v)"];
 
 /// One author write in the property test: `(property, value or null, under :hover, null at the top)`.
 type Write = (usize, Option<usize>, bool, bool);

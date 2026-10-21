@@ -171,14 +171,14 @@
       },
       "evaluator-edges": {
         "css": {
-          "raw": 1490,
-          "gzip": 611,
-          "brotli": 519
+          "raw": 1492,
+          "gzip": 609,
+          "brotli": 517
         },
         "js": {
           "raw": 3010,
-          "gzip": 1202,
-          "brotli": 1059
+          "gzip": 1200,
+          "brotli": 1057
         }
       },
       "evaluator-functions": {
@@ -733,6 +733,18 @@
           "brotli": 219
         }
       },
+      "states-vocabulary": {
+        "css": {
+          "raw": 847,
+          "gzip": 370,
+          "brotli": 311
+        },
+        "js": {
+          "raw": 694,
+          "gzip": 430,
+          "brotli": 344
+        }
+      },
       "sx-forwarded-to-external": {
         "css": {
           "raw": 147,
@@ -865,6 +877,30 @@
           "brotli": 504
         }
       },
+      "values-grammar": {
+        "css": {
+          "raw": 645,
+          "gzip": 389,
+          "brotli": 325
+        },
+        "js": {
+          "raw": 451,
+          "gzip": 325,
+          "brotli": 259
+        }
+      },
+      "values-token-domain": {
+        "css": {
+          "raw": 348,
+          "gzip": 216,
+          "brotli": 176
+        },
+        "js": {
+          "raw": 282,
+          "gzip": 227,
+          "brotli": 197
+        }
+      },
       "view-transition": {
         "css": {
           "raw": 1055,
@@ -886,9 +922,9 @@
           "brotli": 16470
         },
         "js": {
-          "raw": 349358,
-          "gzip": 76366,
-          "brotli": 59650
+          "raw": 349520,
+          "gzip": 76419,
+          "brotli": 59681
         }
       },
       "docs-ui": {
@@ -918,6 +954,10 @@
     "recipe": {
       "types": 2328,
       "instantiations": 1336
+    },
+    "states": {
+      "types": 2528,
+      "instantiations": 97
     },
     "sx-react": {
       "types": 2058,

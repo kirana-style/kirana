@@ -1,5 +1,6 @@
 import { css, props as styleProps } from "@kirana-style/core"
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox"
+import * as State from "@kirana-style/states/base-ui"
 import { Tick02Icon } from "@hugeicons/core-free-icons"
 
 import type { Sx } from "../lib/sx"
@@ -46,20 +47,20 @@ const styles = {
 
     backgroundColor: {
       base: surface.control,
-      "[data-checked]": theme.primary,
+      [State.Checkbox.Root.checked]: theme.primary,
     },
     borderColor: {
       base: theme.input,
       ":focus-visible": theme.ring,
-      "[data-checked]": theme.primary,
+      [State.Checkbox.Root.checked]: theme.primary,
       '[aria-invalid="true"]': {
         base: surface.borderInvalid,
         // An invalid *and* checked box keeps the primary edge, so the tick still
         // reads as a tick rather than as an error.
-        "[data-checked]": theme.primary,
+        [State.Checkbox.Root.checked]: theme.primary,
       },
     },
-    color: { "[data-checked]": theme.primaryForeground },
+    color: { [State.Checkbox.Root.checked]: theme.primaryForeground },
     boxShadow: {
       ":focus-visible": `0 0 0 ${ring.width} ${alpha.ring50}`,
       '[aria-invalid="true"]': `0 0 0 ${ring.width} ${surface.ringInvalid}`,

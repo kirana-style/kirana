@@ -1032,21 +1032,67 @@ the implementation tracker names its evidence.
   context, and a project that wants a shorter one adds a script.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#cli).
 
+### D-088 — Component states are condition keys, generated from each library's declarations
+
+- **Status:** Accepted (2026-10-21).
+- **Decision:** A headless library's part states ship as data in `@kirana-style/states`, one subpath per
+  library: `Switch.Root.checked` is `"[data-checked]"`, `Select.Popup.side.bottom` is
+  `'[data-side="bottom"]'`. Each entry is a plain string that is already a condition key (KRN-CAS-004),
+  generated from the library's own published declarations. Base UI is first (`./base-ui`, from each
+  part's `*DataAttributes` module, named by the library's exports). The format is documented, so any
+  library or a project's own components can have a vocabulary of a few lines.
+- **Rationale:**
+  - **Nothing new to learn or compile.** Conditions already take attribute selectors, and computed keys
+    already fold from installed packages that depend on core. A state is a condition, so it nests,
+    combines with `media()`, reads through relations and goes in recipes, and the compiler's checks
+    (`ambiguous-precedence`, exclusivity of one attribute's values) apply unchanged.
+  - **Not bound to a component.** A style is not declared for one part, so one handle serves every part
+    with that state, and the same mechanism serves any library on any framework.
+  - **Generated, so it cannot drift.** Names come from the library's exports and descriptions from its
+    own documentation. CI regenerates the file and fails on a difference, and a test checks every
+    component and part against the library's runtime exports.
+- **Trade-off:** A vocabulary is not checked against the part a style is applied to: a `Switch.Root`
+  state on a `Select.Popup` compiles. The selector is still correct CSS, and the name says which part
+  it is for.
+- **Elaborated in:** [06-authoring-api](./06-authoring-api.md), [11-integrations](./11-integrations.md).
+
+### D-089 — Values are checked against mdn-data grammars, rejecting only what the data can judge
+
+- **Status:** Accepted (2026-10-21). Closes deviation 7.
+- **Decision:** Every declared value is matched against its property's grammar from `mdn-data`
+  (KRN-CAS-010). It is `invalid-value` only when every keyword and function in it is one the data names
+  and the grammar still does not fit. A function is matched by name, not by its arguments. A value
+  that is one variable token is checked through each value the token declares.
+- **Rationale:**
+  - **The common mistakes are top-level words.** `padding: red`, `display: center`, `width: -4px` and a
+    colour token on a length are all a known word in the wrong place, which the data judges reliably.
+  - **Never lagging CSS (P11).** Lightning CSS returns the same untyped tokens for invalid and for newer
+    valid syntax, which is why deviation 7 accepted both. Leaving unknown words and functions unjudged,
+    and never judging arguments, keeps newer CSS compiling: `calc-size()`, `anchor-center` and a
+    keyword newer than the data all pass.
+  - **Token domains without an API.** Tokens already carry their values, so checking through them finds
+    a colour token on `padding` with nothing to declare.
+- **Measured:** no new diagnostic on the golden fixtures (one placeholder value aside), the docs site,
+  `packages/ui`, the lab's three apps and its UI package, or kirana-ui.
+- **Trade-off:** A mistake inside a function's arguments, or one made with a word the data does not
+  know, is not caught.
+- **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md#value-normalization).
+
 ## Index by document
 
-| Document                                                      | Decisions                                                                                                             |
-| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| the brand notes                                               | D-001                                                                                                                 |
-| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076 |
-| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059                                                  |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062                                           |
-| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043                                                                                            |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045                                           |
-| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073        |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082                                    |
-| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048                                                                |
-| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                 |
-| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                          |
-| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                              |
-| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                            |
-| the roadmap                                                   | D-033, D-051, D-056                                                                                                   |
+| Document                                                      | Decisions                                                                                                                    |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| the brand notes                                               | D-001                                                                                                                        |
+| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088 |
+| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059                                                         |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089                                           |
+| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043                                                                                                   |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045                                                  |
+| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073               |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082                                           |
+| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048                                                                       |
+| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                        |
+| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                 |
+| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                     |
+| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                   |
+| the roadmap                                                   | D-033, D-051, D-056                                                                                                          |

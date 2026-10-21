@@ -31,7 +31,7 @@ tester.run("diagnostics", rules.diagnostics as never, {
     }),
     at(
       CSS +
-        'export const a = css({ mixBlendMode: "x", marginLeft: "1px", marginInlineStart: "1px" })',
+        'export const a = css({ mixBlendMode: "multiply", marginLeft: "1px", marginInlineStart: "1px" })',
       {
         options: [{ minimum: "error" }],
       }

@@ -41,6 +41,10 @@ export function Popup({ sx, ...rest }: { sx?: Sx }) {
 The alias `props as styleProps` is a convention, not an API: `props` is a common
 identifier, and the alias keeps the import from shadowing a parameter.
 
+To style a part's states (a switch that is checked, a popup that opened below its
+trigger), take the keys from [component states](/docs/styling/states) instead of
+typing the attributes.
+
 ## The case one module away
 
 The diagnostic also fires when the component that receives `sx` is yours, but it

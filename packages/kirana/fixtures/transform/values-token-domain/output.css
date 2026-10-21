@@ -1,0 +1,19 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  :root {
+    --kv4tTp: 1rem;
+    --kvcCJY: royalblue;
+  }
+}
+@layer kirana.atoms {
+  .k0_F7JN {
+    padding: var(--kv4tTp);
+  }
+  .k44_qc3D {
+    background-color: var(--kvcCJY);
+  }
+  .k50_wO4K {
+    color: light-dark(black, white);
+  }
+}

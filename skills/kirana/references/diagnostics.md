@@ -16,7 +16,7 @@ Full page: https://kirana.style/docs/tooling/diagnostics.md
 | KRN1102 | `unsupported-syntax` | error | The expression is valid JavaScript the evaluator does not run in a style (calling a non-function, applying a plain object as a style). Wrap style objects in `css()`; move logic out of the style. |
 | KRN1103 | `unresolved-import` | warning | An import a style depends on did not resolve, so its value is treated as runtime. Check the specifier and `tsconfig` paths. |
 | KRN1201 | `unknown-property` | error | Not a CSS property (a typo such as `colour`, or a Tailwind class name used as a key). Use the camelCase CSS property name. |
-| KRN1202 | `invalid-value` | error | The value is not valid for the property. Read the message for the property's grammar. |
+| KRN1202 | `invalid-value` | error | The value does not fit the property's grammar: a keyword it does not take (`padding: "red"`), a negative size, or a token of the wrong kind (a colour token on `padding`). The message gives the grammar. Words the data does not know, function arguments and `var()` are never judged. |
 | KRN1203 | `unitless-length` | error | A bare number on a length property. Write the unit: `width: "5px"`, or a token. |
 | KRN1204 | `unsplittable-shorthand` | warning | A shorthand whose value cannot be split into longhands (`border: var(--x)`) stays whole, so a later style cannot remove one longhand. Write the longhands. |
 | KRN1205 | `mixed-logical-physical` | warning | Logical and physical longhands on one box (`paddingInlineStart` and `padding`) sit side by side instead of replacing each other. Use one family, preferably logical. |

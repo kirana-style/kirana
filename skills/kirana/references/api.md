@@ -37,7 +37,11 @@ export function Card({ sx, ...props }: { sx?: Sx }) {
 A conditional value is `{ base?, [condition]: value | nested conditional }`. Condition keys are
 pseudo-classes (`":hover"`), attribute selectors (`'[data-state="open"]'`), at-rule strings
 (`"@media (…)"`) or computed conditions (`[media(q)]`, `[container(q, name?)]`, `[supports(c)]`,
-relation reads). Nesting two conditions means both must match, and the nested one wins.
+relation reads). A headless part's states come typed from `@kirana-style/states`:
+`[Switch.Root.checked]` is `"[data-checked]"`, `[Select.Popup.side.bottom]` is
+`'[data-side="bottom"]'` (`import { Select, Switch } from "@kirana-style/states/base-ui"`); prefer
+them to hand-typed attributes for Base UI parts. Nesting two conditions means both must match, and
+the nested one wins.
 `"*": null` drops every earlier entry of a property; `base: null` drops the base entry only.
 
 ## Variants
@@ -140,3 +144,4 @@ viewTransition({ group?, imagePair?, old?, new? }): ViewTransition
 | `@kirana-style/core/config`         | `defineConfig` for `kirana.config.ts`          |
 | `@kirana-style/core/react`          | the `sx` prop's types                          |
 | `@kirana-style/core/stylesheet.css` | the stylesheet entry, imported once by the app |
+| `@kirana-style/states/base-ui`      | Base UI parts' states as condition keys        |

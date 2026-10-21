@@ -1,5 +1,6 @@
 import { css, props as styleProps } from "@kirana-style/core"
 import { Select as SelectPrimitive } from "@base-ui/react/select"
+import * as State from "@kirana-style/states/base-ui"
 import {
   ArrowDown01Icon,
   ArrowUp01Icon,
@@ -71,7 +72,7 @@ const styles = {
       '[aria-invalid="true"]': `0 0 0 ${ring.width} ${surface.ringInvalid}`,
     },
     // Was `data-placeholder:text-muted-foreground`.
-    color: { "[data-placeholder]": theme.mutedForeground },
+    color: { [State.Select.Trigger.placeholder]: theme.mutedForeground },
     cursor: { ":disabled": "not-allowed" },
     opacity: { ":disabled": 0.5 },
   }),

@@ -1,0 +1,34 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k1e_cVvD {
+    align-self: anchor-center;
+  }
+  .k3O_iLdC {
+    animation-name: spin;
+  }
+  .k4M_D1U1 {
+    box-shadow: 0 0 0 2px red, inset 0 1px 0 black;
+  }
+  .k4_sU5r {
+    padding-top: var(--gap);
+  }
+  .k50_wO4K {
+    color: light-dark(black, white);
+  }
+  .k5O_Vw06 {
+    display: inline flex;
+  }
+  .k6S_CJd3 {
+    grid-template-columns: [full] 1fr [end];
+  }
+  .k9_5T9b {
+    margin-top: calc(-1 * 4px);
+  }
+  .kaF_9wiv {
+    width: calc-size(auto, size);
+  }
+  .k5O-KFHz_jenq:where(:hover) {
+    display: revert-layer;
+  }
+}

@@ -8,7 +8,7 @@ name: release
 # every registry for the version (`verify`), and asks kirana-lab to benchmark it once npm serves it
 # (`bench`):
 #
-#   npm (22 packages + 9 engine packages: 8 native, 1 WASI) · RubyGems · Hex · VS Code Marketplace · Open VSX ·
+#   npm (23 packages + 9 engine packages: 8 native, 1 WASI) · RubyGems · Hex · VS Code Marketplace · Open VSX ·
 #   the kirana-php mirror and the kirana/kirana alias (Packagist reads their tags)
 #
 # Publishing jobs run in the `release` environment, which requires an approval, so nothing reaches a
@@ -106,6 +106,27 @@ jobs:
         if: steps.pr.outputs.branch != ''
         with:
           cache-key: release
+
+      # Release Please rewrites the Release PR only when its notes change, so the branch can lag main's
+      # release-please-config.json: a package listed there after the PR was last written keeps its old
+      # version, and the site's one-version check fails the PR. Every npm package takes the
+      # manifest's version first. The step is written here, not in a script, because it runs on the
+      # Release PR's files, which may predate any script added for it.
+      - name: Give every npm package the release's version
+        if: steps.pr.outputs.branch != ''
+        run: |
+          bun -e '
+            const fs = require("node:fs")
+            const version = JSON.parse(fs.readFileSync(".release-please-manifest.json", "utf8"))["."]
+            for (const name of fs.readdirSync("packages/kirana/npm")) {
+              const file = `packages/kirana/npm/${name}/package.json`
+              if (!fs.existsSync(file)) continue
+              const text = fs.readFileSync(file, "utf8")
+              const next = text.replace(/"version": "[^"]*"/, `"version": "${version}"`)
+              if (next !== text) console.log(`${file}: ${version}`)
+              fs.writeFileSync(file, next)
+            }
+          '
 
       - name: Refresh the lockfiles and the generated files
         if: steps.pr.outputs.branch != ''

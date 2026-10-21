@@ -101,8 +101,8 @@
     "severity": "info",
     "file": "input.tsx",
     "span": {
-      "start": 1915,
-      "end": 1940
+      "start": 1917,
+      "end": 1942
     },
     "message": "rowGap is set at runtime through --kK",
     "help": []
@@ -113,8 +113,8 @@
     "severity": "info",
     "file": "input.tsx",
     "span": {
-      "start": 1956,
-      "end": 1968
+      "start": 1958,
+      "end": 1970
     },
     "message": "textIndent is set at runtime through --k9P",
     "help": []
@@ -125,8 +125,8 @@
     "severity": "info",
     "file": "input.tsx",
     "span": {
-      "start": 2038,
-      "end": 2051
+      "start": 2040,
+      "end": 2053
     },
     "message": "borderSpacing is set at runtime through --k4z",
     "help": []
@@ -137,8 +137,8 @@
     "severity": "info",
     "file": "input.tsx",
     "span": {
-      "start": 2068,
-      "end": 2074
+      "start": 2070,
+      "end": 2076
     },
     "message": "columnWidth is set at runtime through --k5b",
     "help": []
@@ -149,8 +149,8 @@
     "severity": "info",
     "file": "input.tsx",
     "span": {
-      "start": 2107,
-      "end": 2111
+      "start": 2109,
+      "end": 2113
     },
     "message": "maxHeight is set at runtime through --k7P",
     "help": []
@@ -161,8 +161,8 @@
     "severity": "info",
     "file": "input.tsx",
     "span": {
-      "start": 2139,
-      "end": 2147
+      "start": 2141,
+      "end": 2149
     },
     "message": "outlineOffset is set at runtime through --k8c",
     "help": []
@@ -173,8 +173,8 @@
     "severity": "info",
     "file": "input.tsx",
     "span": {
-      "start": 2178,
-      "end": 2180
+      "start": 2180,
+      "end": 2182
     },
     "message": "zIndex is set at runtime through --kaO",
     "help": []
@@ -185,8 +185,8 @@
     "severity": "info",
     "file": "input.tsx",
     "span": {
-      "start": 2220,
-      "end": 2255
+      "start": 2222,
+      "end": 2257
     },
     "message": "flexGrow is set at runtime through --k61",
     "help": []
@@ -197,8 +197,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 2287,
-      "end": 2304
+      "start": 2289,
+      "end": 2306
     },
     "message": "condition constructors take a query string",
     "help": []
@@ -209,8 +209,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 2306,
-      "end": 2316
+      "start": 2308,
+      "end": 2318
     },
     "message": "condition constructors take a query string",
     "help": []
@@ -221,8 +221,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 2318,
-      "end": 2329
+      "start": 2320,
+      "end": 2331
     },
     "message": "container() takes a query string and an optional name",
     "help": []
@@ -233,8 +233,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 2356,
-      "end": 2435
+      "start": 2358,
+      "end": 2437
     },
     "message": "token names must be static strings",
     "help": []
@@ -245,8 +245,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 2411,
-      "end": 2421
+      "start": 2413,
+      "end": 2423
     },
     "message": "token keys.flag is not a CSS value",
     "help": []
@@ -257,8 +257,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 2942,
-      "end": 2962
+      "start": 2944,
+      "end": 2964
     },
     "message": "this value cannot be evaluated at build time (object with methods or accessors)",
     "help": []
@@ -269,8 +269,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 2971,
-      "end": 3007
+      "start": 2973,
+      "end": 3009
     },
     "message": "conditions nest inside property values",
     "help": [
@@ -283,8 +283,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 3027,
-      "end": 3041
+      "start": 3029,
+      "end": 3043
     },
     "message": "\"hover\": expected a pseudo-class, an attribute selector or an at-rule",
     "help": []
@@ -295,8 +295,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 3066,
-      "end": 3075
+      "start": 3068,
+      "end": 3077
     },
     "message": "colour is not a CSS property",
     "help": []
@@ -307,8 +307,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 3088,
-      "end": 3112
+      "start": 3090,
+      "end": 3114
     },
     "message": "a property or condition key must be known at build time",
     "help": [
@@ -321,8 +321,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 3121,
-      "end": 3144
+      "start": 3123,
+      "end": 3146
     },
     "message": "1 is not a CSS property",
     "help": []
@@ -333,8 +333,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 3153,
-      "end": 3175
+      "start": 3155,
+      "end": 3177
     },
     "message": "this value cannot be evaluated at build time (unsupported key)",
     "help": []
@@ -345,8 +345,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 3243,
-      "end": 3276
+      "start": 3245,
+      "end": 3278
     },
     "message": "a style handle is not a property value",
     "help": []
@@ -357,8 +357,8 @@
     "severity": "info",
     "file": "input.tsx",
     "span": {
-      "start": 3263,
-      "end": 3264
+      "start": 3265,
+      "end": 3266
     },
     "message": "width is set at runtime through --kaF",
     "help": []
@@ -369,8 +369,8 @@
     "severity": "warning",
     "file": "input.tsx",
     "span": {
-      "start": 3317,
-      "end": 3335
+      "start": 3319,
+      "end": 3337
     },
     "message": "inset cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
     "help": [
@@ -383,8 +383,8 @@
     "severity": "warning",
     "file": "input.tsx",
     "span": {
-      "start": 3337,
-      "end": 3358
+      "start": 3339,
+      "end": 3360
     },
     "message": "margin cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
     "help": [

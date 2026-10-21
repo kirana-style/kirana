@@ -272,6 +272,19 @@ Linux subset. **FACT:** Yarn resolves every optional platform package to write i
 the ones it will not install, so all eight must exist wherever Yarn installs from (a registry, or the
 tarball set); npm, pnpm and Bun skip the ones that do not match.
 
+## Component libraries
+
+**KRN-INT-011** — A headless component library's part states MUST be available as typed condition keys
+(D-088). `@kirana-style/states` ships one vocabulary per library, generated from the library's published
+declarations and checked against its exports:
+
+| Subpath     | Library                    | Source                                                       |
+| ----------- | -------------------------- | ------------------------------------------------------------ |
+| `./base-ui` | Base UI (`@base-ui/react`) | each part's `*DataAttributes` module, named by `index.parts` |
+
+A vocabulary is plain data (an `as const` object of attribute selectors), so a library without one, or a
+project's own components, needs a module of a few lines and nothing from the compiler.
+
 ## Monorepos and published libraries
 
 **KRN-INT-008** — Styles MUST compile exactly once per application, whether they come from the application,

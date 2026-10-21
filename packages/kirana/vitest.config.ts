@@ -44,7 +44,10 @@ export default defineConfig({
       // Presets are compiled by Kirana itself, as in an application.
       {
         plugins: [kirana()],
-        test: { name: "presets", include: ["npm/preset-*/test/**/*.test.ts"] },
+        test: {
+          name: "presets",
+          include: ["npm/{preset-*,states}/test/**/*.test.ts"],
+        },
       },
     ],
   },

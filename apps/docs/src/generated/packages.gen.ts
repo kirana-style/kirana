@@ -129,6 +129,12 @@ export const PACKAGES: readonly PackageEntry[] = [
     "description": "Scale tokens for Kirana: a Tailwind CSS v4-compatible palette, spacing, type ramp, radii, shadows and breakpoints."
   },
   {
+    "name": "@kirana-style/states",
+    "version": "0.2.4",
+    "published": true,
+    "description": "Component states as Kirana condition keys: each part's data attributes, typed, generated from the UI library's own declarations. Base UI first."
+  },
+  {
     "name": "@kirana-style/eslint-plugin",
     "version": "0.2.4",
     "published": true,

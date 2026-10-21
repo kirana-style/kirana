@@ -663,6 +663,47 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
+    "href": "/docs/styling/states",
+    "file": "content/docs/styling/states.md",
+    "title": "Component states",
+    "description": "Style a headless component's states (checked, open, the side a popup opened on) with typed condition keys, from Base UI or any library that marks state with data attributes.",
+    "section": "composition",
+    "order": 1.5,
+    "keywords": [
+      "states",
+      "data attributes",
+      "base ui",
+      "headless",
+      "checked",
+      "open",
+      "data-state",
+      "condition keys",
+      "@kirana-style/states"
+    ],
+    "headings": [
+      {
+        "id": "install",
+        "text": "Install",
+        "level": 2
+      },
+      {
+        "id": "what-a-vocabulary-holds",
+        "text": "What a vocabulary holds",
+        "level": 2
+      },
+      {
+        "id": "other-libraries-and-your-own-components",
+        "text": "Other libraries, and your own components",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/docs/styling/relations",
     "file": "content/docs/styling/relations.md",
     "title": "Relations",
@@ -4918,6 +4959,22 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
+        "title": "Component states",
+        "href": "/docs/styling/states",
+        "description": "Style a headless component's states (checked, open, the side a popup opened on) with typed condition keys, from Base UI or any library that marks state with data attributes.",
+        "keywords": [
+          "states",
+          "data attributes",
+          "base ui",
+          "headless",
+          "checked",
+          "open",
+          "data-state",
+          "condition keys",
+          "@kirana-style/states"
+        ]
+      },
+      {
         "title": "Relations",
         "href": "/docs/styling/relations",
         "description": "Style an element from another element's state, as group and peer variants do, with the anchor stated in the source.",
@@ -6094,6 +6151,7 @@ export const ORDER: readonly string[] = [
   "/docs/styling/merging",
   "/docs/styling/precedence",
   "/docs/styling/external-components",
+  "/docs/styling/states",
   "/docs/styling/relations",
   "/docs/styling/contextual",
   "/docs/styling/recipes",

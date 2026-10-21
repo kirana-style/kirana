@@ -1,0 +1,26 @@
+[
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 387,
+      "end": 408
+    },
+    "message": "padding: the token's value `royalblue` is not one it takes (<'padding-top'>{1,4})",
+    "help": []
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 410,
+      "end": 424
+    },
+    "message": "gap: `light-dark(black, white)` is not a value it takes (<'row-gap'> <'column-gap'>?)",
+    "help": []
+  }
+]

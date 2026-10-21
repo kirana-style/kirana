@@ -99,6 +99,7 @@ const PACKAGES = [
   "remix",
   "astro",
   "preset-scales",
+  "states",
   "eslint-plugin",
   "biome-plugin",
 ]
