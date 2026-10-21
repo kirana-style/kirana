@@ -32,6 +32,28 @@ type State = { name: string; attribute: string; doc: string; values: string[] }
 const declaration = (from: string, specifier: string) =>
   path.resolve(path.dirname(from), specifier.replace(/\.js$/, ".d.ts"))
 
+/**
+ * The values of an `@type {'a' | 'b' | null}` union of string literals, `null` left out; none for
+ * any other type (`{boolean}`, `{number}`, a template literal). Read by splitting, not by a pattern,
+ * so no input can make it backtrack.
+ */
+function literals(type: string | undefined): string[] {
+  const body = type?.slice("@type".length).trim() ?? ""
+  if (!body.startsWith("{") || !body.endsWith("}")) return []
+  const members = body
+    .slice(1, -1)
+    .split("|")
+    .map((member) => member.trim())
+  const literal = (member: string) =>
+    member.length > 2 &&
+    member.startsWith("'") &&
+    member.endsWith("'") &&
+    !member.slice(1, -1).includes("'")
+  if (!members.every((member) => member === "null" || literal(member)))
+    return []
+  return members.filter(literal).map((member) => member.slice(1, -1))
+}
+
 /** A module's states, in declaration order, with the states it re-exports after them. */
 function states(file: string, seen = new Set<string>()): State[] {
   if (seen.has(file)) return []
@@ -45,17 +67,11 @@ function states(file: string, seen = new Set<string>()): State[] {
       .split("\n")
       .map((line) => line.replace(/^\s*\*\s?/, "").trim())
       .filter(Boolean)
-    const type = comment.find((line) => line.startsWith("@type"))
-    const union = /^@type\s*\{\s*((?:'[^']*'\s*\|?\s*|null\s*\|?\s*)+)\}$/.exec(
-      type ?? ""
-    )
     out.push({
       name: match[2]!,
       attribute: match[3]!,
       doc: comment.filter((line) => !line.startsWith("@")).join(" "),
-      values: union
-        ? [...union[1]!.matchAll(/'([^']+)'/g)].map((value) => value[1]!)
-        : [],
+      values: literals(comment.find((line) => line.startsWith("@type"))),
     })
   }
   for (const match of text.matchAll(/export \* from "([^"]+)";/g))
