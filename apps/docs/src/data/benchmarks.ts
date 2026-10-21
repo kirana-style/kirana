@@ -300,6 +300,37 @@ export const CLAIMS = {
   bytesTailwind: total("totalGzip", "size"),
 }
 
+/**
+ * Dense names (`names: "dense"`, D-084) against the default hashed names over all three apps, in
+ * words: "11 % smaller", "8 % slower", "level". The lab builds Kirana both ways; the site's tables
+ * leave the dense build out, and these are its only claims. "not measured" for a run without it.
+ */
+const dense = (metric: string, kind: "time" | "size"): string => {
+  // The dense build is a target the site's types leave out (`TARGET`), so it is matched as text.
+  const entry = taken.comparisons.find(
+    (candidate) =>
+      candidate.corpus === "three-way/total" &&
+      candidate.scenario === "build" &&
+      candidate.metric === metric &&
+      (candidate.against as string) === "kirana-dense"
+  )
+  if (!entry) return "not measured"
+  if (entry.verdict === "no clear difference") return "level"
+  // The comparison is the default build over the dense one; dense names are its inverse.
+  const ratio = 1 / entry.ratio
+  const [less, more] =
+    kind === "time" ? ["faster", "slower"] : ["smaller", "larger"]
+  return ratio < 1
+    ? `${percent(1 - ratio)} ${less}`
+    : `${percent(ratio - 1)} ${more}`
+}
+
+export const DENSE = {
+  css: dense("cssGzip", "size"),
+  bytes: dense("totalGzip", "size"),
+  build: dense("build", "time"),
+}
+
 export const capital = (text: string) =>
   text.charAt(0).toUpperCase() + text.slice(1)
 

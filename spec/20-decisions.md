@@ -1078,6 +1078,22 @@ the implementation tracker names its evidence.
   know, is not caught.
 - **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md#value-normalization).
 
+### D-090 — A build checks R2 only for relations their module keeps to itself
+
+- **Status:** Accepted (2026-10-21). Narrows R2 (08) in a bundler build, as D-062 narrows R1.
+- **Decision:** `relation-unused` is reported for a relation its module does not export in every
+  build. A relation some module exports is reported only where the project was compiled whole
+  (`compile_paths`: `kirana-style check` and the language server).
+- **Rationale:** a bundler build compiles only the modules it reaches. A shared component library
+  anchors a relation in one component and reads it in another; an application that renders the first
+  and not the second (the docs site's theme menu, a `DropdownMenu` without an `Item`) builds the
+  anchor with no reader in sight, and the build reported a relation the library reads. An exported
+  relation's readers can be anywhere, so only a project compiled whole can say none is. A relation
+  kept to its module is read in that module or nowhere, which every build sees.
+- **Trade-off:** an exported relation that nothing reads is no longer reported by a bundler build;
+  `kirana-style check` and the editor still report it.
+- **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                    |
@@ -1085,7 +1101,7 @@ the implementation tracker names its evidence.
 | the brand notes                                               | D-001                                                                                                                        |
 | [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088 |
 | [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059                                                         |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089                                           |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090                                    |
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043                                                                                                   |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045                                                  |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073               |

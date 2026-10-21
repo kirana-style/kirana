@@ -241,7 +241,7 @@ A relation named `field` owns one marker class (`.kr…`), applied through `fiel
 | Rule | Condition                                                                                                                                                      | Diagnostic                        |
 | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
 | R1   | A relation is read but its `anchor` is never referenced anywhere in the project.                                                                               | `relation-without-anchor` (error) |
-| R2   | An `anchor` is applied but the relation is never read.                                                                                                         | `relation-unused` (warning)       |
+| R2   | An `anchor` is applied but the relation is never read; an exported relation only where the whole project was compiled (D-090).                                 | `relation-unused` (warning)       |
 | R3   | In one JSX tree, a `within` reader has no anchor among its ancestors but an anchor is applied to the reader itself, a sibling, or a descendant.                | `relation-placement` (error)      |
 | R4   | In one JSX tree, an `after` reader has no earlier sibling carrying the anchor (a `before` reader: no later sibling) but one is applied elsewhere in that tree. | `relation-placement` (error)      |
 | R5   | Two modules of one package declare a relation with the same name, so both share one marker.                                                                    | `relation-name-collision` (error) |

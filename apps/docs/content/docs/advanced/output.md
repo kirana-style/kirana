@@ -85,9 +85,18 @@ for the rest of the build, so a chunk renamed early stays valid while later modu
 compile. The stylesheet keeps its rules in the same order; only the names in it
 change.
 
-On this site, dense names make the stylesheet 12.7 % smaller in gzip and brotli,
-and the client JavaScript 1.2–1.4 % smaller, for about 4 % more build time.
-They are opt-in until they have been measured on more applications.
+Measured on the three applications of
+[the benchmarks](/docs/project/benchmarks), Kirana {{fact:bench-version}} with
+dense names makes the CSS {{fact:bench-dense-css}} in gzip, and the CSS and
+JavaScript a page downloads {{fact:bench-dense-bytes}}, with cold builds
+{{fact:bench-dense-build}}. On this site, the stylesheet is 12.7 % smaller in
+gzip and brotli.
+
+Dense names stay opt-in for one reason besides the build time: a code goes to the
+most used segments first, so when a new segment outranks an old one between two
+deploys, names change in chunks whose source did not, and those chunks get new
+content hashes and are downloaded again. A names manifest that keeps codes
+across deploys would remove that, and with it the reason to keep them off.
 
 ## Conditions in the selector
 

@@ -643,6 +643,19 @@ async function checkPage(
       paddingTop: "7px",
       backgroundColor: "rgb(250, 250, 250)",
     })
+    // An example may carry a second probe styled through a component state from
+    // @kirana-style/states (`data-checked` on it): the state's value must apply.
+    const state = page.locator("[data-probe-state]")
+    if ((await state.count()) > 0) {
+      const padding = await state.evaluate(
+        (element) => getComputedStyle(element).paddingBottom
+      )
+      if (padding !== "9px")
+        throw new Error(
+          `state probe padding-bottom is ${padding}, expected 9px`
+        )
+      console.log("✓ a component state from @kirana-style/states applies")
+    }
     await probe.hover()
     await settled({ backgroundColor: "rgb(4, 5, 6)" })
     if (errors.length) throw new Error(`the page threw: ${errors.join("; ")}`)

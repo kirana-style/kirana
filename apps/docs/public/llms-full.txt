@@ -1903,8 +1903,12 @@ Because the compiler checks it. Two errors you get for free:
   position: `after()` used where the anchor is not an earlier sibling, for
   example.
 
-A relation that is declared and never read is reported too (`relation-unused`),
-so dead relations do not accumulate. And because a relation is identified by its
+A relation that is anchored and never read is reported too (`relation-unused`),
+so dead relations do not accumulate. One that its module keeps to itself is
+checked in every build. One that is exported is checked where the whole project
+is compiled, by `kirana-style check` and in your editor: a bundler build compiles
+only the modules it reaches, so a shared component's reader may simply not be
+in this application. And because a relation is identified by its
 package and name, two modules of one package that both write `relation("card")`
 would share one marker without meaning to: `relation-name-collision` names both
 files. Export the relation from one module and import it where it is read.
@@ -6187,8 +6191,9 @@ class name with codes of one or two characters, assigned from the whole build:
 - **The client and server bundles agree.** Both are renamed from one map, and
   the stylesheet with them.
 
-It is off by default while it is measured on more applications; see
-[dense names](/docs/advanced/output#dense-names) for what it saves. It cannot be
+It is off by default: names can change between deploys in chunks whose source
+did not, so those chunks are downloaded again. See
+[dense names](/docs/advanced/output#dense-names) for what it saves and why. It cannot be
 combined with a [class map](/docs/frameworks/server-templates), whose server-side
 helpers read hashed names, and the build says so.
 
@@ -7716,9 +7721,18 @@ for the rest of the build, so a chunk renamed early stays valid while later modu
 compile. The stylesheet keeps its rules in the same order; only the names in it
 change.
 
-On this site, dense names make the stylesheet 12.7 % smaller in gzip and brotli,
-and the client JavaScript 1.2–1.4 % smaller, for about 4 % more build time.
-They are opt-in until they have been measured on more applications.
+Measured on the three applications of
+[the benchmarks](/docs/project/benchmarks), Kirana 0.3.0 with
+dense names makes the CSS 11 % smaller in gzip, and the CSS and
+JavaScript a page downloads 2 % smaller, with cold builds
+8 % slower. On this site, the stylesheet is 12.7 % smaller in
+gzip and brotli.
+
+Dense names stay opt-in for one reason besides the build time: a code goes to the
+most used segments first, so when a new segment outranks an old one between two
+deploys, names change in chunks whose source did not, and those chunks get new
+content hashes and are downloaded again. A names manifest that keeps codes
+across deploys would remove that, and with it the reason to keep them off.
 
 ## Conditions in the selector
 

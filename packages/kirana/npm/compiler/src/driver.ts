@@ -99,7 +99,8 @@ export class Driver {
 
   /** Loads configuration and opens a session; invalid configuration throws with diagnostics. */
   static async create(options: DriverOptions = {}): Promise<Driver> {
-    const root = options.root ?? process.cwd()
+    // Absolute, so the configuration module, the engine and the class map resolve from it alike.
+    const root = path.resolve(options.root ?? process.cwd())
     const { file, json } = await resolveConfig(
       root,
       options.config,
@@ -115,7 +116,8 @@ export class Driver {
   static createSync(
     options: DriverOptions & { requireModule?: (file: string) => unknown } = {}
   ): Driver {
-    const root = options.root ?? process.cwd()
+    // Absolute, so the configuration module, the engine and the class map resolve from it alike.
+    const root = path.resolve(options.root ?? process.cwd())
     const { file, json } = resolveConfigSync(
       root,
       options.config,

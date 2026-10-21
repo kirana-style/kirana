@@ -84,6 +84,18 @@ pub(crate) struct Cached {
     diagnostics: Option<(u64, Vec<Diagnostic>)>,
 }
 
+/// The markers of every relation in a value, inside arrays and objects too.
+fn relation_markers(value: &kirana_ir::Value, out: &mut BTreeSet<String>) {
+    match value {
+        kirana_ir::Value::Relation(relation) => {
+            out.insert(relation.marker.clone());
+        }
+        kirana_ir::Value::Array(items) => items.iter().for_each(|item| relation_markers(item, out)),
+        kirana_ir::Value::Object(entries) => entries.iter().for_each(|(_, item)| relation_markers(item, out)),
+        _ => {}
+    }
+}
+
 impl Project {
     fn live(&self) -> (Vec<Atom>, Vec<Dep>) {
         let state = self.state.read().expect("not poisoned");
@@ -349,8 +361,20 @@ impl Project {
                 );
             }
         }
+        // An exported relation may be read by a module this build never reached; only a project
+        // compiled whole can say that none does (D-090). A relation its module keeps to itself is
+        // read there or nowhere, so every build reports it.
+        let walked = self.walked.load(std::sync::atomic::Ordering::Relaxed);
+        let mut exported = BTreeSet::new();
+        if !walked {
+            for entry in state.exports.values() {
+                for value in entry.exports.values.values() {
+                    relation_markers(value, &mut exported);
+                }
+            }
+        }
         for marker in &anchors {
-            if !reads.contains_key(marker) {
+            if !reads.contains_key(marker) && (walked || !exported.contains(*marker)) {
                 let name = relation_names.get(marker).copied().unwrap_or(marker);
                 out.push(Diagnostic::new(
                     Code::RelationUnused,
