@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/core",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Kirana authoring API: typed styles, tokens, recipes and relations, compiled away at build time.",
   "license": "MIT",
   "author": "The Kirana authors",
