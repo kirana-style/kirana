@@ -161,6 +161,58 @@ const keywords = names.map((name) => {
   return [name, [...out].sort()] as const
 })
 
+/**
+ * The value grammars `kirana_css_data::grammar` checks values against (KRN-CAS-010): each
+ * property's syntax and every named syntax it references, as MDN writes them.
+ */
+const propertySyntax = names
+  .filter((name) => properties[name]!.syntax)
+  .map((name) => [name, properties[name]!.syntax!] as const)
+const namedSyntax = Object.keys(syntaxes)
+  .sort()
+  .filter((name) => syntaxes[name]!.syntax)
+  .map((name) => [name, syntaxes[name]!.syntax!] as const)
+/**
+ * Every keyword and function name any grammar names, and every property name (`transition-property:
+ * translate`, `will-change: opacity`). A value with a word outside these is newer CSS than the data,
+ * or a name of the author's own, and is never rejected (P11).
+ */
+const grammars = [...propertySyntax, ...namedSyntax].map(([, syntax]) => syntax)
+const grammarWords = grammars.flatMap((syntax) =>
+  [
+    ...syntax
+      .replace(/<[^>]*>/g, " ")
+      .replace(/'[^']*'/g, " ")
+      .matchAll(/(?<![\w-])-?[a-zA-Z][a-zA-Z0-9-]*(?![\w(-])/g),
+  ].map((match) => match[0].toLowerCase())
+)
+const knownWords = [...new Set([...grammarWords, ...names])].sort()
+const knownFunctions = [
+  ...new Set([
+    ...grammars.flatMap((syntax) =>
+      [...syntax.matchAll(/(?<![\w-])(-?[a-zA-Z][a-zA-Z0-9-]*)\(/g)].map(
+        (match) => match[1]!.toLowerCase()
+      )
+    ),
+    ...Object.keys(syntaxes)
+      .filter((name) => name.endsWith("()"))
+      .map((name) => name.slice(0, -2).toLowerCase()),
+    // `<url>` is a base type: `url()` and `src()`, which no grammar spells out.
+    "url",
+    "src",
+    ...Object.keys(read("functions.json")).map((name) =>
+      name.replace(/\(\)$/, "").toLowerCase()
+    ),
+  ]),
+].sort()
+const pairs = (items: readonly (readonly [string, string])[]) =>
+  items
+    .map(
+      ([name, syntax]) =>
+        `    (${JSON.stringify(name)}, ${JSON.stringify(syntax)}),`
+    )
+    .join("\n")
+
 const list = (items: string[]) =>
   items.map((item) => `    ${JSON.stringify(item)},`).join("\n")
 
@@ -209,6 +261,26 @@ ${list(pseudoElements)}
 /// and CSS-wide keywords left out).
 pub static KEYWORDS: &[(&str, &[&str])] = &[
 ${keywords.map(([name, words]) => `    (${JSON.stringify(name)}, &[${words.map((word) => JSON.stringify(word)).join(", ")}]),`).join("\n")}
+];
+
+/// Each property's value grammar, sorted by property.
+pub static PROPERTY_SYNTAX: &[(&str, &str)] = &[
+${pairs(propertySyntax)}
+];
+
+/// Every named syntax (\`<length-percentage>\`, \`<rgb()>\`), sorted by name.
+pub static SYNTAXES: &[(&str, &str)] = &[
+${pairs(namedSyntax)}
+];
+
+/// Every keyword a grammar names, lowercase, sorted.
+pub static KNOWN_WORDS: &[&str] = &[
+${list(knownWords)}
+];
+
+/// Every function a grammar names or MDN documents, lowercase, without \`()\`, sorted.
+pub static KNOWN_FUNCTIONS: &[&str] = &[
+${list(knownFunctions)}
 ];
 
 /// Colour keywords, lowercase: named colours and system colours (\`red\`, \`canvastext\`).

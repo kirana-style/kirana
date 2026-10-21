@@ -27,7 +27,7 @@ export const box = css({
   display: "grid",
   gap: space[4],
   color: { base: color.ink, ":hover": "#ff0000", "@media (width >= 48rem)": "red" },
-  padding: color.wash,
+  outlineColor: color.wash,
   opacity: { [card.within(":hover")]: 0.5 },
   [select.child("svg")]: { width: "1rem" },
   mixBlendMode: color.blend,
@@ -261,7 +261,9 @@ fn hover_explains_styles_properties_conditions_and_tokens() {
     let sx = hover_text(&f.ok("textDocument/hover", f.at("sx={[box", 0, 1)));
     assert!(sx.contains("Merges 2 handles") && sx.contains("display: grid"), "{sx}");
     assert!(hover_text(&f.ok("textDocument/hover", f.at("sx=\"flex", 0, 5))).contains("utility string"));
-    assert!(hover_text(&f.ok("textDocument/hover", f.at("padding: color.wash", 0, 1))).contains("Reads `color.wash`"));
+    assert!(
+        hover_text(&f.ok("textDocument/hover", f.at("outlineColor: color.wash", 0, 1))).contains("Reads `color.wash`")
+    );
     // A pseudo-element or base key, a key nothing sets, and nowhere at all.
     assert!(!hover_text(&f.ok("textDocument/hover", f.at("base:", 0, 1))).contains("Precedence"));
     assert_eq!(f.ok("textDocument/hover", f.at("import", 0, 2)), Value::Null);

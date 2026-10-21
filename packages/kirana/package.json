@@ -15,6 +15,7 @@
     "coverage": "bun scripts/rust.ts scripts/coverage.sh",
     "migrate:stylex": "bun scripts/migrate-stylex.ts",
     "gen:preset-scales": "bun scripts/gen-preset-scales.ts",
+    "gen:states": "bun scripts/gen-states.ts",
     "budget": "node scripts/runtime-budget.ts",
     "budgets": "node scripts/budgets.ts",
     "pack": "bun scripts/pack.ts",
@@ -38,6 +39,7 @@
     "playwright": "catalog:",
     "typescript": "catalog:",
     "tailwindcss": "4.3.3",
+    "@base-ui/react": "1.9.0",
     "vue": "catalog:",
     "svelte": "catalog:",
     "@astrojs/compiler": "catalog:",
@@ -47,6 +49,7 @@
     "@emnapi/runtime": "catalog:",
     "@napi-rs/wasm-runtime": "catalog:",
     "@kirana-style/preset-scales": "workspace:*",
+    "@kirana-style/states": "workspace:*",
     "vite-plus": "catalog:",
     "oxlint": "catalog:"
   }

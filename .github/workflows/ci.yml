@@ -130,6 +130,10 @@ jobs:
       - name: Generated preset scales are current
         run: bun run gen:preset-scales && git diff --exit-code npm/preset-scales/src/scales.ts
 
+      # @kirana-style/states is generated from the pinned @base-ui/react declarations; the committed file must match.
+      - name: Generated states are current
+        run: bun run gen:states && git diff --exit-code npm/states/src/base-ui.ts
+
   kirana-coverage:
     runs-on: ubuntu-26.04
     name: kirana · tests and 100% coverage

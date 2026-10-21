@@ -1,5 +1,6 @@
 import { css, props as styleProps } from "@kirana-style/core"
 import { Switch as SwitchPrimitive } from "@base-ui/react/switch"
+import * as State from "@kirana-style/states/base-ui"
 
 import type { Sx } from "../lib/sx"
 import { fieldLabelMarker, peer, switchMarker } from "../theme/markers"
@@ -54,7 +55,7 @@ const styles = {
     },
     backgroundColor: {
       base: surface.switchTrack,
-      "[data-checked]": theme.primary,
+      [State.Switch.Root.checked]: theme.primary,
     },
     borderColor: {
       base: "transparent",
@@ -67,8 +68,8 @@ const styles = {
       '[aria-invalid="true"]': `0 0 0 ${ring.width} ${surface.ringInvalid}`,
       [fieldLabelMarker.within(":focus-within")]: "none",
     },
-    cursor: { "[data-disabled]": "not-allowed" },
-    opacity: { "[data-disabled]": 0.5 },
+    cursor: { [State.Switch.Root.disabled]: "not-allowed" },
+    opacity: { [State.Switch.Root.disabled]: 0.5 },
   }),
 
   thumb: css({
@@ -91,13 +92,13 @@ const styles = {
     },
     backgroundColor: {
       base: surface.switchThumb,
-      "[data-checked]": surface.switchThumbChecked,
+      [State.Switch.Thumb.checked]: surface.switchThumbChecked,
     },
     // `translate` respects writing direction, so one value covers LTR and RTL —
     // the original needed four `rtl:` overrides to say the same thing.
     translate: {
       base: "0",
-      "[data-checked]": `calc(100% - 2px)`,
+      [State.Switch.Thumb.checked]: `calc(100% - 2px)`,
     },
   }),
 }

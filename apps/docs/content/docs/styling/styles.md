@@ -55,12 +55,18 @@ a styling system ends up with values it cannot explain, so the compiler asks you
 instead.
 
 Invalid values are errors too (`invalid-value`), checked against the property's
-real grammar:
+grammar as MDN writes it:
 
 ```tsx
-css({ display: "flx" }) // error: invalid-value
+css({ display: "center" }) // error: invalid-value - a keyword display does not take
+css({ padding: "-4px" }) // error: invalid-value - padding is never negative
+css({ padding: color.accent }) // error: invalid-value - a colour token on a length
 css({ margin: "1px;" }) // error: invalid-value - a stray semicolon
 ```
+
+A word or a function the data does not know is left alone, because it may be
+newer CSS than the data, or a name of your own (`animationName: "spin"`). So is
+whatever is inside a function's parentheses, and a value made of `var()`.
 
 ## Several objects, one handle
 

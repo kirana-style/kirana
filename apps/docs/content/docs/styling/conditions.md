@@ -46,6 +46,7 @@ the compiler can tell you when two of those values could both apply.
 | An at-rule, as a string | `"@media (min-width: 40rem)"`, `"@supports (height: 100dvh)"`                 |
 | A condition value       | `[breakpoint.md]`, `[container("(width >= 20rem)")]`, `[media("print")]`      |
 | A relation read         | `[group.within('[data-disabled]')]`; see [relations](/docs/styling/relations) |
+| A component state       | `[Switch.Root.checked]`; see [component states](/docs/styling/states)         |
 
 Condition values come from `media()`, `container()` and `supports()`, and from
 presets:

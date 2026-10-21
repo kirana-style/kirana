@@ -118,9 +118,23 @@ shorthand itself resets it. Colours are never converted between colour functions
 is never simplified. Equal normalized atoms are one rule project-wide.
 
 Values are checked for structure — empty values, unbalanced brackets, `;`, unterminated strings and
-`!important` are `invalid-value` — but a value the typed parsers cannot type is accepted, because the
-parsers return the same untyped tokens for invalid syntax and for newer valid syntax (`anchor-center`,
-`calc-size()`). Grammar validation from `mdn-data` syntaxes is planned for M3.
+`!important` are `invalid-value`.
+
+**KRN-CAS-010** — A value MUST also fit its property's grammar as `mdn-data` writes it
+(`kirana_css_data::grammar`), or it is `invalid-value`, naming the syntax it does not fit. The check never
+rejects valid CSS, including CSS newer than the data (P11):
+
+- **Not judged, and accepted:** a value with a keyword or function no grammar names, a dimension in a unit
+  outside the data, a substitution (`var()`, `env()`, `attr()`) or a bracketed block. It may be newer
+  CSS, a name of the author's own, or anything after substitution.
+- **Functions by name:** a function is matched by its name alone, never by its arguments, so the hardest
+  grammars (`calc()`, colour functions, gradients) cannot reject anything.
+- **Undefined types:** a type the data does not define matches any one component.
+- **Ranges:** a range on a reference (`<length-percentage [0,∞]>`) holds for the base types it expands
+  to, so `padding: -4px` is rejected; a math function is never range-checked.
+- **Token domains:** a value that is one project variable token is checked through each value the token
+  declares, so a colour token on `padding` is `invalid-value` with no new API. An inlined token is
+  checked as the value it inlines.
 
 ## The precedence ladder
 

@@ -448,7 +448,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Writing styles",
     "section": "writing",
     "heading": "Values",
-    "text": "Values are strings and numbers, exactly as CSS reads them. Kirana does not add units for you: The rule is the CSS rule: a property that takes a needs a unit. A property whose value is a plain number takes a plain number. Guessing is how a styling system ends up with values it cannot explain, so the compiler asks you instead. Invalid values are errors too ( ), checked against the property's real grammar:"
+    "text": "Values are strings and numbers, exactly as CSS reads them. Kirana does not add units for you: The rule is the CSS rule: a property that takes a needs a unit. A property whose value is a plain number takes a plain number. Guessing is how a styling system ends up with values it cannot explain, so the compiler asks you instead. Invalid values are errors too ( ), checked against the property's grammar as MDN writes it: A word or a function the data does not know is left alone, because it may be newer CSS than the data, or a name of your own ( ). So is whatever is inside a function's parentheses, and a value made of ."
   },
   {
     "id": "/docs/styling/styles#several-objects-one-handle",
@@ -810,7 +810,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Styling other people's components",
     "section": "composition",
     "heading": "props()",
-    "text": "compiles the same handles into , which every component that spreads its props onto an element will apply: The alias is a convention, not an API: is a common identifier, and the alias keeps the import from shadowing a parameter."
+    "text": "compiles the same handles into , which every component that spreads its props onto an element will apply: The alias is a convention, not an API: is a common identifier, and the alias keeps the import from shadowing a parameter. To style a part's states (a switch that is checked, a popup that opened below its trigger), take the keys from component states instead of typing the attributes."
   },
   {
     "id": "/docs/styling/external-components#the-case-one-module-away",
@@ -835,6 +835,53 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "composition",
     "heading": "When you cannot pass props at all",
     "text": "Two options, in order: Style it from an ancestor you do render with . Contextual styles sit in a lower layer, so the element's own styles still win. Global CSS , scoped by an attribute the library sets. This is the last resort: it is markup you do not own, and nothing checks it."
+  },
+  {
+    "id": "/docs/styling/states",
+    "href": "/docs/styling/states",
+    "page": "Component states",
+    "section": "composition",
+    "text": "Style a headless component's states (checked, open, the side a popup opened on) with typed condition keys, from Base UI or any library that marks state with data attributes. "
+  },
+  {
+    "id": "/docs/styling/states#component-states",
+    "href": "/docs/styling/states#component-states",
+    "page": "Component states",
+    "section": "composition",
+    "heading": "Component states",
+    "text": "A headless component library renders the behaviour and leaves the styling to you. It tells you each part's state through data attributes: a switch's root gets when it is on, a popup gets when it opened below its trigger. In Kirana those are condition keys , and lists them, so you pick a state instead of typing its attribute: A misspelt state is a type error. does not exist, and your editor completes the states a part has. Hover shows the library's own words. Each state carries its description, , as Base UI writes it. It is a condition like any other. A state nests inside another, sits beside , reads through a relation ( ) and goes in recipes . The compiler checks it as it checks every condition: above, and can hold together, so the nested value says which wins. Nothing ships. Each entry is a plain string, is ; the compiler reads it and it leaves nothing behind. The style is not tied to one part, so one handle can style several parts that share a state, or the same state of your own component."
+  },
+  {
+    "id": "/docs/styling/states#install",
+    "href": "/docs/styling/states#install",
+    "page": "Component states",
+    "section": "composition",
+    "heading": "Install",
+    "text": "Apply the handles to Base UI's parts with , since the parts do not read :"
+  },
+  {
+    "id": "/docs/styling/states#what-a-vocabulary-holds",
+    "href": "/docs/styling/states#what-a-vocabulary-holds",
+    "page": "Component states",
+    "section": "composition",
+    "heading": "What a vocabulary holds",
+    "text": "is generated from the declarations Base UI publishes for each part, so it follows the version it was generated from, and the names are Base UI's own: , , . Values are in camel case ( for )."
+  },
+  {
+    "id": "/docs/styling/states#other-libraries-and-your-own-components",
+    "href": "/docs/styling/states#other-libraries-and-your-own-components",
+    "page": "Component states",
+    "section": "composition",
+    "heading": "Other libraries, and your own components",
+    "text": "A vocabulary is a plain object of selectors, so writing one takes a few lines. Any library that marks state with data attributes works: Radix and its ports ( ), Ark UI, Reka UI, Bits UI, or the components you write yourself. Put it in a module of your project: is what makes a misspelt state an error. The compiler knows two values of one attribute never hold together, so and need no nesting."
+  },
+  {
+    "id": "/docs/styling/states#next",
+    "href": "/docs/styling/states#next",
+    "page": "Component states",
+    "section": "composition",
+    "heading": "Next",
+    "text": "Conditions : every key a condition can be. Relations : style an element from another element's state."
   },
   {
     "id": "/docs/styling/relations",

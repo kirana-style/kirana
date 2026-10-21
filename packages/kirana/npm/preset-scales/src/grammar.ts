@@ -195,10 +195,19 @@ const SIZES = {
   max: "max-content",
   fit: "fit-content",
 }
+/** A size root's rules. `max-width` and `max-height` take `none` where the others take `auto`. */
 const width = (property: string, viewport: string): UtilityRule[] => [
   space([property], false, true),
   keyword([property], {
-    ...SIZES,
+    ...(property.startsWith("max")
+      ? {
+          none: "none",
+          full: SIZES.full,
+          min: SIZES.min,
+          max: SIZES.max,
+          fit: SIZES.fit,
+        }
+      : SIZES),
     screen: `100${viewport}`,
     [`s${viewport}`]: `100s${viewport}`,
     [`l${viewport}`]: `100l${viewport}`,
@@ -598,7 +607,7 @@ const utilities: Record<string, UtilityRule[]> = {
   "max-w": [
     { properties: ["maxWidth"], scale: "containerSize" },
     ...width("maxWidth", "vw"),
-    keyword(["maxWidth"], { none: "none", prose: "65ch" }),
+    keyword(["maxWidth"], { prose: "65ch" }),
   ],
   size: [
     space(["width", "height"], false, true),

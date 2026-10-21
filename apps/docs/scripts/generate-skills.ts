@@ -40,7 +40,7 @@ const FIXES: Record<string, string> = {
   "unknown-property":
     "Not a CSS property (a typo such as `colour`, or a Tailwind class name used as a key). Use the camelCase CSS property name.",
   "invalid-value":
-    "The value is not valid for the property. Read the message for the property's grammar.",
+    'The value does not fit the property\'s grammar: a keyword it does not take (`padding: "red"`), a negative size, or a token of the wrong kind (a colour token on `padding`). The message gives the grammar. Words the data does not know, function arguments and `var()` are never judged.',
   "unitless-length":
     'A bare number on a length property. Write the unit: `width: "5px"`, or a token.',
   "unsplittable-shorthand":

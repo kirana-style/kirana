@@ -84,11 +84,13 @@
       "devDependencies": {
         "@astrojs/compiler": "catalog:",
         "@astrojs/compiler-rs": "catalog:",
+        "@base-ui/react": "1.9.0",
         "@emnapi/core": "catalog:",
         "@emnapi/runtime": "catalog:",
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
         "@kirana-style/preset-scales": "workspace:*",
+        "@kirana-style/states": "workspace:*",
         "@kirana-style/vite": "workspace:*",
         "@napi-rs/cli": "catalog:",
         "@napi-rs/wasm-runtime": "catalog:",
@@ -390,6 +392,19 @@
         "@rsbuild/core",
       ],
     },
+    "packages/kirana/npm/states": {
+      "name": "@kirana-style/states",
+      "version": "0.2.4",
+      "dependencies": {
+        "@kirana-style/core": "workspace:*",
+      },
+      "peerDependencies": {
+        "@base-ui/react": ">=1.9.0",
+      },
+      "optionalPeers": [
+        "@base-ui/react",
+      ],
+    },
     "packages/kirana/npm/vite": {
       "name": "@kirana-style/vite",
       "version": "0.2.4",
@@ -458,6 +473,7 @@
         "@hugeicons/react": "^1.1.10",
         "@kirana-style/core": "workspace:*",
         "@kirana-style/preset-scales": "workspace:*",
+        "@kirana-style/states": "workspace:*",
         "@shadcn/react": "^0.3.1",
         "@tanstack/charts": "catalog:",
         "cmdk": "^1.1.1",
@@ -1267,6 +1283,8 @@
     "@kirana-style/rolldown": ["@kirana-style/rolldown@workspace:packages/kirana/npm/rolldown"],
 
     "@kirana-style/rspack": ["@kirana-style/rspack@workspace:packages/kirana/npm/rspack"],
+
+    "@kirana-style/states": ["@kirana-style/states@workspace:packages/kirana/npm/states"],
 
     "@kirana-style/vite": ["@kirana-style/vite@workspace:packages/kirana/npm/vite"],
 

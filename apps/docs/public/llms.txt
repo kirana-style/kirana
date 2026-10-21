@@ -42,6 +42,7 @@ change the API. Pages state what is built and what is planned.
 ## Composition
 
 - [Styling other people's components](https://kirana.style/docs/styling/external-components.md): Style components that do not read sx with props(), and read what the sx-on-external-component diagnostic is telling you.
+- [Component states](https://kirana.style/docs/styling/states.md): Style a headless component's states (checked, open, the side a popup opened on) with typed condition keys, from Base UI or any library that marks state with data attributes.
 - [Relations](https://kirana.style/docs/styling/relations.md): Style an element from another element's state, as group and peer variants do, with the anchor stated in the source.
 - [Contextual styles](https://kirana.style/docs/styling/contextual.md): Style the elements below you with select.descendant and select.child, in a layer their own styles still beat.
 - [Recipes](https://kirana.style/docs/styling/recipes.md): Variants, compound variants and slots with recipe(), resolved at build time when the options are known.

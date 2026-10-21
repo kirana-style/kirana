@@ -40,7 +40,7 @@ export const edges = css({
   content: `"${spreadCall([1])}"`,
   quotes: `"${methodObject("x")}"`,
   columnRule: `${computedKey("x")}`,
-  columnGap: numericKey("x")[1],
+  columnGap: numericKey("1px")[1],
   rowGap: `${spreadNonObject("x")}`,
   textIndent: call(...[1]),
   scale: instantiated("1"),

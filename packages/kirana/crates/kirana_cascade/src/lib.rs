@@ -160,6 +160,9 @@ pub fn declare_with(
     if let Some(reason) = structural_problem(&text) {
         return Err(DeclarationError::InvalidValue { property, reason });
     }
+    if let Some(reason) = grammar_problem(&property, &text, variable_value) {
+        return Err(DeclarationError::InvalidValue { property, reason });
+    }
     let parsed = LProperty::parse_string(PropertyId::from(property.as_str()), &text, ParserOptions::default())
         .expect("structurally valid values always parse, falling back to unparsed tokens");
     let family = kirana_css_data::family_longhands(&property).is_some();
@@ -211,6 +214,22 @@ fn expand_into(property: &LProperty<'_>, out: &mut Vec<(Property, String)>) {
             property.value_to_css_string(PrinterOptions::default()).expect("typed values print"),
         )),
     }
+}
+
+/// Why a value does not fit its property's grammar (KRN-CAS-010), or `None` when it fits or cannot be
+/// judged. A value that is one project token is judged by each value the token declares, so a
+/// colour token on `padding` is caught.
+fn grammar_problem(property: &str, text: &str, variable_value: &dyn Fn(&str) -> Option<Vec<String>>) -> Option<String> {
+    use kirana_css_data::grammar::{Verdict, check};
+    let token = single_var(text).and_then(variable_value);
+    let values = token.clone().unwrap_or_else(|| vec![text.to_owned()]);
+    values.iter().find_map(|value| match check(property, value) {
+        Verdict::Rejected { expected } => Some(match &token {
+            Some(_) => format!("the token's value `{value}` is not one it takes ({expected})"),
+            None => format!("`{value}` is not a value it takes ({expected})"),
+        }),
+        Verdict::Accepted | Verdict::Unchecked => None,
+    })
 }
 
 /// Collapses whitespace outside quoted strings and trims.

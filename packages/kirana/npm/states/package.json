@@ -1,0 +1,37 @@
+{
+  "name": "@kirana-style/states",
+  "version": "0.2.4",
+  "description": "Component states as Kirana condition keys: each part's data attributes, typed, generated from the UI library's own declarations. Base UI first.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/states"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    "./base-ui": "./src/base-ui.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@base-ui/react": ">=1.9.0"
+  },
+  "peerDependenciesMeta": {
+    "@base-ui/react": {
+      "optional": true
+    }
+  }
+}
