@@ -7,6 +7,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs"
+import { tmpdir } from "node:os"
 import path from "node:path"
 import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 import { build, createServer } from "vite"
@@ -138,6 +139,68 @@ describe("KRN-INT-008 listed libraries", () => {
       optimizeDeps: { exclude: ["@kirana-style/preset-scales"] },
       ssr: { noExternal: ["@kirana-style/preset-scales"] },
     })
+  })
+
+  it("keeps them out of every environment's pre-bundling, and names the runtime where Vite discovers dependencies", async () => {
+    type ConfigHook = (config: { root?: string }) => Promise<unknown>
+    type EnvironmentHook = (
+      name: string,
+      config: { optimizeDeps?: { noDiscovery?: boolean } }
+    ) => Promise<unknown>
+    const runtime = "@kirana-style/core/internal"
+    const preset = "@kirana-style/preset-scales"
+    const [plugin] = kirana()
+    await (plugin.config as ConfigHook)({ root: app() })
+    const environment = plugin.configEnvironment as EnvironmentHook
+    // The client discovers dependencies; the top-level `optimizeDeps` already excludes libraries.
+    expect(await environment("client", {})).toEqual({
+      optimizeDeps: { include: [runtime] },
+    })
+    // A server environment in Node pre-bundles nothing unless told to.
+    expect(await environment("ssr", {})).toEqual({
+      optimizeDeps: { exclude: [preset] },
+    })
+    // One that discovers dependencies, as Cloudflare's Worker environment does.
+    expect(
+      await environment("ssr", { optimizeDeps: { noDiscovery: false } })
+    ).toEqual({ optimizeDeps: { exclude: [preset], include: [runtime] } })
+
+    // A project that cannot resolve the runtime is never asked to pre-bundle it.
+    const outside = mkdtempSync(path.join(tmpdir(), "kirana-vite-"))
+    created.push(outside)
+    const [bare] = kirana()
+    await (bare.config as ConfigHook)({ root: outside })
+    expect(
+      await (bare.configEnvironment as EnvironmentHook)("client", {})
+    ).toEqual({ optimizeDeps: {} })
+  })
+
+  it("reaches the environments a dev server resolves", async () => {
+    const server = await createServer({
+      root: app(),
+      configFile: false,
+      logLevel: "silent",
+      plugins: [kirana()],
+      environments: { ssr: { optimizeDeps: { noDiscovery: false } } },
+      server: { middlewareMode: true, ws: false, watch: null },
+    })
+    try {
+      const { client, ssr } = server.environments
+      expect(client.config.optimizeDeps.include).toContain(
+        "@kirana-style/core/internal"
+      )
+      expect(client.config.optimizeDeps.exclude).toContain(
+        "@kirana-style/preset-scales"
+      )
+      expect(ssr.config.optimizeDeps.include).toContain(
+        "@kirana-style/core/internal"
+      )
+      expect(ssr.config.optimizeDeps.exclude).toContain(
+        "@kirana-style/preset-scales"
+      )
+    } finally {
+      await server.close()
+    }
   })
 })
 

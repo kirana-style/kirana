@@ -3963,7 +3963,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Publishing a library",
     "section": "building",
     "heading": "In the app",
-    "text": "List the package: Its modules are now compiled from like your own, and its exported tokens work in your styles. With Vite nothing else is needed: the adapter keeps listed libraries out of dependency pre-bundling and server externals. With Next.js, also add the package to ."
+    "text": "List the package: Its modules are now compiled from like your own, and its exported tokens work in your styles. With Vite nothing else is needed: the adapter keeps listed libraries out of dependency pre-bundling, in the browser and in a server environment that pre-bundles (a Cloudflare Worker's), and out of server externals. With Next.js, also add the package to ."
   },
   {
     "id": "/docs/building/libraries#why-not-ship-compiled-css",

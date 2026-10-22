@@ -7841,8 +7841,9 @@ export default defineConfig({ libraries: ["acme-ui"] })
 
 Its modules are now compiled from `node_modules` like your own, and its exported
 tokens work in your styles. With Vite nothing else is needed: the adapter keeps
-listed libraries out of dependency pre-bundling and server externals. With
-Next.js, also add the package to `transpilePackages`.
+listed libraries out of dependency pre-bundling, in the browser and in a server
+environment that pre-bundles (a Cloudflare Worker's), and out of server
+externals. With Next.js, also add the package to `transpilePackages`.
 
 ## Why not ship compiled CSS
 
