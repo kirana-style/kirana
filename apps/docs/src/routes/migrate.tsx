@@ -338,7 +338,7 @@ function MigratePage() {
               size="lg"
               nativeButton={false}
               render={
-                <DocsLink href="/docs/advanced/conformance">
+                <DocsLink href="/docs/migration/conformance">
                   Verifying a migration
                 </DocsLink>
               }

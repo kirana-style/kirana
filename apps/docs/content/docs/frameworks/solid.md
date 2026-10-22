@@ -42,7 +42,7 @@ export default defineConfig({ plugins: [kirana(), solid()] })
 }
 ```
 
-Without a `tsconfig.json`, set [`jsx: "solid"`](/docs/config/reference) in
+Without a `tsconfig.json`, set [`jsx: "solid"`](/docs/reference/config) in
 `kirana.config.ts` instead.
 
 ## 4. Import the stylesheet

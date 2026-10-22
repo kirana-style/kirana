@@ -19,7 +19,7 @@ existing project, look something up, or see where the project stands.
 
 - **Documentation**: The model, writing styles, tokens and configuration. [Quick start](/docs/start/quick-start), [How it works](/docs/start/how-it-works), [Mental model](/docs/start/mental-model)
 - **Frameworks**: An install guide for every framework and bundler, each built on every change. [Vue](/docs/frameworks/vue), [Next.js](/docs/frameworks/nextjs), [TanStack Start](/docs/frameworks/tanstack-start)
-- **Guides**: Moving from Tailwind or StyleX, and building larger systems. [From Tailwind](/docs/migration/from-tailwind), [From StyleX](/docs/migration/from-stylex), [A design system](/docs/advanced/design-system)
+- **Guides**: Moving from Tailwind or StyleX, and building larger systems. [From Tailwind](/docs/migration/from-tailwind), [From StyleX](/docs/migration/from-stylex), [A design system](/docs/building/design-system)
 - **Reference**: The API, the command line, and every diagnostic with its code. [API](/docs/reference/api), [CLI](/docs/tooling/cli), [Diagnostics](/docs/tooling/diagnostics)
 - **Project**: Where Kirana stands, what comes next, and how to help. [Status](/docs/project/status), [Roadmap](/docs/project/roadmap), [Contributing](/docs/project/contributing)
 
@@ -119,7 +119,7 @@ recommends: static CSS files for static styles, and a custom property in
 | A styling runtime in the bundle     | Yes, the whole library    | A module with only static styles imports nothing; merging and bridging need a helper under 1.1 kB gzipped                                                           |
 | Server rendering collects styles    | Yes                       | No. The stylesheet is a file, linked like any other                                                                                                                                |
 | `<style>` tags inserted at runtime  | Yes                       | Never. The runtime [never generates CSS](/docs/styling/dynamic)                                                                                                                    |
-| CSS grows with markup               | Often, one rule per usage | [Atomic](/docs/advanced/output): one rule per distinct declaration, shared by every element that uses it                                                                           |
+| CSS grows with markup               | Often, one rule per usage | [Atomic](/docs/building/output): one rule per distinct declaration, shared by every element that uses it                                                                           |
 | Class names you cannot read         | Hashed                    | Hashed too, but `kirana-style trace file:line property` prints every entry for a style and the one that wins, and [hovering it in the editor](/docs/tooling/editor) shows the same |
 | Order bugs between style sheets     | Insertion order decided   | One [precedence ladder](/docs/styling/precedence), in [layers](/docs/config/layers)                                                                                                |
 
@@ -479,7 +479,7 @@ export default defineConfig({
 })
 ```
 
-Every key is listed in the [configuration reference](/docs/config/reference).
+Every key is listed in the [configuration reference](/docs/reference/config).
 
 ### 3. The stylesheet entry
 
@@ -530,7 +530,7 @@ The CSS Kirana writes runs in Chrome 123, Safari 17.5, Firefox 120 and later, th
 versions with `light-dark()`: every colour token is one `light-dark()` value, so
 light and dark mode need no second stylesheet and no class to toggle. Every
 current browser qualifies. To reach older ones, set
-[`targets`](/docs/config/reference#targets) below that floor and the compiler
+[`targets`](/docs/reference/config#targets) below that floor and the compiler
 lowers what it can.
 
 ## Check it worked
@@ -1211,7 +1211,7 @@ css({
 - Two values that could both apply, with nothing to separate them, get
   `ambiguous-precedence`. Fix it by nesting, or by declaring that the two
   conditions never hold together; see
-  [`conditions.exclusive`](/docs/config/reference).
+  [`conditions.exclusive`](/docs/reference/config).
 
 Next: [precedence](/docs/styling/precedence), the ladder that decides which
 condition wins.
@@ -1402,7 +1402,7 @@ export default defineConfig({
 
 Later presets and your own `utilities` replace earlier ones scale by scale, root
 by root and variant by variant. The full shape is in the
-[configuration reference](/docs/config/reference#utilities).
+[configuration reference](/docs/reference/config#utilities).
 ---
 # Merging and removal
 Source: https://kirana.style/docs/styling/merging
@@ -1599,7 +1599,7 @@ Three ways to resolve it:
 
 2. **Say they are exclusive.** When a library guarantees two attributes never
    appear together (`[data-open]` and `[data-closed]`), declare it once in
-   [`conditions.exclusive`](/docs/config/reference).
+   [`conditions.exclusive`](/docs/reference/config).
 
 3. **Use the same value**, if that is the truth. Two entries with the same value
    are never ambiguous.
@@ -1833,7 +1833,7 @@ exclude each other. So a property set under both is reported as
 `ambiguous-precedence`, a warning that the order between them is left to chance.
 
 Each vocabulary exports the groups its library sets one at a time. Give them to
-[`conditions.exclusive`](/docs/config/reference) in your configuration, and the
+[`conditions.exclusive`](/docs/reference/config) in your configuration, and the
 compiler knows:
 
 ```ts file="kirana.config.ts"
@@ -2263,7 +2263,7 @@ Libraries that animate elements in and out usually expose attributes for the two
 edges, such as `[data-starting-style]` and `[data-ending-style]`. Those are
 plain attribute conditions. Because they never appear at the same time but the
 selectors cannot prove it, declare them as exclusive once in
-[`conditions.exclusive`](/docs/config/reference), and the compiler stops asking
+[`conditions.exclusive`](/docs/reference/config), and the compiler stops asking
 which of the two wins.
 ---
 # Values known at runtime
@@ -2305,7 +2305,7 @@ where runtime values enter your styles.
 
 A finite dynamic value with too many branches would multiply classes, so there is
 a budget: 16 branches by default, configurable as
-[`dynamic.branchBudget`](/docs/config/reference). Past it, the compiler stops and
+[`dynamic.branchBudget`](/docs/reference/config). Past it, the compiler stops and
 reports `branch-budget-exceeded` rather than emitting a combinatorial explosion.
 Usually that is a sign the value should be a bridge, or a
 [recipe](/docs/styling/recipes).
@@ -2815,7 +2815,7 @@ import { brand } from "@acme/tokens"
 ```
 
 No registration and no plugin. Inside a workspace the package is compiled with
-your own modules. Installed from npm, list it in [`libraries`](/docs/config/reference#libraries),
+your own modules. Installed from npm, list it in [`libraries`](/docs/reference/config#libraries),
 so its `defineTokens()` calls are compiled too; a token the app reads at runtime
 would otherwise throw in the browser.
 
@@ -3337,7 +3337,7 @@ export default defineConfig({ ...uiConfig, layers: { before: ["reset"] } })
 ```
 
 That is how a component library tells every app what its attributes guarantee;
-see [`conditions.exclusive`](/docs/config/reference).
+see [`conditions.exclusive`](/docs/reference/config).
 ---
 # Layers and global CSS
 Source: https://kirana.style/docs/config/layers
@@ -4543,7 +4543,7 @@ export default defineConfig({ plugins: [kirana(), preact()] })
 }
 ```
 
-Without a `tsconfig.json`, set [`jsx: "preact"`](/docs/config/reference) in
+Without a `tsconfig.json`, set [`jsx: "preact"`](/docs/reference/config) in
 `kirana.config.ts` instead.
 
 ## 4. Import the stylesheet
@@ -4616,7 +4616,7 @@ export default defineConfig({ plugins: [kirana(), solid()] })
 }
 ```
 
-Without a `tsconfig.json`, set [`jsx: "solid"`](/docs/config/reference) in
+Without a `tsconfig.json`, set [`jsx: "solid"`](/docs/reference/config) in
 `kirana.config.ts` instead.
 
 ## 4. Import the stylesheet
@@ -5275,7 +5275,7 @@ the same classes.
 }
 ```
 
-Without a `tsconfig.json`, set [`jsx: "qwik"`](/docs/config/reference) in
+Without a `tsconfig.json`, set [`jsx: "qwik"`](/docs/reference/config) in
 `kirana.config.ts` instead.
 
 ## 4. Import the stylesheet
@@ -5465,7 +5465,7 @@ through a custom property, as in [dynamic styles](/docs/styling/dynamic).
 
 ### Another class-name prefix
 
-If `kirana.config` sets [`names.prefix`](/docs/config/reference), tell the
+If `kirana.config` sets [`names.prefix`](/docs/reference/config), tell the
 directive:
 
 ```ts file="src/main.ts"
@@ -5542,7 +5542,7 @@ export default defineConfig({
 
 The Ember plugin also tells the compiler that `@ember/`, `@glimmer/` and
 `@embroider/virtual/` are modules only Embroider resolves
-([`externals`](/docs/config/reference)).
+([`externals`](/docs/reference/config)).
 
 ## 3. Import the stylesheet
 
@@ -6243,7 +6243,7 @@ class name with codes of one or two characters, assigned from the whole build:
 
 It is off by default: names can change between deploys in chunks whose source
 did not, so those chunks are downloaded again. See
-[dense names](/docs/advanced/output#dense-names) for what it saves and why. It cannot be
+[dense names](/docs/building/output#dense-names) for what it saves and why. It cannot be
 combined with a [class map](/docs/frameworks/server-templates), whose server-side
 helpers read hashed names, and the build says so.
 
@@ -7242,7 +7242,7 @@ will find the relations without anchors, the components that swallow `sx`, and t
 ambiguous pairs. Fix those and the port is done.
 ---
 # Verifying a migration
-Source: https://kirana.style/docs/advanced/conformance
+Source: https://kirana.style/docs/migration/conformance
 # Verifying a migration
 
 When you rewrite an application's styling, the question is not "does it look
@@ -7290,7 +7290,7 @@ The harness runs in a separate repository beside the StyleX port and the
 Tailwind original, which this one does not carry.
 ---
 # Habits for a new project
-Source: https://kirana.style/docs/start/tips
+Source: https://kirana.style/docs/building/tips
 # Habits for a new project
 
 Fifteen habits from building every shadcn/ui component on Kirana and migrating
@@ -7467,7 +7467,7 @@ diagnostics: {
 ```
 
 When a library never sets both, name the pair in
-[`conditions.exclusive`](/docs/config/reference) instead.
+[`conditions.exclusive`](/docs/reference/config) instead.
 
 **Checked by** `ambiguous-precedence`.
 
@@ -7570,10 +7570,10 @@ $ kirana-style trace src/card.tsx:12 minHeight
 To verify a port or a refactor, compare **computed styles**, not screenshots, in
 both colour schemes and at several widths. A 1 px border, an easing curve and a
 missing hover state were all invisible in screenshots and obvious in a diff. See
-[conformance](/docs/advanced/conformance).
+[conformance](/docs/migration/conformance).
 ---
 # Building a design system
-Source: https://kirana.style/docs/advanced/design-system
+Source: https://kirana.style/docs/building/design-system
 # Building a design system
 
 Kirana is a compiler, not a design system. This repository builds one on top of
@@ -7626,7 +7626,7 @@ logical/physical box is flagged. Those are precisely the mistakes that make a
 system slowly stop being one.
 ---
 # Publishing a library
-Source: https://kirana.style/docs/advanced/libraries
+Source: https://kirana.style/docs/building/libraries
 # Publishing a library
 
 A Kirana library publishes its styles **uncompiled**, and each app that uses it
@@ -7691,7 +7691,7 @@ reasoning, with the measurements, is in the design note
 The one cost: an app that does not use Kirana cannot use a Kirana library.
 ---
 # The output
-Source: https://kirana.style/docs/advanced/output
+Source: https://kirana.style/docs/building/output
 # The output
 
 ## One declaration per rule
@@ -7735,7 +7735,7 @@ a competing declaration is not taken.
 <!-- ::figure-class-name -->
 
 A name is `{prefix}{property code}[-{target}][-{conditions}]_{value}`. The prefix is
-[configurable](/docs/config/reference) and defaults to `k`; the property code is
+[configurable](/docs/reference/config) and defaults to `k`; the property code is
 an index into the property table; then come optional 3- and 4-character hashes for
 a pseudo-element or contextual target and for the condition set; and after the `_`,
 four characters of the value's hash.
@@ -7803,7 +7803,7 @@ The compiler's own writer minifies, so your values reach the browser as you wrot
 them: a colour is never re-serialized into another colour space, and `calc()` is
 never "simplified".
 
-Lightning CSS runs only when your configured [`targets`](/docs/config/reference)
+Lightning CSS runs only when your configured [`targets`](/docs/reference/config)
 are below the default floor, and then only to lower what those browsers need.
 Lowering is reported as `target-lowering` so you know a modern feature was
 rewritten.
@@ -7993,7 +7993,7 @@ Condition values for computed keys. [Conditions](/docs/styling/conditions).
 | `@kirana-style/core/internal`       | the private runtime, not for application code |
 ---
 # Configuration reference
-Source: https://kirana.style/docs/config/reference
+Source: https://kirana.style/docs/reference/config
 # Configuration reference
 
 Every key there is, and what each one changes.
@@ -8070,7 +8070,7 @@ published Kirana library ships its `css()` calls uncompiled; listing it here put
 its styles in your stylesheet, deduplicated with yours and under your prefix,
 targets and layers. Leave a library out and its first `css()` throws with a message
 naming this key. Kirana's own scales preset is compiled without being listed. See
-[publishing a library](/docs/advanced/libraries).
+[publishing a library](/docs/building/libraries).
 
 ## `presets`
 
@@ -9304,7 +9304,7 @@ it cannot drift from what the compiler actually emits.
 - **info**: something worth knowing: a runtime bridge, a lowered target.
 
 Any non-error can be re-levelled, including to `"off"`, in
-[`diagnostics`](/docs/config/reference).
+[`diagnostics`](/docs/reference/config).
 
 ## The ones you will actually meet
 
@@ -9687,81 +9687,7 @@ What is _not_ breaking: new diagnostics, new API, better messages, smaller outpu
 3. Build, and diff the stylesheet. Output is deterministic, so a diff is
    meaningful: it shows exactly which declarations changed.
 4. If the project has a visual baseline, compare computed styles rather than
-   screenshots. [Conformance](/docs/advanced/conformance) explains the method.
----
-# Ecosystem and status
-Source: https://kirana.style/docs/integrations/ecosystem
-# Ecosystem and status
-
-What exists, and where to read about it. Every package below is on npm; anything
-planned is on the [roadmap](/docs/project/roadmap), not here.
-
-## Packages
-
-<!-- ::packages -->
-
-## Bundlers
-
-Each one has an example CI builds and checks in a browser on every change.
-
-| Bundler                        | Package                                                         |
-| ------------------------------ | --------------------------------------------------------------- |
-| Vite 8                         | `@kirana-style/vite`, with hot updates                          |
-| Rolldown                       | `@kirana-style/rolldown`                                        |
-| webpack 5                      | `@kirana-style/webpack`, with dev-server updates                |
-| Rspack, Rsbuild                | `@kirana-style/rspack`, with dev-server updates                 |
-| Parcel                         | `@kirana-style/parcel-transformer` with `@kirana-style/postcss` |
-| Bun                            | `@kirana-style/bun`, builds and dev server                      |
-| esbuild                        | `@kirana-style/esbuild`                                         |
-| PostCSS                        | `@kirana-style/postcss`, for any PostCSS pipeline               |
-| Jest                           | `@kirana-style/jest`                                            |
-| Next.js, Turbopack and webpack | `@kirana-style/next` with `@kirana-style/postcss`               |
-
-See [other bundlers](/docs/integrations/bundlers) for each one's setup.
-
-## Frameworks
-
-Every framework has a guide and a tested example; the
-[frameworks page](/docs/frameworks/overview) picks yours.
-
-| Framework                                  | How styles reach the markup                                     |
-| ------------------------------------------ | --------------------------------------------------------------- |
-| React 19, TanStack Start                   | `sx` compiles to `className`; this site is a TanStack Start app |
-| Preact, Solid, Qwik 2                      | `sx` compiles to `class`                                        |
-| Vue, Nuxt, Svelte, SvelteKit, Astro        | `sx` in their templates                                         |
-| Angular (CLI and Analog)                   | `[sx]` in templates, merged at runtime                          |
-| React Router, Gatsby, Ember, Meteor        | as their component layer does                                   |
-| No framework                               | handles are class strings                                       |
-| Laravel, Symfony, Rails, Phoenix, AdonisJS | templates read a [class map](/docs/frameworks/server-templates) |
-
-## Tooling
-
-| Tool                                                                                    | Where                                                                |
-| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `kirana-style build`, `check`, `analyze`, `export`, `trace`                             | [the CLI](/docs/tooling/cli)                                         |
-| `kirana-style init`, `doctor`, `doctor --report`, `dev`                                 | [the CLI](/docs/tooling/cli)                                         |
-| `kirana-style migrate stylex`                                                           | [migration from StyleX](/docs/migration/from-stylex)                 |
-| `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod) |
-| Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                               |
-| `@kirana-style/eslint-plugin`, for Oxlint and ESLint                                    | [lint](/docs/tooling/lint)                                           |
-| `@kirana-style/biome-plugin`: the four rules that need no compiler | [lint](/docs/tooling/lint#biome)                                     |
-| Agent skills                                                                            | [agent skills](/docs/project/agent-skills)                           |
-
-## Runtime and distribution
-
-| What runs it                                   | Detail                                                                     |
-| ---------------------------------------------- | -------------------------------------------------------------------------- |
-| Node.js ≥ 22.18, Bun, Deno                     | Any of them runs the compiler and the command line                         |
-| Native engine (Node-API)                       | A prebuilt package per platform on npm, eight in all, install-tested in CI |
-| WASI fallback (WebContainers, no native addon) | `@kirana-style/compiler-wasm32-wasi`, with byte-identical output           |
-
-## Configuration keys in the specification but not the build
-
-- `presets`, to compose preset packages. Import preset modules directly instead.
-
-It fails validation today. (`libraries` works: see
-[publishing a library](/docs/advanced/libraries).) See the [roadmap](/docs/project/roadmap) for when they
-are scheduled.
+   screenshots. [Conformance](/docs/migration/conformance) explains the method.
 ---
 # Benchmarks
 Source: https://kirana.style/docs/project/benchmarks
@@ -10123,6 +10049,80 @@ with the tables above.
 The rules a quoted number has to meet, the fairness checks and the statistics are
 in the lab's
 [METHODOLOGY.md](https://github.com/kirana-style/kirana-lab/blob/main/METHODOLOGY.md).
+---
+# Ecosystem and status
+Source: https://kirana.style/docs/project/ecosystem
+# Ecosystem and status
+
+What exists, and where to read about it. Every package below is on npm; anything
+planned is on the [roadmap](/docs/project/roadmap), not here.
+
+## Packages
+
+<!-- ::packages -->
+
+## Bundlers
+
+Each one has an example CI builds and checks in a browser on every change.
+
+| Bundler                        | Package                                                         |
+| ------------------------------ | --------------------------------------------------------------- |
+| Vite 8                         | `@kirana-style/vite`, with hot updates                          |
+| Rolldown                       | `@kirana-style/rolldown`                                        |
+| webpack 5                      | `@kirana-style/webpack`, with dev-server updates                |
+| Rspack, Rsbuild                | `@kirana-style/rspack`, with dev-server updates                 |
+| Parcel                         | `@kirana-style/parcel-transformer` with `@kirana-style/postcss` |
+| Bun                            | `@kirana-style/bun`, builds and dev server                      |
+| esbuild                        | `@kirana-style/esbuild`                                         |
+| PostCSS                        | `@kirana-style/postcss`, for any PostCSS pipeline               |
+| Jest                           | `@kirana-style/jest`                                            |
+| Next.js, Turbopack and webpack | `@kirana-style/next` with `@kirana-style/postcss`               |
+
+See [other bundlers](/docs/integrations/bundlers) for each one's setup.
+
+## Frameworks
+
+Every framework has a guide and a tested example; the
+[frameworks page](/docs/frameworks/overview) picks yours.
+
+| Framework                                  | How styles reach the markup                                     |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| React 19, TanStack Start                   | `sx` compiles to `className`; this site is a TanStack Start app |
+| Preact, Solid, Qwik 2                      | `sx` compiles to `class`                                        |
+| Vue, Nuxt, Svelte, SvelteKit, Astro        | `sx` in their templates                                         |
+| Angular (CLI and Analog)                   | `[sx]` in templates, merged at runtime                          |
+| React Router, Gatsby, Ember, Meteor        | as their component layer does                                   |
+| No framework                               | handles are class strings                                       |
+| Laravel, Symfony, Rails, Phoenix, AdonisJS | templates read a [class map](/docs/frameworks/server-templates) |
+
+## Tooling
+
+| Tool                                                                                    | Where                                                                |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `kirana-style build`, `check`, `analyze`, `export`, `trace`                             | [the CLI](/docs/tooling/cli)                                         |
+| `kirana-style init`, `doctor`, `doctor --report`, `dev`                                 | [the CLI](/docs/tooling/cli)                                         |
+| `kirana-style migrate stylex`                                                           | [migration from StyleX](/docs/migration/from-stylex)                 |
+| `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod) |
+| Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                               |
+| `@kirana-style/eslint-plugin`, for Oxlint and ESLint                                    | [lint](/docs/tooling/lint)                                           |
+| `@kirana-style/biome-plugin`: the four rules that need no compiler | [lint](/docs/tooling/lint#biome)                                     |
+| Agent skills                                                                            | [agent skills](/docs/project/agent-skills)                           |
+
+## Runtime and distribution
+
+| What runs it                                   | Detail                                                                     |
+| ---------------------------------------------- | -------------------------------------------------------------------------- |
+| Node.js ≥ 22.18, Bun, Deno                     | Any of them runs the compiler and the command line                         |
+| Native engine (Node-API)                       | A prebuilt package per platform on npm, eight in all, install-tested in CI |
+| WASI fallback (WebContainers, no native addon) | `@kirana-style/compiler-wasm32-wasi`, with byte-identical output           |
+
+## Configuration keys in the specification but not the build
+
+- `presets`, to compose preset packages. Import preset modules directly instead.
+
+It fails validation today. (`libraries` works: see
+[publishing a library](/docs/building/libraries).) See the [roadmap](/docs/project/roadmap) for when they
+are scheduled.
 ---
 # Contributing
 Source: https://kirana.style/docs/project/contributing

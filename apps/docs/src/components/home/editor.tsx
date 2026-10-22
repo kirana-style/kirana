@@ -152,13 +152,16 @@ const styles = {
     gap: spacing[4],
     marginBlock: spacing[6],
   }),
-  optionsCompact: css({
+  // The features as chips: in a docs column, and on the home page until the list fits beside the
+  // scene (below `lg`), where seven titled rows would push the editor a screen down.
+  optionsChips: css({
     display: "flex",
     flexWrap: "wrap",
     justifyContent: "center",
     gap: spacing["1.5"],
   }),
-  optionCompact: css({
+  optionChip: css({
+    display: "flex",
     alignItems: "center",
     gap: spacing[2],
     paddingInline: spacing[3],
@@ -166,15 +169,25 @@ const styles = {
     borderRadius: "999px",
   }),
 
-  // The feature list: quiet rows, the chosen one lifted onto a card.
-  options: css({ display: "grid", gap: spacing["1.5"], alignContent: "start" }),
-  option: css({
-    display: "grid",
+  // The feature list beside the scene: quiet rows, the chosen one lifted onto a card; chips until
+  // `lg`. A separate style from the chips, so neither inherits the other's `lg` entries.
+  options: css({
+    display: { base: "flex", [breakpoint.lg]: "grid" },
+    flexWrap: "wrap",
+    justifyContent: { base: "center", [breakpoint.lg]: "normal" },
+    gap: spacing["1.5"],
+    alignContent: "start",
+  }),
+  optionRow: css({
+    display: { base: "flex", [breakpoint.lg]: "grid" },
+    alignItems: { base: "center", [breakpoint.lg]: "normal" },
     gridTemplateColumns: "auto minmax(0, 1fr)",
-    gap: spacing[4],
-    paddingInline: spacing[5],
-    paddingBlock: spacing[4],
-    borderRadius: "1.125rem",
+    gap: { base: spacing[2], [breakpoint.lg]: spacing[4] },
+    paddingInline: { base: spacing[3], [breakpoint.lg]: spacing[5] },
+    paddingBlock: { base: spacing["1.5"], [breakpoint.lg]: spacing[4] },
+    borderRadius: { base: "999px", [breakpoint.lg]: "1.125rem" },
+  }),
+  option: css({
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: { base: "transparent", ":hover": theme.border },
@@ -191,7 +204,10 @@ const styles = {
     boxShadow:
       "0 1px 2px rgb(0 0 0 / 0.04), 0 12px 28px -18px rgb(0 0 0 / 0.25)",
   }),
-  optionIcon: css({ marginBlockStart: "2px", color: theme.mutedForeground }),
+  optionIcon: css({
+    marginBlockStart: { base: "0", [breakpoint.lg]: "2px" },
+    color: theme.mutedForeground,
+  }),
   optionIconOn: css({ color: accent.base }),
   optionText: css({ display: "grid", gap: spacing[1] }),
   optionLabel: css({
@@ -201,6 +217,7 @@ const styles = {
     textTransform: "uppercase",
   }),
   optionTitle: css({
+    display: { base: "none", [breakpoint.lg]: "block" },
     fontSize: fontSize.base,
     lineHeight: lineHeight.base,
     fontWeight: fontWeight.semibold,
@@ -804,7 +821,7 @@ export function EditorShowcase({ compact = false }: { compact?: boolean }) {
   return (
     <div sx={[styles.layout, compact ? styles.layoutCompact : null]}>
       <div
-        sx={[styles.options, compact ? styles.optionsCompact : null]}
+        sx={compact ? styles.optionsChips : styles.options}
         role="group"
         aria-label="Editor features"
       >
@@ -817,7 +834,7 @@ export function EditorShowcase({ compact = false }: { compact?: boolean }) {
               aria-pressed={on}
               sx={[
                 styles.option,
-                compact ? styles.optionCompact : null,
+                compact ? styles.optionChip : styles.optionRow,
                 on ? styles.optionOn : null,
               ]}
               onMouseEnter={() => setFeature(entry.id)}

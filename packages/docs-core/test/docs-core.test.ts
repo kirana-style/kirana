@@ -357,6 +357,10 @@ describe("generate", () => {
     await expect(
       readFile(join(root, "src/generated/pages/start/install.json"), "utf8")
     ).rejects.toThrow()
+    // Its markdown twin goes too, or the old address keeps serving it.
+    await expect(
+      readFile(join(root, "public/docs/start/install.md"), "utf8")
+    ).rejects.toThrow()
   })
 
   it("rejects sx= in prose, unknown sections and missing fields", async () => {

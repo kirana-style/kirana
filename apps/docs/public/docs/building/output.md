@@ -1,5 +1,5 @@
 # The output
-Source: https://kirana.style/docs/advanced/output
+Source: https://kirana.style/docs/building/output
 
 # The output
 
@@ -44,7 +44,7 @@ a competing declaration is not taken.
 <!-- ::figure-class-name -->
 
 A name is `{prefix}{property code}[-{target}][-{conditions}]_{value}`. The prefix is
-[configurable](/docs/config/reference) and defaults to `k`; the property code is
+[configurable](/docs/reference/config) and defaults to `k`; the property code is
 an index into the property table; then come optional 3- and 4-character hashes for
 a pseudo-element or contextual target and for the condition set; and after the `_`,
 four characters of the value's hash.
@@ -112,7 +112,7 @@ The compiler's own writer minifies, so your values reach the browser as you wrot
 them: a colour is never re-serialized into another colour space, and `calc()` is
 never "simplified".
 
-Lightning CSS runs only when your configured [`targets`](/docs/config/reference)
+Lightning CSS runs only when your configured [`targets`](/docs/reference/config)
 are below the default floor, and then only to lower what those browsers need.
 Lowering is reported as `target-lowering` so you know a modern feature was
 rewritten.

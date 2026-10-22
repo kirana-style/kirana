@@ -1,14 +1,22 @@
-import { createFileRoute, notFound } from "@tanstack/react-router"
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router"
 import { Markdown } from "@tanstack/markdown/react"
 
 import { DocsPage } from "@workspace/docs-ui/docs-page.tsx"
 
 import { markdownComponents } from "@/components/markdown"
-import { findPage, loadDocument, neighbours, pageHref } from "@/lib/pages"
+import {
+  MOVED,
+  findPage,
+  loadDocument,
+  neighbours,
+  pageHref,
+} from "@/lib/pages"
 
 export const Route = createFileRoute("/docs/$")({
   loader: async ({ params }) => {
     const href = pageHref(params._splat)
+    const moved = MOVED[href]
+    if (moved) throw redirect({ href: moved, statusCode: 301 })
     const meta = findPage(href)
     if (!meta) throw notFound()
     return { meta, document: await loadDocument(href) }

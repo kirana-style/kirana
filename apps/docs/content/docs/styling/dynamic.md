@@ -44,7 +44,7 @@ where runtime values enter your styles.
 
 A finite dynamic value with too many branches would multiply classes, so there is
 a budget: 16 branches by default, configurable as
-[`dynamic.branchBudget`](/docs/config/reference). Past it, the compiler stops and
+[`dynamic.branchBudget`](/docs/reference/config). Past it, the compiler stops and
 reports `branch-budget-exceeded` rather than emitting a combinatorial explosion.
 Usually that is a sign the value should be a bridge, or a
 [recipe](/docs/styling/recipes).

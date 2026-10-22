@@ -3418,8 +3418,8 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/advanced/conformance",
-    "file": "content/docs/advanced/conformance.md",
+    "href": "/docs/migration/conformance",
+    "file": "content/docs/migration/conformance.md",
     "title": "Verifying a migration",
     "description": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.",
     "section": "migration",
@@ -3450,8 +3450,8 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/start/tips",
-    "file": "content/docs/start/tips.md",
+    "href": "/docs/building/tips",
+    "file": "content/docs/building/tips.md",
     "title": "Habits for a new project",
     "description": "The habits that would have saved us the most time on day one, learnt building and migrating three applications on Kirana.",
     "section": "building",
@@ -3568,8 +3568,8 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/advanced/design-system",
-    "file": "content/docs/advanced/design-system.md",
+    "href": "/docs/building/design-system",
+    "file": "content/docs/building/design-system.md",
     "title": "Building a design system",
     "description": "How the layered system in this repository is put together, and why each layer exists.",
     "section": "building",
@@ -3602,8 +3602,8 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/advanced/libraries",
-    "file": "content/docs/advanced/libraries.md",
+    "href": "/docs/building/libraries",
+    "file": "content/docs/building/libraries.md",
     "title": "Publishing a library",
     "description": "Ship a component library styled with Kirana: the package keeps its styles uncompiled, and each app that lists it in libraries compiles them.",
     "section": "building",
@@ -3636,8 +3636,8 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/advanced/output",
-    "file": "content/docs/advanced/output.md",
+    "href": "/docs/building/output",
+    "file": "content/docs/building/output.md",
     "title": "The output",
     "description": "What the stylesheet looks like, how classes are named, and what determinism buys you.",
     "section": "building",
@@ -3806,8 +3806,8 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/config/reference",
-    "file": "content/docs/config/reference.md",
+    "href": "/docs/reference/config",
+    "file": "content/docs/reference/config.md",
     "title": "Configuration reference",
     "description": "Every key that exists today, with its type, default and what it changes.",
     "section": "reference",
@@ -4468,55 +4468,6 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
-    "href": "/docs/integrations/ecosystem",
-    "file": "content/docs/integrations/ecosystem.md",
-    "title": "Ecosystem and status",
-    "description": "What works today, what is planned, and which milestone each thing belongs to.",
-    "section": "project",
-    "order": 4,
-    "keywords": [
-      "ecosystem",
-      "status",
-      "support",
-      "bundlers",
-      "frameworks",
-      "editors",
-      "roadmap"
-    ],
-    "headings": [
-      {
-        "id": "packages",
-        "text": "Packages",
-        "level": 2
-      },
-      {
-        "id": "bundlers",
-        "text": "Bundlers",
-        "level": 2
-      },
-      {
-        "id": "frameworks",
-        "text": "Frameworks",
-        "level": 2
-      },
-      {
-        "id": "tooling",
-        "text": "Tooling",
-        "level": 2
-      },
-      {
-        "id": "runtime-and-distribution",
-        "text": "Runtime and distribution",
-        "level": 2
-      },
-      {
-        "id": "configuration-keys-in-the-specification-but-not-the-build",
-        "text": "Configuration keys in the specification but not the build",
-        "level": 2
-      }
-    ]
-  },
-  {
     "href": "/docs/project/benchmarks",
     "file": "content/docs/project/benchmarks.md",
     "title": "Benchmarks",
@@ -4604,6 +4555,55 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "what-it-does-not-say",
         "text": "What it does not say",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/project/ecosystem",
+    "file": "content/docs/project/ecosystem.md",
+    "title": "Ecosystem and status",
+    "description": "What works today, what is planned, and which milestone each thing belongs to.",
+    "section": "project",
+    "order": 4,
+    "keywords": [
+      "ecosystem",
+      "status",
+      "support",
+      "bundlers",
+      "frameworks",
+      "editors",
+      "roadmap"
+    ],
+    "headings": [
+      {
+        "id": "packages",
+        "text": "Packages",
+        "level": 2
+      },
+      {
+        "id": "bundlers",
+        "text": "Bundlers",
+        "level": 2
+      },
+      {
+        "id": "frameworks",
+        "text": "Frameworks",
+        "level": 2
+      },
+      {
+        "id": "tooling",
+        "text": "Tooling",
+        "level": 2
+      },
+      {
+        "id": "runtime-and-distribution",
+        "text": "Runtime and distribution",
+        "level": 2
+      },
+      {
+        "id": "configuration-keys-in-the-specification-but-not-the-build",
+        "text": "Configuration keys in the specification but not the build",
         "level": 2
       }
     ]
@@ -5816,7 +5816,7 @@ export const NAV: readonly NavGroup[] = [
       },
       {
         "title": "Verifying a migration",
-        "href": "/docs/advanced/conformance",
+        "href": "/docs/migration/conformance",
         "description": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.",
         "keywords": [
           "conformance",
@@ -5834,7 +5834,7 @@ export const NAV: readonly NavGroup[] = [
     "items": [
       {
         "title": "Habits for a new project",
-        "href": "/docs/start/tips",
+        "href": "/docs/building/tips",
         "description": "The habits that would have saved us the most time on day one, learnt building and migrating three applications on Kirana.",
         "keywords": [
           "tips",
@@ -5847,7 +5847,7 @@ export const NAV: readonly NavGroup[] = [
       },
       {
         "title": "Building a design system",
-        "href": "/docs/advanced/design-system",
+        "href": "/docs/building/design-system",
         "description": "How the layered system in this repository is put together, and why each layer exists.",
         "keywords": [
           "design system",
@@ -5861,7 +5861,7 @@ export const NAV: readonly NavGroup[] = [
       },
       {
         "title": "Publishing a library",
-        "href": "/docs/advanced/libraries",
+        "href": "/docs/building/libraries",
         "description": "Ship a component library styled with Kirana: the package keeps its styles uncompiled, and each app that lists it in libraries compiles them.",
         "keywords": [
           "library",
@@ -5875,7 +5875,7 @@ export const NAV: readonly NavGroup[] = [
       },
       {
         "title": "The output",
-        "href": "/docs/advanced/output",
+        "href": "/docs/building/output",
         "description": "What the stylesheet looks like, how classes are named, and what determinism buys you.",
         "keywords": [
           "output",
@@ -5921,7 +5921,7 @@ export const NAV: readonly NavGroup[] = [
       },
       {
         "title": "Configuration reference",
-        "href": "/docs/config/reference",
+        "href": "/docs/reference/config",
         "description": "Every key that exists today, with its type, default and what it changes.",
         "keywords": [
           "configuration reference",
@@ -6074,20 +6074,6 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
-        "title": "Ecosystem and status",
-        "href": "/docs/integrations/ecosystem",
-        "description": "What works today, what is planned, and which milestone each thing belongs to.",
-        "keywords": [
-          "ecosystem",
-          "status",
-          "support",
-          "bundlers",
-          "frameworks",
-          "editors",
-          "roadmap"
-        ]
-      },
-      {
         "title": "Benchmarks",
         "href": "/docs/project/benchmarks",
         "description": "Kirana measured against StyleX, compiled by Babel and by SWC, and Tailwind on the same applications, on every release, with every number's confidence interval.",
@@ -6102,6 +6088,20 @@ export const NAV: readonly NavGroup[] = [
           "tailwind",
           "confidence interval",
           "kirana-lab"
+        ]
+      },
+      {
+        "title": "Ecosystem and status",
+        "href": "/docs/project/ecosystem",
+        "description": "What works today, what is planned, and which milestone each thing belongs to.",
+        "keywords": [
+          "ecosystem",
+          "status",
+          "support",
+          "bundlers",
+          "frameworks",
+          "editors",
+          "roadmap"
         ]
       },
       {
@@ -6225,13 +6225,13 @@ export const ORDER: readonly string[] = [
   "/docs/integrations/storybook",
   "/docs/migration/from-tailwind",
   "/docs/migration/from-stylex",
-  "/docs/advanced/conformance",
-  "/docs/start/tips",
-  "/docs/advanced/design-system",
-  "/docs/advanced/libraries",
-  "/docs/advanced/output",
+  "/docs/migration/conformance",
+  "/docs/building/tips",
+  "/docs/building/design-system",
+  "/docs/building/libraries",
+  "/docs/building/output",
   "/docs/reference/api",
-  "/docs/config/reference",
+  "/docs/reference/config",
   "/docs/tooling/cli",
   "/docs/tooling/editor",
   "/docs/tooling/lint",
@@ -6240,8 +6240,8 @@ export const ORDER: readonly string[] = [
   "/docs/project/status",
   "/docs/project/roadmap",
   "/docs/project/releases",
-  "/docs/integrations/ecosystem",
   "/docs/project/benchmarks",
+  "/docs/project/ecosystem",
   "/docs/project/contributing",
   "/docs/project/llms",
   "/docs/project/agent-skills"

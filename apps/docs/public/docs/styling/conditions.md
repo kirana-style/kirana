@@ -136,7 +136,7 @@ css({
 - Two values that could both apply, with nothing to separate them, get
   `ambiguous-precedence`. Fix it by nesting, or by declaring that the two
   conditions never hold together; see
-  [`conditions.exclusive`](/docs/config/reference).
+  [`conditions.exclusive`](/docs/reference/config).
 
 Next: [precedence](/docs/styling/precedence), the ladder that decides which
 condition wins.

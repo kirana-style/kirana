@@ -147,7 +147,7 @@ through a custom property, as in [dynamic styles](/docs/styling/dynamic).
 
 ### Another class-name prefix
 
-If `kirana.config` sets [`names.prefix`](/docs/config/reference), tell the
+If `kirana.config` sets [`names.prefix`](/docs/reference/config), tell the
 directive:
 
 ```ts file="src/main.ts"

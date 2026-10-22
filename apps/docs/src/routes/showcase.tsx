@@ -175,7 +175,7 @@ const ENTRIES: Entry[] = [
       "Light, dark and system modes",
       "The reference for the conformance runs",
     ],
-    href: "/docs/advanced/conformance",
+    href: "/docs/migration/conformance",
     hrefLabel: "How it is verified",
   },
   {

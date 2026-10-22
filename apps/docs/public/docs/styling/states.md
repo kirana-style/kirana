@@ -111,7 +111,7 @@ exclude each other. So a property set under both is reported as
 `ambiguous-precedence`, a warning that the order between them is left to chance.
 
 Each vocabulary exports the groups its library sets one at a time. Give them to
-[`conditions.exclusive`](/docs/config/reference) in your configuration, and the
+[`conditions.exclusive`](/docs/reference/config) in your configuration, and the
 compiler knows:
 
 ```ts file="kirana.config.ts"

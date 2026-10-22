@@ -185,4 +185,4 @@ export default defineConfig({
 
 Later presets and your own `utilities` replace earlier ones scale by scale, root
 by root and variant by variant. The full shape is in the
-[configuration reference](/docs/config/reference#utilities).
+[configuration reference](/docs/reference/config#utilities).

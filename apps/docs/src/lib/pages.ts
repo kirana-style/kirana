@@ -14,3 +14,10 @@ export const { findPage, pageHref, loadDocument, neighbours } = createPages({
   ),
   prefix: "../generated/pages/",
 })
+
+/**
+ * Old docs addresses and where each page lives now, answered with a permanent redirect. Empty while
+ * the site has no public domain: nothing outside the repository links to an old address yet. Once
+ * kirana.style serves the docs, a page that moves adds its old address here.
+ */
+export const MOVED: Readonly<Record<string, string>> = {}
