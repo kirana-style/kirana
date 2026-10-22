@@ -278,12 +278,18 @@ tarball set); npm, pnpm and Bun skip the ones that do not match.
 (D-088). `@kirana-style/states` ships one vocabulary per library, generated from the library's published
 declarations and checked against its exports:
 
-| Subpath     | Library                    | Source                                                       |
-| ----------- | -------------------------- | ------------------------------------------------------------ |
-| `./base-ui` | Base UI (`@base-ui/react`) | each part's `*DataAttributes` module, named by `index.parts` |
+| Subpath        | Library                                 | Source                                                                                              |
+| -------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `./base-ui`    | Base UI (`@base-ui/react`)              | each part's `*DataAttributes` module, named by `index.parts`                                        |
+| `./ark-ui`     | Ark UI, on React, Vue, Solid and Svelte | `@zag-js/docs` at the Zag version Ark UI depends on, kept to what `@ark-ui/react` exports           |
+| `./react-aria` | React Aria Components                   | each `<Name>RenderProps` interface's `@selector`, inheritance resolved, kept to exported components |
 
 A vocabulary is plain data (an `as const` object of attribute selectors), so a library without one, or a
 project's own components, needs a module of a few lines and nothing from the compiler.
+
+Each vocabulary also exports `exclusive`, the states its library sets one at a time on a part (a state
+and its documented opposite, both presences), for `conditions.exclusive` in `kirana.config`: the
+project opts in, and the compiler needs nothing new.
 
 ## Monorepos and published libraries
 

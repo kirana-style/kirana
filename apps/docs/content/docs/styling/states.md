@@ -1,6 +1,6 @@
 ---
 title: Component states
-description: Style a headless component's states (checked, open, the side a popup opened on) with typed condition keys, from Base UI or any library that marks state with data attributes.
+description: Style a headless component's states (checked, open, the side a popup opened on) with typed condition keys, from Base UI, Ark UI, React Aria or any library that marks state with data attributes.
 section: composition
 order: 1.5
 keywords:
@@ -8,6 +8,9 @@ keywords:
     states,
     data attributes,
     base ui,
+    ark ui,
+    react aria,
+    zag,
     headless,
     checked,
     open,
@@ -82,11 +85,26 @@ export function Switch() {
 }
 ```
 
-## What a vocabulary holds
+## The vocabularies
 
-`@kirana-style/states/base-ui` is generated from the declarations Base UI
-publishes for each part, so it follows the version it was generated from, and the
-names are Base UI's own: `Select.Popup`, `AlertDialog.Popup`, `Toggle`.
+Each one is generated from what its library publishes about its parts, so the
+names are the library's own and a state the library does not document is not
+there. CI regenerates them and checks every name against the library's exports.
+
+| Import                            | Library                                 | Generated from                                                   |
+| --------------------------------- | --------------------------------------- | ---------------------------------------------------------------- |
+| `@kirana-style/states/base-ui`    | Base UI                                 | each part's `*DataAttributes` declarations                       |
+| `@kirana-style/states/ark-ui`     | Ark UI, on React, Vue, Solid and Svelte | `@zag-js/docs`, the reference of the Zag machines Ark UI runs on |
+| `@kirana-style/states/react-aria` | React Aria Components                   | each component's render props, by their `@selector`              |
+
+They differ where the libraries do:
+
+- **Base UI and Ark UI** have parts: `Select.Popup.side.bottom`,
+  `Switch.Thumb.state.checked`. Ark UI marks most states with one attribute's
+  values (`data-state="checked"`), so `state` holds one key per value.
+- **React Aria** names a component per part, with no namespace:
+  `Button.focusVisible`, `ListBoxItem.selected`. A state a component inherits
+  from another's render props is there too.
 
 | State                     | Example                       | Selector                     |
 | ------------------------- | ----------------------------- | ---------------------------- |
@@ -95,14 +113,49 @@ names are Base UI's own: `Select.Popup`, `AlertDialog.Popup`, `Toggle`.
 | Free text or a number     | `Accordion.Item.index`        | `[data-index]`, its presence |
 | A component without parts | `Toggle.pressed`              | `[data-pressed]`             |
 
-Values are in camel case (`inlineEnd` for `inline-end`).
+How states are named:
+
+- **Values are in camel case:** `inlineEnd` for `inline-end`.
+- **React Aria's states are named for its render props, without `is`:**
+  `isFocusVisible` is `focusVisible`.
+
+## States that never hold together
+
+A part is checked or unchecked, open or closed, never both. Two values of one
+attribute say so on their own, but Base UI marks those with two attributes
+(`data-checked`, `data-unchecked`), and nothing in the selectors proves they
+exclude each other. So a property set under both is reported as
+`ambiguous-precedence`, a warning that the order between them is left to chance.
+
+Each vocabulary exports the groups its library sets one at a time. Give them to
+[`conditions.exclusive`](/docs/config/reference) in your configuration, and the
+compiler knows:
+
+```ts file="kirana.config.ts"
+import { defineConfig } from "@kirana-style/core/config"
+import { exclusive } from "@kirana-style/states/base-ui"
+
+export default defineConfig({ conditions: { exclusive } })
+```
+
+The groups are what the library documents: a state and its opposite, both on one
+part.
+
+| A state         | and its opposite |
+| --------------- | ---------------- |
+| `checked`       | `unchecked`      |
+| `open`          | `closed`         |
+| `startingStyle` | `endingStyle`    |
+| `valid`         | `invalid`        |
+
+Ark UI and React Aria mark those with one attribute's values or not at all, so
+their lists are empty.
 
 ## Other libraries, and your own components
 
 A vocabulary is a plain object of selectors, so writing one takes a few lines. Any
 library that marks state with data attributes works: Radix and its ports
-(`data-state="open"`), Ark UI, Reka UI, Bits UI, or the components you write
-yourself. Put it in a module of your project:
+(`data-state="open"`), Reka UI, Bits UI, or the components you write yourself. Put it in a module of your project:
 
 ```ts file="src/states.ts"
 export const Dialog = {

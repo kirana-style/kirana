@@ -3,34 +3,8 @@ import { css } from "@kirana-style/core"
 import { describe, expect, it } from "vite-plus/test"
 
 import * as states from "../src/base-ui.ts"
-import { Select, Switch } from "../src/base-ui.ts"
-
-const SELECTOR = /^\[data-[a-z]+(?:-[a-z]+)*(?:="[^"]+")?\]$/
-
-/** Every `[component, part | undefined, state, selector]` in the vocabulary. */
-function entries() {
-  const out: [string, string | undefined, string, string][] = []
-  const walk = (
-    component: string,
-    part: string | undefined,
-    value: object,
-    path: string[]
-  ) => {
-    for (const [key, inner] of Object.entries(value))
-      if (typeof inner === "string")
-        out.push([component, part, [...path, key].join("."), inner])
-      else walk(component, part, inner, [...path, key])
-  }
-  for (const [component, value] of Object.entries(states)) {
-    const isPart = (key: string) => /^[A-Z]/.test(key)
-    for (const [key, inner] of Object.entries(value))
-      if (isPart(key)) walk(component, key, inner, [])
-      else if (typeof inner === "string")
-        out.push([component, undefined, key, inner])
-      else walk(component, undefined, inner, [key])
-  }
-  return out
-}
+import { exclusive, Select, Switch } from "../src/base-ui.ts"
+import { entries, SELECTOR } from "./entries.ts"
 
 // This suite runs under the Kirana Vite plugin, so the vocabulary is compiled exactly as an
 // application would compile it.
@@ -40,7 +14,7 @@ describe("@kirana-style/states/base-ui", () => {
       string,
       Record<string, unknown>
     >
-    for (const [component, part] of entries()) {
+    for (const [component, part] of entries(states)) {
       expect(exported[component], component).toBeDefined()
       if (part)
         expect(exported[component]![part], `${component}.${part}`).toBeDefined()
@@ -48,12 +22,22 @@ describe("@kirana-style/states/base-ui", () => {
   })
 
   it("holds attribute selectors only, one per state or value", () => {
-    const all = entries()
+    const all = entries(states)
     expect(all.length).toBeGreaterThan(500)
     for (const [component, part, state, selector] of all)
       expect(selector, `${component}.${part}.${state}`).toMatch(SELECTOR)
     expect(Switch.Root.checked).toBe("[data-checked]")
     expect(Select.Popup.side.inlineEnd).toBe('[data-side="inline-end"]')
+  })
+
+  it("lists the states Base UI sets one at a time, each one of its selectors", () => {
+    const selectors = new Set(
+      entries(states).map(([, , , selector]) => selector)
+    )
+    expect(exclusive).toContainEqual(["[data-checked]", "[data-unchecked]"])
+    expect(exclusive).toContainEqual(["[data-open]", "[data-closed]"])
+    for (const group of exclusive)
+      for (const selector of group) expect(selectors).toContain(selector)
   })
 
   it("compiles as condition keys", () => {

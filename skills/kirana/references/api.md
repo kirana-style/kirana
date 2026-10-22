@@ -40,7 +40,10 @@ pseudo-classes (`":hover"`), attribute selectors (`'[data-state="open"]'`), at-r
 relation reads). A headless part's states come typed from `@kirana-style/states`:
 `[Switch.Root.checked]` is `"[data-checked]"`, `[Select.Popup.side.bottom]` is
 `'[data-side="bottom"]'` (`import { Select, Switch } from "@kirana-style/states/base-ui"`); prefer
-them to hand-typed attributes for Base UI parts. Nesting two conditions means both must match, and
+them to hand-typed attributes for Base UI parts, and likewise `@kirana-style/states/ark-ui`
+(`Switch.Root.state.checked`) and `/react-aria` (`Button.focusVisible`). Each exports `exclusive`
+for `conditions: { exclusive }` in `kirana.config`, so `checked` and `unchecked` on one property are
+not `ambiguous-precedence`. Nesting two conditions means both must match, and
 the nested one wins.
 `"*": null` drops every earlier entry of a property; `base: null` drops the base entry only.
 
@@ -138,10 +141,12 @@ viewTransition({ group?, imagePair?, old?, new? }): ViewTransition
 `ConditionalValue<V>`, `Condition`, `Token`, `Keyframes`, `PositionTry`, `Fallbacks<V>`,
 `ViewTransition`.
 
-| Import                              | Gives                                          |
-| ----------------------------------- | ---------------------------------------------- |
-| `@kirana-style/core`                | the API above                                  |
-| `@kirana-style/core/config`         | `defineConfig` for `kirana.config.ts`          |
-| `@kirana-style/core/react`          | the `sx` prop's types                          |
-| `@kirana-style/core/stylesheet.css` | the stylesheet entry, imported once by the app |
-| `@kirana-style/states/base-ui`      | Base UI parts' states as condition keys        |
+| Import                              | Gives                                           |
+| ----------------------------------- | ----------------------------------------------- |
+| `@kirana-style/core`                | the API above                                   |
+| `@kirana-style/core/config`         | `defineConfig` for `kirana.config.ts`           |
+| `@kirana-style/core/react`          | the `sx` prop's types                           |
+| `@kirana-style/core/stylesheet.css` | the stylesheet entry, imported once by the app  |
+| `@kirana-style/states/base-ui`      | Base UI parts' states as condition keys         |
+| `@kirana-style/states/ark-ui`       | Ark UI (Zag) parts' states as condition keys    |
+| `@kirana-style/states/react-aria`   | React Aria components' states as condition keys |

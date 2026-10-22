@@ -1,6 +1,9 @@
 // Component states from the generated Base UI vocabulary, used as condition keys.
 import { css } from "@kirana-style/core"
-import { Menu, Select, Switch } from "@kirana-style/states/base-ui"
+import { defineConfig } from "@kirana-style/core/config"
+import { Switch as ArkSwitch } from "@kirana-style/states/ark-ui"
+import { exclusive, Menu, Select, Switch } from "@kirana-style/states/base-ui"
+import { Button as AriaButton } from "@kirana-style/states/react-aria"
 
 export const track = css({
   backgroundColor: {
@@ -17,3 +20,7 @@ export const popup = css({
 
 // @ts-expect-error -- a misspelt state is not in the vocabulary.
 export const typo = Switch.Root.chekced
+
+// The configuration line the guide shows: a vocabulary's exclusive groups are what the key takes.
+export const config = defineConfig({ conditions: { exclusive } })
+export const others = [AriaButton.focusVisible, ArkSwitch.Root.state.checked]

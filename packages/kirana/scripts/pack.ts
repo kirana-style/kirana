@@ -263,6 +263,10 @@ async function packOne(name: string): Promise<string> {
     ...files(path.join(source, "schemas")).map((file) =>
       path.join("schemas", file)
     ),
+    // Licences of material a package redistributes (React Aria's descriptions in the states).
+    ...files(path.join(source, "licenses")).map((file) =>
+      path.join("licenses", file)
+    ),
     // Biome plugins: GritQL rules and the presets that list them.
     ...files(path.join(source, "rules")).map((file) =>
       path.join("rules", file)
@@ -310,6 +314,7 @@ async function packOne(name: string): Promise<string> {
       ...SHARED,
       "builders.json",
       "schemas",
+      "licenses",
       "gatsby-node.mjs",
       "rules",
       "recommended.json",
