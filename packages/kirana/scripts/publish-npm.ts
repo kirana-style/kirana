@@ -21,10 +21,21 @@
  * A version already on the registry is skipped, so a release that failed halfway can run again. One
  * left on another tag by an older, staged release has its tag moved, and the command is printed when
  * npm refuses.
+ *
+ * A registry that fails for its own reasons (a 5xx, a rate limit, a dropped connection) is asked
+ * again, after each of `RETRY_DELAYS` (`registry-retry.ts`): 0.3.1 stopped on one E503. A failed
+ * publish is first checked against the registry, since a PUT can be stored and still answered with
+ * an error, and publishing it again would then fail with E403.
  */
 import { spawnSync } from "node:child_process"
 import { readdirSync } from "node:fs"
 import path from "node:path"
+
+import {
+  RETRY_DELAYS,
+  transientNpmError,
+  transientStatus,
+} from "./registry-retry.ts"
 
 const [directory, ...flags] = process.argv.slice(2)
 if (!directory) {
@@ -95,11 +106,32 @@ for (const tarball of [...tarballs].sort((a, b) =>
 
 const url = (name: string) => `${REGISTRY}/${encodeURIComponent(name)}`
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/** A registry request, asked again while the registry fails for its own reasons. */
+async function registryFetch(target: string): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    const delay = RETRY_DELAYS[attempt]
+    let failure: string
+    try {
+      const response = await fetch(target, {
+        signal: AbortSignal.timeout(15_000),
+      })
+      if (!transientStatus(response.status) || delay === undefined)
+        return response
+      failure = `HTTP ${response.status}`
+    } catch (error) {
+      if (delay === undefined) throw error
+      failure = (error as Error).message
+    }
+    console.log(`retry    ${target} (${failure}) in ${delay} s`)
+    await sleep(delay * 1000)
+  }
+}
+
 /** Whether the registry holds a version. This endpoint is not cached at the edge. */
 async function published_({ name, version }: Tarball): Promise<boolean> {
-  const response = await fetch(`${url(name)}/${version}`, {
-    signal: AbortSignal.timeout(15_000),
-  })
+  const response = await registryFetch(`${url(name)}/${version}`)
   if (response.status === 404) return false
   if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`)
   return true
@@ -120,8 +152,6 @@ async function versions(name: string): Promise<Set<string>> {
   const json = (await response.json()) as { versions: Record<string, unknown> }
   return new Set(Object.keys(json.versions))
 }
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** The tag a version ends on. */
 const finalTag = (version: string) =>
@@ -162,11 +192,8 @@ for (const tarball of order)
 
 /** The dist-tags of a package, from the registry (not cached at the edge). */
 async function tags(name: string): Promise<Record<string, string>> {
-  const response = await fetch(
-    `${REGISTRY}/-/package/${encodeURIComponent(name)}/dist-tags`,
-    {
-      signal: AbortSignal.timeout(15_000),
-    }
+  const response = await registryFetch(
+    `${REGISTRY}/-/package/${encodeURIComponent(name)}/dist-tags`
   )
   if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`)
   return (await response.json()) as Record<string, string>
@@ -214,6 +241,35 @@ async function settle(published: readonly Tarball[], lastPublish: number) {
   }
 }
 
+/** `npm publish`, asked again while the registry fails for its own reasons. */
+async function publish(tarball: Tarball, spec: string, tag: string) {
+  for (let attempt = 0; ; attempt++) {
+    // stderr is read to tell a failing registry from a refused package; the rest streams as usual.
+    const result = spawnSync(
+      "npm",
+      ["publish", tarball.file, "--access", "public", "--tag", tag],
+      { stdio: ["inherit", "inherit", "pipe"], encoding: "utf8" }
+    )
+    process.stderr.write(result.stderr ?? "")
+    if (result.status === 0) return
+    if (await published_(tarball)) {
+      console.log(
+        `landed   ${spec}: npm reported a failure, the registry holds it`
+      )
+      return
+    }
+    const delay = RETRY_DELAYS[attempt]
+    if (delay === undefined || !transientNpmError(result.stderr ?? "")) {
+      console.error(`failed   ${spec}`)
+      process.exit(1)
+    }
+    console.log(
+      `retry    ${spec} in ${delay} s (attempt ${attempt + 2} of ${RETRY_DELAYS.length + 1})`
+    )
+    await sleep(delay * 1000)
+  }
+}
+
 const unmoved: string[] = []
 let previous: { published: Tarball[]; lastPublish: number } | undefined
 for (const [index, members] of levels.entries()) {
@@ -251,15 +307,7 @@ for (const [index, members] of levels.entries()) {
       console.log(`publish  ${spec} --tag ${tag} (level ${index})`)
       continue
     }
-    const result = spawnSync(
-      "npm",
-      ["publish", tarball.file, "--access", "public", "--tag", tag],
-      { stdio: "inherit" }
-    )
-    if (result.status !== 0) {
-      console.error(`failed   ${spec}`)
-      process.exit(1)
-    }
+    await publish(tarball, spec, tag)
     lastPublish = Date.now()
     published.push(tarball)
     console.log(`done     ${spec} (${tag})`)
