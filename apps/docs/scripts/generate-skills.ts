@@ -55,6 +55,8 @@ const FIXES: Record<string, string> = {
     "A property `@position-try` ignores. The block takes inset, margin, size, self-alignment, `positionAnchor` and `positionArea` only.",
   "invalid-view-transition":
     "A `viewTransition()` key other than `group`, `imagePair`, `old`, `new`, or a condition other than `media()`/`supports()` on a part.",
+  "invalid-counter-style":
+    "A `counterStyle()` key that is not a descriptor, a value with `var()` (descriptors cannot read custom properties), an empty or runtime value, or a system without what it needs: `symbols`, or `additiveSymbols` for `additive`, and neither for `extends`.",
   "unknown-condition":
     'A key that is neither a property nor a condition, usually a condition at the top level (`":hover": {…}`). Conditions go inside the value: `color: { base: a, ":hover": b }`.',
   "ambiguous-precedence":
@@ -191,6 +193,10 @@ const biomeRecommended = await readFile(
   join(kirana, "npm/biome-plugin/recommended.json"),
   "utf8"
 )
+const biomeStrict = await readFile(
+  join(kirana, "npm/biome-plugin/strict.json"),
+  "utf8"
+)
 const rules = []
 for (const file of (
   await readdir(join(kirana, "npm/eslint-plugin/src/rules"))
@@ -215,7 +221,9 @@ for (const file of (
   const biome = biomeRules.has(name)
     ? biomeRecommended.includes(`${name}.grit`)
       ? "recommended"
-      : "strict"
+      : biomeStrict.includes(`${name}.grit`)
+        ? "strict"
+        : "off"
     : "no"
   rules.push({ name, description, config, fix, biome })
 }

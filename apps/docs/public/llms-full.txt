@@ -50,7 +50,7 @@ install guide, and each is built and checked in a browser on every change:
   `ambiguous-precedence` diagnostic tells you when two values could both apply.
 - **Tokens and themes.** Design tokens compile to constants or custom properties,
   and every colour can be a `light-dark()` pair, so dark mode needs no variant.
-- **Real diagnostics.** 45 checks with codes, severities and help text, from
+- **Real diagnostics.** 46 checks with codes, severities and help text, from
   unknown properties to a component that forgets to pass `sx` on.
 
 ## What it is not
@@ -182,7 +182,7 @@ answers them:
 | Custom-property assignments were emitted unlayered and beat conditions beside them                                                              | Nothing is emitted outside a layer                                                                                                                                                                   |
 | Tokens had to live in `*.stylex.ts` files and be imported by name                                                                               | Tokens are ordinary exports, imported any way TypeScript allows                                                                                                                                      |
 | `sx` passed to a component that ignores it, or spread past a wrapper, was silent                                                                | `sx-on-external-component` and `unused-sx`, including one module away                                                                                                                                |
-| Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [45 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
+| Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [46 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
 | The official compiler is Babel; the Rust one is a community port behind it                                                                      | The engine is Kirana's own, in Rust on [oxc](https://oxc.rs), with a WASI build that writes the same bytes where no native one runs                                                                  |
 | No utility vocabulary: a Tailwind team rebuilt the scales by hand                                                                               | [`@kirana-style/preset-scales`](/docs/tokens/preset-scales) is Tailwind v4's scales, and [utility strings](/docs/styling/utilities) compile to the same atoms as the object form                     |
 | A port from Tailwind was done by hand                                                                                                           | [`kirana-style migrate tailwind`](/docs/migration/from-tailwind), measured below                                                                                                                     |
@@ -1403,6 +1403,171 @@ export default defineConfig({
 Later presets and your own `utilities` replace earlier ones scale by scale, root
 by root and variant by variant. The full shape is in the
 [configuration reference](/docs/config/reference#utilities).
+---
+# At-rules
+Source: https://kirana.style/docs/styling/at-rules
+# At-rules
+
+An at-rule that a style depends on is written by Kirana, under a hashed name and
+only when something uses it. An at-rule that belongs to the whole page stays in
+a stylesheet, where CSS already says it well.
+
+| At-rule                             | With Kirana                                                                        |
+| ----------------------------------- | ---------------------------------------------------------------------------------- |
+| `@media`, `@container`, `@supports` | [Conditions](/docs/styling/conditions): `media()`, `container()`, `supports()`     |
+| `@keyframes`                        | [`keyframes()`](/docs/styling/animation)                                           |
+| `@position-try`                     | [`positionTry()`](/docs/styling/anchor-positioning)                                |
+| `@counter-style`                    | [`counterStyle()`](#counter-styles), below                                         |
+| `@property`                         | A [registered token](/docs/tokens/overview#registered-tokens), `{ value, syntax }` |
+| `@layer`                            | Kirana's own layers, and [yours around them](/docs/config/layers)                  |
+| View-transition parts               | [`viewTransition()`](/docs/styling/view-transitions)                               |
+| `@font-face`, `@page`               | [A stylesheet](#in-a-stylesheet)                                                   |
+| `@custom-media`                     | [A `media()` constant](#a-named-media-query), since browsers do not read it yet    |
+
+## Counter styles
+
+`counterStyle()` defines how a list or a counter writes its numbers: ticks,
+letters, roman numerals, any symbols you choose.
+
+```tsx
+import { counterStyle, css } from "@kirana-style/core"
+
+export const check = counterStyle({
+  system: "cyclic",
+  symbols: '"✓"',
+  suffix: '" "',
+})
+
+export const steps = css({ listStyleType: check })
+export const label = css({
+  "::before": { content: `counter(step, ${check}) ". "` },
+})
+```
+
+The result is the rule's name, `kc…`, for a list's marker or a counter. The rule
+ships once, in `kirana.tokens`, and only if a style uses it:
+
+```css
+@layer kirana.tokens {
+  @counter-style kc4HMO {
+    system: cyclic;
+    symbols: "✓";
+    suffix: " ";
+  }
+}
+```
+
+The keys are the CSS descriptors in camel case:
+
+| Descriptor                   | What it sets                                  |
+| ---------------------------- | --------------------------------------------- |
+| `system`                     | How the symbols count: `cyclic`, `additive` … |
+| `symbols`, `additiveSymbols` | The symbols, each a quoted string             |
+| `prefix`, `suffix`           | What comes before and after the marker        |
+| `negative`, `range`, `pad`   | Negative numbers, the range drawn, padding    |
+| `fallback`, `speakAs`        | Another style outside the range; speech       |
+
+Each value is CSS text, so a symbol keeps its quotes. One counter style can build
+on another, and the other ships with it:
+
+```tsx
+export const bracketed = counterStyle({
+  system: `extends ${check}`,
+  prefix: '"("',
+  suffix: '") "',
+})
+
+export const roman = counterStyle({
+  system: "additive",
+  additiveSymbols: '10 "X", 5 "V", 1 "I"',
+  range: "1 39",
+  fallback: check,
+})
+```
+
+### Why not a stylesheet
+
+A counter style in a global stylesheet has a global name that any other can
+collide with. It ships whether a page uses it or not. And a name misspelt in
+`listStyleType` gives no error: the list quietly falls back to decimal numbers.
+With `counterStyle()` the name is a value your editor completes and the compiler
+checks.
+
+### What the compiler checks
+
+A browser drops a broken counter style without a word, so `invalid-counter-style`
+reports each way it breaks:
+
+- a key that is not a descriptor (`color`);
+- a value that reads a custom property, which descriptors cannot (a variable token);
+- a value that is empty, or not CSS, or only known at runtime;
+- a system without what it draws with: most need `symbols`, an additive one
+  needs `additiveSymbols`, and one that extends another style takes neither.
+
+An inlined token works as a value, since it is plain text by then. A system newer
+than the compiler is left to the browser.
+
+## In a stylesheet
+
+`@font-face` and `@page` belong to the page rather than to an element, so they
+stay in CSS, imported once from your entry point.
+
+```css
+/* src/fonts.css */
+@font-face {
+  font-family: "Inter";
+  src: url("./fonts/inter.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@page {
+  margin: 2cm;
+}
+```
+
+```tsx
+// src/main.tsx
+import "./fonts.css"
+```
+
+Your bundler resolves the font's `url()` and fingerprints the file. That works in
+a stylesheet and cannot work from a value inside a module, which is why Kirana
+has no `fontFace()`. A style then names the family like any other value, and a
+[token](/docs/tokens/overview) can hold it:
+
+```tsx
+export const body = css({ fontFamily: "Inter, system-ui, sans-serif" })
+```
+
+These rules are not inside a layer, and they need not be: neither styles an
+element, so they never compete with Kirana's atoms. Element styles of your own
+that must sit beside Kirana's go in [a layer](/docs/config/layers).
+
+## A named media query
+
+`@custom-media` gives a media query a name, but no browser reads it yet. A
+condition in a constant does the same today:
+
+```tsx
+// src/breakpoints.ts
+import { media } from "@kirana-style/core"
+
+export const tablet = media("(width >= 48rem)")
+export const reducedMotion = media("(prefers-reduced-motion: reduce)")
+```
+
+```tsx
+import { css } from "@kirana-style/core"
+import { tablet } from "./breakpoints"
+
+export const grid = css({
+  gridTemplateColumns: { base: "1fr", [tablet]: "1fr 1fr" },
+})
+```
+
+The compiler reads the constant across modules, so a query is written once and
+every style that names it is checked.
 ---
 # Merging and removal
 Source: https://kirana.style/docs/styling/merging
@@ -7125,7 +7290,7 @@ them, the compiler says so (`ambiguous-precedence`) instead of silently picking.
 `conditions.exclusive` is how you tell it that a library never sets two
 attributes together.
 
-**A diagnostics catalogue.** 45 codes with stable names, severities and help
+**A diagnostics catalogue.** 46 codes with stable names, severities and help
 text, and a configuration key to re-level the non-errors. StyleX reports
 compilation failures; it does not have a catalogue you can suppress, raise, or
 look up.
@@ -7934,6 +8099,17 @@ Styles for a view transition's pseudo-elements. The result is a style handle for
 `sx` and, at once, the `view-transition-class` name a framework's transition API
 takes. [View transitions](/docs/styling/view-transitions).
 
+## `counterStyle(descriptors)`
+
+```ts
+counterStyle(descriptors: CounterStyleDescriptors): CounterStyle
+```
+
+An `@counter-style` rule and its name, for a list's marker or a counter. The
+keys are the CSS descriptors, written as CSS text. An unknown descriptor, a
+custom property or a system without the symbols it needs is reported.
+[At-rules](/docs/styling/at-rules#counter-styles).
+
 ## `defineTokens(namespace, values, options?)`
 
 ```ts
@@ -8514,7 +8690,8 @@ code is the same as `check`'s.
 The design system, as JSON: every token with its value (and both halves of a
 `light-dark()` pair), each theme and the tokens it overrides, each recipe with
 its variant groups, options and defaults, every relation and where it is
-anchored and read, and the keyframes, `positionTry` and `viewTransition` names.
+anchored and read, and the keyframes, `positionTry`, `viewTransition` and
+`counterStyle` names.
 Each comes with the file and line that declares it.
 
 ```bash
@@ -8570,6 +8747,9 @@ kirana-style export src --out design-system.json
   ],
   "viewTransitions": [
     { "name": "slide", "origin": "src/design.ts:13", "css": "kwTyjU" }
+  ],
+  "counterStyles": [
+    { "name": "check", "origin": "src/design.ts:14", "css": "kcLn6a" }
   ]
 }
 ```
@@ -9044,7 +9224,7 @@ that never reaches the DOM.
 Under Oxlint and ESLint the rules are the same objects, and so are their results:
 the same reports at the same places, and the same fixed text. A test runs every
 rule through both linters on each change. Biome cannot run JavaScript rules, so
-it gets the four that need no compiler, rewritten as GritQL plugins.
+it gets the five that need no compiler, rewritten as GritQL plugins.
 
 <!-- ::figure-lint -->
 
@@ -9090,6 +9270,7 @@ export default [kirana.configs.recommended]
 - `no-conflicting-props`
 - `no-dark-variant`
 - `no-class-helpers`
+- `use-logical-properties`, in neither preset
 
 Its presets turn them on:
 
@@ -9144,6 +9325,8 @@ engine must be installed, as for a build.
 - [`kirana/prefer-token`](/docs/tooling/lint#prefer-token) (strict, suggestions): A literal that repeats a token
 - [`kirana/finite-bridge`](/docs/tooling/lint#finite-bridge) (strict): A runtime value that is really a variant
 - [`kirana/no-class-helpers`](/docs/tooling/lint#no-class-helpers) (strict, also Biome): clsx, tailwind-merge or cva joining class strings
+- [`kirana/restricted-properties`](/docs/tooling/lint#restricted-properties) (opt-in): Properties, or values of one, the project rules out
+- [`kirana/use-logical-properties`](/docs/tooling/lint#use-logical-properties) (opt-in, suggestions, also Biome): A left or right side a right-to-left page should mirror
 
 ## Configs
 
@@ -9151,8 +9334,20 @@ engine must be installed, as for a build.
 | ------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `recommended` | The problems: what the build reports, and what loses a style without any error. | `diagnostics`, `sx-last`, `no-conflicting-props`, `override-keeps-conditions`, `no-classname-on-sx`, `no-dark-variant`, `no-unused` |
 | `strict`      | Everything in `recommended`, and the stylistic and advisory rules.              | `sort-properties`, `prefer-token`, `finite-bridge`, `no-class-helpers`                                                              |
+| neither       | A project's own policy, turned on by the project.                               | `restricted-properties`, `use-logical-properties`                                                                                   |
 
-Biome's presets have the same names and hold the rules it can run.
+Biome's presets have the same names and hold the rules it can run. A rule in
+neither preset is turned on by name, and under Biome by listing its file:
+
+```jsonc
+// biome.json
+{
+  "extends": ["@kirana-style/biome-plugin/recommended"],
+  "plugins": [
+    "./node_modules/@kirana-style/biome-plugin/rules/use-logical-properties.grit",
+  ],
+}
+```
 
 ## Rules
 
@@ -9270,6 +9465,62 @@ written. `cx` and `sx={[a, b]}` [merge per property](/docs/styling/merging), and
 [`recipe()`](/docs/styling/recipes) compiles the variants `cva` would pick at
 runtime. Also under Biome.
 
+### `restricted-properties`
+
+In neither preset: the list is the project's own. A property the options rule
+out, or a literal value outside the ones it allows:
+
+```js
+// eslint.config.js
+export default [
+  kirana.configs.recommended,
+  {
+    rules: {
+      "kirana/restricted-properties": [
+        "error",
+        {
+          float: { reason: "Use flex or grid." },
+          display: { values: ["flex", "grid", "none"] },
+        },
+      ],
+    },
+  },
+]
+```
+
+A `float` then reports `float is ruled out in this project. Use flex or grid.`,
+and a `display: "table"` reports
+`display takes flex, grid, none in this project, not "table".`
+
+A property is matched as written, so ruling out `margin` leaves `marginTop`
+alone; list both to rule out a family. Every literal of a
+[conditional value](/docs/styling/conditions) is checked, in `css()` and in a
+recipe's base and variants. A token or an expression passes: it is the design
+system's own. ESLint and Oxlint only, since a Biome plugin takes no options.
+
+### `use-logical-properties`
+
+In neither preset. A side or a corner of the inline axis written physically:
+
+```tsx
+css({ marginLeft: "1rem" })
+// marginLeft stays on the same side in right-to-left text;
+// marginInlineStart follows the writing direction.
+```
+
+On a page that is also read right to left, `marginInlineStart` moves to the right
+with the text, and `marginLeft` does not. The rule covers margins, paddings,
+`left` and `right`, the side borders, the corner radii, and scroll margins and
+paddings. Top, bottom and sizes are left alone: they change only in vertical
+writing.
+
+The rename is offered as a suggestion, never applied by `--fix`: the two
+properties agree only in left-to-right text, so the change is yours to make. A
+page that is only ever left to right loses nothing to physical sides, which is
+why the rule is off until you turn it on. The compiler's own
+[`mixed-logical-physical`](/docs/tooling/diagnostics) warning stays on either
+way: it reports a style that writes both kinds for one side. Also under Biome.
+
 ## This repository
 
 The docs and demo apps lint themselves with `recommended`. Its first run found 19
@@ -9333,14 +9584,15 @@ known at runtime: [values known at runtime](/docs/styling/dynamic).
 applied, so it can never match: [relations](/docs/styling/relations). A build
 checks the relations whose module it compiled; `kirana-style check` checks them all.
 
-**`invalid-fallback`**, **`invalid-position-try`** and **`invalid-view-transition`**
-report a value the browser would drop or misread:
+**`invalid-fallback`**, **`invalid-position-try`**, **`invalid-view-transition`**
+and **`invalid-counter-style`** report a value the browser would drop or misread:
 
-| Diagnostic                | What it catches                                                                          |
-| ------------------------- | ---------------------------------------------------------------------------------------- |
-| `invalid-fallback`        | A [`firstThatWorks()`](/docs/styling/fallbacks) run whose values set different longhands |
-| `invalid-position-try`    | A property a [`positionTry()`](/docs/styling/anchor-positioning) block ignores           |
-| `invalid-view-transition` | A [`viewTransition()`](/docs/styling/view-transitions) part that is not one of the four  |
+| Diagnostic                | What it catches                                                                                     |
+| ------------------------- | --------------------------------------------------------------------------------------------------- |
+| `invalid-fallback`        | A [`firstThatWorks()`](/docs/styling/fallbacks) run whose values set different longhands            |
+| `invalid-position-try`    | A property a [`positionTry()`](/docs/styling/anchor-positioning) block ignores                      |
+| `invalid-view-transition` | A [`viewTransition()`](/docs/styling/view-transitions) part that is not one of the four             |
+| `invalid-counter-style`   | A [`counterStyle()`](/docs/styling/at-rules#counter-styles) descriptor or system that draws nothing |
 
 **`unresolved-import`**: an import a style depends on could not be resolved, so
 its value compiles as a runtime value. Check the specifier and your tsconfig
@@ -9426,7 +9678,7 @@ line coverage. The [changelog](/changelog) lists every release.
 
 ## Built
 
-- `css`, `cx`, `props`, `recipe`, `relation`, `select`, `keyframes`, `defineTokens`, `defineTheme`, `mode`, `firstThatWorks`, `positionTry`, `viewTransition`, `media`, `container` and `supports`
+- `css`, `cx`, `props`, `recipe`, `relation`, `select`, `keyframes`, `defineTokens`, `defineTheme`, `mode`, `firstThatWorks`, `positionTry`, `counterStyle`, `viewTransition`, `media`, `container` and `supports`
 - The `sx` prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as `[sx]` in Angular templates and the
   `sx` helper in Ember's); see [supported frameworks](/docs/frameworks/overview)
 - Conditions: pseudo-classes, attributes, compounds, at-rules, nesting
@@ -9434,7 +9686,7 @@ line coverage. The [changelog](/changelog) lists every release.
 - Tokens: inlined, variable, per-mode, registered (`@property`)
 - Themes and colour modes
 - Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB
-- 45 diagnostics with stable codes
+- 46 diagnostics with stable codes
 - `@kirana-style/vite` for Vite 8, with hot updates
 - An adapter package for every other bundler, and one for Jest; see
   [bundlers](/docs/integrations/bundlers)
@@ -9451,11 +9703,11 @@ line coverage. The [changelog](/changelog) lists every release.
   compiling without a bundler, reports for CI with GitHub annotations, the design
   system as JSON, tracing a property, and both codemods; see
   [the CLI](/docs/tooling/cli)
-- `firstThatWorks()`, `positionTry()` and `viewTransition()`: value fallbacks,
-  `@position-try` rules and view-transition classes, each checked at build time;
-  see [fallback values](/docs/styling/fallbacks),
-  [anchor positioning](/docs/styling/anchor-positioning) and
-  [view transitions](/docs/styling/view-transitions)
+- CSS helpers, each checked at build time:
+  - `firstThatWorks()`: [fallback values](/docs/styling/fallbacks)
+  - `positionTry()`: [anchor positioning](/docs/styling/anchor-positioning)
+  - `viewTransition()`: [view transitions](/docs/styling/view-transitions)
+  - `counterStyle()`: [counter styles](/docs/styling/at-rules#counter-styles)
 - `@kirana-style/preset-scales`: Tailwind v4 scales as tokens, and its utility names as
   [utility strings](/docs/styling/utilities) in `sx`
 - `kirana-style migrate tailwind`, proven on the Tailwind original of our shadcn/ui port: zero
@@ -9466,7 +9718,7 @@ line coverage. The [changelog](/changelog) lists every release.
   TypeScript, Vue, Svelte and Astro files and Angular templates; see
   [editor support](/docs/tooling/editor)
 - `@kirana-style/eslint-plugin` under Oxlint and ESLint, identical results, and
-  `@kirana-style/biome-plugin` with the four rules Biome can run; see
+  `@kirana-style/biome-plugin` with the five rules Biome can run; see
   [lint](/docs/tooling/lint)
 - Agent skills for writing Kirana and migrating to it, installable with
   `npx skills add`; see [agent skills](/docs/project/agent-skills)
@@ -9567,15 +9819,16 @@ than re-implemented, so they never disagree with the build.
   Neovim and Helix through their own LSP configuration.
 - **Lint:** [`@kirana-style/eslint-plugin`](/docs/tooling/lint) under Oxlint and
   ESLint, and [`@kirana-style/biome-plugin`](/docs/tooling/lint#biome) with the
-  four rules Biome can run.
+  five rules Biome can run.
 - **The command line:** setting a project up and checking it, with a redacted
   bug report; compiling without a bundler; sizing the stylesheet; the design
   system as JSON; and reports for CI with GitHub annotations. The
   [CLI page](/docs/tooling/cli) has every command.
 - **CSS helpers checked at build time:**
   [`firstThatWorks()`](/docs/styling/fallbacks),
-  [`positionTry()`](/docs/styling/anchor-positioning) and
-  [`viewTransition()`](/docs/styling/view-transitions).
+  [`positionTry()`](/docs/styling/anchor-positioning),
+  [`viewTransition()`](/docs/styling/view-transitions) and
+  [`counterStyle()`](/docs/styling/at-rules#counter-styles).
 - **[Agent skills](/docs/project/agent-skills)**, `kirana` and `kirana-migrate`.
 
 Still to do: publishing the Zed extension to Zed's registry.
@@ -9744,7 +9997,7 @@ Every framework has a guide and a tested example; the
 | `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod) |
 | Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                               |
 | `@kirana-style/eslint-plugin`, for Oxlint and ESLint                                    | [lint](/docs/tooling/lint)                                           |
-| `@kirana-style/biome-plugin`: the four rules that need no compiler | [lint](/docs/tooling/lint#biome)                                     |
+| `@kirana-style/biome-plugin`: the five rules that need no compiler | [lint](/docs/tooling/lint#biome)                                     |
 | Agent skills                                                                            | [agent skills](/docs/project/agent-skills)                           |
 
 ## Runtime and distribution

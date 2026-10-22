@@ -73,6 +73,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
             Api::FirstThatWorks => self.first_that_works(&arguments, span),
             Api::PositionTry => self.position_try(arguments.first(), span),
             Api::ViewTransition => self.view_transition(arguments.first(), span),
+            Api::CounterStyle => self.counter_style(arguments.first(), span),
             Api::Select | Api::Mode => {
                 self.report(Code::UnsupportedSyntax, span, format!("{} is not a function", api.export()), None);
                 Value::unknown("not callable")

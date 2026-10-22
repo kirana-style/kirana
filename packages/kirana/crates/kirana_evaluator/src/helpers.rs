@@ -1,11 +1,12 @@
-//! `firstThatWorks()`, `positionTry()` and `viewTransition()` (KRN-API-017 to KRN-API-019).
+//! `firstThatWorks()`, `positionTry()`, `viewTransition()` and `counterStyle()` (KRN-API-017 to
+//! KRN-API-020).
 
 use std::sync::Arc;
 
 use kirana_diagnostics::Code;
 use kirana_ir::{
-    Condition, Dep, Handle, Key, PositionTryDef, TransitionPart, TransitionRule, Value, ViewTransitionDef,
-    parse_condition_key,
+    Condition, CounterStyleDef, Dep, Handle, Key, PositionTryDef, TransitionPart, TransitionRule, Value,
+    ViewTransitionDef, parse_condition_key,
 };
 use kirana_shared::kebab_case;
 
@@ -46,6 +47,30 @@ fn position_try_accepts(property: &str) -> bool {
         || property.starts_with("margin")
 }
 
+/// The descriptors an `@counter-style` rule reads (CSS Counter Styles 3).
+const COUNTER_STYLE_DESCRIPTORS: [&str; 10] =
+    ["additive-symbols", "fallback", "negative", "pad", "prefix", "range", "speak-as", "suffix", "symbols", "system"];
+
+/// Why a counter style draws nothing: its system (`symbolic` when unwritten) needs `symbols` or
+/// `additive-symbols`, or extends another style and so may not define its own. A system Kirana does
+/// not know is left to the browser.
+fn missing_symbols(descriptors: &[(String, String)]) -> Option<String> {
+    let has = |name: &str| descriptors.iter().any(|(descriptor, _)| descriptor == name);
+    let system =
+        descriptors.iter().find(|(descriptor, _)| descriptor == "system").map_or("symbolic", |(_, value)| value);
+    let keyword = system.split_whitespace().next().unwrap_or_default().to_ascii_lowercase();
+    match keyword.as_str() {
+        "extends" if has("symbols") || has("additive-symbols") => {
+            Some("a counter style that extends another takes no symbols of its own".to_owned())
+        }
+        "additive" if !has("additive-symbols") => Some("an additive counter style needs additiveSymbols".to_owned()),
+        "cyclic" | "numeric" | "alphabetic" | "symbolic" | "fixed" if !has("symbols") => {
+            Some(format!("a {keyword} counter style needs symbols"))
+        }
+        _ => None,
+    }
+}
+
 impl Evaluator<'_, '_, '_> {
     /// `firstThatWorks(preferred, ...fallbacks)`: a run of static CSS values, preferred first. One
     /// value is that value.
@@ -56,7 +81,12 @@ impl Evaluator<'_, '_, '_> {
         let mut members = Vec::new();
         for (value, at) in arguments {
             match value {
-                Value::Str(_) | Value::Number(_) | Value::Token(_) | Value::Keyframes(_) | Value::PositionTry(_) => {
+                Value::Str(_)
+                | Value::Number(_)
+                | Value::Token(_)
+                | Value::Keyframes(_)
+                | Value::PositionTry(_)
+                | Value::CounterStyle(_) => {
                     members.push(value.clone());
                 }
                 Value::Fallbacks(_) => {
@@ -131,6 +161,88 @@ impl Evaluator<'_, '_, '_> {
         });
         self.definitions.borrow_mut().position_tries.push(definition.clone());
         Value::PositionTry(definition)
+    }
+
+    /// `counterStyle({ ... })`: an `@counter-style` rule of descriptors, named by a hashed custom
+    /// ident (`{prefix}c…`) that `listStyleType` and `counter()` name. A browser drops an unknown
+    /// descriptor, a `var()` in one, and a rule its system cannot draw, all without a word; each is
+    /// reported here instead.
+    pub(crate) fn counter_style(&self, argument: Option<&(Value, (u32, u32))>, span: (u32, u32)) -> Value {
+        let Some((Value::Object(entries), _)) = argument else {
+            return self.invalid(
+                Code::NotEvaluable,
+                span,
+                "counterStyle() takes an object of descriptors",
+                Some("for example counterStyle({ system: \"cyclic\", symbols: '\"✓\"', suffix: '\" \"' })"),
+            );
+        };
+        let mut descriptors: Vec<(String, String)> = Vec::new();
+        for (key, value) in entries.iter() {
+            let Key::Str(name) = key else {
+                return self.invalid(
+                    Code::InvalidCounterStyle,
+                    span,
+                    "a @counter-style block takes descriptor names as keys",
+                    None,
+                );
+            };
+            let descriptor = kebab_case(name);
+            if !COUNTER_STYLE_DESCRIPTORS.contains(&descriptor.as_str()) {
+                return self.invalid(
+                    Code::InvalidCounterStyle,
+                    span,
+                    format!("{descriptor} is not a @counter-style descriptor"),
+                    Some(
+                        "the descriptors are system, symbols, additiveSymbols, negative, prefix, suffix, range, pad, fallback and speakAs",
+                    ),
+                );
+            }
+            let text = match value {
+                Value::Unknown(reason) if &**reason == REPORTED => return Value::unknown(REPORTED),
+                Value::Str(_) | Value::Number(_) | Value::Token(_) | Value::CounterStyle(_) => {
+                    crate::ops::to_string(value).expect("css-bearing values print").trim().to_owned()
+                }
+                value if !value.is_static() => {
+                    return self.invalid(
+                        Code::InvalidCounterStyle,
+                        span,
+                        format!("{descriptor} must be known at build time"),
+                        None,
+                    );
+                }
+                _ => {
+                    return self.invalid(
+                        Code::InvalidCounterStyle,
+                        span,
+                        format!("the value of {descriptor} is not a CSS value"),
+                        None,
+                    );
+                }
+            };
+            if text.is_empty() {
+                return self.invalid(Code::InvalidCounterStyle, span, format!("{descriptor} is empty"), None);
+            }
+            if text.to_ascii_lowercase().contains("var(") {
+                return self.invalid(
+                    Code::InvalidCounterStyle,
+                    span,
+                    format!("{descriptor} reads a custom property, which a @counter-style descriptor cannot"),
+                    Some("use an inlined token or a literal value"),
+                );
+            }
+            descriptors.push((descriptor, text));
+        }
+        if let Some(reason) = missing_symbols(&descriptors) {
+            return self.invalid(Code::InvalidCounterStyle, span, reason, None);
+        }
+        let canonical = format!("{descriptors:?}");
+        let definition = Arc::new(CounterStyleDef {
+            name: self.ctx.names.named('c', &[self.ctx.package, &canonical]),
+            deps: self.deps_in(&canonical),
+            descriptors,
+        });
+        self.definitions.borrow_mut().counter_styles.push(definition.clone());
+        Value::CounterStyle(definition)
     }
 
     /// `viewTransition({ group, imagePair, old, new })`: a handle whose one class is also the
@@ -240,15 +352,18 @@ impl Evaluator<'_, '_, '_> {
         code: Code,
     ) -> Option<Vec<(String, String)>> {
         let expanded = match value {
-            Value::Str(_) | Value::Number(_) | Value::Token(_) | Value::Keyframes(_) | Value::PositionTry(_) => {
-                match self.declare_value(name, value) {
-                    Ok(expanded) => Some(expanded),
-                    Err(error) => {
-                        self.report_declaration(error, span);
-                        None
-                    }
+            Value::Str(_)
+            | Value::Number(_)
+            | Value::Token(_)
+            | Value::Keyframes(_)
+            | Value::PositionTry(_)
+            | Value::CounterStyle(_) => match self.declare_value(name, value) {
+                Ok(expanded) => Some(expanded),
+                Err(error) => {
+                    self.report_declaration(error, span);
+                    None
                 }
-            }
+            },
             Value::Fallbacks(members) => self.fallbacks(name, members, span),
             value if !value.is_static() => {
                 self.report(code, span, format!("{name}: a definition's values must be known at build time"), None);

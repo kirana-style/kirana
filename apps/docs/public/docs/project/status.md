@@ -10,7 +10,7 @@ line coverage. The [changelog](/changelog) lists every release.
 
 ## Built
 
-- `css`, `cx`, `props`, `recipe`, `relation`, `select`, `keyframes`, `defineTokens`, `defineTheme`, `mode`, `firstThatWorks`, `positionTry`, `viewTransition`, `media`, `container` and `supports`
+- `css`, `cx`, `props`, `recipe`, `relation`, `select`, `keyframes`, `defineTokens`, `defineTheme`, `mode`, `firstThatWorks`, `positionTry`, `counterStyle`, `viewTransition`, `media`, `container` and `supports`
 - The `sx` prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as `[sx]` in Angular templates and the
   `sx` helper in Ember's); see [supported frameworks](/docs/frameworks/overview)
 - Conditions: pseudo-classes, attributes, compounds, at-rules, nesting
@@ -18,7 +18,7 @@ line coverage. The [changelog](/changelog) lists every release.
 - Tokens: inlined, variable, per-mode, registered (`@property`)
 - Themes and colour modes
 - Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB
-- 45 diagnostics with stable codes
+- 46 diagnostics with stable codes
 - `@kirana-style/vite` for Vite 8, with hot updates
 - An adapter package for every other bundler, and one for Jest; see
   [bundlers](/docs/integrations/bundlers)
@@ -35,11 +35,11 @@ line coverage. The [changelog](/changelog) lists every release.
   compiling without a bundler, reports for CI with GitHub annotations, the design
   system as JSON, tracing a property, and both codemods; see
   [the CLI](/docs/tooling/cli)
-- `firstThatWorks()`, `positionTry()` and `viewTransition()`: value fallbacks,
-  `@position-try` rules and view-transition classes, each checked at build time;
-  see [fallback values](/docs/styling/fallbacks),
-  [anchor positioning](/docs/styling/anchor-positioning) and
-  [view transitions](/docs/styling/view-transitions)
+- CSS helpers, each checked at build time:
+  - `firstThatWorks()`: [fallback values](/docs/styling/fallbacks)
+  - `positionTry()`: [anchor positioning](/docs/styling/anchor-positioning)
+  - `viewTransition()`: [view transitions](/docs/styling/view-transitions)
+  - `counterStyle()`: [counter styles](/docs/styling/at-rules#counter-styles)
 - `@kirana-style/preset-scales`: Tailwind v4 scales as tokens, and its utility names as
   [utility strings](/docs/styling/utilities) in `sx`
 - `kirana-style migrate tailwind`, proven on the Tailwind original of our shadcn/ui port: zero
@@ -50,7 +50,7 @@ line coverage. The [changelog](/changelog) lists every release.
   TypeScript, Vue, Svelte and Astro files and Angular templates; see
   [editor support](/docs/tooling/editor)
 - `@kirana-style/eslint-plugin` under Oxlint and ESLint, identical results, and
-  `@kirana-style/biome-plugin` with the four rules Biome can run; see
+  `@kirana-style/biome-plugin` with the five rules Biome can run; see
   [lint](/docs/tooling/lint)
 - Agent skills for writing Kirana and migrating to it, installable with
   `npx skills add`; see [agent skills](/docs/project/agent-skills)

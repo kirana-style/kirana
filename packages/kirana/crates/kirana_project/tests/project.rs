@@ -22,6 +22,33 @@ fn rand_suffix() -> u128 {
     std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
 }
 
+/// The grammar check remembers its verdicts (KRN-CAS-010), and a variable token's value is judged
+/// through what the token declares now: editing the token file changes the verdict, both ways.
+#[test]
+fn a_token_edit_is_judged_afresh() {
+    let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const theme = defineTokens(\"theme\", { brand: \"red\" }, { variable: true })\n";
+    let input = "import { css } from \"@kirana-style/core\"\nimport { theme } from \"./tokens\"\nexport const box = css({ padding: theme.brand })\n";
+    let (root, project) =
+        temp_project(&[("package.json", "{\"name\":\"app\"}"), ("tokens.ts", tokens), ("input.ts", input)]);
+    let input_path = root.join("input.ts");
+    let invalid = |project: &Project| {
+        project.transform(&input_path, input).diagnostics.iter().any(|diagnostic| diagnostic.code == Code::InvalidValue)
+    };
+    let edit = |value: &str| {
+        fs::write(root.join("tokens.ts"), tokens.replace("red", value)).unwrap();
+        project.invalidate(&root.join("tokens.ts"));
+    };
+    // A colour on `padding`, judged twice: the second verdict is the remembered one.
+    assert!(invalid(&project));
+    assert!(invalid(&project));
+    edit("4px");
+    assert!(!invalid(&project));
+    // Back to the colour: rejected again, not left on the length's verdict.
+    edit("red");
+    assert!(invalid(&project));
+    fs::remove_dir_all(root).unwrap();
+}
+
 #[test]
 fn incremental_updates_follow_importers() {
     let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { 1: \"1px\" })\n";

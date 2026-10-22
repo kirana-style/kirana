@@ -86,6 +86,12 @@ export const DIAGNOSTICS: readonly DiagnosticEntry[] = [
     "family": "Properties and values"
   },
   {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "family": "Properties and values"
+  },
+  {
     "code": "KRN1301",
     "name": "unknown-condition",
     "severity": "error",

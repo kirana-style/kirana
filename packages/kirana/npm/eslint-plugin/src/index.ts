@@ -12,8 +12,10 @@ import noDarkVariant from "./rules/no-dark-variant.ts"
 import noUnused from "./rules/no-unused.ts"
 import overrideKeepsConditions from "./rules/override-keeps-conditions.ts"
 import preferToken from "./rules/prefer-token.ts"
+import restrictedProperties from "./rules/restricted-properties.ts"
 import sortProperties from "./rules/sort-properties.ts"
 import sxLast from "./rules/sx-last.ts"
+import useLogicalProperties from "./rules/use-logical-properties.ts"
 
 export { reset } from "./project.ts"
 export type { Rule } from "./types.ts"
@@ -30,6 +32,8 @@ export const rules = {
   "no-classname-on-sx": noClassnameOnSx,
   "no-dark-variant": noDarkVariant,
   "no-class-helpers": noClassHelpers,
+  "restricted-properties": restrictedProperties,
+  "use-logical-properties": useLogicalProperties,
 }
 
 type Level = "error" | "warn"
@@ -45,7 +49,11 @@ const recommended: Record<string, Level> = {
   "kirana/no-unused": "warn",
 }
 
-/** Everything, the stylistic and advisory rules too. */
+/**
+ * Everything, the stylistic and advisory rules too. Two rules are a project's own policy and stay
+ * off until it turns them on: `restricted-properties` (its list) and `use-logical-properties` (a page
+ * that is only ever left-to-right loses nothing to physical sides).
+ */
 const strict: Record<string, Level> = {
   ...recommended,
   "kirana/sort-properties": "error",

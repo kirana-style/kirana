@@ -1,0 +1,59 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  @counter-style kc3V12 {
+    system: extends kc4HMO;
+    prefix: "(";
+    suffix: ") ";
+  }
+  @counter-style kc4HMO {
+    system: cyclic;
+    symbols: "✓";
+    suffix: " ";
+  }
+  @counter-style kca4Jo {
+    system: fixed;
+    symbols: "★" "☆";
+    fallback: kc4HMO;
+  }
+  @counter-style kcdpzW {
+    system: additive;
+    additive-symbols: 10 "X", 5 "V", 1 "I";
+    range: 1 39;
+  }
+  @counter-style kcgION {
+    system: brand-new-system;
+  }
+  @counter-style kcuXZX {
+    symbols: "◆";
+    suffix: " ";
+  }
+  @counter-style kcwifW {
+    symbols: "•";
+  }
+}
+@layer kirana.atoms {
+  .k7l_Gmhn {
+    list-style-image: none;
+  }
+  .k7m_7dJg {
+    list-style-position: inside;
+  }
+  .k7n_iqua {
+    list-style-type: kcuXZX;
+  }
+  .k5n-k9l_XoaZ::before {
+    content: counter(item, kca4Jo) " ";
+  }
+  .k7n_HtXf {
+    list-style-type: kc3V12;
+  }
+  .k7n_jfmF {
+    list-style-type: kcdpzW;
+  }
+  @media (width >= 40rem) {
+    .k7n-yJgH_y8iZ {
+      list-style-type: kcgION;
+    }
+  }
+}

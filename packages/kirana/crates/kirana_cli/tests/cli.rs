@@ -543,7 +543,7 @@ export const color = defineTokens("color", { brand: "light-dark(#000, #fff)", mu
 export const space = defineTokens("space", { x: "1rem" })
 "##;
 const DESIGN: &[u8] =
-    br#"import { css, defineTheme, keyframes, positionTry, recipe, relation, viewTransition } from "@kirana-style/core"
+    br#"import { counterStyle, css, defineTheme, keyframes, positionTry, recipe, relation, viewTransition } from "@kirana-style/core"
 import { color } from "./tokens"
 export const ocean = defineTheme(color, { brand: "navy" })
 export const button = recipe({
@@ -556,6 +556,7 @@ export const card = recipe({ slots: ["root", "title"], base: { root: {}, title: 
 export const spin = keyframes({ to: { transform: "rotate(1turn)" } })
 export const below = positionTry({ positionArea: "bottom" })
 export const slide = viewTransition({ old: { animationDuration: "1s" } })
+export const check = counterStyle({ system: "cyclic", symbols: '"*"' })
 export const field = relation("field")
 export const plain = css({ color: "red" })
 export const count = 3

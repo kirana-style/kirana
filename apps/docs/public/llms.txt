@@ -33,6 +33,7 @@ change the API. Pages state what is built and what is planned.
 - [The sx prop](https://kirana.style/docs/styling/sx.md): How sx works on elements and on components, what it compiles to, and how className and style survive it.
 - [Conditions](https://kirana.style/docs/styling/conditions.md): Hover, focus, attributes, breakpoints and container queries, all written inside the value they change.
 - [Utility strings](https://kirana.style/docs/styling/utilities.md): Write sx as Tailwind-style utility strings; each one compiles to the same atoms as the style object it stands for.
+- [At-rules](https://kirana.style/docs/styling/at-rules.md): Where each CSS at-rule lives with Kirana. Counter styles with counterStyle(), the ones a helper or a condition writes, and the ones a plain stylesheet does better.
 
 ## The cascade
 

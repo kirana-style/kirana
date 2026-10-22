@@ -109,6 +109,18 @@
           "brotli": 230
         }
       },
+      "counter-style": {
+        "css": {
+          "raw": 1099,
+          "gzip": 468,
+          "brotli": 401
+        },
+        "js": {
+          "raw": 978,
+          "gzip": 401,
+          "brotli": 334
+        }
+      },
       "cross-file-imports": {
         "css": {
           "raw": 186,

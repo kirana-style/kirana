@@ -5,8 +5,8 @@ export type LintEntry = {
   readonly config: "recommended" | "strict" | "off"
   readonly level: "error" | "warn" | "off"
   readonly fix: "" | "autofix" | "suggestions"
-  /** The Biome preset that runs it, or "" when Biome cannot. */
-  readonly biome: "" | "recommended" | "strict"
+  /** The Biome preset that runs it, "off" when Biome can but no preset does, or "" when Biome cannot. */
+  readonly biome: "" | "recommended" | "strict" | "off"
 }
 
 export const LINT: readonly LintEntry[] = [
@@ -83,6 +83,14 @@ export const LINT: readonly LintEntry[] = [
     "biome": ""
   },
   {
+    "name": "restricted-properties",
+    "description": "Report the properties, or the values of a property, the project rules out.",
+    "config": "off",
+    "level": "off",
+    "fix": "",
+    "biome": ""
+  },
+  {
     "name": "sort-properties",
     "description": "Order style properties and conditions canonically.",
     "config": "strict",
@@ -97,5 +105,13 @@ export const LINT: readonly LintEntry[] = [
     "level": "error",
     "fix": "autofix",
     "biome": "recommended"
+  },
+  {
+    "name": "use-logical-properties",
+    "description": "Use the logical property for a side of the inline axis, so a right-to-left page mirrors it.",
+    "config": "off",
+    "level": "off",
+    "fix": "suggestions",
+    "biome": "off"
   }
 ]

@@ -135,6 +135,9 @@ rejects valid CSS, including CSS newer than the data (P11):
 - **Token domains:** a value that is one project variable token is checked through each value the token
   declares, so a colour token on `padding` is `invalid-value` with no new API. An inlined token is
   checked as the value it inlines.
+- **Remembered verdicts:** a verdict depends on the property and the value text alone, so the compiler
+  MAY remember it for the session; a token is resolved before the check, so an edited token's new
+  value is judged afresh (D-092).
 
 ## The precedence ladder
 

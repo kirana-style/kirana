@@ -440,6 +440,7 @@ fn check_named(dep: &Dep, file: &str, names: &mut BTreeMap<String, (String, Stri
         Dep::ViewTransition(transition) => {
             (&transition.class, format!("view transition {:?}", transition.parts), &transition.deps)
         }
+        Dep::CounterStyle(style) => (&style.name, format!("counter style {:?}", style.descriptors), &style.deps),
     };
     match names.get(name) {
         Some((first_identity, _)) if *first_identity == identity => return,

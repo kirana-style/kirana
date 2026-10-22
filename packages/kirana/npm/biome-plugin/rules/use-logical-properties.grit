@@ -1,0 +1,44 @@
+// kirana/use-logical-properties: a property fixed to the left or the right names the inline side
+// instead (`marginLeft` → `marginInlineStart`), so a right-to-left page mirrors it. Only the sides and
+// corners of the inline axis. Off unless enabled, in neither preset: a page that is only ever
+// left-to-right loses nothing. The ESLint rule also offers the rename; GritQL reports it. The pairs
+// are the ESLint rule's `LOGICAL`, and a test holds them together.
+language js(typescript, jsx)
+
+JsPropertyObjectMember(name = JsLiteralMemberName() as $at) as $member where {
+  $at <: within JsCallExpression(callee = or { `css`, `recipe` }),
+  // A variant option's name (`variants: { side: { right: {…} } }`) is not a property.
+  $member <: not within JsPropertyObjectMember(
+    name = JsLiteralMemberName() as $variants,
+    value = JsObjectExpression(members = some JsPropertyObjectMember(value = JsObjectExpression(members = some $member)))
+  ) where { $variants <: r"[\"']?variants[\"']?" },
+  $at <: or {
+    r"[\"']?marginLeft[\"']?" where { $physical = "marginLeft", $logical = "marginInlineStart" },
+    r"[\"']?marginRight[\"']?" where { $physical = "marginRight", $logical = "marginInlineEnd" },
+    r"[\"']?paddingLeft[\"']?" where { $physical = "paddingLeft", $logical = "paddingInlineStart" },
+    r"[\"']?paddingRight[\"']?" where { $physical = "paddingRight", $logical = "paddingInlineEnd" },
+    r"[\"']?left[\"']?" where { $physical = "left", $logical = "insetInlineStart" },
+    r"[\"']?right[\"']?" where { $physical = "right", $logical = "insetInlineEnd" },
+    r"[\"']?borderLeft[\"']?" where { $physical = "borderLeft", $logical = "borderInlineStart" },
+    r"[\"']?borderRight[\"']?" where { $physical = "borderRight", $logical = "borderInlineEnd" },
+    r"[\"']?borderLeftWidth[\"']?" where { $physical = "borderLeftWidth", $logical = "borderInlineStartWidth" },
+    r"[\"']?borderRightWidth[\"']?" where { $physical = "borderRightWidth", $logical = "borderInlineEndWidth" },
+    r"[\"']?borderLeftColor[\"']?" where { $physical = "borderLeftColor", $logical = "borderInlineStartColor" },
+    r"[\"']?borderRightColor[\"']?" where { $physical = "borderRightColor", $logical = "borderInlineEndColor" },
+    r"[\"']?borderLeftStyle[\"']?" where { $physical = "borderLeftStyle", $logical = "borderInlineStartStyle" },
+    r"[\"']?borderRightStyle[\"']?" where { $physical = "borderRightStyle", $logical = "borderInlineEndStyle" },
+    r"[\"']?borderTopLeftRadius[\"']?" where { $physical = "borderTopLeftRadius", $logical = "borderStartStartRadius" },
+    r"[\"']?borderTopRightRadius[\"']?" where { $physical = "borderTopRightRadius", $logical = "borderStartEndRadius" },
+    r"[\"']?borderBottomLeftRadius[\"']?" where { $physical = "borderBottomLeftRadius", $logical = "borderEndStartRadius" },
+    r"[\"']?borderBottomRightRadius[\"']?" where { $physical = "borderBottomRightRadius", $logical = "borderEndEndRadius" },
+    r"[\"']?scrollMarginLeft[\"']?" where { $physical = "scrollMarginLeft", $logical = "scrollMarginInlineStart" },
+    r"[\"']?scrollMarginRight[\"']?" where { $physical = "scrollMarginRight", $logical = "scrollMarginInlineEnd" },
+    r"[\"']?scrollPaddingLeft[\"']?" where { $physical = "scrollPaddingLeft", $logical = "scrollPaddingInlineStart" },
+    r"[\"']?scrollPaddingRight[\"']?" where { $physical = "scrollPaddingRight", $logical = "scrollPaddingInlineEnd" }
+  },
+  register_diagnostic(
+    span = $at,
+    message = `kirana/use-logical-properties: $physical stays on the same side in right-to-left text; $logical follows the writing direction.`,
+    severity = "warn"
+  )
+}

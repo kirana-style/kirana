@@ -859,7 +859,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
     }
 }
 
-const ALL_APIS: [Api; 16] = [
+const ALL_APIS: [Api; 17] = [
     Api::Css,
     Api::Cx,
     Api::Props,
@@ -876,6 +876,7 @@ const ALL_APIS: [Api; 16] = [
     Api::FirstThatWorks,
     Api::PositionTry,
     Api::ViewTransition,
+    Api::CounterStyle,
 ];
 
 fn single_return<'a, 'b>(body: &'b FunctionBody<'a>) -> Option<&'b Expression<'a>> {

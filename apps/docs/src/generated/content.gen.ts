@@ -533,6 +533,55 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
+    "href": "/docs/styling/at-rules",
+    "file": "content/docs/styling/at-rules.md",
+    "title": "At-rules",
+    "description": "Where each CSS at-rule lives with Kirana. Counter styles with counterStyle(), the ones a helper or a condition writes, and the ones a plain stylesheet does better.",
+    "section": "writing",
+    "order": 5,
+    "keywords": [
+      "at-rules",
+      "counterStyle",
+      "counter-style",
+      "@counter-style",
+      "font-face",
+      "@font-face",
+      "@page",
+      "custom-media",
+      "@custom-media",
+      "list-style-type",
+      "counter",
+      "print"
+    ],
+    "headings": [
+      {
+        "id": "counter-styles",
+        "text": "Counter styles",
+        "level": 2
+      },
+      {
+        "id": "why-not-a-stylesheet",
+        "text": "Why not a stylesheet",
+        "level": 3
+      },
+      {
+        "id": "what-the-compiler-checks",
+        "text": "What the compiler checks",
+        "level": 3
+      },
+      {
+        "id": "in-a-stylesheet",
+        "text": "In a stylesheet",
+        "level": 2
+      },
+      {
+        "id": "a-named-media-query",
+        "text": "A named media query",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/docs/styling/merging",
     "file": "content/docs/styling/merging.md",
     "title": "Merging and removal",
@@ -3717,6 +3766,7 @@ export const PAGES: readonly PageMeta[] = [
       "firstThatWorks",
       "positionTry",
       "viewTransition",
+      "counterStyle",
       "media",
       "container",
       "supports"
@@ -3771,6 +3821,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "viewtransition-parts",
         "text": "viewTransition(parts)",
+        "level": 2
+      },
+      {
+        "id": "counterstyle-descriptors",
+        "text": "counterStyle(descriptors)",
         "level": 2
       },
       {
@@ -4239,6 +4294,16 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "no-class-helpers",
         "text": "no-class-helpers",
+        "level": 3
+      },
+      {
+        "id": "restricted-properties",
+        "text": "restricted-properties",
+        "level": 3
+      },
+      {
+        "id": "use-logical-properties",
+        "text": "use-logical-properties",
         "level": 3
       },
       {
@@ -4917,6 +4982,25 @@ export const NAV: readonly NavGroup[] = [
           "preset",
           "grammar",
           "variants"
+        ]
+      },
+      {
+        "title": "At-rules",
+        "href": "/docs/styling/at-rules",
+        "description": "Where each CSS at-rule lives with Kirana. Counter styles with counterStyle(), the ones a helper or a condition writes, and the ones a plain stylesheet does better.",
+        "keywords": [
+          "at-rules",
+          "counterStyle",
+          "counter-style",
+          "@counter-style",
+          "font-face",
+          "@font-face",
+          "@page",
+          "custom-media",
+          "@custom-media",
+          "list-style-type",
+          "counter",
+          "print"
         ]
       }
     ]
@@ -5913,6 +5997,7 @@ export const NAV: readonly NavGroup[] = [
           "firstThatWorks",
           "positionTry",
           "viewTransition",
+          "counterStyle",
           "media",
           "container",
           "supports"
@@ -6164,6 +6249,7 @@ export const ORDER: readonly string[] = [
   "/docs/styling/sx",
   "/docs/styling/conditions",
   "/docs/styling/utilities",
+  "/docs/styling/at-rules",
   "/docs/styling/merging",
   "/docs/styling/precedence",
   "/docs/styling/external-components",

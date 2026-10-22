@@ -45,3 +45,13 @@ export const Merged = () => (
 )
 export const Other = () => <div className="x" {...other(styles.a)} />
 export const helpers = [clsx, cva, twMerge, cn]
+export const sides = css({
+  marginLeft: "1rem",
+  borderTopRightRadius: "4px",
+  marginInlineEnd: "1rem",
+  top: 0,
+})
+export const placed = recipe({
+  base: { paddingRight: { base: "1px", ":hover": "2px" } },
+  variants: { side: { left: { right: 0 }, right: { left: 0 } } },
+})

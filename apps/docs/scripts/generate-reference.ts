@@ -133,6 +133,10 @@ const biomeRecommended = await readFile(
   join(kirana, "npm/biome-plugin/recommended.json"),
   "utf8"
 )
+const biomeStrict = await readFile(
+  join(kirana, "npm/biome-plugin/strict.json"),
+  "utf8"
+)
 const lint = []
 for (const file of (
   await readdir(join(kirana, "npm/eslint-plugin/src/rules"))
@@ -161,7 +165,9 @@ for (const file of (
     biome: biomeRules.has(name)
       ? biomeRecommended.includes(`${name}.grit`)
         ? "recommended"
-        : "strict"
+        : biomeStrict.includes(`${name}.grit`)
+          ? "strict"
+          : "off"
       : "",
   })
 }
@@ -234,8 +240,8 @@ export type LintEntry = {
   readonly config: "recommended" | "strict" | "off"
   readonly level: "error" | "warn" | "off"
   readonly fix: "" | "autofix" | "suggestions"
-  /** The Biome preset that runs it, or "" when Biome cannot. */
-  readonly biome: "" | "recommended" | "strict"
+  /** The Biome preset that runs it, "off" when Biome can but no preset does, or "" when Biome cannot. */
+  readonly biome: "" | "recommended" | "strict" | "off"
 }
 
 export const LINT: readonly LintEntry[] = ${JSON.stringify(lint, null, 2)}

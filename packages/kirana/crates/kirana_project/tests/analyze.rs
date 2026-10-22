@@ -41,7 +41,7 @@ fn cards() -> String {
     source
 }
 
-const OTHER: &str = r##"import { css, keyframes, positionTry, viewTransition } from "@kirana-style/core"
+const OTHER: &str = r##"import { counterStyle, css, keyframes, positionTry, viewTransition } from "@kirana-style/core"
 export const other = css({ display: "grid", content: "'{'" })
 export const Other = () => <p sx={[other, css({ color: "green" })]} />
 const spin = keyframes({ to: { rotate: "1turn" } })
@@ -50,6 +50,8 @@ export const quoted = css({ "::before": { content: "''" } })
 const below = positionTry({ marginTop: "1px" })
 const slide = viewTransition({ old: { opacity: 0 } })
 export const Anchored = () => <p sx={[slide, css({ positionTryFallbacks: below })]} />
+const check = counterStyle({ symbols: '"*"' })
+export const Listed = () => <ul sx={css({ listStyleType: check })} />
 "##;
 
 fn project() -> (PathBuf, Project) {

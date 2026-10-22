@@ -68,15 +68,16 @@ than re-implemented, so they never disagree with the build.
   Neovim and Helix through their own LSP configuration.
 - **Lint:** [`@kirana-style/eslint-plugin`](/docs/tooling/lint) under Oxlint and
   ESLint, and [`@kirana-style/biome-plugin`](/docs/tooling/lint#biome) with the
-  four rules Biome can run.
+  five rules Biome can run.
 - **The command line:** setting a project up and checking it, with a redacted
   bug report; compiling without a bundler; sizing the stylesheet; the design
   system as JSON; and reports for CI with GitHub annotations. The
   [CLI page](/docs/tooling/cli) has every command.
 - **CSS helpers checked at build time:**
   [`firstThatWorks()`](/docs/styling/fallbacks),
-  [`positionTry()`](/docs/styling/anchor-positioning) and
-  [`viewTransition()`](/docs/styling/view-transitions).
+  [`positionTry()`](/docs/styling/anchor-positioning),
+  [`viewTransition()`](/docs/styling/view-transitions) and
+  [`counterStyle()`](/docs/styling/at-rules#counter-styles).
 - **[Agent skills](/docs/project/agent-skills)**, `kirana` and `kirana-migrate`.
 
 Still to do: publishing the Zed extension to Zed's registry.

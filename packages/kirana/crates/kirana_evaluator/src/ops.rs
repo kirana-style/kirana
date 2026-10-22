@@ -15,6 +15,7 @@ pub fn to_string(value: &Value) -> Option<String> {
         Value::Token(token) => token.css.clone(),
         Value::Keyframes(frames) => frames.name.clone(),
         Value::PositionTry(fallback) => fallback.name.clone(),
+        Value::CounterStyle(style) => style.name.clone(),
         _ => return None,
     })
 }
@@ -67,7 +68,14 @@ pub fn binary(operator: BinaryOp, left: &Value, right: &Value) -> Option<Value> 
     Some(match operator {
         BinaryOp::Add => {
             let string_like = |value: &Value| {
-                matches!(value, Value::Str(_) | Value::Token(_) | Value::Keyframes(_) | Value::PositionTry(_))
+                matches!(
+                    value,
+                    Value::Str(_)
+                        | Value::Token(_)
+                        | Value::Keyframes(_)
+                        | Value::PositionTry(_)
+                        | Value::CounterStyle(_)
+                )
             };
             if string_like(left) || string_like(right) {
                 Value::Str(Arc::from(format!("{}{}", to_string(left)?, to_string(right)?)))

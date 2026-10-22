@@ -78,7 +78,8 @@ export const LINTERS: readonly ToolChoice[] = [
 
 export type LintRule = {
   name: string
-  config: "recommended" | "strict"
+  /** The preset that runs it; "off" for a rule a project turns on itself. */
+  config: "recommended" | "strict" | "off"
   fix?: "autofix" | "suggestions"
   /** Also a Biome GritQL plugin (`@kirana-style/biome-plugin`). */
   biome?: boolean
@@ -150,6 +151,18 @@ export const LINT_RULES: readonly LintRule[] = [
     biome: true,
     catches: "clsx, tailwind-merge or cva joining class strings",
   },
+  {
+    name: "restricted-properties",
+    config: "off",
+    catches: "Properties, or values of one, the project rules out",
+  },
+  {
+    name: "use-logical-properties",
+    config: "off",
+    fix: "suggestions",
+    biome: true,
+    catches: "A left or right side a right-to-left page should mirror",
+  },
 ]
 
 const list = (choices: readonly ToolChoice[]) =>
@@ -162,5 +175,5 @@ export const lintersMarkdown = () => list(LINTERS)
 export const lintRulesMarkdown = () =>
   LINT_RULES.map(
     (rule) =>
-      `- [\`kirana/${rule.name}\`](${LINT}#${rule.name}) (${rule.config}${rule.fix ? `, ${rule.fix}` : ""}${rule.biome ? ", also Biome" : ""}): ${rule.catches}`
+      `- [\`kirana/${rule.name}\`](${LINT}#${rule.name}) (${rule.config === "off" ? "opt-in" : rule.config}${rule.fix ? `, ${rule.fix}` : ""}${rule.biome ? ", also Biome" : ""}): ${rule.catches}`
   ).join("\n")

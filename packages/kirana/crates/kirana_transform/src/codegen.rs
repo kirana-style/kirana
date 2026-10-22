@@ -131,6 +131,7 @@ impl Code {
             Value::Token(token) => self.string(&token.css),
             Value::Keyframes(frames) => self.string(&frames.name),
             Value::PositionTry(fallback) => self.string(&fallback.name),
+            Value::CounterStyle(style) => self.string(&style.name),
             // Outside a style, a run is its preferred value: what a browser that knows it keeps.
             Value::Fallbacks(members) => {
                 self.string(&kirana_evaluator::ops::to_string(&members[0]).expect("members are css-bearing"));

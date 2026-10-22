@@ -36,10 +36,22 @@ export default [kirana.configs.recommended]
 | `prefer-token`              | strict      | suggestions | A literal equal to a token's value.                                                        |
 | `finite-bridge`             | strict      |             | A runtime-bridged value only ever called with a few literals: make them variants.          |
 | `no-class-helpers`          | strict      |             | An import of `clsx`, `classnames`, `tailwind-merge` or `cva`: use `cx`, `sx` or `recipe`.  |
+| `restricted-properties`     | off         |             | A property, or a literal value of one, the project's options rule out.                     |
+| `use-logical-properties`    | off         | suggestions | `marginLeft` and the other inline-axis sides: the logical property mirrors in RTL.         |
 
 The project root is the nearest `kirana.config.*` above the linted file; `settings.kirana.root`
 overrides it. The project is compiled once per lint run, each file once whatever the number of rules.
-Results are identical under both linters; `test/parity.test.ts` proves it on every change.
+Results are identical under both linters; `test/parity.test.ts` proves it on every change. The rules
+marked `off` are a project's own policy, in neither config; turn them on by name:
+
+```js
+{
+  rules: {
+    "kirana/restricted-properties": ["error", { float: { reason: "Use flex or grid." } }],
+    "kirana/use-logical-properties": "warn",
+  },
+}
+```
 
 Biome cannot run JavaScript rules; [`@kirana-style/biome-plugin`](../biome-plugin) carries the rules
 that need no compiler as GritQL plugins.

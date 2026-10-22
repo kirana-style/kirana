@@ -68,6 +68,7 @@ catalogue! {
     FallbackOnVariable = "KRN1207", "fallback-on-variable", Warning;
     InvalidPositionTry = "KRN1208", "invalid-position-try", Error;
     InvalidViewTransition = "KRN1209", "invalid-view-transition", Error;
+    InvalidCounterStyle = "KRN1210", "invalid-counter-style", Error;
     UnknownCondition = "KRN1301", "unknown-condition", Error;
     AmbiguousPrecedence = "KRN1302", "ambiguous-precedence", Warning;
     UnsupportedContextualTarget = "KRN1303", "unsupported-contextual-target", Error;

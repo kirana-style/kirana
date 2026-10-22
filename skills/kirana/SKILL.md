@@ -55,7 +55,7 @@ an error diagnostic, 2 a bad configuration or argument.
    `kirana-style doctor`.
 1. **Learn the project first.** `kirana-style export` prints the design system as JSON: every token with
    its value and file, themes, recipes with their variants and options, relations, keyframes,
-   `positionTry` and `viewTransition` names. Use the tokens and recipes that exist instead of
+   `positionTry`, `viewTransition` and `counterStyle` names. Use the tokens and recipes that exist instead of
    inventing values. `kirana-style doctor` says whether the engine, packages and wiring are right.
 2. **Write the style** with the API below. Look up a signature in `references/api.md`.
 3. **Check it.** `kirana-style check src` prints every diagnostic as `severity[KRN1234] name: message`,
@@ -93,6 +93,7 @@ an error diagnostic, 2 a bad configuration or argument.
 | A value with a fallback for older browsers | `minHeight: firstThatWorks("100dvh", "100vh")`, preferred first                                                                                                                              |
 | Anchor-positioning fallbacks               | `const below = positionTry({ positionArea: "bottom" })`, then `positionTryFallbacks: \`${below}, flip-block\``                                                                               |
 | View-transition styles                     | `const slide = viewTransition({ old: {...}, new: {...} })`, applied as `sx={slide}` and passed as the class name to the framework's transition API; you set `viewTransitionName` per element |
+| List markers and counters                  | `const check = counterStyle({ system: "cyclic", symbols: '"✓"' })`, then `listStyleType: check` or `` content: `counter(step, ${check})` ``; `@font-face` and `@page` stay in a stylesheet   |
 
 In a bundler project the adapter compiles the styles: do not add `kirana-style build` or `dev` there.
 Those two are for server templates and projects with no bundler.

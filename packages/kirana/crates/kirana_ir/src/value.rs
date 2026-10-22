@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use crate::condition::Condition;
-use crate::defs::{Dep, KeyframesDef, PositionTryDef};
+use crate::defs::{CounterStyleDef, Dep, KeyframesDef, PositionTryDef};
 use crate::style::{Handle, Target};
 
 /// A byte range in the module being compiled.
@@ -28,6 +28,7 @@ pub enum Api {
     FirstThatWorks,
     PositionTry,
     ViewTransition,
+    CounterStyle,
 }
 
 impl Api {
@@ -50,6 +51,7 @@ impl Api {
             "firstThatWorks" => Api::FirstThatWorks,
             "positionTry" => Api::PositionTry,
             "viewTransition" => Api::ViewTransition,
+            "counterStyle" => Api::CounterStyle,
             _ => return None,
         })
     }
@@ -73,6 +75,7 @@ impl Api {
             Api::FirstThatWorks => "firstThatWorks",
             Api::PositionTry => "positionTry",
             Api::ViewTransition => "viewTransition",
+            Api::CounterStyle => "counterStyle",
         }
     }
 }
@@ -299,6 +302,8 @@ pub enum Value {
     Keyframes(Arc<KeyframesDef>),
     /// A `@position-try` rule: its dashed ident at runtime.
     PositionTry(Arc<PositionTryDef>),
+    /// A `@counter-style` rule: its custom ident at runtime.
+    CounterStyle(Arc<CounterStyleDef>),
     /// `firstThatWorks(...)`: the preferred value first. Members are static CSS-bearing values.
     Fallbacks(Arc<Vec<Value>>),
     Conditions(Arc<Vec<Condition>>),

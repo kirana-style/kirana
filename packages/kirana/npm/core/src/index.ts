@@ -32,6 +32,9 @@ export type Keyframes = string & { readonly [brand]: "Keyframes" }
 /** An `@position-try` rule's dashed ident, listed in `positionTryFallbacks` (KRN-API-018). */
 export type PositionTry = string & { readonly [brand]: "PositionTry" }
 
+/** An `@counter-style` rule's name, for `listStyleType` and `counter()` (KRN-API-020). */
+export type CounterStyle = string & { readonly [brand]: "CounterStyle" }
+
 declare const members: unique symbol
 
 /** A `firstThatWorks()` run: the values a property tries, preferred first (KRN-API-017). */
@@ -374,6 +377,40 @@ export type PositionTryBlock = {
  */
 export function positionTry(_block: PositionTryBlock): PositionTry {
   return uncompiled("positionTry")
+}
+
+/**
+ * The descriptors of an `@counter-style` rule, as CSS text: a string symbol keeps its quotes
+ * (`symbols: '"✓"'`, `suffix: '" "'`).
+ */
+export type CounterStyleDescriptors = {
+  readonly system?:
+    | "cyclic"
+    | "numeric"
+    | "alphabetic"
+    | "symbolic"
+    | "additive"
+    | "fixed"
+    | (string & {})
+  readonly symbols?: string
+  readonly additiveSymbols?: string
+  readonly negative?: string
+  readonly prefix?: string
+  readonly suffix?: string
+  readonly range?: string
+  readonly pad?: string
+  readonly fallback?: string
+  readonly speakAs?: string
+}
+
+/**
+ * An `@counter-style` rule (KRN-API-020). The result is its name, for `listStyleType` or
+ * `` content: `counter(item, ${style})` ``; the rule ships only where something references it.
+ */
+export function counterStyle(
+  _descriptors: CounterStyleDescriptors
+): CounterStyle {
+  return uncompiled("counterStyle")
 }
 
 /** One pseudo-element of a view transition: properties, each plain or under `media()`/`supports()`. */

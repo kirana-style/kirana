@@ -103,5 +103,12 @@ expression: "serde_json::to_string_pretty(&shown).unwrap()"
       "origin": "src/design.ts:13",
       "css": "kwTyjU"
     }
+  ],
+  "counterStyles": [
+    {
+      "name": "check",
+      "origin": "src/design.ts:14",
+      "css": "kcLn6a"
+    }
   ]
 }
