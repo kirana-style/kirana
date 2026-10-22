@@ -124,7 +124,7 @@ Rules:
 
 ## Private runtime
 
-**KRN-DYN-005** — The private runtime MUST stay at or below **1.0 kB minified and gzipped** in total, and
+**KRN-DYN-005** — The private runtime MUST stay at or below **1.1 kB minified and gzipped** in total (D-083), and
 MUST expose no public API (D-018). The compiler imports it from the subpath `@kirana-style/core/internal` as a
 real package export, so every host resolves it without virtual modules. A module creates one instance
 for its build's prefix (`const __k = runtime("k")`), which provides:

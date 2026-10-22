@@ -77,7 +77,7 @@ modules are byte-identical across all runs (KRN-OUT-006).
 **KRN-TEST-006** — The conformance suite MUST compare computed styles, not screenshots, across the three
 implementations of the three-way corpus ([14](./14-benchmark-methodology.md#corpora)). Its method is the one
 the project used to verify the StyleX port, extended with every gap that let a bug through
-(, W2 and W3):
+(W2 and W3):
 
 | Dimension         | Coverage                                                                                                                                                                                                                                           |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
