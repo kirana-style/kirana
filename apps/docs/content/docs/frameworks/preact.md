@@ -42,7 +42,7 @@ export default defineConfig({ plugins: [kirana(), preact()] })
 }
 ```
 
-Without a `tsconfig.json`, set [`jsx: "preact"`](/docs/config/reference) in
+Without a `tsconfig.json`, set [`jsx: "preact"`](/docs/reference/config) in
 `kirana.config.ts` instead.
 
 ## 4. Import the stylesheet

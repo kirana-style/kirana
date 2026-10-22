@@ -168,7 +168,7 @@ export default defineConfig({
 })
 ```
 
-Every key is listed in the [configuration reference](/docs/config/reference).
+Every key is listed in the [configuration reference](/docs/reference/config).
 
 ### 3. The stylesheet entry
 
@@ -219,7 +219,7 @@ The CSS Kirana writes runs in Chrome 123, Safari 17.5, Firefox 120 and later, th
 versions with `light-dark()`: every colour token is one `light-dark()` value, so
 light and dark mode need no second stylesheet and no class to toggle. Every
 current browser qualifies. To reach older ones, set
-[`targets`](/docs/config/reference#targets) below that floor and the compiler
+[`targets`](/docs/reference/config#targets) below that floor and the compiler
 lowers what it can.
 
 ## Check it worked

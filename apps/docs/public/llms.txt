@@ -124,19 +124,19 @@ change the API. Pages state what is built and what is planned.
 
 - [Migrating from Tailwind](https://kirana.style/docs/migration/from-tailwind.md): The mental shift, the utility mapping, and the pitfalls that actually cost time.
 - [Migrating from StyleX](https://kirana.style/docs/migration/from-stylex.md): The API maps almost directly; this page shows the mapping, and the one difference in how styles merge that will bite you.
-- [Verifying a migration](https://kirana.style/docs/advanced/conformance.md): How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.
+- [Verifying a migration](https://kirana.style/docs/migration/conformance.md): How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.
 
 ## Building
 
-- [Habits for a new project](https://kirana.style/docs/start/tips.md): The habits that would have saved us the most time on day one, learnt building and migrating three applications on Kirana.
-- [Building a design system](https://kirana.style/docs/advanced/design-system.md): How the layered system in this repository is put together, and why each layer exists.
-- [Publishing a library](https://kirana.style/docs/advanced/libraries.md): Ship a component library styled with Kirana: the package keeps its styles uncompiled, and each app that lists it in libraries compiles them.
-- [The output](https://kirana.style/docs/advanced/output.md): What the stylesheet looks like, how classes are named, and what determinism buys you.
+- [Habits for a new project](https://kirana.style/docs/building/tips.md): The habits that would have saved us the most time on day one, learnt building and migrating three applications on Kirana.
+- [Building a design system](https://kirana.style/docs/building/design-system.md): How the layered system in this repository is put together, and why each layer exists.
+- [Publishing a library](https://kirana.style/docs/building/libraries.md): Ship a component library styled with Kirana: the package keeps its styles uncompiled, and each app that lists it in libraries compiles them.
+- [The output](https://kirana.style/docs/building/output.md): What the stylesheet looks like, how classes are named, and what determinism buys you.
 
 ## API
 
 - [API reference](https://kirana.style/docs/reference/api.md): Every export of @kirana-style/core, with its signature and what it returns.
-- [Configuration reference](https://kirana.style/docs/config/reference.md): Every key that exists today, with its type, default and what it changes.
+- [Configuration reference](https://kirana.style/docs/reference/config.md): Every key that exists today, with its type, default and what it changes.
 
 ## Tools
 
@@ -151,8 +151,8 @@ change the API. Pages state what is built and what is planned.
 - [What works today](https://kirana.style/docs/project/status.md): What is built, what is partial and what is planned.
 - [Roadmap](https://kirana.style/docs/project/roadmap.md): The milestones, what each one delivered, and what comes before 1.0.
 - [Releases and upgrading](https://kirana.style/docs/project/releases.md): How versions work, what before 1.0 means, and how a breaking change is announced.
-- [Ecosystem and status](https://kirana.style/docs/integrations/ecosystem.md): What works today, what is planned, and which milestone each thing belongs to.
 - [Benchmarks](https://kirana.style/docs/project/benchmarks.md): Kirana measured against StyleX, compiled by Babel and by SWC, and Tailwind on the same applications, on every release, with every number's confidence interval.
+- [Ecosystem and status](https://kirana.style/docs/project/ecosystem.md): What works today, what is planned, and which milestone each thing belongs to.
 - [Contributing](https://kirana.style/docs/project/contributing.md): How to report a bug, fix the docs, get a pull request merged, and support Kirana.
 - [For LLMs](https://kirana.style/docs/project/llms.md): Plain-text endpoints of this documentation, written for coding agents: llms.txt, the full text, and a markdown twin of every page.
 - [Agent skills](https://kirana.style/docs/project/agent-skills.md): Two installable skills teach a coding agent to write Kirana and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule.

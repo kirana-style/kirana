@@ -26,7 +26,7 @@ it cannot drift from what the compiler actually emits.
 - **info**: something worth knowing: a runtime bridge, a lowered target.
 
 Any non-error can be re-levelled, including to `"off"`, in
-[`diagnostics`](/docs/config/reference).
+[`diagnostics`](/docs/reference/config).
 
 ## The ones you will actually meet
 

@@ -1,10 +1,5 @@
----
-title: Habits for a new project
-description: The habits that would have saved us the most time on day one, learnt building and migrating three applications on Kirana.
-section: building
-order: 1
-keywords: [tips, best practices, habits, conventions, from scratch, pitfalls]
----
+# Habits for a new project
+Source: https://kirana.style/docs/building/tips
 
 # Habits for a new project
 
@@ -182,7 +177,7 @@ diagnostics: {
 ```
 
 When a library never sets both, name the pair in
-[`conditions.exclusive`](/docs/config/reference) instead.
+[`conditions.exclusive`](/docs/reference/config) instead.
 
 **Checked by** `ambiguous-precedence`.
 
@@ -285,4 +280,4 @@ $ kirana-style trace src/card.tsx:12 minHeight
 To verify a port or a refactor, compare **computed styles**, not screenshots, in
 both colour schemes and at several widths. A 1 px border, an easing curve and a
 missing hover state were all invisible in screenshots and obvious in a diff. See
-[conformance](/docs/advanced/conformance).
+[conformance](/docs/migration/conformance).

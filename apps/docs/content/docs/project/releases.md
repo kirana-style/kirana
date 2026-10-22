@@ -48,4 +48,4 @@ What is _not_ breaking: new diagnostics, new API, better messages, smaller outpu
 3. Build, and diff the stylesheet. Output is deterministic, so a diff is
    meaningful: it shows exactly which declarations changed.
 4. If the project has a visual baseline, compare computed styles rather than
-   screenshots. [Conformance](/docs/advanced/conformance) explains the method.
+   screenshots. [Conformance](/docs/migration/conformance) explains the method.

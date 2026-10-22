@@ -1,5 +1,5 @@
 # Building a design system
-Source: https://kirana.style/docs/advanced/design-system
+Source: https://kirana.style/docs/building/design-system
 
 # Building a design system
 

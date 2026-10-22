@@ -1,10 +1,5 @@
----
-title: Ecosystem and status
-description: What works today, what is planned, and which milestone each thing belongs to.
-section: project
-order: 4
-keywords: [ecosystem, status, support, bundlers, frameworks, editors, roadmap]
----
+# Ecosystem and status
+Source: https://kirana.style/docs/project/ecosystem
 
 # Ecosystem and status
 
@@ -59,7 +54,7 @@ Every framework has a guide and a tested example; the
 | `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod) |
 | Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                               |
 | `@kirana-style/eslint-plugin`, for Oxlint and ESLint                                    | [lint](/docs/tooling/lint)                                           |
-| `@kirana-style/biome-plugin`: the {{fact:biome-rules-word}} rules that need no compiler | [lint](/docs/tooling/lint#biome)                                     |
+| `@kirana-style/biome-plugin`: the four rules that need no compiler | [lint](/docs/tooling/lint#biome)                                     |
 | Agent skills                                                                            | [agent skills](/docs/project/agent-skills)                           |
 
 ## Runtime and distribution
@@ -75,5 +70,5 @@ Every framework has a guide and a tested example; the
 - `presets`, to compose preset packages. Import preset modules directly instead.
 
 It fails validation today. (`libraries` works: see
-[publishing a library](/docs/advanced/libraries).) See the [roadmap](/docs/project/roadmap) for when they
+[publishing a library](/docs/building/libraries).) See the [roadmap](/docs/project/roadmap) for when they
 are scheduled.

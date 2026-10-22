@@ -64,4 +64,4 @@ export default defineConfig({ ...uiConfig, layers: { before: ["reset"] } })
 ```
 
 That is how a component library tells every app what its attributes guarantee;
-see [`conditions.exclusive`](/docs/config/reference).
+see [`conditions.exclusive`](/docs/reference/config).

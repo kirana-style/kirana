@@ -1,22 +1,5 @@
----
-title: Configuration reference
-description: Every key that exists today, with its type, default and what it changes.
-kind: config
-section: reference
-order: 2
-keywords:
-  [
-    configuration reference,
-    targets,
-    layers,
-    prefix,
-    branchBudget,
-    diagnostics,
-    exclusive,
-    classes,
-    externals,
-  ]
----
+# Configuration reference
+Source: https://kirana.style/docs/reference/config
 
 # Configuration reference
 
@@ -38,7 +21,7 @@ targets: { chrome?: number | string, safari?: number | string, firefox?: number 
 ```
 
 Browser versions to compile for, as a major number (`123`) or `"major.minor"`
-(`"17.5"`). The default floor is **{{fact:browser-floor}}**.
+(`"17.5"`). The default floor is **Chrome 123, Safari 17.5, Firefox 120**.
 
 Setting a target below the floor makes Lightning CSS lower the output where it
 can, and emits `target-lowering` (informational) so you know it happened. A minor
@@ -94,7 +77,7 @@ published Kirana library ships its `css()` calls uncompiled; listing it here put
 its styles in your stylesheet, deduplicated with yours and under your prefix,
 targets and layers. Leave a library out and its first `css()` throws with a message
 naming this key. Kirana's own scales preset is compiled without being listed. See
-[publishing a library](/docs/advanced/libraries).
+[publishing a library](/docs/building/libraries).
 
 ## `presets`
 
