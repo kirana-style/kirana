@@ -21,6 +21,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@workspace/ui/components/dropdown-menu"
 import { Icon } from "@workspace/ui/primitives/icon"
@@ -155,6 +156,8 @@ export function CopyPage({ href }: { href: string }) {
           >
             {item(FileScriptIcon, "View as markdown", "The page as plain text")}
           </DropdownMenuItem>
+          {/* What the page is, then where to take it. */}
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             sx={styles.item}
             render={

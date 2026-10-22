@@ -1206,6 +1206,9 @@ const thumbs = {
       [breakpoint.md]: "1fr",
     },
     alignItems: "center",
+    // From md the drawing and the name stack; a cell whose name wraps to two lines must not push
+    // the drawing of the cells beside it down, so the rows pack to the top.
+    alignContent: { base: "normal", [breakpoint.md]: "start" },
     textDecorationLine: "none",
     color: theme.foreground,
     backgroundColor: { base: theme.background, ":hover": alpha.muted50 },
@@ -1237,7 +1240,7 @@ const IDEAS: { id: string; name: string; art: React.ReactNode }[] = [
     id: "1-you-write-properties-not-classes",
     name: "Properties, not classes",
     art: (
-      <Card title="card" width={112}>
+      <Card title="card" width={112} dots={false}>
         <Row>
           <T tone="muted">gap</T>
           <T>1rem</T>
@@ -1253,7 +1256,7 @@ const IDEAS: { id: string; name: string; art: React.ReactNode }[] = [
     id: "2-merging-replaces-entries-not-properties",
     name: "Entries, not properties",
     art: (
-      <Card title="color" width={112}>
+      <Card title="color" width={112} dots={false}>
         <Row lit>
           <T tone="muted">base</T>
           <T tone="prompt">grey</T>
@@ -1269,7 +1272,7 @@ const IDEAS: { id: string; name: string; art: React.ReactNode }[] = [
     id: "3-a-ladder-decides-what-wins-not-specificity",
     name: "A ladder, not specificity",
     art: (
-      <Card title="wins" width={112}>
+      <Card title="wins" width={112} dots={false}>
         <Row lit>
           <Tag tone="success" icon={Tick02Icon} />
           <T tone="strong">:hover</T>
@@ -1308,7 +1311,7 @@ const IDEAS: { id: string; name: string; art: React.ReactNode }[] = [
     id: "5-your-editor-shows-what-the-element-gets",
     name: "The editor shows it",
     art: (
-      <Card title="plan.tsx" icon={FileEditIcon} width={116}>
+      <Card title="plan.tsx" icon={FileEditIcon} width={116} dots={false}>
         <Row flat>
           <T tone="strong">{"<h2>"}</T>
         </Row>
@@ -1331,7 +1334,7 @@ const HABITS: {
     name: "Structure",
     range: "01–04",
     art: (
-      <Card title="styles" width={112}>
+      <Card title="styles" width={112} dots={false}>
         <Row>
           <T tone="strong">card</T>
         </Row>
@@ -1346,7 +1349,7 @@ const HABITS: {
     name: "Values",
     range: "05–08",
     art: (
-      <Card title="text" width={112}>
+      <Card title="text" width={112} dots={false}>
         <Row>
           <T tone="muted">size</T>
           <T>sm</T>
@@ -1363,7 +1366,7 @@ const HABITS: {
     name: "Overrides and states",
     range: "09–13",
     art: (
-      <Card title="alignSelf" width={112}>
+      <Card title="alignSelf" width={112} dots={false}>
         <Row lit>
           <Tag tone="success" icon={Tick02Icon} />
           <T tone="strong">vertical</T>
@@ -1380,7 +1383,7 @@ const HABITS: {
     name: "Runtime values",
     range: "14",
     art: (
-      <Card title="tone" width={112}>
+      <Card title="tone" width={112} dots={false}>
         <Row lit>
           <T tone="muted">danger</T>
           <T tone="strong">a</T>
@@ -1397,7 +1400,7 @@ const HABITS: {
     name: "Checking",
     range: "15",
     art: (
-      <Card title="trace" width={112}>
+      <Card title="trace" width={112} dots={false}>
         <Row lit>
           <Tag tone="success" icon={Tick02Icon} />
           <T tone="strong">:hover</T>

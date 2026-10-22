@@ -634,6 +634,7 @@ export function Card({
   dashed,
   danger,
   glow,
+  dots = true,
   sx,
   children,
 }: {
@@ -644,6 +645,8 @@ export function Card({
   dashed?: boolean
   danger?: boolean
   glow?: boolean
+  /** The window's traffic lights; off where a grid of small cards would repeat them in every cell. */
+  dots?: boolean
   sx?: Sx
   children: React.ReactNode
 }) {
@@ -661,26 +664,28 @@ export function Card({
       >
         {title !== undefined ? (
           <div sx={styles.cardBar}>
-            <span sx={styles.dots}>
-              <span
-                sx={[
-                  styles.dot,
-                  css({ backgroundColor: "oklch(0.72 0.17 20)" }),
-                ]}
-              />
-              <span
-                sx={[
-                  styles.dot,
-                  css({ backgroundColor: "oklch(0.82 0.15 80)" }),
-                ]}
-              />
-              <span
-                sx={[
-                  styles.dot,
-                  css({ backgroundColor: "oklch(0.76 0.15 160)" }),
-                ]}
-              />
-            </span>
+            {dots ? (
+              <span sx={styles.dots}>
+                <span
+                  sx={[
+                    styles.dot,
+                    css({ backgroundColor: "oklch(0.72 0.17 20)" }),
+                  ]}
+                />
+                <span
+                  sx={[
+                    styles.dot,
+                    css({ backgroundColor: "oklch(0.82 0.15 80)" }),
+                  ]}
+                />
+                <span
+                  sx={[
+                    styles.dot,
+                    css({ backgroundColor: "oklch(0.76 0.15 160)" }),
+                  ]}
+                />
+              </span>
+            ) : null}
             <span sx={styles.cardTitle}>
               {icon ? <Icon icon={icon} size="0.625rem" /> : null}
               {title}

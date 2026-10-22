@@ -19,14 +19,14 @@ export type Tool = "runtime" | "stylex" | "panda" | "tailwind" | "kirana"
 /** Each tool's name, and one line on what kind of tool it is. */
 /**
  * Each tool's name, one line on what kind of tool it is, and its logo (svgl.app, then
- * LogoForge); a tool neither has shows a monogram (`mark`) instead. Kirana shows its own.
+ * LogoForge). Kirana shows its own. A column that is a kind of tool rather than one product
+ * (runtime CSS-in-JS) has no logo, since no one product's mark stands for it.
  */
 export const TOOLS: readonly {
   id: Tool
   name: string
   note: string
   logo?: Brand
-  mark?: string
 }[] = [
   { id: "kirana", name: "Kirana", note: "Compiled CSS-in-JS" },
   { id: "stylex", name: "StyleX", note: "Compiled atomic CSS", logo: "stylex" },
@@ -46,7 +46,6 @@ export const TOOLS: readonly {
     id: "runtime",
     name: "Runtime CSS-in-JS",
     note: "Emotion, styled-components",
-    mark: "SC",
   },
 ]
 
@@ -511,6 +510,7 @@ export const ROWS: readonly Row[] = [
         brands: ["eslint"],
       },
       panda: {
+        // consistency: subset (Panda's own linters, not Kirana's)
         short: "ESLint + Oxlint",
         tone: "good",
         text: "@pandacss/eslint-plugin lints against the same extraction the build uses, under ESLint and Oxlint",
@@ -564,6 +564,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "llms.txt",
         tone: "good",
+        // consistency: subset (the agent skills are the next row's)
         text: "llms.txt, llms-full.txt and a markdown twin of every page; and the styles themselves are plain CSS properties an agent already knows",
         source: "/docs/project/llms",
       },
