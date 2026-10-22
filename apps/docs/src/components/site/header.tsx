@@ -169,13 +169,26 @@ const styles = {
     minHeight: { [pointer.coarse]: "2.75rem" },
   }),
 
-  // Panels
+  // Panels: a solid card in a frame of frosted glass, the editor showcase's pane in small. The
+  // popup is the glass, the content's padding its width, and the panel the card inside it.
+  glass: css({
+    borderRadius: "1.25rem",
+    backgroundColor:
+      "light-dark(rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.06))",
+    backdropFilter: "blur(16px) saturate(1.4)",
+    boxShadow:
+      "0 0 0 1px light-dark(rgb(0 0 0 / 0.07), rgb(255 255 255 / 0.1)), inset 0 1px 0 light-dark(rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.08)), 0 24px 60px -24px rgb(10 20 30 / 0.35)",
+  }),
+  frame: css({ padding: spacing["1.5"] }),
   panel: css({
     display: "grid",
     gridAutoFlow: "column",
     gridAutoColumns: "minmax(0, 1fr)",
     padding: spacing[2],
     gap: spacing[2],
+    borderRadius: "0.875rem",
+    backgroundColor: theme.popover,
+    boxShadow: `0 0 0 1px ${alpha.foreground10}`,
   }),
   panelWide: css({ width: "60rem" }),
   panelMedium: css({ width: "48rem" }),
@@ -440,6 +453,7 @@ function DesktopNav() {
         style={{ left: box?.left, width: box?.width, opacity: shown ? 1 : 0 }}
       />
       <NavigationMenu
+        popupSx={styles.glass}
         value={open}
         onValueChange={(value) => setOpen((value as string | null) ?? null)}
       >
@@ -449,7 +463,7 @@ function DesktopNav() {
               <NavigationMenuTrigger data-pill={menu.title} sx={styles.trigger}>
                 {menu.title}
               </NavigationMenuTrigger>
-              <NavigationMenuContent>
+              <NavigationMenuContent sx={styles.frame}>
                 <Panel menu={menu} />
               </NavigationMenuContent>
             </NavigationMenuItem>

@@ -8,6 +8,7 @@ import { POSTS } from "@/generated/content.gen"
 
 import { Icon } from "@workspace/ui/primitives/icon"
 import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
+import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
@@ -36,6 +37,8 @@ const styles = {
     color: theme.foreground,
   }),
   label: css({ fontWeight: fontWeight.semibold }),
+  // On a phone the second sentence wraps to a line of its own; the release is the news.
+  detail: css({ display: { base: "none", [breakpoint.sm]: "inline" } }),
   link: css({
     color: theme.foreground,
     textDecorationLine: "underline",
@@ -105,7 +108,7 @@ export function StatusBanner() {
       aria-label="Status"
     >
       <span sx={styles.label}>Kirana {VERSION} is on npm.</span>
-      <span>
+      <span sx={styles.detail}>
         One command sets a project up.{" "}
         <DocsLink href={NOTES} sx={styles.link}>
           Read the release notes

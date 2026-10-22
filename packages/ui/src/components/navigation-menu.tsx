@@ -203,10 +203,15 @@ const styles = {
 function NavigationMenu({
   align = "start",
   sx,
+  popupSx,
   children,
   ...props
 }: Omit<NavigationMenuPrimitive.Root.Props, "className"> &
-  Pick<NavigationMenuPrimitive.Positioner.Props, "align"> & { sx?: Sx }) {
+  Pick<NavigationMenuPrimitive.Positioner.Props, "align"> & {
+    sx?: Sx
+    /** Styles for the popup the panels open in, which the root renders itself. */
+    popupSx?: Sx
+  }) {
   return (
     <NavigationMenuPrimitive.Root
       data-slot="navigation-menu"
@@ -214,7 +219,7 @@ function NavigationMenu({
       {...styleProps(styles.root, sx)}
     >
       {children}
-      <NavigationMenuPositioner align={align} />
+      <NavigationMenuPositioner align={align} popupSx={popupSx} />
     </NavigationMenuPrimitive.Root>
   )
 }
@@ -283,12 +288,16 @@ function NavigationMenuContent({
 
 function NavigationMenuPositioner({
   sx,
+  popupSx,
   side = "bottom",
   sideOffset = 8,
   align = "start",
   alignOffset = 0,
   ...props
-}: Omit<NavigationMenuPrimitive.Positioner.Props, "className"> & { sx?: Sx }) {
+}: Omit<NavigationMenuPrimitive.Positioner.Props, "className"> & {
+  sx?: Sx
+  popupSx?: Sx
+}) {
   return (
     <NavigationMenuPrimitive.Portal>
       <NavigationMenuPrimitive.Positioner
@@ -299,7 +308,7 @@ function NavigationMenuPositioner({
         {...props}
         {...styleProps(styles.positioner, sx)}
       >
-        <NavigationMenuPrimitive.Popup {...styleProps(styles.popup)}>
+        <NavigationMenuPrimitive.Popup {...styleProps(styles.popup, popupSx)}>
           <NavigationMenuPrimitive.Viewport {...styleProps(styles.viewport)} />
         </NavigationMenuPrimitive.Popup>
       </NavigationMenuPrimitive.Positioner>
