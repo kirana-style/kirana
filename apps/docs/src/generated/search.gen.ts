@@ -47,7 +47,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Introduction",
     "section": "start",
     "heading": "What it gives you",
-    "text": "Typed styles. Ordinary objects, checked by TypeScript, with camelCase CSS property names and real values, not a string vocabulary you have to learn. Conditions inside values. reads in the order it applies, instead of scattering prefixes across a class list. Predictable precedence. A stated ladder decides which value wins, and the diagnostic tells you when two values could both apply. Tokens and themes. Design tokens compile to constants or custom properties, and every colour can be a pair, so dark mode needs no variant. Real diagnostics. 45 checks with codes, severities and help text, from unknown properties to a component that forgets to pass on."
+    "text": "Typed styles. Ordinary objects, checked by TypeScript, with camelCase CSS property names and real values, not a string vocabulary you have to learn. Conditions inside values. reads in the order it applies, instead of scattering prefixes across a class list. Predictable precedence. A stated ladder decides which value wins, and the diagnostic tells you when two values could both apply. Tokens and themes. Design tokens compile to constants or custom properties, and every colour can be a pair, so dark mode needs no variant. Real diagnostics. 46 checks with codes, severities and help text, from unknown properties to a component that forgets to pass on."
   },
   {
     "id": "/docs#what-it-is-not",
@@ -670,6 +670,61 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "writing",
     "heading": "Your own tokens",
     "text": "A grammar reads its scales from modules, the way an would. Point a scale at your theme and reaches your semantic tokens: Later presets and your own replace earlier ones scale by scale, root by root and variant by variant. The full shape is in the configuration reference ."
+  },
+  {
+    "id": "/docs/styling/at-rules",
+    "href": "/docs/styling/at-rules",
+    "page": "At-rules",
+    "section": "writing",
+    "text": "Where each CSS at-rule lives with Kirana. Counter styles with counterStyle(), the ones a helper or a condition writes, and the ones a plain stylesheet does better. "
+  },
+  {
+    "id": "/docs/styling/at-rules#at-rules",
+    "href": "/docs/styling/at-rules#at-rules",
+    "page": "At-rules",
+    "section": "writing",
+    "heading": "At-rules",
+    "text": "An at-rule that a style depends on is written by Kirana, under a hashed name and only when something uses it. An at-rule that belongs to the whole page stays in a stylesheet, where CSS already says it well."
+  },
+  {
+    "id": "/docs/styling/at-rules#counter-styles",
+    "href": "/docs/styling/at-rules#counter-styles",
+    "page": "At-rules",
+    "section": "writing",
+    "heading": "Counter styles",
+    "text": "defines how a list or a counter writes its numbers: ticks, letters, roman numerals, any symbols you choose. The result is the rule's name, , for a list's marker or a counter. The rule ships once, in , and only if a style uses it: The keys are the CSS descriptors in camel case: Each value is CSS text, so a symbol keeps its quotes. One counter style can build on another, and the other ships with it:"
+  },
+  {
+    "id": "/docs/styling/at-rules#why-not-a-stylesheet",
+    "href": "/docs/styling/at-rules#why-not-a-stylesheet",
+    "page": "At-rules",
+    "section": "writing",
+    "heading": "Why not a stylesheet",
+    "text": "A counter style in a global stylesheet has a global name that any other can collide with. It ships whether a page uses it or not. And a name misspelt in gives no error: the list quietly falls back to decimal numbers. With the name is a value your editor completes and the compiler checks."
+  },
+  {
+    "id": "/docs/styling/at-rules#what-the-compiler-checks",
+    "href": "/docs/styling/at-rules#what-the-compiler-checks",
+    "page": "At-rules",
+    "section": "writing",
+    "heading": "What the compiler checks",
+    "text": "A browser drops a broken counter style without a word, so reports each way it breaks: a key that is not a descriptor ( ); a value that reads a custom property, which descriptors cannot (a variable token); a value that is empty, or not CSS, or only known at runtime; a system without what it draws with: most need , an additive one needs , and one that extends another style takes neither. An inlined token works as a value, since it is plain text by then. A system newer than the compiler is left to the browser."
+  },
+  {
+    "id": "/docs/styling/at-rules#in-a-stylesheet",
+    "href": "/docs/styling/at-rules#in-a-stylesheet",
+    "page": "At-rules",
+    "section": "writing",
+    "heading": "In a stylesheet",
+    "text": "and belong to the page rather than to an element, so they stay in CSS, imported once from your entry point. Your bundler resolves the font's and fingerprints the file. That works in a stylesheet and cannot work from a value inside a module, which is why Kirana has no . A style then names the family like any other value, and a token can hold it: These rules are not inside a layer, and they need not be: neither styles an element, so they never compete with Kirana's atoms. Element styles of your own that must sit beside Kirana's go in a layer ."
+  },
+  {
+    "id": "/docs/styling/at-rules#a-named-media-query",
+    "href": "/docs/styling/at-rules#a-named-media-query",
+    "page": "At-rules",
+    "section": "writing",
+    "heading": "A named media query",
+    "text": "gives a media query a name, but no browser reads it yet. A condition in a constant does the same today: The compiler reads the constant across modules, so a query is written once and every style that names it is checked."
   },
   {
     "id": "/docs/styling/merging",
@@ -3632,7 +3687,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from StyleX",
     "section": "migration",
     "heading": "What Kirana has that StyleX does not",
-    "text": "The mapping above is close to one-to-one because both systems share a premise. These are the things that have no StyleX counterpart, and between them they are most of the reason Kirana exists. A stated precedence ladder, and a tool that reads it back. StyleX offers two modes (later-wins and property-specificity), and neither reproduced what the Tailwind components needed. Kirana has one ladder, and prints every candidate declaration, the winner, and the step that decided it. Ambiguity is reported. When two values could both apply and nothing orders them, the compiler says so ( ) instead of silently picking. is how you tell it that a library never sets two attributes together. A diagnostics catalogue. 45 codes with stable names, severities and help text, and a configuration key to re-level the non-errors. StyleX reports compilation failures; it does not have a catalogue you can suppress, raise, or look up. Relations are declared and checked. gives you an anchor and three reads, and the compiler errors when a relation is read but never anchored ( ) or anchored in a position that cannot match ( ). StyleX's with marker classes compiles either way, and a mis-placed marker is a rule that"
+    "text": "The mapping above is close to one-to-one because both systems share a premise. These are the things that have no StyleX counterpart, and between them they are most of the reason Kirana exists. A stated precedence ladder, and a tool that reads it back. StyleX offers two modes (later-wins and property-specificity), and neither reproduced what the Tailwind components needed. Kirana has one ladder, and prints every candidate declaration, the winner, and the step that decided it. Ambiguity is reported. When two values could both apply and nothing orders them, the compiler says so ( ) instead of silently picking. is how you tell it that a library never sets two attributes together. A diagnostics catalogue. 46 codes with stable names, severities and help text, and a configuration key to re-level the non-errors. StyleX reports compilation failures; it does not have a catalogue you can suppress, raise, or look up. Relations are declared and checked. gives you an anchor and three reads, and the compiler errors when a relation is read but never anchored ( ) or anchored in a position that cannot match ( ). StyleX's with marker classes compiles either way, and a mis-placed marker is a rule that"
   },
   {
     "id": "/docs/migration/from-stylex#what-stylex-has-that-kirana-does-not",
@@ -4085,6 +4140,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Styles for a view transition's pseudo-elements. The result is a style handle for and, at once, the name a framework's transition API takes. View transitions ."
   },
   {
+    "id": "/docs/reference/api#counterstyle-descriptors",
+    "href": "/docs/reference/api#counterstyle-descriptors",
+    "page": "API reference",
+    "section": "reference",
+    "heading": "counterStyle(descriptors)",
+    "text": "An rule and its name, for a list's marker or a counter. The keys are the CSS descriptors, written as CSS text. An unknown descriptor, a custom property or a system without the symbols it needs is reported. At-rules ."
+  },
+  {
     "id": "/docs/reference/api#definetokens-namespace-values-options",
     "href": "/docs/reference/api#definetokens-namespace-values-options",
     "page": "API reference",
@@ -4320,7 +4383,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style export",
-    "text": "The design system, as JSON: every token with its value (and both halves of a pair), each theme and the tokens it overrides, each recipe with its variant groups, options and defaults, every relation and where it is anchored and read, and the keyframes, and names. Each comes with the file and line that declares it. It is what a coding agent should read before writing a style (the tokens and recipes that exist, by their real names), and what a design tool or a review needs to see what a change did to the system. Names, values and project-relative locations only, never source text; everything is sorted, so the file diffs cleanly when it is committed. changes only when a field does. The exit code is 1 when the project has errors, as for ."
+    "text": "The design system, as JSON: every token with its value (and both halves of a pair), each theme and the tokens it overrides, each recipe with its variant groups, options and defaults, every relation and where it is anchored and read, and the keyframes, , and names. Each comes with the file and line that declares it. It is what a coding agent should read before writing a style (the tokens and recipes that exist, by their real names), and what a design tool or a review needs to see what a change did to the system. Names, values and project-relative locations only, never source text; everything is sorted, so the file diffs cleanly when it is committed. changes only when a field does. The exit code is 1 when the project has errors, as for ."
   },
   {
     "id": "/docs/tooling/cli#kirana-style-trace",
@@ -4558,7 +4621,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Lint",
     "section": "tooling",
     "heading": "Pick your linter",
-    "text": "Under Oxlint and ESLint the rules are the same objects, and so are their results: the same reports at the same places, and the same fixed text. A test runs every rule through both linters on each change. Biome cannot run JavaScript rules, so it gets the four that need no compiler, rewritten as GritQL plugins."
+    "text": "Under Oxlint and ESLint the rules are the same objects, and so are their results: the same reports at the same places, and the same fixed text. A test runs every rule through both linters on each change. Biome cannot run JavaScript rules, so it gets the five that need no compiler, rewritten as GritQL plugins."
   },
   {
     "id": "/docs/tooling/lint#oxlint",
@@ -4582,7 +4645,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Lint",
     "section": "tooling",
     "heading": "Biome",
-    "text": "carries the rules that need no compiler, as GritQL plugins : Its presets turn them on: A test runs each of them through Biome and through its ESLint original, and the reports (line, column and message) must match. Each message starts with the rule's name, since Biome files every plugin diagnostic under . The presets name the rules as , because Biome resolves a plugin path from the project; in a workspace member whose sits higher up, list the files from there in . A Biome plugin matches syntax: it cannot ask the compiler or read another file. What the other rules would report reaches a Biome project two other ways: in CI, as pull-request annotations, and the language server in the editor: and stay ESLint and Oxlint only: counting member reads and ordering keys against the property table are beyond what GritQL can express."
+    "text": "carries the rules that need no compiler, as GritQL plugins : , in neither preset Its presets turn them on: A test runs each of them through Biome and through its ESLint original, and the reports (line, column and message) must match. Each message starts with the rule's name, since Biome files every plugin diagnostic under . The presets name the rules as , because Biome resolves a plugin path from the project; in a workspace member whose sits higher up, list the files from there in . A Biome plugin matches syntax: it cannot ask the compiler or read another file. What the other rules would report reaches a Biome project two other ways: in CI, as pull-request annotations, and the language server in the editor: and stay ESLint and Oxlint only: counting member reads and ordering keys against the property table are beyond what GritQL can express."
   },
   {
     "id": "/docs/tooling/lint#the-project-root",
@@ -4598,7 +4661,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Lint",
     "section": "tooling",
     "heading": "Configs",
-    "text": "Biome's presets have the same names and hold the rules it can run."
+    "text": "Biome's presets have the same names and hold the rules it can run. A rule in neither preset is turned on by name, and under Biome by listing its file:"
   },
   {
     "id": "/docs/tooling/lint#diagnostics",
@@ -4689,6 +4752,22 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "In . An import of a class-string helper: and , which join strings; , which settles conflicts between them; , which picks variants at runtime. Joined class strings do not merge: two atoms for one property both apply, and which wins depends on the stylesheet, not on the order written. and merge per property , and compiles the variants would pick at runtime. Also under Biome."
   },
   {
+    "id": "/docs/tooling/lint#restricted-properties",
+    "href": "/docs/tooling/lint#restricted-properties",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "restricted-properties",
+    "text": "In neither preset: the list is the project's own. A property the options rule out, or a literal value outside the ones it allows: A then reports , and a reports A property is matched as written, so ruling out leaves alone; list both to rule out a family. Every literal of a conditional value is checked, in and in a recipe's base and variants. A token or an expression passes: it is the design system's own. ESLint and Oxlint only, since a Biome plugin takes no options."
+  },
+  {
+    "id": "/docs/tooling/lint#use-logical-properties",
+    "href": "/docs/tooling/lint#use-logical-properties",
+    "page": "Lint",
+    "section": "tooling",
+    "heading": "use-logical-properties",
+    "text": "In neither preset. A side or a corner of the inline axis written physically: On a page that is also read right to left, moves to the right with the text, and does not. The rule covers margins, paddings, and , the side borders, the corner radii, and scroll margins and paddings. Top, bottom and sizes are left alone: they change only in vertical writing. The rename is offered as a suggestion, never applied by : the two properties agree only in left-to-right text, so the change is yours to make. A page that is only ever left to right loses nothing to physical sides, which is why the rule is off until you turn it on. The compiler's own warning stays on either way: it reports a style that writes both kinds for one side. Also under Biome."
+  },
+  {
     "id": "/docs/tooling/lint#this-repository",
     "href": "/docs/tooling/lint#this-repository",
     "page": "Lint",
@@ -4725,7 +4804,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Diagnostics reference",
     "section": "tooling",
     "heading": "The ones you will actually meet",
-    "text": ": you gave to a component that does not read it. Spread compiled props instead: styling other people's components . : a component takes and never applies it, so callers think they can style it and cannot. : two values could both apply and the ladder cannot order them. Nest one condition inside the other, or declare the pair exclusive: precedence . : a box has both logical and physical longhands set, in a way whose outcome could mislead. Pick one axis family. : a shorthand whose value cannot be split into longhands exactly, usually . It stays whole, which means a later style cannot remove just one of its longhands. (info): a value became a custom property because it is only known at runtime: values known at runtime . : a style reads a relation whose anchor is never applied, so it can never match: relations . A build checks the relations whose module it compiled; checks them all. , and report a value the browser would drop or misread: : an import a style depends on could not be resolved, so its value compiles as a runtime value. Check the specifier and your tsconfig paths."
+    "text": ": you gave to a component that does not read it. Spread compiled props instead: styling other people's components . : a component takes and never applies it, so callers think they can style it and cannot. : two values could both apply and the ladder cannot order them. Nest one condition inside the other, or declare the pair exclusive: precedence . : a box has both logical and physical longhands set, in a way whose outcome could mislead. Pick one axis family. : a shorthand whose value cannot be split into longhands exactly, usually . It stays whole, which means a later style cannot remove just one of its longhands. (info): a value became a custom property because it is only known at runtime: values known at runtime . : a style reads a relation whose anchor is never applied, so it can never match: relations . A build checks the relations whose module it compiled; checks them all. , , and report a value the browser would drop or misread: : an import a style depends on could not be resolved, so its value compiles as a runtime value. Check the specifier and your tsconfig paths."
   },
   {
     "id": "/docs/tooling/diagnostics#reading-one",
@@ -4827,7 +4906,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Built",
-    "text": ", , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 45 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, the design system as JSON, tracing a property, and "
+    "text": ", , , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 46 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, the design system as JSON, tracing a property, an"
   },
   {
     "id": "/docs/project/status#partial",
@@ -4898,7 +4977,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Roadmap",
     "section": "project",
     "heading": "M3: Developer experience",
-    "text": "Done, and published. Editor and lint support, read from the compiler rather than re-implemented, so they never disagree with the build. The language server , : diagnostics at the property, hover with the compiled CSS and the ladder step that won, tokens in both modes, colour swatches, a summary after every , completion, navigation and quick fixes. Hover answers in 1.2 ms at the 95th percentile on our shadcn/ui port. Editors: the extension on the VS Code Marketplace and Open VSX, and the same server in Vue, Svelte and Astro files; Zed through a dev extension, and Neovim and Helix through their own LSP configuration. Lint: under Oxlint and ESLint, and with the four rules Biome can run. The command line: setting a project up and checking it, with a redacted bug report; compiling without a bundler; sizing the stylesheet; the design system as JSON; and reports for CI with GitHub annotations. The CLI page has every command. CSS helpers checked at build time: , and . Agent skills , and . Still to do: publishing the Zed extension to Zed's registry."
+    "text": "Done, and published. Editor and lint support, read from the compiler rather than re-implemented, so they never disagree with the build. The language server , : diagnostics at the property, hover with the compiled CSS and the ladder step that won, tokens in both modes, colour swatches, a summary after every , completion, navigation and quick fixes. Hover answers in 1.2 ms at the 95th percentile on our shadcn/ui port. Editors: the extension on the VS Code Marketplace and Open VSX, and the same server in Vue, Svelte and Astro files; Zed through a dev extension, and Neovim and Helix through their own LSP configuration. Lint: under Oxlint and ESLint, and with the five rules Biome can run. The command line: setting a project up and checking it, with a redacted bug report; compiling without a bundler; sizing the stylesheet; the design system as JSON; and reports for CI with GitHub annotations. The CLI page has every command. CSS helpers checked at build time: , , and . Agent skills , and . Still to do: publishing the Zed extension to Zed's registry."
   },
   {
     "id": "/docs/project/roadmap#m4-ecosystem",

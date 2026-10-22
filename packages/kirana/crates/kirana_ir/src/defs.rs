@@ -1,5 +1,5 @@
 //! Stylesheet definitions that atoms and markers depend on: variable tokens, themes, keyframes,
-//! position-try fallbacks and view transitions ([07](../../../../spec/07-tokens-themes-presets.md)).
+//! position-try fallbacks, view transitions and counter styles ([07](../../../../spec/07-tokens-themes-presets.md)).
 
 use std::sync::Arc;
 
@@ -64,6 +64,17 @@ pub struct PositionTryDef {
     pub deps: Vec<Dep>,
 }
 
+/// An `@counter-style` rule (KRN-API-020): descriptors under a hashed custom ident that
+/// `listStyleType` and `counter()` name.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct CounterStyleDef {
+    /// `{prefix}c…`.
+    pub name: String,
+    /// `(descriptor, value)` in source order.
+    pub descriptors: Vec<(String, String)>,
+    pub deps: Vec<Dep>,
+}
+
 /// One pseudo-element of a view transition (KRN-API-019).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum TransitionPart {
@@ -120,6 +131,7 @@ pub enum Dep {
     Keyframes(Arc<KeyframesDef>),
     PositionTry(Arc<PositionTryDef>),
     ViewTransition(Arc<ViewTransitionDef>),
+    CounterStyle(Arc<CounterStyleDef>),
 }
 
 /// Adds `dep` to `deps` unless it is already present.

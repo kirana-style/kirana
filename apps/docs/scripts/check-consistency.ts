@@ -530,7 +530,7 @@ const biomeReadme = await readFile(
   "utf8"
 )
 const biomeListed = [
-  ...biomeReadme.matchAll(/^\| `([\w-]+)`\s+\| (recommended|strict)/gm),
+  ...biomeReadme.matchAll(/^\| `([\w-]+)`\s+\| (recommended|strict|neither)/gm),
 ]
   .map((match) => match[1]!)
   .sort()

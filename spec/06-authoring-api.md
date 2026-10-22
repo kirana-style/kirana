@@ -298,6 +298,25 @@ also its runtime value, so one value works in `sx`/`cx`/`props` and as a framewo
 Any other key or condition MUST report `invalid-view-transition`. Kirana MUST NOT assign
 `view-transition-name`: it must be unique per element, and belongs where the data that makes it unique is.
 
+## `counterStyle()`
+
+```tsx
+const check = counterStyle({ system: "cyclic", symbols: '"✓"', suffix: '" "' })
+const steps = css({ listStyleType: check })
+const label = css({ "::before": { content: `counter(step, ${check}) ". "` } })
+```
+
+**KRN-API-020** — `counterStyle(descriptors)` MUST return a custom ident (`{prefix}c…`) hashed from the
+descriptors and emit one `@counter-style` rule in `kirana.tokens` when referenced, like `keyframes()`
+(D-091). It MUST accept only the CSS Counter Styles 3 descriptors (`system`, `symbols`,
+`additiveSymbols`, `negative`, `prefix`, `suffix`, `range`, `pad`, `fallback`, `speakAs`), each a static
+string, number, inlined token or counter style; a counter style referenced in `fallback` or in
+`` system: `extends ${other}` `` ships with it. It MUST report `invalid-counter-style` for any other key, a
+value that reads a custom property (descriptors cannot), an empty or non-CSS value, and a rule its system
+cannot draw: `cyclic`, `numeric`, `alphabetic`, `symbolic` (the default) and `fixed` without `symbols`,
+`additive` without `additiveSymbols`, `extends` with either. A system the compiler does not know is left
+to the browser.
+
 ## Dynamic values at the call site
 
 `css()`, `cx()` and recipe calls may appear inside components and receive runtime values:

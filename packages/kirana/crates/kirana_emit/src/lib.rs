@@ -3,7 +3,7 @@
 //!
 //! 1. the layer order statement (KRN-OUT-003);
 //! 2. `kirana.tokens`: variable tokens on `:root`, per-mode overrides, keyframes, `@position-try`
-//!    fallbacks and view-transition classes;
+//!    fallbacks, `@counter-style` rules and view-transition classes;
 //! 3. `kirana.themes`: scoped theme overrides;
 //! 4. `kirana.contextual`: `select.*` styles, ladder-ordered;
 //! 5. `kirana.atoms`: element atoms, ladder-ordered. Every selector is (0,1,0) through
@@ -20,8 +20,8 @@ use std::fmt::Write as _;
 
 use kirana_css_data::{PropertyRank, Sets, flow_group, sets};
 use kirana_ir::{
-    Atom, Condition, Dep, KeyframesDef, PositionTryDef, RelationKind, Target, ThemeDef, TokenDef, TokenValue,
-    ViewTransitionDef, fallback_values, ladder_key,
+    Atom, Condition, CounterStyleDef, Dep, KeyframesDef, PositionTryDef, RelationKind, Target, ThemeDef, TokenDef,
+    TokenValue, ViewTransitionDef, fallback_values, ladder_key,
 };
 use lightningcss::stylesheet::{MinifyOptions, ParserOptions, PrinterOptions, StyleSheet};
 use lightningcss::targets::Targets;
@@ -125,6 +125,7 @@ struct Deps {
     themes: BTreeMap<String, ThemeDef>,
     keyframes: BTreeMap<String, KeyframesDef>,
     position_tries: BTreeMap<String, PositionTryDef>,
+    counter_styles: BTreeMap<String, CounterStyleDef>,
     view_transitions: BTreeMap<String, ViewTransitionDef>,
 }
 
@@ -153,6 +154,12 @@ impl Deps {
                 if !self.position_tries.contains_key(&fallback.name) {
                     self.position_tries.insert(fallback.name.clone(), (**fallback).clone());
                     fallback.deps.iter().for_each(|inner| self.add(inner));
+                }
+            }
+            Dep::CounterStyle(style) => {
+                if !self.counter_styles.contains_key(&style.name) {
+                    self.counter_styles.insert(style.name.clone(), (**style).clone());
+                    style.deps.iter().for_each(|inner| self.add(inner));
                 }
             }
             Dep::ViewTransition(transition) => {
@@ -578,6 +585,7 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
     if !declarations.is_empty()
         || !deps.keyframes.is_empty()
         || !deps.position_tries.is_empty()
+        || !deps.counter_styles.is_empty()
         || !deps.view_transitions.is_empty()
     {
         writer.open("@layer kirana.tokens");
@@ -604,6 +612,13 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
             writer.open(&format!("@position-try {}", fallback.name));
             for (property, value) in &fallback.declarations {
                 writer.declaration(property, value);
+            }
+            writer.close();
+        }
+        for style in deps.counter_styles.values() {
+            writer.open(&format!("@counter-style {}", style.name));
+            for (descriptor, value) in &style.descriptors {
+                writer.declaration(descriptor, value);
             }
             writer.close();
         }

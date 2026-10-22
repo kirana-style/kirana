@@ -1234,21 +1234,72 @@ the implementation tracker names its evidence.
   `kirana-style check` and the editor still report it.
 - **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 
+### D-091 — `counterStyle()` is a definition; `@font-face`, `@page` and `@custom-media` stay CSS
+
+- **Status:** Accepted (2026-10-22).
+- **Decision:** `counterStyle(descriptors)` is a named definition like `keyframes()` and `positionTry()`:
+  a custom ident hashed from the descriptors, an `@counter-style` rule in `kirana.tokens` emitted only
+  when referenced (by value, by string, across modules, through `fallback` or `extends`). The
+  descriptors are checked: known names, static values, no `var()`, and the symbols the system needs.
+  `@font-face`, `@page` and `@custom-media` get no helper; the documentation shows them in a
+  stylesheet, and a named media query as a `media()` constant.
+- **Rationale:** a counter style written in a global stylesheet has a global name, ships when nothing
+  uses it, and a misspelt name in `listStyleType` falls back to `decimal` without a word; the helper
+  removes all three, as `keyframes()` does for animations. A browser also drops an unknown descriptor,
+  a `var()` in one, and a rule with no symbols, silently (P6). `@font-face` reads font files whose
+  `url()` the bundler resolves and fingerprints in a stylesheet, which a value inside a module cannot
+  reach, so a helper would be worse than the CSS it replaces. `@page` styles the printed page, not an
+  element, and has no name to hash. `@custom-media` is not in browsers yet, and a `media()` condition in
+  a constant is already a named, shared query.
+- **Measured:** an unused `counterStyle()` emits nothing; the golden fixtures' sizes are unchanged.
+- **Elaborated in:** [06-authoring-api](./06-authoring-api.md#counterstyle).
+
+### D-092 — Grammar verdicts are remembered
+
+- **Status:** Accepted (2026-10-22). Refines D-089's check (KRN-CAS-010).
+- **Decision:** each thread remembers the verdict of every property and value text it has judged, up to
+  32,768 pairs, then starts over.
+- **Rationale:** matching a value against a long grammar is the most expensive part of a declaration:
+  `<color>` alone took 3.1 µs for `#fff`, against 0.09 µs for Lightning CSS to parse the same value.
+  Applications repeat values (the zyzz benchmark corpus's 300 components write 1,839 declarations with
+  114 distinct pairs), so most checks are repeats. A verdict depends on the two strings alone and a token
+  is resolved before the check, so an edited token's new value is a new key, and nothing can go stale.
+- **Measured:** the transform of 1,000 styles of eight declarations each went from 33.7 ms to 19.7 ms;
+  the grammar check alone from 12.85 ms to 0.89 ms per 8,000 declarations. Stopping the matcher at its
+  first full match was considered and left out: with the cache it could save under 0.9 ms of the 19.7,
+  against a change to how every grammar is walked.
+- **Trade-off:** a few megabytes at most per thread in a long editor session.
+- **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md).
+
+### D-093 — `restricted-properties` and `use-logical-properties` are opt-in rules
+
+- **Status:** Accepted (2026-10-22).
+- **Decision:** two lint rules a project turns on itself, in neither preset. `restricted-properties`
+  reports the properties, or the literal values of a property, the project's options rule out.
+  `use-logical-properties` reports a side or corner of the inline axis written physically
+  (`marginLeft`) and suggests the logical property; Biome runs it too.
+- **Rationale:** both encode a project's own policy. A rule list belongs to the project, and a page that
+  is only ever left-to-right loses nothing to physical sides, so neither can be on by default. Only the
+  inline axis is reported: top, bottom and sizes change only in vertical writing. The rename is a
+  suggestion, never an autofix, because the two properties agree only in left-to-right text. The pairs
+  follow the compiler's own `physical_counterpart`, which `mixed-logical-physical` reads.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
+
 ## Index by document
 
-| Document                                                      | Decisions                                                                                                                    |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| the brand notes                                               | D-001                                                                                                                        |
-| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088 |
-| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086                                                  |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090                                    |
-| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084                                                                                     |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                    |
-| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073               |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082                                           |
-| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                         |
-| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                        |
-| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                 |
-| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                     |
-| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                   |
-| the roadmap                                                   | D-033, D-051, D-056                                                                                                          |
+| Document                                                      | Decisions                                                                                                                           |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| the brand notes                                               | D-001                                                                                                                               |
+| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091 |
+| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086                                                         |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092                                    |
+| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084                                                                                            |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                           |
+| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073                      |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093                                           |
+| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                |
+| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                               |
+| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                        |
+| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                            |
+| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                          |
+| the roadmap                                                   | D-033, D-051, D-056                                                                                                                 |

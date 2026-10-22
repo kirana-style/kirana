@@ -114,7 +114,9 @@ export function LintRuleGrid() {
           <span sx={styles.name}>kirana/{rule.name}</span>
           <span sx={styles.catches}>{rule.catches}</span>
           <span sx={styles.badges}>
-            <span sx={styles.badge}>{rule.config}</span>
+            <span sx={styles.badge}>
+              {rule.config === "off" ? "opt-in" : rule.config}
+            </span>
             {rule.fix ? (
               <span sx={[styles.badge, styles.muted]}>{rule.fix}</span>
             ) : null}

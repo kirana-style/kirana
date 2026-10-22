@@ -10,7 +10,8 @@ Kirana's lint rules for [Biome](https://biomejs.dev), as GritQL plugins
 }
 ```
 
-`@kirana-style/biome-plugin/strict` adds `no-class-helpers`. The presets name the rule files as
+`@kirana-style/biome-plugin/strict` adds `no-class-helpers`. `use-logical-properties` is in neither
+preset, a project's own choice: add `rules/use-logical-properties.grit` to `plugins` to run it. The presets name the rule files as
 `./node_modules/@kirana-style/biome-plugin/rules/*.grit`, because Biome resolves a plugin path from the
 project, not from the configuration that lists it. If the package is not installed in the
 `node_modules` next to `biome.json` (in a workspace member, say), list the files from where it is:
@@ -25,12 +26,13 @@ project, not from the configuration that lists it. If the package is not install
 }
 ```
 
-| Rule                   | In          | What it reports                                                                            |
-| ---------------------- | ----------- | ------------------------------------------------------------------------------------------ |
-| `sx-last`              | recommended | A forwarded `sx` that is not last, so callers cannot override the component.               |
-| `no-conflicting-props` | recommended | `className` or `style` next to `{...styleProps()}`: one replaces the other.                |
-| `no-dark-variant`      | recommended | A `prefers-color-scheme` condition or a Tailwind `dark:` class: use `light-dark()` tokens. |
-| `no-class-helpers`     | strict      | An import of `clsx`, `classnames`, `tailwind-merge` or `cva`: use `cx`, `sx` or `recipe`.  |
+| Rule                     | In          | What it reports                                                                            |
+| ------------------------ | ----------- | ------------------------------------------------------------------------------------------ |
+| `sx-last`                | recommended | A forwarded `sx` that is not last, so callers cannot override the component.               |
+| `no-conflicting-props`   | recommended | `className` or `style` next to `{...styleProps()}`: one replaces the other.                |
+| `no-dark-variant`        | recommended | A `prefers-color-scheme` condition or a Tailwind `dark:` class: use `light-dark()` tokens. |
+| `no-class-helpers`       | strict      | An import of `clsx`, `classnames`, `tailwind-merge` or `cva`: use `cx`, `sx` or `recipe`.  |
+| `use-logical-properties` | neither     | `marginLeft` and the other inline-axis sides: the logical property mirrors in RTL.         |
 
 Each message starts with the rule's name (`kirana/sx-last: …`); Biome reports plugin diagnostics
 under one category, `plugin`.

@@ -644,10 +644,158 @@ describe("configs under ESLint", () => {
   })
 })
 
+const RULES = {
+  float: { reason: "Use flex or grid." },
+  display: { values: ["flex", "grid", "none"] },
+  zIndex: { values: [0, 10] },
+  "line-height": {},
+}
+
+tester.run("restricted-properties", rules["restricted-properties"] as never, {
+  valid: [
+    // Not configured: the list is the project's own.
+    at(CSS + 'export const a = css({ float: "left" })'),
+    at(
+      CSS +
+        'export const a = css({ display: "grid", zIndex: 10, color: "red" })',
+      { options: [RULES] }
+    ),
+    // A token or an expression is the design system's own; a spread, a computed key and a
+    // pseudo-element block are not restricted properties themselves.
+    at(
+      CSS +
+        'export const a = css({ display: layout.main, ...rest, [key]: "x", "::before": { display: "flex" }, color: { base: "red", ":hover": "blue" } })',
+      { options: [RULES] }
+    ),
+    at(
+      CSS +
+        'export const a = css({ display: { base: "flex", ...more, "@media (x)": grid } })',
+      { options: [RULES] }
+    ),
+  ],
+  invalid: [
+    at(CSS + 'export const a = css({ float: "left", "line-height": 1 })', {
+      options: [RULES],
+      errors: [
+        {
+          message: "float is ruled out in this project. Use flex or grid.",
+          line: 2,
+          column: 24,
+        },
+        { message: "line-height is ruled out in this project." },
+      ],
+    }),
+    // Each literal of a conditional value, in a recipe too, and a number.
+    at(
+      CSS +
+        'export const b = recipe({ base: { display: { base: "flex", ":hover": "table" } }, variants: { v: { a: { zIndex: 5, "::after": { float: "none" } } } } })',
+      {
+        options: [RULES],
+        errors: [
+          {
+            message:
+              'display takes flex, grid, none in this project, not "table".',
+          },
+          { message: "zIndex takes 0, 10 in this project, not 5." },
+          { message: "float is ruled out in this project. Use flex or grid." },
+        ],
+      }
+    ),
+  ],
+})
+
+tester.run("use-logical-properties", rules["use-logical-properties"] as never, {
+  valid: [
+    at(
+      CSS +
+        'export const a = css({ marginInlineStart: "1px", top: 0, marginTop: "1px", ...rest, [side]: 0, color: { base: "red", ":hover": "blue" } })'
+    ),
+  ],
+  invalid: [
+    at(CSS + 'export const a = css({ marginLeft: "1px" })', {
+      errors: [
+        {
+          message:
+            "marginLeft stays on the same side in right-to-left text; marginInlineStart follows the writing direction.",
+          line: 2,
+          column: 24,
+          suggestions: [
+            {
+              desc: "Rename marginLeft to marginInlineStart.",
+              output:
+                CSS + 'export const a = css({ marginInlineStart: "1px" })',
+            },
+          ],
+        },
+      ],
+    }),
+    // A quoted key keeps its quotes; pseudo-element blocks and recipes are styles too.
+    at(
+      CSS +
+        'export const a = recipe({ base: { "::before": { "borderTopLeftRadius": 0 } }, variants: { v: { a: { right: 0 } } } })',
+      {
+        errors: [
+          {
+            message: /^borderTopLeftRadius .* borderStartStartRadius/,
+            suggestions: [
+              {
+                desc: "Rename borderTopLeftRadius to borderStartStartRadius.",
+                output:
+                  CSS +
+                  'export const a = recipe({ base: { "::before": { "borderStartStartRadius": 0 } }, variants: { v: { a: { right: 0 } } } })',
+              },
+            ],
+          },
+          {
+            message: /^right .* insetInlineEnd/,
+            suggestions: [
+              {
+                desc: "Rename right to insetInlineEnd.",
+                output:
+                  CSS +
+                  'export const a = recipe({ base: { "::before": { "borderTopLeftRadius": 0 } }, variants: { v: { a: { insetInlineEnd: 0 } } } })',
+              },
+            ],
+          },
+        ],
+      }
+    ),
+  ],
+})
+
+describe("use-logical-properties", () => {
+  // The rule's pairs are the compiler's own: every pair the compiler knows for a side or a corner
+  // of the inline axis (it reads them for mixed-logical-physical) is here, in camel case. Sizes
+  // (`width` and `inlineSize`) are left out: a width does not change in right-to-left text.
+  it("covers the compiler's inline-axis pairs", async () => {
+    const { expect } = await import("vite-plus/test")
+    const { readFileSync } = await import("node:fs")
+    const { LOGICAL } = await import("../src/rules/use-logical-properties.ts")
+    const source = readFileSync(
+      path.join(
+        import.meta.dirname,
+        "../../../crates/kirana_css_data/src/lib.rs"
+      ),
+      "utf8"
+    )
+    const table = source.slice(source.indexOf("pub fn physical_counterpart"))
+    const camel = (name: string) =>
+      name.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase())
+    const pairs = [...table.matchAll(/"([a-z-]+)" => "([a-z-]+)",/g)]
+      .map(([, logical, physical]) => [camel(physical!), camel(logical!)])
+      .filter(([, logical]) =>
+        /Inline(Start|End)|StartStart|StartEnd|EndStart|EndEnd/.test(logical!)
+      )
+    expect(pairs.length).toBeGreaterThan(10)
+    for (const [physical, logical] of pairs)
+      expect([physical, LOGICAL[physical!]]).toEqual([physical, logical])
+  })
+})
+
 describe("plugin", () => {
   it("exports every rule and two configs", async () => {
     const { expect } = await import("vite-plus/test")
-    expect(Object.keys(plugin.rules)).toHaveLength(11)
+    expect(Object.keys(plugin.rules)).toHaveLength(13)
     expect(plugin.configs.recommended.plugins.kirana).toBe(plugin)
     expect(Object.keys(plugin.configs.strict.rules)).toHaveLength(11)
     expect(

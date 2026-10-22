@@ -125,6 +125,7 @@ keyframes(frames): Keyframes                     // use as animationName
 firstThatWorks(preferred, ...fallbacks)          // minHeight: firstThatWorks("100dvh", "100vh")
 positionTry(block): PositionTry                  // an @position-try rule's dashed ident
 viewTransition({ group?, imagePair?, old?, new? }): ViewTransition
+counterStyle(descriptors): CounterStyle          // an @counter-style rule's name: listStyleType, counter()
 ```
 
 - `firstThatWorks` values must be static and expand to the same longhands; on a custom property
@@ -134,6 +135,9 @@ viewTransition({ group?, imagePair?, old?, new? }): ViewTransition
 - A `viewTransition` result is a handle for `sx` and also the `view-transition-class` name to hand
   a framework's transition API. Kirana never sets `view-transition-name`: it must be unique per
   element, so set it from your data. Parts accept `media()`/`supports()` conditions only.
+- `counterStyle` keys are the CSS descriptors in camel case, values CSS text (`symbols: '"✓"'`).
+  No `var()` in a descriptor; `fallback` and `` system: `extends ${other}` `` take another counter
+  style. `@font-face` and `@page` stay in a stylesheet; a named media query is a `media()` constant.
 
 ## Types and entry points
 

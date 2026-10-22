@@ -413,12 +413,15 @@ impl<'a> Evaluator<'_, 'a, '_> {
                     }
                 }
             }
-            Value::Str(_) | Value::Number(_) | Value::Token(_) | Value::Keyframes(_) | Value::PositionTry(_) => {
-                match self.declare_value(name, value) {
-                    Ok(expanded) => self.set_expanded(name, expanded, target, conditions, span, parts),
-                    Err(error) => self.report_declaration(error, span),
-                }
-            }
+            Value::Str(_)
+            | Value::Number(_)
+            | Value::Token(_)
+            | Value::Keyframes(_)
+            | Value::PositionTry(_)
+            | Value::CounterStyle(_) => match self.declare_value(name, value) {
+                Ok(expanded) => self.set_expanded(name, expanded, target, conditions, span, parts),
+                Err(error) => self.report_declaration(error, span),
+            },
             Value::Fallbacks(members) => {
                 if let Some(expanded) = self.fallbacks(name, members, span) {
                     self.set_expanded(name, expanded, target, conditions, span, parts);
@@ -601,8 +604,8 @@ impl<'a> Evaluator<'_, 'a, '_> {
         })
     }
 
-    /// The variable tokens, keyframes, position-try fallbacks and view transitions a piece of CSS
-    /// text refers to.
+    /// The variable tokens, keyframes, position-try fallbacks, view transitions and counter styles a
+    /// piece of CSS text refers to.
     pub fn deps_in(&self, text: &str) -> Vec<Dep> {
         let prefix = &self.ctx.names.prefix;
         let mut deps = Vec::new();
@@ -611,6 +614,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
             (format!("{prefix}f"), 'f'),
             (format!("--{prefix}p"), 'p'),
             (format!("{prefix}w"), 'w'),
+            (format!("{prefix}c"), 'c'),
         ];
         for (marker, kind) in markers {
             let mut from = 0;
@@ -639,6 +643,12 @@ impl<'a> Evaluator<'_, 'a, '_> {
                             .find(|fallback| fallback.name == name)
                             .cloned()
                             .map(Dep::PositionTry),
+                        'c' => definitions
+                            .counter_styles
+                            .iter()
+                            .find(|style| style.name == name)
+                            .cloned()
+                            .map(Dep::CounterStyle),
                         _ => definitions
                             .view_transitions
                             .iter()

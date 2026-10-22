@@ -26,6 +26,7 @@ export const API: readonly string[] = [
   "mode",
   "firstThatWorks",
   "positionTry",
+  "counterStyle",
   "viewTransition",
   "media",
   "container",

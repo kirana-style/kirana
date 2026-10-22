@@ -110,6 +110,17 @@ Styles for a view transition's pseudo-elements. The result is a style handle for
 `sx` and, at once, the `view-transition-class` name a framework's transition API
 takes. [View transitions](/docs/styling/view-transitions).
 
+## `counterStyle(descriptors)`
+
+```ts
+counterStyle(descriptors: CounterStyleDescriptors): CounterStyle
+```
+
+An `@counter-style` rule and its name, for a list's marker or a counter. The
+keys are the CSS descriptors, written as CSS text. An unknown descriptor, a
+custom property or a system without the symbols it needs is reported.
+[At-rules](/docs/styling/at-rules#counter-styles).
+
 ## `defineTokens(namespace, values, options?)`
 
 ```ts

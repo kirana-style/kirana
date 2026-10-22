@@ -54,6 +54,7 @@ export function Field({
 | `firstThatWorks(preferred, ...fallbacks)`                              | A value written once per member, the preferred last, for browsers that do not know it                    |
 | `positionTry(block)`                                                   | An `@position-try` rule's dashed ident, for `positionTryFallbacks`                                       |
 | `viewTransition({ group, imagePair, old, new })`                       | A view-transition class: a handle for `sx` that is also the class name                                   |
+| `counterStyle(descriptors)`                                            | An `@counter-style` rule's name, for `listStyleType` and `counter()`                                     |
 | `Sx`, `Style`, `StyleHandle`, `Token` …                                | Types                                                                                                    |
 
 Subpaths:

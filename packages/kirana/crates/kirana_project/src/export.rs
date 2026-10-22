@@ -26,6 +26,8 @@ pub struct DesignSystem {
     pub position_tries: Vec<NamedExport>,
     #[serde(rename = "viewTransitions")]
     pub view_transitions: Vec<NamedExport>,
+    #[serde(rename = "counterStyles")]
+    pub counter_styles: Vec<NamedExport>,
 }
 
 /// One token: what code writes (`identity`), its value, and where it is declared.
@@ -78,7 +80,8 @@ pub struct RecipeExport {
     pub compound_variants: usize,
 }
 
-/// An exported keyframes, `positionTry()` or `viewTransition()`: the export and what CSS names it.
+/// An exported keyframes, `positionTry()`, `viewTransition()` or `counterStyle()`: the export and what
+/// CSS names it.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct NamedExport {
     pub name: String,
@@ -168,6 +171,7 @@ fn describe(out: &mut DesignSystem, name: &str, origin: &str, value: &Value, ide
         }),
         Value::Keyframes(definition) => out.keyframes.push(named(&definition.name)),
         Value::PositionTry(definition) => out.position_tries.push(named(&definition.name)),
+        Value::CounterStyle(definition) => out.counter_styles.push(named(&definition.name)),
         Value::Handle(handle) => {
             for dep in &handle.marker_deps {
                 if let Dep::Theme(theme) = dep {

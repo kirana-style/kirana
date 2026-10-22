@@ -61,14 +61,15 @@ known at runtime: [values known at runtime](/docs/styling/dynamic).
 applied, so it can never match: [relations](/docs/styling/relations). A build
 checks the relations whose module it compiled; `kirana-style check` checks them all.
 
-**`invalid-fallback`**, **`invalid-position-try`** and **`invalid-view-transition`**
-report a value the browser would drop or misread:
+**`invalid-fallback`**, **`invalid-position-try`**, **`invalid-view-transition`**
+and **`invalid-counter-style`** report a value the browser would drop or misread:
 
-| Diagnostic                | What it catches                                                                          |
-| ------------------------- | ---------------------------------------------------------------------------------------- |
-| `invalid-fallback`        | A [`firstThatWorks()`](/docs/styling/fallbacks) run whose values set different longhands |
-| `invalid-position-try`    | A property a [`positionTry()`](/docs/styling/anchor-positioning) block ignores           |
-| `invalid-view-transition` | A [`viewTransition()`](/docs/styling/view-transitions) part that is not one of the four  |
+| Diagnostic                | What it catches                                                                                     |
+| ------------------------- | --------------------------------------------------------------------------------------------------- |
+| `invalid-fallback`        | A [`firstThatWorks()`](/docs/styling/fallbacks) run whose values set different longhands            |
+| `invalid-position-try`    | A property a [`positionTry()`](/docs/styling/anchor-positioning) block ignores                      |
+| `invalid-view-transition` | A [`viewTransition()`](/docs/styling/view-transitions) part that is not one of the four             |
+| `invalid-counter-style`   | A [`counterStyle()`](/docs/styling/at-rules#counter-styles) descriptor or system that draws nothing |
 
 **`unresolved-import`**: an import a style depends on could not be resolved, so
 its value compiles as a runtime value. Check the specifier and your tsconfig

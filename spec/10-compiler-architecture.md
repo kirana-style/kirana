@@ -373,6 +373,7 @@ help: move `field.anchor` to the element that wraps both, or use `field.after(â€
 | KRN1207 | `fallback-on-variable`          | warning  | 06        |
 | KRN1208 | `invalid-position-try`          | error    | 06        |
 | KRN1209 | `invalid-view-transition`       | error    | 06        |
+| KRN1210 | `invalid-counter-style`         | error    | 06        |
 | KRN1301 | `unknown-condition`             | error    | 08        |
 | KRN1302 | `ambiguous-precedence`          | warning  | 08        |
 | KRN1303 | `unsupported-contextual-target` | error    | 06        |

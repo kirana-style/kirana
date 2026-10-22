@@ -113,16 +113,20 @@ loads through `jsPlugins` and ESLint loads through flat config (D-031):
 | `kirana/prefer-token`              | strict      | A literal equal to a token's value suggests the token, with its import.                                                                                                             |
 | `kirana/finite-bridge`             | strict      | A bridged value only ever called with a few literals in its file suggests variants instead.                                                                                         |
 | `kirana/no-class-helpers`          | strict      | An import of `clsx`, `classnames`, `tailwind-merge` or `class-variance-authority`: joined class strings do not merge.                                                               |
+| `kirana/restricted-properties`     | off         | A property, or a literal value of one, the project's options rule out (`{ float: { reason }, display: { values } }`). Matched as written; tokens pass.                              |
+| `kirana/use-logical-properties`    | off         | A side or corner of the inline axis written physically (`marginLeft`); suggests the logical property (`marginInlineStart`). Never an autofix (D-093).                               |
 
 The candidate rules were decided at M3 (D-063): unused handles and variants are `no-unused`, a
 `className` reaching an `sx` component is `no-classname-on-sx`; restricted overrides are a type-level
 feature, not a rule, and the contextual-rule report stays in the codemod. The project root is the
 nearest `kirana.config.*` above the linted file, or `settings.kirana.root`. Results are identical under
-Oxlint and ESLint, reports and fixes alike (`npm/eslint-plugin/test/parity.test.ts`).
+Oxlint and ESLint, reports and fixes alike (`npm/eslint-plugin/test/parity.test.ts`). The two rules
+marked `off` encode a project's own policy and are in neither preset (D-093).
 
 **Biome.** `@kirana-style/biome-plugin` MUST carry, as Biome GritQL plugins, the rules that need no compiler:
-`sx-last`, `no-conflicting-props`, `no-dark-variant` and `no-class-helpers`, with `recommended` and `strict`
-presets that mirror the ESLint configs (D-079). A GritQL plugin matches syntax only — it cannot read the
+`sx-last`, `no-conflicting-props`, `no-dark-variant`, `no-class-helpers` and `use-logical-properties`, with
+`recommended` and `strict` presets that mirror the ESLint configs (D-079); `use-logical-properties` is in
+neither, as in ESLint. A GritQL plugin matches syntax only — it cannot read the
 Driver or another file — so the compiler-backed rules reach a Biome project through `kirana-style check --format
 github --max-warnings 0` in CI and the language server in the editor. The plugins report what their ESLint
 originals report, line, column and message (`npm/biome-plugin/test/biome.test.ts`); they match the

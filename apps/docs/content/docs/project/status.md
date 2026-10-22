@@ -40,11 +40,11 @@ line coverage. The [changelog](/changelog) lists every release.
   compiling without a bundler, reports for CI with GitHub annotations, the design
   system as JSON, tracing a property, and both codemods; see
   [the CLI](/docs/tooling/cli)
-- `firstThatWorks()`, `positionTry()` and `viewTransition()`: value fallbacks,
-  `@position-try` rules and view-transition classes, each checked at build time;
-  see [fallback values](/docs/styling/fallbacks),
-  [anchor positioning](/docs/styling/anchor-positioning) and
-  [view transitions](/docs/styling/view-transitions)
+- CSS helpers, each checked at build time:
+  - `firstThatWorks()`: [fallback values](/docs/styling/fallbacks)
+  - `positionTry()`: [anchor positioning](/docs/styling/anchor-positioning)
+  - `viewTransition()`: [view transitions](/docs/styling/view-transitions)
+  - `counterStyle()`: [counter styles](/docs/styling/at-rules#counter-styles)
 - `@kirana-style/preset-scales`: Tailwind v4 scales as tokens, and its utility names as
   [utility strings](/docs/styling/utilities) in `sx`
 - `kirana-style migrate tailwind`, proven on the Tailwind original of our shadcn/ui port: zero

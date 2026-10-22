@@ -27,7 +27,18 @@ const oxlint = path.join(
   "bin/oxlint"
 )
 const fixtures = path.join(import.meta.dirname, "fixtures/parity")
-const rules = plugin.configs.strict.rules
+// The strict rules, and the two a project turns on itself, one of them with its options.
+const rules: Record<string, unknown> = {
+  ...plugin.configs.strict.rules,
+  "kirana/restricted-properties": [
+    "error",
+    {
+      float: { reason: "Use flex or grid." },
+      display: { values: ["flex", "grid"] },
+    },
+  ],
+  "kirana/use-logical-properties": "warn",
+}
 
 type Report = { rule: string; line: number; column: number; message: string }
 
@@ -80,7 +91,8 @@ function viaOxlint(directory: string): Report[] {
 const eslintConfig = [
   {
     files: ["**/*.jsx"],
-    ...plugin.configs.strict,
+    plugins: plugin.configs.strict.plugins,
+    rules,
     languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
   },
 ]
@@ -115,7 +127,7 @@ const sorted = (reports: Report[]) =>
 describe("Oxlint and ESLint", () => {
   it("report the same problems at the same places", () => {
     const eslint = sorted(viaEslint(fixtures))
-    // Every strict rule has something to report in the fixtures, so every rule is compared.
+    // Every rule here has something to report in the fixtures, so every rule is compared.
     expect(new Set(eslint.map((report) => report.rule.split(":")[1]))).toEqual(
       new Set(Object.keys(rules))
     )

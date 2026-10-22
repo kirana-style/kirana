@@ -81,6 +81,7 @@ pub(crate) struct State {
     pub keyframes: FxHashMap<String, Arc<kirana_ir::KeyframesDef>>,
     pub position_tries: FxHashMap<String, Arc<kirana_ir::PositionTryDef>>,
     pub view_transitions: FxHashMap<String, Arc<kirana_ir::ViewTransitionDef>>,
+    pub counter_styles: FxHashMap<String, Arc<kirana_ir::CounterStyleDef>>,
     /// dependency → modules whose output used its exports.
     pub importers: FxHashMap<PathBuf, FxHashSet<PathBuf>>,
     /// `(package, namespace)` → files declaring that token namespace, from every evaluation.
@@ -441,6 +442,9 @@ impl Project {
         }
         for transition in &definitions.view_transitions {
             state.view_transitions.insert(transition.class.clone(), transition.clone());
+        }
+        for style in &definitions.counter_styles {
+            state.counter_styles.insert(style.name.clone(), style.clone());
         }
     }
 }

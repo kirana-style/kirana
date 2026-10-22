@@ -20,8 +20,10 @@ Full page: https://kirana.style/docs/tooling/lint.md
 | `kirana/no-unused` | recommended (warn) | suggestions | no | Report style handles and recipe variants nothing applies. |
 | `kirana/override-keeps-conditions` | recommended (error) | suggestions | no | Override a component's conditional entries under their condition. |
 | `kirana/prefer-token` | strict (warn) | suggestions | no | Use the token whose value a literal repeats. |
+| `kirana/restricted-properties` | off |  | no | Report the properties, or the values of a property, the project rules out. |
 | `kirana/sort-properties` | strict (error) | autofix | no | Order style properties and conditions canonically. |
 | `kirana/sx-last` | recommended (error) | autofix | recommended | Put a forwarded sx last so callers can override. |
+| `kirana/use-logical-properties` | off | suggestions | off | Use the logical property for a side of the inline axis, so a right-to-left page mirrors it. |
 
 ## Configure
 

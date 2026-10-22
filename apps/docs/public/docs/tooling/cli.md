@@ -306,7 +306,8 @@ code is the same as `check`'s.
 The design system, as JSON: every token with its value (and both halves of a
 `light-dark()` pair), each theme and the tokens it overrides, each recipe with
 its variant groups, options and defaults, every relation and where it is
-anchored and read, and the keyframes, `positionTry` and `viewTransition` names.
+anchored and read, and the keyframes, `positionTry`, `viewTransition` and
+`counterStyle` names.
 Each comes with the file and line that declares it.
 
 ```bash
@@ -362,6 +363,9 @@ kirana-style export src --out design-system.json
   ],
   "viewTransitions": [
     { "name": "slide", "origin": "src/design.ts:13", "css": "kwTyjU" }
+  ],
+  "counterStyles": [
+    { "name": "check", "origin": "src/design.ts:14", "css": "kcLn6a" }
   ]
 }
 ```

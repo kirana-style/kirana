@@ -28,7 +28,7 @@ that never reaches the DOM.
 Under Oxlint and ESLint the rules are the same objects, and so are their results:
 the same reports at the same places, and the same fixed text. A test runs every
 rule through both linters on each change. Biome cannot run JavaScript rules, so
-it gets the four that need no compiler, rewritten as GritQL plugins.
+it gets the {{fact:biome-rules-word}} that need no compiler, rewritten as GritQL plugins.
 
 <!-- ::figure-lint -->
 
@@ -74,6 +74,7 @@ export default [kirana.configs.recommended]
 - `no-conflicting-props`
 - `no-dark-variant`
 - `no-class-helpers`
+- `use-logical-properties`, in neither preset
 
 Its presets turn them on:
 
@@ -127,8 +128,20 @@ engine must be installed, as for a build.
 | ------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `recommended` | The problems: what the build reports, and what loses a style without any error. | `diagnostics`, `sx-last`, `no-conflicting-props`, `override-keeps-conditions`, `no-classname-on-sx`, `no-dark-variant`, `no-unused` |
 | `strict`      | Everything in `recommended`, and the stylistic and advisory rules.              | `sort-properties`, `prefer-token`, `finite-bridge`, `no-class-helpers`                                                              |
+| neither       | A project's own policy, turned on by the project.                               | `restricted-properties`, `use-logical-properties`                                                                                   |
 
-Biome's presets have the same names and hold the rules it can run.
+Biome's presets have the same names and hold the rules it can run. A rule in
+neither preset is turned on by name, and under Biome by listing its file:
+
+```jsonc
+// biome.json
+{
+  "extends": ["@kirana-style/biome-plugin/recommended"],
+  "plugins": [
+    "./node_modules/@kirana-style/biome-plugin/rules/use-logical-properties.grit",
+  ],
+}
+```
 
 ## Rules
 
@@ -245,6 +258,62 @@ property both apply, and which wins depends on the stylesheet, not on the order
 written. `cx` and `sx={[a, b]}` [merge per property](/docs/styling/merging), and
 [`recipe()`](/docs/styling/recipes) compiles the variants `cva` would pick at
 runtime. Also under Biome.
+
+### `restricted-properties`
+
+In neither preset: the list is the project's own. A property the options rule
+out, or a literal value outside the ones it allows:
+
+```js
+// eslint.config.js
+export default [
+  kirana.configs.recommended,
+  {
+    rules: {
+      "kirana/restricted-properties": [
+        "error",
+        {
+          float: { reason: "Use flex or grid." },
+          display: { values: ["flex", "grid", "none"] },
+        },
+      ],
+    },
+  },
+]
+```
+
+A `float` then reports `float is ruled out in this project. Use flex or grid.`,
+and a `display: "table"` reports
+`display takes flex, grid, none in this project, not "table".`
+
+A property is matched as written, so ruling out `margin` leaves `marginTop`
+alone; list both to rule out a family. Every literal of a
+[conditional value](/docs/styling/conditions) is checked, in `css()` and in a
+recipe's base and variants. A token or an expression passes: it is the design
+system's own. ESLint and Oxlint only, since a Biome plugin takes no options.
+
+### `use-logical-properties`
+
+In neither preset. A side or a corner of the inline axis written physically:
+
+```tsx
+css({ marginLeft: "1rem" })
+// marginLeft stays on the same side in right-to-left text;
+// marginInlineStart follows the writing direction.
+```
+
+On a page that is also read right to left, `marginInlineStart` moves to the right
+with the text, and `marginLeft` does not. The rule covers margins, paddings,
+`left` and `right`, the side borders, the corner radii, and scroll margins and
+paddings. Top, bottom and sizes are left alone: they change only in vertical
+writing.
+
+The rename is offered as a suggestion, never applied by `--fix`: the two
+properties agree only in left-to-right text, so the change is yours to make. A
+page that is only ever left to right loses nothing to physical sides, which is
+why the rule is off until you turn it on. The compiler's own
+[`mixed-logical-physical`](/docs/tooling/diagnostics) warning stays on either
+way: it reports a style that writes both kinds for one side. Also under Biome.
 
 ## This repository
 

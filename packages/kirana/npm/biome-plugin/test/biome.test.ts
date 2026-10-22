@@ -33,6 +33,9 @@ const rules = readdirSync(path.join(plugin, "rules")).map((file) =>
   file.replace(/\.grit$/, "")
 )
 
+/** Rules a project turns on itself, so no preset names them. */
+const optIn = ["use-logical-properties"]
+
 type Report = { line: number; column: number; message: string }
 
 const created: string[] = []
@@ -89,7 +92,10 @@ describe("@kirana-style/biome-plugin", () => {
   it("reports what the ESLint rules report, rule for rule", () => {
     const reports = lint(
       project({
-        extends: ["./node_modules/@kirana-style/biome-plugin/strict.json"],
+        plugins: rules.map(
+          (rule) =>
+            `./node_modules/@kirana-style/biome-plugin/rules/${rule}.grit`
+        ),
         ...only,
       })
     )
@@ -124,7 +130,7 @@ describe("@kirana-style/biome-plugin", () => {
     ) as { plugins: string[] }
     expect(
       strict.plugins.map((file) => path.basename(file, ".grit")).sort()
-    ).toEqual([...rules].sort())
+    ).toEqual(rules.filter((rule) => !optIn.includes(rule)).sort())
     const reports = lint(
       project({ extends: ["@kirana-style/biome-plugin/recommended"], ...only })
     )
@@ -133,5 +139,20 @@ describe("@kirana-style/biome-plugin", () => {
       "no-dark-variant",
       "sx-last",
     ])
+  })
+
+  it("names the same logical properties as the ESLint rule", async () => {
+    const { LOGICAL } =
+      await import("../../eslint-plugin/src/rules/use-logical-properties.ts")
+    const grit = readFileSync(
+      path.join(plugin, "rules/use-logical-properties.grit"),
+      "utf8"
+    )
+    const pairs = Object.fromEntries(
+      [...grit.matchAll(/\$physical = "(\w+)", \$logical = "(\w+)"/g)].map(
+        ([, physical, logical]) => [physical, logical]
+      )
+    )
+    expect(pairs).toEqual(LOGICAL)
   })
 })

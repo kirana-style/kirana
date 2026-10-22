@@ -232,5 +232,6 @@ impl Host for ModuleHost<'_> {
             .or_else(|| state.keyframes.get(name).cloned().map(Dep::Keyframes))
             .or_else(|| state.position_tries.get(name).cloned().map(Dep::PositionTry))
             .or_else(|| state.view_transitions.get(name).cloned().map(Dep::ViewTransition))
+            .or_else(|| state.counter_styles.get(name).cloned().map(Dep::CounterStyle))
     }
 }

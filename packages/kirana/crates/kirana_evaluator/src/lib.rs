@@ -14,7 +14,7 @@ use std::path::Path;
 use std::sync::Arc;
 
 use kirana_config::Config;
-use kirana_ir::{Dep, KeyframesDef, Names, PositionTryDef, TokenDef, Value, ViewTransitionDef};
+use kirana_ir::{CounterStyleDef, Dep, KeyframesDef, Names, PositionTryDef, TokenDef, Value, ViewTransitionDef};
 
 pub use eval::Evaluator;
 pub use style::{Parts, relation_reads};
@@ -59,6 +59,7 @@ pub struct Definitions {
     pub keyframes: Vec<Arc<KeyframesDef>>,
     pub position_tries: Vec<Arc<PositionTryDef>>,
     pub view_transitions: Vec<Arc<ViewTransitionDef>>,
+    pub counter_styles: Vec<Arc<CounterStyleDef>>,
     /// Token namespaces declared here, with the `defineTokens` call span.
     pub namespaces: Vec<(String, (u32, u32))>,
     /// Relations declared here: `(name, marker)`.

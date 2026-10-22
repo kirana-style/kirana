@@ -269,6 +269,7 @@ fn reads(dep: &Dep, out: &mut BTreeSet<String>) {
         Dep::Keyframes(frames) => &frames.deps,
         Dep::PositionTry(fallback) => &fallback.deps,
         Dep::ViewTransition(transition) => &transition.deps,
+        Dep::CounterStyle(style) => &style.deps,
     };
     inner.iter().for_each(|dep| reads(dep, out));
 }

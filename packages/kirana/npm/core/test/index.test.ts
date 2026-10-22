@@ -25,6 +25,7 @@ describe("KRN-API uncompiled calls fail loudly", () => {
     ["firstThatWorks", () => core.firstThatWorks("100dvh", "100vh")],
     ["positionTry", () => core.positionTry({ positionArea: "top" })],
     ["viewTransition", () => core.viewTransition({ old: { opacity: 0 } })],
+    ["counterStyle", () => core.counterStyle({ system: "cyclic" })],
   ]
   it.each(calls)("%s throws", (name, call) => {
     expect(call).toThrow(`Kirana: ${name}() ran without being compiled`)
@@ -53,6 +54,32 @@ describe("recipe types", () => {
     >().toEqualTypeOf<{
       readonly size?: "sm" | "md" | null
     }>()
+  })
+})
+
+describe("counter-style types", () => {
+  it("name a list style and a counter, and take descriptors only", () => {
+    const make = () => {
+      const check = core.counterStyle({
+        system: "cyclic",
+        symbols: '"✓"',
+        suffix: '" "',
+      })
+      const roman = core.counterStyle({
+        system: `extends ${check}`,
+        fallback: check,
+      })
+      const style = core.css({
+        listStyleType: check,
+        content: `counter(item, ${roman})`,
+      })
+      // @ts-expect-error a property is not a descriptor
+      core.counterStyle({ color: "red" })
+      return { check, style }
+    }
+    expectTypeOf<
+      ReturnType<typeof make>["check"]
+    >().toEqualTypeOf<core.CounterStyle>()
   })
 })
 

@@ -1,0 +1,164 @@
+[
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1037,
+      "end": 1059
+    },
+    "message": "counterStyle() takes an object of descriptors",
+    "help": [
+      "for example counterStyle({ system: \"cyclic\", symbols: '\"✓\"', suffix: '\" \"' })"
+    ]
+  },
+  {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1087,
+      "end": 1123
+    },
+    "message": "a @counter-style block takes descriptor names as keys",
+    "help": []
+  },
+  {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1148,
+      "end": 1178
+    },
+    "message": "color is not a @counter-style descriptor",
+    "help": [
+      "the descriptors are system, symbols, additiveSymbols, negative, prefix, suffix, range, pad, fallback and speakAs"
+    ]
+  },
+  {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1201,
+      "end": 1237
+    },
+    "message": "symbols reads a custom property, which a @counter-style descriptor cannot",
+    "help": [
+      "use an inlined token or a literal value"
+    ]
+  },
+  {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1263,
+      "end": 1297
+    },
+    "message": "a cyclic counter style needs symbols",
+    "help": []
+  },
+  {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1328,
+      "end": 1363
+    },
+    "message": "a fixed counter style needs symbols",
+    "help": []
+  },
+  {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1396,
+      "end": 1446
+    },
+    "message": "a numeric counter style needs symbols",
+    "help": []
+  },
+  {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1473,
+      "end": 1525
+    },
+    "message": "an additive counter style needs additiveSymbols",
+    "help": []
+  },
+  {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1560,
+      "end": 1620
+    },
+    "message": "a counter style that extends another takes no symbols of its own",
+    "help": []
+  },
+  {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1642,
+      "end": 1672
+    },
+    "message": "symbols is empty",
+    "help": []
+  },
+  {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1695,
+      "end": 1729
+    },
+    "message": "the value of symbols is not a CSS value",
+    "help": []
+  },
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1778,
+      "end": 1794
+    },
+    "message": "firstThatWorks() needs at least one value",
+    "help": []
+  },
+  {
+    "code": "KRN1210",
+    "name": "invalid-counter-style",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1863,
+      "end": 1895
+    },
+    "message": "symbols must be known at build time",
+    "help": []
+  }
+]

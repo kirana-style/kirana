@@ -391,7 +391,12 @@ const TYPE_EXPORTS: &[&str] = &[
     "Token",
     "Keyframes",
     "PositionTry",
+    "PositionTryBlock",
+    "Fallbacks",
+    "CounterStyle",
+    "CounterStyleDescriptors",
     "ViewTransition",
+    "TransitionStyle",
     "StyleValue",
     "ConditionalValue",
     "Style",
@@ -603,5 +608,29 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
             );
         }
         walk::walk_binding_property(self, property);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::TYPE_EXPORTS;
+
+    /// Every type `@kirana-style/core` exports may be imported without `type`, so the list follows
+    /// the package's own declarations.
+    #[test]
+    fn type_exports_follow_the_core_package() {
+        let source = include_str!("../../../npm/core/src/index.ts");
+        let declared: Vec<&str> = source
+            .lines()
+            .filter_map(|line| line.strip_prefix("export type ").or_else(|| line.strip_prefix("export declare type ")))
+            .filter_map(|rest| rest.split(|c: char| !c.is_ascii_alphanumeric()).next())
+            .collect();
+        assert!(declared.len() > 10, "{declared:?}");
+        for name in &declared {
+            assert!(TYPE_EXPORTS.contains(name), "{name} is exported by @kirana-style/core but missing here");
+        }
+        for name in TYPE_EXPORTS {
+            assert!(declared.contains(name), "{name} is listed here but not exported by @kirana-style/core");
+        }
     }
 }

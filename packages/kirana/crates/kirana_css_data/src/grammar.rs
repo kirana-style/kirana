@@ -18,7 +18,7 @@ use std::collections::HashMap;
 use crate::generated::{KNOWN_FUNCTIONS, KNOWN_WORDS, PROPERTY_SYNTAX, SYNTAXES};
 
 /// The outcome of checking a value against a property's grammar.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Verdict {
     /// The value fits.
     Accepted,
@@ -29,7 +29,50 @@ pub enum Verdict {
 }
 
 /// Checks `value` against the grammar of `property` (kebab case).
+///
+/// A verdict depends on the two strings alone, so each thread remembers the ones it has reached:
+/// an application repeats its values (the zyzz corpus's 300 components write 1,839 declarations
+/// with 114 distinct pairs), and matching a value against a long grammar such as `<color>` costs
+/// about thirty times a lookup. A token is resolved before it gets here, so a changed token value is
+/// a different string and is judged afresh.
 pub fn check(property: &str, value: &str) -> Verdict {
+    remembered(property, value, REMEMBERED)
+}
+
+/// How many verdicts a thread keeps; past it the thread starts over, so a long editor session holds a
+/// few megabytes at most.
+const REMEMBERED: usize = 1 << 15;
+
+thread_local! {
+    static VERDICTS: RefCell<Verdicts> = RefCell::new(Verdicts::default());
+}
+
+/// Verdicts by property, then value, so a lookup borrows both strings.
+#[derive(Default)]
+struct Verdicts {
+    by_property: HashMap<Box<str>, HashMap<Box<str>, Verdict>>,
+    len: usize,
+}
+
+fn remembered(property: &str, value: &str, limit: usize) -> Verdict {
+    let known = VERDICTS
+        .with(|verdicts| verdicts.borrow().by_property.get(property).and_then(|values| values.get(value)).copied());
+    if let Some(verdict) = known {
+        return verdict;
+    }
+    let verdict = judge(property, value);
+    VERDICTS.with(|verdicts| {
+        let mut verdicts = verdicts.borrow_mut();
+        if verdicts.len >= limit {
+            *verdicts = Verdicts::default();
+        }
+        verdicts.by_property.entry(property.into()).or_default().insert(value.into(), verdict);
+        verdicts.len += 1;
+    });
+    verdict
+}
+
+fn judge(property: &str, value: &str) -> Verdict {
     let Some(syntax) = lookup(PROPERTY_SYNTAX, property) else { return Verdict::Unchecked };
     let Some(tokens) = tokenize(value) else { return Verdict::Unchecked };
     if let [Token::Ident(word)] = tokens.as_slice()
@@ -742,6 +785,39 @@ mod tests {
 
     fn verdict(property: &str, value: &str) -> Verdict {
         check(property, value)
+    }
+
+    #[test]
+    fn remembers_a_verdict_as_it_was_judged() {
+        for (property, value) in [("color", "#fff"), ("padding", "red"), ("padding", "var(--gap)")] {
+            let first = check(property, value);
+            assert_eq!(check(property, value), first, "{property}: {value}");
+            assert_eq!(judge(property, value), first, "{property}: {value}");
+        }
+        // The same value on another property is its own entry.
+        assert_eq!(check("color", "12px"), judge("color", "12px"));
+        assert_eq!(check("width", "12px"), Verdict::Accepted);
+    }
+
+    #[test]
+    fn starts_over_past_its_limit() {
+        // A thread of its own, so the other tests' verdicts are not counted.
+        std::thread::spawn(|| {
+            assert_eq!(remembered("padding", "1px", 2), Verdict::Accepted);
+            assert_eq!(remembered("padding", "red", 2), judge("padding", "red"));
+            assert_eq!(VERDICTS.with(|verdicts| verdicts.borrow().len), 2);
+            // A third distinct pair finds the table full: it is emptied, then holds the new one.
+            assert_eq!(remembered("display", "flex", 2), Verdict::Accepted);
+            VERDICTS.with(|verdicts| {
+                let verdicts = verdicts.borrow();
+                assert_eq!(verdicts.len, 1);
+                assert!(!verdicts.by_property.contains_key("padding"));
+            });
+            // A forgotten pair is judged again, to the same verdict.
+            assert_eq!(remembered("padding", "red", 2), judge("padding", "red"));
+        })
+        .join()
+        .unwrap();
     }
 
     #[test]
