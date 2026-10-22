@@ -116,6 +116,15 @@ export const scrollFade = defineTokens("scrollFade", {
 // @property --kv…{syntax:"<length-percentage>";inherits:false;initial-value:0px}
 ```
 
+**KRN-TOK-012** — A finished bundle's stylesheet MUST declare a variable token only when something
+uses it (D-086): a rule reads it, the bundle's chunks or other files still name it, or it is declared
+`runtime: true` (per token or for its group; it implies `variable: true`). A token's definition
+module names all its tokens in the object it compiles to, but the bundler drops that object when
+nothing reads it at runtime, so the definition alone does not keep a token. A chunk rendered after
+the stylesheet that names a token it left out MUST fail the build with the token's identity. A build
+with no finished bundle (a dev server, `kirana-style check`, a host that reports none) declares every
+variable token its code names.
+
 ## Modes and themes
 
 **KRN-TOK-005** — Colour modes compile to `light-dark()`. Selecting a mode means setting `color-scheme` on

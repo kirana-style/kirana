@@ -46,6 +46,14 @@ flowchart LR
 Generated corpora are deterministic (fixed seed, no clock or randomness at run time) and byte-identical for
 every target.
 
+**large-dom in `kirana-lab`** is `apps/large-dom` in each implementation, built from that
+implementation's own components, with its rows from one seeded module shared byte for byte. A session on
+a hosted runner measures 1,000 and 5,000 rows: 10,000 rows would add about an hour to a session, and a
+25,000-row page takes minutes to load, which would take the job past GitHub's limit. The two larger
+sizes run by hand (`--large-dom-sizes`). Each round filters the table and restores it (timed to the
+next frame, with recalculation and layout), scrolls through it, moves the pointer across rows, and reads
+the heap after a collection; the page's HTML and `class` bytes are its tier B measures.
+
 ## Targets compared
 
 | Target                      | Tiers      | Why it is in the matrix                                                   |
@@ -53,12 +61,20 @@ every target.
 | Kirana                      | A, B, C, D | Subject.                                                                  |
 | StyleX (official, unplugin) | A, B, C    | The system Kirana is closest to in output model; the repository baseline. |
 | Tailwind CSS v4             | A, B, C    | The build-speed and readability bar; the repository twin.                 |
-| Panda CSS v2                | A, B, C    | The native-compiler peer ().                                              |
-| StyleX SWC port             | A          | Native build-time reference for the StyleX model.                         |
+| Panda CSS v2                | A, B, C    | The native-compiler peer.                                                 |
+| StyleX SWC port             | A, B, C    | Native build-time reference for the StyleX model (see below).             |
 | Vanilla Extract             | A, B, C    | Typed zero-runtime peer (scale-curve and large-dom only).                 |
 | Emotion                     | B, C       | Runtime styling baseline (large-dom only).                                |
 
 A target that cannot run a tier or corpus records `n/a` with a reason; no value is fabricated.
+
+**The StyleX SWC port** (`@stylexswc/unplugin`) builds the StyleX baseline's own sources, so a
+comparison with StyleX never depends on which of its two compilers a reader would pick. In `kirana-lab`
+it is `baselines/stylex-swc`: its own Vite setup, manifest and lockfile, with the apps copied from
+`baselines/stylex` before it installs. It takes the Babel baseline's options; under TanStack Start
+it writes its rules into the shared stylesheet through its documented `useCssPlaceholder` mode, the
+`@stylex;` marker added by its Vite setup rather than to the shared file. Its conformance is against the
+Babel build, with no exceptions.
 
 ## Fairness rules
 
@@ -82,7 +98,7 @@ A target that cannot run a tier or corpus records `n/a` with a reason; no value 
    corpus ([15](./15-testing-and-conformance.md); D-032).
 9. **Only shared applications.** An application that exists for one implementation and not the others is
    excluded from the corpus: measuring it would compare a corpus against a smaller one. `apps/docs` is
-   Kirana's own documentation site and has no counterpart on the StyleX port and the Tailwind original, so the
+   Kirana's own documentation site and has no StyleX or Tailwind counterpart, so the
    three-way corpus stays `web`, `blocks` and `examples`. `bench/slice.ts` fails when an app named in
    `--apps` is missing from any checkout, rather than reporting an unfair total.
 
@@ -148,6 +164,35 @@ release with the statistics above.
 3. the conformance suite passed for every compared target on that corpus (D-032);
 4. unfavourable results from the same run are published alongside favourable ones;
 5. vendor-reported numbers from other projects are labelled as such and never mixed into Kirana's tables.
+6. a claim about a tool measured in more than one configuration (StyleX by Babel and by SWC) is made
+   against the configuration Kirana does least well against on that measure, and names it.
+
+## Where the benchmark runs
+
+**KRN-BENCH-007** — The published numbers come from `kirana-lab`, a public repository holding the
+three-way corpus, the StyleX (Babel and SWC) and Tailwind baselines (each with its own lockfile) and
+the harness:
+
+- **What it measures:** the published Kirana release from npm, never a workspace build (fairness rule 2
+  applied to Kirana itself). `scripts/use-kirana.ts <version>` pins it.
+- **When:** on every Kirana release (`release.yml`'s `bench` job sends a `repository_dispatch` once
+  `verify` passes), weekly against npm's `latest`, and by hand.
+- **Where:** a GitHub-hosted runner, one session per run, with the runner image, CPU, cores and RAM in
+  `meta`. **INFERENCE:** a hosted runner is the interim machine; interleaving and the intervals carry its
+  noise, absolute times are never compared across runs, and a dedicated quiet machine replaces it when
+  sponsorship pays for one.
+- **Gate:** conformance runs first on every app (rule 8), including the SWC build against the Babel
+  one. A run that fails it is published as a
+  pre-release, and its numbers are never taken.
+- **Publication:** each run is a release `bench-<version>-<date>-<run>` with `results.json` (every raw
+  sample) and `report.md`: the run, the machine and versions, every cell with its interval and verdict,
+  and "Where Kirana is behind" first (claims policy 4). Style rule and declaration counts are shown
+  without a verdict.
+- **The site:** `kirana`'s `benchmarks` workflow takes the newest non-pre-release run into
+  `apps/docs/src/data/benchmarks.json` as a pull request. Every number and claim on the site is read
+  from that file and worded from its comparison's verdict ("level" when the interval includes 1), and
+  `check-consistency.ts` fails on a measured claim written by hand. The editor figures the lab does not
+  measure yet (tier D, incremental rebuilds) name the design note they come from.
 
 ## Budgets on every pull request
 

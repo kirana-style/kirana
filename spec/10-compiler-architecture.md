@@ -220,6 +220,11 @@ prefix `k`, development and production use the same names:
 - Tombstones and unfold tokens travel inside class strings so a later runtime merge can apply removals
   and shorthand atoms exactly; the host element's `class` attribute never receives them.
 - Readable names come from `kirana-style trace` and the language server, not from a second naming scheme.
+- **Dense names (D-084).** A production build with `names: "dense"` renames the condition and value
+  segments of every name the compiler wrote, and of the stylesheet. They become codes of 1–2
+  characters, assigned from the whole build in order of use and kept for the session. The property
+  code and the target stay, so merging is unchanged. Transforms write a `^~` mark before each name, so
+  only those are renamed; renaming runs in the host's `renderChunk`.
 
 ## Source rewrite
 
@@ -229,7 +234,9 @@ every other module it MUST return "unchanged" so the host keeps the original byt
 1. replaces static `css()`, `cx()`, recipe and `sx` sites with class strings, class expressions, and
    bridged `style` objects ([09](./09-dynamic-styles.md));
 2. replaces definitions (`defineTokens`, `relation`, `keyframes`, `recipe`) with the minimal runtime
-   values their remaining consumers need (class strings, variable references, recipe tables);
+   values their remaining consumers need (class strings, variable references, recipe tables). Every
+   runtime call it writes is marked `/* @__PURE__ */`, so a bundler drops a table or a runtime instance
+   whose consumers all resolved at build time;
 3. removes Kirana authoring imports whose uses were all erased, and adds `@kirana-style/core/internal`
    imports only for runtime functions the module still uses;
 4. applies all edits in one pass with span-based string editing (`string_wizard`, from the Rolldown
@@ -295,6 +302,13 @@ host code.
 in parallel (candidate: `rayon`); registry updates apply in a single ordered step so results do not depend
 on thread scheduling.
 
+**In a bundler host.** A bundler calls `transform` once per module. Vite runs those hooks
+concurrently, and a synchronous call compiled them one after another on its thread. The Vite and
+Rolldown hosts' builds call `transformAsync`, which compiles on the Node.js worker pool instead,
+while the dev server keeps one transform at a time. The registry is shared and the stylesheet is
+written in path order, so the output is byte-identical either way. The WASI engine compiles on the
+calling thread.
+
 **KRN-CMP-010** — A persistent cache (default `node_modules/.cache/kirana`) MUST store per-module
 extraction results keyed by compiler version, configuration hash, module content hash and provenance
 hashes, in a compact binary encoding. Deleting the cache MUST only cost time, never change output.
@@ -302,6 +316,11 @@ hashes, in a compact binary encoding. Deleting the cache MUST only cost time, ne
 **Deferred (D-049).** The engine is 0.05 s of a 16.2 s build of the three applications, so a cache
 that skips that work saves nothing measurable, while every key it has to get right is a way to serve
 stale CSS. The in-memory incremental graph, which is what the dev server uses, is unaffected.
+
+**Within one build (D-085).** A one-shot build reuses a module's transform when its source and every
+file its evaluation read are unchanged, so the SSR build does not compile again what the client build
+compiled. It is in memory, for that build only, and off in a dev server, a watch build and the
+language server.
 
 ## Configuration boundary
 

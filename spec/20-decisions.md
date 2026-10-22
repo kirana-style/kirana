@@ -56,7 +56,7 @@ reopened by a named experiment).
 - **Decision:** The engine ships no tokens, scales, breakpoints or colours. Vocabulary arrives only
   from the user's definitions or opt-in presets. The first first-party preset is
   `@kirana-style/preset-scales`.
-- **Rationale:** The shadcn/ui port proved that an unopinionated engine plus a Tailwind-derived
+- **Rationale:** This repository proved that an unopinionated engine plus a Tailwind-derived
   vocabulary works; keeping vocabulary out of the engine keeps enterprise design systems first-class.
 - **Elaborated in:** [07-tokens-themes-presets](./07-tokens-themes-presets.md).
 
@@ -206,7 +206,7 @@ reopened by a named experiment).
 - **Decision:** The engine is written in Rust. JavaScript/TypeScript parsing, semantic analysis, module
   resolution and source maps use Oxc crates. Babel and SWC are not used.
 - **Rationale:** VoidZero-first toolchain (Oxc, Rolldown, Vite, Oxlint, Oxfmt); Panda v2 validates Oxc
-  for this workload. Rust/Oxc is a baseline, not a differentiator (the landscape survey).
+  for this workload. Rust/Oxc is a baseline, not a differentiator (the landscape notes).
 - **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md).
 
 ### D-022 — The compiler never executes user code
@@ -254,7 +254,7 @@ reopened by a named experiment).
 - **Decision:** Production output is minified without configuration. Browser targets are explicit with
   a default floor of Chrome 123, Safari 17.5, Firefox 120; the compiler lowers syntax only when targets
   require it and never changes colour spaces otherwise.
-- **Rationale:** In the StyleX port the CSS was unminified until Vite and the plugin were configured, and
+- **Rationale:** In this repo the CSS was unminified until Vite and the plugin were configured, and
   default targets rewrote `oklch()` to `lab()` and polyfilled `light-dark()`.
 - **Elaborated in:** [13-output-and-performance](./13-output-and-performance.md).
 
@@ -287,7 +287,7 @@ reopened by a named experiment).
 - **Status:** Accepted.
 - **Decision:** Editor features come from a Rust language server speaking LSP. Kirana ships no
   tsserver plugin.
-- **Rationale:** TypeScript 7 (`tsgo`), which the project already uses, does not support the classic
+- **Rationale:** TypeScript 7 (`tsgo`), which this repo already uses, does not support the classic
   tsserver plugin API.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
@@ -331,7 +331,7 @@ the implementation tracker names its evidence.
 
 ### D-035 — The definition decides a token's representation
 
-- **Status:** Accepted.
+- **Status:** Accepted; amended by D-086 (a variable token is declared only where something uses it).
 - **Decision:** A token's own definition decides how it compiles. A plain value is inlined. A
   `{ light, dark }` colour is inlined as `light-dark()`. A token declared `variable: true` (per token, or
   for the group with `defineTokens(namespace, values, { variable: true })`) and every non-colour mode
@@ -344,7 +344,7 @@ the implementation tracker names its evidence.
 
 ### D-036 — One atoms layer in ladder order
 
-- **Status:** Accepted.
+- **Status:** Accepted; elaborated by D-087 (order within a conflict key).
 - **Decision:** The layer plan is `@layer {before}, kirana, {after}` with sublayers `kirana.tokens`,
   `kirana.themes`, `kirana.contextual` and `kirana.atoms`. Atoms are written into the single
   `kirana.atoms` layer in ladder order, and every atom selector has specificity (0,1,0) through
@@ -355,7 +355,7 @@ the implementation tracker names its evidence.
 
 ### D-037 — Fixed-width class names, identical in development
 
-- **Status:** Accepted.
+- **Status:** Accepted; amended by D-084 (dense names in production, opt-in).
 - **Decision:** A class name is
   `{prefix}{property code}[-{target 3}][-{conditions 4}]_{value 4}`. The property code is the base-62
   index of the longhand in the generated property table, or a 5-character hash for a custom property.
@@ -510,7 +510,7 @@ the implementation tracker names its evidence.
 
 ### D-049 — No persistent cache until something is waiting on it
 
-- **Status:** Accepted.
+- **Status:** Accepted; its measurement is amended by D-085 (one compile per module in a build).
 - **Decision:** KRN-CMP-010 (a per-module cache under `node_modules/.cache/kirana`) is deferred out
   of M2 and not scheduled. The in-memory incremental graph stays: it is what the dev server and a
   watch build use, and it is not affected.
@@ -694,7 +694,7 @@ the implementation tracker names its evidence.
   `{scale.key}` token references, with the preset's `compose` tokens registered `inherits: false`.
 - **Rationale:** one lowering makes the codemod's output compile to the atoms of the string it
   replaced (a test compares them), and every vocabulary fix helps both surfaces. Measured on the
-  Tailwind original: 1,183 report items with the first grammar, 535 after these additions, with 8
+  Tailwind original of the shadcn/ui port: 1,183 report items with the first grammar, 535 after these additions, with 8
   compile errors left, all reported (`design-notes/migrate-tailwind.md`).
 - **Consequences:** filters are not composed yet (Tailwind's chain relies on empty `var(--x,)`
   fallbacks, which a token cannot express); the `tw-animate-css` plugin's utilities are not in the
@@ -860,7 +860,7 @@ the implementation tracker names its evidence.
   honours `fileReplacements`, which redirects module resolution. The declarations are hand-written
   because this workspace's TypeScript 7 has no JavaScript API for `ngc`; under `fesm2022/` because
   Analog's linker processes only files on such a path.
-- **Trade-off:** the merge runs in the browser (the private runtime, under 1 kB gzipped) instead of at
+- **Trade-off:** the merge runs in the browser (the private runtime, under 1.1 kB gzipped) instead of at
   build time, and the CLI compiles the source root twice (once into the mirror, once by Angular).
 - **Elaborated in:** [11-integrations](./11-integrations.md#frameworks),
   `design-notes/angular.md`.
@@ -1032,6 +1032,146 @@ the implementation tracker names its evidence.
   context, and a project that wants a shorter one adds a script.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#cli).
 
+### D-083 — The runtime merge is cached, and its budget is 1.1 kB
+
+- **Status:** Accepted (2026-10-17). Amends KRN-DYN-005 (1.0 kB to 1.1 kB).
+- **Decision:** `sx()` in `@kirana-style/core/internal` keeps the props it merged, keyed by
+  `JSON.stringify` of its arguments, and answers the same inputs from that cache with a copy; the
+  cache starts over at 4,096 entries. The private runtime's budget becomes 1,100 bytes minified and
+  gzipped; with the cache it is 1,075.
+- **Rationale:** kirana-lab's large-dom corpus measured Kirana behind StyleX, StyleX (SWC) and Tailwind
+  CSS on a table of thousands of rows (filter 1.11–1.25×, heap 1.12–1.26×) with style recalculation
+  and layout level or better: the cost was `sx()` merging a component's class string afresh on every
+  render. With the cache, in one session on one machine, Kirana ÷ StyleX went to 0.962 on the filter,
+  0.977 on rendering every row again and 0.947 on the heap. The 1.0 kB budget was a first plan, not a
+  limit anything was measured against; 76 bytes for that is worth it.
+- **Trade-off:** 76 bytes in every module that uses the runtime. A faster key (walking the handles)
+  was measured and rejected: 146 bytes for no difference a page shows. Splitting the runtime so that
+  a module imports only what it uses (147 bytes of `recipe()`) is the way to win room back.
+- **Elaborated in:** [09-dynamic-styles](./09-dynamic-styles.md#private-runtime),
+  `design-notes/runtime-merge.md`.
+
+### D-084 — Dense names: production renames the hashes after the build
+
+- **Status:** Accepted (2026-10-19), opt-in. Amends D-037: development and production share the
+  cascade order and the names' structure, and a dense build differs only in the two hash segments.
+- **Decision:** With `names: "dense"` on the Vite or Rolldown host, a production build renames every
+  class name the compiler wrote, and the stylesheet.
+  - Each 4-character condition hash becomes a code of 1–2 characters, never 3.
+  - Each 4-character value hash becomes a code of 1–2 characters from one space shared by every key.
+  - The property code and the target segment stay.
+  - Codes go to the most used segments first and never change within a session, so the client and the
+    SSR build agree.
+  - Transforms mark every name they write (`^~`). Chunks are renamed in `renderChunk`, before content
+    hashes and with source maps, and only marked names change.
+  - A segment past the 3,906 codes keeps its hash.
+  - The runtime's condition test accepts any condition segment but a 3-character one.
+  - Not available with a class map (D-069).
+- **Rationale:**
+  - **Size.** The hash segments are most of what a structured name costs; class-names.md measured
+    sequential names at about a quarter off the CSS gzip. Renaming after the build avoids what ruled
+    them out under D-024: transforms and the development server keep D-037's self-contained names.
+  - **Merging.** Keeping the property code and target keeps the runtime merge, and the 400 merge
+    vectors replay unchanged in dense names.
+  - **Measured on the docs site:**
+    - the stylesheet is 12.7 % smaller in gzip and 12.9 % in brotli;
+    - the client JavaScript is 1.2–1.4 % smaller;
+    - the build takes 4 % longer;
+    - computed styles are identical across 41 routes in both schemes, within the site's animation noise.
+- **Trade-off:**
+  - **Opaque production names.** They cost debugging, which `kirana-style trace` answers in development.
+  - **Cache churn.** A name can change between deploys when a new segment outranks an old one, so
+    chunks that did not change may get new content hashes. A names manifest that keeps codes across
+    builds is the remedy if that shows up in practice.
+  - **Runtime size.** 12 bytes of runtime (1,087 of 1,100).
+  - **Opt-in for now.** Until kirana-lab measures it across the corpora under the optimiser gate.
+- **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md#hashing-and-names),
+  `design-notes/dense-names.md`, `research/compiler-algorithm.md` (P3).
+
+### D-085 — A one-shot build compiles each module once
+
+- **Status:** Accepted (2026-10-19). Amends D-049's premise, not its decision: there is still no
+  persistent cache.
+- **Decision:** In a one-shot build, a transform of a module whose source, parse mode and naming
+  mode are unchanged returns its previous transform.
+  - "Unchanged" includes every file its evaluation read, each checked against the hash it had then,
+    the export cache's own provenance test.
+  - The Vite and Rolldown hosts turn this on at `buildStart`, except in a dev server or a watch build.
+  - `invalidate()`, `remove()` and a changed `package.json` drop the reused transforms.
+  - The language server and `kirana-style check` never reuse.
+- **Rationale:** Vite compiles the same modules for the client and again for the SSR build, and
+  D-049's measurement (0.05 s of a 16.2 s build) no longer described the engine at scale.
+  - **Profile:** on kirana-lab's scale curve at 1,000 components, the native transform was 581 ms of a
+    2.4 s CPU profile, the largest single item.
+  - **Measured:** compiling once took the lab's Kirana scale-curve build from 2.40 s to 2.14 s at
+    1,000 components and from 13.99 s to 11.38 s at 10,000, the median of three cold builds each.
+- **Trade-off:** One stored transform per module for the build's lifetime. It stays off where a file
+  created later could change how an import resolves, which provenance does not see, and where memory
+  is budgeted: a dev server, a watch build, the language server.
+- **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md#parallelism-and-cache),
+  `research/compiler-algorithm.md` (P2).
+
+### D-086 — A variable token is declared only where something uses it
+
+- **Status:** Accepted (2026-10-19). Amends D-035: the definition still decides how a token compiles,
+  but a variable token is declared only when used.
+- **Decision:** A Vite or Rolldown production build writes a variable token's declaration, or its
+  `@property` registration, only when one of these holds:
+  - a rule reads it;
+  - the finished bundle (its chunks and other files) still names it;
+  - it is declared `runtime: true`, a new option per token or per `defineTokens` group that implies
+    `variable: true`.
+
+  A chunk rendered after the stylesheet that names a token the stylesheet left out, as a
+  server-only component can, fails the build, naming the token and `runtime: true`. Builds without
+  a finished bundle declare every variable token their code names, as before (KRN-TOK-012).
+
+- **Rationale:** A definition module compiles to an object naming every token it defines, so that
+  plain code can read them at runtime, and that object kept every token in the stylesheet. Compiled
+  components resolve their tokens at build time, so the bundler drops the object, and the tokens
+  were declared for nothing.
+  - **Lab web app:** 35 of 47 `@property` registrations and 18 `:root` declarations were never read.
+  - **This repository's docs site:** 48 token declarations and 35 `@property` rules go; the
+    stylesheet is 3.9 % smaller raw, 3.1 % in gzip, 3.4 % in brotli.
+  - **Rendering:** computed styles are unchanged across the docs site's 41 routes in both schemes,
+    within its animation noise.
+- **Trade-off:** A token read only by code the compiler never sees, and absent from the client
+  bundle, needs `runtime: true`. The server build reports the case when it renders after the client,
+  as in TanStack Start; a host whose server build renders first keeps such tokens anyway, since
+  their names reach the bundle before the stylesheet does.
+- **Elaborated in:** [07-tokens-themes-presets](./07-tokens-themes-presets.md#inlined-or-variable).
+
+### D-087 — Atoms of one conflict key are ordered to share rules; competition ignores writing mode
+
+- **Status:** Accepted (2026-10-19). Elaborates D-036.
+- **Decision:** In `kirana.atoms`, the writer orders the atoms that share a conflict key so that a
+  declaration ending one key's atoms starts the next key's, and the two share a rule (KRN-OUT-010).
+  The ladder still orders the keys. Whether a rule may move past another to share a declaration is
+  decided by what each one sets, whatever the writing mode (KRN-OUT-009):
+  - a flow-relative longhand competes with every physical longhand of its group;
+  - a box shorthand, and a short list of others whose longhands are complete in their
+    specifications, compete with their longhands;
+  - legacy aliases compete with what they stand for;
+  - other shorthands and vendor-prefixed properties compete with everything.
+- **Rationale:**
+  - **Same-key atoms never meet.** A merge leaves an element one value per conflict key, so their
+    mutual order cannot change a winner. The docs say that joining two compiled class strings by
+    hand is undefined.
+  - **The old check assumed left-to-right text.** It took a logical longhand's counterpart from
+    horizontal, left-to-right writing, so in right-to-left text a `margin-right` rule could move past
+    a `margin-inline-start` one and win where the ladder says it loses. It also treated a shorthand
+    that Lightning CSS does not split (`text-wrap`, `columns`) as a longhand of its own name.
+  - **Measured on Kirana's docs site:** the stylesheet is 0.6 % smaller raw, 0.14 % in
+    gzip and 0.37 % in brotli, with 31 fewer rules. Of the merges the research script counted, 4
+    remain free of a competing rule in between, worth 85 bytes: the script ignored competitors in
+    other at-rule blocks, so its estimate of 2.5 kB on the lab's web app was too high.
+  - **Rendering:** computed styles are unchanged on the docs site's 60 routes in both schemes and
+    both directions, within its animation noise.
+- **Trade-off:** None for output that comes from Kirana's merges. A box shorthand atom can now share
+  a rule, which it never did, and a shorthand the writer cannot split still blocks every merge
+  across it.
+- **Elaborated in:** [13-output-and-performance](./13-output-and-performance.md#output-requirements).
+
 ### D-088 — Component states are condition keys, generated from each library's declarations
 
 - **Status:** Accepted (2026-10-21).
@@ -1100,13 +1240,13 @@ the implementation tracker names its evidence.
 | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | the brand notes                                               | D-001                                                                                                                        |
 | [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088 |
-| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059                                                         |
+| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086                                                  |
 | [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090                                    |
-| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043                                                                                                   |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045                                                  |
+| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084                                                                                     |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                    |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073               |
 | [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082                                           |
-| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048                                                                       |
+| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                         |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                        |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                 |
 | the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                     |

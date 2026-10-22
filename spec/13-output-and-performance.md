@@ -48,11 +48,24 @@ names and atom order as production; the only differences are source maps and min
 
 **KRN-OUT-009 — One rule per declaration body.** The writer MAY give one rule the selectors of
 several atoms that carry the same declaration, and MUST do so only when no rule between them decides
-the same property: the same longhand, its logical or physical counterpart, or any shorthand, which
-covers longhands the writer does not enumerate. A merge that could reorder two competing declarations
-is forbidden, because within a layer source order is the ladder (D-036). The writer MAY likewise fold
-a rule's condition compound into a relation's `:where()` when the two match the same elements at the
-same specificity.
+a competing property (D-087). Two properties compete when:
+
+- they are the same longhand;
+- one is a shorthand or a legacy alias that sets the other (`padding` and `padding-left`,
+  `white-space` and `text-wrap-mode`, `word-wrap` and `overflow-wrap`);
+- they share a flow group and one of them is flow-relative, in any writing mode: `margin-inline-start`
+  competes with all four physical margins, `inline-size` with `width` and `height`.
+
+A shorthand whose longhands are not all known (`border`, which also resets `border-image`), and any
+vendor-prefixed property, compete with every property. A merge that could reorder two competing
+declarations is forbidden, because within a layer source order is the ladder (D-036). The writer MAY
+likewise fold a rule's condition compound into a relation's `:where()` when the two match the same
+elements at the same specificity.
+
+**KRN-OUT-010 — Order within a conflict key.** In `kirana.atoms`, the writer MAY order the atoms that
+share a conflict key in any way, since a merge leaves an element at most one of them (D-087), and
+SHOULD choose the order that lets adjacent keys share a rule. It MUST keep ladder order for atoms of
+`kirana.contextual` that share a key: two ancestors can each give one descendant such an atom.
 
 **KRN-OUT-008 — Dead-style elimination.** The stylesheet MUST contain only atoms referenced by modules
 that are part of the host's build graph (or the CLI's included files). Tokens, keyframes and relations
@@ -93,7 +106,7 @@ are kept in `packages/kirana/design-notes/benchmark-results.md`. KRN-PERF-006 is
 elements, driven through each build's own colour-scheme switch and through hovers with the CPU
 throttled, reading style recalculation and frame times from the renderer itself.
 
-The private runtime size limit (1.0 kB min+gzip) is a requirement, not a hypothesis, and is owned by
+The private runtime size limit (1.1 kB min+gzip, D-083) is a requirement, not a hypothesis, and is owned by
 [09](./09-dynamic-styles.md#private-runtime) as KRN-DYN-005.
 
 ## Engineering rules

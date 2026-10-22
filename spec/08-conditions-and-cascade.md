@@ -158,7 +158,7 @@ Pseudo-class table (low → high): structural (`:first-child`, `:last-child`, `:
 **Why this order.** It reproduces what the original Tailwind components of the shadcn/ui port relied on:
 state variants beat breakpoints (a `hover:` or `data-[state]:` style wins over `md:` at every width), and
 attribute variants beat pseudo-class variants. The port broke exactly these cases under StyleX's
-numeric priorities (, U4). The ladder is
+numeric priorities (U4). The ladder is
 provisional pending experiment E-03, which checks every condition combination used in the shadcn/ui port
 against the Tailwind twin.
 

@@ -31,16 +31,16 @@ over stdio, built on the same `kirana_project` crate as the build (D-030). It ru
 TypeScript language server and only answers styling questions; it never duplicates type completions
 TypeScript already provides.
 
-| Editor                    | Delivery                                                                                         |
-| ------------------------- | ------------------------------------------------------------------------------------------------ |
-| VS Code, Cursor, Windsurf | Thin extension that downloads or locates the `kirana-style` binary and starts `kirana-style lsp` |
-| Zed                       | Extension registering the language server                                                        |
-| Neovim, Helix             | Documented `lspconfig` / language configuration                                                  |
-| JetBrains IDEs            | LSP client plugin                                                                                |
+| Editor                    | Delivery                                                                                   |
+| ------------------------- | ------------------------------------------------------------------------------------------ |
+| VS Code, Cursor, Windsurf | Thin extension that downloads or locates the `kirana` binary and starts `kirana-style lsp` |
+| Zed                       | Extension registering the language server                                                  |
+| Neovim, Helix             | Documented `lspconfig` / language configuration                                            |
+| JetBrains IDEs            | LSP client plugin                                                                          |
 
 Built (sprint 6): VS Code and Zed extensions under `packages/kirana/editors/`, both starting the
-project's own `node_modules/.bin/kirana-style lsp`, falling back to `kirana` from 0.1.0 (D-064,
-D-082); Neovim and Helix configurations are documented.
+project's own `node_modules/.bin/kirana-style lsp` (D-064; Zed finds it through the root `package.json`,
+since it does not index `node_modules`); Neovim and Helix configurations are documented.
 The server answers for TypeScript and JavaScript; Vue, Svelte and Astro components compile through the
 Driver's masking, which it does not run yet.
 
@@ -66,11 +66,11 @@ from open-document changes plus file-watch events, and publishes the same diagno
 **KRN-DX-011 — Latency budgets (met, E-06):** on our shadcn/ui port, hover p95 ≤ 50 ms,
 diagnostics refreshed ≤ 200 ms after an edit, and server memory ≤ 300 MB after indexing all three apps.
 Measured by `bench/lsp.ts` in the benchmark repository (2026-10-02): hover p95 1.2 ms, diagnostics p95 7.1 ms,
-65 MB ().
+65 MB.
 
 ## CLI
 
-**KRN-DX-008** — The `kirana-style` binary MUST provide:
+**KRN-DX-008** — The `kirana` binary MUST provide:
 
 | Command                                                                | Purpose                                                                                                                                                                                                                                                                                                                                                                                   |
 | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
