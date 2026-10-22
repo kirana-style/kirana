@@ -5,7 +5,7 @@ Source: https://kirana.style/docs/project/releases
 
 ## Today
 
-Every package is at **0.3.0** on npm, released together. Every
+Every package is at **0.3.1** on npm, released together. Every
 release and what came with it is on the [changelog](/changelog), read from
 `CHANGELOG.md` in the repository.
 

@@ -1,6 +1,6 @@
 {
   "name": "kirana-style",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Kirana's command line: npx kirana-style@latest init sets a project up; check, build, trace and migrate.",
   "license": "MIT",
   "author": "The Kirana authors",

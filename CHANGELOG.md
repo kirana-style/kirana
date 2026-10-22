@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.1](https://github.com/kirana-style/kirana/compare/v0.3.0...v0.3.1) (2026-10-22)
+
+
+### Features
+
+* exclusive states, and ark ui and react aria vocabularies ([#87](https://github.com/kirana-style/kirana/issues/87)) ([0cfe565](https://github.com/kirana-style/kirana/commit/0cfe565cc736743f88d815d77e6e31cf71097dfd))
+
+
+### Bug fixes
+
+* publish to npm without dist-tag, and three small fixes ([#86](https://github.com/kirana-style/kirana/issues/86)) ([947066c](https://github.com/kirana-style/kirana/commit/947066c201c4c51db6413a1733eb3166aec7b7df))
+
+
+### Documentation
+
+* resync the public specification ([#88](https://github.com/kirana-style/kirana/issues/88)) ([9ff3a88](https://github.com/kirana-style/kirana/commit/9ff3a883bbff82793ca0fef1f15b8dc184a5d965))
+* take the benchmarks of kirana 0.3.0 from kirana-lab ([#83](https://github.com/kirana-style/kirana/issues/83)) ([a783d4f](https://github.com/kirana-style/kirana/commit/a783d4f9c282ed7bd9c1b7d7af6c492b150e38d2))
+* the 0.3.0 post, two compare rows, what the benchmarks include ([#85](https://github.com/kirana-style/kirana/issues/85)) ([022b50f](https://github.com/kirana-style/kirana/commit/022b50f25b6d00616cb70b7d1cba234abe8b2ac3))
+
 ## [0.3.0](https://github.com/kirana-style/kirana/compare/v0.2.4...v0.3.0) (2026-10-21)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/bun",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Kirana for Bun's bundler: compiles modules and finishes the stylesheet.",
   "license": "MIT",
   "author": "The Kirana authors",

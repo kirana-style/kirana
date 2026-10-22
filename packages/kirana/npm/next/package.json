@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/next",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Kirana for Next.js: one `withKirana` for Turbopack (a loader, with the stylesheet from @kirana-style/postcss) and webpack.",
   "license": "MIT",
   "author": "The Kirana authors",
