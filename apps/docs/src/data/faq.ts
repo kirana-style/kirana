@@ -21,7 +21,7 @@ export const FAQ: readonly {
       {
         q: "Which frameworks and bundlers does it support?",
         a: `${sentence(LISTS.frameworks)}, and plain class strings; server templates in ${sentence(LISTS.serverFrameworks)}; ${sentence(LISTS.bundlers)}, and Turbopack through Next.js. kirana-style init sets any of them up from a diff.`,
-        href: "/docs/integrations/ecosystem",
+        href: "/docs/project/ecosystem",
         link: "Ecosystem and status",
       },
       {

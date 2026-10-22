@@ -481,6 +481,7 @@ export const SEARCH: readonly SearchRecord[] = ${JSON.stringify(
     stale.push(relative(root, join(publicDir, "llms.txt")))
   if (await emit(join(publicDir, "llms-full.txt"), `${full}\n`))
     stale.push(relative(root, join(publicDir, "llms-full.txt")))
+  const twins = new Set<string>()
   for (const page of pages) {
     const slug =
       page.meta.href === "/docs"
@@ -491,6 +492,7 @@ export const SEARCH: readonly SearchRecord[] = ${JSON.stringify(
       `Source: ${SITE}${page.meta.href}`,
       "",
     ].join("\n")
+    twins.add(join(publicDir, "docs", `${slug}.md`))
     if (
       await emit(
         join(publicDir, "docs", `${slug}.md`),
@@ -501,17 +503,22 @@ export const SEARCH: readonly SearchRecord[] = ${JSON.stringify(
     }
   }
 
-  // A page that was deleted must not leave its document behind.
-  const written = new Set(files.keys())
-  const existing = await readdir(join(generatedDir, "pages"), {
-    withFileTypes: true,
-    recursive: true,
-  }).catch(() => [])
-  for (const entry of existing) {
-    const path = join(entry.parentPath, entry.name)
-    if (entry.isFile() && !written.has(path)) {
-      stale.push(`${relative(root, path)} (removed)`)
-      if (!check) await rm(path)
+  // A page that was deleted or moved must not leave its document, or its markdown twin, behind.
+  const written = new Set([...files.keys(), ...twins])
+  for (const directory of [
+    join(generatedDir, "pages"),
+    join(publicDir, "docs"),
+  ]) {
+    const existing = await readdir(directory, {
+      withFileTypes: true,
+      recursive: true,
+    }).catch(() => [])
+    for (const entry of existing) {
+      const path = join(entry.parentPath, entry.name)
+      if (entry.isFile() && !written.has(path)) {
+        stale.push(`${relative(root, path)} (removed)`)
+        if (!check) await rm(path)
+      }
     }
   }
 

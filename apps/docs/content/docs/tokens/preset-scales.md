@@ -91,7 +91,7 @@ import { brand } from "@acme/tokens"
 ```
 
 No registration and no plugin. Inside a workspace the package is compiled with
-your own modules. Installed from npm, list it in [`libraries`](/docs/config/reference#libraries),
+your own modules. Installed from npm, list it in [`libraries`](/docs/reference/config#libraries),
 so its `defineTokens()` calls are compiled too; a token the app reads at runtime
 would otherwise throw in the browser.
 

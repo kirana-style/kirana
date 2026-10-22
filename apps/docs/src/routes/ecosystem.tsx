@@ -45,7 +45,7 @@ export const Route = createFileRoute("/ecosystem")({
 /** What a row says when it is not simply there to use; a row without one works today. */
 type Status = "Planned" | "Deferred" | "Not packaged"
 
-/** From `/docs/integrations/ecosystem`, the source of truth for status; each row opens its guide. */
+/** From `/docs/project/ecosystem`, the source of truth for status; each row opens its guide. */
 const BUNDLERS: {
   name: string
   status?: Status
@@ -119,7 +119,7 @@ const TOOLING: { name: string; status?: Status; note: string; href: string }[] =
     {
       name: "WASI build",
       note: "Byte-identical output where no native addon runs",
-      href: "/docs/integrations/ecosystem#runtime-and-distribution",
+      href: "/docs/project/ecosystem#runtime-and-distribution",
     },
     {
       name: "kirana-style init, doctor, dev",
@@ -353,7 +353,7 @@ function EcosystemPage() {
             </DocsLink>
           ))}
         </div>
-        <DocsLink href="/docs/integrations/ecosystem">
+        <DocsLink href="/docs/project/ecosystem">
           <More>The full status page</More>
         </DocsLink>
       </PageSection>

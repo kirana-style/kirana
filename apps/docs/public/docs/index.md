@@ -15,7 +15,7 @@ existing project, look something up, or see where the project stands.
 
 - **Documentation**: The model, writing styles, tokens and configuration. [Quick start](/docs/start/quick-start), [How it works](/docs/start/how-it-works), [Mental model](/docs/start/mental-model)
 - **Frameworks**: An install guide for every framework and bundler, each built on every change. [Vue](/docs/frameworks/vue), [Next.js](/docs/frameworks/nextjs), [TanStack Start](/docs/frameworks/tanstack-start)
-- **Guides**: Moving from Tailwind or StyleX, and building larger systems. [From Tailwind](/docs/migration/from-tailwind), [From StyleX](/docs/migration/from-stylex), [A design system](/docs/advanced/design-system)
+- **Guides**: Moving from Tailwind or StyleX, and building larger systems. [From Tailwind](/docs/migration/from-tailwind), [From StyleX](/docs/migration/from-stylex), [A design system](/docs/building/design-system)
 - **Reference**: The API, the command line, and every diagnostic with its code. [API](/docs/reference/api), [CLI](/docs/tooling/cli), [Diagnostics](/docs/tooling/diagnostics)
 - **Project**: Where Kirana stands, what comes next, and how to help. [Status](/docs/project/status), [Roadmap](/docs/project/roadmap), [Contributing](/docs/project/contributing)
 

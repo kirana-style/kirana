@@ -49,7 +49,7 @@ class name with codes of one or two characters, assigned from the whole build:
 
 It is off by default: names can change between deploys in chunks whose source
 did not, so those chunks are downloaded again. See
-[dense names](/docs/advanced/output#dense-names) for what it saves and why. It cannot be
+[dense names](/docs/building/output#dense-names) for what it saves and why. It cannot be
 combined with a [class map](/docs/frameworks/server-templates), whose server-side
 helpers read hashed names, and the build says so.
 

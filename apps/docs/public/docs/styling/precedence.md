@@ -65,7 +65,7 @@ Three ways to resolve it:
 
 2. **Say they are exclusive.** When a library guarantees two attributes never
    appear together (`[data-open]` and `[data-closed]`), declare it once in
-   [`conditions.exclusive`](/docs/config/reference).
+   [`conditions.exclusive`](/docs/reference/config).
 
 3. **Use the same value**, if that is the truth. Two entries with the same value
    are never ambiguous.

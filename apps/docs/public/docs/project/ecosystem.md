@@ -1,5 +1,5 @@
 # Ecosystem and status
-Source: https://kirana.style/docs/integrations/ecosystem
+Source: https://kirana.style/docs/project/ecosystem
 
 # Ecosystem and status
 
@@ -70,5 +70,5 @@ Every framework has a guide and a tested example; the
 - `presets`, to compose preset packages. Import preset modules directly instead.
 
 It fails validation today. (`libraries` works: see
-[publishing a library](/docs/advanced/libraries).) See the [roadmap](/docs/project/roadmap) for when they
+[publishing a library](/docs/building/libraries).) See the [roadmap](/docs/project/roadmap) for when they
 are scheduled.

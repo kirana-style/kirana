@@ -35,7 +35,7 @@ export const SHORTCUTS: readonly Shortcut[] = [
     links: [
       { title: "From Tailwind", href: "/docs/migration/from-tailwind" },
       { title: "From StyleX", href: "/docs/migration/from-stylex" },
-      { title: "A design system", href: "/docs/advanced/design-system" },
+      { title: "A design system", href: "/docs/building/design-system" },
     ],
   },
   {

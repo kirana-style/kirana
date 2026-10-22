@@ -54,7 +54,7 @@ export default defineConfig({
 
 The Ember plugin also tells the compiler that `@ember/`, `@glimmer/` and
 `@embroider/virtual/` are modules only Embroider resolves
-([`externals`](/docs/config/reference)).
+([`externals`](/docs/reference/config)).
 
 ## 3. Import the stylesheet
 

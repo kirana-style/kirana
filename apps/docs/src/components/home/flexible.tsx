@@ -144,7 +144,7 @@ export const PATHS: readonly Path[] = [
     text: "Your tokens and recipes, as small or as opinionated as you want: a primitive palette with semantic tokens over it, or semantic tokens alone.",
     snippet: "path-system",
     fit: "A product with a brand, or a component library.",
-    href: "/docs/advanced/design-system",
+    href: "/docs/building/design-system",
     more: "A design system",
     file: "theme.ts",
   },

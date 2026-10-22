@@ -87,5 +87,5 @@ Libraries that animate elements in and out usually expose attributes for the two
 edges, such as `[data-starting-style]` and `[data-ending-style]`. Those are
 plain attribute conditions. Because they never appear at the same time but the
 selectors cannot prove it, declare them as exclusive once in
-[`conditions.exclusive`](/docs/config/reference), and the compiler stops asking
+[`conditions.exclusive`](/docs/reference/config), and the compiler stops asking
 which of the two wins.

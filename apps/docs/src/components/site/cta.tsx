@@ -1,6 +1,6 @@
 /**
  * The site's calls to action, one shape everywhere: "Quick start" is a raised pill with the page's
- * scene in a round chip at its end, the arrow in it stepping forward on hover; the secondary one
+ * scene in a round chip at its end, the arrow in it growing a little in place on hover; the secondary one
  * beside it is the same pill outlined, quieter, with no chip. Both come in the header's size (`sm`,
  * 32 px) and a hero's (`lg`, 40 px), and grow to a finger's size (44 px) on a touch screen.
  *
@@ -99,9 +99,10 @@ const styles = {
     width: { base: spacing[7], [pointer.coarse]: spacing[8] },
     height: { base: spacing[7], [pointer.coarse]: spacing[8] },
   }),
+  // A small zoom in place: an arrow that steps sideways reads as the pill shifting under the pointer.
   arrow: css({
-    translate: { base: "0 0", ":is(a:hover *)": "2px 0" },
-    transitionProperty: "translate",
+    scale: { base: "1", ":is(a:hover *)": "1.2" },
+    transitionProperty: "scale",
     transitionDuration: { base: duration[200], [motion.reduce]: duration[0] },
     transitionTimingFunction: easing.emphasized,
   }),

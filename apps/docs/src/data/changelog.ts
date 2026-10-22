@@ -109,7 +109,7 @@ export const CHANGELOG: readonly Entry[] = [
       "Preact, Solid, Vue, Nuxt, Svelte, SvelteKit and Astro, each with a tested example",
       "The utility surface: string sx and @kirana-style/preset-scales (M5 begins)",
     ],
-    href: "/docs/integrations/ecosystem",
+    href: "/docs/project/ecosystem",
   },
   {
     date: "2026-09-22",

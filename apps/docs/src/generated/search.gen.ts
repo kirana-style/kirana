@@ -3722,323 +3722,323 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Work through the report, then let the compiler finish the job: will find the relations without anchors, the components that swallow , and the ambiguous pairs. Fix those and the port is done."
   },
   {
-    "id": "/docs/advanced/conformance",
-    "href": "/docs/advanced/conformance",
+    "id": "/docs/migration/conformance",
+    "href": "/docs/migration/conformance",
     "page": "Verifying a migration",
     "section": "migration",
     "text": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels. "
   },
   {
-    "id": "/docs/advanced/conformance#verifying-a-migration",
-    "href": "/docs/advanced/conformance#verifying-a-migration",
+    "id": "/docs/migration/conformance#verifying-a-migration",
+    "href": "/docs/migration/conformance#verifying-a-migration",
     "page": "Verifying a migration",
     "section": "migration",
     "heading": "Verifying a migration",
     "text": "When you rewrite an application's styling, the question is not \"does it look about right\" but \"is any computed value different, anywhere, in any state\". Screenshots answer that badly: they miss a 1 px border, and they fail loudly over a font that loaded a frame late. This project compares computed styles ."
   },
   {
-    "id": "/docs/advanced/conformance#the-method",
-    "href": "/docs/advanced/conformance#the-method",
+    "id": "/docs/migration/conformance#the-method",
+    "href": "/docs/migration/conformance#the-method",
     "page": "Verifying a migration",
     "section": "migration",
     "heading": "The method",
     "text": "Serve the same application twice: the build you came from and the new one. Open the same route in both, at several widths, in both colour schemes. Walk every element and read the same property list from , including the things that usually hide, like , and the geometry of pseudo-elements. Diff, per element and per property. Anything that differs is either a bug in the new build, a bug in the old one, or a difference you list explicitly with a reason. That last point is the discipline: an expected difference is written down, with why. A file of exceptions that nobody reads is the same as no test."
   },
   {
-    "id": "/docs/advanced/conformance#things-worth-knowing-if-you-build-one",
-    "href": "/docs/advanced/conformance#things-worth-knowing-if-you-build-one",
+    "id": "/docs/migration/conformance#things-worth-knowing-if-you-build-one",
+    "href": "/docs/migration/conformance#things-worth-knowing-if-you-build-one",
     "page": "Verifying a migration",
     "section": "migration",
     "heading": "Things worth knowing if you build one",
     "text": "Normalise colours. Read them through a probe element rather than comparing strings, or and values compare unequal for silly reasons. Wait for a stable DOM , not a fixed timeout, and stop animations before reading. Confirm a difference on a second read. A late render is not a regression. Check states too : open a menu, focus a field, hover a row, because that is where precedence bugs live."
   },
   {
-    "id": "/docs/advanced/conformance#how-it-runs",
-    "href": "/docs/advanced/conformance#how-it-runs",
+    "id": "/docs/migration/conformance#how-it-runs",
+    "href": "/docs/migration/conformance#how-it-runs",
     "page": "Verifying a migration",
     "section": "migration",
     "heading": "How it runs",
     "text": "The harness builds the Kirana app and the two baselines, serves all three, crawls every route and diffs. It is how 60+ blocks and every component were verified, and it is what caught the merge-order bugs that a human review had passed. The harness runs in a separate repository beside the StyleX port and the Tailwind original, which this one does not carry."
   },
   {
-    "id": "/docs/start/tips",
-    "href": "/docs/start/tips",
+    "id": "/docs/building/tips",
+    "href": "/docs/building/tips",
     "page": "Habits for a new project",
     "section": "building",
     "text": "The habits that would have saved us the most time on day one, learnt building and migrating three applications on Kirana. "
   },
   {
-    "id": "/docs/start/tips#habits-for-a-new-project",
-    "href": "/docs/start/tips#habits-for-a-new-project",
+    "id": "/docs/building/tips#habits-for-a-new-project",
+    "href": "/docs/building/tips#habits-for-a-new-project",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "Habits for a new project",
     "text": "Fifteen habits from building every shadcn/ui component on Kirana and migrating the same three applications from StyleX and from Tailwind. Each one is here because skipping it cost us a bug."
   },
   {
-    "id": "/docs/start/tips#1-one-styles-object-per-module-named-by-part",
-    "href": "/docs/start/tips#1-one-styles-object-per-module-named-by-part",
+    "id": "/docs/building/tips#1-one-styles-object-per-module-named-by-part",
+    "href": "/docs/building/tips#1-one-styles-object-per-module-named-by-part",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "1. One  styles  object per module, named by part",
     "text": "Declare the styles after the imports, one per part. The element's is a good name: becomes , and a search for it finds both ends."
   },
   {
-    "id": "/docs/start/tips#2-components-take-sx-and-put-it-last",
-    "href": "/docs/start/tips#2-components-take-sx-and-put-it-last",
+    "id": "/docs/building/tips#2-components-take-sx-and-put-it-last",
+    "href": "/docs/building/tips#2-components-take-sx-and-put-it-last",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "2. Components take  sx , and put it last",
     "text": "An array is merge order, so the caller's styles go last and win. A prop for styles is never needed. Checked by , in the lint plugin ."
   },
   {
-    "id": "/docs/start/tips#3-take-sx-out-of-the-rest-spread",
-    "href": "/docs/start/tips#3-take-sx-out-of-the-rest-spread",
+    "id": "/docs/building/tips#3-take-sx-out-of-the-rest-spread",
+    "href": "/docs/building/tips#3-take-sx-out-of-the-rest-spread",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "3. Take  sx  out of the rest spread",
     "text": "A wrapper that spreads its props carries inside the spread, where nothing compiles it. Checked by , which reports a wrapper that drops it."
   },
   {
-    "id": "/docs/start/tips#4-installed-components-do-not-read-sx",
-    "href": "/docs/start/tips#4-installed-components-do-not-read-sx",
+    "id": "/docs/building/tips#4-installed-components-do-not-read-sx",
+    "href": "/docs/building/tips#4-installed-components-do-not-read-sx",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "4. Installed components do not read  sx",
     "text": "Base UI parts and anything else from take compiled props: from turns styles into them. Checked by ."
   },
   {
-    "id": "/docs/start/tips#5-start-with-plain-values-adopt-scales-when-they-repeat",
-    "href": "/docs/start/tips#5-start-with-plain-values-adopt-scales-when-they-repeat",
+    "id": "/docs/building/tips#5-start-with-plain-values-adopt-scales-when-they-repeat",
+    "href": "/docs/building/tips#5-start-with-plain-values-adopt-scales-when-they-repeat",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "5. Start with plain values; adopt scales when they repeat",
     "text": "You do not need a preset to begin. When you want a vocabulary, is Tailwind v4's, and a token nothing references emits nothing."
   },
   {
-    "id": "/docs/start/tips#6-put-product-decisions-in-your-own-tokens",
-    "href": "/docs/start/tips#6-put-product-decisions-in-your-own-tokens",
+    "id": "/docs/building/tips#6-put-product-decisions-in-your-own-tokens",
+    "href": "/docs/building/tips#6-put-product-decisions-in-your-own-tokens",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "6. Put product decisions in your own tokens",
     "text": ", and are yours. Define each once as a semantic token , a pair. Set the theme's on : the root decides the scrollbars and an iframe's canvas."
   },
   {
-    "id": "/docs/start/tips#7-a-font-size-comes-with-its-line-height",
-    "href": "/docs/start/tips#7-a-font-size-comes-with-its-line-height",
+    "id": "/docs/building/tips#7-a-font-size-comes-with-its-line-height",
+    "href": "/docs/building/tips#7-a-font-size-comes-with-its-line-height",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "7. A font size comes with its line height",
     "text": "A size without its line height was the most common drift in our ports."
   },
   {
-    "id": "/docs/start/tips#8-name-the-longhands-you-set",
-    "href": "/docs/start/tips#8-name-the-longhands-you-set",
+    "id": "/docs/building/tips#8-name-the-longhands-you-set",
+    "href": "/docs/building/tips#8-name-the-longhands-you-set",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "8. Name the longhands you set",
     "text": "Logical properties make right-to-left work without a second style. To replace a longhand a component's base sets, name that longhand: a shorthand sits beside it instead. Checked by ."
   },
   {
-    "id": "/docs/start/tips#9-override-under-the-same-condition",
-    "href": "/docs/start/tips#9-override-under-the-same-condition",
+    "id": "/docs/building/tips#9-override-under-the-same-condition",
+    "href": "/docs/building/tips#9-override-under-the-same-condition",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "9. Override under the same condition",
     "text": "Styles merge per entry . A plain value replaces the base entry only, and the component's conditional entries still win under their conditions. Omitting a key keeps it; removes it. To clear every entry first: . Checked by , in the lint plugin."
   },
   {
-    "id": "/docs/start/tips#10-nest-the-winner-inside-the-other-condition",
-    "href": "/docs/start/tips#10-nest-the-winner-inside-the-other-condition",
+    "id": "/docs/building/tips#10-nest-the-winner-inside-the-other-condition",
+    "href": "/docs/building/tips#10-nest-the-winner-inside-the-other-condition",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "10. Nest the winner inside the other condition",
     "text": "When two conditions of the same kind can match together and set different values, the compiler reports them rather than letting source order decide. Twice, turning the report off hid a real bug. When a library never sets both, name the pair in instead. Checked by ."
   },
   {
-    "id": "/docs/start/tips#11-put-the-relation-anchor-where-the-state-lives",
-    "href": "/docs/start/tips#11-put-the-relation-anchor-where-the-state-lives",
+    "id": "/docs/building/tips#11-put-the-relation-anchor-where-the-state-lives",
+    "href": "/docs/building/tips#11-put-the-relation-anchor-where-the-state-lives",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "11. Put the relation anchor where the state lives",
     "text": "A relation reads the state of the element that carries its anchor, so the anchor goes on that element, not on the one being styled. Checked by ."
   },
   {
-    "id": "/docs/start/tips#12-a-parent-s-rule-ranks-below-the-child-s-own",
-    "href": "/docs/start/tips#12-a-parent-s-rule-ranks-below-the-child-s-own",
+    "id": "/docs/building/tips#12-a-parent-s-rule-ranks-below-the-child-s-own",
+    "href": "/docs/building/tips#12-a-parent-s-rule-ranks-below-the-child-s-own",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "12. A parent's rule ranks below the child's own",
     "text": "A block styles children from a parent, below their own styles, so an icon that sets its own size keeps it. When the parent must win, let the child read the parent."
   },
   {
-    "id": "/docs/start/tips#13-animate-the-property-you-set",
-    "href": "/docs/start/tips#13-animate-the-property-you-set",
+    "id": "/docs/building/tips#13-animate-the-property-you-set",
+    "href": "/docs/building/tips#13-animate-the-property-you-set",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "13. Animate the property you set",
     "text": ", and are properties of their own, and a transition on does not cover them."
   },
   {
-    "id": "/docs/start/tips#14-prefer-a-finite-set",
-    "href": "/docs/start/tips#14-prefer-a-finite-set",
+    "id": "/docs/building/tips#14-prefer-a-finite-set",
+    "href": "/docs/building/tips#14-prefer-a-finite-set",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "14. Prefer a finite set",
     "text": "A choice between known values compiles to a choice between classes and costs nothing. Bridge only what varies continuously, such as a width in percent; the report shows where runtime values enter. See values known at runtime . Checked by , in the lint plugin's config."
   },
   {
-    "id": "/docs/start/tips#15-let-the-tools-answer-why",
-    "href": "/docs/start/tips#15-let-the-tools-answer-why",
+    "id": "/docs/building/tips#15-let-the-tools-answer-why",
+    "href": "/docs/building/tips#15-let-the-tools-answer-why",
     "page": "Habits for a new project",
     "section": "building",
     "heading": "15. Let the tools answer \"why\"",
     "text": "reports every diagnostic with an exit code, for CI. answers when a value is not the one you expected: every entry, the winner, and the step of the ladder that decided it. To verify a port or a refactor, compare computed styles , not screenshots, in both colour schemes and at several widths. A 1 px border, an easing curve and a missing hover state were all invisible in screenshots and obvious in a diff. See conformance ."
   },
   {
-    "id": "/docs/advanced/design-system",
-    "href": "/docs/advanced/design-system",
+    "id": "/docs/building/design-system",
+    "href": "/docs/building/design-system",
     "page": "Building a design system",
     "section": "building",
     "text": "How the layered system in this repository is put together, and why each layer exists. "
   },
   {
-    "id": "/docs/advanced/design-system#building-a-design-system",
-    "href": "/docs/advanced/design-system#building-a-design-system",
+    "id": "/docs/building/design-system#building-a-design-system",
+    "href": "/docs/building/design-system#building-a-design-system",
     "page": "Building a design system",
     "section": "building",
     "heading": "Building a design system",
     "text": "Kirana is a compiler, not a design system. This repository builds one on top of it (the shadcn/ui component set, rebuilt), and its shape is worth copying."
   },
   {
-    "id": "/docs/advanced/design-system#six-layers",
-    "href": "/docs/advanced/design-system#six-layers",
+    "id": "/docs/building/design-system#six-layers",
+    "href": "/docs/building/design-system#six-layers",
     "page": "Building a design system",
     "section": "building",
     "heading": "Six layers",
     "text": "1 · Scales. Plain constants: the palette, spacing, type ramp, radii, durations. Inlined, so they cost nothing. gives you Tailwind's. 2 · Semantic tokens. What the scales mean , such as , and , as variable tokens, every colour a pair. This is the layer a theme overrides. Semantic tokens . 3 · Conditions. The relations components share (a menu item reading its menu's state), context tokens a parent hands down ( , ), and the keyframes. Declared once, in one module each. 4 · Recipes. Variant tables for the components that have variants, plus the shared chrome (a focus ring, an overlay surface, a menu surface), so twelve components do not each invent their own. 5 · Primitives. Thin elements such as , and that carry the system's defaults and nothing else. 6 · Components. The real thing. Each takes last, so callers can override without forking."
   },
   {
-    "id": "/docs/advanced/design-system#rules-that-keep-it-from-drifting",
-    "href": "/docs/advanced/design-system#rules-that-keep-it-from-drifting",
+    "id": "/docs/building/design-system#rules-that-keep-it-from-drifting",
+    "href": "/docs/building/design-system#rules-that-keep-it-from-drifting",
     "page": "Building a design system",
     "section": "building",
     "heading": "Rules that keep it from drifting",
     "text": "A colour is one pair , written once. No dark variant anywhere. A parent hands values down through context tokens , never through class names it hopes a child reads. A component's variants live in its recipe , not scattered through the JSX. New things have one home : a scale value goes to the scales, a per-mode colour to the semantic layer, a parent-to-child value to the context tokens, a group or peer to the relations. Global CSS is the last resort , for markup you do not render."
   },
   {
-    "id": "/docs/advanced/design-system#what-the-compiler-gives-you-here",
-    "href": "/docs/advanced/design-system#what-the-compiler-gives-you-here",
+    "id": "/docs/building/design-system#what-the-compiler-gives-you-here",
+    "href": "/docs/building/design-system#what-the-compiler-gives-you-here",
     "page": "Building a design system",
     "section": "building",
     "heading": "What the compiler gives you here",
     "text": "A design system is mostly discipline, and the compiler enforces some of it for you: that goes nowhere is a warning, a relation without an anchor is an error, two conditions that could both apply are reported, and a mixed logical/physical box is flagged. Those are precisely the mistakes that make a system slowly stop being one."
   },
   {
-    "id": "/docs/advanced/libraries",
-    "href": "/docs/advanced/libraries",
+    "id": "/docs/building/libraries",
+    "href": "/docs/building/libraries",
     "page": "Publishing a library",
     "section": "building",
     "text": "Ship a component library styled with Kirana: the package keeps its styles uncompiled, and each app that lists it in libraries compiles them. "
   },
   {
-    "id": "/docs/advanced/libraries#publishing-a-library",
-    "href": "/docs/advanced/libraries#publishing-a-library",
+    "id": "/docs/building/libraries#publishing-a-library",
+    "href": "/docs/building/libraries#publishing-a-library",
     "page": "Publishing a library",
     "section": "building",
     "heading": "Publishing a library",
     "text": "A Kirana library publishes its styles uncompiled , and each app that uses it compiles them together with its own. That is what lets an app override a library's style property by property, keeps every declaration in the stylesheet once, and applies the app's prefix, targets and layers to the library too. Tested by , which installs a packed library from a tarball."
   },
   {
-    "id": "/docs/advanced/libraries#in-the-library",
-    "href": "/docs/advanced/libraries#in-the-library",
+    "id": "/docs/building/libraries#in-the-library",
+    "href": "/docs/building/libraries#in-the-library",
     "page": "Publishing a library",
     "section": "building",
     "heading": "In the library",
     "text": "Build your package without Kirana's plugin (with , or any bundler), so the calls stay in the published JavaScript, and ship no CSS: Apply styles with (or into ): both compile in plain JavaScript. needs JSX, which a library's build usually compiles away; ship or if you want to keep it. Make a peer dependency, so the library and the app share one."
   },
   {
-    "id": "/docs/advanced/libraries#in-the-app",
-    "href": "/docs/advanced/libraries#in-the-app",
+    "id": "/docs/building/libraries#in-the-app",
+    "href": "/docs/building/libraries#in-the-app",
     "page": "Publishing a library",
     "section": "building",
     "heading": "In the app",
     "text": "List the package: Its modules are now compiled from like your own, and its exported tokens work in your styles. With Vite nothing else is needed: the adapter keeps listed libraries out of dependency pre-bundling and server externals. With Next.js, also add the package to ."
   },
   {
-    "id": "/docs/advanced/libraries#why-not-ship-compiled-css",
-    "href": "/docs/advanced/libraries#why-not-ship-compiled-css",
+    "id": "/docs/building/libraries#why-not-ship-compiled-css",
+    "href": "/docs/building/libraries#why-not-ship-compiled-css",
     "page": "Publishing a library",
     "section": "building",
     "heading": "Why not ship compiled CSS",
     "text": "A library compiled on its own bakes its compiler version and configuration into its class names. With a different prefix, an app's override can no longer replace the library's value: both classes stay, and whichever rule comes later in the stylesheet wins. With an older compiler, the same declaration ships twice. The reasoning, with the measurements, is in the design note . The one cost: an app that does not use Kirana cannot use a Kirana library."
   },
   {
-    "id": "/docs/advanced/output",
-    "href": "/docs/advanced/output",
+    "id": "/docs/building/output",
+    "href": "/docs/building/output",
     "page": "The output",
     "section": "building",
     "text": "What the stylesheet looks like, how classes are named, and what determinism buys you. "
   },
   {
-    "id": "/docs/advanced/output#one-declaration-per-rule",
-    "href": "/docs/advanced/output#one-declaration-per-rule",
+    "id": "/docs/building/output#one-declaration-per-rule",
+    "href": "/docs/building/output#one-declaration-per-rule",
     "page": "The output",
     "section": "building",
     "heading": "One declaration per rule",
     "text": "Every rule is one class with one declaration, at specificity (0,1,0), shared by every module that writes that declaration ( why ). One declaration can still reach several rules (the same colour under , under an attribute and at rest), and there the writer gives one rule all three selectors: It does that only when no rule in between decides the same property, because inside the layer the order of the rules is the precedence ladder . A merge that could move a rule past a competing declaration is not taken."
   },
   {
-    "id": "/docs/advanced/output#class-names",
-    "href": "/docs/advanced/output#class-names",
+    "id": "/docs/building/output#class-names",
+    "href": "/docs/building/output#class-names",
     "page": "The output",
     "section": "building",
     "heading": "Class names",
     "text": "A name is . The prefix is configurable and defaults to ; the property code is an index into the property table; then come optional 3- and 4-character hashes for a pseudo-element or contextual target and for the condition set; and after the , four characters of the value's hash. Names are content-derived, so they are stable across builds and machines, and two applications with different prefixes can share a page. The widths are fixed and never grow. A name that depended on what else the project contained would change as the project grew, which would break incremental builds; so if two values on one property ever took the same name, the build stops with instead of guessing. Four characters make that about one build in two thousand for an application the size of the ones this compiler is tested on."
   },
   {
-    "id": "/docs/advanced/output#dense-names",
-    "href": "/docs/advanced/output#dense-names",
+    "id": "/docs/building/output#dense-names",
+    "href": "/docs/building/output#dense-names",
     "page": "The output",
     "section": "building",
     "heading": "Dense names",
     "text": "A production build can go further with . After every module has compiled, the compiler knows every condition set and every value in the application, so it can number them instead of hashing them: Each condition hash becomes a code of one or two characters , never three, so it is never mistaken for a target. Each value hash becomes a code of one or two characters from one numbering shared by every property. A runtime merge that unfolds a shorthand builds a longhand's name from the shorthand's value, so a value has to mean the same thing under every key. The property code and the target stay. They are what the runtime reads to merge, so merging works exactly as before and no lookup table ships. The most used segments get the shortest codes. A code, once given, never changes for the rest of the build, so a chunk renamed early stays valid while later modules compile. The stylesheet keeps its rules in the same order; only the names in it change. Measured on the three applications of the benchmarks , Kirana 0.3.0 with dense names makes the CSS 11 % smaller in gzip, and the CSS and JavaScript a page downloads 2 % smaller, with cold builds 8 % slower. On this site, the stylesheet is 12.7 %"
   },
   {
-    "id": "/docs/advanced/output#conditions-in-the-selector",
-    "href": "/docs/advanced/output#conditions-in-the-selector",
+    "id": "/docs/building/output#conditions-in-the-selector",
+    "href": "/docs/building/output#conditions-in-the-selector",
     "page": "The output",
     "section": "building",
     "heading": "Conditions in the selector",
     "text": "Conditions compile into the selector or the at-rule, and order inside the layer carries the ladder , with no , no specificity tricks and no sublayers per bucket."
   },
   {
-    "id": "/docs/advanced/output#determinism",
-    "href": "/docs/advanced/output#determinism",
+    "id": "/docs/building/output#determinism",
+    "href": "/docs/building/output#determinism",
     "page": "The output",
     "section": "building",
     "heading": "Determinism",
     "text": "The same sources produce byte-identical CSS: same rule order, same names, independent of thread count or file-system order. Which means a content hash is meaningful, a diff in CI means a real change, and two developers see the same output."
   },
   {
-    "id": "/docs/advanced/output#minification-and-targets",
-    "href": "/docs/advanced/output#minification-and-targets",
+    "id": "/docs/building/output#minification-and-targets",
+    "href": "/docs/building/output#minification-and-targets",
     "page": "The output",
     "section": "building",
     "heading": "Minification and targets",
     "text": "The compiler's own writer minifies, so your values reach the browser as you wrote them: a colour is never re-serialized into another colour space, and is never \"simplified\". Lightning CSS runs only when your configured are below the default floor, and then only to lower what those browsers need. Lowering is reported as so you know a modern feature was rewritten."
   },
   {
-    "id": "/docs/advanced/output#dead-styles",
-    "href": "/docs/advanced/output#dead-styles",
+    "id": "/docs/building/output#dead-styles",
+    "href": "/docs/building/output#dead-styles",
     "page": "The output",
     "section": "building",
     "heading": "Dead styles",
     "text": "A style nothing references emits nothing. Tokens, keyframes and recipes all follow the same rule, so an imported preset costs nothing until it is used."
   },
   {
-    "id": "/docs/advanced/output#what-ships-to-the-browser",
-    "href": "/docs/advanced/output#what-ships-to-the-browser",
+    "id": "/docs/building/output#what-ships-to-the-browser",
+    "href": "/docs/building/output#what-ships-to-the-browser",
     "page": "The output",
     "section": "building",
     "heading": "What ships to the browser",
@@ -4180,119 +4180,119 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Condition values for computed keys. Conditions ."
   },
   {
-    "id": "/docs/config/reference",
-    "href": "/docs/config/reference",
+    "id": "/docs/reference/config",
+    "href": "/docs/reference/config",
     "page": "Configuration reference",
     "section": "reference",
     "text": "Every key that exists today, with its type, default and what it changes. "
   },
   {
-    "id": "/docs/config/reference#configuration-reference",
-    "href": "/docs/config/reference#configuration-reference",
+    "id": "/docs/reference/config#configuration-reference",
+    "href": "/docs/reference/config#configuration-reference",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "Configuration reference",
     "text": "Every key there is, and what each one changes."
   },
   {
-    "id": "/docs/config/reference#layers",
-    "href": "/docs/config/reference#layers",
+    "id": "/docs/reference/config#layers",
+    "href": "/docs/reference/config#layers",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "layers",
     "text": "Layer names placed around Kirana's own layer, for your global CSS. Each must be a valid CSS identifier, and none may be . See layers ."
   },
   {
-    "id": "/docs/config/reference#targets",
-    "href": "/docs/config/reference#targets",
+    "id": "/docs/reference/config#targets",
+    "href": "/docs/reference/config#targets",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "targets",
     "text": "Browser versions to compile for, as a major number ( ) or ( ). The default floor is Chrome 123, Safari 17.5, Firefox 120 . Setting a target below the floor makes Lightning CSS lower the output where it can, and emits (informational) so you know it happened. A minor above 255, or a value that is not a number, is ."
   },
   {
-    "id": "/docs/config/reference#names-prefix",
-    "href": "/docs/config/reference#names-prefix",
+    "id": "/docs/reference/config#names-prefix",
+    "href": "/docs/reference/config#names-prefix",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "names.prefix",
     "text": "The prefix on every generated class and custom property. One to four lowercase ASCII letters. Give two independently built applications different prefixes and they can share a page without colliding."
   },
   {
-    "id": "/docs/config/reference#dynamic-branchbudget",
-    "href": "/docs/config/reference#dynamic-branchbudget",
+    "id": "/docs/reference/config#dynamic-branchbudget",
+    "href": "/docs/reference/config#dynamic-branchbudget",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "dynamic.branchBudget",
     "text": "How many branches a class expression may have before the compiler stops and reports . Must be at least 1. See values known at runtime ."
   },
   {
-    "id": "/docs/config/reference#jsx",
-    "href": "/docs/config/reference#jsx",
+    "id": "/docs/reference/config#jsx",
+    "href": "/docs/reference/config#jsx",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "jsx",
     "text": "Which attribute compiles to. Leave it out and the compiler reads from the project's , so most projects never set it: See supported frameworks ."
   },
   {
-    "id": "/docs/config/reference#libraries",
-    "href": "/docs/config/reference#libraries",
+    "id": "/docs/reference/config#libraries",
+    "href": "/docs/reference/config#libraries",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "libraries",
     "text": "Installed packages whose styles this app compiles as it compiles its own. A published Kirana library ships its calls uncompiled; listing it here puts its styles in your stylesheet, deduplicated with yours and under your prefix, targets and layers. Leave a library out and its first throws with a message naming this key. Kirana's own scales preset is compiled without being listed. See publishing a library ."
   },
   {
-    "id": "/docs/config/reference#presets",
-    "href": "/docs/config/reference#presets",
+    "id": "/docs/reference/config#presets",
+    "href": "/docs/reference/config#presets",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "presets",
     "text": "Presets contribute data to the configuration: today, a utility grammar that turns on utility strings . A preset is ; later presets replace earlier ones scale by scale, root by root and variant by variant."
   },
   {
-    "id": "/docs/config/reference#utilities",
-    "href": "/docs/config/reference#utilities",
+    "id": "/docs/reference/config#utilities",
+    "href": "/docs/reference/config#utilities",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "utilities",
     "text": "The application's own grammar, merged after every preset. It has three parts: A rule is one of three kinds: A scale rule takes these options: In any text of a rule, is that token, and a property written sets the token's custom property. That is how a ring and a shadow share one : its value is , and each utility sets one of the two."
   },
   {
-    "id": "/docs/config/reference#diagnostics",
-    "href": "/docs/config/reference#diagnostics",
+    "id": "/docs/reference/config#diagnostics",
+    "href": "/docs/reference/config#diagnostics",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "diagnostics",
     "text": "Re-level a diagnostic by its kebab-case name: Errors cannot be re-levelled. An error means the output would be wrong, so turning it into a warning would only hide a broken build. Trying is , as is naming a diagnostic that does not exist. The diagnostics reference lists which ones can move."
   },
   {
-    "id": "/docs/config/reference#conditions-exclusive",
-    "href": "/docs/config/reference#conditions-exclusive",
+    "id": "/docs/reference/config#conditions-exclusive",
+    "href": "/docs/reference/config#conditions-exclusive",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "conditions.exclusive",
     "text": "Groups of conditions that a library guarantees never hold together on one element. Each group needs at least two entries, and each entry must be exactly one attribute or pseudo-class selector. This is how you silence for pairs the selectors cannot prove are exclusive. The compiler already knows about two values of one attribute, a selector and its negation, and fixed positions counted from the same end; you only need to declare what a library promises."
   },
   {
-    "id": "/docs/config/reference#classes",
-    "href": "/docs/config/reference#classes",
+    "id": "/docs/reference/config#classes",
+    "href": "/docs/reference/config#classes",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "classes",
     "text": "The class map for server templates. are files or folders, relative to the root, whose exported handles Blade, Twig, ERB, HEEx and Edge templates name. The build and dev commands write their class strings to , and compile the modules whatever paths they were given. A recipe or a runtime value among the exports is . See server templates ."
   },
   {
-    "id": "/docs/config/reference#externals",
-    "href": "/docs/config/reference#externals",
+    "id": "/docs/reference/config#externals",
+    "href": "/docs/reference/config#externals",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "externals",
     "text": "Specifier prefixes the bundler provides and Node.js resolution cannot find. An import from one is a runtime value, as an installed package's is, instead of an warning. Who sets them: the Ember adapter adds Ember's own: , , ; Meteor sets ; Docusaurus sets its webpack aliases, such as and ."
   },
   {
-    "id": "/docs/config/reference#root",
-    "href": "/docs/config/reference#root",
+    "id": "/docs/reference/config#root",
+    "href": "/docs/reference/config#root",
     "page": "Configuration reference",
     "section": "reference",
     "heading": "root",
@@ -5051,45 +5051,6 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Read the release note for behaviour changes. : new diagnostics surface here first, and a new warning is usually a real problem that was invisible before. Build, and diff the stylesheet. Output is deterministic, so a diff is meaningful: it shows exactly which declarations changed. If the project has a visual baseline, compare computed styles rather than screenshots. Conformance explains the method."
   },
   {
-    "id": "/docs/integrations/ecosystem",
-    "href": "/docs/integrations/ecosystem",
-    "page": "Ecosystem and status",
-    "section": "project",
-    "text": "What works today, what is planned, and which milestone each thing belongs to. "
-  },
-  {
-    "id": "/docs/integrations/ecosystem#ecosystem-and-status",
-    "href": "/docs/integrations/ecosystem#ecosystem-and-status",
-    "page": "Ecosystem and status",
-    "section": "project",
-    "heading": "Ecosystem and status",
-    "text": "What exists, and where to read about it. Every package below is on npm; anything planned is on the roadmap , not here."
-  },
-  {
-    "id": "/docs/integrations/ecosystem#bundlers",
-    "href": "/docs/integrations/ecosystem#bundlers",
-    "page": "Ecosystem and status",
-    "section": "project",
-    "heading": "Bundlers",
-    "text": "Each one has an example CI builds and checks in a browser on every change. See other bundlers for each one's setup."
-  },
-  {
-    "id": "/docs/integrations/ecosystem#frameworks",
-    "href": "/docs/integrations/ecosystem#frameworks",
-    "page": "Ecosystem and status",
-    "section": "project",
-    "heading": "Frameworks",
-    "text": "Every framework has a guide and a tested example; the frameworks page picks yours."
-  },
-  {
-    "id": "/docs/integrations/ecosystem#configuration-keys-in-the-specification-but-not-the-build",
-    "href": "/docs/integrations/ecosystem#configuration-keys-in-the-specification-but-not-the-build",
-    "page": "Ecosystem and status",
-    "section": "project",
-    "heading": "Configuration keys in the specification but not the build",
-    "text": ", to compose preset packages. Import preset modules directly instead. It fails validation today. ( works: see publishing a library .) See the roadmap for when they are scheduled."
-  },
-  {
     "id": "/docs/project/benchmarks",
     "href": "/docs/project/benchmarks",
     "page": "Benchmarks",
@@ -5175,6 +5136,45 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "project",
     "heading": "What it does not say",
     "text": "The machine is a shared CI runner. Absolute times move from run to run, and GitHub does not promise the same processor twice: the run above names the one it had. Compare ratios within one run, never times from two runs. The applications are one shadcn/ui port. Many small components, shared tokens, and one large table. A codebase with other habits may measure otherwise, and the lab's corpus will grow. The editor is not measured here yet. The language server's latency and the time from saving a file to the updated stylesheet are from one developer machine, in the benchmark notes . The rules a quoted number has to meet, the fairness checks and the statistics are in the lab's METHODOLOGY.md ."
+  },
+  {
+    "id": "/docs/project/ecosystem",
+    "href": "/docs/project/ecosystem",
+    "page": "Ecosystem and status",
+    "section": "project",
+    "text": "What works today, what is planned, and which milestone each thing belongs to. "
+  },
+  {
+    "id": "/docs/project/ecosystem#ecosystem-and-status",
+    "href": "/docs/project/ecosystem#ecosystem-and-status",
+    "page": "Ecosystem and status",
+    "section": "project",
+    "heading": "Ecosystem and status",
+    "text": "What exists, and where to read about it. Every package below is on npm; anything planned is on the roadmap , not here."
+  },
+  {
+    "id": "/docs/project/ecosystem#bundlers",
+    "href": "/docs/project/ecosystem#bundlers",
+    "page": "Ecosystem and status",
+    "section": "project",
+    "heading": "Bundlers",
+    "text": "Each one has an example CI builds and checks in a browser on every change. See other bundlers for each one's setup."
+  },
+  {
+    "id": "/docs/project/ecosystem#frameworks",
+    "href": "/docs/project/ecosystem#frameworks",
+    "page": "Ecosystem and status",
+    "section": "project",
+    "heading": "Frameworks",
+    "text": "Every framework has a guide and a tested example; the frameworks page picks yours."
+  },
+  {
+    "id": "/docs/project/ecosystem#configuration-keys-in-the-specification-but-not-the-build",
+    "href": "/docs/project/ecosystem#configuration-keys-in-the-specification-but-not-the-build",
+    "page": "Ecosystem and status",
+    "section": "project",
+    "heading": "Configuration keys in the specification but not the build",
+    "text": ", to compose preset packages. Import preset modules directly instead. It fails validation today. ( works: see publishing a library .) See the roadmap for when they are scheduled."
   },
   {
     "id": "/docs/project/contributing",

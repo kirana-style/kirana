@@ -62,7 +62,7 @@ export const PILLARS: WithIcon[] = [
     icon: DashboardSpeed01Icon,
     title: "Proportional",
     text: "One class per declaration, shared across components. Work scales with your styles, not your dependency graph.",
-    href: "/docs/advanced/output",
+    href: "/docs/building/output",
   },
 ]
 

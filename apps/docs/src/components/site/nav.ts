@@ -300,7 +300,7 @@ export const FOOTER: readonly {
     title: "Reference",
     links: [
       { label: "API", href: "/docs/reference/api" },
-      { label: "Configuration", href: "/docs/config/reference" },
+      { label: "Configuration", href: "/docs/reference/config" },
       { label: "CLI", href: "/docs/tooling/cli" },
       { label: "Diagnostics", href: "/docs/tooling/diagnostics" },
       { label: "Lint", href: "/docs/tooling/lint" },
