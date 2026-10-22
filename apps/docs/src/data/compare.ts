@@ -510,6 +510,7 @@ export const ROWS: readonly Row[] = [
         brands: ["eslint"],
       },
       panda: {
+        // consistency: subset (Panda's own linters, not Kirana's)
         short: "ESLint + Oxlint",
         tone: "good",
         text: "@pandacss/eslint-plugin lints against the same extraction the build uses, under ESLint and Oxlint",
@@ -563,6 +564,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "llms.txt",
         tone: "good",
+        // consistency: subset (the agent skills are the next row's)
         text: "llms.txt, llms-full.txt and a markdown twin of every page; and the styles themselves are plain CSS properties an agent already knows",
         source: "/docs/project/llms",
       },
