@@ -1,7 +1,7 @@
 {
   "name": "@kirana-style/states",
   "version": "0.3.0",
-  "description": "Component states as Kirana condition keys: each part's data attributes, typed, generated from the UI library's own declarations. Base UI first.",
+  "description": "Component states as Kirana condition keys: each part's data attributes, typed, generated from the UI library's own declarations, for Base UI, Ark UI and React Aria.",
   "license": "MIT",
   "author": "The Kirana authors",
   "homepage": "https://kirana.style",
@@ -21,16 +21,26 @@
   },
   "exports": {
     "./base-ui": "./src/base-ui.ts",
+    "./ark-ui": "./src/ark-ui.ts",
+    "./react-aria": "./src/react-aria.ts",
     "./package.json": "./package.json"
   },
   "dependencies": {
     "@kirana-style/core": "workspace:*"
   },
   "peerDependencies": {
-    "@base-ui/react": ">=1.9.0"
+    "@ark-ui/react": ">=5.39.3",
+    "@base-ui/react": ">=1.9.0",
+    "react-aria-components": ">=1.22.1"
   },
   "peerDependenciesMeta": {
+    "@ark-ui/react": {
+      "optional": true
+    },
     "@base-ui/react": {
+      "optional": true
+    },
+    "react-aria-components": {
       "optional": true
     }
   }

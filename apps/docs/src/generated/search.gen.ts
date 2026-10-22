@@ -841,7 +841,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "href": "/docs/styling/states",
     "page": "Component states",
     "section": "composition",
-    "text": "Style a headless component's states (checked, open, the side a popup opened on) with typed condition keys, from Base UI or any library that marks state with data attributes. "
+    "text": "Style a headless component's states (checked, open, the side a popup opened on) with typed condition keys, from Base UI, Ark UI, React Aria or any library that marks state with data attributes. "
   },
   {
     "id": "/docs/styling/states#component-states",
@@ -860,12 +860,20 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Apply the handles to Base UI's parts with , since the parts do not read :"
   },
   {
-    "id": "/docs/styling/states#what-a-vocabulary-holds",
-    "href": "/docs/styling/states#what-a-vocabulary-holds",
+    "id": "/docs/styling/states#the-vocabularies",
+    "href": "/docs/styling/states#the-vocabularies",
     "page": "Component states",
     "section": "composition",
-    "heading": "What a vocabulary holds",
-    "text": "is generated from the declarations Base UI publishes for each part, so it follows the version it was generated from, and the names are Base UI's own: , , . Values are in camel case ( for )."
+    "heading": "The vocabularies",
+    "text": "Each one is generated from what its library publishes about its parts, so the names are the library's own and a state the library does not document is not there. CI regenerates them and checks every name against the library's exports. They differ where the libraries do: Base UI and Ark UI have parts: , . Ark UI marks most states with one attribute's values ( ), so holds one key per value. React Aria names a component per part, with no namespace: , . A state a component inherits from another's render props is there too. How states are named: Values are in camel case: for . React Aria's states are named for its render props, without : is ."
+  },
+  {
+    "id": "/docs/styling/states#states-that-never-hold-together",
+    "href": "/docs/styling/states#states-that-never-hold-together",
+    "page": "Component states",
+    "section": "composition",
+    "heading": "States that never hold together",
+    "text": "A part is checked or unchecked, open or closed, never both. Two values of one attribute say so on their own, but Base UI marks those with two attributes ( , ), and nothing in the selectors proves they exclude each other. So a property set under both is reported as , a warning that the order between them is left to chance. Each vocabulary exports the groups its library sets one at a time. Give them to in your configuration, and the compiler knows: The groups are what the library documents: a state and its opposite, both on one part. Ark UI and React Aria mark those with one attribute's values or not at all, so their lists are empty."
   },
   {
     "id": "/docs/styling/states#other-libraries-and-your-own-components",
@@ -873,7 +881,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Component states",
     "section": "composition",
     "heading": "Other libraries, and your own components",
-    "text": "A vocabulary is a plain object of selectors, so writing one takes a few lines. Any library that marks state with data attributes works: Radix and its ports ( ), Ark UI, Reka UI, Bits UI, or the components you write yourself. Put it in a module of your project: is what makes a misspelt state an error. The compiler knows two values of one attribute never hold together, so and need no nesting."
+    "text": "A vocabulary is a plain object of selectors, so writing one takes a few lines. Any library that marks state with data attributes works: Radix and its ports ( ), Reka UI, Bits UI, or the components you write yourself. Put it in a module of your project: is what makes a misspelt state an error. The compiler knows two values of one attribute never hold together, so and need no nesting."
   },
   {
     "id": "/docs/styling/states#next",

@@ -132,7 +132,7 @@ export const PACKAGES: readonly PackageEntry[] = [
     "name": "@kirana-style/states",
     "version": "0.3.0",
     "published": true,
-    "description": "Component states as Kirana condition keys: each part's data attributes, typed, generated from the UI library's own declarations. Base UI first."
+    "description": "Component states as Kirana condition keys: each part's data attributes, typed, generated from the UI library's own declarations, for Base UI, Ark UI and React Aria."
   },
   {
     "name": "@kirana-style/eslint-plugin",
