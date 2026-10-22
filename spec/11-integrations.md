@@ -308,7 +308,11 @@ a workspace package, or a published library, and duplicate atoms MUST be emitted
   `node_modules` as it compiles the application's own, so their atoms land in the application's single
   stylesheet deduplicated with its own, under its prefix, targets and layers, and their tokens and
   relations resolve through the same evaluator. The Vite adapter keeps listed libraries out of
-  dependency pre-bundling and SSR externals. A library that is not listed throws at its first `css()`
+  dependency pre-bundling in every environment that pre-bundles (the client's, and a server
+  environment that discovers dependencies, such as Cloudflare's Worker in workerd) and out of SSR
+  externals, and names the runtime (`@kirana-style/core/internal`), which compiled output imports
+  and no source names, for pre-bundling wherever Vite discovers dependencies, so the first request
+  does not re-optimise. A library that is not listed throws at its first `css()`
   with a message naming `libraries`. Libraries apply styles with `props()` or `cx`, which compile in
   plain JavaScript; `sx` needs JSX. (`kirana-style build --library` and `kirana.manifest.json`, specified
   before, are withdrawn: `packages/kirana/design-notes/published-libraries.md`.)

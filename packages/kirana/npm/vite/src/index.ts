@@ -3,6 +3,7 @@
  * server — the live stylesheet, CSS hot updates, and importers of changed tokens re-run through
  * HMR. It never interprets styles (D-028).
  */
+import { createRequire } from "node:module"
 import path from "node:path"
 
 import { stylesheetPath } from "@kirana-style/compiler/host"
@@ -47,6 +48,22 @@ const BURST = 250
  * asked for.
  */
 const RETRIES = 20
+
+/** The module compiled output imports for the runtime merge (`kirana_transform`). */
+const RUNTIME = "@kirana-style/core/internal"
+
+/**
+ * Whether `specifier` resolves from the project, so naming it to Vite cannot fail: an application
+ * that only uses a listed library may not depend on `@kirana-style/core` itself.
+ */
+function resolves(root: string, specifier: string): boolean {
+  try {
+    createRequire(path.join(root, "package.json")).resolve(specifier)
+    return true
+  } catch {
+    return false
+  }
+}
 
 /**
  * The plugin, and a second pass after every other plugin's `generateBundle`. The first pass fills the
@@ -167,6 +184,28 @@ export default function kirana(
       return {
         optimizeDeps: { exclude: [...libraries] },
         ssr: { noExternal: [...libraries] },
+      }
+    },
+
+    /**
+     * The same per environment, with the runtime named up front. The top-level `optimizeDeps`
+     * above is the client's; a server environment that pre-bundles its dependencies (Cloudflare's
+     * Worker, which runs in workerd) would pre-bundle the libraries and run them uncompiled. And
+     * compiled output imports the runtime, which no source file names, so an environment that
+     * discovers dependencies found it during the first request and optimised again: a page reload
+     * in the browser, and in workerd a second React and a failed first page.
+     */
+    async configEnvironment(name, config) {
+      const { libraries } = await session()
+      const discovers =
+        name === "client" || config.optimizeDeps?.noDiscovery === false
+      return {
+        optimizeDeps: {
+          ...(name === "client" ? {} : { exclude: [...libraries] }),
+          ...(discovers && resolves(state.root, RUNTIME)
+            ? { include: [RUNTIME] }
+            : {}),
+        },
       }
     },
 
