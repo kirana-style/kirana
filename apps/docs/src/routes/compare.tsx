@@ -256,16 +256,15 @@ const styles = {
   }),
 }
 
-/** A tool's logo: Kirana's mark, its brand logo, or a monogram. */
+/** A tool's logo: Kirana's mark or its brand logo; nothing for a column with no logo. */
 function ToolLogo({ tool }: { tool: (typeof TOOLS)[number] }) {
+  if (tool.id !== "kirana" && !tool.logo) return null
   return (
     <span sx={styles.logo} aria-hidden="true">
-      {tool.id === "kirana" ? (
-        <KiranaMark title={null} sx={styles.mark} />
-      ) : tool.logo ? (
+      {tool.logo ? (
         <BrandIcon icon={SVGL[tool.logo]} size="1.25rem" />
       ) : (
-        tool.mark
+        <KiranaMark title={null} sx={styles.mark} />
       )}
     </span>
   )

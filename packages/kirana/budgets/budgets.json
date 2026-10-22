@@ -929,14 +929,14 @@
     "libraries": {
       "ui": {
         "css": {
-          "raw": 79012,
-          "gzip": 19265,
-          "brotli": 16470
+          "raw": 79140,
+          "gzip": 19292,
+          "brotli": 16489
         },
         "js": {
-          "raw": 349713,
-          "gzip": 76481,
-          "brotli": 59649
+          "raw": 350086,
+          "gzip": 76659,
+          "brotli": 59811
         }
       },
       "docs-ui": {

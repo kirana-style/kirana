@@ -83,9 +83,15 @@ export const chartTheme: ChartTheme = {
 
 /**
  * The tooltip extension, for a definition's `tooltip`. `ChartContainer` draws its body; its
- * surface is left without chrome, since the body brings its own.
+ * surface is left without chrome, since the body brings its own. It glides after the pointer on a
+ * stiff spring, settled in under 200 ms: the renderer's default spring took half a second and
+ * trailed the cursor across a bar. A spring rather than a tween keeps its speed when the pointer
+ * moves on mid-flight, so it follows without restarting.
  */
-export const chartTooltip = { use: tooltip } as const
+export const chartTooltip = {
+  use: tooltip,
+  motion: { type: "spring", stiffness: 600, damping: 45 },
+} as const
 
 const styles = {
   container: css({
@@ -110,7 +116,9 @@ const styles = {
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: alpha.border50,
-    backgroundColor: theme.background,
+    // A little of the chart shows through, frosted, while the text and swatches stay crisp.
+    backgroundColor: `color-mix(in oklab, ${theme.background} 78%, transparent)`,
+    backdropFilter: "blur(10px) saturate(1.4)",
     paddingInline: spacing["2.5"],
     paddingBlock: spacing["1.5"],
     fontSize: fontSize.xs,

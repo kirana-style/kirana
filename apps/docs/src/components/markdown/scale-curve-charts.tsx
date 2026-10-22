@@ -57,8 +57,13 @@ const styles = {
     lineHeight: lineHeight.xs,
     color: theme.mutedForeground,
   }),
+  // A column of its own, as wide as the longest ratio ("29.7× Kirana", in the tooltip's monospace
+  // figures), and empty on Kirana's row, so every value ends at the same place.
   ratio: css({
+    display: "inline-block",
+    minWidth: "12ch",
     marginInlineStart: spacing["1.5"],
+    textAlign: "start",
     color: theme.mutedForeground,
   }),
 }
@@ -191,14 +196,13 @@ export function ScaleCurveCharts() {
                   return (
                     <>
                       {text}
-                      {tool === "Kirana" ? null : (
-                        <span sx={styles.ratio}>
-                          {times.toLocaleString("en", {
-                            maximumFractionDigits: times < 10 ? 2 : 1,
-                          })}
-                          × Kirana
-                        </span>
-                      )}
+                      <span sx={styles.ratio}>
+                        {tool === "Kirana"
+                          ? null
+                          : `${times.toLocaleString("en", {
+                              maximumFractionDigits: times < 10 ? 2 : 1,
+                            })}× Kirana`}
+                      </span>
                     </>
                   )
                 }}

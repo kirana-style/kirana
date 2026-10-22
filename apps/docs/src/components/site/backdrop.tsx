@@ -38,10 +38,12 @@ const styles = {
     height: "100%",
     objectFit: "cover",
   }),
+  // The same frame as the header menu's: 6 px of glass, and corners the window's radius (0.75rem)
+  // plus that frame, so the rim runs parallel to the window inside it.
   glass: css({
     position: "relative",
-    padding: { base: spacing["2"], [breakpoint.md]: spacing[3] },
-    borderRadius: { base: "1rem", [breakpoint.md]: "1.375rem" },
+    padding: spacing["1.5"],
+    borderRadius: "1.125rem",
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: "rgb(255 255 255 / 0.5)",

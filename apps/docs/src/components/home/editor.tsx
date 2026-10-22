@@ -224,7 +224,7 @@ const styles = {
     color: theme.foreground,
   }),
 
-  figure: css({ margin: 0, minWidth: 0 }),
+  figure: css({ margin: 0, minWidth: 0, containerType: "inline-size" }),
   caption: css({
     marginBlockEnd: spacing[3],
     textAlign: "center",
@@ -397,10 +397,14 @@ const styles = {
   }),
   sidebarFrame: css({ height: "100%" }),
 
+  // The figure is a size container whose width is the one the stage's padding percentages read,
+  // so the link can share the pane's right edge (spacing[3], then 6%) and sit centred in the band
+  // below it (spacing[16], then 11%): a percentage inset would read the stage's height instead.
   closer: css({
     position: "absolute",
-    insetInlineEnd: spacing[4],
-    insetBlockEnd: spacing[4],
+    insetInlineEnd: { base: spacing[3], [breakpoint.md]: "6cqi" },
+    insetBlockEnd: { base: spacing[8], [breakpoint.md]: "5.5cqi" },
+    translate: "0 50%",
     zIndex: 3,
     display: "inline-flex",
     alignItems: "center",
