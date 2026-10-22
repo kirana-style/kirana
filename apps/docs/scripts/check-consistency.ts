@@ -155,15 +155,94 @@ function sentences(
     return out
   }
   const lines = text.split("\n")
-  for (const match of text.matchAll(
-    /"((?:[^"\\\n]|\\.){12,})"|`([^`]{12,})`/g
-  )) {
-    const body = match[1] ?? match[2]!
-    if (/^[@./\w-]+$/.test(body)) continue
-    const at = lineOf(text, match.index ?? 0)
+  for (const { body, index } of literals(text)) {
+    if (body.length < 12 || /^[@./\w-]+$/.test(body)) continue
+    const at = lineOf(text, index)
     if (/consistency:\s*(subset|history|ignore)/.test(lines[at - 2] ?? ""))
       continue
-    out.push({ text: body, line: lineOf(text, match.index ?? 0) })
+    out.push({ text: body, line: at })
+  }
+  return out
+}
+
+/**
+ * The string literals of a script, read left to right with its comments, so a backtick or a quote
+ * in a comment never opens a string. A template keeps its `${…}` as written, so its sentence stays
+ * whole; the strings inside a substitution are literals of their own. Regular expressions are
+ * skipped. JSX text is read as code, which is safe for the prose it holds: an apostrophe after a
+ * letter opens nothing, `//` after a colon is a URL, and a quote that does not close on its line
+ * is skipped.
+ */
+function literals(text: string): { body: string; index: number }[] {
+  const out: { body: string; index: number }[] = []
+  // The open templates whose substitution is being read, with the brace depth it started at.
+  const templates: { body: string; index: number; depth: number }[] = []
+  let depth = 0
+  // The last character outside whitespace and comments, which tells a regex from a division.
+  let previous = ""
+  let at = 0
+  const template = (body: string, index: number) => {
+    for (; at < text.length; at++) {
+      const char = text[at]!
+      if (char === "\\") body += char + (text[++at] ?? "")
+      else if (char === "`") break
+      else if (char === "$" && text[at + 1] === "{") {
+        at += 2
+        templates.push({ body: `${body}\${`, index, depth: depth++ })
+        return
+      } else body += char
+    }
+    at++
+    out.push({ body, index })
+    previous = "`"
+  }
+  while (at < text.length) {
+    const char = text[at]!
+    const next = text[at + 1]
+    if (/\s/.test(char)) at++
+    else if (char === "/" && next === "/" && text[at - 1] !== ":") {
+      const end = text.indexOf("\n", at)
+      at = end === -1 ? text.length : end
+    } else if (char === "/" && next === "*") {
+      const end = text.indexOf("*/", at + 2)
+      at = end === -1 ? text.length : end + 2
+    } else if (
+      char === '"' ||
+      (char === "'" && !/[\p{L}\p{N}]/u.test(text[at - 1] ?? ""))
+    ) {
+      const quoted = new RegExp(
+        `${char}((?:[^${char}\\\\\\n]|\\\\.)*)${char}`,
+        "y"
+      )
+      quoted.lastIndex = at
+      const found = quoted.exec(text)
+      if (found) {
+        out.push({ body: found[1]!, index: at })
+        at = quoted.lastIndex
+        previous = char
+      } else at++
+    } else if (char === "`") {
+      at++
+      template("", at - 1)
+    } else if (
+      char === "/" &&
+      (previous === "" || /[(,=:[!&|?{};+\-*%~^>]/.test(previous))
+    ) {
+      // A regular expression, up to its closing slash on the same line.
+      const regex = /\/(?:[^/\\\n[]|\\.|\[(?:[^\]\\\n]|\\.)*\])+\/[a-z]*/y
+      regex.lastIndex = at
+      at = regex.exec(text) ? regex.lastIndex : at + 1
+      previous = "/"
+    } else {
+      at++
+      if (char === "{") depth++
+      else if (char === "}" && templates.at(-1)?.depth === --depth) {
+        const { body, index } = templates.pop()!
+        template(`${body}}`, index)
+        continue
+      }
+      previous = char
+    }
   }
   return out
 }
