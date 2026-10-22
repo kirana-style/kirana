@@ -68,6 +68,9 @@ passage about the past (a finished sprint) takes `<!-- consistency: history -->`
 something else (CSS rules in a code lens) takes `consistency: ignore`. The changelog and the blog
 are dated, so they are exempt.
 
+In a component the check reads the string literals, with comments skipped in the same pass: a
+backtick in a comment once opened a false template literal that hid the real strings after it.
+
 ## When you add something
 
 1. Add it where it is owned (a guide in `frameworks.ts`, a rule in the plugin, a command in the CLI);
