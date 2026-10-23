@@ -1877,7 +1877,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "TanStack Start",
     "section": "frameworks",
     "heading": "Server rendering",
-    "text": "There is nothing to do. Styles are in a stylesheet the document links, and class names are in the markup, so server-rendered HTML is already styled, with no style collection step, no flash and no double render. Server components work the same way: the compiler runs at build time, so nothing of Kirana has to run on the server at request time."
+    "text": "There is nothing to do. Styles are in a stylesheet the document links, and class names are in the markup, so server-rendered HTML is already styled, with no style collection step, no flash and no double render. Server components work the same way: the compiler runs at build time, so nothing of Kirana has to run on the server at request time. To render on Cloudflare Workers, add Cloudflare's Vite plugin before : Cloudflare Workers has the setup."
   },
   {
     "id": "/docs/frameworks/tanstack-start#other-setups",
@@ -3253,6 +3253,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Import the entry once, in your entry; a framework that renders the document as a component imports it as a URL for its : In development the plugin serves the live stylesheet and pushes updates over Vite's hot channel, so a style change restyles the page without a reload. In a build it replaces the placeholder rule with the real stylesheet and renames the asset to a content hash. returns two plugins, which Vite flattens, so it is still one entry in . The second, , runs at the end of a build for a stylesheet asset a framework adds after the first has filled the others (Qwik does). , and behave the way they do for any other Vite asset."
   },
   {
+    "id": "/docs/integrations/vite#a-stylesheet-of-your-own",
+    "href": "/docs/integrations/vite#a-stylesheet-of-your-own",
+    "page": "Vite",
+    "section": "bundlers",
+    "heading": "A stylesheet of your own",
+    "text": "Kirana's stylesheet keeps as written. A stylesheet you write goes through Vite's CSS minifier instead, and Vite's default predates that function, so the minifier rewrites it into switches on two custom properties that nothing sets: colours that work in development vanish in production. Set the target to Kirana's floor, Chrome 123, Safari 17.5, Firefox 120, the first browsers with it:"
+  },
+  {
     "id": "/docs/integrations/vite#diagnostics-in-the-terminal",
     "href": "/docs/integrations/vite#diagnostics-in-the-terminal",
     "page": "Vite",
@@ -4043,6 +4051,53 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "building",
     "heading": "What ships to the browser",
     "text": "The stylesheet. Class strings in your JavaScript. The private runtime (under 1.1 kB, gzipped) only in modules that merge at runtime or bridge a value. There is no style engine, no CSS-in-JS injection, and no rule generation at runtime."
+  },
+  {
+    "id": "/docs/building/cloudflare-workers",
+    "href": "/docs/building/cloudflare-workers",
+    "page": "Cloudflare Workers",
+    "section": "building",
+    "text": "Run a Kirana app on Cloudflare Workers with Cloudflare's Vite plugin, in development inside workerd and in production. "
+  },
+  {
+    "id": "/docs/building/cloudflare-workers#cloudflare-workers",
+    "href": "/docs/building/cloudflare-workers#cloudflare-workers",
+    "page": "Cloudflare Workers",
+    "section": "building",
+    "heading": "Cloudflare Workers",
+    "text": "Cloudflare's Vite plugin runs an app's server half inside workerd, the runtime Workers use, during and alike, so a Node-only API fails on your machine rather than after deploying. Kirana's is checked on every change this way: built, then served from a cold cache with its first request rendered in workerd."
+  },
+  {
+    "id": "/docs/building/cloudflare-workers#the-plugins-in-order",
+    "href": "/docs/building/cloudflare-workers#the-plugins-in-order",
+    "page": "Cloudflare Workers",
+    "section": "building",
+    "heading": "The plugins, in order",
+    "text": "Cloudflare's plugin comes first, so it owns the server environment before the framework configures it. Kirana comes before the framework plugins, as with any Vite app, so modules reach them compiled. The Worker's entry is the framework's server entry:"
+  },
+  {
+    "id": "/docs/building/cloudflare-workers#development-and-preview",
+    "href": "/docs/building/cloudflare-workers#development-and-preview",
+    "page": "Cloudflare Workers",
+    "section": "building",
+    "heading": "Development and preview",
+    "text": "renders each request in workerd. serves the production build in workerd too, the way Cloudflare will, and ships it:"
+  },
+  {
+    "id": "/docs/building/cloudflare-workers#workers-and-pre-bundling",
+    "href": "/docs/building/cloudflare-workers#workers-and-pre-bundling",
+    "page": "Cloudflare Workers",
+    "section": "building",
+    "heading": "Workers and pre-bundling",
+    "text": "Vite pre-bundles the Worker's dependencies apart from the browser's. Kirana's Vite plugin names its runtime for pre-bundling and keeps its presets compiled in every environment, so nothing needs configuring. Kirana 0.3.1 did that for the browser only: the first request in development discovered Kirana's runtime late, re-optimised and loaded React twice, and a pre-bundled preset threw . On 0.3.1, name the runtime and keep the preset out of workerd's pre-bundling: Remove it when you upgrade past 0.3.1."
+  },
+  {
+    "id": "/docs/building/cloudflare-workers#a-stylesheet-of-your-own",
+    "href": "/docs/building/cloudflare-workers#a-stylesheet-of-your-own",
+    "page": "Cloudflare Workers",
+    "section": "building",
+    "heading": "A stylesheet of your own",
+    "text": "A stylesheet you write goes through Vite's CSS minifier, which lowers unless is set to Kirana's floor: the Vite guide has the setting."
   },
   {
     "id": "/docs/reference/api",

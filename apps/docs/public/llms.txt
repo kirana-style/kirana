@@ -133,6 +133,7 @@ change the API. Pages state what is built and what is planned.
 - [Building a design system](https://kirana.style/docs/building/design-system.md): How the layered system in this repository is put together, and why each layer exists.
 - [Publishing a library](https://kirana.style/docs/building/libraries.md): Ship a component library styled with Kirana: the package keeps its styles uncompiled, and each app that lists it in libraries compiles them.
 - [The output](https://kirana.style/docs/building/output.md): What the stylesheet looks like, how classes are named, and what determinism buys you.
+- [Cloudflare Workers](https://kirana.style/docs/building/cloudflare-workers.md): Run a Kirana app on Cloudflare Workers with Cloudflare's Vite plugin, in development inside workerd and in production.
 
 ## API
 

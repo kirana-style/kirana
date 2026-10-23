@@ -287,8 +287,8 @@ jobs:
             build: sveltekit nuxt astro qwik solid-start
             dev: sveltekit nuxt astro qwik solid-start
           - shard: react frameworks
-            build: tanstack-start vike waku
-            dev: tanstack-start vike waku
+            build: tanstack-start tanstack-start-cloudflare vike waku
+            dev: tanstack-start tanstack-start-cloudflare vike waku
           # Documentation sites and component workshops.
           - shard: docs and stories
             build: vitepress docusaurus storybook
