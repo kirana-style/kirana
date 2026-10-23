@@ -194,15 +194,15 @@ export default defineConfig({ presets: [scales(), company()] })
 **KRN-TOK-009** — The first first-party preset MUST provide the scale vocabulary the shadcn/ui port proved
 in its StyleX port, with values compatible with Tailwind CSS v4 (D-010):
 
-| Export                                                                           | Contents                                                                          |
-| -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `color`                                                                          | The Tailwind v4 palette (26 hues × 11 steps plus black, white) in `oklch()`.      |
-| `space`                                                                          | The spacing scale (`0`, `px`, `0.5` … `96`) in `rem`.                             |
-| `fontFamily`, `fontSize`, `lineHeight`, `fontWeight`, `letterSpacing`, `leading` | The type ramp with paired line-heights.                                           |
-| `radius`, `shadow`, `textShadow`, `blur`, `duration`, `easing`, `zIndex`         | The corresponding scales.                                                         |
-| `screen`, `containerSize`                                                        | Breakpoint and container widths.                                                  |
-| `breakpoint`, `containerQuery`                                                   | `sm` … `2xl` media conditions; `3xs` … `7xl` container conditions.                |
-| `compose`                                                                        | Registered, non-inheriting layers the grammar composes utilities through (D-058). |
+| Export                                                                           | Contents                                                                               |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `color`                                                                          | The Tailwind v4 palette (26 hues × 11 steps plus black, white) in `oklch()`.           |
+| `space`                                                                          | The spacing scale (`0`, `px`, `0.5` … `96`) in `rem`.                                  |
+| `fontFamily`, `fontSize`, `lineHeight`, `fontWeight`, `letterSpacing`, `leading` | The type ramp with paired line-heights, Tailwind's ratios rounded up at five decimals. |
+| `radius`, `shadow`, `textShadow`, `blur`, `duration`, `easing`, `zIndex`         | The corresponding scales.                                                              |
+| `screen`, `containerSize`                                                        | Breakpoint and container widths.                                                       |
+| `breakpoint`, `containerQuery`                                                   | `sm` … `2xl` media conditions; `3xs` … `7xl` container conditions.                     |
+| `compose`                                                                        | Registered, non-inheriting layers the grammar composes utilities through (D-058).      |
 
 The values are generated from the `theme.css` of a pinned `tailwindcss` version, plus the `duration-*` and
 `z-*` utility steps, which Tailwind does not declare as theme variables. Media and container conditions are

@@ -1100,7 +1100,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Animation",
     "section": "dynamic",
     "heading": "Keyframes",
-    "text": "returns a name you can use as from any module: The name is hashed like a class, so two modules that define the same frames share one rule, and a set of frames nothing references emits nothing."
+    "text": "returns a name you can use as from any module: The name is hashed like a class, so two modules that define the same frames share one rule, and a set of frames nothing references emits nothing. That holds for a library too: a production build with the Vite or Rolldown plugin writes a library's animations only if the finished bundle still uses them, so importing a scale from a module that also declares keyframes ships none of them."
   },
   {
     "id": "/docs/styling/animation#transitions",
@@ -1179,7 +1179,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Values known at runtime",
     "section": "dynamic",
     "heading": "What is not allowed",
-    "text": "Two things the compiler refuses, because they would mean generating styles at runtime: A style's shape is fixed at build time; its values may vary. If you need a different property depending on state, write both and choose between handles:"
+    "text": "Two things the compiler refuses, because they would mean generating styles at runtime: A style built from data is refused too. Some calls only ever build a plain object, never a handle, and a merge cannot apply an object: , and ; and . Passing what one returns to , or is : Write the declarations out instead. A value the compiler cannot read in a handle position is otherwise taken as a handle known at runtime, which is what lets merge a caller's style. A style's shape is fixed at build time; its values may vary. If you need a different property depending on state, write both and choose between handles:"
   },
   {
     "id": "/docs/styling/dynamic#keeping-runtime-values-honest",
@@ -1430,7 +1430,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Starting with no preset, then scales",
     "section": "tokens",
     "heading": "How the grammar behaves",
-    "text": "The grammar is data, but a few of its rules decide results you will notice. Each matches what Tailwind v4 renders, and a property test checks every one of the 7,391 utilities it generates against the equivalent style object. A font size carries its line height. sets the font size and the line height paired with it. The pair is a default, not a declaration of its own: keeps , whichever comes first; replaces the pair with . Uniform box utilities are logical axes. sets the block and the inline padding, so: a later replaces an earlier , as did; a later replaces only the inline axis. Composed utilities combine instead of replacing. Each pair below ends up in one property: Each utility sets a layer, a registered, non-inheriting custom property such as (as Tailwind's ones are), and the property reads all of them. So class order does not change the result. Transitions read their timing from layers too. sets the list of properties and reads the duration and easing utilities from their layers, so and agree. Without either, the timing is Tailwind's: 150 ms, . also resets the duration and timing function, so it removes a component's transition entirely, as did by deleting the utility. keeps a "
+    "text": "The grammar is data, but a few of its rules decide results you will notice. Each matches what Tailwind v4 renders, and a property test checks every one of the 7,391 utilities it generates against the equivalent style object. A font size carries its line height. sets the font size and the line height paired with it. The pair is a default, not a declaration of its own: keeps , whichever comes first; replaces the pair with . The paired line heights are Tailwind's ratios written as numbers rounded up at five decimals ( is for ). A CSS minifier would round a down and cost 14px text a fraction of a pixel per line; rounded up, a line is never short. Uniform box utilities are logical axes. sets the block and the inline padding, so: a later replaces an earlier , as did; a later replaces only the inline axis. Composed utilities combine instead of replacing. Each pair below ends up in one property: Each utility sets a layer, a registered, non-inheriting custom property such as (as Tailwind's ones are), and the property reads all of them. So class order does not change the result. Transitions read their timing from layers too. sets the list of properties and reads the duration and easing utili"
   },
   {
     "id": "/docs/tokens/semantic-tokens",

@@ -478,3 +478,60 @@ fn a_token_only_code_names_needs_the_bundle_to_name_it() {
     let left: Vec<&str> = bare.pruned.iter().map(|(name, _)| name.as_str()).collect();
     assert_eq!(left, ["--kvAlias", "--kvBase", "--kvGone", "--kvNamed"]);
 }
+
+/// D-094: keyframes only code names (a library's exported animations) are written when the bundle
+/// names them; ones a rule reads always are, and so are ones a kept view transition reads.
+#[test]
+fn keyframes_only_code_names_need_the_bundle_to_name_them() {
+    let frames = |name: &str| {
+        Arc::new(KeyframesDef {
+            name: name.into(),
+            frames: vec![("to".into(), vec![("opacity".into(), "0".into())])],
+            deps: vec![],
+        })
+    };
+    let read = frames("kfRead");
+    let named = frames("kfNamed");
+    let gone = frames("kfGone");
+    let carried = frames("kfCarry");
+    let transition = Arc::new(ViewTransitionDef {
+        class: "kwSlide".into(),
+        parts: vec![],
+        deps: vec![Dep::Keyframes(carried.clone())],
+    });
+    let atoms = vec![atom(Target::Element, "animation-name", vec![], "kfRead", vec![Dep::Keyframes(read.clone())])];
+    // The keyframes the transition carries come first, as left out, then the transition keeps them.
+    let marker = [
+        Dep::Keyframes(read.clone()),
+        Dep::Keyframes(carried.clone()),
+        Dep::Keyframes(named.clone()),
+        Dep::Keyframes(gone.clone()),
+        Dep::ViewTransition(transition),
+    ];
+    let write = |names: Option<&[&str]>| {
+        emit(
+            &atoms,
+            &marker,
+            &EmitOptions {
+                minify: true,
+                named: names.map(|names| names.iter().map(|name| (*name).to_owned()).collect()),
+                ..EmitOptions::default()
+            },
+        )
+    };
+
+    // No bundle known: every keyframes rule is written.
+    let all = write(None);
+    for name in ["kfRead", "kfCarry", "kfNamed", "kfGone"] {
+        assert!(all.css.contains(&format!("@keyframes {name}")), "{name} in {}", all.css);
+    }
+    assert!(all.pruned.is_empty());
+
+    // The bundle names one: the rule's, the transition's and the named one stay.
+    let finished = write(Some(&["kfNamed"]));
+    for name in ["kfRead", "kfCarry", "kfNamed"] {
+        assert!(finished.css.contains(&format!("@keyframes {name}")), "{name} in {}", finished.css);
+    }
+    assert!(!finished.css.contains("kfGone"), "{}", finished.css);
+    assert_eq!(finished.pruned, [("kfGone".to_owned(), "@keyframes kfGone".to_owned())]);
+}

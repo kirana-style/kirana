@@ -21,7 +21,7 @@ import {
   fillStylesheet,
   renameAsset,
   stylesheetPath,
-  tokenNames,
+  definitionNames,
 } from "@kirana-style/compiler/host"
 import type { KiranaConfig } from "@kirana-style/core/config"
 import { readFile } from "node:fs/promises"
@@ -134,14 +134,21 @@ export function createKirana(
     ) {
       if (development()) return null
       const compiler = await session()
-      const names = tokenNames(code, compiler.prefix)
+      const names = definitionNames(code, compiler.prefix)
       const late = names.filter((name) => pruned.has(name))
-      if (late.length > 0) {
-        const list = late
+      const tokens = late.filter((name) => name.startsWith("--"))
+      const keyframes = late.filter((name) => !name.startsWith("--"))
+      if (tokens.length > 0) {
+        const list = tokens
           .map((name) => `${pruned.get(name)} (${name})`)
           .join(", ")
         this.error(
           `kirana: ${chunk.fileName} reads tokens the stylesheet left out: ${list}. Nothing the stylesheet's own build bundled named them at runtime. Declare each one \`runtime: true\` in defineTokens (D-086).`
+        )
+      }
+      if (keyframes.length > 0) {
+        this.error(
+          `kirana: ${chunk.fileName} names keyframes the stylesheet left out: ${keyframes.join(", ")}. Nothing the stylesheet's own build bundled named them. Apply them in a style a module of that build compiles (\`animationName\`), so a rule reads them (D-094).`
         )
       }
       for (const name of names) named.add(name)
@@ -249,14 +256,14 @@ export function createKirana(
   } satisfies Plugin
 
   /**
-   * The stylesheet for this bundle (D-086): the token names its other files hold join the chunks',
-   * and the tokens left out are kept for the chunks rendered after it.
+   * The stylesheet for this bundle (D-086, D-094): the token and keyframes names its other files
+   * hold join the chunks', and the definitions left out are kept for the chunks rendered after it.
    */
   const finished = async (bundle: OutputBundle) => {
     const compiler = await session()
     for (const file of Object.values(bundle)) {
       if (file.type === "asset" && typeof file.source === "string")
-        for (const name of tokenNames(file.source, compiler.prefix))
+        for (const name of definitionNames(file.source, compiler.prefix))
           named.add(name)
     }
     const result = compiler.finishedStylesheet(named, dense())

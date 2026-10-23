@@ -24,7 +24,10 @@ const dot = css({
 ```
 
 The name is hashed like a class, so two modules that define the same frames share
-one `@keyframes` rule, and a set of frames nothing references emits nothing.
+one `@keyframes` rule, and a set of frames nothing references emits nothing. That
+holds for a library too: a production build with the Vite or Rolldown plugin writes
+a library's animations only if the finished bundle still uses them, so importing a
+scale from a module that also declares keyframes ships none of them.
 
 ## Transitions
 

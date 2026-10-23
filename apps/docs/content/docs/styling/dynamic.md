@@ -67,6 +67,22 @@ css({ [key]: value }) // error: dynamic-key
 css({ ...someObject }) // error: dynamic-spread
 ```
 
+A style built from data is refused too. Some calls only ever build a plain object,
+never a handle, and a merge cannot apply an object:
+
+- `Object.fromEntries`, `Object.assign` and `Object.create`;
+- `JSON.parse` and `structuredClone`.
+
+Passing what one returns to `css()`, `cx()` or `sx` is `not-evaluable`:
+
+```tsx
+css(Object.fromEntries(entries)) // error: not-evaluable
+```
+
+Write the declarations out instead. A value the compiler cannot read in a handle
+position is otherwise taken as a handle known at runtime, which is what lets
+`css(base, props.sx)` merge a caller's style.
+
 A style's _shape_ is fixed at build time; its _values_ may vary. If you need a
 different property depending on state, write both and choose between handles:
 
