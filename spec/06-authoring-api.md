@@ -253,7 +253,11 @@ export const spinner = css({
 ```
 
 **KRN-API-009** — `keyframes()` MUST return a reference usable as `animationName` from any module. The
-keyframes rule is emitted once per project when referenced.
+keyframes rule is emitted once per project when referenced. In a finished bundle a keyframes rule that
+only code names, which no rule reads, is declared only when the bundle's chunks or other files still
+name it, as KRN-TOK-012 has it for a variable token (D-094): a library's exported animations then ship
+only where the application uses them. A chunk rendered after the stylesheet that names one left out
+MUST fail the build.
 
 ## `firstThatWorks()`
 

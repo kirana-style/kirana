@@ -134,7 +134,17 @@ impl<'a> Evaluator<'_, 'a, '_> {
             Value::Null | Value::Undefined | Value::Bool(_) => {}
             Value::Array(items) => items.iter().for_each(|item| self.push_handle_value(item, span, parts, strings)),
             Value::Dynamic(dynamic) => match &**dynamic {
-                Dynamic::Open(span) => parts.push(StylePart::Runtime(*span)),
+                Dynamic::Open(open) => match self.plain_objects.borrow().get(open) {
+                    Some(builder) => self.report(
+                        Code::NotEvaluable,
+                        span,
+                        format!(
+                            "{builder} builds a plain object at runtime, which no merge can apply: a style must be written out to compile"
+                        ),
+                        Some("write the declarations in css({ … }), or pass a handle css() made"),
+                    ),
+                    None => parts.push(StylePart::Runtime(*open)),
+                },
                 Dynamic::Spread(span) => parts.push(StylePart::Spread(*span)),
                 Dynamic::Style(inner) => inner.iter().cloned().for_each(|part| parts.push(part)),
                 Dynamic::Conditional { span, test, consequent, alternate } => {

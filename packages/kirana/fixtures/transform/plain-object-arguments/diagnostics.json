@@ -1,0 +1,136 @@
+[
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 145,
+      "end": 184
+    },
+    "message": "Object.fromEntries() builds a plain object at runtime, which no merge can apply: a style must be written out to compile",
+    "help": [
+      "write the declarations in css({ … }), or pass a handle css() made"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 235,
+      "end": 270
+    },
+    "message": "Object.assign() builds a plain object at runtime, which no merge can apply: a style must be written out to compile",
+    "help": [
+      "write the declarations in css({ … }), or pass a handle css() made"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 298,
+      "end": 317
+    },
+    "message": "Object.create() builds a plain object at runtime, which no merge can apply: a style must be written out to compile",
+    "help": [
+      "write the declarations in css({ … }), or pass a handle css() made"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 345,
+      "end": 374
+    },
+    "message": "JSON.parse() builds a plain object at runtime, which no merge can apply: a style must be written out to compile",
+    "help": [
+      "write the declarations in css({ … }), or pass a handle css() made"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 402,
+      "end": 435
+    },
+    "message": "structuredClone() builds a plain object at runtime, which no merge can apply: a style must be written out to compile",
+    "help": [
+      "write the declarations in css({ … }), or pass a handle css() made"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 526,
+      "end": 531
+    },
+    "message": "Object.fromEntries() builds a plain object at runtime, which no merge can apply: a style must be written out to compile",
+    "help": [
+      "write the declarations in css({ … }), or pass a handle css() made"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 568,
+      "end": 592
+    },
+    "message": "Object.fromEntries() builds a plain object at runtime, which no merge can apply: a style must be written out to compile",
+    "help": [
+      "write the declarations in css({ … }), or pass a handle css() made"
+    ]
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 920,
+      "end": 931
+    },
+    "message": "color is set at runtime through --k50",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1076,
+      "end": 1100
+    },
+    "message": "color is set at runtime through --k50",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1081,
+      "end": 1092
+    },
+    "message": "color is set at runtime through --k50",
+    "help": []
+  }
+]

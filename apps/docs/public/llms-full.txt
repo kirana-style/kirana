@@ -2370,7 +2370,10 @@ const dot = css({
 ```
 
 The name is hashed like a class, so two modules that define the same frames share
-one `@keyframes` rule, and a set of frames nothing references emits nothing.
+one `@keyframes` rule, and a set of frames nothing references emits nothing. That
+holds for a library too: a production build with the Vite or Rolldown plugin writes
+a library's animations only if the finished bundle still uses them, so importing a
+scale from a module that also declares keyframes ships none of them.
 
 ## Transitions
 
@@ -2492,6 +2495,22 @@ runtime:
 css({ [key]: value }) // error: dynamic-key
 css({ ...someObject }) // error: dynamic-spread
 ```
+
+A style built from data is refused too. Some calls only ever build a plain object,
+never a handle, and a merge cannot apply an object:
+
+- `Object.fromEntries`, `Object.assign` and `Object.create`;
+- `JSON.parse` and `structuredClone`.
+
+Passing what one returns to `css()`, `cx()` or `sx` is `not-evaluable`:
+
+```tsx
+css(Object.fromEntries(entries)) // error: not-evaluable
+```
+
+Write the declarations out instead. A value the compiler cannot read in a handle
+position is otherwise taken as a handle known at runtime, which is what lets
+`css(base, props.sx)` merge a caller's style.
 
 A style's _shape_ is fixed at build time; its _values_ may vary. If you need a
 different property depending on state, write both and choose between handles:
@@ -3035,6 +3054,11 @@ height paired with it. The pair is a default, not a declaration of its own:
 
 - `text-sm leading-6` keeps `leading-6`, whichever comes first;
 - `text-sm/relaxed` replaces the pair with `leading-relaxed`.
+
+The paired line heights are Tailwind's ratios written as numbers rounded up at five
+decimals (`lineHeight.sm` is `1.42858` for `1.25 / 0.875`). A CSS minifier would
+round a `calc()` down and cost 14px text a fraction of a pixel per line; rounded up,
+a line is never short.
 
 **Uniform box utilities are logical axes.** `p-4` sets the block and the inline
 padding, so:

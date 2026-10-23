@@ -67,10 +67,32 @@ const camel = (key: string) =>
   key.replace(/-([a-z0-9])/g, (_, letter: string) => letter.toUpperCase())
 // `--text-shadow-*` are text shadows, not font sizes: Tailwind's `text-` prefix holds both.
 const fontSize = group("text-", undefined, "text-shadow-")
-const lineHeight = Object.fromEntries(
+/**
+ * Tailwind writes each paired line height as a fraction, `calc(1.25 / 0.875)`. An app's CSS
+ * minifier folds that to five decimals rounded to nearest (`1.42857`), and 14px text then lays out
+ * 19.984px lines instead of 20px. The ratio is written here as a number rounded **up** at five
+ * decimals, which no minifier changes and which never makes a line short (KF-012); the fraction
+ * stays beside it as a comment.
+ */
+const lineHeightFractions = new Map<string, string>()
+const roundedUp = (fraction: string) => {
+  const parts = /^calc\(([\d.]+) \/ ([\d.]+)\)$/.exec(fraction)
+  if (!parts) return fraction
+  lineHeightFractions.set(fraction, `${parts[1]} / ${parts[2]}`)
+  // The small offset keeps a ratio that is exact in decimal (1.2) from rounding up a step.
+  const ratio = Number(parts[1]) / Number(parts[2])
+  return String(Math.ceil(ratio * 1e5 - 1e-6) / 1e5)
+}
+const lineHeightSource = Object.fromEntries(
   [...variables]
     .filter(([name]) => /^text-[a-z0-9]+--line-height$/.test(name))
     .map(([name, value]) => [name.slice(5, -13), value])
+)
+const lineHeight = Object.fromEntries(
+  Object.entries(lineHeightSource).map(([key, value]) => [
+    key,
+    roundedUp(value),
+  ])
 )
 
 const groups: [string, string, unknown][] = [
@@ -130,9 +152,19 @@ const lines = [
   "",
 ]
 for (const [name, doc, values] of groups) {
+  let body = JSON.stringify(values, null, 2)
+  // Each rounded line height keeps Tailwind's fraction beside it.
+  if (name === "lineHeight")
+    body = body.replace(
+      /^( {2}"([^"]+)": "[^"]+",?)$/gm,
+      (line, _, key: string) => {
+        const fraction = lineHeightFractions.get(lineHeightSource[key]!)
+        return fraction ? `${line} // ${fraction}` : line
+      }
+    )
   lines.push(
     `/** ${doc} */`,
-    `export const ${name} = defineTokens(${JSON.stringify(name)}, ${JSON.stringify(values, null, 2)})`,
+    `export const ${name} = defineTokens(${JSON.stringify(name)}, ${body})`,
     ""
   )
 }

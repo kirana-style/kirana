@@ -111,15 +111,19 @@ export function shouldCompile(
 
 /** The module id without a query string. */
 /**
- * The variable tokens a text names (`--{prefix}v` and four characters): what a finished bundle's
- * chunks and stylesheets still use, so its stylesheet keeps them (D-086).
+ * The variable tokens (`--{prefix}v` and four characters) and keyframes (`{prefix}f` and four) a
+ * text names: what a finished bundle's chunks and stylesheets still use, so its stylesheet keeps
+ * them (D-086, D-094).
  */
-export function tokenNames(text: string, prefix: string): string[] {
+export function definitionNames(text: string, prefix: string): string[] {
   const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
   return [
     ...new Set(
       text.match(
-        new RegExp(`--${escaped}v[0-9A-Za-z]{4}(?![0-9A-Za-z_-])`, "g")
+        new RegExp(
+          `(?:--${escaped}v|(?<![0-9A-Za-z_-])${escaped}f)[0-9A-Za-z]{4}(?![0-9A-Za-z_-])`,
+          "g"
+        )
       ) ?? []
     ),
   ]

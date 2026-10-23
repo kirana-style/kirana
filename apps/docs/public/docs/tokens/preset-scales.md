@@ -142,6 +142,11 @@ height paired with it. The pair is a default, not a declaration of its own:
 - `text-sm leading-6` keeps `leading-6`, whichever comes first;
 - `text-sm/relaxed` replaces the pair with `leading-relaxed`.
 
+The paired line heights are Tailwind's ratios written as numbers rounded up at five
+decimals (`lineHeight.sm` is `1.42858` for `1.25 / 0.875`). A CSS minifier would
+round a `calc()` down and cost 14px text a fraction of a pixel per line; rounded up,
+a line is never short.
+
 **Uniform box utilities are logical axes.** `p-4` sets the block and the inline
 padding, so:
 

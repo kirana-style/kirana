@@ -37,6 +37,10 @@ pub struct Evaluator<'p, 'a, 'c> {
     pub(crate) host: &'c dyn Host,
     symbols: RefCell<FxHashMap<SymbolId, Option<Value>>>,
     calls: RefCell<FxHashMap<(u32, u32), Value>>,
+    /// Calls that can only return a plain object at runtime (`Object.fromEntries()`), by span, with
+    /// the callee's name. Such a value is a runtime value like any other, except where a style
+    /// handle is expected: no merge can apply an object, so it is reported there (KF-010).
+    pub(crate) plain_objects: RefCell<FxHashMap<(u32, u32), &'static str>>,
     diagnostics: RefCell<Vec<Diagnostic>>,
     pub(crate) definitions: RefCell<Definitions>,
     depth: Cell<u32>,
@@ -55,6 +59,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             host,
             symbols: RefCell::default(),
             calls: RefCell::default(),
+            plain_objects: RefCell::default(),
             diagnostics: RefCell::default(),
             definitions: RefCell::default(),
             depth: Cell::new(0),
@@ -388,6 +393,15 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         if let Some(import) = value.unresolved_import() {
             self.report_unresolved(identifier.name.as_str(), import, span);
         }
+        // A binding of a plain object (`const s = Object.fromEntries(…)`) is one as well.
+        if let Value::Dynamic(dynamic) = &value
+            && let Dynamic::Open(bound) = &**dynamic
+        {
+            let builder = self.plain_objects.borrow().get(bound).copied();
+            if let Some(builder) = builder {
+                self.plain_objects.borrow_mut().insert(span, builder);
+            }
+        }
         Value::Dynamic(Arc::new(Dynamic::Open(span)))
     }
 
@@ -580,10 +594,42 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                     .and_then(|arguments| apply(descriptor, &arguments, self))
                     .unwrap_or_else(|| Value::Dynamic(Arc::new(Dynamic::Open(span))))
             }
-            _ => Value::Dynamic(Arc::new(Dynamic::Open(span))),
+            _ => {
+                if let Some(name) = self.plain_object_builder(&call.callee) {
+                    self.plain_objects.borrow_mut().insert(span, name);
+                }
+                Value::Dynamic(Arc::new(Dynamic::Open(span)))
+            }
         };
         self.calls.borrow_mut().insert(span, value.clone());
         value
+    }
+
+    /// The name of a global that only ever builds a plain object (`Object.fromEntries`,
+    /// `Object.assign`, `Object.create`, `JSON.parse`, `structuredClone`), when `callee` is one and no
+    /// binding of the module shadows it.
+    fn plain_object_builder(&self, callee: &Expression<'a>) -> Option<&'static str> {
+        match callee.without_parentheses() {
+            Expression::StaticMemberExpression(member) => {
+                let Expression::Identifier(object) = &member.object else { return None };
+                if self.symbol_of(object).is_some() {
+                    return None;
+                }
+                match (object.name.as_str(), member.property.name.as_str()) {
+                    ("Object", "fromEntries") => Some("Object.fromEntries()"),
+                    ("Object", "assign") => Some("Object.assign()"),
+                    ("Object", "create") => Some("Object.create()"),
+                    ("JSON", "parse") => Some("JSON.parse()"),
+                    _ => None,
+                }
+            }
+            Expression::Identifier(identifier)
+                if identifier.name == "structuredClone" && self.symbol_of(identifier).is_none() =>
+            {
+                Some("structuredClone()")
+            }
+            _ => None,
+        }
     }
 
     /// Evaluates call arguments; a spread of a static array is flattened.

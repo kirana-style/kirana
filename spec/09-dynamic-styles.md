@@ -29,6 +29,13 @@ flowchart TD
     E -->|"open dynamic key or spread"| ERR2["dynamic-key / dynamic-spread"]
 ```
 
+An open-dynamic handle argument is merged at runtime (`css(base, props.sx)`), so the evaluator cannot
+reject what it cannot read. One that can only be a plain object, never a handle, is an error:
+`not-evaluable` MUST be reported where a call to `Object.fromEntries`, `Object.assign`,
+`Object.create`, `JSON.parse` or `structuredClone` (not shadowed by a binding of the module), or a
+binding of one, reaches a `css()` or `cx()` argument or an `sx` value (D-095). Read anywhere else
+(`tones.brand` in a value), such a call stays an open-dynamic value.
+
 **KRN-DYN-004** — Whatever the class, Kirana MUST NOT generate, inject or modify CSS rules at runtime
 (D-017). Every rule that can apply exists in the build's stylesheet.
 

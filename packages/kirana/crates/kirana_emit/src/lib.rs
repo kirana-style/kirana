@@ -36,10 +36,10 @@ pub struct EmitOptions {
     pub prefix: String,
     /// Targets below the default floor; `None` when no lowering is needed.
     pub lower_for: Option<Targets>,
-    /// The variable tokens a finished bundle still names (D-086). A token that only code names, and
-    /// no rule reads, is written when it is in this set or declared `runtime: true`. `None` when
-    /// no bundle is known (a dev server, `check`, a host that does not report one): every such
-    /// token is written.
+    /// The variable tokens and keyframes a finished bundle still names (D-086, D-094). A token or a
+    /// keyframes rule that only code names, and no rule reads, is written when it is in this set (or,
+    /// for a token, declared `runtime: true`). `None` when no bundle is known (a dev server, `check`,
+    /// a host that does not report one): every such definition is written.
     pub named: Option<std::collections::BTreeSet<String>>,
 }
 
@@ -49,8 +49,9 @@ pub struct EmitOutput {
     pub css: String,
     /// Whether Lightning CSS lowered syntax for the configured targets (`target-lowering`).
     pub lowered: bool,
-    /// Variable tokens left out because no rule reads them and the bundle does not name them, as
-    /// `(variable, identity)` in order (D-086). A host fails a later chunk that names one.
+    /// Variable tokens and keyframes left out because no rule reads them and the bundle does not name
+    /// them, as `(name, identity)` in order (D-086, D-094); a keyframes rule's identity is
+    /// `@keyframes {name}`. A host fails a later chunk that names one.
     pub pruned: Vec<(String, String)>,
 }
 
@@ -529,7 +530,8 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
         atom.value.deps.iter().for_each(|dep| deps.add(dep));
     }
     // What rules read is written. A token only code names (a token object, a runtime value) is
-    // written when the bundle still names it or it is declared `runtime: true` (D-086).
+    // written when the bundle still names it or it is declared `runtime: true` (D-086); so is a
+    // keyframes rule, which a library's exported animations would otherwise ship unused (D-094).
     let mut left_out = Vec::new();
     for dep in marker_deps {
         match (dep, &options.named) {
@@ -538,12 +540,20 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
             {
                 left_out.push((token.variable.clone(), token.identity.clone()));
             }
+            (Dep::Keyframes(frames), Some(named))
+                if !named.contains(&frames.name) && !deps.keyframes.contains_key(&frames.name) =>
+            {
+                left_out.push((frames.name.clone(), format!("@keyframes {}", frames.name)));
+            }
             _ => deps.add(dep),
         }
     }
-    // A kept token can read one left out (an alias): then it is written after all.
-    let mut pruned: Vec<(String, String)> =
-        left_out.into_iter().filter(|(name, _)| !deps.tokens.contains_key(name)).collect();
+    // A kept definition can read one left out (an alias, a transition's keyframes): then it is
+    // written after all.
+    let mut pruned: Vec<(String, String)> = left_out
+        .into_iter()
+        .filter(|(name, _)| !deps.tokens.contains_key(name) && !deps.keyframes.contains_key(name))
+        .collect();
     pruned.sort();
     pruned.dedup();
 

@@ -269,6 +269,78 @@ describe("KRN-INT-002 Rolldown on its own", () => {
     )
   })
 
+  it("writes the keyframes the bundle uses, not a library's other animations (D-094)", async () => {
+    const motion = [
+      'import { defineTokens, keyframes } from "@kirana-style/core"',
+      'export const space = defineTokens("space", { 1: "4px" })',
+      "export const fade = keyframes({ to: { opacity: 0 } })",
+      'export const spin = keyframes({ to: { rotate: "1turn" } })',
+      "",
+    ].join("\n")
+    const build = async (main: string) => {
+      const root = app()
+      writeFileSync(path.join(root, "src/motion.ts"), motion)
+      writeFileSync(path.join(root, "src/main.ts"), main)
+      const output = await bundle(root)
+      return String(
+        (output.find((file) => file.fileName === "kirana.css") as OutputAsset)
+          .source
+      )
+    }
+    const declared = (css: string) =>
+      css.match(/@keyframes kf[0-9A-Za-z]{4}/g) ?? []
+
+    // A scale from the module, and none of its animations: no keyframes ship.
+    const scaleOnly = await build(
+      'import "@kirana-style/core/stylesheet.css"\nimport { css } from "@kirana-style/core"\nimport { space } from "./motion.ts"\nexport const box = css({ gap: space[1] })\n'
+    )
+    expect(declared(scaleOnly)).toHaveLength(0)
+
+    // A rule reads one, and code names the other at runtime: both ship.
+    const used = await build(
+      'import "@kirana-style/core/stylesheet.css"\nimport { css } from "@kirana-style/core"\nimport { fade, spin } from "./motion.ts"\nexport const box = css({ animationName: fade })\ndocument.body.style.animationName = spin\n'
+    )
+    expect(declared(used)).toHaveLength(2)
+  })
+
+  it("fails a later build that names keyframes the stylesheet left out (D-094)", async () => {
+    const root = app()
+    writeFileSync(
+      path.join(root, "src/motion.ts"),
+      'import { keyframes } from "@kirana-style/core"\nexport const spin = keyframes({ to: { rotate: "1turn" } })\n'
+    )
+    writeFileSync(
+      path.join(root, "src/main.ts"),
+      'import "@kirana-style/core/stylesheet.css"\nimport "./motion.ts"\n'
+    )
+    writeFileSync(
+      path.join(root, "src/server.ts"),
+      'import { spin } from "./motion.ts"\nexport const render = () => `<p style="animation-name:${spin}"></p>`\n'
+    )
+    const plugin = kirana({ root })
+    const run = async (input: string) => {
+      const built = await rolldown({
+        input: path.join(root, input),
+        cwd: root,
+        logLevel: "silent",
+        plugins: [plugin],
+      })
+      return built.generate({ dir: "dist" })
+    }
+    const client = await run("src/main.ts")
+    const css = String(
+      (
+        client.output.find(
+          (file) => file.fileName === "kirana.css"
+        ) as OutputAsset
+      ).source
+    )
+    expect(css).not.toContain("@keyframes")
+    await expect(run("src/server.ts")).rejects.toThrow(
+      /names keyframes the stylesheet left out: kf[0-9A-Za-z]{4}.*animationName/
+    )
+  })
+
   it("refuses dense names with a class map", async () => {
     const root = app()
     const build = rolldown({

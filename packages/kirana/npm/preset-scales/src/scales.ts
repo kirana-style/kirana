@@ -412,14 +412,14 @@ export const fontSize = defineTokens("fontSize", {
 
 /** The line height paired with each fontSize step. */
 export const lineHeight = defineTokens("lineHeight", {
-  xs: "calc(1 / 0.75)",
-  sm: "calc(1.25 / 0.875)",
-  base: "calc(1.5 / 1)",
-  lg: "calc(1.75 / 1.125)",
-  xl: "calc(1.75 / 1.25)",
-  "2xl": "calc(2 / 1.5)",
-  "3xl": "calc(2.25 / 1.875)",
-  "4xl": "calc(2.5 / 2.25)",
+  xs: "1.33334", // 1 / 0.75
+  sm: "1.42858", // 1.25 / 0.875
+  base: "1.5", // 1.5 / 1
+  lg: "1.55556", // 1.75 / 1.125
+  xl: "1.4", // 1.75 / 1.25
+  "2xl": "1.33334", // 2 / 1.5
+  "3xl": "1.2", // 2.25 / 1.875
+  "4xl": "1.11112", // 2.5 / 2.25
   "5xl": "1",
   "6xl": "1",
   "7xl": "1",

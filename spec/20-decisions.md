@@ -1285,21 +1285,51 @@ the implementation tracker names its evidence.
   follow the compiler's own `physical_counterpart`, which `mixed-logical-physical` reads.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
+### D-094 — A keyframes rule only code names needs the bundle to name it
+
+- **Status:** Accepted (2026-10-23). Extends D-086 from variable tokens to keyframes (KF-021).
+- **Decision:** in a finished bundle, a keyframes rule that no rule reads, and that only a module's
+  code names (an exported `keyframes()`), is written only when the bundle's chunks or other files still
+  name it. The hosts collect `{prefix}f…` names beside `--{prefix}v…`; a later chunk that names one left
+  out fails the build, saying to apply it in a style that build compiles.
+- **Rationale:** a library's module is compiled whole when any of its exports is imported, so every
+  animation it declares reached the stylesheet: kirana-ui imported only scales from
+  `@kirana-style/preset-scales` and shipped its eleven keyframes, 1,632 of 35,830 bytes. The bundler
+  already drops the unused exports; the stylesheet now follows it, as it does for tokens.
+- **Trade-off:** only hosts that report the finished bundle prune (the Rolldown adapter, under Vite
+  8 and Rolldown); the others keep every keyframes rule, as they keep every token.
+- **Elaborated in:** [06-authoring-api](./06-authoring-api.md).
+
+### D-095 — An argument that can only be a plain object is not a handle
+
+- **Status:** Accepted (2026-10-23). Narrows KRN-DYN-001's open-dynamic handle (KF-010).
+- **Decision:** a call to `Object.fromEntries`, `Object.assign`, `Object.create`, `JSON.parse` or
+  `structuredClone` (a global, not a binding of the module), or a binding of one, is reported as
+  `not-evaluable` where it reaches a `css()` or `cx()` argument or an `sx` value. Anywhere else it stays
+  an open-dynamic value.
+- **Rationale:** an unreadable argument is merged at runtime, because a handle can be known only then
+  (`css(base, props.sx)`), so `css(Object.fromEntries(entries))` compiled to a merge of an object, which
+  applies nothing, with no word from the build. Those calls can never return a handle, so they can be
+  rejected without rejecting composition.
+- **Trade-off:** a helper of the author's own that returns a style object is still taken for a handle;
+  the documentation says a style must be written out.
+- **Elaborated in:** [09-dynamic-styles](./09-dynamic-styles.md).
+
 ## Index by document
 
-| Document                                                      | Decisions                                                                                                                           |
-| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| the brand notes                                               | D-001                                                                                                                               |
-| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091 |
-| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086                                                         |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092                                    |
-| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084                                                                                            |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                           |
-| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073                      |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093                                           |
-| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                |
-| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                               |
-| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                        |
-| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                            |
-| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                          |
-| the roadmap                                                   | D-033, D-051, D-056                                                                                                                 |
+| Document                                                      | Decisions                                                                                                                                  |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| the brand notes                                               | D-001                                                                                                                                      |
+| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094 |
+| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086                                                                |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092                                           |
+| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                            |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                  |
+| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073                             |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093                                                  |
+| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                       |
+| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                      |
+| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                               |
+| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                                   |
+| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                                 |
+| the roadmap                                                   | D-033, D-051, D-056                                                                                                                        |

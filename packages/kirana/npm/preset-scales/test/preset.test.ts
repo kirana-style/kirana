@@ -5,6 +5,27 @@ import * as preset from "../src/index.ts"
 // This suite runs under the Kirana Vite plugin, so the preset is compiled exactly as an
 // application would compile it (KRN-TOK-009).
 describe("KRN-TOK-009 @kirana-style/preset-scales", () => {
+  // KF-012: a minifier folds `calc(1.25 / 0.875)` to 1.42857 and 14px text loses a pixel's
+  // fraction per line; a number rounded up at five decimals is left alone and never short.
+  it("writes each paired line height as Tailwind's ratio rounded up at five decimals", () => {
+    const ratios: Record<string, number> = {
+      xs: 1 / 0.75,
+      sm: 1.25 / 0.875,
+      base: 1.5 / 1,
+      lg: 1.75 / 1.125,
+      xl: 1.75 / 1.25,
+      "2xl": 2 / 1.5,
+      "3xl": 2.25 / 1.875,
+      "4xl": 2.5 / 2.25,
+    }
+    for (const [step, ratio] of Object.entries(ratios)) {
+      const value = preset.lineHeight[step as keyof typeof preset.lineHeight]
+      expect(value, step).toMatch(/^\d+(\.\d{1,5})?$/)
+      expect(Number(value), step).toBeGreaterThanOrEqual(ratio - 1e-9)
+      expect(Number(value) - ratio, step).toBeLessThan(1e-5)
+    }
+  })
+
   it("provides Tailwind v4-compatible scale values", () => {
     expect(preset.space[4]).toBe("1rem")
     expect(preset.space.px).toBe("1px")
@@ -12,7 +33,7 @@ describe("KRN-TOK-009 @kirana-style/preset-scales", () => {
     expect(preset.color.blue[600]).toBe("oklch(54.6% 0.245 262.881)")
     expect(preset.color.white).toBe("#fff")
     expect(preset.fontSize.sm).toBe("0.875rem")
-    expect(preset.lineHeight.sm).toBe("calc(1.25 / 0.875)")
+    expect(preset.lineHeight.sm).toBe("1.42858")
     expect(preset.radius.lg).toBe("0.5rem")
     expect(preset.shadow.sm).toContain("rgb(0 0 0 / 0.1)")
     expect(Object.keys(preset.color)).toHaveLength(28)
