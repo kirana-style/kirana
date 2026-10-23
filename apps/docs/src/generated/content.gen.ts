@@ -2987,6 +2987,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "a-stylesheet-of-your-own",
+        "text": "A stylesheet of your own",
+        "level": 2
+      },
+      {
         "id": "diagnostics-in-the-terminal",
         "text": "Diagnostics in the terminal",
         "level": 2
@@ -3739,6 +3744,45 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "what-ships-to-the-browser",
         "text": "What ships to the browser",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/building/cloudflare-workers",
+    "file": "content/docs/building/cloudflare-workers.md",
+    "title": "Cloudflare Workers",
+    "description": "Run a Kirana app on Cloudflare Workers with Cloudflare's Vite plugin, in development inside workerd and in production.",
+    "section": "building",
+    "order": 5,
+    "keywords": [
+      "cloudflare",
+      "workers",
+      "workerd",
+      "wrangler",
+      "@cloudflare/vite-plugin",
+      "tanstack start",
+      "ssr"
+    ],
+    "headings": [
+      {
+        "id": "the-plugins-in-order",
+        "text": "The plugins, in order",
+        "level": 2
+      },
+      {
+        "id": "development-and-preview",
+        "text": "Development and preview",
+        "level": 2
+      },
+      {
+        "id": "workers-and-pre-bundling",
+        "text": "Workers and pre-bundling",
+        "level": 2
+      },
+      {
+        "id": "a-stylesheet-of-your-own",
+        "text": "A stylesheet of your own",
         "level": 2
       }
     ]
@@ -5970,6 +6014,20 @@ export const NAV: readonly NavGroup[] = [
           "determinism",
           "minification"
         ]
+      },
+      {
+        "title": "Cloudflare Workers",
+        "href": "/docs/building/cloudflare-workers",
+        "description": "Run a Kirana app on Cloudflare Workers with Cloudflare's Vite plugin, in development inside workerd and in production.",
+        "keywords": [
+          "cloudflare",
+          "workers",
+          "workerd",
+          "wrangler",
+          "@cloudflare/vite-plugin",
+          "tanstack start",
+          "ssr"
+        ]
       }
     ]
   },
@@ -6316,6 +6374,7 @@ export const ORDER: readonly string[] = [
   "/docs/building/design-system",
   "/docs/building/libraries",
   "/docs/building/output",
+  "/docs/building/cloudflare-workers",
   "/docs/reference/api",
   "/docs/reference/config",
   "/docs/tooling/cli",

@@ -366,15 +366,17 @@ try {
         direct ? first! : "npx",
         direct ? rest : settings.dev,
         {},
-        async (url) => {
+        async (url, output) => {
           await checkPage(at(url), { development: true })
+          checkServerOutput(output())
           await checkHotUpdate(
             at(url),
             path.join(directory, settings.edit!),
             settings.hot ?? false,
             settings.reloads ?? false
           )
-        }
+        },
+        { firstAnswer: true }
       )
     } finally {
       if (also?.pid) {
@@ -513,7 +515,17 @@ async function withServer(
   command: string,
   commandArgs: string[],
   env: NodeJS.ProcessEnv,
-  check: (url: string) => Promise<void>
+  check: (url: string, output: () => string) => Promise<void>,
+  {
+    firstAnswer = false,
+  }: {
+    /**
+     * The first answer must be a success: a development server's first request, from a cold
+     * `node_modules/.vite`, is where a dependency found late re-optimises and fails (KF-001).
+     * Without it, the readiness loop retries a failing answer until one succeeds.
+     */
+    firstAnswer?: boolean
+  } = {}
 ) {
   const port = await new Promise<number>((resolve) => {
     const probe = createServer().listen(0, "127.0.0.1", () => {
@@ -523,13 +535,23 @@ async function withServer(
   })
   const argv = commandArgs.map((arg) => arg.replaceAll("{port}", String(port)))
   console.log(`$ PORT=${port} ${command} ${argv.join(" ")}`)
+  // The server's output, still printed, and kept for the check to read.
+  let output = ""
   const child = spawn(command, argv, {
     cwd: project,
-    stdio: "inherit",
+    stdio: ["inherit", "pipe", "pipe"],
     shell: process.platform === "win32",
     // Its own process group, so stopping it stops the server the script started too.
     detached: process.platform !== "win32",
     env: { ...inherited, ...env, PORT: String(port) },
+  })
+  child.stdout?.on("data", (chunk: Buffer) => {
+    output += chunk.toString()
+    process.stdout.write(chunk)
+  })
+  child.stderr?.on("data", (chunk: Buffer) => {
+    output += chunk.toString()
+    process.stderr.write(chunk)
   })
   const url = `http://127.0.0.1:${port}/`
   try {
@@ -537,16 +559,18 @@ async function withServer(
     for (;;) {
       if (child.exitCode !== null)
         throw new Error(`the server exited ${child.exitCode}`)
-      const ready = await fetch(url).then(
-        (response) => response.ok,
-        () => false
+      const status = await fetch(url).then(
+        (response) => response.status,
+        () => undefined
       )
-      if (ready) break
+      if (status !== undefined && status >= 200 && status < 300) break
+      if (status !== undefined && firstAnswer)
+        throw new Error(`the first request answered ${status}`)
       if (Date.now() > deadline)
         throw new Error(`nothing answered at ${url} within 60 s`)
       await new Promise((resolve) => setTimeout(resolve, 250))
     }
-    await check(url)
+    await check(url, () => output)
   } finally {
     if (process.platform === "win32") {
       spawnSync("taskkill", ["/pid", String(child.pid), "/T", "/F"])
@@ -558,6 +582,38 @@ async function withServer(
       }
     }
   }
+}
+
+/**
+ * Fails on two signs, in a development server's output, that Kirana reached an environment
+ * uncompiled or late (KF-001): Vite discovered a Kirana package only while serving (the adapter
+ * names every module it adds to compiled code for pre-bundling, and the re-optimisation that
+ * follows reloads the page or fails a server environment's request), or a Kirana call ran
+ * uncompiled (a pre-bundled preset). Other dependencies found late are the framework's business.
+ */
+function checkServerOutput(output: string) {
+  // Vite 8 logs `dependency optimized: …` / `dependencies optimized: …` for what it found while
+  // serving, and a `tip: consider adding … to optimizeDeps.include` beside it.
+  const plain = output.replace(/\x1b\[[0-9;]*m/g, "")
+  const late = [
+    ...plain.matchAll(
+      /(?:dependency|dependencies) optimized: ([^\n]*)|tip: consider adding (.*?) to optimizeDeps\.include/g
+    ),
+  ].flatMap(([, optimized, tip]) =>
+    (optimized ?? tip ?? "")
+      .split(/,\s*/)
+      .filter((name) => name.includes("@kirana-style/"))
+  )
+  if (late.length > 0)
+    throw new Error(
+      `Vite found ${late.join(", ")} only while serving: the adapter should name it for pre-bundling`
+    )
+  const uncompiled = /Kirana: (\S+\(\)) ran without being compiled/.exec(plain)
+  if (uncompiled)
+    throw new Error(
+      `the server ran ${uncompiled[1]} uncompiled: a Kirana package was pre-bundled instead of compiled`
+    )
+  console.log("✓ no Kirana package found late or run uncompiled")
 }
 
 /** Reads the probe's computed style at `url`, before and during hover. */

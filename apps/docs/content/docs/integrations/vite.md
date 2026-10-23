@@ -114,6 +114,20 @@ asset a framework adds after the first has filled the others (Qwik does).
 
 `?url`, `?raw` and `?inline` behave the way they do for any other Vite asset.
 
+## A stylesheet of your own
+
+Kirana's stylesheet keeps `light-dark()` as written. A stylesheet you write goes
+through Vite's CSS minifier instead, and Vite's default `build.cssTarget` predates
+that function, so the minifier rewrites it into switches on two custom properties
+that nothing sets: colours that work in development vanish in production. Set the
+target to Kirana's floor, {{fact:browser-floor}}, the first browsers with it:
+
+```ts file="vite.config.ts"
+export default defineConfig({
+  build: { cssTarget: ["chrome123", "safari17.5", "firefox120"] },
+})
+```
+
 ## Diagnostics in the terminal
 
 Errors fail the build; warnings print with their file, line and help text. Info

@@ -87,6 +87,9 @@ collection step, no flash and no double render.
 Server components work the same way: the compiler runs at build time, so nothing
 of Kirana has to run on the server at request time.
 
+To render on Cloudflare Workers, add Cloudflare's Vite plugin before `kirana()`:
+[Cloudflare Workers](/docs/building/cloudflare-workers) has the setup.
+
 ## Other setups
 
 Every other framework has its own guide in [supported frameworks](/docs/frameworks/overview),
