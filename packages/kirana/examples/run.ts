@@ -522,7 +522,8 @@ async function withServer(
     /**
      * The first answer must be a success: a development server's first request, from a cold
      * `node_modules/.vite`, is where a dependency found late re-optimises and fails (KF-001).
-     * Without it, the readiness loop retries a failing answer until one succeeds.
+     * Without it, the readiness loop retries a failing answer until one succeeds. A 503 is a
+     * server still starting (Nuxt answers its loading page with one), so it is waited out.
      */
     firstAnswer?: boolean
   } = {}
@@ -564,7 +565,7 @@ async function withServer(
         () => undefined
       )
       if (status !== undefined && status >= 200 && status < 300) break
-      if (status !== undefined && firstAnswer)
+      if (status !== undefined && status !== 503 && firstAnswer)
         throw new Error(`the first request answered ${status}`)
       if (Date.now() > deadline)
         throw new Error(`nothing answered at ${url} within 60 s`)
@@ -586,10 +587,11 @@ async function withServer(
 
 /**
  * Fails on two signs, in a development server's output, that Kirana reached an environment
- * uncompiled or late (KF-001): Vite discovered a Kirana package only while serving (the adapter
- * names every module it adds to compiled code for pre-bundling, and the re-optimisation that
- * follows reloads the page or fails a server environment's request), or a Kirana call ran
- * uncompiled (a pre-bundled preset). Other dependencies found late are the framework's business.
+ * uncompiled or late (KF-001): Vite discovered the runtime only while serving (the adapter names
+ * it for pre-bundling, since compiled code imports it where no source file does, and the
+ * re-optimisation that follows reloads the page or fails a server environment's request), or a
+ * Kirana call ran uncompiled (a pre-bundled preset). A package the app's own source imports, an
+ * adapter such as `@kirana-style/angular` included, is found by the framework's scan or not.
  */
 function checkServerOutput(output: string) {
   // Vite 8 logs `dependency optimized: …` / `dependencies optimized: …` for what it found while
@@ -602,11 +604,11 @@ function checkServerOutput(output: string) {
   ].flatMap(([, optimized, tip]) =>
     (optimized ?? tip ?? "")
       .split(/,\s*/)
-      .filter((name) => name.includes("@kirana-style/"))
+      .filter((name) => name.trim() === "@kirana-style/core/internal")
   )
   if (late.length > 0)
     throw new Error(
-      `Vite found ${late.join(", ")} only while serving: the adapter should name it for pre-bundling`
+      `Vite found ${late.join(", ")} only while serving: the adapter should name the runtime for pre-bundling`
     )
   const uncompiled = /Kirana: (\S+\(\)) ran without being compiled/.exec(plain)
   if (uncompiled)
