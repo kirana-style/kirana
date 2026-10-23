@@ -46,17 +46,6 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      // The paper and the night ground, for the browser's own chrome.
-      {
-        name: "theme-color",
-        content: "#fcfbf8",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        name: "theme-color",
-        content: "#110e0b",
-        media: "(prefers-color-scheme: dark)",
-      },
       { title: "Kirana: styling, compiled" },
       {
         name: "description",
@@ -111,6 +100,28 @@ const MODE_SCRIPT = `(() => {
   document.documentElement.dataset.mode = saved
 })()`
 
+/**
+ * The paper and the night ground, for the browser's own chrome. Written in `<head>` directly:
+ * TanStack Router keeps one `meta` per `name`, so a pair that differs only in `media` lost its
+ * light half through `head()`, and a light-mode reader got dark browser chrome.
+ */
+function ThemeColorMeta() {
+  return (
+    <>
+      <meta
+        name="theme-color"
+        content="#fcfbf8"
+        media="(prefers-color-scheme: light)"
+      />
+      <meta
+        name="theme-color"
+        content="#110e0b"
+        media="(prefers-color-scheme: dark)"
+      />
+    </>
+  )
+}
+
 function ThemedDocument({ children }: { children: React.ReactNode }) {
   const { mode } = useTheme()
 
@@ -131,6 +142,7 @@ function ThemedDocument({ children }: { children: React.ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: MODE_SCRIPT }} />
         <HeadContent />
+        <ThemeColorMeta />
       </head>
       <body sx={styles.body}>
         <TooltipProvider>

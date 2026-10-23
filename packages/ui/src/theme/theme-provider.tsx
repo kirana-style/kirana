@@ -64,7 +64,17 @@ export function ThemeProvider({
   /** The cookie, and the channel, that keep the choice across reloads and tabs. */
   cookie?: string
 }) {
-  const [mode, setModeState] = useState<ThemeMode>(defaultMode)
+  // In the browser, the mode the page already shows: a prerendered page is written in the system
+  // mode and the head script puts the saved one on `<html>` before paint, so starting from
+  // `defaultMode` there made the first step of a toggle start from System, not from what the
+  // reader sees. Read in the initializer, never set in an effect after mount.
+  const [mode, setModeState] = useState<ThemeMode>(() => {
+    const shown =
+      typeof document === "undefined"
+        ? undefined
+        : document.documentElement.dataset.mode
+    return isThemeMode(shown) ? shown : defaultMode
+  })
   const channel = useRef<BroadcastChannel | null>(null)
 
   useEffect(() => {
