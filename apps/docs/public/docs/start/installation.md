@@ -263,16 +263,16 @@ through your package manager's overrides. With npm or Bun:
 ```json file="package.json"
 {
   "dependencies": {
-    "@kirana-style/core": "file:/path/to/dist-packages/kirana-style-core-0.3.2.tgz"
+    "@kirana-style/core": "file:/path/to/dist-packages/kirana-style-core-0.3.3.tgz"
   },
   "devDependencies": {
-    "kirana-style": "file:/path/to/dist-packages/kirana-style-0.3.2.tgz",
-    "@kirana-style/vite": "file:/path/to/dist-packages/kirana-style-vite-0.3.2.tgz"
+    "kirana-style": "file:/path/to/dist-packages/kirana-style-0.3.3.tgz",
+    "@kirana-style/vite": "file:/path/to/dist-packages/kirana-style-vite-0.3.3.tgz"
   },
   "overrides": {
-    "@kirana-style/compiler": "file:/path/to/dist-packages/kirana-style-compiler-0.3.2.tgz",
-    "@kirana-style/rolldown": "file:/path/to/dist-packages/kirana-style-rolldown-0.3.2.tgz",
-    "@kirana-style/compiler-linux-x64-gnu": "file:/path/to/dist-packages/kirana-style-compiler-linux-x64-gnu-0.3.2.tgz"
+    "@kirana-style/compiler": "file:/path/to/dist-packages/kirana-style-compiler-0.3.3.tgz",
+    "@kirana-style/rolldown": "file:/path/to/dist-packages/kirana-style-rolldown-0.3.3.tgz",
+    "@kirana-style/compiler-linux-x64-gnu": "file:/path/to/dist-packages/kirana-style-compiler-linux-x64-gnu-0.3.3.tgz"
   }
 }
 ```

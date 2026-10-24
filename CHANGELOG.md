@@ -5,7 +5,7 @@
 
 ### Documentation
 
-* take the benchmarks of kirana 0.3.2 from kirana-lab ([#110](https://github.com/kirana-style/kirana/issues/110)) ([641a8d9](https://github.com/kirana-style/kirana/commit/641a8d9be61fe344e8d6463629ccd7a0f75e7c97))
+* take the benchmarks of kirana 0.3.2 from kirana-lab ([#110](https://github.com/kirana-style/kirana/pull/110)) ([641a8d9](https://github.com/kirana-style/kirana/commit/641a8d9be61fe344e8d6463629ccd7a0f75e7c97))
 
 ## [0.3.2](https://github.com/kirana-style/kirana/compare/v0.3.1...v0.3.2) (2026-10-24)
 
