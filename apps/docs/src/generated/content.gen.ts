@@ -4063,9 +4063,19 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "definitions",
+        "text": "Definitions",
+        "level": 3
+      },
+      {
         "id": "kirana-style-trace",
         "text": "kirana-style trace",
         "level": 2
+      },
+      {
+        "id": "for-a-tool",
+        "text": "For a tool",
+        "level": 3
       },
       {
         "id": "exit-codes",
@@ -4075,6 +4085,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "kirana-style-migrate",
         "text": "kirana-style migrate",
+        "level": 2
+      },
+      {
+        "id": "the-same-answers-from-code",
+        "text": "The same answers from code",
         "level": 2
       },
       {

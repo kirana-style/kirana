@@ -8,7 +8,7 @@ use kirana_diagnostics::{Code, Diagnostic, Span, apply_level};
 use kirana_emit::{EmitOptions, EmitOutput, emit};
 use kirana_evaluator::{Definitions, relation_reads};
 use kirana_ir::dense::{self, Edit, Segment};
-use kirana_ir::{Atom, Dep, EntryKey, Handle, Names, Op, Property, Target};
+use kirana_ir::{Atom, Dep, EntryKey, Handle, Names, Op, Property, Recipe, Target};
 use kirana_transform::TransformOutput;
 use lightningcss::targets::{Browsers, Targets};
 
@@ -19,6 +19,8 @@ use crate::Project;
 pub struct ModuleRecord {
     /// `(site span, handle)` for every handle written into the module's output.
     pub handles: Vec<((u32, u32), Arc<Handle>)>,
+    /// `(site span, recipe)` for every recipe written; its handles are in `handles` too.
+    pub recipes: Vec<((u32, u32), Arc<Recipe>)>,
     pub atoms: Vec<Atom>,
     pub marker_deps: Vec<Dep>,
     pub anchors: Vec<String>,
@@ -34,6 +36,7 @@ impl ModuleRecord {
     pub(crate) fn new(names: &Names, output: &TransformOutput, definitions: &Definitions) -> Self {
         let mut record = ModuleRecord {
             handles: output.handles.clone(),
+            recipes: output.recipes.clone(),
             marker_deps: output.marker_deps.clone(),
             anchors: output.anchors.clone(),
             relations: definitions.relations.clone(),
@@ -312,6 +315,28 @@ impl Project {
                         segments.insert(segment, (&atom.key, file.clone()));
                     }
                 }
+            }
+        }
+        // One group name in two packages compiles to two sets of properties, but reads alike in
+        // `export`, hovers and code (KF-011): say so once, where the later package declares it.
+        let mut packages: BTreeMap<&str, Vec<(&str, &str)>> = BTreeMap::new();
+        for ((package, namespace), files) in &state.namespaces {
+            let file = files.iter().next().expect("a namespace has a file");
+            packages.entry(namespace).or_default().push((package, file));
+        }
+        for (namespace, declared) in &packages {
+            let (first_package, first_file) = declared[0];
+            for (_, file) in &declared[1..] {
+                out.push(Diagnostic::new(
+                    Code::TokenNamespaceShared,
+                    *file,
+                    Span::default(),
+                    format!(
+                        "token group {namespace:?} is also declared by {first_package:?} in {first_file}: the two \
+                         stay apart, but read alike as `{namespace}.*`; `kirana-style export` tells them apart by \
+                         `package`"
+                    ),
+                ));
             }
         }
         for ((_, namespace), files) in &state.namespaces {

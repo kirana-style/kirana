@@ -50,7 +50,7 @@ install guide, and each is built and checked in a browser on every change:
   `ambiguous-precedence` diagnostic tells you when two values could both apply.
 - **Tokens and themes.** Design tokens compile to constants or custom properties,
   and every colour can be a `light-dark()` pair, so dark mode needs no variant.
-- **Real diagnostics.** 46 checks with codes, severities and help text, from
+- **Real diagnostics.** 47 checks with codes, severities and help text, from
   unknown properties to a component that forgets to pass `sx` on.
 
 ## What it is not
@@ -182,7 +182,7 @@ answers them:
 | Custom-property assignments were emitted unlayered and beat conditions beside them                                                              | Nothing is emitted outside a layer                                                                                                                                                                   |
 | Tokens had to live in `*.stylex.ts` files and be imported by name                                                                               | Tokens are ordinary exports, imported any way TypeScript allows                                                                                                                                      |
 | `sx` passed to a component that ignores it, or spread past a wrapper, was silent                                                                | `sx-on-external-component` and `unused-sx`, including one module away                                                                                                                                |
-| Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [46 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
+| Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [47 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
 | The official compiler is Babel; the Rust one is a community port behind it                                                                      | The engine is Kirana's own, in Rust on [oxc](https://oxc.rs), with a WASI build that writes the same bytes where no native one runs                                                                  |
 | No utility vocabulary: a Tailwind team rebuilt the scales by hand                                                                               | [`@kirana-style/preset-scales`](/docs/tokens/preset-scales) is Tailwind v4's scales, and [utility strings](/docs/styling/utilities) compile to the same atoms as the object form                     |
 | A port from Tailwind was done by hand                                                                                                           | [`kirana-style migrate tailwind`](/docs/migration/from-tailwind), measured below                                                                                                                     |
@@ -2783,9 +2783,14 @@ export const space = defineTokens("space", {
 css({ gap: space[2] })
 ```
 
-The first argument is the **namespace**. It has to be unique in a project: two
-groups claiming one namespace is an error (`token-namespace-collision`), which is
-what keeps two libraries from quietly overwriting each other's variables.
+The first argument is the **namespace**. It has to be unique in a package: two
+groups claiming one namespace is an error (`token-namespace-collision`).
+
+A token's identity carries its package, so packages may each have a `theme` group
+and compile to different variables, which keeps libraries from overwriting each
+other's. Because they then read alike, the compiler points such a pair out with an
+info (`token-namespace-shared`), and `kirana-style export` names each token's
+package.
 
 ## Inlined or a custom property
 
@@ -7126,6 +7131,12 @@ What it reports rather than guesses:
 Each report item is also left as a `// tailwind:` comment beside the style it
 concerns, so the diff shows where to look.
 
+A tool that only needs to know what one class string becomes, to draft a value in
+a report rather than rewrite a file, calls the same lowering from code:
+`driver.lowerTailwind(classes, file)` on `@kirana-style/compiler` returns the
+`css()` call, the module that declares what it reads, and what it left out (see
+[the same answers from code](/docs/tooling/cli#the-same-answers-from-code)).
+
 ## Measured: the Tailwind original of our shadcn/ui port
 
 We ran the codemod over the whole Tailwind original (`packages/ui`, the shared
@@ -7331,7 +7342,7 @@ them, the compiler says so (`ambiguous-precedence`) instead of silently picking.
 `conditions.exclusive` is how you tell it that a library never sets two
 attributes together.
 
-**A diagnostics catalogue.** 46 codes with stable names, severities and help
+**A diagnostics catalogue.** 47 codes with stable names, severities and help
 text, and a configuration key to re-level the non-errors. StyleX reports
 compilation failures; it does not have a catalogue you can suppress, raise, or
 look up.
@@ -8836,6 +8847,7 @@ kirana-style export src --out design-system.json
   "tokens": [
     {
       "identity": "color.brand",
+      "package": "app",
       "value": "light-dark(#000, #fff)",
       "light": "#000",
       "dark": "#fff",
@@ -8890,6 +8902,66 @@ locations only, never source text; everything is sorted, so the file diffs clean
 when it is committed. `schema` changes only when a field does. The exit code is
 1 when the project has errors, as for `check`.
 
+A token's identity is what code writes (`color.brand`), and `package` names the
+package that declares it, left out for a file outside any package. Packages may
+each declare a group of one name: their tokens compile apart, and `package` tells
+them apart here. The compiler points such a pair out with an info,
+`token-namespace-shared`.
+
+### Definitions
+
+`--definitions` adds what each exported style and recipe evaluates to, for a tool
+that would otherwise run a second evaluator of its own:
+
+- `styles` lists every exported `css()` handle, and each one inside an exported
+  object (as `styles.root`);
+- each recipe gets its `parts`: the base first, then each variant option and
+  compound variant, slot by slot.
+
+```bash
+kirana-style export src --definitions --out design-system.json
+```
+
+```json file="design-system.json"
+{
+  "styles": [
+    {
+      "name": "styles.root",
+      "origin": "src/styles.ts:5",
+      "entries": [
+        {
+          "property": "color",
+          "value": "var(--kvMob9)",
+          "conditions": [],
+          "tokens": ["color.brand"],
+          "class": "k50_sxqm"
+        },
+        {
+          "property": "color",
+          "value": "red",
+          "conditions": [{ "kind": "pseudo", "text": ":hover" }],
+          "class": "k50-KFHz_D9ur"
+        }
+      ],
+      "anchors": ["field"]
+    }
+  ]
+}
+```
+
+Each entry carries:
+
+- its property and value;
+- its conditions, each with its kind, and a relation by its name and where the
+  reader sits;
+- its `select` target or pseudo-element;
+- the variable tokens it reads and the token it assigns, by identity;
+- the keyframes it names and the class it compiles to.
+
+A `null` that removes a property when styles merge is an entry whose value is
+`null`, with no conditions when it removes the property under every condition. An
+inlined token reaches the entry as its value, so only variable tokens are listed.
+
 ## `kirana-style trace`
 
 Explain which declaration wins for a property, and why.
@@ -8912,6 +8984,57 @@ does (`padding-top`). Give it the line the style is on.
 
 This is the tool for "why is this not applying". It answers from the compiled
 result, not from reading the source.
+
+On the line of a `recipe()`, each candidate says in brackets which part of the
+recipe it comes from: `base`, a variant option (`size: sm`), or a compound variant,
+after its slot when the recipe has slots. Where two parts of one slot set the same
+entry, the recipe's merge decides rather than the cascade: the later part replaces
+the earlier one.
+
+```console
+$ kirana-style trace src/components/button.ts:2 height
+height at src/components/button.ts:2
+  ✓ 1.5rem   base [size: sm]   kirana.atoms   merge (size: sm replaces base)
+    2rem     base [base]       kirana.atoms
+```
+
+### For a tool
+
+`--format json` prints an answer per question, and several `file:line property`
+pairs are answered in one run, each file compiled once:
+
+```bash
+kirana-style trace src/button.ts:2 height src/card.tsx:9 color --format json
+```
+
+```json
+[
+  {
+    "file": "src/button.ts",
+    "line": 2,
+    "property": "height",
+    "entries": [
+      {
+        "value": "1.5rem",
+        "conditions": [],
+        "layer": "kirana.atoms",
+        "class": "k6V_5QUl",
+        "part": { "options": { "size": "sm" }, "compound": false },
+        "step": 0,
+        "reason": "merge (size: sm replaces base)"
+      }
+    ]
+  }
+]
+```
+
+Nothing has to be parsed out of a line of text:
+
+- each condition comes with its kind: a pseudo-class, an attribute, a media,
+  container or supports query, or a relation;
+- a pseudo-element or `select` target is under `target`;
+- `step` is the ladder step that ranks an entry above the next one, or 0 where a
+  recipe's merge decides.
 
 ## Exit codes
 
@@ -8943,6 +9066,38 @@ about is also left in a comment beside the style it belongs to.
 and your theme's scales), and reads `@custom-variant` and `@utility` from any CSS
 file among its paths. See
 [migrating from Tailwind](/docs/migration/from-tailwind#the-codemod).
+
+## The same answers from code
+
+`trace`, `export` and the Tailwind lowering are calls on the compiler's `Driver`
+too, from `@kirana-style/compiler`, for a tool that asks many times and should
+compile once:
+
+```ts
+import { Driver } from "@kirana-style/compiler"
+
+const driver = await Driver.create({ root: process.cwd() })
+
+const answers = driver.trace([
+  { file: "src/button.ts", line: 2, property: "height" },
+  { file: "src/card.tsx", line: 9, property: "color" },
+])
+const system = driver.export(["src"], { definitions: true })
+const lowered = driver.lowerTailwind(
+  "h-7 gap-1 px-2.5 text-xs",
+  "src/report.tsx"
+)
+```
+
+`trace` returns what `--format json` prints, and `export` what the command prints.
+The Tailwind call lowers one class string the way `migrate tailwind` lowers a class
+attribute in that file, and throws without a utility grammar. It returns:
+
+- `style`, the `css()` call;
+- `module`, a file holding it with the imports, relations and per-mode tokens it
+  needs;
+- `anchors`, the relations the element anchors;
+- `left`, each utility it left out, with the reason.
 
 ## `kirana-style lsp`
 
@@ -9815,7 +9970,7 @@ line coverage. The [changelog](/changelog) lists every release.
 - Tokens: inlined, variable, per-mode, registered (`@property`)
 - Themes and colour modes
 - Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB
-- 46 diagnostics with stable codes
+- 47 diagnostics with stable codes
 - `@kirana-style/vite` for Vite 8, with hot updates
 - An adapter package for every other bundler, and one for Jest; see
   [bundlers](/docs/integrations/bundlers)

@@ -16,6 +16,8 @@ pub(crate) const PURE: &str = "/* @__PURE__ */ ";
 pub(crate) struct Code {
     pub pieces: Vec<Piece>,
     pub handles: Vec<Arc<Handle>>,
+    /// The recipes written, whose handles `handles` also holds, for what reads them part by part.
+    pub recipes: Vec<Arc<Recipe>>,
     pub marker_deps: Vec<Dep>,
     pub runtime: bool,
 }
@@ -181,6 +183,7 @@ impl Code {
 
     /// `__k.recipe({ s, b, v, c, d })`: slots, base, variants, compounds, defaults.
     fn recipe(&mut self, names: &kirana_ir::Names, recipe: &Recipe) {
+        self.recipes.push(Arc::new(recipe.clone()));
         self.runtime = true;
         self.text(PURE);
         self.text("__k.recipe({\"s\": ");

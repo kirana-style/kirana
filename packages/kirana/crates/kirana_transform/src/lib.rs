@@ -12,7 +12,7 @@ use std::sync::Arc;
 
 use kirana_diagnostics::Diagnostic;
 use kirana_evaluator::Evaluator;
-use kirana_ir::{Dep, Handle};
+use kirana_ir::{Dep, Handle, Recipe};
 use string_wizard::{Hires, MagicString, SourceMapOptions};
 
 /// The rewrite of one module.
@@ -25,6 +25,9 @@ pub struct TransformOutput {
     /// Every handle written into the output with the span of the site that wrote it: the atoms
     /// and markers this module contributes.
     pub handles: Vec<((u32, u32), Arc<Handle>)>,
+    /// Every recipe written into the output with the span of its site; its handles are in `handles`
+    /// too. `kirana-style trace` reads it to say which part of a recipe an entry comes from.
+    pub recipes: Vec<((u32, u32), Arc<Recipe>)>,
     /// Marker dependencies (themes) written into the output.
     pub marker_deps: Vec<Dep>,
     /// Relation markers applied as anchors in the output.
@@ -47,6 +50,7 @@ pub(crate) struct Edit {
     pub pieces: Vec<Piece>,
     /// Handles this edit writes; they count only when the edit is rendered.
     pub handles: Vec<((u32, u32), Arc<Handle>)>,
+    pub recipes: Vec<((u32, u32), Arc<Recipe>)>,
     pub marker_deps: Vec<Dep>,
 }
 
@@ -67,6 +71,7 @@ pub fn transform(evaluator: &Evaluator<'_, '_, '_>) -> TransformOutput {
             code: None,
             map: None,
             handles: Vec::new(),
+            recipes: Vec::new(),
             marker_deps: Vec::new(),
             anchors,
             diagnostics,
@@ -96,9 +101,11 @@ pub fn transform(evaluator: &Evaluator<'_, '_, '_>) -> TransformOutput {
     }
     let rendered = rendered.into_inner();
     let mut handles = Vec::new();
+    let mut recipes = Vec::new();
     let mut marker_deps: Vec<Dep> = Vec::new();
     for edit in edits.iter().filter(|edit| rendered.contains(&(edit.start, edit.end))) {
         handles.extend(edit.handles.iter().cloned());
+        recipes.extend(edit.recipes.iter().cloned());
         for dep in &edit.marker_deps {
             if !marker_deps.contains(dep) {
                 marker_deps.push(dep.clone());
@@ -113,7 +120,15 @@ pub fn transform(evaluator: &Evaluator<'_, '_, '_>) -> TransformOutput {
             hires: Hires::Boundary,
         })
         .to_json_string();
-    TransformOutput { code: Some(magic.to_string()), map: Some(map), handles, marker_deps, anchors, diagnostics }
+    TransformOutput {
+        code: Some(magic.to_string()),
+        map: Some(map),
+        handles,
+        recipes,
+        marker_deps,
+        anchors,
+        diagnostics,
+    }
 }
 
 /// After the directive prologue (`"use client"`) and any hashbang.

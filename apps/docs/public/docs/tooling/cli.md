@@ -323,6 +323,7 @@ kirana-style export src --out design-system.json
   "tokens": [
     {
       "identity": "color.brand",
+      "package": "app",
       "value": "light-dark(#000, #fff)",
       "light": "#000",
       "dark": "#fff",
@@ -377,6 +378,66 @@ locations only, never source text; everything is sorted, so the file diffs clean
 when it is committed. `schema` changes only when a field does. The exit code is
 1 when the project has errors, as for `check`.
 
+A token's identity is what code writes (`color.brand`), and `package` names the
+package that declares it, left out for a file outside any package. Packages may
+each declare a group of one name: their tokens compile apart, and `package` tells
+them apart here. The compiler points such a pair out with an info,
+`token-namespace-shared`.
+
+### Definitions
+
+`--definitions` adds what each exported style and recipe evaluates to, for a tool
+that would otherwise run a second evaluator of its own:
+
+- `styles` lists every exported `css()` handle, and each one inside an exported
+  object (as `styles.root`);
+- each recipe gets its `parts`: the base first, then each variant option and
+  compound variant, slot by slot.
+
+```bash
+kirana-style export src --definitions --out design-system.json
+```
+
+```json file="design-system.json"
+{
+  "styles": [
+    {
+      "name": "styles.root",
+      "origin": "src/styles.ts:5",
+      "entries": [
+        {
+          "property": "color",
+          "value": "var(--kvMob9)",
+          "conditions": [],
+          "tokens": ["color.brand"],
+          "class": "k50_sxqm"
+        },
+        {
+          "property": "color",
+          "value": "red",
+          "conditions": [{ "kind": "pseudo", "text": ":hover" }],
+          "class": "k50-KFHz_D9ur"
+        }
+      ],
+      "anchors": ["field"]
+    }
+  ]
+}
+```
+
+Each entry carries:
+
+- its property and value;
+- its conditions, each with its kind, and a relation by its name and where the
+  reader sits;
+- its `select` target or pseudo-element;
+- the variable tokens it reads and the token it assigns, by identity;
+- the keyframes it names and the class it compiles to.
+
+A `null` that removes a property when styles merge is an entry whose value is
+`null`, with no conditions when it removes the property under every condition. An
+inlined token reaches the entry as its value, so only variable tokens are listed.
+
 ## `kirana-style trace`
 
 Explain which declaration wins for a property, and why.
@@ -399,6 +460,57 @@ does (`padding-top`). Give it the line the style is on.
 
 This is the tool for "why is this not applying". It answers from the compiled
 result, not from reading the source.
+
+On the line of a `recipe()`, each candidate says in brackets which part of the
+recipe it comes from: `base`, a variant option (`size: sm`), or a compound variant,
+after its slot when the recipe has slots. Where two parts of one slot set the same
+entry, the recipe's merge decides rather than the cascade: the later part replaces
+the earlier one.
+
+```console
+$ kirana-style trace src/components/button.ts:2 height
+height at src/components/button.ts:2
+  ✓ 1.5rem   base [size: sm]   kirana.atoms   merge (size: sm replaces base)
+    2rem     base [base]       kirana.atoms
+```
+
+### For a tool
+
+`--format json` prints an answer per question, and several `file:line property`
+pairs are answered in one run, each file compiled once:
+
+```bash
+kirana-style trace src/button.ts:2 height src/card.tsx:9 color --format json
+```
+
+```json
+[
+  {
+    "file": "src/button.ts",
+    "line": 2,
+    "property": "height",
+    "entries": [
+      {
+        "value": "1.5rem",
+        "conditions": [],
+        "layer": "kirana.atoms",
+        "class": "k6V_5QUl",
+        "part": { "options": { "size": "sm" }, "compound": false },
+        "step": 0,
+        "reason": "merge (size: sm replaces base)"
+      }
+    ]
+  }
+]
+```
+
+Nothing has to be parsed out of a line of text:
+
+- each condition comes with its kind: a pseudo-class, an attribute, a media,
+  container or supports query, or a relation;
+- a pseudo-element or `select` target is under `target`;
+- `step` is the ladder step that ranks an entry above the next one, or 0 where a
+  recipe's merge decides.
 
 ## Exit codes
 
@@ -430,6 +542,38 @@ about is also left in a comment beside the style it belongs to.
 and your theme's scales), and reads `@custom-variant` and `@utility` from any CSS
 file among its paths. See
 [migrating from Tailwind](/docs/migration/from-tailwind#the-codemod).
+
+## The same answers from code
+
+`trace`, `export` and the Tailwind lowering are calls on the compiler's `Driver`
+too, from `@kirana-style/compiler`, for a tool that asks many times and should
+compile once:
+
+```ts
+import { Driver } from "@kirana-style/compiler"
+
+const driver = await Driver.create({ root: process.cwd() })
+
+const answers = driver.trace([
+  { file: "src/button.ts", line: 2, property: "height" },
+  { file: "src/card.tsx", line: 9, property: "color" },
+])
+const system = driver.export(["src"], { definitions: true })
+const lowered = driver.lowerTailwind(
+  "h-7 gap-1 px-2.5 text-xs",
+  "src/report.tsx"
+)
+```
+
+`trace` returns what `--format json` prints, and `export` what the command prints.
+The Tailwind call lowers one class string the way `migrate tailwind` lowers a class
+attribute in that file, and throws without a utility grammar. It returns:
+
+- `style`, the `css()` call;
+- `module`, a file holding it with the imports, relations and per-mode tokens it
+  needs;
+- `anchors`, the relations the element anchors;
+- `left`, each utility it left out, with the reason.
 
 ## `kirana-style lsp`
 

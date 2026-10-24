@@ -4,6 +4,7 @@
 
 mod analyze;
 mod classes;
+mod describe;
 mod export;
 mod files;
 mod inspect;
@@ -25,11 +26,15 @@ pub use analyze::{
     Analysis, AtomUse, Finding, LayerSize, ModuleSize, ReuseBucket, ThemeUse, UnprovenRead, UnusedToken, layer_sizes,
 };
 pub use classes::ClassMap;
-pub use export::{DesignSystem, NamedExport, RecipeExport, ThemeExport, TokenExport};
+pub use describe::ConditionInfo;
+pub use export::{
+    Definition, DesignSystem, EntryExport, NamedExport, RecipeExport, RecipePartExport, StyleExport, ThemeExport,
+    TokenExport,
+};
 pub use files::{SCRIPT_EXTENSIONS, absolute, collect_sources, plain_path};
 pub use inspect::{Origin, RelationInfo, Site, SiteAtom, TokenInfo, split_light_dark};
 pub use registry::ModuleRecord;
-pub use trace::TraceLine;
+pub use trace::{RecipePart, TraceAnswer, TraceLine, TraceQuery};
 
 /// The result of transforming one module.
 #[derive(Debug, Clone, PartialEq)]

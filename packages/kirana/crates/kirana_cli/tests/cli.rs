@@ -86,6 +86,74 @@ fn builds_checks_and_traces() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// `trace --format json` answers several queries in one run, and says which part of a recipe each
+/// entry comes from (KF-022).
+#[test]
+fn traces_recipes_as_json_in_one_compile() {
+    let root = temp(&[(
+        "button.tsx",
+        b"import { css, cx, recipe, relation } from \"@kirana-style/core\"\nexport const group = relation(\"group\")\nexport const button = recipe({\n  slots: [\"root\", \"icon\"],\n  base: { root: { height: { base: \"2rem\", \":hover\": \"3rem\" } }, icon: { height: \"1rem\" } },\n  variants: { size: { sm: { root: { height: \"1.5rem\" } }, lg: { root: { height: { [group.within(\":hover\")]: \"4rem\" } } } } },\n  compoundVariants: [{ size: \"sm\", css: { icon: { height: \"0.75rem\" } } }],\n})\nexport const box = css({ color: { base: \"black\", \"@media (min-width: 40rem)\": \"red\" } })\nexport const pick = (open: boolean) => cx(open ? css({ color: \"red\" }) : css({ color: \"red\", width: \"1px\" }))\n",
+    )]);
+    let config = format!(r#"{{"root":{:?}}}"#, root.to_string_lossy());
+    let file = root.join("button.tsx").to_string_lossy().into_owned();
+    let (code, output) = run(&[
+        "--config-json",
+        &config,
+        "trace",
+        &format!("{file}:3"),
+        "height",
+        &format!("{file}:9"),
+        "color",
+        "--format",
+        "json",
+    ]);
+    assert_eq!(code, 0, "{output}");
+    let answers: serde_json::Value = serde_json::from_str(&output).unwrap();
+    let parts: Vec<String> = answers[0]["entries"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|entry| format!("{} {} {}", entry["value"], entry["part"], entry["step"]))
+        .collect();
+    assert_eq!(parts.len(), 6, "{parts:#?}");
+    assert!(
+        parts.contains(&r#""4rem" {"slot":"root","options":{"size":"lg"},"compound":false} 2"#.to_owned()),
+        "{parts:#?}"
+    );
+    assert!(
+        parts.contains(&r#""0.75rem" {"slot":"icon","options":{"size":"sm"},"compound":true} null"#.to_owned()),
+        "{parts:#?}"
+    );
+    let relation = answers[0]["entries"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|entry| entry["value"] == "4rem")
+        .map(|entry| &entry["conditions"][0])
+        .unwrap();
+    assert_eq!(answers[0]["entries"][0]["conditions"], serde_json::json!([{ "kind": "pseudo", "text": ":hover" }]));
+    assert_eq!(
+        relation,
+        &serde_json::json!({ "kind": "relation", "text": ":hover", "relation": "group", "placement": "within" })
+    );
+    assert_eq!(
+        answers[1]["entries"][0]["conditions"],
+        serde_json::json!([{ "kind": "media", "text": "(min-width: 40rem)" }])
+    );
+    assert_eq!(answers[1]["entries"][1]["step"], serde_json::Value::Null);
+    // Both branches of a runtime choice write the same class: it is one candidate.
+    let (_, output) = run(&["--config-json", &config, "trace", &format!("{file}:10"), "color", "--format", "json"]);
+    let pick: serde_json::Value = serde_json::from_str(&output).unwrap();
+    assert_eq!(pick[0]["entries"].as_array().unwrap().len(), 1, "{output}");
+    // The human format names the part too.
+    let (_, output) = run(&["--config-json", &config, "trace", &format!("{file}:3"), "height"]);
+    assert!(output.contains(" [root · size: lg] "), "{output}");
+    let (code, output) = run(&["--config-json", &config, "trace", &format!("{file}:3"), "height", "x"]);
+    assert_eq!(code, 2);
+    assert!(output.contains("pairs"), "{output}");
+    fs::remove_dir_all(root).unwrap();
+}
+
 #[test]
 fn reports_errors_with_source_excerpts() {
     let root = temp(&[("broken.ts", BROKEN), ("binary.ts", &[0xff, 0xfe, 0x00])]);
@@ -224,6 +292,24 @@ fn migrates_tailwind_sources() {
     let rewritten = fs::read_to_string(root.join("src/a.tsx")).unwrap();
     assert!(rewritten.contains("import { space } from \"../scales\""), "{rewritten}");
     assert!(rewritten.contains("<p sx={styles.aP} />"), "{rewritten}");
+
+    // The same lowering, one class string at a time, for a tool (KF-004).
+    let project = kirana_project::Project::new(&config, std::sync::Arc::new(kirana_shared::OsFs)).unwrap();
+    let lowered = kirana_cli::lower_tailwind(&project, &root.join("src/b.tsx"), "p-2 block").unwrap();
+    assert_eq!(
+        lowered.style.as_deref(),
+        Some("css({\n    // tailwind: block — `block` is not a utility\n    padding: space[2],\n  })")
+    );
+    assert!(
+        lowered.module.starts_with("import { css } from \"@kirana-style/core\"\nimport { space } from \"../scales\"\n")
+    );
+    let bare = kirana_project::Project::new(
+        &serde_json::json!({ "root": root.to_string_lossy() }).to_string(),
+        std::sync::Arc::new(kirana_shared::OsFs),
+    )
+    .unwrap();
+    let error = kirana_cli::lower_tailwind(&bare, &root.join("src/b.tsx"), "p-2").unwrap_err();
+    assert!(error.starts_with("the Tailwind lowering needs a utility grammar"), "{error}");
     fs::remove_dir_all(root).unwrap();
 }
 
@@ -592,5 +678,105 @@ fn exports_the_design_system() {
     assert_eq!(code, 1);
     let json: serde_json::Value = serde_json::from_str(&output).unwrap();
     assert_eq!(json["tokens"], serde_json::json!([]));
+    fs::remove_dir_all(root).unwrap();
+}
+
+/// `export --definitions` gives what each exported style and recipe evaluates to (KF-023).
+#[test]
+fn exports_definitions() {
+    let root = temp(&[
+        ("src/tokens.ts", DESIGN_TOKENS),
+        (
+            "src/styles.ts",
+            br##"import { css, keyframes, positionTry, recipe, relation, select } from "@kirana-style/core"
+import { color, space } from "./tokens"
+export const field = relation("field")
+const spin = keyframes({ to: { transform: "rotate(1turn)" } })
+const below = positionTry({ positionArea: "bottom" })
+export const styles = {
+  root: css(field.anchor, { padding: space.x, color: { base: color.brand, ":hover": "red" } }),
+  label: css({ opacity: { [field.within(":focus-within")]: 1 }, [select.child("svg")]: { width: "1rem" } }),
+  reset: css({ padding: null, margin: { ":hover": null } }),
+  themed: css({ [color.muted]: "#999", animationName: spin }),
+  edges: css({
+    color: {
+      "@container card (width > 30rem)": "red",
+      "@container (width > 1px)": "blue",
+      "@supports (display: grid)": "green",
+      [field.after(":checked")]: "navy",
+      [field.before(":checked")]: "teal",
+    },
+    "::after": { content: '""' },
+    padding: "1px",
+    paddingTop: "2px",
+    positionTryFallbacks: below,
+  }),
+  unfolded: css(css({ padding: "1px" }), { paddingTop: null }),
+  count: 3,
+}
+export const chip = recipe({ slots: ["root"], base: { root: { height: "1rem" } }, variants: { size: { lg: { root: { height: "2rem" } } } } })
+"##,
+        ),
+    ]);
+    let config = format!(r#"{{"root":{:?}}}"#, root.to_string_lossy());
+    let src = root.join("src").to_string_lossy().into_owned();
+    let (_, check) = run(&["--config-json", &config, "check", &src]);
+    let (code, output) = run(&["--config-json", &config, "export", "--definitions"]);
+    assert_eq!(code, 0, "{check}");
+    let json: serde_json::Value = serde_json::from_str(&output).unwrap();
+    let styles = json["styles"].as_array().unwrap();
+    let names: Vec<&str> = styles.iter().map(|style| style["name"].as_str().unwrap()).collect();
+    assert_eq!(
+        names,
+        ["styles.root", "styles.label", "styles.reset", "styles.themed", "styles.edges", "styles.unfolded"]
+    );
+    // A shorthand a later style partly removes unfolds into its longhands; the unfold sets nothing.
+    let unfolded: Vec<String> = styles[5]["entries"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|entry| format!("{} {}", entry["property"].as_str().unwrap(), entry["value"]))
+        .collect();
+    assert_eq!(
+        unfolded,
+        ["padding-bottom \"1px\"", "padding-left \"1px\"", "padding-right \"1px\"", "padding-top null"]
+    );
+    let kinds: Vec<String> = styles[4]["entries"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .flat_map(|entry| entry["conditions"].as_array().cloned().unwrap_or_default())
+        .map(|condition| format!("{} {} {}", condition["kind"], condition["text"], condition["placement"]))
+        .collect();
+    assert!(kinds.contains(&r#""container" "card (width > 30rem)" null"#.to_owned()), "{kinds:#?}");
+    assert!(kinds.contains(&r#""container" "(width > 1px)" null"#.to_owned()), "{kinds:#?}");
+    assert!(kinds.contains(&r#""supports" "(display: grid)" null"#.to_owned()), "{kinds:#?}");
+    assert!(kinds.contains(&r#""relation" ":checked" "after""#.to_owned()), "{kinds:#?}");
+    assert!(kinds.contains(&r#""relation" ":checked" "before""#.to_owned()), "{kinds:#?}");
+    assert!(styles[4]["entries"].as_array().unwrap().iter().any(|entry| entry["target"] == "::after"));
+    let root_style = &styles[0];
+    assert_eq!(root_style["anchors"], serde_json::json!(["field"]));
+    assert_eq!(root_style["entries"][1]["tokens"], serde_json::json!(["color.brand"]));
+    assert_eq!(root_style["entries"][2]["conditions"], serde_json::json!([{ "kind": "pseudo", "text": ":hover" }]));
+    assert_eq!(
+        styles[1]["entries"][0]["conditions"][0],
+        serde_json::json!({ "kind": "relation", "text": ":focus-within", "relation": "field", "placement": "within" })
+    );
+    assert_eq!(styles[1]["entries"][1]["target"], "> svg");
+    // `padding: null` removes under every condition; `{ ":hover": null }` under its own.
+    assert_eq!(
+        styles[2]["entries"][0],
+        serde_json::json!({ "property": "padding", "value": null, "conditions": null })
+    );
+    assert_eq!(styles[2]["entries"][5]["conditions"][0]["text"], ":hover");
+    assert_eq!(styles[3]["entries"][0]["assigns"], "color.muted");
+    assert_eq!(styles[3]["entries"][1]["keyframes"].as_array().unwrap().len(), 1);
+    let parts = &json["recipes"][0]["parts"];
+    assert_eq!(parts[1]["options"], serde_json::json!({ "size": "lg" }));
+    assert_eq!(parts[1]["entries"][0]["value"], "2rem");
+    // Without the flag, neither appears.
+    let (_, output) = run(&["--config-json", &config, "export"]);
+    let plain: serde_json::Value = serde_json::from_str(&output).unwrap();
+    assert!(plain.get("styles").is_none() && plain["recipes"][0].get("parts").is_none());
     fs::remove_dir_all(root).unwrap();
 }

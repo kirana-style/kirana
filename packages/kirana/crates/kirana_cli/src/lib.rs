@@ -70,6 +70,10 @@ enum Command {
         /// Write the JSON to this file instead of printing it.
         #[arg(long)]
         out: Option<PathBuf>,
+        /// Also give each exported style's and recipe's evaluated definition: its entries with their
+        /// conditions, the tokens they read and the relations they anchor.
+        #[arg(long)]
+        definitions: bool,
     },
     /// What a bug report needs from the engine, as JSON (`kirana-style doctor --report` runs it).
     #[command(hide = true)]
@@ -77,8 +81,15 @@ enum Command {
         /// Sources to compile; the project root when none are given.
         paths: Vec<PathBuf>,
     },
-    /// Explain which value wins for a property at `file:line`.
-    Trace { location: String, property: String },
+    /// Explain which value wins for a property at `file:line`. Several `file:line property` pairs
+    /// are answered in one compile.
+    Trace {
+        /// `file:line property`, once or several times.
+        #[arg(required = true, num_args = 2.., value_names = ["LOCATION", "PROPERTY"])]
+        queries: Vec<String>,
+        #[arg(long, value_enum, default_value_t = TraceFormat::Human)]
+        format: TraceFormat,
+    },
     /// Start the language server on stdin/stdout (KRN-DX-001); editors run it, people rarely do.
     Lsp,
     /// Rewrite sources from another styling system (KRN-API-013).
@@ -97,6 +108,16 @@ enum Format {
     Json,
     /// GitHub Actions workflow commands, which annotate the pull request's files.
     Github,
+}
+
+/// How `kirana-style trace` prints its answers.
+#[derive(ValueEnum, Clone, Copy, Debug, PartialEq, Eq)]
+enum TraceFormat {
+    /// Aligned for reading.
+    Human,
+    /// One JSON array, an answer per query: each entry's value, conditions with their kind, layer,
+    /// target, recipe part and the ladder step that ranks it.
+    Json,
 }
 
 #[derive(Subcommand, Debug)]
@@ -228,18 +249,8 @@ pub fn run(args: &[String], out: &mut dyn Write) -> i32 {
             }
             exit_code(&diagnostics)
         }
-        Command::Export { mut paths, out: target } => {
-            if paths.is_empty() {
-                paths.push(project.root().to_path_buf());
-            }
-            let (diagnostics, _) = project.compile_paths(&paths);
-            let mut description = serde_json::json!({
-                "schema": 1,
-                "engine": env!("CARGO_PKG_VERSION"),
-                "prefix": project.config().names.prefix,
-            });
-            let design = serde_json::to_value(project.design_system(&paths)).expect("serializable");
-            description.as_object_mut().expect("an object").extend(design.as_object().expect("an object").clone());
+        Command::Export { paths, out: target, definitions } => {
+            let (description, diagnostics) = project.export(&paths, definitions);
             let text = format!("{}\n", serde_json::to_string_pretty(&description).expect("serializable"));
             match target {
                 Some(file) => {
@@ -265,46 +276,60 @@ pub fn run(args: &[String], out: &mut dyn Write) -> i32 {
             let _ = writeln!(out, "{}", serde_json::to_string_pretty(&report).expect("serializable"));
             0
         }
-        Command::Trace { location, property } => {
-            let Some((file, line)) =
-                location.rsplit_once(':').and_then(|(file, line)| Some((file, line.parse::<usize>().ok()?)))
-            else {
-                let _ = writeln!(out, "expected <file>:<line>, got {location:?}");
+        Command::Trace { queries, format } => {
+            if queries.len() % 2 != 0 {
+                let _ = writeln!(out, "expected <file>:<line> <property> pairs, got {} arguments", queries.len());
                 return 2;
-            };
-            let path = kirana_project::absolute(Path::new(file));
-            let Ok(source) = fs::read_to_string(&path) else {
-                let _ = writeln!(out, "cannot read {file}");
+            }
+            let mut parsed = Vec::new();
+            for pair in queries.chunks(2) {
+                let location = &pair[0];
+                let Some((file, line)) =
+                    location.rsplit_once(':').and_then(|(file, line)| Some((file, line.parse::<usize>().ok()?)))
+                else {
+                    let _ = writeln!(out, "expected <file>:<line>, got {location:?}");
+                    return 2;
+                };
+                parsed.push(kirana_project::TraceQuery { file: file.to_owned(), line, property: pair[1].clone() });
+            }
+            let answers = project.trace_all(&parsed);
+            if let Some(error) = answers.iter().find_map(|answer| answer.error.as_ref()) {
+                let _ = writeln!(out, "{error}");
                 return 2;
-            };
-            project.transform(&path, &source);
-            // Accepts the authored spelling (`justifyContent`) as well as CSS's.
-            let lines = project.trace(&path, &source, line, &kirana_shared::kebab_case(&property));
-            if lines.is_empty() {
-                let _ = writeln!(out, "no {property} declarations at {location}");
-                return 1;
             }
-            let _ = writeln!(out, "{property} at {location}");
-            for (index, line) in lines.iter().enumerate() {
-                let mark = if index == 0 { "✓" } else { " " };
-                let _ = writeln!(
-                    out,
-                    "  {mark} {:<24} {:<32} {:<18} {}",
-                    line.value, line.conditions, line.layer, line.reason
-                );
+            if format == TraceFormat::Json {
+                let _ = writeln!(out, "{}", serde_json::to_string_pretty(&answers).expect("serializable"));
+                return 0;
             }
-            0
+            let mut code = 0;
+            for answer in &answers {
+                let location = format!("{}:{}", answer.file, answer.line);
+                if answer.entries.is_empty() {
+                    let _ = writeln!(out, "no {} declarations at {location}", answer.property);
+                    code = 1;
+                    continue;
+                }
+                let _ = writeln!(out, "{} at {location}", answer.property);
+                for (index, line) in answer.entries.iter().enumerate() {
+                    let mark = if index == 0 { "✓" } else { " " };
+                    let _ = writeln!(
+                        out,
+                        "  {mark} {:<24} {:<32} {:<18} {}",
+                        line.value,
+                        line.context(),
+                        line.layer,
+                        line.reason
+                    );
+                }
+            }
+            code
         }
         Command::Migrate { from: From::Stylex { paths, write, report } } => {
             migrate_files(out, &paths, write, report.as_deref(), kirana_migrate::migrate)
         }
         Command::Migrate { from: From::Tailwind { paths, write, report } } => {
             let Some(grammar) = project.config().utilities.clone() else {
-                let _ = writeln!(
-                    out,
-                    "kirana-style migrate tailwind needs a utility grammar: add `presets: [scales()]` from \
-                     `@kirana-style/preset-scales/preset` to kirana.config, and your theme's scales under `utilities`"
-                );
+                let _ = writeln!(out, "kirana-style migrate tailwind {NO_GRAMMAR}");
                 return 2;
             };
             let (custom_variants, custom_utilities) = custom_declarations(&paths);
@@ -333,6 +358,30 @@ pub fn run(args: &[String], out: &mut dyn Write) -> i32 {
             })
         }
     }
+}
+
+/// What the Tailwind lowering needs and a project without a utility grammar lacks.
+const NO_GRAMMAR: &str = "needs a utility grammar: add `presets: [scales()]` from \
+     `@kirana-style/preset-scales/preset` to kirana.config, and your theme's scales under `utilities`";
+
+/// One class string lowered as `migrate tailwind` lowers a `className` in `file` (KF-004), with no
+/// custom variants or utilities declared; an error without a utility grammar.
+pub fn lower_tailwind(
+    project: &Project,
+    file: &Path,
+    classes: &str,
+) -> Result<kirana_migrate::tailwind::Lowering, String> {
+    let grammar = project.config().utilities.clone().ok_or_else(|| format!("the Tailwind lowering {NO_GRAMMAR}"))?;
+    let none = BTreeSet::new();
+    let map = kirana_migrate::tailwind::ProjectMap::default();
+    let options = kirana_migrate::tailwind::Options {
+        grammar: &grammar,
+        custom_variants: &none,
+        custom_utilities: &none,
+        project: &map,
+    };
+    let environment = kirana_migrate::environment::ProjectEnvironment { project, file };
+    Ok(kirana_migrate::tailwind::lower(file, classes, &options, &environment))
 }
 
 /// The project as a Tailwind migration reads it: scales imported the way `file` would import them.

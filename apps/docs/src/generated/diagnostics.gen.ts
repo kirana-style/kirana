@@ -170,6 +170,12 @@ export const DIAGNOSTICS: readonly DiagnosticEntry[] = [
     "family": "Tokens"
   },
   {
+    "code": "KRN1507",
+    "name": "token-namespace-shared",
+    "severity": "info",
+    "family": "Tokens"
+  },
+  {
     "code": "KRN1601",
     "name": "dynamic-bridged",
     "severity": "info",

@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use kirana_config::Grammar;
-use kirana_migrate::tailwind::{Environment, Options, ProjectMap, migrate, survey};
+use kirana_migrate::tailwind::{Environment, Options, ProjectMap, lower, migrate, survey};
 use kirana_project::Project;
 use kirana_shared::OsFs;
 
@@ -929,4 +929,43 @@ fn a_dark_value_outranks_the_states_it_encloses() {
     assert!(source.contains("'[aria-expanded=\"true\"]': `light-dark(${theme.ring}, ${theme.muted})`"), "{source}");
     assert!(source.contains("\":hover\": `light-dark(${theme.border}, ${theme.destructive})`"), "{source}");
     assert!(source.contains("\"@media (width >= 48rem)\": theme.ring"), "{source}");
+}
+
+/// One class string lowered on its own, as a tool asks for it (KF-004): the same objects as the
+/// codemod, with the module that declares what they read.
+#[test]
+fn a_class_string_lowers_on_its_own() {
+    let project = project();
+    let grammar: Grammar = project.config().utilities.clone().unwrap();
+    let (variants, utilities) = custom();
+    let relations = ProjectMap::default();
+    let options =
+        Options { grammar: &grammar, custom_variants: &variants, custom_utilities: &utilities, project: &relations };
+    let file = root().join("report.tsx");
+    let environment = Env { project: &project, file: &file };
+    let lowered = lower(&file, "gap-1 text-blue-600 dark:p-2 group/menu h-7", &options, &environment);
+    assert_eq!(
+        lowered.style.as_deref(),
+        Some(
+            "css({\n    // tailwind: h-7 — `h-7` is not a utility\n    gap: space[1],\n    color: color.blue[600],\n    padding: modes.padding,\n  })"
+        )
+    );
+    assert_eq!(lowered.anchors, ["menuGroup"]);
+    assert_eq!(lowered.left, ["h-7 — `h-7` is not a utility"]);
+    assert_eq!(lowered.notes.len(), 2, "{:?}", lowered.notes);
+    assert!(lowered.module.starts_with(
+        "import { css, defineTokens, relation } from \"@kirana-style/core\"\nimport { color, space } from \"./scales\"\n"
+    ));
+    assert!(lowered.module.contains("const menuGroup = relation(\"menu\")\n"), "{}", lowered.module);
+    assert!(lowered.module.ends_with("}),\n}\n\nconst sx = [menuGroup.anchor, styles.style]\n"), "{}", lowered.module);
+    // An anchor alone is still applied; nothing at all is an empty module.
+    let anchor = lower(&file, "group", &options, &environment);
+    assert_eq!((anchor.style, anchor.anchors.as_slice()), (None, ["group".to_owned()].as_slice()));
+    assert!(
+        anchor.module.ends_with("const group = relation(\"group\")\n\nconst sx = [group.anchor]\n"),
+        "{}",
+        anchor.module
+    );
+    let empty = lower(&file, "", &options, &environment);
+    assert_eq!((empty.style, empty.module.as_str()), (None, ""));
 }

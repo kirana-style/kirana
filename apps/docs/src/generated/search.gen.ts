@@ -47,7 +47,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Introduction",
     "section": "start",
     "heading": "What it gives you",
-    "text": "Typed styles. Ordinary objects, checked by TypeScript, with camelCase CSS property names and real values, not a string vocabulary you have to learn. Conditions inside values. reads in the order it applies, instead of scattering prefixes across a class list. Predictable precedence. A stated ladder decides which value wins, and the diagnostic tells you when two values could both apply. Tokens and themes. Design tokens compile to constants or custom properties, and every colour can be a pair, so dark mode needs no variant. Real diagnostics. 46 checks with codes, severities and help text, from unknown properties to a component that forgets to pass on."
+    "text": "Typed styles. Ordinary objects, checked by TypeScript, with camelCase CSS property names and real values, not a string vocabulary you have to learn. Conditions inside values. reads in the order it applies, instead of scattering prefixes across a class list. Predictable precedence. A stated ladder decides which value wins, and the diagnostic tells you when two values could both apply. Tokens and themes. Design tokens compile to constants or custom properties, and every colour can be a pair, so dark mode needs no variant. Real diagnostics. 47 checks with codes, severities and help text, from unknown properties to a component that forgets to pass on."
   },
   {
     "id": "/docs#what-it-is-not",
@@ -1303,7 +1303,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Tokens",
     "section": "tokens",
     "heading": "Tokens",
-    "text": "A token is a named value your styles refer to. In Kirana it is an ordinary imported constant, so your editor shows the value, \"go to definition\" works, and nothing needs code generation. The first argument is the namespace . It has to be unique in a project: two groups claiming one namespace is an error ( ), which is what keeps two libraries from quietly overwriting each other's variables."
+    "text": "A token is a named value your styles refer to. In Kirana it is an ordinary imported constant, so your editor shows the value, \"go to definition\" works, and nothing needs code generation. The first argument is the namespace . It has to be unique in a package: two groups claiming one namespace is an error ( ). A token's identity carries its package, so packages may each have a group and compile to different variables, which keeps libraries from overwriting each other's. Because they then read alike, the compiler points such a pair out with an info ( ), and names each token's package."
   },
   {
     "id": "/docs/tokens/overview#inlined-or-a-custom-property",
@@ -3695,7 +3695,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from StyleX",
     "section": "migration",
     "heading": "What Kirana has that StyleX does not",
-    "text": "The mapping above is close to one-to-one because both systems share a premise. These are the things that have no StyleX counterpart, and between them they are most of the reason Kirana exists. A stated precedence ladder, and a tool that reads it back. StyleX offers two modes (later-wins and property-specificity), and neither reproduced what the Tailwind components needed. Kirana has one ladder, and prints every candidate declaration, the winner, and the step that decided it. Ambiguity is reported. When two values could both apply and nothing orders them, the compiler says so ( ) instead of silently picking. is how you tell it that a library never sets two attributes together. A diagnostics catalogue. 46 codes with stable names, severities and help text, and a configuration key to re-level the non-errors. StyleX reports compilation failures; it does not have a catalogue you can suppress, raise, or look up. Relations are declared and checked. gives you an anchor and three reads, and the compiler errors when a relation is read but never anchored ( ) or anchored in a position that cannot match ( ). StyleX's with marker classes compiles either way, and a mis-placed marker is a rule that"
+    "text": "The mapping above is close to one-to-one because both systems share a premise. These are the things that have no StyleX counterpart, and between them they are most of the reason Kirana exists. A stated precedence ladder, and a tool that reads it back. StyleX offers two modes (later-wins and property-specificity), and neither reproduced what the Tailwind components needed. Kirana has one ladder, and prints every candidate declaration, the winner, and the step that decided it. Ambiguity is reported. When two values could both apply and nothing orders them, the compiler says so ( ) instead of silently picking. is how you tell it that a library never sets two attributes together. A diagnostics catalogue. 47 codes with stable names, severities and help text, and a configuration key to re-level the non-errors. StyleX reports compilation failures; it does not have a catalogue you can suppress, raise, or look up. Relations are declared and checked. gives you an anchor and three reads, and the compiler errors when a relation is read but never anchored ( ) or anchored in a position that cannot match ( ). StyleX's with marker classes compiles either way, and a mis-placed marker is a rule that"
   },
   {
     "id": "/docs/migration/from-stylex#what-stylex-has-that-kirana-does-not",
@@ -4438,7 +4438,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style export",
-    "text": "The design system, as JSON: every token with its value (and both halves of a pair), each theme and the tokens it overrides, each recipe with its variant groups, options and defaults, every relation and where it is anchored and read, and the keyframes, , and names. Each comes with the file and line that declares it. It is what a coding agent should read before writing a style (the tokens and recipes that exist, by their real names), and what a design tool or a review needs to see what a change did to the system. Names, values and project-relative locations only, never source text; everything is sorted, so the file diffs cleanly when it is committed. changes only when a field does. The exit code is 1 when the project has errors, as for ."
+    "text": "The design system, as JSON: every token with its value (and both halves of a pair), each theme and the tokens it overrides, each recipe with its variant groups, options and defaults, every relation and where it is anchored and read, and the keyframes, , and names. Each comes with the file and line that declares it. It is what a coding agent should read before writing a style (the tokens and recipes that exist, by their real names), and what a design tool or a review needs to see what a change did to the system. Names, values and project-relative locations only, never source text; everything is sorted, so the file diffs cleanly when it is committed. changes only when a field does. The exit code is 1 when the project has errors, as for . A token's identity is what code writes ( ), and names the package that declares it, left out for a file outside any package. Packages may each declare a group of one name: their tokens compile apart, and tells them apart here. The compiler points such a pair out with an info, ."
+  },
+  {
+    "id": "/docs/tooling/cli#definitions",
+    "href": "/docs/tooling/cli#definitions",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "Definitions",
+    "text": "adds what each exported style and recipe evaluates to, for a tool that would otherwise run a second evaluator of its own: lists every exported handle, and each one inside an exported object (as ); each recipe gets its : the base first, then each variant option and compound variant, slot by slot. Each entry carries: its property and value; its conditions, each with its kind, and a relation by its name and where the reader sits; its target or pseudo-element; the variable tokens it reads and the token it assigns, by identity; the keyframes it names and the class it compiles to. A that removes a property when styles merge is an entry whose value is , with no conditions when it removes the property under every condition. An inlined token reaches the entry as its value, so only variable tokens are listed."
   },
   {
     "id": "/docs/tooling/cli#kirana-style-trace",
@@ -4446,7 +4454,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style trace",
-    "text": "Explain which declaration wins for a property, and why. It prints one line per candidate: a marker for the winner, the value, the conditions, the layer, and the ladder step that decided it. The property may be written the way you wrote it ( ) or the way CSS does ( ). Give it the line the style is on. This is the tool for \"why is this not applying\". It answers from the compiled result, not from reading the source."
+    "text": "Explain which declaration wins for a property, and why. It prints one line per candidate: a marker for the winner, the value, the conditions, the layer, and the ladder step that decided it. The property may be written the way you wrote it ( ) or the way CSS does ( ). Give it the line the style is on. This is the tool for \"why is this not applying\". It answers from the compiled result, not from reading the source. On the line of a , each candidate says in brackets which part of the recipe it comes from: , a variant option ( ), or a compound variant, after its slot when the recipe has slots. Where two parts of one slot set the same entry, the recipe's merge decides rather than the cascade: the later part replaces the earlier one."
+  },
+  {
+    "id": "/docs/tooling/cli#for-a-tool",
+    "href": "/docs/tooling/cli#for-a-tool",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "For a tool",
+    "text": "prints an answer per question, and several pairs are answered in one run, each file compiled once: Nothing has to be parsed out of a line of text: each condition comes with its kind: a pseudo-class, an attribute, a media, container or supports query, or a relation; a pseudo-element or target is under ; is the ladder step that ranks an entry above the next one, or 0 where a recipe's merge decides."
   },
   {
     "id": "/docs/tooling/cli#kirana-style-migrate",
@@ -4455,6 +4471,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "tooling",
     "heading": "kirana-style migrate",
     "text": "Rewrite another styling system's sources into Kirana, and report what it will not decide for you. Nothing is written without . The report is printed either way: each line is a file position and something a person has to do, and the utility it is about is also left in a comment beside the style it belongs to. needs a utility grammar (the preset and your theme's scales), and reads and from any CSS file among its paths. See migrating from Tailwind ."
+  },
+  {
+    "id": "/docs/tooling/cli#the-same-answers-from-code",
+    "href": "/docs/tooling/cli#the-same-answers-from-code",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "The same answers from code",
+    "text": ", and the Tailwind lowering are calls on the compiler's too, from , for a tool that asks many times and should compile once: returns what prints, and what the command prints. The Tailwind call lowers one class string the way lowers a class attribute in that file, and throws without a utility grammar. It returns: , the call; , a file holding it with the imports, relations and per-mode tokens it needs; , the relations the element anchors; , each utility it left out, with the reason."
   },
   {
     "id": "/docs/tooling/cli#kirana-style-lsp",
@@ -4961,7 +4985,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Built",
-    "text": ", , , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 46 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, the design system as JSON, tracing a property, an"
+    "text": ", , , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 47 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, the design system as JSON, tracing a property, an"
   },
   {
     "id": "/docs/project/status#partial",

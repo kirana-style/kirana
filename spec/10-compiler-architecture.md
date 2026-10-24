@@ -387,6 +387,7 @@ help: move `field.anchor` to the element that wraps both, or use `field.after(â€
 | KRN1504 | `dynamic-token`                 | error    | 09        |
 | KRN1505 | `unsupported-dtcg-type`         | error    | 07        |
 | KRN1506 | `token-not-variable`            | error    | 07        |
+| KRN1507 | `token-namespace-shared`        | info     | 07        |
 | KRN1601 | `dynamic-bridged`               | info     | 09        |
 | KRN1602 | `branch-budget-exceeded`        | error    | 09        |
 | KRN1603 | `dynamic-key`                   | error    | 09        |

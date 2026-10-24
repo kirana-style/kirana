@@ -170,6 +170,12 @@ What it reports rather than guesses:
 Each report item is also left as a `// tailwind:` comment beside the style it
 concerns, so the diff shows where to look.
 
+A tool that only needs to know what one class string becomes, to draft a value in
+a report rather than rewrite a file, calls the same lowering from code:
+`driver.lowerTailwind(classes, file)` on `@kirana-style/compiler` returns the
+`css()` call, the module that declares what it reads, and what it left out (see
+[the same answers from code](/docs/tooling/cli#the-same-answers-from-code)).
+
 ## Measured: the Tailwind original of our shadcn/ui port
 
 We ran the codemod over the whole Tailwind original (`packages/ui`, the shared
