@@ -5,28 +5,28 @@
 
 ### Features
 
-* a library api for tools: trace as json, evaluated styles, tailwind lowering ([#101](https://github.com/kirana-style/kirana/issues/101)) ([6c2b245](https://github.com/kirana-style/kirana/commit/6c2b245e7d4254a23ff87c036cbdaefc0a0b7b9d))
-* counter styles, two opt-in lint rules, and faster value checks ([#91](https://github.com/kirana-style/kirana/issues/91)) ([0d09464](https://github.com/kirana-style/kirana/commit/0d09464829c021dcd9fe8bf02725536b17f80af2))
-* kirana-style ui for the component registry, and a ui config key ([#109](https://github.com/kirana-style/kirana/issues/109)) ([7db6754](https://github.com/kirana-style/kirana/commit/7db67548d35d386b73234e880bca8580e0d1aafc))
-* rel.parent(), and a within read on an element that carries its anchor ([#106](https://github.com/kirana-style/kirana/issues/106)) ([6aa0f97](https://github.com/kirana-style/kirana/commit/6aa0f97c28de9d2ed655b4c5a03017247b12472b))
-* spacing() and exclusiveAcross() for design systems on several libraries ([#104](https://github.com/kirana-style/kirana/issues/104)) ([ae628b4](https://github.com/kirana-style/kirana/commit/ae628b4980a0f93a35ea0cfd6a456d8e5fbdd2b0))
-* states for reka ui, bits ui and angular primitives ([#107](https://github.com/kirana-style/kirana/issues/107)) ([6c730d1](https://github.com/kirana-style/kirana/commit/6c730d1f962f7d26d3fbc6c99a01c83db7b15195))
-* the cli reads each path's own config, and says why one fails to load ([#102](https://github.com/kirana-style/kirana/issues/102)) ([43adc8d](https://github.com/kirana-style/kirana/commit/43adc8d58992422f52131627143597037dd12906))
-* **vue:** components take sx with kirana's merge, and workspace sfcs hot-reload ([#105](https://github.com/kirana-style/kirana/issues/105)) ([72a5902](https://github.com/kirana-style/kirana/commit/72a590222ccaf06768decc87f6650cfbfc594256))
-* warn on a state nested under select, and on translate beside a logical inset ([#103](https://github.com/kirana-style/kirana/issues/103)) ([8e47376](https://github.com/kirana-style/kirana/commit/8e47376440a56f6eb8c79aab1be6ec868d59dd56))
+* a library api for tools: trace as json, evaluated styles, tailwind lowering ([#101](https://github.com/kirana-style/kirana/pull/101)) ([6c2b245](https://github.com/kirana-style/kirana/commit/6c2b245e7d4254a23ff87c036cbdaefc0a0b7b9d))
+* counter styles, two opt-in lint rules, and faster value checks ([#91](https://github.com/kirana-style/kirana/pull/91)) ([0d09464](https://github.com/kirana-style/kirana/commit/0d09464829c021dcd9fe8bf02725536b17f80af2))
+* kirana-style ui for the component registry, and a ui config key ([#109](https://github.com/kirana-style/kirana/pull/109)) ([7db6754](https://github.com/kirana-style/kirana/commit/7db67548d35d386b73234e880bca8580e0d1aafc))
+* rel.parent(), and a within read on an element that carries its anchor ([#106](https://github.com/kirana-style/kirana/pull/106)) ([6aa0f97](https://github.com/kirana-style/kirana/commit/6aa0f97c28de9d2ed655b4c5a03017247b12472b))
+* spacing() and exclusiveAcross() for design systems on several libraries ([#104](https://github.com/kirana-style/kirana/pull/104)) ([ae628b4](https://github.com/kirana-style/kirana/commit/ae628b4980a0f93a35ea0cfd6a456d8e5fbdd2b0))
+* states for reka ui, bits ui and angular primitives ([#107](https://github.com/kirana-style/kirana/pull/107)) ([6c730d1](https://github.com/kirana-style/kirana/commit/6c730d1f962f7d26d3fbc6c99a01c83db7b15195))
+* the cli reads each path's own config, and says why one fails to load ([#102](https://github.com/kirana-style/kirana/pull/102)) ([43adc8d](https://github.com/kirana-style/kirana/commit/43adc8d58992422f52131627143597037dd12906))
+* **vue:** components take sx with kirana's merge, and workspace sfcs hot-reload ([#105](https://github.com/kirana-style/kirana/pull/105)) ([72a5902](https://github.com/kirana-style/kirana/commit/72a590222ccaf06768decc87f6650cfbfc594256))
+* warn on a state nested under select, and on translate beside a logical inset ([#103](https://github.com/kirana-style/kirana/pull/103)) ([8e47376](https://github.com/kirana-style/kirana/commit/8e47376440a56f6eb8c79aab1be6ec868d59dd56))
 
 
 ### Bug fixes
 
-* keep compiled libraries out of every vite environment's pre-bundling ([#95](https://github.com/kirana-style/kirana/issues/95)) ([a6b3f42](https://github.com/kirana-style/kirana/commit/a6b3f425ae55c012d2943c8bf4628f285529e30c))
-* report unreadable css() arguments, ship only used keyframes, round line heights up ([#98](https://github.com/kirana-style/kirana/issues/98)) ([061135c](https://github.com/kirana-style/kirana/commit/061135ce642f90600adc6db59b8f587500187879))
-* retry npm publishes when the registry fails on its own ([#89](https://github.com/kirana-style/kirana/issues/89)) ([fe22251](https://github.com/kirana-style/kirana/commit/fe2225112530bd828336c69390e240e19fea880c))
+* keep compiled libraries out of every vite environment's pre-bundling ([#95](https://github.com/kirana-style/kirana/pull/95)) ([a6b3f42](https://github.com/kirana-style/kirana/commit/a6b3f425ae55c012d2943c8bf4628f285529e30c))
+* report unreadable css() arguments, ship only used keyframes, round line heights up ([#98](https://github.com/kirana-style/kirana/pull/98)) ([061135c](https://github.com/kirana-style/kirana/commit/061135ce642f90600adc6db59b8f587500187879))
+* retry npm publishes when the registry fails on its own ([#89](https://github.com/kirana-style/kirana/pull/89)) ([fe22251](https://github.com/kirana-style/kirana/commit/fe2225112530bd828336c69390e240e19fea880c))
 
 
 ### Documentation
 
-* cloudflare workers guide, with an example served cold in ci ([#99](https://github.com/kirana-style/kirana/issues/99)) ([9cf6202](https://github.com/kirana-style/kirana/commit/9cf62023083ca60e0e4c225817b5adfa1724ffe2))
-* take the benchmarks of kirana 0.3.1 from kirana-lab ([#93](https://github.com/kirana-style/kirana/issues/93)) ([159548c](https://github.com/kirana-style/kirana/commit/159548c8b729380163b195e6cbe4ec9cbb6d0544))
+* cloudflare workers guide, with an example served cold in ci ([#99](https://github.com/kirana-style/kirana/pull/99)) ([9cf6202](https://github.com/kirana-style/kirana/commit/9cf62023083ca60e0e4c225817b5adfa1724ffe2))
+* take the benchmarks of kirana 0.3.1 from kirana-lab ([#93](https://github.com/kirana-style/kirana/pull/93)) ([159548c](https://github.com/kirana-style/kirana/commit/159548c8b729380163b195e6cbe4ec9cbb6d0544))
 
 ## [0.3.1](https://github.com/kirana-style/kirana/compare/v0.3.0...v0.3.1) (2026-10-22)
 
