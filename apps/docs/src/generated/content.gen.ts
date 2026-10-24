@@ -1284,6 +1284,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "in-a-workspace",
+        "text": "In a workspace",
+        "level": 3
+      },
+      {
         "id": "what-overrides-what",
         "text": "What overrides what",
         "level": 2
@@ -4046,6 +4051,11 @@ export const PAGES: readonly PageMeta[] = [
         "id": "kirana-style-check",
         "text": "kirana-style check",
         "level": 2
+      },
+      {
+        "id": "which-configuration",
+        "text": "Which configuration",
+        "level": 3
       },
       {
         "id": "kirana-style-build",

@@ -252,6 +252,30 @@ configuration.
 - run: npx kirana-style check src --format github --max-warnings 0
 ```
 
+### Which configuration
+
+Each path reads the nearest `kirana.config.*` above it, so `check` at a workspace
+root checks each app with its own configuration, as its build and the editor do.
+Paths that share a configuration are checked together. When a group reads a
+configuration other than the working directory's, or there are several, the human
+output names which file each group read:
+
+```console
+$ kirana-style check apps/web/src packages/ui/src
+apps/web/kirana.config.ts: apps/web/src
+0 diagnostic(s), 0 error(s)
+no kirana.config: packages/ui/src
+1 diagnostic(s), 0 error(s)
+```
+
+Beside that:
+
+- `--config <file>` makes every path read that file instead;
+- `--format json` stays one array however many configurations are read;
+- `trace` groups its locations the same way;
+- `export` reads one configuration, and asks for `--config` when its paths would
+  read several.
+
 ## `kirana-style build`
 
 Compile files and write the stylesheet.
@@ -516,13 +540,13 @@ Nothing has to be parsed out of a line of text:
 
 ## Exit codes
 
-| Code | Meaning                                                       |
-| ---- | ------------------------------------------------------------- |
-| 0    | No errors                                                     |
-| 1    | At least one error diagnostic, or a file could not be written |
-| 1    | `doctor`: something failed; `init`: you said no               |
-| 1    | `check --max-warnings n`: more than `n` warnings              |
-| 2    | Bad configuration, or a malformed argument                    |
+| Code | Meaning                                                            |
+| ---- | ------------------------------------------------------------------ |
+| 0    | No errors                                                          |
+| 1    | At least one error diagnostic, or a file could not be written      |
+| 1    | `doctor`: something failed; `init`: you said no                    |
+| 1    | `check --max-warnings n`: more than `n` warnings                   |
+| 2    | Bad configuration, one that fails to load, or a malformed argument |
 
 ## `kirana-style migrate`
 

@@ -44,6 +44,45 @@ function findConfigFile(root: string): string | undefined {
   )
 }
 
+/**
+ * The nearest configuration file at or above `start` (a directory), as TypeScript finds a
+ * `tsconfig.json`; undefined when no directory up to the file system's root has one.
+ */
+export function findConfigAbove(start: string): string | undefined {
+  for (let directory = start; ; directory = path.dirname(directory)) {
+    const file = findConfigFile(directory)
+    if (file) return file
+    if (path.dirname(directory) === directory) return undefined
+  }
+}
+
+/**
+ * A configuration file that could not be loaded: which file, and what failed in it, instead of
+ * Node.js's stack (KF-016).
+ */
+export class ConfigLoadError extends Error {
+  readonly file: string
+
+  constructor(file: string, cause: unknown) {
+    const reason = cause instanceof Error ? cause.message : String(cause)
+    const missing = /Cannot find (?:module|package) '([^']+)'/.exec(reason)?.[1]
+    const relative =
+      missing !== undefined &&
+      path.isAbsolute(missing) &&
+      path.extname(missing) === ""
+    super(
+      missing === undefined
+        ? `loading ${file}: ${reason.split("\n")[0]}`
+        : `loading ${file}: ${missing} not found` +
+            (relative
+              ? "; Node.js loads the configuration without a bundler, so its relative imports, and theirs, need their extension (`./states.ts`)"
+              : "")
+    )
+    this.name = "ConfigLoadError"
+    this.file = file
+  }
+}
+
 /** A configuration module's default export, or a JSON file's content. */
 function configOf(file: string, module: () => unknown): KiranaConfig {
   if (file.endsWith(".json"))
@@ -59,10 +98,22 @@ export async function loadConfigFile(
 ): Promise<{ file?: string; config: KiranaConfig }> {
   const file = findConfigFile(root)
   if (!file) return { config: {} }
-  const module = file.endsWith(".json")
-    ? undefined
-    : await importOrRequire(file, load)
-  return { file, config: configOf(file, () => module) }
+  return { file, config: await loadConfig(file, load) }
+}
+
+/** Evaluates one configuration file; a failure is a `ConfigLoadError` naming it. */
+async function loadConfig(
+  file: string,
+  load: ImportFile
+): Promise<KiranaConfig> {
+  try {
+    const module = file.endsWith(".json")
+      ? undefined
+      : await importOrRequire(file, load)
+    return configOf(file, () => module)
+  } catch (error) {
+    throw new ConfigLoadError(file, error)
+  }
 }
 
 /**
@@ -95,6 +146,18 @@ export async function resolveConfig(
 ): Promise<{ file?: string; json: string }> {
   const { file, config } = await loadConfigFile(root, load)
   return { file, json: engineJson(root, config, inline) }
+}
+
+/**
+ * `resolveConfig` for one configuration file (`kirana-style check --config <file>`): its directory
+ * is the root.
+ */
+export async function resolveConfigFile(
+  file: string,
+  load: ImportFile = importFile
+): Promise<{ file: string; json: string }> {
+  const root = path.dirname(file)
+  return { file, json: engineJson(root, await loadConfig(file, load), {}) }
 }
 
 /**

@@ -6,9 +6,12 @@ export {
   type Diagnostic,
 } from "./diagnostics.ts"
 export {
+  ConfigLoadError,
   detectJsx,
+  findConfigAbove,
   loadConfigFile,
   resolveConfig,
+  resolveConfigFile,
   resolveConfigSync,
   mergeGrammars,
 } from "./config.ts"

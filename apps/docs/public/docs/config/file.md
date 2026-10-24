@@ -30,6 +30,20 @@ The compiler looks in the project root, in this order, and takes the first match
 TypeScript and JavaScript files are imported natively; the default export is the
 configuration.
 
+Node.js loads the file as it is, without a bundler, and so its imports: a relative
+import in the configuration, or in a module it imports, needs its extension
+(`./states.ts`, not `./states`). When the file fails to load, the command says which
+file and which module it could not find, and exits with 2.
+
+### In a workspace
+
+The CLI's `check`, `trace` and `export` read, for each path you give them, the
+nearest configuration file above it, as TypeScript finds its own configuration. Run from
+the workspace root, they check each app with the app's own configuration. A path
+with no configuration above it reads the working directory's, and a `--config`
+option makes every path read one file. See
+[the CLI](/docs/tooling/cli#which-configuration).
+
 ## What overrides what
 
 Options passed to the adapter override the file, key by key:
@@ -38,8 +52,9 @@ Options passed to the adapter override the file, key by key:
 kirana({ config: { names: { prefix: "app" } } })
 ```
 
-The project root comes from the adapter (Vite's `root`, or the CLI's working
-directory) and cannot be set in the file.
+The project root comes from the adapter (Vite's `root`; for the CLI, the directory
+of the configuration a path reads, or the working directory) and cannot be set in
+the file.
 
 ## Unknown keys are errors
 
