@@ -445,6 +445,20 @@ function helperBody(name: string, script: string, directory: string): string {
 }
 
 /**
+ * A template without its HTML comments, removed until none is left: one removal can join the halves
+ * of another into a comment (`<!<!---->--`).
+ */
+function withoutComments(template: string): string {
+  let previous: string
+  let text = template
+  do {
+    previous = text
+    text = text.replace(/<!--[\s\S]*?-->/g, "")
+  } while (text !== previous)
+  return text
+}
+
+/**
  * The `data-*` attributes a Reka UI component's template sets, and those of the library's own
  * components it renders the element through: the root (`Presence`), or one an attribute is set on
  * (`<PopperContent :data-state>`, which sets `side` and `align` on the same element).
@@ -458,11 +472,9 @@ function rekaAttributes(
   const directory = path.dirname(file)
   const out: [string, string[]][] = []
   const tags = [
-    ...template
-      .replace(/<!--[\s\S]*?-->/g, "")
-      .matchAll(
-        /<([A-Za-z][\w-]*)((?:\s+[^\s=>"'/]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*\/?>/g
-      ),
+    ...withoutComments(template).matchAll(
+      /<([A-Za-z][\w-]*)((?:\s+[^\s=>"'/]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*\/?>/g
+    ),
   ]
   for (const [index, [, tag, attributes]] of tags.entries()) {
     let carries = index === 0
