@@ -29,6 +29,9 @@ import { defineConfig } from "vite"
 export default defineConfig({ plugins: [kirana(), sveltekit()] })
 ```
 
+SvelteKit 3 reads its options there too, such as `sveltekit({ adapter: adapter() })`,
+and no longer reads `svelte.config.js`.
+
 ## 3. Import the stylesheet
 
 In the root layout:

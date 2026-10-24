@@ -2608,7 +2608,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "SvelteKit",
     "section": "frameworks",
     "heading": "2. Add the plugin",
-    "text": "Before SvelteKit's, so every component reaches Svelte compiled:"
+    "text": "Before SvelteKit's, so every component reaches Svelte compiled: SvelteKit 3 reads its options there too, such as , and no longer reads ."
   },
   {
     "id": "/docs/frameworks/sveltekit#3-import-the-stylesheet",
