@@ -122,7 +122,7 @@
     },
     "packages/kirana/editors/vscode": {
       "name": "kirana",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "devDependencies": {
         "@types/vscode": "1.91.0",
         "@vscode/test-electron": "^3.1.0",
@@ -133,7 +133,7 @@
     },
     "packages/kirana/npm/adonis": {
       "name": "@kirana-style/adonis",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/core": "workspace:*",
       },
@@ -148,7 +148,7 @@
     },
     "packages/kirana/npm/angular": {
       "name": "@kirana-style/angular",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -174,7 +174,7 @@
     },
     "packages/kirana/npm/astro": {
       "name": "@kirana-style/astro",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -186,7 +186,7 @@
     },
     "packages/kirana/npm/biome-plugin": {
       "name": "@kirana-style/biome-plugin",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "devDependencies": {
         "@biomejs/biome": "catalog:",
         "@kirana-style/eslint-plugin": "workspace:*",
@@ -198,7 +198,7 @@
     },
     "packages/kirana/npm/bun": {
       "name": "@kirana-style/bun",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -206,7 +206,7 @@
     },
     "packages/kirana/npm/cli": {
       "name": "kirana-style",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "bin": {
         "kirana-style": "./bin/kirana-style.ts",
       },
@@ -216,7 +216,7 @@
     },
     "packages/kirana/npm/compiler": {
       "name": "@kirana-style/compiler",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/core": "workspace:*",
         "magic-string": "catalog:",
@@ -224,7 +224,7 @@
     },
     "packages/kirana/npm/core": {
       "name": "@kirana-style/core",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "csstype": "^3.2.3",
       },
@@ -237,7 +237,7 @@
     },
     "packages/kirana/npm/ember": {
       "name": "@kirana-style/ember",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/core": "workspace:*",
       },
@@ -253,7 +253,7 @@
     },
     "packages/kirana/npm/esbuild": {
       "name": "@kirana-style/esbuild",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -267,7 +267,7 @@
     },
     "packages/kirana/npm/eslint-plugin": {
       "name": "@kirana-style/eslint-plugin",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
       },
@@ -283,7 +283,7 @@
     },
     "packages/kirana/npm/gatsby": {
       "name": "@kirana-style/gatsby",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -295,7 +295,7 @@
     },
     "packages/kirana/npm/jest": {
       "name": "@kirana-style/jest",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -309,7 +309,7 @@
     },
     "packages/kirana/npm/next": {
       "name": "@kirana-style/next",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -322,7 +322,7 @@
     },
     "packages/kirana/npm/parcel-transformer": {
       "name": "@kirana-style/parcel-transformer",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -337,7 +337,7 @@
     },
     "packages/kirana/npm/postcss": {
       "name": "@kirana-style/postcss",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -351,14 +351,14 @@
     },
     "packages/kirana/npm/preset-scales": {
       "name": "@kirana-style/preset-scales",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/core": "workspace:*",
       },
     },
     "packages/kirana/npm/remix": {
       "name": "@kirana-style/remix",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -372,7 +372,7 @@
     },
     "packages/kirana/npm/rolldown": {
       "name": "@kirana-style/rolldown",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -389,7 +389,7 @@
     },
     "packages/kirana/npm/rspack": {
       "name": "@kirana-style/rspack",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/webpack": "workspace:*",
       },
@@ -406,7 +406,7 @@
     },
     "packages/kirana/npm/states": {
       "name": "@kirana-style/states",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/core": "workspace:*",
       },
@@ -423,7 +423,7 @@
     },
     "packages/kirana/npm/vite": {
       "name": "@kirana-style/vite",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
@@ -439,7 +439,7 @@
     },
     "packages/kirana/npm/webpack": {
       "name": "@kirana-style/webpack",
-      "version": "0.3.1",
+      "version": "0.3.2",
       "dependencies": {
         "@kirana-style/compiler": "workspace:*",
         "@kirana-style/core": "workspace:*",
