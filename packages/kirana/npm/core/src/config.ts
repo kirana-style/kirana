@@ -89,6 +89,12 @@ export type KiranaConfig = {
    */
   readonly libraries?: readonly string[]
   /**
+   * The component registry's settings, which `kirana-style ui` (`@kirana-style/registry`) reads and
+   * the compiler never does: the framework and base a project installs for, its preset, aliases and
+   * registries (D-103). Their shape is the registry package's.
+   */
+  readonly ui?: Readonly<Record<string, unknown>>
+  /**
    * Which attribute `sx` compiles to: `className` for React, `class` for Preact, Solid and Qwik. Default:
    * detected from `compilerOptions.jsxImportSource` in the project's `tsconfig.json`, else React.
    */

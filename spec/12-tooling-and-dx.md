@@ -84,6 +84,7 @@ Measured by `bench/lsp.ts` in the benchmark repository (2026-10-02): hover p95 1
 | `kirana-style doctor [--json] [--report [file]] [--trace]`                                     | Engine in use (native or WASI), installed versions, configuration resolution, detected host and whether the adapter, stylesheet and types are wired, cache state (none, D-049). Exit 1 on a failure. `--report` writes a redacted bug report: versions, checks, diagnostics by code, stylesheet size, configuration, optional `kirana-style trace` output; no source text (D-077). Built. |
 | `kirana-style migrate stylex\|tailwind`                                                        | The codemods of [06](./06-authoring-api.md#migration-codemods), with a dry-run diff and a report file.                                                                                                                                                                                                                                                                                    |
 | `kirana-style lsp`                                                                             | Start the language server.                                                                                                                                                                                                                                                                                                                                                                |
+| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103). The package is not released yet; the command says so.                                                                                                                                                                                                                             |
 
 There is no `kirana cache clean`: Kirana keeps no persistent cache (D-049), so there is nothing to
 clear, and `kirana-style doctor` says so.
@@ -96,6 +97,13 @@ array. `export` reads one configuration and asks for `--config` when its paths r
 configuration that fails to load is reported as the file and the module it could not find, with exit
 code 2; a relative import without its extension is called out, since Node.js loads the configuration
 without a bundler.
+
+**KRN-DX-020** — `kirana-style ui <argv…>` MUST resolve `@kirana-style/registry` from the project
+(as Node.js resolves a dependency from its `package.json`) and call its exported
+`main(argv, cwd, write)`, which returns the exit code, with the arguments after `ui`. When the project
+does not have the package, when it fails to load, or when it exports no `main`, the command MUST say
+which and exit 1. The configuration key `ui` belongs to that package: the Driver MUST accept it and
+MUST NOT pass it to the engine (D-103).
 
 ## Lint
 

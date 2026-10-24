@@ -1,7 +1,8 @@
 /**
  * The `kirana-style` command (its binary lives in the `kirana-style` package): `init`, `doctor` and `dev` run here, in Node.js, because they read and
- * write the project around the compiler; everything else loads configuration and runs the native
- * command line, or the language server for `kirana-style lsp`.
+ * write the project around the compiler; `ui` hands its arguments to the project's
+ * `@kirana-style/registry`; everything else loads configuration and runs the native command line, or
+ * the language server for `kirana-style lsp`.
  */
 import { spawnSync } from "node:child_process"
 import { statSync } from "node:fs"
@@ -22,6 +23,7 @@ import { runInit } from "./init.ts"
 import type { NativeBinding } from "./native.ts"
 import { loadNative } from "./native.ts"
 import { runReport } from "./report.ts"
+import { runUi } from "./ui.ts"
 
 /** A terminal's questions and commands for `kirana-style init`. */
 export function terminal(
@@ -73,6 +75,8 @@ export async function main(
     )
   if (command === "dev")
     return (await runDev(rest, cwd, write, { native })).code
+  // The component registry's commands, from their own package (D-103).
+  if (command === "ui") return runUi(rest, cwd, write)
   const binding = native ?? loadNative()
   try {
     // The language server owns stdin and stdout until the editor shuts it down (KRN-DX-001).

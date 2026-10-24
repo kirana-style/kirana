@@ -142,7 +142,7 @@ change the API. Pages state what is built and what is planned.
 
 ## Tools
 
-- [The CLI](https://kirana.style/docs/tooling/cli.md): What each kirana command does and what it prints, for init, doctor, dev, build, check, analyze, export, trace, migrate and lsp.
+- [The CLI](https://kirana.style/docs/tooling/cli.md): What each kirana command does and what it prints, for init, doctor, dev, build, check, analyze, export, trace, migrate, lsp and ui.
 - [Editor support](https://kirana.style/docs/tooling/editor.md): The Kirana language server shows each element's compiled CSS, which entry wins and why, colour swatches and the compiler's diagnostics as you type, in VS Code, Cursor, Windsurf, Antigravity, Zed, Neovim and Helix.
 - [Lint](https://kirana.style/docs/tooling/lint.md): Kirana's rules under Oxlint, ESLint and Biome: the compiler's diagnostics, and the overrides and forwarding mistakes that lose styles silently.
 - [Diagnostics reference](https://kirana.style/docs/tooling/diagnostics.md): Every code the compiler can emit, its default severity, and which ones you can re-level.

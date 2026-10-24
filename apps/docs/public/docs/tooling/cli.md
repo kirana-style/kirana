@@ -12,6 +12,7 @@ The `kirana-style` command, by what it does:
 | Reports                                 | `check`, `analyze`, `export`, `trace` |
 | Rewrites other styling systems          | `migrate`                             |
 | Serves your editor                      | `lsp`                                 |
+| Installs components from a registry     | `ui`                                  |
 
 In a project without Kirana, run it without installing anything: your package
 manager's runner fetches it for one run, as `npx shadcn@latest` does.
@@ -546,6 +547,9 @@ Nothing has to be parsed out of a line of text:
 | 1    | `check --max-warnings n`: more than `n` warnings                   |
 | 2    | Bad configuration, one that fails to load, or a malformed argument |
 
+`kirana-style ui` exits with its package's code, or 1 when the project does not
+have that package.
+
 ## `kirana-style migrate`
 
 Rewrite another styling system's sources into Kirana, and report what it will
@@ -611,3 +615,20 @@ kirana-style lsp
 It loads `kirana.config.*` like every other command, indexes the project, and then
 answers hover, colour, completion, inlay-hint, code-lens, definition, reference
 and code-action requests from the same compiler session the build uses.
+
+## `kirana-style ui`
+
+The component registry's commands. They live in their own package,
+`@kirana-style/registry`, so the compiler every project installs carries no
+registry client: `kirana-style ui …` runs the project's copy of that package with
+the arguments after `ui`.
+
+The package is not released yet. Until it is, the command says so and exits 1:
+
+```text
+$ kirana-style ui add button
+kirana-style ui needs @kirana-style/registry, which this project does not have; it is not released yet
+```
+
+Its settings will live in `kirana.config.*` under [`ui`](/docs/reference/config#ui),
+which the compiler accepts and never reads.
