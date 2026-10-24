@@ -238,6 +238,13 @@ pseudo-elements are rejected
 (`unsupported-contextual-target`). Contextual styles always lose to the target element's own styles
 (D-016); precedence is owned by [08](./08-conditions-and-cascade.md#contextual-styles).
 
+A condition nested inside a target's style object is the state of the element carrying the style, not of
+the target, as it is under a pseudo-element (KRN-CAS-007): `[select.child("a")]: { color: { ":hover": x } }`
+colours the link while its parent is hovered. The link's own hover is part of the target,
+`[select.child("a:hover")]`. A pseudo-class nested that way is the `select-state-on-parent` info, since
+a port from Tailwind (`*:hover:`) nearly always means the target's own state; reading the parent's state
+through a relation says so without one (D-098).
+
 ## `keyframes()`
 
 ```ts

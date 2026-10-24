@@ -40,7 +40,7 @@ const styles = {
   }),
   content: css({
     position: "fixed",
-    insetInlineStart: "50%",
+    left: "50%",
     top: "50%",
     zIndex: zIndex.popover,
     display: "grid",

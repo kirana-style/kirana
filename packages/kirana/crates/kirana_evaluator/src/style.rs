@@ -4,8 +4,8 @@
 use std::sync::Arc;
 
 use kirana_cascade::{
-    DeclarationError, DeclarationWarning, Expanded, RawValue, WritePlan, breadth, declare_with, longhands_of,
-    mixed_logical_physical, prepare_set, removal, write_plan,
+    DeclarationError, DeclarationWarning, Expanded, RawValue, WritePlan, breadth, declare_with, inset_beside_translate,
+    longhands_of, mixed_logical_physical, prepare_set, removal, write_plan,
 };
 use kirana_css_data::PropertyRank::Shorthand;
 use kirana_diagnostics::Code;
@@ -265,6 +265,44 @@ impl<'a> Evaluator<'_, 'a, '_> {
             let at = self.written_span(entries, loser, span);
             self.report(Code::MixedLogicalPhysical, at, message, Some("use one axis family on an element"));
         }
+        for (inset, translate) in inset_beside_translate(handle) {
+            self.report(
+                Code::MixedLogicalPhysical,
+                self.written_span(entries, &translate, span),
+                format!(
+                    "{inset} is logical but {translate} is physical: with dir=\"rtl\" the inset moves to the other side and the {translate} still pulls the same way"
+                ),
+                Some("use left or right for the inset, or give the translate its value under `:dir(rtl)` too"),
+            );
+        }
+    }
+
+    /// A pseudo-class nested under a `select` target reads the element carrying the style, not the
+    /// target (KF-014, D-061): `[select.child("a")]: { color: { ":hover": x } }` turns the link `x`
+    /// while its parent is hovered. Said once per condition key, as an info: the parent's state is
+    /// sometimes meant, and a relation read says so without one.
+    fn check_select_state(&self, parsed: &[Condition], target: &Target, span: (u32, u32)) {
+        let Target::Contextual { child, selector, .. } = target else { return };
+        let state: String = parsed
+            .iter()
+            .filter_map(|condition| match condition {
+                Condition::Pseudo(text) => Some(text.as_str()),
+                _ => None,
+            })
+            .collect();
+        if state.is_empty() {
+            return;
+        }
+        let call = if *child { "child" } else { "descendant" };
+        self.report(
+            Code::SelectStateOnParent,
+            span,
+            format!("`{state}` under select.{call}({selector:?}) is the state of this element, not of the {selector}"),
+            Some(&format!(
+                "for the {selector}'s own state, put it in the target: `[select.{call}({:?})]`; for this element's, read it through a relation",
+                format!("{selector}{state}")
+            )),
+        );
     }
 
     /// The span of the last top-level entry that writes `property` (kebab-case) itself or through a
@@ -405,11 +443,13 @@ impl<'a> Evaluator<'_, 'a, '_> {
                         },
                         Key::Str(key) => match parse_condition_key(&key[..]) {
                             Ok(parsed) => {
+                                self.check_select_state(&parsed, target, span);
                                 self.property(name, inner, target, &conditions.with(&parsed), false, span, parts)
                             }
                             Err(error) => self.report(Code::UnknownCondition, span, error.to_string(), None),
                         },
                         Key::Conditions(parsed) => {
+                            self.check_select_state(parsed, target, span);
                             self.property(name, inner, target, &conditions.with(&parsed[..]), false, span, parts);
                         }
                         Key::Select(_) | Key::Token(_) => {

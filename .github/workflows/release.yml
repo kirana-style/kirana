@@ -139,6 +139,13 @@ jobs:
           bun run --cwd apps/docs generate:content
           bun run --cwd apps/docs generate:skills
 
+      # Release-please links a squash-merged pull request's `(#N)` as `/issues/N`; the changelog, and
+      # the site's changelog page read from it, link the pull request itself.
+      - name: Link pull requests, not issues, in the changelog
+        if: steps.pr.outputs.branch != ''
+        run: |
+          sed -E -i "s#(https://github\.com/$GITHUB_REPOSITORY)/issues/([0-9]+)#\1/pull/\2#g" CHANGELOG.md
+
       - name: Commit them to the Release PR
         if: steps.pr.outputs.branch != ''
         run: |
@@ -148,6 +155,33 @@ jobs:
           git config user.email "dev@kirana.style"
           git commit -m "chore: refresh lockfiles and generated files for the release"
           git push
+
+  # A release's notes come from the Release PR's description, where release-please links each
+  # pull request as `/issues/N`. Every published release's notes link the pull request instead,
+  # rewritten on each run, so a release is corrected as soon as it is created and an older one on the
+  # next run.
+  release-notes:
+    needs: release-please
+    if: inputs.publish == ''
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Link pull requests, not issues, in every release's notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 1000 --json tagName --jq '.[].tagName' |
+            while read -r tag; do
+              gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json body --jq .body > notes.md
+              sed -E "s#(https://github\.com/$GITHUB_REPOSITORY)/issues/([0-9]+)#\1/pull/\2#g" notes.md > fixed.md
+              if ! cmp -s notes.md fixed.md; then
+                gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --notes-file fixed.md > /dev/null
+                echo "$tag: pull request links"
+              fi
+            done
 
   # The full build, pack and installation matrix the merge queue runs, again on the tagged commit:
   # what is published is exactly what passed.

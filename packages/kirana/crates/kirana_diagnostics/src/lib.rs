@@ -72,6 +72,7 @@ catalogue! {
     UnknownCondition = "KRN1301", "unknown-condition", Error;
     AmbiguousPrecedence = "KRN1302", "ambiguous-precedence", Warning;
     UnsupportedContextualTarget = "KRN1303", "unsupported-contextual-target", Error;
+    SelectStateOnParent = "KRN1304", "select-state-on-parent", Info;
     RelationWithoutAnchor = "KRN1401", "relation-without-anchor", Error;
     RelationUnused = "KRN1402", "relation-unused", Warning;
     RelationPlacement = "KRN1403", "relation-placement", Error;

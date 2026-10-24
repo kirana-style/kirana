@@ -30,14 +30,14 @@ const styles = {
   }),
   content: css({
     position: "fixed",
-    insetInlineStart: "50%",
+    left: "50%",
     top: "50%",
     zIndex: zIndex.popover,
     display: "grid",
     width: "100%",
     maxWidth: { base: "calc(100% - 2rem)", [breakpoint.sm]: "24rem" },
-    // `translate` follows writing direction, so this one value replaces the
-    // original's `-translate-x-1/2` plus its `rtl:translate-x-1/2` override.
+    // Centred with a physical `left`: `translate` has no logical form, so a
+    // logical inset would leave it off centre in right-to-left text.
     translate: "-50% -50%",
     gap: spacing[4],
     borderRadius: radius.xl,

@@ -45,7 +45,7 @@ const styles = {
   }),
   previousVertical: css({
     top: `calc(${spacing[12]} * -1)`,
-    insetInlineStart: "50%",
+    left: "50%",
     translate: "-50% 0",
     rotate: "90deg",
   }),
@@ -56,7 +56,7 @@ const styles = {
   }),
   nextVertical: css({
     bottom: `calc(${spacing[12]} * -1)`,
-    insetInlineStart: "50%",
+    left: "50%",
     translate: "-50% 0",
     rotate: "90deg",
   }),

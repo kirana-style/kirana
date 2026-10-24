@@ -1,0 +1,30 @@
+[
+  {
+    "code": "KRN1304",
+    "name": "select-state-on-parent",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 219,
+      "end": 234
+    },
+    "message": "`:hover` under select.child(\"a\") is the state of this element, not of the a",
+    "help": [
+      "for the a's own state, put it in the target: `[select.child(\"a:hover\")]`; for this element's, read it through a relation"
+    ]
+  },
+  {
+    "code": "KRN1304",
+    "name": "select-state-on-parent",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 310,
+      "end": 335
+    },
+    "message": "`:focus-visible:hover` under select.descendant(\"svg\") is the state of this element, not of the svg",
+    "help": [
+      "for the svg's own state, put it in the target: `[select.descendant(\"svg:focus-visible:hover\")]`; for this element's, read it through a relation"
+    ]
+  }
+]

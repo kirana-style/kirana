@@ -377,6 +377,7 @@ help: move `field.anchor` to the element that wraps both, or use `field.after(â€
 | KRN1301 | `unknown-condition`             | error    | 08        |
 | KRN1302 | `ambiguous-precedence`          | warning  | 08        |
 | KRN1303 | `unsupported-contextual-target` | error    | 06        |
+| KRN1304 | `select-state-on-parent`        | info     | 06        |
 | KRN1401 | `relation-without-anchor`       | error    | 08        |
 | KRN1402 | `relation-unused`               | warning  | 08        |
 | KRN1403 | `relation-placement`            | error    | 08        |

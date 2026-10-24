@@ -102,6 +102,11 @@ Mixing logical and physical longhands of the same box (`paddingLeft` and
 `paddingInlineStart`) is allowed, but they are _different_ declarations, and when
 the result could mislead the compiler says so (`mixed-logical-physical`).
 
+`translate` and `transform` have no logical form. To centre an element, pair them
+with a physical inset (`left: "50%"`, `translate: "-50% 0"`): a logical inset
+changes side in right-to-left text while the translate keeps pulling the same way,
+and the compiler warns about that pair too.
+
 ## Where styles live
 
 A handle is usually a module-level constant, because it compiles to a constant:

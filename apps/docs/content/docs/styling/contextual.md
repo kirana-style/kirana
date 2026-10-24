@@ -60,6 +60,26 @@ select.descendant("a:hover") // a link while it is hovered
 
 No combinators (`a > b`) and no pseudo-elements: a target is the element itself.
 
+## A state under a target is the parent's
+
+A condition nested inside a target's style object reads the element that carries
+the style, as it does under a pseudo-element. The target's own state goes into the
+target:
+
+```tsx
+const nav = css({
+  // Links turn red while the nav is hovered.
+  [select.child("a")]: { color: { ":hover": "red" } },
+  // A link turns red while it is hovered itself.
+  [select.child("a:hover")]: { color: "red" },
+})
+```
+
+Tailwind's `*:hover:text-red-500` means the second. The first compiles, and the
+compiler adds an info (`select-state-on-parent`) suggesting the target form. When
+the parent's state is what you mean, read it through a
+[relation](/docs/styling/relations) and the info goes away.
+
 Class selectors are not targets: Kirana's class names are hashes, and a
 handwritten class is markup the compiler cannot verify. An unsupported target is
 an error (`unsupported-contextual-target`).

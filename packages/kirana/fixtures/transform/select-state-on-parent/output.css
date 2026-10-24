@@ -1,0 +1,18 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.contextual {
+  .k50-R9Q_D9ur > :where(a:hover), .k50-dcN-beKy_D9ur:where(.krZC3H:hover *) > :where(a), .k50-dcN-KFHz_D9ur:where(:hover) > :where(a) {
+    color: red;
+  }
+  .k8K-C9M-slFi_u8ni:where([data-open]) :where(svg) {
+    rotate: 180deg;
+  }
+  .k87-C9M-wPbZ_tIfm:where(:focus-visible:hover) :where(svg) {
+    opacity: 1;
+  }
+}
+@layer kirana.atoms {
+  .k50-KFHz_D9ur:where(:hover) {
+    color: red;
+  }
+}

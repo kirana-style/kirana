@@ -169,15 +169,16 @@ const styles = {
     width: spacing[4],
     transitionProperty: "all",
     transitionTimingFunction: "linear",
-    // Centred on the edge it straddles, in either writing direction.
+    // Centred on the edge it straddles. The side is physical (`left` or
+    // `right`), and so is `translate`, so the insets are physical too.
     translate: "-50% 0",
-    insetInlineEnd: {
+    right: {
       [sidebarMarker.within('[data-side="left"]')]: `calc(${spacing[4]} * -1)`,
       [sidebarMarker.within(
         '[data-side="left"][data-collapsible="offcanvas"]'
       )]: null,
     },
-    insetInlineStart: {
+    left: {
       [sidebarMarker.within('[data-side="right"]')]: 0,
     },
     // Which way the cursor says the panel will move.
