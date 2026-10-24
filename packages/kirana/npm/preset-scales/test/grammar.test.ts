@@ -334,3 +334,25 @@ describe("composed utilities emit Tailwind's chains", () => {
     )
   })
 })
+
+// KF-013: any quarter step, folded at build time like a token.
+describe("spacing()", () => {
+  it("compiles to the step's value, with no runtime call left", () => {
+    const result = driver.transform(
+      path.join(root, "spacing.ts"),
+      `import { css } from "@kirana-style/core"
+import { spacing } from "@kirana-style/preset-scales"
+export const s = css({ paddingLeft: spacing(9.5), marginTop: spacing(0), gap: spacing(-0.75) })
+`
+    )
+    expect(result.diagnostics).toEqual([])
+    expect(result.code).toMatch(/export const s = "[^"]+"/)
+    expect(result.code).not.toContain("spacing(")
+    const css = driver.stylesheet(false)
+    expect(css).toContain("padding-left: 2.375rem")
+    expect(css).toContain("margin-top: 0")
+    expect(css).toContain("gap: -0.1875rem")
+    expect(scales.spacing(4)).toBe(scales.space[4])
+    expect(scales.spacing(0)).toBe(scales.space[0])
+  })
+})

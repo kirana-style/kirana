@@ -294,7 +294,9 @@ project's own components, needs a module of a few lines and nothing from the com
 
 Each vocabulary also exports `exclusive`, the states its library sets one at a time on a part (a state
 and its documented opposite, both presences), for `conditions.exclusive` in `kirana.config`: the
-project opts in, and the compiler needs nothing new.
+project opts in, and the compiler needs nothing new. `exclusiveAcross(...vocabularies)`, from the package's
+root, returns each vocabulary's state selectors for `conditions.exclusiveAcross`, for a design system that
+writes one look for several libraries (D-099).
 
 ## Monorepos and published libraries
 

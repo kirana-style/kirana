@@ -234,7 +234,7 @@ fn ambiguity() {
         // The same value under both conditions: either order renders the same.
         set_op("opacity", &["[data-y]"], "1"),
     ]);
-    let pairs = ambiguous_pairs(&ambiguous, &[]);
+    let pairs = ambiguous_pairs(&ambiguous, Declared::default());
     assert_eq!(
         pairs,
         [
@@ -250,11 +250,19 @@ fn ambiguity() {
         set_op("color", &["[aria-invalid=\"true\"]"], "b"),
         set_op("color", &["[aria-invalid=\"true\"]", "[data-checked]"], "a"),
     ]);
-    assert_eq!(ambiguous_pairs(&nested, &[]), []);
+    assert_eq!(ambiguous_pairs(&nested, Declared::default()), []);
     // A declared exclusive group resolves it too.
     let declared = handle(vec![set_op("opacity", &["[data-open]"], "1"), set_op("opacity", &["[data-closed]"], "0")]);
-    assert_eq!(ambiguous_pairs(&declared, &[]).len(), 1);
-    assert_eq!(ambiguous_pairs(&declared, &[vec!["[data-open]".to_owned(), "[data-closed]".to_owned()]]), []);
+    assert_eq!(ambiguous_pairs(&declared, Declared::default()).len(), 1);
+    let groups = [vec!["[data-open]".to_owned(), "[data-closed]".to_owned()]];
+    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &groups, across: &[] }), []);
+    // Vocabularies of different libraries: keys no vocabulary holds together never meet (KF-015).
+    let across = [vec!["[data-open]".to_owned(), "[data-disabled]".to_owned()], vec!["[data-closed]".to_owned()]];
+    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &[], across: &across }), []);
+    let shared = [vec!["[data-open]".to_owned(), "[data-closed]".to_owned()], vec!["[data-closed]".to_owned()]];
+    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &[], across: &shared }).len(), 1);
+    let unnamed = [vec!["[data-open]".to_owned()], vec!["[data-entering]".to_owned()]];
+    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &[], across: &unnamed }).len(), 1);
 }
 
 #[test]

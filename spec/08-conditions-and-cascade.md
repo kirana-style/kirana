@@ -180,7 +180,9 @@ selector and its negation (`X` / `:not(X)`), or test different fixed positions c
 entry whose conditions include both sets: it beats each of them whenever both match, which is exactly what
 nesting one condition inside the other writes. Exclusivity a library guarantees but selectors cannot express
 (`[data-open]` / `[data-closed]`) is not assumed; the project declares it as `conditions.exclusive`
-([11](./11-integrations.md#configuration)).
+([11](./11-integrations.md#configuration)). A design system written for several libraries declares one
+vocabulary per library as `conditions.exclusiveAcross`: two simple conditions that no vocabulary holds
+together, each named by one, are exclusive, since a component is built on one library (D-099).
 
 ## Layer plan
 

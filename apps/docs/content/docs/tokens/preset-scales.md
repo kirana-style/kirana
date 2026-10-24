@@ -55,12 +55,16 @@ output.
 | Export                                                                           | Contents                                                        |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | `color`                                                                          | 26 hues × 11 steps in `oklch`, plus `black` and `white`         |
-| `space`                                                                          | `0`, `px`, `0.5` … `96`, in rem                                 |
+| `space`, `spacing()`                                                             | `0`, `px`, `0.5` … `96`, in rem; any quarter step               |
 | `fontFamily`, `fontSize`, `lineHeight`, `fontWeight`, `letterSpacing`, `leading` | the type ramp, with line heights paired to sizes                |
 | `radius`, `shadow`, `blur`                                                       | the radii, shadows and blurs                                    |
 | `duration`, `easing`                                                             | motion values                                                   |
 | `zIndex`, `screen`, `containerSize`                                              | layering, and raw widths                                        |
 | `breakpoint`, `containerQuery`                                                   | ready-made conditions: `[breakpoint.md]`, `[containerQuery.lg]` |
+
+`space` names the steps Tailwind lists. For a step between them, as shadcn/ui
+writes `pl-9.5`, `spacing(9.5)` gives `2.375rem`: a quarter of a rem per unit. The
+compiler folds the call into the value, so it costs nothing at runtime.
 
 `breakpoint.*` and `containerQuery.*` are separate because they share step names
 and mean different things: one queries the viewport, the other a container.

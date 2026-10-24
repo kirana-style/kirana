@@ -151,6 +151,32 @@ part.
 Ark UI and React Aria mark those with one attribute's values or not at all, so
 their lists are empty.
 
+### One look for several libraries
+
+A design system that writes each component once for several libraries spreads
+every library's key for a state: Base UI's `[data-starting-style]` and React Aria's
+`[data-entering]` for a popup's first frame. A component is built on one library,
+so those keys never meet on an element, but nothing in the selectors says so, and
+each pair is reported. `exclusiveAcross()` gives the compiler one vocabulary per
+library; two keys that no single library sets are then exclusive:
+
+```ts file="kirana.config.ts"
+import { defineConfig } from "@kirana-style/core/config"
+import { exclusiveAcross } from "@kirana-style/states"
+import * as baseUi from "@kirana-style/states/base-ui"
+import * as reactAria from "@kirana-style/states/react-aria"
+
+export default defineConfig({
+  conditions: {
+    exclusive: [...baseUi.exclusive, ...reactAria.exclusive],
+    exclusiveAcross: exclusiveAcross(baseUi, reactAria),
+  },
+})
+```
+
+Keys that both libraries set, such as `[data-disabled]`, still meet as they would
+on any element.
+
 ## Other libraries, and your own components
 
 A vocabulary is a plain object of selectors, so writing one takes a few lines. Any

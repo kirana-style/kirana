@@ -197,6 +197,19 @@ prove are exclusive. The compiler already knows about two values of one attribut
 a selector and its negation, and fixed positions counted from the same end; you
 only need to declare what a library promises.
 
+## `conditions.exclusiveAcross`
+
+```ts
+conditions: { exclusiveAcross?: string[][] }   // default: []
+```
+
+One vocabulary per library a design system writes its components for: two
+conditions that no vocabulary holds together are exclusive, since a component is
+built on one library. At least two vocabularies, each entry exactly one attribute
+or pseudo-class selector. `exclusiveAcross()` from `@kirana-style/states` builds
+them from the library vocabularies; see
+[one look for several libraries](/docs/styling/states#one-look-for-several-libraries).
+
 ## `classes`
 
 ```ts

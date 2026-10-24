@@ -32,3 +32,4 @@ export {
 export { breakpoint, containerQuery } from "./conditions.ts"
 export { animation } from "./animate.ts"
 export { compose } from "./compose.ts"
+export { spacing } from "./spacing.ts"

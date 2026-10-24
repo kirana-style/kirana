@@ -144,12 +144,12 @@ fn exclusivity() {
     let open = one("[data-state=\"open\"]");
     let closed = one("[data-state='closed']");
     let expanded = one("[aria-expanded=\"true\"]");
-    assert!(mutually_exclusive(&open, &closed, &[]));
-    assert!(!mutually_exclusive(&open, &open, &[]));
-    assert!(!mutually_exclusive(&open, &expanded, &[]));
-    assert!(!mutually_exclusive(&open, &one("[data-state]"), &[]));
-    assert!(!mutually_exclusive(&open, &one("[data-state^=\"o\"]"), &[]));
-    assert!(!mutually_exclusive(&open, &one(":hover"), &[]));
+    assert!(mutually_exclusive(&open, &closed, Declared::default()));
+    assert!(!mutually_exclusive(&open, &open, Declared::default()));
+    assert!(!mutually_exclusive(&open, &expanded, Declared::default()));
+    assert!(!mutually_exclusive(&open, &one("[data-state]"), Declared::default()));
+    assert!(!mutually_exclusive(&open, &one("[data-state^=\"o\"]"), Declared::default()));
+    assert!(!mutually_exclusive(&open, &one(":hover"), Declared::default()));
     let relation = |state: &str| {
         ConditionSet::new(vec![Condition::Relation {
             marker: "krA".into(),
@@ -157,30 +157,58 @@ fn exclusivity() {
             state: state.into(),
         }])
     };
-    assert!(mutually_exclusive(&relation("[data-size=\"sm\"]:hover"), &relation("[data-size=\"lg\"]"), &[]));
-    assert!(!mutually_exclusive(&relation(":hover"), &relation(":focus"), &[]));
+    assert!(mutually_exclusive(
+        &relation("[data-size=\"sm\"]:hover"),
+        &relation("[data-size=\"lg\"]"),
+        Declared::default()
+    ));
+    assert!(!mutually_exclusive(&relation(":hover"), &relation(":focus"), Declared::default()));
     // A selector and its negation, on the element or on one anchor.
     let vertical = "[data-orientation=\"vertical\"]";
-    assert!(mutually_exclusive(&one(vertical), &one(&format!(":not({vertical})")), &[]));
-    assert!(mutually_exclusive(&one(":not(:disabled)"), &one(":disabled"), &[]));
-    assert!(mutually_exclusive(&relation(&format!(":not({vertical})")), &relation(vertical), &[]));
-    assert!(!mutually_exclusive(&one(":not([data-a])"), &one("[data-b]"), &[]));
-    assert!(!mutually_exclusive(&one(":not(:hover)"), &one(":focus"), &[]));
+    assert!(mutually_exclusive(&one(vertical), &one(&format!(":not({vertical})")), Declared::default()));
+    assert!(mutually_exclusive(&one(":not(:disabled)"), &one(":disabled"), Declared::default()));
+    assert!(mutually_exclusive(&relation(&format!(":not({vertical})")), &relation(vertical), Declared::default()));
+    assert!(!mutually_exclusive(&one(":not([data-a])"), &one("[data-b]"), Declared::default()));
+    assert!(!mutually_exclusive(&one(":not(:hover)"), &one(":focus"), Declared::default()));
     // Two fixed positions counted from the same end.
-    assert!(mutually_exclusive(&one(":last-child"), &one(":nth-last-child(2)"), &[]));
-    assert!(mutually_exclusive(&one(":first-child"), &one(":nth-child(3)"), &[]));
-    assert!(mutually_exclusive(&one(":nth-child(2)"), &one(":nth-child(3)"), &[]));
-    assert!(!mutually_exclusive(&one(":first-child"), &one(":last-child"), &[]));
-    assert!(!mutually_exclusive(&one(":first-child"), &one(":nth-child(1)"), &[]));
-    assert!(!mutually_exclusive(&one(":nth-child(2n)"), &one(":nth-child(3)"), &[]));
+    assert!(mutually_exclusive(&one(":last-child"), &one(":nth-last-child(2)"), Declared::default()));
+    assert!(mutually_exclusive(&one(":first-child"), &one(":nth-child(3)"), Declared::default()));
+    assert!(mutually_exclusive(&one(":nth-child(2)"), &one(":nth-child(3)"), Declared::default()));
+    assert!(!mutually_exclusive(&one(":first-child"), &one(":last-child"), Declared::default()));
+    assert!(!mutually_exclusive(&one(":first-child"), &one(":nth-child(1)"), Declared::default()));
+    assert!(!mutually_exclusive(&one(":nth-child(2n)"), &one(":nth-child(3)"), Declared::default()));
     let raw = |condition: Condition| ConditionSet::new(vec![condition]);
-    assert!(!mutually_exclusive(&raw(Condition::Pseudo(":nth-child(2".into())), &one(":first-child"), &[]));
-    assert!(!mutually_exclusive(&one(":not(:hover)"), &raw(Condition::Media("(width > 1px)".into())), &[]));
+    assert!(!mutually_exclusive(
+        &raw(Condition::Pseudo(":nth-child(2".into())),
+        &one(":first-child"),
+        Declared::default()
+    ));
+    assert!(!mutually_exclusive(
+        &one(":not(:hover)"),
+        &raw(Condition::Media("(width > 1px)".into())),
+        Declared::default()
+    ));
     // Groups the project declares (`conditions.exclusive`), on the element or on one anchor.
     let declared = vec![vec!["[data-starting-style]".to_owned(), "[data-ending-style]".to_owned()]];
-    assert!(mutually_exclusive(&one("[data-starting-style]"), &one("[data-ending-style]"), &declared));
-    assert!(mutually_exclusive(&relation("[data-starting-style]"), &relation("[data-ending-style]"), &declared));
-    assert!(!mutually_exclusive(&one("[data-starting-style]"), &one("[data-starting-style]"), &declared));
-    assert!(!mutually_exclusive(&one("[data-starting-style]"), &one("[data-open]"), &declared));
-    assert!(!mutually_exclusive(&one("[data-starting-style]"), &one("[data-ending-style]"), &[]));
+    assert!(mutually_exclusive(
+        &one("[data-starting-style]"),
+        &one("[data-ending-style]"),
+        Declared { groups: &declared, across: &[] }
+    ));
+    assert!(mutually_exclusive(
+        &relation("[data-starting-style]"),
+        &relation("[data-ending-style]"),
+        Declared { groups: &declared, across: &[] }
+    ));
+    assert!(!mutually_exclusive(
+        &one("[data-starting-style]"),
+        &one("[data-starting-style]"),
+        Declared { groups: &declared, across: &[] }
+    ));
+    assert!(!mutually_exclusive(
+        &one("[data-starting-style]"),
+        &one("[data-open]"),
+        Declared { groups: &declared, across: &[] }
+    ));
+    assert!(!mutually_exclusive(&one("[data-starting-style]"), &one("[data-ending-style]"), Declared::default()));
 }

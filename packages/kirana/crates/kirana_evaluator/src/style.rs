@@ -239,7 +239,11 @@ impl<'a> Evaluator<'_, 'a, '_> {
 
     /// Warnings that need a whole merged handle.
     pub(crate) fn check_handle(&self, handle: &Handle, entries: &[(Key, Value)], span: (u32, u32)) {
-        for (property, first, second) in ambiguous_pairs(handle, &self.ctx.config.conditions.exclusive) {
+        let declared = kirana_ir::Declared {
+            groups: &self.ctx.config.conditions.exclusive,
+            across: &self.ctx.config.conditions.exclusive_across,
+        };
+        for (property, first, second) in ambiguous_pairs(handle, declared) {
             self.report(
                 Code::AmbiguousPrecedence,
                 self.written_span(entries, &property, span),
