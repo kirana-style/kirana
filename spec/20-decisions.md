@@ -1437,6 +1437,24 @@ the implementation tracker names its evidence.
   vocabulary's test checks every name against the package and spot-checks known states.
 - **Elaborated in:** [11-integrations](./11-integrations.md).
 
+### D-103 — The component registry is a package `kirana-style ui` loads
+
+- **Status:** Accepted (2026-10-24). For kirana-ui's registry (its decision to install with Kirana's
+  own CLI rather than shadcn/ui's).
+- **Decision:** `kirana-style ui …` runs the project's `@kirana-style/registry`: the CLI resolves the
+  package from the project and calls its `main(argv, cwd, write)` with the arguments after `ui`. The
+  registry's settings live in `kirana.config.*` under `ui`, which the Driver accepts and keeps from the
+  engine. The command and the key ship before the package does, which says so when it is missing.
+- **Rationale:** a registry client (fetching, a lockfile, per-framework transforms, flattening a
+  design system at install) would grow the compiler package every Kirana project installs, for the
+  projects that use it only. The engine refuses configuration keys it does not know
+  (`invalid-config: unknown field`), so without the key a project could not hold the registry's
+  settings before the compiler that knows them is released; shipping the entry point and the key
+  first lets the package be built and tried against a released compiler.
+- **Trade-off:** the command exists before what it runs; until the package is released it only
+  explains. The package and the compiler release together, at one version, like every Kirana package.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                       |
@@ -1448,7 +1466,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                 |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                       |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                             |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097                                                         |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103                                                  |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                            |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                           |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                    |

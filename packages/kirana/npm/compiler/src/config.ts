@@ -179,7 +179,13 @@ function engineJson(
   config: KiranaConfig,
   inline: KiranaConfig
 ): string {
-  const { presets = [], utilities, ...merged } = { ...config, ...inline }
+  // `ui` is `kirana-style ui`'s (D-103), never the engine's, which refuses keys it does not know.
+  const {
+    presets = [],
+    utilities,
+    ui: _registry,
+    ...merged
+  } = { ...config, ...inline }
   const jsx = merged.jsx ?? detectJsx(root)
   const grammar = mergeGrammars(
     [...presets.map((preset) => preset.utilities), utilities],

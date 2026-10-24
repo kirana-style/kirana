@@ -239,6 +239,16 @@ Who sets them:
 - [Docusaurus](/docs/frameworks/docusaurus) sets its webpack aliases, such as
   `@theme/` and `@docusaurus/`.
 
+## `ui`
+
+```ts
+ui: { framework: "react", preset: "k0" } // default: none
+```
+
+The component registry's settings, read by [`kirana-style ui`](/docs/tooling/cli#kirana-style-ui)
+and never by the compiler, which accepts the key and leaves it out of every
+compile. Their shape is the registry package's, which is not released yet.
+
 ## `root`
 
 Set by the adapter, not by you: the project root, which scopes a build and makes

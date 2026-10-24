@@ -9,7 +9,8 @@ export const COMMANDS: readonly string[] = [
   "init",
   "lsp",
   "migrate",
-  "trace"
+  "trace",
+  "ui"
 ]
 
 /** `@kirana-style/core`'s runtime exports, in source order. */

@@ -4402,6 +4402,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Specifier prefixes the bundler provides and Node.js resolution cannot find. An import from one is a runtime value, as an installed package's is, instead of an warning. Who sets them: the Ember adapter adds Ember's own: , , ; Meteor sets ; Docusaurus sets its webpack aliases, such as and ."
   },
   {
+    "id": "/docs/reference/config#ui",
+    "href": "/docs/reference/config#ui",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "ui",
+    "text": "The component registry's settings, read by and never by the compiler, which accepts the key and leaves it out of every compile. Their shape is the registry package's, which is not released yet."
+  },
+  {
     "id": "/docs/reference/config#root",
     "href": "/docs/reference/config#root",
     "page": "Configuration reference",
@@ -4414,7 +4422,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "href": "/docs/tooling/cli",
     "page": "The CLI",
     "section": "tooling",
-    "text": "What each kirana command does and what it prints, for init, doctor, dev, build, check, analyze, export, trace, migrate and lsp. "
+    "text": "What each kirana command does and what it prints, for init, doctor, dev, build, check, analyze, export, trace, migrate, lsp and ui. "
   },
   {
     "id": "/docs/tooling/cli#the-cli",
@@ -4529,6 +4537,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "prints an answer per question, and several pairs are answered in one run, each file compiled once: Nothing has to be parsed out of a line of text: each condition comes with its kind: a pseudo-class, an attribute, a media, container or supports query, or a relation; a pseudo-element or target is under ; is the ladder step that ranks an entry above the next one, or 0 where a recipe's merge decides."
   },
   {
+    "id": "/docs/tooling/cli#exit-codes",
+    "href": "/docs/tooling/cli#exit-codes",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "Exit codes",
+    "text": "exits with its package's code, or 1 when the project does not have that package."
+  },
+  {
     "id": "/docs/tooling/cli#kirana-style-migrate",
     "href": "/docs/tooling/cli#kirana-style-migrate",
     "page": "The CLI",
@@ -4551,6 +4567,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "tooling",
     "heading": "kirana-style lsp",
     "text": "Start the language server on stdin and stdout. Editors run it for you (see editor support ), but any LSP client can: It loads like every other command, indexes the project, and then answers hover, colour, completion, inlay-hint, code-lens, definition, reference and code-action requests from the same compiler session the build uses."
+  },
+  {
+    "id": "/docs/tooling/cli#kirana-style-ui",
+    "href": "/docs/tooling/cli#kirana-style-ui",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "kirana-style ui",
+    "text": "The component registry's commands. They live in their own package, , so the compiler every project installs carries no registry client: runs the project's copy of that package with the arguments after . The package is not released yet. Until it is, the command says so and exits 1: Its settings will live in under , which the compiler accepts and never reads."
   },
   {
     "id": "/docs/tooling/editor",

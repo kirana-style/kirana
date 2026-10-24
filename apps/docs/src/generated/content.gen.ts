@@ -4021,6 +4021,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "ui",
+        "text": "ui",
+        "level": 2
+      },
+      {
         "id": "root",
         "text": "root",
         "level": 2
@@ -4031,7 +4036,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/tooling/cli",
     "file": "content/docs/tooling/cli.md",
     "title": "The CLI",
-    "description": "What each kirana command does and what it prints, for init, doctor, dev, build, check, analyze, export, trace, migrate and lsp.",
+    "description": "What each kirana command does and what it prints, for init, doctor, dev, build, check, analyze, export, trace, migrate, lsp and ui.",
     "section": "tooling",
     "order": 1,
     "keywords": [
@@ -4049,7 +4054,9 @@ export const PAGES: readonly PageMeta[] = [
       "trace",
       "migrate",
       "codemod",
-      "command line"
+      "command line",
+      "ui",
+      "registry"
     ],
     "kind": "cli",
     "headings": [
@@ -4136,6 +4143,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "kirana-style-lsp",
         "text": "kirana-style lsp",
+        "level": 2
+      },
+      {
+        "id": "kirana-style-ui",
+        "text": "kirana-style ui",
         "level": 2
       }
     ]
@@ -6145,7 +6157,7 @@ export const NAV: readonly NavGroup[] = [
       {
         "title": "The CLI",
         "href": "/docs/tooling/cli",
-        "description": "What each kirana command does and what it prints, for init, doctor, dev, build, check, analyze, export, trace, migrate and lsp.",
+        "description": "What each kirana command does and what it prints, for init, doctor, dev, build, check, analyze, export, trace, migrate, lsp and ui.",
         "keywords": [
           "cli",
           "init",
@@ -6161,7 +6173,9 @@ export const NAV: readonly NavGroup[] = [
           "trace",
           "migrate",
           "codemod",
-          "command line"
+          "command line",
+          "ui",
+          "registry"
         ],
         "kind": "cli"
       },
