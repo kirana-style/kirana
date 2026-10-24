@@ -48,6 +48,11 @@ const REVIEWED: { pattern: RegExp; reason: string }[] = [
     reason:
       "no licence field: a dependency of Gatsby, which only the gatsby example installs",
   },
+  {
+    pattern: /^svelte-toolbelt$/,
+    reason:
+      "no licence field, MIT in its LICENSE file: a dependency of bits-ui, which only gen:states reads",
+  },
 ]
 
 /** An SPDX expression is allowed when one of its `OR` alternatives has every `AND` part allowed. */

@@ -1,7 +1,7 @@
 # @kirana-style/states
 
-Component states as [Kirana](https://kirana.style) condition keys, for Base UI, Ark UI and React
-Aria. A headless UI library tells its
+Component states as [Kirana](https://kirana.style) condition keys, for Base UI, Ark UI, React
+Aria, Reka UI, Bits UI and Angular Primitives. A headless UI library tells its
 parts' states through data attributes (`data-checked`, `data-side="bottom"`); this package lists
 them, per component and part, as the selectors Kirana's conditions already take. A misspelt state
 is a type error, and the editor shows the library's own description of each one.
@@ -27,11 +27,14 @@ condition does: nested in another, beside `media()`, in a relation (`field.withi
 and in recipes. The package has no runtime: the compiler reads the strings and they leave nothing
 behind.
 
-| Subpath        | Library                                                               | Generated from                                        |
-| -------------- | --------------------------------------------------------------------- | ----------------------------------------------------- |
-| `./base-ui`    | [Base UI](https://base-ui.com) (`@base-ui/react`)                     | each part's published `*DataAttributes` module        |
-| `./ark-ui`     | [Ark UI](https://ark-ui.com), on React, Vue, Solid and Svelte         | `@zag-js/docs`, the data attributes of Zag's machines |
-| `./react-aria` | [React Aria Components](https://react-spectrum.adobe.com/react-aria/) | each component's render props, by their `@selector`   |
+| Subpath           | Library                                                               | Generated from                                        |
+| ----------------- | --------------------------------------------------------------------- | ----------------------------------------------------- |
+| `./base-ui`       | [Base UI](https://base-ui.com) (`@base-ui/react`)                     | each part's published `*DataAttributes` module        |
+| `./ark-ui`        | [Ark UI](https://ark-ui.com), on React, Vue, Solid and Svelte         | `@zag-js/docs`, the data attributes of Zag's machines |
+| `./react-aria`    | [React Aria Components](https://react-spectrum.adobe.com/react-aria/) | each component's render props, by their `@selector`   |
+| `./reka-ui`       | [Reka UI](https://reka-ui.com), for Vue                               | each part's template, as the package ships it         |
+| `./bits-ui`       | [Bits UI](https://bits-ui.com), for Svelte                            | each part's state class, by the types of its `props`  |
+| `./ng-primitives` | [Angular Primitives](https://angularprimitives.com) (`ng-primitives`) | each primitive's data bindings and interactions       |
 
 Each subpath also exports `exclusive`: the states its library sets one at a time (`checked` and
 `unchecked`, `open` and `closed`), for `conditions.exclusive` in `kirana.config`, so a property set

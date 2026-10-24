@@ -369,6 +369,310 @@ function reactAria(): { vocabulary: Vocabulary; version: string } {
   return { vocabulary: sorted(out), version }
 }
 
+// Shared by the libraries read from their code ---------------------------------------------------
+
+/**
+ * The values a state takes, from the expression that sets it: the string literals it returns
+ * (`open ? 'open' : 'closed'`, `return "checked"`), never an empty one (an attribute's presence).
+ */
+function valuesIn(expression: string): string[] {
+  const found = [
+    ...expression.matchAll(
+      /(?:\?|:|return|=>|\|\||\?\?)\s*(["'`])([a-z0-9][a-z0-9-]*)\1/g
+    ),
+  ].map((match) => match[2]!)
+  return [...new Set(found)]
+}
+
+/** Adds a state to a part's list, merging the values of one attribute set in several places. */
+function addState(list: State[], attribute: string, values: readonly string[]) {
+  const existing = list.find((state) => state.attribute === attribute)
+  if (existing) {
+    for (const value of values)
+      if (!existing.values.includes(value)) existing.values.push(value)
+    return
+  }
+  list.push({
+    name: camel(attribute.replace(/^data-/, "")),
+    attribute,
+    doc: "",
+    values: [...values],
+  })
+}
+
+/**
+ * A part's name within its component, at a word boundary: `PopoverTrigger` is `Trigger`, `Popover`
+ * itself `Root`, and `Tabset` no part of `Tabs`.
+ */
+function partName(name: string, component: string): string | undefined {
+  if (name === component) return "Root"
+  const rest = name.slice(component.length)
+  return name.startsWith(component) && /^[A-Z]/.test(rest) ? rest : undefined
+}
+
+const byName = (list: State[]) =>
+  [...list].sort((a, b) => a.name.localeCompare(b.name))
+
+// Reka UI ---------------------------------------------------------------------------------------
+
+/** A component file's template, and the script beside it. */
+function vueParts(file: string) {
+  const text = readFileSync(file, "utf8")
+  const template = /<template>([\s\S]*)<\/template>\s*$/.exec(text)?.[1] ?? ""
+  const script = text.slice(0, text.indexOf("<template>"))
+  return { template, script }
+}
+
+/**
+ * The body of a helper an attribute's expression calls or reads (`getState(…)`, `dataState`), from
+ * the component's script or a module beside it, for the values it returns.
+ */
+function helperBody(name: string, script: string, directory: string): string {
+  const pattern = new RegExp(
+    `(?:function\\s+${name}\\b|(?:const|let)\\s+${name}\\s*=)[\\s\\S]*?(?:\\n\\s*\\n|$)`
+  )
+  const local = pattern.exec(script)?.[0]
+  if (local) return local
+  for (const file of readdirSync(directory).filter((entry) =>
+    entry.endsWith(".ts")
+  )) {
+    const found = pattern.exec(
+      readFileSync(path.join(directory, file), "utf8")
+    )?.[0]
+    if (found) return found
+  }
+  return ""
+}
+
+/**
+ * The `data-*` attributes a Reka UI component's template sets, and those of the library's own
+ * components it renders the element through: the root (`Presence`), or one an attribute is set on
+ * (`<PopperContent :data-state>`, which sets `side` and `align` on the same element).
+ */
+function rekaAttributes(
+  file: string,
+  source: string,
+  depth = 0
+): [string, string[]][] {
+  const { template, script } = vueParts(file)
+  const directory = path.dirname(file)
+  const out: [string, string[]][] = []
+  const tags = [
+    ...template
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .matchAll(
+        /<([A-Za-z][\w-]*)((?:\s+[^\s=>"'/]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*\/?>/g
+      ),
+  ]
+  for (const [index, [, tag, attributes]] of tags.entries()) {
+    let carries = index === 0
+    for (const match of attributes!.matchAll(
+      /(?:^|\s)(:|v-bind:)?(data-[a-z][a-z0-9-]*)(?:=(?:"([^"]*)"|'([^']*)'))?/g
+    )) {
+      const [, bound, attribute, double, single] = match
+      if (attribute!.startsWith("data-reka-")) continue
+      carries = true
+      const value = double ?? single ?? ""
+      if (!bound) {
+        out.push([attribute!, value ? [value] : []])
+        continue
+      }
+      let values = valuesIn(value)
+      const reference = /^\s*([A-Za-z_$][\w$]*)\s*(?:\(|$|\.value\s*$)/.exec(
+        value
+      )?.[1]
+      if (values.length === 0 && reference)
+        values = valuesIn(helperBody(reference, script, directory))
+      out.push([attribute!, values])
+    }
+    if (!carries || !/^[A-Z]/.test(tag!) || depth >= 3) continue
+    const imported = new RegExp(
+      `import\\s+(?:${tag}|\\{[^}]*\\b${tag}\\b[^}]*\\})\\s+from\\s+["']([^"']+)["']`
+    ).exec(script)?.[1]
+    if (!imported) continue
+    const target = imported.startsWith("@/")
+      ? path.join(source, imported.slice(2))
+      : path.join(directory, imported)
+    // A folder's index names the file: `export { default as PopperContent } from './PopperContent.vue'`.
+    const folderIndex = path.join(target, "index.ts")
+    const named =
+      existsSync(folderIndex) &&
+      new RegExp(
+        `default as ${tag}\\b[^}]*\\}\\s*from\\s*["']\\./(\\w+)\\.vue["']`
+      ).exec(readFileSync(folderIndex, "utf8"))?.[1]
+    const candidate = named
+      ? path.join(target, `${named}.vue`)
+      : target.endsWith(".vue")
+        ? target
+        : `${target}.vue`
+    if (existsSync(candidate))
+      out.push(...rekaAttributes(candidate, source, depth + 1))
+  }
+  return out
+}
+
+function rekaUi(): { vocabulary: Vocabulary; version: string } {
+  const { directory, version } = installed("reka-ui")
+  const source = path.join(directory, "src")
+  const out: Vocabulary = new Map()
+  for (const component of readdirSync(source).sort()) {
+    const folder = path.join(source, component)
+    const index = path.join(folder, "index.ts")
+    if (!existsSync(index)) continue
+    const exported = [
+      ...readFileSync(index, "utf8").matchAll(
+        /default as (\w+)[^}]*\}\s*from\s*["']\.\/(\w+)\.vue["']/g
+      ),
+    ].map(([, name, file]) => ({ name: name!, file: file! }))
+    const files = readdirSync(folder).filter((entry) => entry.endsWith(".vue"))
+    const byPart = new Map<string, State[]>()
+    for (const { name, file } of exported) {
+      const part = partName(name, component)
+      if (!part) continue
+      const list: State[] = []
+      // A part's internal variants (`PopoverContentImpl`, `…Modal`) render its element too.
+      const own = files.filter(
+        (entry) =>
+          entry === `${file}.vue` ||
+          (entry.startsWith(file) &&
+            !exported.some((other) => `${other.file}.vue` === entry))
+      )
+      for (const entry of own)
+        for (const [attribute, values] of rekaAttributes(
+          path.join(folder, entry),
+          source
+        ))
+          addState(list, attribute, values)
+      if (list.length) byPart.set(part, byName(list))
+    }
+    if (byPart.size) out.set(component, byPart)
+  }
+  return { vocabulary: sorted(out), version }
+}
+
+// Bits UI ---------------------------------------------------------------------------------------
+
+/** The `data-*` entries of a Bits UI state class's `props`: `"data-state": "open" | "closed"`. */
+function bitsProps(module: string, className: string): [string, string[]][] {
+  const text = readFileSync(module, "utf8")
+  const start = text.indexOf(`export declare class ${className} {`)
+  if (start < 0) return []
+  const body = text.slice(start, text.indexOf("\n}\n", start))
+  const props = /readonly props: \{([\s\S]*?)\n {4}\};/.exec(body)?.[1] ?? ""
+  return [
+    ...props.matchAll(/readonly "(data-[a-z][a-z0-9-]*)"\??: ([^;]+);/g),
+  ].map(([, attribute, type]) => [
+    attribute!,
+    [...type!.matchAll(/"([a-z0-9][a-z0-9-]*)"/g)].map((match) => match[1]!),
+  ])
+}
+
+function bitsUi(): { vocabulary: Vocabulary; version: string } {
+  const { directory, version } = installed("bits-ui")
+  const bits = path.join(directory, "dist/bits")
+  const out: Vocabulary = new Map()
+  const components = [
+    ...readFileSync(path.join(bits, "index.d.ts"), "utf8").matchAll(
+      /export \{ (\w+) \} from "\.\/([\w-]+)\/index\.js"/g
+    ),
+  ]
+  for (const [, component, folder] of components) {
+    const exports = path.join(bits, folder!, "exports.d.ts")
+    if (!existsSync(exports)) continue
+    const byPart = new Map<string, State[]>()
+    for (const [, part, from] of readFileSync(exports, "utf8").matchAll(
+      /export \{ default as (\w+) \} from "([^"]+)\.svelte"/g
+    )) {
+      const file = path.join(bits, folder!, `${from}.svelte`)
+      if (!existsSync(file)) continue
+      const text = readFileSync(file, "utf8")
+      const list: State[] = []
+      for (const [, className] of text.matchAll(/(\w+State)\.create\(/g)) {
+        const module = new RegExp(
+          `import \\{[^}]*\\b${className}\\b[^}]*\\} from "([^"]+)\\.js"`
+        ).exec(text)?.[1]
+        if (!module) continue
+        for (const [attribute, values] of bitsProps(
+          path.join(path.dirname(file), `${module}.d.ts`),
+          className!
+        )) {
+          // `data-popover-trigger`, `data-menu-item`: the part's name on its element, not a state.
+          const own = attribute.replace(/^data-/, "")
+          const names = [
+            folder!,
+            path.basename(path.dirname(path.dirname(file))),
+          ]
+          if (
+            values.length === 0 &&
+            names.some((name) => own.startsWith(`${name}-`))
+          )
+            continue
+          addState(list, attribute, values)
+        }
+      }
+      if (list.length) byPart.set(part!, byName(list))
+    }
+    if (byPart.size) out.set(component!, byPart)
+  }
+  return { vocabulary: sorted(out), version }
+}
+
+// Angular Primitives ----------------------------------------------------------------------------
+
+/** What `ngpInteractions({ … })` turns on, by the attribute each sets. */
+const INTERACTIONS: Readonly<Record<string, string>> = {
+  hover: "data-hover",
+  press: "data-press",
+  focus: "data-focus",
+  focusVisible: "data-focus-visible",
+}
+
+/** Entry points that hold the library's machinery rather than components. */
+const NG_MACHINERY = new Set([
+  "state",
+  "internal",
+  "utils",
+  "interactions",
+  "a11y",
+  "common",
+  "portal",
+])
+
+function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
+  const { directory, version } = installed("ng-primitives")
+  const modules = path.join(directory, "fesm2022")
+  const out: Vocabulary = new Map()
+  for (const file of readdirSync(modules).filter((entry) =>
+    /^ng-primitives-[\w-]+\.mjs$/.test(entry)
+  )) {
+    const entry = file.slice("ng-primitives-".length, -".mjs".length)
+    if (NG_MACHINERY.has(entry)) continue
+    const component = pascal(entry)
+    const text = readFileSync(path.join(modules, file), "utf8")
+    const blocks = text.split(/(?=createPrimitive\('Ngp)/).slice(1)
+    const byPart = new Map<string, State[]>()
+    for (const block of blocks) {
+      const name = /^createPrimitive\('Ngp(\w+)'/.exec(block)![1]!
+      // The block's own directive: a primitive another one only uses has no class of its own.
+      if (!text.includes(`class Ngp${name} {`)) continue
+      const part = partName(name, component) ?? name
+      const list: State[] = []
+      for (const [, attribute, expression] of block.matchAll(
+        /dataBinding\(\w+, '(data-[a-z][a-z0-9-]*)', ([^\n]*)\);/g
+      ))
+        addState(list, attribute!, valuesIn(expression!))
+      const interactions =
+        /ngpInteractions\(\{([^}]*)\}\)/.exec(block)?.[1] ?? ""
+      for (const [key, attribute] of Object.entries(INTERACTIONS))
+        if (new RegExp(`\\b${key}\\s*:\\s*(?!false)`).test(interactions))
+          addState(list, attribute, [])
+      if (list.length) byPart.set(part, byName(list))
+    }
+    if (byPart.size) out.set(component, byPart)
+  }
+  return { vocabulary: sorted(out), version }
+}
+
 // Writing ---------------------------------------------------------------------------------------
 
 /**
@@ -461,6 +765,9 @@ function write(
 const base = baseUi()
 const ark = await arkUi()
 const aria = reactAria()
+const reka = rekaUi()
+const bitsVocabulary = bitsUi()
+const ng = ngPrimitives()
 const outputs = [
   write(
     "base-ui.ts",
@@ -489,6 +796,33 @@ const outputs = [
       "// Aria's. Do not edit.",
     ],
     aria.vocabulary
+  ),
+  write(
+    "reka-ui.ts",
+    "Reka UI",
+    [
+      `// @generated by scripts/gen-states.ts from reka-ui ${reka.version} (MIT, Copyright (c) 2023 UnoVue):`,
+      "// each part's data attributes, read from its template. Do not edit.",
+    ],
+    reka.vocabulary
+  ),
+  write(
+    "bits-ui.ts",
+    "Bits UI",
+    [
+      `// @generated by scripts/gen-states.ts from bits-ui ${bitsVocabulary.version} (MIT, Copyright (c) 2023`,
+      "// Hunter Johnston): each part's data attributes, read from its state's props. Do not edit.",
+    ],
+    bitsVocabulary.vocabulary
+  ),
+  write(
+    "ng-primitives.ts",
+    "Angular Primitives",
+    [
+      `// @generated by scripts/gen-states.ts from ng-primitives ${ng.version} (Apache-2.0): each part's`,
+      "// data attributes, read from its bindings. Do not edit.",
+    ],
+    ng.vocabulary
   ),
 ]
 // Formatted with the repository's formatter so the CI freshness check compares like with like.
