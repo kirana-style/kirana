@@ -210,9 +210,9 @@ export const hint = css({
 ```
 
 **KRN-API-010** — `relation(name)` MUST return an object with `anchor` (a handle applied to the anchor
-element), `within(condition?)` (reader is a descendant of the anchor), `after(condition?)` (reader is
-a later sibling of the anchor) and `before(condition?)` (reader is an earlier sibling of the anchor,
-D-038). A reader applies when the anchor matches `condition`; `condition` may be
+element), `within(condition?)` (reader is a descendant of the anchor), `parent(condition?)` (reader is
+a child of the anchor, D-101), `after(condition?)` (reader is a later sibling of the anchor) and
+`before(condition?)` (reader is an earlier sibling of the anchor, D-038). A reader applies when the anchor matches `condition`; `condition` may be
 any pseudo-class, attribute selector, or `:has(...)`. Plain "this element contains X" needs no relation:
 use a `":has(X)"` condition key. Validation rules are owned by
 [08](./08-conditions-and-cascade.md#relation-validation).

@@ -26,6 +26,7 @@ export const box = css({
   padding: color.space,
   minHeight: firstThatWorks("100dvh", "100vh"),
   opacity: { [card.within(":hover")]: 0.5, [peer.after(":checked")]: 0.7, [peer.before()]: 0.9 },
+  zIndex: { [card.parent()]: 2 },
   "::before": { content: "''" },
   [select.child('[data-slot="icon"]')]: { width: "1rem", "::after": { content: "''" } },
   [select.descendant("svg")]: { height: "1rem" },
@@ -79,6 +80,7 @@ fn sites_describe_every_atom_readably() {
     find("opacity", "card.within(:hover)");
     find("opacity", "peer.after(:checked)");
     find("opacity", "peer.before()");
+    find("z-index", "card.parent()");
     let targets: Vec<(&str, &str)> = atoms.iter().map(|atom| (atom.property.as_str(), atom.target.as_str())).collect();
     assert!(targets.contains(&("content", "::before")));
     assert!(targets.contains(&("width", r##"> [data-slot="icon"]"##)));

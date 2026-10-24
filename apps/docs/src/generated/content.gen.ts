@@ -778,20 +778,26 @@ export const PAGES: readonly PageMeta[] = [
       "peer",
       "anchor",
       "within",
+      "parent",
       "after",
       "before",
       "state"
     ],
     "headings": [
       {
-        "id": "the-three-reads",
-        "text": "The three reads",
+        "id": "the-four-reads",
+        "text": "The four reads",
         "level": 2
       },
       {
         "id": "why-declare-it-at-all",
         "text": "Why declare it at all",
         "level": 2
+      },
+      {
+        "id": "nested-in-its-own-kind",
+        "text": "Nested in its own kind",
+        "level": 3
       },
       {
         "id": "anchors-are-placed-not-guessed",
@@ -5178,6 +5184,7 @@ export const NAV: readonly NavGroup[] = [
           "peer",
           "anchor",
           "within",
+          "parent",
           "after",
           "before",
           "state"

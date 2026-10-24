@@ -57,8 +57,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 836,
-      "end": 872
+      "start": 963,
+      "end": 979
     },
     "message": "reads a relation `within` its anchor, but no ancestor in this tree carries the anchor",
     "help": [
@@ -71,8 +71,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 879,
-      "end": 894
+      "start": 986,
+      "end": 1001
     },
     "message": "reads a relation `after` its anchor, but no earlier sibling carries the anchor",
     "help": [
@@ -85,8 +85,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 934,
-      "end": 951
+      "start": 1041,
+      "end": 1058
     },
     "message": "reads a relation `before` its anchor, but no later sibling carries the anchor",
     "help": [
@@ -99,8 +99,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 1076,
-      "end": 1104
+      "start": 1183,
+      "end": 1211
     },
     "message": "relation() takes a string name",
     "help": []

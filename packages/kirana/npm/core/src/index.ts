@@ -174,8 +174,10 @@ export type Relation = {
   readonly name: string
   /** Apply to the element whose state is read. */
   readonly anchor: StyleHandle
-  /** The reader is inside the anchor. */
+  /** The reader is inside the anchor, at any depth. */
   readonly within: (state?: string) => Condition
+  /** The reader is a child of the anchor, as Tailwind's `*:` reads it. */
+  readonly parent: (state?: string) => Condition
   /** The reader is a later sibling of the anchor. */
   readonly after: (state?: string) => Condition
   /** The reader is an earlier sibling of the anchor. */

@@ -44,6 +44,7 @@ pub(crate) fn conditions(set: &ConditionSet, relations: &BTreeMap<String, String
                     relation: Some(relations.get(marker).unwrap_or(marker).clone()),
                     placement: Some(match kind {
                         RelationKind::Within => "within",
+                        RelationKind::Parent => "parent",
                         RelationKind::After => "after",
                         RelationKind::Before => "before",
                     }),

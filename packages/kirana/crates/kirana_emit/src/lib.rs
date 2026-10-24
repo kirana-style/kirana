@@ -198,6 +198,7 @@ pub fn selector(atom: &Atom) -> String {
         relations += 1;
         let _ = match kind {
             RelationKind::Within => write!(selector, ":where(.{marker}{state} *{riding})"),
+            RelationKind::Parent => write!(selector, ":where(.{marker}{state} > *{riding})"),
             RelationKind::After => write!(selector, ":where(.{marker}{state} ~ *{riding})"),
             RelationKind::Before => write!(selector, ":where(:has(~ .{marker}{state}){riding})"),
         };

@@ -28,7 +28,9 @@ export function Good() {
 export function Bad() {
   return (
     <section>
+      {/* Accepted: an element carrying the anchor reads an outer one (KF-018). */}
       <label className="krLW1F k87-soRz_ufrO" />
+      <s className="k87-soRz_ufrO" />
       <p className="k5O_Im6t k5O-krb5_u3uh" />
       <input className="krzJXH" />
       <b className="k50-6nuf_D9ur" />

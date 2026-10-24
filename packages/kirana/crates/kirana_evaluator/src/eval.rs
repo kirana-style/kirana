@@ -553,6 +553,9 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                 "within" => {
                     Value::Method(Arc::new(Method::RelationRead(relation.clone(), kirana_ir::RelationKind::Within)))
                 }
+                "parent" => {
+                    Value::Method(Arc::new(Method::RelationRead(relation.clone(), kirana_ir::RelationKind::Parent)))
+                }
                 "after" => {
                     Value::Method(Arc::new(Method::RelationRead(relation.clone(), kirana_ir::RelationKind::After)))
                 }

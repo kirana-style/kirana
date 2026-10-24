@@ -237,6 +237,7 @@ fn readable(conditions: &ConditionSet, relations: &BTreeMap<&str, &str>) -> Vec<
                 let name = relations.get(marker.as_str()).copied().unwrap_or(marker);
                 let kind = match kind {
                     RelationKind::Within => "within",
+                    RelationKind::Parent => "parent",
                     RelationKind::After => "after",
                     RelationKind::Before => "before",
                 };

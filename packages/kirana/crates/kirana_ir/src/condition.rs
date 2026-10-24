@@ -10,6 +10,8 @@ use kirana_css_data::{is_pseudo_class, pseudo_class_rank};
 pub enum RelationKind {
     /// The reader is a descendant of the anchor (`field.within`).
     Within,
+    /// The reader is a child of the anchor (`field.parent`), as Tailwind's `*:` reads it.
+    Parent,
     /// The reader is a later sibling of the anchor (`field.after`).
     After,
     /// The reader is an earlier sibling of the anchor (`field.before`).

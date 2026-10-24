@@ -183,7 +183,11 @@ pub fn slot_of(text: &str, quote: usize) -> Slot {
 
 /// A key that names a condition rather than a property.
 fn is_condition(key: &str) -> bool {
-    key == "base" || key.starts_with([':', '@', '[']) || key.contains(".within(") || key.contains(".after(")
+    key == "base"
+        || key.starts_with([':', '@', '['])
+        || key.contains(".within(")
+        || key.contains(".parent(")
+        || key.contains(".after(")
 }
 
 /// A key that holds a style object (pseudo-element, `select.*`), not a property's value.

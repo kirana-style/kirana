@@ -117,7 +117,7 @@ export function eachStyleObject(
 const isRelationRead = (key: Node): boolean =>
   key.type === "CallExpression" &&
   key.callee.type === "MemberExpression" &&
-  ["within", "after", "before"].includes(key.callee.property.name)
+  ["within", "parent", "after", "before"].includes(key.callee.property.name)
 
 /** Visits every node below `node`, parents first. */
 export function walk(node: Node, visit: (node: Node) => void): void {
