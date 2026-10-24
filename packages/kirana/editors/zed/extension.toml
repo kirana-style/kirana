@@ -1,6 +1,6 @@
 id = "kirana-lsp"
 name = "Kirana"
-version = "0.3.1"
+version = "0.3.2"
 schema_version = 1
 authors = ["The Kirana authors"]
 description = "The Kirana language server: hover the CSS a style compiles to, token colours, an inline summary of what each element receives, completion and the compiler's diagnostics."
