@@ -80,9 +80,11 @@ fn check_tree(tree: &Tree, file: &str, out: &mut Vec<Diagnostic>) {
             let siblings: &[usize] = parent.map_or(&[], |parent| &tree.children[parent]);
             let position = siblings.iter().position(|sibling| *sibling == index).unwrap_or(0);
             let (ok, message, help) = match kind {
+                // An element that carries the anchor and reads it can only mean an outer instance of its
+                // own kind, beyond this tree: a group inside another group (KF-018).
                 RelationKind::Within => {
                     let mut ancestor = *parent;
-                    let mut found = false;
+                    let mut found = has(tree, index, marker);
                     while let Some(current) = ancestor {
                         found |= has(tree, current, marker);
                         ancestor = tree.nodes[current].1;
@@ -93,6 +95,11 @@ fn check_tree(tree: &Tree, file: &str, out: &mut Vec<Diagnostic>) {
                         "move the anchor to an element that wraps this one, or read it with `after`",
                     )
                 }
+                RelationKind::Parent => (
+                    has(tree, index, marker) || parent.is_some_and(|parent| has(tree, parent, marker)),
+                    "reads a relation `parent` of its anchor, but its parent in this tree does not carry the anchor",
+                    "put the anchor on the parent element, or read it with `within`",
+                ),
                 RelationKind::After => (
                     siblings[..position].iter().any(|sibling| has(tree, *sibling, marker)),
                     "reads a relation `after` its anchor, but no earlier sibling carries the anchor",

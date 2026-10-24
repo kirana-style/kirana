@@ -28,7 +28,9 @@ export function Good() {
 export function Bad() {
   return (
     <section>
+      {/* Accepted: an element carrying the anchor reads an outer one (KF-018). */}
       <label sx={[label, field.anchor]} />
+      <s sx={label} />
       <p sx={hint} />
       <input sx={peer.anchor} />
       <b sx={before} />

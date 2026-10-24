@@ -13,6 +13,7 @@
 | `dark:bg-zinc-900`                          | nothing: the colour token is a `light-dark()` pair                                    |
 | `group-hover:opacity-100`                   | `{ opacity: { [group.within(":hover")]: 1 } }` with `const group = relation("group")` |
 | `peer-checked:text-black`                   | `{ color: { [peer.after(":checked")]: "black" } }`                                    |
+| `*:w-full` on the parent                    | `{ width: { [group.parent()]: "100%" } }` on the child, the parent anchoring `group`  |
 | `[&_svg]:size-4`                            | `{ [select.descendant("svg")]: { width: …, height: … } }`                             |
 | `space-x-2`, `divide-y`                     | a `select.child(":not(:last-child)")` block                                           |
 | `data-[state=open]:rotate-90`               | `{ rotate: { '[data-state="open"]': "90deg" } }`                                      |

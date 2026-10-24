@@ -1,0 +1,16 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .kJ_ip70 {
+    gap: 1.75rem;
+  }
+  .kJ-0gNr_iExv:where(.krEKOt > *) {
+    gap: 1rem;
+  }
+  .kaF-0gNr_yp7g:where(.krEKOt > *) {
+    width: 100%;
+  }
+  .k87-t3NK_FaDM:where(.krEKOt:hover > *) {
+    opacity: 0.9;
+  }
+}

@@ -705,6 +705,7 @@ export const styles = {
       "@supports (display: grid)": "green",
       [field.after(":checked")]: "navy",
       [field.before(":checked")]: "teal",
+      [field.parent()]: "olive",
     },
     "::after": { content: '""' },
     padding: "1px",
@@ -753,6 +754,7 @@ export const chip = recipe({ slots: ["root"], base: { root: { height: "1rem" } }
     assert!(kinds.contains(&r#""supports" "(display: grid)" null"#.to_owned()), "{kinds:#?}");
     assert!(kinds.contains(&r#""relation" ":checked" "after""#.to_owned()), "{kinds:#?}");
     assert!(kinds.contains(&r#""relation" ":checked" "before""#.to_owned()), "{kinds:#?}");
+    assert!(kinds.contains(&r#""relation" "" "parent""#.to_owned()), "{kinds:#?}");
     assert!(styles[4]["entries"].as_array().unwrap().iter().any(|entry| entry["target"] == "::after"));
     let root_style = &styles[0];
     assert_eq!(root_style["anchors"], serde_json::json!(["field"]));

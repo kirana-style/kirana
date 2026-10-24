@@ -3,7 +3,7 @@ title: Relations
 description: Style an element from another element's state, as group and peer variants do, with the anchor stated in the source.
 section: composition
 order: 2
-keywords: [relation, group, peer, anchor, within, after, before, state]
+keywords: [relation, group, peer, anchor, within, parent, after, before, state]
 ---
 
 # Relations
@@ -42,13 +42,14 @@ it from a descendant.
 
 <!-- ::figure-relation -->
 
-## The three reads
+## The four reads
 
-| Read             | Means                                | Tailwind equivalent |
-| ---------------- | ------------------------------------ | ------------------- |
-| `within(state?)` | the anchor is an **ancestor**        | `group-*`           |
-| `after(state?)`  | the anchor is an **earlier sibling** | `peer-*`            |
-| `before(state?)` | the anchor is a **later sibling**    | none                |
+| Read             | Means                                | Tailwind equivalent  |
+| ---------------- | ------------------------------------ | -------------------- |
+| `within(state?)` | the anchor is an **ancestor**        | `group-*`            |
+| `parent(state?)` | the anchor is the **parent**         | `*:`, from the child |
+| `after(state?)`  | the anchor is an **earlier sibling** | `peer-*`             |
+| `before(state?)` | the anchor is a **later sibling**    | none                 |
 
 The `state` argument is any selector the anchor may match, such as
 `'[data-open]'`, `":hover"` or `'[data-size="lg"]'`. Omit it to mean "the anchor exists", which is
@@ -76,6 +77,27 @@ in this application. And because a relation is identified by its
 package and name, two modules of one package that both write `relation("card")`
 would share one marker without meaning to: `relation-name-collision` names both
 files. Export the relation from one module and import it where it is read.
+
+### Nested in its own kind
+
+A component can read its own relation to know it sits inside another of its
+kind: shadcn/ui's FieldGroup tightens a group directly inside another group. The
+group anchors the relation and reads it from the parent:
+
+```tsx
+const group = relation("field-group")
+
+const styles = {
+  group: css(group.anchor, {
+    gap: { base: "1.75rem", [group.parent()]: "1rem" },
+  }),
+}
+```
+
+An element that carries an anchor and reads it can only mean an outer one, so the
+placement check accepts it, for both kinds of ancestor read. A parent read reaches
+the anchor's children only, where `within` reaches any depth: a port of `*:w-full`
+written with `within` would also widen a grandchild inside a wrapper.
 
 ## Anchors are placed, not guessed
 

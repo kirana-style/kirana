@@ -73,7 +73,7 @@ compilation failures; it does not have a catalogue you can suppress, raise, or
 look up.
 
 **Relations are declared and checked.** `relation("field")` gives you an anchor
-and three reads, and the compiler errors when a relation is read but never
+and four reads, and the compiler errors when a relation is read but never
 anchored (`relation-without-anchor`) or anchored in a position that cannot match
 (`relation-placement`). StyleX's `when.*` with marker classes compiles either
 way, and a mis-placed marker is a rule that silently never fires.

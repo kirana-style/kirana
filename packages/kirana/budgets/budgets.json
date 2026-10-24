@@ -697,6 +697,18 @@
           "brotli": 251
         }
       },
+      "relations-parent": {
+        "css": {
+          "raw": 325,
+          "gzip": 195,
+          "brotli": 182
+        },
+        "js": {
+          "raw": 710,
+          "gzip": 344,
+          "brotli": 270
+        }
+      },
       "relations-placement": {
         "css": {
           "raw": 358,
@@ -704,9 +716,9 @@
           "brotli": 200
         },
         "js": {
-          "raw": 1015,
-          "gzip": 377,
-          "brotli": 352
+          "raw": 1137,
+          "gzip": 437,
+          "brotli": 371
         }
       },
       "relations-project-wide": {

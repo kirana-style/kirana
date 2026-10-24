@@ -970,11 +970,11 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Sometimes an element's style depends on another element's state: a label that dims when its field is disabled, an icon that rotates when its menu is open. A relation names that connection once, and both ends refer to it: marks the element whose state is read. reads it from a descendant."
   },
   {
-    "id": "/docs/styling/relations#the-three-reads",
-    "href": "/docs/styling/relations#the-three-reads",
+    "id": "/docs/styling/relations#the-four-reads",
+    "href": "/docs/styling/relations#the-four-reads",
     "page": "Relations",
     "section": "composition",
-    "heading": "The three reads",
+    "heading": "The four reads",
     "text": "The argument is any selector the anchor may match, such as , or . Omit it to mean \"the anchor exists\", which is how you style by structure rather than state."
   },
   {
@@ -984,6 +984,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "composition",
     "heading": "Why declare it at all",
     "text": "Because the compiler checks it. Two errors you get for free: : a style reads a relation, but nothing applies its anchor. In a class-string system this is a that silently never fires. An application's build checks the relations whose module it compiled, so a shared component may read an ancestor that only some applications render; checks every relation in the project. : the anchor cannot be proven to be in the right position: used where the anchor is not an earlier sibling, for example. A relation that is anchored and never read is reported too ( ), so dead relations do not accumulate. One that its module keeps to itself is checked in every build. One that is exported is checked where the whole project is compiled, by and in your editor: a bundler build compiles only the modules it reaches, so a shared component's reader may simply not be in this application. And because a relation is identified by its package and name, two modules of one package that both write would share one marker without meaning to: names both files. Export the relation from one module and import it where it is read."
+  },
+  {
+    "id": "/docs/styling/relations#nested-in-its-own-kind",
+    "href": "/docs/styling/relations#nested-in-its-own-kind",
+    "page": "Relations",
+    "section": "composition",
+    "heading": "Nested in its own kind",
+    "text": "A component can read its own relation to know it sits inside another of its kind: shadcn/ui's FieldGroup tightens a group directly inside another group. The group anchors the relation and reads it from the parent: An element that carries an anchor and reads it can only mean an outer one, so the placement check accepts it, for both kinds of ancestor read. A parent read reaches the anchor's children only, where reaches any depth: a port of written with would also widen a grandchild inside a wrapper."
   },
   {
     "id": "/docs/styling/relations#anchors-are-placed-not-guessed",
@@ -3735,7 +3743,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from StyleX",
     "section": "migration",
     "heading": "What Kirana has that StyleX does not",
-    "text": "The mapping above is close to one-to-one because both systems share a premise. These are the things that have no StyleX counterpart, and between them they are most of the reason Kirana exists. A stated precedence ladder, and a tool that reads it back. StyleX offers two modes (later-wins and property-specificity), and neither reproduced what the Tailwind components needed. Kirana has one ladder, and prints every candidate declaration, the winner, and the step that decided it. Ambiguity is reported. When two values could both apply and nothing orders them, the compiler says so ( ) instead of silently picking. is how you tell it that a library never sets two attributes together. A diagnostics catalogue. 48 codes with stable names, severities and help text, and a configuration key to re-level the non-errors. StyleX reports compilation failures; it does not have a catalogue you can suppress, raise, or look up. Relations are declared and checked. gives you an anchor and three reads, and the compiler errors when a relation is read but never anchored ( ) or anchored in a position that cannot match ( ). StyleX's with marker classes compiles either way, and a mis-placed marker is a rule that"
+    "text": "The mapping above is close to one-to-one because both systems share a premise. These are the things that have no StyleX counterpart, and between them they are most of the reason Kirana exists. A stated precedence ladder, and a tool that reads it back. StyleX offers two modes (later-wins and property-specificity), and neither reproduced what the Tailwind components needed. Kirana has one ladder, and prints every candidate declaration, the winner, and the step that decided it. Ambiguity is reported. When two values could both apply and nothing orders them, the compiler says so ( ) instead of silently picking. is how you tell it that a library never sets two attributes together. A diagnostics catalogue. 48 codes with stable names, severities and help text, and a configuration key to re-level the non-errors. StyleX reports compilation failures; it does not have a catalogue you can suppress, raise, or look up. Relations are declared and checked. gives you an anchor and four reads, and the compiler errors when a relation is read but never anchored ( ) or anchored in a position that cannot match ( ). StyleX's with marker classes compiles either way, and a mis-placed marker is a rule that "
   },
   {
     "id": "/docs/migration/from-stylex#what-stylex-has-that-kirana-does-not",

@@ -23,7 +23,7 @@ pub fn definition(server: &Server, params: &Value) -> Result<Value, String> {
     let (local, member) = chain.split_once('.').map_or((chain, ""), |(local, member)| (local, member));
     let Some(relation) = relation_named(server, &path, &text, local) else { return Ok(Value::Null) };
     // A read jumps to the anchors; the relation itself (or `.anchor`) to its declaration.
-    if matches!(member, "within" | "after" | "before") {
+    if matches!(member, "within" | "parent" | "after" | "before") {
         let anchors = occurrences(server, &relation.anchored_in, &[".anchor"], Some(local));
         if !anchors.is_empty() {
             return Ok(Value::Array(anchors));
@@ -51,7 +51,8 @@ pub fn references(server: &Server, params: &Value) -> Result<Value, String> {
     files.extend(relation.read_in.iter().cloned());
     files.sort();
     files.dedup();
-    let needles: Vec<String> = ["anchor", "within(", "after(", "before("].iter().map(|m| format!(".{m}")).collect();
+    let needles: Vec<String> =
+        ["anchor", "within(", "parent(", "after(", "before("].iter().map(|m| format!(".{m}")).collect();
     let needles: Vec<&str> = needles.iter().map(String::as_str).collect();
     Ok(Value::Array(occurrences(server, &files, &needles, Some(local))))
 }
