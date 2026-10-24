@@ -35,6 +35,17 @@ pub fn framework_of(path: &Path) -> Option<Framework> {
     }
 }
 
+/// Whether `path` is a component's script block as the build names it (`Card.vue.setup.ts`), whose
+/// template, which reads its bindings, is not part of the module.
+pub fn is_block_id(path: &Path) -> bool {
+    path.file_stem().map(Path::new).and_then(Path::file_stem).map(Path::new).is_some_and(|component| {
+        component
+            .extension()
+            .and_then(|extension| extension.to_str())
+            .is_some_and(|extension| COMPONENT_EXTENSIONS.contains(&extension))
+    })
+}
+
 /// One script block: its content's byte range in the component.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Block {

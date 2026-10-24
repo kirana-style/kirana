@@ -2375,12 +2375,20 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "takes what takes anywhere: a style, a list, conditionals. Vue merges the result with the element's own and ."
   },
   {
+    "id": "/docs/frameworks/vue#a-component-that-takes-sx",
+    "href": "/docs/frameworks/vue#a-component-that-takes-sx",
+    "page": "Vue",
+    "section": "frameworks",
+    "heading": "A component that takes  :sx",
+    "text": "On a component, a caller's arrives as the Vue falls through to its root, where Vue adds it beside the root's own classes: two classes for one property, and the stylesheet's order picks one. To let the caller's styles win, property by property, turn the fallthrough off and put them last in the root's own , with : is the caller's classes, and every other attribute it passed: listeners, and its inline style, bound on the same element. Then gives the button one class per property, the caller's where both set one."
+  },
+  {
     "id": "/docs/frameworks/vue#how-it-compiles",
     "href": "/docs/frameworks/vue#how-it-compiles",
     "page": "Vue",
     "section": "frameworks",
     "heading": "How it compiles",
-    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes with a call to Kirana's small runtime, which merges the styles when the component renders. Keep calls in the script: one written inside the template is not compiled, and says so when it runs."
+    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes with a call to Kirana's small runtime, which merges the styles when the component renders. Keep calls in the script: one written inside the template is not compiled, and says so when it runs. An element takes one object binding, so an element's own object is merged into the compiled one with Vue's . A component imported from a workspace package, outside the app's root, compiles and hot-reloads like one inside it."
   },
   {
     "id": "/docs/frameworks/vue#nuxt",
@@ -2538,6 +2546,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "frameworks",
     "heading": "5. Write a component",
     "text": "The element's own class and style attributes are merged into what produces, in order, and and directives keep working beside it."
+  },
+  {
+    "id": "/docs/frameworks/svelte#a-component-that-takes-sx",
+    "href": "/docs/frameworks/svelte#a-component-that-takes-sx",
+    "page": "Svelte",
+    "section": "frameworks",
+    "heading": "A component that takes  sx",
+    "text": "On a component, a caller's arrives as its and props. Take them and put the class last in the root's own , so the caller's styles win, property by property: Svelte passes nothing through on its own, so there is no fallthrough to turn off."
   },
   {
     "id": "/docs/frameworks/svelte#how-it-compiles",

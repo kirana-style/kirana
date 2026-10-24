@@ -259,6 +259,10 @@ async function packOne(name: string): Promise<string> {
         (file) => file.endsWith(".d.ts") && !file.includes("node_modules")
       )
       .filter((file) => !file.startsWith("test")),
+    // Hand-written JavaScript beside its declarations (`@kirana-style/core/vue`).
+    ...files(path.join(source, "src"))
+      .filter((file) => file.endsWith(".js"))
+      .map((file) => path.join("src", file)),
     // Angular CLI builders: their manifest, and the option schemas it names.
     ...files(path.join(source, "schemas")).map((file) =>
       path.join("schemas", file)

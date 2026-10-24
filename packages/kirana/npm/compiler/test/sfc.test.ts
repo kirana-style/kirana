@@ -95,6 +95,21 @@ describe("KRN-INT-004 Vue", () => {
     expect(result.cssChanged).toBe(true)
   })
 
+  it("folds an element's v-bind object into :sx, for a component that takes its caller's sx (KF-019)", async () => {
+    const { result } = await compile(
+      "Button.vue",
+      `<script setup lang="ts">\nimport { useSx } from "@kirana-style/core/vue"\ndefineOptions({ inheritAttrs: false })\nconst { sx, attrs } = useSx()\n${SCRIPT}</script>\n<template>\n  <button v-bind="attrs" :sx="[card, sx]"><slot /></button>\n</template>\n`
+    )
+    expect(result.code).toContain(
+      '<button  v-bind="__kirana_merge(attrs, __kirana_sfc.sx([[card, sx]], [], []))">'
+    )
+    expect(result.code).toContain(
+      'import { mergeProps as __kirana_merge } from "vue";'
+    )
+    // The template reads `sx`; the script block alone does not, and is not told it never applies it.
+    expect(result.diagnostics.map((diagnostic) => diagnostic.name)).toEqual([])
+  })
+
   it("adds a <script setup> when the template has nothing to call", async () => {
     const withScript = await compile(
       "A.vue",

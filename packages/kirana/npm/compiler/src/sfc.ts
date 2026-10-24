@@ -54,6 +54,11 @@ type Binding = {
   /** Svelte and Astro: the element's own class and style, folded into the call and removed. */
   class?: { start: number; end: number; expression: string }
   style?: { start: number; end: number; expression: string }
+  /**
+   * Vue: the element's own `v-bind="…"` object. An element takes one, so it is folded into the call
+   * with Vue's `mergeProps` and removed (`v-bind="attrs" :sx="[own, sx]"`, `useSx()`).
+   */
+  spread?: { start: number; end: number; expression: string }
 }
 type Parsed = {
   blocks: Block[]
@@ -65,6 +70,9 @@ type Parsed = {
 /** The runtime the template's spreads call, created with the `class` attribute. */
 const runtime = (prefix: string) =>
   `\nimport { runtime as __kirana_runtime_sfc } from "@kirana-style/core/internal";\nconst __kirana_sfc = __kirana_runtime_sfc(${JSON.stringify(prefix)}, "class");\n`
+
+/** Vue's own merge of attribute objects, for an element whose `v-bind="…"` is folded into `:sx`. */
+const MERGE = `import { mergeProps as __kirana_merge } from "vue";\n`
 
 /**
  * Svelte and Astro set `style` from a spread as text, so the runtime's style object (bridged custom
@@ -172,6 +180,10 @@ async function parseVue(
   const setup = block("setup", descriptor.scriptSetup)
   const bindings: Binding[] = []
   const walk = (node: VueNode) => {
+    // `v-bind="…"`: a directive (7) binding no argument, an object of attributes.
+    const object = node.props?.find(
+      (prop) => prop.type === 7 && prop.name === "bind" && !prop.arg && prop.exp
+    )
     for (const prop of node.props ?? []) {
       // `:sx="…"` and `v-bind:sx="…"`: a directive (7) binding the `sx` argument.
       if (
@@ -184,6 +196,15 @@ async function parseVue(
           start: prop.loc.start.offset,
           end: prop.loc.end.offset,
           expression: prop.exp.content,
+          ...(object
+            ? {
+                spread: {
+                  start: object.loc.start.offset,
+                  end: object.loc.end.offset,
+                  expression: object.exp!.content,
+                },
+              }
+            : {}),
         })
       }
     }
@@ -535,7 +556,7 @@ export async function compileComponent(options: {
   const injection =
     parsed.bindings.length === 0
       ? ""
-      : runtime(prefix) + (framework === "vue" ? "" : ATTRS)
+      : runtime(prefix) + (framework === "vue" ? MERGE : ATTRS)
 
   for (const block of parsed.blocks) {
     const id = `${file}.${block.label}.${block.lang}`
@@ -579,10 +600,17 @@ export async function compileComponent(options: {
 
   for (const binding of parsed.bindings) {
     if (framework === "vue") {
+      const props = `__kirana_sfc.sx([${binding.expression}], [], [])`
+      if (binding.spread) magic.remove(binding.spread.start, binding.spread.end)
       magic.overwrite(
         binding.start,
         binding.end,
-        quoted("v-bind", `__kirana_sfc.sx([${binding.expression}], [], [])`)
+        quoted(
+          "v-bind",
+          binding.spread
+            ? `__kirana_merge(${binding.spread.expression}, ${props})`
+            : props
+        )
       )
       continue
     }

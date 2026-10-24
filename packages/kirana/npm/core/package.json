@@ -42,7 +42,8 @@
       "types": "./src/qwik.d.ts"
     },
     "./vue": {
-      "types": "./src/vue.d.ts"
+      "types": "./src/vue.d.ts",
+      "default": "./src/vue.js"
     },
     "./svelte": {
       "types": "./src/svelte.d.ts"
@@ -58,5 +59,13 @@
   },
   "dependencies": {
     "csstype": "^3.2.3"
+  },
+  "peerDependencies": {
+    "vue": ">=3.3"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    }
   }
 }

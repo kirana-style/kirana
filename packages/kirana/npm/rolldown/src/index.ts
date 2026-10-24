@@ -168,6 +168,9 @@ export function createKirana(
           const compiler = await session()
           if (!compiler.compiles(id)) return null
           const source = await readFile(id, "utf8")
+          // Vite watches a file outside the root only when it reads the file itself; a component read
+          // here, from a workspace package beside the app, would otherwise never hot-reload (KF-020).
+          this.addWatchFile(id)
           const result = await compiler.transformComponent(id, source)
           for (const dependency of result.dependencies)
             this.addWatchFile(dependency)
