@@ -1,6 +1,6 @@
 /**
  * `@kirana-style/states`: what holds across the library vocabularies (`./base-ui`, `./ark-ui`,
- * `./react-aria`).
+ * `./react-aria`, `./reka-ui`, `./bits-ui`, `./ng-primitives`).
  */
 
 /** One attribute selector, or the negation of one (React Aria's `:not([aria-valuenow])`). */

@@ -1421,6 +1421,22 @@ the implementation tracker names its evidence.
 - **Elaborated in:** [06-authoring-api](./06-authoring-api.md),
   [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 
+### D-102 — Vocabularies read from code a library ships
+
+- **Status:** Accepted (2026-10-24).
+- **Decision:** `@kirana-style/states` adds Reka UI, Bits UI and Angular Primitives, generated like the
+  others by `gen-states.ts` from the pinned packages, but read from their code: Reka UI's shipped
+  templates, Bits UI's state classes' `props` types, Angular Primitives' `dataBinding` calls. A value
+  the code computes rather than writes is its attribute's presence, and the entries carry no
+  descriptions.
+- **Rationale:** the three document their states only in prose on their sites, so there is no
+  declaration to read as there is for Base UI, Zag and React Aria; the code is what sets the attributes,
+  pinned and regenerated in CI like the rest.
+- **Trade-off:** a state set in a way the reader does not follow (an attribute spread from an object, a
+  value computed through a type) is missing or presence-only until the reader learns it; each
+  vocabulary's test checks every name against the package and spot-checks known states.
+- **Elaborated in:** [11-integrations](./11-integrations.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                       |
@@ -1431,7 +1447,7 @@ the implementation tracker names its evidence.
 | [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101                                    |
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                 |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                       |
-| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100                                    |
+| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                             |
 | [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097                                                         |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                            |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                           |

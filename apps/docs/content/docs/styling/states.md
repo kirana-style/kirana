@@ -91,11 +91,14 @@ Each one is generated from what its library publishes about its parts, so the
 names are the library's own and a state the library does not document is not
 there. CI regenerates them and checks every name against the library's exports.
 
-| Import                            | Library                                 | Generated from                                                   |
-| --------------------------------- | --------------------------------------- | ---------------------------------------------------------------- |
-| `@kirana-style/states/base-ui`    | Base UI                                 | each part's `*DataAttributes` declarations                       |
-| `@kirana-style/states/ark-ui`     | Ark UI, on React, Vue, Solid and Svelte | `@zag-js/docs`, the reference of the Zag machines Ark UI runs on |
-| `@kirana-style/states/react-aria` | React Aria Components                   | each component's render props, by their `@selector`              |
+| Import                               | Library                                 | Generated from                                                   |
+| ------------------------------------ | --------------------------------------- | ---------------------------------------------------------------- |
+| `@kirana-style/states/base-ui`       | Base UI                                 | each part's `*DataAttributes` declarations                       |
+| `@kirana-style/states/ark-ui`        | Ark UI, on React, Vue, Solid and Svelte | `@zag-js/docs`, the reference of the Zag machines Ark UI runs on |
+| `@kirana-style/states/react-aria`    | React Aria Components                   | each component's render props, by their `@selector`              |
+| `@kirana-style/states/reka-ui`       | Reka UI, for Vue                        | each part's template, as the package ships it                    |
+| `@kirana-style/states/bits-ui`       | Bits UI, for Svelte                     | each part's state class, by the types of its `props`             |
+| `@kirana-style/states/ng-primitives` | Angular Primitives                      | each primitive's data bindings, and the interactions it turns on |
 
 They differ where the libraries do:
 
@@ -105,6 +108,13 @@ They differ where the libraries do:
 - **React Aria** names a component per part, with no namespace:
   `Button.focusVisible`, `ListBoxItem.selected`. A state a component inherits
   from another's render props is there too.
+- **Reka UI, Bits UI and Angular Primitives** document their states only in
+  prose, so their vocabularies are read from the code the packages ship, with
+  no descriptions. A value the code computes rather than writes, such as Reka
+  UI's `side`, is its attribute's presence.
+- **Angular Primitives** keys the primitive named for its component
+  (`ngpPopover`) as `Root`, and lists the interactions a primitive turns on
+  (hover, press, focus) as its states.
 
 | State                     | Example                       | Selector                     |
 | ------------------------- | ----------------------------- | ---------------------------- |
