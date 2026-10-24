@@ -168,7 +168,7 @@ pub fn execute(server: &Server, params: &Value) -> Result<Value, String> {
                     "{}. `{}` at `{}` ({}, `{}`) — {marker}{}\n",
                     position + 1,
                     entry.value,
-                    entry.conditions,
+                    entry.context(),
                     entry.layer,
                     entry.class,
                     if entry.reason.is_empty() { String::new() } else { format!(": {}", entry.reason) }

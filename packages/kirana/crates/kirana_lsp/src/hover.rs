@@ -48,7 +48,7 @@ pub fn hover(server: &Server, params: &Value) -> Result<Value, String> {
             out.push_str("\n**Precedence**, strongest first:\n\n");
             for entry in &trace {
                 let why = if entry.reason.is_empty() { String::new() } else { format!(" — {}", entry.reason) };
-                out.push_str(&format!("- `{}` at `{}`{why}\n", entry.value, entry.conditions));
+                out.push_str(&format!("- `{}` at `{}`{why}\n", entry.value, entry.context()));
             }
         }
         if !server.is_component(&path) {

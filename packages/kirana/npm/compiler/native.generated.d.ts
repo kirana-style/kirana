@@ -59,6 +59,21 @@ export declare class Compiler {
   resolve(from: string, specifier: string): string | null
   /** Every relation the session has seen declared, as JSON. */
   relations(): string
+  /**
+   * Answers each query as `kirana-style trace --format json` does, as JSON, compiling each file
+   * once (KF-022).
+   */
+  trace(queries: Array<TraceQuery>): string
+  /**
+   * What `kirana-style export` prints for `paths`, with each style's and recipe's definition when
+   * `definitions` is set (KF-023), as JSON.
+   */
+  export(paths: Array<string>, definitions: boolean): string
+  /**
+   * A Tailwind class string lowered as `kirana-style migrate tailwind` lowers it in `file`
+   * (KF-004), as JSON; throws without a utility grammar.
+   */
+  lowerTailwind(file: string, classes: string): string
 }
 
 /** The class map for server templates (D-069). */
@@ -109,6 +124,13 @@ export declare function runLsp(configJson: string): number
  * is `test/sfc-scan.test.ts`.
  */
 export declare function scanComponent(file: string, source: string): string
+
+/** One question for `Compiler.trace`: which value wins for `property` at `file:line` (1-based). */
+export interface TraceQuery {
+  file: string
+  line: number
+  property: string
+}
 
 /** The result of one module transform. */
 export interface TransformResult {

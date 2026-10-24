@@ -101,7 +101,8 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             }
         }
         let handles = code.handles.into_iter().map(|handle| (span, handle)).collect();
-        self.edits.push(Edit { start: span.0, end: span.1, pieces: code.pieces, handles, marker_deps });
+        let recipes = code.recipes.into_iter().map(|recipe| (span, recipe)).collect();
+        self.edits.push(Edit { start: span.0, end: span.1, pieces: code.pieces, handles, recipes, marker_deps });
     }
 
     fn report(&mut self, code: DiagnosticCode, span: (u32, u32), message: &str, help: Option<&str>) {

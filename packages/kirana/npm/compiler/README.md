@@ -10,7 +10,7 @@ itself is the `kirana-style` package)
 ```bash
 kirana-style build <paths…> --out dist/kirana.css [--minify]   # compile and write the stylesheet
 kirana-style check <paths…> [--format human|json]             # diagnostics; exits 1 on errors
-kirana-style trace <file>:<line> <property>                   # why a value wins at one site
+kirana-style trace <file>:<line> <property>… [--format json] # why a value wins at one site
 ```
 
 `kirana.config.ts` (or `.mts`, `.js`, `.mjs`, `.json`) is read from the working directory.
@@ -31,6 +31,13 @@ const driver = await Driver.create({ root: process.cwd() })
 const result = driver.transform("/abs/path/button.tsx", source) // { code?, map?, diagnostics, cssChanged, dependencies }
 const css = driver.stylesheet(true)
 const affected = driver.invalidate("/abs/path/tokens.ts") // importers to recompile
+
+// For tools, from the same session: each file compiled once.
+const answers = driver.trace([
+  { file: "src/button.ts", line: 3, property: "height" },
+]) // trace --format json
+const system = driver.export(["src"], { definitions: true }) // export --definitions
+const lowered = driver.lowerTailwind("gap-1 px-2.5", "src/report.tsx") // { style, module, anchors, left, notes }
 ```
 
 A module the prefilter rejects returns no `code`: keep the original.

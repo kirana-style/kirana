@@ -196,7 +196,7 @@ export const tall = css({ minHeight: firstThatWorks("100dvh", "100vh") })
     assert!(reasons.iter().any(|reason| reason.starts_with("step 1")), "{reasons:?}");
     assert_eq!(lines.last().unwrap().layer, "kirana.contextual");
     assert_eq!(lines.last().unwrap().reason, "");
-    assert!(lines.iter().any(|line| line.conditions == "base"));
+    assert!(lines.iter().any(|line| line.condition_text == "base" && line.conditions.is_empty()));
     let padding = project.trace(&path, source, 14, "padding-top");
     assert_eq!((padding[0].value.as_str(), padding[0].reason.as_str()), ("2px", "step 5 (set 1 longhand < 4)"));
     let border = project.trace(&path, source, 15, "border-top-color");
@@ -205,6 +205,28 @@ export const tall = css({ minHeight: firstThatWorks("100dvh", "100vh") })
     assert_eq!(tall[0].value, "firstThatWorks(100dvh, 100vh)");
     assert!(project.trace(&path, source, 99, "width").is_empty());
     assert!(project.trace(&root.join("other.ts"), source, 3, "width").is_empty());
+    fs::remove_dir_all(root).unwrap();
+}
+
+/// On a recipe's line, two parts of one slot that set the same entry are ordered by the merge, the
+/// later part first, and each names its part.
+#[test]
+fn a_recipe_trace_orders_merged_parts() {
+    let source = "import { recipe } from \"@kirana-style/core\"\nexport const chip = recipe({ base: { width: \"1rem\" }, variants: { size: { sm: { width: \"2rem\" } } } })\n";
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("chip.ts", source)]);
+    let path = root.join("chip.ts");
+    project.transform(&path, source);
+    let lines = project.trace(&path, source, 2, "width");
+    let shown: Vec<(String, String, Option<u8>)> =
+        lines.iter().map(|line| (line.value.clone(), line.context(), line.step)).collect();
+    assert_eq!(
+        shown,
+        [
+            ("2rem".to_owned(), "base [size: sm]".to_owned(), Some(0)),
+            ("1rem".to_owned(), "base [base]".to_owned(), None)
+        ]
+    );
+    assert_eq!(lines[0].reason, "merge (size: sm replaces base)");
     fs::remove_dir_all(root).unwrap();
 }
 
@@ -291,6 +313,39 @@ fn an_edited_or_removed_module_forgets_its_declarations() {
     );
     // Removing a transformed module drops what it declared too.
     assert!(project.remove(&input));
+    fs::remove_dir_all(root).unwrap();
+}
+
+/// One group name in two packages is not a collision, since identities carry the package, but it is
+/// pointed out (KF-011), and `export` names each token's package.
+#[test]
+fn a_group_name_two_packages_share_is_pointed_out() {
+    let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const theme = defineTokens(\"theme\", { background: { value: \"white\", variable: true } })\n";
+    let (root, project) = temp_project(&[
+        ("package.json", "{\"name\":\"app\"}"),
+        ("tokens.ts", tokens),
+        ("registry/package.json", "{\"name\":\"@workspace/registry\"}"),
+        ("registry/tokens.ts", tokens),
+        (
+            "input.ts",
+            "import { css } from \"@kirana-style/core\"\nimport { theme } from \"./tokens\"\nimport { theme as other } from \"./registry/tokens\"\nexport const box = css({ color: theme.background, background: other.background })\n",
+        ),
+    ]);
+    let input = root.join("input.ts");
+    project.transform(&input, &fs::read_to_string(&input).unwrap());
+    let shared: Vec<String> = project
+        .diagnostics()
+        .iter()
+        .filter(|diagnostic| diagnostic.code == Code::TokenNamespaceShared)
+        .map(|diagnostic| diagnostic.message.clone())
+        .collect();
+    assert_eq!(shared.len(), 1, "{shared:?}");
+    assert!(shared[0].contains("\"theme\" is also declared by \"@workspace/registry\""), "{shared:?}");
+    assert!(!project.diagnostics().iter().any(|diagnostic| diagnostic.code == Code::TokenNamespaceCollision));
+    let design = project.design_system(std::slice::from_ref(&root));
+    let packages: Vec<(&str, &str)> =
+        design.tokens.iter().map(|token| (token.package.as_str(), token.identity.as_str())).collect();
+    assert_eq!(packages, [("@workspace/registry", "theme.background"), ("app", "theme.background")]);
     fs::remove_dir_all(root).unwrap();
 }
 

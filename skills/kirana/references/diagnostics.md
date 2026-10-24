@@ -38,6 +38,7 @@ Full page: https://kirana.style/docs/tooling/diagnostics.md
 | KRN1504 | `dynamic-token` | error | A token value is not known at build time. Token values must be static; bridge runtime values in the style instead. |
 | KRN1505 | `unsupported-dtcg-type` | error | Reserved, not emitted yet (DTCG import is not built): a DTCG token type the importer does not map. Convert it to a plain value. |
 | KRN1506 | `token-not-variable` | error | A theme overrides, or a style needs to vary, a token declared without `{ variable: true }`. Declare it as a variable token. |
+| KRN1507 | `token-namespace-shared` | info | Info: two packages declare a token group of one name. Their tokens compile apart but read alike as `group.*`; `kirana-style export` names each token's package. Rename one if both are in use. |
 | KRN1601 | `dynamic-bridged` | info | Info: a runtime value became a custom property and an inline `style`. Fine for continuous values; a few known values are cheaper as variants. |
 | KRN1602 | `branch-budget-exceeded` | error | Too many runtime branches in one style. Split it into separate handles, or raise `dynamic.branchBudget`. |
 | KRN1603 | `dynamic-key` | error | A property or condition key known only at runtime. Use a fixed key and put the choice in the value. |

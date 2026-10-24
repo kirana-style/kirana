@@ -172,6 +172,51 @@ export const Card = () => <article sx={card.anchor}><h2 sx={title} /></article>
     ])
   })
 
+  it("answers tools in one compile: trace, definitions, the Tailwind lowering", async () => {
+    const root = project({
+      "package.json": '{"name":"app"}',
+      "scales.ts": `import { defineTokens } from "@kirana-style/core"
+export const space = defineTokens("space", { "2": "0.5rem" })
+`,
+      "src/button.ts": `import { recipe } from "@kirana-style/core"
+export const button = recipe({
+  base: { height: "2rem" },
+  variants: { size: { sm: { height: "1.5rem" } } },
+})
+`,
+    })
+    const driver = await Driver.create({
+      root,
+      config: {
+        utilities: {
+          scales: { space: [{ module: "./scales.ts", export: "space" }] },
+          utilities: { p: [{ properties: ["padding"], scale: "space" }] },
+        },
+      },
+    })
+    const [answer, missing] = driver.trace([
+      { file: "src/button.ts", line: 2, property: "height" },
+      { file: "src/missing.ts", line: 1, property: "height" },
+    ])
+    expect(answer!.file).toBe("src/button.ts")
+    expect(answer!.entries.map((entry) => [entry.value, entry.part])).toEqual([
+      ["1.5rem", { options: { size: "sm" }, compound: false }],
+      ["2rem", { options: {}, compound: false }],
+    ])
+    expect(answer!.entries[0]!.step).toBe(0)
+    expect(missing!.error).toMatch(/^cannot read .*src\/missing\.ts$/)
+    const exported = driver.export(["src"], { definitions: true })
+    expect(exported.recipes[0]!.parts![1]!.entries[0]!.value).toBe("1.5rem")
+    expect(driver.export(["src"]).recipes[0]!.parts).toBeUndefined()
+    const lowered = driver.lowerTailwind("p-2", "src/card.tsx")
+    expect(lowered.style).toBe("css({\n    padding: space[2],\n  })")
+    expect(lowered.module).toContain('import { space } from "../scales"')
+    const bare = await Driver.create({ root })
+    expect(() => bare.lowerTailwind("p-2")).toThrow(
+      "the Tailwind lowering needs a utility grammar"
+    )
+  })
+
   it("loads configuration files and inline overrides", async () => {
     const ts = project({
       "kirana.config.ts": 'export default { names: { prefix: "ds" } }',

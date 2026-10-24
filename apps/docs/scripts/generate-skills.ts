@@ -83,6 +83,8 @@ const FIXES: Record<string, string> = {
     "Reserved, not emitted yet (DTCG import is not built): a DTCG token type the importer does not map. Convert it to a plain value.",
   "token-not-variable":
     "A theme overrides, or a style needs to vary, a token declared without `{ variable: true }`. Declare it as a variable token.",
+  "token-namespace-shared":
+    "Info: two packages declare a token group of one name. Their tokens compile apart but read alike as `group.*`; `kirana-style export` names each token's package. Rename one if both are in use.",
   "dynamic-bridged":
     "Info: a runtime value became a custom property and an inline `style`. Fine for continuous values; a few known values are cheaper as variants.",
   "branch-budget-exceeded":

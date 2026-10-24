@@ -272,3 +272,12 @@ justifyContent at src/components/drawer.tsx:88
   ✓ center                   @media (width >= 48rem)          kirana.atoms       step 2 (1 condition > 0)
     start                    base                             kirana.atoms
 ```
+
+On a `recipe()` the explanation names the part each entry comes from (the base, a variant option or a
+compound variant, and its slot). Two entries of one slot with the same key are ordered by the recipe's
+merge, the later part replacing the earlier, not by the ladder (step 0, `merge`). For tools,
+`kirana-style trace --format json` gives each entry as data: value, each condition with its kind
+(`pseudo`, `attribute`, `media`, `container`, `supports`, `relation` with the relation's name and
+placement), layer, target, class, recipe part, step and reason. Several `file:line property` pairs are
+answered in one run, each file compiled once, and `Driver.trace()` answers the same from code
+(D-096).

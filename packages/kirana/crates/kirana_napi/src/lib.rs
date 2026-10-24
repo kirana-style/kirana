@@ -21,6 +21,14 @@ pub struct TransformResult {
     pub dependencies: Vec<String>,
 }
 
+/// One question for `Compiler.trace`: which value wins for `property` at `file:line` (1-based).
+#[napi(object)]
+pub struct TraceQuery {
+    pub file: String,
+    pub line: u32,
+    pub property: String,
+}
+
 /// The class map for server templates (D-069).
 #[napi(object)]
 pub struct ClassMapResult {
@@ -234,6 +242,45 @@ impl Compiler {
     #[napi]
     pub fn relations(&self) -> String {
         to_json(&self.project.relations())
+    }
+
+    /// Answers each query as `kirana-style trace --format json` does, as JSON, compiling each file
+    /// once (KF-022).
+    #[napi]
+    pub fn trace(&self, queries: Vec<TraceQuery>) -> String {
+        let queries: Vec<kirana_project::TraceQuery> = queries
+            .into_iter()
+            .map(|query| kirana_project::TraceQuery {
+                file: query.file,
+                line: query.line as usize,
+                property: query.property,
+            })
+            .collect();
+        to_json(&self.project.trace_all(&queries))
+    }
+
+    /// What `kirana-style export` prints for `paths`, with each style's and recipe's definition when
+    /// `definitions` is set (KF-023), as JSON.
+    #[napi]
+    pub fn export(&self, paths: Vec<String>, definitions: bool) -> String {
+        let paths: Vec<PathBuf> = paths.into_iter().map(PathBuf::from).collect();
+        to_json(&self.project.export(&paths, definitions).0)
+    }
+
+    /// A Tailwind class string lowered as `kirana-style migrate tailwind` lowers it in `file`
+    /// (KF-004), as JSON; throws without a utility grammar.
+    #[napi]
+    pub fn lower_tailwind(&self, file: String, classes: String) -> napi::Result<String> {
+        let lowering =
+            kirana_cli::lower_tailwind(&self.project, Path::new(&file), &classes).map_err(napi::Error::from_reason)?;
+        Ok(serde_json::json!({
+            "style": lowering.style,
+            "module": lowering.module,
+            "anchors": lowering.anchors,
+            "left": lowering.left,
+            "notes": lowering.notes,
+        })
+        .to_string())
     }
 }
 

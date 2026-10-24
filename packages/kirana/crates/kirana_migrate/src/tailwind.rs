@@ -250,6 +250,54 @@ pub fn migrate(path: &Path, source: &str, options: &Options<'_>, environment: &d
     }
 }
 
+/// One class string, lowered as `kirana-style migrate tailwind` lowers a `className` (KF-004).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Lowering {
+    /// The `css()` call the class string becomes; `None` when nothing in it sets a value.
+    pub style: Option<String>,
+    /// A module holding it as `styles.style`, with the imports, relations and per-mode tokens it
+    /// needs, as the codemod would write them into a file at the given path, and what an element's
+    /// `sx` then holds (`const sx = [...]`).
+    pub module: String,
+    /// Relation identifiers the element anchors (`group/menu` gives `menuGroup`): apply
+    /// `<identifier>.anchor` beside the style.
+    pub anchors: Vec<String>,
+    /// Utilities left out, each with the reason, as the codemod leaves them in a comment.
+    pub left: Vec<String>,
+    /// What the codemod reports beside the rewrite.
+    pub notes: Vec<String>,
+}
+
+/// Lowers `classes` as an element's `className` in a file at `path`: token imports are written as
+/// that file would import them. The same lowering as [`migrate`], one class string at a time, for a
+/// tool that reports what a Tailwind class string becomes without rewriting a file.
+pub fn lower(path: &Path, classes: &str, options: &Options<'_>, environment: &dyn Environment) -> Lowering {
+    // One line of source, so that what an element's `sx` holds is written after the declarations.
+    let mut walker = Walker::new(path, "\n", options, environment);
+    let lowered = walker.lower(classes, 0);
+    let style = (!lowered.entries.is_empty() || !lowered.left.is_empty())
+        .then(|| format!("css({})", Walker::object(&lowered, "  ")));
+    let mut items: Vec<String> = lowered.anchors.iter().map(|anchor| format!("{anchor}.anchor")).collect();
+    if let Some(style) = &style {
+        walker.core.insert("css");
+        walker.styles.push(("style".to_owned(), style.clone()));
+        items.push(format!("{}.style", walker.styles_name));
+    }
+    if !items.is_empty() {
+        walker.edits.push((Span::new(1, 1), format!("const sx = [{}]\n", items.join(", "))));
+    }
+    let (module, notes) = walker.finish();
+    Lowering {
+        style,
+        // The blank line the source's own line leaves before `sx`, and that line alone when the
+        // string sets nothing.
+        module: module.replacen("\n\n\nconst sx", "\n\nconst sx", 1).trim_start().to_owned(),
+        anchors: lowered.anchors,
+        left: lowered.left,
+        notes: notes.into_iter().map(|note| note.message).collect(),
+    }
+}
+
 /// The relation `in-data-[slot=button-group]:` reads and `data-slot="button-group"` anchors.
 fn slot_identifier(slot: &str) -> String {
     let name = camel(slot);

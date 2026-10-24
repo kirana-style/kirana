@@ -12,7 +12,15 @@ import type { KiranaConfig } from "@kirana-style/core/config"
 import { importFile, resolveConfig, resolveConfigSync } from "./config.ts"
 import type { ImportFile } from "./config.ts"
 import type { Diagnostic } from "./diagnostics.ts"
-import type { RelationInfo, Site, TokenInfo } from "./inspect.ts"
+import type {
+  DesignSystemExport,
+  RelationInfo,
+  Site,
+  TailwindLowering,
+  TokenInfo,
+  TraceAnswer,
+  TraceQuery,
+} from "./inspect.ts"
 import { parseDiagnostics } from "./diagnostics.ts"
 import type { Engine, NativeBinding } from "./native.ts"
 import { engineOf, loadNative } from "./native.ts"
@@ -307,6 +315,49 @@ export class Driver {
   /** Every relation the session has seen declared, with where it is anchored and read. */
   relations(): RelationInfo[] {
     return JSON.parse(this.#compiler.relations()) as RelationInfo[]
+  }
+
+  /**
+   * Which value wins for each `{ file, line, property }`, as `kirana-style trace --format json`
+   * answers, compiling each file once however many queries name it.
+   */
+  trace(queries: readonly TraceQuery[]): TraceAnswer[] {
+    const resolved = queries.map((query) => ({
+      ...query,
+      file: path.resolve(this.root, query.file),
+    }))
+    const answers = JSON.parse(this.#compiler.trace(resolved)) as TraceAnswer[]
+    return answers.map((answer, index) => ({
+      ...answer,
+      file: queries[index]!.file,
+    }))
+  }
+
+  /**
+   * The design system declared under `paths` (the project root when empty), as `kirana-style
+   * export` prints it; with `definitions`, what each exported style and recipe evaluates to.
+   */
+  export(
+    paths: readonly string[] = [],
+    { definitions = false }: { definitions?: boolean } = {}
+  ): DesignSystemExport {
+    return JSON.parse(
+      this.#compiler.export(
+        paths.map((entry) => path.resolve(this.root, entry)),
+        definitions
+      )
+    ) as DesignSystemExport
+  }
+
+  /**
+   * A Tailwind class string lowered as `kirana-style migrate tailwind` lowers a `className` in
+   * `file` (relative to the root): token imports are written as that file would write them. Throws
+   * when the configuration has no utility grammar.
+   */
+  lowerTailwind(classes: string, file = "index.tsx"): TailwindLowering {
+    return JSON.parse(
+      this.#compiler.lowerTailwind(path.resolve(this.root, file), classes)
+    ) as TailwindLowering
   }
 
   /**

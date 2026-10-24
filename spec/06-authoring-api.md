@@ -392,6 +392,9 @@ from the CSS files among its paths, turns `className` props into `sx` (or `{...p
 from installed packages), and leaves every item it reports in a comment beside the style. Of the
 reports column, `cn` conflict deletions and wrapper default props are not detected: both need knowledge
 outside the class string. `border` is not reported: the grammar's `border` sets `borderStyle` too.
+The lowering is also a call, `Driver.lowerTailwind(classes, file)` on `@kirana-style/compiler`: one class
+string lowered as the codemod lowers a `className` in that file, returning the `css()` call, a module
+with the imports and declarations it needs, the relations it anchors and what it left out (D-096).
 
 The "reports" column exists because each item is a real porting mistake recorded in
 the StyleX comparison. Codemod tests are

@@ -24,9 +24,14 @@ export const space = defineTokens("space", {
 css({ gap: space[2] })
 ```
 
-The first argument is the **namespace**. It has to be unique in a project: two
-groups claiming one namespace is an error (`token-namespace-collision`), which is
-what keeps two libraries from quietly overwriting each other's variables.
+The first argument is the **namespace**. It has to be unique in a package: two
+groups claiming one namespace is an error (`token-namespace-collision`).
+
+A token's identity carries its package, so packages may each have a `theme` group
+and compile to different variables, which keeps libraries from overwriting each
+other's. Because they then read alike, the compiler points such a pair out with an
+info (`token-namespace-shared`), and `kirana-style export` names each token's
+package.
 
 ## Inlined or a custom property
 

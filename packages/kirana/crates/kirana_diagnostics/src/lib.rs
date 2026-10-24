@@ -82,6 +82,7 @@ catalogue! {
     DynamicToken = "KRN1504", "dynamic-token", Error;
     UnsupportedDtcgType = "KRN1505", "unsupported-dtcg-type", Error;
     TokenNotVariable = "KRN1506", "token-not-variable", Error;
+    TokenNamespaceShared = "KRN1507", "token-namespace-shared", Info;
     DynamicBridged = "KRN1601", "dynamic-bridged", Info;
     BranchBudgetExceeded = "KRN1602", "branch-budget-exceeded", Error;
     DynamicKey = "KRN1603", "dynamic-key", Error;
