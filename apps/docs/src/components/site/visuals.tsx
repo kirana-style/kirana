@@ -90,7 +90,7 @@ const styles = {
   glow: css({
     position: "absolute",
     insetBlockStart: "50%",
-    insetInlineStart: "50%",
+    left: "50%",
     width: "18rem",
     height: "18rem",
     translate: "-50% -50%",
@@ -232,7 +232,7 @@ const styles = {
   caption: css({
     position: "absolute",
     insetBlockStart: "calc(100% + 6px)",
-    insetInlineStart: "50%",
+    left: "50%",
     translate: "-50% 0",
     whiteSpace: "nowrap",
     fontFamily: fontFamily.mono,

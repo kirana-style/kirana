@@ -832,6 +832,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "a-state-under-a-target-is-the-parent-s",
+        "text": "A state under a target is the parent's",
+        "level": 2
+      },
+      {
         "id": "when-to-reach-for-it",
         "text": "When to reach for it",
         "level": 2

@@ -356,6 +356,72 @@ pub fn mixed_logical_physical(handle: &Handle) -> Vec<MixedAxes> {
     pairs
 }
 
+/// Each inline-axis logical inset (kebab-case longhand) beside a `translate` or `transform` with a
+/// non-zero inline component on the same target, as `(inset, translate property)` (KF-017).
+/// `translate` and `transform` have no logical form: with `dir="rtl"` the inset moves to the other
+/// side and the translate keeps pulling the same way. A target with a translate under a direction
+/// condition (`:dir(…)`, `[dir…]`) has said what it does in each direction, and is left alone.
+pub fn inset_beside_translate(handle: &Handle) -> Vec<(String, String)> {
+    let mut pairs = Vec::new();
+    let entries: Vec<_> = handle.entries().collect();
+    for (key, _) in &entries {
+        // A shorthand is reported once, as written (`inset-inline`).
+        let inline = |name: &str| matches!(name, "inset-inline-start" | "inset-inline-end");
+        let covers = match key.property.rank {
+            kirana_css_data::PropertyRank::Shorthand => longhands_of(&key.property.name)
+                .is_ok_and(|longhands| longhands.iter().any(|longhand| inline(&longhand.name))),
+            _ => inline(&key.property.name),
+        };
+        if covers {
+            let inset = key.property.name.clone();
+            let same_target = entries.iter().filter(|(other, _)| other.target == key.target);
+            let translates: Vec<_> = same_target
+                .filter(|(other, _)| matches!(other.property.name.as_str(), "translate" | "transform"))
+                .collect();
+            if translates.iter().any(|(other, _)| other.conditions.conditions().iter().any(is_direction)) {
+                continue;
+            }
+            for (other, value) in translates {
+                let pair = (inset.clone(), other.property.name.clone());
+                if moves_inline(&other.property.name, &value.css) && !pairs.contains(&pair) {
+                    pairs.push(pair);
+                }
+            }
+        }
+    }
+    pairs
+}
+
+/// Whether a condition depends on the writing direction.
+fn is_direction(condition: &kirana_ir::Condition) -> bool {
+    match condition {
+        kirana_ir::Condition::Pseudo(text) => text.starts_with(":dir("),
+        kirana_ir::Condition::Attribute(text) => text.starts_with("[dir"),
+        _ => false,
+    }
+}
+
+/// Whether a `translate` value, or a `transform`'s translate function, moves along the inline (x)
+/// axis by an amount known at build time. One read from a custom property is left alone: it is set
+/// at runtime, often from a pointer, whose movement is physical too.
+fn moves_inline(property: &str, css: &str) -> bool {
+    let zero = |text: &str| {
+        let number = text.trim().trim_end_matches(|c: char| c.is_ascii_alphabetic() || c == '%');
+        text.trim() == "none" || text.contains("var(") || number.parse::<f64>().is_ok_and(|value| value == 0.0)
+    };
+    if property == "translate" {
+        return css.split_whitespace().next().is_some_and(|first| !zero(first));
+    }
+    let lower = css.to_ascii_lowercase();
+    ["translatex(", "translate(", "translate3d("].iter().any(|function| {
+        lower.match_indices(function).any(|(at, _)| {
+            let rest = &lower[at + function.len()..];
+            let first = rest.split([',', ')']).next().unwrap_or_default();
+            !zero(first)
+        })
+    })
+}
+
 /// One reported logical/physical pair: the two longhand names, the one that wins, and whether both
 /// set the same number of longhands.
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -1,0 +1,58 @@
+[
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 182,
+      "end": 204
+    },
+    "message": "inset-inline-start is logical but translate is physical: with dir=\"rtl\" the inset moves to the other side and the translate still pulls the same way",
+    "help": [
+      "use left or right for the inset, or give the translate its value under `:dir(rtl)` too"
+    ]
+  },
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 259,
+      "end": 288
+    },
+    "message": "inset-inline-end is logical but transform is physical: with dir=\"rtl\" the inset moves to the other side and the transform still pulls the same way",
+    "help": [
+      "use left or right for the inset, or give the translate its value under `:dir(rtl)` too"
+    ]
+  },
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 336,
+      "end": 386
+    },
+    "message": "inset-inline is logical but transform is physical: with dir=\"rtl\" the inset moves to the other side and the transform still pulls the same way",
+    "help": [
+      "use left or right for the inset, or give the translate its value under `:dir(rtl)` too"
+    ]
+  },
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1081,
+      "end": 1090
+    },
+    "message": "inset-inline-start is logical but translate is physical: with dir=\"rtl\" the inset moves to the other side and the translate still pulls the same way",
+    "help": [
+      "use left or right for the inset, or give the translate its value under `:dir(rtl)` too"
+    ]
+  }
+]

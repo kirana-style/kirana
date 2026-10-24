@@ -48,7 +48,15 @@ order them. Nest one condition inside the other, or declare the pair exclusive:
 [precedence](/docs/styling/precedence).
 
 **`mixed-logical-physical`**: a box has both logical and physical longhands set,
-in a way whose outcome could mislead. Pick one axis family.
+in a way whose outcome could mislead. Pick one axis family. It also covers an
+inline logical inset beside a translate that moves along x: translates have no
+logical form, so the element is off centre in right-to-left text. Use a physical
+inset with the translate.
+
+**`select-state-on-parent`**: an info. A pseudo-class nested under a `select`
+target, `[select.child("a")]: { color: { ":hover": … } }`, is the state of the
+element carrying the style. For the link's own hover, write it into the target:
+`[select.child("a:hover")]`.
 
 **`unsplittable-shorthand`**: a shorthand whose value cannot be split into
 longhands exactly, usually `border: var(--something)`. It stays whole, which means

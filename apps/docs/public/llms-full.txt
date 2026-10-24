@@ -50,7 +50,7 @@ install guide, and each is built and checked in a browser on every change:
   `ambiguous-precedence` diagnostic tells you when two values could both apply.
 - **Tokens and themes.** Design tokens compile to constants or custom properties,
   and every colour can be a `light-dark()` pair, so dark mode needs no variant.
-- **Real diagnostics.** 47 checks with codes, severities and help text, from
+- **Real diagnostics.** 48 checks with codes, severities and help text, from
   unknown properties to a component that forgets to pass `sx` on.
 
 ## What it is not
@@ -182,7 +182,7 @@ answers them:
 | Custom-property assignments were emitted unlayered and beat conditions beside them                                                              | Nothing is emitted outside a layer                                                                                                                                                                   |
 | Tokens had to live in `*.stylex.ts` files and be imported by name                                                                               | Tokens are ordinary exports, imported any way TypeScript allows                                                                                                                                      |
 | `sx` passed to a component that ignores it, or spread past a wrapper, was silent                                                                | `sx-on-external-component` and `unused-sx`, including one module away                                                                                                                                |
-| Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [47 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
+| Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [48 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
 | The official compiler is Babel; the Rust one is a community port behind it                                                                      | The engine is Kirana's own, in Rust on [oxc](https://oxc.rs), with a WASI build that writes the same bytes where no native one runs                                                                  |
 | No utility vocabulary: a Tailwind team rebuilt the scales by hand                                                                               | [`@kirana-style/preset-scales`](/docs/tokens/preset-scales) is Tailwind v4's scales, and [utility strings](/docs/styling/utilities) compile to the same atoms as the object form                     |
 | A port from Tailwind was done by hand                                                                                                           | [`kirana-style migrate tailwind`](/docs/migration/from-tailwind), measured below                                                                                                                     |
@@ -954,6 +954,11 @@ done precisely.
 Mixing logical and physical longhands of the same box (`paddingLeft` and
 `paddingInlineStart`) is allowed, but they are _different_ declarations, and when
 the result could mislead the compiler says so (`mixed-logical-physical`).
+
+`translate` and `transform` have no logical form. To centre an element, pair them
+with a physical inset (`left: "50%"`, `translate: "-50% 0"`): a logical inset
+changes side in right-to-left text while the translate keeps pulling the same way,
+and the compiler warns about that pair too.
 
 ## Where styles live
 
@@ -2216,6 +2221,26 @@ select.descendant("a:hover") // a link while it is hovered
 ```
 
 No combinators (`a > b`) and no pseudo-elements: a target is the element itself.
+
+## A state under a target is the parent's
+
+A condition nested inside a target's style object reads the element that carries
+the style, as it does under a pseudo-element. The target's own state goes into the
+target:
+
+```tsx
+const nav = css({
+  // Links turn red while the nav is hovered.
+  [select.child("a")]: { color: { ":hover": "red" } },
+  // A link turns red while it is hovered itself.
+  [select.child("a:hover")]: { color: "red" },
+})
+```
+
+Tailwind's `*:hover:text-red-500` means the second. The first compiles, and the
+compiler adds an info (`select-state-on-parent`) suggesting the target form. When
+the parent's state is what you mean, read it through a
+[relation](/docs/styling/relations) and the info goes away.
 
 Class selectors are not targets: Kirana's class names are hashes, and a
 handwritten class is markup the compiler cannot verify. An unsupported target is
@@ -7357,7 +7382,7 @@ them, the compiler says so (`ambiguous-precedence`) instead of silently picking.
 `conditions.exclusive` is how you tell it that a library never sets two
 attributes together.
 
-**A diagnostics catalogue.** 47 codes with stable names, severities and help
+**A diagnostics catalogue.** 48 codes with stable names, severities and help
 text, and a configuration key to re-level the non-errors. StyleX reports
 compilation failures; it does not have a catalogue you can suppress, raise, or
 look up.
@@ -9894,7 +9919,15 @@ order them. Nest one condition inside the other, or declare the pair exclusive:
 [precedence](/docs/styling/precedence).
 
 **`mixed-logical-physical`**: a box has both logical and physical longhands set,
-in a way whose outcome could mislead. Pick one axis family.
+in a way whose outcome could mislead. Pick one axis family. It also covers an
+inline logical inset beside a translate that moves along x: translates have no
+logical form, so the element is off centre in right-to-left text. Use a physical
+inset with the translate.
+
+**`select-state-on-parent`**: an info. A pseudo-class nested under a `select`
+target, `[select.child("a")]: { color: { ":hover": … } }`, is the state of the
+element carrying the style. For the link's own hover, write it into the target:
+`[select.child("a:hover")]`.
 
 **`unsplittable-shorthand`**: a shorthand whose value cannot be split into
 longhands exactly, usually `border: var(--something)`. It stays whole, which means
@@ -10009,7 +10042,7 @@ line coverage. The [changelog](/changelog) lists every release.
 - Tokens: inlined, variable, per-mode, registered (`@property`)
 - Themes and colour modes
 - Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB
-- 47 diagnostics with stable codes
+- 48 diagnostics with stable codes
 - `@kirana-style/vite` for Vite 8, with hot updates
 - An adapter package for every other bundler, and one for Jest; see
   [bundlers](/docs/integrations/bundlers)

@@ -46,7 +46,7 @@ const FIXES: Record<string, string> = {
   "unsplittable-shorthand":
     "A shorthand whose value cannot be split into longhands (`border: var(--x)`) stays whole, so a later style cannot remove one longhand. Write the longhands.",
   "mixed-logical-physical":
-    "Logical and physical longhands on one box (`paddingInlineStart` and `padding`) sit side by side instead of replacing each other. Use one family, preferably logical.",
+    "Logical and physical longhands on one box (`paddingInlineStart` and `padding`) sit side by side instead of replacing each other; or an inline logical inset beside a `translate`, which has no logical form and is off centre in right-to-left text. Use one family: `left` with a translate.",
   "invalid-fallback":
     "A `firstThatWorks()` the browser would drop or misread: empty, nested, a runtime value, or values that set different longhands. Keep every value static and of the same shape.",
   "fallback-on-variable":
@@ -63,6 +63,8 @@ const FIXES: Record<string, string> = {
     "Two conditions of the same kind can match together with different values and nothing orders them. Nest one inside the other, or list the pair in `conditions.exclusive` when they never match together. Do not re-level it to hide the tie.",
   "unsupported-contextual-target":
     "A `select.descendant()`/`select.child()` target must be one compound selector: an element name, attribute selectors and pseudo-classes.",
+  "select-state-on-parent":
+    "Info: a pseudo-class nested under a `select` target is the state of the element carrying the style, not the target's. For the target's own, put it in the target: `select.child(\"a:hover\")`.",
   "relation-without-anchor":
     "A style reads a relation whose `anchor` is never applied, so it can never match. Apply `rel.anchor` on the element whose state is read.",
   "relation-unused":

@@ -105,7 +105,11 @@ Rules:
    both on one element produces the `mixed-logical-physical` warning when that outcome can mislead: both set
    the same number of longhands, or the winner was written before the loser (`padding: 0` after
    `paddingInlineStart`). A later, narrower write (`padding` then `paddingInlineEnd`, Tailwind's `p-2 pe-8`)
-   wins as written and is not reported.
+   wins as written and is not reported. `translate` and `transform` have no logical form: an inline logical
+   inset (`insetInlineStart`, `insetInlineEnd`, `insetInline`) beside a translate that moves along x by
+   an amount known at build time is the same warning, since with `dir="rtl"` the inset changes side and
+   the translate does not (D-098). A translate written per direction (under `:dir()` or `[dir]`) or read
+   from a custom property is not reported.
 
 ## Value normalization
 

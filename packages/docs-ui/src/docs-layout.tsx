@@ -214,7 +214,8 @@ const styles = {
       content: "''",
       position: "absolute",
       insetBlock: 0,
-      insetInlineStart: "50%",
+      // Physical, as `translate` is: centred in either writing direction.
+      left: "50%",
       width: "2px",
       translate: "-50% 0",
       backgroundColor: { base: "transparent", ":hover": theme.border },

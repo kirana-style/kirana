@@ -253,6 +253,18 @@
           "brotli": 492
         }
       },
+      "inset-beside-translate": {
+        "css": {
+          "raw": 1106,
+          "gzip": 423,
+          "brotli": 386
+        },
+        "js": {
+          "raw": 780,
+          "gzip": 390,
+          "brotli": 333
+        }
+      },
       "installed-packages": {
         "css": {
           "raw": 511,
@@ -721,6 +733,18 @@
           "brotli": 147
         }
       },
+      "select-state-on-parent": {
+        "css": {
+          "raw": 509,
+          "gzip": 268,
+          "brotli": 231
+        },
+        "js": {
+          "raw": 498,
+          "gzip": 294,
+          "brotli": 260
+        }
+      },
       "shorthand-atoms": {
         "css": {
           "raw": 866,
@@ -941,26 +965,26 @@
     "libraries": {
       "ui": {
         "css": {
-          "raw": 79140,
-          "gzip": 19292,
-          "brotli": 16489
+          "raw": 78660,
+          "gzip": 19239,
+          "brotli": 16448
         },
         "js": {
-          "raw": 350625,
-          "gzip": 76857,
-          "brotli": 60059
+          "raw": 350614,
+          "gzip": 76854,
+          "brotli": 60060
         }
       },
       "docs-ui": {
         "css": {
-          "raw": 15606,
-          "gzip": 4963,
+          "raw": 15591,
+          "gzip": 4962,
           "brotli": 4356
         },
         "js": {
-          "raw": 99631,
-          "gzip": 27256,
-          "brotli": 22920
+          "raw": 99629,
+          "gzip": 27255,
+          "brotli": 22895
         }
       }
     },
