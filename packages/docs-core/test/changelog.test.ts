@@ -49,7 +49,7 @@ describe("parseChangelog", () => {
     expect(scoped).toEqual({
       scope: "site",
       text: "paper and ink",
-      pr: { number: 27, href: "https://example.com/issues/27" },
+      pr: { number: 27, href: "https://example.com/pull/27" },
       commit: {
         sha: "5da3c6f",
         href: "https://example.com/commit/5da3c6f0f1c8",
@@ -58,7 +58,7 @@ describe("parseChangelog", () => {
     expect(plain).toEqual({ text: "plain change" })
     expect(releases[0]!.sections[0]!.changes[0]).toEqual({
       text: "one command name",
-      pr: { number: 29, href: "https://example.com/issues/29" },
+      pr: { number: 29, href: "https://example.com/pull/29" },
     })
     expect(releases[1]!.sections[0]!.changes[0]).toEqual({
       text: "a fix",

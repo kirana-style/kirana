@@ -11,7 +11,10 @@ export type Change = {
   /** The conventional-commit scope, `site` in `**site:** …`, when there is one. */
   scope?: string
   text: string
-  /** The pull request it links to: its number and URL. */
+  /**
+   * The pull request it links to: its number and URL. Release-please writes `/issues/N` for a
+   * squash-merged pull request's `(#N)`; the page links the pull request itself.
+   */
   pr?: { number: number; href: string }
   /** The commit it links to: the short hash and URL. */
   commit?: { sha: string; href: string }
@@ -75,7 +78,10 @@ function parseChange(raw: string): Change {
   const change: Change = { text: "" }
   const pr = PR.exec(text)
   if (pr) {
-    change.pr = { number: Number(pr[1]), href: pr[2]! }
+    change.pr = {
+      number: Number(pr[1]),
+      href: pr[2]!.replace(/\/issues\/(\d+)$/, "/pull/$1"),
+    }
     text = text.replace(PR, "")
   }
   const commit = COMMIT.exec(text)
