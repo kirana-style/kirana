@@ -318,9 +318,9 @@ pub fn set_key(set: &ConditionSet) -> SetKey {
 /// Whether two condition sets can never match the same element at the same time. Only provable
 /// cases are recognised, on the element itself or on the same relation anchor: the same attribute
 /// tested for two different values, a selector and its `:not()`, and two different positions
-/// (`:first-child` / `:nth-child(2)`, `:last-child` / `:nth-last-child(2)`). `declared` adds the
-/// project's own groups of exclusive conditions (`conditions.exclusive`), as condition text.
-pub fn mutually_exclusive(a: &ConditionSet, b: &ConditionSet, declared: &[Vec<String>]) -> bool {
+/// (`:first-child` / `:nth-child(2)`, `:last-child` / `:nth-last-child(2)`). `declared` adds what the
+/// project says (`conditions.exclusive` and `conditions.exclusiveAcross`).
+pub fn mutually_exclusive(a: &ConditionSet, b: &ConditionSet, declared: Declared<'_>) -> bool {
     a.conditions().iter().any(|x| {
         b.conditions().iter().any(|y| match (x, y) {
             (
@@ -338,8 +338,31 @@ pub fn mutually_exclusive(a: &ConditionSet, b: &ConditionSet, declared: &[Vec<St
     })
 }
 
+/// What a project declares about conditions that never meet on one element, as condition text.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct Declared<'a> {
+    /// Groups no two of which match one element at the same time (`conditions.exclusive`).
+    pub groups: &'a [Vec<String>],
+    /// One vocabulary per library (`conditions.exclusiveAcross`, KF-015): a component is built on one
+    /// library, so two conditions that no vocabulary holds together never meet.
+    pub across: &'a [Vec<String>],
+}
+
+impl Declared<'_> {
+    /// Whether the project declares `left` and `right` exclusive.
+    fn exclusive(&self, left: &str, right: &str) -> bool {
+        let named = |text: &str| self.across.iter().any(|vocabulary| vocabulary.iter().any(|key| key == text));
+        self.groups.iter().any(|group| group.iter().any(|key| key == left) && group.iter().any(|key| key == right))
+            || named(left)
+                && named(right)
+                && !self.across.iter().any(|vocabulary| {
+                    vocabulary.iter().any(|key| key == left) && vocabulary.iter().any(|key| key == right)
+                })
+    }
+}
+
 /// Exclusivity of two simple conditions on one element.
-fn simple_exclusive(x: &Condition, y: &Condition, declared: &[Vec<String>]) -> bool {
+fn simple_exclusive(x: &Condition, y: &Condition, declared: Declared<'_>) -> bool {
     let text = |condition: &Condition| match condition {
         Condition::Attribute(text) | Condition::Pseudo(text) => Some(text.clone()),
         _ => None,
@@ -359,7 +382,7 @@ fn simple_exclusive(x: &Condition, y: &Condition, declared: &[Vec<String>]) -> b
             negates(x, y)
                 || negates(y, x)
                 || matches!((text(x), text(y)), (Some(left), Some(right)) if left != right
-                    && declared.iter().any(|group| group.contains(&left) && group.contains(&right)))
+                    && declared.exclusive(&left, &right))
         }
     }
 }

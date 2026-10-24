@@ -102,6 +102,12 @@ export type KiranaConfig = {
      * `ambiguous-precedence` treats them as exclusive.
      */
     readonly exclusive?: readonly (readonly string[])[]
+    /**
+     * One vocabulary per library a design system writes its components for (`exclusiveAcross()`
+     * from `@kirana-style/states`): a component is built on one library, so two conditions no
+     * vocabulary holds together are exclusive.
+     */
+    readonly exclusiveAcross?: readonly (readonly string[])[]
   }
   /**
    * The class map for server templates (D-069): Blade, ERB, HEEx, Twig and Edge templates name the

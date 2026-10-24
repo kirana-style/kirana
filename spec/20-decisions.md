@@ -1370,17 +1370,35 @@ the implementation tracker names its evidence.
 - **Elaborated in:** [06-authoring-api](./06-authoring-api.md),
   [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 
+### D-099 — Steps between the scale's, and libraries that never meet
+
+- **Status:** Accepted (2026-10-24). Answers KF-013 and KF-015.
+- **Decision:** `@kirana-style/preset-scales` exports `spacing(n)`, a quarter of a rem per unit, which the
+  evaluator folds like any imported pure function. `conditions.exclusiveAcross` takes one vocabulary per
+  library, and two simple conditions that no vocabulary holds together, each named by one, are exclusive;
+  `exclusiveAcross(...vocabularies)` in `@kirana-style/states` builds them.
+- **Rationale:** shadcn/ui spaces between Tailwind's named steps (`pl-9.5` 51 times), which kirana-ui
+  wrote as literals the scale no longer explained. kirana-ui's popup slide, written once for Base UI,
+  React Aria and Ark UI, gave 72 `ambiguous-precedence` warnings that only pairs listed by hand settled;
+  the libraries' state keys produce about six thousand such pairs, too many to list, while the
+  vocabularies say the same in a few hundred keys.
+- **Trade-off:** `spacing()` takes any number, quarter steps or not, and the utility grammar's `pl-9.5`
+  is still not a value; a style object writes `spacing(9.5)`. A key both libraries set still meets
+  itself; one no vocabulary names is untouched.
+- **Elaborated in:** [07-tokens-themes-presets](./07-tokens-themes-presets.md),
+  [08-conditions-and-cascade](./08-conditions-and-cascade.md), [11-integrations](./11-integrations.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                |
 | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | the brand notes                                               | D-001                                                                                                                                                    |
 | [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098 |
-| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086                                                                              |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098                                           |
+| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099                                                                       |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099                                    |
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                          |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                |
-| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073                                           |
+| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099                                    |
 | [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097                                                  |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                     |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                    |

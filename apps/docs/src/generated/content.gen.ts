@@ -749,6 +749,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "one-look-for-several-libraries",
+        "text": "One look for several libraries",
+        "level": 3
+      },
+      {
         "id": "other-libraries-and-your-own-components",
         "text": "Other libraries, and your own components",
         "level": 2
@@ -3982,6 +3987,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "conditions-exclusive",
         "text": "conditions.exclusive",
+        "level": 2
+      },
+      {
+        "id": "conditions-exclusiveacross",
+        "text": "conditions.exclusiveAcross",
         "level": 2
       },
       {

@@ -85,6 +85,18 @@ fn exclusive_conditions() {
             "conditions.exclusive[1]: \"nope\" is not one attribute or pseudo-class condition",
         ]
     );
+    // One vocabulary per library (KF-015), normalized the same way.
+    let config =
+        Config::from_json(r#"{"conditions":{"exclusiveAcross":[["[ data-starting-style ]"], ["[data-entering]"]]}}"#)
+            .unwrap();
+    assert_eq!(config.conditions.exclusive_across, [["[data-starting-style]"], ["[data-entering]"]]);
+    assert_eq!(
+        messages(r#"{"conditions":{"exclusiveAcross":[["[data-open]", "a b"]]}}"#),
+        [
+            "conditions.exclusiveAcross needs at least two vocabularies",
+            "conditions.exclusiveAcross[0]: \"a b\" is not one attribute or pseudo-class condition",
+        ]
+    );
 }
 
 #[test]

@@ -931,6 +931,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "A part is checked or unchecked, open or closed, never both. Two values of one attribute say so on their own, but Base UI marks those with two attributes ( , ), and nothing in the selectors proves they exclude each other. So a property set under both is reported as , a warning that the order between them is left to chance. Each vocabulary exports the groups its library sets one at a time. Give them to in your configuration, and the compiler knows: The groups are what the library documents: a state and its opposite, both on one part. Ark UI and React Aria mark those with one attribute's values or not at all, so their lists are empty."
   },
   {
+    "id": "/docs/styling/states#one-look-for-several-libraries",
+    "href": "/docs/styling/states#one-look-for-several-libraries",
+    "page": "Component states",
+    "section": "composition",
+    "heading": "One look for several libraries",
+    "text": "A design system that writes each component once for several libraries spreads every library's key for a state: Base UI's and React Aria's for a popup's first frame. A component is built on one library, so those keys never meet on an element, but nothing in the selectors says so, and each pair is reported. gives the compiler one vocabulary per library; two keys that no single library sets are then exclusive: Keys that both libraries set, such as , still meet as they would on any element."
+  },
+  {
     "id": "/docs/styling/states#other-libraries-and-your-own-components",
     "href": "/docs/styling/states#other-libraries-and-your-own-components",
     "page": "Component states",
@@ -1406,7 +1414,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Starting with no preset, then scales",
     "section": "tokens",
     "heading": "What is in it",
-    "text": "and are separate because they share step names and mean different things: one queries the viewport, the other a container."
+    "text": "names the steps Tailwind lists. For a step between them, as shadcn/ui writes , gives : a quarter of a rem per unit. The compiler folds the call into the value, so it costs nothing at runtime. and are separate because they share step names and mean different things: one queries the viewport, the other a container."
   },
   {
     "id": "/docs/tokens/preset-scales#level-3-your-own-semantic-layer",
@@ -4344,6 +4352,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "reference",
     "heading": "conditions.exclusive",
     "text": "Groups of conditions that a library guarantees never hold together on one element. Each group needs at least two entries, and each entry must be exactly one attribute or pseudo-class selector. This is how you silence for pairs the selectors cannot prove are exclusive. The compiler already knows about two values of one attribute, a selector and its negation, and fixed positions counted from the same end; you only need to declare what a library promises."
+  },
+  {
+    "id": "/docs/reference/config#conditions-exclusiveacross",
+    "href": "/docs/reference/config#conditions-exclusiveacross",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "conditions.exclusiveAcross",
+    "text": "One vocabulary per library a design system writes its components for: two conditions that no vocabulary holds together are exclusive, since a component is built on one library. At least two vocabularies, each entry exactly one attribute or pseudo-class selector. from builds them from the library vocabularies; see one look for several libraries ."
   },
   {
     "id": "/docs/reference/config#classes",

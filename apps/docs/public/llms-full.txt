@@ -2026,6 +2026,32 @@ part.
 Ark UI and React Aria mark those with one attribute's values or not at all, so
 their lists are empty.
 
+### One look for several libraries
+
+A design system that writes each component once for several libraries spreads
+every library's key for a state: Base UI's `[data-starting-style]` and React Aria's
+`[data-entering]` for a popup's first frame. A component is built on one library,
+so those keys never meet on an element, but nothing in the selectors says so, and
+each pair is reported. `exclusiveAcross()` gives the compiler one vocabulary per
+library; two keys that no single library sets are then exclusive:
+
+```ts file="kirana.config.ts"
+import { defineConfig } from "@kirana-style/core/config"
+import { exclusiveAcross } from "@kirana-style/states"
+import * as baseUi from "@kirana-style/states/base-ui"
+import * as reactAria from "@kirana-style/states/react-aria"
+
+export default defineConfig({
+  conditions: {
+    exclusive: [...baseUi.exclusive, ...reactAria.exclusive],
+    exclusiveAcross: exclusiveAcross(baseUi, reactAria),
+  },
+})
+```
+
+Keys that both libraries set, such as `[data-disabled]`, still meet as they would
+on any element.
+
 ## Other libraries, and your own components
 
 A vocabulary is a plain object of selectors, so writing one takes a few lines. Any
@@ -2993,12 +3019,16 @@ output.
 | Export                                                                           | Contents                                                        |
 | -------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | `color`                                                                          | 26 hues × 11 steps in `oklch`, plus `black` and `white`         |
-| `space`                                                                          | `0`, `px`, `0.5` … `96`, in rem                                 |
+| `space`, `spacing()`                                                             | `0`, `px`, `0.5` … `96`, in rem; any quarter step               |
 | `fontFamily`, `fontSize`, `lineHeight`, `fontWeight`, `letterSpacing`, `leading` | the type ramp, with line heights paired to sizes                |
 | `radius`, `shadow`, `blur`                                                       | the radii, shadows and blurs                                    |
 | `duration`, `easing`                                                             | motion values                                                   |
 | `zIndex`, `screen`, `containerSize`                                              | layering, and raw widths                                        |
 | `breakpoint`, `containerQuery`                                                   | ready-made conditions: `[breakpoint.md]`, `[containerQuery.lg]` |
+
+`space` names the steps Tailwind lists. For a step between them, as shadcn/ui
+writes `pl-9.5`, `spacing(9.5)` gives `2.375rem`: a quarter of a rem per unit. The
+compiler folds the call into the value, so it costs nothing at runtime.
 
 `breakpoint.*` and `containerQuery.*` are separate because they share step names
 and mean different things: one queries the viewport, the other a container.
@@ -8528,6 +8558,19 @@ This is how you silence `ambiguous-precedence` for pairs the selectors cannot
 prove are exclusive. The compiler already knows about two values of one attribute,
 a selector and its negation, and fixed positions counted from the same end; you
 only need to declare what a library promises.
+
+## `conditions.exclusiveAcross`
+
+```ts
+conditions: { exclusiveAcross?: string[][] }   // default: []
+```
+
+One vocabulary per library a design system writes its components for: two
+conditions that no vocabulary holds together are exclusive, since a component is
+built on one library. At least two vocabularies, each entry exactly one attribute
+or pseudo-class selector. `exclusiveAcross()` from `@kirana-style/states` builds
+them from the library vocabularies; see
+[one look for several libraries](/docs/styling/states#one-look-for-several-libraries).
 
 ## `classes`
 

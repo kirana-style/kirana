@@ -44,6 +44,23 @@ import { exclusive } from "@kirana-style/states/base-ui"
 export default defineConfig({ conditions: { exclusive } })
 ```
 
+A design system that writes each component once for several libraries passes `exclusiveAcross()`,
+from the package's root, one vocabulary per library: two state keys no single library sets never meet
+on an element, so their pairs are not reported either.
+
+```ts
+import { exclusiveAcross } from "@kirana-style/states"
+import * as baseUi from "@kirana-style/states/base-ui"
+import * as reactAria from "@kirana-style/states/react-aria"
+
+export default defineConfig({
+  conditions: {
+    exclusive: [...baseUi.exclusive, ...reactAria.exclusive],
+    exclusiveAcross: exclusiveAcross(baseUi, reactAria),
+  },
+})
+```
+
 A state that takes values (`side`, `align`, `orientation`) has one key per value, in camel case
 (`Select.Popup.side.inlineEnd` is `'[data-side="inline-end"]'`). A state whose value is free text or
 a number (`index`) is its attribute's presence.

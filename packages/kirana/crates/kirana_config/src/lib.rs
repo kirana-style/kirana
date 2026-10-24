@@ -271,6 +271,11 @@ pub struct Conditions {
     /// them as exclusive (KRN-CAS-003). Normalized to condition text when parsed.
     #[serde(default)]
     pub exclusive: Vec<Vec<String>>,
+    /// One vocabulary per library a design system writes its components for, such as each
+    /// library's state attributes from `@kirana-style/states`' `exclusiveAcross()`: a component is
+    /// built on one library, so two conditions no vocabulary holds together are exclusive (KF-015).
+    #[serde(default, rename = "exclusiveAcross")]
+    pub exclusive_across: Vec<Vec<String>>,
 }
 
 impl Config {
@@ -336,14 +341,13 @@ impl Config {
             if group.len() < 2 {
                 problems.push(invalid(format!("conditions.exclusive[{index}] needs at least two conditions")));
             }
-            for condition in group.iter_mut() {
-                match kirana_ir::parse_simple_selectors(condition).as_deref() {
-                    Ok([single]) if single.is_selector() => *condition = single.canonical(),
-                    _ => problems.push(invalid(format!(
-                        "conditions.exclusive[{index}]: {condition:?} is not one attribute or pseudo-class condition"
-                    ))),
-                }
-            }
+            normalize_conditions(group, &format!("conditions.exclusive[{index}]"), &mut problems);
+        }
+        if config.conditions.exclusive_across.len() == 1 {
+            problems.push(invalid("conditions.exclusiveAcross needs at least two vocabularies".to_owned()));
+        }
+        for (index, vocabulary) in config.conditions.exclusive_across.iter_mut().enumerate() {
+            normalize_conditions(vocabulary, &format!("conditions.exclusiveAcross[{index}]"), &mut problems);
         }
         if problems.is_empty() { Ok(config) } else { Err(problems) }
     }
@@ -415,6 +419,18 @@ fn normalize(path: &Path) -> String {
 }
 
 /// An npm package name: `name` or `@scope/name`, lowercase, URL-safe.
+/// Each condition of `list` as condition text, or a problem naming it under `path`.
+fn normalize_conditions(list: &mut [String], path: &str, problems: &mut Vec<Diagnostic>) {
+    for condition in list.iter_mut() {
+        match kirana_ir::parse_simple_selectors(condition).as_deref() {
+            Ok([single]) if single.is_selector() => *condition = single.canonical(),
+            _ => {
+                problems.push(invalid(format!("{path}: {condition:?} is not one attribute or pseudo-class condition")))
+            }
+        }
+    }
+}
+
 fn is_package_name(name: &str) -> bool {
     let part = |text: &str| {
         !text.is_empty()

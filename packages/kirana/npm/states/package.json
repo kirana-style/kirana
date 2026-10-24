@@ -20,6 +20,7 @@
     "access": "public"
   },
   "exports": {
+    ".": "./src/index.ts",
     "./base-ui": "./src/base-ui.ts",
     "./ark-ui": "./src/ark-ui.ts",
     "./react-aria": "./src/react-aria.ts",

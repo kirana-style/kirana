@@ -439,7 +439,7 @@ pub fn ladder_key(atom: &Atom) -> LadderKey {
 /// resolves: one whose conditions include both sets beats each of them whenever both match, which is
 /// what nesting one condition inside the other writes. `declared` is the project's
 /// `conditions.exclusive`. Returns the property name and the two condition texts.
-pub fn ambiguous_pairs(handle: &Handle, declared: &[Vec<String>]) -> Vec<(String, String, String)> {
+pub fn ambiguous_pairs(handle: &Handle, declared: crate::condition::Declared<'_>) -> Vec<(String, String, String)> {
     let entries: Vec<(&EntryKey, &AtomValue)> = handle.entries().collect();
     let mut pairs = Vec::new();
     for (index, (first, first_value)) in entries.iter().enumerate() {
