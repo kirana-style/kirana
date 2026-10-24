@@ -64,6 +64,28 @@ For `svelte-check`:
 The element's own class and style attributes are merged into what `sx` produces,
 in order, and `class:` and `style:` directives keep working beside it.
 
+## A component that takes `sx`
+
+On a component, a caller's `sx` arrives as its `class` and `style` props. Take them
+and put the class last in the root's own `sx`, so the caller's styles win,
+property by property:
+
+```svelte file="src/Button.svelte"
+<script lang="ts">
+  import { css } from "@kirana-style/core"
+
+  let { class: sx, style, children, ...rest } = $props()
+
+  const button = css({ height: "2rem", backgroundColor: "black" })
+</script>
+
+<button {...rest} {style} sx={[button, sx]}>
+  {@render children?.()}
+</button>
+```
+
+Svelte passes nothing through on its own, so there is no fallthrough to turn off.
+
 ## How it compiles
 
 The script compiles like any module: `css()` becomes class strings, and the

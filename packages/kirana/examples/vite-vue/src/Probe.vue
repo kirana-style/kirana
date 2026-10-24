@@ -2,6 +2,8 @@
 import { css } from "@kirana-style/core"
 import { Switch } from "@kirana-style/states/base-ui"
 
+import Badge from "./Badge.vue"
+
 /**
  * The probe the example runner reads back from the browser. Styles are declared in the script and
  * applied with `:sx`, which Kirana rewrites into the element's `class` and `style`.
@@ -20,6 +22,7 @@ const styles = {
 }
 const gap = `${document.title.length % 3}px`
 const offset = css({ marginLeft: gap })
+const wide = css({ paddingInline: "8px" })
 </script>
 
 <template>
@@ -27,4 +30,5 @@ const offset = css({ marginLeft: gap })
     Styled by Kirana.
   </p>
   <span data-probe-state="" data-checked="" :sx="styles.state" />
+  <Badge :sx="wide" aria-label="badge">Badge</Badge>
 </template>

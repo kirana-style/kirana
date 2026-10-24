@@ -188,6 +188,15 @@ runtime keeps the runtime at 997 bytes gzip, 2 fewer than before the modes exist
 `@kirana-style/core/preact`, `@kirana-style/core/solid` and `@kirana-style/core/qwik` add `sx` to each framework's JSX
 types, as `@kirana-style/core/react` does for React.
 
+On a Vue component, a caller's `:sx` compiles to the `class` Vue falls through to the root, which Vue
+concatenates with the root's own. `useSx()` from `@kirana-style/core/vue` returns the caller's classes and
+the other fallthrough attributes, for a component that turns `inheritAttrs` off and writes
+`:sx="[own, sx]"` on its root, so Kirana's runtime merges the caller's styles last (the adapter folds the root's own
+`v-bind` object into the compiled binding with Vue's `mergeProps`, since an element takes one); a Svelte component
+takes its `class` prop the same way, with no helper (D-100). The adapter compiles components in `load`
+and names each one to the watcher, as Vite does for a file outside the root it reads itself, so a
+component from a workspace package hot-reloads (D-100).
+
 **Qwik** (D-067) is a JSX mode on Vite 8, so Qwik 2: Qwik 1 supports Vite 7 and older. The optimizer
 splits each `$` function into a module of its own after Kirana has compiled the file, and the handles
 are module constants those modules import. Qwik adds its client stylesheet to the bundle after

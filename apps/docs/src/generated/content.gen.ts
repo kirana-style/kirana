@@ -2072,6 +2072,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "a-component-that-takes-sx",
+        "text": "A component that takes :sx",
+        "level": 2
+      },
+      {
         "id": "how-it-compiles",
         "text": "How it compiles",
         "level": 2
@@ -2224,6 +2229,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "5-write-a-component",
         "text": "5. Write a component",
+        "level": 2
+      },
+      {
+        "id": "a-component-that-takes-sx",
+        "text": "A component that takes sx",
         "level": 2
       },
       {

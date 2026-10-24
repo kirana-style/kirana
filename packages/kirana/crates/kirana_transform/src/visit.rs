@@ -598,6 +598,8 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
         if let (PropertyKey::StaticIdentifier(key), BindingPattern::BindingIdentifier(binding)) =
             (&property.key, &property.value)
             && key.name.as_str() == "sx"
+            // A component's script block: its template reads the binding (`const { sx } = useSx()`).
+            && !kirana_frontend::sfc::is_block_id(self.evaluator.context().path)
             && let Some(symbol) = binding.symbol_id.get()
             && self.evaluator.parsed().semantic.scoping().get_resolved_reference_ids(symbol).is_empty()
         {

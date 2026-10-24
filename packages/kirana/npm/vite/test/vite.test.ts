@@ -2,6 +2,7 @@ import { EventEmitter } from "node:events"
 import { createRequire } from "node:module"
 import {
   cpSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -400,6 +401,40 @@ describe("KRN-INT-009 development server", () => {
       const raw =
         await server.environments.client.transformRequest("/src/main.ts?raw")
       expect(raw?.code).toContain("css({")
+    } finally {
+      await server.close()
+    }
+  })
+
+  it("watches a component outside the root, as Vite watches a module it reads itself (KF-020)", async () => {
+    // A workspace package's component imported by an app: outside the root, so Vite's watcher only
+    // learns of it from whoever reads it, and the plugin reads components itself, in `load`.
+    const directory = app()
+    const root = path.join(directory, "app")
+    cpSync(path.join(directory, "src"), path.join(root, "src"), {
+      recursive: true,
+    })
+    writeFileSync(path.join(root, "package.json"), '{"name":"app"}')
+    const card = path.join(directory, "shared", "Card.vue")
+    mkdirSync(path.dirname(card), { recursive: true })
+    writeFileSync(
+      card,
+      '<script setup lang="ts">\nimport { css } from "@kirana-style/core"\nconst box = css({ order: 4 })\n</script>\n\n<template><div :sx="box" /></template>\n'
+    )
+    const server = await createServer({
+      root,
+      logLevel: "silent",
+      configFile: false,
+      plugins: [kirana({ driver: { importModule: (url) => import(url) } })],
+      server: { middlewareMode: true, ws: false, watch: null },
+    })
+    try {
+      const add = vi.spyOn(server.watcher, "add")
+      const loaded = await server.environments.client.pluginContainer.load(card)
+      expect(
+        String(typeof loaded === "string" ? loaded : loaded?.code)
+      ).toContain("__kirana_sfc")
+      expect(add.mock.calls.flat()).toContain(card)
     } finally {
       await server.close()
     }
