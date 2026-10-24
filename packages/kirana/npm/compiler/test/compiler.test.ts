@@ -5,7 +5,9 @@ import path from "node:path"
 import { describe, expect, it } from "vite-plus/test"
 
 import {
+  ConfigLoadError,
   Driver,
+  findConfigAbove,
   formatDiagnostic,
   isMusl,
   loadConfigFile,
@@ -586,6 +588,120 @@ describe("kirana command", () => {
     output = ""
     expect(await main(["--version"], root, write)).toBe(0)
     expect(output).toContain("kirana")
+  })
+
+  it("reads each path's own configuration, or the one --config names (KF-003)", async () => {
+    const quiet = '{"diagnostics":{"dynamic-bridged":"off"}}'
+    const root = project({
+      "package.json": '{"name":"workspace"}',
+      "packages/ui/src/a.tsx": INPUT,
+      "apps/web/kirana.config.json": quiet,
+      "apps/web/src/a.tsx": INPUT,
+    })
+    let output = ""
+    const write = (text: string) => (output += text)
+    const run = async (...argv: string[]) => {
+      output = ""
+      return main(argv, root, write)
+    }
+    expect(await run("check", "packages/ui/src", "apps/web/src")).toBe(0)
+    expect(output).toContain("no kirana.config: packages/ui/src\n")
+    expect(output).toContain(
+      `${path.join("apps", "web", "kirana.config.json")}: apps/web/src\n0 diagnostic(s)`
+    )
+    expect(output).toContain("1 diagnostic(s), 0 error(s)")
+    await run("check", "packages/ui/src", "apps/web/src", "--format", "json")
+    expect(
+      (JSON.parse(output) as { name: string }[]).map((d) => d.name)
+    ).toEqual(["dynamic-bridged"])
+    // One group, the working directory's: printed as before, with no header.
+    await run("check", "packages/ui/src", "--max-warnings", "3")
+    expect(output.startsWith("no kirana.config")).toBe(false)
+    // --config makes every path read one file, in either spelling.
+    await run(
+      "check",
+      "packages/ui/src",
+      "--config",
+      "apps/web/kirana.config.json"
+    )
+    expect(output).toContain("0 diagnostic(s)")
+    await run(
+      "check",
+      "packages/ui/src",
+      "--config=apps/web/kirana.config.json"
+    )
+    expect(output).toContain("0 diagnostic(s)")
+    // trace: each location is a path; JSON answers from several groups are one array.
+    await run(
+      "trace",
+      "packages/ui/src/a.tsx:2",
+      "color",
+      "apps/web/src/a.tsx:2",
+      "display",
+      "--format=json"
+    )
+    expect(
+      (JSON.parse(output) as { property: string }[]).map((a) => a.property)
+    ).toEqual(["color", "display"])
+    // One group's JSON is printed as the engine wrote it.
+    await run("trace", "apps/web/src/a.tsx:2", "color", "--format", "json")
+    expect((JSON.parse(output) as unknown[]).length).toBe(1)
+    await run("trace", "apps/web/src/a.tsx:2", "color")
+    expect(output).toContain(
+      `${path.join("apps", "web", "kirana.config.json")}: apps/web/src/a.tsx\ncolor at`
+    )
+    // export reads one configuration.
+    expect(await run("export", "packages/ui/src", "apps/web/src")).toBe(2)
+    expect(output).toContain(
+      `these paths read 2: ., ${path.join("apps", "web", "kirana.config.json")}; pass --config <file>`
+    )
+    expect(await run("export", "apps/web/src", "--out", "out.json")).toBe(0)
+    // A path that does not exist is looked up from its parent, and fails as it did.
+    expect(await run("check", "apps/web/missing.tsx")).toBe(1)
+  })
+
+  it("says which configuration failed to load, and why (KF-016)", async () => {
+    const root = project({
+      "package.json": '{"name":"app","type":"module"}',
+      "kirana.config.ts":
+        'import { prefix } from "./core/names"\nexport default { names: { prefix } }\n',
+      "core/names.ts": 'export const prefix = "q"\n',
+      "src/a.ts": "export const x = 1\n",
+      "other/kirana.config.json": "{ not json",
+    })
+    let output = ""
+    const write = (text: string) => (output += text)
+    expect(await main(["check", "src"], root, write)).toBe(2)
+    expect(output).toBe(
+      `loading ${path.join(root, "kirana.config.ts")}: ${path.join(root, "core", "names")} not found; Node.js loads the configuration without a bundler, so its relative imports, and theirs, need their extension (\`./states.ts\`)\n`
+    )
+    output = ""
+    expect(
+      await main(
+        ["check", "src", "--config", "other/kirana.config.json"],
+        root,
+        write
+      )
+    ).toBe(2)
+    expect(output).toMatch(/^loading .*kirana\.config\.json: /)
+    expect(new ConfigLoadError("x.ts", "plain").message).toBe(
+      "loading x.ts: plain"
+    )
+    expect(
+      new ConfigLoadError(
+        "x.ts",
+        new Error("Cannot find package 'zod' imported from x.ts")
+      ).message
+    ).toBe("loading x.ts: zod not found")
+    // Anything else still throws.
+    await expect(
+      main(["check"], path.join(root, "src"), write, {
+        runCli: () => {
+          throw new Error("engine")
+        },
+      } as unknown as Parameters<typeof main>[3])
+    ).rejects.toThrow()
+    expect(findConfigAbove(path.parse(root).root)).toBeUndefined()
   })
 
   it("hands `kirana-style lsp` to the language server with the resolved configuration", async () => {

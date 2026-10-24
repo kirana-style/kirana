@@ -13,7 +13,8 @@ kirana-style check <paths…> [--format human|json]             # diagnostics; e
 kirana-style trace <file>:<line> <property>… [--format json] # why a value wins at one site
 ```
 
-`kirana.config.ts` (or `.mts`, `.js`, `.mjs`, `.json`) is read from the working directory.
+Each path reads the nearest `kirana.config.ts` (or `.mts`, `.js`, `.mjs`, `.json`) above it, or the
+working directory's; `--config <file>` forces one for every path.
 
 ```text
 $ kirana-style trace src/components/drawer.tsx:88 justifyContent

@@ -1335,6 +1335,22 @@ the implementation tracker names its evidence.
 - **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md),
   [12-tooling-and-dx](./12-tooling-and-dx.md), [06-authoring-api](./06-authoring-api.md).
 
+### D-097 — A path reads the nearest configuration above it
+
+- **Status:** Accepted (2026-10-24). Answers KF-003 and KF-016.
+- **Decision:** `kirana-style check`, `trace` and `export` group their paths by the nearest
+  `kirana.config.*` above each, as TypeScript finds a `tsconfig.json`, falling back to the working
+  directory's; `--config <file>` forces one. The configuration is still loaded by Node.js without a
+  bundler, and a failure names the file and the missing module instead of printing Node's stack.
+- **Rationale:** run at a workspace root, `check` read no app's configuration: kirana-ui saw 30
+  diagnostics there and 11 from the app, the extra 19 being warnings the app's `conditions.exclusive`
+  settles, with nothing saying which configuration was used. The build and the editor already read
+  each app's own.
+- **Trade-off:** bundling the configuration, as Vite does, would accept extensionless imports, but
+  would put a bundler on the path of every command; the message says what to change instead. `build`
+  and `analyze` still read the working directory's configuration, since each writes one result.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                         |
@@ -1346,7 +1362,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                   |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                         |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073                                    |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096                                                  |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097                                           |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                              |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                             |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                      |

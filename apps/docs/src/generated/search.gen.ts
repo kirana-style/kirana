@@ -1579,7 +1579,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The configuration file",
     "section": "config",
     "heading": "How it is found",
-    "text": "The compiler looks in the project root, in this order, and takes the first match: TypeScript and JavaScript files are imported natively; the default export is the configuration."
+    "text": "The compiler looks in the project root, in this order, and takes the first match: TypeScript and JavaScript files are imported natively; the default export is the configuration. Node.js loads the file as it is, without a bundler, and so its imports: a relative import in the configuration, or in a module it imports, needs its extension ( , not ). When the file fails to load, the command says which file and which module it could not find, and exits with 2."
+  },
+  {
+    "id": "/docs/config/file#in-a-workspace",
+    "href": "/docs/config/file#in-a-workspace",
+    "page": "The configuration file",
+    "section": "config",
+    "heading": "In a workspace",
+    "text": "The CLI's , and read, for each path you give them, the nearest configuration file above it, as TypeScript finds its own configuration. Run from the workspace root, they check each app with the app's own configuration. A path with no configuration above it reads the working directory's, and a option makes every path read one file. See the CLI ."
   },
   {
     "id": "/docs/config/file#what-overrides-what",
@@ -1587,7 +1595,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The configuration file",
     "section": "config",
     "heading": "What overrides what",
-    "text": "Options passed to the adapter override the file, key by key: The project root comes from the adapter (Vite's , or the CLI's working directory) and cannot be set in the file."
+    "text": "Options passed to the adapter override the file, key by key: The project root comes from the adapter (Vite's ; for the CLI, the directory of the configuration a path reads, or the working directory) and cannot be set in the file."
   },
   {
     "id": "/docs/config/file#unknown-keys-are-errors",
@@ -4415,6 +4423,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "tooling",
     "heading": "kirana-style check",
     "text": "Report diagnostics without writing anything. It walks the paths you give it, skipping , , dotfiles and files. Human output underlines the span and prints the help line: prints an array of , for an editor or a script. The exit code is 1 when anything is an error. prints one GitHub Actions workflow command per diagnostic, which annotates the line in the pull request's diff: errors as errors, warnings as warnings, infos as notices. Paths are relative to the project root, so run it from the repository root or a project at the root. fails the run, exit code 1, when there are more than warnings; makes every warning block a merge, without re-levelling them in the configuration."
+  },
+  {
+    "id": "/docs/tooling/cli#which-configuration",
+    "href": "/docs/tooling/cli#which-configuration",
+    "page": "The CLI",
+    "section": "tooling",
+    "heading": "Which configuration",
+    "text": "Each path reads the nearest above it, so at a workspace root checks each app with its own configuration, as its build and the editor do. Paths that share a configuration are checked together. When a group reads a configuration other than the working directory's, or there are several, the human output names which file each group read: Beside that: makes every path read that file instead; stays one array however many configurations are read; groups its locations the same way; reads one configuration, and asks for when its paths would read several."
   },
   {
     "id": "/docs/tooling/cli#kirana-style-build",
