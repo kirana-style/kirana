@@ -69,9 +69,11 @@ export default defineConfig({
         dependsOn: ["engine"],
         cache: false,
       },
-      // Format, lint (the Kirana rules load the engine) and types, then the site's consistency.
+      // Format, lint (the Kirana rules load the engine) and types, then the site's consistency. A
+      // lint warning fails it, as in CI, so warnings cannot pile up.
       check: {
-        command: "vp check && bun run --cwd apps/docs check:consistency",
+        command:
+          "vp check --deny-warnings && bun run --cwd apps/docs check:consistency",
         dependsOn: ["engine"],
         cache: { input: SOURCES, output: [] },
       },

@@ -97,7 +97,7 @@ what must be installed.
 | `vp run engine`          | builds only the native engine (release)                                                                                  | Rust                            |
 | `vp check`               | Oxfmt check, Oxlint with the Kirana rules, TypeScript type check, in one pass                                            | `vp run engine`                 |
 | `vp check --fix`         | the same, rewriting what the formatter and the fixable rules can                                                         | `vp run engine`                 |
-| `vp run check`           | `vp check` plus the docs' consistency check, after building the engine                                                   | Rust                            |
+| `vp run check`           | `vp check --deny-warnings` plus the docs' consistency check, after building the engine                                   | Rust                            |
 | `vp run verify`          | the docs' generated files match their sources                                                                            | Rust                            |
 | `vp run rust`            | `cargo fmt`, Clippy, `cargo deny` (`vp run rust:lint` alone), then the Rust tests                                        | cargo-nextest, cargo-deny       |
 | `vp run test`            | Vitest: the Kirana packages against the engine, and docs-core                                                            | Rust                            |
