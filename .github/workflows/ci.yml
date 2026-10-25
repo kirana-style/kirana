@@ -73,9 +73,10 @@ jobs:
       - name: Format
         run: vp fmt --check
 
-      # Oxlint with the Kirana rules, and the TypeScript type check (tsgolint) in the same pass.
+      # Oxlint with the Kirana rules, and the TypeScript type check (tsgolint) in the same pass. A
+      # warning fails it, like an error: the pre-push hook's `vp run check` does the same.
       - name: Lint and types
-        run: vp lint
+        run: vp lint --deny-warnings
 
       # The docs' generated data (diagnostics, lint rules, packages, commands, the agent skills'
       # references) must match the source, and no page may contradict it: a hand-typed count, a

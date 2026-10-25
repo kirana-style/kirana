@@ -31,17 +31,15 @@ updates:
       - dependency-name: "@vitest/coverage-v8"
       # The parity test runs Oxlint itself; it stays at the version Vite+ bundles.
       - dependency-name: "oxlint"
-      # emnapi 2.0.0-beta renames napiModule to addonModule. @napi-rs/wasm-runtime bundles emnapi's
-      # plugins when it is built, and 1.2.5 was built with the alpha, so it writes napiModule and the
-      # WASI engine fails to load ("setting 'initWorker'"). napi-rs moved to the beta on main; take
-      # it with the first wasm-runtime release after 1.2.5. The install (wasi · npm) job proves it.
-      - dependency-name: "emnapi"
-        versions: [">= 2.0.0-beta.1"]
-      - dependency-name: "@emnapi/core"
-        versions: [">= 2.0.0-beta.1"]
-      - dependency-name: "@emnapi/runtime"
-        versions: [">= 2.0.0-beta.1"]
     groups:
+      # The WASI engine (KRN-INT-006) is linked against emnapi and loaded by @napi-rs/wasm-runtime,
+      # whose peer range on emnapi 2 names one prerelease: its 1.2.6 moved that from the alpha to
+      # 2.0.0-beta.2, and an install that mixed the two could not load the engine
+      # ("this.bridge.setLastError is not a function"). Both are pinned exactly and move together,
+      # with the CLI that writes the loaders; the install (wasi · npm) job proves each move. Listed
+      # before minor-and-patch, which would otherwise take them.
+      napi:
+        patterns: ["emnapi", "@emnapi/*", "@napi-rs/*"]
       minor-and-patch:
         update-types: [minor, patch]
 
@@ -63,6 +61,9 @@ updates:
           - "oxc_semantic"
           - "oxc_span"
           - "oxc_syntax"
+      # napi-rs's crates, pinned exactly like its packages in the bun group, and moved with them.
+      napi:
+        patterns: ["napi", "napi-derive", "napi-build"]
       minor-and-patch:
         update-types: [minor, patch]
 
