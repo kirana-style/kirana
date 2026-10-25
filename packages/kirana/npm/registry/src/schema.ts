@@ -128,6 +128,11 @@ const definitions: Record<string, Schema> = {
     additionalProperties: false,
   },
   files: { type: "array", items: { $ref: "#/$defs/file" } },
+  values: {
+    type: "array",
+    minItems: 1,
+    items: { type: "string", minLength: 1 },
+  },
   base: {
     type: "object",
     required: ["files"],
@@ -194,6 +199,87 @@ export const ITEM_SCHEMA: Schema = {
       additionalProperties: false,
     },
     files: { $ref: "#/$defs/files" },
+    design: {
+      type: "object",
+      description:
+        "A design system's axes and preset layouts (D-110): what `ui preset` reads.",
+      required: ["axes"],
+      properties: {
+        axes: {
+          type: "object",
+          description:
+            "Each axis by name: the attribute on <html> it is written to, and its values, the first the default.",
+          minProperties: 1,
+          patternProperties: {
+            "^[A-Za-z][A-Za-z0-9]*$": {
+              type: "object",
+              required: ["attribute", "values"],
+              properties: {
+                attribute: { type: "string", pattern: "^data-[a-z0-9-]+$" },
+                values: { $ref: "#/$defs/values" },
+              },
+              additionalProperties: false,
+            },
+          },
+          additionalProperties: false,
+        },
+        flatten: {
+          type: "string",
+          description: "The axis registries flatten style modules for.",
+          minLength: 1,
+        },
+        presets: {
+          type: "object",
+          description:
+            "Preset layouts by the letter a code starts with: fields from bit 0, each an axis, its values and its bits.",
+          patternProperties: {
+            "^[a-z]$": {
+              type: "array",
+              minItems: 1,
+              items: {
+                type: "object",
+                required: ["axis", "values", "bits"],
+                properties: {
+                  axis: { type: "string", minLength: 1 },
+                  values: { $ref: "#/$defs/values" },
+                  bits: { type: "integer" },
+                },
+                additionalProperties: false,
+              },
+            },
+          },
+          additionalProperties: false,
+        },
+      },
+      additionalProperties: false,
+    },
+    flattened: {
+      type: "object",
+      description:
+        "Its style modules flattened for each value of `axis` and each base (D-110), in place of `styles`.",
+      required: ["axis", "builds"],
+      properties: {
+        axis: { type: "string", minLength: 1 },
+        builds: {
+          type: "object",
+          patternProperties: {
+            "^.+$": {
+              type: "object",
+              patternProperties: {
+                [`^${NAME}$`]: {
+                  type: "array",
+                  minItems: 1,
+                  items: { $ref: "#/$defs/file" },
+                },
+              },
+              additionalProperties: false,
+            },
+          },
+          additionalProperties: false,
+        },
+      },
+      additionalProperties: false,
+    },
     setup: {
       type: "object",
       description:
@@ -356,6 +442,15 @@ export const SETTINGS_SCHEMA: Schema = {
       type: "string",
       description: "The library `ui add` draws each `<IconPlaceholder>` with.",
       enum: ICON_LIBRARIES,
+    },
+    design: {
+      type: "object",
+      description:
+        "The design system's axis values the project uses, which `ui preset` writes.",
+      patternProperties: {
+        "^[A-Za-z][A-Za-z0-9]*$": { type: "string", minLength: 1 },
+      },
+      additionalProperties: false,
     },
     aliases: {
       type: "object",

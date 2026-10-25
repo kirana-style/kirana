@@ -104,6 +104,48 @@ What each entry is for:
 | `stylesheets` | imports each where the project imports Kirana's stylesheet                 |
 | `document`    | puts it on `<html>` as `sx`, or sets the classes from a static app's entry |
 
+## Its design, and flattened builds
+
+A design system also says, in `design`, what `kirana-style ui preset` reads: each
+axis as the attribute it sets on `<html>`, with its values (the first the
+default); the axis your registry flattens for; and the layouts of its preset
+codes.
+
+```json
+"design": {
+  "axes": {
+    "style": { "attribute": "data-style", "values": ["nova", "vega"] },
+    "radius": { "attribute": "data-radius", "values": ["default", "none"] }
+  },
+  "flatten": "style",
+  "presets": {
+    "k": [
+      { "axis": "style", "values": ["nova", "vega"], "bits": 5 },
+      { "axis": "radius", "values": ["default", "none"], "bits": 3 }
+    ]
+  }
+}
+```
+
+A code is the layout's letter and a base-62 number holding one index per field,
+from bit 0. Fields may also set `framework`, `base` and `iconLibrary`.
+
+An item can carry its style modules flattened for each value of that axis and
+each base, beside the modules as written. Installation takes the build for the
+project's design, and the modules as written for a design you did not build:
+
+```json
+"flattened": {
+  "axis": "style",
+  "builds": {
+    "vega": { "base": [{ "path": "button.styles.ts", "type": "ui", "content": "…", "hash": "sha256-…" }] }
+  }
+}
+```
+
+Build them with the checks that prove a flattened module renders what the module
+as written does for that design: the installer takes them as they are.
+
 ## The index
 
 The index is the item named `index`, valid against

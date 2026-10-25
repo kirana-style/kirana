@@ -4549,6 +4549,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "changing-the-design",
+        "text": "Changing the design",
+        "level": 2
+      },
+      {
         "id": "updating-and-removing",
         "text": "Updating and removing",
         "level": 2
@@ -4590,6 +4595,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "a-design-system",
         "text": "A design system",
+        "level": 2
+      },
+      {
+        "id": "its-design-and-flattened-builds",
+        "text": "Its design, and flattened builds",
         "level": 2
       },
       {

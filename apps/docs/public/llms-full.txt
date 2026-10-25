@@ -8619,6 +8619,7 @@ A scale rule takes these options:
 | `format`      | The value inside other text: `brightness({value})`.                                                                                                                                                         |
 | `aliases`     | Utility keys spelled differently from the scale's: `in-out` reads `inOut`.                                                                                                                                  |
 | `iconLibrary` | the library icons are drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                                                                                                  |
+| `design`      | the design system's values your project uses, such as `{ style: "vega" }`, which `kirana-style ui preset` writes                                                                                            |
 | `also`        | Declarations set alongside, as written (a keyword rule takes it too).                                                                                                                                       |
 
 In any text of a rule, `{scale.key}` is that token, and a property written
@@ -9424,20 +9425,21 @@ $ kirana-style ui add button
 kirana-style ui needs @kirana-style/registry, which this project does not have: add it as a development dependency
 ```
 
-| Command                                | Does                                                                                                                                                                                                                                                                                                                                                                                                 |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kirana-style ui init`                 | Set a project up for a registry: Kirana where it is missing, the `ui` settings, the aliases in `tsconfig.json` (and Vite's `resolve.tsconfigPaths`) when there are none, and the registry's design system installed and wired in. `--framework`, `--base`, `--registry @acme=<template>`, `--design <item>`, `--template <example> [directory]` to start from one of Kirana's examples, `--dry-run`. |
-| `kirana-style ui add <item…>`          | Install items and every item they need: each file under your alias for its type, its imports pointed at your aliases, the npm packages added with your package manager, each item recorded in `kirana-style.lock.json`. `--dry-run` writes nothing; `--overwrite` replaces files you changed. It then checks what it wrote with `kirana-style check` (`--no-check` skips that).                      |
-| `kirana-style ui outdated [item…]`     | List your installed items whose registry has a new version or changed files, from `kirana-style.lock.json`. Exit 1 when one does.                                                                                                                                                                                                                                                                    |
-| `kirana-style ui diff [item…]`         | For each installed file the registry or you changed since it was installed, the lines between your file and what installing it now would write.                                                                                                                                                                                                                                                      |
-| `kirana-style ui update [item…]`       | Write what the registry changed since an item was installed and keep what you changed; a file both changed stops it until you look (`ui diff`) or pass `--overwrite`. Items an update newly needs are installed with it. `--dry-run`.                                                                                                                                                                |
-| `kirana-style ui remove <item…>`       | Delete the files of an item you left as installed and drop it from the lockfile, unless another installed item needs it. `--dry-run`.                                                                                                                                                                                                                                                                |
-| `kirana-style ui view <item…>`         | Show what an item is: its version, type and description, the Kirana versions it was checked with, its dependencies, its style modules, each framework's bases with their files, and the files every framework installs. `--json` prints the items as read.                                                                                                                                           |
-| `kirana-style ui search [query]`       | List the items of your registries' indexes whose name, title or description holds every word of the query; without one, every item. `--registry <namespace>` searches only that registry (repeatable), `--json` prints the results.                                                                                                                                                                  |
-| `kirana-style ui validate <document…>` | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings.                                                                                                                                                    |
+| Command                                | Does                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kirana-style ui init`                 | Set a project up for a registry: Kirana where it is missing, the `ui` settings, the aliases in `tsconfig.json` (and Vite's `resolve.tsconfigPaths`) when there are none, and the registry's design system installed and wired in. `--framework`, `--base`, `--registry @acme=<template>`, `--design <item>`, `--template <example> [directory]` to start from one of Kirana's examples, `--preset <code>` to start with a design, `--dry-run`. |
+| `kirana-style ui add <item…>`          | Install items and every item they need: each file under your alias for its type, its imports pointed at your aliases, the npm packages added with your package manager, each item recorded in `kirana-style.lock.json`. `--dry-run` writes nothing; `--overwrite` replaces files you changed. It then checks what it wrote with `kirana-style check` (`--no-check` skips that).                                                                |
+| `kirana-style ui outdated [item…]`     | List your installed items whose registry has a new version or changed files, from `kirana-style.lock.json`. Exit 1 when one does.                                                                                                                                                                                                                                                                                                              |
+| `kirana-style ui diff [item…]`         | For each installed file the registry or you changed since it was installed, the lines between your file and what installing it now would write.                                                                                                                                                                                                                                                                                                |
+| `kirana-style ui update [item…]`       | Write what the registry changed since an item was installed and keep what you changed; a file both changed stops it until you look (`ui diff`) or pass `--overwrite`. Items an update newly needs are installed with it. `--dry-run`.                                                                                                                                                                                                          |
+| `kirana-style ui remove <item…>`       | Delete the files of an item you left as installed and drop it from the lockfile, unless another installed item needs it. `--dry-run`.                                                                                                                                                                                                                                                                                                          |
+| `kirana-style ui preset <code>`        | Change your project's design: the code read with the design system's own layouts, `ui.design` and `<html>`'s attributes set, and every installed component placed again for it, its style modules the registry's flattening for the new design. A file you changed stops it until you pass `--overwrite`. `--dry-run`.                                                                                                                         |
+| `kirana-style ui view <item…>`         | Show what an item is: its version, type and description, the Kirana versions it was checked with, its dependencies, its style modules, each framework's bases with their files, and the files every framework installs. `--json` prints the items as read.                                                                                                                                                                                     |
+| `kirana-style ui search [query]`       | List the items of your registries' indexes whose name, title or description holds every word of the query; without one, every item. `--registry <namespace>` searches only that registry (repeatable), `--json` prints the results.                                                                                                                                                                                                            |
+| `kirana-style ui validate <document…>` | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings.                                                                                                                                                                                              |
 
-Flattening for a project's design and updating come next. A command asked for
-before its release says it is not in this one yet.
+Building a registry and an MCP server come next. A command asked for before its
+release says it is not in this one yet.
 
 A registry is static JSON: one document per item at a URL template holding
 `{name}`, and an index, the item named `index`. An item carries its style modules
@@ -10462,6 +10464,12 @@ it:
 npx kirana-style ui init --template vite-react my-app
 ```
 
+Start with a design by its preset code, which a design system's site gives you:
+
+```bash
+npx kirana-style ui init --preset k2bS6
+```
+
 Name the framework or the base when the project depends on more than one, or a
 component has several:
 
@@ -10495,6 +10503,21 @@ The two hashes are how the later commands tell the registry's change from yours:
 npx kirana-style ui outdated
 npx kirana-style ui diff button
 ```
+
+## Changing the design
+
+A design system says which axes it has (a style, a base colour, a radius …) and
+how a preset code holds them. Give a code to `init`, or change it later:
+
+```bash
+npx kirana-style ui preset k2bS6
+```
+
+`preset` writes the design to `ui.design` and sets its attributes on `<html>`,
+where your design system's styles are. Then it places every installed component
+again: a registry that flattened its style modules for the new design gives you
+that build, with only the new style's values in it. A file you changed stops it
+until you look, or pass `--overwrite`.
 
 ## Updating and removing
 
@@ -10626,6 +10649,48 @@ What each entry is for:
 | `config`      | spreads it into the project's `kirana.config.ts`                           |
 | `stylesheets` | imports each where the project imports Kirana's stylesheet                 |
 | `document`    | puts it on `<html>` as `sx`, or sets the classes from a static app's entry |
+
+## Its design, and flattened builds
+
+A design system also says, in `design`, what `kirana-style ui preset` reads: each
+axis as the attribute it sets on `<html>`, with its values (the first the
+default); the axis your registry flattens for; and the layouts of its preset
+codes.
+
+```json
+"design": {
+  "axes": {
+    "style": { "attribute": "data-style", "values": ["nova", "vega"] },
+    "radius": { "attribute": "data-radius", "values": ["default", "none"] }
+  },
+  "flatten": "style",
+  "presets": {
+    "k": [
+      { "axis": "style", "values": ["nova", "vega"], "bits": 5 },
+      { "axis": "radius", "values": ["default", "none"], "bits": 3 }
+    ]
+  }
+}
+```
+
+A code is the layout's letter and a base-62 number holding one index per field,
+from bit 0. Fields may also set `framework`, `base` and `iconLibrary`.
+
+An item can carry its style modules flattened for each value of that axis and
+each base, beside the modules as written. Installation takes the build for the
+project's design, and the modules as written for a design you did not build:
+
+```json
+"flattened": {
+  "axis": "style",
+  "builds": {
+    "vega": { "base": [{ "path": "button.styles.ts", "type": "ui", "content": "…", "hash": "sha256-…" }] }
+  }
+}
+```
+
+Build them with the checks that prove a flattened module renders what the module
+as written does for that design: the installer takes them as they are.
 
 ## The index
 

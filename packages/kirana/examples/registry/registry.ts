@@ -1,8 +1,9 @@
 /**
- * The registry the examples runner installs from with `--registry` (KRN-DX-028, KRN-DX-029): a design
- * system with its wiring and a button that draws an icon, in Kirana's format, written from the
- * sources beside this file with their hashes. Its values are ones no default produces, so the
- * runner can tell, in the browser, that `ui init` and `ui add` put everything in place.
+ * The registry the examples runner installs from with `--registry` (KRN-DX-028, KRN-DX-029,
+ * KRN-DX-032): a design system with its wiring and one axis, `tone`, and a button that draws an icon,
+ * flattened for each tone (D-110), in Kirana's format, written from the sources beside this file
+ * with their hashes. Its values are ones no default produces, so the runner can tell, in the
+ * browser, that `ui init`, `ui add` and `ui preset` put everything in place.
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
@@ -25,6 +26,11 @@ export function writeRegistry(directory: string): void {
       file("kit/document.ts", "lib", "kit/document.ts"),
       file("kit/reset.css", "ui", "reset.css"),
     ],
+    design: {
+      axes: { tone: { attribute: "data-tone", values: ["plain", "bold"] } },
+      flatten: "tone",
+      presets: { k: [{ axis: "tone", values: ["plain", "bold"], bits: 1 }] },
+    },
     setup: {
       config: { module: "@/registry/lib/kit/config", export: "kitConfig" },
       stylesheets: ["@/registry/ui/reset.css"],
@@ -37,6 +43,17 @@ export function writeRegistry(directory: string): void {
     version: "1.0.0",
     registryDependencies: ["kit"],
     styles: [file("button/button.styles.ts", "ui", "button.styles.ts")],
+    flattened: {
+      axis: "tone",
+      builds: {
+        plain: {
+          base: [file("button/button.styles.ts", "ui", "button.styles.ts")],
+        },
+        bold: {
+          base: [file("button/bold.styles.ts", "ui", "button.styles.ts")],
+        },
+      },
+    },
     frameworks: {
       react: {
         base: { files: [file("button/button.tsx", "ui", "button.tsx")] },

@@ -43,8 +43,15 @@ import { read, RegistryError } from "./read.ts"
 import { FRAMEWORKS, NAMESPACE_PATTERN, REFERENCE_PATTERN } from "./schema.ts"
 import { loadSettings } from "./settings.ts"
 import type { Settings } from "./settings.ts"
+import {
+  attributesOf,
+  decodePreset,
+  rendersHtml,
+  settingsOf,
+  withAttributes,
+} from "./preset.ts"
 import { fetchExample, writeExample } from "./template.ts"
-import type { Framework, Index, Item } from "./types.ts"
+import type { Framework, IconLibrary, Index, Item } from "./types.ts"
 import { version } from "./version.ts"
 
 const STYLESHEET = "@kirana-style/core/stylesheet.css"
@@ -119,6 +126,9 @@ type Chosen = {
   framework?: Framework
   base?: string
   aliases?: Settings["aliases"]
+  iconLibrary?: IconLibrary
+  /** The design a `--preset` code gives (D-110). */
+  design?: Record<string, string>
   registries: Record<string, string>
 }
 
@@ -312,6 +322,36 @@ function allowTsImports(
   )
 }
 
+/**
+ * The design's axes as attributes on `<html>`: in the one layout that renders it, else in a static
+ * app's `index.html`; a step by hand when there is neither.
+ */
+function setAttributes(
+  files: Files,
+  attributes: Readonly<Record<string, string>>,
+  report: string[],
+  manual: string[]
+): void {
+  const layouts = files
+    .scripts()
+    .filter((file) => rendersHtml(files.read(file)!))
+  const document =
+    layouts.length === 1
+      ? layouts[0]!
+      : layouts.length === 0 && files.read("index.html") !== undefined
+        ? "index.html"
+        : undefined
+  const listed = Object.entries(attributes)
+    .map(([name, value]) => `${name}="${value}"`)
+    .join(" ")
+  if (document === undefined) {
+    manual.push(`set the design's attributes on <html>: ${listed}`)
+    return
+  }
+  files.write(document, withAttributes(files.read(document)!, attributes))
+  report.push(`${document}: <html ${listed}>`)
+}
+
 /** What a setup entry names, among the files being installed. */
 function installedOf(
   module: string,
@@ -360,6 +400,10 @@ function setUp(
     ...(chosen.framework === undefined ? {} : { framework: chosen.framework }),
     ...(chosen.base === undefined ? {} : { base: chosen.base }),
     ...(chosen.aliases === undefined ? {} : { aliases: chosen.aliases }),
+    ...(chosen.iconLibrary === undefined
+      ? {}
+      : { iconLibrary: chosen.iconLibrary }),
+    ...(chosen.design === undefined ? {} : { design: chosen.design }),
     ...(Object.keys(chosen.registries).length > 0
       ? { registries: chosen.registries }
       : {}),
@@ -479,9 +523,7 @@ function setUp(
   if (setup.document) {
     const { export: name } = setup.document
     const specifier = aliased(setup.document.module)
-    const documents = scripts.filter((file) =>
-      /<html[\s>]/.test(files.read(file)!)
-    )
+    const documents = scripts.filter((file) => rendersHtml(files.read(file)!))
     const html = documents.length === 1 ? documents[0]! : undefined
     if (html !== undefined && !htmlTakesSx(files.read(html)!)) {
       const withSx = files
@@ -539,7 +581,14 @@ export async function runInit(
     "init",
     args,
     ["--dry-run", "--overwrite", "--no-check"],
-    ["--framework", "--base", "--registry", "--design", "--template"]
+    [
+      "--framework",
+      "--base",
+      "--registry",
+      "--design",
+      "--template",
+      "--preset",
+    ]
   )
   const chosen = typeof parsed === "string" ? parsed : chosenOf(parsed.values)
   if (typeof parsed === "string" || typeof chosen === "string") {
@@ -623,10 +672,31 @@ export async function runInit(
       settings,
       options
     )
+    // A preset, read with the design system's own layouts before anything is placed for it.
+    const preset = parsed.values.get("--preset")?.at(-1)
+    if (preset !== undefined) {
+      const item = (await read(design, settings, options)).document as Item
+      const values = item.design && decodePreset(preset, item.design)
+      if (!values)
+        throw new RegistryError(
+          `${preset} is not a preset code of ${design}${item.design ? "" : ", which describes no design"}`
+        )
+      const given = settingsOf(values, item.design!)
+      Object.assign(chosen, given)
+      settings = { ...settings, ...given }
+    }
     settings = prepareAliases(files, settings, chosen, report, manual)
     planned = await plan([design], settings, project, options)
     placed = place(planned, settings, project, files.absolute)
-    setUp(files, chosen, planned.at(-1)!.item, placed, settings, report, manual)
+    const system = planned.at(-1)!.item
+    setUp(files, chosen, system, placed, settings, report, manual)
+    if (chosen.design && system.design)
+      setAttributes(
+        files,
+        attributesOf(system.design, chosen.design),
+        report,
+        manual
+      )
     lockfile = readLockfile(root)
   } catch (error) {
     write(`${(error as Error).message}\n`)

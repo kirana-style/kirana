@@ -1559,6 +1559,30 @@ the implementation tracker names its evidence.
   safely is printed as a step to do by hand.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
+### D-110 — Registries ship their flattenings, a design system describes its axes
+
+- **Status:** Accepted (2026-10-25). For `kirana-style ui add` and `ui preset`; revises D-107's
+  "installation flattens".
+- **Decision:** a design system describes itself as data (`design`): each axis is an attribute on
+  `<html>` with its values, one axis is the one registries flatten for, and its preset layouts are
+  fields with their bits and values. An item carries its style modules flattened by its registry for
+  each value of that axis and each base (`flattened`), beside the modules as written; installation
+  takes the build for the project's design and keeps the modules as written for a design the
+  registry did not build. `ui preset` decodes a code with the layouts, writes the design, sets the
+  attributes and places every installed item again.
+- **Rationale:** a flattened module is only worth installing if it renders what the live one does,
+  and the check that proves it (the round trip and the winners through Kirana's trace) is the
+  registry builder's: Kirana UI's runs it for every combination it ships. Moving that builder into
+  the installer would put a thousand lines and their checks on every user's machine to produce what
+  the registry already produced and proved. The other axes are tokens the design system assigns
+  under attributes, so setting the attributes is the whole change for them; describing the axes and
+  the codec as data keeps the installer free of any one design system.
+- **Trade-off:** items grow by one small module per style and base. A registry that builds no
+  flattening installs every style compiled, which is correct and larger. A preset's rules between
+  axes (Kirana UI's square corners for Lyra) are the design system's site's to apply when it makes a
+  code; the installer decodes what the code says.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                       |
@@ -1570,7 +1594,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                 |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                       |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                             |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109                      |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110               |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                            |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                           |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                    |

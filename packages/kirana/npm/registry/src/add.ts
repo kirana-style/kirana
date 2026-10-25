@@ -42,6 +42,8 @@ export type Planned = {
   /** The item's files and its base's, in the order they install. */
   files: RegistryFile[]
   packages: Packages
+  /** The flattened build its style modules are (`style=vega`); none when they are as written. */
+  design?: string
 }
 
 /** A file about to be written, and how it stands against the project's. */
@@ -64,7 +66,7 @@ const qualify = (dependency: string, namespace: string) =>
   dependency.startsWith("@") ? dependency : `${namespace}/${dependency}`
 
 /** The framework and base whose markup the project gets, or why it cannot get any. */
-function chooseBase(
+export function chooseBase(
   key: string,
   item: Item,
   framework: Framework | undefined,
@@ -105,6 +107,14 @@ export function planItem(
     chosen.framework === undefined
       ? undefined
       : item.frameworks![chosen.framework]![chosen.base!]!
+  // The registry's flattening for the project's design and base, when it built one (D-110).
+  const axis = item.flattened?.axis
+  const value = axis === undefined ? undefined : settings.design[axis]
+  const base = chosen.base ?? settings.base
+  const build =
+    value === undefined || base === undefined
+      ? undefined
+      : item.flattened!.builds[value]?.[base]
   return {
     key,
     template: registryOf(parseReference(key).namespace, settings).template,
@@ -112,10 +122,11 @@ export function planItem(
     ...chosen,
     files: [
       ...(item.files ?? []),
-      ...(item.styles ?? []),
+      ...(build ?? item.styles ?? []),
       ...(entry?.files ?? []),
     ],
     packages: { ...item.dependencies, ...entry?.dependencies },
+    ...(build === undefined ? {} : { design: `${axis}=${value}` }),
   }
 }
 
@@ -408,7 +419,7 @@ export function record(
   planned: readonly Planned[],
   placed: readonly Placed[]
 ): void {
-  for (const { key, template, item, framework, base } of planned) {
+  for (const { key, template, item, framework, base, design } of planned) {
     const files: Locked["files"] = {}
     for (const file of placed.filter((entry) => entry.item === key))
       files[file.relative] = {
@@ -419,6 +430,7 @@ export function record(
       registry: template,
       version: item.version,
       ...(framework === undefined ? {} : { framework, base }),
+      ...(design === undefined ? {} : { design }),
       files,
     }
   }

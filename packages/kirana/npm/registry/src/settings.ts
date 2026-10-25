@@ -45,6 +45,8 @@ export type Settings = {
   base?: string
   /** `ui.iconLibrary`, Lucide by default, as shadcn/ui's. */
   iconLibrary: IconLibrary
+  /** `ui.design`: the design system's axis values the project uses, none by default. */
+  design: Readonly<Record<string, string>>
   /** The defaults, with `ui.aliases` over them. */
   aliases: Readonly<Partial<Record<AliasedType, string>>>
 }
@@ -83,12 +85,14 @@ export async function loadSettings(
     framework,
     base,
     iconLibrary,
+    design,
     aliases,
   } = ui as {
     registries?: Record<string, RegistryEntry>
     framework?: Framework
     base?: string
     iconLibrary?: IconLibrary
+    design?: Record<string, string>
     aliases?: Partial<Record<AliasedType, string>>
   }
   const registries = new Map<string, Registry>([
@@ -111,6 +115,7 @@ export async function loadSettings(
     ...(framework === undefined ? {} : { framework }),
     ...(base === undefined ? {} : { base }),
     iconLibrary: iconLibrary ?? "lucide",
+    design: design ?? {},
     aliases: { ...DEFAULT_ALIASES, ...aliases },
   }
 }

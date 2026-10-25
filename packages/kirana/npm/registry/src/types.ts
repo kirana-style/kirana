@@ -48,8 +48,26 @@ export type Item = {
   styles?: RegistryFile[]
   frameworks?: Partial<Record<Framework, Record<string, Base>>>
   files?: RegistryFile[]
+  design?: Design
+  flattened?: Flattened
   setup?: Setup
   meta?: Record<string, unknown>
+}
+
+/** One preset field, from bit 0: the axis it sets, its values in index order, and its width. */
+export type PresetField = { axis: string; values: string[]; bits: number }
+
+/** A design system's axes and preset layouts (D-110). */
+export type Design = {
+  axes: Record<string, { attribute: string; values: string[] }>
+  flatten?: string
+  presets?: Record<string, PresetField[]>
+}
+
+/** Style modules flattened for each value of `axis` and each base (D-110). */
+export type Flattened = {
+  axis: string
+  builds: Record<string, Record<string, RegistryFile[]>>
 }
 
 /** An installed module's export: `{ module: "@/registry/lib/kit/config", export: "kitConfig" }`. */

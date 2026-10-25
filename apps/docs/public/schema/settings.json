@@ -31,6 +31,17 @@
         "remixicon"
       ]
     },
+    "design": {
+      "type": "object",
+      "description": "The design system's axis values the project uses, which `ui preset` writes.",
+      "patternProperties": {
+        "^[A-Za-z][A-Za-z0-9]*$": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
     "aliases": {
       "type": "object",
       "description": "The import specifier for each file type, which the project's tsconfig.json maps to a directory.",

@@ -73,9 +73,9 @@ const dev = args.includes("--dev")
  */
 const runtime = option("runtime") ?? "node"
 /**
- * The component registry's installer on a React example (KRN-DX-028, KRN-DX-029): after the
- * install, `kirana-style ui init` and `ui add` from a fixture registry (`registry/`), the installed
- * button mounted beside the probe, then the build and the page read back as usual, the button and
+ * The component registry's installer on a React example (KRN-DX-028, KRN-DX-029, KRN-DX-032): after
+ * the install, `kirana-style ui init`, `ui add` and `ui preset` from a fixture registry
+ * (`registry/`), the installed button mounted beside the probe, then the build and the page read back as usual, the button and
  * `<html>` included. npm only. A JavaScript example gets TypeScript first, as `create-next-app`'s
  * default app has it, since registry items are TypeScript.
  */
@@ -411,6 +411,8 @@ try {
       directory
     )
     run("npx", ["kirana-style", "ui", "add", "@fixture/button"], directory)
+    // The bold tone: its flattened button, and data-tone on <html>.
+    run("npx", ["kirana-style", "ui", "preset", "k1"], directory)
     // The button beside the probe, imported through the project's alias.
     const edit = path.join(directory, settings.edit)
     const text = readFileSync(edit, "utf8").replace(
@@ -527,7 +529,7 @@ try {
     checkStylesheet(css)
     if (registry)
       for (const expected of [
-        ["background-color:rgb(11,12,13)", "background-color:#0b0c0d"],
+        ["background-color:rgb(21,22,23)", "background-color:#151617"],
         ["color:rgb(7,8,9)", "color:#070809"],
       ])
         if (!expected.some((text) => css.replaceAll(" ", "").includes(text)))
@@ -826,12 +828,14 @@ async function checkPage(
         paddingTop: getComputedStyle(element).paddingTop,
         icon: element.querySelector("svg") !== null,
         html: getComputedStyle(document.documentElement).color,
+        tone: document.documentElement.dataset.tone,
       }))
       const wanted = {
-        backgroundColor: "rgb(11, 12, 13)",
+        backgroundColor: "rgb(21, 22, 23)",
         paddingTop: "9px",
         icon: true,
         html: "rgb(7, 8, 9)",
+        tone: "bold",
       }
       for (const [key, value] of Object.entries(wanted))
         if (read[key as keyof typeof read] !== value)
