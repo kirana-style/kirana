@@ -4415,7 +4415,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Configuration reference",
     "section": "reference",
     "heading": "ui",
-    "text": "The component registry's settings, read by and never by the compiler, which accepts the key and leaves it out of every compile. Their shape is the registry package's, which is not released yet."
+    "text": "The component registry's settings, read by ( ) and never by the compiler, which accepts the key and leaves it out of every compile. names registries by namespace, ; is known without it. The commands that read the rest arrive with the registry's next releases."
   },
   {
     "id": "/docs/reference/config#root",
@@ -4582,7 +4582,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style ui",
-    "text": "The component registry's commands. They live in their own package, , so the compiler every project installs carries no registry client: runs the project's copy of that package with the arguments after . The package is not released yet. Until it is, the command says so and exits 1: Its settings will live in under , which the compiler accepts and never reads."
+    "text": "The component registry's commands. They live in their own package, , so the compiler every project installs carries no registry client: runs the project's copy of that package with the arguments after . Without it, the command says so and exits 1: Viewing and searching a registry come next, then installing, updating and the rest of the installer. A command asked for before its release says it is not in this one yet. A registry is static JSON: one document per item at a URL template holding , and an index, the item named . An item carries its style modules as written, one source for every framework, and its markup per framework and base, and every file carries a SHA-256 hash of its content. What a project installed is recorded in . The schemas are exported by for editors and other tools. Its settings live in under , which the compiler accepts and never reads."
   },
   {
     "id": "/docs/tooling/editor",

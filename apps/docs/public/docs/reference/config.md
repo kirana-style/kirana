@@ -229,8 +229,12 @@ ui: { framework: "react", preset: "k0" } // default: none
 ```
 
 The component registry's settings, read by [`kirana-style ui`](/docs/tooling/cli#kirana-style-ui)
-and never by the compiler, which accepts the key and leaves it out of every
-compile. Their shape is the registry package's, which is not released yet.
+(`@kirana-style/registry`) and never by the compiler, which accepts the key and
+leaves it out of every compile.
+
+`ui.registries` names registries by namespace,
+`{ "@acme": "https://acme.dev/r/{name}.json" }`; `@kirana` is known without it.
+The commands that read the rest arrive with the registry's next releases.
 
 ## `root`
 

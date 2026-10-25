@@ -1,7 +1,7 @@
 # 12 — Tooling and Developer Experience
 
-**Owns:** the language server and editor features, the CLI, lint rules, formatter compatibility, editor
-latency budgets, and the browser devtools direction.
+**Owns:** the language server and editor features, the CLI, the component registry's format, lint
+rules, formatter compatibility, editor latency budgets, and the browser devtools direction.
 **Depends on:** [00-glossary](./00-glossary.md), [20-decisions](./20-decisions.md) (D-003, D-030, D-031),
 [08-conditions-and-cascade](./08-conditions-and-cascade.md), [10-compiler-architecture](./10-compiler-architecture.md).
 
@@ -84,7 +84,7 @@ Measured by `bench/lsp.ts` in the benchmark repository (2026-10-02): hover p95 1
 | `kirana-style doctor [--json] [--report [file]] [--trace]`                                     | Engine in use (native or WASI), installed versions, configuration resolution, detected host and whether the adapter, stylesheet and types are wired, cache state (none, D-049). Exit 1 on a failure. `--report` writes a redacted bug report: versions, checks, diagnostics by code, stylesheet size, configuration, optional `kirana-style trace` output; no source text (D-077). Built. |
 | `kirana-style migrate stylex\|tailwind`                                                        | The codemods of [06](./06-authoring-api.md#migration-codemods), with a dry-run diff and a report file.                                                                                                                                                                                                                                                                                    |
 | `kirana-style lsp`                                                                             | Start the language server.                                                                                                                                                                                                                                                                                                                                                                |
-| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103). The package is not released yet; the command says so.                                                                                                                                                                                                                             |
+| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate` is built; `view` and `search` come next, then `init`, `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                                                             |
 
 There is no `kirana cache clean`: Kirana keeps no persistent cache (D-049), so there is nothing to
 clear, and `kirana-style doctor` says so.
@@ -104,6 +104,62 @@ without a bundler.
 does not have the package, when it fails to load, or when it exports no `main`, the command MUST say
 which and exit 1. The configuration key `ui` belongs to that package: the Driver MUST accept it and
 MUST NOT pass it to the engine (D-103).
+
+## Component registry
+
+`kirana-style ui` installs components from registries: static JSON anyone can host, in a format of
+Kirana's own (D-107). `@kirana-style/registry` implements the commands and publishes the format as
+JSON Schema (`@kirana-style/registry/schema`: `ITEM_SCHEMA`, `INDEX_SCHEMA`, `LOCKFILE_SCHEMA`,
+with ids under `https://kirana.style/schema/`), which its own checks read, so the format has one
+definition.
+
+**KRN-DX-021** — A registry item MUST be one JSON document, valid against the item schema:
+
+| Field                | Holds                                                                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                 | lower case and hyphens, unique in its registry                                                                                                 |
+| type                 | `component`, `block`, `chart`, `lib`, `hook`, `font` or `design-system`                                                                        |
+| version              | the item's semantic version, which the lockfile records                                                                                        |
+| title, description   | for listings                                                                                                                                   |
+| kirana               | the Kirana versions it was built and checked with, as a range                                                                                  |
+| registryDependencies | other items: `name` in the same registry, or `@namespace/name`                                                                                 |
+| dependencies         | npm packages every framework needs, with version ranges                                                                                        |
+| axes                 | the design axes its styles read, which installation flattens (`style`, `menuColor` …)                                                          |
+| styles               | its style modules as written: one source for every framework                                                                                   |
+| frameworks           | per framework (`react`, `vue`, `svelte`, `solid`, `angular`), per base (`base`, `aria`, `ark` …): the markup files, and the packages they need |
+| files                | files every framework installs alike (a library, a stylesheet)                                                                                 |
+| meta                 | free data, for documentation and provenance                                                                                                    |
+
+`name`, `type` and `version` are required. A file is `{ path, type, content, hash }`: `type` says
+where it installs, under the project's alias for `ui`, `component`, `lib`, `hook` or `page`, or for
+`file` at its own `target`, relative to the project's root; `path` is relative to that place and
+never leaves it; `hash` is `sha256-` and the base64 SHA-256 of `content`'s UTF-8 bytes, as
+subresource integrity writes it. An item MUST list every framework and base it supports, and only
+those, each with at least one file.
+
+**KRN-DX-022** — A registry MUST be addressable as a URL template holding `{name}`, and its index
+is the item named `index`: `{ name, homepage, items }`, each entry with the item's `name`, `type`,
+`title`, `description`, `version` and its frameworks' bases. A project names registries in
+`ui.registries` by namespace, `"@acme": "https://acme.dev/r/{name}.json"`, or as
+`{ url, headers }`. `@kirana`, Kirana UI's `https://ui.kirana.style/r/{name}.json`, is known
+without configuration and can be redefined. A template may also be a path or a `file:` URL, for
+registry authors.
+
+**KRN-DX-023** — A registry's `headers` MAY read the environment as `${NAME}`. A variable that is
+not set MUST stop the command, naming the variable; a header's value MUST never be printed.
+
+**KRN-DX-024** — Installation MUST refuse a file whose `hash` does not match its `content`.
+`kirana-style ui validate <file…>` MUST report, for an item, an index or a lockfile (told apart by
+`$schema`, else by shape), every schema violation by JSON pointer, and for an item every file
+whose hash does not match and every `target` on a file of another type or missing from a `file`;
+it exits 1 when there is one, 2 when it is given no file.
+
+**KRN-DX-025** — The lockfile MUST be `kirana-style.lock.json`, at the project's root:
+`{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came
+from, its version, the framework and base, the design it was flattened for (a preset code), and for
+each installed file, by its path in the project, the hash of the registry's content (`source`) and
+of what was written (`written`). A changed `source` under the same version MUST be refused, and the
+two hashes tell a registry's change from the project's own edit.
 
 ## Lint
 

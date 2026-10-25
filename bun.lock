@@ -356,6 +356,10 @@
         "@kirana-style/core": "workspace:*",
       },
     },
+    "packages/kirana/npm/registry": {
+      "name": "@kirana-style/registry",
+      "version": "0.3.2",
+    },
     "packages/kirana/npm/remix": {
       "name": "@kirana-style/remix",
       "version": "0.3.2",
@@ -1311,6 +1315,8 @@
     "@kirana-style/postcss": ["@kirana-style/postcss@workspace:packages/kirana/npm/postcss"],
 
     "@kirana-style/preset-scales": ["@kirana-style/preset-scales@workspace:packages/kirana/npm/preset-scales"],
+
+    "@kirana-style/registry": ["@kirana-style/registry@workspace:packages/kirana/npm/registry"],
 
     "@kirana-style/remix": ["@kirana-style/remix@workspace:packages/kirana/npm/remix"],
 
