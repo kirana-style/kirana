@@ -406,6 +406,12 @@ try {
     )
     step(`✓ ${example} · ${pm}`)
   } else {
+    // An example's `typecheck` (`vue-tsc --noEmit`) runs with the package manager on Node, before
+    // the build: a type checker hooks Node's module loading, which Deno does not run.
+    if (manifest.scripts.typecheck && runtime !== "deno") {
+      step("typecheck")
+      run(pm === "yarn-pnp" ? "yarn" : pm, ["run", "typecheck"], directory)
+    }
     step(wasi ? "build on the WASI engine" : `build on ${runtime}`)
     if (runtime === "deno") {
       const [bin, ...rest] = (manifest.scripts.build as string).split(" ")
