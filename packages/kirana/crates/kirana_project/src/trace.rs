@@ -139,16 +139,32 @@ pub(crate) fn recipe_parts(recipe: &Recipe) -> Vec<(&Handle, RecipePart)> {
     parts
 }
 
+/// The byte offset each line of a source starts at, to find an offset's line by binary search: a
+/// trace asks it of every site of the file, and counting newlines from the start each time made a
+/// question cost the length of the file (KF-028).
+pub(crate) struct LineStarts(Vec<usize>);
+
+impl LineStarts {
+    pub(crate) fn new(source: &str) -> Self {
+        Self(std::iter::once(0).chain(source.match_indices('\n').map(|(at, _)| at + 1)).collect())
+    }
+
+    /// The 1-based line of `offset`, as `kirana_diagnostics::line_column` counts it.
+    fn line(&self, offset: u32) -> usize {
+        self.0.partition_point(|start| *start <= offset as usize)
+    }
+}
+
 impl Project {
     /// Traces `property` (kebab-case) for the sites of `path` that cover `line` (1-based).
     pub fn trace(&self, path: &Path, source: &str, line: usize, property: &str) -> Vec<TraceLine> {
+        self.trace_lines(path, &LineStarts::new(source), line, property)
+    }
+
+    fn trace_lines(&self, path: &Path, lines: &LineStarts, line: usize, property: &str) -> Vec<TraceLine> {
         let state = self.state.read().expect("not poisoned");
         let Some(record) = state.modules.get(path) else { return Vec::new() };
-        let covers_line = |span: &(u32, u32)| {
-            let (start, _) = kirana_diagnostics::line_column(source, span.0);
-            let (end, _) = kirana_diagnostics::line_column(source, span.1);
-            start <= line && line <= end
-        };
+        let covers_line = |span: &(u32, u32)| lines.line(span.0) <= line && line <= lines.line(span.1);
         // A recipe's handles are read part by part, so each entry says which part it comes from.
         let mut handles: Vec<(&Handle, Option<RecipePart>)> = Vec::new();
         for (_, recipe) in record.recipes.iter().filter(|(span, _)| covers_line(span)) {
@@ -247,7 +263,8 @@ impl Project {
     /// Answers every query, compiling each file once however many queries name it (KF-022): a tool
     /// that checks thousands of entries asks once.
     pub fn trace_all(&self, queries: &[TraceQuery]) -> Vec<TraceAnswer> {
-        let mut sources: BTreeMap<std::path::PathBuf, Option<String>> = BTreeMap::new();
+        // Each file is read, compiled and indexed by line once, however many queries name it.
+        let mut sources: BTreeMap<std::path::PathBuf, Option<LineStarts>> = BTreeMap::new();
         queries
             .iter()
             .map(|query| {
@@ -257,15 +274,16 @@ impl Project {
                     .or_insert_with(|| {
                         let source = self.fs.read_to_string(&path).ok()?;
                         self.transform(&path, &source);
-                        Some(source)
+                        Some(LineStarts::new(&source))
                     })
-                    .as_deref();
+                    .as_ref();
                 let property = kirana_shared::kebab_case(&query.property);
                 TraceAnswer {
                     file: query.file.clone(),
                     line: query.line,
                     property: query.property.clone(),
-                    entries: source.map_or_else(Vec::new, |source| self.trace(&path, source, query.line, &property)),
+                    entries: source
+                        .map_or_else(Vec::new, |lines| self.trace_lines(&path, lines, query.line, &property)),
                     error: source.is_none().then(|| format!("cannot read {}", query.file)),
                 }
             })

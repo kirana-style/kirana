@@ -603,3 +603,70 @@ export const item = css({ padding: { base: "1rem", [menu.within("[data-slot]")]:
     project.transform(&local, &fs::read_to_string(&local).unwrap());
     assert_eq!(unused(&project), 1);
 }
+
+/// A relation kept private whose readers leave its module inside an exported object is exported all
+/// the same (KF-024): a build that reaches the anchor and no reader says nothing. One whose anchor
+/// alone leaves is read nowhere else, and a report names where it is declared.
+#[test]
+fn a_relation_whose_anchor_and_readers_are_exported_is_exported() {
+    let axes = r#"import { css, recipe, relation, select } from "@kirana-style/core"
+const ui = relation("ui")
+export const axes = {
+  anchor: ui.anchor,
+  style: { lyra: ui.within('[data-style="lyra"]'), read: ui.within, pick: select.child },
+  styled: css({ color: { [ui.within(":hover")]: "red" } }),
+  sized: recipe({ variants: { size: { sm: { color: { [ui.within(":focus")]: "blue" } } } } }),
+}
+"#;
+    let app = r#"import { axes } from "./axes"
+export const App = () => <div sx={axes.anchor} />
+"#;
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("axes.ts", axes), ("app.tsx", app)]);
+    let entry = root.join("app.tsx");
+    project.transform(&entry, &fs::read_to_string(&entry).unwrap());
+    let unused = |project: &Project| -> Vec<kirana_diagnostics::Diagnostic> {
+        project
+            .diagnostics()
+            .into_iter()
+            .filter(|diagnostic| diagnostic.code == kirana_diagnostics::Code::RelationUnused)
+            .collect()
+    };
+    assert!(unused(&project).is_empty(), "{:?}", unused(&project));
+    // An exported anchor alone: no other module can read the relation, so any build reports it.
+    let lone = "import { relation } from \"@kirana-style/core\"\nconst ui = relation(\"ui\")\nexport const axes = { anchor: ui.anchor }\n";
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("axes.ts", lone), ("app.tsx", app)]);
+    let entry = root.join("app.tsx");
+    project.transform(&entry, &fs::read_to_string(&entry).unwrap());
+    let found = unused(&project);
+    assert_eq!(found.len(), 1);
+    assert_eq!(found[0].file, "axes.ts");
+    let start = lone.find("relation(\"ui\")").unwrap() as u32;
+    assert_eq!((found[0].span.start, found[0].span.end), (start, start + "relation(\"ui\")".len() as u32));
+}
+
+/// A question costs the sites of its line, not the length of its file (KF-028): 3,000 questions on a
+/// 6,000-line module took about 17 ms each when every site's line was counted from the file's start.
+#[test]
+fn trace_questions_cost_their_line_not_the_file() {
+    let mut source = String::from("import { css } from \"@kirana-style/core\"\n");
+    for index in 0..3_000 {
+        source.push_str(&format!("export const s{index} = css({{ padding: \"{index}px\",\n  color: \"red\" }})\n"));
+    }
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("probes.ts", &source)]);
+    let queries: Vec<kirana_project::TraceQuery> = (0..3_000)
+        .map(|index| kirana_project::TraceQuery {
+            file: root.join("probes.ts").to_string_lossy().into_owned(),
+            line: 2 + index * 2,
+            property: "padding".to_owned(),
+        })
+        .collect();
+    let started = std::time::Instant::now();
+    let answers = project.trace_all(&queries);
+    let took = started.elapsed();
+    assert_eq!(answers.len(), 3_000);
+    assert_eq!(answers[1_234].entries[0].value, "1234px");
+    assert!(answers.iter().all(|answer| answer.entries.len() == 1));
+    // Generous, for a debug build under coverage: before the index this took minutes.
+    assert!(took < std::time::Duration::from_secs(20), "{took:?}");
+    fs::remove_dir_all(root).unwrap();
+}

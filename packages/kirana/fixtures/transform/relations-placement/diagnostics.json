@@ -109,10 +109,10 @@
     "code": "KRN1402",
     "name": "relation-unused",
     "severity": "warning",
-    "file": "",
+    "file": "input.tsx",
     "span": {
-      "start": 0,
-      "end": 0
+      "start": 129,
+      "end": 147
     },
     "message": "relation \"unused\" is anchored but never read",
     "help": []
