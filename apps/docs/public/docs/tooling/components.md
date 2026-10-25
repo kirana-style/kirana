@@ -36,6 +36,12 @@ it:
 npx kirana-style ui init --template vite-react my-app
 ```
 
+Start with a design by its preset code, which a design system's site gives you:
+
+```bash
+npx kirana-style ui init --preset k2bS6
+```
+
 Name the framework or the base when the project depends on more than one, or a
 component has several:
 
@@ -69,6 +75,21 @@ The two hashes are how the later commands tell the registry's change from yours:
 npx kirana-style ui outdated
 npx kirana-style ui diff button
 ```
+
+## Changing the design
+
+A design system says which axes it has (a style, a base colour, a radius …) and
+how a preset code holds them. Give a code to `init`, or change it later:
+
+```bash
+npx kirana-style ui preset k2bS6
+```
+
+`preset` writes the design to `ui.design` and sets its attributes on `<html>`,
+where your design system's styles are. Then it places every installed component
+again: a registry that flattened its style modules for the new design gives you
+that build, with only the new style's values in it. A file you changed stops it
+until you look, or pass `--overwrite`.
 
 ## Updating and removing
 

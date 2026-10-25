@@ -45,6 +45,7 @@ function settings(registries: Registry[] = []): Settings {
     registries: new Map(all.map((entry) => [entry.namespace, entry])),
     aliases: {},
     iconLibrary: "lucide",
+    design: {},
   }
 }
 

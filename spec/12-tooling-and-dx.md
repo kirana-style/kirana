@@ -84,7 +84,7 @@ Measured by `bench/lsp.ts` in the benchmark repository (2026-10-02): hover p95 1
 | `kirana-style doctor [--json] [--report [file]] [--trace]`                                     | Engine in use (native or WASI), installed versions, configuration resolution, detected host and whether the adapter, stylesheet and types are wired, cache state (none, D-049). Exit 1 on a failure. `--report` writes a redacted bug report: versions, checks, diagnostics by code, stylesheet size, configuration, optional `kirana-style trace` output; no source text (D-077). Built. |
 | `kirana-style migrate stylex\|tailwind`                                                        | The codemods of [06](./06-authoring-api.md#migration-codemods), with a dry-run diff and a report file.                                                                                                                                                                                                                                                                                    |
 | `kirana-style lsp`                                                                             | Start the language server.                                                                                                                                                                                                                                                                                                                                                                |
-| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view`, `search`, `add`, `init`, `outdated`, `diff`, `update` and `remove` are built; `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                            |
+| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view`, `search`, `add`, `init`, `outdated`, `diff`, `update`, `remove` and `preset` are built; `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                  |
 
 There is no `kirana cache clean`: Kirana keeps no persistent cache (D-049), so there is nothing to
 clear, and `kirana-style doctor` says so.
@@ -129,6 +129,8 @@ own checks read, so the format has one definition.
 | frameworks           | per framework (`react`, `vue`, `svelte`, `solid`, `angular`), per base (`base`, `aria`, `ark` …): the markup files, and the packages and items only that base needs        |
 | files                | files every framework installs alike (a library, a stylesheet)                                                                                                             |
 | setup                | a design system's wiring: the configuration it spreads, the stylesheets the app imports, the styles `<html>` takes, each by `module` and `export` or an `@/registry/` path |
+| design               | a design system's axes, each the `<html>` attribute it is written to with its values (the first the default), the axis registries flatten for, and its preset layouts      |
+| flattened            | its style modules flattened for each value of that axis and each base (`builds.vega.base`), which installation takes for the project's design                              |
 | meta                 | free data, for documentation and provenance                                                                                                                                |
 
 `name`, `type` and `version` are required. A file is `{ path, type, content, hash }`: `type` says
@@ -190,9 +192,12 @@ read once (KRN-DX-026). The project's settings under `ui`:
 | base        | the base whose markup is installed; else the framework's only base in the item                                                                         |
 | aliases     | the import specifier for each file type: `ui`, `lib`, `component`, `hook`, `page`; `@/components/ui`, `@/lib`, `@/components` and `@/hooks` by default |
 | iconLibrary | the library each `<IconPlaceholder>` is drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                           |
+| design      | the design system's axis values the project uses (`{ style: "vega", baseColor: "stone" }`), which `ui preset` writes                                   |
 
 An item with `frameworks` and none for the project's framework, or several bases and no `ui.base`,
-MUST stop the command, naming what the item supports. Each file is written in the directory the
+MUST stop the command, naming what the item supports. An item's style modules MUST be its
+`flattened` build for `ui.design`'s value of the build's axis and the project's base when the item
+has one, and as written otherwise (D-110). Each file is written in the directory the
 project's `tsconfig.json` (its `extends` and `references` followed) maps its type's alias to, or at
 its `target` for a `file`; its `@/registry/<type>/<path>` imports become the alias (D-108). A file
 the project already has with other content MUST stop the command before anything is written, unless
@@ -243,9 +248,21 @@ installed item needs, as its registry has it now; otherwise it deletes each file
 project left as installed, keeps the rest, and drops the item from the lockfile. For these commands,
 `outdated` and `diff`, a name alone names the one installed item of that name, else `@kirana`'s.
 
+**KRN-DX-032** — `kirana-style ui preset <code>` MUST change a project's design: the code decoded
+with the installed design system's preset layouts (its first letter names the layout, the rest is a
+base-62 number holding one index per field from bit 0, an index past a list's end reading as its
+first value), the result written to `ui.design`, with the `framework`, `base` and `iconLibrary`
+fields to their own settings; the design's axes set as attributes on `<html>`, where `init` put the
+design system's styles (a layout's `<html>` element, or a static app's `index.html`); and every
+installed item placed again for the new design, as `update` writes it: a file the project left as
+installed is replaced, one it changed stops the command unless `--overwrite`, and the lockfile
+records the new design and hashes. `init --preset <code>` starts a project with a design.
+`--dry-run` writes nothing. Exit 1 for a code no layout reads or a project without a design system
+installed, 2 for an unknown option or settings it cannot use.
+
 **KRN-DX-025** — The lockfile MUST be `kirana-style.lock.json`, at the project's root:
 `{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came
-from, its version, the framework and base, the design it was flattened for (a preset code), and for
+from, its version, the framework and base, the design it was flattened for (`style=vega`), and for
 each installed file, by its path in the project, the hash of the registry's content (`source`) and
 of what was written (`written`). A changed `source` under the same version MUST be refused, and the
 two hashes tell a registry's change from the project's own edit.

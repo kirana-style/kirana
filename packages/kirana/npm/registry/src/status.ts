@@ -9,7 +9,7 @@ import { existsSync, readFileSync } from "node:fs"
 import { diffChange } from "@kirana-style/compiler"
 
 import { place, planItem } from "./add.ts"
-import type { Placed } from "./add.ts"
+import type { Placed, Planned } from "./add.ts"
 import { hashOf } from "./check.ts"
 import { failureLine, parseArgs } from "./command.ts"
 import type { Failure, Options } from "./command.ts"
@@ -19,7 +19,7 @@ import type { Project } from "./project.ts"
 import { parseReference, read, RegistryError } from "./read.ts"
 import { loadSettings } from "./settings.ts"
 import type { Settings } from "./settings.ts"
-import type { Item, Locked, Lockfile } from "./types.ts"
+import type { Framework, Item, Locked, Lockfile } from "./types.ts"
 
 /** One installed file: whether the registry and the project changed it since it was installed. */
 export type FileStatus = {
@@ -32,6 +32,11 @@ export type FileStatus = {
   next?: Placed
   /** The project's file, when it has one. */
   current?: string
+  /**
+   * Installing it now would write it differently from what was written, the registry's content
+   * aside: another icon library, alias or design.
+   */
+  restyled?: boolean
 }
 
 /** One installed item: its version then and now, and its files. */
@@ -39,8 +44,22 @@ export type ItemStatus = {
   key: string
   locked: Locked
   item: Item
+  /** The item as installing it now would place it: its framework, base and flattened build. */
+  planned: Planned
   files: FileStatus[]
 }
+
+/** The framework and base an installed item is placed for: by default the ones it was installed with. */
+export type Choose = (
+  key: string,
+  item: Item,
+  locked: Locked
+) => { framework?: Framework; base?: string }
+
+const asInstalled: Choose = (_, __, locked) =>
+  locked.framework === undefined
+    ? {}
+    : { framework: locked.framework, base: locked.base! }
 
 /** Whether an item is behind its registry: a new version, or a file the registry changed. */
 export const isOutdated = (status: ItemStatus) =>
@@ -71,7 +90,8 @@ export async function statusOf(
   settings: Settings,
   project: Project,
   lockfile: Lockfile,
-  options: Options
+  options: Options,
+  choose: Choose = asInstalled
 ): Promise<{ statuses: ItemStatus[]; failures: Failure[] }> {
   const statuses: ItemStatus[] = []
   const failures: Failure[] = []
@@ -86,14 +106,7 @@ export async function statusOf(
         throw new RegistryError("is not installed (kirana-style.lock.json)")
       const found = await read(key, settings, options)
       const item = found.document as Item
-      const planned = planItem(
-        key,
-        item,
-        settings,
-        locked.framework === undefined
-          ? {}
-          : { framework: locked.framework, base: locked.base! }
-      )
+      const planned = planItem(key, item, settings, choose(key, item, locked))
       const placed = place([planned], settings, project, undefined, false)
       const files: FileStatus[] = placed.map((next) => {
         const was = locked.files[next.relative]
@@ -107,6 +120,7 @@ export async function statusOf(
                 : "changed",
           ...projectSide(next.destination, was?.written),
           next,
+          restyled: was !== undefined && hashOf(next.content) !== was.written,
         }
       })
       for (const [relative, was] of Object.entries(locked.files))
@@ -116,7 +130,7 @@ export async function statusOf(
             registry: "removed",
             ...projectSide(`${project.root}/${relative}`, was.written),
           })
-      statuses.push({ key, locked, item, files })
+      statuses.push({ key, locked, item, planned, files })
     } catch (error) {
       failures.push({ document: key, message: (error as Error).message })
     }

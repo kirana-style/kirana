@@ -245,6 +245,55 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     expect(read(tilde, "src/main.tsx")).toContain("from '~/lib/kit/document'")
   })
 
+  it("starts with a preset's design: the settings, <html>'s attributes and the flattened builds", async () => {
+    const design = {
+      axes: { style: { attribute: "data-style", values: ["nova", "vega"] } },
+      flatten: "style",
+      presets: {
+        k: [
+          { axis: "style", values: ["nova", "vega"], bits: 1 },
+          { axis: "base", values: ["base"], bits: 1 },
+          { axis: "iconLibrary", values: ["lucide", "hugeicons"], bits: 1 },
+        ],
+      },
+    }
+    const designed = { ...kit(), design }
+    const cwd = vite({}, designed)
+    // style vega, base base, hugeicons: 1 + 0 + 4.
+    const { code, text } = await init(cwd, "--registry", ACME, "--preset", "k5")
+    expect(code).toBe(0)
+    expect(text).toContain('setup: index.html: <html data-style="vega">')
+    expect(read(cwd, "index.html")).toContain(
+      '<html data-style="vega" lang="en">'
+    )
+    expect(read(cwd, "kirana.config.ts")).toContain(
+      '"iconLibrary": "hugeicons"'
+    )
+    expect(read(cwd, "kirana.config.ts")).toContain(
+      '"design": {\n      "style": "vega"\n    }'
+    )
+    const layout = next({ "acme/kit.json": JSON.stringify(designed) })
+    expect(
+      (await init(layout, "--registry", ACME, "--preset", "k1")).text
+    ).toContain('setup: app/layout.tsx: <html data-style="vega">')
+    const twoLayouts = next({
+      "acme/kit.json": JSON.stringify(designed),
+      "app/other/layout.tsx": "export default () => <html><body /></html>\n",
+    })
+    expect(
+      (await init(twoLayouts, "--registry", ACME, "--preset", "k1")).text
+    ).toContain(
+      'by hand: set the design\'s attributes on <html>: data-style="vega"'
+    )
+    expect(
+      (await init(vite({}, designed), "--registry", ACME, "--preset", "z1"))
+        .text
+    ).toBe("z1 is not a preset code of @acme/kit\n")
+    expect(
+      (await init(vite(), "--registry", ACME, "--preset", "k1")).text
+    ).toBe("k1 is not a preset code of @acme/kit, which describes no design\n")
+  })
+
   it("lets a tsconfig that type-checks the configuration take its .ts import", async () => {
     const tsconfig = (text: string) => next({ "tsconfig.json": text })
     const emitsNothing = tsconfig(

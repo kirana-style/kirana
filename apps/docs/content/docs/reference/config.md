@@ -147,6 +147,7 @@ A scale rule takes these options:
 | `format`      | The value inside other text: `brightness({value})`.                                                                                                                                                         |
 | `aliases`     | Utility keys spelled differently from the scale's: `in-out` reads `inOut`.                                                                                                                                  |
 | `iconLibrary` | the library icons are drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                                                                                                  |
+| `design`      | the design system's values your project uses, such as `{ style: "vega" }`, which `kirana-style ui preset` writes                                                                                            |
 | `also`        | Declarations set alongside, as written (a keyword rule takes it too).                                                                                                                                       |
 
 In any text of a rule, `{scale.key}` is that token, and a property written

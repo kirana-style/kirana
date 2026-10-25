@@ -10,6 +10,7 @@ import path from "node:path"
 import { runAdd } from "./add.ts"
 import { runInit } from "./init.ts"
 import { runDiff, runOutdated } from "./status.ts"
+import { runPreset } from "./preset.ts"
 import { runRemove, runUpdate } from "./update.ts"
 import { version } from "./version.ts"
 import { check } from "./check.ts"
@@ -45,6 +46,14 @@ export {
 export type { Placed, Planned } from "./add.ts"
 export { resolveIcons } from "./icons.ts"
 export { LOCKFILE, readLockfile, writeLockfile } from "./lockfile.ts"
+export {
+  attributesOf,
+  decodePreset,
+  documentOf,
+  setUi,
+  settingsOf,
+  withAttributes,
+} from "./preset.ts"
 export { aliasDirectory, frameworkOf, readProject } from "./project.ts"
 export type { Project } from "./project.ts"
 export {
@@ -101,6 +110,8 @@ Commands in this release:
   update [item…]         write what the registry changed since install, keep what the project changed;
                          a file both changed stops it (--overwrite takes the registry's); --dry-run
   remove <item…>         delete the files the project left as installed, unless another item needs it
+  preset <code>          change the project's design: the code read with its design system's layouts,
+                         ui.design and <html>'s attributes set, every item placed again for it
   view <item…>           what an item is: its frameworks and bases, files, styles and dependencies
                          (@acme/card, or button for @kirana's); --json prints the items as read
   search [query]         the items of every registry's index whose name, title or description holds
@@ -109,11 +120,11 @@ Commands in this release:
                          hash; a document is a file, a URL, or an item of the project's registries
                          (@acme/card, button for @kirana's, @acme/index for an index)
 
-Coming in later releases: preset, build, mcp.
+Coming in later releases: build, mcp.
 `
 
 /** The commands the registry will have (its plan), so that one asked for early says so. */
-const PLANNED = new Set(["preset", "build", "mcp"])
+const PLANNED = new Set(["build", "mcp"])
 
 /**
  * A document to validate and its JSON: a URL is fetched as it is; a file is read; a registry
@@ -211,6 +222,7 @@ export async function main(
   if (command === "diff") return runDiff(rest, cwd, write, options)
   if (command === "update") return runUpdate(rest, cwd, write, options)
   if (command === "remove") return runRemove(rest, cwd, write, options)
+  if (command === "preset") return runPreset(rest, cwd, write, options)
   if (command === "search") return runSearch(rest, cwd, write, options)
   if (PLANNED.has(command)) {
     write(`kirana-style ui ${command} is not in this release yet\n`)

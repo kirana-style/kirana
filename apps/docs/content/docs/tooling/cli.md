@@ -654,25 +654,26 @@ npm install --save-dev @kirana-style/registry
 
 Without it, the command says so and exits 1:
 
-```text
+```console
 $ kirana-style ui add button
 kirana-style ui needs @kirana-style/registry, which this project does not have: add it as a development dependency
 ```
 
-| Command                                | Does                                                                                                                                                                                                                                                                                                                                                                                                 |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kirana-style ui init`                 | Set a project up for a registry: Kirana where it is missing, the `ui` settings, the aliases in `tsconfig.json` (and Vite's `resolve.tsconfigPaths`) when there are none, and the registry's design system installed and wired in. `--framework`, `--base`, `--registry @acme=<template>`, `--design <item>`, `--template <example> [directory]` to start from one of Kirana's examples, `--dry-run`. |
-| `kirana-style ui add <item…>`          | Install items and every item they need: each file under your alias for its type, its imports pointed at your aliases, the npm packages added with your package manager, each item recorded in `kirana-style.lock.json`. `--dry-run` writes nothing; `--overwrite` replaces files you changed. It then checks what it wrote with `kirana-style check` (`--no-check` skips that).                      |
-| `kirana-style ui outdated [item…]`     | List your installed items whose registry has a new version or changed files, from `kirana-style.lock.json`. Exit 1 when one does.                                                                                                                                                                                                                                                                    |
-| `kirana-style ui diff [item…]`         | For each installed file the registry or you changed since it was installed, the lines between your file and what installing it now would write.                                                                                                                                                                                                                                                      |
-| `kirana-style ui update [item…]`       | Write what the registry changed since an item was installed and keep what you changed; a file both changed stops it until you look (`ui diff`) or pass `--overwrite`. Items an update newly needs are installed with it. `--dry-run`.                                                                                                                                                                |
-| `kirana-style ui remove <item…>`       | Delete the files of an item you left as installed and drop it from the lockfile, unless another installed item needs it. `--dry-run`.                                                                                                                                                                                                                                                                |
-| `kirana-style ui view <item…>`         | Show what an item is: its version, type and description, the Kirana versions it was checked with, its dependencies, its style modules, each framework's bases with their files, and the files every framework installs. `--json` prints the items as read.                                                                                                                                           |
-| `kirana-style ui search [query]`       | List the items of your registries' indexes whose name, title or description holds every word of the query; without one, every item. `--registry <namespace>` searches only that registry (repeatable), `--json` prints the results.                                                                                                                                                                  |
-| `kirana-style ui validate <document…>` | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings.                                                                                                                                                    |
+| Command                                | Does                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kirana-style ui init`                 | Set a project up for a registry: Kirana where it is missing, the `ui` settings, the aliases in `tsconfig.json` (and Vite's `resolve.tsconfigPaths`) when there are none, and the registry's design system installed and wired in. `--framework`, `--base`, `--registry @acme=<template>`, `--design <item>`, `--template <example> [directory]` to start from one of Kirana's examples, `--preset <code>` to start with a design, `--dry-run`. |
+| `kirana-style ui add <item…>`          | Install items and every item they need: each file under your alias for its type, its imports pointed at your aliases, the npm packages added with your package manager, each item recorded in `kirana-style.lock.json`. `--dry-run` writes nothing; `--overwrite` replaces files you changed. It then checks what it wrote with `kirana-style check` (`--no-check` skips that).                                                                |
+| `kirana-style ui outdated [item…]`     | List your installed items whose registry has a new version or changed files, from `kirana-style.lock.json`. Exit 1 when one does.                                                                                                                                                                                                                                                                                                              |
+| `kirana-style ui diff [item…]`         | For each installed file the registry or you changed since it was installed, the lines between your file and what installing it now would write.                                                                                                                                                                                                                                                                                                |
+| `kirana-style ui update [item…]`       | Write what the registry changed since an item was installed and keep what you changed; a file both changed stops it until you look (`ui diff`) or pass `--overwrite`. Items an update newly needs are installed with it. `--dry-run`.                                                                                                                                                                                                          |
+| `kirana-style ui remove <item…>`       | Delete the files of an item you left as installed and drop it from the lockfile, unless another installed item needs it. `--dry-run`.                                                                                                                                                                                                                                                                                                          |
+| `kirana-style ui preset <code>`        | Change your project's design: the code read with the design system's own layouts, `ui.design` and `<html>`'s attributes set, and every installed component placed again for it, its style modules the registry's flattening for the new design. A file you changed stops it until you pass `--overwrite`. `--dry-run`.                                                                                                                         |
+| `kirana-style ui view <item…>`         | Show what an item is: its version, type and description, the Kirana versions it was checked with, its dependencies, its style modules, each framework's bases with their files, and the files every framework installs. `--json` prints the items as read.                                                                                                                                                                                     |
+| `kirana-style ui search [query]`       | List the items of your registries' indexes whose name, title or description holds every word of the query; without one, every item. `--registry <namespace>` searches only that registry (repeatable), `--json` prints the results.                                                                                                                                                                                                            |
+| `kirana-style ui validate <document…>` | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings.                                                                                                                                                                                              |
 
-Flattening for a project's design and updating come next. A command asked for
-before its release says it is not in this one yet.
+Building a registry and an MCP server come next. A command asked for before its
+release says it is not in this one yet.
 
 A registry is static JSON: one document per item at a URL template holding
 `{name}`, and an index, the item named `index`. An item carries its style modules
@@ -688,7 +689,7 @@ ids for editors and other tools; a document names its schema with `$schema`:
 - [the lockfile](https://kirana.style/schema/lockfile.json)
 - [the `ui` settings](https://kirana.style/schema/settings.json)
 
-```text
+```console
 $ kirana-style ui validate public/r/card.json
 public/r/card.json: /name must match ^[a-z0-9]+(-[a-z0-9]+)*$
 public/r/card.json: /frameworks/react/base/files/0/hash does not match the content, whose hash is sha256-…
@@ -698,7 +699,7 @@ Your registries are named in `kirana.config.*` under [`ui`](/docs/reference/conf
 which the compiler accepts and never reads. An item of one is named with its
 namespace, and a name alone is Kirana UI's:
 
-```text
+```console
 $ kirana-style ui validate @acme/card @acme/index
 @acme/card: a valid item
 @acme/index: a valid index
@@ -711,7 +712,7 @@ machine), or read from disk for a path; a request gives up after 30 seconds.
 
 `init` starts a project. In a fresh Vite app:
 
-```text
+```console
 $ kirana-style ui init --base base
 kirana: config: create kirana.config.ts
 kirana: adapter: add @kirana-style/vite to vite.config.ts
@@ -746,7 +747,7 @@ system's: remove them, as you would for shadcn/ui.
 `add` installs an item after the items it needs, and stops before writing
 anything when a file you already have would change:
 
-```text
+```console
 $ kirana-style ui add button
 @kirana/kirana 0.0.0
   + src/lib/kirana/axes.ts
@@ -769,7 +770,7 @@ yours.
 
 `view` shows an item without its files' content, before you install it:
 
-```text
+```console
 $ kirana-style ui view @acme/button
 @acme/button 1.2.0 · component
 Button: Displays a button.
@@ -789,7 +790,7 @@ from https://acme.dev/r/button.json
 `search` reads every registry's index, each entry with the bases of each framework
 it supports:
 
-```text
+```console
 $ kirana-style ui search --registry @acme
 @acme/button    1.2.0   component  Button  react base, aria · vue ark
 @acme/note      0.1.0   lib

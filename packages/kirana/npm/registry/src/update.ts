@@ -5,7 +5,7 @@
  * shows both sides and `--overwrite` takes the registry's. A removal deletes the files the project
  * left as they were installed, and refuses an item another installed item needs.
  */
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs"
+import { existsSync, readFileSync, unlinkSync } from "node:fs"
 import path from "node:path"
 
 import { installCommand } from "@kirana-style/compiler"
@@ -16,6 +16,7 @@ import {
   missingPackages,
   place,
   plan,
+  writePlaced,
 } from "./add.ts"
 import type { Placed, Planned } from "./add.ts"
 import { hashOf } from "./check.ts"
@@ -30,7 +31,8 @@ import {
   isOutdated,
   statusOf,
 } from "./status.ts"
-import type { Item, Locked } from "./types.ts"
+import type { ItemStatus } from "./status.ts"
+import type { Item, Locked, Lockfile } from "./types.ts"
 
 /** `update [item…]`: every outdated item by default. */
 export async function runUpdate(
@@ -94,36 +96,17 @@ export async function runUpdate(
     return 1
   }
 
-  const writes: Placed[] = [...added]
-  const deletes: string[] = []
-  const conflicts: string[] = []
-  for (const status of outdated) {
-    write(`${status.key} ${status.locked.version} → ${status.item.version}\n`)
-    for (const file of status.files) {
-      if (file.registry === "same") {
-        if (file.project !== "same")
-          write(`  ~ ${file.relative}: yours, kept\n`)
-        continue
-      }
-      const theirs = file.project === "changed"
-      if (file.registry === "removed") {
-        if (theirs)
-          write(`  ~ ${file.relative}: no longer the item's; yours, kept\n`)
-        else if (file.project === "same") {
-          deletes.push(path.join(project.root, file.relative))
-          write(`  - ${file.relative}\n`)
-        }
-        continue
-      }
-      if (theirs && !parsed.flags.has("--overwrite")) {
-        conflicts.push(file.relative)
-        write(`  ! ${file.relative}: you and the registry both changed it\n`)
-        continue
-      }
-      writes.push(file.next!)
-      write(`  + ${file.relative}\n`)
-    }
-  }
+  const { writes, deletes, conflicts } = reconcile(
+    outdated,
+    project.root,
+    parsed.flags.has("--overwrite"),
+    (status) =>
+      write(
+        `${status.key} ${status.locked.version} → ${status.item.version}\n`
+      ),
+    write
+  )
+  writes.push(...added)
   for (const newcomer of newcomers) {
     write(`${newcomer.key} ${newcomer.item.version}: newly needed\n`)
     for (const file of added.filter((entry) => entry.item === newcomer.key))
@@ -152,29 +135,11 @@ export async function runUpdate(
     write("dry run: nothing written\n")
     return 0
   }
-  for (const file of writes) {
-    writeFileSync(file.destination, file.content)
-  }
+  writePlaced(writes)
   // Each was found as installed, so it is there.
   for (const file of deletes) unlinkSync(file)
   if (!installPackages(commands, project, write, options)) return 1
-  for (const status of outdated) {
-    const files: Locked["files"] = {}
-    for (const file of status.files) {
-      const was = status.locked.files[file.relative]
-      if (writes.some((entry) => entry.relative === file.relative))
-        files[file.relative] = {
-          source: file.next!.file.hash,
-          written: hashOf(file.next!.content),
-        }
-      else if (file.registry === "same" && was) files[file.relative] = was
-    }
-    lockfile.items[status.key] = {
-      ...status.locked,
-      version: status.item.version,
-      files,
-    }
-  }
+  recordStatuses(lockfile, outdated, writes)
   for (const newcomer of newcomers) {
     const files: Locked["files"] = {}
     for (const file of added.filter((entry) => entry.item === newcomer.key))
@@ -199,6 +164,88 @@ export async function runUpdate(
     return failures.length > 0 || refused.length > 0 ? 1 : 0
   const checked = await checkWritten(writes, project.root, write)
   return checked && failures.length === 0 && refused.length === 0 ? 0 : 1
+}
+
+/**
+ * What placing these items again changes, file by file: the registry's change written where the
+ * project left the file as installed, the project's kept, a file both changed a conflict unless
+ * `overwrite`; each item's header, then a line per file, reported as it goes.
+ */
+export function reconcile(
+  statuses: readonly ItemStatus[],
+  root: string,
+  overwrite: boolean,
+  header: (status: ItemStatus) => void,
+  write: (text: string) => void
+): { writes: Placed[]; deletes: string[]; conflicts: string[] } {
+  const writes: Placed[] = []
+  const deletes: string[] = []
+  const conflicts: string[] = []
+  for (const status of statuses) {
+    header(status)
+    for (const file of status.files) {
+      if (file.registry === "same") {
+        if (file.project !== "same")
+          write(`  ~ ${file.relative}: yours, kept\n`)
+        else if (file.restyled) {
+          // The project's settings write it differently now (an icon library, an alias).
+          writes.push(file.next!)
+          write(`  + ${file.relative}\n`)
+        }
+        continue
+      }
+      const theirs = file.project === "changed"
+      if (file.registry === "removed") {
+        if (theirs)
+          write(`  ~ ${file.relative}: no longer the item's; yours, kept\n`)
+        else if (file.project === "same") {
+          deletes.push(path.join(root, file.relative))
+          write(`  - ${file.relative}\n`)
+        }
+        continue
+      }
+      if (theirs && !overwrite) {
+        conflicts.push(file.relative)
+        write(`  ! ${file.relative}: you and the registry both changed it\n`)
+        continue
+      }
+      writes.push(file.next!)
+      write(`  + ${file.relative}\n`)
+    }
+  }
+  return { writes, deletes, conflicts }
+}
+
+/**
+ * Each item in the lockfile as now placed: its version, framework, base and build, the files
+ * written with both hashes, and the ones the registry left alone as they were recorded.
+ */
+export function recordStatuses(
+  lockfile: Lockfile,
+  statuses: readonly ItemStatus[],
+  writes: readonly Placed[]
+): void {
+  for (const status of statuses) {
+    const files: Locked["files"] = {}
+    for (const file of status.files) {
+      const was = status.locked.files[file.relative]
+      if (writes.some((entry) => entry.relative === file.relative))
+        files[file.relative] = {
+          source: file.next!.file.hash,
+          written: hashOf(file.next!.content),
+        }
+      else if (file.registry === "same" && was) files[file.relative] = was
+    }
+    const { framework, base, design } = status.planned
+    const { framework: _, base: __, design: ___, ...rest } = status.locked
+    lockfile.items[status.key] = {
+      ...rest,
+      version: status.item.version,
+      ...(framework === undefined ? {} : { framework, base: base! }),
+      ...(design === undefined ? {} : { design }),
+      files,
+    }
+  }
 }
 
 /** An item's packages and its installed base's, as the lockfile records the base. */
