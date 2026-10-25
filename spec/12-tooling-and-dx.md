@@ -142,17 +142,29 @@ is the item named `index`: `{ name, homepage, items }`, each entry with the item
 `title`, `description`, `version` and its frameworks' bases. A project names registries in
 `ui.registries` by namespace, `"@acme": "https://acme.dev/r/{name}.json"`, or as
 `{ url, headers }`. `@kirana`, Kirana UI's `https://ui.kirana.style/r/{name}.json`, is known
-without configuration and can be redefined. A template may also be a path or a `file:` URL, for
-registry authors.
+without configuration and can be redefined. A template may also be a path (from the configuration's
+directory) or a `file:` URL, for registry authors.
 
 **KRN-DX-023** — A registry's `headers` MAY read the environment as `${NAME}`. A variable that is
 not set MUST stop the command, naming the variable; a header's value MUST never be printed.
 
 **KRN-DX-024** — Installation MUST refuse a file whose `hash` does not match its `content`.
-`kirana-style ui validate <file…>` MUST report, for an item, an index or a lockfile (told apart by
-`$schema`, else by shape), every schema violation by JSON pointer, and for an item every file
+`kirana-style ui validate <document…>` MUST report, for an item, an index or a lockfile (told apart
+by `$schema`, else by shape), every schema violation by JSON pointer, and for an item every file
 whose hash does not match and every `target` on a file of another type or missing from a `file`;
-it exits 1 when there is one, 2 when it is given no file.
+it exits 1 when there is one, 2 when it is given nothing. A document is a file, a URL, or an item
+as KRN-DX-026 resolves it (`@acme/card`, or `@acme/index` for an index).
+
+**KRN-DX-026** — Reading a registry: `ui` MUST be read from the nearest `kirana.config.*` at or
+above the working directory, with the compiler's own loader, and `ui.registries` checked before
+anything is fetched (each key a namespace, each template holding `{name}`). `@namespace/name`
+reads that namespace's registry; a name alone reads `@kirana`'s. A document MUST be fetched over
+`https:`, or `http:` only from the machine itself (`localhost`, `127.0.0.1`, `[::1]`), including
+after redirects; a path or `file:` URL is read from disk. Each document is read afresh, never
+cached (D-049), and a request that takes longer than 30 seconds fails. A failure MUST name the
+document and say what failed: the status of an answer that is not a success, a body that is not
+JSON, a document of another kind, an item whose `name` is not the one asked for, or the problems
+`validate` reports.
 
 **KRN-DX-025** — The lockfile MUST be `kirana-style.lock.json`, at the project's root:
 `{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came

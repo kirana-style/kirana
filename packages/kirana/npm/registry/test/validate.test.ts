@@ -109,4 +109,34 @@ describe("validate: the JSON Schema subset the registry's schemas use", () => {
     )
     expect(validate(null, {})).toEqual([])
   })
+
+  it("takes any branch of anyOf, else reports the branch that fits the value's kind", () => {
+    const root: Schema = {
+      $defs: { template: { type: "string", pattern: "\\{name\\}" } },
+      anyOf: [
+        { $ref: "#/$defs/template" },
+        { type: "object", required: ["url"] },
+      ],
+    }
+    expect(validate("https://a.dev/{name}", root)).toEqual([])
+    expect(validate({ url: "x" }, root)).toEqual([])
+    expect(validate("https://a.dev", root)).toEqual([
+      { pointer: "", message: "must match \\{name\\}" },
+    ])
+    const nested: Schema = {
+      $defs: root.$defs,
+      properties: { a: { anyOf: root.anyOf } },
+    }
+    expect(validate({ headers: {} }, nested)).toEqual([])
+    expect(validate({ a: {} }, nested)).toEqual([
+      { pointer: "/a/url", message: "is required" },
+    ])
+    expect(validate(5, root)).toEqual([
+      { pointer: "", message: "must be a string or an object" },
+    ])
+    expect(validate(5, { anyOf: [{}, { type: "string" }] })).toEqual([])
+    expect(validate(5, { anyOf: [{ const: 1 }, { type: "string" }] })).toEqual([
+      { pointer: "", message: "must be 1" },
+    ])
+  })
 })

@@ -359,6 +359,9 @@
     "packages/kirana/npm/registry": {
       "name": "@kirana-style/registry",
       "version": "0.3.2",
+      "dependencies": {
+        "@kirana-style/compiler": "workspace:*",
+      },
     },
     "packages/kirana/npm/remix": {
       "name": "@kirana-style/remix",

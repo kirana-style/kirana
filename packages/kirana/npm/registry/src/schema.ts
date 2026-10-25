@@ -25,6 +25,7 @@ export type Schema = {
   const?: string | number
   pattern?: string
   minLength?: number
+  anyOf?: readonly Schema[]
 }
 
 const DIALECT = "https://json-schema.org/draft/2020-12/schema"
@@ -275,6 +276,56 @@ export const LOCKFILE_SCHEMA: Schema = {
   },
   additionalProperties: false,
   $defs: definitions,
+}
+
+/**
+ * `ui` in `kirana.config.*`, as far as this release's commands read it (KRN-DX-022, KRN-DX-026). Its
+ * other keys belong to the commands still to come, so they pass.
+ */
+export const SETTINGS_SCHEMA: Schema = {
+  $schema: DIALECT,
+  $id: `${BASE}/settings.json`,
+  title: "Kirana ui settings",
+  type: "object",
+  properties: {
+    registries: {
+      type: "object",
+      description:
+        "Registries by namespace: a URL template holding {name}, or { url, headers }.",
+      patternProperties: { [`^@${NAME}$`]: { $ref: "#/$defs/registry" } },
+      additionalProperties: false,
+    },
+  },
+  $defs: {
+    template: {
+      type: "string",
+      description:
+        "A URL, a path or a file: URL holding {name}, the item's name.",
+      pattern: "\\{name\\}",
+    },
+    registry: {
+      anyOf: [
+        { $ref: "#/$defs/template" },
+        {
+          type: "object",
+          required: ["url"],
+          properties: {
+            url: { $ref: "#/$defs/template" },
+            headers: {
+              type: "object",
+              description:
+                "HTTP headers, each value able to read the environment as ${NAME}.",
+              patternProperties: {
+                "^[!#$%&'*+.^_`|~0-9A-Za-z-]+$": { type: "string" },
+              },
+              additionalProperties: false,
+            },
+          },
+          additionalProperties: false,
+        },
+      ],
+    },
+  },
 }
 
 /** A namespace as `ui.registries` names it: `@acme`. */

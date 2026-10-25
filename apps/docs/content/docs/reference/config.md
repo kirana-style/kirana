@@ -249,9 +249,30 @@ The component registry's settings, read by [`kirana-style ui`](/docs/tooling/cli
 (`@kirana-style/registry`) and never by the compiler, which accepts the key and
 leaves it out of every compile.
 
-`ui.registries` names registries by namespace,
-`{ "@acme": "https://acme.dev/r/{name}.json" }`; `@kirana` is known without it.
-The commands that read the rest arrive with the registry's next releases.
+```ts
+ui: {
+  registries: {
+    "@acme": "https://acme.dev/r/{name}.json",
+    "@private": {
+      url: "https://private.dev/r/{name}.json",
+      headers: { Authorization: "Bearer ${PRIVATE_TOKEN}" },
+    },
+    "@local": "public/r/{name}.json",
+  },
+}
+```
+
+`registries` names registries by namespace:
+
+- each is a template holding `{name}`: a URL, a path from the configuration's
+  folder, or a `file:` URL;
+- a header may read an environment variable as `${NAME}`. One that is not set
+  stops the command, and a header's value is never printed;
+- `@kirana`, Kirana UI's registry, is known without being named, and can be
+  renamed to point elsewhere.
+
+The settings are checked before anything is fetched. The commands that read the
+rest of `ui` arrive with the registry's next releases.
 
 ## `root`
 

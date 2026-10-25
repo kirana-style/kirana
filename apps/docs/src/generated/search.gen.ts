@@ -4415,7 +4415,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Configuration reference",
     "section": "reference",
     "heading": "ui",
-    "text": "The component registry's settings, read by ( ) and never by the compiler, which accepts the key and leaves it out of every compile. names registries by namespace, ; is known without it. The commands that read the rest arrive with the registry's next releases."
+    "text": "The component registry's settings, read by ( ) and never by the compiler, which accepts the key and leaves it out of every compile. names registries by namespace: each is a template holding : a URL, a path from the configuration's folder, or a URL; a header may read an environment variable as . One that is not set stops the command, and a header's value is never printed; , Kirana UI's registry, is known without being named, and can be renamed to point elsewhere. The settings are checked before anything is fetched. The commands that read the rest of arrive with the registry's next releases."
   },
   {
     "id": "/docs/reference/config#root",
@@ -4582,7 +4582,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style ui",
-    "text": "The component registry's commands. They live in their own package, , so the compiler every project installs carries no registry client: runs the project's copy of that package with the arguments after . Without it, the command says so and exits 1: Viewing and searching a registry come next, then installing, updating and the rest of the installer. A command asked for before its release says it is not in this one yet. A registry is static JSON: one document per item at a URL template holding , and an index, the item named . An item carries its style modules as written, one source for every framework, and its markup per framework and base, and every file carries a SHA-256 hash of its content. What a project installed is recorded in . The schemas are exported by for editors and other tools. Its settings live in under , which the compiler accepts and never reads."
+    "text": "The component registry's commands. They live in their own package, , so the compiler every project installs carries no registry client: runs the project's copy of that package with the arguments after . Without it, the command says so and exits 1: Viewing and searching a registry come next, then installing, updating and the rest of the installer. A command asked for before its release says it is not in this one yet. A registry is static JSON: one document per item at a URL template holding , and an index, the item named . An item carries its style modules as written, one source for every framework, and its markup per framework and base, and every file carries a SHA-256 hash of its content. What a project installed is recorded in . The schemas are exported by for editors and other tools. Your registries are named in under , which the compiler accepts and never reads. An item of one is named with its namespace, and a name alone is Kirana UI's: Each document is fetched afresh, over (or from your own machine), or read from disk for a path; a request gives up after 30 seconds."
   },
   {
     "id": "/docs/tooling/editor",
