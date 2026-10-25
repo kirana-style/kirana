@@ -4,7 +4,7 @@
     "os": "ubuntu-26.04",
     "targets": "x86_64-unknown-linux-gnu",
     "flags": "--use-napi-cross",
-    "pullRequest": true
+    "tier": "pull-request"
   },
   {
     "name": "linux-x64-musl",
@@ -12,26 +12,28 @@
     "targets": "x86_64-unknown-linux-musl",
     "flags": "--cross-compile",
     "zig": true,
-    "pullRequest": true
+    "tier": "pull-request"
   },
   {
     "name": "wasm32-wasi",
     "os": "ubuntu-26.04",
     "targets": "wasm32-wasip1-threads",
     "flags": "",
-    "pullRequest": true
+    "tier": "pull-request"
   },
   {
     "name": "linux-arm64-gnu",
     "os": "ubuntu-26.04-arm",
     "targets": "aarch64-unknown-linux-gnu",
-    "flags": "--use-napi-cross"
+    "flags": "--use-napi-cross",
+    "tier": "queue"
   },
   {
     "name": "linux-arm64-musl",
     "os": "ubuntu-26.04-arm",
     "targets": "aarch64-unknown-linux-musl",
     "flags": "--cross-compile",
+    "tier": "queue",
     "zig": true
   },
   {

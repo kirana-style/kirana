@@ -103,11 +103,16 @@ runner, the scarce kind, so it starts quickly however many pull requests are
 open. A change to the site or to prose alone skips the package
 jobs.
 
-When a maintainer queues it for merging, the merge queue runs the full matrix
-once on the commit that will land on `main`: every engine on every platform,
-macOS included, and installation with every package manager on every OS. A
-failure there sends the pull request back with the reason. A job that never got
-a runner is retried on its own, so a busy macOS pool needs nothing from you.
+When a maintainer queues it for merging, the merge queue runs the rest of Linux
+once on the commit that will land on `main`: the Arm engines, and installation
+with every package manager on x64 and Arm. It needs no macOS or Windows runner
+either, so several queued pull requests are tested at once. A failure there
+sends the pull request back with the reason.
+
+macOS and Windows are tested every night and again before each release, which
+installs every engine on every OS before anything is published. A job that
+never got a runner is retried on its own, so a busy macOS pool needs nothing
+from you.
 
 ### How a change is released
 
