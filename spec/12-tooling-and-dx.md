@@ -84,7 +84,7 @@ Measured by `bench/lsp.ts` in the benchmark repository (2026-10-02): hover p95 1
 | `kirana-style doctor [--json] [--report [file]] [--trace]`                                     | Engine in use (native or WASI), installed versions, configuration resolution, detected host and whether the adapter, stylesheet and types are wired, cache state (none, D-049). Exit 1 on a failure. `--report` writes a redacted bug report: versions, checks, diagnostics by code, stylesheet size, configuration, optional `kirana-style trace` output; no source text (D-077). Built. |
 | `kirana-style migrate stylex\|tailwind`                                                        | The codemods of [06](./06-authoring-api.md#migration-codemods), with a dry-run diff and a report file.                                                                                                                                                                                                                                                                                    |
 | `kirana-style lsp`                                                                             | Start the language server.                                                                                                                                                                                                                                                                                                                                                                |
-| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view`, `search`, `add`, `init`, `outdated` and `diff` are built; `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                                                |
+| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view`, `search`, `add`, `init`, `outdated`, `diff`, `update` and `remove` are built; `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                            |
 
 There is no `kirana cache clean`: Kirana keeps no persistent cache (D-049), so there is nothing to
 clear, and `kirana-style doctor` says so.
@@ -231,6 +231,17 @@ or removed it (`written` against the file). `outdated` lists the items whose ver
 changed, saying when files changed under the same version, which updating refuses, and exits 1 when
 one did. `diff` shows, for each file either side changed, the lines between the project's file and
 what installing the item now would write.
+
+**KRN-DX-031** — `kirana-style ui update [item…]` (every outdated item by default) MUST write each
+file the registry changed or added, and delete each it removed, where the project left the file as
+it was installed; keep each file the project changed that the registry did not; and, where both
+changed a file, stop before writing anything, unless `--overwrite`, which takes the registry's. An
+item whose files changed under the same version MUST be refused (KRN-DX-025). The items an update
+newly needs are installed with it, the lockfile records the new versions and hashes, and what was
+written is checked as `add` checks it. `kirana-style ui remove <item…>` MUST refuse an item another
+installed item needs, as its registry has it now; otherwise it deletes each file of the item the
+project left as installed, keeps the rest, and drops the item from the lockfile. For these commands,
+`outdated` and `diff`, a name alone names the one installed item of that name, else `@kirana`'s.
 
 **KRN-DX-025** — The lockfile MUST be `kirana-style.lock.json`, at the project's root:
 `{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came

@@ -52,6 +52,19 @@ export const changedInPlace = (status: ItemStatus) =>
   status.item.version === status.locked.version &&
   status.files.some((file) => file.registry !== "same")
 
+/**
+ * An installed item as a command names it: `@acme/card`, or a name alone for the one installed item
+ * of that name, else `@kirana`'s.
+ */
+export function installedKey(reference: string, lockfile: Lockfile): string {
+  const { namespace, name } = parseReference(reference)
+  if (reference.startsWith("@")) return `${namespace}/${name}`
+  const found = Object.keys(lockfile.items).filter((key) =>
+    key.endsWith(`/${name}`)
+  )
+  return found.length === 1 ? found[0]! : `${namespace}/${name}`
+}
+
 /** Each installed item named (all of them by default) against its registry, or why it cannot be read. */
 export async function statusOf(
   keys: readonly string[],
@@ -64,10 +77,7 @@ export async function statusOf(
   const failures: Failure[] = []
   const wanted =
     keys.length > 0
-      ? keys.map((key) => {
-          const { namespace, name } = parseReference(key)
-          return `${namespace}/${name}`
-        })
+      ? keys.map((key) => installedKey(key, lockfile))
       : Object.keys(lockfile.items)
   for (const key of wanted) {
     const locked = lockfile.items[key]

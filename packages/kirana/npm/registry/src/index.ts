@@ -10,6 +10,7 @@ import path from "node:path"
 import { runAdd } from "./add.ts"
 import { runInit } from "./init.ts"
 import { runDiff, runOutdated } from "./status.ts"
+import { runRemove, runUpdate } from "./update.ts"
 import { version } from "./version.ts"
 import { check } from "./check.ts"
 import { failureLine, isSettingsError } from "./command.ts"
@@ -97,6 +98,9 @@ Commands in this release:
   outdated [item…]       the installed items behind their registries: a new version, or files changed
   diff [item…]           each installed file the registry or the project changed, as lines between
                          the project's and what installing it now would write
+  update [item…]         write what the registry changed since install, keep what the project changed;
+                         a file both changed stops it (--overwrite takes the registry's); --dry-run
+  remove <item…>         delete the files the project left as installed, unless another item needs it
   view <item…>           what an item is: its frameworks and bases, files, styles and dependencies
                          (@acme/card, or button for @kirana's); --json prints the items as read
   search [query]         the items of every registry's index whose name, title or description holds
@@ -105,11 +109,11 @@ Commands in this release:
                          hash; a document is a file, a URL, or an item of the project's registries
                          (@acme/card, button for @kirana's, @acme/index for an index)
 
-Coming in later releases: update, remove, preset, build, mcp.
+Coming in later releases: preset, build, mcp.
 `
 
 /** The commands the registry will have (its plan), so that one asked for early says so. */
-const PLANNED = new Set(["update", "remove", "preset", "build", "mcp"])
+const PLANNED = new Set(["preset", "build", "mcp"])
 
 /**
  * A document to validate and its JSON: a URL is fetched as it is; a file is read; a registry
@@ -205,6 +209,8 @@ export async function main(
   if (command === "init") return runInit(rest, cwd, write, options)
   if (command === "outdated") return runOutdated(rest, cwd, write, options)
   if (command === "diff") return runDiff(rest, cwd, write, options)
+  if (command === "update") return runUpdate(rest, cwd, write, options)
+  if (command === "remove") return runRemove(rest, cwd, write, options)
   if (command === "search") return runSearch(rest, cwd, write, options)
   if (PLANNED.has(command)) {
     write(`kirana-style ui ${command} is not in this release yet\n`)

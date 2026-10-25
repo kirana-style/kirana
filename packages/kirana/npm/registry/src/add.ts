@@ -263,7 +263,7 @@ export function place(
  * alone (its latest) for an icon library's.
  */
 export function missingPackages(
-  planned: readonly Planned[],
+  planned: readonly Pick<Planned, "packages">[],
   project: Project,
   placed: readonly Placed[]
 ): string[] {
