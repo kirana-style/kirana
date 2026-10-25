@@ -6,7 +6,13 @@
  * first, against files as the earlier changes leave them; a change it cannot make safely is printed
  * as a step to do by hand.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs"
 import path from "node:path"
 
 import {
@@ -18,6 +24,7 @@ import {
 } from "@kirana-style/compiler"
 
 import {
+  checkWritten,
   installPackages,
   missingPackages,
   place,
@@ -35,9 +42,13 @@ import { read, RegistryError } from "./read.ts"
 import { FRAMEWORKS, NAMESPACE_PATTERN, REFERENCE_PATTERN } from "./schema.ts"
 import { loadSettings } from "./settings.ts"
 import type { Settings } from "./settings.ts"
+import { fetchExample, writeExample } from "./template.ts"
 import type { Framework, Index, Item } from "./types.ts"
+import { version } from "./version.ts"
 
 const STYLESHEET = "@kirana-style/core/stylesheet.css"
+/** Folders never searched for the project's own stylesheet. */
+const SKIPPED = new Set(["node_modules", "dist", "build", "out", "coverage"])
 const CONFIGS = [
   "kirana.config.ts",
   "kirana.config.mts",
@@ -70,6 +81,24 @@ class Files {
   /** `read` for an absolute path, as the alias resolution asks. */
   readonly absolute = (file: string): string | undefined =>
     this.read(path.relative(this.root, file).split(path.sep).join("/"))
+
+  /** The project's stylesheets, those only planned included, outside installed packages and output. */
+  stylesheets(): string[] {
+    const found = new Set<string>()
+    const walk = (directory: string) => {
+      for (const entry of readdirSync(directory, { withFileTypes: true })) {
+        if (entry.name.startsWith(".") || SKIPPED.has(entry.name)) continue
+        const file = path.join(directory, entry.name)
+        if (entry.isDirectory()) walk(file)
+        else if (entry.name.endsWith(".css"))
+          found.add(path.relative(this.root, file).split(path.sep).join("/"))
+      }
+    }
+    walk(this.root)
+    for (const file of this.changed.keys())
+      if (file.endsWith(".css")) found.add(file)
+    return [...found].sort()
+  }
 
   /** The project's scripts, those only planned included, relative and with forward slashes. */
   scripts(): string[] {
@@ -357,14 +386,44 @@ function setUp(
   }
   const scripts = files.scripts()
   const entry = scripts.find((file) => files.read(file)!.includes(STYLESHEET))
+  // Where Kirana's stylesheet is a PostCSS directive (`@kirana;`, as in Next.js's globals.css).
+  const cssEntry =
+    entry === undefined
+      ? files
+          .stylesheets()
+          .find((file) => /^\s*@kirana\b/m.test(files.read(file)!))
+      : undefined
   for (const stylesheet of setup.stylesheets ?? []) {
     const specifier = aliased(stylesheet)
-    if (entry === undefined)
-      manual.push(`import "${specifier}" after Kirana's stylesheet`)
-    else if (!files.read(entry)!.includes(specifier)) {
-      files.write(entry, addImport(files.read(entry)!, `import "${specifier}"`))
-      report.push(`${entry}: imports ${specifier}`)
-    }
+    if (entry !== undefined) {
+      if (!files.read(entry)!.includes(specifier)) {
+        files.write(
+          entry,
+          addImport(files.read(entry)!, `import "${specifier}"`)
+        )
+        report.push(`${entry}: imports ${specifier}`)
+      }
+    } else if (cssEntry !== undefined) {
+      const target = installedOf(stylesheet, placed)
+      if (!target)
+        throw new RegistryError(
+          `${item.name}: setup.stylesheets names ${stylesheet}, which the item does not install`
+        )
+      const relative = path
+        .relative(
+          path.dirname(path.join(files.root, cssEntry)),
+          target.destination
+        )
+        .split(path.sep)
+        .join("/")
+      const imported = relative.startsWith("../") ? relative : `./${relative}`
+      const css = files.read(cssEntry)!
+      // CSS takes @import before every other rule.
+      if (!css.includes(imported)) {
+        files.write(cssEntry, `@import "${imported}";\n${css}`)
+        report.push(`${cssEntry}: imports ${imported}`)
+      }
+    } else manual.push(`import "${specifier}" after Kirana's stylesheet`)
   }
   if (setup.document) {
     const { export: name } = setup.document
@@ -421,24 +480,51 @@ function setUp(
  */
 export async function runInit(
   args: readonly string[],
-  cwd: string,
+  start: string,
   write: (text: string) => void,
   options: Options = {}
 ): Promise<number> {
   const parsed = parseArgs(
     "init",
     args,
-    ["--dry-run", "--overwrite"],
-    ["--framework", "--base", "--registry", "--design"]
+    ["--dry-run", "--overwrite", "--no-check"],
+    ["--framework", "--base", "--registry", "--design", "--template"]
   )
   const chosen = typeof parsed === "string" ? parsed : chosenOf(parsed.values)
   if (typeof parsed === "string" || typeof chosen === "string") {
     write(`${typeof parsed === "string" ? parsed : (chosen as string)}\n`)
     return 2
   }
-  if (parsed.rest.length > 0) {
-    write(`kirana-style ui init takes no item: ${parsed.rest.join(" ")}\n`)
+  // The project: where the command runs, or the template's new directory.
+  let cwd = start
+  const template = parsed.values.get("--template")?.at(-1)
+  if (parsed.rest.length > (template === undefined ? 0 : 1)) {
+    write(
+      template === undefined
+        ? `kirana-style ui init takes no item: ${parsed.rest.join(" ")}\n`
+        : "kirana-style ui init --template takes one directory\n"
+    )
     return 2
+  }
+  if (template !== undefined) {
+    if (parsed.flags.has("--dry-run")) {
+      write("kirana-style ui init: --dry-run cannot start from a template\n")
+      return 2
+    }
+    const release = await version()
+    const directory = path.resolve(cwd, parsed.rest[0] ?? template)
+    try {
+      writeExample(
+        await fetchExample(template, release, options),
+        directory,
+        release
+      )
+    } catch (error) {
+      write(`${(error as Error).message}\n`)
+      return 1
+    }
+    write(`template: Kirana ${release}'s ${template} in ${directory}\n`)
+    cwd = directory
   }
   let settings: Settings
   try {
@@ -543,5 +629,6 @@ export async function runInit(
   record(lockfile, planned, placed)
   writeLockfile(root, lockfile)
   write(`kirana-style.lock.json: ${planned.length} item(s) recorded\n`)
-  return 0
+  if (parsed.flags.has("--no-check")) return 0
+  return (await checkWritten(placed, root, write)) ? 0 : 1
 }

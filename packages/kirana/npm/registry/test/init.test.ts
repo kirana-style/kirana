@@ -143,8 +143,10 @@ const load = (url: string) => import(url)
 async function init(cwd: string, ...argv: string[]) {
   let text = ""
   const commands: string[] = []
+  // The fixtures install nothing, so Kirana's check could not load their configuration; one test
+  // below runs it on a project that has Kirana's core.
   const code = await main(
-    ["init", ...argv],
+    ["init", "--no-check", ...argv],
     cwd,
     (chunk) => void (text += chunk),
     { run: (command) => (commands.push(command), 0), load }
@@ -221,6 +223,13 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     const { code, text } = await init(cwd, "--registry", ACME)
     expect(code).toBe(0)
     expect(text).toContain("setup: app/layout.tsx: <html sx={htmlStyles}>")
+    // Next.js takes Kirana's stylesheet as a PostCSS directive: the reset is imported beside it.
+    expect(text).toContain(
+      "setup: app/globals.css: imports ../components/ui/reset.css"
+    )
+    expect(read(cwd, "app/globals.css")).toMatch(
+      /^@import "\.\.\/components\/ui\/reset\.css";\n@kirana;/
+    )
     const layout = read(cwd, "app/layout.tsx")
     expect(layout).toContain('<html sx={htmlStyles} lang="en">')
     expect(layout).toContain('import { htmlStyles } from "@/lib/kit/document"')
@@ -398,6 +407,18 @@ describe("KRN-DX-029 kirana-style ui init", () => {
           )
         ).code
       ).toBe(1)
+    // Kirana's stylesheet as a directive in a stylesheet at the root: the reset beside it, as ./.
+    const rootCss = project({
+      "package.json": JSON.stringify({ dependencies: { react: "19" } }),
+      "tsconfig.json": '{ "compilerOptions": { "paths": { "@/*": ["./*"] } } }',
+      "styles.css": "@kirana;\n",
+      "acme/kit.json": JSON.stringify(kit()),
+      "acme/index.json": JSON.stringify(INDEX),
+    })
+    await init(rootCss, "--registry", ACME)
+    expect(read(rootCss, "styles.css")).toBe(
+      '@import "./components/ui/reset.css";\n@kirana;\n'
+    )
     const noEntry = project({
       "package.json": JSON.stringify({ dependencies: { react: "19" } }),
       "tsconfig.json":
@@ -471,6 +492,59 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     const broken = await init(cwd)
     expect(broken.code).toBe(2)
     expect(broken.text).toMatch(/ui\/base must be a string\n$/)
+  })
+
+  it("checks what it wrote with Kirana, on a project that has Kirana's core", async () => {
+    const cwd = withCore(vite({ ".cache/x.css": "", "dist/y.css": "" }))
+    let text = ""
+    const code = await main(
+      ["init", "--registry", ACME],
+      cwd,
+      (chunk) => void (text += chunk),
+      { run: () => 0, load }
+    )
+    expect(code).toBe(0)
+    expect(text).toMatch(
+      /check: kirana-style check on 2 file\(s\)\n0 diagnostic\(s\), 0 error\(s\)\n$/
+    )
+    // A design system whose own file Kirana rejects.
+    const wrong = withCore(
+      vite({
+        "acme/kit.json": JSON.stringify({
+          ...kit(),
+          files: [
+            ...kit().files!,
+            file(
+              "kit/wrong.ts",
+              "lib",
+              'import { css } from "@kirana-style/core"\nexport const a = css({ colour: "red" })\n'
+            ),
+          ],
+        }),
+      })
+    )
+    let rejected = ""
+    expect(
+      await main(
+        ["init", "--registry", ACME],
+        wrong,
+        (chunk) => void (rejected += chunk),
+        { run: () => 0, load }
+      )
+    ).toBe(1)
+    expect(rejected).toContain("unknown-property")
+    // A setup naming a stylesheet the item does not install, where Kirana's stylesheet is CSS.
+    const lost = next({
+      "acme/kit.json": JSON.stringify(
+        kit({ stylesheets: ["@/registry/ui/gone.css"] })
+      ),
+      // Never searched for Kirana's stylesheet: hidden folders and installed packages.
+      ".next/a.css": "@kirana;\n",
+      "node_modules/x/b.css": "@kirana;\n",
+    })
+    expect((await init(lost, "--registry", ACME)).text).toBe(
+      "kit: setup.stylesheets names @/registry/ui/gone.css, which the item does not install\n"
+    )
   })
 
   it("keeps what it wrote when a package fails to install, without the lockfile", async () => {

@@ -9,7 +9,7 @@ import { spawnSync } from "node:child_process"
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
-import { installCommand } from "@kirana-style/compiler"
+import { installCommand, main as kirana } from "@kirana-style/compiler"
 
 import { hashOf } from "./check.ts"
 import { parseArgs } from "./command.ts"
@@ -276,7 +276,11 @@ export async function runAdd(
   write: (text: string) => void,
   options: Options = {}
 ): Promise<number> {
-  const parsed = parseArgs("add", args, ["--dry-run", "--overwrite"])
+  const parsed = parseArgs("add", args, [
+    "--dry-run",
+    "--overwrite",
+    "--no-check",
+  ])
   if (typeof parsed === "string") {
     write(`${parsed}\n`)
     return 2
@@ -331,7 +335,30 @@ export async function runAdd(
   record(lockfile, planned, placed)
   writeLockfile(project.root, lockfile)
   write(`kirana-style.lock.json: ${planned.length} item(s) recorded\n`)
-  return 0
+  if (parsed.flags.has("--no-check")) return 0
+  return (await checkWritten(placed, project.root, write)) ? 0 : 1
+}
+
+/** Script files Kirana checks: the markup and style modules, not a stylesheet. */
+const SCRIPT = /\.(?:[cm]?[jt]sx?|vue|svelte)$/
+
+/**
+ * `kirana-style check` on the scripts just written, from the project's root, as the project's own
+ * build will compile them; false, said, when it reports an error. `--no-check` skips it.
+ */
+export async function checkWritten(
+  placed: readonly Placed[],
+  root: string,
+  write: (text: string) => void
+): Promise<boolean> {
+  const scripts = placed
+    .filter((file) => SCRIPT.test(file.relative))
+    .map((file) => file.relative)
+  if (scripts.length === 0) return true
+  write(`check: kirana-style check on ${scripts.length} file(s)\n`)
+  if ((await kirana(["check", ...scripts], root, write)) === 0) return true
+  write("kirana-style check found errors in what was written (above)\n")
+  return false
 }
 
 /** Writes every file that is new or differs. */

@@ -9,6 +9,7 @@ import path from "node:path"
 
 import { runAdd } from "./add.ts"
 import { runInit } from "./init.ts"
+import { version } from "./version.ts"
 import { check } from "./check.ts"
 import { failureLine, isSettingsError } from "./command.ts"
 import type { Options } from "./command.ts"
@@ -110,14 +111,6 @@ const PLANNED = new Set([
   "build",
   "mcp",
 ])
-
-/** This package's version, from its own manifest, in the workspace as in the published package. */
-async function version(): Promise<string> {
-  const manifest = JSON.parse(
-    await readFile(new URL("../package.json", import.meta.url), "utf8")
-  ) as { version: string }
-  return manifest.version
-}
 
 /**
  * A document to validate and its JSON: a URL is fetched as it is; a file is read; a registry

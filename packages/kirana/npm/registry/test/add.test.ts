@@ -145,6 +145,8 @@ describe("KRN-DX-028 kirana-style ui add", () => {
       "  + src/components/ui/button.tsx",
       "packages: npm install @base-ui/react@^1.9.0",
       "kirana-style.lock.json: 3 item(s) recorded",
+      "check: kirana-style check on 4 file(s)",
+      "0 diagnostic(s), 0 error(s)",
       "",
     ])
     // The project already lists @kirana-style/core; the rest goes to its package manager.
@@ -369,6 +371,38 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     expect(read(huge, "src/components/ui/chevron.tsx")).toContain(
       "<HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} />"
     )
+  })
+
+  it("checks what it wrote with Kirana, unless told not to", async () => {
+    const wrong: Item = {
+      name: "wrong",
+      type: "lib",
+      version: "1.0.0",
+      files: [
+        file(
+          "wrong.ts",
+          "lib",
+          'import { css } from "@kirana-style/core"\nexport const a = css({ colour: "red" })\n'
+        ),
+        file("wrong.css", "lib", ".a {}\n"),
+      ],
+    }
+    const checked = await add(project({}, [wrong]), "@acme/wrong")
+    expect(checked.code).toBe(1)
+    expect(checked.text).toContain(
+      "unknown-property: colour is not a CSS property"
+    )
+    expect(checked.text).toMatch(
+      /kirana-style check found errors in what was written \(above\)\n$/
+    )
+    const skipped = await add(project({}, [wrong]), "@acme/wrong", "--no-check")
+    expect(skipped.code).toBe(0)
+    expect(skipped.text).not.toContain("check:")
+    // Nothing to check: a stylesheet alone.
+    const sheet: Item = { ...wrong, name: "sheet", files: [wrong.files![1]!] }
+    const plain = await add(project({}, [sheet]), "@acme/sheet")
+    expect(plain.code).toBe(0)
+    expect(plain.text).not.toContain("check:")
   })
 
   it("reads a dependency named in full, and an item asked for twice once", async () => {

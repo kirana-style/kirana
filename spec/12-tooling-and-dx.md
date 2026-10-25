@@ -201,8 +201,9 @@ markup MUST become the icon library's own component, every other attribute kept,
 and the placeholder's dropped; a placeholder that names no icon for the library stops the command.
 The npm packages the items and their icons need and the project does not list are installed with
 its package manager, and each item is recorded in the
-lockfile (KRN-DX-025) with both hashes of every file. Exit 1 when an item cannot be read or
-installed, 2 without an item or with settings it cannot use.
+lockfile (KRN-DX-025) with both hashes of every file. Then `kirana-style check` MUST run on the
+scripts written, from the project's root, an error in them exiting 1; `--no-check` skips it. Exit 1
+when an item cannot be read or installed, 2 without an item or with settings it cannot use.
 
 **KRN-DX-029** — `kirana-style ui init` MUST set a project up for a registry: Kirana itself where it
 is missing (what `kirana-style init` does), the `ui` settings in `kirana.config.*` (`--framework`,
@@ -214,7 +215,12 @@ Kirana's stylesheet; the `<html>` styles on the `<html>` element as `sx`, or, in
 document is static HTML, set on `document.documentElement` beside Kirana's stylesheet import. A
 change it cannot make safely MUST be printed as a step to do by hand. Every change is planned before
 anything is written, and `--dry-run` writes and installs nothing. Exit 1 when a document cannot be
-read or the setup cannot be written, 2 for an unknown option or settings it cannot use.
+read or the setup cannot be written, 2 for an unknown option or settings it cannot use. With
+`--template <example> [directory]` it MUST first write one of Kirana's examples, as the release
+being run has it, into a new or empty directory (the example's name by default): the release's
+source archive read once, the example's `package.json` named after the directory with every
+`@kirana-style/*` package and `kirana-style` at the release's version. It then checks what it wrote,
+as `add` does.
 
 **KRN-DX-025** — The lockfile MUST be `kirana-style.lock.json`, at the project's root:
 `{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came
