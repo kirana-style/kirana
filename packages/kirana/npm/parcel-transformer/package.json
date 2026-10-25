@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/parcel-transformer",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Kirana for Parcel: a transformer that compiles styles in scripts, with the stylesheet from @kirana-style/postcss.",
   "license": "MIT",
   "author": "The Kirana authors",

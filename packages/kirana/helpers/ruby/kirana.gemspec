@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name = "kirana"
-  spec.version = "0.3.2" # x-release-please-version
+  spec.version = "0.3.3" # x-release-please-version
   spec.summary = "Kirana for Rails templates: the class map reader and the kirana view helper."
   spec.license = "MIT"
   spec.authors = ["The Kirana authors"]
