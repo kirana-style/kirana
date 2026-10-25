@@ -1,0 +1,44 @@
+[
+  {
+    "code": "KRN1305",
+    "name": "unreachable-entry",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 345,
+      "end": 378
+    },
+    "message": "`[data-placement=\"top\"]` and `[data-starting-style]` never match one element together, so nothing here can apply",
+    "help": [
+      "it is left out of the stylesheet; write each state's value under its own key"
+    ]
+  },
+  {
+    "code": "KRN1305",
+    "name": "unreachable-entry",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 459,
+      "end": 487
+    },
+    "message": "`[data-entering]` and `[data-side=\"top\"]` never match one element together, so nothing here can apply",
+    "help": [
+      "it is left out of the stylesheet; write each state's value under its own key"
+    ]
+  },
+  {
+    "code": "KRN1305",
+    "name": "unreachable-entry",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 615,
+      "end": 640
+    },
+    "message": "`[data-side=\"bottom\"]` and `[data-side=\"top\"]` never match one element together, so nothing here can apply",
+    "help": [
+      "it is left out of the stylesheet; write each state's value under its own key"
+    ]
+  }
+]

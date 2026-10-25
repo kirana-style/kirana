@@ -11,7 +11,7 @@ first difference decides.
 | ---- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1    | **Origin**              | An element's own style beats a style it inherited from a [contextual selector](/docs/styling/contextual).                                                                                                    |
 | 2    | **Condition count**     | More conditions win. `md + :hover` beats `:hover` beats `base`.                                                                                                                                              |
-| 3    | **Condition class**     | `attribute` > `pseudo-class` > `relation` > `at-rule`.                                                                                                                                                       |
+| 3    | **Condition class**     | `attribute` > `pseudo-class` > `relation` > `at-rule`; a relation's `parent()` read ranks as a pseudo-class.                                                                                                 |
 | 4    | **Within a class**      | Pseudo-classes by a fixed table (roughly: structural → `:hover` → `:focus` → `:active` → `:checked` → `:invalid` → `:disabled`). At-rules: `@container` > `@media` > `@supports`; a larger `min-width` wins. |
 | 5    | **Declaration breadth** | The narrower declaration wins: `paddingTop` beats `padding`, `borderWidth` beats `border`. At equal breadth, a physical longhand beats a logical one.                                                        |
 | 6    | **Tie-break**           | Lexicographic, and never meaningful: reaching this step emits `ambiguous-precedence`.                                                                                                                        |
@@ -73,6 +73,15 @@ Three ways to resolve it:
 The compiler already knows some pairs are exclusive on their own: two values of
 one attribute, a selector and its negation, or two fixed positions counted from
 the same end.
+
+## Combinations that cannot match
+
+A key nested in another it can never meet, such as two values of one attribute or
+two libraries' states declared apart with
+[`conditions.exclusiveAcross`](/docs/reference/config), matches no element. Its
+entries are left out of the stylesheet, and the compiler says so with an info,
+`unreachable-entry`. A style written once for several libraries can nest one state
+helper inside another without shipping rules nothing can match.
 
 ## Layers
 

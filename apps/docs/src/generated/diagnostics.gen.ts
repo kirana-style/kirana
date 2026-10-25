@@ -116,6 +116,12 @@ export const DIAGNOSTICS: readonly DiagnosticEntry[] = [
     "family": "Conditions"
   },
   {
+    "code": "KRN1305",
+    "name": "unreachable-entry",
+    "severity": "info",
+    "family": "Conditions"
+  },
+  {
     "code": "KRN1401",
     "name": "relation-without-anchor",
     "severity": "error",

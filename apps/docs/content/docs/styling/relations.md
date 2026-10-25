@@ -131,3 +131,8 @@ pseudo-classes on the element itself, and above at-rules
 ([ladder](/docs/styling/precedence), step 3). So an element's own `:hover` beats a
 value that depends on an ancestor's `:hover`, which is what an author usually
 means.
+
+A parent read is the exception: it ranks as a pseudo-class, as the
+`:where([data-slot] > *)` selector it replaces does. A group inside another group
+takes the nested gap over a style's wider one without restating it under every
+style.

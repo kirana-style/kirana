@@ -281,6 +281,35 @@ impl<'a> Evaluator<'_, 'a, '_> {
         }
     }
 
+    /// A value under one more condition key. A set holding two conditions Kirana knows never meet
+    /// (two values of one attribute, a `conditions.exclusive` group, two libraries'
+    /// `exclusiveAcross` vocabularies) matches no element, so its entries are left out, and the
+    /// author is told once, at the key (KF-030, D-105).
+    fn nested(
+        &self,
+        name: &str,
+        value: &Value,
+        target: &Target,
+        conditions: &ConditionSet,
+        span: (u32, u32),
+        parts: &mut Parts,
+    ) {
+        let declared = kirana_ir::Declared {
+            groups: &self.ctx.config.conditions.exclusive,
+            across: &self.ctx.config.conditions.exclusive_across,
+        };
+        if let Some((first, second)) = kirana_ir::unreachable_pair(conditions, declared) {
+            self.report(
+                Code::UnreachableEntry,
+                span,
+                format!("`{first}` and `{second}` never match one element together, so nothing here can apply"),
+                Some("it is left out of the stylesheet; write each state's value under its own key"),
+            );
+            return;
+        }
+        self.property(name, value, target, conditions, false, span, parts)
+    }
+
     /// A pseudo-class nested under a `select` target reads the element carrying the style, not the
     /// target (KF-014, D-061): `[select.child("a")]: { color: { ":hover": x } }` turns the link `x`
     /// while its parent is hovered. Said once per condition key, as an info: the parent's state is
@@ -448,13 +477,13 @@ impl<'a> Evaluator<'_, 'a, '_> {
                         Key::Str(key) => match parse_condition_key(&key[..]) {
                             Ok(parsed) => {
                                 self.check_select_state(&parsed, target, span);
-                                self.property(name, inner, target, &conditions.with(&parsed), false, span, parts)
+                                self.nested(name, inner, target, &conditions.with(&parsed), span, parts)
                             }
                             Err(error) => self.report(Code::UnknownCondition, span, error.to_string(), None),
                         },
                         Key::Conditions(parsed) => {
                             self.check_select_state(parsed, target, span);
-                            self.property(name, inner, target, &conditions.with(&parsed[..]), false, span, parts);
+                            self.nested(name, inner, target, &conditions.with(&parsed[..]), span, parts);
                         }
                         Key::Select(_) | Key::Token(_) => {
                             self.report(

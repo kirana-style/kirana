@@ -18,7 +18,7 @@ line coverage. The [changelog](/changelog) lists every release.
 - Tokens: inlined, variable, per-mode, registered (`@property`)
 - Themes and colour modes
 - Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB
-- 48 diagnostics with stable codes
+- 49 diagnostics with stable codes
 - `@kirana-style/vite` for Vite 8, with hot updates
 - An adapter package for every other bundler, and one for Jest; see
   [bundlers](/docs/integrations/bundlers)

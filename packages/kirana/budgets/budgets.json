@@ -709,6 +709,18 @@
           "brotli": 270
         }
       },
+      "relations-parent-rank": {
+        "css": {
+          "raw": 273,
+          "gzip": 180,
+          "brotli": 161
+        },
+        "js": {
+          "raw": 659,
+          "gzip": 371,
+          "brotli": 302
+        }
+      },
       "relations-placement": {
         "css": {
           "raw": 358,
@@ -923,6 +935,18 @@
           "raw": 13,
           "gzip": 33,
           "brotli": 17
+        }
+      },
+      "unreachable-entries": {
+        "css": {
+          "raw": 261,
+          "gzip": 180,
+          "brotli": 168
+        },
+        "js": {
+          "raw": 315,
+          "gzip": 225,
+          "brotli": 183
         }
       },
       "utility-surface": {
