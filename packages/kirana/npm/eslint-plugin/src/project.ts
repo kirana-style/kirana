@@ -3,10 +3,15 @@
  * compiled once per lint run, and each linted file transformed once however many rules ask.
  * Rules never re-implement what the compiler knows; they look its answers up here.
  */
-import { existsSync } from "node:fs"
+import { existsSync, readFileSync } from "node:fs"
 import path from "node:path"
 
-import { Driver, utf16Offset } from "@kirana-style/compiler"
+import {
+  Driver,
+  frameworkOf,
+  loadNative,
+  utf16Offset,
+} from "@kirana-style/compiler"
 import type { Diagnostic, Site } from "@kirana-style/compiler"
 
 import type { Context } from "./types.ts"
@@ -59,6 +64,24 @@ export type Inspection = {
 const inspections = new Map<string, Inspection>()
 
 /**
+ * The module a file's linted text is compiled as. A Vue, Svelte or Astro component's linter hands
+ * a rule one script block, which the build compiles as `Card.vue.setup.ts`: under that id the
+ * compiler knows the template, not part of the module, reads the block's bindings (`const { sx } =
+ * useSx()`, KF-026). Any other file is its own module.
+ */
+function moduleOf(file: string, text: string): string {
+  if (!frameworkOf(file) || !existsSync(file)) return file
+  const source = readFileSync(file, "utf8")
+  const { blocks } = JSON.parse(loadNative().scanComponent(file, source)) as {
+    blocks: { label: string; start: number; end: number; lang: string }[]
+  }
+  const block = blocks.find(
+    (candidate) => source.slice(candidate.start, candidate.end) === text
+  )
+  return block ? `${file}.${block.label}.${block.lang}` : file
+}
+
+/**
  * The compiler's view of the file being linted. `settings.kirana.root` (relative to the working
  * directory) names the project root; otherwise it is the nearest `kirana.config.*`, else the
  * working directory.
@@ -74,8 +97,9 @@ export function inspect(context: Context): Inspection {
     ? path.resolve(context.cwd, configured)
     : rootOf(file, context.cwd)
   const driver = driverFor(root)
-  const result = driver.transform(file, text)
-  const relative = path.relative(driver.root, file).split(path.sep).join("/")
+  const module = moduleOf(file, text)
+  const result = driver.transform(module, text)
+  const relative = path.relative(driver.root, module).split(path.sep).join("/")
   // ASCII text has the same byte and string offsets.
   const ascii = Buffer.byteLength(text) === text.length
   const index = ascii
@@ -91,7 +115,7 @@ export function inspect(context: Context): Inspection {
         .diagnostics()
         .filter((diagnostic) => diagnostic.file === relative),
     ],
-    sites: driver.sites(file).map((site) => ({
+    sites: driver.sites(module).map((site) => ({
       ...site,
       span: { start: index(site.span.start), end: index(site.span.end) },
     })),

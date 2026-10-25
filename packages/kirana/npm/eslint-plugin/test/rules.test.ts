@@ -553,6 +553,30 @@ describe("project root", () => {
     expect(rootOf("/kirana-nowhere/a/b.jsx", "fallback")).toBe("fallback")
     expect(rootOf(file, "fallback")).toBe(project)
   })
+
+  // KF-026: a linter hands a rule a component's script block; the template, which applies `sx`, is
+  // not in it. The block is compiled as the build compiles it, so `useSx()`'s `sx` is not unused.
+  it("compiles a component's script block as its block module", async () => {
+    const { expect } = await import("vite-plus/test")
+    const { readFileSync } = await import("node:fs")
+    const { inspect } = await import("../src/project.ts")
+    const component = path.join(project, "Button.vue")
+    const source = readFileSync(component, "utf8")
+    const script = source.slice(
+      source.indexOf(">") + 1,
+      source.indexOf("</script>")
+    )
+    const context = (filename: string, text: string) =>
+      ({ filename, cwd: project, settings: {}, sourceCode: { text } }) as never
+    const names = (filename: string, text: string) =>
+      inspect(context(filename, text)).diagnostics.map((found) => found.name)
+    expect(names(component, script)).toEqual([])
+    // Text that is no block of the file, and a component that is not on disk, compile as the file.
+    expect(names(component, `${script}\n`)).toEqual(["unused-sx"])
+    expect(names(path.join(project, "Missing.vue"), script)).toEqual([
+      "unused-sx",
+    ])
+  })
 })
 
 tester.run("no-dark-variant", rules["no-dark-variant"] as never, {

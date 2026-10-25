@@ -7,7 +7,7 @@
  */
 import type { ComputedRef } from "vue"
 
-import type { Sx } from "@kirana-style/core"
+import type { StyleHandle, Sx } from "@kirana-style/core"
 
 declare module "vue" {
   interface HTMLAttributes {
@@ -35,10 +35,11 @@ declare module "vue" {
  *     <button v-bind="attrs" :sx="[styles.root, sx]"><slot /></button>
  *   </template>
  *
- * `sx` is the caller's classes as one class string; `attrs` is every other fallthrough attribute
- * (listeners, `aria-*`, the caller's inline `style`), to bind on the same element.
+ * `sx` is the caller's classes, typed as the handle `:sx` takes (at runtime, the one class string a
+ * compiled handle is, KF-029); `attrs` is every other fallthrough attribute (listeners, `aria-*`, the
+ * caller's inline `style`), to bind on the same element.
  */
 export declare function useSx(): {
-  sx: ComputedRef<string | undefined>
+  sx: ComputedRef<StyleHandle | undefined>
   attrs: ComputedRef<Record<string, unknown>>
 }
