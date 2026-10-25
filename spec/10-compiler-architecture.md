@@ -117,6 +117,11 @@ A ternary whose test does not fold but whose branches do yields a finite-dynamic
 ([09](./09-dynamic-styles.md#classification)). A position that requires a static value (token definitions,
 relation names) and receives a non-foldable expression produces `not-evaluable`.
 
+A string that holds a lone surrogate (`"\uD800"`, which the parser keeps as written) is not folded: no
+CSS value, key, class or module specifier can carry one. As a value it produces `not-evaluable`; an
+import or re-export from such a specifier is a runtime value; an `enum` member named by one is left
+out, its numbering kept.
+
 ## Cross-file resolution
 
 **KRN-CMP-004** — Imports MUST be resolved with `oxc_resolver` (relative paths, extension probing,

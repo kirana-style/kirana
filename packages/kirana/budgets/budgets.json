@@ -349,6 +349,18 @@
           "brotli": 209
         }
       },
+      "lone-surrogates": {
+        "css": {
+          "raw": 318,
+          "gzip": 184,
+          "brotli": 151
+        },
+        "js": {
+          "raw": 1140,
+          "gzip": 593,
+          "brotli": 516
+        }
+      },
       "merge-01-omitted-keeps": {
         "css": {
           "raw": 233,

@@ -1,0 +1,19 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k1_eK8R {
+    padding-bottom: 1px;
+  }
+  .k6V_eK8R {
+    height: 1px;
+  }
+  .k6_fYDk {
+    margin-bottom: var(--k6);
+  }
+  .k9_ZhSI {
+    margin-top: var(--k9);
+  }
+  .kaF_ZFLY {
+    width: var(--kaF);
+  }
+}

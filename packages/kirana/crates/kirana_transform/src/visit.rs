@@ -1,5 +1,7 @@
 //! The walk that finds style sites and records edits.
 
+use std::borrow::Cow;
+
 use kirana_diagnostics::{Code as DiagnosticCode, Diagnostic, Span};
 use kirana_evaluator::Evaluator;
 use kirana_ir::{Api, Value};
@@ -7,7 +9,7 @@ use kirana_shared::FxHashSet;
 use oxc_ast::ast::{
     Argument, BindingPattern, BindingProperty, CallExpression, Expression, IdentifierReference, JSXAttribute,
     JSXAttributeItem, JSXAttributeName, JSXAttributeValue, JSXElementName, JSXOpeningElement, ObjectExpression,
-    ObjectProperty, ObjectPropertyKind, PropertyKey, Statement,
+    ObjectProperty, ObjectPropertyKind, PropertyKey, Statement, StringLiteral,
 };
 use oxc_ast_visit::{Visit, walk};
 use oxc_span::GetSpan;
@@ -44,7 +46,7 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
         let program = self.evaluator.parsed().program;
         for statement in &program.body {
             if let Statement::ImportDeclaration(import) = statement
-                && import.source.value.as_str() == "@kirana-style/core"
+                && import.source.value == "@kirana-style/core"
                 && !import.import_kind.is_type()
             {
                 self.edits.push(Edit { start: import.span.start, end: import.span.end, ..Edit::default() });
@@ -128,7 +130,7 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             // `sx="px-4"`: the utility surface; a bare `sx` has no value to lower. Without a grammar
             // the diagnostic is all there is, and the attribute is left as written.
             Some(JSXAttributeValue::StringLiteral(literal)) => {
-                let parts = self.evaluator.utility_parts(literal.value.as_str(), sp(literal.span));
+                let parts = self.evaluator.utility_parts(&utility_text(literal), sp(literal.span));
                 if self.evaluator.context().config.utilities.is_none() {
                     return;
                 }
@@ -223,7 +225,7 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
                 let root = compiled_root(kind.to_expression());
                 if let Expression::StringLiteral(literal) = &sx.value {
                     // A component receives the compiled handle, as it would from `sx={css(…)}`.
-                    let parts = self.evaluator.utility_parts(literal.value.as_str(), sp(literal.span));
+                    let parts = self.evaluator.utility_parts(&utility_text(literal), sp(literal.span));
                     if self.evaluator.context().config.utilities.is_some()
                         && let Some(handle) = parts.static_handle()
                     {
@@ -254,7 +256,7 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
         let class = self.evaluator.context().config.jsx.class_attribute();
         let parts = match &sx.value {
             Expression::StringLiteral(literal) => {
-                let parts = self.evaluator.utility_parts(literal.value.as_str(), sp(literal.span));
+                let parts = self.evaluator.utility_parts(&utility_text(literal), sp(literal.span));
                 if self.evaluator.context().config.utilities.is_none() {
                     return;
                 }
@@ -435,11 +437,17 @@ fn attribute_name<'b>(attribute: &'b oxc_ast::ast::JSXAttribute<'_>) -> Option<&
     }
 }
 
+/// An `sx` string's utilities as text. A lone surrogate, which oxc keeps as written, becomes U+FFFD:
+/// no utility has one, so the class is reported as unknown, as any misspelt one is.
+fn utility_text<'b>(literal: &'b StringLiteral<'_>) -> Cow<'b, str> {
+    literal.value.as_str().map_or_else(|| Cow::Owned(literal.value.display().to_string()), Cow::Borrowed)
+}
+
 /// An object property's name, when it is written out: `sx`, `"sx"`.
 fn property_name<'b>(key: &'b PropertyKey<'_>) -> Option<&'b str> {
     match key {
         PropertyKey::StaticIdentifier(identifier) => Some(identifier.name.as_str()),
-        PropertyKey::StringLiteral(literal) => Some(literal.value.as_str()),
+        PropertyKey::StringLiteral(literal) => literal.value.as_str(),
         _ => None,
     }
 }
@@ -529,7 +537,7 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
                 self.host_sx(element, attribute);
             } else if let Some(JSXAttributeValue::StringLiteral(literal)) = &attribute.value {
                 // A component receives the compiled handle, as it would from `sx={css(…)}`.
-                let parts = self.evaluator.utility_parts(literal.value.as_str(), sp(literal.span));
+                let parts = self.evaluator.utility_parts(&utility_text(literal), sp(literal.span));
                 if self.evaluator.context().config.utilities.is_some()
                     && let Some(handle) = parts.static_handle()
                 {

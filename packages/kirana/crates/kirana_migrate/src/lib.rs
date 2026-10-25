@@ -102,7 +102,7 @@ struct Walker<'s> {
 fn member_of<'a>(expression: &'a Expression<'a>, object: &str) -> Option<&'a str> {
     let member = expression.as_member_expression()?;
     let identifier = member.object().get_identifier_reference()?;
-    (identifier.name.as_str() == object).then(|| member.static_property_name())?
+    (identifier.name.as_str() == object).then(|| member.static_property_name()).flatten().and_then(|name| name.as_str())
 }
 
 /// `stylex.when.<name>`.
@@ -110,8 +110,10 @@ fn when_of<'a>(expression: &'a Expression<'a>) -> Option<&'a str> {
     let member = expression.as_member_expression()?;
     let inner = member.object().as_member_expression()?;
     let identifier = inner.object().get_identifier_reference()?;
-    (identifier.name.as_str() == "stylex" && inner.static_property_name() == Some("when"))
-        .then(|| member.static_property_name())?
+    (identifier.name.as_str() == "stylex" && inner.static_property_name().is_some_and(|name| name == "when"))
+        .then(|| member.static_property_name())
+        .flatten()
+        .and_then(|name| name.as_str())
 }
 
 impl<'s> Walker<'s> {

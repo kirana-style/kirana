@@ -802,6 +802,19 @@ fn a_class_string_in_another_class_prop_is_compiled_in_place() {
 }
 
 #[test]
+fn strings_with_a_lone_surrogate_stay_as_written() {
+    // oxc keeps a `\u` escape to a lone surrogate as written: it is in no class or module
+    // specifier, so the migration leaves each such string alone.
+    let input = r#"import { cn } from "\uD800"
+export const A = () => <div className={cn("\uD800", `\uD800`)} classNames={{ day: "\uD800" }} />
+"#;
+    let (source, _) = snippet("a.tsx", input);
+    assert!(source.contains(r#"import { cn } from "\uD800""#), "{source}");
+    assert!(source.contains(r#"cn("\uD800", `\uD800`)"#), "{source}");
+    assert!(source.contains(r#"classNames={{ day: "\uD800" }}"#), "{source}");
+}
+
+#[test]
 fn a_contextual_rule_on_a_slotted_target_moves_onto_the_target() {
     let source = surveyed(
         "a.tsx",
