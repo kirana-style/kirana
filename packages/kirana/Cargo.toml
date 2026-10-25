@@ -38,7 +38,7 @@ oxc_span = "=0.154.0"
 oxc_syntax = "=0.154.0"
 oxc_resolver = "=11.24.3"
 oxc_sourcemap = "=8.1.2"
-string_wizard = { version = "=1.2.14", default-features = false, features = [
+string_wizard = { version = "=1.2.15", default-features = false, features = [
   "sourcemap",
 ] }
 lightningcss = { version = "=1.0.0-alpha.72", default-features = false }
