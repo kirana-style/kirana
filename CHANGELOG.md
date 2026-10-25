@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.3.3](https://github.com/kirana-style/kirana/compare/v0.3.2...v0.3.3) (2026-10-25)
+
+
+### Features
+
+* a registry base names the items only it needs ([#128](https://github.com/kirana-style/kirana/issues/128)) ([dd557c1](https://github.com/kirana-style/kirana/commit/dd557c158d876a2f1d1ff8f6365a89e3bd42c553))
+* add @kirana-style/registry with the registry format, schemas, and lockfile ([#118](https://github.com/kirana-style/kirana/issues/118)) ([abcf8bc](https://github.com/kirana-style/kirana/commit/abcf8bc81770850ea0eac4503468528cef747e9c))
+* definitions say how each entry was written, with every token it reads ([#117](https://github.com/kirana-style/kirana/issues/117)) ([bcaaf2d](https://github.com/kirana-style/kirana/commit/bcaaf2d66afb4a4c29cb85d342444c28baaa7fc3))
+* flattened builds at install, and kirana-style ui preset ([#130](https://github.com/kirana-style/kirana/issues/130)) ([06baff0](https://github.com/kirana-style/kirana/commit/06baff0f0a2164a50aa3d3fb1ace552ae2bb63d1))
+* kirana-style ui init, add, outdated, diff, update and remove ([#129](https://github.com/kirana-style/kirana/issues/129)) ([2c870d3](https://github.com/kirana-style/kirana/commit/2c870d3af3af26b2065ee48781b1cd42b8fe2a3f))
+* kirana-style ui reads registries: namespaces, urls and headers ([#119](https://github.com/kirana-style/kirana/issues/119)) ([28bd423](https://github.com/kirana-style/kirana/commit/28bd42345622a9a8d7d20b55a59c02eb75c0c88d))
+* kirana-style ui view and search ([#126](https://github.com/kirana-style/kirana/issues/126)) ([8069462](https://github.com/kirana-style/kirana/commit/8069462910fcf853e1eb86e58f68c83f0921640b))
+* parent() ranks with pseudo-classes, and entries no element can match are left out ([#115](https://github.com/kirana-style/kirana/issues/115)) ([1f7b39d](https://github.com/kirana-style/kirana/commit/1f7b39d24b5c62b69de4080e659d728cd6a49fd1))
+* states for bits ui command and scroll area, ark ui field and fieldset ([#114](https://github.com/kirana-style/kirana/issues/114)) ([d3ac169](https://github.com/kirana-style/kirana/commit/d3ac169fcede53e72ff6899c1174c67770b40eca))
+
+
+### Bug fixes
+
+* kirana.config.ts loads as written in a commonjs package ([#127](https://github.com/kirana-style/kirana/issues/127)) ([e74902b](https://github.com/kirana-style/kirana/commit/e74902ba33509ea62b6d9b628642c8f91205b05f))
+* relation-unused follows a relation's exported readers, and trace reads one line's sites ([#112](https://github.com/kirana-style/kirana/issues/112)) ([62f02f1](https://github.com/kirana-style/kirana/commit/62f02f17b24de94bd43cdfd6c42ec5c7cb2776b4))
+* the wasi engine loads again, on emnapi 2.0.0-beta.2 ([#120](https://github.com/kirana-style/kirana/issues/120)) ([ab2936a](https://github.com/kirana-style/kirana/commit/ab2936a091b6c6cd7520a7aba21afff06c8a03cf))
+* vue parts lint and type-check with usesx, and astro 7 prerenders compiled ([#113](https://github.com/kirana-style/kirana/issues/113)) ([2f193e2](https://github.com/kirana-style/kirana/commit/2f193e2b0baca4098a76c948d3d85db9a031a100))
+
+
+### Documentation
+
+* take the benchmarks of kirana 0.3.2 from kirana-lab ([#110](https://github.com/kirana-style/kirana/issues/110)) ([641a8d9](https://github.com/kirana-style/kirana/commit/641a8d9be61fe344e8d6463629ccd7a0f75e7c97))
+
+
+### Dependencies
+
+* bump string_wizard from 1.2.14 to 1.2.15 in /packages/kirana in the minor-and-patch group ([#124](https://github.com/kirana-style/kirana/issues/124)) ([5493e39](https://github.com/kirana-style/kirana/commit/5493e39806b475c4152a35c570bcfbdd21b704eb))
+* oxc 0.155 with lone surrogates kept, and the week's updates ([#131](https://github.com/kirana-style/kirana/issues/131)) ([1d50743](https://github.com/kirana-style/kirana/commit/1d507438bfe9d1c1d9ba397619fc81e94792a627))
+* update phpunit/phpunit requirement from ~13.3.0 to ~13.3.0 || ~13.4.0 in /packages/kirana/helpers/php ([#122](https://github.com/kirana-style/kirana/issues/122)) ([0b61a05](https://github.com/kirana-style/kirana/commit/0b61a05a10c745c9423f7672ccd19bbb4338fbf0))
+
 ## [0.3.2](https://github.com/kirana-style/kirana/compare/v0.3.1...v0.3.2) (2026-10-24)
 
 

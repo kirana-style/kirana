@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/gatsby",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Kirana for Gatsby: a plugin that adds Kirana's webpack plugin to every stage of the build.",
   "license": "MIT",
   "author": "The Kirana authors",
