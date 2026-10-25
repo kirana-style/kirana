@@ -94,6 +94,31 @@ function chooseBase(
   )
 }
 
+/** One item as it installs: its files and its base's, and the packages they need. */
+export function planItem(
+  key: string,
+  item: Item,
+  settings: Settings,
+  chosen: { framework?: Framework; base?: string }
+): Planned {
+  const entry =
+    chosen.framework === undefined
+      ? undefined
+      : item.frameworks![chosen.framework]![chosen.base!]!
+  return {
+    key,
+    template: registryOf(parseReference(key).namespace, settings).template,
+    item,
+    ...chosen,
+    files: [
+      ...(item.files ?? []),
+      ...(item.styles ?? []),
+      ...(entry?.files ?? []),
+    ],
+    packages: { ...item.dependencies, ...entry?.dependencies },
+  }
+}
+
 /**
  * The items to install, each after the items it needs, every item read once. A reference that is not
  * an item, or one whose markup the project cannot take, stops it.
@@ -130,18 +155,7 @@ export async function plan(
       ...(entry?.registryDependencies ?? []),
     ])
       await visit(qualify(dependency, namespace))
-    planned.push({
-      key,
-      template: registryOf(namespace, settings).template,
-      item,
-      ...chosen,
-      files: [
-        ...(item.files ?? []),
-        ...(item.styles ?? []),
-        ...(entry?.files ?? []),
-      ],
-      packages: { ...item.dependencies, ...entry?.dependencies },
-    })
+    planned.push(planItem(key, item, settings, chosen))
   }
   for (const reference of references) await visit(reference)
   return planned
@@ -160,7 +174,9 @@ export function place(
   planned: readonly Planned[],
   settings: Settings,
   project: Project,
-  readFile?: ReadFile
+  readFile?: ReadFile,
+  /** False to place one installed item again, whose dependencies are installed already. */
+  provides = true
 ): Placed[] {
   const directories = new Map<string, string>()
   const directoryOf = (type: AliasedType, key: string) => {
@@ -202,7 +218,7 @@ export function place(
             throw new RegistryError(
               `${key}: ${file.path} imports @/registry/${type}/${rest}, a type without an alias`
             )
-          if (!provided.has(placeOf(type, rest)))
+          if (provides && !provided.has(placeOf(type, rest)))
             throw new RegistryError(
               `${key}: ${file.path} imports @/registry/${type}/${rest}, which no item being installed provides`
             )

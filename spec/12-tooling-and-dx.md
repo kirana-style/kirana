@@ -84,7 +84,7 @@ Measured by `bench/lsp.ts` in the benchmark repository (2026-10-02): hover p95 1
 | `kirana-style doctor [--json] [--report [file]] [--trace]`                                     | Engine in use (native or WASI), installed versions, configuration resolution, detected host and whether the adapter, stylesheet and types are wired, cache state (none, D-049). Exit 1 on a failure. `--report` writes a redacted bug report: versions, checks, diagnostics by code, stylesheet size, configuration, optional `kirana-style trace` output; no source text (D-077). Built. |
 | `kirana-style migrate stylex\|tailwind`                                                        | The codemods of [06](./06-authoring-api.md#migration-codemods), with a dry-run diff and a report file.                                                                                                                                                                                                                                                                                    |
 | `kirana-style lsp`                                                                             | Start the language server.                                                                                                                                                                                                                                                                                                                                                                |
-| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view`, `search`, `add` and `init` are built; `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                                                                    |
+| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view`, `search`, `add`, `init`, `outdated` and `diff` are built; `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                                                |
 
 There is no `kirana cache clean`: Kirana keeps no persistent cache (D-049), so there is nothing to
 clear, and `kirana-style doctor` says so.
@@ -222,6 +222,15 @@ being run has it, into a new or empty directory (the example's name by default):
 source archive read once, the example's `package.json` named after the directory with every
 `@kirana-style/*` package and `kirana-style` at the release's version. It then checks what it wrote,
 as `add` does.
+
+**KRN-DX-030** — `kirana-style ui outdated [item…]` and `ui diff [item…]` MUST read each installed
+item (every one in the lockfile by default) again from its registry, place it as installing it now
+would write it, for the framework and base the lockfile records, and compare each file by the
+lockfile's two hashes: the registry changed, added or removed it (`source`), and the project changed
+or removed it (`written` against the file). `outdated` lists the items whose version or files
+changed, saying when files changed under the same version, which updating refuses, and exits 1 when
+one did. `diff` shows, for each file either side changed, the lines between the project's file and
+what installing the item now would write.
 
 **KRN-DX-025** — The lockfile MUST be `kirana-style.lock.json`, at the project's root:
 `{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came

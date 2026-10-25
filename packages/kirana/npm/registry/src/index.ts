@@ -9,6 +9,7 @@ import path from "node:path"
 
 import { runAdd } from "./add.ts"
 import { runInit } from "./init.ts"
+import { runDiff, runOutdated } from "./status.ts"
 import { version } from "./version.ts"
 import { check } from "./check.ts"
 import { failureLine, isSettingsError } from "./command.ts"
@@ -28,12 +29,15 @@ import { runView } from "./view.ts"
 export { check, hashOf, kindOf } from "./check.ts"
 export type { Kind } from "./check.ts"
 export type { Failure, Options, Run } from "./command.ts"
+export { changedInPlace, isOutdated, statusOf } from "./status.ts"
+export type { FileStatus, ItemStatus } from "./status.ts"
 export {
   installPackages,
   missingPackages,
   place,
   placeOf,
   plan,
+  planItem,
   record,
   writePlaced,
 } from "./add.ts"
@@ -90,6 +94,9 @@ Commands in this release:
   add <item…>            install items and every item they need: files at the project's aliases
                          (ui.aliases, through tsconfig.json's paths), packages with its package
                          manager, each recorded in kirana-style.lock.json; --dry-run, --overwrite
+  outdated [item…]       the installed items behind their registries: a new version, or files changed
+  diff [item…]           each installed file the registry or the project changed, as lines between
+                         the project's and what installing it now would write
   view <item…>           what an item is: its frameworks and bases, files, styles and dependencies
                          (@acme/card, or button for @kirana's); --json prints the items as read
   search [query]         the items of every registry's index whose name, title or description holds
@@ -98,19 +105,11 @@ Commands in this release:
                          hash; a document is a file, a URL, or an item of the project's registries
                          (@acme/card, button for @kirana's, @acme/index for an index)
 
-Coming in later releases: diff, update, outdated, remove, preset, build, mcp.
+Coming in later releases: update, remove, preset, build, mcp.
 `
 
 /** The commands the registry will have (its plan), so that one asked for early says so. */
-const PLANNED = new Set([
-  "diff",
-  "update",
-  "outdated",
-  "remove",
-  "preset",
-  "build",
-  "mcp",
-])
+const PLANNED = new Set(["update", "remove", "preset", "build", "mcp"])
 
 /**
  * A document to validate and its JSON: a URL is fetched as it is; a file is read; a registry
@@ -204,6 +203,8 @@ export async function main(
   if (command === "view") return runView(rest, cwd, write, options)
   if (command === "add") return runAdd(rest, cwd, write, options)
   if (command === "init") return runInit(rest, cwd, write, options)
+  if (command === "outdated") return runOutdated(rest, cwd, write, options)
+  if (command === "diff") return runDiff(rest, cwd, write, options)
   if (command === "search") return runSearch(rest, cwd, write, options)
   if (PLANNED.has(command)) {
     write(`kirana-style ui ${command} is not in this release yet\n`)

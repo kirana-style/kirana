@@ -1,6 +1,7 @@
 export { Driver, type DriverOptions, type TransformResult } from "./driver.ts"
 export {
   addImport,
+  diff as diffChange,
   plan as planInit,
   type Change,
   type Plan as InitPlan,
