@@ -1,0 +1,27 @@
+{
+  "name": "@kirana-style/registry",
+  "version": "0.3.2",
+  "description": "Kirana's component registry: the commands kirana-style ui runs, and the registry format's JSON Schemas, types and checks.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/registry"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts",
+    "./package.json": "./package.json"
+  }
+}

@@ -86,6 +86,7 @@ for (const name of [
   "cli",
   "preset-scales",
   "states",
+  "registry",
   "eslint-plugin",
   "biome-plugin",
 ]) {

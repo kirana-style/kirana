@@ -100,6 +100,7 @@ const PACKAGES = [
   "astro",
   "preset-scales",
   "states",
+  "registry",
   "eslint-plugin",
   "biome-plugin",
 ]

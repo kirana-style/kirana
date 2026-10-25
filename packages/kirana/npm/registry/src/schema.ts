@@ -1,0 +1,283 @@
+/**
+ * The component registry's documents as JSON Schema (draft 2020-12): an item, a registry's index and
+ * a project's lockfile (KRN-DX-021 – KRN-DX-025, D-107). Other tools and editors check documents with
+ * them; this package checks them with its own reading of the same objects (`validate.ts`), so the
+ * format has one definition. They keep to the keywords `validate.ts` reads.
+ */
+
+/** A schema: a JSON Schema object, in the subset `validate.ts` implements. */
+export type Schema = {
+  $id?: string
+  $schema?: string
+  $ref?: string
+  $defs?: Record<string, Schema>
+  title?: string
+  description?: string
+  type?: "object" | "array" | "string" | "integer" | "boolean"
+  properties?: Record<string, Schema>
+  patternProperties?: Record<string, Schema>
+  additionalProperties?: false | Schema
+  required?: readonly string[]
+  minProperties?: number
+  items?: Schema
+  minItems?: number
+  enum?: readonly string[]
+  const?: string | number
+  pattern?: string
+  minLength?: number
+}
+
+const DIALECT = "https://json-schema.org/draft/2020-12/schema"
+const BASE = "https://kirana.style/schema"
+
+/** A lower-case, hyphenated name: an item's, a base's, a namespace's after its `@`. */
+const NAME = "[a-z0-9]+(-[a-z0-9]+)*"
+/** A path inside the project: relative, and never above where it starts. */
+const RELATIVE_PATH = "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+$"
+
+/** The frameworks an item can carry markup for. */
+export const FRAMEWORKS = [
+  "react",
+  "vue",
+  "svelte",
+  "solid",
+  "angular",
+] as const
+/** The item types. */
+export const ITEM_TYPES = [
+  "component",
+  "block",
+  "chart",
+  "lib",
+  "hook",
+  "font",
+  "design-system",
+] as const
+/** Where a file installs: under the project's alias for its type, or a `file` at its own `target`. */
+export const FILE_TYPES = [
+  "ui",
+  "component",
+  "lib",
+  "hook",
+  "page",
+  "file",
+] as const
+
+const definitions: Record<string, Schema> = {
+  name: { type: "string", pattern: `^${NAME}$` },
+  reference: {
+    type: "string",
+    description: "An item: `name` in the same registry, or `@namespace/name`.",
+    pattern: `^(@${NAME}/)?${NAME}$`,
+  },
+  version: {
+    type: "string",
+    description: "A semantic version.",
+    pattern: "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$",
+  },
+  hash: {
+    type: "string",
+    description:
+      "`sha256-` and the base64 SHA-256 of the content's UTF-8 bytes, as subresource integrity writes it.",
+    pattern: "^sha256-[A-Za-z0-9+/]{43}=$",
+  },
+  packages: {
+    type: "object",
+    description:
+      "npm packages, by name, and the version ranges the item was built with.",
+    patternProperties: {
+      "^(@[^/\\s]+/)?[^/\\s]+$": { type: "string", minLength: 1 },
+    },
+    additionalProperties: false,
+  },
+  file: {
+    type: "object",
+    required: ["path", "type", "content", "hash"],
+    properties: {
+      path: {
+        type: "string",
+        description:
+          "Relative to the place `type` names: `button.tsx` under the `ui` alias.",
+        pattern: RELATIVE_PATH,
+      },
+      type: { type: "string", enum: FILE_TYPES },
+      target: {
+        type: "string",
+        description: "A `file`'s place in the project, relative to its root.",
+        pattern: RELATIVE_PATH,
+      },
+      content: { type: "string" },
+      hash: { $ref: "#/$defs/hash" },
+    },
+    additionalProperties: false,
+  },
+  files: { type: "array", items: { $ref: "#/$defs/file" } },
+  base: {
+    type: "object",
+    required: ["files"],
+    properties: {
+      files: { type: "array", minItems: 1, items: { $ref: "#/$defs/file" } },
+      dependencies: { $ref: "#/$defs/packages" },
+    },
+    additionalProperties: false,
+  },
+  framework: {
+    type: "object",
+    description: "The framework's bases, by name: `base`, `aria`, `ark` …",
+    minProperties: 1,
+    patternProperties: { [`^${NAME}$`]: { $ref: "#/$defs/base" } },
+    additionalProperties: false,
+  },
+}
+
+/** One item, as `ui add` installs it (KRN-DX-021). */
+export const ITEM_SCHEMA: Schema = {
+  $schema: DIALECT,
+  $id: `${BASE}/registry-item.json`,
+  title: "Kirana registry item",
+  type: "object",
+  required: ["name", "type", "version"],
+  properties: {
+    $schema: { type: "string" },
+    name: { $ref: "#/$defs/name" },
+    type: { type: "string", enum: ITEM_TYPES },
+    title: { type: "string" },
+    description: { type: "string" },
+    version: { $ref: "#/$defs/version" },
+    kirana: {
+      type: "string",
+      description:
+        "The Kirana versions the item was built and checked with, as a range.",
+      minLength: 1,
+    },
+    registryDependencies: {
+      type: "array",
+      items: { $ref: "#/$defs/reference" },
+    },
+    dependencies: { $ref: "#/$defs/packages" },
+    axes: {
+      type: "array",
+      description:
+        "The design axes its styles read, which installation flattens.",
+      items: { type: "string", pattern: "^[a-z][A-Za-z0-9]*$" },
+    },
+    styles: { $ref: "#/$defs/files" },
+    frameworks: {
+      type: "object",
+      properties: Object.fromEntries(
+        FRAMEWORKS.map((framework) => [
+          framework,
+          { $ref: "#/$defs/framework" },
+        ])
+      ),
+      additionalProperties: false,
+    },
+    files: { $ref: "#/$defs/files" },
+    meta: { type: "object" },
+  },
+  additionalProperties: false,
+  $defs: definitions,
+}
+
+/** A registry's index: the item named `index`, which lists every item (KRN-DX-022). */
+export const INDEX_SCHEMA: Schema = {
+  $schema: DIALECT,
+  $id: `${BASE}/registry-index.json`,
+  title: "Kirana registry index",
+  type: "object",
+  required: ["items"],
+  properties: {
+    $schema: { type: "string" },
+    name: { type: "string" },
+    homepage: { type: "string" },
+    items: {
+      type: "array",
+      items: {
+        type: "object",
+        required: ["name", "type", "version"],
+        properties: {
+          name: { $ref: "#/$defs/name" },
+          type: { type: "string", enum: ITEM_TYPES },
+          title: { type: "string" },
+          description: { type: "string" },
+          version: { $ref: "#/$defs/version" },
+          frameworks: {
+            type: "object",
+            properties: Object.fromEntries(
+              FRAMEWORKS.map((framework) => [
+                framework,
+                { type: "array", minItems: 1, items: { $ref: "#/$defs/name" } },
+              ])
+            ),
+            additionalProperties: false,
+          },
+        },
+        additionalProperties: false,
+      },
+    },
+  },
+  additionalProperties: false,
+  $defs: definitions,
+}
+
+/** What a project installed: `kirana-style.lock.json` (KRN-DX-025). */
+export const LOCKFILE_SCHEMA: Schema = {
+  $schema: DIALECT,
+  $id: `${BASE}/lockfile.json`,
+  title: "Kirana lockfile",
+  type: "object",
+  required: ["lockfileVersion", "items"],
+  properties: {
+    $schema: { type: "string" },
+    lockfileVersion: { const: 1 },
+    items: {
+      type: "object",
+      patternProperties: {
+        [`^@${NAME}/${NAME}$`]: {
+          type: "object",
+          required: ["registry", "version", "files"],
+          properties: {
+            registry: {
+              type: "string",
+              description: "The registry's URL template the item came from.",
+              minLength: 1,
+            },
+            version: { $ref: "#/$defs/version" },
+            framework: { type: "string", enum: FRAMEWORKS },
+            base: { $ref: "#/$defs/name" },
+            design: {
+              type: "string",
+              description: "The preset code the item was flattened for.",
+              minLength: 1,
+            },
+            files: {
+              type: "object",
+              description: "Each installed file, by its path in the project.",
+              patternProperties: {
+                "^.+$": {
+                  type: "object",
+                  required: ["source", "written"],
+                  properties: {
+                    source: { $ref: "#/$defs/hash" },
+                    written: { $ref: "#/$defs/hash" },
+                  },
+                  additionalProperties: false,
+                },
+              },
+              additionalProperties: false,
+            },
+          },
+          additionalProperties: false,
+        },
+      },
+      additionalProperties: false,
+    },
+  },
+  additionalProperties: false,
+  $defs: definitions,
+}
+
+/** A namespace as `ui.registries` names it: `@acme`. */
+export const NAMESPACE_PATTERN = new RegExp(`^@${NAME}$`)
+/** An item as a command names it: `button`, or `@acme/card`. */
+export const REFERENCE_PATTERN = new RegExp(`^(@${NAME}/)?${NAME}$`)

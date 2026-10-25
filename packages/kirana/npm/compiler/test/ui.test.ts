@@ -61,8 +61,8 @@ describe("KRN-DX-020 kirana-style ui", () => {
     const root = project({ "package.json": JSON.stringify({ name: "app" }) })
     const { out, write } = capture()
     expect(await main(["ui", "add", "button"], root, write)).toBe(1)
-    expect(out.text).toContain(
-      "kirana-style ui needs @kirana-style/registry, which this project does not have"
+    expect(out.text).toBe(
+      "kirana-style ui needs @kirana-style/registry, which this project does not have: add it as a development dependency\n"
     )
   })
 

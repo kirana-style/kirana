@@ -135,6 +135,12 @@ export const PACKAGES: readonly PackageEntry[] = [
     "description": "Component states as Kirana condition keys: each part's data attributes, typed, generated from the UI library's own declarations, for Base UI, Ark UI, React Aria, Reka UI, Bits UI and Angular Primitives."
   },
   {
+    "name": "@kirana-style/registry",
+    "version": "0.3.2",
+    "published": true,
+    "description": "Kirana's component registry: the commands kirana-style ui runs, and the registry format's JSON Schemas, types and checks."
+  },
+  {
     "name": "@kirana-style/eslint-plugin",
     "version": "0.3.2",
     "published": true,

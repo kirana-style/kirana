@@ -1499,6 +1499,29 @@ the implementation tracker names its evidence.
   value has no `written`, as it is named by its rule.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
+### D-107 — Registry items in Kirana's own format, with a lockfile
+
+- **Status:** Accepted (2026-10-25). For kirana-ui's installer; the format third-party registries
+  use too.
+- **Decision:** a registry item is one JSON document of Kirana's own (KRN-DX-021): its style modules
+  as written, one source for every framework, and its markup per framework and base, which
+  installation flattens for the project's design. Registries are URL templates by namespace, with
+  `@kirana` built in, and private ones send headers read from the environment. Every file carries a
+  SHA-256 integrity hash, and a project's installs are recorded in `kirana-style.lock.json`. The
+  format is published as JSON Schema by `@kirana-style/registry/schema` and checked by the package's
+  own reading of those schemas.
+- **Rationale:** shadcn/ui's format holds one copy per framework and style, flattened ahead, and its
+  CLI installs React only: kirana-ui would need a copy per combination (12 today), and could not
+  install a design it did not build ahead. Carrying the unflattened styles once and the markup per
+  framework lets one registry serve every framework and any design. Hashes and a lockfile give
+  integrity, `diff` and `update`, which a copy-in model without a record lacks. JSON Schema lets
+  editors and other tools check items without Kirana; checking with the schemas themselves keeps one
+  definition.
+- **Trade-off:** shadcn/ui's CLI cannot read these items, so kirana-ui keeps a shadcn export for
+  React users who stay on it. The lockfile is one file more in a project; it is plain JSON, named for
+  the command that writes it, not for a registry, since one project installs from several.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                       |
@@ -1510,7 +1533,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                 |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                       |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                             |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106                                           |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107                                    |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                            |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                           |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                    |

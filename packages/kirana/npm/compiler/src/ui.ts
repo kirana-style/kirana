@@ -39,7 +39,7 @@ export async function runUi(
     file = createRequire(path.join(cwd, "package.json")).resolve(REGISTRY)
   } catch {
     write(
-      `kirana-style ui needs ${REGISTRY}, which this project does not have; it is not released yet\n`
+      `kirana-style ui needs ${REGISTRY}, which this project does not have: add it as a development dependency\n`
     )
     return 1
   }
