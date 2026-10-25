@@ -2,7 +2,8 @@ import { describe, expect, it } from "vite-plus/test"
 
 import { resolveIcons } from "../src/icons.ts"
 
-const REACT = `import { Select } from "@base-ui/react/select"
+const REACT = `import "./select.css"
+import { Select } from "@base-ui/react/select"
 import { IconPlaceholder } from "@/registry/lib/kit/icons/icon-placeholder"
 import { select } from "@/registry/ui/select.styles"
 
@@ -83,6 +84,13 @@ import { ChevronDownIcon } from "@lucide/vue"
     )
     for (const library of ["tabler", "phosphor", "remixicon"] as const)
       expect(resolveIcons("x", VUE, "vue", library).packages).toHaveLength(1)
+  })
+
+  it("finds a Vue part's script whatever its tag's case", () => {
+    const upper = VUE.replace("<script setup", "<SCRIPT setup")
+    expect(resolveIcons("x", upper, "vue", "lucide").content).toContain(
+      '<SCRIPT setup lang="ts">\nimport { select } from "@/registry/ui/select.styles"\nimport { ChevronDownIcon } from "@lucide/vue"\n'
+    )
   })
 
   it("leaves a file without placeholders, and stops where it cannot draw one", () => {

@@ -86,7 +86,7 @@ export class ConfigLoadError extends Error {
 }
 
 /** An `import` or `export` statement at a line's start, which CommonJS cannot hold. */
-const MODULE_SYNTAX = /^\s*(?:import\s*[\w{*"']|export\s)/m
+const MODULE_SYNTAX = /^[ \t]*(?:import[ \t]*[\w{*"']|export[ \t])/m
 
 /**
  * A `.ts` file Node.js reads as CommonJS, because its package says `"type": "commonjs"` (as
@@ -294,16 +294,49 @@ const JSX_SOURCES: Readonly<Record<string, "preact" | "solid" | "qwik">> = {
   "@builder.io/qwik": "qwik",
 }
 
-/** JSON with comments and trailing commas, as `tsconfig.json` is written. */
+/** The end of the JSON string that opens at `start`, past its escapes: the closing quote's index. */
+function stringEnd(text: string, start: number): number {
+  let at = start + 1
+  for (; at < text.length && text[at] !== '"'; at++) if (text[at] === "\\") at++
+  return at
+}
+
+/**
+ * JSON with comments and trailing commas, as `tsconfig.json` is written: comments out, then commas
+ * before a closing bracket, each in one pass that keeps strings as they are, so no input makes it
+ * slow (a regular expression for it backtracks).
+ */
 export function readJsonc(text: string): unknown {
-  return JSON.parse(
-    text
-      .replace(
-        /("(?:\\.|[^"\\])*")|\/\/[^\n]*|\/\*[\s\S]*?\*\//g,
-        (_, string) => string ?? ""
-      )
-      .replace(/,(\s*[}\]])/g, "$1")
-  )
+  let bare = ""
+  for (let at = 0; at < text.length; at++) {
+    if (text[at] === '"') {
+      const end = stringEnd(text, at)
+      bare += text.slice(at, end + 1)
+      at = end
+    } else if (text.startsWith("//", at)) {
+      const end = text.indexOf("\n", at)
+      at = end < 0 ? text.length : end - 1
+    } else if (text.startsWith("/*", at)) {
+      const end = text.indexOf("*/", at + 2)
+      at = end < 0 ? text.length : end + 1
+    } else bare += text[at]
+  }
+  let json = ""
+  for (let at = 0; at < bare.length; at++) {
+    if (bare[at] === '"') {
+      const end = stringEnd(bare, at)
+      json += bare.slice(at, end + 1)
+      at = end
+      continue
+    }
+    if (bare[at] === ",") {
+      let next = at + 1
+      while (next < bare.length && /\s/.test(bare[next]!)) next++
+      if (bare[next] === "}" || bare[next] === "]") continue
+    }
+    json += bare[at]
+  }
+  return JSON.parse(json)
 }
 
 /**

@@ -126,7 +126,7 @@ export function aliasDirectory(
     const rest = wildcard ? alias.slice(prefix.length) : ""
     best = {
       length: prefix.length,
-      directory: path.resolve(found!.from, target.replace("*", rest)),
+      directory: path.resolve(found!.from, target.replaceAll("*", rest)),
     }
   }
   if (best) return best.directory

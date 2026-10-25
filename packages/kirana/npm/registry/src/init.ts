@@ -331,6 +331,12 @@ const quotes = (text: string) =>
     ? "''"
     : '""'
 
+/** Whether the `<html>` element's own tag already has an `sx`. */
+function htmlTakesSx(text: string): boolean {
+  const start = text.indexOf("<html")
+  return /\bsx=/.test(text.slice(start, text.indexOf(">", start)))
+}
+
 /** A JavaScript literal for the `ui` settings, indented as a property of the configuration. */
 const literal = (value: unknown, indent = "") =>
   JSON.stringify(value, null, 2).replaceAll("\n", `\n${indent}`)
@@ -436,7 +442,7 @@ function setUp(
     entry === undefined
       ? files
           .stylesheets()
-          .find((file) => /^\s*@kirana\b/m.test(files.read(file)!))
+          .find((file) => /^[ \t]*@kirana\b/m.test(files.read(file)!))
       : undefined
   for (const stylesheet of setup.stylesheets ?? []) {
     const specifier = aliased(stylesheet)
@@ -477,7 +483,7 @@ function setUp(
       /<html[\s>]/.test(files.read(file)!)
     )
     const html = documents.length === 1 ? documents[0]! : undefined
-    if (html !== undefined && !/<html[^>]*\bsx=/.test(files.read(html)!)) {
+    if (html !== undefined && !htmlTakesSx(files.read(html)!)) {
       const withSx = files
         .read(html)!
         .replace(/<html(?=[\s>])/, `<html sx={${name}}`)

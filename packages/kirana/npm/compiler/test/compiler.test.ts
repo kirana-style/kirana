@@ -5,7 +5,7 @@ import path from "node:path"
 import { pathToFileURL } from "node:url"
 import { describe, expect, it } from "vite-plus/test"
 
-import { moduleHooks, moduleTypeScript } from "../src/config.ts"
+import { moduleHooks, moduleTypeScript, readJsonc } from "../src/config.ts"
 
 import {
   ConfigLoadError,
@@ -316,6 +316,20 @@ console.log(resolveConfigSync(${JSON.stringify(root)}).json)`,
     expect(loaded("module", "export default {}").format).toBe("module")
     // Bun and Deno have no `registerHooks`, and need none.
     expect(() => moduleHooks(undefined).deregister()).not.toThrow()
+  })
+
+  it("reads JSON with comments and trailing commas in one pass", () => {
+    expect(
+      readJsonc(`{
+        // a comment, "with a quote"
+        "a": "a \\" // not a comment, }",
+        /* a block */ "b": [1, 2, ],
+        "c": ",}",
+      }`)
+    ).toEqual({ a: 'a " // not a comment, }', b: [1, 2], c: ",}" })
+    expect(readJsonc('{ "a": 1 } // to the end')).toEqual({ a: 1 })
+    expect(readJsonc('{ "a": 1 } /* unclosed')).toEqual({ a: 1 })
+    expect(() => readJsonc('{ "a": "unclosed')).toThrow()
   })
 
   it("detects the jsx mode from tsconfig.json unless configuration names one", async () => {

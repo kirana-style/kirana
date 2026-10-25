@@ -90,9 +90,22 @@ const DRAWINGS: Partial<Record<Framework, Record<IconLibrary, Drawing>>> = {
   },
 }
 
-/** An import of the placeholder's module, whatever the item calls it. */
-const PLACEHOLDER_IMPORT =
-  /^[ \t]*import\s+[^;'"]*?\s+from\s+["'][^"']*(?:icon-placeholder|IconPlaceholder)[^"']*["'];?[ \t]*\n/gm
+/** The text without its imports of the placeholder's module, whatever the item calls it. */
+function withoutPlaceholderImports(text: string): string {
+  return text
+    .split("\n")
+    .filter((line) => {
+      const statement = line.trimStart()
+      if (!statement.startsWith("import ")) return true
+      const from = statement.lastIndexOf(" from ")
+      const module = from < 0 ? "" : statement.slice(from + " from ".length)
+      return !(
+        module.includes("icon-placeholder") ||
+        module.includes("IconPlaceholder")
+      )
+    })
+    .join("\n")
+}
 
 /**
  * The end of the element opened at `start` (`<IconPlaceholder`): the index after its `/>`, past
@@ -167,10 +180,10 @@ export function resolveIcons(
     from = end
   }
   text += content.slice(from)
-  text = text.replace(PLACEHOLDER_IMPORT, "")
+  text = withoutPlaceholderImports(text)
   const statements = drawing.imports([...used].sort())
   // A Vue part's imports live in its <script setup>.
-  const script = /<script\b[^>]*>\n?/.exec(text)
+  const script = /<script\b[^>]*>\n?/i.exec(text)
   if (script) {
     const at = script.index + script[0].length
     const close = text.indexOf("</script>", at)
