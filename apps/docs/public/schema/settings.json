@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kirana.style/schema/settings.json",
+  "title": "Kirana ui settings",
+  "type": "object",
+  "properties": {
+    "registries": {
+      "type": "object",
+      "description": "Registries by namespace: a URL template holding {name}, or { url, headers }.",
+      "patternProperties": {
+        "^@[a-z0-9]+(-[a-z0-9]+)*$": {
+          "$ref": "#/$defs/registry"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "template": {
+      "type": "string",
+      "description": "A URL, a path or a file: URL holding {name}, the item's name.",
+      "pattern": "\\{name\\}"
+    },
+    "registry": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/template"
+        },
+        {
+          "type": "object",
+          "required": [
+            "url"
+          ],
+          "properties": {
+            "url": {
+              "$ref": "#/$defs/template"
+            },
+            "headers": {
+              "type": "object",
+              "description": "HTTP headers, each value able to read the environment as ${NAME}.",
+              "patternProperties": {
+                "^[!#$%&'*+.^_`|~0-9A-Za-z-]+$": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

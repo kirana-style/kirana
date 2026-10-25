@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kirana.style/schema/registry-item.json",
+  "title": "Kirana registry item",
+  "type": "object",
+  "required": [
+    "name",
+    "type",
+    "version"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "$ref": "#/$defs/name"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "component",
+        "block",
+        "chart",
+        "lib",
+        "hook",
+        "font",
+        "design-system"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "version": {
+      "$ref": "#/$defs/version"
+    },
+    "kirana": {
+      "type": "string",
+      "description": "The Kirana versions the item was built and checked with, as a range.",
+      "minLength": 1
+    },
+    "registryDependencies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/reference"
+      }
+    },
+    "dependencies": {
+      "$ref": "#/$defs/packages"
+    },
+    "axes": {
+      "type": "array",
+      "description": "The design axes its styles read, which installation flattens.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][A-Za-z0-9]*$"
+      }
+    },
+    "styles": {
+      "$ref": "#/$defs/files"
+    },
+    "frameworks": {
+      "type": "object",
+      "properties": {
+        "react": {
+          "$ref": "#/$defs/framework"
+        },
+        "vue": {
+          "$ref": "#/$defs/framework"
+        },
+        "svelte": {
+          "$ref": "#/$defs/framework"
+        },
+        "solid": {
+          "$ref": "#/$defs/framework"
+        },
+        "angular": {
+          "$ref": "#/$defs/framework"
+        }
+      },
+      "additionalProperties": false
+    },
+    "files": {
+      "$ref": "#/$defs/files"
+    },
+    "meta": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "reference": {
+      "type": "string",
+      "description": "An item: `name` in the same registry, or `@namespace/name`.",
+      "pattern": "^(@[a-z0-9]+(-[a-z0-9]+)*/)?[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "string",
+      "description": "A semantic version.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$"
+    },
+    "hash": {
+      "type": "string",
+      "description": "`sha256-` and the base64 SHA-256 of the content's UTF-8 bytes, as subresource integrity writes it.",
+      "pattern": "^sha256-[A-Za-z0-9+/]{43}=$"
+    },
+    "packages": {
+      "type": "object",
+      "description": "npm packages, by name, and the version ranges the item was built with.",
+      "patternProperties": {
+        "^(@[^/\\s]+/)?[^/\\s]+$": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "file": {
+      "type": "object",
+      "required": [
+        "path",
+        "type",
+        "content",
+        "hash"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Relative to the place `type` names: `button.tsx` under the `ui` alias.",
+          "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+$"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "ui",
+            "component",
+            "lib",
+            "hook",
+            "page",
+            "file"
+          ]
+        },
+        "target": {
+          "type": "string",
+          "description": "A `file`'s place in the project, relative to its root.",
+          "pattern": "^(?!/)(?!.*(^|/)\\.\\.(/|$)).+$"
+        },
+        "content": {
+          "type": "string"
+        },
+        "hash": {
+          "$ref": "#/$defs/hash"
+        }
+      },
+      "additionalProperties": false
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/file"
+      }
+    },
+    "base": {
+      "type": "object",
+      "required": [
+        "files"
+      ],
+      "properties": {
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/file"
+          }
+        },
+        "dependencies": {
+          "$ref": "#/$defs/packages"
+        }
+      },
+      "additionalProperties": false
+    },
+    "framework": {
+      "type": "object",
+      "description": "The framework's bases, by name: `base`, `aria`, `ark` …",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[a-z0-9]+(-[a-z0-9]+)*$": {
+          "$ref": "#/$defs/base"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

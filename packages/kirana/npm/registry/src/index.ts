@@ -8,19 +8,23 @@ import { readFile } from "node:fs/promises"
 import path from "node:path"
 
 import { check } from "./check.ts"
+import { failureLine, isSettingsError } from "./command.ts"
+import type { Options } from "./command.ts"
 import {
   expectation,
   fetchJson,
   fetchReference,
   RegistryError,
 } from "./read.ts"
-import type { Io } from "./read.ts"
 import { REFERENCE_PATTERN } from "./schema.ts"
-import { loadSettings, SettingsError } from "./settings.ts"
-import type { ImportFile, Settings } from "./settings.ts"
+import { runSearch } from "./search.ts"
+import { loadSettings } from "./settings.ts"
+import type { Settings } from "./settings.ts"
+import { runView } from "./view.ts"
 
 export { check, hashOf, kindOf } from "./check.ts"
 export type { Kind } from "./check.ts"
+export type { Failure, Options } from "./command.ts"
 export {
   FILE_TYPES,
   FRAMEWORKS,
@@ -30,8 +34,11 @@ export {
   LOCKFILE_SCHEMA,
   NAMESPACE_PATTERN,
   REFERENCE_PATTERN,
+  SETTINGS_SCHEMA,
 } from "./schema.ts"
 export type { Schema } from "./schema.ts"
+export { matches } from "./search.ts"
+export type { Result } from "./search.ts"
 export {
   DEFAULT_TIMEOUT,
   expandHeaders,
@@ -53,17 +60,19 @@ export type { Problem } from "./validate.ts"
 const USAGE = `Usage: kirana-style ui <command>
 
 Commands in this release:
+  view <item…>           what an item is: its frameworks and bases, files, styles and dependencies
+                         (@acme/card, or button for @kirana's); --json prints the items as read
+  search [query]         the items of every registry's index whose name, title or description holds
+                         the query; --registry <namespace> (repeatable) searches only those, --json
   validate <document…>   check registry items, indexes and lockfiles: their schema, and every file's
                          hash; a document is a file, a URL, or an item of the project's registries
                          (@acme/card, button for @kirana's, @acme/index for an index)
 
-Coming in later releases: view, search, init, add, diff, update, outdated, remove, preset, build, mcp.
+Coming in later releases: init, add, diff, update, outdated, remove, preset, build, mcp.
 `
 
 /** The commands the registry will have (its plan), so that one asked for early says so. */
 const PLANNED = new Set([
-  "view",
-  "search",
   "init",
   "add",
   "diff",
@@ -82,9 +91,6 @@ async function version(): Promise<string> {
   ) as { version: string }
   return manifest.version
 }
-
-/** Everything `main` needs from outside: tests replace the network, the environment and the loader. */
-export type Options = Io & { load?: ImportFile }
 
 /**
  * A document to validate and its JSON: a URL is fetched as it is; a file is read; a registry
@@ -133,17 +139,13 @@ async function runValidate(
     try {
       found = await documentOf(target, cwd, settings, options)
     } catch (error) {
-      if (
-        error instanceof SettingsError ||
-        (error as Error).name === "ConfigLoadError"
-      ) {
+      if (isSettingsError(error)) {
         write(`${(error as Error).message}\n`)
         return 2
       }
       // A URL's own failure already names it.
-      const { message } = error as Error
       write(
-        message.startsWith(target) ? `${message}\n` : `${target}: ${message}\n`
+        failureLine({ document: target, message: (error as Error).message })
       )
       failed = true
       continue
@@ -179,6 +181,8 @@ export async function main(
     return 0
   }
   if (command === "validate") return runValidate(rest, cwd, write, options)
+  if (command === "view") return runView(rest, cwd, write, options)
+  if (command === "search") return runSearch(rest, cwd, write, options)
   if (PLANNED.has(command)) {
     write(`kirana-style ui ${command} is not in this release yet\n`)
     return 1

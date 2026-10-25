@@ -5,6 +5,8 @@ Schemas, types and checks.
 
 ```bash
 npm install --save-dev @kirana-style/registry
+npx kirana-style ui search button
+npx kirana-style ui view @acme/button
 npx kirana-style ui validate public/r/button.json
 ```
 
@@ -15,10 +17,14 @@ npx kirana-style ui validate public/r/button.json
 
 | Command                                | Does                                                                                                                                                                                                          |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kirana-style ui view <item…>`         | Shows an item: its version, type, Kirana range, dependencies, style modules, each framework's bases with their files, and its shared files; never a file's content. `--json` prints the items as read.        |
+| `kirana-style ui search [query]`       | Lists the items of every registry's index whose name, title or description holds the query. `--registry <namespace>` (repeatable) searches only those; `--json` prints the results.                           |
 | `kirana-style ui validate <document…>` | Checks registry items, indexes and lockfiles against their schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries (`@acme/card`). Exit 1 on a problem. |
 
-Coming in later releases: `view`, `search`, `init`, `add`, `diff`, `update`, `outdated`,
-`remove`, `preset`, `build` and `mcp`.
+A document that cannot be read is named with what failed, and the command exits 1.
+
+Coming in later releases: `init`, `add`, `diff`, `update`, `outdated`, `remove`, `preset`,
+`build` and `mcp`.
 
 ## Registries
 
@@ -49,7 +55,9 @@ source for every framework, and its markup per framework and base; installation 
 styles for the project's design. Every file carries a SHA-256 integrity hash. A project records
 what it installed in `kirana-style.lock.json`.
 
-The schemas are exported, for editors and other tools:
+The schemas are served at their ids, for editors and other tools
+(`https://kirana.style/schema/registry-item.json`, `registry-index.json`, `lockfile.json`,
+`settings.json`), and exported:
 
 ```ts
 import {

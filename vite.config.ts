@@ -198,6 +198,7 @@ export default defineConfig({
       "packages/kirana/crates/**",
       "apps/docs/src/generated/**",
       "apps/docs/public/docs/**",
+      "apps/docs/public/schema/**",
       "apps/docs/public/llms*.txt",
       "skills/kirana/references/diagnostics.md",
       "skills/kirana/references/lint.md",

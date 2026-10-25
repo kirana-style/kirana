@@ -84,7 +84,7 @@ Measured by `bench/lsp.ts` in the benchmark repository (2026-10-02): hover p95 1
 | `kirana-style doctor [--json] [--report [file]] [--trace]`                                     | Engine in use (native or WASI), installed versions, configuration resolution, detected host and whether the adapter, stylesheet and types are wired, cache state (none, D-049). Exit 1 on a failure. `--report` writes a redacted bug report: versions, checks, diagnostics by code, stylesheet size, configuration, optional `kirana-style trace` output; no source text (D-077). Built. |
 | `kirana-style migrate stylex\|tailwind`                                                        | The codemods of [06](./06-authoring-api.md#migration-codemods), with a dry-run diff and a report file.                                                                                                                                                                                                                                                                                    |
 | `kirana-style lsp`                                                                             | Start the language server.                                                                                                                                                                                                                                                                                                                                                                |
-| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate` is built; `view` and `search` come next, then `init`, `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                                                             |
+| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view` and `search` are built; `init`, `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                                                                           |
 
 There is no `kirana cache clean`: Kirana keeps no persistent cache (D-049), so there is nothing to
 clear, and `kirana-style doctor` says so.
@@ -110,8 +110,8 @@ MUST NOT pass it to the engine (D-103).
 `kirana-style ui` installs components from registries: static JSON anyone can host, in a format of
 Kirana's own (D-107). `@kirana-style/registry` implements the commands and publishes the format as
 JSON Schema (`@kirana-style/registry/schema`: `ITEM_SCHEMA`, `INDEX_SCHEMA`, `LOCKFILE_SCHEMA`,
-with ids under `https://kirana.style/schema/`), which its own checks read, so the format has one
-definition.
+with ids under `https://kirana.style/schema/`, where the documentation site serves each), which its
+own checks read, so the format has one definition.
 
 **KRN-DX-021** — A registry item MUST be one JSON document, valid against the item schema:
 
@@ -165,6 +165,19 @@ cached (D-049), and a request that takes longer than 30 seconds fails. A failure
 document and say what failed: the status of an answer that is not a success, a body that is not
 JSON, a document of another kind, an item whose `name` is not the one asked for, or the problems
 `validate` reports.
+
+**KRN-DX-027** — `kirana-style ui view <item…>` MUST read each item as KRN-DX-026 does and show its
+name, version, type, title and description, its Kirana range, its registry and npm dependencies, its
+axes, its style modules, each framework's bases with their files and packages, and the files every
+framework installs; never a file's content. `kirana-style ui search [query]` MUST read the index of
+every registry the project knows, or only of each `--registry <namespace>`, and list the entries
+whose name, title or description holds every word of the query, ignoring case, each as
+`@namespace/name` with its version, type, title and frameworks' bases; without a query it lists
+every entry. With `--json` each prints one JSON object: `view` its `items` as read, `search` its
+`results` (each entry with its `reference` and `namespace`), and both their `failures`, each
+`{ document, message }`. A document that cannot be read MUST be named with what failed while the
+others are still shown, and the command exits 1; `view` without an item, or either command with
+settings it cannot use, exits 2.
 
 **KRN-DX-025** — The lockfile MUST be `kirana-style.lock.json`, at the project's root:
 `{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came
