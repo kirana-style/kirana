@@ -3,7 +3,9 @@
  * and hands the engine plain JSON.
  */
 import { existsSync, readFileSync } from "node:fs"
+import * as nodeModule from "node:module"
 import { createRequire } from "node:module"
+import type { LoadHookSync } from "node:module"
 import path from "node:path"
 import { pathToFileURL } from "node:url"
 
@@ -83,6 +85,59 @@ export class ConfigLoadError extends Error {
   }
 }
 
+/** An `import` or `export` statement at a line's start, which CommonJS cannot hold. */
+const MODULE_SYNTAX = /^\s*(?:import\s*[\w{*"']|export\s)/m
+
+/**
+ * A `.ts` file Node.js reads as CommonJS, because its package says `"type": "commonjs"` (as
+ * `npm init` writes), is loaded as an ES module when it has `import` or `export` statements: as
+ * CommonJS it could only fail, and a package without `"type"` would load it so.
+ */
+export const moduleTypeScript: LoadHookSync = (url, context, nextLoad) => {
+  const loaded = nextLoad(url, context)
+  return loaded.format === "commonjs-typescript" &&
+    MODULE_SYNTAX.test(String(loaded.source))
+    ? { ...loaded, format: "module-typescript" }
+    : loaded
+}
+
+type RegisterHooks = typeof nodeModule.registerHooks
+
+/** Node.js's `registerHooks`; undefined on Bun and Deno. */
+const REGISTER_HOOKS = (nodeModule as { registerHooks?: RegisterHooks })
+  .registerHooks
+
+/**
+ * `moduleTypeScript` in Node.js's module hooks, which `import()` and `require()` both go through, so
+ * the configuration and the files it imports load as they are written; `deregister` ends it. Bun
+ * and Deno load TypeScript as written and have no `registerHooks`: nothing to do there.
+ */
+export function moduleHooks(register: RegisterHooks | undefined): {
+  deregister: () => void
+} {
+  return register?.({ load: moduleTypeScript }) ?? { deregister: () => {} }
+}
+
+/** Runs `load` inside `moduleHooks`. */
+async function asWritten<T>(load: () => T | Promise<T>): Promise<T> {
+  const hooks = moduleHooks(REGISTER_HOOKS)
+  try {
+    return await load()
+  } finally {
+    hooks.deregister()
+  }
+}
+
+/** `asWritten` for the synchronous loader. */
+function asWrittenSync<T>(load: () => T): T {
+  const hooks = moduleHooks(REGISTER_HOOKS)
+  try {
+    return load()
+  } finally {
+    hooks.deregister()
+  }
+}
+
 /** A configuration module's default export, or a JSON file's content. */
 function configOf(file: string, module: () => unknown): KiranaConfig {
   if (file.endsWith(".json"))
@@ -109,7 +164,7 @@ async function loadConfig(
   try {
     const module = file.endsWith(".json")
       ? undefined
-      : await importOrRequire(file, load)
+      : await asWritten(() => importOrRequire(file, load))
     return configOf(file, () => module)
   } catch (error) {
     throw new ConfigLoadError(file, error)
@@ -170,7 +225,9 @@ export function resolveConfigSync(
   load: (file: string) => unknown = createRequire(import.meta.url)
 ): { file?: string; json: string } {
   const file = findConfigFile(root)
-  const config = file ? configOf(file, () => load(file)) : {}
+  const config = file
+    ? configOf(file, () => asWrittenSync(() => load(file)))
+    : {}
   return { file, json: engineJson(root, config, inline) }
 }
 

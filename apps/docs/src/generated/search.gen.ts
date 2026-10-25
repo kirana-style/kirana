@@ -1611,7 +1611,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The configuration file",
     "section": "config",
     "heading": "How it is found",
-    "text": "The compiler looks in the project root, in this order, and takes the first match: TypeScript and JavaScript files are imported natively; the default export is the configuration. Node.js loads the file as it is, without a bundler, and so its imports: a relative import in the configuration, or in a module it imports, needs its extension ( , not ). When the file fails to load, the command says which file and which module it could not find, and exits with 2."
+    "text": "The compiler looks in the project root, in this order, and takes the first match: TypeScript and JavaScript files are imported natively; the default export is the configuration. A TypeScript configuration written as an ES module loads as one even when your says , as writes, and so do the TypeScript files it imports. Node.js loads the file as it is, without a bundler, and so its imports: a relative import in the configuration, or in a module it imports, needs its extension ( , not ). When the file fails to load, the command says which file and which module it could not find, and exits with 2."
   },
   {
     "id": "/docs/config/file#in-a-workspace",

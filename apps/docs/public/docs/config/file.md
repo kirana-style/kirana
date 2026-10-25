@@ -30,6 +30,10 @@ The compiler looks in the project root, in this order, and takes the first match
 TypeScript and JavaScript files are imported natively; the default export is the
 configuration.
 
+A TypeScript configuration written as an ES module loads as one even when your
+`package.json` says `"type": "commonjs"`, as `npm init` writes, and so do the
+TypeScript files it imports.
+
 Node.js loads the file as it is, without a bundler, and so its imports: a relative
 import in the configuration, or in a module it imports, needs its extension
 (`./states.ts`, not `./states`). When the file fails to load, the command says which
