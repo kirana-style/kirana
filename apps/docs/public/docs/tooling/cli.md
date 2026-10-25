@@ -655,20 +655,28 @@ $ kirana-style ui add button
 kirana-style ui needs @kirana-style/registry, which this project does not have: add it as a development dependency
 ```
 
-| Command                                | Does                                                                                                                                                                                                                                              |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kirana-style ui validate <document…>` | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings. |
+| Command                                | Does                                                                                                                                                                                                                                                       |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kirana-style ui view <item…>`         | Show what an item is: its version, type and description, the Kirana versions it was checked with, its dependencies, its style modules, each framework's bases with their files, and the files every framework installs. `--json` prints the items as read. |
+| `kirana-style ui search [query]`       | List the items of your registries' indexes whose name, title or description holds every word of the query; without one, every item. `--registry <namespace>` searches only that registry (repeatable), `--json` prints the results.                        |
+| `kirana-style ui validate <document…>` | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings.          |
 
-Viewing and searching a registry come next, then installing, updating and the
-rest of the installer. A command asked for before its release says it is not in
-this one yet.
+Installing, updating and the rest of the installer come next. A command asked for
+before its release says it is not in this one yet.
 
 A registry is static JSON: one document per item at a URL template holding
 `{name}`, and an index, the item named `index`. An item carries its style modules
 as written, one source for every framework, and its markup per framework and
 base, and every file carries a SHA-256 hash of its content. What a project
-installed is recorded in `kirana-style.lock.json`. The schemas are exported by
-`@kirana-style/registry/schema` for editors and other tools.
+installed is recorded in `kirana-style.lock.json`.
+
+The schemas are exported by `@kirana-style/registry/schema`, and served at their
+ids for editors and other tools; a document names its schema with `$schema`:
+
+- [an item](https://kirana.style/schema/registry-item.json)
+- [an index](https://kirana.style/schema/registry-index.json)
+- [the lockfile](https://kirana.style/schema/lockfile.json)
+- [the `ui` settings](https://kirana.style/schema/settings.json)
 
 ```text
 $ kirana-style ui validate public/r/card.json
@@ -690,3 +698,44 @@ $ kirana-style ui validate @acme/private
 
 Each document is fetched afresh, over `https:` (or `http:` from your own
 machine), or read from disk for a path; a request gives up after 30 seconds.
+
+`view` shows an item without its files' content, before you install it:
+
+```text
+$ kirana-style ui view @acme/button
+@acme/button 1.2.0 · component
+Button: Displays a button.
+from https://acme.dev/r/button.json
+
+  kirana      ^0.3.2
+  registry    @acme/spinner, separator
+  packages    @kirana-style/core ^0.3.2
+  axes        style, radius
+  styles      ui/button.styles.ts
+  react/base  ui/button.tsx · @base-ui/react ^1.0.0
+  react/aria  ui/button.tsx
+  vue/ark     ui/button/Button.vue, ui/button/index.ts
+  files       lib/utils.ts, app/globals.css
+```
+
+`search` reads every registry's index, each entry with the bases of each framework
+it supports:
+
+```text
+$ kirana-style ui search --registry @acme
+@acme/button    1.2.0   component  Button  react base, aria · vue ark
+@acme/note      0.1.0   lib
+@acme/login-01  0.10.0  block      Login   react base
+$ kirana-style ui search login form
+@acme/login-01  0.10.0  block  Login  react base
+```
+
+A document that cannot be read is named with what failed, after what could be
+shown, and the command exits 1. With `--json`, each prints one object:
+
+| Command  | Prints                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------- |
+| `view`   | `{ items, failures }`: each item as read                                                          |
+| `search` | `{ results, failures }`: each index entry with its `reference` (`@acme/login-01`) and `namespace` |
+
+Each failure is `{ document, message }`.
