@@ -920,6 +920,49 @@ export const Editable = {
   },
 } as const
 
+export const Field = {
+  Root: {
+    disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
+    readonly: "[data-readonly]",
+  },
+  Label: {
+    disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
+    readonly: "[data-readonly]",
+    required: "[data-required]",
+  },
+  Input: {
+    invalid: "[data-invalid]",
+    readonly: "[data-readonly]",
+    required: "[data-required]",
+  },
+  Textarea: {
+    invalid: "[data-invalid]",
+    readonly: "[data-readonly]",
+    required: "[data-required]",
+  },
+  Select: {
+    invalid: "[data-invalid]",
+    readonly: "[data-readonly]",
+    required: "[data-required]",
+  },
+  HelperText: {
+    disabled: "[data-disabled]",
+  },
+} as const
+
+export const Fieldset = {
+  Root: {
+    disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
+  },
+  Legend: {
+    disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
+  },
+} as const
+
 export const FileUpload = {
   Root: {
     /** Present when disabled */

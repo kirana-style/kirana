@@ -32,9 +32,14 @@ describe("@kirana-style/states for Vue, Svelte and Angular libraries", () => {
     const folders = new Map(
       [
         ...readFileSync(path.join(bitsSource, "index.d.ts"), "utf8").matchAll(
-          /export \{ (\w+) \} from "\.\/([\w-]+)\/index\.js"/g
+          /export \{ ([^}]+) \} from "\.\/([\w-]+)\/index\.js"/g
         ),
-      ].map(([, name, folder]) => [name!, folder!])
+      ].flatMap(([, names, folder]) =>
+        names!
+          .split(",")
+          .map((name) => name.trim())
+          .map((name) => [name, folder!] as const)
+      )
     )
     for (const [component, part] of entries(bits)) {
       const exports = readFileSync(

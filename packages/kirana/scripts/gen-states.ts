@@ -188,6 +188,42 @@ function zagState(attribute: string, described: string): State {
   return { name, attribute, doc: described, values: [] }
 }
 
+/**
+ * The states each part's prop getter sets, `getRootProps = … => ({ "data-invalid": dataAttr(invalid) })`,
+ * with a getter it spreads (`...getControlProps()`), kept to the parts the component exports.
+ */
+function arkGetters(
+  source: string,
+  exported: Record<string, unknown>
+): Map<string, State[]> {
+  const getters = new Map<string, string>()
+  for (const [, name, body] of source.matchAll(
+    /get(\w+)Props = [^\n]*?\(\) => \(\{([\s\S]*?)\n\t\}\)/g
+  ))
+    getters.set(name!, body!)
+  const attributes = (name: string, depth = 0): string[] => {
+    const body = getters.get(name) ?? ""
+    const own = [...body.matchAll(/"(data-[a-z][a-z0-9-]*)": dataAttr\(/g)].map(
+      (match) => match[1]!
+    )
+    const spread =
+      depth < 3
+        ? [...body.matchAll(/\.\.\.get(\w+)Props\(\)/g)].flatMap(([, inner]) =>
+            attributes(inner!, depth + 1)
+          )
+        : []
+    return [...own, ...spread]
+  }
+  const byPart = new Map<string, State[]>()
+  for (const name of getters.keys()) {
+    if (!(name in exported)) continue
+    const list: State[] = []
+    for (const attribute of attributes(name)) addState(list, attribute, [])
+    if (list.length) byPart.set(name, byName(list))
+  }
+  return byPart
+}
+
 async function arkUi(): Promise<{ vocabulary: Vocabulary; version: string }> {
   const { directory, version } = installed("@zag-js/docs")
   const reference = JSON.parse(
@@ -216,6 +252,22 @@ async function arkUi(): Promise<{ vocabulary: Vocabulary; version: string }> {
           .map(([attribute, described]) => zagState(attribute, described))
       )
     }
+    if (byPart.size > 0) out.set(name, byPart)
+  }
+  // Ark's own components, with no Zag machine (Field, Fieldset): each part's prop getter in
+  // `use-<name>.js` sets its states.
+  const { directory: arkDirectory } = installed("@ark-ui/react")
+  for (const [name, exported] of Object.entries(ark)) {
+    if (out.has(name) || !exported || typeof exported !== "object") continue
+    const kebab = name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
+    const hook = path.join(
+      arkDirectory,
+      "dist/components",
+      kebab,
+      `use-${kebab}.js`
+    )
+    if (!existsSync(hook)) continue
+    const byPart = arkGetters(readFileSync(hook, "utf8"), exported)
     if (byPart.size > 0) out.set(name, byPart)
   }
   return { vocabulary: sorted(out), version }
@@ -567,7 +619,10 @@ function rekaUi(): { vocabulary: Vocabulary; version: string } {
 /** The `data-*` entries of a Bits UI state class's `props`: `"data-state": "open" | "closed"`. */
 function bitsProps(module: string, className: string): [string, string[]][] {
   const text = readFileSync(module, "utf8")
-  const start = text.indexOf(`export declare class ${className} {`)
+  // `export declare class X {`, or `… implements Y {`.
+  const start = text.search(
+    new RegExp(`export declare class ${className}\\b[^{\\n]*\\{`)
+  )
   if (start < 0) return []
   const body = text.slice(start, text.indexOf("\n}\n", start))
   const props = /readonly props: \{([\s\S]*?)\n {4}\};/.exec(body)?.[1] ?? ""
@@ -579,16 +634,49 @@ function bitsProps(module: string, className: string): [string, string[]][] {
   ])
 }
 
+/**
+ * The state classes a Bits UI part creates, as `[declaration module, class]`, and those of the
+ * library's own components it renders (`ScrollArea.Scrollbar` renders a scrollbar per mode, whose
+ * classes set `data-state`).
+ */
+function bitsStates(file: string, depth = 0): [string, string][] {
+  const text = readFileSync(file, "utf8")
+  const out: [string, string][] = []
+  for (const [, className] of text.matchAll(/(\w+State)\.create\(/g)) {
+    const module = new RegExp(
+      `import \\{[^}]*\\b${className}\\b[^}]*\\} from "([^"]+)\\.js"`
+    ).exec(text)?.[1]
+    if (module)
+      out.push([path.join(path.dirname(file), `${module}.d.ts`), className!])
+  }
+  if (depth < 3)
+    for (const [, inner] of text.matchAll(
+      /import \w+ from "(\.[^"]+\.svelte)"/g
+    )) {
+      const target = path.join(path.dirname(file), inner!)
+      if (existsSync(target)) out.push(...bitsStates(target, depth + 1))
+    }
+  return out
+}
+
 function bitsUi(): { vocabulary: Vocabulary; version: string } {
   const { directory, version } = installed("bits-ui")
   const bits = path.join(directory, "dist/bits")
   const out: Vocabulary = new Map()
+  // `export { Command, computeCommandScore } from "./command/index.js"`: the component is the name
+  // in capitals; the others are its helpers.
   const components = [
     ...readFileSync(path.join(bits, "index.d.ts"), "utf8").matchAll(
-      /export \{ (\w+) \} from "\.\/([\w-]+)\/index\.js"/g
+      /export \{ ([^}]+) \} from "\.\/([\w-]+)\/index\.js"/g
     ),
-  ]
-  for (const [, component, folder] of components) {
+  ].flatMap(([, names, folder]) =>
+    names!
+      .split(",")
+      .map((name) => name.trim())
+      .filter((name) => /^[A-Z]/.test(name))
+      .map((name) => [name, folder!] as const)
+  )
+  for (const [component, folder] of components) {
     const exports = path.join(bits, folder!, "exports.d.ts")
     if (!existsSync(exports)) continue
     const byPart = new Map<string, State[]>()
@@ -597,17 +685,9 @@ function bitsUi(): { vocabulary: Vocabulary; version: string } {
     )) {
       const file = path.join(bits, folder!, `${from}.svelte`)
       if (!existsSync(file)) continue
-      const text = readFileSync(file, "utf8")
       const list: State[] = []
-      for (const [, className] of text.matchAll(/(\w+State)\.create\(/g)) {
-        const module = new RegExp(
-          `import \\{[^}]*\\b${className}\\b[^}]*\\} from "([^"]+)\\.js"`
-        ).exec(text)?.[1]
-        if (!module) continue
-        for (const [attribute, values] of bitsProps(
-          path.join(path.dirname(file), `${module}.d.ts`),
-          className!
-        )) {
+      for (const [module, className] of bitsStates(file)) {
+        for (const [attribute, values] of bitsProps(module, className)) {
           // `data-popover-trigger`, `data-menu-item`: the part's name on its element, not a state.
           const own = attribute.replace(/^data-/, "")
           const names = [
