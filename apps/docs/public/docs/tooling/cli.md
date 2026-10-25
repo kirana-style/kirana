@@ -650,7 +650,7 @@ npm install --save-dev @kirana-style/registry
 
 Without it, the command says so and exits 1:
 
-```text
+```console
 $ kirana-style ui add button
 kirana-style ui needs @kirana-style/registry, which this project does not have: add it as a development dependency
 ```
@@ -684,7 +684,7 @@ ids for editors and other tools; a document names its schema with `$schema`:
 - [the lockfile](https://kirana.style/schema/lockfile.json)
 - [the `ui` settings](https://kirana.style/schema/settings.json)
 
-```text
+```console
 $ kirana-style ui validate public/r/card.json
 public/r/card.json: /name must match ^[a-z0-9]+(-[a-z0-9]+)*$
 public/r/card.json: /frameworks/react/base/files/0/hash does not match the content, whose hash is sha256-…
@@ -694,7 +694,7 @@ Your registries are named in `kirana.config.*` under [`ui`](/docs/reference/conf
 which the compiler accepts and never reads. An item of one is named with its
 namespace, and a name alone is Kirana UI's:
 
-```text
+```console
 $ kirana-style ui validate @acme/card @acme/index
 @acme/card: a valid item
 @acme/index: a valid index
@@ -707,7 +707,7 @@ machine), or read from disk for a path; a request gives up after 30 seconds.
 
 `init` starts a project. In a fresh Vite app:
 
-```text
+```console
 $ kirana-style ui init --base base
 kirana: config: create kirana.config.ts
 kirana: adapter: add @kirana-style/vite to vite.config.ts
@@ -742,7 +742,7 @@ system's: remove them, as you would for shadcn/ui.
 `add` installs an item after the items it needs, and stops before writing
 anything when a file you already have would change:
 
-```text
+```console
 $ kirana-style ui add button
 @kirana/kirana 0.0.0
   + src/lib/kirana/axes.ts
@@ -765,7 +765,7 @@ yours.
 
 `view` shows an item without its files' content, before you install it:
 
-```text
+```console
 $ kirana-style ui view @acme/button
 @acme/button 1.2.0 · component
 Button: Displays a button.
@@ -785,7 +785,7 @@ from https://acme.dev/r/button.json
 `search` reads every registry's index, each entry with the bases of each framework
 it supports:
 
-```text
+```console
 $ kirana-style ui search --registry @acme
 @acme/button    1.2.0   component  Button  react base, aria · vue ark
 @acme/note      0.1.0   lib
