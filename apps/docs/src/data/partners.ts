@@ -42,7 +42,7 @@ export const AREAS: readonly Area[] = [
     title: "Machines for tests and benchmarks",
     use: "Runners for CI on every platform, and a quiet machine for the benchmarks.",
     today:
-      "GitHub's free hosted runners: 20 jobs at once and 5 of them macOS, shared by every pull request. So a pull request runs no macOS job: macOS runs once per merge, in the merge queue.",
+      "GitHub's free hosted runners: 20 jobs at once and 5 of them macOS, shared by every pull request. So pull requests and the merge queue run on Linux, and macOS runs every night and before each release.",
     unlocks:
       "Every platform on every pull request, a shorter queue for contributors, and benchmarks measured on dedicated hardware instead of shared CI.",
     icon: CpuIcon,

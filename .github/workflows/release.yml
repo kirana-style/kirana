@@ -183,8 +183,9 @@ jobs:
               fi
             done
 
-  # The full build, pack and installation matrix the merge queue runs, again on the tagged commit:
-  # what is published is exactly what passed.
+  # The full build, pack and installation matrix, every OS and all nine engines, on the tagged
+  # commit: what is published is exactly what passed. The merge queue runs Linux only, so this gate
+  # and the nightly run are where macOS and Windows installs are tested.
   packages:
     needs: release-please
     if: needs.release-please.outputs.created == 'true' || contains(inputs.publish, 'npm')

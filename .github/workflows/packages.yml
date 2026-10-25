@@ -6,17 +6,21 @@ name: packages
 # examples resolve the tarballs through each package manager's override mechanism
 # (packages/kirana/examples/run.ts).
 #
-# Two tiers, so the organisation's runner limits (20 jobs at once, 5 of them macOS, shared by every
-# contributor's pull request) hold however many pull requests are open:
+# Three tiers, so the organisation's runner limits (20 jobs at once, 5 of them macOS, shared by every
+# contributor's pull request) hold however many pull requests are open, and the merge queue stays
+# short:
 #
-# - a pull request runs on Linux: the three engines its jobs install (Linux x64 glibc and musl, and
-#   WASI), the examples, and the installation smoke subset (npm, pnpm and Bun, plus musl). No macOS
-#   and no Windows runner;
-# - the merge queue (`merge_group`) runs the full matrix once per merge, on the commit that lands on
-#   `main`: all nine engines, the two macOS ones in one job, and the installation matrix on every OS
-#   with every package manager. The nightly schedule, manual runs and release.yml's gate do the same.
+# - a pull request runs on Linux x64: the three engines its jobs install (Linux x64 glibc and musl,
+#   and WASI), the examples, Deno, and the installation smoke subset (npm, pnpm and Bun, plus musl);
+# - the merge queue (`merge_group`) adds the rest of Linux: the arm64 engines, the installation
+#   matrix on x64 and arm64 with every package manager, and Alpine arm64. Still no macOS and no
+#   Windows runner, so the queue builds several groups at once and none waits for the macOS pool;
+# - the nightly schedule, manual runs and release.yml's gate run the full matrix: all nine engines,
+#   the two macOS ones in one job, and the installation matrix on every OS. A break that shows only on
+#   macOS or Windows is found there, at the latest before anything is published.
 #
-# There is no run on a push to `main`: the queue tested that commit already. Each installation cell is
+# There is no run on a push to `main`: the queue tested that commit already, and the Release PR skips
+# this workflow (release.yml's gate runs it in full on the tagged commit). Each installation cell is
 # its own job, so a red one names the platform and package manager; the examples run in shards (see
 # `examples`). A change that touches nothing the packages are built from (the site, prose) skips
 # everything here (.github/actions/changes).
@@ -40,13 +44,14 @@ concurrency:
 
 jobs:
   # What changed (.github/actions/changes): everything below depends on `native`, so it all skips
-  # with it.
+  # with it. The Release PR (release-please's branch) only bumps versions and lockfiles, which
+  # release.yml's gate tests in full before publishing, so it skips too.
   changes:
     name: changes
     runs-on: ubuntu-26.04
     timeout-minutes: 5
     outputs:
-      kirana: ${{ steps.changes.outputs.kirana }}
+      kirana: ${{ startsWith(github.head_ref, 'release-please--') && 'false' || steps.changes.outputs.kirana }}
       natives: ${{ steps.natives.outputs.natives }}
 
     steps:
@@ -58,14 +63,17 @@ jobs:
       - id: changes
         uses: ./.github/actions/changes
 
-      # The engines to build (.github/native-targets.json): on a pull request, the ones its jobs
-      # install; otherwise every one.
+      # The engines to build (.github/native-targets.json), by tier: on a pull request, the ones its
+      # jobs install; in the merge queue, every Linux one; otherwise every one.
       - id: natives
         env:
           EVENT: ${{ github.event_name }}
         run: |
-          filter='.'
-          [ "$EVENT" = "pull_request" ] && filter='map(select(.pullRequest))'
+          case "$EVENT" in
+            pull_request) filter='map(select(.tier == "pull-request"))' ;;
+            merge_group) filter='map(select(.tier != null))' ;;
+            *) filter='.' ;;
+          esac
           echo "natives=$(jq -c "$filter" .github/native-targets.json)" >> "$GITHUB_OUTPUT"
 
   # One `kirana.<triple>.node` per target in KRN-INT-007 (.github/native-targets.json). Linux gnu
@@ -163,15 +171,19 @@ jobs:
       - name: Pack
         run: bun run kirana:pack --natives "$GITHUB_WORKSPACE/natives"
 
-      # A pull request packs the three engines it built; everything else, all eight and WASI.
+      # A pull request packs the three engines it built, the merge queue the five Linux ones;
+      # everything else, all eight and WASI.
       - name: The compiler package carries no engine of its own
         env:
           EVENT: ${{ github.event_name }}
         run: |
           cd packages/kirana/dist-packages
           ! tar -tzf kirana-style-compiler-[0-9]*.tgz | grep -q '\.node$'
-          expected=8
-          [ "$EVENT" = "pull_request" ] && expected=2
+          case "$EVENT" in
+            pull_request) expected=2 ;;
+            merge_group) expected=4 ;;
+            *) expected=8 ;;
+          esac
           test "$(ls | grep -cE '^kirana-style-compiler-(darwin|linux|win32)-')" -eq "$expected"
           test -f kirana-style-compiler-wasm32-wasi-[0-9]*.tgz
 
@@ -192,7 +204,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-26.04"]' || '["ubuntu-26.04", "ubuntu-26.04-arm", "macos-26", "windows-2025"]') }}
+        # Linux x64 on a pull request, Linux x64 and arm64 in the merge queue, every OS otherwise.
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-26.04"]' || github.event_name == 'merge_group' && '["ubuntu-26.04", "ubuntu-26.04-arm"]' || '["ubuntu-26.04", "ubuntu-26.04-arm", "macos-26", "windows-2025"]') }}
         pm: ${{ fromJSON(github.event_name == 'pull_request' && '["npm", "pnpm", "bun"]' || '["npm", "pnpm", "yarn", "yarn-pnp", "bun"]') }}
 
     steps:
