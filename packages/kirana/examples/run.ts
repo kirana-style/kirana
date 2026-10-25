@@ -4,6 +4,7 @@
  *   bun examples/run.ts vite-react --pm npm
  *   bun examples/run.ts vite-react --pm yarn-pnp --packages <dir> --keep
  *   bun examples/run.ts vite-react --pm bun --no-browser        # Alpine: no Chromium to drive
+ *   bun examples/run.ts next-turbopack --pm npm --registry      # kirana-style ui init and add
  *
  * The example is copied out of the repository — so nothing resolves through the workspace — and
  * every `@kirana-style/*` dependency is pointed at a tarball from `scripts/pack.ts`, with the package
@@ -33,6 +34,7 @@ import { tmpdir } from "node:os"
 import path from "node:path"
 
 import { TARGETS } from "../scripts/pack.ts"
+import { writeRegistry } from "./registry/registry.ts"
 
 const MANAGERS = ["npm", "pnpm", "yarn", "yarn-pnp", "bun"] as const
 type Manager = (typeof MANAGERS)[number]
@@ -70,6 +72,14 @@ const dev = args.includes("--dev")
  * the registry.
  */
 const runtime = option("runtime") ?? "node"
+/**
+ * The component registry's installer on a React example (KRN-DX-028, KRN-DX-029): after the
+ * install, `kirana-style ui init` and `ui add` from a fixture registry (`registry/`), the installed
+ * button mounted beside the probe, then the build and the page read back as usual, the button and
+ * `<html>` included. npm only. A JavaScript example gets TypeScript first, as `create-next-app`'s
+ * default app has it, since registry items are TypeScript.
+ */
+const registry = args.includes("--registry")
 /**
  * Where to write the Kirana class names in the built stylesheet, for `compare-atoms.ts`: the same
  * source must compile to the same atoms on every host (KRN-INT-001, D-028).
@@ -293,6 +303,53 @@ try {
       "@kirana-style/compiler-wasm32-wasi"
     )
   }
+  if (registry) {
+    if (pm !== "npm" || !tarballs.has("@kirana-style/registry"))
+      throw new Error(
+        "--registry needs --pm npm and a packed @kirana-style/registry"
+      )
+    manifest.devDependencies = {
+      ...manifest.devDependencies,
+      "@kirana-style/registry": file("@kirana-style/registry"),
+      // The command, which Kirana's own setup asks for: listed already, since npm refuses to add
+      // a package the runner overrides.
+      "kirana-style": file("kirana-style"),
+    }
+    if (!existsSync(path.join(directory, "tsconfig.json"))) {
+      Object.assign(manifest.devDependencies, {
+        typescript: "^5.9.0",
+        "@types/react": "^19.0.0",
+        "@types/node": "^24.0.0",
+      })
+      writeFileSync(
+        path.join(directory, "tsconfig.json"),
+        `${JSON.stringify(
+          {
+            compilerOptions: {
+              target: "ES2022",
+              module: "esnext",
+              moduleResolution: "bundler",
+              jsx: "preserve",
+              allowJs: true,
+              strict: true,
+              noEmit: true,
+              skipLibCheck: true,
+              isolatedModules: true,
+              esModuleInterop: true,
+              resolveJsonModule: true,
+              incremental: true,
+              types: ["@kirana-style/core/react"],
+              plugins: [{ name: "next" }],
+            },
+            include: ["**/*.ts", "**/*.tsx", "**/*.jsx", "next-env.d.ts"],
+            exclude: ["node_modules"],
+          },
+          null,
+          2
+        )}\n`
+      )
+    }
+  }
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)
 
   step("install")
@@ -332,6 +389,40 @@ try {
         rest.map((arg) => arg.replaceAll("{kirana}", kirana)),
         directory
       )
+  }
+
+  if (registry) {
+    if (!settings.edit) throw new Error("--registry needs kirana-example.edit")
+    step("kirana-style ui init and ui add")
+    const fixture = path.join(directory, ".registry")
+    writeRegistry(fixture)
+    const template = `@fixture=${fixture.replaceAll("\\", "/")}/{name}.json`
+    run(
+      "npx",
+      [
+        "kirana-style",
+        "ui",
+        "init",
+        "--registry",
+        template,
+        "--design",
+        "@fixture/kit",
+      ],
+      directory
+    )
+    run("npx", ["kirana-style", "ui", "add", "@fixture/button"], directory)
+    // The button beside the probe, imported through the project's alias.
+    const edit = path.join(directory, settings.edit)
+    const text = readFileSync(edit, "utf8").replace(
+      "Styled by Kirana.",
+      "Styled by Kirana. <Button>Installed</Button>"
+    )
+    const imports = [...text.matchAll(/^import\b[^\n]*\n/gm)]
+    const end = imports.at(-1)!.index + imports.at(-1)![0].length
+    writeFileSync(
+      edit,
+      `${text.slice(0, end)}import { Button } from "@/components/ui/button"\n${text.slice(end)}`
+    )
   }
 
   if (settings.test) {
@@ -434,6 +525,13 @@ try {
     const output = path.join(directory, settings.output ?? "dist")
     const css = stylesheetText(output)
     checkStylesheet(css)
+    if (registry)
+      for (const expected of [
+        ["background-color:rgb(11,12,13)", "background-color:#0b0c0d"],
+        ["color:rgb(7,8,9)", "color:#070809"],
+      ])
+        if (!expected.some((text) => css.replaceAll(" ", "").includes(text)))
+          throw new Error(`the stylesheet has no installed \`${expected[0]}\``)
     // Declarations the example writes in more than one place must reach the stylesheet once.
     for (const once of settings.once ?? []) {
       const count = css.replaceAll(" ", "").split(once).length - 1
@@ -719,6 +817,30 @@ async function checkPage(
           `state probe padding-bottom is ${padding}, expected 9px`
         )
       console.log("✓ a component state from @kirana-style/states applies")
+    }
+    // With --registry, the button `kirana-style ui add` installed, and the design system on <html>.
+    const installed = page.locator("[data-registry-probe]")
+    if ((await installed.count()) > 0) {
+      const read = await installed.evaluate((element) => ({
+        backgroundColor: getComputedStyle(element).backgroundColor,
+        paddingTop: getComputedStyle(element).paddingTop,
+        icon: element.querySelector("svg") !== null,
+        html: getComputedStyle(document.documentElement).color,
+      }))
+      const wanted = {
+        backgroundColor: "rgb(11, 12, 13)",
+        paddingTop: "9px",
+        icon: true,
+        html: "rgb(7, 8, 9)",
+      }
+      for (const [key, value] of Object.entries(wanted))
+        if (read[key as keyof typeof read] !== value)
+          throw new Error(
+            `installed ${key} is ${read[key as keyof typeof read]}, expected ${value}`
+          )
+      console.log(
+        "✓ the installed button, its icon and the design system apply"
+      )
     }
     await probe.hover()
     await settled({ backgroundColor: "rgb(4, 5, 6)" })

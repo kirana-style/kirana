@@ -102,6 +102,28 @@
       "type": "string",
       "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
     },
+    "installed": {
+      "type": "string",
+      "description": "An installed file, as its imports name it: `@/registry/<type>/<path>`.",
+      "pattern": "^@/registry/(ui|lib|component|hook|page)/.+$"
+    },
+    "export": {
+      "type": "object",
+      "required": [
+        "module",
+        "export"
+      ],
+      "properties": {
+        "module": {
+          "$ref": "#/$defs/installed"
+        },
+        "export": {
+          "type": "string",
+          "pattern": "^[A-Za-z_$][\\w$]*$"
+        }
+      },
+      "additionalProperties": false
+    },
     "reference": {
       "type": "string",
       "description": "An item: `name` in the same registry, or `@namespace/name`.",

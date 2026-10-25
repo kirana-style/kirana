@@ -120,16 +120,17 @@ A rule is one of three kinds:
 
 A scale rule takes these options:
 
-| Option      | What it does                                                                                                                                                                                                |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `number`    | `{ step, unit }`: a number that is not a key, as `w-50` is 50 × `0.25rem`. A rule may have `number` and no `scale`.                                                                                         |
-| `pair`      | Properties set from other scales at the same key: `text-sm` also sets its line height. A utility that sets that property itself (`text-sm leading-6`) wins, and a modifier (`text-sm/relaxed`) replaces it. |
-| `alpha`     | A colour: `/90` mixes it with `transparent`.                                                                                                                                                                |
-| `negative`  | `-mt-2` negates the value.                                                                                                                                                                                  |
-| `fractions` | `w-1/2` is a percentage.                                                                                                                                                                                    |
-| `format`    | The value inside other text: `brightness({value})`.                                                                                                                                                         |
-| `aliases`   | Utility keys spelled differently from the scale's: `in-out` reads `inOut`.                                                                                                                                  |
-| `also`      | Declarations set alongside, as written (a keyword rule takes it too).                                                                                                                                       |
+| Option        | What it does                                                                                                                                                                                                |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `number`      | `{ step, unit }`: a number that is not a key, as `w-50` is 50 × `0.25rem`. A rule may have `number` and no `scale`.                                                                                         |
+| `pair`        | Properties set from other scales at the same key: `text-sm` also sets its line height. A utility that sets that property itself (`text-sm leading-6`) wins, and a modifier (`text-sm/relaxed`) replaces it. |
+| `alpha`       | A colour: `/90` mixes it with `transparent`.                                                                                                                                                                |
+| `negative`    | `-mt-2` negates the value.                                                                                                                                                                                  |
+| `fractions`   | `w-1/2` is a percentage.                                                                                                                                                                                    |
+| `format`      | The value inside other text: `brightness({value})`.                                                                                                                                                         |
+| `aliases`     | Utility keys spelled differently from the scale's: `in-out` reads `inOut`.                                                                                                                                  |
+| `iconLibrary` | the library icons are drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                                                                                                  |
+| `also`        | Declarations set alongside, as written (a keyword rule takes it too).                                                                                                                                       |
 
 In any text of a rule, `{scale.key}` is that token, and a property written
 `{scale.key}` sets the token's custom property. That is how a ring and a shadow
@@ -254,8 +255,24 @@ ui: {
 - `@kirana`, Kirana UI's registry, is known without being named, and can be
   renamed to point elsewhere.
 
-The settings are checked before anything is fetched. The commands that read the
-rest of `ui` arrive with the registry's next releases.
+What `kirana-style ui add` installs, and where:
+
+| Key         | Holds                                                                                                                             |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `framework` | whose markup to install; by default the framework your project depends on (`react`, `vue`, `svelte`, `solid-js`, `@angular/core`) |
+| `base`      | which base's markup, such as `base` or `aria`; by default the only one an item has                                                |
+| `aliases`   | the import specifier for each file type, `ui`, `lib`, `component`, `hook` and `page`                                              |
+
+The aliases default to shadcn/ui's:
+
+```ts
+aliases: { ui: "@/components/ui", lib: "@/lib", component: "@/components", hook: "@/hooks" }
+```
+
+A file is written in the directory your `tsconfig.json`'s paths map its alias to:
+with `"@/*": ["./src/*"]`, the ui files go to `src/components/ui`.
+
+The settings are checked before anything is fetched.
 
 ## `root`
 

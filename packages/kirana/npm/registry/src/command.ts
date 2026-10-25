@@ -5,8 +5,14 @@
 import type { Io } from "./read.ts"
 import type { ImportFile } from "./settings.ts"
 
-/** Everything `main` needs from outside: tests replace the network, the environment and the loader. */
-export type Options = Io & { load?: ImportFile }
+/** Runs a shell command in a directory, its output shown; the exit code. */
+export type Run = (command: string, cwd: string) => number
+
+/**
+ * Everything `main` needs from outside: tests replace the network, the environment, the loader, and
+ * the package manager's commands.
+ */
+export type Options = Io & { load?: ImportFile; run?: Run }
 
 /** A document that could not be read, and what failed: `--json` prints these. */
 export type Failure = { document: string; message: string }

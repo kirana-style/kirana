@@ -147,6 +147,8 @@ change the API. Pages state what is built and what is planned.
 - [Lint](https://kirana.style/docs/tooling/lint.md): Kirana's rules under Oxlint, ESLint and Biome: the compiler's diagnostics, and the overrides and forwarding mistakes that lose styles silently.
 - [Diagnostics reference](https://kirana.style/docs/tooling/diagnostics.md): Every code the compiler can emit, its default severity, and which ones you can re-level.
 - [Debugging styles](https://kirana.style/docs/tooling/debugging.md): Why doesn't my style apply? A short list, in the order worth checking.
+- [Installing components](https://kirana.style/docs/tooling/components.md): Set a project up for a component registry, add components, and keep them up to date with kirana-style ui.
+- [Publishing a registry](https://kirana.style/docs/tooling/registries.md): The component registry format kirana-style ui reads, and how to host, check and wire a design system for it.
 
 ## Project
 

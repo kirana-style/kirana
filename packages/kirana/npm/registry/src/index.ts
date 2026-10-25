@@ -7,6 +7,11 @@ import { existsSync } from "node:fs"
 import { readFile } from "node:fs/promises"
 import path from "node:path"
 
+import { runAdd } from "./add.ts"
+import { runInit } from "./init.ts"
+import { runDiff, runOutdated } from "./status.ts"
+import { runRemove, runUpdate } from "./update.ts"
+import { version } from "./version.ts"
 import { check } from "./check.ts"
 import { failureLine, isSettingsError } from "./command.ts"
 import type { Options } from "./command.ts"
@@ -24,7 +29,24 @@ import { runView } from "./view.ts"
 
 export { check, hashOf, kindOf } from "./check.ts"
 export type { Kind } from "./check.ts"
-export type { Failure, Options } from "./command.ts"
+export type { Failure, Options, Run } from "./command.ts"
+export { changedInPlace, isOutdated, statusOf } from "./status.ts"
+export type { FileStatus, ItemStatus } from "./status.ts"
+export {
+  installPackages,
+  missingPackages,
+  place,
+  placeOf,
+  plan,
+  planItem,
+  record,
+  writePlaced,
+} from "./add.ts"
+export type { Placed, Planned } from "./add.ts"
+export { resolveIcons } from "./icons.ts"
+export { LOCKFILE, readLockfile, writeLockfile } from "./lockfile.ts"
+export { aliasDirectory, frameworkOf, readProject } from "./project.ts"
+export type { Project } from "./project.ts"
 export {
   FILE_TYPES,
   FRAMEWORKS,
@@ -33,6 +55,8 @@ export {
   ITEM_TYPES,
   LOCKFILE_SCHEMA,
   NAMESPACE_PATTERN,
+  ALIASED_TYPES,
+  ICON_LIBRARIES,
   REFERENCE_PATTERN,
   SETTINGS_SCHEMA,
 } from "./schema.ts"
@@ -51,8 +75,13 @@ export {
   RegistryError,
 } from "./read.ts"
 export type { Io } from "./read.ts"
-export { KIRANA_REGISTRY, loadSettings, SettingsError } from "./settings.ts"
-export type { ImportFile, Registry, Settings } from "./settings.ts"
+export {
+  DEFAULT_ALIASES,
+  KIRANA_REGISTRY,
+  loadSettings,
+  SettingsError,
+} from "./settings.ts"
+export type { AliasedType, ImportFile, Registry, Settings } from "./settings.ts"
 export type * from "./types.ts"
 export { validate } from "./validate.ts"
 export type { Problem } from "./validate.ts"
@@ -60,6 +89,18 @@ export type { Problem } from "./validate.ts"
 const USAGE = `Usage: kirana-style ui <command>
 
 Commands in this release:
+  init                   set a project up for a registry: Kirana where it is missing, the ui settings
+                         (--framework, --base, --registry @namespace=<template>), and the registry's
+                         design system (--design <item>) installed and wired in; --dry-run
+  add <item…>            install items and every item they need: files at the project's aliases
+                         (ui.aliases, through tsconfig.json's paths), packages with its package
+                         manager, each recorded in kirana-style.lock.json; --dry-run, --overwrite
+  outdated [item…]       the installed items behind their registries: a new version, or files changed
+  diff [item…]           each installed file the registry or the project changed, as lines between
+                         the project's and what installing it now would write
+  update [item…]         write what the registry changed since install, keep what the project changed;
+                         a file both changed stops it (--overwrite takes the registry's); --dry-run
+  remove <item…>         delete the files the project left as installed, unless another item needs it
   view <item…>           what an item is: its frameworks and bases, files, styles and dependencies
                          (@acme/card, or button for @kirana's); --json prints the items as read
   search [query]         the items of every registry's index whose name, title or description holds
@@ -68,29 +109,11 @@ Commands in this release:
                          hash; a document is a file, a URL, or an item of the project's registries
                          (@acme/card, button for @kirana's, @acme/index for an index)
 
-Coming in later releases: init, add, diff, update, outdated, remove, preset, build, mcp.
+Coming in later releases: preset, build, mcp.
 `
 
 /** The commands the registry will have (its plan), so that one asked for early says so. */
-const PLANNED = new Set([
-  "init",
-  "add",
-  "diff",
-  "update",
-  "outdated",
-  "remove",
-  "preset",
-  "build",
-  "mcp",
-])
-
-/** This package's version, from its own manifest, in the workspace as in the published package. */
-async function version(): Promise<string> {
-  const manifest = JSON.parse(
-    await readFile(new URL("../package.json", import.meta.url), "utf8")
-  ) as { version: string }
-  return manifest.version
-}
+const PLANNED = new Set(["preset", "build", "mcp"])
 
 /**
  * A document to validate and its JSON: a URL is fetched as it is; a file is read; a registry
@@ -182,6 +205,12 @@ export async function main(
   }
   if (command === "validate") return runValidate(rest, cwd, write, options)
   if (command === "view") return runView(rest, cwd, write, options)
+  if (command === "add") return runAdd(rest, cwd, write, options)
+  if (command === "init") return runInit(rest, cwd, write, options)
+  if (command === "outdated") return runOutdated(rest, cwd, write, options)
+  if (command === "diff") return runDiff(rest, cwd, write, options)
+  if (command === "update") return runUpdate(rest, cwd, write, options)
+  if (command === "remove") return runRemove(rest, cwd, write, options)
   if (command === "search") return runSearch(rest, cwd, write, options)
   if (PLANNED.has(command)) {
     write(`kirana-style ui ${command} is not in this release yet\n`)

@@ -4415,7 +4415,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Configuration reference",
     "section": "reference",
     "heading": "ui",
-    "text": "The component registry's settings, read by ( ) and never by the compiler, which accepts the key and leaves it out of every compile. names registries by namespace: each is a template holding : a URL, a path from the configuration's folder, or a URL; a header may read an environment variable as . One that is not set stops the command, and a header's value is never printed; , Kirana UI's registry, is known without being named, and can be renamed to point elsewhere. The settings are checked before anything is fetched. The commands that read the rest of arrive with the registry's next releases."
+    "text": "The component registry's settings, read by ( ) and never by the compiler, which accepts the key and leaves it out of every compile. names registries by namespace: each is a template holding : a URL, a path from the configuration's folder, or a URL; a header may read an environment variable as . One that is not set stops the command, and a header's value is never printed; , Kirana UI's registry, is known without being named, and can be renamed to point elsewhere. What installs, and where: The aliases default to shadcn/ui's: A file is written in the directory your 's paths map its alias to: with , the ui files go to . The settings are checked before anything is fetched."
   },
   {
     "id": "/docs/reference/config#root",
@@ -4582,7 +4582,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style ui",
-    "text": "The component registry's commands. They live in their own package, , so the compiler every project installs carries no registry client: runs the project's copy of that package with the arguments after . Without it, the command says so and exits 1: Installing, updating and the rest of the installer come next. A command asked for before its release says it is not in this one yet. A registry is static JSON: one document per item at a URL template holding , and an index, the item named . An item carries its style modules as written, one source for every framework, and its markup per framework and base, and every file carries a SHA-256 hash of its content. What a project installed is recorded in . The schemas are exported by , and served at their ids for editors and other tools; a document names its schema with : an item an index the lockfile the settings Your registries are named in under , which the compiler accepts and never reads. An item of one is named with its namespace, and a name alone is Kirana UI's: Each document is fetched afresh, over (or from your own machine), or read from disk for a path; a request gives up after 30 seconds. shows an item without its files' content, befo"
+    "text": "The component registry's commands. They live in their own package, , so the compiler every project installs carries no registry client: runs the project's copy of that package with the arguments after . Without it, the command says so and exits 1: Flattening for a project's design and updating come next. A command asked for before its release says it is not in this one yet. A registry is static JSON: one document per item at a URL template holding , and an index, the item named . An item carries its style modules as written, one source for every framework, and its markup per framework and base, and every file carries a SHA-256 hash of its content. What a project installed is recorded in . The schemas are exported by , and served at their ids for editors and other tools; a document names its schema with : an item an index the lockfile the settings Your registries are named in under , which the compiler accepts and never reads. An item of one is named with its namespace, and a name alone is Kirana UI's: Each document is fetched afresh, over (or from your own machine), or read from disk for a path; a request gives up after 30 seconds. starts a project. In a fresh Vite app: The design "
   },
   {
     "id": "/docs/tooling/editor",
@@ -5059,6 +5059,116 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "tooling",
     "heading": "7 · Animations that do nothing",
     "text": "Transition the property you actually set: , and are not . See animation ."
+  },
+  {
+    "id": "/docs/tooling/components",
+    "href": "/docs/tooling/components",
+    "page": "Installing components",
+    "section": "tooling",
+    "text": "Set a project up for a component registry, add components, and keep them up to date with kirana-style ui. "
+  },
+  {
+    "id": "/docs/tooling/components#installing-components",
+    "href": "/docs/tooling/components#installing-components",
+    "page": "Installing components",
+    "section": "tooling",
+    "heading": "Installing components",
+    "text": "copies components from a registry into your project, as shadcn/ui's CLI does: the files become yours. It installs one source for every framework, rewrites its imports to your aliases, adds the packages it needs, and records what it wrote so it can update it later without losing your edits. The commands live in their own package:"
+  },
+  {
+    "id": "/docs/tooling/components#setting-a-project-up",
+    "href": "/docs/tooling/components#setting-a-project-up",
+    "page": "Installing components",
+    "section": "tooling",
+    "heading": "Setting a project up",
+    "text": "works on a new app or one you already have: it sets Kirana up where the project lacks it, as does; it maps the alias in when the project has none, and tells Vite to read it; it installs the registry's design system and wires it in: its configuration in , its reset beside Kirana's stylesheet, its styles on . To start from nothing, take one of Kirana's examples, as the release you run has it: Name the framework or the base when the project depends on more than one, or a component has several:"
+  },
+  {
+    "id": "/docs/tooling/components#adding-components",
+    "href": "/docs/tooling/components#adding-components",
+    "page": "Installing components",
+    "section": "tooling",
+    "heading": "Adding components",
+    "text": "Each component comes with the components it needs, in order. Its files land under your alias for their type, for components by default, and its icons are drawn with your icon library. The packages it needs are installed with your package manager, and Kirana checks what was written before your next build. never changes a file you already have unless you pass . shows what it would do."
+  },
+  {
+    "id": "/docs/tooling/components#the-lockfile",
+    "href": "/docs/tooling/components#the-lockfile",
+    "page": "Installing components",
+    "section": "tooling",
+    "heading": "The lockfile",
+    "text": "records each installed component: the registry it came from, its version, the framework and base, and for each file two hashes. One is of the registry's content, the other of what was written. Commit it. The two hashes are how the later commands tell the registry's change from yours:"
+  },
+  {
+    "id": "/docs/tooling/components#updating-and-removing",
+    "href": "/docs/tooling/components#updating-and-removing",
+    "page": "Installing components",
+    "section": "tooling",
+    "heading": "Updating and removing",
+    "text": "writes what the registry changed and keeps what you changed. Where both of you changed the same file, it stops before writing anything: shows the two sides, and takes the registry's. A registry that changes a component's files without a new version is refused. deletes the files you left as they were installed and keeps the ones you changed. It refuses a component another installed one still needs."
+  },
+  {
+    "id": "/docs/tooling/components#your-registries",
+    "href": "/docs/tooling/components#your-registries",
+    "page": "Installing components",
+    "section": "tooling",
+    "heading": "Your registries",
+    "text": "Kirana UI's registry is known as . Name others in , under , and install from them by namespace: Publishing a registry describes the format, for your own."
+  },
+  {
+    "id": "/docs/tooling/registries",
+    "href": "/docs/tooling/registries",
+    "page": "Publishing a registry",
+    "section": "tooling",
+    "text": "The component registry format kirana-style ui reads, and how to host, check and wire a design system for it. "
+  },
+  {
+    "id": "/docs/tooling/registries#publishing-a-registry",
+    "href": "/docs/tooling/registries#publishing-a-registry",
+    "page": "Publishing a registry",
+    "section": "tooling",
+    "heading": "Publishing a registry",
+    "text": "A registry is static JSON anyone can host: one document per item at a URL that holds the item's name, and an index. A project names it in , and reads it as it reads Kirana UI's."
+  },
+  {
+    "id": "/docs/tooling/registries#an-item",
+    "href": "/docs/tooling/registries#an-item",
+    "page": "Publishing a registry",
+    "section": "tooling",
+    "heading": "An item",
+    "text": "An item is one document, valid against its schema . Its style modules are written once, for every framework, and its markup is given per framework and base: List every framework and base the item supports, and only those. A base names the packages and items only it needs beside its files."
+  },
+  {
+    "id": "/docs/tooling/registries#files-and-imports",
+    "href": "/docs/tooling/registries#files-and-imports",
+    "page": "Publishing a registry",
+    "section": "tooling",
+    "heading": "Files and imports",
+    "text": "A file's says where it installs: Every file carries , the base64 SHA-256 of its content after . A file names another installed file by the type and path the item lists it with: Installation rewrites that to the project's alias, such as . A component that draws an icon names it once for every library, as shadcn/ui's do:"
+  },
+  {
+    "id": "/docs/tooling/registries#a-design-system",
+    "href": "/docs/tooling/registries#a-design-system",
+    "page": "Publishing a registry",
+    "section": "tooling",
+    "heading": "A design system",
+    "text": "An item of type carries its wiring in , which follows: What each entry is for:"
+  },
+  {
+    "id": "/docs/tooling/registries#the-index",
+    "href": "/docs/tooling/registries#the-index",
+    "page": "Publishing a registry",
+    "section": "tooling",
+    "heading": "The index",
+    "text": "The index is the item named , valid against its schema : your registry's name and each item's name, type, version and bases. reads it."
+  },
+  {
+    "id": "/docs/tooling/registries#checking",
+    "href": "/docs/tooling/registries#checking",
+    "page": "Publishing a registry",
+    "section": "tooling",
+    "heading": "Checking",
+    "text": "checks each document against its schema and each file's hash. Run it in your registry's CI before you publish."
   },
   {
     "id": "/docs/project/status",

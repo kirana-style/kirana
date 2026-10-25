@@ -66,6 +66,21 @@ export const FILE_TYPES = [
 
 const definitions: Record<string, Schema> = {
   name: { type: "string", pattern: `^${NAME}$` },
+  installed: {
+    type: "string",
+    description:
+      "An installed file, as its imports name it: `@/registry/<type>/<path>`.",
+    pattern: "^@/registry/(ui|lib|component|hook|page)/.+$",
+  },
+  export: {
+    type: "object",
+    required: ["module", "export"],
+    properties: {
+      module: { $ref: "#/$defs/installed" },
+      export: { type: "string", pattern: "^[A-Za-z_$][\\w$]*$" },
+    },
+    additionalProperties: false,
+  },
   reference: {
     type: "string",
     description: "An item: `name` in the same registry, or `@namespace/name`.",
@@ -179,6 +194,27 @@ export const ITEM_SCHEMA: Schema = {
       additionalProperties: false,
     },
     files: { $ref: "#/$defs/files" },
+    setup: {
+      type: "object",
+      description:
+        "A design system's wiring (D-109): what `ui init` adds to a project once the item is installed.",
+      properties: {
+        config: {
+          $ref: "#/$defs/export",
+          description: "The configuration a project spreads into its own.",
+        },
+        stylesheets: {
+          type: "array",
+          description: "Stylesheets the app imports, after Kirana's.",
+          items: { $ref: "#/$defs/installed" },
+        },
+        document: {
+          $ref: "#/$defs/export",
+          description: "The styles `<html>` takes.",
+        },
+      },
+      additionalProperties: false,
+    },
     meta: { type: "object" },
   },
   additionalProperties: false,
@@ -283,9 +319,21 @@ export const LOCKFILE_SCHEMA: Schema = {
   $defs: definitions,
 }
 
+/** The icon libraries an `<IconPlaceholder>` names an icon for, as shadcn/ui's are. */
+export const ICON_LIBRARIES = [
+  "lucide",
+  "tabler",
+  "hugeicons",
+  "phosphor",
+  "remixicon",
+] as const
+
+/** The file types a project has an alias for: every type but `file`, which names its own target. */
+export const ALIASED_TYPES = ["ui", "lib", "component", "hook", "page"] as const
+
 /**
- * `ui` in `kirana.config.*`, as far as this release's commands read it (KRN-DX-022, KRN-DX-026). Its
- * other keys belong to the commands still to come, so they pass.
+ * `ui` in `kirana.config.*`, as far as this release's commands read it (KRN-DX-022, KRN-DX-026,
+ * KRN-DX-028). Its other keys belong to the commands still to come, so they pass.
  */
 export const SETTINGS_SCHEMA: Schema = {
   $schema: DIALECT,
@@ -293,6 +341,31 @@ export const SETTINGS_SCHEMA: Schema = {
   title: "Kirana ui settings",
   type: "object",
   properties: {
+    framework: {
+      type: "string",
+      description: "The framework whose markup `ui add` installs.",
+      enum: FRAMEWORKS,
+    },
+    base: {
+      type: "string",
+      description:
+        "The base whose markup `ui add` installs: `base`, `aria`, `ark` …",
+      pattern: `^${NAME}$`,
+    },
+    iconLibrary: {
+      type: "string",
+      description: "The library `ui add` draws each `<IconPlaceholder>` with.",
+      enum: ICON_LIBRARIES,
+    },
+    aliases: {
+      type: "object",
+      description:
+        "The import specifier for each file type, which the project's tsconfig.json maps to a directory.",
+      properties: Object.fromEntries(
+        ALIASED_TYPES.map((type) => [type, { type: "string", minLength: 1 }])
+      ),
+      additionalProperties: false,
+    },
     registries: {
       type: "object",
       description:

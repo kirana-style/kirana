@@ -1,5 +1,21 @@
 export { Driver, type DriverOptions, type TransformResult } from "./driver.ts"
 export {
+  addImport,
+  diff as diffChange,
+  plan as planInit,
+  type Change,
+  type Plan as InitPlan,
+  type Step as InitStep,
+} from "./init.ts"
+export { sources } from "./host.ts"
+export {
+  installCommand,
+  packageManagerOf,
+  readPackage,
+  type PackageJson,
+  type PackageManager,
+} from "./detect.ts"
+export {
   formatDiagnostic,
   parseDiagnostics,
   position,
@@ -8,6 +24,7 @@ export {
 export {
   ConfigLoadError,
   detectJsx,
+  readJsonc,
   findConfigAbove,
   loadConfigFile,
   resolveConfig,
