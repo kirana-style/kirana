@@ -96,7 +96,7 @@ jobs:
           token: ${{ secrets.RELEASE_TOKEN }}
 
       # Node.js and Bun only: the install below must be free to rewrite bun.lock.
-      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+      - uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         if: steps.pr.outputs.branch != ''
         with:
           node-version-file: .node-version
@@ -211,7 +211,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+      - uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
           node-version-file: .node-version
           run-install: false
@@ -409,7 +409,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+      - uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
         with:
           node-version-file: .node-version
           run-install: false
