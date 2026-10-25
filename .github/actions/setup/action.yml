@@ -10,12 +10,16 @@ runs:
   steps:
     # `vp` provides Node.js (the version in .node-version) and Bun (package.json's `packageManager`),
     # the same pins `vp env` uses on a developer's machine, so CI and local development cannot drift
-    # apart; it also caches the dependency download and runs `vp install`.
+    # apart; it also caches the dependency download and runs `vp install`. `cache-toolchain` caches
+    # Vite+, Node.js and Bun themselves, keyed by their exact versions (the catalog's `vite-plus`,
+    # .node-version, `packageManager`), so a job restores them instead of running the installer; a
+    # miss or an invalid restore installs as before.
     - name: Setup Vite+
-      uses: voidzero-dev/setup-vp@68f39c78aaf39be468cabd2afb09c162574c84af # v1.21.2
+      uses: voidzero-dev/setup-vp@cab1ab9eaff52d4857875f4f2c016e36af8f2c76 # v1.22.0
       with:
         node-version-file: .node-version
         cache: true
+        cache-toolchain: true
         run-install: |
           - args: ["--frozen-lockfile"]
 
