@@ -1,0 +1,8 @@
+{
+  "conditions": {
+    "exclusiveAcross": [
+      ["[data-starting-style]", "[data-side=\"top\"]"],
+      ["[data-entering]", "[data-placement=\"top\"]"]
+    ]
+  }
+}

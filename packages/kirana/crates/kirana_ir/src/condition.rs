@@ -63,11 +63,13 @@ pub fn collapse_whitespace(text: &str) -> String {
 }
 
 impl Condition {
-    /// The class used by ladder step 3.
+    /// The class used by ladder step 3. A `parent()` read ranks with the pseudo-classes: it compiles
+    /// to the selector on the element's parent that `:where(… > *)` writes, and replaces it (D-104).
     pub fn class(&self) -> ConditionClass {
         match self {
             Condition::Pseudo(_) => ConditionClass::PseudoClass,
             Condition::Attribute(_) => ConditionClass::Attribute,
+            Condition::Relation { kind: RelationKind::Parent, .. } => ConditionClass::PseudoClass,
             Condition::Relation { .. } => ConditionClass::Relation,
             Condition::Media(_) | Condition::Container { .. } | Condition::Supports(_) => ConditionClass::AtRule,
         }
@@ -336,6 +338,18 @@ pub fn mutually_exclusive(a: &ConditionSet, b: &ConditionSet, declared: Declared
                 a.iter().any(|left| b.iter().any(|right| simple_exclusive(left, right, declared)))
             }
             _ => simple_exclusive(x, y, declared),
+        })
+    })
+}
+
+/// Two conditions of one set that can never match together, so an entry under the set can never
+/// apply (D-105): what [`mutually_exclusive`] proves of two sets, asked of each pair in one.
+pub fn unreachable_pair(set: &ConditionSet, declared: Declared<'_>) -> Option<(String, String)> {
+    let conditions = set.conditions();
+    conditions.iter().enumerate().find_map(|(index, first)| {
+        conditions[index + 1..].iter().find_map(|second| {
+            let one = |condition: &Condition| ConditionSet::new(vec![condition.clone()]);
+            mutually_exclusive(&one(first), &one(second), declared).then(|| (first.canonical(), second.canonical()))
         })
     })
 }

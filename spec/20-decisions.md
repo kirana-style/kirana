@@ -1455,6 +1455,31 @@ the implementation tracker names its evidence.
   explains. The package and the compiler release together, at one version, like every Kirana package.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
+### D-104 — A parent read ranks as a pseudo-class
+
+- **Status:** Accepted (2026-10-25). Answers KF-025.
+- **Decision:** a `parent()` read (D-101) is in ladder step 3's pseudo-class class, not the relation class.
+- **Rationale:** `parent()` replaced kirana-ui's raw `:where([data-slot="field-group"] > *)` keys, which
+  rank as pseudo-classes; as a relation it tied with a style's `within()` read on the same property
+  (`ambiguous-precedence`, decided by the tie-break), so a nested group lost its gap to Vega's. It
+  compiles to a selector on the element's parent, as the raw key does, and now ranks like it.
+- **Trade-off:** an element's own pseudo-class and a parent read are one class, ordered by step 4's
+  table, where a parent read ranks with the structural pseudo-classes.
+- **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md).
+
+### D-105 — Entries no element can match are left out
+
+- **Status:** Accepted (2026-10-25). Answers KF-030.
+- **Decision:** an entry whose condition set holds two conditions the compiler proves exclusive (what
+  `ambiguous-precedence` already proves of two sets) is not emitted; the key is the `unreachable-entry`
+  info (KRN1305).
+- **Rationale:** with `exclusiveAcross`, a style written once for several libraries nests one state
+  helper in another without a warning, but every combination still compiled: +994 B raw for kirana-ui's
+  popup slide, rules no element can match, so it kept writing one block per library by hand.
+- **Trade-off:** a key the author nests on purpose for a library that does set both (outside what the
+  configuration declares) is still emitted; only what the compiler proves is left out.
+- **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                       |
@@ -1462,7 +1487,7 @@ the implementation tracker names its evidence.
 | the brand notes                                               | D-001                                                                                                                                                           |
 | [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101 |
 | [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099                                                                              |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101                                    |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105                      |
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                 |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                       |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                             |

@@ -53,6 +53,11 @@ inline logical inset beside a translate that moves along x: translates have no
 logical form, so the element is off centre in right-to-left text. Use a physical
 inset with the translate.
 
+**`unreachable-entry`**: an info. A condition key nested in another that it can
+never meet, such as `'[data-side="top"]': { '[data-side="bottom"]': … }`, or two
+libraries' states the configuration declares apart with `exclusiveAcross`. Nothing
+under it can apply, so it is left out of the stylesheet.
+
 **`select-state-on-parent`**: an info. A pseudo-class nested under a `select`
 target, `[select.child("a")]: { color: { ":hover": … } }`, is the state of the
 element carrying the style. For the link's own hover, write it into the target:

@@ -50,7 +50,7 @@ install guide, and each is built and checked in a browser on every change:
   `ambiguous-precedence` diagnostic tells you when two values could both apply.
 - **Tokens and themes.** Design tokens compile to constants or custom properties,
   and every colour can be a `light-dark()` pair, so dark mode needs no variant.
-- **Real diagnostics.** 48 checks with codes, severities and help text, from
+- **Real diagnostics.** 49 checks with codes, severities and help text, from
   unknown properties to a component that forgets to pass `sx` on.
 
 ## What it is not
@@ -182,7 +182,7 @@ answers them:
 | Custom-property assignments were emitted unlayered and beat conditions beside them                                                              | Nothing is emitted outside a layer                                                                                                                                                                   |
 | Tokens had to live in `*.stylex.ts` files and be imported by name                                                                               | Tokens are ordinary exports, imported any way TypeScript allows                                                                                                                                      |
 | `sx` passed to a component that ignores it, or spread past a wrapper, was silent                                                                | `sx-on-external-component` and `unused-sx`, including one module away                                                                                                                                |
-| Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [48 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
+| Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [49 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
 | The official compiler is Babel; the Rust one is a community port behind it                                                                      | The engine is Kirana's own, in Rust on [oxc](https://oxc.rs), with a WASI build that writes the same bytes where no native one runs                                                                  |
 | No utility vocabulary: a Tailwind team rebuilt the scales by hand                                                                               | [`@kirana-style/preset-scales`](/docs/tokens/preset-scales) is Tailwind v4's scales, and [utility strings](/docs/styling/utilities) compile to the same atoms as the object form                     |
 | A port from Tailwind was done by hand                                                                                                           | [`kirana-style migrate tailwind`](/docs/migration/from-tailwind), measured below                                                                                                                     |
@@ -1715,7 +1715,7 @@ first difference decides.
 | ---- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 1    | **Origin**              | An element's own style beats a style it inherited from a [contextual selector](/docs/styling/contextual).                                                                                                    |
 | 2    | **Condition count**     | More conditions win. `md + :hover` beats `:hover` beats `base`.                                                                                                                                              |
-| 3    | **Condition class**     | `attribute` > `pseudo-class` > `relation` > `at-rule`.                                                                                                                                                       |
+| 3    | **Condition class**     | `attribute` > `pseudo-class` > `relation` > `at-rule`; a relation's `parent()` read ranks as a pseudo-class.                                                                                                 |
 | 4    | **Within a class**      | Pseudo-classes by a fixed table (roughly: structural → `:hover` → `:focus` → `:active` → `:checked` → `:invalid` → `:disabled`). At-rules: `@container` > `@media` > `@supports`; a larger `min-width` wins. |
 | 5    | **Declaration breadth** | The narrower declaration wins: `paddingTop` beats `padding`, `borderWidth` beats `border`. At equal breadth, a physical longhand beats a logical one.                                                        |
 | 6    | **Tie-break**           | Lexicographic, and never meaningful: reaching this step emits `ambiguous-precedence`.                                                                                                                        |
@@ -1777,6 +1777,15 @@ Three ways to resolve it:
 The compiler already knows some pairs are exclusive on their own: two values of
 one attribute, a selector and its negation, or two fixed positions counted from
 the same end.
+
+## Combinations that cannot match
+
+A key nested in another it can never meet, such as two values of one attribute or
+two libraries' states declared apart with
+[`conditions.exclusiveAcross`](/docs/reference/config), matches no element. Its
+entries are left out of the stylesheet, and the compiler says so with an info,
+`unreachable-entry`. A style written once for several libraries can nest one state
+helper inside another without shipping rules nothing can match.
 
 ## Layers
 
@@ -2223,6 +2232,11 @@ pseudo-classes on the element itself, and above at-rules
 ([ladder](/docs/styling/precedence), step 3). So an element's own `:hover` beats a
 value that depends on an ancestor's `:hover`, which is what an author usually
 means.
+
+A parent read is the exception: it ranks as a pseudo-class, as the
+`:where([data-slot] > *)` selector it replaces does. A group inside another group
+takes the nested gap over a style's wider one without restating it under every
+style.
 ---
 # Contextual styles
 Source: https://kirana.style/docs/styling/contextual
@@ -7504,7 +7518,7 @@ them, the compiler says so (`ambiguous-precedence`) instead of silently picking.
 `conditions.exclusive` is how you tell it that a library never sets two
 attributes together.
 
-**A diagnostics catalogue.** 48 codes with stable names, severities and help
+**A diagnostics catalogue.** 49 codes with stable names, severities and help
 text, and a configuration key to re-level the non-errors. StyleX reports
 compilation failures; it does not have a catalogue you can suppress, raise, or
 look up.
@@ -10090,6 +10104,11 @@ inline logical inset beside a translate that moves along x: translates have no
 logical form, so the element is off centre in right-to-left text. Use a physical
 inset with the translate.
 
+**`unreachable-entry`**: an info. A condition key nested in another that it can
+never meet, such as `'[data-side="top"]': { '[data-side="bottom"]': … }`, or two
+libraries' states the configuration declares apart with `exclusiveAcross`. Nothing
+under it can apply, so it is left out of the stylesheet.
+
 **`select-state-on-parent`**: an info. A pseudo-class nested under a `select`
 target, `[select.child("a")]: { color: { ":hover": … } }`, is the state of the
 element carrying the style. For the link's own hover, write it into the target:
@@ -10208,7 +10227,7 @@ line coverage. The [changelog](/changelog) lists every release.
 - Tokens: inlined, variable, per-mode, registered (`@property`)
 - Themes and colour modes
 - Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB
-- 48 diagnostics with stable codes
+- 49 diagnostics with stable codes
 - `@kirana-style/vite` for Vite 8, with hot updates
 - An adapter package for every other bundler, and one for Jest; see
   [bundlers](/docs/integrations/bundlers)

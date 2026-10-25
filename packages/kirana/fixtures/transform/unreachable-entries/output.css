@@ -1,0 +1,7 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .kao-LqPF_5Wao:where([data-entering][data-placement="top"]), .kao-sWdu_5Wao:where([data-side="top"][data-starting-style]) {
+    translate: 0 4px;
+  }
+}

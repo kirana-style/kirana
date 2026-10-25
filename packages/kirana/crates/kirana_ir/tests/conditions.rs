@@ -212,3 +212,31 @@ fn exclusivity() {
     ));
     assert!(!mutually_exclusive(&one("[data-starting-style]"), &one("[data-ending-style]"), Declared::default()));
 }
+
+/// A parent read ranks with the pseudo-classes (D-104); the other reads keep the relation class.
+#[test]
+fn a_parent_read_ranks_as_a_pseudo_class() {
+    let read = |kind| Condition::Relation { marker: "kr".to_owned(), kind, state: String::new() };
+    assert_eq!(read(RelationKind::Parent).class(), ConditionClass::PseudoClass);
+    assert_eq!(read(RelationKind::Within).class(), ConditionClass::Relation);
+}
+
+/// Two conditions of one set that never meet make it unreachable (D-105).
+#[test]
+fn a_set_with_two_exclusive_conditions_is_unreachable() {
+    let set =
+        |keys: &[&str]| ConditionSet::new(keys.iter().flat_map(|key| parse_condition_key(key).unwrap()).collect());
+    assert_eq!(
+        unreachable_pair(&set(&["[data-side=\"top\"]", "[data-side=\"bottom\"]"]), Declared::default()),
+        Some(("[data-side=\"bottom\"]".to_owned(), "[data-side=\"top\"]".to_owned()))
+    );
+    assert_eq!(unreachable_pair(&set(&["[data-open]", ":hover"]), Declared::default()), None);
+    let across = [vec!["[data-starting-style]".to_owned()], vec!["[data-entering]".to_owned()]];
+    assert!(
+        unreachable_pair(
+            &set(&["[data-starting-style]", "[data-entering]"]),
+            Declared { groups: &[], across: &across }
+        )
+        .is_some()
+    );
+}

@@ -73,6 +73,7 @@ catalogue! {
     AmbiguousPrecedence = "KRN1302", "ambiguous-precedence", Warning;
     UnsupportedContextualTarget = "KRN1303", "unsupported-contextual-target", Error;
     SelectStateOnParent = "KRN1304", "select-state-on-parent", Info;
+    UnreachableEntry = "KRN1305", "unreachable-entry", Info;
     RelationWithoutAnchor = "KRN1401", "relation-without-anchor", Error;
     RelationUnused = "KRN1402", "relation-unused", Warning;
     RelationPlacement = "KRN1403", "relation-placement", Error;

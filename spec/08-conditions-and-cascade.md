@@ -152,7 +152,7 @@ decided by this global ladder (D-014). Compare in order; the first difference de
 | ---- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1    | **Origin**                                   | Element's own style beats a contextual style (D-016).                                                                                                                                                                                                                               |
 | 2    | **Condition count**                          | More conditions beat fewer (`[md] + :hover` beats `:hover` beats `base`).                                                                                                                                                                                                           |
-| 3    | **Strongest condition class**, then the next | `attribute` > `pseudo-class` > `relation` > `at-rule`. Compare the sorted classes of both sets from strongest down.                                                                                                                                                                 |
+| 3    | **Strongest condition class**, then the next | `attribute` > `pseudo-class` > `relation` > `at-rule`; a `parent()` read ranks as a pseudo-class (D-104). Compare the sorted classes of both sets from strongest down.                                                                                                              |
 | 4    | **Within a class**                           | Pseudo-classes by the table below. At-rules: `@container` > `@media` > `@supports`; width queries by range (larger `min-width` wins; smaller `max-width` wins); non-width media features (`prefers-*`, `print`) above width queries. Attributes and relations: see step 6.          |
 | 5    | **Declaration breadth**                      | The narrower declaration wins: a longhand beats a shorthand atom, `borderWidth` beats `border`; breadth is the number of longhands, adjusted for secondary shorthands (D-045); at an equal breadth a physical longhand beats a logical one, and both beat a shorthand atom (D-042). |
 | 6    | **Deterministic tie-break**                  | Lexicographic order of the normalized condition text. This step never reflects author intent; reaching it emits `ambiguous-precedence` (below).                                                                                                                                     |
@@ -183,6 +183,11 @@ nesting one condition inside the other writes. Exclusivity a library guarantees 
 ([11](./11-integrations.md#configuration)). A design system written for several libraries declares one
 vocabulary per library as `conditions.exclusiveAcross`: two simple conditions that no vocabulary holds
 together, each named by one, are exclusive, since a component is built on one library (D-099).
+
+An entry whose own condition set holds two conditions the compiler knows never match one element
+together (two values of one attribute, a selector and its `:not()`, a `conditions.exclusive` group, keys
+of two `conditions.exclusiveAcross` vocabularies that no vocabulary holds together) is not emitted, and
+the key that made it unreachable is the `unreachable-entry` info (D-105).
 
 ## Layer plan
 
