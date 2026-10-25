@@ -1,0 +1,116 @@
+[
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 585,
+      "end": 600
+    },
+    "message": "this value cannot be evaluated at build time (a string with a lone surrogate)",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 604,
+      "end": 621
+    },
+    "message": "this value cannot be evaluated at build time (a string with a lone surrogate)",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 632,
+      "end": 636
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 674,
+      "end": 686
+    },
+    "message": "marginTop is set at runtime through --k9",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 704,
+      "end": 714
+    },
+    "message": "marginBottom is set at runtime through --k6",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 801,
+      "end": 820
+    },
+    "message": "this value cannot be evaluated at build time (a string with a lone surrogate)",
+    "help": []
+  },
+  {
+    "code": "KRN1604",
+    "name": "dynamic-spread",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 899,
+      "end": 941
+    },
+    "message": "a spread in a style must be known at build time",
+    "help": [
+      "declare the properties explicitly instead of spreading a runtime object"
+    ]
+  },
+  {
+    "code": "KRN1702",
+    "name": "utility-surface-disabled",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1047,
+      "end": 1055
+    },
+    "message": "string `sx` values need a utility grammar",
+    "help": [
+      "add a preset that declares one — presets: [scales()] — or write css({ … })"
+    ]
+  },
+  {
+    "code": "KRN1702",
+    "name": "utility-surface-disabled",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1081,
+      "end": 1089
+    },
+    "message": "string `sx` values need a utility grammar",
+    "help": [
+      "add a preset that declares one — presets: [scales()] — or write css({ … })"
+    ]
+  }
+]

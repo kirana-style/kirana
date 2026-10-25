@@ -31,6 +31,9 @@ updates:
       - dependency-name: "@vitest/coverage-v8"
       # The parity test runs Oxlint itself; it stays at the version Vite+ bundles.
       - dependency-name: "oxlint"
+      # The Ark UI states vocabulary is generated from it, at the Zag version Ark UI depends on
+      # (npm/states/README.md): it moves by hand with `@ark-ui/react`, and `gen:states` with it.
+      - dependency-name: "@zag-js/docs"
     groups:
       # The WASI engine (KRN-INT-006) is linked against emnapi and loaded by @napi-rs/wasm-runtime,
       # whose peer range on emnapi 2 names one prerelease: its 1.2.6 moved that from the alpha to

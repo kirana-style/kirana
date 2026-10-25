@@ -1402,10 +1402,14 @@ impl<'s> Walker<'s> {
     /// A static class string, when the expression is one.
     fn static_string(expression: &Expression<'_>) -> Option<String> {
         match expression {
-            Expression::StringLiteral(literal) => Some(literal.value.to_string()),
-            Expression::TemplateLiteral(template) if template.expressions.is_empty() => {
-                template.quasis.first().map(|quasi| quasi.value.cooked.unwrap_or(quasi.value.raw).to_string())
-            }
+            // A lone surrogate, which oxc keeps as written, is in no class: the string stays as it is.
+            Expression::StringLiteral(literal) => literal.value.as_str().map(str::to_owned),
+            Expression::TemplateLiteral(template) if template.expressions.is_empty() => template
+                .quasis
+                .first()
+                .and_then(|quasi| quasi.value.cooked)
+                .and_then(|cooked| cooked.as_str())
+                .map(str::to_owned),
             _ => None,
         }
     }
@@ -1763,7 +1767,7 @@ impl<'s> Walker<'s> {
         let slot = element.attributes.iter().find_map(|item| match item {
             JSXAttributeItem::Attribute(attribute) if attribute_name(attribute) == Some("data-slot") => {
                 match &attribute.value {
-                    Some(JSXAttributeValue::StringLiteral(literal)) => Some(literal.value.to_string()),
+                    Some(JSXAttributeValue::StringLiteral(literal)) => literal.value.as_str().map(str::to_owned),
                     _ => None,
                 }
             }
@@ -1827,9 +1831,10 @@ impl<'s> Walker<'s> {
         let name = self.element_name(element);
         let external = self.is_external(element);
         let items = match &attribute.value {
-            Some(JSXAttributeValue::StringLiteral(literal)) => {
-                self.style_items(&literal.value, literal.span.start, &name)
-            }
+            Some(JSXAttributeValue::StringLiteral(literal)) => literal
+                .value
+                .as_str()
+                .map_or_else(Vec::new, |classes| self.style_items(classes, literal.span.start, &name)),
             Some(JSXAttributeValue::ExpressionContainer(container)) => {
                 let expression =
                     container.expression.as_expression().expect("the parser rejects an empty attribute expression");
@@ -1907,8 +1912,10 @@ impl<'s> Walker<'s> {
     /// Tailwind classes did, whatever the receiving component does with it.
     fn other_class_attribute(&mut self, element: &JSXOpeningElement<'_>, attribute: &JSXAttribute<'_>) {
         let Some(JSXAttributeValue::StringLiteral(literal)) = &attribute.value else { return };
+        // A JSX attribute's string has no escapes and comes from UTF-8 source: never a lone surrogate.
+        let classes = literal.value.as_str().unwrap_or_default();
         let name = self.element_name(element);
-        let items = self.style_items(&literal.value, literal.span.start, &name);
+        let items = self.style_items(classes, literal.span.start, &name);
         if items.is_empty() {
             return;
         }
@@ -1925,7 +1932,11 @@ impl<'s> Walker<'s> {
         for property in &object.properties {
             let ObjectPropertyKind::ObjectProperty(property) = property else { continue };
             let Some(classes) = Self::static_string(&property.value) else { continue };
-            let key = property.key.static_name().map(|key| key.to_string()).unwrap_or_default();
+            let key = property
+                .key
+                .static_name()
+                .and_then(|key| key.as_js_str().as_str().map(str::to_owned))
+                .unwrap_or_default();
             let items = self.style_items(&classes, property.value.span().start, &format!("{element_name}-{key}"));
             if items.is_empty() {
                 continue;
@@ -2535,7 +2546,8 @@ impl<'a> Visit<'a> for Walker<'a> {
     }
 
     fn visit_import_declaration(&mut self, declaration: &ImportDeclaration<'a>) {
-        let specifier = declaration.source.value.as_str();
+        // A specifier with a lone surrogate names no module the migration reads.
+        let Some(specifier) = declaration.source.value.as_str() else { return };
         let specifiers = declaration.specifiers.as_ref().map_or(0, |list| list.len());
         if specifier == "class-variance-authority" {
             if declaration.specifiers.iter().flatten().any(|item| item.local().name == "VariantProps") {
@@ -2631,7 +2643,7 @@ impl<'a> Visit<'a> for Walker<'a> {
         let slot = element.attributes.iter().find_map(|item| match item {
             JSXAttributeItem::Attribute(attribute) if attribute_name(attribute) == Some("data-slot") => {
                 match &attribute.value {
-                    Some(JSXAttributeValue::StringLiteral(literal)) => Some(literal.value.to_string()),
+                    Some(JSXAttributeValue::StringLiteral(literal)) => literal.value.as_str().map(str::to_owned),
                     _ => None,
                 }
             }

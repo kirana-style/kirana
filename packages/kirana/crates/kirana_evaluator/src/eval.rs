@@ -14,6 +14,7 @@ use oxc_ast::AstKind;
 use oxc_ast::ast::{
     Argument, ArrayExpressionElement, ArrowFunctionBody, BindingPattern, ChainElement, Expression, Function,
     FunctionBody, IdentifierReference, ModuleExportName, ObjectPropertyKind, PropertyKey, PropertyKind, Statement,
+    StringLiteral, TemplateElement,
 };
 use oxc_semantic::SymbolId;
 use oxc_span::GetSpan;
@@ -22,6 +23,16 @@ use oxc_syntax::operator::{BinaryOperator, LogicalOperator, UnaryOperator};
 use crate::{Context, Definitions, Host, ImportName, ops};
 
 const MAX_DEPTH: u32 = 64;
+
+/// Why a string is not evaluated: oxc keeps a lone surrogate (`"\uD800"`) as written, and no CSS
+/// value, key or module specifier Kirana reads can carry one.
+const LONE_SURROGATE: &str = "a string with a lone surrogate";
+
+/// A template's text between expressions, as cooked: none when it holds a lone surrogate. Only a
+/// tagged template leaves `cooked` unset, and Kirana evaluates none.
+fn quasi_text<'s>(quasi: &TemplateElement<'s>) -> Option<&'s str> {
+    quasi.value.cooked.and_then(|cooked| cooked.as_str())
+}
 
 /// A byte span as the IR stores it.
 pub(crate) fn sp(span: oxc_span::Span) -> (u32, u32) {
@@ -185,7 +196,9 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             Expression::BooleanLiteral(literal) => Value::Bool(literal.value),
             Expression::NullLiteral(_) => Value::Null,
             Expression::NumericLiteral(literal) => Value::Number(literal.value),
-            Expression::StringLiteral(literal) => Value::str(literal.value.as_str()),
+            Expression::StringLiteral(literal) => {
+                literal.value.as_str().map_or_else(|| Value::unknown(LONE_SURROGATE), Value::str)
+            }
             Expression::TemplateLiteral(template) => {
                 let mut text = String::new();
                 // The text since the last token, and the parts so far, for an entry to name the
@@ -193,7 +206,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                 let mut since = String::new();
                 let mut parts = Vec::new();
                 for (index, quasi) in template.quasis.iter().enumerate() {
-                    let quasi = quasi.value.cooked.as_ref().unwrap_or(&quasi.value.raw).as_str();
+                    let Some(quasi) = quasi_text(quasi) else { return Value::unknown(LONE_SURROGATE) };
                     text.push_str(quasi);
                     since.push_str(quasi);
                     if let Some(inner) = template.expressions.get(index) {
@@ -257,9 +270,10 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                                     None => return Value::unknown(format!("dynamic key@{}:{}", span.0, span.1)),
                                 },
                                 key => match key.as_expression() {
-                                    Some(Expression::StringLiteral(literal)) => {
-                                        Key::Str(Arc::from(literal.value.as_str()))
-                                    }
+                                    Some(Expression::StringLiteral(literal)) => match literal.value.as_str() {
+                                        Some(name) => Key::Str(Arc::from(name)),
+                                        None => return Value::unknown(LONE_SURROGATE),
+                                    },
                                     Some(Expression::NumericLiteral(literal)) => {
                                         Key::Str(Arc::from(number_to_string(literal.value)))
                                     }
@@ -401,7 +415,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         let scoping = self.parsed.semantic.scoping();
         let symbol = self.symbol_of(identifier)?;
         match self.parsed.semantic.nodes().parent_kind(scoping.symbol_declaration(symbol)) {
-            AstKind::ImportDeclaration(import) => Some(import.source.value.as_str()),
+            AstKind::ImportDeclaration(import) => import.source.value.as_str(),
             _ => None,
         }
     }
@@ -418,7 +432,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             AstKind::ImportSpecifier(specifier) => export_name(&specifier.imported),
             _ => "default".to_owned(),
         };
-        Some((import.source.value.as_str(), name))
+        import.source.value.as_str().map(|source| (source, name))
     }
 
     /// For an element named by a component imported from project source: the component's name and
@@ -434,7 +448,11 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             AstKind::ImportSpecifier(specifier) => export_name(&specifier.imported),
             _ => "default".to_owned(),
         };
-        let package = self.host.sx_forwarded(self.ctx.path, import.source.value.as_str(), &name)?;
+        let package = import
+            .source
+            .value
+            .as_str()
+            .and_then(|specifier| self.host.sx_forwarded(self.ctx.path, specifier, &name))?;
         Some((identifier.name.to_string(), package))
     }
 
@@ -443,7 +461,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         let scoping = self.parsed.semantic.scoping();
         let symbol = scoping.get_root_binding(name.into())?;
         match self.parsed.semantic.nodes().parent_kind(scoping.symbol_declaration(symbol)) {
-            AstKind::ImportDeclaration(import) => Some(import.source.value.as_str()),
+            AstKind::ImportDeclaration(import) => import.source.value.as_str(),
             _ => None,
         }
     }
@@ -544,10 +562,11 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         let mut entries = Vec::new();
         let mut next = 0.0;
         for member in &declaration.body.members {
+            // A member named with a lone surrogate counts for the numbering but cannot be read.
             let name = match &member.id {
-                oxc_ast::ast::TSEnumMemberName::Identifier(identifier) => identifier.name.to_string(),
+                oxc_ast::ast::TSEnumMemberName::Identifier(identifier) => Some(identifier.name.as_str()),
                 oxc_ast::ast::TSEnumMemberName::String(literal)
-                | oxc_ast::ast::TSEnumMemberName::ComputedString(literal) => literal.value.to_string(),
+                | oxc_ast::ast::TSEnumMemberName::ComputedString(literal) => literal.value.as_str(),
                 oxc_ast::ast::TSEnumMemberName::ComputedTemplateString(_) => return Value::unknown("enum"),
             };
             let value = match &member.initializer {
@@ -560,7 +579,9 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             if let Value::Number(number) = value {
                 next = number + 1.0;
             }
-            entries.push((Key::Str(Arc::from(name.as_str())), value));
+            if let Some(name) = name {
+                entries.push((Key::Str(Arc::from(name)), value));
+            }
         }
         Value::Object(Arc::new(entries))
     }
@@ -596,7 +617,10 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
     fn import(&self, declaration: oxc_semantic::NodeId, name: ImportName) -> Value {
         // A specifier's parent is always its import declaration.
         let parent = self.parsed.semantic.nodes().parent_kind(declaration);
-        let source = parent.as_import_declaration().map_or("", |import| import.source.value.as_str());
+        let Some(source) = parent.as_import_declaration().map_or(Some(""), |import| import.source.value.as_str())
+        else {
+            return Value::unknown(LONE_SURROGATE);
+        };
         if source == "@kirana-style/core" {
             return match name {
                 ImportName::Named(name) => {
@@ -777,12 +801,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                 }
             }
             Expression::TemplateLiteral(template) => Expr::Template {
-                quasis: template
-                    .quasis
-                    .iter()
-                    // Only a tagged template leaves `cooked` unset.
-                    .map(|quasi| Arc::from(quasi.value.cooked.as_ref().unwrap_or(&quasi.value.raw).as_str()))
-                    .collect(),
+                quasis: template.quasis.iter().map(|quasi| quasi_text(quasi).map(Arc::from)).collect::<Option<_>>()?,
                 expressions: template
                     .expressions
                     .iter()
@@ -859,7 +878,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                                 key if property.computed => ExprKey::Computed(self.lower(key.to_expression(), params)?),
                                 key => match key.to_expression() {
                                     Expression::StringLiteral(literal) => {
-                                        let name: Arc<str> = Arc::from(literal.value.as_str());
+                                        let name: Arc<str> = Arc::from(literal.value.as_str()?);
                                         self.record_key(&name, sp(property.span));
                                         ExprKey::Static(name)
                                     }
@@ -950,7 +969,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                     (export_name(&specifier.exported) == name).then(|| {
                         let local = export_name(&specifier.local);
                         let import = if local == "default" { ImportName::Default } else { ImportName::Named(local) };
-                        self.host.import(self.ctx.path, export.source.value.as_str(), &import)
+                        self.import_from(&export.source, &import)
                     })
                 }),
                 Statement::ExportDefaultDeclaration(export) if name == "default" => Some(match &export.declaration {
@@ -966,11 +985,19 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                     .exported
                     .as_ref()
                     .is_some_and(|exported| export_name(exported) == name)
-                    .then(|| self.host.import(self.ctx.path, export.source.value.as_str(), &ImportName::Namespace)),
+                    .then(|| self.import_from(&export.source, &ImportName::Namespace)),
                 _ => None,
             }
         };
         self.parsed.program.body.iter().find_map(found).unwrap_or(Value::Undefined)
+    }
+
+    /// What a re-export names from its module; unknown when the specifier holds a lone surrogate.
+    fn import_from(&self, source: &StringLiteral<'_>, name: &ImportName) -> Value {
+        source.value.as_str().map_or_else(
+            || Value::unknown(LONE_SURROGATE),
+            |specifier| self.host.import(self.ctx.path, specifier, name),
+        )
     }
 
     /// The sources of `export * from "…"` re-exports, searched for names the module does not
@@ -982,7 +1009,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             .iter()
             .filter_map(|statement| match statement {
                 Statement::ExportAllDeclaration(export) if export.exported.is_none() => {
-                    Some(export.source.value.to_string())
+                    export.source.value.as_str().map(str::to_owned)
                 }
                 _ => None,
             })
@@ -1021,7 +1048,8 @@ pub(crate) fn export_name(name: &ModuleExportName<'_>) -> String {
     match name {
         ModuleExportName::IdentifierName(name) => name.name.to_string(),
         ModuleExportName::IdentifierReference(name) => name.name.to_string(),
-        ModuleExportName::StringLiteral(literal) => literal.value.to_string(),
+        // A name with a lone surrogate matches no import Kirana resolves: U+FFFD stands for it.
+        ModuleExportName::StringLiteral(literal) => literal.value.display().to_string(),
     }
 }
 
