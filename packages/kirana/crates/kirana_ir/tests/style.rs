@@ -4,11 +4,11 @@ use kirana_css_data::PropertyRank;
 use kirana_ir::*;
 
 fn key(property: &str, conditions: &[&str]) -> EntryKey {
-    EntryKey {
-        target: Target::Element,
-        property: Property::longhand(property),
-        conditions: ConditionSet::new(conditions.iter().flat_map(|c| parse_condition_key(c).unwrap()).collect()),
-    }
+    EntryKey::new(
+        Target::Element,
+        Property::longhand(property),
+        ConditionSet::new(conditions.iter().flat_map(|c| parse_condition_key(c).unwrap()).collect()),
+    )
 }
 
 fn value(css: &str) -> AtomValue {
@@ -297,4 +297,19 @@ fn the_value_segment_is_wide_enough_for_real_values() {
     let (first, second) = ("oklch(21% 0.12 250)", "oklch(27% 0.21 250)");
     assert_eq!(base62(hash_parts(&[first]), 3), base62(hash_parts(&[second]), 3), "the pair collides at three");
     assert_ne!(value_segment(&value(first)), value_segment(&value(second)), "and not at four");
+}
+
+/// How an entry was written is no part of its identity (KF-027): two keys that differ only there
+/// are equal and hash alike, so merging and naming never see it.
+#[test]
+fn how_an_entry_was_written_is_not_its_identity() {
+    use std::hash::{BuildHasher, RandomState};
+    let plain = key("color", &[":hover"]);
+    let written = EntryKey {
+        written: Written(Some(Arc::new(WrittenEntry { path: vec![Key::Str("color".into())], value: None }))),
+        ..plain.clone()
+    };
+    assert_eq!(plain, written);
+    let state = RandomState::new();
+    assert_eq!(state.hash_one(&plain), state.hash_one(&written));
 }

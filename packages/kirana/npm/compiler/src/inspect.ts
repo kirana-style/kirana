@@ -115,13 +115,39 @@ export type DefinitionEntry = {
   /** `null` only for a removal under every condition (`property: null`). */
   conditions: ConditionInfo[] | null
   target?: string
-  /** Variable tokens the value reads, by identity. */
+  /** Tokens the value reads, by identity, constant ones included. */
   tokens?: string[]
   /** The variable token whose custom property the entry assigns. */
   assigns?: string
   keyframes?: string[]
   class?: string
+  /**
+   * The object keys from the top of the style object down to the value, as written; absent for a
+   * removal under every condition (`property: null`).
+   */
+  path?: PathKey[]
+  /**
+   * The value as the source spells it; absent for a removal, a value only known at runtime, and a
+   * keyframes, position-try or counter-style rule.
+   */
+  written?: WrittenValue
 }
+
+/** One key of an entry's `path`: a string key as written, or a computed key. */
+export type PathKey =
+  | string
+  | { conditions: ConditionInfo[] }
+  | { select: string }
+  | { token: string }
+
+/** A value as the source spells it (`export --definitions`). */
+export type WrittenValue =
+  | number
+  | string
+  | { token: string }
+  /** A template literal that reads tokens: its text and tokens in order. */
+  | { template: (string | { token: string })[] }
+  | { firstThatWorks: WrittenValue[] }
 
 export type Definition = {
   entries: DefinitionEntry[]

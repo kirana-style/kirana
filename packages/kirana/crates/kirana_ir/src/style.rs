@@ -8,6 +8,7 @@ use kirana_shared::{base62, base62_compact, hash_parts};
 
 use crate::condition::{Condition, ConditionSet, compare_sets};
 use crate::defs::Dep;
+use crate::value::{Key, TokenRef};
 
 /// What an atom styles.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -73,9 +74,80 @@ pub struct EntryKey {
     pub target: Target,
     pub property: Property,
     pub conditions: ConditionSet,
+    /// How the entry was written; no part of its identity.
+    pub written: Written,
+}
+
+/// How an entry was written (KF-027), for `export --definitions`: the keys down to it and its value
+/// as the source spells it. Merging, naming and the cascade never read it, so it takes no part in
+/// equality or hashing, and an entry the evaluator did not write (a test's, an unfold's copy) has
+/// none of its own.
+#[derive(Debug, Clone, Default)]
+pub struct Written(pub Option<Arc<WrittenEntry>>);
+
+impl PartialEq for Written {
+    fn eq(&self, _: &Self) -> bool {
+        true
+    }
+}
+
+impl Eq for Written {}
+
+impl std::hash::Hash for Written {
+    fn hash<H: std::hash::Hasher>(&self, _: &mut H) {}
+}
+
+/// The object keys from the top of a style object down to an entry's value, and that value.
+#[derive(Debug, Clone)]
+pub struct WrittenEntry {
+    /// As written: `["color", ":hover"]`, a computed key as its condition, target or token.
+    pub path: Vec<Key>,
+    /// `None` for a removal, a value only known at runtime, or a named rule (`keyframes()`).
+    pub value: Option<WrittenValue>,
+}
+
+/// A value as the source spells it, before it is compiled.
+#[derive(Debug, Clone)]
+pub enum WrittenValue {
+    Number(f64),
+    Str(Arc<str>),
+    /// A token, variable or not.
+    Token(Arc<TokenRef>),
+    /// A template literal that reads tokens: its text and tokens in order.
+    Template(Vec<WrittenValue>),
+    /// `firstThatWorks(...)`, preferred first.
+    Fallbacks(Vec<WrittenValue>),
+}
+
+impl WrittenValue {
+    /// The tokens the value reads, in order, each once.
+    pub fn tokens(&self) -> Vec<&TokenRef> {
+        let mut out: Vec<&TokenRef> = Vec::new();
+        self.collect_tokens(&mut out);
+        out
+    }
+
+    fn collect_tokens<'v>(&'v self, out: &mut Vec<&'v TokenRef>) {
+        match self {
+            WrittenValue::Token(token) => {
+                if !out.iter().any(|seen| seen.identity == token.identity) {
+                    out.push(token);
+                }
+            }
+            WrittenValue::Template(parts) | WrittenValue::Fallbacks(parts) => {
+                parts.iter().for_each(|part| part.collect_tokens(out));
+            }
+            WrittenValue::Number(_) | WrittenValue::Str(_) => {}
+        }
+    }
 }
 
 impl EntryKey {
+    /// An entry key with no record of how it was written.
+    pub fn new(target: Target, property: Property, conditions: ConditionSet) -> Self {
+        Self { target, property, conditions, written: Written::default() }
+    }
+
     /// The conflict-key segment of a class name: property code, then `-` + a 3-character target
     /// hash when the target is not the element, then `-` + a 4-character condition hash.
     pub fn segment(&self) -> String {
@@ -258,6 +330,15 @@ impl Handle {
         })
     }
 
+    /// Records how every entry the handle sets or removes was written.
+    pub fn stamp(&mut self, written: &Written) {
+        for op in &mut self.ops {
+            if let Op::Set(key, _) | Op::Remove(key) = op {
+                key.written = written.clone();
+            }
+        }
+    }
+
     /// Whether the handle has no operations and no markers.
     pub fn is_empty(&self) -> bool {
         self.ops.is_empty() && self.markers.is_empty()
@@ -315,11 +396,9 @@ impl Names {
                 let target_segment = property_segment(target, shorthand)[shorthand.code().len()..].to_owned();
                 let scope = match conditions {
                     None => "*".to_owned(),
-                    Some(conditions) => {
-                        EntryKey { target: target.clone(), property: shorthand.clone(), conditions: conditions.clone() }
-                            .segment()[shorthand.code().len() + target_segment.len()..]
-                            .to_owned()
-                    }
+                    Some(conditions) => EntryKey::new(target.clone(), shorthand.clone(), conditions.clone()).segment()
+                        [shorthand.code().len() + target_segment.len()..]
+                        .to_owned(),
                 };
                 format!("{}{}/{}{target_segment}{scope}_", self.prefix, shorthand.code(), codes.join("."))
             }

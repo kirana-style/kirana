@@ -522,9 +522,7 @@ pub fn prepare_set(
     atom: Option<&str>,
     breadth: u8,
 ) {
-    let remove = |property: &Property| {
-        Op::Remove(EntryKey { target: target.clone(), property: property.clone(), conditions: conditions.clone() })
-    };
+    let remove = |property: &Property| Op::Remove(EntryKey::new(target.clone(), property.clone(), conditions.clone()));
     for (shorthand, keep, other) in &plan.overlapping {
         if *other <= breadth {
             handle.apply(unfold(target, shorthand, keep, Some(conditions)));
@@ -550,7 +548,7 @@ pub fn removal(plan: &WritePlan, target: &Target, conditions: &ConditionSet, eve
         handle.apply(if every {
             Op::RemoveProperty(target.clone(), property.clone())
         } else {
-            Op::Remove(EntryKey { target: target.clone(), property: property.clone(), conditions: conditions.clone() })
+            Op::Remove(EntryKey::new(target.clone(), property.clone(), conditions.clone()))
         });
     }
     handle

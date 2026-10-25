@@ -37,13 +37,11 @@ fn target(index: usize) -> Target {
 }
 
 fn key(target_index: usize, property: usize, conditions: usize) -> EntryKey {
-    EntryKey {
-        target: target(target_index),
-        property: Property::longhand(PROPERTIES[property]),
-        conditions: ConditionSet::new(
-            CONDITIONS[conditions].iter().flat_map(|text| parse_condition_key(text).unwrap()).collect(),
-        ),
-    }
+    EntryKey::new(
+        target(target_index),
+        Property::longhand(PROPERTIES[property]),
+        ConditionSet::new(CONDITIONS[conditions].iter().flat_map(|text| parse_condition_key(text).unwrap()).collect()),
+    )
 }
 
 /// One generated operation: `(kind, target, property, conditions, value, longhands)`.

@@ -6,7 +6,8 @@ use std::sync::Arc;
 use kirana_diagnostics::{Code, Diagnostic, Span};
 use kirana_frontend::Parsed;
 use kirana_ir::{
-    Api, BinaryOp, Descriptor, Dynamic, Expr, ExprKey, Key, LogicalOp, Method, UnaryOp, Value, number_to_string,
+    Api, BinaryOp, Descriptor, Dynamic, Expr, ExprKey, Key, LogicalOp, Method, UnaryOp, Value, Written, WrittenEntry,
+    WrittenValue, number_to_string,
 };
 use kirana_shared::FxHashMap;
 use oxc_ast::AstKind;
@@ -30,6 +31,9 @@ pub(crate) fn sp(span: oxc_span::Span) -> (u32, u32) {
 /// Key address → (the key, kept alive so the address stays its own; its span).
 type KeySpans = FxHashMap<usize, (Arc<str>, (u32, u32))>;
 
+/// String address → (the string, kept alive as in [`KeySpans`]; the template's parts).
+type Templates = FxHashMap<usize, (Arc<str>, Vec<WrittenValue>)>;
+
 /// Evaluates expressions of one parsed module.
 pub struct Evaluator<'p, 'a, 'c> {
     pub(crate) parsed: &'p Parsed<'a>,
@@ -49,6 +53,21 @@ pub struct Evaluator<'p, 'a, 'c> {
     /// a diagnostic can point at the property instead of the whole `css()` argument. The entry holds
     /// a clone, so an address is never reused while the table lives.
     key_spans: RefCell<KeySpans>,
+    /// The template literals of this module that read a token, by the address of the string they
+    /// evaluate to, so an entry can say which tokens its value reads although the value is text
+    /// (KF-027). A string built in another module reads as its text.
+    templates: RefCell<Templates>,
+    /// The style-object keys from the top of the object being built down to the current value.
+    path: RefCell<Vec<Key>>,
+}
+
+/// Takes a key off the path when the value under it is done.
+pub(crate) struct PathKey<'e>(&'e RefCell<Vec<Key>>);
+
+impl Drop for PathKey<'_> {
+    fn drop(&mut self) {
+        self.0.borrow_mut().pop();
+    }
 }
 
 impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
@@ -64,6 +83,8 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             definitions: RefCell::default(),
             depth: Cell::new(0),
             key_spans: RefCell::default(),
+            templates: RefCell::default(),
+            path: RefCell::default(),
         }
     }
 
@@ -103,6 +124,44 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         self.key_spans.borrow().get(&(Arc::as_ptr(name).cast::<u8>() as usize)).map_or(fallback, |(_, span)| *span)
     }
 
+    /// Puts `key` on the path of the style object being built until the guard is dropped.
+    pub(crate) fn enter(&self, key: &Key) -> PathKey<'_> {
+        self.path.borrow_mut().push(key.clone());
+        PathKey(&self.path)
+    }
+
+    /// Starts a style object of its own (a `css()` argument met while building another), with an
+    /// empty path, and gives back the path it replaced.
+    pub(crate) fn fresh_path(&self) -> Vec<Key> {
+        std::mem::take(&mut *self.path.borrow_mut())
+    }
+
+    pub(crate) fn restore_path(&self, path: Vec<Key>) {
+        *self.path.borrow_mut() = path;
+    }
+
+    /// How the entry at the current path was written, with `value` as the source spells it.
+    pub(crate) fn written(&self, value: Option<&Value>) -> Written {
+        let value = value.and_then(|value| self.written_value(value));
+        Written(Some(Arc::new(WrittenEntry { path: self.path.borrow().clone(), value })))
+    }
+
+    fn written_value(&self, value: &Value) -> Option<WrittenValue> {
+        Some(match value {
+            Value::Number(number) => WrittenValue::Number(*number),
+            Value::Str(text) => self
+                .templates
+                .borrow()
+                .get(&(Arc::as_ptr(text).cast::<u8>() as usize))
+                .map_or_else(|| WrittenValue::Str(text.clone()), |(_, parts)| WrittenValue::Template(parts.clone())),
+            Value::Token(token) => WrittenValue::Token(token.clone()),
+            Value::Fallbacks(members) => {
+                WrittenValue::Fallbacks(members.iter().filter_map(|member| self.written_value(member)).collect())
+            }
+            _ => return None,
+        })
+    }
+
     /// Diagnostics and definitions collected so far.
     pub fn finish(self) -> (Vec<Diagnostic>, Definitions) {
         (self.diagnostics.into_inner(), self.definitions.into_inner())
@@ -129,16 +188,39 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             Expression::StringLiteral(literal) => Value::str(literal.value.as_str()),
             Expression::TemplateLiteral(template) => {
                 let mut text = String::new();
+                // The text since the last token, and the parts so far, for an entry to name the
+                // tokens the template reads.
+                let mut since = String::new();
+                let mut parts = Vec::new();
                 for (index, quasi) in template.quasis.iter().enumerate() {
-                    text.push_str(quasi.value.cooked.as_ref().unwrap_or(&quasi.value.raw).as_str());
+                    let quasi = quasi.value.cooked.as_ref().unwrap_or(&quasi.value.raw).as_str();
+                    text.push_str(quasi);
+                    since.push_str(quasi);
                     if let Some(inner) = template.expressions.get(index) {
-                        match ops::to_string(&self.eval(inner)) {
-                            Some(part) => text.push_str(&part),
-                            None => return open(),
+                        let inner = self.eval(inner);
+                        let Some(part) = ops::to_string(&inner) else { return open() };
+                        text.push_str(&part);
+                        match self.written_value(&inner) {
+                            Some(token @ WrittenValue::Token(_)) => {
+                                parts.push(WrittenValue::Str(Arc::from(std::mem::take(&mut since))));
+                                parts.push(token);
+                            }
+                            Some(WrittenValue::Template(inner)) => {
+                                parts.push(WrittenValue::Str(Arc::from(std::mem::take(&mut since))));
+                                parts.extend(inner);
+                            }
+                            _ => since.push_str(&part),
                         }
                     }
                 }
-                Value::str(text)
+                let text: Arc<str> = Arc::from(text);
+                if !parts.is_empty() {
+                    parts.push(WrittenValue::Str(Arc::from(since)));
+                    self.templates
+                        .borrow_mut()
+                        .insert(Arc::as_ptr(&text).cast::<u8>() as usize, (text.clone(), joined(parts)));
+                }
+                Value::Str(text)
             }
             Expression::Identifier(identifier) => self.identifier(identifier),
             Expression::ArrayExpression(array) => {
@@ -1064,4 +1146,17 @@ pub(crate) fn apply(descriptor: &Descriptor, arguments: &[Value], evaluator: &Ev
         })
     }
     (arguments.len() <= descriptor.params).then(|| run(&descriptor.body, arguments, evaluator)).flatten()
+}
+
+/// A template's parts with the empty texts left out and adjacent texts joined.
+fn joined(parts: Vec<WrittenValue>) -> Vec<WrittenValue> {
+    let mut out: Vec<WrittenValue> = Vec::new();
+    for part in parts {
+        match (out.last_mut(), part) {
+            (_, WrittenValue::Str(text)) if text.is_empty() => {}
+            (Some(WrittenValue::Str(last)), WrittenValue::Str(text)) => *last = Arc::from(format!("{last}{text}")),
+            (_, part) => out.push(part),
+        }
+    }
+    out
 }

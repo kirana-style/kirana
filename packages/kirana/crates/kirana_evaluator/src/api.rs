@@ -158,11 +158,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
         };
         let mut handle = Handle { markers: marker.into_iter().collect(), ..Handle::default() };
         handle.apply(Op::Set(
-            EntryKey {
-                target: Target::Element,
-                property: Property::longhand("color-scheme"),
-                conditions: ConditionSet::default(),
-            },
+            EntryKey::new(Target::Element, Property::longhand("color-scheme"), ConditionSet::default()),
             AtomValue::longhand(scheme),
         ));
         Some(Value::Handle(Arc::new(handle)))

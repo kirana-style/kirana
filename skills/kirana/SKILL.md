@@ -56,7 +56,7 @@ an error diagnostic, 2 a bad configuration or argument.
 1. **Learn the project first.** `kirana-style export` prints the design system as JSON: every token with
    its value and file, themes, recipes with their variants and options, relations, keyframes,
    `positionTry`, `viewTransition` and `counterStyle` names (`--definitions` adds what each exported style
-   and recipe evaluates to). Use the tokens and recipes that exist instead of inventing values. `kirana-style doctor` says whether the engine, packages and wiring are right.
+   and recipe evaluates to, with each entry's keys and value as written). Use the tokens and recipes that exist instead of inventing values. `kirana-style doctor` says whether the engine, packages and wiring are right.
 2. **Write the style** with the API below. Look up a signature in `references/api.md`.
 3. **Check it.** `kirana-style check src` prints every diagnostic as `severity[KRN1234] name: message`,
    with the location and a `help:` line; `--format json` gives you

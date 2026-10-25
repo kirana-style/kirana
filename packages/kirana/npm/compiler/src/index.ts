@@ -30,6 +30,7 @@ export {
   type Definition,
   type DefinitionEntry,
   type DesignSystemExport,
+  type PathKey,
   type RecipePart,
   type RelationInfo,
   type Site,
@@ -40,5 +41,6 @@ export {
   type TraceAnswer,
   type TraceEntry,
   type TraceQuery,
+  type WrittenValue,
 } from "./inspect.ts"
 export { COMPONENT, frameworkOf, type Framework } from "./sfc.ts"

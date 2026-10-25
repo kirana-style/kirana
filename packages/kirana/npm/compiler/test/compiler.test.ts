@@ -21,6 +21,7 @@ import {
   detectJsx,
   utf16Offset,
 } from "../src/index.ts"
+import type { PathKey, WrittenValue } from "../src/index.ts"
 
 function project(files: Record<string, string>): string {
   const root = mkdtempSync(path.join(tmpdir(), "kirana-compiler-"))
@@ -209,6 +210,11 @@ export const button = recipe({
     expect(missing!.error).toMatch(/^cannot read .*src\/missing\.ts$/)
     const exported = driver.export(["src"], { definitions: true })
     expect(exported.recipes[0]!.parts![1]!.entries[0]!.value).toBe("1.5rem")
+    const written: [PathKey[] | undefined, WrittenValue | undefined] = [
+      exported.recipes[0]!.parts![1]!.entries[0]!.path,
+      exported.recipes[0]!.parts![1]!.entries[0]!.written,
+    ]
+    expect(written).toEqual([["height"], "1.5rem"])
     expect(driver.export(["src"]).recipes[0]!.parts).toBeUndefined()
     const lowered = driver.lowerTailwind("p-2", "src/card.tsx")
     expect(lowered.style).toBe("css({\n    padding: space[2],\n  })")
