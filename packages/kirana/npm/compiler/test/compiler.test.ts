@@ -1,8 +1,11 @@
-import { spawn } from "node:child_process"
+import { spawn, spawnSync } from "node:child_process"
 import { existsSync, mkdtempSync, mkdirSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import path from "node:path"
+import { pathToFileURL } from "node:url"
 import { describe, expect, it } from "vite-plus/test"
+
+import { moduleHooks, moduleTypeScript } from "../src/config.ts"
 
 import {
   ConfigLoadError,
@@ -263,6 +266,56 @@ export const button = recipe({
     const empty = project({ "kirana.config.mjs": "export const unused = 1" })
     expect((await loadConfigFile(empty, load)).config).toEqual({})
     expect((await loadConfigFile(project({}))).file).toBeUndefined()
+  })
+
+  it("loads a TypeScript configuration as written in a CommonJS package", () => {
+    // `"type": "commonjs"`, as `npm init` writes: Node.js reads `.ts` as CommonJS, and without the
+    // hook stops at `import`. Node.js itself, not Vitest's module runner, so its hooks apply.
+    const root = project({
+      "package.json": '{ "type": "commonjs" }',
+      "kirana.config.ts":
+        'import { prefix } from "./names.ts"\nexport default { names: { prefix: prefix as string } }\n',
+      "names.ts": 'export const prefix = "ds"\n',
+    })
+    const config = pathToFileURL(
+      path.join(import.meta.dirname, "../src/config.ts")
+    ).href
+    const run = spawnSync(
+      process.execPath,
+      [
+        "--input-type=module",
+        "-e",
+        `import { loadConfigFile, resolveConfigSync } from ${JSON.stringify(config)}
+console.log(JSON.stringify((await loadConfigFile(${JSON.stringify(root)})).config))
+console.log(resolveConfigSync(${JSON.stringify(root)}).json)`,
+      ],
+      { encoding: "utf8" }
+    )
+    expect(run.stderr).toBe("")
+    const [loaded, synchronous] = run.stdout.trim().split("\n")
+    expect(JSON.parse(loaded!)).toEqual({ names: { prefix: "ds" } })
+    expect(JSON.parse(synchronous!).names).toEqual({ prefix: "ds" })
+  })
+
+  it("loads a CommonJS-typed .ts file as an ES module only when it has import or export statements", () => {
+    const loaded = (format: string, source: string) =>
+      moduleTypeScript(
+        "file:///p/kirana.config.ts",
+        { conditions: [], format: undefined, importAttributes: {} },
+        () => ({ format, source })
+      )
+    expect(
+      loaded("commonjs-typescript", 'import { x } from "./x.ts"').format
+    ).toBe("module-typescript")
+    expect(loaded("commonjs-typescript", "export default {}").format).toBe(
+      "module-typescript"
+    )
+    expect(loaded("commonjs-typescript", "module.exports = {}").format).toBe(
+      "commonjs-typescript"
+    )
+    expect(loaded("module", "export default {}").format).toBe("module")
+    // Bun and Deno have no `registerHooks`, and need none.
+    expect(() => moduleHooks(undefined).deregister()).not.toThrow()
   })
 
   it("detects the jsx mode from tsconfig.json unless configuration names one", async () => {

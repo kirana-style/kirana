@@ -51,6 +51,9 @@ An adapter MUST NOT interpret styles, decide rewrites, or merge classes (D-028).
 `kirana.config.ts` (or `.mts`, `.js`, `.mjs`, `.json`) at the project root. The Driver loads it — a
 TypeScript config is imported natively (Node.js type stripping, Bun, Deno) once per session — and hands
 the engine resolved data (KRN-CMP-013). Options passed to a host adapter override the file key by key.
+A `.ts` configuration, and each `.ts` file it imports, loads as an ES module when it holds `import` or
+`export` statements, even in a package whose `"type"` is `"commonjs"` (which `npm init` writes), where
+Node.js alone would read it as CommonJS and fail.
 
 ```ts
 import { defineConfig } from "@kirana-style/core/config"
