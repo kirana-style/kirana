@@ -4516,6 +4516,95 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
+    "href": "/docs/tooling/components",
+    "file": "content/docs/tooling/components.md",
+    "title": "Installing components",
+    "description": "Set a project up for a component registry, add components, and keep them up to date with kirana-style ui.",
+    "section": "tooling",
+    "order": 6,
+    "keywords": [
+      "components",
+      "registry",
+      "install",
+      "add",
+      "init",
+      "update",
+      "lockfile",
+      "shadcn"
+    ],
+    "headings": [
+      {
+        "id": "setting-a-project-up",
+        "text": "Setting a project up",
+        "level": 2
+      },
+      {
+        "id": "adding-components",
+        "text": "Adding components",
+        "level": 2
+      },
+      {
+        "id": "the-lockfile",
+        "text": "The lockfile",
+        "level": 2
+      },
+      {
+        "id": "updating-and-removing",
+        "text": "Updating and removing",
+        "level": 2
+      },
+      {
+        "id": "your-registries",
+        "text": "Your registries",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/tooling/registries",
+    "file": "content/docs/tooling/registries.md",
+    "title": "Publishing a registry",
+    "description": "The component registry format kirana-style ui reads, and how to host, check and wire a design system for it.",
+    "section": "tooling",
+    "order": 7,
+    "keywords": [
+      "registry",
+      "publish",
+      "format",
+      "schema",
+      "items",
+      "design system",
+      "hash"
+    ],
+    "headings": [
+      {
+        "id": "an-item",
+        "text": "An item",
+        "level": 2
+      },
+      {
+        "id": "files-and-imports",
+        "text": "Files and imports",
+        "level": 2
+      },
+      {
+        "id": "a-design-system",
+        "text": "A design system",
+        "level": 2
+      },
+      {
+        "id": "the-index",
+        "text": "The index",
+        "level": 2
+      },
+      {
+        "id": "checking",
+        "text": "Checking",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/docs/project/status",
     "file": "content/docs/project/status.md",
     "title": "What works today",
@@ -6246,6 +6335,35 @@ export const NAV: readonly NavGroup[] = [
           "not applying",
           "devtools"
         ]
+      },
+      {
+        "title": "Installing components",
+        "href": "/docs/tooling/components",
+        "description": "Set a project up for a component registry, add components, and keep them up to date with kirana-style ui.",
+        "keywords": [
+          "components",
+          "registry",
+          "install",
+          "add",
+          "init",
+          "update",
+          "lockfile",
+          "shadcn"
+        ]
+      },
+      {
+        "title": "Publishing a registry",
+        "href": "/docs/tooling/registries",
+        "description": "The component registry format kirana-style ui reads, and how to host, check and wire a design system for it.",
+        "keywords": [
+          "registry",
+          "publish",
+          "format",
+          "schema",
+          "items",
+          "design system",
+          "hash"
+        ]
       }
     ]
   },
@@ -6458,6 +6576,8 @@ export const ORDER: readonly string[] = [
   "/docs/tooling/lint",
   "/docs/tooling/diagnostics",
   "/docs/tooling/debugging",
+  "/docs/tooling/components",
+  "/docs/tooling/registries",
   "/docs/project/status",
   "/docs/project/roadmap",
   "/docs/project/releases",
