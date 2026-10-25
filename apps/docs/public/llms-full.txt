@@ -9179,12 +9179,33 @@ Each entry carries:
 - its conditions, each with its kind, and a relation by its name and where the
   reader sits;
 - its `select` target or pseudo-element;
-- the variable tokens it reads and the token it assigns, by identity;
-- the keyframes it names and the class it compiles to.
+- the tokens it reads, constant ones included, and the token it assigns, by
+  identity;
+- the keyframes it names and the class it compiles to;
+- its key path and its value as written.
+
+The key path (`path`) lists the object keys from the top of the style down to the
+value, in the order you wrote them, so a tool can write the style back as source.
+The value as written (`written`) is the value before it is compiled.
+
+| In your source                       | In the export                             |
+| ------------------------------------ | ----------------------------------------- |
+| `color: { [lyra]: { ":hover": x } }` | `["color", "[data-base=lyra]", ":hover"]` |
+| `color: { ":hover": { [lyra]: x } }` | `["color", ":hover", "[data-base=lyra]"]` |
+| a condition as a key                 | `{ "conditions": [...] }`                 |
+| `[select.child("svg")]`              | `{ "select": "> svg" }`                   |
+| `[color.muted]`                      | `{ "token": "color.muted" }`              |
+| `zIndex: 0`                          | `0`                                       |
+| `padding: space[2]`                  | `{ "token": "space.2" }`                  |
+| a template literal that reads tokens | `{ "template": [...] }`                   |
+| `firstThatWorks("100dvh", "100vh")`  | `{ "firstThatWorks": [...] }`             |
 
 A `null` that removes a property when styles merge is an entry whose value is
-`null`, with no conditions when it removes the property under every condition. An
-inlined token reaches the entry as its value, so only variable tokens are listed.
+`null`, with no conditions when it removes the property under every condition.
+
+A removal under every condition has no key path, and no removal has a value as
+written. A template literal names its tokens when it is written in the module
+that exports the style; one imported from another module reads as its text.
 
 ## `kirana-style trace`
 

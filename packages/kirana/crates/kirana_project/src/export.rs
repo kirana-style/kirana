@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 use kirana_diagnostics::line_column;
-use kirana_ir::{Dep, Handle, Key, Op, Value};
+use kirana_ir::{ConditionSet, Dep, EntryKey, Handle, Key, Op, Value, WrittenValue};
 use serde::Serialize;
 
 use crate::Project;
@@ -65,7 +65,9 @@ pub struct EntryExport {
     pub conditions: Option<Vec<ConditionInfo>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub target: Option<String>,
-    /// The variable tokens the value reads, by identity (an inlined token is written as its value).
+    /// The tokens the value reads, by identity, constant ones included (KF-027). A constant token
+    /// read in a template literal is named only when the template is in the module that exports the
+    /// style.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub tokens: Vec<String>,
     /// The variable token whose custom property the entry assigns (`[theme.accent]: …`).
@@ -77,6 +79,16 @@ pub struct EntryExport {
     /// The atom class the entry compiles to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub class: Option<String>,
+    /// The object keys from the top of the style object down to the value, as written (KF-027): a
+    /// string key as its text, a computed key as `{ conditions }`, `{ select }` or `{ token }`. Absent
+    /// for a removal under every condition (`property: null`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub path: Option<Vec<serde_json::Value>>,
+    /// The value as the source spells it (KF-027): a number, a string, `{ token }`, `{ template }`
+    /// (its text and tokens in order) or `{ firstThatWorks }`. Absent for a removal, a value only
+    /// known at runtime, and a keyframes, position-try or counter-style rule.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub written: Option<serde_json::Value>,
 }
 
 /// One part of a recipe and its definition.
@@ -344,6 +356,19 @@ impl Describer<'_> {
             tokens: Vec::new(),
             keyframes: Vec::new(),
             class: None,
+            path: None,
+            written: None,
+        };
+        // How a keyed entry was written: its path and, for a declaration, its value as written and
+        // the tokens that value names, before the ones its compiled text reads. A shorthand's
+        // tombstone carries its declaration's record, so a removal takes the path alone.
+        let written = |key: &EntryKey, out: &mut EntryExport, declares: bool| {
+            let Some(written) = &key.written.0 else { return };
+            out.path = Some(written.path.iter().map(|key| self.path_key(key)).collect());
+            if let (true, Some(value)) = (declares, &written.value) {
+                out.written = Some(written_json(value));
+                out.tokens = value.tokens().into_iter().map(|token| token.identity.clone()).collect();
+            }
         };
         let entries = handle
             .ops
@@ -356,9 +381,12 @@ impl Describer<'_> {
                         Some(conditions(&key.conditions, self.relations)),
                         target(&key.target),
                     );
+                    written(key, &mut out, true);
                     for dep in &value.deps {
                         match dep {
-                            Dep::Token(token) => out.tokens.push(token.identity.clone()),
+                            Dep::Token(token) if !out.tokens.contains(&token.identity) => {
+                                out.tokens.push(token.identity.clone());
+                            }
                             Dep::Keyframes(frames) => out.keyframes.push(frames.name.clone()),
                             _ => {}
                         }
@@ -366,12 +394,16 @@ impl Describer<'_> {
                     out.class = Some(self.project.names.class(op));
                     Some(out)
                 }
-                Op::Remove(key) => Some(entry(
-                    &key.property,
-                    None,
-                    Some(conditions(&key.conditions, self.relations)),
-                    target(&key.target),
-                )),
+                Op::Remove(key) => {
+                    let mut out = entry(
+                        &key.property,
+                        None,
+                        Some(conditions(&key.conditions, self.relations)),
+                        target(&key.target),
+                    );
+                    written(key, &mut out, false);
+                    Some(out)
+                }
                 Op::RemoveProperty(on, property) => Some(entry(property, None, None, target(on))),
                 // An unfold only rewrites earlier entries of this handle; it sets nothing itself.
                 Op::Unfold { .. } => None,
@@ -379,5 +411,35 @@ impl Describer<'_> {
             .collect();
         let anchors = handle.markers.iter().filter_map(|marker| self.relations.get(marker).cloned()).collect();
         Definition { entries, anchors }
+    }
+
+    /// One key of an entry's path, as JSON.
+    fn path_key(&self, key: &Key) -> serde_json::Value {
+        match key {
+            Key::Str(text) => serde_json::json!(&**text),
+            Key::Conditions(parsed) => {
+                serde_json::json!({ "conditions": conditions(&ConditionSet::new(parsed.to_vec()), self.relations) })
+            }
+            Key::Select(on) => serde_json::json!({ "select": target(on) }),
+            Key::Token(token) => serde_json::json!({ "token": token.identity }),
+        }
+    }
+}
+
+/// A value as the source spells it, as JSON: a whole number stays whole (`0`, not `0.0`).
+fn written_json(value: &WrittenValue) -> serde_json::Value {
+    match value {
+        WrittenValue::Number(number) if number.fract() == 0.0 && number.abs() < 1e15 => {
+            serde_json::json!(*number as i64)
+        }
+        WrittenValue::Number(number) => serde_json::json!(number),
+        WrittenValue::Str(text) => serde_json::json!(&**text),
+        WrittenValue::Token(token) => serde_json::json!({ "token": token.identity }),
+        WrittenValue::Template(parts) => {
+            serde_json::json!({ "template": parts.iter().map(written_json).collect::<Vec<_>>() })
+        }
+        WrittenValue::Fallbacks(members) => {
+            serde_json::json!({ "firstThatWorks": members.iter().map(written_json).collect::<Vec<_>>() })
+        }
     }
 }

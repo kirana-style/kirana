@@ -1480,6 +1480,25 @@ the implementation tracker names its evidence.
   configuration declares) is still emitted; only what the compiler proves is left out.
 - **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 
+### D-106 — A definition says how each entry was written
+
+- **Status:** Accepted (2026-10-25). Answers KF-027; narrows D-096's trade-off.
+- **Decision:** with `--definitions`, each entry also gives its `path`, the object keys from the top
+  of the style object down to its value in the order they were written (a computed key as its
+  condition, `select` target or token), and `written`, its value as the source spells it: a number,
+  a string, a token, a template literal's text and tokens, or a `firstThatWorks()` run. `tokens` now
+  names every token the value reads, constant ones included. The record rides on the entry's key and
+  takes no part in its identity, so merging, class names and the stylesheet do not change.
+- **Rationale:** kirana-ui's registry builder writes a flattened style back as readable source. A
+  definition gave it `"0.5rem"` for `space[2]`, `"0"` for the number `0`, and one condition set for
+  `{ [lyra]: { ":hover": x } }` and `{ ":hover": { [lyra]: x } }`, so it kept an evaluator of its own
+  for structure beside Kirana's answers.
+- **Trade-off:** a template literal names its tokens only when it is written in the module that
+  exports the style; one imported from another module reads as its text. A removal of a property
+  under every condition (`padding: null`) has no path, and a keyframes, position-try or counter-style
+  value has no `written`, as it is named by its rule.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                       |
@@ -1491,7 +1510,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                 |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                       |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                             |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103                                                  |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106                                           |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                            |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                           |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                    |

@@ -219,7 +219,9 @@ impl<'a> Evaluator<'_, 'a, '_> {
         match value {
             Value::Object(entries) => {
                 let mut built = Parts::default();
+                let outer = self.fresh_path();
                 self.style_object(entries, &Target::Element, &ConditionSet::default(), span, &mut built);
+                self.restore_path(outer);
                 for part in &built.0 {
                     if let StylePart::Static(handle) = part {
                         self.check_handle(handle, entries, span);
@@ -369,6 +371,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
     ) {
         let top = *target == Target::Element && conditions.is_empty();
         for (key, value) in entries {
+            let _key = self.enter(key);
             let span = self.entry_span(key, span);
             match key {
                 Key::Str(name) if name.starts_with("::") => {
@@ -452,10 +455,11 @@ impl<'a> Evaluator<'_, 'a, '_> {
             Value::Null => {
                 let Some(plan) = self.plan(name, span) else { return };
                 let every = top && conditions.is_empty();
-                parts.push_static(&removal(&plan, target, conditions, every));
+                self.push_removal(removal(&plan, target, conditions, every), parts);
             }
             Value::Object(entries) => {
                 for (key, inner) in entries.iter() {
+                    let _key = self.enter(key);
                     let span = self.entry_span(key, span);
                     match key {
                         Key::Str(key) if &**key == "base" => {
@@ -464,7 +468,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
                         Key::Str(key) if &**key == "*" => match inner {
                             Value::Null if conditions.is_empty() => {
                                 if let Some(plan) = self.plan(name, span) {
-                                    parts.push_static(&removal(&plan, target, conditions, true));
+                                    self.push_removal(removal(&plan, target, conditions, true), parts);
                                 }
                             }
                             _ => self.report(
@@ -502,12 +506,12 @@ impl<'a> Evaluator<'_, 'a, '_> {
             | Value::Keyframes(_)
             | Value::PositionTry(_)
             | Value::CounterStyle(_) => match self.declare_value(name, value) {
-                Ok(expanded) => self.set_expanded(name, expanded, target, conditions, span, parts),
+                Ok(expanded) => self.set_expanded(name, value, expanded, target, conditions, span, parts),
                 Err(error) => self.report_declaration(error, span),
             },
             Value::Fallbacks(members) => {
                 if let Some(expanded) = self.fallbacks(name, members, span) {
-                    self.set_expanded(name, expanded, target, conditions, span, parts);
+                    self.set_expanded(name, value, expanded, target, conditions, span, parts);
                 }
             }
             Value::Dynamic(dynamic) => match &**dynamic {
@@ -544,10 +548,19 @@ impl<'a> Evaluator<'_, 'a, '_> {
         declare_with(name, raw, &|variable| self.variable_values(variable))
     }
 
-    /// Writes expanded declarations as one handle part.
+    /// A removal, recorded as written at the current path.
+    fn push_removal(&self, mut handle: Handle, parts: &mut Parts) {
+        handle.stamp(&self.written(None));
+        parts.push_static(&handle);
+    }
+
+    /// Writes expanded declarations as one handle part, recorded as `value` written at the current
+    /// path.
+    #[allow(clippy::too_many_arguments)]
     fn set_expanded(
         &self,
         name: &str,
+        value: &Value,
         expanded: Expanded,
         target: &Target,
         conditions: &ConditionSet,
@@ -564,13 +577,14 @@ impl<'a> Evaluator<'_, 'a, '_> {
             .map(|(property, _)| property.name.as_str());
         prepare_set(&mut handle, &plan, target, conditions, atom, longhands);
         for (property, css) in expanded.declarations {
-            let key = EntryKey { target: target.clone(), property, conditions: conditions.clone() };
+            let key = EntryKey::new(target.clone(), property, conditions.clone());
             handle.apply(Op::Set(key, self.atom_value(css, longhands)));
         }
         for warning in expanded.warnings {
             let DeclarationWarning::Unsplittable { property } = warning;
             self.report_unsplittable(&property, span);
         }
+        handle.stamp(&self.written(Some(value)));
         parts.push_static(&handle);
     }
 
@@ -633,13 +647,14 @@ impl<'a> Evaluator<'_, 'a, '_> {
         } else {
             plan.longhands[0].clone()
         };
-        let key = EntryKey { target: target.clone(), property, conditions: conditions.clone() };
+        let key = EntryKey::new(target.clone(), property, conditions.clone());
         let variable = self.ctx.names.bridge_variable(&key);
         let mut handle = Handle::default();
         let atom = (key.property.rank == Shorthand).then_some(key.property.name.as_str());
         let longhands = atom.map_or(1, breadth);
         prepare_set(&mut handle, &plan, target, conditions, atom, longhands);
         handle.apply(Op::Set(key, AtomValue { css: format!("var({variable})"), deps: Vec::new(), longhands }));
+        handle.stamp(&self.written(None));
         self.report(Code::DynamicBridged, value, format!("{name} is set at runtime through {variable}"), None);
         parts.push(StylePart::Bridge { handle, variable, value });
     }

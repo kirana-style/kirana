@@ -7,7 +7,7 @@ use lightningcss::targets::{Browsers, Targets};
 fn atom(target: Target, property: &str, conditions: Vec<Condition>, css: &str, deps: Vec<Dep>) -> Atom {
     let names = Names::default();
     let op = Op::Set(
-        EntryKey { target, property: Property::longhand(property), conditions: ConditionSet::new(conditions) },
+        EntryKey::new(target, Property::longhand(property), ConditionSet::new(conditions)),
         AtomValue { css: css.into(), deps, longhands: 1 },
     );
     let Op::Set(key, value) = op.clone() else { unreachable!() };
@@ -309,11 +309,7 @@ fn a_competing_declaration_blocks_the_merge() {
     // A shorthand covers longhands this pass does not enumerate, so nothing crosses it.
     let names = Names::default();
     let shorthand = Op::Set(
-        EntryKey {
-            target: Target::Element,
-            property: Property::shorthand("border"),
-            conditions: ConditionSet::new(cond(":hover")),
-        },
+        EntryKey::new(Target::Element, Property::shorthand("border"), ConditionSet::new(cond(":hover"))),
         AtomValue { css: "1px solid red".into(), deps: vec![], longhands: 12 },
     );
     let Op::Set(key, value) = shorthand.clone() else { unreachable!() };

@@ -782,3 +782,109 @@ export const chip = recipe({ slots: ["root"], base: { root: { height: "1rem" } }
     assert!(plain.get("styles").is_none() && plain["recipes"][0].get("parts").is_none());
     fs::remove_dir_all(root).unwrap();
 }
+
+/// `export --definitions` says how each entry was written, so a tool can write the style back as
+/// source (KF-027): the keys down to it in order, the value as the source spells it, and every token
+/// it reads, constant ones included.
+#[test]
+fn exports_how_entries_were_written() {
+    let root = temp(&[
+        ("src/tokens.ts", DESIGN_TOKENS),
+        (
+            "src/edge.ts",
+            b"import { color, space } from \"./tokens\"\nexport const edge = `${space.x} 0`\nexport const ring = `0 0 1px ${color.brand}`\n",
+        ),
+        (
+            "src/styles.ts",
+            br##"import { css, firstThatWorks, keyframes, mode, relation, select } from "@kirana-style/core"
+import { color, space } from "./tokens"
+import { edge, ring } from "./edge"
+const field = relation("field")
+const lyra = "[data-base=lyra]"
+const spin = keyframes({ to: { opacity: 0 } })
+const gap = `0 ${space.x}`
+export const scheme = mode.dark
+export const anchor = css(field.anchor)
+export const styles = css({
+  zIndex: 0,
+  opacity: 0.5,
+  padding: space.x,
+  boxShadow: `inset ${gap} ${space.x} ${2}px ${color.brand}`,
+  textShadow: ring,
+  inset: edge,
+  cursor: `pointer`,
+  color: { [lyra]: { ":hover": color.brand } },
+  backgroundColor: { ":hover": { [lyra]: "red", [field.within(":focus")]: "blue" } },
+  width: firstThatWorks("100dvh", "100vh"),
+  [select.child("svg")]: { height: "1rem" },
+  [color.muted]: "#999",
+  borderColor: { ":focus": null },
+  animationName: spin,
+})
+"##,
+        ),
+    ]);
+    let config = format!(r#"{{"root":{:?}}}"#, root.to_string_lossy());
+    let (code, output) = run(&["--config-json", &config, "export", "--definitions"]);
+    let json: serde_json::Value = serde_json::from_str(&output).unwrap();
+    assert_eq!(code, 0, "{output}");
+    let entries = |name: &str| -> Vec<serde_json::Value> {
+        let style = json["styles"].as_array().unwrap().iter().find(|style| style["name"] == name).unwrap();
+        style["entries"].as_array().unwrap().clone()
+    };
+    let entry = |property: &str| -> serde_json::Value {
+        entries("styles").into_iter().find(|entry| entry["property"] == property).unwrap()
+    };
+    let written = |property: &str| {
+        let entry = entry(property);
+        serde_json::json!([entry["path"], entry["written"], entry.get("tokens")])
+    };
+    // A whole number stays whole; a constant token is named, not only its value.
+    assert_eq!(written("z-index"), serde_json::json!([["zIndex"], 0, null]));
+    assert_eq!(written("opacity"), serde_json::json!([["opacity"], 0.5, null]));
+    assert_eq!(written("padding"), serde_json::json!([["padding"], { "token": "space.x" }, ["space.x"]]));
+    // A template keeps its tokens through a template it reads, beside text and numbers; each token
+    // is listed once.
+    assert_eq!(
+        written("box-shadow")[1],
+        serde_json::json!({
+            "template": [
+                "inset 0 ",
+                { "token": "space.x" },
+                " ",
+                { "token": "space.x" },
+                " 2px ",
+                { "token": "color.brand" }
+            ]
+        })
+    );
+    assert_eq!(written("box-shadow")[2], serde_json::json!(["space.x", "color.brand"]));
+    // A template built in another module, and one that reads no token, read as their text.
+    assert_eq!(written("top")[1], "1rem 0");
+    // A variable token is still named from the compiled text.
+    assert_eq!(written("text-shadow")[2], serde_json::json!(["color.brand"]));
+    assert_eq!(written("cursor")[1], "pointer");
+    // The nesting order the condition set forgets.
+    assert_eq!(written("color")[0], serde_json::json!(["color", "[data-base=lyra]", ":hover"]));
+    let background = entries("styles").into_iter().filter(|entry| entry["property"] == "background-color");
+    let paths: Vec<serde_json::Value> = background.map(|entry| entry["path"].clone()).collect();
+    assert_eq!(
+        paths,
+        [
+            serde_json::json!(["backgroundColor", ":hover", "[data-base=lyra]"]),
+            serde_json::json!(["backgroundColor", ":hover", {
+                "conditions": [{ "kind": "relation", "text": ":focus", "relation": "field", "placement": "within" }]
+            }]),
+        ]
+    );
+    assert_eq!(written("width")[1], serde_json::json!({ "firstThatWorks": ["100dvh", "100vh"] }));
+    assert_eq!(written("height")[0], serde_json::json!([{ "select": "> svg" }, "height"]));
+    let assigned = entries("styles").into_iter().find(|entry| entry["assigns"] == "color.muted").unwrap();
+    assert_eq!(assigned["path"], serde_json::json!([{ "token": "color.muted" }]));
+    // A removal has a path and no written value; a keyframes value is named by `keyframes`.
+    assert_eq!(written("border-color"), serde_json::json!([["borderColor", ":focus"], null, null]));
+    assert_eq!(written("animation-name"), serde_json::json!([["animationName"], null, null]));
+    // A handle the compiler builds itself was written by no one.
+    assert!(entries("scheme")[0].get("path").is_none());
+    fs::remove_dir_all(root).unwrap();
+}

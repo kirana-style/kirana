@@ -38,7 +38,7 @@ fn atom(property: usize, condition: usize, value: usize) -> Atom {
     let conditions = CONDITIONS[condition].iter().flat_map(|key| parse_condition_key(key).unwrap()).collect();
     let property = if longhands > 1 { Property::shorthand(name) } else { Property::longhand(name) };
     let op = Op::Set(
-        EntryKey { target: Target::Element, property, conditions: ConditionSet::new(conditions) },
+        EntryKey::new(Target::Element, property, ConditionSet::new(conditions)),
         AtomValue { css: values[value].into(), deps: vec![], longhands },
     );
     let Op::Set(key, value) = op.clone() else { unreachable!() };
@@ -220,11 +220,7 @@ fn a_vendor_property_blocks_every_merge() {
     let vendor = |condition: usize, value: &str| {
         let conditions = CONDITIONS[condition].iter().flat_map(|key| parse_condition_key(key).unwrap()).collect();
         let op = Op::Set(
-            EntryKey {
-                target: Target::Element,
-                property: Property::longhand("-webkit-margin-start"),
-                conditions: ConditionSet::new(conditions),
-            },
+            EntryKey::new(Target::Element, Property::longhand("-webkit-margin-start"), ConditionSet::new(conditions)),
             AtomValue { css: value.into(), deps: vec![], longhands: 1 },
         );
         let Op::Set(key, value) = op.clone() else { unreachable!() };
@@ -244,11 +240,7 @@ fn a_vendor_property_blocks_every_merge() {
 fn a_listed_shorthand_blocks_only_its_longhands() {
     let names = Names::default();
     let op = Op::Set(
-        EntryKey {
-            target: Target::Element,
-            property: Property::shorthand("text-wrap"),
-            conditions: ConditionSet::default(),
-        },
+        EntryKey::new(Target::Element, Property::shorthand("text-wrap"), ConditionSet::default()),
         AtomValue { css: "balance".into(), deps: vec![], longhands: 2 },
     );
     let Op::Set(key, value) = op.clone() else { unreachable!() };
@@ -265,7 +257,7 @@ fn hidden_overlaps_block_the_merge() {
     let single = |property: Property, condition: usize, css: &str| {
         let conditions = CONDITIONS[condition].iter().flat_map(|key| parse_condition_key(key).unwrap()).collect();
         let op = Op::Set(
-            EntryKey { target: Target::Element, property, conditions: ConditionSet::new(conditions) },
+            EntryKey::new(Target::Element, property, ConditionSet::new(conditions)),
             AtomValue { css: css.into(), deps: vec![], longhands: 1 },
         );
         let Op::Set(key, value) = op.clone() else { unreachable!() };
@@ -295,11 +287,7 @@ fn the_shared_declaration_is_the_longest_then_the_first() {
     let margin = |condition: usize, value: &str| {
         let conditions = CONDITIONS[condition].iter().flat_map(|key| parse_condition_key(key).unwrap()).collect();
         let op = Op::Set(
-            EntryKey {
-                target: Target::Element,
-                property: Property::longhand("margin-left"),
-                conditions: ConditionSet::new(conditions),
-            },
+            EntryKey::new(Target::Element, Property::longhand("margin-left"), ConditionSet::new(conditions)),
             AtomValue { css: value.into(), deps: vec![], longhands: 1 },
         );
         let Op::Set(key, value) = op.clone() else { unreachable!() };

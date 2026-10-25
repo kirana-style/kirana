@@ -165,8 +165,10 @@ Each token also names its package, so two packages' groups of one name stay apar
 
 With `--definitions` it MUST also give what each exported `css()` handle (and each one inside an exported
 object) and each part of each exported recipe evaluates to (D-096): its entries in merge order, each with
-its property, value (`null` for a removal), conditions by kind, target, the variable tokens it reads and
-the token it assigns by identity, the keyframes it names and its class; and the relations it anchors.
+its property, value (`null` for a removal), conditions by kind, target, the tokens it reads (constant
+ones included) and the token it assigns by identity, the keyframes it names and its class; the object
+keys down to it in the order they were written and its value as the source spells it (D-106); and the
+relations it anchors.
 `Driver.export()` returns the same JSON from code.
 
 ## Agent skills

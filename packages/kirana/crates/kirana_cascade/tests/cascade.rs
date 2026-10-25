@@ -134,18 +134,14 @@ fn colors() {
 
 fn entry(target: Target, property: &str) -> Op {
     Op::Set(
-        EntryKey { target, property: Property::longhand(property), conditions: ConditionSet::default() },
+        EntryKey::new(target, Property::longhand(property), ConditionSet::default()),
         AtomValue { css: "0".into(), deps: vec![], longhands: 1 },
     )
 }
 
 fn atom(shorthand: &str, longhands: u8) -> Op {
     Op::Set(
-        EntryKey {
-            target: Target::Element,
-            property: Property::shorthand(shorthand),
-            conditions: ConditionSet::default(),
-        },
+        EntryKey::new(Target::Element, Property::shorthand(shorthand), ConditionSet::default()),
         AtomValue { css: "0".into(), deps: vec![], longhands },
     )
 }
@@ -259,7 +255,7 @@ fn compile(handle: &mut Handle, (name, value, hover, top): Write) {
                 .map(|(property, _)| property.name.clone());
             prepare_set(handle, &plan, &Target::Element, &conditions, atom.as_deref(), longhands);
             for (property, css) in expanded.declarations {
-                let key = EntryKey { target: Target::Element, property, conditions: conditions.clone() };
+                let key = EntryKey::new(Target::Element, property, conditions.clone());
                 handle.apply(Op::Set(key, AtomValue { css, deps: vec![], longhands }));
             }
         }

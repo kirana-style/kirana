@@ -5,11 +5,7 @@ use kirana_ir::*;
 fn handle_with(property: &str, css: &str) -> Handle {
     let mut handle = Handle::default();
     handle.apply(Op::Set(
-        EntryKey {
-            target: Target::Element,
-            property: Property::longhand(property),
-            conditions: ConditionSet::default(),
-        },
+        EntryKey::new(Target::Element, Property::longhand(property), ConditionSet::default()),
         AtomValue { css: css.into(), deps: vec![], longhands: 1 },
     ));
     handle
