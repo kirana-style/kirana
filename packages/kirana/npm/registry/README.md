@@ -5,6 +5,7 @@ Schemas, types and checks.
 
 ```bash
 npm install --save-dev @kirana-style/registry
+npx kirana-style ui add button
 npx kirana-style ui search button
 npx kirana-style ui view @acme/button
 npx kirana-style ui validate public/r/button.json
@@ -15,15 +16,16 @@ npx kirana-style ui validate public/r/button.json
 
 ## Commands
 
-| Command                                | Does                                                                                                                                                                                                          |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kirana-style ui view <item…>`         | Shows an item: its version, type, Kirana range, dependencies, style modules, each framework's bases with their files, and its shared files; never a file's content. `--json` prints the items as read.        |
-| `kirana-style ui search [query]`       | Lists the items of every registry's index whose name, title or description holds the query. `--registry <namespace>` (repeatable) searches only those; `--json` prints the results.                           |
-| `kirana-style ui validate <document…>` | Checks registry items, indexes and lockfiles against their schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries (`@acme/card`). Exit 1 on a problem. |
+| Command                                | Does                                                                                                                                                                                                                                                                                   |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kirana-style ui add <item…>`          | Installs items and every item they need: files under the project's alias for their type (through `tsconfig.json`'s `paths`), imports rewritten to those aliases, packages added with the project's package manager, each item in `kirana-style.lock.json`. `--dry-run`, `--overwrite`. |
+| `kirana-style ui view <item…>`         | Shows an item: its version, type, Kirana range, dependencies, style modules, each framework's bases with their files, and its shared files; never a file's content. `--json` prints the items as read.                                                                                 |
+| `kirana-style ui search [query]`       | Lists the items of every registry's index whose name, title or description holds the query. `--registry <namespace>` (repeatable) searches only those; `--json` prints the results.                                                                                                    |
+| `kirana-style ui validate <document…>` | Checks registry items, indexes and lockfiles against their schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries (`@acme/card`). Exit 1 on a problem.                                                                          |
 
 A document that cannot be read is named with what failed, and the command exits 1.
 
-Coming in later releases: `init`, `add`, `diff`, `update`, `outdated`, `remove`, `preset`,
+Coming in later releases: `init`, `diff`, `update`, `outdated`, `remove`, `preset`,
 `build` and `mcp`.
 
 ## Registries

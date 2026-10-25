@@ -1522,6 +1522,25 @@ the implementation tracker names its evidence.
   the command that writes it, not for a registry, since one project installs from several.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
+### D-108 — Installed files name each other through the project's aliases
+
+- **Status:** Accepted (2026-10-25). For `kirana-style ui add`.
+- **Decision:** a registry file names another installed file as `@/registry/<type>/<path>`, its
+  type and path exactly as the item lists that file. Installation rewrites the prefix to the
+  project's alias for the type (`ui.aliases`, defaulting to shadcn/ui's `@/components/ui`, `@/lib`,
+  `@/components`, `@/hooks`), and writes each file in the directory the project's `tsconfig.json`
+  maps that alias to. Two files installed in one directory may import each other relatively. A
+  command that would change a file the project already has, with other content, changes nothing
+  unless told to overwrite.
+- **Rationale:** a registry cannot know a project's layout, and a project already says it once, in
+  its `paths`; reading it there keeps one source and makes the written imports resolve as the
+  project's own do. Naming a file by its type and path keeps the import tied to the file the item
+  carries, so the installer can check that every such import is installed. Refusing before writing
+  anything leaves a project whole: half an item is worse than none.
+- **Trade-off:** a project without `paths` for its aliases must add them (the message says which),
+  as shadcn/ui asks. `@/registry/` is reserved in registry files.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                       |
@@ -1533,7 +1552,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                 |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                       |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                             |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107                                    |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108                             |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                            |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                           |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                    |

@@ -7,6 +7,7 @@ import { existsSync } from "node:fs"
 import { readFile } from "node:fs/promises"
 import path from "node:path"
 
+import { runAdd } from "./add.ts"
 import { check } from "./check.ts"
 import { failureLine, isSettingsError } from "./command.ts"
 import type { Options } from "./command.ts"
@@ -24,7 +25,12 @@ import { runView } from "./view.ts"
 
 export { check, hashOf, kindOf } from "./check.ts"
 export type { Kind } from "./check.ts"
-export type { Failure, Options } from "./command.ts"
+export type { Failure, Options, Run } from "./command.ts"
+export { missingPackages, place, plan } from "./add.ts"
+export type { Placed, Planned } from "./add.ts"
+export { LOCKFILE, readLockfile, writeLockfile } from "./lockfile.ts"
+export { aliasDirectory, frameworkOf, readProject } from "./project.ts"
+export type { Project } from "./project.ts"
 export {
   FILE_TYPES,
   FRAMEWORKS,
@@ -33,6 +39,7 @@ export {
   ITEM_TYPES,
   LOCKFILE_SCHEMA,
   NAMESPACE_PATTERN,
+  ALIASED_TYPES,
   REFERENCE_PATTERN,
   SETTINGS_SCHEMA,
 } from "./schema.ts"
@@ -51,8 +58,13 @@ export {
   RegistryError,
 } from "./read.ts"
 export type { Io } from "./read.ts"
-export { KIRANA_REGISTRY, loadSettings, SettingsError } from "./settings.ts"
-export type { ImportFile, Registry, Settings } from "./settings.ts"
+export {
+  DEFAULT_ALIASES,
+  KIRANA_REGISTRY,
+  loadSettings,
+  SettingsError,
+} from "./settings.ts"
+export type { AliasedType, ImportFile, Registry, Settings } from "./settings.ts"
 export type * from "./types.ts"
 export { validate } from "./validate.ts"
 export type { Problem } from "./validate.ts"
@@ -60,6 +72,9 @@ export type { Problem } from "./validate.ts"
 const USAGE = `Usage: kirana-style ui <command>
 
 Commands in this release:
+  add <item…>            install items and every item they need: files at the project's aliases
+                         (ui.aliases, through tsconfig.json's paths), packages with its package
+                         manager, each recorded in kirana-style.lock.json; --dry-run, --overwrite
   view <item…>           what an item is: its frameworks and bases, files, styles and dependencies
                          (@acme/card, or button for @kirana's); --json prints the items as read
   search [query]         the items of every registry's index whose name, title or description holds
@@ -68,13 +83,12 @@ Commands in this release:
                          hash; a document is a file, a URL, or an item of the project's registries
                          (@acme/card, button for @kirana's, @acme/index for an index)
 
-Coming in later releases: init, add, diff, update, outdated, remove, preset, build, mcp.
+Coming in later releases: init, diff, update, outdated, remove, preset, build, mcp.
 `
 
 /** The commands the registry will have (its plan), so that one asked for early says so. */
 const PLANNED = new Set([
   "init",
-  "add",
   "diff",
   "update",
   "outdated",
@@ -182,6 +196,7 @@ export async function main(
   }
   if (command === "validate") return runValidate(rest, cwd, write, options)
   if (command === "view") return runView(rest, cwd, write, options)
+  if (command === "add") return runAdd(rest, cwd, write, options)
   if (command === "search") return runSearch(rest, cwd, write, options)
   if (PLANNED.has(command)) {
     write(`kirana-style ui ${command} is not in this release yet\n`)

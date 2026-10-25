@@ -655,14 +655,15 @@ $ kirana-style ui add button
 kirana-style ui needs @kirana-style/registry, which this project does not have: add it as a development dependency
 ```
 
-| Command                                | Does                                                                                                                                                                                                                                                       |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kirana-style ui view <item…>`         | Show what an item is: its version, type and description, the Kirana versions it was checked with, its dependencies, its style modules, each framework's bases with their files, and the files every framework installs. `--json` prints the items as read. |
-| `kirana-style ui search [query]`       | List the items of your registries' indexes whose name, title or description holds every word of the query; without one, every item. `--registry <namespace>` searches only that registry (repeatable), `--json` prints the results.                        |
-| `kirana-style ui validate <document…>` | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings.          |
+| Command                                | Does                                                                                                                                                                                                                                                                                          |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kirana-style ui add <item…>`          | Install items and every item they need: each file under your alias for its type, its imports pointed at your aliases, the npm packages added with your package manager, each item recorded in `kirana-style.lock.json`. `--dry-run` writes nothing; `--overwrite` replaces files you changed. |
+| `kirana-style ui view <item…>`         | Show what an item is: its version, type and description, the Kirana versions it was checked with, its dependencies, its style modules, each framework's bases with their files, and the files every framework installs. `--json` prints the items as read.                                    |
+| `kirana-style ui search [query]`       | List the items of your registries' indexes whose name, title or description holds every word of the query; without one, every item. `--registry <namespace>` searches only that registry (repeatable), `--json` prints the results.                                                           |
+| `kirana-style ui validate <document…>` | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings.                                             |
 
-Installing, updating and the rest of the installer come next. A command asked for
-before its release says it is not in this one yet.
+Setting a project up, flattening for its design and updating come next. A command
+asked for before its release says it is not in this one yet.
 
 A registry is static JSON: one document per item at a URL template holding
 `{name}`, and an index, the item named `index`. An item carries its style modules
@@ -698,6 +699,28 @@ $ kirana-style ui validate @acme/private
 
 Each document is fetched afresh, over `https:` (or `http:` from your own
 machine), or read from disk for a path; a request gives up after 30 seconds.
+
+`add` installs an item after the items it needs, and stops before writing
+anything when a file you already have would change:
+
+```text
+$ kirana-style ui add button
+@kirana/kirana 0.0.0
+  + src/lib/kirana/axes.ts
+  …
+@kirana/sx 0.0.0 · react/base
+  + src/lib/kirana/sx.ts
+@kirana/button 0.0.0 · react/base
+  + src/components/ui/button.styles.ts
+  + src/components/ui/button.tsx
+packages: npm install @base-ui/react@^1.9.0
+kirana-style.lock.json: 3 item(s) recorded
+```
+
+Each line says what happens to a file: `+` it is new, `=` you have it as it is,
+`!` yours differs. The lockfile keeps two hashes per file, the registry's and
+what was written, which is how later commands tell a registry's change from
+yours.
 
 `view` shows an item without its files' content, before you install it:
 

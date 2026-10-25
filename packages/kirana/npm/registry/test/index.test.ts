@@ -71,9 +71,9 @@ describe("KRN-DX-020 the commands kirana-style ui runs", () => {
   })
 
   it("says a command of a later release is not in this one, and refuses an unknown one", async () => {
-    expect(await run("add", "button")).toEqual({
+    expect(await run("diff", "button")).toEqual({
       code: 1,
-      text: "kirana-style ui add is not in this release yet\n",
+      text: "kirana-style ui diff is not in this release yet\n",
     })
     const unknown = await run("install")
     expect(unknown.code).toBe(2)

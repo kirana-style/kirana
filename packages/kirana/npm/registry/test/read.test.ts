@@ -43,6 +43,7 @@ function settings(registries: Registry[] = []): Settings {
   return {
     root,
     registries: new Map(all.map((entry) => [entry.namespace, entry])),
+    aliases: {},
   }
 }
 

@@ -1,5 +1,12 @@
 export { Driver, type DriverOptions, type TransformResult } from "./driver.ts"
 export {
+  installCommand,
+  packageManagerOf,
+  readPackage,
+  type PackageJson,
+  type PackageManager,
+} from "./detect.ts"
+export {
   formatDiagnostic,
   parseDiagnostics,
   position,
@@ -8,6 +15,7 @@ export {
 export {
   ConfigLoadError,
   detectJsx,
+  readJsonc,
   findConfigAbove,
   loadConfigFile,
   resolveConfig,

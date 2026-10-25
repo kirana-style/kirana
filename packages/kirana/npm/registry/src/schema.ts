@@ -283,9 +283,12 @@ export const LOCKFILE_SCHEMA: Schema = {
   $defs: definitions,
 }
 
+/** The file types a project has an alias for: every type but `file`, which names its own target. */
+export const ALIASED_TYPES = ["ui", "lib", "component", "hook", "page"] as const
+
 /**
- * `ui` in `kirana.config.*`, as far as this release's commands read it (KRN-DX-022, KRN-DX-026). Its
- * other keys belong to the commands still to come, so they pass.
+ * `ui` in `kirana.config.*`, as far as this release's commands read it (KRN-DX-022, KRN-DX-026,
+ * KRN-DX-028). Its other keys belong to the commands still to come, so they pass.
  */
 export const SETTINGS_SCHEMA: Schema = {
   $schema: DIALECT,
@@ -293,6 +296,26 @@ export const SETTINGS_SCHEMA: Schema = {
   title: "Kirana ui settings",
   type: "object",
   properties: {
+    framework: {
+      type: "string",
+      description: "The framework whose markup `ui add` installs.",
+      enum: FRAMEWORKS,
+    },
+    base: {
+      type: "string",
+      description:
+        "The base whose markup `ui add` installs: `base`, `aria`, `ark` …",
+      pattern: `^${NAME}$`,
+    },
+    aliases: {
+      type: "object",
+      description:
+        "The import specifier for each file type, which the project's tsconfig.json maps to a directory.",
+      properties: Object.fromEntries(
+        ALIASED_TYPES.map((type) => [type, { type: "string", minLength: 1 }])
+      ),
+      additionalProperties: false,
+    },
     registries: {
       type: "object",
       description:

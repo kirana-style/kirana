@@ -4,6 +4,49 @@
   "title": "Kirana ui settings",
   "type": "object",
   "properties": {
+    "framework": {
+      "type": "string",
+      "description": "The framework whose markup `ui add` installs.",
+      "enum": [
+        "react",
+        "vue",
+        "svelte",
+        "solid",
+        "angular"
+      ]
+    },
+    "base": {
+      "type": "string",
+      "description": "The base whose markup `ui add` installs: `base`, `aria`, `ark` …",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "aliases": {
+      "type": "object",
+      "description": "The import specifier for each file type, which the project's tsconfig.json maps to a directory.",
+      "properties": {
+        "ui": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lib": {
+          "type": "string",
+          "minLength": 1
+        },
+        "component": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hook": {
+          "type": "string",
+          "minLength": 1
+        },
+        "page": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
     "registries": {
       "type": "object",
       "description": "Registries by namespace: a URL template holding {name}, or { url, headers }.",

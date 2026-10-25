@@ -84,7 +84,7 @@ Measured by `bench/lsp.ts` in the benchmark repository (2026-10-02): hover p95 1
 | `kirana-style doctor [--json] [--report [file]] [--trace]`                                     | Engine in use (native or WASI), installed versions, configuration resolution, detected host and whether the adapter, stylesheet and types are wired, cache state (none, D-049). Exit 1 on a failure. `--report` writes a redacted bug report: versions, checks, diagnostics by code, stylesheet size, configuration, optional `kirana-style trace` output; no source text (D-077). Built. |
 | `kirana-style migrate stylex\|tailwind`                                                        | The codemods of [06](./06-authoring-api.md#migration-codemods), with a dry-run diff and a report file.                                                                                                                                                                                                                                                                                    |
 | `kirana-style lsp`                                                                             | Start the language server.                                                                                                                                                                                                                                                                                                                                                                |
-| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view` and `search` are built; `init`, `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                                                                           |
+| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view`, `search` and `add` are built; `init`, `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                                                                    |
 
 There is no `kirana cache clean`: Kirana keeps no persistent cache (D-049), so there is nothing to
 clear, and `kirana-style doctor` says so.
@@ -178,6 +178,26 @@ every entry. With `--json` each prints one JSON object: `view` its `items` as re
 `{ document, message }`. A document that cannot be read MUST be named with what failed while the
 others are still shown, and the command exits 1; `view` without an item, or either command with
 settings it cannot use, exits 2.
+
+**KRN-DX-028** — `kirana-style ui add <item…>` MUST install each item and, before it, every item it
+needs: its `registryDependencies` and its base's, a bare name read from the same registry, each item
+read once (KRN-DX-026). The project's settings under `ui`:
+
+| Key       | Holds                                                                                                                                                  |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| framework | the framework whose markup is installed; else the one of `react`, `vue`, `svelte`, `solid-js` and `@angular/core` the project depends on               |
+| base      | the base whose markup is installed; else the framework's only base in the item                                                                         |
+| aliases   | the import specifier for each file type: `ui`, `lib`, `component`, `hook`, `page`; `@/components/ui`, `@/lib`, `@/components` and `@/hooks` by default |
+
+An item with `frameworks` and none for the project's framework, or several bases and no `ui.base`,
+MUST stop the command, naming what the item supports. Each file is written in the directory the
+project's `tsconfig.json` (its `extends` and `references` followed) maps its type's alias to, or at
+its `target` for a `file`; its `@/registry/<type>/<path>` imports become the alias (D-108). A file
+the project already has with other content MUST stop the command before anything is written, unless
+`--overwrite`; `--dry-run` writes and installs nothing. The npm packages the items need and the
+project does not list are installed with its package manager, and each item is recorded in the
+lockfile (KRN-DX-025) with both hashes of every file. Exit 1 when an item cannot be read or
+installed, 2 without an item or with settings it cannot use.
 
 **KRN-DX-025** — The lockfile MUST be `kirana-style.lock.json`, at the project's root:
 `{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came

@@ -8,6 +8,8 @@ import path from "node:path"
 import { findConfigAbove, loadConfigFile } from "@kirana-style/compiler"
 
 import { SETTINGS_SCHEMA } from "./schema.ts"
+import type { ALIASED_TYPES } from "./schema.ts"
+import type { Framework } from "./types.ts"
 import { validate } from "./validate.ts"
 
 /** Kirana UI's registry, which every project knows without configuring it. */
@@ -20,6 +22,17 @@ export type Registry = {
   headers: Readonly<Record<string, string>>
 }
 
+/** A file type a project imports through an alias. */
+export type AliasedType = (typeof ALIASED_TYPES)[number]
+
+/** shadcn/ui's aliases, which a project without `ui.aliases` gets (`page` has none). */
+export const DEFAULT_ALIASES: Readonly<Partial<Record<AliasedType, string>>> = {
+  ui: "@/components/ui",
+  lib: "@/lib",
+  component: "@/components",
+  hook: "@/hooks",
+}
+
 /** What the commands read from a project. */
 export type Settings = {
   /** The configuration's directory, where a path template starts; the working directory without one. */
@@ -27,6 +40,11 @@ export type Settings = {
   /** The configuration file, when there is one. */
   file?: string
   registries: ReadonlyMap<string, Registry>
+  /** `ui.framework` and `ui.base`, when set. */
+  framework?: Framework
+  base?: string
+  /** The defaults, with `ui.aliases` over them. */
+  aliases: Readonly<Partial<Record<AliasedType, string>>>
 }
 
 /** Settings that cannot be used: the configuration file and every problem in its `ui`. */
@@ -58,8 +76,17 @@ export async function loadSettings(
         .map((problem) => `${file}: ui${problem.pointer} ${problem.message}`)
         .join("\n")
     )
-  const configured = (ui as { registries?: Record<string, RegistryEntry> })
-    .registries
+  const {
+    registries: configured,
+    framework,
+    base,
+    aliases,
+  } = ui as {
+    registries?: Record<string, RegistryEntry>
+    framework?: Framework
+    base?: string
+    aliases?: Partial<Record<AliasedType, string>>
+  }
   const registries = new Map<string, Registry>([
     [
       "@kirana",
@@ -73,5 +100,12 @@ export async function loadSettings(
         ? { namespace, template: entry, headers: {} }
         : { namespace, template: entry.url, headers: entry.headers ?? {} }
     )
-  return { root, file, registries }
+  return {
+    root,
+    file,
+    registries,
+    ...(framework === undefined ? {} : { framework }),
+    ...(base === undefined ? {} : { base }),
+    aliases: { ...DEFAULT_ALIASES, ...aliases },
+  }
 }

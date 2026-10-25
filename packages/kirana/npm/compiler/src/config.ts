@@ -294,6 +294,18 @@ const JSX_SOURCES: Readonly<Record<string, "preact" | "solid" | "qwik">> = {
   "@builder.io/qwik": "qwik",
 }
 
+/** JSON with comments and trailing commas, as `tsconfig.json` is written. */
+export function readJsonc(text: string): unknown {
+  return JSON.parse(
+    text
+      .replace(
+        /("(?:\\.|[^"\\])*")|\/\/[^\n]*|\/\*[\s\S]*?\*\//g,
+        (_, string) => string ?? ""
+      )
+      .replace(/,(\s*[}\]])/g, "$1")
+  )
+}
+
 /**
  * The `jsx` mode `tsconfig.json`'s `compilerOptions.jsxImportSource` implies (KRN-INT-004), or
  * undefined for React and when there is no readable `tsconfig.json`. Comments and trailing commas,
@@ -305,14 +317,10 @@ export function detectJsx(
   const file = path.join(root, "tsconfig.json")
   if (!existsSync(file)) return undefined
   try {
-    const text = readFileSync(file, "utf8")
-      .replace(
-        /("(?:\\.|[^"\\])*")|\/\/[^\n]*|\/\*[\s\S]*?\*\//g,
-        (_, string) => string ?? ""
-      )
-      .replace(/,(\s*[}\]])/g, "$1")
     const source = (
-      JSON.parse(text) as { compilerOptions?: { jsxImportSource?: string } }
+      readJsonc(readFileSync(file, "utf8")) as {
+        compilerOptions?: { jsxImportSource?: string }
+      }
     ).compilerOptions?.jsxImportSource
     return source === undefined ? undefined : JSX_SOURCES[source]
   } catch {
