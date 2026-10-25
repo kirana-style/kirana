@@ -51,7 +51,8 @@ export default defineConfig({
 
 A registry is static JSON anyone can host: one document per item, at a URL template holding
 `{name}`, and an index (the item named `index`). An item carries its style modules as written, one
-source for every framework, and its markup per framework and base; installation flattens the
+source for every framework, and its markup per framework and base, with the packages and items
+only that base needs; installation flattens the
 styles for the project's design. Every file carries a SHA-256 integrity hash. A project records
 what it installed in `kirana-style.lock.json`.
 

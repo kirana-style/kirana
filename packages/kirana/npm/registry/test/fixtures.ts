@@ -40,8 +40,12 @@ export const BUTTON: Item = {
       base: {
         files: [file("button.tsx", "ui", "base")],
         dependencies: { "@base-ui/react": "^1.0.0" },
+        registryDependencies: ["sx"],
       },
-      aria: { files: [file("button.tsx", "ui", "aria")] },
+      aria: {
+        files: [file("button.tsx", "ui", "aria")],
+        registryDependencies: ["sx"],
+      },
     },
     vue: {
       ark: {

@@ -119,6 +119,11 @@ const definitions: Record<string, Schema> = {
     properties: {
       files: { type: "array", minItems: 1, items: { $ref: "#/$defs/file" } },
       dependencies: { $ref: "#/$defs/packages" },
+      registryDependencies: {
+        type: "array",
+        description: "Items only this base needs, beside the item's own.",
+        items: { $ref: "#/$defs/reference" },
+      },
     },
     additionalProperties: false,
   },

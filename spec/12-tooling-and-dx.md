@@ -115,20 +115,20 @@ own checks read, so the format has one definition.
 
 **KRN-DX-021** — A registry item MUST be one JSON document, valid against the item schema:
 
-| Field                | Holds                                                                                                                                          |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| name                 | lower case and hyphens, unique in its registry                                                                                                 |
-| type                 | `component`, `block`, `chart`, `lib`, `hook`, `font` or `design-system`                                                                        |
-| version              | the item's semantic version, which the lockfile records                                                                                        |
-| title, description   | for listings                                                                                                                                   |
-| kirana               | the Kirana versions it was built and checked with, as a range                                                                                  |
-| registryDependencies | other items: `name` in the same registry, or `@namespace/name`                                                                                 |
-| dependencies         | npm packages every framework needs, with version ranges                                                                                        |
-| axes                 | the design axes its styles read, which installation flattens (`style`, `menuColor` …)                                                          |
-| styles               | its style modules as written: one source for every framework                                                                                   |
-| frameworks           | per framework (`react`, `vue`, `svelte`, `solid`, `angular`), per base (`base`, `aria`, `ark` …): the markup files, and the packages they need |
-| files                | files every framework installs alike (a library, a stylesheet)                                                                                 |
-| meta                 | free data, for documentation and provenance                                                                                                    |
+| Field                | Holds                                                                                                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                 | lower case and hyphens, unique in its registry                                                                                                                      |
+| type                 | `component`, `block`, `chart`, `lib`, `hook`, `font` or `design-system`                                                                                             |
+| version              | the item's semantic version, which the lockfile records                                                                                                             |
+| title, description   | for listings                                                                                                                                                        |
+| kirana               | the Kirana versions it was built and checked with, as a range                                                                                                       |
+| registryDependencies | other items: `name` in the same registry, or `@namespace/name`                                                                                                      |
+| dependencies         | npm packages every framework needs, with version ranges                                                                                                             |
+| axes                 | the design axes its styles read, which installation flattens (`style`, `menuColor` …)                                                                               |
+| styles               | its style modules as written: one source for every framework                                                                                                        |
+| frameworks           | per framework (`react`, `vue`, `svelte`, `solid`, `angular`), per base (`base`, `aria`, `ark` …): the markup files, and the packages and items only that base needs |
+| files                | files every framework installs alike (a library, a stylesheet)                                                                                                      |
+| meta                 | free data, for documentation and provenance                                                                                                                         |
 
 `name`, `type` and `version` are required. A file is `{ path, type, content, hash }`: `type` says
 where it installs, under the project's alias for `ui`, `component`, `lib`, `hook` or `page`, or for
