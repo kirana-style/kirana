@@ -49,23 +49,41 @@ export function frameworkOf(project: Project): Framework | undefined {
   return found.length === 1 ? found[0]![1] : undefined
 }
 
+/** Reads a project file: from disk, or as planned changes leave it. Undefined when there is none. */
+export type ReadFile = (file: string) => string | undefined
+
+const fromDisk: ReadFile = (file) =>
+  existsSync(file) && statSync(file).isFile()
+    ? readFileSync(file, "utf8")
+    : undefined
+
 type Tsconfig = {
   extends?: unknown
   references?: { path?: unknown }[]
   compilerOptions?: { baseUrl?: string; paths?: Record<string, string[]> }
 }
 
+/** A tsconfig's `paths`, the directory they start from, and the file that holds them. */
+export type Paths = {
+  paths: Record<string, string[]>
+  from: string
+  file: string
+}
+
 /** `paths` and the directory they start from, following `extends` and then `references`. */
-function pathsOf(
+export function pathsOf(
   file: string,
+  read: ReadFile = fromDisk,
   seen = new Set<string>()
-): { paths: Record<string, string[]>; from: string } | undefined {
-  if (seen.has(file) || !existsSync(file)) return undefined
+): Paths | undefined {
+  const text = seen.has(file) ? undefined : read(file)
+  if (text === undefined) return undefined
   seen.add(file)
-  const config = readJsonc(readFileSync(file, "utf8")) as Tsconfig
+  const config = readJsonc(text) as Tsconfig
   const directory = path.dirname(file)
   const { paths, baseUrl } = config.compilerOptions ?? {}
-  if (paths) return { paths, from: path.resolve(directory, baseUrl ?? ".") }
+  if (paths)
+    return { paths, from: path.resolve(directory, baseUrl ?? "."), file }
   const next: string[] = []
   if (typeof config.extends === "string" && config.extends.startsWith("."))
     next.push(path.resolve(directory, config.extends))
@@ -79,7 +97,7 @@ function pathsOf(
       )
     }
   for (const candidate of next) {
-    const found = pathsOf(candidate, seen)
+    const found = pathsOf(candidate, read, seen)
     if (found) return found
   }
   return undefined
@@ -89,8 +107,12 @@ function pathsOf(
  * The directory an import alias (`@/components/ui`) stands for: the `paths` entry it matches most
  * closely, `@/*` to `./src/*` making it `src/components/ui`. Stops, naming what to add, when none does.
  */
-export function aliasDirectory(root: string, alias: string): string {
-  const found = pathsOf(path.join(root, "tsconfig.json"))
+export function aliasDirectory(
+  root: string,
+  alias: string,
+  read: ReadFile = fromDisk
+): string {
+  const found = pathsOf(path.join(root, "tsconfig.json"), read)
   let best: { length: number; directory: string } | undefined
   for (const [pattern, targets] of Object.entries(found?.paths ?? {})) {
     const target = targets[0]

@@ -66,6 +66,21 @@ export const FILE_TYPES = [
 
 const definitions: Record<string, Schema> = {
   name: { type: "string", pattern: `^${NAME}$` },
+  installed: {
+    type: "string",
+    description:
+      "An installed file, as its imports name it: `@/registry/<type>/<path>`.",
+    pattern: "^@/registry/(ui|lib|component|hook|page)/.+$",
+  },
+  export: {
+    type: "object",
+    required: ["module", "export"],
+    properties: {
+      module: { $ref: "#/$defs/installed" },
+      export: { type: "string", pattern: "^[A-Za-z_$][\\w$]*$" },
+    },
+    additionalProperties: false,
+  },
   reference: {
     type: "string",
     description: "An item: `name` in the same registry, or `@namespace/name`.",
@@ -179,6 +194,27 @@ export const ITEM_SCHEMA: Schema = {
       additionalProperties: false,
     },
     files: { $ref: "#/$defs/files" },
+    setup: {
+      type: "object",
+      description:
+        "A design system's wiring (D-109): what `ui init` adds to a project once the item is installed.",
+      properties: {
+        config: {
+          $ref: "#/$defs/export",
+          description: "The configuration a project spreads into its own.",
+        },
+        stylesheets: {
+          type: "array",
+          description: "Stylesheets the app imports, after Kirana's.",
+          items: { $ref: "#/$defs/installed" },
+        },
+        document: {
+          $ref: "#/$defs/export",
+          description: "The styles `<html>` takes.",
+        },
+      },
+      additionalProperties: false,
+    },
     meta: { type: "object" },
   },
   additionalProperties: false,

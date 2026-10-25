@@ -16,7 +16,7 @@ import { parseArgs } from "./command.ts"
 import type { Options, Run } from "./command.ts"
 import { readLockfile, writeLockfile } from "./lockfile.ts"
 import { aliasDirectory, frameworkOf, readProject } from "./project.ts"
-import type { Project } from "./project.ts"
+import type { Project, ReadFile } from "./project.ts"
 import { parseReference, read, RegistryError, registryOf } from "./read.ts"
 import { REFERENCE_PATTERN } from "./schema.ts"
 import { loadSettings } from "./settings.ts"
@@ -25,6 +25,7 @@ import type {
   Framework,
   Item,
   Locked,
+  Lockfile,
   Packages,
   RegistryFile,
 } from "./types.ts"
@@ -144,7 +145,7 @@ export async function plan(
 }
 
 /** The place a file names: `ui/button.tsx` as `ui/button`, an `index` by its folder too. */
-const placeOf = (type: string, file: string) =>
+export const placeOf = (type: string, file: string) =>
   `${type}/${file.replace(/\.[cm]?[jt]sx?$|\.vue$|\.svelte$/, "")}`
 
 /**
@@ -155,7 +156,8 @@ const placeOf = (type: string, file: string) =>
 export function place(
   planned: readonly Planned[],
   settings: Settings,
-  project: Project
+  project: Project,
+  readFile?: ReadFile
 ): Placed[] {
   const directories = new Map<string, string>()
   const directoryOf = (type: AliasedType, key: string) => {
@@ -166,7 +168,7 @@ export function place(
       )
     let directory = directories.get(alias)
     if (directory === undefined) {
-      directory = aliasDirectory(project.root, alias)
+      directory = aliasDirectory(project.root, alias, readFile)
       directories.set(alias, directory)
     }
     return directory
@@ -306,17 +308,45 @@ export async function runAdd(
     write("dry run: nothing written\n")
     return 0
   }
+  writePlaced(placed)
+  if (!installPackages(commands, project, write, options)) return 1
+  record(lockfile, planned, placed)
+  writeLockfile(project.root, lockfile)
+  write(`kirana-style.lock.json: ${planned.length} item(s) recorded\n`)
+  return 0
+}
+
+/** Writes every file that is new or differs. */
+export function writePlaced(placed: readonly Placed[]): void {
   for (const file of placed)
     if (file.state !== "same") {
       mkdirSync(path.dirname(file.destination), { recursive: true })
       writeFileSync(file.destination, file.content)
     }
+}
+
+/** Runs each install command; false, said, when one fails, since the lockfile is then not written. */
+export function installPackages(
+  commands: readonly string[],
+  project: Project,
+  write: (text: string) => void,
+  options: Options
+): boolean {
   const run = options.run ?? runInShell
   for (const command of commands)
     if (run(command, project.root) !== 0) {
       write(`${command} failed: the files are written, the lockfile is not\n`)
-      return 1
+      return false
     }
+  return true
+}
+
+/** Each planned item in the lockfile, with both hashes of every file it wrote. */
+export function record(
+  lockfile: Lockfile,
+  planned: readonly Planned[],
+  placed: readonly Placed[]
+): void {
   for (const { key, template, item, framework, base } of planned) {
     const files: Locked["files"] = {}
     for (const file of placed.filter((entry) => entry.item === key))
@@ -331,7 +361,4 @@ export async function runAdd(
       files,
     }
   }
-  writeLockfile(project.root, lockfile)
-  write(`kirana-style.lock.json: ${planned.length} item(s) recorded\n`)
-  return 0
 }

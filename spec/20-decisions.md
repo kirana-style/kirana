@@ -1541,6 +1541,24 @@ the implementation tracker names its evidence.
   as shadcn/ui asks. `@/registry/` is reserved in registry files.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
+### D-109 — A design system says how a project wires it
+
+- **Status:** Accepted (2026-10-25). For `kirana-style ui init`.
+- **Decision:** a design-system item carries `setup`: the module and export of the configuration a
+  project spreads into its own, the stylesheets the app imports (a reset), and the module and export
+  of the styles `<html>` takes (its tokens and relation anchors). `ui init` installs the item and
+  makes those three edits in the project, each where Kirana's own setup put Kirana: the
+  configuration file, the module that imports Kirana's stylesheet, the `<html>` element.
+- **Rationale:** what a design system needs from a project is data the design system knows and the
+  installer cannot guess, while where it goes is what Kirana's own `init` already finds per
+  framework. Splitting them that way keeps the installer free of any one design system, so a
+  third-party registry's design system installs the same way, and `<html sx={…}>` uses the
+  compiler's own element prop, which every React framework's document already renders.
+- **Trade-off:** an app whose document is static HTML (a Vite SPA) gets its `<html>` classes set at
+  run time in its entry, one line, since HTML cannot take `sx`. A layout the installer cannot edit
+  safely is printed as a step to do by hand.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                       |
@@ -1552,7 +1570,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                 |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                       |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                             |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108                             |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109                      |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                            |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                           |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                    |

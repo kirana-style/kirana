@@ -8,6 +8,7 @@ import { readFile } from "node:fs/promises"
 import path from "node:path"
 
 import { runAdd } from "./add.ts"
+import { runInit } from "./init.ts"
 import { check } from "./check.ts"
 import { failureLine, isSettingsError } from "./command.ts"
 import type { Options } from "./command.ts"
@@ -26,7 +27,15 @@ import { runView } from "./view.ts"
 export { check, hashOf, kindOf } from "./check.ts"
 export type { Kind } from "./check.ts"
 export type { Failure, Options, Run } from "./command.ts"
-export { missingPackages, place, plan } from "./add.ts"
+export {
+  installPackages,
+  missingPackages,
+  place,
+  placeOf,
+  plan,
+  record,
+  writePlaced,
+} from "./add.ts"
 export type { Placed, Planned } from "./add.ts"
 export { LOCKFILE, readLockfile, writeLockfile } from "./lockfile.ts"
 export { aliasDirectory, frameworkOf, readProject } from "./project.ts"
@@ -72,6 +81,9 @@ export type { Problem } from "./validate.ts"
 const USAGE = `Usage: kirana-style ui <command>
 
 Commands in this release:
+  init                   set a project up for a registry: Kirana where it is missing, the ui settings
+                         (--framework, --base, --registry @namespace=<template>), and the registry's
+                         design system (--design <item>) installed and wired in; --dry-run
   add <item…>            install items and every item they need: files at the project's aliases
                          (ui.aliases, through tsconfig.json's paths), packages with its package
                          manager, each recorded in kirana-style.lock.json; --dry-run, --overwrite
@@ -83,12 +95,11 @@ Commands in this release:
                          hash; a document is a file, a URL, or an item of the project's registries
                          (@acme/card, button for @kirana's, @acme/index for an index)
 
-Coming in later releases: init, diff, update, outdated, remove, preset, build, mcp.
+Coming in later releases: diff, update, outdated, remove, preset, build, mcp.
 `
 
 /** The commands the registry will have (its plan), so that one asked for early says so. */
 const PLANNED = new Set([
-  "init",
   "diff",
   "update",
   "outdated",
@@ -197,6 +208,7 @@ export async function main(
   if (command === "validate") return runValidate(rest, cwd, write, options)
   if (command === "view") return runView(rest, cwd, write, options)
   if (command === "add") return runAdd(rest, cwd, write, options)
+  if (command === "init") return runInit(rest, cwd, write, options)
   if (command === "search") return runSearch(rest, cwd, write, options)
   if (PLANNED.has(command)) {
     write(`kirana-style ui ${command} is not in this release yet\n`)

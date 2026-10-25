@@ -84,7 +84,7 @@ Measured by `bench/lsp.ts` in the benchmark repository (2026-10-02): hover p95 1
 | `kirana-style doctor [--json] [--report [file]] [--trace]`                                     | Engine in use (native or WASI), installed versions, configuration resolution, detected host and whether the adapter, stylesheet and types are wired, cache state (none, D-049). Exit 1 on a failure. `--report` writes a redacted bug report: versions, checks, diagnostics by code, stylesheet size, configuration, optional `kirana-style trace` output; no source text (D-077). Built. |
 | `kirana-style migrate stylex\|tailwind`                                                        | The codemods of [06](./06-authoring-api.md#migration-codemods), with a dry-run diff and a report file.                                                                                                                                                                                                                                                                                    |
 | `kirana-style lsp`                                                                             | Start the language server.                                                                                                                                                                                                                                                                                                                                                                |
-| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view`, `search` and `add` are built; `init`, `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                                                                    |
+| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view`, `search`, `add` and `init` are built; `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                                                                    |
 
 There is no `kirana cache clean`: Kirana keeps no persistent cache (D-049), so there is nothing to
 clear, and `kirana-style doctor` says so.
@@ -115,20 +115,21 @@ own checks read, so the format has one definition.
 
 **KRN-DX-021** — A registry item MUST be one JSON document, valid against the item schema:
 
-| Field                | Holds                                                                                                                                                               |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name                 | lower case and hyphens, unique in its registry                                                                                                                      |
-| type                 | `component`, `block`, `chart`, `lib`, `hook`, `font` or `design-system`                                                                                             |
-| version              | the item's semantic version, which the lockfile records                                                                                                             |
-| title, description   | for listings                                                                                                                                                        |
-| kirana               | the Kirana versions it was built and checked with, as a range                                                                                                       |
-| registryDependencies | other items: `name` in the same registry, or `@namespace/name`                                                                                                      |
-| dependencies         | npm packages every framework needs, with version ranges                                                                                                             |
-| axes                 | the design axes its styles read, which installation flattens (`style`, `menuColor` …)                                                                               |
-| styles               | its style modules as written: one source for every framework                                                                                                        |
-| frameworks           | per framework (`react`, `vue`, `svelte`, `solid`, `angular`), per base (`base`, `aria`, `ark` …): the markup files, and the packages and items only that base needs |
-| files                | files every framework installs alike (a library, a stylesheet)                                                                                                      |
-| meta                 | free data, for documentation and provenance                                                                                                                         |
+| Field                | Holds                                                                                                                                                                      |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name                 | lower case and hyphens, unique in its registry                                                                                                                             |
+| type                 | `component`, `block`, `chart`, `lib`, `hook`, `font` or `design-system`                                                                                                    |
+| version              | the item's semantic version, which the lockfile records                                                                                                                    |
+| title, description   | for listings                                                                                                                                                               |
+| kirana               | the Kirana versions it was built and checked with, as a range                                                                                                              |
+| registryDependencies | other items: `name` in the same registry, or `@namespace/name`                                                                                                             |
+| dependencies         | npm packages every framework needs, with version ranges                                                                                                                    |
+| axes                 | the design axes its styles read, which installation flattens (`style`, `menuColor` …)                                                                                      |
+| styles               | its style modules as written: one source for every framework                                                                                                               |
+| frameworks           | per framework (`react`, `vue`, `svelte`, `solid`, `angular`), per base (`base`, `aria`, `ark` …): the markup files, and the packages and items only that base needs        |
+| files                | files every framework installs alike (a library, a stylesheet)                                                                                                             |
+| setup                | a design system's wiring: the configuration it spreads, the stylesheets the app imports, the styles `<html>` takes, each by `module` and `export` or an `@/registry/` path |
+| meta                 | free data, for documentation and provenance                                                                                                                                |
 
 `name`, `type` and `version` are required. A file is `{ path, type, content, hash }`: `type` says
 where it installs, under the project's alias for `ui`, `component`, `lib`, `hook` or `page`, or for
@@ -198,6 +199,18 @@ the project already has with other content MUST stop the command before anything
 project does not list are installed with its package manager, and each item is recorded in the
 lockfile (KRN-DX-025) with both hashes of every file. Exit 1 when an item cannot be read or
 installed, 2 without an item or with settings it cannot use.
+
+**KRN-DX-029** — `kirana-style ui init` MUST set a project up for a registry: Kirana itself where it
+is missing (what `kirana-style init` does), the `ui` settings in `kirana.config.*` (`--framework`,
+`--base`, and `--registry @namespace=<template>` for each registry to name), and the registry's
+design-system item (`--design <item>`, else the index's first item of that type) installed as `add`
+installs it. Its `setup` is then wired in (D-109): the configuration spread first into
+`defineConfig`, imported by relative path with its extension; each stylesheet imported after
+Kirana's stylesheet; the `<html>` styles on the `<html>` element as `sx`, or, in an app whose
+document is static HTML, set on `document.documentElement` beside Kirana's stylesheet import. A
+change it cannot make safely MUST be printed as a step to do by hand. Every change is planned before
+anything is written, and `--dry-run` writes and installs nothing. Exit 1 when a document cannot be
+read or the setup cannot be written, 2 for an unknown option or settings it cannot use.
 
 **KRN-DX-025** — The lockfile MUST be `kirana-style.lock.json`, at the project's root:
 `{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came

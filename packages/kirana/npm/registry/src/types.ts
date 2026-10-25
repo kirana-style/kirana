@@ -42,7 +42,18 @@ export type Item = {
   styles?: RegistryFile[]
   frameworks?: Partial<Record<Framework, Record<string, Base>>>
   files?: RegistryFile[]
+  setup?: Setup
   meta?: Record<string, unknown>
+}
+
+/** An installed module's export: `{ module: "@/registry/lib/kit/config", export: "kitConfig" }`. */
+export type Export = { module: string; export: string }
+
+/** A design system's wiring (D-109). */
+export type Setup = {
+  config?: Export
+  stylesheets?: string[]
+  document?: Export
 }
 
 /** An index entry: what `ui search` lists. */

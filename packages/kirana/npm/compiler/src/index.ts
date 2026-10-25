@@ -1,5 +1,13 @@
 export { Driver, type DriverOptions, type TransformResult } from "./driver.ts"
 export {
+  addImport,
+  plan as planInit,
+  type Change,
+  type Plan as InitPlan,
+  type Step as InitStep,
+} from "./init.ts"
+export { sources } from "./host.ts"
+export {
   installCommand,
   packageManagerOf,
   readPackage,
