@@ -659,9 +659,9 @@ $ kirana-style ui add button
 kirana-style ui needs @kirana-style/registry, which this project does not have: add it as a development dependency
 ```
 
-| Command                            | Does                                                                                                                                                    |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kirana-style ui validate <file…>` | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. Exit 1 on a problem, 2 without a file. |
+| Command                                | Does                                                                                                                                                                                                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kirana-style ui validate <document…>` | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings. |
 
 Viewing and searching a registry come next, then installing, updating and the
 rest of the installer. A command asked for before its release says it is not in
@@ -680,5 +680,17 @@ public/r/card.json: /name must match ^[a-z0-9]+(-[a-z0-9]+)*$
 public/r/card.json: /frameworks/react/base/files/0/hash does not match the content, whose hash is sha256-…
 ```
 
-Its settings live in `kirana.config.*` under [`ui`](/docs/reference/config#ui),
-which the compiler accepts and never reads.
+Your registries are named in `kirana.config.*` under [`ui`](/docs/reference/config#ui),
+which the compiler accepts and never reads. An item of one is named with its
+namespace, and a name alone is Kirana UI's:
+
+```text
+$ kirana-style ui validate @acme/card @acme/index
+@acme/card: a valid item
+@acme/index: a valid index
+$ kirana-style ui validate @acme/private
+@acme/private: @acme: its header Authorization reads ${ACME_TOKEN}, which is not set
+```
+
+Each document is fetched afresh, over `https:` (or `http:` from your own
+machine), or read from disk for a path; a request gives up after 30 seconds.

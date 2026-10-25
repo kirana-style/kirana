@@ -1,7 +1,8 @@
 /**
  * Checks a document against one of `schema.ts`'s schemas, in the subset of JSON Schema they use:
  * `type`, `properties`, `patternProperties`, `additionalProperties`, `required`, `minProperties`,
- * `items`, `minItems`, `enum`, `const`, `pattern`, `minLength`, and `$ref` into the root's `$defs`.
+ * `items`, `minItems`, `enum`, `const`, `pattern`, `minLength`, `anyOf`, and `$ref` into the root's
+ * `$defs`.
  * A keyword outside it throws, so a schema cannot say more than this checks.
  */
 import type { Schema } from "./schema.ts"
@@ -29,6 +30,7 @@ const KEYWORDS = new Set([
   "const",
   "pattern",
   "minLength",
+  "anyOf",
 ])
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -73,6 +75,10 @@ export function validate(document: unknown, root: Schema): Problem[] {
       visit(value, resolve(schema.$ref), pointer)
       return
     }
+    if (schema.anyOf !== undefined) {
+      visitAny(value, schema.anyOf, pointer)
+      return
+    }
     if (schema.const !== undefined && value !== schema.const) {
       report(pointer, `must be ${JSON.stringify(schema.const)}`)
       return
@@ -108,6 +114,37 @@ export function validate(document: unknown, root: Schema): Problem[] {
     } else if (isObject(value)) {
       visitObject(value, schema, pointer)
     }
+  }
+
+  /**
+   * `anyOf`: valid when one branch is. Otherwise the problems of the first branch whose type the
+   * value has (a template string, or the object form), else what the value had to be.
+   */
+  function visitAny(
+    value: unknown,
+    branches: readonly Schema[],
+    pointer: string
+  ) {
+    const tries = branches.map((branch) =>
+      validate(value, { $defs: root.$defs, ...branch })
+    )
+    if (tries.some((found) => found.length === 0)) return
+    const types = branches.map(
+      (branch) =>
+        (branch.$ref === undefined ? branch : resolve(branch.$ref)).type
+    )
+    const fitting = types.findIndex(
+      (type) => type === undefined || TYPES[type](value)
+    )
+    if (fitting < 0) {
+      const kinds = types.map(
+        (type) => `${/^[aeiou]/.test(type!) ? "an" : "a"} ${type}`
+      )
+      report(pointer, `must be ${kinds.join(" or ")}`)
+      return
+    }
+    for (const problem of tries[fitting]!)
+      report(`${pointer}${problem.pointer}`, problem.message)
   }
 
   function visitObject(

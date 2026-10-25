@@ -13,12 +13,33 @@ npx kirana-style ui validate public/r/button.json
 
 ## Commands
 
-| Command                            | Does                                                                                                                               |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `kirana-style ui validate <file…>` | Checks registry items, indexes and lockfiles against their schema, and every file's hash against its content. Exit 1 on a problem. |
+| Command                                | Does                                                                                                                                                                                                          |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kirana-style ui validate <document…>` | Checks registry items, indexes and lockfiles against their schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries (`@acme/card`). Exit 1 on a problem. |
 
 Coming in later releases: `view`, `search`, `init`, `add`, `diff`, `update`, `outdated`,
 `remove`, `preset`, `build` and `mcp`.
+
+## Registries
+
+Name them in `kirana.config.*`, under `ui`:
+
+```ts
+export default defineConfig({
+  ui: {
+    registries: {
+      "@acme": "https://acme.dev/r/{name}.json",
+      "@private": {
+        url: "https://private.dev/r/{name}.json",
+        headers: { Authorization: "Bearer ${PRIVATE_TOKEN}" },
+      },
+    },
+  },
+})
+```
+
+`@kirana`, Kirana UI's registry, is known without being named. Documents are fetched over
+`https:`, or `http:` from your own machine, or read from disk for a path, afresh each time.
 
 ## The format
 

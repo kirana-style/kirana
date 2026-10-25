@@ -1,13 +1,28 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs"
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs"
 import { tmpdir } from "node:os"
 import path from "node:path"
 
-import { afterAll, describe, expect, it } from "vite-plus/test"
+import { afterAll, beforeAll, describe, expect, it } from "vite-plus/test"
 
 import { hashOf, main } from "../src/index.ts"
+import type { Options } from "../src/index.ts"
+import { CARD, serve } from "./server.ts"
 
 const root = mkdtempSync(path.join(tmpdir(), "kirana-registry-"))
-afterAll(() => rmSync(root, { recursive: true, force: true }))
+let registry: Awaited<ReturnType<typeof serve>>
+beforeAll(async () => {
+  registry = await serve()
+})
+afterAll(async () => {
+  await registry.close()
+  rmSync(root, { recursive: true, force: true })
+})
 
 /** A file in the temporary directory, by name. */
 function write(name: string, text: string) {
@@ -16,9 +31,23 @@ function write(name: string, text: string) {
 }
 
 async function run(...argv: string[]) {
+  return runIn(root, {}, ...argv)
+}
+
+async function runIn(cwd: string, options: Options, ...argv: string[]) {
   let text = ""
-  const code = await main(argv, root, (chunk) => void (text += chunk))
+  const code = await main(argv, cwd, (chunk) => void (text += chunk), options)
   return { code, text }
+}
+
+/** A project whose kirana.config.json names these registries. */
+function project(registries: unknown): string {
+  const directory = mkdtempSync(path.join(root, "project-"))
+  writeFileSync(
+    path.join(directory, "kirana.config.json"),
+    JSON.stringify({ ui: { registries } })
+  )
+  return directory
 }
 
 describe("KRN-DX-020 the commands kirana-style ui runs", () => {
@@ -26,7 +55,7 @@ describe("KRN-DX-020 the commands kirana-style ui runs", () => {
     for (const argv of [[], ["help"], ["--help"], ["-h"]]) {
       const { code, text } = await run(...argv)
       expect(code).toBe(0)
-      expect(text).toContain("validate <file…>")
+      expect(text).toContain("validate <document…>")
     }
   })
 
@@ -55,10 +84,10 @@ describe("KRN-DX-020 the commands kirana-style ui runs", () => {
 })
 
 describe("KRN-DX-024 kirana-style ui validate", () => {
-  it("needs a file", async () => {
+  it("needs a document", async () => {
     expect(await run("validate")).toEqual({
       code: 2,
-      text: "kirana-style ui validate needs at least one file\n",
+      text: "kirana-style ui validate needs at least one document\n",
     })
   })
 
@@ -113,5 +142,87 @@ describe("KRN-DX-024 kirana-style ui validate", () => {
     expect(lines[0]).toMatch(/^missing\.json: .*(ENOENT|no such file)/)
     expect(lines[1]).toMatch(/^broken\.json: /)
     expect(lines[2]).toBe("good.json: a valid index")
+  })
+})
+
+describe("KRN-DX-026 kirana-style ui validate reads registries", () => {
+  it("validates an item or an index of the project's registries, and @kirana's by name", async () => {
+    const cwd = project({
+      "@acme": `${registry.url}/r/{name}.json`,
+      "@kirana": `${registry.url}/r/{name}.json`,
+    })
+    expect(
+      await runIn(cwd, {}, "validate", "@acme/card", "card", "@acme/index")
+    ).toEqual({
+      code: 0,
+      text: "@acme/card: a valid item\ncard: a valid item\n@acme/index: a valid index\n",
+    })
+  })
+
+  it("validates a URL as it is", async () => {
+    writeFileSync(path.join(root, "card-file.json"), JSON.stringify(CARD))
+    const url = new URL(`file://${path.join(root, "card-file.json")}`).href
+    expect(await run("validate", `${registry.url}/r/card.json`, url)).toEqual({
+      code: 0,
+      text: `${registry.url}/r/card.json: a valid item\n${url}: a valid item\n`,
+    })
+  })
+
+  it("says what failed, and that a reference is not what it asked for", async () => {
+    const cwd = project({
+      "@acme": `${registry.url}/r/{name}.json`,
+      "@local": "r/{name}.json",
+    })
+    mkdirSync(path.join(cwd, "r"))
+    writeFileSync(path.join(cwd, "r/renamed.json"), JSON.stringify(CARD))
+    const { code, text } = await runIn(
+      cwd,
+      {},
+      "validate",
+      "@acme/missing",
+      "@nope/card",
+      "@local/renamed"
+    )
+    expect(code).toBe(1)
+    expect(text.split("\n")).toEqual([
+      `@acme/missing: ${registry.url}/r/missing.json: answered 404 Not Found`,
+      "@nope/card: @nope is not a registry this project knows: @kirana, @acme, @local (ui.registries in kirana.config)",
+      '@local/renamed: / is the item "card", not renamed',
+      "",
+    ])
+  })
+
+  it("names a URL that fails once", async () => {
+    expect(await run("validate", "http://acme.dev/r/card.json")).toEqual({
+      code: 1,
+      text: "http://acme.dev/r/card.json: only https, or http from this machine, can be fetched\n",
+    })
+  })
+
+  it("reads a file whose name looks like a reference", async () => {
+    write("card", "{}")
+    expect(await run("validate", "card")).toEqual({
+      code: 1,
+      text: "card: /name is required\ncard: /type is required\ncard: /version is required\n",
+    })
+  })
+
+  it("stops when the project's ui settings cannot be used", async () => {
+    const cwd = project({ "@acme": "https://acme.dev/r/card.json" })
+    const { code, text } = await runIn(cwd, {}, "validate", "@acme/card")
+    expect(code).toBe(2)
+    expect(text).toBe(
+      `${path.join(cwd, "kirana.config.json")}: ui/registries/@acme must match \\{name\\}\n`
+    )
+    const broken = mkdtempSync(path.join(root, "broken-"))
+    writeFileSync(path.join(broken, "kirana.config.mjs"), "export default {")
+    const failed = await runIn(
+      broken,
+      { load: (url) => import(url) },
+      "validate",
+      "@acme/card"
+    )
+    expect(failed.code).toBe(2)
+    expect(failed.text).toMatch(/^loading .*kirana\.config\.mjs: /)
   })
 })

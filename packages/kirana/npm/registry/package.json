@@ -23,5 +23,8 @@
     ".": "./src/index.ts",
     "./schema": "./src/schema.ts",
     "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*"
   }
 }
