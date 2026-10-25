@@ -20,8 +20,12 @@ export type RegistryFile = {
 /** npm packages and the version ranges an item was built with. */
 export type Packages = Record<string, string>
 
-/** One base of one framework: its markup and the packages it needs. */
-export type Base = { files: RegistryFile[]; dependencies?: Packages }
+/** One base of one framework: its markup, and the packages and items only it needs. */
+export type Base = {
+  files: RegistryFile[]
+  dependencies?: Packages
+  registryDependencies?: string[]
+}
 
 /** One item (KRN-DX-021). */
 export type Item = {

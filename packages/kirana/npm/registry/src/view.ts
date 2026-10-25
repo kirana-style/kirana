@@ -32,12 +32,18 @@ export function describe(reference: string, url: URL, item: Item): string {
   ]
   for (const [framework, bases] of Object.entries(item.frameworks ?? {}))
     for (const [base, entry] of Object.entries(bases)) {
-      const packages = packagesOf(entry.dependencies)
+      // Its files, then what only it needs: packages, then items.
+      const needs = [
+        packagesOf(entry.dependencies),
+        entry.registryDependencies ?? [],
+      ].filter((list) => list.length > 0)
       rows.push([
         `${framework}/${base}`,
         [
-          entry.files.map(placeOf).join(", ") +
-            (packages.length > 0 ? ` · ${packages.join(", ")}` : ""),
+          [
+            entry.files.map(placeOf).join(", "),
+            ...needs.map((list) => list.join(", ")),
+          ].join(" · "),
         ],
       ])
     }

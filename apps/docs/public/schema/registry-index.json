@@ -188,6 +188,13 @@
         },
         "dependencies": {
           "$ref": "#/$defs/packages"
+        },
+        "registryDependencies": {
+          "type": "array",
+          "description": "Items only this base needs, beside the item's own.",
+          "items": {
+            "$ref": "#/$defs/reference"
+          }
         }
       },
       "additionalProperties": false
