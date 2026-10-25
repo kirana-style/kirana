@@ -37,6 +37,7 @@ export {
   writePlaced,
 } from "./add.ts"
 export type { Placed, Planned } from "./add.ts"
+export { resolveIcons } from "./icons.ts"
 export { LOCKFILE, readLockfile, writeLockfile } from "./lockfile.ts"
 export { aliasDirectory, frameworkOf, readProject } from "./project.ts"
 export type { Project } from "./project.ts"
@@ -49,6 +50,7 @@ export {
   LOCKFILE_SCHEMA,
   NAMESPACE_PATTERN,
   ALIASED_TYPES,
+  ICON_LIBRARIES,
   REFERENCE_PATTERN,
   SETTINGS_SCHEMA,
 } from "./schema.ts"

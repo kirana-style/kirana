@@ -1,9 +1,15 @@
 /**
  * The component registry's documents as TypeScript types, the shape `schema.ts` checks (D-107).
  */
-import type { FILE_TYPES, FRAMEWORKS, ITEM_TYPES } from "./schema.ts"
+import type {
+  FILE_TYPES,
+  FRAMEWORKS,
+  ICON_LIBRARIES,
+  ITEM_TYPES,
+} from "./schema.ts"
 
 export type Framework = (typeof FRAMEWORKS)[number]
+export type IconLibrary = (typeof ICON_LIBRARIES)[number]
 export type ItemType = (typeof ITEM_TYPES)[number]
 export type FileType = (typeof FILE_TYPES)[number]
 

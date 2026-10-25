@@ -184,19 +184,23 @@ settings it cannot use, exits 2.
 needs: its `registryDependencies` and its base's, a bare name read from the same registry, each item
 read once (KRN-DX-026). The project's settings under `ui`:
 
-| Key       | Holds                                                                                                                                                  |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| framework | the framework whose markup is installed; else the one of `react`, `vue`, `svelte`, `solid-js` and `@angular/core` the project depends on               |
-| base      | the base whose markup is installed; else the framework's only base in the item                                                                         |
-| aliases   | the import specifier for each file type: `ui`, `lib`, `component`, `hook`, `page`; `@/components/ui`, `@/lib`, `@/components` and `@/hooks` by default |
+| Key         | Holds                                                                                                                                                  |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| framework   | the framework whose markup is installed; else the one of `react`, `vue`, `svelte`, `solid-js` and `@angular/core` the project depends on               |
+| base        | the base whose markup is installed; else the framework's only base in the item                                                                         |
+| aliases     | the import specifier for each file type: `ui`, `lib`, `component`, `hook`, `page`; `@/components/ui`, `@/lib`, `@/components` and `@/hooks` by default |
+| iconLibrary | the library each `<IconPlaceholder>` is drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                           |
 
 An item with `frameworks` and none for the project's framework, or several bases and no `ui.base`,
 MUST stop the command, naming what the item supports. Each file is written in the directory the
 project's `tsconfig.json` (its `extends` and `references` followed) maps its type's alias to, or at
 its `target` for a `file`; its `@/registry/<type>/<path>` imports become the alias (D-108). A file
 the project already has with other content MUST stop the command before anything is written, unless
-`--overwrite`; `--dry-run` writes and installs nothing. The npm packages the items need and the
-project does not list are installed with its package manager, and each item is recorded in the
+`--overwrite`; `--dry-run` writes and installs nothing. Each `<IconPlaceholder>` in React or Vue
+markup MUST become the icon library's own component, every other attribute kept, its import added
+and the placeholder's dropped; a placeholder that names no icon for the library stops the command.
+The npm packages the items and their icons need and the project does not list are installed with
+its package manager, and each item is recorded in the
 lockfile (KRN-DX-025) with both hashes of every file. Exit 1 when an item cannot be read or
 installed, 2 without an item or with settings it cannot use.
 

@@ -319,6 +319,15 @@ export const LOCKFILE_SCHEMA: Schema = {
   $defs: definitions,
 }
 
+/** The icon libraries an `<IconPlaceholder>` names an icon for, as shadcn/ui's are. */
+export const ICON_LIBRARIES = [
+  "lucide",
+  "tabler",
+  "hugeicons",
+  "phosphor",
+  "remixicon",
+] as const
+
 /** The file types a project has an alias for: every type but `file`, which names its own target. */
 export const ALIASED_TYPES = ["ui", "lib", "component", "hook", "page"] as const
 
@@ -342,6 +351,11 @@ export const SETTINGS_SCHEMA: Schema = {
       description:
         "The base whose markup `ui add` installs: `base`, `aria`, `ark` …",
       pattern: `^${NAME}$`,
+    },
+    iconLibrary: {
+      type: "string",
+      description: "The library `ui add` draws each `<IconPlaceholder>` with.",
+      enum: ICON_LIBRARIES,
     },
     aliases: {
       type: "object",

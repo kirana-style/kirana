@@ -336,6 +336,41 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     expect(broken.text).toMatch(/ui\/framework must be one of/)
   })
 
+  it("draws icons with the project's library, adding its package unless the project lists it", async () => {
+    const icon: Item = {
+      name: "chevron",
+      type: "component",
+      version: "1.0.0",
+      files: [
+        file(
+          "chevron.tsx",
+          "ui",
+          'import { IconPlaceholder } from "@/registry/lib/icons/icon-placeholder"\nexport const C = () => <IconPlaceholder lucide="ChevronDownIcon" hugeicons="ArrowDown01Icon" />\n'
+        ),
+      ],
+    }
+    const lucide = project({}, [icon])
+    const drawn = await add(lucide, "@acme/chevron")
+    expect(drawn.commands).toEqual(["npm install lucide-react"])
+    expect(read(lucide, "src/components/ui/chevron.tsx")).toBe(
+      'import { ChevronDownIcon } from "lucide-react"\n\nexport const C = () => <ChevronDownIcon />\n'
+    )
+    const huge = project({ iconLibrary: "hugeicons" }, [icon], {
+      "package.json": JSON.stringify({
+        dependencies: {
+          react: "19",
+          "@hugeicons/react": "1",
+          "@hugeicons/core-free-icons": "4",
+        },
+      }),
+    })
+    const listed = await add(huge, "@acme/chevron")
+    expect(listed.commands).toEqual([])
+    expect(read(huge, "src/components/ui/chevron.tsx")).toContain(
+      "<HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} />"
+    )
+  })
+
   it("reads a dependency named in full, and an item asked for twice once", async () => {
     const full: Item = { ...BUTTON, registryDependencies: ["@acme/kit"] }
     const cwd = project({ base: "aria" }, [KIT, full])

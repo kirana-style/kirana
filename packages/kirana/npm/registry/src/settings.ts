@@ -9,7 +9,7 @@ import { findConfigAbove, loadConfigFile } from "@kirana-style/compiler"
 
 import { SETTINGS_SCHEMA } from "./schema.ts"
 import type { ALIASED_TYPES } from "./schema.ts"
-import type { Framework } from "./types.ts"
+import type { Framework, IconLibrary } from "./types.ts"
 import { validate } from "./validate.ts"
 
 /** Kirana UI's registry, which every project knows without configuring it. */
@@ -43,6 +43,8 @@ export type Settings = {
   /** `ui.framework` and `ui.base`, when set. */
   framework?: Framework
   base?: string
+  /** `ui.iconLibrary`, Lucide by default, as shadcn/ui's. */
+  iconLibrary: IconLibrary
   /** The defaults, with `ui.aliases` over them. */
   aliases: Readonly<Partial<Record<AliasedType, string>>>
 }
@@ -80,11 +82,13 @@ export async function loadSettings(
     registries: configured,
     framework,
     base,
+    iconLibrary,
     aliases,
   } = ui as {
     registries?: Record<string, RegistryEntry>
     framework?: Framework
     base?: string
+    iconLibrary?: IconLibrary
     aliases?: Partial<Record<AliasedType, string>>
   }
   const registries = new Map<string, Registry>([
@@ -106,6 +110,7 @@ export async function loadSettings(
     registries,
     ...(framework === undefined ? {} : { framework }),
     ...(base === undefined ? {} : { base }),
+    iconLibrary: iconLibrary ?? "lucide",
     aliases: { ...DEFAULT_ALIASES, ...aliases },
   }
 }

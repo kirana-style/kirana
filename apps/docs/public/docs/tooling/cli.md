@@ -753,7 +753,9 @@ kirana-style.lock.json: 3 item(s) recorded
 ```
 
 Each line says what happens to a file: `+` it is new, `=` you have it as it is,
-`!` yours differs. The lockfile keeps two hashes per file, the registry's and
+`!` yours differs. A component names each icon once for every library, and you get
+your library's own component in its place, from its package (`ui.iconLibrary`,
+Lucide by default). The lockfile keeps two hashes per file, the registry's and
 what was written, which is how later commands tell a registry's change from
 yours.
 

@@ -510,7 +510,7 @@ export async function runInit(
     write(`setup: ${line}\n`)
   for (const line of manual) write(`by hand: ${line}\n`)
   // Kirana's own packages by name, unless the design system names a version of one.
-  const versioned = missingPackages(planned, project)
+  const versioned = missingPackages(planned, project, placed)
   const named = (entry: string) => entry.replace(/(?<=.)@.*$/, "")
   const commands = installCommand(
     project.manager,

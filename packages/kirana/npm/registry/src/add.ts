@@ -14,6 +14,7 @@ import { installCommand } from "@kirana-style/compiler"
 import { hashOf } from "./check.ts"
 import { parseArgs } from "./command.ts"
 import type { Options, Run } from "./command.ts"
+import { resolveIcons } from "./icons.ts"
 import { readLockfile, writeLockfile } from "./lockfile.ts"
 import { aliasDirectory, frameworkOf, readProject } from "./project.ts"
 import type { Project, ReadFile } from "./project.ts"
@@ -52,6 +53,8 @@ export type Placed = {
   relative: string
   content: string
   state: "new" | "same" | "differs"
+  /** Packages its icons need (`lucide-react`), added at their latest version. */
+  packages: string[]
 }
 
 const IMPORT = /(["'])@\/registry\/([a-z]+)\/([^"']+)\1/g
@@ -182,9 +185,16 @@ export function place(
       }
   const placed: Placed[] = []
   const taken = new Map<string, string>()
-  for (const { key, files } of planned)
+  const projectFramework = settings.framework ?? frameworkOf(project)
+  for (const { key, files, framework } of planned)
     for (const file of files) {
-      const content = file.content.replace(
+      const icons = resolveIcons(
+        `${key}: ${file.path}`,
+        file.content,
+        framework ?? projectFramework,
+        settings.iconLibrary
+      )
+      const content = icons.content.replace(
         IMPORT,
         (_, quote: string, type: string, rest: string) => {
           const alias = settings.aliases[type as AliasedType]
@@ -226,21 +236,29 @@ export function place(
             : current === content
               ? "same"
               : "differs",
+        packages: icons.packages,
       })
     }
   return placed
 }
 
-/** The packages the items need that the project does not list, as `name@range`. */
+/**
+ * The packages the items need that the project does not list: `name@range` for an item's, the name
+ * alone (its latest) for an icon library's.
+ */
 export function missingPackages(
   planned: readonly Planned[],
-  project: Project
+  project: Project,
+  placed: readonly Placed[]
 ): string[] {
   const needed = new Map<string, string>()
+  for (const { packages } of placed)
+    for (const name of packages)
+      if (!(name in project.listed)) needed.set(name, name)
   for (const { packages } of planned)
     for (const [name, range] of Object.entries(packages))
-      if (!(name in project.listed)) needed.set(name, range)
-  return [...needed].map(([name, range]) => `${name}@${range}`).sort()
+      if (!(name in project.listed)) needed.set(name, `${name}@${range}`)
+  return [...needed.values()].sort()
 }
 
 /** The package manager's command in a shell, its output shown; a signal counts as a failure. */
@@ -294,7 +312,7 @@ export async function runAdd(
     for (const file of placed.filter((entry) => entry.item === key))
       write(`  ${marks[file.state]} ${file.relative}\n`)
   }
-  const packages = missingPackages(planned, project)
+  const packages = missingPackages(planned, project, placed)
   const commands = installCommand(project.manager, packages, [])
   for (const command of commands) write(`packages: ${command}\n`)
   const conflicts = placed.filter((file) => file.state === "differs")
