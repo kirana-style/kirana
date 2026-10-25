@@ -269,10 +269,36 @@ export const Combobox = {
   },
 } as const
 
+export const Command = {
+  Group: {
+    value: "[data-value]",
+  },
+  Item: {
+    disabled: "[data-disabled]",
+    group: "[data-group]",
+    selected: "[data-selected]",
+    value: "[data-value]",
+  },
+  LinkItem: {
+    disabled: "[data-disabled]",
+    group: "[data-group]",
+    selected: "[data-selected]",
+    value: "[data-value]",
+  },
+} as const
+
 export const ContextMenu = {
   Item: {
     disabled: "[data-disabled]",
     highlighted: "[data-highlighted]",
+  },
+  Arrow: {
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
   },
   Content: {
     endingStyle: "[data-ending-style]",
@@ -353,6 +379,36 @@ export const DatePicker = {
     disabled: "[data-disabled]",
     invalid: "[data-invalid]",
     readonly: "[data-readonly]",
+  },
+  Content: {
+    endingStyle: "[data-ending-style]",
+    startingStyle: "[data-starting-style]",
+    state: {
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    },
+  },
+  ContentStatic: {
+    endingStyle: "[data-ending-style]",
+    startingStyle: "[data-starting-style]",
+    state: {
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    },
+  },
+  Trigger: {
+    state: {
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    },
+  },
+  Arrow: {
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
   },
   Input: {
     disabled: "[data-disabled]",
@@ -445,6 +501,28 @@ export const DateRangePicker = {
     disabled: "[data-disabled]",
     invalid: "[data-invalid]",
     readonly: "[data-readonly]",
+  },
+  Trigger: {
+    state: {
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    },
+  },
+  Content: {
+    endingStyle: "[data-ending-style]",
+    startingStyle: "[data-starting-style]",
+    state: {
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    },
+  },
+  Arrow: {
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
   },
   Label: {
     disabled: "[data-disabled]",
@@ -579,6 +657,14 @@ export const DropdownMenu = {
     disabled: "[data-disabled]",
     highlighted: "[data-highlighted]",
   },
+  Arrow: {
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
+  },
   Content: {
     endingStyle: "[data-ending-style]",
     startingStyle: "[data-starting-style]",
@@ -676,6 +762,22 @@ export const LinkPreview = {
 } as const
 
 export const Menubar = {
+  Content: {
+    endingStyle: "[data-ending-style]",
+    startingStyle: "[data-starting-style]",
+    state: {
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    },
+  },
+  ContentStatic: {
+    endingStyle: "[data-ending-style]",
+    startingStyle: "[data-starting-style]",
+    state: {
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    },
+  },
   Trigger: {
     disabled: "[data-disabled]",
     highlighted: "[data-highlighted]",
@@ -688,6 +790,14 @@ export const Menubar = {
   Item: {
     disabled: "[data-disabled]",
     highlighted: "[data-highlighted]",
+  },
+  Arrow: {
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
   },
   RadioItem: {
     disabled: "[data-disabled]",
@@ -741,6 +851,21 @@ export const NavigationMenu = {
   Root: {
     orientation: "[data-orientation]",
   },
+  Content: {
+    motion: "[data-motion]",
+    orientation: "[data-orientation]",
+    state: {
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    },
+  },
+  Indicator: {
+    orientation: "[data-orientation]",
+    state: {
+      hidden: '[data-state="hidden"]',
+      visible: '[data-state="visible"]',
+    },
+  },
   Link: {
     active: "[data-active]",
     focused: "[data-focused]",
@@ -786,6 +911,14 @@ export const PinInput = {
 } as const
 
 export const Popover = {
+  Arrow: {
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
+  },
   Content: {
     endingStyle: "[data-ending-style]",
     startingStyle: "[data-starting-style]",
@@ -945,6 +1078,25 @@ export const RatingGroup = {
     readonly: "[data-readonly]",
     state: "[data-state]",
     value: "[data-value]",
+  },
+} as const
+
+export const ScrollArea = {
+  Scrollbar: {
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
+    state: {
+      hidden: '[data-state="hidden"]',
+      visible: '[data-state="visible"]',
+    },
+  },
+  Thumb: {
+    state: {
+      hidden: '[data-state="hidden"]',
+      visible: '[data-state="visible"]',
+    },
   },
 } as const
 
@@ -1159,6 +1311,14 @@ export const Tooltip = {
       closed: '[data-state="closed"]',
       delayedOpen: '[data-state="delayed-open"]',
       instantOpen: '[data-state="instant-open"]',
+    },
+  },
+  Arrow: {
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
     },
   },
 } as const
