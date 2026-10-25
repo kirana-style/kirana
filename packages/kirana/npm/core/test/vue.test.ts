@@ -16,7 +16,15 @@ const Button = defineComponent({
     return () =>
       h(
         "button",
-        { ...attrs.value, ...k.sx([["k6V_5QUl k44_XvQd", sx.value]], [], []) },
+        // What a compiled `:sx` passes: a handle is its class string at runtime.
+        {
+          ...attrs.value,
+          ...k.sx(
+            [["k6V_5QUl k44_XvQd", sx.value as unknown as string]],
+            [],
+            []
+          ),
+        },
         slots.default?.()
       )
   },

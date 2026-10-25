@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@kirana-style/core": "0.1.0",
+    "@kirana-style/preset-scales": "0.1.0",
     "astro": "^7.3.4"
   },
   "devDependencies": {

@@ -188,7 +188,7 @@ export default function kirana(
     },
 
     /**
-     * The same per environment, with the runtime named up front. The top-level `optimizeDeps`
+     * The same per environment, with the runtime named up front, and the libraries bundled. The top-level `optimizeDeps`
      * above is the client's; a server environment that pre-bundles its dependencies (Cloudflare's
      * Worker, which runs in workerd) would pre-bundle the libraries and run them uncompiled. And
      * compiled output imports the runtime, which no source file names, so an environment that
@@ -206,6 +206,12 @@ export default function kirana(
             ? { include: [RUNTIME] }
             : {}),
         },
+        // A server environment leaves dependencies external by default, so Node would import the
+        // libraries as published: `ssr.noExternal` above reaches only `ssr`, not Astro 7's
+        // `prerender` (KF-031).
+        ...(name === "client"
+          ? {}
+          : { resolve: { noExternal: [...libraries] } }),
       }
     },
 

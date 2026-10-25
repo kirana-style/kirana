@@ -655,7 +655,10 @@ describe("kirana command", () => {
     expect(output).toContain(
       `these paths read 2: ., ${path.join("apps", "web", "kirana.config.json")}; pass --config <file>`
     )
-    expect(await run("export", "apps/web/src", "--out", "out.json")).toBe(0)
+    // An absolute `--out`: a relative one is the process's directory, which is the repository.
+    expect(
+      await run("export", "apps/web/src", "--out", path.join(root, "out.json"))
+    ).toBe(0)
     // A path that does not exist is looked up from its parent, and fails as it did.
     expect(await run("check", "apps/web/missing.tsx")).toBe(1)
   })

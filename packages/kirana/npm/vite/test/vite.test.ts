@@ -157,14 +157,20 @@ describe("KRN-INT-008 listed libraries", () => {
     expect(await environment("client", {})).toEqual({
       optimizeDeps: { include: [runtime] },
     })
-    // A server environment in Node pre-bundles nothing unless told to.
-    expect(await environment("ssr", {})).toEqual({
-      optimizeDeps: { exclude: [preset] },
-    })
+    // A server environment in Node pre-bundles nothing unless told to, and bundles the libraries
+    // rather than leave them to Node: Astro 7's `prerender` as much as `ssr` (KF-031).
+    for (const name of ["ssr", "prerender"])
+      expect(await environment(name, {})).toEqual({
+        optimizeDeps: { exclude: [preset] },
+        resolve: { noExternal: [preset] },
+      })
     // One that discovers dependencies, as Cloudflare's Worker environment does.
     expect(
       await environment("ssr", { optimizeDeps: { noDiscovery: false } })
-    ).toEqual({ optimizeDeps: { exclude: [preset], include: [runtime] } })
+    ).toEqual({
+      optimizeDeps: { exclude: [preset], include: [runtime] },
+      resolve: { noExternal: [preset] },
+    })
 
     // A project that cannot resolve the runtime is never asked to pre-bundle it.
     const outside = mkdtempSync(path.join(tmpdir(), "kirana-vite-"))
