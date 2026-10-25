@@ -245,6 +245,34 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     expect(read(tilde, "src/main.tsx")).toContain("from '~/lib/kit/document'")
   })
 
+  it("lets a tsconfig that type-checks the configuration take its .ts import", async () => {
+    const tsconfig = (text: string) => next({ "tsconfig.json": text })
+    const emitsNothing = tsconfig(
+      '{ "compilerOptions": { "noEmit": true, "paths": { "@/*": ["./*"] } }, "include": ["**/*.ts"] }'
+    )
+    expect((await init(emitsNothing, "--registry", ACME)).text).toContain(
+      "setup: tsconfig.json: allowImportingTsExtensions, for kirana.config.mts's import"
+    )
+    expect(read(emitsNothing, "tsconfig.json")).toContain(
+      '"allowImportingTsExtensions": true,'
+    )
+    const emits = tsconfig(
+      '{ "compilerOptions": { "paths": { "@/*": ["./*"] } } }'
+    )
+    expect((await init(emits, "--registry", ACME)).text).toContain(
+      'by hand: tsconfig.json type-checks kirana.config.mts, whose import ends in .ts: set "allowImportingTsExtensions": true there, or leave kirana.config.mts out of its include'
+    )
+    for (const text of [
+      '{ "compilerOptions": { "paths": { "@/*": ["./*"] } }, "include": ["app"] }',
+      '{ "compilerOptions": { "allowImportingTsExtensions": true, "paths": { "@/*": ["./*"] } } }',
+    ]) {
+      const left = tsconfig(text)
+      expect((await init(left, "--registry", ACME)).text).not.toContain(
+        "allowImportingTsExtensions"
+      )
+    }
+  })
+
   it("names the design system with --design, and the framework and base with their flags", async () => {
     const cwd = vite({
       "acme/kit.json": JSON.stringify({

@@ -272,6 +272,39 @@ jobs:
       - name: vite-react on the WASI engine
         run: bun run kirana:example vite-react --pm npm --wasi
 
+  # The component registry's installer end to end (KRN-DX-028, KRN-DX-029): on a Vite, a TanStack
+  # Start and a Next.js app, `kirana-style ui init` and `ui add` from the fixture registry
+  # (examples/registry), then the build, and the installed button, its icon and the design system on
+  # <html> read back in Chromium beside the probe.
+  install-registry:
+    name: install (registry · ${{ matrix.example }})
+    runs-on: ubuntu-26.04
+    needs: [pack]
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        example: [vite-react, tanstack-start, next-turbopack]
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: kirana-packages
+          path: packages/kirana/dist-packages
+
+      - name: Install Chromium
+        working-directory: packages/kirana
+        run: bunx playwright install --with-deps chromium
+
+      - name: ${{ matrix.example }} with kirana-style ui
+        run: bun run kirana:example ${{ matrix.example }} --pm npm --registry
+
   # The compatibility matrix (one example per host and framework, built) and the development servers
   # (KRN-INT-009: the page is styled, and a style edit reaches it, as a CSS hot update without a reload
   # where the framework updates components in place). Linux with npm, since the installation matrix
@@ -514,6 +547,7 @@ jobs:
         pack,
         install,
         install-wasi,
+        install-registry,
         examples,
         compat-atoms,
         runtime-deno,

@@ -210,7 +210,8 @@ is missing (what `kirana-style init` does), the `ui` settings in `kirana.config.
 `--base`, and `--registry @namespace=<template>` for each registry to name), and the registry's
 design-system item (`--design <item>`, else the index's first item of that type) installed as `add`
 installs it. Its `setup` is then wired in (D-109): the configuration spread first into
-`defineConfig`, imported by relative path with its extension; each stylesheet imported after
+`defineConfig`, imported by relative path with its extension (a tsconfig that type-checks the
+configuration and emits nothing then allows `.ts` imports); each stylesheet imported after
 Kirana's stylesheet; the `<html>` styles on the `<html>` element as `sx`, or, in an app whose
 document is static HTML, set on `document.documentElement` beside Kirana's stylesheet import. A
 change it cannot make safely MUST be printed as a step to do by hand. Every change is planned before

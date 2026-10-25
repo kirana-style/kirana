@@ -18,6 +18,7 @@ import path from "node:path"
 import {
   addImport,
   findConfigAbove,
+  readJsonc,
   installCommand,
   planInit,
   sources,
@@ -269,6 +270,48 @@ function prepareAliases(
   return settings
 }
 
+/**
+ * The configuration imports the design system's with its `.ts` extension, as Node.js loads it; a
+ * tsconfig that type-checks the configuration (Next.js's includes every `.ts` file) must allow that.
+ * Allowed in place when it emits nothing, which the option requires; else a step by hand.
+ */
+function allowTsImports(
+  files: Files,
+  config: string,
+  report: string[],
+  manual: string[]
+): void {
+  // Placing the files found the aliases through it, so it is there.
+  const text = files.read("tsconfig.json")!
+  const tsconfig = readJsonc(text) as {
+    include?: string[]
+    compilerOptions?: { allowImportingTsExtensions?: boolean; noEmit?: boolean }
+  }
+  const includes =
+    tsconfig.include === undefined ||
+    tsconfig.include.some(
+      (pattern) => pattern === config || /^(\*\*\/)?\*\.ts$/.test(pattern)
+    )
+  const options = tsconfig.compilerOptions
+  if (!includes || !options || options.allowImportingTsExtensions) return
+  if (!options.noEmit) {
+    manual.push(
+      `tsconfig.json type-checks ${config}, whose import ends in .ts: set "allowImportingTsExtensions": true there, or leave ${config} out of its include`
+    )
+    return
+  }
+  files.write(
+    "tsconfig.json",
+    text.replace(
+      /"compilerOptions"\s*:\s*\{/,
+      (open) => `${open}\n    "allowImportingTsExtensions": true,`
+    )
+  )
+  report.push(
+    `tsconfig.json: allowImportingTsExtensions, for ${config}'s import`
+  )
+}
+
 /** What a setup entry names, among the files being installed. */
 function installedOf(
   module: string,
@@ -375,6 +418,8 @@ function setUp(
         `import { ${setup.config.export} } from "${specifier}"`
       )
       report.push(`${config}: spreads ${setup.config.export} (${specifier})`)
+      if (/\.[cm]?ts$/.test(config))
+        allowTsImports(files, config, report, manual)
     }
     // An empty `defineConfig({})` keeps its closing brace on a line of its own.
     files.write(config, text.replace(/,\}\)/, ",\n})"))
