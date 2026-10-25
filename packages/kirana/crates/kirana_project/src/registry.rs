@@ -88,18 +88,60 @@ pub(crate) struct Cached {
 }
 
 /// The markers of every relation in a value, inside arrays and objects too.
+/// The relations an exported value lets another module read: the relation itself, or a read of it (a
+/// condition, a style that reads it, or the bound `within`), at any depth of an object or array
+/// (KF-024). A module that exports `{ anchor, style: { lyra: ui.within(…) } }` lets others read the
+/// relation as surely as one that exports the relation; an exported anchor alone does not, since no
+/// other module could read it.
 fn relation_markers(value: &kirana_ir::Value, out: &mut BTreeSet<String>) {
+    use kirana_ir::{Condition, Method, Value};
+    let handle = |handle: &kirana_ir::Handle, out: &mut BTreeSet<String>| {
+        out.extend(relation_reads(handle).into_iter().map(|(marker, _)| marker));
+    };
     match value {
-        kirana_ir::Value::Relation(relation) => {
+        Value::Relation(relation) => {
             out.insert(relation.marker.clone());
         }
-        kirana_ir::Value::Array(items) => items.iter().for_each(|item| relation_markers(item, out)),
-        kirana_ir::Value::Object(entries) => entries.iter().for_each(|(_, item)| relation_markers(item, out)),
+        Value::Handle(found) => handle(found, out),
+        Value::Recipe(recipe) => {
+            let parts = recipe.base.iter().chain(
+                recipe
+                    .variants
+                    .iter()
+                    .flat_map(|(_, options)| options.iter().flat_map(|(_, handles)| handles))
+                    .chain(recipe.compounds.iter().flat_map(|(_, handles)| handles)),
+            );
+            parts.for_each(|found| handle(found, out));
+        }
+        Value::Conditions(conditions) => out.extend(conditions.iter().filter_map(|condition| match condition {
+            Condition::Relation { marker, .. } => Some(marker.clone()),
+            _ => None,
+        })),
+        Value::Method(method) => {
+            if let Method::RelationRead(relation, _) = &**method {
+                out.insert(relation.marker.clone());
+            }
+        }
+        Value::Array(items) => items.iter().for_each(|item| relation_markers(item, out)),
+        Value::Object(entries) => entries.iter().for_each(|(_, item)| relation_markers(item, out)),
         _ => {}
     }
 }
 
 impl Project {
+    /// The span of `relation("name")` in the project file `file`, or an empty span when it is not
+    /// written that way.
+    fn declaration(&self, file: &str, name: &str) -> Span {
+        let source = self.fs.read_to_string(&self.root.join(file)).unwrap_or_default();
+        ["\"", "'", "`"]
+            .iter()
+            .find_map(|quote| {
+                let call = format!("relation({quote}{name}{quote})");
+                source.find(&call).map(|start| Span::new(start as u32, (start + call.len()) as u32))
+            })
+            .unwrap_or_default()
+    }
+
     fn live(&self) -> (Vec<Atom>, Vec<Dep>) {
         let state = self.state.read().expect("not poisoned");
         let mut paths: Vec<_> = state.modules.keys().collect();
@@ -400,11 +442,24 @@ impl Project {
         }
         for marker in &anchors {
             if !reads.contains_key(marker) && (walked || !exported.contains(*marker)) {
-                let name = relation_names.get(marker).copied().unwrap_or(marker);
+                // The declaring module may only have been evaluated, not compiled: its name is then
+                // in the session's table of declarations.
+                let name = relation_names
+                    .get(marker)
+                    .copied()
+                    .or_else(|| state.relations.get(*marker).map(|(name, _)| name.as_str()))
+                    .unwrap_or(marker);
+                // Where it is declared, as every other diagnostic says where it is.
+                let (file, span): (String, Span) = state
+                    .relations
+                    .get(*marker)
+                    .and_then(|(_, files)| files.iter().next())
+                    .map(|file| (file.clone(), self.declaration(file, name)))
+                    .unwrap_or_default();
                 out.push(Diagnostic::new(
                     Code::RelationUnused,
-                    "",
-                    Span::default(),
+                    &file,
+                    span,
                     format!("relation {name:?} is anchored but never read"),
                 ));
             }
