@@ -21,7 +21,7 @@
   "require-dev": {
     "laravel/framework": "^13.32",
     "orchestra/testbench-core": "^11.5",
-    "phpunit/phpunit": "~13.3.0",
+    "phpunit/phpunit": "~13.3.0 || ~13.4.0",
     "twig/twig": "^3.30"
   },
   "suggest": {
