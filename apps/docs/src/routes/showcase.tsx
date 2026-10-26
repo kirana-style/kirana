@@ -8,14 +8,13 @@ import {
   Layers01Icon,
 } from "@hugeicons/core-free-icons"
 
-import { accent, accents, tint } from "@workspace/docs-ui/accent.ts"
+import { accent, accents } from "@workspace/docs-ui/accent.ts"
 import type { AccentName } from "@workspace/docs-ui/accent.ts"
 import { Button } from "@workspace/ui/components/button"
 import { Icon } from "@workspace/ui/primitives/icon"
 import type { IconProps } from "@workspace/ui/primitives/icon"
-import { radius, theme } from "@workspace/ui/theme/semantic"
+import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
-import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
   fontSize,
@@ -25,10 +24,11 @@ import {
 
 import { DocsLink } from "@/components/docs-link"
 import { NextStep } from "@/components/site/accents"
+import { framed } from "@/components/site/framed-card"
+import { IconTile } from "@/components/site/icon-tile"
 import { Page, PageHero, PageSection } from "@/components/site/page"
 import { SCENES, sceneImage } from "@/brand/scenes"
 import type { SceneId } from "@/brand/scenes"
-import { LIFT, REST } from "@workspace/ui/recipes/lift"
 
 export const Route = createFileRoute("/showcase")({
   component: Showcase,
@@ -53,19 +53,6 @@ const styles = {
       [breakpoint.md]: "repeat(2, minmax(0, 1fr))",
     },
   }),
-  card: css({
-    display: "grid",
-    gridTemplateRows: "auto 1fr",
-    overflow: "hidden",
-    borderRadius: radius.xl,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    boxShadow: { base: REST, ":hover": LIFT },
-    backgroundColor: theme.card,
-    transitionProperty: "box-shadow",
-    transitionDuration: duration[200],
-  }),
   // Until each entry has a screenshot: a landscape crop with the entry's glyph on it, marked as
   // a picture of the place, not of the application.
   thumbnail: css({
@@ -74,11 +61,7 @@ const styles = {
     display: "grid",
     placeItems: "center",
     aspectRatio: "16 / 7",
-    overflow: "hidden",
     backgroundColor: theme.muted,
-    borderBlockEndWidth: "1px",
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: theme.border,
   }),
   photo: css({
     position: "absolute",
@@ -88,22 +71,11 @@ const styles = {
     height: "100%",
     objectFit: "cover",
   }),
-  mark: css({
-    position: "relative",
-    display: "grid",
-    placeItems: "center",
-    width: spacing[16],
-    height: spacing[16],
-    borderRadius: radius.xl,
-    backgroundColor: accent.base,
-    color: accent.on,
-    boxShadow: `0 10px 30px -10px ${tint(70)}`,
-  }),
   body: css({
     display: "grid",
     alignContent: "start",
     gap: spacing[3],
-    padding: spacing[6],
+    padding: spacing[5],
   }),
   category: css({
     fontSize: fontSize.xs,
@@ -239,8 +211,8 @@ function Showcase() {
       <PageSection>
         <div sx={styles.grid}>
           {ENTRIES.map((entry) => (
-            <article key={entry.name} sx={[accents[entry.accent], styles.card]}>
-              <div sx={styles.thumbnail} aria-hidden="true">
+            <article key={entry.name} sx={[accents[entry.accent], framed.card]}>
+              <div sx={[framed.picture, styles.thumbnail]} aria-hidden="true">
                 <img
                   src={sceneImage(entry.scene, 800)}
                   alt=""
@@ -249,9 +221,7 @@ function Showcase() {
                   style={{ objectPosition: SCENES[entry.scene].position }}
                   sx={styles.photo}
                 />
-                <span sx={styles.mark}>
-                  <Icon icon={entry.icon} size="1.75rem" />
-                </span>
+                <IconTile icon={entry.icon} size="lg" tone="muted" />
               </div>
               <div sx={styles.body}>
                 <span sx={styles.category}>{entry.category}</span>

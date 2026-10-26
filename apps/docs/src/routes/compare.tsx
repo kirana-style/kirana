@@ -27,7 +27,7 @@ import {
 } from "@workspace/ui/components/toggle-group"
 import { Icon } from "@workspace/ui/primitives/icon"
 import { VisuallyHidden } from "@workspace/ui/primitives/visually-hidden"
-import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
+import { alpha, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
@@ -111,22 +111,15 @@ const styles = {
     textTransform: "uppercase",
     color: theme.mutedForeground,
   }),
+  // A bare logo, no frame: the tool's own mark is the whole of it.
   logo: css({
     display: "grid",
-    placeItems: "center",
-    width: "2rem",
-    height: "2rem",
-    borderRadius: radius.lg,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    backgroundColor: theme.card,
-    fontFamily: fontFamily.mono,
-    fontSize: textSize.label,
-    fontWeight: fontWeight.semibold,
+    placeItems: "center start",
+    width: "1.5rem",
+    height: "1.5rem",
     color: theme.mutedForeground,
   }),
-  mark: css({ height: "1.125rem" }),
+  mark: css({ height: "1.375rem" }),
   toolName: css({
     fontSize: fontSize.sm,
     lineHeight: lineHeight.sm,
@@ -262,7 +255,7 @@ function ToolLogo({ tool }: { tool: (typeof TOOLS)[number] }) {
   return (
     <span sx={styles.logo} aria-hidden="true">
       {tool.logo ? (
-        <BrandIcon icon={SVGL[tool.logo]} size="1.25rem" />
+        <BrandIcon icon={SVGL[tool.logo]} size="1.5rem" />
       ) : (
         <KiranaMark title={null} sx={styles.mark} />
       )}

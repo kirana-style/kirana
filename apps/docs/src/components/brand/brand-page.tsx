@@ -35,6 +35,7 @@ import { Explorations } from "@/components/brand/explorations"
 import { SCENES, sceneImage } from "@/brand/scenes"
 import { sectionStyles } from "@/components/page-section"
 import { chapter } from "@/components/site/chapter"
+import { framed } from "@/components/site/framed-card"
 import { Accent, PageHero, PageSection } from "@/components/site/page"
 import { PixelField } from "@/components/site/pixel-field"
 import { Wordmark } from "@/components/site/wordmark"
@@ -354,12 +355,7 @@ const styles = {
       [breakpoint.lg]: "repeat(3, minmax(0, 1fr))",
     },
   }),
-  scene: css({
-    margin: 0,
-    overflow: "hidden",
-    borderRadius: radius.xl,
-    backgroundColor: theme.card,
-  }),
+  scene: css({ margin: 0, backgroundColor: theme.card }),
   sceneImage: css({
     width: "100%",
     aspectRatio: "16 / 9",
@@ -395,8 +391,6 @@ const styles = {
   example: css({
     display: "grid",
     gridTemplateRows: "1fr auto",
-    overflow: "hidden",
-    borderRadius: radius.xl,
     backgroundColor: theme.card,
   }),
   exampleStage: css({
@@ -413,9 +407,6 @@ const styles = {
     padding: spacing[4],
     fontSize: fontSize.sm,
     lineHeight: "1.5",
-    borderTopWidth: "1px",
-    borderTopStyle: "solid",
-    borderTopColor: theme.border,
   }),
   good: css({ color: theme.foreground, marginBlockStart: "0.15em" }),
   bad: css({ color: theme.destructive, marginBlockStart: "0.15em" }),
@@ -1002,7 +993,12 @@ export function BrandPage() {
           {Object.values(SCENES).map((scene) => (
             <figure
               key={scene.id}
-              sx={[accents[scene.hue], sectionStyles.bordered, styles.scene]}
+              sx={[
+                accents[scene.hue],
+                sectionStyles.bordered,
+                framed.inset,
+                styles.scene,
+              ]}
             >
               <img
                 src={sceneImage(scene.id, 800)}
@@ -1010,7 +1006,7 @@ export function BrandPage() {
                 loading="lazy"
                 decoding="async"
                 style={{ objectPosition: scene.position }}
-                sx={styles.sceneImage}
+                sx={[framed.picture, styles.sceneImage]}
               />
               <figcaption sx={styles.sceneCaption}>
                 <span sx={styles.sceneName}>
@@ -1029,9 +1025,12 @@ export function BrandPage() {
       <PageSection number="08" label="Usage" title="Do and don't">
         <div sx={styles.usage}>
           {DOS.map((item) => (
-            <div key={item.text} sx={[sectionStyles.bordered, styles.example]}>
+            <div
+              key={item.text}
+              sx={[sectionStyles.bordered, framed.inset, styles.example]}
+            >
               <div
-                sx={styles.exampleStage}
+                sx={[framed.picture, styles.exampleStage]}
                 style={{ backgroundColor: item.background, color: item.colour }}
               >
                 <KiranaMark
@@ -1047,8 +1046,14 @@ export function BrandPage() {
             </div>
           ))}
           {DONTS.map((item) => (
-            <div key={item.text} sx={[sectionStyles.bordered, styles.example]}>
-              <div sx={styles.exampleStage} style={{ color: item.colour }}>
+            <div
+              key={item.text}
+              sx={[sectionStyles.bordered, framed.inset, styles.example]}
+            >
+              <div
+                sx={[framed.picture, styles.exampleStage]}
+                style={{ color: item.colour }}
+              >
                 <KiranaMark
                   variant="solid"
                   sx={[styles.exampleMark, item.sx]}

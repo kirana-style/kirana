@@ -199,13 +199,14 @@ const styles = {
     display: "grid",
     gridTemplateRows: "auto 1fr",
     overflow: "hidden",
-    borderRadius: radius.xl,
+    borderRadius: radius["2xl"],
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: { base: theme.border, ":focus-visible": tint(60) },
     // The kit's link pads its content and greys on hover and focus; this
-    // card is flush and keeps its own ground, under the same conditions.
-    padding: 0,
+    // card sets its own padding, the picture's inset, and keeps its own
+    // ground, under the same conditions.
+    padding: spacing[2],
     backgroundColor: {
       base: theme.card,
       ":hover": theme.card,
@@ -230,9 +231,11 @@ const styles = {
     placeItems: "center",
     height: "9rem",
     overflow: "hidden",
-    borderBlockEndWidth: "1px",
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: theme.border,
+    // Inset in the card and rounded with it, as every picture card is (framed-card.tsx).
+    borderRadius: `calc(${radius["2xl"]} - ${spacing[2]})`,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: theme.border,
     backgroundColor: theme.background,
   }),
   // The destination's landscape, softened so the illustration on it reads.
@@ -265,7 +268,7 @@ const styles = {
     display: "grid",
     alignContent: "start",
     gap: spacing[1],
-    padding: spacing[4],
+    padding: spacing[3],
   }),
   featuredTitle: css({
     fontSize: fontSize.sm,

@@ -1,6 +1,6 @@
 /**
- * The site's card: a picture on top (a scene from the illustration kit on its grid and glow),
- * then the title, a line of text, whatever the card lists, and pill links. The scene rises a
+ * The site's card: a picture on top, inset and rounded inside the card's frame (a scene from the
+ * illustration kit on its grid and glow), then the title, a line of text, whatever the card lists, and pill links. The scene rises a
  * little on hover. The title is in the sans: the serif is for headings from 1.5rem up, where a
  * small bold serif beside a coloured icon read as decoration.
  *
@@ -30,25 +30,12 @@ import {
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
+import { framed } from "@/components/site/framed-card"
 import { Stage } from "@/components/site/visuals"
-import { LIFT, REST } from "@workspace/ui/recipes/lift"
 
 const REDUCED = "@media (prefers-reduced-motion: reduce)"
 
 const styles = {
-  card: css({
-    display: "grid",
-    gridTemplateRows: "auto 1fr",
-    overflow: "hidden",
-    borderRadius: radius.xl,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    boxShadow: { base: REST, ":hover": LIFT },
-    backgroundColor: theme.card,
-    transitionProperty: "box-shadow",
-    transitionDuration: duration[200],
-  }),
   wide: css({
     gridColumn: { [breakpoint.sm]: "1 / -1" },
     gridTemplateRows: { [breakpoint.sm]: "none" },
@@ -57,21 +44,11 @@ const styles = {
       [breakpoint.sm]: "minmax(0, 1.15fr) minmax(0, 1fr)",
     },
   }),
-  art: css({
-    height: "11rem",
-    borderBlockEndWidth: "1px",
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: theme.border,
-    backgroundColor: theme.background,
-  }),
+  art: css({ height: "11rem" }),
   artTall: css({ height: "14rem" }),
   artWide: css({
     height: { base: "11rem", [breakpoint.sm]: "100%" },
     minHeight: { [breakpoint.sm]: "13rem" },
-    borderBlockEndWidth: { [breakpoint.sm]: "0" },
-    borderInlineEndWidth: { [breakpoint.sm]: "1px" },
-    borderInlineEndStyle: "solid",
-    borderInlineEndColor: theme.border,
   }),
   // The whole scene rises while its card is hovered.
   rise: css({
@@ -199,13 +176,14 @@ export function IllustratedCard({
       data-card=""
       sx={[
         tone ? accents[tone] : null,
-        styles.card,
+        framed.card,
         wide ? styles.wide : null,
         sx,
       ]}
     >
       <div
         sx={[
+          framed.picture,
           styles.art,
           tall ? styles.artTall : null,
           wide ? styles.artWide : null,

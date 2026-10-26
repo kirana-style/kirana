@@ -16,13 +16,13 @@ import {
 import { SVGL } from "@/generated/svgl-icons.gen"
 
 import type { AccentName } from "@workspace/docs-ui/accent.ts"
-import { radius, theme } from "@workspace/ui/theme/semantic"
+import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
-import { duration } from "@workspace/ui/tokens/motion"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import { fontSize } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
+import { framed } from "@/components/site/framed-card"
 import {
   At,
   Card,
@@ -35,7 +35,6 @@ import {
   Tag,
   Tile,
 } from "@/components/site/visuals"
-import { LIFT, REST } from "@workspace/ui/recipes/lift"
 
 import { frame } from "@/components/home/frame"
 
@@ -48,29 +47,14 @@ const styles = {
       [breakpoint.md]: "repeat(2, minmax(0, 1fr))",
     },
   }),
-  card: css({
+  card: css({ textDecorationLine: "none", color: theme.foreground }),
+  art: css({ height: "13rem" }),
+  copy: css({
     display: "grid",
-    gridTemplateRows: "auto 1fr",
-    overflow: "hidden",
-    borderRadius: radius.xl,
-    borderWidth: "1px",
-    borderStyle: "solid",
-    borderColor: theme.border,
-    boxShadow: { base: REST, ":hover": LIFT },
-    backgroundColor: theme.card,
-    textDecorationLine: "none",
-    color: theme.foreground,
-    transitionProperty: "box-shadow",
-    transitionDuration: duration[200],
+    gap: spacing[2],
+    alignContent: "start",
+    padding: spacing[5],
   }),
-  art: css({
-    height: "13rem",
-    borderBlockEndWidth: "1px",
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: theme.border,
-    backgroundColor: theme.background,
-  }),
-  copy: css({ display: "grid", gap: spacing[2], padding: spacing[6] }),
   titleRow: css({
     display: "flex",
     alignItems: "center",
@@ -266,8 +250,12 @@ export function Tools() {
   return (
     <div sx={styles.grid}>
       {ITEMS.map((item) => (
-        <DocsLink key={item.title} href={item.href} sx={styles.card}>
-          <div sx={styles.art}>
+        <DocsLink
+          key={item.title}
+          href={item.href}
+          sx={[framed.card, styles.card]}
+        >
+          <div sx={[framed.picture, styles.art]}>
             <item.art />
           </div>
           <div sx={styles.copy}>
