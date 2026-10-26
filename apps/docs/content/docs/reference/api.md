@@ -75,16 +75,20 @@ runtime option it resolves through the runtime and reports `dynamic-variant`.
 ## `relation(name)`
 
 ```ts
-relation(name: string): {
+relation(name: string, options?: { optional?: boolean }): {
   name: string
   anchor: StyleHandle
   within(state?: string): Condition
+  parent(state?: string): Condition
   after(state?: string): Condition
   before(state?: string): Condition
 }
 ```
 
-Styling by another element's state. [Relations](/docs/styling/relations).
+Styling by another element's state. `optional: true` lets a reader be installed
+without the component that applies the anchor, where the read never matches,
+instead of failing `relation-without-anchor`.
+[Relations](/docs/styling/relations).
 
 ## `select.descendant(target)` · `select.child(target)`
 

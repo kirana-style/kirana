@@ -217,6 +217,10 @@ any pseudo-class, attribute selector, or `:has(...)`. Plain "this element contai
 use a `":has(X)"` condition key. Validation rules are owned by
 [08](./08-conditions-and-cascade.md#relation-validation).
 
+`relation(name, { optional: true })` declares a relation its readers may meet without its anchor: a
+reader installed without the component that applies the anchor, as registry items are, where the read
+never matches. The options take `optional` alone, a boolean (D-112).
+
 ## `select` — contextual descendant styles
 
 ```ts

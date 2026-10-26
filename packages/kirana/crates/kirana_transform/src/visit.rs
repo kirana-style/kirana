@@ -407,6 +407,7 @@ const TYPE_EXPORTS: &[&str] = &[
     "RecipeOptions",
     "Recipe",
     "Relation",
+    "RelationOptions",
     "TokenValues",
     "Tokens",
 ];

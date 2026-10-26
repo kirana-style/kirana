@@ -1,0 +1,13 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k44-DUh8_LB88:where(.krKoKJ ~ *) {
+    background-color: blue;
+  }
+  .k50-CfE0_D9ur:where(.krXKDV *) {
+    color: red;
+  }
+  .kaF-izCk_yp7g:where(.krMLjf[data-orientation="vertical"] > *) {
+    width: 100%;
+  }
+}
