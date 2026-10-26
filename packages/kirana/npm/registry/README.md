@@ -4,7 +4,9 @@ Kirana's component registry: the commands `kirana-style ui` runs, and the regist
 Schemas, types and checks.
 
 ```bash
-npm install --save-dev @kirana-style/registry
+npx @kirana-style/registry init --template vite-react my-app   # a new project, from nothing
+
+npm install --save-dev @kirana-style/registry                  # or in a project you have
 npx kirana-style ui init
 npx kirana-style ui add button
 npx kirana-style ui search button
@@ -13,7 +15,9 @@ npx kirana-style ui validate public/r/button.json
 ```
 
 `kirana-style ui …` resolves this package from your project and runs it with the arguments after
-`ui`, so the compiler every Kirana project installs carries no registry client.
+`ui`, so the compiler every Kirana project installs carries no registry client. Before a project
+exists, the package runs on its own (`npx @kirana-style/registry <command>`, its `kirana-style-ui`
+bin), and `init` adds it to the project it sets up.
 
 ## Commands
 

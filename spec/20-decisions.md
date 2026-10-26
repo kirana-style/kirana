@@ -1587,6 +1587,25 @@ the implementation tracker names its evidence.
   code; the installer decodes what the code says.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
+### D-111 — The registry runs on its own, and init leaves a project that can run it
+
+- **Status:** Accepted (2026-10-26). Answers KF-035; keeps D-103.
+- **Decision:** `@kirana-style/registry` has one bin, `kirana-style-ui`, which runs its own `main`, so
+  `npx @kirana-style/registry init --template vite-react my-app` starts from an empty folder. The
+  `kirana-style` CLI still runs the project's copy (D-103). `ui init` installs Kirana's packages,
+  the registry among them, at its own release with the package manager's exact flag; a named import
+  it adds joins an existing import of the module; the check after writing leaves out
+  `relation-unused` for a design system's own relations; the help lists every option.
+- **Rationale:** kirana-ui's install test found that the documented `npx kirana-style ui init
+  --template …` could not run in an empty folder (the CLI needs the project's registry), that the
+  project it made could not run `kirana-style ui` by itself, that `kirana-style` was added as
+  `^0.3.3` beside exact `@kirana-style/*` packages, and that every new project printed a
+  `relation-unused` warning no build reports.
+- **Trade-off:** two ways in: `npx @kirana-style/registry` before a project exists, `kirana-style ui`
+  inside one. Bundling the registry into the CLI would give one, at the cost D-103 refused: a
+  registry client in every project's compiler install.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                       |
@@ -1598,7 +1617,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                 |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                       |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                             |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110               |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111        |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                            |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                           |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                    |

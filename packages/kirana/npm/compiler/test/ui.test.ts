@@ -62,7 +62,7 @@ describe("KRN-DX-020 kirana-style ui", () => {
     const { out, write } = capture()
     expect(await main(["ui", "add", "button"], root, write)).toBe(1)
     expect(out.text).toBe(
-      "kirana-style ui needs @kirana-style/registry, which this project does not have: add it as a development dependency\n"
+      "kirana-style ui needs @kirana-style/registry, which this project does not have: add it as a development dependency, or start a new project with npx @kirana-style/registry init --template <example> <directory>\n"
     )
   })
 

@@ -392,21 +392,39 @@ export function runCommand(manager: PackageManager, command: string): string {
   return `${prefix[manager]}${command}`
 }
 
-/** The command that installs runtime and development dependencies. */
+/** Each manager's flag that records the version as written, not as a `^` range. */
+const EXACT: Record<PackageManager, string> = {
+  npm: "--save-exact",
+  pnpm: "--save-exact",
+  yarn: "--exact",
+  bun: "--exact",
+  deno: "--save-exact",
+}
+
+/**
+ * The command that installs runtime and development dependencies; with `exact`, each is recorded
+ * at the version it names (`kirana-style@0.3.3` as `0.3.3`, not `^0.3.3`).
+ */
 export function installCommand(
   manager: PackageManager,
   dependencies: readonly string[],
-  development: readonly string[]
+  development: readonly string[],
+  { exact = false }: { exact?: boolean } = {}
 ): string[] {
-  const add = manager === "npm" ? "install" : "add"
+  const add = [
+    manager === "npm" ? "install" : "add",
+    ...(exact ? [EXACT[manager]] : []),
+  ]
   const dev = manager === "bun" ? "-d" : "-D"
   // Deno takes each npm package as an `npm:` specifier.
   const names = (list: readonly string[]) =>
     manager === "deno" ? list.map((name) => `npm:${name}`) : list
   return [
-    dependencies.length ? [manager, add, ...names(dependencies)].join(" ") : "",
+    dependencies.length
+      ? [manager, ...add, ...names(dependencies)].join(" ")
+      : "",
     development.length
-      ? [manager, add, dev, ...names(development)].join(" ")
+      ? [manager, ...add, dev, ...names(development)].join(" ")
       : "",
   ].filter(Boolean)
 }

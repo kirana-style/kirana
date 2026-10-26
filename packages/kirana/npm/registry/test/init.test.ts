@@ -15,6 +15,7 @@ import { afterAll, describe, expect, it } from "vite-plus/test"
 import { hashOf } from "../src/check.ts"
 import { main } from "../src/index.ts"
 import { readLockfile } from "../src/lockfile.ts"
+import { version } from "../src/version.ts"
 import type { Item, RegistryFile, Setup } from "../src/types.ts"
 
 const root = mkdtempSync(path.join(tmpdir(), "kirana-registry-init-"))
@@ -158,7 +159,29 @@ const read = (cwd: string, name: string) =>
   readFileSync(path.join(cwd, name), "utf8")
 
 describe("KRN-DX-029 kirana-style ui init", () => {
+  it("installs the registry only where the project lacks it (KF-035)", async () => {
+    const release = await version()
+    const cwd = next({
+      "package.json": JSON.stringify({
+        dependencies: {
+          next: "^16.0.0",
+          react: "^19.0.0",
+          "react-dom": "^19.0.0",
+        },
+        devDependencies: { "@kirana-style/registry": release },
+      }),
+    })
+    const { code, text } = await init(cwd, "--registry", ACME, "--dry-run")
+    expect(code).toBe(0)
+    // Kirana's packages exactly at this release; Next.js's PostCSS as any other package.
+    expect(text).toContain(
+      `packages: npm install --save-exact -D kirana-style@${release} @kirana-style/next@${release} @kirana-style/postcss@${release}\npackages: npm install -D postcss\n`
+    )
+    expect(text).not.toContain("@kirana-style/registry@")
+  })
+
   it("sets a Vite app up: Kirana, the aliases, the settings, the design system and its wiring", async () => {
+    const release = await version()
     const cwd = vite()
     const { code, text, commands } = await init(cwd, "--registry", ACME)
     expect(code).toBe(0)
@@ -177,14 +200,16 @@ describe("KRN-DX-029 kirana-style ui init", () => {
       "setup: kirana.config.ts: spreads kitConfig (./src/lib/kit/config.ts)",
       "setup: src/main.tsx: imports @/components/ui/reset.css",
       "setup: src/main.tsx: sets <html>'s classes from htmlStyles",
-      "packages: npm install @kirana-style/core@0.3.2",
-      "packages: npm install -D kirana-style @kirana-style/vite",
+      "packages: npm install --save-exact @kirana-style/core@0.3.2",
+      `packages: npm install --save-exact -D kirana-style@${release} @kirana-style/vite@${release} @kirana-style/registry@${release}`,
       "kirana-style.lock.json: 1 item(s) recorded",
       "",
     ])
+    // Kirana's packages at this release, the registry among them, recorded exactly (KF-035); the
+    // design system's own version of one wins.
     expect(commands).toEqual([
-      "npm install @kirana-style/core@0.3.2",
-      "npm install -D kirana-style @kirana-style/vite",
+      "npm install --save-exact @kirana-style/core@0.3.2",
+      `npm install --save-exact -D kirana-style@${release} @kirana-style/vite@${release} @kirana-style/registry@${release}`,
     ])
     expect(read(cwd, "kirana.config.ts")).toBe(
       [

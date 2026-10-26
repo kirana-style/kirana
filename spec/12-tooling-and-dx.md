@@ -103,7 +103,9 @@ without a bundler.
 `main(argv, cwd, write)`, which returns the exit code, with the arguments after `ui`. When the project
 does not have the package, when it fails to load, or when it exports no `main`, the command MUST say
 which and exit 1. The configuration key `ui` belongs to that package: the Driver MUST accept it and
-MUST NOT pass it to the engine (D-103).
+MUST NOT pass it to the engine (D-103). The package MUST also run as a command of its own
+(`kirana-style-ui`, its one bin), so `npx @kirana-style/registry <command>` works in a folder with
+nothing installed (D-111); the message for a project without the package names it.
 
 ## Component registry
 
@@ -226,7 +228,13 @@ read or the setup cannot be written, 2 for an unknown option or settings it cann
 being run has it, into a new or empty directory (the example's name by default): the release's
 source archive read once, the example's `package.json` named after the directory with every
 `@kirana-style/*` package and `kirana-style` at the release's version. It then checks what it wrote,
-as `add` does.
+as `add` does. Kirana's packages it installs, `@kirana-style/registry` among them when the project
+lacks it, MUST be at the release's version (unless the design system names one) and recorded
+exactly, with the package manager's exact flag, so the project can run `kirana-style ui` alone
+(D-111). A named import it adds joins the module's existing named import of the same module. The
+check after writing (for `init`, `add`, `update` and `preset`) MUST leave out `relation-unused` for a
+relation declared in a file of a design-system item it installed: the items that read it come
+later.
 
 **KRN-DX-030** — `kirana-style ui outdated [item…]` and `ui diff [item…]` MUST read each installed
 item (every one in the lockfile by default) again from its registry, place it as installing it now

@@ -4582,7 +4582,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style ui",
-    "text": "The component registry's commands. They live in their own package, , so the compiler every project installs carries no registry client: runs the project's copy of that package with the arguments after . Without it, the command says so and exits 1: Building a registry and an MCP server come next. A command asked for before its release says it is not in this one yet. A registry is static JSON: one document per item at a URL template holding , and an index, the item named . An item carries its style modules as written, one source for every framework, and its markup per framework and base, and every file carries a SHA-256 hash of its content. What a project installed is recorded in . The schemas are exported by , and served at their ids for editors and other tools; a document names its schema with : an item an index the lockfile the settings Your registries are named in under , which the compiler accepts and never reads. An item of one is named with its namespace, and a name alone is Kirana UI's: Each document is fetched afresh, over (or from your own machine), or read from disk for a path; a request gives up after 30 seconds. starts a project. In a fresh Vite app: The design system sa"
+    "text": "The component registry's commands. They live in their own package, , so the compiler every project installs carries no registry client: runs the project's copy of that package with the arguments after . Without it, the command says so and exits 1: Where no project exists yet, run the package itself: takes the same commands as . Building a registry and an MCP server come next. A command asked for before its release says it is not in this one yet. A registry is static JSON: one document per item at a URL template holding , and an index, the item named . An item carries its style modules as written, one source for every framework, and its markup per framework and base, and every file carries a SHA-256 hash of its content. What a project installed is recorded in . The schemas are exported by , and served at their ids for editors and other tools; a document names its schema with : an item an index the lockfile the settings Your registries are named in under , which the compiler accepts and never reads. An item of one is named with its namespace, and a name alone is Kirana UI's: Each document is fetched afresh, over (or from your own machine), or read from disk for a path; a request give"
   },
   {
     "id": "/docs/tooling/editor",
@@ -5073,7 +5073,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installing components",
     "section": "tooling",
     "heading": "Installing components",
-    "text": "copies components from a registry into your project, as shadcn/ui's CLI does: the files become yours. It installs one source for every framework, rewrites its imports to your aliases, adds the packages it needs, and records what it wrote so it can update it later without losing your edits. The commands live in their own package:"
+    "text": "copies components from a registry into your project, as shadcn/ui's CLI does: the files become yours. It installs one source for every framework, rewrites its imports to your aliases, adds the packages it needs, and records what it wrote so it can update it later without losing your edits. The commands live in their own package: In a folder with nothing installed yet, the package runs on its own, as , the same commands under another name."
   },
   {
     "id": "/docs/tooling/components#setting-a-project-up",
@@ -5081,7 +5081,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installing components",
     "section": "tooling",
     "heading": "Setting a project up",
-    "text": "works on a new app or one you already have: it sets Kirana up where the project lacks it, as does; it maps the alias in when the project has none, and tells Vite to read it; it installs the registry's design system and wires it in: its configuration in , its reset beside Kirana's stylesheet, its styles on . To start from nothing, take one of Kirana's examples, as the release you run has it: Start with a design by its preset code, which a design system's site gives you: Name the framework or the base when the project depends on more than one, or a component has several:"
+    "text": "works on a new app or one you already have: it sets Kirana up where the project lacks it, as does; it maps the alias in when the project has none, and tells Vite to read it; it installs the registry's design system and wires it in: its configuration in , its reset beside Kirana's stylesheet, its styles on . To start from nothing, take one of Kirana's examples, as the release you run has it: The project it makes runs by itself: adds beside Kirana's other packages, each at the release you ran, written as that exact version. Start with a design by its preset code, which a design system's site gives you: Name the framework or the base when the project depends on more than one, or a component has several:"
   },
   {
     "id": "/docs/tooling/components#adding-components",

@@ -41,6 +41,7 @@ export {
   type NativeBinding,
 } from "./native.ts"
 export { main } from "./cli.ts"
+export { REGISTRY } from "./ui.ts"
 export {
   utf16Offset,
   type ConditionInfo,

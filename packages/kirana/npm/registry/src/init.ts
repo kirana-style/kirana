@@ -21,11 +21,13 @@ import {
   readJsonc,
   installCommand,
   planInit,
+  REGISTRY,
   sources,
 } from "@kirana-style/compiler"
 
 import {
   checkWritten,
+  designSystemsOf,
   installPackages,
   missingPackages,
   place,
@@ -716,19 +718,40 @@ export async function runInit(
   for (const line of report.filter((entry) => !own(entry)))
     write(`setup: ${line}\n`)
   for (const line of manual) write(`by hand: ${line}\n`)
-  // Kirana's own packages by name, unless the design system names a version of one.
+  // Kirana's own packages, this one among them so that `kirana-style ui` runs in the project
+  // (KF-035), recorded exactly as a template's are: at this release, unless the design system names
+  // a version of one. Other packages (Next.js's PostCSS, the design system's) as they are named.
+  const release = await version()
   const versioned = missingPackages(planned, project, placed)
   const named = (entry: string) => entry.replace(/(?<=.)@.*$/, "")
-  const commands = installCommand(
-    project.manager,
-    [
-      ...kirana.dependencies.filter(
-        (name) => !versioned.some((entry) => named(entry) === name)
-      ),
-      ...versioned,
-    ],
-    kirana.development
-  )
+  const ours = (entry: string) =>
+    named(entry) === "kirana-style" || named(entry).startsWith("@kirana-style/")
+  const unnamed = (names: readonly string[]) =>
+    names.filter((name) => !versioned.some((entry) => named(entry) === name))
+  const pinned = (names: readonly string[]) =>
+    unnamed(names.filter(ours)).map((name) => `${name}@${release}`)
+  const others = (names: readonly string[]) =>
+    unnamed(names.filter((name) => !ours(name)))
+  const development = [
+    ...kirana.development,
+    ...(REGISTRY in project.listed ? [] : [REGISTRY]),
+  ]
+  const commands = [
+    ...installCommand(
+      project.manager,
+      [...pinned(kirana.dependencies), ...versioned.filter(ours)],
+      pinned(development),
+      { exact: true }
+    ),
+    ...installCommand(
+      project.manager,
+      [
+        ...others(kirana.dependencies),
+        ...versioned.filter((entry) => !ours(entry)),
+      ],
+      others(development)
+    ),
+  ]
   for (const command of commands) write(`packages: ${command}\n`)
   const conflicts = placed.filter((file) => file.state === "differs")
   if (conflicts.length > 0 && !parsed.flags.has("--overwrite")) {
@@ -751,5 +774,7 @@ export async function runInit(
   writeLockfile(root, lockfile)
   write(`kirana-style.lock.json: ${planned.length} item(s) recorded\n`)
   if (parsed.flags.has("--no-check")) return 0
-  return (await checkWritten(placed, root, write)) ? 0 : 1
+  return (await checkWritten(placed, root, write, designSystemsOf(planned)))
+    ? 0
+    : 1
 }

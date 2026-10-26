@@ -81,6 +81,48 @@ describe("KRN-DX-020 the commands kirana-style ui runs", () => {
       /^kirana-style ui: unknown command install\n\nUsage/
     )
   })
+
+  it("runs from its own bin in a folder with nothing installed (KF-035)", async () => {
+    const { spawnSync } = await import("node:child_process")
+    const empty = mkdtempSync(path.join(root, "empty-"))
+    const bin = path.join(import.meta.dirname, "../bin/kirana-style-ui.ts")
+    const version = spawnSync(process.execPath, [bin, "--version"], {
+      cwd: empty,
+      encoding: "utf8",
+    })
+    const { version: release } = JSON.parse(
+      readFileSync(path.join(import.meta.dirname, "../package.json"), "utf8")
+    ) as { version: string }
+    expect(version.stdout).toBe(`@kirana-style/registry ${release}\n`)
+    const unknown = spawnSync(process.execPath, [bin, "install"], {
+      cwd: empty,
+      encoding: "utf8",
+    })
+    expect(unknown.status).toBe(2)
+  })
+
+  it("lists every option each command takes in its help (KF-035)", async () => {
+    const { text } = await run("--help")
+    const source = path.join(import.meta.dirname, "../src")
+    const { readdirSync } = await import("node:fs")
+    for (const name of readdirSync(source)) {
+      const code = readFileSync(path.join(source, name), "utf8")
+      for (const call of code.matchAll(
+        /parseArgs\(\s*"([a-z]+)"[\s\S]*?\)\n/g
+      )) {
+        const command = call[1]!
+        // The command's own help entry: its line and the indented lines under it.
+        const entry = new RegExp(
+          `^  ${command}\\b[^\\n]*(\\n {25}[^\\n]*)*`,
+          "m"
+        ).exec(text)![0]
+        for (const flag of call[0].match(/--[a-z-]+/g) ?? [])
+          expect(`${command} ${flag}: ${entry.includes(flag)}`).toBe(
+            `${command} ${flag}: true`
+          )
+      }
+    }
+  })
 })
 
 describe("KRN-DX-024 kirana-style ui validate", () => {
