@@ -300,13 +300,18 @@ impl<'a> Evaluator<'_, 'a, '_> {
             groups: &self.ctx.config.conditions.exclusive,
             across: &self.ctx.config.conditions.exclusive_across,
         };
-        if let Some((first, second)) = kirana_ir::unreachable_pair(conditions, declared) {
-            self.report(
-                Code::UnreachableEntry,
-                span,
-                format!("`{first}` and `{second}` never match one element together, so nothing here can apply"),
-                Some("it is left out of the stylesheet; write each state's value under its own key"),
-            );
+        if kirana_ir::unreachable_pair(conditions, declared).is_some() {
+            // A pair only `exclusiveAcross` keeps apart is a style written once for several
+            // libraries, as meant (KF-036): left out without a word. Any other pair is a mistake.
+            let alone = kirana_ir::Declared { across: &[], ..declared };
+            if let Some((first, second)) = kirana_ir::unreachable_pair(conditions, alone) {
+                self.report(
+                    Code::UnreachableEntry,
+                    span,
+                    format!("`{first}` and `{second}` never match one element together, so nothing here can apply"),
+                    Some("it is left out of the stylesheet; write each state's value under its own key"),
+                );
+            }
             return;
         }
         self.property(name, value, target, conditions, false, span, parts)

@@ -66,7 +66,7 @@ const FIXES: Record<string, string> = {
   "select-state-on-parent":
     "Info: a pseudo-class nested under a `select` target is the state of the element carrying the style, not the target's. For the target's own, put it in the target: `select.child(\"a:hover\")`.",
   "unreachable-entry":
-    "Info: a nested condition key can never match together with the one around it (two values of one attribute, two libraries' states under `exclusiveAcross`). Its entries are left out of the stylesheet; write each state's value under its own key.",
+    "Info: a nested condition key can never match together with the one around it (two values of one attribute, a `conditions.exclusive` group). Its entries are left out of the stylesheet; write each state's value under its own key. Two libraries' states kept apart by `exclusiveAcross` are left out too, without the info.",
   "relation-without-anchor":
     "A style reads a relation whose `anchor` is never applied, so it can never match. Apply `rel.anchor` on the element whose state is read.",
   "relation-unused":

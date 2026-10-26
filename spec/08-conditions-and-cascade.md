@@ -186,8 +186,9 @@ together, each named by one, are exclusive, since a component is built on one li
 
 An entry whose own condition set holds two conditions the compiler knows never match one element
 together (two values of one attribute, a selector and its `:not()`, a `conditions.exclusive` group, keys
-of two `conditions.exclusiveAcross` vocabularies that no vocabulary holds together) is not emitted, and
-the key that made it unreachable is the `unreachable-entry` info (D-105).
+of two `conditions.exclusiveAcross` vocabularies that no vocabulary holds together) is not emitted (D-105).
+The key that made it unreachable is the `unreachable-entry` info, unless only `exclusiveAcross` keeps
+the pair apart: that is a style written once for several libraries, and it is left out quietly.
 
 ## Layer plan
 
