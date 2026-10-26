@@ -1469,15 +1469,19 @@ the implementation tracker names its evidence.
 
 ### D-105 — Entries no element can match are left out
 
-- **Status:** Accepted (2026-10-25). Answers KF-030.
+- **Status:** Accepted (2026-10-25). Answers KF-030; amended 2026-10-26 for KF-036.
 - **Decision:** an entry whose condition set holds two conditions the compiler proves exclusive (what
   `ambiguous-precedence` already proves of two sets) is not emitted; the key is the `unreachable-entry`
-  info (KRN1305).
+  info (KRN1305), except when only `conditions.exclusiveAcross` makes the pair exclusive, which is left
+  out without one.
 - **Rationale:** with `exclusiveAcross`, a style written once for several libraries nests one state
   helper in another without a warning, but every combination still compiled: +994 B raw for kirana-ui's
   popup slide, rules no element can match, so it kept writing one block per library by hand.
 - **Trade-off:** a key the author nests on purpose for a library that does set both (outside what the
-  configuration declares) is still emitted; only what the compiler proves is left out.
+  configuration declares) is still emitted; only what the compiler proves is left out. An info for
+  each pair `exclusiveAcross` keeps apart reported the design itself (ten for kirana-ui's popup
+  slide, KF-036), so such pairs are pruned in silence; a typo in one vocabulary is then pruned
+  silently too.
 - **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 
 ### D-106 — A definition says how each entry was written

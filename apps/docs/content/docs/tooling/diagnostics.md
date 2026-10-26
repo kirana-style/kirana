@@ -54,9 +54,10 @@ logical form, so the element is off centre in right-to-left text. Use a physical
 inset with the translate.
 
 **`unreachable-entry`**: an info. A condition key nested in another that it can
-never meet, such as `'[data-side="top"]': { '[data-side="bottom"]': … }`, or two
-libraries' states the configuration declares apart with `exclusiveAcross`. Nothing
-under it can apply, so it is left out of the stylesheet.
+never meet, such as `'[data-side="top"]': { '[data-side="bottom"]': … }`. Nothing
+under it can apply, so it is left out of the stylesheet. Two libraries' states the
+configuration declares apart with `exclusiveAcross` are left out the same way, but
+quietly: nesting them is how a style is written once for every library.
 
 **`select-state-on-parent`**: an info. A pseudo-class nested under a `select`
 target, `[select.child("a")]: { color: { ":hover": … } }`, is the state of the

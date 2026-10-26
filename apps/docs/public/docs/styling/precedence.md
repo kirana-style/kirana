@@ -79,9 +79,11 @@ the same end.
 A key nested in another it can never meet, such as two values of one attribute or
 two libraries' states declared apart with
 [`conditions.exclusiveAcross`](/docs/reference/config), matches no element. Its
-entries are left out of the stylesheet, and the compiler says so with an info,
-`unreachable-entry`. A style written once for several libraries can nest one state
-helper inside another without shipping rules nothing can match.
+entries are left out of the stylesheet. A style written once for several libraries
+can nest one state helper inside another without shipping rules nothing can match,
+and without a word from the compiler, since the configuration declared the libraries
+apart. Any other such key is a mistake, and the compiler says so with an info,
+`unreachable-entry`.
 
 ## Layers
 
