@@ -1,7 +1,7 @@
 //! Cross-file resolution (KRN-CMP-004): `oxc_resolver` finds modules; each module's exports are
 //! evaluated once and cached with the content hashes they were computed from.
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -50,11 +50,37 @@ pub(crate) struct ModuleHost<'p> {
     read: RefCell<Vec<(PathBuf, u64)>>,
     /// `export *` chains being followed, so a cycle of star re-exports ends.
     stars: RefCell<Vec<PathBuf>>,
+    /// The lowest place on `stack` an import cycle closed at while this module was evaluated,
+    /// directly or in a module it imported: what was read there was cut short.
+    cut: Cell<usize>,
+    /// Every import cycle closed while this module was evaluated, as `a.ts → b.ts → a.ts`.
+    cycles: RefCell<Vec<String>>,
 }
 
 impl<'p> ModuleHost<'p> {
     pub fn new(project: &'p Project, stack: Vec<PathBuf>) -> Self {
-        Self { project, stack, read: RefCell::default(), stars: RefCell::default() }
+        Self {
+            project,
+            stack,
+            read: RefCell::default(),
+            stars: RefCell::default(),
+            cut: Cell::new(usize::MAX),
+            cycles: RefCell::default(),
+        }
+    }
+
+    /// The cycle importing `path` closes, when it is already on the stack: noted as a cut.
+    fn closes_cycle(&self, path: &Path) -> Option<String> {
+        let at = self.stack.iter().position(|entry| entry == path)?;
+        self.cut.set(self.cut.get().min(at));
+        let chain: Vec<String> = self.stack[at..]
+            .iter()
+            .chain([&path.to_path_buf()])
+            .map(|module| self.project.display_name(module))
+            .collect();
+        let chain = chain.join(" → ");
+        self.cycles.borrow_mut().push(chain.clone());
+        Some(chain)
     }
 
     /// `(file, hash seen)` for every file read, directly or through re-exports, deduplicated.
@@ -96,7 +122,7 @@ impl<'p> ModuleHost<'p> {
     }
 
     pub(crate) fn exports_of(&self, path: &Path) -> Option<Arc<Exports>> {
-        if self.stack.iter().any(|entry| entry == path) {
+        if self.closes_cycle(path).is_some() {
             return None;
         }
         // A cache hit is answered from the project's hash cache, without touching the file; the
@@ -126,7 +152,14 @@ impl<'p> ModuleHost<'p> {
                 .export_names()
                 .into_iter()
                 .map(|name| {
+                    let before = nested.cycles.borrow().len();
                     let value = portable(&evaluator.export(&name));
+                    // A value left unknown by a cycle closed while it was evaluated says so, however
+                    // far it travels: the module that reads it names the cycle (KF-038).
+                    let value = match nested.cycles.borrow().get(before) {
+                        Some(chain) => through_cycle(value, chain),
+                        None => value,
+                    };
                     (name, value)
                 })
                 .collect();
@@ -142,7 +175,15 @@ impl<'p> ModuleHost<'p> {
         self.project.register_definitions(&definitions, &package, &file);
         let exports = Arc::new(exports);
         let provenance = nested.read.into_inner();
-        {
+        // A cycle that closed at this module leaves its exports as every importer sees them. One that
+        // closed further up the stack cut a value this module read, which another starting point
+        // would have had in full: those exports stay this evaluation's own (KF-038).
+        self.cycles.borrow_mut().extend(nested.cycles.take());
+        let depth = self.stack.len();
+        let cut = nested.cut.get();
+        if cut < depth {
+            self.cut.set(self.cut.get().min(cut));
+        } else {
             let mut state = self.project.state.write().expect("not poisoned");
             state.hashes.insert(path.to_path_buf(), hash);
             state.exports.insert(
@@ -171,6 +212,9 @@ impl Host for ModuleHost<'_> {
             return Value::unresolved(specifier, &self.project.display_name(from));
         };
         let path = resolution.full_path();
+        if let Some(chain) = self.closes_cycle(&path) {
+            return Value::cycle(&chain);
+        }
         // An installed package is evaluated only when it is a Kirana package: a preset or design
         // system from npm must fold to the same values it does as a workspace package (KRN-TOK-008
         // rule 4), while evaluating every icon set or utility library would multiply build time.
@@ -233,5 +277,20 @@ impl Host for ModuleHost<'_> {
             .or_else(|| state.position_tries.get(name).cloned().map(Dep::PositionTry))
             .or_else(|| state.view_transitions.get(name).cloned().map(Dep::ViewTransition))
             .or_else(|| state.counter_styles.get(name).cloned().map(Dep::CounterStyle))
+    }
+}
+
+/// `value` with each part a cycle left unknown naming `chain`: a module-scope value that read the
+/// cycle's other half before it was evaluated is unknown in its module, whatever it was meant to be.
+fn through_cycle(value: Value, chain: &str) -> Value {
+    match value {
+        Value::Unknown(_) if value.unresolved_import().is_none() => Value::cycle(chain),
+        Value::Array(items) => {
+            Value::Array(Arc::new(items.iter().map(|item| through_cycle(item.clone(), chain)).collect()))
+        }
+        Value::Object(entries) => Value::Object(Arc::new(
+            entries.iter().map(|(key, value)| (key.clone(), through_cycle(value.clone(), chain))).collect(),
+        )),
+        other => other,
     }
 }

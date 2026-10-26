@@ -253,6 +253,18 @@
           "brotli": 492
         }
       },
+      "import-cycles": {
+        "css": {
+          "raw": 327,
+          "gzip": 188,
+          "brotli": 155
+        },
+        "js": {
+          "raw": 540,
+          "gzip": 303,
+          "brotli": 263
+        }
+      },
       "inset-beside-translate": {
         "css": {
           "raw": 1106,

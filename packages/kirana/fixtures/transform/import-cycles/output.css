@@ -1,0 +1,19 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .kk_aMNl {
+    border-color: var(--kk);
+  }
+  .k44_49ob {
+    background-color: green;
+  }
+  .k50_LB88 {
+    color: blue;
+  }
+  .k50_OuAg {
+    color: var(--k50);
+  }
+  .k8b_NoVg {
+    outline-color: var(--k8b);
+  }
+}

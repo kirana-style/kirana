@@ -59,6 +59,7 @@ catalogue! {
     NotEvaluable = "KRN1101", "not-evaluable", Error;
     UnsupportedSyntax = "KRN1102", "unsupported-syntax", Error;
     UnresolvedImport = "KRN1103", "unresolved-import", Warning;
+    ImportCycle = "KRN1104", "import-cycle", Warning;
     UnknownProperty = "KRN1201", "unknown-property", Error;
     InvalidValue = "KRN1202", "invalid-value", Error;
     UnitlessLength = "KRN1203", "unitless-length", Error;

@@ -1,5 +1,19 @@
 [
   {
+    "code": "KRN1104",
+    "name": "import-cycle",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 201,
+      "end": 204
+    },
+    "message": "`box` reads a value through an import cycle, cycle-a.ts → cycle-b.ts → cycle-a.ts, so it compiles as a runtime value",
+    "help": [
+      "move what both modules need into a module of its own, which neither of them imports back"
+    ]
+  },
+  {
     "code": "KRN1601",
     "name": "dynamic-bridged",
     "severity": "info",

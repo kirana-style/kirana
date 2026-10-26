@@ -129,6 +129,64 @@ fn a_deleted_dependency_is_recomputed() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// A spread of a state from `states.ts`, which re-exports it from `kirana.ts` (KF-038).
+const SEPARATOR: &str = "import { css } from \"@kirana-style/core\"\nimport { orientation } from \"./states\"\nexport const separator = css({ width: { base: \"1px\", ...{ [orientation.vertical]: \"100%\" } } })\n";
+const STATES: &str =
+    "export type Keys = string\nexport const side = \"[data-side]\"\nexport { orientation } from \"./kirana\"\n";
+
+/// Whether the separator compiles statically after `kirana.ts` was compiled first, and what
+/// compiling `kirana.ts` reported.
+fn separator_after_kirana(kirana: &str) -> (bool, Vec<Code>) {
+    let (root, project) = temp_project(&[
+        ("package.json", "{\"name\":\"app\"}"),
+        ("kirana.ts", kirana),
+        ("states.ts", STATES),
+        ("separator.ts", SEPARATOR),
+    ]);
+    let kirana_codes = project
+        .transform(&root.join("kirana.ts"), kirana)
+        .diagnostics
+        .iter()
+        .map(|diagnostic| diagnostic.code)
+        .collect();
+    let separator = project.transform(&root.join("separator.ts"), SEPARATOR);
+    let spread = separator.diagnostics.iter().any(|diagnostic| diagnostic.code == Code::DynamicSpread);
+    fs::remove_dir_all(root).unwrap();
+    (!spread, kirana_codes)
+}
+
+/// A type-only import erases at runtime, so it closes no cycle: compiling the module that has it
+/// first, which reads the type in an annotation, leaves every other module's values whole.
+#[test]
+fn a_type_only_import_closes_no_cycle() {
+    for import in ["import type { Keys } from \"./states\"", "import { type Keys } from \"./states\""] {
+        let kirana = format!(
+            "{import}\nimport {{ css }} from \"@kirana-style/core\"\nexport const orientation = {{ vertical: '[data-orientation=\"vertical\"]' }} as const satisfies Record<string, Keys>\nexport const line = css({{ width: \"1px\" }})\n"
+        );
+        assert_eq!(separator_after_kirana(&kirana), (true, vec![]));
+    }
+}
+
+/// A module whose exports a cycle cut short, evaluated from inside that cycle, is not cached:
+/// starting from the separator, the states are whole, whichever module was compiled before it.
+#[test]
+fn exports_a_cycle_cut_short_are_not_cached() {
+    let kirana = "import { css } from \"@kirana-style/core\"\nimport { side } from \"./states\"\nexport const orientation = { vertical: '[data-orientation=\"vertical\"]' }\nexport const sided = css({ width: { base: \"1px\", [side]: \"2px\" } })\n";
+    assert_eq!(separator_after_kirana(kirana), (true, vec![]));
+}
+
+/// A component imported from the module being compiled names that module, still being evaluated:
+/// a cycle of one, said once, and what the component forwards `sx` to is not known.
+#[test]
+fn a_component_imported_from_its_own_module() {
+    let card = "import { css } from \"@kirana-style/core\"\nimport { Card as Same } from \"./card\"\nexport function Card(props) { return <div {...props} /> }\nexport const page = <Same sx={css({ color: \"red\" })} />\n";
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("card.tsx", card)]);
+    let codes: Vec<Code> =
+        project.transform(&root.join("card.tsx"), card).diagnostics.iter().map(|diagnostic| diagnostic.code).collect();
+    assert_eq!(codes, [Code::ImportCycle]);
+    fs::remove_dir_all(root).unwrap();
+}
+
 #[test]
 fn parallel_builds_are_deterministic() {
     let files: Vec<(String, String)> = (0..24)
