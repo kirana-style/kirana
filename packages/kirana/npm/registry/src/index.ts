@@ -96,22 +96,29 @@ export { validate } from "./validate.ts"
 export type { Problem } from "./validate.ts"
 
 const USAGE = `Usage: kirana-style ui <command>
+       npx @kirana-style/registry <command>   (where no project has the package yet)
 
 Commands in this release:
   init                   set a project up for a registry: Kirana where it is missing, the ui settings
                          (--framework, --base, --registry @namespace=<template>), and the registry's
-                         design system (--design <item>) installed and wired in; --dry-run
+                         design system (--design <item>) installed and wired in; --template <example>
+                         [directory] starts a new project from one of Kirana's examples, --preset
+                         <code> sets its design; --dry-run, --overwrite, --no-check
   add <item…>            install items and every item they need: files at the project's aliases
                          (ui.aliases, through tsconfig.json's paths), packages with its package
-                         manager, each recorded in kirana-style.lock.json; --dry-run, --overwrite
+                         manager, each recorded in kirana-style.lock.json; --dry-run, --overwrite,
+                         --no-check
   outdated [item…]       the installed items behind their registries: a new version, or files changed
   diff [item…]           each installed file the registry or the project changed, as lines between
                          the project's and what installing it now would write
   update [item…]         write what the registry changed since install, keep what the project changed;
-                         a file both changed stops it (--overwrite takes the registry's); --dry-run
-  remove <item…>         delete the files the project left as installed, unless another item needs it
+                         a file both changed stops it (--overwrite takes the registry's); --dry-run,
+                         --no-check
+  remove <item…>         delete the files the project left as installed, unless another item needs
+                         it; --dry-run
   preset <code>          change the project's design: the code read with its design system's layouts,
-                         ui.design and <html>'s attributes set, every item placed again for it
+                         ui.design and <html>'s attributes set, every item placed again for it;
+                         --dry-run, --overwrite, --no-check
   view <item…>           what an item is: its frameworks and bases, files, styles and dependencies
                          (@acme/card, or button for @kirana's); --json prints the items as read
   search [query]         the items of every registry's index whose name, title or description holds

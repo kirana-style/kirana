@@ -137,6 +137,22 @@ describe("KRN-DX-008 detecting a project", () => {
       "deno add npm:@x/a",
       "deno add -D npm:b npm:c",
     ])
+    // Exact: the version written, in each manager's own words.
+    expect(
+      (["npm", "pnpm", "yarn", "bun", "deno"] as const).map(
+        (manager) =>
+          installCommand(manager, ["a@1.0.0"], [], { exact: true })[0]
+      )
+    ).toEqual([
+      "npm install --save-exact a@1.0.0",
+      "pnpm add --save-exact a@1.0.0",
+      "yarn add --exact a@1.0.0",
+      "bun add --exact a@1.0.0",
+      "deno add --save-exact npm:a@1.0.0",
+    ])
+    expect(installCommand("bun", [], ["b@1.0.0"], { exact: true })).toEqual([
+      "bun add --exact -d b@1.0.0",
+    ])
     expect(
       (["npm", "pnpm", "yarn", "bun", "deno"] as const).map((manager) =>
         runCommand(manager, "kirana-style doctor")
@@ -168,6 +184,24 @@ describe("KRN-DX-008 kirana-style init's edits", () => {
     expect(addImport("\nx()\n", `import k from "k"`)).toBe(
       `import k from "k"\n\nx()\n`
     )
+  })
+
+  it("joins names to the module's existing import of them (KF-035)", () => {
+    const core = `import "@kirana-style/core/stylesheet.css"\nimport { css } from "@kirana-style/core"\nx()\n`
+    expect(addImport(core, `import { props } from "@kirana-style/core"`)).toBe(
+      `import "@kirana-style/core/stylesheet.css"\nimport { css, props } from "@kirana-style/core"\nx()\n`
+    )
+    // A name it imports already changes nothing; a multi-line import keeps a name a line.
+    expect(addImport(core, `import { css } from "@kirana-style/core"`)).toBe(
+      core
+    )
+    expect(
+      addImport(`import {\n  a,\n} from "a"\nx()\n`, `import { b } from "a"`)
+    ).toBe(`import {\n  a,\n  b,\n} from "a"\nx()\n`)
+    // Type-only and default imports are left as they are.
+    expect(
+      addImport(`import type { A } from "a"\n`, `import { b } from "a"`)
+    ).toBe(`import type { A } from "a"\nimport { b } from "a"\n`)
   })
 
   it("inserts first in a list, keeping its layout", () => {

@@ -405,6 +405,68 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     expect(plain.text).not.toContain("check:")
   })
 
+  it("leaves out a design system's unread relations in its check, not another item's (KF-035)", async () => {
+    const declaring = (name: string) =>
+      `import { css, relation } from "@kirana-style/core"\nexport const ${name} = relation("${name}")\nexport const html = css(${name}.anchor, { color: "red" })\n`
+    const deck: Item = {
+      name: "deck",
+      type: "design-system",
+      version: "1.0.0",
+      files: [file("deck/relation.ts", "lib", declaring("deck"))],
+    }
+    const orphan: Item = {
+      name: "orphan",
+      type: "lib",
+      version: "1.0.0",
+      files: [file("orphan/relation.ts", "lib", declaring("orphan"))],
+    }
+    const { code, text } = await add(
+      project({}, [deck, orphan]),
+      "@acme/deck",
+      "@acme/orphan"
+    )
+    expect(code).toBe(0)
+    // The design system's relation is read by items not installed yet; the other item's is a finding.
+    expect(text).not.toContain('relation "deck"')
+    expect(text).toContain(
+      'warning[KRN1402] relation-unused: relation "orphan" is anchored but never read (src/lib/orphan/relation.ts:2:'
+    )
+    expect(text).toMatch(/1 diagnostic\(s\), 0 error\(s\)\n$/)
+    // A diagnostic without a span names its file alone.
+    const reader: Item = {
+      name: "reader",
+      type: "lib",
+      version: "1.0.0",
+      files: [
+        file(
+          "reader.ts",
+          "lib",
+          'import { css, relation } from "@kirana-style/core"\nconst field = relation("field")\nexport const x = css({ color: { [field.within(":hover")]: "red" } })\n'
+        ),
+      ],
+    }
+    const unanchored = await add(project({}, [reader]), "@acme/reader")
+    expect(unanchored.code).toBe(1)
+    expect(unanchored.text).toContain(
+      'error[KRN1401] relation-without-anchor: relation "field" is read but its anchor is never applied (src/lib/reader.ts)\n'
+    )
+  })
+
+  it("says so when the check cannot read the project's configuration", async () => {
+    const cwd = project({}, [KIT], {
+      "kirana.config.json": JSON.stringify({
+        names: 5,
+        ui: { registries: { "@acme": "acme/{name}.json" } },
+      }),
+    })
+    const { code, text } = await add(cwd, "@acme/kit")
+    expect(code).toBe(1)
+    expect(text).toContain("invalid-config")
+    expect(text).toMatch(
+      /kirana-style check could not run on what was written \(above\)\n$/
+    )
+  })
+
   it("reads a dependency named in full, and an item asked for twice once", async () => {
     const full: Item = { ...BUTTON, registryDependencies: ["@acme/kit"] }
     const cwd = project({ base: "aria" }, [KIT, full])

@@ -141,8 +141,13 @@ export function styled(text: string, statement: string): string {
   return `${single ? statement.replaceAll('"', "'") : statement}${semicolon}`
 }
 
-/** Adds an import after the module's last import, in the module's style. */
+/**
+ * Adds an import after the module's last import, in the module's style. Names imported from a
+ * module the file already imports names from join that import instead (KF-035), on its lines.
+ */
 export function addImport(text: string, statement: string): string {
+  const merged = mergeImport(text, statement)
+  if (merged !== undefined) return merged
   const line = styled(text, statement)
   const imports = [
     ...text.matchAll(/^import\b[^;]*?["'][^"'\n]+["'];?[ \t]*$/gm),
@@ -151,6 +156,37 @@ export function addImport(text: string, statement: string): string {
   if (!last) return `${line}\n${text.startsWith("\n") ? "" : "\n"}${text}`
   const end = last.index + last[0].length
   return `${text.slice(0, end)}\n${line}${text.slice(end)}`
+}
+
+/** `addImport` into an existing `import { … } from` the same module, or undefined when there is none. */
+function mergeImport(text: string, statement: string): string | undefined {
+  const wanted = /^import\s*\{([^}]*)\}\s*from\s*["']([^"']+)["']/.exec(
+    statement
+  )
+  if (!wanted) return undefined
+  const module = wanted[2]!.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")
+  const existing = new RegExp(
+    `^import\\s*\\{([^}]*)\\}(\\s*from\\s*["']${module}["'])`,
+    "m"
+  ).exec(text)
+  if (!existing) return undefined
+  const list = (body: string) =>
+    body
+      .split(",")
+      .map((name) => name.trim())
+      .filter(Boolean)
+  const names = list(existing[1]!)
+  const added = list(wanted[1]!).filter((name) => !names.includes(name))
+  if (added.length === 0) return text
+  const all = [...names, ...added]
+  // One name a line when the import is written so, indented as its first name.
+  const indent = /\n([ \t]*)\S/.exec(existing[1]!)?.[1]
+  const body =
+    indent === undefined
+      ? ` ${all.join(", ")} `
+      : `\n${all.map((name) => `${indent}${name},`).join("\n")}\n`
+  const at = existing.index
+  return `${text.slice(0, at)}import {${body}}${existing[2]}${text.slice(at + existing[0].length)}`
 }
 
 /**

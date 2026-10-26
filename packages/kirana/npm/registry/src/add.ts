@@ -9,7 +9,13 @@ import { spawnSync } from "node:child_process"
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
-import { installCommand, main as kirana } from "@kirana-style/compiler"
+import {
+  formatDiagnostic,
+  installCommand,
+  main as kirana,
+  parseDiagnostics,
+} from "@kirana-style/compiler"
+import type { Diagnostic } from "@kirana-style/compiler"
 
 import { hashOf } from "./check.ts"
 import { parseArgs } from "./command.ts"
@@ -363,7 +369,14 @@ export async function runAdd(
   writeLockfile(project.root, lockfile)
   write(`kirana-style.lock.json: ${planned.length} item(s) recorded\n`)
   if (parsed.flags.has("--no-check")) return 0
-  return (await checkWritten(placed, project.root, write)) ? 0 : 1
+  return (await checkWritten(
+    placed,
+    project.root,
+    write,
+    designSystemsOf(planned)
+  ))
+    ? 0
+    : 1
 }
 
 /** Script files Kirana checks: the markup and style modules, not a stylesheet. */
@@ -372,21 +385,65 @@ const SCRIPT = /\.(?:[cm]?[jt]sx?|vue|svelte)$/
 /**
  * `kirana-style check` on the scripts just written, from the project's root, as the project's own
  * build will compile them; false, said, when it reports an error. `--no-check` skips it.
+ *
+ * A design system's relation is read by the items installed after it, so a project that has only
+ * the design system reads none of them yet: `relation-unused` on a relation declared in one of the
+ * `designSystems`' files is left out (KF-035).
  */
 export async function checkWritten(
   placed: readonly Placed[],
   root: string,
-  write: (text: string) => void
+  write: (text: string) => void,
+  designSystems: readonly string[] = []
 ): Promise<boolean> {
   const scripts = placed
     .filter((file) => SCRIPT.test(file.relative))
     .map((file) => file.relative)
   if (scripts.length === 0) return true
   write(`check: kirana-style check on ${scripts.length} file(s)\n`)
-  if ((await kirana(["check", ...scripts], root, write)) === 0) return true
+  let output = ""
+  await kirana(
+    ["check", "--format", "json", ...scripts],
+    root,
+    (text) => (output += text)
+  )
+  let diagnostics: Diagnostic[]
+  try {
+    diagnostics = parseDiagnostics(output)
+  } catch {
+    // Not the engine's answer: the configuration could not be loaded, and the message says why.
+    write(output)
+    write("kirana-style check could not run on what was written (above)\n")
+    return false
+  }
+  const quiet = new Set(
+    placed
+      .filter((file) => designSystems.includes(file.item))
+      .map((file) => file.relative)
+  )
+  const shown = diagnostics.filter(
+    (diagnostic) =>
+      !(diagnostic.name === "relation-unused" && quiet.has(diagnostic.file))
+  )
+  // A diagnostic with a span points into a file the check just read; one without names its file.
+  const source = ({ file, span }: Diagnostic) =>
+    span.start > 0 || span.end > 0
+      ? readFileSync(path.join(root, file), "utf8")
+      : undefined
+  for (const diagnostic of shown)
+    write(`${formatDiagnostic(diagnostic, source(diagnostic))}\n`)
+  const errors = shown.filter((diagnostic) => diagnostic.severity === "error")
+  write(`${shown.length} diagnostic(s), ${errors.length} error(s)\n`)
+  if (errors.length === 0) return true
   write("kirana-style check found errors in what was written (above)\n")
   return false
 }
+
+/** The design-system items among those planned, by key. */
+export const designSystemsOf = (planned: readonly Planned[]): string[] =>
+  planned
+    .filter((entry) => entry.item.type === "design-system")
+    .map((entry) => entry.key)
 
 /** Writes every file that is new or differs. */
 export function writePlaced(placed: readonly Placed[]): void {

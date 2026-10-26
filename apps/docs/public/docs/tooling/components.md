@@ -14,6 +14,9 @@ The commands live in their own package:
 npm install --save-dev @kirana-style/registry
 ```
 
+In a folder with nothing installed yet, the package runs on its own, as
+`npx @kirana-style/registry <command>`, the same commands under another name.
+
 ## Setting a project up
 
 ```bash
@@ -33,8 +36,12 @@ To start from nothing, take one of Kirana's examples, as the release you run has
 it:
 
 ```bash
-npx kirana-style ui init --template vite-react my-app
+npx @kirana-style/registry init --template vite-react my-app
 ```
+
+The project it makes runs `kirana-style ui` by itself: `init` adds
+`@kirana-style/registry` beside Kirana's other packages, each at the release you
+ran, written as that exact version.
 
 Start with a design by its preset code, which a design system's site gives you:
 
