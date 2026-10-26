@@ -206,12 +206,7 @@ jobs:
       matrix:
         # Linux x64 on a pull request, Linux x64 and arm64 in the merge queue, every OS otherwise.
         os: ${{ fromJSON(github.event_name == 'pull_request' && '["ubuntu-26.04"]' || github.event_name == 'merge_group' && '["ubuntu-26.04", "ubuntu-26.04-arm"]' || '["ubuntu-26.04", "ubuntu-26.04-arm", "macos-26", "windows-2025"]') }}
-        # Yarn is out for now: Yarn 4's minimum package age quarantines @napi-rs/wasm-runtime 1.2.6
-        # (published 2026-10-25), which the WASI engine pins, so `yarn install` fails with YN0016
-        # ("All versions satisfying "1.2.6" are quarantined"). Put "yarn", "yarn-pnp" back once a
-        # fresh `yarn install` accepts it, as the line was:
-        # pm: ${{ fromJSON(github.event_name == 'pull_request' && '["npm", "pnpm", "bun"]' || '["npm", "pnpm", "yarn", "yarn-pnp", "bun"]') }}
-        pm: ["npm", "pnpm", "bun"]
+        pm: ${{ fromJSON(github.event_name == 'pull_request' && '["npm", "pnpm", "bun"]' || '["npm", "pnpm", "yarn", "yarn-pnp", "bun"]') }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
