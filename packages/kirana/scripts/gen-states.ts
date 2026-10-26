@@ -167,6 +167,47 @@ function baseUi(): { vocabulary: Vocabulary; version: string } {
 // Ark UI (Zag) ----------------------------------------------------------------------------------
 
 /**
+ * Attributes Zag's reference describes in prose ("The orientation of the tabs") although a Zag type
+ * fixes their values, by that type in `@zag-js/types` (KF-041). Zag writes the attribute on every
+ * such part, so a presence key would match whatever the value.
+ */
+const ZAG_TYPED: Readonly<Record<string, string>> = {
+  "data-orientation": "Orientation",
+}
+
+/**
+ * The values of each `ZAG_TYPED` type, from the `@zag-js/types` Ark UI installs: its declaration
+ * `type Orientation = "horizontal" | "vertical";`, split as `zagState` splits a union.
+ */
+function zagTypes(arkDirectory: string): Map<string, string[]> {
+  const manifest = createRequire(
+    path.join(arkDirectory, "package.json")
+  ).resolve("@zag-js/types/package.json")
+  const text = readFileSync(
+    path.join(path.dirname(manifest), "dist/index.d.ts"),
+    "utf8"
+  )
+  const out = new Map<string, string[]>()
+  for (const [attribute, type] of Object.entries(ZAG_TYPED)) {
+    const start = text.indexOf(`type ${type} = `)
+    const values =
+      start === -1
+        ? []
+        : zagState(
+            attribute,
+            text.slice(
+              start + `type ${type} = `.length,
+              text.indexOf(";", start)
+            )
+          ).values
+    if (values.length === 0)
+      throw new Error(`@zag-js/types no longer declares ${type} as a union`)
+    out.set(attribute, values)
+  }
+  return out
+}
+
+/**
  * A state from Zag's reference: a description ("Present when hovered") is a presence, a union of
  * quoted strings (`"open" | "closed"`) one key per value. Read by splitting, never by a pattern.
  */
@@ -233,6 +274,8 @@ async function arkUi(): Promise<{ vocabulary: Vocabulary; version: string }> {
     string,
     Record<string, unknown> | undefined
   >
+  const { directory: arkDirectory } = installed("@ark-ui/react")
+  const typed = zagTypes(arkDirectory)
   const out: Vocabulary = new Map()
   for (const [component, parts] of Object.entries(reference)) {
     const name = pascal(component)
@@ -249,14 +292,19 @@ async function arkUi(): Promise<{ vocabulary: Vocabulary; version: string }> {
             ([attribute]) =>
               attribute !== "data-scope" && attribute !== "data-part"
           )
-          .map(([attribute, described]) => zagState(attribute, described))
+          .map(([attribute, described]) => {
+            const state = zagState(attribute, described)
+            const values = state.values.length
+              ? undefined
+              : typed.get(attribute)
+            return values ? { ...state, values } : state
+          })
       )
     }
     if (byPart.size > 0) out.set(name, byPart)
   }
   // Ark's own components, with no Zag machine (Field, Fieldset): each part's prop getter in
   // `use-<name>.js` sets its states.
-  const { directory: arkDirectory } = installed("@ark-ui/react")
   for (const [name, exported] of Object.entries(ark)) {
     if (out.has(name) || !exported || typeof exported !== "object") continue
     const kebab = name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()

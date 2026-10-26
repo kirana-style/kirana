@@ -66,7 +66,8 @@ export default defineConfig({
 
 A state that takes values (`side`, `align`, `orientation`) has one key per value, in camel case
 (`Select.Popup.side.inlineEnd` is `'[data-side="inline-end"]'`). A state whose value is free text or
-a number (`index`) is its attribute's presence.
+a number (`index`) is its attribute's presence. Ark UI's `orientation` takes its values from Zag's
+`Orientation` type (`@zag-js/types`), since Zag's reference describes it in prose.
 
 For another library, or your own components, write the same shape in a module of your own; see
 [States](https://kirana.style/docs/styling/states).

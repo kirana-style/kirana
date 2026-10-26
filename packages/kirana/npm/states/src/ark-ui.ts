@@ -13,7 +13,10 @@ export const exclusive: string[][] = []
 export const Accordion = {
   Root: {
     /** The orientation of the accordion */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Item: {
     state: {
@@ -25,7 +28,10 @@ export const Accordion = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   ItemContent: {
     state: {
@@ -37,7 +43,10 @@ export const Accordion = {
     /** Present when focused */
     focus: "[data-focus]",
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   ItemIndicator: {
     state: {
@@ -49,12 +58,18 @@ export const Accordion = {
     /** Present when focused */
     focus: "[data-focus]",
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   ItemTrigger: {
     controls: "[data-controls]",
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     state: {
       open: '[data-state="open"]',
       closed: '[data-state="closed"]',
@@ -124,11 +139,17 @@ export const Avatar = {
 export const Carousel = {
   Root: {
     /** The orientation of the carousel */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   ItemGroup: {
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when in the dragging state */
     dragging: "[data-dragging]",
   },
@@ -138,27 +159,45 @@ export const Carousel = {
     /** Present when in viewport */
     inview: "[data-inview]",
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Control: {
     /** The orientation of the control */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   PrevTrigger: {
     /** The orientation of the prevtrigger */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   NextTrigger: {
     /** The orientation of the nexttrigger */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   IndicatorGroup: {
     /** The orientation of the indicatorgroup */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Indicator: {
     /** The orientation of the indicator */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** The index of the item */
     index: "[data-index]",
     /** Present when read-only */
@@ -168,7 +207,10 @@ export const Carousel = {
   },
   AutoplayTrigger: {
     /** The orientation of the autoplaytrigger */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when pressed */
     pressed: "[data-pressed]",
   },
@@ -431,13 +473,19 @@ export const ColorPicker = {
     /** The color channel of the channelslider */
     channel: "[data-channel]",
     /** The orientation of the channelslider */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   ChannelSliderTrack: {
     /** The color channel of the channelslidertrack */
     channel: "[data-channel]",
     /** The orientation of the channelslidertrack */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   ChannelSliderLabel: {
     /** The color channel of the channelsliderlabel */
@@ -453,7 +501,10 @@ export const ColorPicker = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the channelsliderthumb */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   ChannelInput: {
     /** The color channel of the channelinput */
@@ -1204,7 +1255,10 @@ export const ImageCropper = {
 export const Listbox = {
   Root: {
     /** The orientation of the listbox */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when disabled */
     disabled: "[data-disabled]",
   },
@@ -1231,7 +1285,10 @@ export const Listbox = {
       unchecked: '[data-state="unchecked"]',
     },
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when highlighted */
     highlighted: "[data-highlighted]",
     /** Present when disabled */
@@ -1257,7 +1314,10 @@ export const Listbox = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when the content is empty */
     empty: "[data-empty]",
   },
@@ -1265,7 +1325,10 @@ export const Listbox = {
     /** The id the active descendant of the content */
     activedescendant: "[data-activedescendant]",
     /** The orientation of the content */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     layout: "[data-layout]",
     /** Present when the content is empty */
     empty: "[data-empty]",
@@ -1279,13 +1342,19 @@ export const Marquee = {
       idle: '[data-state="idle"]',
     },
     /** The orientation of the marquee */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when paused */
     paused: "[data-paused]",
   },
   Viewport: {
     /** The orientation of the viewport */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** The side of the trigger that the viewport is positioned on */
     side: "[data-side]",
   },
@@ -1293,7 +1362,10 @@ export const Marquee = {
     /** The index of the item */
     index: "[data-index]",
     /** The orientation of the content */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** The side of the trigger that the content is positioned on */
     side: "[data-side]",
     reverse: "[data-reverse]",
@@ -1303,7 +1375,10 @@ export const Marquee = {
     /** The side of the trigger that the edge is positioned on */
     side: "[data-side]",
     /** The orientation of the edge */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
 } as const
 
@@ -1386,11 +1461,17 @@ export const Menu = {
 export const NavigationMenu = {
   Root: {
     /** The orientation of the navigation-menu */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   List: {
     /** The orientation of the list */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Item: {
     /** The value of the item */
@@ -1400,7 +1481,10 @@ export const NavigationMenu = {
       closed: '[data-state="closed"]',
     },
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when disabled */
     disabled: "[data-disabled]",
   },
@@ -1410,11 +1494,17 @@ export const NavigationMenu = {
       closed: '[data-state="closed"]',
     },
     /** The orientation of the indicator */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Arrow: {
     /** The orientation of the arrow */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Trigger: {
     triggerProxyId: "[data-trigger-proxy-id]",
@@ -1439,13 +1529,19 @@ export const NavigationMenu = {
       closed: '[data-state="closed"]',
     },
     /** The orientation of the content */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** The value of the item */
     value: "[data-value]",
   },
   ViewportPositioner: {
     /** The orientation of the viewportpositioner */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     align: "[data-align]",
   },
   Viewport: {
@@ -1454,7 +1550,10 @@ export const NavigationMenu = {
       closed: '[data-state="closed"]',
     },
     /** The orientation of the viewport */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     align: "[data-align]",
   },
   ItemIndicator: {
@@ -1463,7 +1562,10 @@ export const NavigationMenu = {
       closed: '[data-state="closed"]',
     },
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** The value of the item */
     value: "[data-value]",
   },
@@ -1702,20 +1804,32 @@ export const Progress = {
     value: "[data-value]",
     state: "[data-state]",
     /** The orientation of the progress */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Label: {
     /** The orientation of the label */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Range: {
     /** The orientation of the range */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     state: "[data-state]",
   },
   CircleTrack: {
     /** The orientation of the circletrack */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   CircleRange: {
     state: "[data-state]",
@@ -1728,7 +1842,10 @@ export const Progress = {
 export const RadioGroup = {
   Root: {
     /** The orientation of the radio-group */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** Present when invalid */
@@ -1738,7 +1855,10 @@ export const RadioGroup = {
   },
   Label: {
     /** The orientation of the label */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** Present when invalid */
@@ -1754,7 +1874,10 @@ export const RadioGroup = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the indicator */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
 } as const
 
@@ -1813,7 +1936,10 @@ export const ScrollArea = {
   },
   Scrollbar: {
     /** The orientation of the scrollbar */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when scrolling */
     scrolling: "[data-scrolling]",
     /** Present when hovered */
@@ -1827,7 +1953,10 @@ export const ScrollArea = {
   },
   Thumb: {
     /** The orientation of the thumb */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when hovered */
     hover: "[data-hover]",
     /** Present when in the dragging state */
@@ -1994,7 +2123,10 @@ export const Slider = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the label */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when invalid */
     invalid: "[data-invalid]",
     /** Present when in the dragging state */
@@ -2006,7 +2138,10 @@ export const Slider = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the slider */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when in the dragging state */
     dragging: "[data-dragging]",
     /** Present when invalid */
@@ -2018,7 +2153,10 @@ export const Slider = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the valuetext */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when invalid */
     invalid: "[data-invalid]",
     /** Present when focused */
@@ -2032,7 +2170,10 @@ export const Slider = {
     /** Present when in the dragging state */
     dragging: "[data-dragging]",
     /** The orientation of the track */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when focused */
     focus: "[data-focus]",
   },
@@ -2043,7 +2184,10 @@ export const Slider = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the thumb */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when focused */
     focus: "[data-focus]",
     /** Present when in the dragging state */
@@ -2059,7 +2203,10 @@ export const Slider = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the range */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Control: {
     /** Present when in the dragging state */
@@ -2067,7 +2214,10 @@ export const Slider = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the control */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when invalid */
     invalid: "[data-invalid]",
     /** Present when focused */
@@ -2075,11 +2225,17 @@ export const Slider = {
   },
   MarkerGroup: {
     /** The orientation of the markergroup */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Marker: {
     /** The orientation of the marker */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** The value of the item */
     value: "[data-value]",
     /** Present when disabled */
@@ -2088,7 +2244,10 @@ export const Slider = {
   },
   DraggingIndicator: {
     /** The orientation of the draggingindicator */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     state: {
       open: '[data-state="open"]',
       closed: '[data-state="closed"]',
@@ -2099,13 +2258,19 @@ export const Slider = {
 export const Splitter = {
   Root: {
     /** The orientation of the splitter */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when in the dragging state */
     dragging: "[data-dragging]",
   },
   Panel: {
     /** The orientation of the panel */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when in the dragging state */
     dragging: "[data-dragging]",
     id: "[data-id]",
@@ -2115,7 +2280,10 @@ export const Splitter = {
   ResizeTrigger: {
     id: "[data-id]",
     /** The orientation of the resizetrigger */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when focused */
     focus: "[data-focus]",
     /** Present when in the dragging state */
@@ -2128,15 +2296,24 @@ export const Splitter = {
 export const Steps = {
   Root: {
     /** The orientation of the steps */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   List: {
     /** The orientation of the list */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Item: {
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     skippable: "[data-skippable]",
   },
   Trigger: {
@@ -2145,7 +2322,10 @@ export const Steps = {
       closed: '[data-state="closed"]',
     },
     /** The orientation of the trigger */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when the trigger value is complete */
     complete: "[data-complete]",
     /** Present when current */
@@ -2158,7 +2338,10 @@ export const Steps = {
       closed: '[data-state="closed"]',
     },
     /** The orientation of the content */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Indicator: {
     /** Present when the indicator value is complete */
@@ -2169,7 +2352,10 @@ export const Steps = {
   },
   Separator: {
     /** The orientation of the separator */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when the separator value is complete */
     complete: "[data-complete]",
     /** Present when current */
@@ -2276,7 +2462,10 @@ export const Switch = {
 export const Tabs = {
   Root: {
     /** The orientation of the tabs */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when focused */
     focus: "[data-focus]",
   },
@@ -2284,11 +2473,17 @@ export const Tabs = {
     /** Present when focused */
     focus: "[data-focus]",
     /** The orientation of the list */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Trigger: {
     /** The orientation of the trigger */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The value of the item */
@@ -2304,11 +2499,17 @@ export const Tabs = {
     /** Present when selected */
     selected: "[data-selected]",
     /** The orientation of the content */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Indicator: {
     /** The orientation of the indicator */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
 } as const
 
@@ -2464,7 +2665,10 @@ export const ToggleGroup = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the toggle-group */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when focused */
     focus: "[data-focus]",
   },
@@ -2474,7 +2678,10 @@ export const ToggleGroup = {
     /** Present when disabled */
     disabled: "[data-disabled]",
     /** The orientation of the item */
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     state: {
       on: '[data-state="on"]',
       off: '[data-state="off"]',

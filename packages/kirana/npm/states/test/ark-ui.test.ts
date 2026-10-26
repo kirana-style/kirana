@@ -3,7 +3,7 @@ import { css } from "@kirana-style/core"
 import { describe, expect, it } from "vite-plus/test"
 
 import * as states from "../src/ark-ui.ts"
-import { Dialog, Switch } from "../src/ark-ui.ts"
+import { Dialog, Switch, Tabs } from "../src/ark-ui.ts"
 import { entries, SELECTOR } from "./entries.ts"
 
 // This suite runs under the Kirana Vite plugin, so the vocabulary is compiled exactly as an
@@ -27,6 +27,18 @@ describe("@kirana-style/states/ark-ui", () => {
     expect(Dialog.Content.state.open).toBe('[data-state="open"]')
     // Zag marks one state with the values of one attribute, which need no exclusive group.
     expect(states.exclusive).toEqual([])
+  })
+
+  it("names an orientation's values, which Zag describes in prose (KF-041)", () => {
+    // `@zag-js/types`' `Orientation` fixes them; a presence key would match every part.
+    expect(Tabs.Root.orientation).toEqual({
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    })
+    const presence = entries(states).filter(
+      ([, , , selector]) => selector === "[data-orientation]"
+    )
+    expect(presence).toEqual([])
   })
 
   it("compiles as condition keys", () => {
