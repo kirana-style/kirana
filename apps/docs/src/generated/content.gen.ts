@@ -4016,6 +4016,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "conditions-ownattributes",
+        "text": "conditions.ownAttributes",
+        "level": 2
+      },
+      {
         "id": "classes",
         "text": "classes",
         "level": 2

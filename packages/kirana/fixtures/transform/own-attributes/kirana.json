@@ -1,0 +1,9 @@
+{
+  "conditions": {
+    "exclusiveAcross": [
+      ["[data-side=\"left\"]", "[data-starting-style]"],
+      ["[data-entering]"]
+    ],
+    "ownAttributes": ["data-side"]
+  }
+}

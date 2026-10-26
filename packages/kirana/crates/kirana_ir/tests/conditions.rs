@@ -193,22 +193,22 @@ fn exclusivity() {
     assert!(mutually_exclusive(
         &one("[data-starting-style]"),
         &one("[data-ending-style]"),
-        Declared { groups: &declared, across: &[] }
+        Declared { groups: &declared, across: &[], own: &[] }
     ));
     assert!(mutually_exclusive(
         &relation("[data-starting-style]"),
         &relation("[data-ending-style]"),
-        Declared { groups: &declared, across: &[] }
+        Declared { groups: &declared, across: &[], own: &[] }
     ));
     assert!(!mutually_exclusive(
         &one("[data-starting-style]"),
         &one("[data-starting-style]"),
-        Declared { groups: &declared, across: &[] }
+        Declared { groups: &declared, across: &[], own: &[] }
     ));
     assert!(!mutually_exclusive(
         &one("[data-starting-style]"),
         &one("[data-open]"),
-        Declared { groups: &declared, across: &[] }
+        Declared { groups: &declared, across: &[], own: &[] }
     ));
     assert!(!mutually_exclusive(&one("[data-starting-style]"), &one("[data-ending-style]"), Declared::default()));
 }
@@ -235,8 +235,29 @@ fn a_set_with_two_exclusive_conditions_is_unreachable() {
     assert!(
         unreachable_pair(
             &set(&["[data-starting-style]", "[data-entering]"]),
-            Declared { groups: &[], across: &across }
+            Declared { groups: &[], across: &across, own: &[] }
         )
         .is_some()
     );
+}
+
+/// A sheet writes `data-side` itself, on Base UI and React Aria alike: with the attribute declared
+/// the project's own, Base UI's vocabulary naming `[data-side="left"]` keeps nothing apart from
+/// React Aria's `[data-entering]` (KF-042).
+#[test]
+fn an_own_attribute_is_no_vocabulary_key() {
+    let set =
+        |keys: &[&str]| ConditionSet::new(keys.iter().flat_map(|key| parse_condition_key(key).unwrap()).collect());
+    let across = [vec!["[data-side=\"left\"]".to_owned()], vec!["[data-entering]".to_owned()]];
+    let sheet = set(&["[data-side=\"left\"]", "[data-entering]"]);
+    let apart = |set: &ConditionSet, own: &[String]| {
+        unreachable_pair(set, Declared { groups: &[], across: &across, own }).is_some()
+    };
+    let (own, other) = (["data-side".to_owned()], ["data-align".to_owned()]);
+    assert!(apart(&sheet, &[]));
+    assert!(!apart(&sheet, &own));
+    // Another attribute's keys stay the vocabularies', and two values of the own one still never meet.
+    assert!(apart(&sheet, &other));
+    assert!(apart(&set(&["[data-side=\"left\"]", "[data-side=\"top\"]"]), &own));
+    assert!(!apart(&set(&[":hover", "[data-entering]"]), &own));
 }

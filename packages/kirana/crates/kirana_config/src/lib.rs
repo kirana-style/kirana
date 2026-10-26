@@ -276,6 +276,11 @@ pub struct Conditions {
     /// built on one library, so two conditions no vocabulary holds together are exclusive (KF-015).
     #[serde(default, rename = "exclusiveAcross")]
     pub exclusive_across: Vec<Vec<String>>,
+    /// Attributes the project's own components write (`data-side` on a sheet), whatever library
+    /// they are built on: a key on one is never taken for a vocabulary's, so `exclusiveAcross`
+    /// keeps nothing apart by it (KF-042).
+    #[serde(default, rename = "ownAttributes")]
+    pub own_attributes: Vec<String>,
 }
 
 impl Config {
@@ -348,6 +353,15 @@ impl Config {
         }
         for (index, vocabulary) in config.conditions.exclusive_across.iter_mut().enumerate() {
             normalize_conditions(vocabulary, &format!("conditions.exclusiveAcross[{index}]"), &mut problems);
+        }
+        for (index, name) in config.conditions.own_attributes.iter().enumerate() {
+            let valid = name.starts_with(|first: char| first.is_ascii_lowercase())
+                && name.bytes().all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-');
+            if !valid {
+                problems.push(invalid(format!(
+                    "conditions.ownAttributes[{index}] must be an attribute name such as \"data-side\", got {name:?}"
+                )));
+            }
         }
         if problems.is_empty() { Ok(config) } else { Err(problems) }
     }

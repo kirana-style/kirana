@@ -97,6 +97,18 @@ fn exclusive_conditions() {
             "conditions.exclusiveAcross[0]: \"a b\" is not one attribute or pseudo-class condition",
         ]
     );
+    // Attributes a project's own components write (KF-042), by name.
+    let config = Config::from_json(r#"{"conditions":{"ownAttributes":["data-side","aria-x2"]}}"#).unwrap();
+    assert_eq!(config.conditions.own_attributes, ["data-side", "aria-x2"]);
+    assert_eq!(
+        messages(r#"{"conditions":{"ownAttributes":["[data-side]","","Data-side","data_side"]}}"#),
+        [
+            "conditions.ownAttributes[0] must be an attribute name such as \"data-side\", got \"[data-side]\"",
+            "conditions.ownAttributes[1] must be an attribute name such as \"data-side\", got \"\"",
+            "conditions.ownAttributes[2] must be an attribute name such as \"data-side\", got \"Data-side\"",
+            "conditions.ownAttributes[3] must be an attribute name such as \"data-side\", got \"data_side\"",
+        ]
+    );
 }
 
 #[test]

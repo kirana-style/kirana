@@ -1469,7 +1469,8 @@ the implementation tracker names its evidence.
 
 ### D-105 — Entries no element can match are left out
 
-- **Status:** Accepted (2026-10-25). Answers KF-030; amended 2026-10-26 for KF-036.
+- **Status:** Accepted (2026-10-25). Answers KF-030; amended 2026-10-26 for KF-036 and 2026-10-27 for
+  KF-042.
 - **Decision:** an entry whose condition set holds two conditions the compiler proves exclusive (what
   `ambiguous-precedence` already proves of two sets) is not emitted; the key is the `unreachable-entry`
   info (KRN1305), except when only `conditions.exclusiveAcross` makes the pair exclusive, which is left
@@ -1481,7 +1482,11 @@ the implementation tracker names its evidence.
   configuration declares) is still emitted; only what the compiler proves is left out. An info for
   each pair `exclusiveAcross` keeps apart reported the design itself (ten for kirana-ui's popup
   slide, KF-036), so such pairs are pruned in silence; a typo in one vocabulary is then pruned
-  silently too.
+  silently too, and so is an attribute a component writes itself that a vocabulary also names (a
+  sheet's `data-side`, Base UI's popups' too): the project lists such attributes in
+  `conditions.ownAttributes`, which the across rule never takes for a vocabulary's (KF-042). A
+  warning for every pruned pair was the other answer, but it would report the design again, as
+  KF-036 found.
 - **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 
 ### D-106 — A definition says how each entry was written

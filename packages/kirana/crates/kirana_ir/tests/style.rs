@@ -255,14 +255,14 @@ fn ambiguity() {
     let declared = handle(vec![set_op("opacity", &["[data-open]"], "1"), set_op("opacity", &["[data-closed]"], "0")]);
     assert_eq!(ambiguous_pairs(&declared, Declared::default()).len(), 1);
     let groups = [vec!["[data-open]".to_owned(), "[data-closed]".to_owned()]];
-    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &groups, across: &[] }), []);
+    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &groups, across: &[], own: &[] }), []);
     // Vocabularies of different libraries: keys no vocabulary holds together never meet (KF-015).
     let across = [vec!["[data-open]".to_owned(), "[data-disabled]".to_owned()], vec!["[data-closed]".to_owned()]];
-    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &[], across: &across }), []);
+    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &[], across: &across, own: &[] }), []);
     let shared = [vec!["[data-open]".to_owned(), "[data-closed]".to_owned()], vec!["[data-closed]".to_owned()]];
-    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &[], across: &shared }).len(), 1);
+    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &[], across: &shared, own: &[] }).len(), 1);
     let unnamed = [vec!["[data-open]".to_owned()], vec!["[data-entering]".to_owned()]];
-    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &[], across: &unnamed }).len(), 1);
+    assert_eq!(ambiguous_pairs(&declared, Declared { groups: &[], across: &unnamed, own: &[] }).len(), 1);
 }
 
 #[test]
