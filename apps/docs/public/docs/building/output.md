@@ -84,7 +84,7 @@ Measured on the three applications of
 [the benchmarks](/docs/project/benchmarks), Kirana 0.3.3 with
 dense names makes the CSS 12 % smaller in gzip, and the CSS and
 JavaScript a page downloads 2 % smaller, with cold builds
-8 % slower. On this site, the stylesheet is 12.7 % smaller in
+7 % slower. On this site, the stylesheet is 12.7 % smaller in
 gzip and brotli.
 
 Dense names stay opt-in for one reason besides the build time: a code goes to the

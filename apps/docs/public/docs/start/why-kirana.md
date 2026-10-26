@@ -91,7 +91,7 @@ styles worth it (a typo is a compile error, a token is a typed import, a style i
 a value you pass and delete with its component), and the output is still atomic:
 one rule per distinct declaration, shared by every element that uses it. On the
 same three applications built three ways, Kirana 0.3.3's cold
-builds are 7 % faster than Tailwind and 1.6× faster than StyleX (SWC), and its
+builds are 6 % faster than Tailwind and 1.6× faster than StyleX (SWC), and its
 CSS and JavaScript, gzipped, are 2 % smaller than StyleX (SWC) and
 2 % smaller than Tailwind. Every measure, with its confidence interval, is on the
 [benchmarks page](/docs/project/benchmarks).
