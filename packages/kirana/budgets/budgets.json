@@ -27,14 +27,14 @@
       },
       "api-functions": {
         "css": {
-          "raw": 792,
-          "gzip": 382,
-          "brotli": 307
+          "raw": 783,
+          "gzip": 377,
+          "brotli": 303
         },
         "js": {
-          "raw": 1338,
-          "gzip": 672,
-          "brotli": 590
+          "raw": 1291,
+          "gzip": 663,
+          "brotli": 582
         }
       },
       "api-misuse": {
@@ -827,6 +827,18 @@
           "raw": 694,
           "gzip": 430,
           "brotli": 344
+        }
+      },
+      "style-helpers": {
+        "css": {
+          "raw": 1191,
+          "gzip": 448,
+          "brotli": 379
+        },
+        "js": {
+          "raw": 2028,
+          "gzip": 1016,
+          "brotli": 867
         }
       },
       "sx-forwarded-to-external": {

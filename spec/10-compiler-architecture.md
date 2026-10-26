@@ -106,12 +106,19 @@ are rejected by stage 1, making transform cost proportional to styled modules. T
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | String, number, boolean, `null`, `undefined` literals; template literals                                                                                      | Calls to unknown or impure functions                                        |
 | Object and array literals, static spreads, computed keys that fold                                                                                            | `this`, assignments, `delete`, `new`, `await`, generators                   |
-| Unary, binary, logical and conditional operators with JavaScript coercion rules                                                                               | Mutable `let`/`var` after reassignment                                      |
+| Unary, binary, logical and conditional operators with JavaScript coercion rules; `in` on a folded object or array                                             | Mutable `let`/`var` after reassignment                                      |
 | `const` bindings; imports through the cross-file resolver; TypeScript wrappers (`as`, `satisfies`, `!`)                                                       | Globals other than `undefined`, `NaN`, `Infinity`                           |
 | Member access on folded objects and arrays; optional chaining                                                                                                 | Dynamic `import()`                                                          |
 | TypeScript `enum` members with literal initializers                                                                                                           | Anything exceeding the evaluation depth limit (64) or descriptor size limit |
 | Kirana values: tokens, handles, relations, conditions, keyframes, recipes                                                                                     |                                                                             |
 | **Pure-function descriptors:** arrow or function declarations with simple parameters and an expression or single `return` body, applied with folded arguments |                                                                             |
+
+A parameter may have a default, evaluated in the function's scope (earlier parameters included) when
+its argument is absent or `undefined` (KF-040). A key an object lacks reads as `undefined`, whatever
+the object holds; `unknown-token` is reported only for a token group, an object whose every token
+sits under its own name (`space[7]` on `space`), at the expression or, inside a descriptor, at the
+call (KF-039). A token in `===`, `==`, `!=`, `!==` and `typeof` is the string the compiled code holds
+in its place, its CSS text: a variable token never equals a keyword such as `"none"`.
 
 A ternary whose test does not fold but whose branches do yields a finite-dynamic value
 ([09](./09-dynamic-styles.md#classification)). A position that requires a static value (token definitions,

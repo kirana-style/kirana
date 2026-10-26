@@ -23,5 +23,5 @@ const rest = (...values: number[]) => values
 function* generator() {}
 async function later() {}
 
-export const styles = /* @__PURE__ */ __k.cx("kaF_5QUl k6V_vqnf k5O_u3uh k5n_Ts5U kv_ES2o kw_kbjD kx_XMJ0 k5_ k9_HV2H k8_zgUg k6_HV2H k7_zgUg k87_tIfm k88_reDk k50_D9ur k44_LB88", /* @__PURE__ */ __k.b("kaO_Z0Ni", "--kaO", (unsupported(2))), /* @__PURE__ */ __k.b("k61_1Y3S", "--k61", (defaulted())), /* @__PURE__ */ __k.b("k63_3ALG", "--k63", (rest(1)[0])))
+export const styles = /* @__PURE__ */ __k.cx("kaF_5QUl k6V_vqnf k5O_u3uh k5n_Ts5U kv_ES2o kw_kbjD kx_XMJ0 k5_ k9_HV2H k8_zgUg k6_HV2H k7_zgUg k87_tIfm k88_reDk k50_D9ur k44_LB88", /* @__PURE__ */ __k.b("kaO_Z0Ni", "--kaO", (unsupported(2))), "k61_tIfm", /* @__PURE__ */ __k.b("k63_3ALG", "--k63", (rest(1)[0])))
 export { generator, later }

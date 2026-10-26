@@ -639,7 +639,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         match object {
             Value::Object(entries) => match object.get(key) {
                 Some(value) => value.clone(),
-                None if entries.iter().any(|(_, value)| matches!(value, Value::Token(_))) => {
+                None if token_group(entries) => {
                     self.report(Code::UnknownToken, span, format!("the token group has no token {key:?}"), None);
                     Value::Undefined
                 }
@@ -700,7 +700,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                     })
                     .collect();
                 arguments
-                    .and_then(|arguments| apply(descriptor, &arguments, self))
+                    .and_then(|arguments| apply(descriptor, &arguments, self, span))
                     .unwrap_or_else(|| Value::Dynamic(Arc::new(Dynamic::Open(span))))
             }
             _ => {
@@ -774,16 +774,24 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         let Some(body) = body else { return Value::unknown("function") };
         let mut symbols = Vec::new();
         for param in params {
-            match (&param.pattern, &param.initializer) {
-                (BindingPattern::BindingIdentifier(identifier), None) => symbols.push(identifier.symbol_id.get()),
+            match &param.pattern {
+                BindingPattern::BindingIdentifier(identifier) => symbols.push(identifier.symbol_id.get()),
                 _ => return Value::unknown("function"),
             }
         }
         if has_rest {
             return Value::unknown("function");
         }
+        // A default reads the function's scope, the parameters before it included (KF-040).
+        let mut defaults = Vec::new();
+        for (index, param) in params.iter().enumerate() {
+            if let Some(initializer) = &param.initializer {
+                let Some(default) = self.lower(initializer, &symbols) else { return Value::unknown("function") };
+                defaults.push((index, default));
+            }
+        }
         match self.lower(body, &symbols) {
-            Some(body) => Value::Function(Arc::new(Descriptor { params: symbols.len(), body })),
+            Some(body) => Value::Function(Arc::new(Descriptor { params: symbols.len(), defaults, body })),
             None => Value::unknown("function"),
         }
     }
@@ -1064,6 +1072,7 @@ fn binary_op(operator: BinaryOperator) -> Option<BinaryOp> {
         BinaryOperator::Inequality => BinaryOp::NotEq,
         BinaryOperator::StrictEquality => BinaryOp::StrictEq,
         BinaryOperator::StrictInequality => BinaryOp::StrictNotEq,
+        BinaryOperator::In => BinaryOp::In,
         BinaryOperator::LessThan => BinaryOp::Lt,
         BinaryOperator::LessEqualThan => BinaryOp::LtEq,
         BinaryOperator::GreaterThan => BinaryOp::Gt,
@@ -1105,9 +1114,31 @@ pub(crate) fn to_key(value: &Value) -> Option<Key> {
 /// Arguments are static, and so is every value `run` produces from them, so truthiness is known.
 const STATIC: &str = "applied values are static";
 
-/// Applies a pure-function descriptor to static arguments.
-pub(crate) fn apply(descriptor: &Descriptor, arguments: &[Value], evaluator: &Evaluator<'_, '_, '_>) -> Option<Value> {
-    fn run(expr: &Expr, arguments: &[Value], evaluator: &Evaluator<'_, '_, '_>) -> Option<Value> {
+/// An object read as a token group: each token in it under its own name (`space[8]` is `space.8`).
+/// An object that only holds tokens under other keys (`{ base: space[8] }`) is a plain object, and
+/// reading a key it lacks is `undefined` (KF-039).
+fn token_group(entries: &[(Key, Value)]) -> bool {
+    let mut tokens = entries.iter().filter_map(|(key, value)| match value {
+        Value::Token(token) => Some((key, token)),
+        _ => None,
+    });
+    let mut any = false;
+    tokens.all(|(key, token)| {
+        any = true;
+        key.as_str().is_some_and(|name| token.identity.strip_suffix(name).is_some_and(|rest| rest.ends_with('.')))
+    }) && any
+}
+
+/// Applies a pure-function descriptor to static arguments; `span`, the call, is where a
+/// diagnostic its body raises points.
+pub(crate) fn apply(
+    descriptor: &Descriptor,
+    arguments: &[Value],
+    evaluator: &Evaluator<'_, '_, '_>,
+    span: (u32, u32),
+) -> Option<Value> {
+    fn run(expr: &Expr, arguments: &[Value], evaluator: &Evaluator<'_, '_, '_>, span: (u32, u32)) -> Option<Value> {
+        let run = |expr: &Expr, arguments: &[Value]| run(expr, arguments, evaluator, span);
         Some(match expr {
             Expr::Value(value) => value.clone(),
             Expr::Param(index) => arguments.get(*index).cloned().unwrap_or(Value::Undefined),
@@ -1116,42 +1147,38 @@ pub(crate) fn apply(descriptor: &Descriptor, arguments: &[Value], evaluator: &Ev
                 for (index, quasi) in quasis.iter().enumerate() {
                     text.push_str(quasi);
                     if let Some(inner) = expressions.get(index) {
-                        text.push_str(&ops::to_string(&run(inner, arguments, evaluator)?)?);
+                        text.push_str(&ops::to_string(&run(inner, arguments)?)?);
                     }
                 }
                 Value::str(text)
             }
             Expr::Member { object, property } => {
-                let object = run(object, arguments, evaluator)?;
-                let key = ops::to_string(&run(property, arguments, evaluator)?)?;
-                Some(evaluator.member(&object, &key, (0, 0))).filter(Value::is_static)?
+                let object = run(object, arguments)?;
+                let key = ops::to_string(&run(property, arguments)?)?;
+                Some(evaluator.member(&object, &key, span)).filter(Value::is_static)?
             }
             Expr::Binary { operator, left, right } => {
-                ops::binary(*operator, &run(left, arguments, evaluator)?, &run(right, arguments, evaluator)?)?
+                ops::binary(*operator, &run(left, arguments)?, &run(right, arguments)?)?
             }
-            Expr::Unary { operator, argument } => ops::unary(*operator, &run(argument, arguments, evaluator)?)?,
+            Expr::Unary { operator, argument } => ops::unary(*operator, &run(argument, arguments)?)?,
             Expr::Logical { operator, left, right } => {
-                let left = run(left, arguments, evaluator)?;
-                if ops::logical_pick_left(*operator, &left).expect(STATIC) {
-                    left
-                } else {
-                    run(right, arguments, evaluator)?
-                }
+                let left = run(left, arguments)?;
+                if ops::logical_pick_left(*operator, &left).expect(STATIC) { left } else { run(right, arguments)? }
             }
             Expr::Conditional { test, consequent, alternate } => {
-                if run(test, arguments, evaluator)?.truthy().expect(STATIC) {
-                    run(consequent, arguments, evaluator)?
+                if run(test, arguments)?.truthy().expect(STATIC) {
+                    run(consequent, arguments)?
                 } else {
-                    run(alternate, arguments, evaluator)?
+                    run(alternate, arguments)?
                 }
             }
             Expr::Object(properties) => {
                 let mut entries = Vec::new();
                 for (key, value) in properties {
-                    let value = run(value, arguments, evaluator)?;
+                    let value = run(value, arguments)?;
                     match key {
                         ExprKey::Static(name) => entries.push((Key::Str(name.clone()), value)),
-                        ExprKey::Computed(key) => entries.push((to_key(&run(key, arguments, evaluator)?)?, value)),
+                        ExprKey::Computed(key) => entries.push((to_key(&run(key, arguments)?)?, value)),
                         ExprKey::Spread => match value {
                             Value::Object(inner) => entries.extend(inner.iter().cloned()),
                             _ => return None,
@@ -1161,19 +1188,27 @@ pub(crate) fn apply(descriptor: &Descriptor, arguments: &[Value], evaluator: &Ev
                 Value::Object(Arc::new(entries))
             }
             Expr::Array(items) => {
-                Value::Array(Arc::new(items.iter().map(|item| run(item, arguments, evaluator)).collect::<Option<_>>()?))
+                Value::Array(Arc::new(items.iter().map(|item| run(item, arguments)).collect::<Option<_>>()?))
             }
             Expr::Call { callee, arguments: call_arguments } => {
-                let Value::Function(inner) = run(callee, arguments, evaluator)? else { return None };
-                let values = call_arguments
-                    .iter()
-                    .map(|argument| run(argument, arguments, evaluator))
-                    .collect::<Option<Vec<_>>>()?;
-                apply(&inner, &values, evaluator)?
+                let Value::Function(inner) = run(callee, arguments)? else { return None };
+                let values =
+                    call_arguments.iter().map(|argument| run(argument, arguments)).collect::<Option<Vec<_>>>()?;
+                apply(&inner, &values, evaluator, span)?
             }
         })
     }
-    (arguments.len() <= descriptor.params).then(|| run(&descriptor.body, arguments, evaluator)).flatten()
+    if arguments.len() > descriptor.params {
+        return None;
+    }
+    let mut arguments = arguments.to_vec();
+    arguments.resize(descriptor.params, Value::Undefined);
+    for (index, default) in &descriptor.defaults {
+        if arguments[*index] == Value::Undefined {
+            arguments[*index] = run(default, &arguments, evaluator, span)?;
+        }
+    }
+    run(&descriptor.body, &arguments, evaluator, span)
 }
 
 /// A template's parts with the empty texts left out and adjacent texts joined.

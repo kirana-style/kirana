@@ -256,6 +256,8 @@ pub enum BinaryOp {
     NotEq,
     StrictEq,
     StrictNotEq,
+    /// `key in object`.
+    In,
     Lt,
     LtEq,
     Gt,
@@ -281,6 +283,9 @@ pub enum LogicalOp {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Descriptor {
     pub params: usize,
+    /// Each parameter written with a default (`later = color`), by index: the default is evaluated
+    /// in the function's scope when the argument is absent or `undefined` (KF-040).
+    pub defaults: Vec<(usize, Expr)>,
     pub body: Expr,
 }
 
