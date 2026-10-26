@@ -75,11 +75,17 @@ function moduleOf(file: string, text: string): string {
   const { blocks } = JSON.parse(loadNative().scanComponent(file, source)) as {
     blocks: { label: string; start: number; end: number; lang: string }[]
   }
+  // Linters differ at the block's edges: ESLint's Vue parser hands over the block as written, and
+  // oxlint drops its leading line break (KF-034), so the line breaks around it do not count.
   const block = blocks.find(
-    (candidate) => source.slice(candidate.start, candidate.end) === text
+    (candidate) =>
+      edges(source.slice(candidate.start, candidate.end)) === edges(text)
   )
   return block ? `${file}.${block.label}.${block.lang}` : file
 }
+
+/** Text without the line breaks that open and close it. */
+const edges = (text: string) => text.replace(/^[\r\n]+|[\r\n]+$/g, "")
 
 /**
  * The compiler's view of the file being linted. `settings.kirana.root` (relative to the working

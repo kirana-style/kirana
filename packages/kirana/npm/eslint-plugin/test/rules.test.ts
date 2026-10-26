@@ -556,6 +556,42 @@ describe("project root", () => {
 
   // KF-026: a linter hands a rule a component's script block; the template, which applies `sx`, is
   // not in it. The block is compiled as the build compiles it, so `useSx()`'s `sx` is not unused.
+  it("lints a component's script block clean under oxlint (KF-034)", async () => {
+    const { expect } = await import("vite-plus/test")
+    const { spawnSync } = await import("node:child_process")
+    const { mkdtempSync, writeFileSync } = await import("node:fs")
+    const { tmpdir } = await import("node:os")
+    const { createRequire } = await import("node:module")
+    const require = createRequire(import.meta.url)
+    const oxlint = path.join(
+      path.dirname(require.resolve("oxlint/package.json")),
+      "bin/oxlint"
+    )
+    const config = path.join(
+      mkdtempSync(path.join(tmpdir(), "kirana-oxlint-")),
+      "oxlintrc.json"
+    )
+    writeFileSync(
+      config,
+      JSON.stringify({
+        jsPlugins: [
+          {
+            name: "kirana",
+            specifier: path.join(import.meta.dirname, "../src/index.ts"),
+          },
+        ],
+        rules: { "kirana/diagnostics": "error" },
+      })
+    )
+    const run = spawnSync(
+      process.execPath,
+      [oxlint, "-c", config, "Button.vue"],
+      { cwd: project, encoding: "utf8" }
+    )
+    expect(run.stdout + run.stderr).not.toContain("unused-sx")
+    expect(run.status).toBe(0)
+  })
+
   it("compiles a component's script block as its block module", async () => {
     const { expect } = await import("vite-plus/test")
     const { readFileSync } = await import("node:fs")
@@ -571,8 +607,13 @@ describe("project root", () => {
     const names = (filename: string, text: string) =>
       inspect(context(filename, text)).diagnostics.map((found) => found.name)
     expect(names(component, script)).toEqual([])
+    // Oxlint hands over the block without its leading line break (KF-034); the edges do not count.
+    expect(names(component, script.slice(1))).toEqual([])
+    expect(names(component, `${script.trim()}\n`)).toEqual([])
     // Text that is no block of the file, and a component that is not on disk, compile as the file.
-    expect(names(component, `${script}\n`)).toEqual(["unused-sx"])
+    expect(names(component, `${script}const extra = 1\n`)).toEqual([
+      "unused-sx",
+    ])
     expect(names(path.join(project, "Missing.vue"), script)).toEqual([
       "unused-sx",
     ])
