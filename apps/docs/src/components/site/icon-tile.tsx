@@ -32,6 +32,14 @@ const SIZES = {
     inner: "7px",
     glyph: "1rem",
   },
+  // A picture's mark: the showcase's cards, on a landscape.
+  lg: {
+    tile: "4rem",
+    inset: "4px",
+    radius: "20px",
+    inner: "16px",
+    glyph: "1.75rem",
+  },
 } as const
 
 const styles = {
@@ -68,6 +76,12 @@ const styles = {
     height: SIZES.md.tile,
     borderRadius: SIZES.md.radius,
     "::after": { inset: SIZES.md.inset, borderRadius: SIZES.md.inner },
+  }),
+  lg: css({
+    width: SIZES.lg.tile,
+    height: SIZES.lg.tile,
+    borderRadius: SIZES.lg.radius,
+    "::after": { inset: SIZES.lg.inset, borderRadius: SIZES.lg.inner },
   }),
   // The glyph in the subtree's accent, or quiet grey where there is none (the header).
   accent: css({ color: accent.base }),

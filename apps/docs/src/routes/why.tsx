@@ -9,7 +9,7 @@ import {
 
 import { accent, tint } from "@workspace/docs-ui/accent.ts"
 import { Button } from "@workspace/ui/components/button"
-import { radius, theme } from "@workspace/ui/theme/semantic"
+import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
 import {
@@ -20,6 +20,7 @@ import {
 } from "@workspace/ui/tokens/typography"
 
 import { DocsLink } from "@/components/docs-link"
+import { framed } from "@/components/site/framed-card"
 import { EditorScene } from "@/components/home/editor"
 import { Choices } from "@/components/home/flexible"
 import { Faq } from "@/components/site/faq"
@@ -85,18 +86,11 @@ const styles = {
   panel: css({
     display: "grid",
     gridTemplateRows: "16rem auto",
-    overflow: "hidden",
-    borderRadius: radius.xl,
+    margin: 0,
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: theme.border,
     backgroundColor: theme.card,
-  }),
-  panelArt: css({
-    borderBlockEndWidth: "1px",
-    borderBlockEndStyle: "solid",
-    borderBlockEndColor: theme.border,
-    backgroundColor: theme.background,
   }),
   panelCopy: css({ display: "grid", gap: spacing[1], padding: spacing[5] }),
   panelTitle: css({
@@ -235,8 +229,8 @@ function WhyPage() {
         lede="The same style objects, read at build time instead of while rendering."
       >
         <div sx={styles.figure}>
-          <figure sx={styles.panel}>
-            <div sx={styles.panelArt}>
+          <figure sx={[framed.inset, styles.panel]}>
+            <div sx={framed.picture}>
               <RuntimeArt />
             </div>
             <figcaption sx={styles.panelCopy}>
@@ -247,8 +241,8 @@ function WhyPage() {
               </span>
             </figcaption>
           </figure>
-          <figure sx={styles.panel}>
-            <div sx={styles.panelArt}>
+          <figure sx={[framed.inset, styles.panel]}>
+            <div sx={framed.picture}>
               <BuildArt />
             </div>
             <figcaption sx={styles.panelCopy}>
