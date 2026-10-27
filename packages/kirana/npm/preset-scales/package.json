@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/preset-scales",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Scale tokens for Kirana: a Tailwind CSS v4-compatible palette, spacing, type ramp, radii, shadows and breakpoints.",
   "license": "MIT",
   "author": "The Kirana authors",

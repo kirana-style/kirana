@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/registry",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Kirana's component registry: the commands kirana-style ui runs, and the registry format's JSON Schemas, types and checks.",
   "license": "MIT",
   "author": "The Kirana authors",

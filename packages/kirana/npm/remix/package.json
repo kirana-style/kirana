@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/remix",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Kirana for Remix 3: compiles components after node-tsx and the asset server, and serves the stylesheet as middleware.",
   "license": "MIT",
   "author": "The Kirana authors",
