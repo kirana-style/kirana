@@ -88,6 +88,8 @@ They differ where the libraries do:
 - **Base UI and Ark UI** have parts: `Select.Popup.side.bottom`,
   `Switch.Thumb.state.checked`. Ark UI marks most states with one attribute's
   values (`data-state="checked"`), so `state` holds one key per value.
+- **Ark UI's orientation**, which Zag describes only in prose, takes its values
+  from Zag's own type, as Base UI's does: `Tabs.Root.orientation.vertical`.
 - **React Aria** names a component per part, with no namespace:
   `Button.focusVisible`, `ListBoxItem.selected`. A state a component inherits
   from another's render props is there too.
