@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/webpack",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Kirana for webpack 5 and Rspack: a loader that compiles modules and a plugin that finishes the stylesheet.",
   "license": "MIT",
   "author": "The Kirana authors",
