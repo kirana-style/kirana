@@ -721,6 +721,18 @@
           "brotli": 251
         }
       },
+      "relations-optional": {
+        "css": {
+          "raw": 323,
+          "gzip": 226,
+          "brotli": 177
+        },
+        "js": {
+          "raw": 667,
+          "gzip": 384,
+          "brotli": 299
+        }
+      },
       "relations-parent": {
         "css": {
           "raw": 325,

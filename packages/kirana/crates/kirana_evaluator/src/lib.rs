@@ -62,8 +62,9 @@ pub struct Definitions {
     pub counter_styles: Vec<Arc<CounterStyleDef>>,
     /// Token namespaces declared here, with the `defineTokens` call span.
     pub namespaces: Vec<(String, (u32, u32))>,
-    /// Relations declared here: `(name, marker)`.
-    pub relations: Vec<(String, String)>,
+    /// Relations declared here: `(name, marker, optional)`, `optional` when declared
+    /// `relation(name, { optional: true })`.
+    pub relations: Vec<(String, String, bool)>,
     /// Every token declared here, inlined or not, for tooling (hover, swatches, `prefer-token`).
     pub catalogue: Vec<TokenEntry>,
 }

@@ -1606,21 +1606,40 @@ the implementation tracker names its evidence.
   registry client in every project's compiler install.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
+### D-112 — A relation may be read where its anchor is not installed
+
+- **Status:** Accepted (2026-10-27). Answers KF-037.
+- **Decision:** `relation(name, { optional: true })` declares a relation whose readers may be installed
+  without the component that applies its anchor. R1 (`relation-without-anchor`) leaves its reads alone;
+  such a read compiles as any other and never matches where no element carries the anchor. The options
+  take `optional` and nothing else, a boolean; anything more is `not-evaluable`.
+- **Rationale:** a registry installs its items one at a time. kirana-ui's select fills a vertical Field
+  it sits in, read through Field's relation in a module both share; a project with the select and no
+  Field (every Vue project, Ark UI's slice having no Field) failed `kirana-style check` with R1, an
+  error, though the read is well defined there: it never matches, as the raw
+  `:where([data-slot="field"][data-orientation="vertical"] > *)` it fell back to never does.
+- **Trade-off:** an optional relation whose anchor is forgotten in a project that has both components
+  is no longer an error. The relation checks still see its reads (R3, R4, `kirana-style analyze`),
+  which the raw key hid; a warning for registry files alone was the other choice, but the compiler
+  cannot tell an installed file from one the project wrote.
+- **Elaborated in:** [06-authoring-api](./06-authoring-api.md),
+  [08-conditions-and-cascade](./08-conditions-and-cascade.md).
+
 ## Index by document
 
-| Document                                                      | Decisions                                                                                                                                                       |
-| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| the brand notes                                               | D-001                                                                                                                                                           |
-| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101 |
-| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099                                                                              |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105                      |
-| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                 |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                       |
-| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                             |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111        |
-| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                            |
-| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                           |
-| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                    |
-| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                                                        |
-| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                                                      |
-| the roadmap                                                   | D-033, D-051, D-056                                                                                                                                             |
+| Document                                                      | Decisions                                                                                                                                                              |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| the brand notes                                               | D-001                                                                                                                                                                  |
+| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101, D-112 |
+| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099                                                                                     |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112                      |
+| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                        |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                              |
+| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                                    |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111               |
+| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                                   |
+| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                  |
+| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                           |
+| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                                                               |
+| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                                                             |
+| the roadmap                                                   | D-033, D-051, D-056                                                                                                                                                    |

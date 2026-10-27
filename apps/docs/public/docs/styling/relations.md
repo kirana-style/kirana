@@ -73,6 +73,18 @@ package and name, two modules of one package that both write `relation("card")`
 would share one marker without meaning to: `relation-name-collision` names both
 files. Export the relation from one module and import it where it is read.
 
+A component set installed one item at a time can have a reader whose anchor's
+component is not installed: a select that fills the Field it sits in, in a
+project without Field. Declare that relation optional, and the read is left
+alone where no anchor exists, where it never matches:
+
+```ts
+export const fieldScope = relation("field", { optional: true })
+```
+
+Where both are installed, an optional relation is placed and checked like any
+other; only the missing anchor is not an error.
+
 ### Nested in its own kind
 
 A component can read its own relation to know it sits inside another of its

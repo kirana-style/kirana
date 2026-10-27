@@ -28,8 +28,8 @@ pub struct ModuleRecord {
     pub reads: Vec<String>,
     /// `(shorthand, target)` for every unfold token in the module's handles (D-045).
     pub unfolds: Vec<(Property, Target)>,
-    /// `(name, marker)` relations declared here.
-    pub relations: Vec<(String, String)>,
+    /// `(name, marker, optional)` relations declared here.
+    pub relations: Vec<(String, String, bool)>,
 }
 
 impl ModuleRecord {
@@ -321,6 +321,9 @@ impl Project {
         let mut anchors = BTreeSet::new();
         let mut reads: BTreeMap<&str, String> = BTreeMap::new();
         let mut relation_names: BTreeMap<&str, &str> = BTreeMap::new();
+        // Relations declared `{ optional: true }`: read where their anchor's component may not be
+        // installed, which R1 leaves alone (KF-037, D-112).
+        let mut optional_relations = BTreeSet::new();
         let mut classes: BTreeMap<&str, (&Atom, String)> = BTreeMap::new();
         let mut segments: BTreeMap<&str, (&kirana_ir::EntryKey, String)> = BTreeMap::new();
         // Definition names (`{prefix}v…`, `t…`, `f…`) are shorter than an atom's class, so they
@@ -333,8 +336,11 @@ impl Project {
             for marker in &record.reads {
                 reads.entry(marker).or_insert_with(|| file.clone());
             }
-            for (name, marker) in &record.relations {
+            for (name, marker, optional) in &record.relations {
                 relation_names.insert(marker, name);
+                if *optional {
+                    optional_relations.insert(marker.as_str());
+                }
             }
             for dep in record.marker_deps.iter().chain(record.atoms.iter().flat_map(|atom| &atom.value.deps)) {
                 check_named(dep, &file, &mut names, &mut out);
@@ -416,6 +422,7 @@ impl Project {
             // check`, compiling every module, decides it (D-062).
             if let Some(name) = relation_names.get(marker)
                 && !anchors.contains(marker)
+                && !optional_relations.contains(marker)
             {
                 out.push(
                     Diagnostic::new(

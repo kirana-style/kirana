@@ -1,0 +1,66 @@
+[
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 759,
+      "end": 797
+    },
+    "message": "relation() takes a string name, then `{ optional: true }` at most",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 821,
+      "end": 856
+    },
+    "message": "relation() takes a string name, then `{ optional: true }` at most",
+    "help": []
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 878,
+      "end": 918
+    },
+    "message": "relation() takes a string name, then `{ optional: true }` at most",
+    "help": []
+  },
+  {
+    "code": "KRN1401",
+    "name": "relation-without-anchor",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 0,
+      "end": 0
+    },
+    "message": "relation \"plain\" is read but its anchor is never applied",
+    "help": [
+      "apply `relation.anchor` to the element whose state is read"
+    ]
+  },
+  {
+    "code": "KRN1401",
+    "name": "relation-without-anchor",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 0,
+      "end": 0
+    },
+    "message": "relation \"required\" is read but its anchor is never applied",
+    "help": [
+      "apply `relation.anchor` to the element whose state is read"
+    ]
+  }
+]

@@ -184,7 +184,16 @@ export type Relation = {
   readonly before: (state?: string) => Condition
 }
 
-export function relation(_name: string): Relation {
+/** How a relation is checked. */
+export type RelationOptions = {
+  /**
+   * A reader may be installed without the anchor's component, as a registry item is: a read with no
+   * anchor in the project then never matches, instead of failing `relation-without-anchor` (D-112).
+   */
+  readonly optional?: boolean
+}
+
+export function relation(_name: string, _options?: RelationOptions): Relation {
   return uncompiled("relation")
 }
 

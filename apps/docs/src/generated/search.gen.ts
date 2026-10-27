@@ -991,7 +991,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Relations",
     "section": "composition",
     "heading": "Why declare it at all",
-    "text": "Because the compiler checks it. Two errors you get for free: : a style reads a relation, but nothing applies its anchor. In a class-string system this is a that silently never fires. An application's build checks the relations whose module it compiled, so a shared component may read an ancestor that only some applications render; checks every relation in the project. : the anchor cannot be proven to be in the right position: used where the anchor is not an earlier sibling, for example. A relation that is anchored and never read is reported too ( ), so dead relations do not accumulate. One that its module keeps to itself is checked in every build. One that is exported is checked where the whole project is compiled, by and in your editor: a bundler build compiles only the modules it reaches, so a shared component's reader may simply not be in this application. And because a relation is identified by its package and name, two modules of one package that both write would share one marker without meaning to: names both files. Export the relation from one module and import it where it is read."
+    "text": "Because the compiler checks it. Two errors you get for free: : a style reads a relation, but nothing applies its anchor. In a class-string system this is a that silently never fires. An application's build checks the relations whose module it compiled, so a shared component may read an ancestor that only some applications render; checks every relation in the project. : the anchor cannot be proven to be in the right position: used where the anchor is not an earlier sibling, for example. A relation that is anchored and never read is reported too ( ), so dead relations do not accumulate. One that its module keeps to itself is checked in every build. One that is exported is checked where the whole project is compiled, by and in your editor: a bundler build compiles only the modules it reaches, so a shared component's reader may simply not be in this application. And because a relation is identified by its package and name, two modules of one package that both write would share one marker without meaning to: names both files. Export the relation from one module and import it where it is read. A component set installed one item at a time can have a reader whose anchor's component is not "
   },
   {
     "id": "/docs/styling/relations#nested-in-its-own-kind",
@@ -4208,7 +4208,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "API reference",
     "section": "reference",
     "heading": "relation(name)",
-    "text": "Styling by another element's state. Relations ."
+    "text": "Styling by another element's state. lets a reader be installed without the component that applies the anchor, where the read never matches, instead of failing . Relations ."
   },
   {
     "id": "/docs/reference/api#select-descendant-target-select-child-target",

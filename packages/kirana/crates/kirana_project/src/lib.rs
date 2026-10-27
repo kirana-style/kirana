@@ -432,7 +432,7 @@ impl Project {
             state.namespaces.entry((package.to_owned(), namespace.clone())).or_default().insert(file.to_owned());
         }
         state.catalogue.insert(file.to_owned(), (package.to_owned(), definitions.catalogue.clone()));
-        for (name, marker) in &definitions.relations {
+        for (name, marker, _) in &definitions.relations {
             let entry = state.relations.entry(marker.clone()).or_insert_with(|| (name.clone(), Default::default()));
             entry.1.insert(file.to_owned());
         }

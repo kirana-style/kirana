@@ -74,7 +74,7 @@ With `slots: ["root", "label"]`, `base` and each option hold one style per slot,
 ## Relations and contextual styles
 
 ```ts
-relation(name): { name, anchor: StyleHandle, within(state?), after(state?), before(state?) }
+relation(name, { optional? }): { name, anchor: StyleHandle, within(state?), parent(state?), after(state?), before(state?) }
 select.descendant(target) · select.child(target)
 ```
 
@@ -85,6 +85,8 @@ const field = relation("field")
 </div>
 // within: the anchor is an ancestor (Tailwind group-*); after: an earlier sibling (peer-*);
 // before: a later sibling.
+// relation("field", { optional: true }): a reader installed without the anchor's component (a
+// registry item) never matches, instead of failing relation-without-anchor.
 
 css({ [select.descendant("svg")]: { width: "1rem", height: "1rem" } })
 // ranks below the svg's own styles, so an icon that sets its size keeps it.

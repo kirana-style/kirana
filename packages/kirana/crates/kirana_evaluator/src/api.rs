@@ -38,10 +38,28 @@ impl<'a> Evaluator<'_, 'a, '_> {
             }
             Api::Props => Value::Dynamic(Arc::new(Dynamic::Open(span))),
             Api::Recipe => self.recipe(&arguments, span),
-            Api::Relation => match arguments.first() {
-                Some((Value::Str(name), _)) => {
+            Api::Relation => match arguments.as_slice() {
+                [(Value::Str(name), _), rest @ ..] => {
+                    // `{ optional: true }`: a reader may be installed without the anchor's component,
+                    // where the read never matches (KF-037, D-112).
+                    let optional = match rest {
+                        [] => false,
+                        [(Value::Object(options), _)]
+                            if options.iter().all(|(key, value)| {
+                                key.as_str() == Some("optional") && matches!(value, Value::Bool(_))
+                            }) =>
+                        {
+                            options.iter().any(|(_, value)| *value == Value::Bool(true))
+                        }
+                        _ => {
+                            return self.not_evaluable(
+                                span,
+                                "relation() takes a string name, then `{ optional: true }` at most",
+                            );
+                        }
+                    };
                     let marker = self.ctx.names.named('r', &[self.ctx.package, name]);
-                    self.definitions.borrow_mut().relations.push((name.to_string(), marker.clone()));
+                    self.definitions.borrow_mut().relations.push((name.to_string(), marker.clone(), optional));
                     Value::Relation(Arc::new(RelationValue { name: name.to_string(), marker }))
                 }
                 _ => self.not_evaluable(span, "relation() takes a string name"),
