@@ -114,6 +114,12 @@ export type KiranaConfig = {
      * vocabulary holds together are exclusive.
      */
     readonly exclusiveAcross?: readonly (readonly string[])[]
+    /**
+     * Attributes the project's own components write (`"data-side"` on a sheet), whatever library
+     * they are built on: a key on one meets every vocabulary's states, though a vocabulary names
+     * it too, so `exclusiveAcross` keeps nothing apart by it.
+     */
+    readonly ownAttributes?: readonly string[]
   }
   /**
    * The class map for server templates (D-069): Blade, ERB, HEEx, Twig and Edge templates name the

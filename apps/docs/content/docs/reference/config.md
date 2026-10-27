@@ -212,6 +212,18 @@ or pseudo-class selector. `exclusiveAcross()` from `@kirana-style/states` builds
 them from the library vocabularies; see
 [one look for several libraries](/docs/styling/states#one-look-for-several-libraries).
 
+## `conditions.ownAttributes`
+
+```ts
+conditions: { ownAttributes?: string[] }   // default: []
+```
+
+Attributes your own components write, by name (`"data-side"`), whatever library
+they are built on. A vocabulary may name one too, as Base UI does for its popups'
+side, but on your component the attribute is yours: `exclusiveAcross` keeps nothing
+apart by it, so a sheet's side nested in React Aria's entering state is emitted
+rather than left out. Two values of the attribute still never meet.
+
 ## `classes`
 
 ```ts

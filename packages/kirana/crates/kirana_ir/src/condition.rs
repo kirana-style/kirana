@@ -362,12 +362,17 @@ pub struct Declared<'a> {
     /// One vocabulary per library (`conditions.exclusiveAcross`, KF-015): a component is built on one
     /// library, so two conditions that no vocabulary holds together never meet.
     pub across: &'a [Vec<String>],
+    /// Attributes the project's own components write (`conditions.ownAttributes`, KF-042): a key on
+    /// one is the component's, not a vocabulary's, though a vocabulary names it too.
+    pub own: &'a [String],
 }
 
 impl Declared<'_> {
     /// Whether the project declares `left` and `right` exclusive.
     fn exclusive(&self, left: &str, right: &str) -> bool {
-        let named = |text: &str| self.across.iter().any(|vocabulary| vocabulary.iter().any(|key| key == text));
+        let own = |text: &str| attribute_name(text).is_some_and(|name| self.own.iter().any(|own| own == name));
+        let named =
+            |text: &str| !own(text) && self.across.iter().any(|vocabulary| vocabulary.iter().any(|key| key == text));
         self.groups.iter().any(|group| group.iter().any(|key| key == left) && group.iter().any(|key| key == right))
             || named(left)
                 && named(right)
@@ -423,6 +428,13 @@ fn attributes_exclusive(left: &str, right: &str) -> bool {
         (Some((name_a, value_a)), Some((name_b, value_b))) => name_a == name_b && value_a != value_b,
         _ => false,
     }
+}
+
+/// The attribute an attribute selector tests: `data-side` for `[data-side="left"]` or `[data-side]`.
+fn attribute_name(selector: &str) -> Option<&str> {
+    let inner = selector.strip_prefix('[')?;
+    let end = inner.find(['=', '~', '|', '^', '$', '*', ']']).unwrap_or(inner.len());
+    Some(inner[..end].trim())
 }
 
 fn attribute_name_value(selector: &str) -> Option<(&str, &str)> {

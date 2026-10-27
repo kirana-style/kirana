@@ -834,7 +834,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Precedence",
     "section": "cascade",
     "heading": "Combinations that cannot match",
-    "text": "A key nested in another it can never meet, such as two values of one attribute or two libraries' states declared apart with , matches no element. Its entries are left out of the stylesheet. A style written once for several libraries can nest one state helper inside another without shipping rules nothing can match, and without a word from the compiler, since the configuration declared the libraries apart. Any other such key is a mistake, and the compiler says so with an info, ."
+    "text": "A key nested in another it can never meet, such as two values of one attribute or two libraries' states declared apart with , matches no element. Its entries are left out of the stylesheet. A style written once for several libraries can nest one state helper inside another without shipping rules nothing can match, and without a word from the compiler, since the configuration declared the libraries apart. Any other such key is a mistake, and the compiler says so with an info, . An attribute your component writes itself, whatever library it is built on, is yours even where a vocabulary names it: a sheet's , which Base UI also names for its popups. List it in , and its keys meet every library's states instead of being left out beside them."
   },
   {
     "id": "/docs/styling/precedence#layers",
@@ -4392,6 +4392,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "reference",
     "heading": "conditions.exclusiveAcross",
     "text": "One vocabulary per library a design system writes its components for: two conditions that no vocabulary holds together are exclusive, since a component is built on one library. At least two vocabularies, each entry exactly one attribute or pseudo-class selector. from builds them from the library vocabularies; see one look for several libraries ."
+  },
+  {
+    "id": "/docs/reference/config#conditions-ownattributes",
+    "href": "/docs/reference/config#conditions-ownattributes",
+    "page": "Configuration reference",
+    "section": "reference",
+    "heading": "conditions.ownAttributes",
+    "text": "Attributes your own components write, by name ( ), whatever library they are built on. A vocabulary may name one too, as Base UI does for its popups' side, but on your component the attribute is yours: keeps nothing apart by it, so a sheet's side nested in React Aria's entering state is emitted rather than left out. Two values of the attribute still never meet."
   },
   {
     "id": "/docs/reference/config#classes",

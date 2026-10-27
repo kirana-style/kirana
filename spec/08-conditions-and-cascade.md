@@ -182,7 +182,9 @@ nesting one condition inside the other writes. Exclusivity a library guarantees 
 (`[data-open]` / `[data-closed]`) is not assumed; the project declares it as `conditions.exclusive`
 ([11](./11-integrations.md#configuration)). A design system written for several libraries declares one
 vocabulary per library as `conditions.exclusiveAcross`: two simple conditions that no vocabulary holds
-together, each named by one, are exclusive, since a component is built on one library (D-099).
+together, each named by one, are exclusive, since a component is built on one library (D-099). An
+attribute listed in `conditions.ownAttributes` is one the project's components write themselves, on
+every library: a condition on it is named by no vocabulary for this rule, whichever names it (D-105).
 
 An entry whose own condition set holds two conditions the compiler knows never match one element
 together (two values of one attribute, a selector and its `:not()`, a `conditions.exclusive` group, keys

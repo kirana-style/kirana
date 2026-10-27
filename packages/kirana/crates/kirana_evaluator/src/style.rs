@@ -244,6 +244,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
         let declared = kirana_ir::Declared {
             groups: &self.ctx.config.conditions.exclusive,
             across: &self.ctx.config.conditions.exclusive_across,
+            own: &self.ctx.config.conditions.own_attributes,
         };
         for (property, first, second) in ambiguous_pairs(handle, declared) {
             self.report(
@@ -299,6 +300,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
         let declared = kirana_ir::Declared {
             groups: &self.ctx.config.conditions.exclusive,
             across: &self.ctx.config.conditions.exclusive_across,
+            own: &self.ctx.config.conditions.own_attributes,
         };
         if kirana_ir::unreachable_pair(conditions, declared).is_some() {
             // A pair only `exclusiveAcross` keeps apart is a style written once for several

@@ -85,6 +85,12 @@ and without a word from the compiler, since the configuration declared the libra
 apart. Any other such key is a mistake, and the compiler says so with an info,
 `unreachable-entry`.
 
+An attribute your component writes itself, whatever library it is built on, is
+yours even where a vocabulary names it: a sheet's `data-side`, which Base UI also
+names for its popups. List it in
+[`conditions.ownAttributes`](/docs/reference/config), and its keys meet every
+library's states instead of being left out beside them.
+
 ## Layers
 
 Everything Kirana emits is inside layers, in this order:
