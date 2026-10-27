@@ -74,6 +74,30 @@ pub struct Evaluator<'p, 'a, 'c> {
     templates: RefCell<Templates>,
     /// The style-object keys from the top of the object being built down to the current value.
     path: RefCell<Vec<Key>>,
+    /// How deep the evaluation runs [`Evaluator::quietly`]: for a value no style reads (KF-045).
+    quiet: Cell<u32>,
+    /// The `unresolved-import` and `import-cycle` reports the quiet evaluation has held back.
+    held: RefCell<Vec<Held>>,
+    /// The reports held back while a binding or a call was evaluated quietly, by what it is
+    /// memoized as: a style that reads it later makes them.
+    pending: RefCell<FxHashMap<Memo, Vec<Held>>>,
+}
+
+/// A report a quiet evaluation holds back: `unresolved-import` or `import-cycle`, with the name
+/// read, the import or the chain, and where.
+#[derive(Clone)]
+struct Held {
+    code: Code,
+    name: String,
+    detail: String,
+    span: (u32, u32),
+}
+
+/// What an evaluation is memoized as.
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+enum Memo {
+    Symbol(SymbolId),
+    Call((u32, u32)),
 }
 
 /// Takes a key off the path when the value under it is done.
@@ -100,7 +124,52 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             key_spans: RefCell::default(),
             templates: RefCell::default(),
             path: RefCell::default(),
+            quiet: Cell::new(0),
+            held: RefCell::default(),
+            pending: RefCell::default(),
         }
+    }
+
+    /// Evaluates for the transform's own questions (is this name an API, a relation?), not for a
+    /// style. A value no style reads compiles as a runtime value, which is right for it, so an
+    /// unresolved import or an import cycle it depends on is not reported (KF-045).
+    pub fn quietly<T>(&self, evaluate: impl FnOnce() -> T) -> T {
+        let start = self.held.borrow().len();
+        self.quiet.set(self.quiet.get() + 1);
+        let value = evaluate();
+        self.quiet.set(self.quiet.get() - 1);
+        // Kept only with what they were held for (`pending`).
+        self.held.borrow_mut().truncate(start);
+        value
+    }
+
+    /// Memoizes what evaluating `memo` held back since `start`, a length of `held`.
+    fn keep_held(&self, memo: Memo, start: usize) {
+        let held = self.held.borrow();
+        if held.len() > start {
+            self.pending.borrow_mut().insert(memo, held[start..].to_vec());
+        }
+    }
+
+    /// A memoized binding or call is read again: what its quiet evaluation held back is held again
+    /// by a quiet one, and reported by a loud one.
+    fn replay_held(&self, memo: Memo) {
+        let Some(held) = self.pending.borrow().get(&memo).cloned() else { return };
+        for report in held {
+            match report.code {
+                Code::ImportCycle => self.report_cycle(&report.name, &report.detail, report.span),
+                _ => self.report_unresolved(&report.name, &report.detail, report.span),
+            }
+        }
+    }
+
+    /// Holds a report back in a quiet evaluation; `true` when it did.
+    fn hold(&self, code: Code, name: &str, detail: &str, span: (u32, u32)) -> bool {
+        let quiet = self.quiet.get() > 0;
+        if quiet {
+            self.held.borrow_mut().push(Held { code, name: name.to_string(), detail: detail.to_string(), span });
+        }
+        quiet
     }
 
     /// The parsed module.
@@ -341,6 +410,9 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                         alternate: Value::Bool(false),
                     }));
                 }
+                // The right side may be the value at runtime: what it depends on is read too, and
+                // reported (KF-045).
+                self.eval(&logical.right);
                 open()
             }
             Expression::ConditionalExpression(conditional) => {
@@ -515,6 +587,9 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
     /// Reports an unresolved import once per module: every value that depends on it compiles as a
     /// runtime value, which is rarely what the author meant.
     fn report_unresolved(&self, name: &str, import: &str, span: (u32, u32)) {
+        if self.hold(Code::UnresolvedImport, name, import, span) {
+            return;
+        }
         let reported = self
             .diagnostics
             .borrow()
@@ -534,6 +609,9 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
     /// closes it reads the other half before it is evaluated, so the value compiles as a runtime
     /// value whatever it holds (KF-038).
     fn report_cycle(&self, name: &str, chain: &str, span: (u32, u32)) {
+        if self.hold(Code::ImportCycle, name, chain, span) {
+            return;
+        }
         let reported = self
             .diagnostics
             .borrow()
@@ -551,11 +629,15 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
 
     /// The value a module-scope or local binding holds, or unknown.
     pub fn symbol_value(&self, symbol: SymbolId) -> Value {
-        if let Some(slot) = self.symbols.borrow().get(&symbol) {
-            return slot.clone().unwrap_or_else(|| Value::unknown("cycle"));
+        let slot = self.symbols.borrow().get(&symbol).cloned();
+        if let Some(slot) = slot {
+            self.replay_held(Memo::Symbol(symbol));
+            return slot.unwrap_or_else(|| Value::unknown("cycle"));
         }
         self.symbols.borrow_mut().insert(symbol, None);
+        let start = self.held.borrow().len();
         let value = self.compute_symbol(symbol);
+        self.keep_held(Memo::Symbol(symbol), start);
         self.symbols.borrow_mut().insert(symbol, Some(value.clone()));
         value
     }
@@ -712,9 +794,12 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
 
     fn call(&self, call: &oxc_ast::ast::CallExpression<'a>) -> Value {
         let span = sp(call.span);
-        if let Some(value) = self.calls.borrow().get(&span) {
-            return value.clone();
+        let memoized = self.calls.borrow().get(&span).cloned();
+        if let Some(value) = memoized {
+            self.replay_held(Memo::Call(span));
+            return value;
         }
+        let start = self.held.borrow().len();
         let callee = self.eval(&call.callee);
         let value = match &callee {
             Value::Api(api) => self.api_call(*api, call),
@@ -740,6 +825,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                 Value::Dynamic(Arc::new(Dynamic::Open(span)))
             }
         };
+        self.keep_held(Memo::Call(span), start);
         self.calls.borrow_mut().insert(span, value.clone());
         value
     }

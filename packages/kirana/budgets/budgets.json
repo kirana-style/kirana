@@ -1009,6 +1009,18 @@
           "brotli": 183
         }
       },
+      "unresolved-reads": {
+        "css": {
+          "raw": 196,
+          "gzip": 138,
+          "brotli": 116
+        },
+        "js": {
+          "raw": 1009,
+          "gzip": 516,
+          "brotli": 438
+        }
+      },
       "utility-surface": {
         "css": {
           "raw": 1612,

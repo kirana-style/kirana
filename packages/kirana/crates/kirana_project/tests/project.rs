@@ -183,7 +183,8 @@ fn a_component_imported_from_its_own_module() {
     let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("card.tsx", card)]);
     let codes: Vec<Code> =
         project.transform(&root.join("card.tsx"), card).diagnostics.iter().map(|diagnostic| diagnostic.code).collect();
-    assert_eq!(codes, [Code::ImportCycle]);
+    // `Same` closes the cycle, but it names a component: no style reads it (KF-045).
+    assert_eq!(codes, []);
     fs::remove_dir_all(root).unwrap();
 }
 
