@@ -141,6 +141,7 @@ fn methods_keys_and_expressions_compare() {
     assert_ne!(Method::Select { child: true }, Method::Select { child: false });
     let descriptor = Descriptor {
         params: 1,
+        defaults: vec![(0, Expr::Value(Value::str("1")))],
         body: Expr::Template { quasis: vec!["".into(), "px".into()], expressions: vec![Expr::Param(0)] },
     };
     assert_eq!(descriptor.clone(), descriptor);

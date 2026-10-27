@@ -39,7 +39,18 @@ fn is_primitive(value: &Value) -> bool {
     matches!(value, Value::Undefined | Value::Null | Value::Bool(_) | Value::Number(_) | Value::Str(_))
 }
 
+/// A token compared as what the compiled code holds in its place: its CSS text, a string, so a
+/// variable token never equals a keyword (`color === "none"`) and two tokens are equal when they
+/// are one (KF-039).
+fn compared(value: &Value) -> Value {
+    match value {
+        Value::Token(token) => Value::str(&token.css),
+        other => other.clone(),
+    }
+}
+
 fn strict_equals(left: &Value, right: &Value) -> Option<bool> {
+    let (left, right) = (&compared(left), &compared(right));
     if !is_primitive(left) || !is_primitive(right) {
         return None;
     }
@@ -50,6 +61,7 @@ fn strict_equals(left: &Value, right: &Value) -> Option<bool> {
 }
 
 fn loose_equals(left: &Value, right: &Value) -> Option<bool> {
+    let (left, right) = (&compared(left), &compared(right));
     if !is_primitive(left) || !is_primitive(right) {
         return None;
     }
@@ -101,6 +113,15 @@ pub fn binary(operator: BinaryOp, left: &Value, right: &Value) -> Option<Value> 
         BinaryOp::StrictNotEq => Value::Bool(!strict_equals(left, right)?),
         BinaryOp::Eq => Value::Bool(loose_equals(left, right)?),
         BinaryOp::NotEq => Value::Bool(!loose_equals(left, right)?),
+        // `in` on a static object or array: whether the key is one of its own (KF-039).
+        BinaryOp::In => {
+            let key = to_string(left)?;
+            Value::Bool(match right {
+                Value::Object(_) => right.get(&key).is_some(),
+                Value::Array(items) => key == "length" || key.parse::<usize>().is_ok_and(|index| index < items.len()),
+                _ => return None,
+            })
+        }
         BinaryOp::Lt | BinaryOp::LtEq | BinaryOp::Gt | BinaryOp::GtEq => {
             if !is_primitive(left) || !is_primitive(right) {
                 return None;
@@ -135,7 +156,7 @@ pub fn unary(operator: UnaryOp, argument: &Value) -> Option<Value> {
             Value::Null | Value::Array(_) | Value::Object(_) => "object",
             Value::Bool(_) => "boolean",
             Value::Number(_) => "number",
-            Value::Str(_) => "string",
+            Value::Str(_) | Value::Token(_) => "string",
             Value::Function(_) => "function",
             _ => return None,
         }),

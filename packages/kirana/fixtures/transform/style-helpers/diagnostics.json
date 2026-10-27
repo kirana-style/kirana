@@ -1,0 +1,38 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2161,
+      "end": 2167
+    },
+    "message": "gap is set at runtime through --kJ",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2177,
+      "end": 2184
+    },
+    "message": "rowGap is set at runtime through --kK",
+    "help": []
+  },
+  {
+    "code": "KRN1501",
+    "name": "unknown-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2224,
+      "end": 2231
+    },
+    "message": "the token group has no token \"7\"",
+    "help": []
+  }
+]

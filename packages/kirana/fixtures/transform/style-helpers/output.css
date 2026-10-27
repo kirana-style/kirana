@@ -1,0 +1,72 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  :root {
+    --kvkup3: blue;
+  }
+}
+@layer kirana.atoms {
+  .k0_ugRr {
+    padding: 2.25rem;
+  }
+  .kg_Jl4D {
+    border-top-width: 1px;
+  }
+  .ki_FEoY {
+    border-bottom-width: 2px;
+  }
+  .kl_1SlD {
+    border-top-color: currentColor;
+  }
+  .kn_1SlD {
+    border-bottom-color: currentColor;
+  }
+  .kq_L7uX {
+    border-top-style: solid;
+  }
+  .ks_L7uX {
+    border-bottom-style: solid;
+  }
+  .kJ_tbhO {
+    gap: var(--kJ);
+  }
+  .k1_5QUl {
+    padding-bottom: 2rem;
+  }
+  .k4M_5Jqb {
+    box-shadow: 0 0 0 3px red;
+  }
+  .k4M_Daph {
+    box-shadow: 0 0 0 2px var(--kvkup3);
+  }
+  .k4M_Im6t {
+    box-shadow: none;
+  }
+  .k4_5QUl {
+    padding-top: 2rem;
+  }
+  .k6_La0C {
+    margin-bottom: 2.25rem;
+  }
+  .k9_La0C {
+    margin-top: 2.25rem;
+  }
+  .kK_fMuJ {
+    row-gap: var(--kK);
+  }
+  .kh_kbjD {
+    border-right-width: 2px;
+  }
+  .kj_eK8R {
+    border-left-width: 1px;
+  }
+  .k1-KFHz_La0C:where(:hover) {
+    padding-bottom: 2.25rem;
+  }
+  .k4M-KFHz_bZnJ:where(:hover) {
+    box-shadow: 0 0 0 1px blue;
+  }
+  .k4M-KFHz_kr9c:where(:hover) {
+    box-shadow: 0 0 0 1px red;
+  }
+}
