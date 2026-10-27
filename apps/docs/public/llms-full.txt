@@ -10504,7 +10504,8 @@ npx kirana-style ui init
 
 - it sets Kirana up where the project lacks it, as `kirana-style init` does;
 - it maps the `@/*` alias in `tsconfig.json` when the project has none, and tells
-  Vite to read it;
+  Vite to read it; a JavaScript Next.js app gets the `tsconfig.json` Next.js
+  would write, and TypeScript, since the components are TypeScript;
 - it installs the registry's design system and wires it in: its configuration in
   `kirana.config.ts`, its reset beside Kirana's stylesheet, its styles on
   `<html>`.

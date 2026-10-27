@@ -48,7 +48,11 @@ export type Plan = {
   development: string[]
 }
 
-export type InitOptions = { preset?: boolean }
+export type InitOptions = {
+  preset?: boolean
+  /** The caller writes the project's `tsconfig.json` with this setup (`ui init` on Next.js, KF-046). */
+  typescript?: boolean
+}
 
 const STYLESHEET = "@kirana-style/core/stylesheet.css"
 const SCRIPTS = ["tsx", "ts", "jsx", "js"]
@@ -1123,7 +1127,10 @@ function typesStep(files: Files, project: Detected): Step {
 
 /** What `kirana-style init` would do in `root`. */
 export function plan(root: string, options: InitOptions = {}): Plan {
-  const project = detect(root)
+  const detected = detect(root)
+  const project = options.typescript
+    ? { ...detected, typescript: true }
+    : detected
   const files = new Files(root)
   const steps = [
     configStep(files, project, options),

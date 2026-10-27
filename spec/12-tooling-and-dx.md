@@ -234,7 +234,10 @@ exactly, with the package manager's exact flag, so the project can run `kirana-s
 (D-111). A named import it adds joins the module's existing named import of the same module. The
 check after writing (for `init`, `add`, `update` and `preset`) MUST leave out `relation-unused` for a
 relation declared in a file of a design-system item it installed: the items that read it come
-later.
+later. A Next.js app without a `tsconfig.json` (a JavaScript one, as Next.js writes its tsconfig
+only on its first run) MUST get one: the options Next.js requires, `noEmit` and the `@/*` alias,
+with `typescript`, `@types/react` and `@types/node` installed, since the items are TypeScript
+(KF-046).
 
 **KRN-DX-030** — `kirana-style ui outdated [item…]` and `ui diff [item…]` MUST read each installed
 item (every one in the lockfile by default) again from its registry, place it as installing it now
