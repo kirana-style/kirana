@@ -32,6 +32,12 @@ export const DIAGNOSTICS: readonly DiagnosticEntry[] = [
     "family": "Evaluation"
   },
   {
+    "code": "KRN1104",
+    "name": "import-cycle",
+    "severity": "warning",
+    "family": "Evaluation"
+  },
+  {
     "code": "KRN1201",
     "name": "unknown-property",
     "severity": "error",

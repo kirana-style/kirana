@@ -1,0 +1,52 @@
+[
+  {
+    "code": "KRN1104",
+    "name": "import-cycle",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 196,
+      "end": 200
+    },
+    "message": "`tone` reads a value through an import cycle, value-a.ts → value-b.ts → value-a.ts, so it compiles as a runtime value",
+    "help": [
+      "move what both modules need into a module of its own, which neither of them imports back"
+    ]
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 196,
+      "end": 200
+    },
+    "message": "color is set at runtime through --k50",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 215,
+      "end": 223
+    },
+    "message": "borderColor is set at runtime through --kk",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 239,
+      "end": 253
+    },
+    "message": "outlineColor is set at runtime through --k8b",
+    "help": []
+  }
+]

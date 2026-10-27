@@ -28,6 +28,10 @@ const MAX_DEPTH: u32 = 64;
 /// value, key or module specifier Kirana reads can carry one.
 const LONE_SURROGATE: &str = "a string with a lone surrogate";
 
+/// Why an import is not evaluated: `import type` and `import { type … }` name a type, which erases
+/// at runtime and holds no value, so following it would only make import cycles (KF-038).
+const TYPE_ONLY: &str = "a type-only import";
+
 /// A template's text between expressions, as cooked: none when it holds a lone surrogate. Only a
 /// tagged template leaves `cooked` unset, and Kirana evaluates none.
 fn quasi_text<'s>(quasi: &TemplateElement<'s>) -> Option<&'s str> {
@@ -493,6 +497,9 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         if let Some(import) = value.unresolved_import() {
             self.report_unresolved(identifier.name.as_str(), import, span);
         }
+        if let Some(chain) = value.import_cycle() {
+            self.report_cycle(identifier.name.as_str(), chain, span);
+        }
         // A binding of a plain object (`const s = Object.fromEntries(…)`) is one as well.
         if let Value::Dynamic(dynamic) = &value
             && let Dynamic::Open(bound) = &**dynamic
@@ -523,6 +530,25 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         }
     }
 
+    /// Reports a value cut short by an import cycle once per module and cycle: the module that
+    /// closes it reads the other half before it is evaluated, so the value compiles as a runtime
+    /// value whatever it holds (KF-038).
+    fn report_cycle(&self, name: &str, chain: &str, span: (u32, u32)) {
+        let reported = self
+            .diagnostics
+            .borrow()
+            .iter()
+            .any(|existing| existing.code == Code::ImportCycle && existing.message.contains(chain));
+        if !reported {
+            self.report(
+                Code::ImportCycle,
+                span,
+                format!("`{name}` reads a value through an import cycle, {chain}, so it compiles as a runtime value"),
+                Some("move what both modules need into a module of its own, which neither of them imports back"),
+            );
+        }
+    }
+
     /// The value a module-scope or local binding holds, or unknown.
     pub fn symbol_value(&self, symbol: SymbolId) -> Value {
         if let Some(slot) = self.symbols.borrow().get(&symbol) {
@@ -546,6 +572,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                 let value = declarator.init.as_ref().map_or(Value::Undefined, |init| self.eval(init));
                 self.destructure(&declarator.id, value, symbol).unwrap_or_else(|| Value::unknown("pattern"))
             }
+            AstKind::ImportSpecifier(specifier) if specifier.import_kind.is_type() => Value::unknown(TYPE_ONLY),
             AstKind::ImportSpecifier(specifier) => {
                 self.import(declaration, ImportName::Named(export_name(&specifier.imported)))
             }
@@ -617,6 +644,9 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
     fn import(&self, declaration: oxc_semantic::NodeId, name: ImportName) -> Value {
         // A specifier's parent is always its import declaration.
         let parent = self.parsed.semantic.nodes().parent_kind(declaration);
+        if parent.as_import_declaration().is_some_and(|import| import.import_kind.is_type()) {
+            return Value::unknown(TYPE_ONLY);
+        }
         let Some(source) = parent.as_import_declaration().map_or(Some(""), |import| import.source.value.as_str())
         else {
             return Value::unknown(LONE_SURROGATE);
@@ -921,12 +951,22 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                     }
                     _ => {}
                 },
-                Statement::ExportNamedDeclaration(export) => {
-                    names.extend(export.specifiers.iter().map(|specifier| export_name(&specifier.exported)));
-                }
-                Statement::ExportFromDeclaration(export) => {
-                    names.extend(export.specifiers.iter().map(|specifier| export_name(&specifier.exported)));
-                }
+                Statement::ExportNamedDeclaration(export) if !export.export_kind.is_type() => names.extend(
+                    export
+                        .specifiers
+                        .iter()
+                        .filter(|specifier| !specifier.export_kind.is_type())
+                        .map(|specifier| export_name(&specifier.exported)),
+                ),
+                // `export type { … } from` names types: evaluating them would import the module for
+                // nothing, and close a cycle the runtime never has (KF-038).
+                Statement::ExportFromDeclaration(export) if !export.export_kind.is_type() => names.extend(
+                    export
+                        .specifiers
+                        .iter()
+                        .filter(|specifier| !specifier.export_kind.is_type())
+                        .map(|specifier| export_name(&specifier.exported)),
+                ),
                 Statement::ExportDefaultDeclaration(_) => names.push("default".to_owned()),
                 Statement::ExportAllDeclaration(export) => names.extend(export.exported.as_ref().map(export_name)),
                 _ => {}
@@ -965,13 +1005,16 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                             .map_or(Value::Undefined, |symbol| self.symbol_value(symbol))
                     })
                 }),
-                Statement::ExportFromDeclaration(export) => export.specifiers.iter().find_map(|specifier| {
-                    (export_name(&specifier.exported) == name).then(|| {
-                        let local = export_name(&specifier.local);
-                        let import = if local == "default" { ImportName::Default } else { ImportName::Named(local) };
-                        self.import_from(&export.source, &import)
+                Statement::ExportFromDeclaration(export) if !export.export_kind.is_type() => {
+                    export.specifiers.iter().find_map(|specifier| {
+                        (!specifier.export_kind.is_type() && export_name(&specifier.exported) == name).then(|| {
+                            let local = export_name(&specifier.local);
+                            let import =
+                                if local == "default" { ImportName::Default } else { ImportName::Named(local) };
+                            self.import_from(&export.source, &import)
+                        })
                     })
-                }),
+                }
                 Statement::ExportDefaultDeclaration(export) if name == "default" => Some(match &export.declaration {
                     oxc_ast::ast::ExportDefaultDeclarationKind::FunctionDeclaration(function) => {
                         self.lower_declared_function(function)

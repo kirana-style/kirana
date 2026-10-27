@@ -287,6 +287,9 @@ pub struct Descriptor {
 /// The reason prefix of [`Value::unresolved`].
 const UNRESOLVED: &str = "unresolved import ";
 
+/// The reason prefix of [`Value::cycle`].
+const CYCLE: &str = "import cycle ";
+
 /// An evaluated value.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value {
@@ -332,6 +335,22 @@ impl Value {
     /// The value of an import whose specifier did not resolve from the file `from`.
     pub fn unresolved(specifier: &str, from: &str) -> Value {
         Value::unknown(format!("{UNRESOLVED}{specifier:?} from {from}"))
+    }
+
+    /// The value of an import that closes a cycle (`a.ts → b.ts → a.ts`): the module it names is
+    /// still being evaluated, so none of its exports is known yet.
+    pub fn cycle(chain: &str) -> Value {
+        Value::unknown(format!("{CYCLE}{chain}"))
+    }
+
+    /// The first import cycle (`a.ts → b.ts → a.ts`) this value was cut short by.
+    pub fn import_cycle(&self) -> Option<&str> {
+        match self {
+            Value::Unknown(reason) => reason.strip_prefix(CYCLE),
+            Value::Array(items) => items.iter().find_map(Value::import_cycle),
+            Value::Object(entries) => entries.iter().find_map(|(_, value)| value.import_cycle()),
+            _ => None,
+        }
     }
 
     /// The first unresolved import (`"specifier" from file`) this value depends on.

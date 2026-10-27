@@ -89,6 +89,13 @@ and **`invalid-counter-style`** report a value the browser would drop or misread
 its value compiles as a runtime value. Check the specifier and your tsconfig
 paths.
 
+**`import-cycle`**: a value a style reads comes through an import cycle, and the
+message names it (`core/states.ts → core/kirana.ts → core/states.ts`). The module
+that closes the cycle reads the other one before it has been evaluated, so the
+value compiles as a runtime value. Move what both modules need into a module of
+its own that neither imports back. A type-only import (`import type`,
+`import { type … }`) holds no value and never makes a cycle.
+
 ## Reading one
 
 ```console

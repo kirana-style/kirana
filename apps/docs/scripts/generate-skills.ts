@@ -37,6 +37,8 @@ const FIXES: Record<string, string> = {
     "The expression is valid JavaScript the evaluator does not run in a style (calling a non-function, applying a plain object as a style). Wrap style objects in `css()`; move logic out of the style.",
   "unresolved-import":
     "An import a style depends on did not resolve, so its value is treated as runtime. Check the specifier and `tsconfig` paths.",
+  "import-cycle":
+    "A value a style reads comes through an import cycle (`a.ts → b.ts → a.ts`): the module that closes it reads the other before it is evaluated, so the value is treated as runtime. Move what both need into a module neither imports back. `import type` never makes a cycle.",
   "unknown-property":
     "Not a CSS property (a typo such as `colour`, or a Tailwind class name used as a key). Use the camelCase CSS property name.",
   "invalid-value":

@@ -572,6 +572,11 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
         walk::walk_jsx_opening_element(self, element);
     }
 
+    /// A type holds no value: its names are types (`Record<string, StateKeys>`), and evaluating
+    /// them would import modules a type-only import names, closing cycles the runtime never has
+    /// (KF-038).
+    fn visit_ts_type(&mut self, _: &oxc_ast::ast::TSType<'a>) {}
+
     fn visit_identifier_reference(&mut self, identifier: &IdentifierReference<'a>) {
         if self.callee_identifiers.contains(&identifier.span.start) {
             return;

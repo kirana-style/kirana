@@ -144,7 +144,12 @@ engine's resolver does not know.
 
 An entry is reused only when its content hash and every provenance hash still match. Descriptors are
 lowered while the module's AST is alive and stored as owned data, so cached modules do not pin arenas.
-Cycles are detected with an in-progress marker and reported as `not-evaluable`.
+Type-only imports and re-exports (`import type`, `import { type … }`, `export type { … } from`) name
+no value and are never followed. A value import that closes a cycle (the module it names is still
+being evaluated, further up) reads as a runtime value: `import-cycle` (a warning) where a module reads
+it, naming the chain. A module's exports computed while a cycle cut one of its imports short through a
+module further up are not cached: they depend on where the evaluation started, and a cached copy would
+give another importer, or another thread, a different answer (KF-038).
 
 ## Style IR
 
@@ -369,6 +374,7 @@ help: move `field.anchor` to the element that wraps both, or use `field.after(�
 | KRN1101 | `not-evaluable`                 | error    | 10        |
 | KRN1102 | `unsupported-syntax`            | error    | 10        |
 | KRN1103 | `unresolved-import`             | warning  | 10        |
+| KRN1104 | `import-cycle`                  | warning  | 10        |
 | KRN1201 | `unknown-property`              | error    | 06        |
 | KRN1202 | `invalid-value`                 | error    | 06        |
 | KRN1203 | `unitless-length`               | error    | 06        |
