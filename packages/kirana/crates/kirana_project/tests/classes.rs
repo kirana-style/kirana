@@ -125,11 +125,12 @@ fn star_cycles_and_unresolved_sources_end() {
 
 #[test]
 fn externals_are_runtime_values_without_a_warning() {
-    let source = "import templateOnly from \"@ember/component/template-only\"\nimport { css } from \"@kirana-style/core\"\nexport const a = css({ color: \"red\" })\nexport default templateOnly()\n";
+    // A style reads `accent`; `templateOnly()` is read by none, so it is quiet either way (KF-045).
+    let source = "import templateOnly from \"@ember/component/template-only\"\nimport { accent } from \"@ember/-internals/theme\"\nimport { css } from \"@kirana-style/core\"\nexport const a = css({ color: accent })\nexport default templateOnly()\n";
     let codes = |classes: &str| {
         let (root, project) = temp_project(classes, &[("package.json", r#"{"name":"app"}"#), ("a.js", source)]);
         project.transform(&root.join("a.js"), source).diagnostics.iter().map(|d| d.code).collect::<Vec<_>>()
     };
-    assert_eq!(codes(""), [Code::UnresolvedImport]);
-    assert_eq!(codes(r#","externals":["@glimmer/","@ember/"]"#), []);
+    assert_eq!(codes(""), [Code::UnresolvedImport, Code::DynamicBridged]);
+    assert_eq!(codes(r#","externals":["@glimmer/","@ember/"]"#), [Code::DynamicBridged]);
 }

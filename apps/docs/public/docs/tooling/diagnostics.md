@@ -81,7 +81,8 @@ and **`invalid-counter-style`** report a value the browser would drop or misread
 
 **`unresolved-import`**: an import a style depends on could not be resolved, so
 its value compiles as a runtime value. Check the specifier and your tsconfig
-paths.
+paths. An import no style reads, such as a string from a Vite virtual module
+passed as a prop, is a runtime value already and is not reported.
 
 **`import-cycle`**: a value a style reads comes through an import cycle, and the
 message names it (`core/states.ts → core/kirana.ts → core/states.ts`). The module

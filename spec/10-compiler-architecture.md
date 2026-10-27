@@ -146,14 +146,16 @@ Kirana packages — named `@kirana-style/*` or declaring `@kirana-style/core` in
 preset or design system from npm folds exactly as its workspace copy does, while icon sets and utility
 libraries are never parsed. Any other installed module is a runtime value. An import that does not resolve
 at all makes every value depending on it a runtime value and produces the `unresolved-import` warning, once
-per import per module, at the first use: that is almost always missing dependencies or an alias the
-engine's resolver does not know.
+per import per module, where a style first reads it: that is almost always missing dependencies or an
+alias the engine's resolver does not know. A value no style reads (a prop, a callee, a component's name,
+a Vite virtual module's string) is a runtime value anyway and is not reported, nor is an import cycle
+behind it (KF-045).
 
 An entry is reused only when its content hash and every provenance hash still match. Descriptors are
 lowered while the module's AST is alive and stored as owned data, so cached modules do not pin arenas.
 Type-only imports and re-exports (`import type`, `import { type … }`, `export type { … } from`) name
 no value and are never followed. A value import that closes a cycle (the module it names is still
-being evaluated, further up) reads as a runtime value: `import-cycle` (a warning) where a module reads
+being evaluated, further up) reads as a runtime value: `import-cycle` (a warning) where a style reads
 it, naming the chain. A module's exports computed while a cycle cut one of its imports short through a
 module further up are not cached: they depend on where the evaluation started, and a cached copy would
 give another importer, or another thread, a different answer (KF-038).

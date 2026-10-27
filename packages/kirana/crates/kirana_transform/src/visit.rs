@@ -115,8 +115,9 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
         self.diagnostics.push(diagnostic);
     }
 
+    /// The callee when it is Kirana's: any call's callee is asked, so quietly (KF-045).
     fn kirana_callee(&self, callee: &Expression<'a>) -> Option<Value> {
-        let value = self.evaluator.eval(callee);
+        let value = self.evaluator.quietly(|| self.evaluator.eval(callee));
         matches!(value, Value::Api(_) | Value::Method(_) | Value::Recipe(_)).then_some(value)
     }
 
@@ -582,7 +583,9 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
         if self.callee_identifiers.contains(&identifier.span.start) {
             return;
         }
-        if let Value::Api(api) = self.evaluator.eval_identifier(identifier) {
+        // Every name is asked whether it is an API used without a call; a value no style reads
+        // reports nothing it depends on (KF-045).
+        if let Value::Api(api) = self.evaluator.quietly(|| self.evaluator.eval_identifier(identifier)) {
             if api == Api::Mode {
                 self.mode_object(sp(identifier.span));
             } else {
@@ -600,7 +603,7 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
         // Any reference to `relation.anchor` applies the anchor somewhere: through `sx` on a
         // component, `mergeSx()`, or a render prop (KRN-CAS-005, rule R1).
         if member.property.name.as_str() == "anchor"
-            && let Value::Relation(relation) = self.evaluator.eval(&member.object)
+            && let Value::Relation(relation) = self.evaluator.quietly(|| self.evaluator.eval(&member.object))
             && !self.anchors.contains(&relation.marker)
         {
             self.anchors.push(relation.marker.clone());

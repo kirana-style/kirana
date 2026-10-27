@@ -14,20 +14,6 @@
     ]
   },
   {
-    "code": "KRN1103",
-    "name": "unresolved-import",
-    "severity": "warning",
-    "file": "input.tsx",
-    "span": {
-      "start": 758,
-      "end": 762
-    },
-    "message": "`Card` depends on \"./card\" from input.tsx, which cannot be resolved, so it compiles as a runtime value",
-    "help": [
-      "install the project's dependencies, or check the specifier and the tsconfig paths"
-    ]
-  },
-  {
     "code": "KRN1601",
     "name": "dynamic-bridged",
     "severity": "info",
