@@ -76,8 +76,8 @@ const runtime = option("runtime") ?? "node"
  * The component registry's installer on a React example (KRN-DX-028, KRN-DX-029, KRN-DX-032): after
  * the install, `kirana-style ui init`, `ui add` and `ui preset` from a fixture registry
  * (`registry/`), the installed button mounted beside the probe, then the build and the page read back as usual, the button and
- * `<html>` included. npm only. A JavaScript example gets TypeScript first, as `create-next-app`'s
- * default app has it, since registry items are TypeScript.
+ * `<html>` included. npm only. A JavaScript Next.js example is left without a tsconfig: `ui init`
+ * gives it Next.js's, and the TypeScript the items are written in (KF-046).
  */
 const registry = args.includes("--registry")
 /**
@@ -314,40 +314,6 @@ try {
       // The command, which Kirana's own setup asks for: listed already, since npm refuses to add
       // a package the runner overrides.
       "kirana-style": file("kirana-style"),
-    }
-    if (!existsSync(path.join(directory, "tsconfig.json"))) {
-      Object.assign(manifest.devDependencies, {
-        typescript: "^5.9.0",
-        "@types/react": "^19.0.0",
-        "@types/node": "^24.0.0",
-      })
-      writeFileSync(
-        path.join(directory, "tsconfig.json"),
-        `${JSON.stringify(
-          {
-            compilerOptions: {
-              target: "ES2022",
-              module: "esnext",
-              moduleResolution: "bundler",
-              jsx: "preserve",
-              allowJs: true,
-              strict: true,
-              noEmit: true,
-              skipLibCheck: true,
-              isolatedModules: true,
-              esModuleInterop: true,
-              resolveJsonModule: true,
-              incremental: true,
-              types: ["@kirana-style/core/react"],
-              plugins: [{ name: "next" }],
-            },
-            include: ["**/*.ts", "**/*.tsx", "**/*.jsx", "next-env.d.ts"],
-            exclude: ["node_modules"],
-          },
-          null,
-          2
-        )}\n`
-      )
     }
   }
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)

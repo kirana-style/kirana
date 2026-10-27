@@ -195,16 +195,52 @@ async function designOf(
 }
 
 /**
+ * What Next.js requires of a `tsconfig.json`, and `noEmit`, which it suggests: a JavaScript app has
+ * none until `next` writes one, and `ui` items are TypeScript (KF-046). Next.js fills in the rest on
+ * its first run. As `next` 16.3 checks them (`writeConfigurationDefaults`).
+ */
+const NEXT_TSCONFIG = `${JSON.stringify(
+  {
+    compilerOptions: {
+      target: "ES2017",
+      lib: ["dom", "dom.iterable", "esnext"],
+      allowJs: true,
+      skipLibCheck: true,
+      noEmit: true,
+      module: "esnext",
+      esModuleInterop: true,
+      moduleResolution: "bundler",
+      resolveJsonModule: true,
+      isolatedModules: true,
+      jsx: "react-jsx",
+      incremental: true,
+      plugins: [{ name: "next" }],
+    },
+  },
+  null,
+  2
+)}\n`
+
+/** The packages Next.js needs to compile TypeScript, which it installs itself only outside CI. */
+const NEXT_TYPESCRIPT = ["typescript", "@types/react", "@types/node"]
+
+/** A Next.js app without a `tsconfig.json`, which `init` gives one (KF-046). */
+const untypedNext = (root: string, listed: Readonly<Record<string, string>>) =>
+  "next" in listed && !existsSync(path.join(root, "tsconfig.json"))
+
+/**
  * Aliases the project can resolve (D-108): `ui.aliases` as they are when its tsconfig maps them;
  * else following the prefix its `paths` already use (`~/*`, as TanStack Start's template has); else
- * `"@/*"` added to the tsconfig that holds its compiler options, with Vite told to read it.
+ * `"@/*"` added to the tsconfig that holds its compiler options, with Vite told to read it; a
+ * Next.js app without one gets one first.
  */
 function prepareAliases(
   files: Files,
   settings: Settings,
   chosen: Chosen,
   report: string[],
-  manual: string[]
+  manual: string[],
+  next: boolean
 ): Settings {
   const root = files.root
   const planned = files.absolute
@@ -214,6 +250,12 @@ function prepareAliases(
     return settings
   } catch {
     // Not mapped: below.
+  }
+  if (next) {
+    files.write("tsconfig.json", NEXT_TSCONFIG)
+    report.push(
+      "tsconfig.json: Next.js's compiler options, as `next` would write them"
+    )
   }
   const found = pathsOf(path.join(root, "tsconfig.json"), planned)
   if (found) {
@@ -647,7 +689,8 @@ export async function runInit(
   }
 
   // Kirana's own setup, as `kirana-style init` plans it.
-  const kirana = planInit(root)
+  const next = untypedNext(root, project.listed)
+  const kirana = planInit(root, { typescript: next })
   const files = new Files(root)
   const report: string[] = []
   const manual: string[] = []
@@ -687,7 +730,7 @@ export async function runInit(
       Object.assign(chosen, given)
       settings = { ...settings, ...given }
     }
-    settings = prepareAliases(files, settings, chosen, report, manual)
+    settings = prepareAliases(files, settings, chosen, report, manual, next)
     planned = await plan([design], settings, project, options)
     placed = place(planned, settings, project, files.absolute)
     const system = planned.at(-1)!.item
@@ -735,6 +778,9 @@ export async function runInit(
   const development = [
     ...kirana.development,
     ...(REGISTRY in project.listed ? [] : [REGISTRY]),
+    ...(next
+      ? NEXT_TYPESCRIPT.filter((name) => !(name in project.listed))
+      : []),
   ]
   const commands = [
     ...installCommand(

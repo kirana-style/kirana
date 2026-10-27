@@ -260,6 +260,40 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     expect(layout).toContain('import { htmlStyles } from "@/lib/kit/document"')
     expect(read(cwd, "lib/kit/config.ts")).toBe("export const kitConfig = {}\n")
 
+    // A JavaScript Next.js app, as `next-turbopack`'s template is: no tsconfig until `next` writes
+    // one, so `init` writes Next.js's own, with the alias and the TypeScript the items need (KF-046).
+    const untyped = project({
+      "package.json": JSON.stringify({
+        dependencies: { next: "^16.0.0", react: "19", "react-dom": "19" },
+        devDependencies: { "@types/react": "19" },
+      }),
+      "app/layout.jsx":
+        'import "./globals.css"\n\nexport default function RootLayout({ children }) {\n  return (\n    <html lang="en">\n      <body>{children}</body>\n    </html>\n  )\n}\n',
+      "app/globals.css": "",
+      "acme/kit.json": JSON.stringify(kit()),
+      "acme/index.json": JSON.stringify(INDEX),
+    })
+    const typed = await init(untyped, "--registry", ACME)
+    expect(typed.code).toBe(0)
+    expect(typed.text).toContain("kirana: types: create kirana.d.ts")
+    expect(typed.text).toContain(
+      "setup: tsconfig.json: Next.js's compiler options, as `next` would write them"
+    )
+    expect(typed.text).toContain('setup: tsconfig.json: paths "@/*": ["./*"]')
+    expect(typed.commands.at(-1)).toMatch(/ -D .*typescript @types\/node$/)
+    const tsconfig = JSON.parse(read(untyped, "tsconfig.json")) as {
+      compilerOptions: Record<string, unknown>
+    }
+    expect(tsconfig.compilerOptions).toMatchObject({
+      paths: { "@/*": ["./*"] },
+      noEmit: true,
+      jsx: "react-jsx",
+      plugins: [{ name: "next" }],
+    })
+    expect(read(untyped, "app/layout.jsx")).toContain(
+      'import { htmlStyles } from "@/lib/kit/document"'
+    )
+
     const tilde = vite({
       "tsconfig.app.json":
         '{ "compilerOptions": { "paths": { "#x": ["./x"], "~/*": ["./src/*"] } } }',
