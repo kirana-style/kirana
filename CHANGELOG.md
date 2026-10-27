@@ -5,30 +5,30 @@
 
 ### Features
 
-* conditions.ownAttributes, attributes exclusiveAcross never takes for a library's ([#147](https://github.com/kirana-style/kirana/issues/147)) ([9785e20](https://github.com/kirana-style/kirana/commit/9785e20ab47efe9f38926dfa6b90ed26c207e2bf))
-* npx @kirana-style/registry starts a project from nothing, and init leaves one that runs ui ([#139](https://github.com/kirana-style/kirana/issues/139)) ([1bc3ee1](https://github.com/kirana-style/kirana/commit/1bc3ee13b8a202a22dc21b7274f75def34f1caa1))
-* relation(name, { optional: true }) for a reader installed without its anchor ([#146](https://github.com/kirana-style/kirana/issues/146)) ([248abd7](https://github.com/kirana-style/kirana/commit/248abd75e9747005037ecd5d3c30e218f4745132))
+* conditions.ownAttributes, attributes exclusiveAcross never takes for a library's ([#147](https://github.com/kirana-style/kirana/pull/147)) ([9785e20](https://github.com/kirana-style/kirana/commit/9785e20ab47efe9f38926dfa6b90ed26c207e2bf))
+* npx @kirana-style/registry starts a project from nothing, and init leaves one that runs ui ([#139](https://github.com/kirana-style/kirana/pull/139)) ([1bc3ee1](https://github.com/kirana-style/kirana/commit/1bc3ee13b8a202a22dc21b7274f75def34f1caa1))
+* relation(name, { optional: true }) for a reader installed without its anchor ([#146](https://github.com/kirana-style/kirana/pull/146)) ([248abd7](https://github.com/kirana-style/kirana/commit/248abd75e9747005037ecd5d3c30e218f4745132))
 
 
 ### Bug fixes
 
-* ark ui's orientation keys name horizontal and vertical ([#145](https://github.com/kirana-style/kirana/issues/145)) ([81fcbd2](https://github.com/kirana-style/kirana/commit/81fcbd27210688393ff4c8f10af2df2824bd8063))
-* kirana/diagnostics reads a vue script block under oxlint as its block module ([#136](https://github.com/kirana-style/kirana/issues/136)) ([ad833a2](https://github.com/kirana-style/kirana/commit/ad833a2f7f87db174d519ff83a369289202fd926))
-* style helpers fold optional values, in, token comparisons and default parameters ([#144](https://github.com/kirana-style/kirana/issues/144)) ([bc8041c](https://github.com/kirana-style/kirana/commit/bc8041cd455a549b399bc23cf94981e3895dd24f))
-* type-only imports close no import cycle, and a value cycle is reported ([#143](https://github.com/kirana-style/kirana/issues/143)) ([f7387b4](https://github.com/kirana-style/kirana/commit/f7387b4676000f293d856281e71f51df5308b618))
-* unreachable-entry stays quiet for pairs exclusiveAcross declares ([#137](https://github.com/kirana-style/kirana/issues/137)) ([098ed99](https://github.com/kirana-style/kirana/commit/098ed995cce33e30a0de694365affd4a6dd0a99e))
+* ark ui's orientation keys name horizontal and vertical ([#145](https://github.com/kirana-style/kirana/pull/145)) ([81fcbd2](https://github.com/kirana-style/kirana/commit/81fcbd27210688393ff4c8f10af2df2824bd8063))
+* kirana/diagnostics reads a vue script block under oxlint as its block module ([#136](https://github.com/kirana-style/kirana/pull/136)) ([ad833a2](https://github.com/kirana-style/kirana/commit/ad833a2f7f87db174d519ff83a369289202fd926))
+* style helpers fold optional values, in, token comparisons and default parameters ([#144](https://github.com/kirana-style/kirana/pull/144)) ([bc8041c](https://github.com/kirana-style/kirana/commit/bc8041cd455a549b399bc23cf94981e3895dd24f))
+* type-only imports close no import cycle, and a value cycle is reported ([#143](https://github.com/kirana-style/kirana/pull/143)) ([f7387b4](https://github.com/kirana-style/kirana/commit/f7387b4676000f293d856281e71f51df5308b618))
+* unreachable-entry stays quiet for pairs exclusiveAcross declares ([#137](https://github.com/kirana-style/kirana/pull/137)) ([098ed99](https://github.com/kirana-style/kirana/commit/098ed995cce33e30a0de694365affd4a6dd0a99e))
 
 
 ### Documentation
 
-* take the benchmarks of kirana 0.3.3 from kirana-lab ([#135](https://github.com/kirana-style/kirana/issues/135)) ([cb2f626](https://github.com/kirana-style/kirana/commit/cb2f626fe46cef83c32a49cc6f30008986c0636f))
-* take the benchmarks of kirana 0.3.3 from kirana-lab ([#140](https://github.com/kirana-style/kirana/issues/140)) ([f501a26](https://github.com/kirana-style/kirana/commit/f501a264201a86b3ec79b05a6c8d101892df7623))
+* take the benchmarks of kirana 0.3.3 from kirana-lab ([#135](https://github.com/kirana-style/kirana/pull/135)) ([cb2f626](https://github.com/kirana-style/kirana/commit/cb2f626fe46cef83c32a49cc6f30008986c0636f))
+* take the benchmarks of kirana 0.3.3 from kirana-lab ([#140](https://github.com/kirana-style/kirana/pull/140)) ([f501a26](https://github.com/kirana-style/kirana/commit/f501a264201a86b3ec79b05a6c8d101892df7623))
 
 
 ### Dependencies
 
-* angular build 22.2.4, with its option schemas ([#138](https://github.com/kirana-style/kirana/issues/138)) ([2432806](https://github.com/kirana-style/kirana/commit/2432806c8b594e00413c99dea8da0809a450a82a))
-* bump vscode-languageclient from 10.1.2 to 11.0.0 ([#133](https://github.com/kirana-style/kirana/issues/133)) ([32a0374](https://github.com/kirana-style/kirana/commit/32a0374579159b5dc1c05974a98feecf036dd041))
+* angular build 22.2.4, with its option schemas ([#138](https://github.com/kirana-style/kirana/pull/138)) ([2432806](https://github.com/kirana-style/kirana/commit/2432806c8b594e00413c99dea8da0809a450a82a))
+* bump vscode-languageclient from 10.1.2 to 11.0.0 ([#133](https://github.com/kirana-style/kirana/pull/133)) ([32a0374](https://github.com/kirana-style/kirana/commit/32a0374579159b5dc1c05974a98feecf036dd041))
 
 ## [0.3.3](https://github.com/kirana-style/kirana/compare/v0.3.2...v0.3.3) (2026-10-25)
 
