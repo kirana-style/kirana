@@ -786,6 +786,20 @@ async function checkPage(
         )
       console.log("✓ a component state from @kirana-style/states applies")
     }
+    // An Angular example may carry a part beside `SxDirective` (KF-049): its own padding, and the
+    // colour its caller's `sx` gives it, which wins.
+    const part = page.locator("[data-probe-part]")
+    if ((await part.count()) > 0) {
+      const read = await part.evaluate((element) => ({
+        color: getComputedStyle(element).color,
+        paddingBottom: getComputedStyle(element).paddingBottom,
+      }))
+      if (read.color !== "rgb(1, 2, 3)" || read.paddingBottom !== "11px")
+        throw new Error(
+          `part probe is ${JSON.stringify(read)}, expected the caller's rgb(1, 2, 3) and its own 11px`
+        )
+      console.log("✓ a part merges its caller's sx, beside SxDirective")
+    }
     // With --registry, the button `kirana-style ui add` installed, and the design system on <html>.
     const installed = page.locator("[data-registry-probe]")
     if ((await installed.count()) > 0) {

@@ -11,9 +11,12 @@ import { describe, expect, it, vi } from "vite-plus/test"
 
 import {
   KIRANA_PREFIX,
+  SX_PART,
   SxDirective,
   applySx,
+  partSx,
   provideKirana,
+  provideSxPart,
   runtimeFor,
 } from "../src/index.ts"
 import type { Renderer } from "../src/index.ts"
@@ -103,6 +106,47 @@ describe("D-068 [sx] for Angular", () => {
       providers: [{ provide: INJECTOR_SCOPE, useValue: "root" }],
     })
     expect(root.get(KIRANA_PREFIX)).toBe("k")
+  })
+
+  it("leaves `sx` to a part that merges it on the same element (KF-049)", () => {
+    const { fake, classes } = renderer()
+    const element = { part: true }
+    const host = [
+      { provide: ElementRef, useValue: new ElementRef(element) },
+      { provide: Renderer2, useValue: fake },
+      ...provideKirana({ prefix: "k" }),
+    ]
+    const part = Injector.create({ providers: [...host, provideSxPart()] })
+    expect(part.get(SX_PART)).toBe(true)
+    const onPart = runInInjectionContext(part, () => new SxDirective())
+    onPart.sx = "k50_aaaa" as never
+    onPart.ngOnChanges()
+    expect([...classes]).toEqual(["own"])
+    expect(fake.addClass).not.toHaveBeenCalled()
+    // Only the part's own element: a child's directive, below the part's injector, still applies.
+    const child = Injector.create({
+      parent: part,
+      providers: [
+        { provide: ElementRef, useValue: new ElementRef({}) },
+        { provide: Renderer2, useValue: fake },
+      ],
+    })
+    const onChild = runInInjectionContext(child, () => new SxDirective())
+    onChild.sx = "k50_aaaa" as never
+    onChild.ngOnChanges()
+    expect([...classes]).toEqual(["own", "k50_aaaa"])
+  })
+
+  it("merges a part's own handles with its caller's, the caller's last (KF-049)", () => {
+    // Two atoms of one property: the caller's wins; its bridged value comes as a style.
+    expect(
+      partSx("k50_aaaa kaF_cccc", { c: "k50_bbbb", v: { "--k7": "2px" } })
+    ).toEqual({ class: "kaF_cccc k50_bbbb", style: { "--k7": "2px" } })
+    expect(partSx("q50_aaaa", undefined, "q")).toEqual({
+      class: "q50_aaaa",
+      style: {},
+    })
+    expect(partSx(undefined, undefined)).toEqual({ class: "", style: {} })
   })
 
   it("runs Kirana's Vite plugin after Angular's compile", () => {

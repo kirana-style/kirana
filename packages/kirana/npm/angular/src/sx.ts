@@ -4,8 +4,15 @@
  * last value applied to what this one applies. Only what `[sx]` added is ever removed, so the
  * element's own `class` and `style` stay.
  */
+import type { Sx } from "@kirana-style/core"
 import { runtime } from "@kirana-style/core/internal"
 import type { Handle } from "@kirana-style/core/internal"
+
+/**
+ * What an `sx` input takes: `Sx`, or the class strings handles are once compiled. The Angular CLI
+ * builders type-check the compiled copy, where a template passes those strings.
+ */
+export type SxInput = Sx | Handle
 
 /** The part of Angular's `Renderer2` this needs. */
 export type Renderer = {
@@ -36,6 +43,20 @@ export function runtimeFor(prefix: string): ReturnType<typeof runtime> {
     runtimes.set(prefix, created)
   }
   return created
+}
+
+/**
+ * A part's host props: its own handles, then its caller's `sx`, merged with Kirana's runtime as
+ * `[sx]` merges them, the caller's last (KF-049). A part binds `class` and `style` to its host and
+ * lists `provideSxPart()`, so `SxDirective` leaves the element to it.
+ */
+export function partSx(
+  own: SxInput,
+  sx: SxInput,
+  prefix = "k"
+): { class: string; style: Record<string, string> } {
+  const props = runtimeFor(prefix).sx([own, sx] as Handle[], [], [])
+  return { class: props.class ?? "", style: props.style ?? {} }
 }
 
 /** Applies `value` (a handle, or an array of handles and falsy guards); returns what is applied now. */

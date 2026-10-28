@@ -851,12 +851,14 @@ the implementation tracker names its evidence.
 
 ### D-068 — Angular through a runtime directive, and builders for the CLI
 
-- **Status:** Accepted.
+- **Status:** Accepted; amended 2026-10-29 for KF-049.
 - **Decision:** `@kirana-style/angular` styles Angular templates with `SxDirective` (`[sx]`), which merges
   handles with the private runtime. Analog compiles after Angular, through the Vite adapter with
   `enforce: "post"`. The Angular CLI uses Kirana's builders, which hand Angular a compiled mirror of
   the sources (`.kirana/`) through `fileReplacements`. The directive's partial declarations
-  (`ɵɵngDeclareFactory`, `ɵɵngDeclareDirective`) are written by hand under `src/fesm2022/`.
+  (`ɵɵngDeclareFactory`, `ɵɵngDeclareDirective`) are written by hand under `src/fesm2022/`. A part
+  merges its own handles with its caller's through `partSx(own, sx)` and provides `SX_PART`
+  (`provideSxPart()`), and `SxDirective` on its element applies nothing (KF-049).
 - **Rationale:** a template reaches only component members, so a compile-time rewrite of `sx` would
   need Angular's template compiler, a framework engine D-028 rules out. Angular reads sources from
   disk through its own TypeScript host in both `@angular/build` and Analog, so a source transform
@@ -864,8 +866,14 @@ the implementation tracker names its evidence.
   honours `fileReplacements`, which redirects module resolution. The declarations are hand-written
   because this workspace's TypeScript 7 has no JavaScript API for `ngc`; under `fesm2022/` because
   Analog's linker processes only files on such a path.
+  A part and `SxDirective` both read the one `[sx]` binding, and a class the directive added was
+  dropped when the part's `[class]` binding changed; making the part host `SxDirective` instead
+  fails, since Angular refuses a directive matched twice on one element (`DUPLICATE_DIRECTIVE`) and
+  the template imports it. `props()` does not serve a part either: the CLI builders type-check the
+  compiled copy, where the caller's handles are class strings `props()`'s `Sx` refuses.
 - **Trade-off:** the merge runs in the browser (the private runtime, under 1.1 kB gzipped) instead of at
-  build time, and the CLI compiles the source root twice (once into the mirror, once by Angular).
+  build time, and the CLI compiles the source root twice (once into the mirror, once by Angular). A
+  part merges its own styles with the caller's, as a component does everywhere else.
 - **Elaborated in:** [11-integrations](./11-integrations.md#frameworks),
   `design-notes/angular.md`.
 

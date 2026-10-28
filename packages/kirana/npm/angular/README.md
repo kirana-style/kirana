@@ -23,6 +23,9 @@ export class Card {
 
 - **`SxDirective`** merges the handles with Kirana's runtime and adds and removes only the classes
   and custom properties it set. `provideKirana({ prefix })` matches a `names.prefix` other than `k`.
+- **Parts.** A directive that takes `sx` merges it with its own styles through `partSx(own, sx)`,
+  binds the `class` and `style` it returns to its host, types the input `SxInput`, and lists
+  `provideSxPart()` in its `providers`, which keeps `SxDirective` off its element.
 - **Analog.** `kiranaAngular()` from `@kirana-style/angular/vite`, after `analog()`, compiles the JavaScript
   Angular emits. Import `@kirana-style/core/stylesheet.css` from `src/main.ts`.
 - **Angular CLI.** In `angular.json`, `@kirana-style/angular:application` and `@kirana-style/angular:dev-server`

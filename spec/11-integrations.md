@@ -211,8 +211,12 @@ still holding the placeholder; on every other host it finds nothing to do.
 **Angular** (D-068, `design-notes/angular.md`). A template reaches only its component's members, so
 `sx` there cannot be compiled away: `@kirana-style/angular` exports `SxDirective` (selector `[sx]`, input
 `Sx`), which merges the handles with the private runtime through `Renderer2` and adds and removes
-only the classes and properties it set. The compiler still compiles every `css({...})` in the
-component's TypeScript, so the stylesheet and the class names are the ones a JSX app gets; only the
+only the classes and properties it set. A part, an attribute directive that takes `sx` and merges it
+with its own styles (D-100), does so with `partSx(own, sx)`, the same runtime merge, typed `SxInput`
+(`Sx` or the class strings of the compiled copy the CLI builders type-check), and lists
+`provideSxPart()` in its `providers`: `SxDirective` on that element then applies nothing, so a template
+can import it for plain elements beside parts. The compiler still
+compiles every `css({...})` in the component's TypeScript, so the stylesheet and the class names are the ones a JSX app gets; only the
 merge moves to the browser. Angular compiles TypeScript from its own program on disk, so nothing can
 transform a source before it:
 

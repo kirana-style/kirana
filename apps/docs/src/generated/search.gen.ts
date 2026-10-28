@@ -2832,6 +2832,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Import , and expose the handles as a member with the same name, so the template can reach them: takes what takes anywhere: one handle, or an array with falsy guards. Angular type-checks it against . The element's own class and style attributes stay; the directive adds and removes only what it set. Templates in a file work the same way. A value known only at runtime, such as , is bridged through a custom property, as in dynamic styles ."
   },
   {
+    "id": "/docs/frameworks/angular#a-part-that-takes-sx",
+    "href": "/docs/frameworks/angular#a-part-that-takes-sx",
+    "page": "Angular",
+    "section": "frameworks",
+    "heading": "A part that takes  sx",
+    "text": "A design system's parts are attribute directives, such as a button directive on a , and a part merges its own styles with its caller's, the caller's last, as a component does everywhere else. Three exports make that work: does the merge does, and returns the host's and ; types the part's input: an Angular CLI build type-checks the compiled copy, where handles are class strings; , in the part's , keeps off its element. A template that imports for its plain elements can then hold the part too: . Both read the one binding, and only the part applies it. Without , the directive would add the caller's classes as well, and they would be lost the next time the part's class binding changed. With another class-name prefix, pass it as the merge's third argument."
+  },
+  {
     "id": "/docs/frameworks/angular#another-class-name-prefix",
     "href": "/docs/frameworks/angular#another-class-name-prefix",
     "page": "Angular",
