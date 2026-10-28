@@ -36,8 +36,12 @@ export const ASSET_QUERY = /[?&](url|raw|inline)\b/
 export const VIRTUAL = /^(?:\0|virtual:)/
 /** Installed packages are compiled by their own build, or consumed through a manifest (KRN-INT-008). */
 export const NODE_MODULES = /[\\/]node_modules[\\/]/
-/** Source that can hold a style: imports Kirana or passes `sx`. The engine's prefilter is exact. */
-export const STYLE_BEARING = /@kirana-style\/|\bsx\s*[=:]/
+/**
+ * Source that can hold a style: imports Kirana, passes `sx`, or reads a relation it imports
+ * (`scope.within(…)`, KF-051). The engine's prefilter is exact.
+ */
+export const STYLE_BEARING =
+  /@kirana-style\/|\bsx\s*[=:]|\.(?:within|parent|after|before)\s*\(/
 
 /** A script a project's styles are written in, by file name. */
 export const SCRIPT_FILE = /\.[cm]?[jt]sx?$/

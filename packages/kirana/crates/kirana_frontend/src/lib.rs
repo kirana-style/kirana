@@ -15,11 +15,14 @@ pub use oxc_span::SourceType;
 
 /// Whether a module might be style-bearing and must be parsed.
 ///
-/// A module needs rewriting only when it imports `@kirana-style/` or writes an `sx` attribute. A module
-/// that merely uses an imported style value at runtime needs nothing: compiled style values are
-/// ordinary strings and objects, so leaving it untouched is correct (D-023, simplified in D-039).
+/// A module needs rewriting when it imports `@kirana-style/`, writes an `sx` attribute, or reads a
+/// relation it imports from another module (`field.within(…)`). A module that merely uses an imported
+/// style value at runtime needs nothing: compiled style values are ordinary strings and objects, so
+/// leaving it untouched is correct (D-023, simplified in D-039). A relation is the exception: it
+/// compiles to its name and anchor, without the methods, so a read left as written throws when the
+/// module loads (KF-051).
 pub fn may_be_style_bearing(source: &str) -> bool {
-    if source.contains("@kirana-style/") {
+    if source.contains("@kirana-style/") || reads_a_relation(source) {
         return true;
     }
     let bytes = source.as_bytes();
@@ -35,6 +38,19 @@ pub fn may_be_style_bearing(source: &str) -> bool {
         from = start + 2;
     }
     false
+}
+
+/// The methods a relation reads with (KRN-API-010), each written as a call.
+const RELATION_READS: [&str; 4] = [".within", ".parent", ".after", ".before"];
+
+/// Whether `source` calls a method named as a relation's read. A DOM `node.after(…)` matches too, and
+/// costs one parse that rewrites nothing.
+fn reads_a_relation(source: &str) -> bool {
+    RELATION_READS.iter().any(|method| {
+        source.match_indices(method).any(|(start, _)| {
+            source[start + method.len()..].trim_start_matches([' ', '\t', '\r', '\n']).starts_with('(')
+        })
+    })
 }
 
 fn is_identifier_byte(byte: u8) -> bool {

@@ -795,8 +795,9 @@ classes instead of style objects.
 
 **1 · Prefilter.** Most files in an application have nothing to do with styling.
 Before parsing anything, the adapter skips any module whose text contains neither
-`@kirana-style/` nor an `sx` attribute, so the compiler's work scales with the number of
-styled modules, not with the size of the dependency graph.
+`@kirana-style/`, an `sx` attribute, nor a call of a relation's read such as
+`.within(`, so the compiler's work scales with the number of styled modules, not
+with the size of the dependency graph.
 
 **2 · Evaluate.** The modules that survive are parsed, and the parts that feed a
 style are evaluated by a restricted evaluator: constants, imported token values,
@@ -2188,6 +2189,8 @@ in this application. And because a relation is identified by its
 package and name, two modules of one package that both write `relation("card")`
 would share one marker without meaning to: `relation-name-collision` names both
 files. Export the relation from one module and import it where it is read.
+
+A module that holds only the reads, with no `css()` of its own, compiles them too.
 
 A component set installed one item at a time can have a reader whose anchor's
 component is not installed: a select that fills the Field it sits in, in a
@@ -6649,8 +6652,13 @@ helpers read hashed names, and the build says so.
 ## Which modules it compiles
 
 Script files only (TypeScript and JavaScript, with or without JSX, ES modules
-included) outside `node_modules`, and only when the text contains `@kirana-style/`
-or an `sx` attribute.
+included) outside `node_modules`, and only when the text contains one of:
+
+- `@kirana-style/`;
+- an `sx` attribute;
+- a call of a relation's read (`.within(`, `.parent(`, `.after(` or `.before(`),
+  which a module that imports a relation from another may hold alone.
+
 That prefilter is why adding Kirana to a large application does not slow the build
 down in proportion to its size.
 

@@ -73,6 +73,8 @@ package and name, two modules of one package that both write `relation("card")`
 would share one marker without meaning to: `relation-name-collision` names both
 files. Export the relation from one module and import it where it is read.
 
+A module that holds only the reads, with no `css()` of its own, compiles them too.
+
 A component set installed one item at a time can have a reader whose anchor's
 component is not installed: a select that fills the Field it sits in, in a
 project without Field. Declare that relation optional, and the read is left

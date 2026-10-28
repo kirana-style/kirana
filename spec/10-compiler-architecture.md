@@ -85,15 +85,18 @@ is never treated as a Kirana call.
 ## Prefilter
 
 **KRN-CMP-002** — Before any parse, each module MUST pass a byte-level prefilter (D-023, D-039): a scan for
-`@kirana-style/` or an `sx` attribute (`sx=`, and `sx:` for Vue and Svelte binding forms, not preceded by an
-identifier character). No match: the module is returned unchanged with no parse.
+`@kirana-style/`, an `sx` attribute (`sx=`, and `sx:` for Vue and Svelte binding forms, not preceded by an
+identifier character), or a call of a relation's read (`.within(`, `.parent(`, `.after(`, `.before(`).
+No match: the module is returned unchanged with no parse.
 
 A module that only uses imported style values needs no rewrite. Compiled handles, tokens and relations are
 ordinary strings and objects at runtime, so such a module runs correctly untouched; inlining them across
 modules would be an optimization, never a requirement. Imported modules are still parsed on demand when an
 importer that did pass the prefilter needs their exports evaluated (KRN-CMP-004). A false positive costs one
-parse; a false negative is impossible because every site that must be rewritten contains `sx` or an import
-of `@kirana-style/*`.
+parse; a false negative is impossible because every site that must be rewritten contains `sx`, an import
+of `@kirana-style/*`, or a relation's read. The read is the one case of an imported value a module must
+not leave as written: a relation compiles to its name and anchor, without the methods, so a module that
+reads one imported from another style module is compiled to the condition's text (KF-051).
 
 **HYPOTHESIS:** on the shadcn/ui port's apps, most modules (dependencies, routes without styles, utilities)
 are rejected by stage 1, making transform cost proportional to styled modules. Tested by E-02.
