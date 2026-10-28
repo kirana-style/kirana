@@ -246,7 +246,8 @@ impl Project {
 
     /// From now on, a transform of a module whose source, and every file its evaluation read, are
     /// unchanged returns the previous transform instead of compiling it again. A bundler host turns
-    /// this on: Vite compiles the same modules for the client and again for the server.
+    /// this on, in a build, a watch build and a dev server alike: Vite compiles the same modules for
+    /// the client and again for the server, and sends unchanged ones again.
     pub fn reuse_transforms(&self) {
         self.reuse.store(true, std::sync::atomic::Ordering::Relaxed);
     }
@@ -329,9 +330,17 @@ impl Project {
     }
 
     /// The previous transform of `path`, when it was of this source, parsed and written the same
-    /// way, and every file it read still has the hash it had then.
+    /// way, and every file it read still has the hash it had then. One that missed an import is
+    /// never reused: it compiles each time, as without reuse, so the file it names is found once it
+    /// exists and the session has been told (KF-063).
     fn reusable(&self, path: &Path, hash: u64, jsx: bool, marked: bool) -> Option<Transformed> {
-        let entry = self.state.read().expect("not poisoned").reused.get(path).cloned()?;
+        let entry = {
+            let state = self.state.read().expect("not poisoned");
+            if state.unresolved.contains(path) {
+                return None;
+            }
+            state.reused.get(path).cloned()?
+        };
         let current = entry.hash == hash
             && entry.jsx == jsx
             && entry.marked == marked

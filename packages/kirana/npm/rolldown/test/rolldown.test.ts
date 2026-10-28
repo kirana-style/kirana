@@ -421,20 +421,17 @@ describe("components and the stylesheet asset, hook by hook", () => {
     ).toBeNull()
   })
 
-  it("compiles each module once in a one-shot build, every time in a watch build", async () => {
-    for (const [watchMode, expected] of [
-      [false, 1],
-      [true, 0],
-    ] as const) {
-      const { plugin, session } = createKirana({ root: app() })
+  it("compiles each module once a session, in a build, a watch build and a dev server (KF-063)", async () => {
+    for (const development of [false, true]) {
+      const { plugin, session } = createKirana(
+        { root: app() },
+        { development: () => development }
+      )
       const driver = await session()
       let reused = 0
       driver.reuseTransforms = () => void reused++
-      await (plugin.buildStart as Hook).call({
-        ...context,
-        meta: { watchMode },
-      })
-      expect(reused).toBe(expected)
+      await (plugin.buildStart as Hook).call(context)
+      expect(reused).toBe(1)
     }
   })
 

@@ -211,9 +211,10 @@ export class Driver {
 
   /**
    * Compiles each module once for the session: a transform of a module whose source, and every
-   * file its evaluation read, are unchanged returns the previous result. For a one-shot build that
-   * compiles the same modules for the client and again for the server; a dev server or a watch build
-   * leaves it off, since a file created later could change how an import resolves.
+   * file its evaluation read, are unchanged returns the previous result. A build compiles the same
+   * modules for the client and again for the server, and a dev server or a watch build sends
+   * unchanged ones again (KF-063). A module that missed an import is compiled each time, as without
+   * reuse, since a file created later could be the one it names.
    */
   reuseTransforms(): void {
     this.#compiler.reuseTransforms()
