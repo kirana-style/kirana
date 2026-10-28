@@ -9,6 +9,11 @@ fn prefilter_accepts_style_bearing_modules() {
     assert!(may_be_style_bearing("<div\n  sx = {a} />"));
     assert!(may_be_style_bearing("sx={a}"));
     assert!(may_be_style_bearing("<Comp sx:x />"));
+    // A relation imported from another style module, read here (KF-051).
+    assert!(may_be_style_bearing("const focused = scope.within(\":focus\")"));
+    assert!(may_be_style_bearing("scope.parent()"));
+    assert!(may_be_style_bearing("scope.after ()"));
+    assert!(may_be_style_bearing("scope\n  .before(\":hover\")"));
 }
 
 #[test]
@@ -18,6 +23,7 @@ fn prefilter_rejects_everything_else() {
     assert!(!may_be_style_bearing("if (sx == 1) {}"));
     assert!(!may_be_style_bearing("sx"));
     assert!(!may_be_style_bearing("const box = sx"));
+    assert!(!may_be_style_bearing("scope.within; scope.afterwards(); node.parentNode"));
 }
 
 #[test]

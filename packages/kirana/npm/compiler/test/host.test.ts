@@ -7,6 +7,7 @@ import type { Diagnostic } from "../src/index.ts"
 import {
   KIRANA_LIBRARIES,
   PLACEHOLDER,
+  STYLE_BEARING,
   compiledLibraries,
   createReporter,
   digestOf,
@@ -26,6 +27,14 @@ const diagnostic = (severity: Diagnostic["severity"]): Diagnostic => ({
 })
 
 describe("host helpers", () => {
+  it("passes a module that reads a relation it imports to the engine (KF-051)", () => {
+    expect(STYLE_BEARING.test('scope.within(":has(:focus-visible)")')).toBe(
+      true
+    )
+    expect(STYLE_BEARING.test("scope\n  .parent ()")).toBe(true)
+    expect(STYLE_BEARING.test("scope.within; node.parentNode")).toBe(false)
+  })
+
   it("selects modules for hosts without filters", () => {
     expect(
       shouldCompile("/a/b.tsx", 'import { css } from "@kirana-style/core"')

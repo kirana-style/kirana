@@ -13,8 +13,9 @@ classes instead of style objects.
 
 **1 · Prefilter.** Most files in an application have nothing to do with styling.
 Before parsing anything, the adapter skips any module whose text contains neither
-`@kirana-style/` nor an `sx` attribute, so the compiler's work scales with the number of
-styled modules, not with the size of the dependency graph.
+`@kirana-style/`, an `sx` attribute, nor a call of a relation's read such as
+`.within(`, so the compiler's work scales with the number of styled modules, not
+with the size of the dependency graph.
 
 **2 · Evaluate.** The modules that survive are parsed, and the parts that feed a
 style are evaluated by a restricted evaluator: constants, imported token values,
