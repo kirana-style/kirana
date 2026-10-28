@@ -286,6 +286,16 @@ impl Host for ModuleHost<'_> {
         self.exports_of(&path)?.sx_forwarding.get(name).cloned()
     }
 
+    fn cached_style(&self, key: &str) -> Option<Value> {
+        let value = self.project.styles.read().expect("not poisoned").get(key).cloned()?;
+        self.project.styles_reused.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        Some(value)
+    }
+
+    fn keep_style(&self, key: String, value: &Value) {
+        self.project.styles.write().expect("not poisoned").insert(key, value.clone());
+    }
+
     fn lookup_dep(&self, name: &str) -> Option<Dep> {
         let state = self.project.state.read().expect("not poisoned");
         state

@@ -882,3 +882,56 @@ fn the_atom_index_writes_what_a_fresh_session_writes() {
     assert_eq!(project.stylesheet(false), fresh(&[]));
     fs::remove_dir_all(root).unwrap();
 }
+
+/// A style written out in full compiles once a session, wherever it is written (KF-059); one that
+/// reports, reads a name or names an emitted rule compiles where it is written.
+#[test]
+fn a_style_written_out_in_full_compiles_once_a_session() {
+    let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const size = defineTokens(\"size\", { gap: \"2px\" }, { variable: true })\n";
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("tokens.ts", tokens)]);
+    let compile = |name: &str, source: &str| project.transform(&root.join(name), source);
+    let variable = {
+        let out = compile("tokens.ts", tokens).code.unwrap();
+        let start = out.find("var(").unwrap() + 4;
+        out[start..start + out[start..].find(')').unwrap()].to_owned()
+    };
+    let styles = |project: &Project| project.work().styles;
+    let full = "{ color: \"red\", zIndex: -1, opacity: 0.5, inset: `0`, padding: { base: \"4px\", \":hover\": null }, \"--x\": \"1px\" }";
+    let a = format!(
+        "import {{ css }} from \"@kirana-style/core\"\nexport const a = css({full})\nexport const none = css()\n"
+    );
+    let first = compile("a.ts", &a);
+    assert_eq!(first.diagnostics, []);
+    assert_eq!(styles(&project), 0);
+    // The same style in another module, twice, after other code: answered, and written the same.
+    let b = format!(
+        "import {{ css }} from \"@kirana-style/core\"\n\nconst pad = 1\nexport const b = css({full})\nexport const c = css({full})\nexport const two = css({full}, {full})\n"
+    );
+    let second = compile("b.ts", &b);
+    // Both arguments are the key of a call that has two.
+    assert_eq!(styles(&project), 2);
+    let a_class = &first.code.as_deref().unwrap()[first.code.as_deref().unwrap().find("const a = ").unwrap()..];
+    let b_class = &second.code.as_deref().unwrap()[second.code.as_deref().unwrap().find("const b = ").unwrap()..];
+    assert_eq!(
+        a_class.lines().next().unwrap().replace("const a", ""),
+        b_class.lines().next().unwrap().replace("const b", "")
+    );
+    // Each of these compiles where it is written: a report keeps its place, a name is read, a
+    // spread or a computed key is evaluated, a variable's emitted name is looked up.
+    let others = format!(
+        "import {{ css }} from \"@kirana-style/core\"\nconst hover = \":hover\"\nconst more = {{ color: \"blue\" }}\nexport const d = css({{ colr: \"red\" }})\nexport const e = css({{ colr: \"red\" }})\nexport const f = css({{ color: hover }})\nexport const g = css({{ ...more }})\nexport const h = css({{ color: {{ [hover]: \"red\" }} }})\nexport const i = css({{ gap: \"var({variable})\" }})\nexport const j = css({{ gap: \"var({variable})\" }})\nexport const k = css(...[more])\nexport const l = css({{ m() {{ return 1 }} }})\nexport const m = css({{ get n() {{ return 1 }} }})\nexport const n = css({{ color }})\nexport const o = css({{ margin: -hover }})\nexport const p = css({{ [\"color\"]: \"red\" }})\n"
+    );
+    let third = compile("c.ts", &others);
+    assert_eq!(styles(&project), 2);
+    let unknown: Vec<u32> =
+        third.diagnostics.iter().filter(|d| d.code == Code::UnknownProperty).map(|d| d.span.start).collect();
+    assert_eq!(unknown.len(), 2, "{:?}", third.diagnostics);
+    assert_ne!(unknown[0], unknown[1]);
+    // Marked names are another key.
+    project.mark_dense();
+    compile("d.ts", &a);
+    assert_eq!(styles(&project), 2);
+    compile("e.ts", &a);
+    assert_eq!(styles(&project), 3);
+    fs::remove_dir_all(root).unwrap();
+}

@@ -38,6 +38,11 @@ pub trait Host {
     /// The installed package a project module's exported component spreads its props into without
     /// reading `sx`, when it does.
     fn sx_forwarded(&self, from: &Path, specifier: &str, name: &str) -> Option<String>;
+    /// A `css()` call's value compiled earlier in the session from the same source, keyed by that
+    /// source and the names it was compiled with (KF-059).
+    fn cached_style(&self, key: &str) -> Option<Value>;
+    /// Keeps a `css()` call's value for later calls of the same source.
+    fn keep_style(&self, key: String, value: &Value);
 }
 
 /// Where and how a module is compiled.

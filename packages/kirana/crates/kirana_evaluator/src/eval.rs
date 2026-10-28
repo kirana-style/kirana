@@ -24,6 +24,34 @@ use crate::{Context, Definitions, Host, ImportName, ops};
 
 const MAX_DEPTH: u32 = 64;
 
+/// Whether an expression is written out in full: strings, numbers, `null`, and objects of them
+/// under plain keys, with no name, call, spread or computed key to evaluate.
+fn literal(expression: &Expression<'_>) -> bool {
+    match expression {
+        Expression::StringLiteral(_) | Expression::NumericLiteral(_) | Expression::NullLiteral(_) => true,
+        Expression::TemplateLiteral(template) => template.expressions.is_empty(),
+        Expression::UnaryExpression(unary) => {
+            unary.operator == UnaryOperator::UnaryNegation && matches!(unary.argument, Expression::NumericLiteral(_))
+        }
+        Expression::ObjectExpression(object) => object.properties.iter().all(|property| match property {
+            ObjectPropertyKind::ObjectProperty(property) => {
+                property.kind == PropertyKind::Init
+                    && !property.method
+                    && !property.shorthand
+                    && matches!(
+                        property.key,
+                        PropertyKey::StaticIdentifier(_)
+                            | PropertyKey::StringLiteral(_)
+                            | PropertyKey::NumericLiteral(_)
+                    )
+                    && literal(&property.value)
+            }
+            ObjectPropertyKind::SpreadProperty(_) => false,
+        }),
+        _ => false,
+    }
+}
+
 /// Why a string is not evaluated: oxc keeps a lone surrogate (`"\uD800"`) as written, and no CSS
 /// value, key or module specifier Kirana reads can carry one.
 const LONE_SURROGATE: &str = "a string with a lone surrogate";
@@ -144,6 +172,33 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         self.quiet.set(self.quiet.get() - 1);
         // Kept only with what they were held for (`pending`).
         self.held.borrow_mut().truncate(start);
+        value
+    }
+
+    /// The value of a `css()` call whose arguments are written out in full, from the session when
+    /// the same source compiled before (KF-059): such a style compiles the same wherever it is
+    /// written. A call that reports anything, or names a token or rule by its emitted name, is
+    /// compiled each time, so its diagnostics keep their place and its rules stay current.
+    pub(crate) fn literal_style(
+        &self,
+        call: &oxc_ast::ast::CallExpression<'a>,
+        compile: impl FnOnce() -> Value,
+    ) -> Value {
+        let (Some(first), Some(last)) = (call.arguments.first(), call.arguments.last()) else { return compile() };
+        let source = &self.parsed.source[first.span().start as usize..last.span().end as usize];
+        let written_out = call.arguments.iter().all(|argument| argument.as_expression().is_some_and(literal));
+        if !written_out || !self.deps_in(source).is_empty() {
+            return compile();
+        }
+        let key = format!("{}{}\0{source}", self.ctx.names.prefix, u8::from(self.ctx.names.mark));
+        if let Some(value) = self.host.cached_style(&key) {
+            return value;
+        }
+        let (reported, held) = (self.diagnostics.borrow().len(), self.held.borrow().len());
+        let value = compile();
+        if self.diagnostics.borrow().len() == reported && self.held.borrow().len() == held {
+            self.host.keep_style(key, &value);
+        }
         value
     }
 

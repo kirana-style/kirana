@@ -359,6 +359,13 @@ file its evaluation read are unchanged, so the SSR build does not compile again 
 compiled. It is in memory, for that build only, and off in a dev server, a watch build and the
 language server.
 
+**A style written out in full (KF-059).** A `css()` call whose arguments are only strings, numbers,
+`null` and objects of them under plain keys compiles once a session: a later call of the same source
+is answered by that source and the names it is compiled with, in any module. Nothing such a value
+holds depends on another file, so the session never drops it. A call that reports a diagnostic, or
+names a token or rule by its emitted name, compiles where it is written, so its diagnostics keep their
+place and the rule it names stays current.
+
 ## Configuration boundary
 
 **KRN-CMP-013** — The engine MUST receive configuration as resolved, serializable data. Loading

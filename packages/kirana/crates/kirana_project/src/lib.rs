@@ -67,6 +67,11 @@ pub struct Project {
     pub(crate) fs: Arc<dyn Fs>,
     pub(crate) resolver: oxc_resolver::Resolver,
     pub(crate) state: RwLock<State>,
+    /// `css()` values compiled from source written out in full, by that source (KF-059). Such a
+    /// value depends on nothing a later change in the session can touch, so it is never cleared.
+    pub(crate) styles: RwLock<FxHashMap<String, Value>>,
+    /// `css()` calls answered from `styles`, kept apart from `state` so a hit takes no write lock on it.
+    pub(crate) styles_reused: std::sync::atomic::AtomicU64,
 }
 
 /// What the project knows about one `package.json`.
@@ -160,6 +165,8 @@ pub struct Work {
     pub resolved: u64,
     /// Transforms answered from the module's previous transform (`Project::reuse_transforms`).
     pub reused: u64,
+    /// `css()` calls answered from one of the same source compiled earlier in the session (KF-059).
+    pub styles: u64,
 }
 
 impl Project {
@@ -180,12 +187,15 @@ impl Project {
             fs,
             config,
             state: RwLock::default(),
+            styles: RwLock::default(),
+            styles_reused: std::sync::atomic::AtomicU64::new(0),
         })
     }
 
     /// What this session has done so far (E-02).
     pub fn work(&self) -> Work {
-        self.state.read().expect("not poisoned").work
+        let styles = self.styles_reused.load(std::sync::atomic::Ordering::Relaxed);
+        Work { styles, ..self.state.read().expect("not poisoned").work }
     }
 
     /// The configuration in use.
