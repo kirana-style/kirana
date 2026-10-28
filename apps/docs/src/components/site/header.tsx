@@ -302,11 +302,37 @@ const styles = {
     transitionProperty: "background-color",
     transitionDuration: duration[150],
   }),
+  // A product that is planned: in the menu so the family reads whole, but nothing to open yet.
+  rowSoon: css({
+    cursor: "default",
+    backgroundColor: { "*": null, base: "transparent" },
+  }),
+  glyphSoon: css({ opacity: 0.55 }),
   rowText: css({ display: "grid", minWidth: 0 }),
   rowTitle: css({
     fontSize: fontSize.sm,
     lineHeight: lineHeight.sm,
     fontWeight: fontWeight.medium,
+  }),
+  titleSoon: css({
+    display: "inline-flex",
+    alignItems: "center",
+    gap: spacing[2],
+    color: theme.mutedForeground,
+  }),
+  soonTag: css({
+    fontFamily: fontFamily.mono,
+    fontSize: "0.625rem",
+    lineHeight: "1",
+    letterSpacing: "0.04em",
+    textTransform: "uppercase",
+    paddingInline: spacing["1.5"],
+    paddingBlock: spacing["0.5"],
+    borderRadius: radius.full,
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: theme.border,
+    color: theme.mutedForeground,
   }),
   rowDescription: css({
     overflow: "hidden",
@@ -336,17 +362,50 @@ const styles = {
 
 /** A destination's glyph, in the hue of the scene it stands in. */
 function Glyph({ link }: { link: NavLinkItem }) {
-  return <IconTile icon={link.icon} sx={accents[SCENES[link.scene].hue]} />
+  return (
+    <IconTile
+      icon={link.icon}
+      sx={[
+        accents[SCENES[link.scene].hue],
+        link.href === undefined && styles.glyphSoon,
+      ]}
+    />
+  )
+}
+
+/** A row's glyph and words; `wrap` lets the description run onto a second line (the sheet). */
+function RowBody({ link, wrap }: { link: NavLinkItem; wrap?: boolean }) {
+  const soon = link.href === undefined
+  return (
+    <>
+      <Glyph link={link} />
+      <span sx={styles.rowText}>
+        <span sx={[styles.rowTitle, soon && styles.titleSoon]}>
+          {link.title}
+          {soon ? <span sx={styles.soonTag}>Soon</span> : null}
+        </span>
+        <span sx={[styles.rowDescription, wrap && styles.rowDescriptionWrap]}>
+          {link.description}
+        </span>
+      </span>
+    </>
+  )
+}
+
+/** A planned product: shown, but neither a link nor focusable. */
+function SoonRow({ link, wrap }: { link: NavLinkItem; wrap?: boolean }) {
+  return (
+    <span aria-disabled="true" sx={[styles.row, styles.rowSoon]}>
+      <RowBody link={link} wrap={wrap} />
+    </span>
+  )
 }
 
 function Row({ link }: { link: NavLinkItem }) {
+  if (link.href === undefined) return <SoonRow link={link} />
   return (
     <NavigationMenuLink render={<DocsLink href={link.href} />} sx={styles.row}>
-      <Glyph link={link} />
-      <span sx={styles.rowText}>
-        <span sx={styles.rowTitle}>{link.title}</span>
-        <span sx={styles.rowDescription}>{link.description}</span>
-      </span>
+      <RowBody link={link} />
     </NavigationMenuLink>
   )
 }
@@ -407,7 +466,7 @@ function Panel({ menu }: { menu: Menu }) {
             <span sx={styles.columnTitle}>{column.title}</span>
           ) : null}
           {column.links.map((link) => (
-            <Row key={link.href} link={link} />
+            <Row key={link.title} link={link} />
           ))}
         </div>
       ))}
@@ -502,35 +561,20 @@ function MobileNav() {
             <div key={menu.title} sx={styles.mobileGroup}>
               <span sx={styles.columnTitle}>{menu.title}</span>
               {[...menu.featured, ...menu.columns.flatMap((c) => c.links)].map(
-                (link) => (
-                  <DocsLink
-                    key={link.href + link.title}
-                    href={link.href}
-                    sx={styles.row}
-                  >
-                    <Glyph link={link} />
-                    <span sx={styles.rowText}>
-                      <span sx={styles.rowTitle}>{link.title}</span>
-                      <span
-                        sx={[styles.rowDescription, styles.rowDescriptionWrap]}
-                      >
-                        {link.description}
-                      </span>
-                    </span>
-                  </DocsLink>
-                )
+                (link) =>
+                  link.href === undefined ? (
+                    <SoonRow key={link.title} link={link} wrap />
+                  ) : (
+                    <DocsLink key={link.title} href={link.href} sx={styles.row}>
+                      <RowBody link={link} wrap />
+                    </DocsLink>
+                  )
               )}
             </div>
           ))}
           <div sx={styles.mobileGroup}>
             <DocsLink href={SPONSOR.href} sx={styles.row}>
-              <Glyph link={SPONSOR} />
-              <span sx={styles.rowText}>
-                <span sx={styles.rowTitle}>{SPONSOR.title}</span>
-                <span sx={[styles.rowDescription, styles.rowDescriptionWrap]}>
-                  {SPONSOR.description}
-                </span>
-              </span>
+              <RowBody link={SPONSOR} wrap />
             </DocsLink>
           </div>
         </nav>

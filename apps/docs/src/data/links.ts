@@ -10,3 +10,5 @@ export const GITHUB = `https://github.com/${REPOSITORY}`
 /** The package every Kirana project installs: its npm page and downloads stand for the project's. */
 export const CORE_PACKAGE = "@kirana-style/core"
 export const NPM = `https://www.npmjs.com/package/${CORE_PACKAGE}`
+/** Kirana UI's site: its components, their docs and the registry `kirana-style ui add` reads. */
+export const UI_SITE = "https://ui.kirana.style"

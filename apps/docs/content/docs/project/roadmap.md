@@ -132,6 +132,13 @@ Before it, one change outside these milestones: restricted overrides, where a
 component declares which properties its `sx` accepts (`Sx<"color" | "margin">`),
 checked by TypeScript at the call site.
 
+## Beyond the compiler
+
+Products built on Kirana, each released on its own. Kirana UI is there to use
+with the compiler; the rest are planned, with no dates for the same reason.
+
+<!-- ::products -->
+
 ## The gates
 
 Two points where the project checked itself rather than continuing by momentum:

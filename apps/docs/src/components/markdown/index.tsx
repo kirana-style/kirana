@@ -35,6 +35,7 @@ import { EditorScene, EditorShowcase } from "@/components/home/editor"
 import { EditorBanner } from "@/components/site/editor-banner"
 import { InstallExplorer } from "@/components/site/install-explorer"
 import { NpmStatus } from "./npm-status"
+import { ProductTable } from "@/components/site/product-table"
 import { RoadmapOverview } from "./roadmap"
 import { Benchmarks } from "./benchmarks"
 import { SiteCodeBlock } from "@/components/site/editor-window"
@@ -62,6 +63,7 @@ export const markdownComponents = createMarkdownComponents(
     "install-explorer": InstallExplorer as CommentRegistry[string],
     "npm-status": NpmStatus as CommentRegistry[string],
     roadmap: RoadmapOverview as CommentRegistry[string],
+    products: ProductTable as CommentRegistry[string],
     benchmarks: Benchmarks as CommentRegistry[string],
     "figure-pipeline": PipelineFigure as CommentRegistry[string],
     "figure-precedence": PrecedenceFigure as CommentRegistry[string],

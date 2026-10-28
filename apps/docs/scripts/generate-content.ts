@@ -17,6 +17,7 @@ import {
 } from "../src/data/tooling.ts"
 
 import { npmStatusMarkdown } from "../src/data/npm-status.ts"
+import { productsMarkdown } from "../src/data/products.ts"
 import { roadmapMarkdown } from "../src/data/roadmap.ts"
 import { benchmarksMarkdown } from "../src/data/benchmarks.ts"
 
@@ -39,6 +40,7 @@ await generate({
     "lint-rules": lintRulesMarkdown,
     "npm-status": ({ kind }) => npmStatusMarkdown(kind),
     roadmap: roadmapMarkdown,
+    products: productsMarkdown,
     benchmarks: benchmarksMarkdown,
   },
   site: {

@@ -5313,6 +5313,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Next. What 1.0 promises, and what it takes to promise it: an API freeze, after which a breaking change waits for 2.0; the full conformance suite; a public benchmark report under the claims policy; trademark clearance for the name; a security review of the evaluator. Before it, one change outside these milestones: restricted overrides, where a component declares which properties its accepts ( ), checked by TypeScript at the call site."
   },
   {
+    "id": "/docs/project/roadmap#beyond-the-compiler",
+    "href": "/docs/project/roadmap#beyond-the-compiler",
+    "page": "Roadmap",
+    "section": "project",
+    "heading": "Beyond the compiler",
+    "text": "Products built on Kirana, each released on its own. Kirana UI is there to use with the compiler; the rest are planned, with no dates for the same reason."
+  },
+  {
     "id": "/docs/project/roadmap#the-gates",
     "href": "/docs/project/roadmap#the-gates",
     "page": "Roadmap",

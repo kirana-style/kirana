@@ -4709,6 +4709,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "beyond-the-compiler",
+        "text": "Beyond the compiler",
+        "level": 2
+      },
+      {
         "id": "the-gates",
         "text": "The gates",
         "level": 2
