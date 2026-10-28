@@ -91,6 +91,20 @@ names for its popups. List it in
 [`conditions.ownAttributes`](/docs/reference/config), and its keys meet every
 library's states instead of being left out beside them.
 
+That list is the whole project's, so the popups would lose the vocabulary's
+meaning of `data-side` too. Claim it for one component instead, with `own()`:
+
+```ts
+import { css, own } from "@kirana-style/core"
+
+export const sheet = css(own("data-side"), {
+  translate: { [entering]: { '[data-side="left"]': "-50% 0" } },
+})
+```
+
+The claim holds in that style and in every style built on its handle; the
+popups' styles keep it apart as before.
+
 ## Layers
 
 Everything Kirana emits is inside layers, in this order:

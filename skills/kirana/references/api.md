@@ -10,6 +10,7 @@ says so: the file is not under the bundler plugin, or not in the paths given to 
 ```ts
 css(...styles: (Style | Sx)[]): StyleHandle      // merges left to right
 cx(...handles: Sx[]): StyleHandle                // skips null, undefined, false
+own(...attributes: string[]): StyleHandle        // claims attributes the component writes: css(own("data-side"), {...})
 props(...handles: (Sx | string)[]): { className?, style? }  // import { props as styleProps }
                                                  // { class?, style? } in Solid, Preact and Qwik
 ```

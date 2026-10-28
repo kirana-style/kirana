@@ -430,6 +430,13 @@ fn attributes_exclusive(left: &str, right: &str) -> bool {
     }
 }
 
+/// Whether `name` is an attribute name as `conditions.ownAttributes` and `own()` take one:
+/// `data-side`, lower case, digits and hyphens.
+pub fn is_attribute_name(name: &str) -> bool {
+    name.starts_with(|first: char| first.is_ascii_lowercase())
+        && name.bytes().all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-')
+}
+
 /// The attribute an attribute selector tests: `data-side` for `[data-side="left"]` or `[data-side]`.
 fn attribute_name(selector: &str) -> Option<&str> {
     let inner = selector.strip_prefix('[')?;

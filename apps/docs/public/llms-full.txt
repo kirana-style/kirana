@@ -1796,6 +1796,20 @@ names for its popups. List it in
 [`conditions.ownAttributes`](/docs/reference/config), and its keys meet every
 library's states instead of being left out beside them.
 
+That list is the whole project's, so the popups would lose the vocabulary's
+meaning of `data-side` too. Claim it for one component instead, with `own()`:
+
+```ts
+import { css, own } from "@kirana-style/core"
+
+export const sheet = css(own("data-side"), {
+  translate: { [entering]: { '[data-side="left"]': "-50% 0" } },
+})
+```
+
+The claim holds in that style and in every style built on its handle; the
+popups' styles keep it apart as before.
+
 ## Layers
 
 Everything Kirana emits is inside layers, in this order:
@@ -8452,6 +8466,17 @@ cx(...handles: readonly Sx[]): StyleHandle
 Merges handles, skipping `null`, `undefined` and `false`.
 [Merging](/docs/styling/merging).
 
+## `own(...attributes)`
+
+```ts
+own(...attributes: readonly string[]): StyleHandle
+```
+
+A handle with no styles that claims attributes your component writes itself, by
+name: `css(own("data-side"), {...})`. In that style, and in every style built on
+it, a key on the attribute is the component's, though a library's vocabulary
+names it too. [Combinations that cannot match](/docs/styling/precedence#combinations-that-cannot-match).
+
 ## `props(...handles)`
 
 ```ts
@@ -8819,7 +8844,9 @@ Attributes your own components write, by name (`"data-side"`), whatever library
 they are built on. A vocabulary may name one too, as Base UI does for its popups'
 side, but on your component the attribute is yours: `exclusiveAcross` keeps nothing
 apart by it, so a sheet's side nested in React Aria's entering state is emitted
-rather than left out. Two values of the attribute still never meet.
+rather than left out. Two values of the attribute still never meet. To claim one
+for a single component, leaving it to the vocabulary elsewhere, use
+[`own()`](/docs/reference/api#ownattributes) in that component's style.
 
 ## `classes`
 
@@ -10925,7 +10952,7 @@ line coverage. The [changelog](/changelog) lists every release.
 
 ## Built
 
-- `css`, `cx`, `props`, `recipe`, `relation`, `select`, `keyframes`, `defineTokens`, `defineTheme`, `mode`, `firstThatWorks`, `positionTry`, `counterStyle`, `viewTransition`, `media`, `container` and `supports`
+- `css`, `own`, `cx`, `props`, `recipe`, `relation`, `select`, `keyframes`, `defineTokens`, `defineTheme`, `mode`, `firstThatWorks`, `positionTry`, `counterStyle`, `viewTransition`, `media`, `container` and `supports`
 - The `sx` prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as `[sx]` in Angular templates and the
   `sx` helper in Ember's); see [supported frameworks](/docs/frameworks/overview)
 - Conditions: pseudo-classes, attributes, compounds, at-rules, nesting

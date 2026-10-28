@@ -238,6 +238,9 @@ pub struct Handle {
     pub markers: Vec<String>,
     /// Stylesheet items needed by the markers (themes, mode rules).
     pub marker_deps: Vec<Dep>,
+    /// Attributes the component writes itself (`own()`, KF-044): in a style built on this handle, a
+    /// key on one is the component's, as `conditions.ownAttributes` makes it for the whole project.
+    pub own: Vec<String>,
 }
 
 impl Handle {
@@ -254,6 +257,11 @@ impl Handle {
         for dep in &later.marker_deps {
             if !self.marker_deps.contains(dep) {
                 self.marker_deps.push(dep.clone());
+            }
+        }
+        for attribute in &later.own {
+            if !self.own.contains(attribute) {
+                self.own.push(attribute.clone());
             }
         }
     }

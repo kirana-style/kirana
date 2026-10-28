@@ -355,9 +355,7 @@ impl Config {
             normalize_conditions(vocabulary, &format!("conditions.exclusiveAcross[{index}]"), &mut problems);
         }
         for (index, name) in config.conditions.own_attributes.iter().enumerate() {
-            let valid = name.starts_with(|first: char| first.is_ascii_lowercase())
-                && name.bytes().all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-');
-            if !valid {
+            if !kirana_ir::is_attribute_name(name) {
                 problems.push(invalid(format!(
                     "conditions.ownAttributes[{index}] must be an attribute name such as \"data-side\", got {name:?}"
                 )));

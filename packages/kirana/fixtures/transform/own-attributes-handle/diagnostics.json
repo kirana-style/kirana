@@ -1,0 +1,42 @@
+[
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1738,
+      "end": 1758
+    },
+    "message": "own() takes attribute names, such as \"data-side\"",
+    "help": [
+      "name the attribute, not a selector: own(\"data-side\")"
+    ]
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1760,
+      "end": 1770
+    },
+    "message": "own() takes attribute names, such as \"data-side\"",
+    "help": [
+      "name the attribute, not a selector: own(\"data-side\")"
+    ]
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1773,
+      "end": 1778
+    },
+    "message": "own() needs at least one attribute name",
+    "help": []
+  }
+]

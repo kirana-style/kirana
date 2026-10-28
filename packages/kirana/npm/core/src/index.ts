@@ -104,6 +104,17 @@ export function css(..._styles: readonly (Style | Sx)[]): StyleHandle {
   return uncompiled("css")
 }
 
+/**
+ * Claims attributes the component writes itself, by name (`"data-side"`), for one style (KF-044):
+ * `css(own("data-side"), {...})`. In that style, and in every style built on it, a key on the
+ * attribute is the component's, though a library's vocabulary names it too, so
+ * `conditions.exclusiveAcross` keeps nothing apart by it. `conditions.ownAttributes` claims one for
+ * the whole project.
+ */
+export function own(..._attributes: readonly string[]): StyleHandle {
+  return uncompiled("own")
+}
+
 /** Merges handles in argument order (KRN-API-007). */
 export function cx(..._handles: readonly Sx[]): StyleHandle {
   return uncompiled("cx")

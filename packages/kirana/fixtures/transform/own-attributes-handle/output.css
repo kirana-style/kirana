@@ -1,0 +1,25 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .kao_J05a {
+    translate: 0 0;
+  }
+  .k6V-eej3_eK8R:where([data-entering][data-side="left"]) {
+    height: 1px;
+  }
+  .kaF-eej3_lep2:where([data-entering][data-side="left"]) {
+    width: 80%;
+  }
+  .kao-eej3_l3OP:where([data-entering][data-side="left"]) {
+    translate: -50% 0;
+  }
+  .kv-eej3_oD60:where([data-entering][data-side="left"]) {
+    top: 0;
+  }
+  .kw-eej3_oD60:where([data-entering][data-side="left"]) {
+    bottom: 0;
+  }
+  .kx-eej3_oD60:where([data-entering][data-side="left"]) {
+    left: 0;
+  }
+}

@@ -10,6 +10,7 @@ keywords:
     reference,
     css,
     cx,
+    own,
     props,
     recipe,
     relation,
@@ -51,6 +52,17 @@ cx(...handles: readonly Sx[]): StyleHandle
 
 Merges handles, skipping `null`, `undefined` and `false`.
 [Merging](/docs/styling/merging).
+
+## `own(...attributes)`
+
+```ts
+own(...attributes: readonly string[]): StyleHandle
+```
+
+A handle with no styles that claims attributes your component writes itself, by
+name: `css(own("data-side"), {...})`. In that style, and in every style built on
+it, a key on the attribute is the component's, though a library's vocabulary
+names it too. [Combinations that cannot match](/docs/styling/precedence#combinations-that-cannot-match).
 
 ## `props(...handles)`
 

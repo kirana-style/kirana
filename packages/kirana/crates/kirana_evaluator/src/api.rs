@@ -22,10 +22,18 @@ impl<'a> Evaluator<'_, 'a, '_> {
         let arguments = self.arguments(call);
         match api {
             Api::Css => self.literal_style(call, || {
+                // A handle an argument passes claims its attributes for every style object of the
+                // call (KF-044); the call's own handle carries them on.
+                let mut claims = Vec::new();
+                for (value, _) in &arguments {
+                    claimed_by(value, &mut claims);
+                }
+                let outer = std::mem::replace(&mut *self.claimed.borrow_mut(), claims);
                 let mut parts = Parts::default();
                 for (value, span) in &arguments {
                     self.push_css_argument(value, *span, &mut parts);
                 }
+                *self.claimed.borrow_mut() = outer;
                 self.check_budget(&parts, span);
                 parts.into_value()
             }),
@@ -37,6 +45,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
                 parts.into_value()
             }
             Api::Props => Value::Dynamic(Arc::new(Dynamic::Open(span))),
+            Api::Own => self.own(&arguments, span),
             Api::Recipe => self.recipe(&arguments, span),
             Api::Relation => match arguments.as_slice() {
                 [(Value::Str(name), _), rest @ ..] => {
@@ -638,5 +647,48 @@ fn css_text(value: &Value) -> Option<String> {
     match value {
         Value::Str(_) | Value::Number(_) | Value::Token(_) => ops::to_string(value),
         _ => None,
+    }
+}
+
+/// The attributes the handles in `value` claim (`own()`, KF-044), each once.
+fn claimed_by(value: &Value, claims: &mut Vec<String>) {
+    match value {
+        Value::Handle(handle) => {
+            for attribute in &handle.own {
+                if !claims.contains(attribute) {
+                    claims.push(attribute.clone());
+                }
+            }
+        }
+        Value::Array(items) => items.iter().for_each(|item| claimed_by(item, claims)),
+        _ => {}
+    }
+}
+
+impl Evaluator<'_, '_, '_> {
+    /// `own("data-side", …)`: a handle with no styles that claims the attributes its component writes
+    /// itself (KF-044). A style built on it treats a key on one as the component's, though a
+    /// library's vocabulary names it too, as `conditions.ownAttributes` does for the whole project.
+    fn own(&self, arguments: &[(Value, (u32, u32))], span: (u32, u32)) -> Value {
+        let mut handle = Handle::default();
+        for (value, at) in arguments {
+            match value {
+                Value::Str(name) if kirana_ir::is_attribute_name(name) => {
+                    if !handle.own.iter().any(|own| own == &**name) {
+                        handle.own.push(name.to_string());
+                    }
+                }
+                _ => self.report(
+                    Code::InvalidValue,
+                    *at,
+                    "own() takes attribute names, such as \"data-side\"",
+                    Some("name the attribute, not a selector: own(\"data-side\")"),
+                ),
+            }
+        }
+        if arguments.is_empty() {
+            self.report(Code::InvalidValue, span, "own() needs at least one attribute name", None);
+        }
+        Value::Handle(Arc::new(handle))
     }
 }

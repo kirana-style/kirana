@@ -29,6 +29,7 @@ pub enum Api {
     PositionTry,
     ViewTransition,
     CounterStyle,
+    Own,
 }
 
 impl Api {
@@ -52,6 +53,7 @@ impl Api {
             "positionTry" => Api::PositionTry,
             "viewTransition" => Api::ViewTransition,
             "counterStyle" => Api::CounterStyle,
+            "own" => Api::Own,
             _ => return None,
         })
     }
@@ -76,6 +78,7 @@ impl Api {
             Api::PositionTry => "positionTry",
             Api::ViewTransition => "viewTransition",
             Api::CounterStyle => "counterStyle",
+            Api::Own => "own",
         }
     }
 }

@@ -10,7 +10,7 @@ line coverage. The [changelog](/changelog) lists every release.
 
 ## Built
 
-- `css`, `cx`, `props`, `recipe`, `relation`, `select`, `keyframes`, `defineTokens`, `defineTheme`, `mode`, `firstThatWorks`, `positionTry`, `counterStyle`, `viewTransition`, `media`, `container` and `supports`
+- `css`, `own`, `cx`, `props`, `recipe`, `relation`, `select`, `keyframes`, `defineTokens`, `defineTheme`, `mode`, `firstThatWorks`, `positionTry`, `counterStyle`, `viewTransition`, `media`, `container` and `supports`
 - The `sx` prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as `[sx]` in Angular templates and the
   `sx` helper in Ember's); see [supported frameworks](/docs/frameworks/overview)
 - Conditions: pseudo-classes, attributes, compounds, at-rules, nesting

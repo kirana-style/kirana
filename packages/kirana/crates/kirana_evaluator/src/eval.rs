@@ -83,6 +83,8 @@ pub struct Evaluator<'p, 'a, 'c> {
     pub(crate) ctx: Context<'c>,
     pub(crate) host: &'c dyn Host,
     symbols: RefCell<FxHashMap<SymbolId, Option<Value>>>,
+    /// The attributes the `css()` call being compiled claims through `own()` handles (KF-044).
+    pub(crate) claimed: RefCell<Vec<String>>,
     /// Whether each evaluated binding's value is static: an imported token object can hold a whole
     /// palette, and every read of it asked again (KF-060).
     statics: RefCell<FxHashMap<SymbolId, bool>>,
@@ -147,6 +149,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             ctx,
             host,
             symbols: RefCell::default(),
+            claimed: RefCell::default(),
             statics: RefCell::default(),
             calls: RefCell::default(),
             plain_objects: RefCell::default(),
@@ -1326,7 +1329,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
     }
 }
 
-const ALL_APIS: [Api; 17] = [
+const ALL_APIS: [Api; 18] = [
     Api::Css,
     Api::Cx,
     Api::Props,
@@ -1344,6 +1347,7 @@ const ALL_APIS: [Api; 17] = [
     Api::PositionTry,
     Api::ViewTransition,
     Api::CounterStyle,
+    Api::Own,
 ];
 
 fn single_return<'a, 'b>(body: &'b FunctionBody<'a>) -> Option<&'b Expression<'a>> {

@@ -185,6 +185,8 @@ vocabulary per library as `conditions.exclusiveAcross`: two simple conditions th
 together, each named by one, are exclusive, since a component is built on one library (D-099). An
 attribute listed in `conditions.ownAttributes` is one the project's components write themselves, on
 every library: a condition on it is named by no vocabulary for this rule, whichever names it (D-105).
+`own(...attributes)` claims attributes so for one style, and every style built on its handle
+(KRN-API-021), so a library's popups keep the vocabulary's meaning of the same attribute.
 
 An entry whose own condition set holds two conditions the compiler knows never match one element
 together (two values of one attribute, a selector and its `:not()`, a `conditions.exclusive` group, keys

@@ -22,7 +22,8 @@ pub struct Parts(pub Vec<StylePart>);
 
 impl Parts {
     fn push_static(&mut self, handle: &Handle) {
-        if handle.is_empty() {
+        // An `own()` handle renders nothing but carries its claim on (KF-044).
+        if handle.is_empty() && handle.own.is_empty() {
             return;
         }
         if let Some(StylePart::Static(last)) = self.0.last_mut() {
@@ -239,12 +240,24 @@ impl<'a> Evaluator<'_, 'a, '_> {
         }
     }
 
+    /// The project's own attributes (`conditions.ownAttributes`) with those a handle claims (KF-044).
+    fn owned<'s>(&'s self, claimed: &[String]) -> std::borrow::Cow<'s, [String]> {
+        let project = &self.ctx.config.conditions.own_attributes;
+        if claimed.is_empty() {
+            return std::borrow::Cow::Borrowed(project);
+        }
+        let mut own = project.clone();
+        own.extend(claimed.iter().filter(|name| !project.contains(name)).cloned());
+        std::borrow::Cow::Owned(own)
+    }
+
     /// Warnings that need a whole merged handle.
     pub(crate) fn check_handle(&self, handle: &Handle, entries: &[(Key, Value)], span: (u32, u32)) {
+        let own = self.owned(&handle.own);
         let declared = kirana_ir::Declared {
             groups: &self.ctx.config.conditions.exclusive,
             across: &self.ctx.config.conditions.exclusive_across,
-            own: &self.ctx.config.conditions.own_attributes,
+            own: &own,
         };
         for (property, first, second) in ambiguous_pairs(handle, declared) {
             self.report(
@@ -297,10 +310,11 @@ impl<'a> Evaluator<'_, 'a, '_> {
         span: (u32, u32),
         parts: &mut Parts,
     ) {
+        let own = self.owned(&self.claimed.borrow());
         let declared = kirana_ir::Declared {
             groups: &self.ctx.config.conditions.exclusive,
             across: &self.ctx.config.conditions.exclusive_across,
-            own: &self.ctx.config.conditions.own_attributes,
+            own: &own,
         };
         if kirana_ir::unreachable_pair(conditions, declared).is_some() {
             // A pair only `exclusiveAcross` keeps apart is a style written once for several
