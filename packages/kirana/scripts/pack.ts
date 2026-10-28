@@ -309,7 +309,8 @@ async function packOne(name: string): Promise<string> {
         )
       : undefined,
     dependencies: resolve(manifest.dependencies),
-    peerDependencies: manifest.peerDependencies,
+    // A sibling peer is the release's own version, as a dependency is (KF-048).
+    peerDependencies: resolve(manifest.peerDependencies),
     files: [
       "src",
       "bin",

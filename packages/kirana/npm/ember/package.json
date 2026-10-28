@@ -27,7 +27,7 @@
     "@kirana-style/core": "workspace:*"
   },
   "peerDependencies": {
-    "@kirana-style/vite": "0.1.0"
+    "@kirana-style/vite": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@kirana-style/vite": {
