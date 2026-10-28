@@ -1219,7 +1219,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Values known at runtime",
     "section": "dynamic",
     "heading": "Keeping runtime values honest",
-    "text": "Prefer a finite set when there is one: a class expression costs nothing in the browser, a bridge costs a custom property. Bridge lengths, colours and numbers: values that vary continuously. If a page reports many values you did not expect, something that could be static is not: usually a token read through an intermediate variable the evaluator cannot follow."
+    "text": "Prefer a finite set when there is one: a class expression costs nothing in the browser, a bridge costs a custom property. Bridge lengths, colours and numbers: values that vary continuously. If a page reports many values you did not expect, something that could be static is not: usually a token read through an intermediate variable the evaluator cannot follow. A helper that builds a value per key folds when its inputs do. Inside a helper, the functions over entries, keys and values, and with a callback written in place, run at build time:"
   },
   {
     "id": "/docs/styling/fallbacks",
