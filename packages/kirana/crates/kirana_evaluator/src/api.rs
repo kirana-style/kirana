@@ -21,14 +21,14 @@ impl<'a> Evaluator<'_, 'a, '_> {
         let span = sp(call.span);
         let arguments = self.arguments(call);
         match api {
-            Api::Css => {
+            Api::Css => self.literal_style(call, || {
                 let mut parts = Parts::default();
                 for (value, span) in &arguments {
                     self.push_css_argument(value, *span, &mut parts);
                 }
                 self.check_budget(&parts, span);
                 parts.into_value()
-            }
+            }),
             Api::Cx => {
                 let mut parts = Parts::default();
                 for (value, span) in &arguments {
