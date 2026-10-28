@@ -27,6 +27,23 @@ export function isMusl(
   return !report?.header?.glibcVersionRuntime
 }
 
+let musl: boolean | undefined
+
+/**
+ * Whether this process runs on musl libc, asked once per process: Node's diagnostic report collects
+ * stacks, heap and handles, 15 to 19 ms a call, and every `Driver.create` loads the engine (KF-058).
+ */
+function runsOnMusl(): boolean {
+  musl ??=
+    process.platform === "linux" &&
+    isMusl(
+      process.report?.getReport() as {
+        header?: { glibcVersionRuntime?: string }
+      }
+    )
+  return musl
+}
+
 /** Which build of the engine a binding is: the Node-API addon, or the WASI build (KRN-INT-006). */
 export type Engine = "native" | "wasi"
 
@@ -57,14 +74,7 @@ export function loadNative(
   load: (id: string) => unknown = createRequire(import.meta.url),
   warn: (message: string) => void = console.warn
 ): NativeBinding {
-  const musl =
-    process.platform === "linux" &&
-    isMusl(
-      process.report?.getReport() as {
-        header?: { glibcVersionRuntime?: string }
-      }
-    )
-  const triple = platformTriple(process.platform, process.arch, musl)
+  const triple = platformTriple(process.platform, process.arch, runsOnMusl())
   if (env.KIRANA_NATIVE_PATH)
     return load(env.KIRANA_NATIVE_PATH) as NativeBinding
   let failure: unknown
