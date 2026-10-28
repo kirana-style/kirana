@@ -107,6 +107,25 @@ pub(crate) struct State {
     /// they were computed at.
     pub revision: u64,
     pub cached: registry::Cached,
+    /// The atoms, marker dependencies and unfolds of every record, kept with `modules` (KF-062).
+    pub index: registry::AtomIndex,
+}
+
+impl State {
+    /// Records `record` for `path`, keeping the atom index in step; returns the record it replaced.
+    pub(crate) fn put_module(&mut self, path: &Path, record: ModuleRecord) -> Option<ModuleRecord> {
+        let previous = self.take_module(path);
+        self.index.add(path, &record);
+        self.modules.insert(path.to_path_buf(), record);
+        previous
+    }
+
+    /// Forgets the record for `path`, keeping the atom index in step.
+    pub(crate) fn take_module(&mut self, path: &Path) -> Option<ModuleRecord> {
+        let previous = self.modules.remove(path)?;
+        self.index.remove(path, &previous);
+        Some(previous)
+    }
 }
 
 /// A module's last transform, and what it depended on: the source, how it was parsed and written,
@@ -315,7 +334,7 @@ impl Project {
 
     fn set_record(&self, path: &Path, record: ModuleRecord) -> bool {
         let mut state = self.state.write().expect("not poisoned");
-        let previous = state.modules.insert(path.to_path_buf(), record);
+        let previous = state.put_module(path, record);
         state.dense_stale = true;
         if previous.as_ref() != state.modules.get(path) {
             state.revision += 1;
@@ -367,7 +386,7 @@ impl Project {
         state.revision += 1;
         forget_declarations(&mut state, &file);
         state.reused.remove(path);
-        state.modules.remove(path).is_some_and(|record| !record.is_empty())
+        state.take_module(path).is_some_and(|record| !record.is_empty())
     }
 
     /// Transforms many files in parallel (KRN-CMP-009). Registry updates are ordered by path, so

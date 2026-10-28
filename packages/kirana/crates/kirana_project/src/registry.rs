@@ -2,6 +2,7 @@
 //! project-wide checks over it.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use kirana_diagnostics::{Code, Diagnostic, Span, apply_level};
@@ -77,6 +78,53 @@ impl ModuleRecord {
     }
 }
 
+/// What every module contributes to the stylesheet, kept as records change, so that writing it walks
+/// the atoms once instead of every module's copy of them (KF-062).
+#[derive(Debug, Default)]
+pub(crate) struct AtomIndex {
+    /// Class → each module writing it, with its atom. The stylesheet takes the first module's, in
+    /// path order, as a walk of the modules in that order did: two atoms share a class only when
+    /// `class-name-collision` reports them.
+    atoms: BTreeMap<String, BTreeMap<PathBuf, Atom>>,
+    /// The marker dependencies of each module that has any, in path order.
+    marker_deps: BTreeMap<PathBuf, Vec<Dep>>,
+    /// `(shorthand, target)` → how many unfold tokens name it, across modules.
+    unfolds: BTreeMap<(String, Target), usize>,
+}
+
+impl AtomIndex {
+    pub(crate) fn add(&mut self, path: &Path, record: &ModuleRecord) {
+        for atom in &record.atoms {
+            self.atoms.entry(atom.class.clone()).or_default().entry(path.to_path_buf()).or_insert_with(|| atom.clone());
+        }
+        if !record.marker_deps.is_empty() {
+            self.marker_deps.insert(path.to_path_buf(), record.marker_deps.clone());
+        }
+        for (shorthand, target) in &record.unfolds {
+            *self.unfolds.entry((shorthand.name.clone(), target.clone())).or_default() += 1;
+        }
+    }
+
+    pub(crate) fn remove(&mut self, path: &Path, record: &ModuleRecord) {
+        for atom in &record.atoms {
+            let modules = self.atoms.get_mut(&atom.class).expect("added with the record");
+            modules.remove(path);
+            if modules.is_empty() {
+                self.atoms.remove(&atom.class);
+            }
+        }
+        self.marker_deps.remove(path);
+        for (shorthand, target) in &record.unfolds {
+            let key = (shorthand.name.clone(), target.clone());
+            let count = self.unfolds.get_mut(&key).expect("added with the record");
+            *count -= 1;
+            if *count == 0 {
+                self.unfolds.remove(&key);
+            }
+        }
+    }
+}
+
 /// The last stylesheet and the last project diagnostics, with the revision they were computed at
 /// ([`crate::State::revision`]). A bundler asks for both once per environment, and a production
 /// build has two or more environments compiling the same modules.
@@ -144,35 +192,23 @@ impl Project {
 
     fn live(&self) -> (Vec<Atom>, Vec<Dep>) {
         let state = self.state.read().expect("not poisoned");
-        let mut paths: Vec<_> = state.modules.keys().collect();
-        paths.sort();
-        let mut atoms: BTreeMap<String, Atom> = BTreeMap::new();
+        let index = &state.index;
+        let mut atoms: BTreeMap<String, Atom> = index
+            .atoms
+            .iter()
+            .map(|(class, modules)| (class.clone(), modules.values().next().expect("an entry has a module").clone()))
+            .collect();
         let mut deps = Vec::new();
-        for path in paths {
-            let record = &state.modules[path];
-            for atom in &record.atoms {
-                // Modules repeat each other's atoms; only the first copy is worth a clone, and the
-                // key is only worth one when it is actually inserted.
-                if !atoms.contains_key(&atom.class) {
-                    atoms.insert(atom.class.clone(), atom.clone());
-                }
-            }
-            for dep in &record.marker_deps {
-                if !deps.contains(dep) {
-                    deps.push(dep.clone());
-                }
+        for dep in index.marker_deps.values().flatten() {
+            if !deps.contains(dep) {
+                deps.push(dep.clone());
             }
         }
         // A runtime merge can unfold a shorthand atom into its longhands, reusing the atom's value
         // segment. Those longhand rules exist only where some module can unfold that shorthand.
-        let unfolds: BTreeSet<(String, &Target)> = state
-            .modules
-            .values()
-            .flat_map(|record| record.unfolds.iter().map(|(shorthand, target)| (shorthand.name.clone(), target)))
-            .collect();
         let siblings: Vec<Atom> = atoms
             .values()
-            .filter(|atom| unfolds.contains(&(atom.key.property.name.clone(), &atom.key.target)))
+            .filter(|atom| index.unfolds.contains_key(&(atom.key.property.name.clone(), atom.key.target.clone())))
             .flat_map(|atom| {
                 kirana_cascade::longhands_of(&atom.key.property.name).unwrap_or_default().into_iter().map(|longhand| {
                     let key = EntryKey { property: longhand, ..atom.key.clone() };
@@ -511,7 +547,7 @@ impl Project {
             marker_deps: vec![theme("black"), theme("white")],
             ..ModuleRecord::default()
         };
-        state.modules.insert(path.with_extension("ghost"), ghost);
+        state.put_module(&path.with_extension("ghost"), ghost);
     }
 }
 
