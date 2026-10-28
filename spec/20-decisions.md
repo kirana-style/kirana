@@ -1410,10 +1410,12 @@ the implementation tracker names its evidence.
 
 ### D-101 — A parent read, and a reader that carries its own anchor
 
-- **Status:** Accepted (2026-10-24). Answers KF-018.
+- **Status:** Accepted (2026-10-24). Answers KF-018; amended 2026-10-29 for KF-054.
 - **Decision:** a relation has a fourth read, `parent(condition?)`, compiled to
   `:where(.anchor[condition] > *)`: the reader is a child of the anchor. R3 accepts a `within` or
   `parent` read on an element that also carries the anchor, which can only mean an outer instance.
+  R4 accepts an `after` or `before` read on such an element in the same way: another instance
+  beside it, which a part its caller repeats has only where it is used (KF-054).
 - **Rationale:** shadcn/ui's FieldGroup tightens a group directly inside another
   (`*:data-[slot=field-group]:gap-4`); written as the group anchoring and reading its own relation, R3
   reported it, though `within` compiles to a strict ancestor and is well defined across component
@@ -1421,7 +1423,7 @@ the implementation tracker names its evidence.
   `*:w-full` widened a label inside a wrapper and broke a login form's layout. kirana-ui fell back to raw
   `:where(… > *)` conditions, which the relation checks never see.
 - **Trade-off:** in one tree, R3 can no longer catch an anchor put on the reader by mistake when the
-  author meant a wrapper; R1 still reports a relation never anchored.
+  author meant a wrapper, nor R4 one meant for a sibling; R1 still reports a relation never anchored.
 - **Elaborated in:** [06-authoring-api](./06-authoring-api.md),
   [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 

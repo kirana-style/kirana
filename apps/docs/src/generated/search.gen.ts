@@ -999,7 +999,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Relations",
     "section": "composition",
     "heading": "Nested in its own kind",
-    "text": "A component can read its own relation to know it sits inside another of its kind: shadcn/ui's FieldGroup tightens a group directly inside another group. The group anchors the relation and reads it from the parent: An element that carries an anchor and reads it can only mean an outer one, so the placement check accepts it, for both kinds of ancestor read. A parent read reaches the anchor's children only, where reaches any depth: a port of written with would also widen a grandchild inside a wrapper."
+    "text": "A component can read its own relation to know it sits inside another of its kind: shadcn/ui's FieldGroup tightens a group directly inside another group. The group anchors the relation and reads it from the parent: An element that carries an anchor and reads it can only mean an outer one, so the placement check accepts it, for both kinds of ancestor read. A parent read reaches the anchor's children only, where reaches any depth: a port of written with would also widen a grandchild inside a wrapper. The same holds beside it. shadcn/ui's keeps its width when it follows another, and its caller is the one that repeats it, so the part anchors the relation and reads it : The placement check accepts an or read on an element that carries its own anchor: another instance beside it, which only the caller's tree holds."
   },
   {
     "id": "/docs/styling/relations#anchors-are-placed-not-guessed",
