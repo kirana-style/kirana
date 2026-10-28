@@ -28,4 +28,37 @@ describe("release-please-config.json", () => {
       .sort()
     expect(packages.filter((file) => !listed.has(file))).toEqual([])
   })
+
+  // A sibling written as a fixed version stays there while the release moves on: 0.3.4's Angular
+  // and Ember adapters asked for `@kirana-style/vite` 0.1.0 (KF-048). `workspace:*` is packed as the
+  // release's version.
+  it("names every sibling package by workspace, never by a fixed version", () => {
+    const fixed = readdirSync(
+      path.join(workspace, "packages/kirana/npm")
+    ).flatMap((name) => {
+      const manifest = JSON.parse(
+        readFileSync(
+          path.join(workspace, "packages/kirana/npm", name, "package.json"),
+          "utf8"
+        )
+      ) as Record<string, Record<string, string> | undefined>
+      return [
+        "dependencies",
+        "peerDependencies",
+        "optionalDependencies",
+        "devDependencies",
+      ].flatMap((field) =>
+        Object.entries(manifest[field] ?? {})
+          .filter(
+            ([dependency, range]) =>
+              dependency.startsWith("@kirana-style/") &&
+              !range.startsWith("workspace:")
+          )
+          .map(
+            ([dependency, range]) => `${name} ${field} ${dependency}@${range}`
+          )
+      )
+    })
+    expect(fixed).toEqual([])
+  })
 })
