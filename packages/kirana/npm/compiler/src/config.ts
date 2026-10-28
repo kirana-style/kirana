@@ -9,12 +9,13 @@ import type { LoadHookSync } from "node:module"
 import path from "node:path"
 import { pathToFileURL } from "node:url"
 
-import type {
-  KiranaConfig,
-  ScaleSource,
-  UtilityGrammar,
-  UtilityRule,
-} from "@kirana-style/core/config"
+import type { KiranaConfig, UtilityGrammar } from "@kirana-style/core/config"
+
+import {
+  engineJson as toEngineJson,
+  mergeGrammars as mergeEngineGrammars,
+} from "./engine-json.ts"
+import type { JsxMode } from "./engine-json.ts"
 
 const CANDIDATES = [
   "kirana.config.ts",
@@ -231,58 +232,27 @@ export function resolveConfigSync(
   return { file, json: engineJson(root, config, inline) }
 }
 
+/** The engine's JSON for a project on disk: `jsx` detected from its `tsconfig.json`. */
 function engineJson(
   root: string,
   config: KiranaConfig,
   inline: KiranaConfig
 ): string {
-  // `ui` is `kirana-style ui`'s (D-103), never the engine's, which refuses keys it does not know.
-  const {
-    presets = [],
-    utilities,
-    ui: _registry,
-    ...merged
-  } = { ...config, ...inline }
-  const jsx = merged.jsx ?? detectJsx(root)
-  const grammar = mergeGrammars(
-    [...presets.map((preset) => preset.utilities), utilities],
-    root
-  )
-  return JSON.stringify({
-    ...merged,
-    ...(jsx ? { jsx } : {}),
-    ...(grammar ? { utilities: grammar } : {}),
-    root,
+  return toEngineJson(root, config, inline, {
+    // Read only when the configuration names none, as before: it wins over the detected mode.
+    jsx: ({ ...config, ...inline }.jsx ?? detectJsx(root)) as
+      | JsxMode
+      | undefined,
+    resolveModule: path.resolve,
   })
 }
 
-/**
- * The presets' utility grammars and the project's, merged in order: a later scale, root or variant
- * replaces an earlier one of the same name (KRN-TOK-008). A relative scale module is resolved from
- * the project root, since the engine reads it from whichever module uses the utility.
- */
+/** `mergeGrammars` with relative scale modules resolved by Node.js's `path.resolve`. */
 export function mergeGrammars(
   grammars: readonly (UtilityGrammar | undefined)[],
   root: string
 ): UtilityGrammar | undefined {
-  const present = grammars.filter((grammar) => grammar !== undefined)
-  if (present.length === 0) return undefined
-  const scales: Record<string, ScaleSource[]> = {}
-  const utilities: Record<string, readonly UtilityRule[]> = {}
-  const variants: Record<string, string> = {}
-  for (const grammar of present) {
-    for (const [name, sources] of Object.entries(grammar.scales ?? {})) {
-      scales[name] = sources.map((source) => ({
-        module: /^\.\.?\//.test(source.module)
-          ? path.resolve(root, source.module)
-          : source.module,
-        export: source.export,
-      }))
-    }
-    Object.assign(utilities, grammar.utilities)
-    Object.assign(variants, grammar.variants)
-  }
-  return { scales, utilities, variants }
+  return mergeEngineGrammars(grammars, root, path.resolve)
 }
 
 /** `jsxImportSource` values that mean a framework other than React. */

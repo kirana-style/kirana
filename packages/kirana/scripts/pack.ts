@@ -424,6 +424,149 @@ function packNatives(directory: string, version: string): string[] {
   return tarballs
 }
 
+/**
+ * `@kirana-style/compiler-browser` (D-113): the WebAssembly engine with the in-memory file system
+ * napi-rs writes for browsers, bundled with its worker, its runtime packages and the Kirana runtime
+ * compiled modules import, so a page or a proxy serves its files as they are. No `cpu` field: a
+ * browser app installs it on any machine (KF-057).
+ */
+async function packBrowser(
+  directory: string,
+  version: string
+): Promise<string> {
+  const source = path.join(root, "npm", "compiler-browser")
+  const stage = path.join(out, "stage", "compiler-browser")
+  rmSync(stage, { recursive: true, force: true })
+  mkdirSync(path.join(stage, "engine"), { recursive: true })
+  // The loaders import their runtime packages, which resolve from this workspace.
+  for (const file of WASI.files)
+    copyFileSync(path.join(directory, file), path.join(stage, "engine", file))
+  const { build } = await import("vite-plus/pack")
+  await build({
+    config: false,
+    cwd: source,
+    entry: {
+      compiler: path.join(source, "src/index.js"),
+      runtime: path.join(source, "src/runtime.ts"),
+      // The name the loader starts its threads by (`new URL("./wasi-worker-browser.mjs", …)`).
+      "wasi-worker-browser": path.join(stage, "engine/wasi-worker-browser.mjs"),
+    },
+    alias: {
+      "@kirana-style/compiler-wasm32-wasi": path.join(
+        stage,
+        "engine/kirana.wasi-browser.js"
+      ),
+    },
+    root: source,
+    outDir: stage,
+    clean: false,
+    format: "esm",
+    fixedExtension: false,
+    outExtensions: () => ({ js: ".js" }),
+    // A stable name for the chunk the loader and its worker share, so a proxy can list the files.
+    outputOptions: { chunkFileNames: "[name].js" },
+    platform: "browser",
+    target: "es2022",
+    deps: { alwaysBundle: [/./], onlyBundle: false },
+    tsconfig: false,
+    dts: false,
+    report: false,
+    logLevel: "warn",
+  })
+  copyFileSync(
+    path.join(directory, "kirana.wasm32-wasi.wasm"),
+    path.join(stage, "kirana.wasm32-wasi.wasm")
+  )
+  rmSync(path.join(stage, "engine"), { recursive: true, force: true })
+  const worker = path.join(stage, "wasi-worker-browser.js")
+  if (existsSync(worker))
+    copyFileSync(worker, path.join(stage, "wasi-worker-browser.mjs"))
+  rmSync(worker, { force: true })
+  // Declarations: the hand-written entry's and the project module's, which it re-exports.
+  await build({
+    config: false,
+    cwd: source,
+    entry: { project: path.join(source, "src/project.ts") },
+    root: source,
+    outDir: path.join(stage, "types"),
+    clean: false,
+    format: "esm",
+    fixedExtension: false,
+    platform: "browser",
+    target: "es2022",
+    deps: { neverBundle: true },
+    tsconfig: false,
+    dts: { tsconfig: path.join(root, "tsconfig.pack.json"), emitDtsOnly: true },
+    report: false,
+    logLevel: "warn",
+  })
+  writeFileSync(
+    path.join(stage, "types", "index.d.ts"),
+    readFileSync(path.join(source, "src/index.d.ts"), "utf8")
+      .replaceAll('"./project.ts"', '"./project.js"')
+      .replace(
+        'export { engineJson as configJson } from "@kirana-style/compiler/engine-json"',
+        [
+          'import type { KiranaConfig } from "@kirana-style/core/config"',
+          "/** The engine's JSON for a configuration (KRN-INT-001). */",
+          "export declare function configJson(",
+          "  root: string,",
+          "  config: KiranaConfig,",
+          "  inline: KiranaConfig,",
+          '  options?: { jsx?: "preact" | "solid" | "qwik" }',
+          "): string",
+        ].join("\n")
+      )
+  )
+  writeFileSync(
+    path.join(stage, "types", "runtime.d.ts"),
+    'export { runtime } from "@kirana-style/core/internal"\n'
+  )
+  shared(stage, SHARED)
+  const manifest = JSON.parse(
+    readFileSync(path.join(source, "package.json"), "utf8")
+  ) as Manifest
+  const published = {
+    name: manifest.name,
+    version,
+    description: manifest.description,
+    license: "MIT",
+    ...PUBLIC,
+    repository: {
+      ...PUBLIC.repository,
+      directory: "packages/kirana/npm/compiler-browser",
+    },
+    type: "module",
+    sideEffects: false,
+    exports: {
+      ".": { types: "./types/index.d.ts", default: "./compiler.js" },
+      "./runtime": { types: "./types/runtime.d.ts", default: "./runtime.js" },
+      "./package.json": "./package.json",
+    },
+    files: [
+      "compiler.js",
+      "runtime.js",
+      "wasi-worker-browser.mjs",
+      "kirana.wasm32-wasi.wasm",
+      "*.js",
+      "types",
+      ...SHARED,
+    ],
+    // `@kirana-style/core` for the declarations' types only; everything that runs is bundled.
+    peerDependencies: { "@kirana-style/core": version },
+    peerDependenciesMeta: { "@kirana-style/core": { optional: true } },
+  }
+  writeFileSync(
+    path.join(stage, "package.json"),
+    `${JSON.stringify(published, null, 2)}\n`
+  )
+  return run(
+    "npm",
+    ["pack", "--pack-destination", out, "--silent"],
+    stage
+  ).trim()
+}
+
 if (import.meta.main) {
   rmSync(out, { recursive: true, force: true })
   mkdirSync(out, { recursive: true })
@@ -435,6 +578,9 @@ if (import.meta.main) {
     natives ? path.resolve(natives) : path.join(root, "npm/compiler"),
     version
   )
+  const wasi = natives ? path.resolve(natives) : path.join(root, "npm/compiler")
+  if (WASI.files.every((file) => existsSync(path.join(wasi, file))))
+    native.push(await packBrowser(wasi, version))
   if (native.length === 0) {
     throw new Error(
       "no native build found: run `bun run kirana:build` first, or pass --natives"

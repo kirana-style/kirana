@@ -21,10 +21,16 @@
   "exports": {
     ".": "./src/index.ts",
     "./host": "./src/host.ts",
+    "./engine-json": "./src/engine-json.ts",
     "./package.json": "./package.json"
   },
   "napi": {
-    "binaryName": "kirana"
+    "binaryName": "kirana",
+    "wasm": {
+      "browser": {
+        "fs": true
+      }
+    }
   },
   "scripts": {
     "build": "bun scripts/build-native.ts",

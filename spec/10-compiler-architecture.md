@@ -355,8 +355,9 @@ language server.
   span)` arrives with the language server. Each transform crosses the boundary once with compact results —
   never serialized ASTs.
 - **KRN-CMP-012 — WASM:** the same crates MUST build for `wasm32-wasip1` (a fallback package for
-  environments where native addons cannot load, such as WebContainers) and `wasm32-unknown-unknown`
-  (the browser playground), using the in-memory filesystem.
+  environments where native addons cannot load, such as WebContainers). In a browser (the
+  playground) the same build runs with an in-memory filesystem, as `@kirana-style/compiler-browser`
+  (D-113); no `wasm32-unknown-unknown` build is needed.
 
 ## Diagnostics
 
