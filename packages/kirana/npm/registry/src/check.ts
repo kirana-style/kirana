@@ -78,11 +78,55 @@ function fileProblems(item: Item): Problem[] {
   return problems
 }
 
+/** The package a module specifier is in: `@scope/name` or `name`, without its path. */
+const packageOf = (specifier: string) =>
+  specifier
+    .split("/")
+    .slice(0, specifier.startsWith("@") ? 2 : 1)
+    .join("/")
+
+/**
+ * What the item schema cannot check across fields (KF-050): a font item names its font and the
+ * package its stylesheet is in, and only a font item has one; an axis names items only for its
+ * own values.
+ */
+function itemProblems(item: Item): Problem[] {
+  const problems: Problem[] = []
+  if (item.type === "font" && item.font === undefined)
+    problems.push({ pointer: "/font", message: "is required for a font item" })
+  if (item.type !== "font" && item.font !== undefined)
+    problems.push({
+      pointer: "/font",
+      message: `is only for a font item; this one is a ${item.type}`,
+    })
+  if (
+    item.font !== undefined &&
+    !(packageOf(item.font.import) in (item.dependencies ?? {}))
+  )
+    problems.push({
+      pointer: "/font/import",
+      message: `is in ${packageOf(item.font.import)}, which dependencies does not list`,
+    })
+  for (const [axis, { values, items }] of Object.entries(
+    item.design?.axes ?? {}
+  ))
+    for (const value of Object.keys(items ?? {}))
+      if (!values.includes(value))
+        problems.push({
+          pointer: `/design/axes/${axis}/items/${value}`,
+          message: `names an item for ${value}, which is not one of the axis's values`,
+        })
+  return problems
+}
+
 /** The document's kind and its problems, in document order; none when it is valid. */
 export function check(document: unknown): { kind: Kind; problems: Problem[] } {
   const kind = kindOf(document)
   const problems = validate(document, SCHEMAS[kind])
   if (kind === "item" && problems.length === 0)
-    problems.push(...fileProblems(document as Item))
+    problems.push(
+      ...itemProblems(document as Item),
+      ...fileProblems(document as Item)
+    )
   return { kind, problems }
 }

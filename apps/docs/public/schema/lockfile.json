@@ -180,6 +180,11 @@
         "$ref": "#/$defs/file"
       }
     },
+    "specifier": {
+      "type": "string",
+      "description": "An npm package, or a module in one: `@fontsource-variable/lora`, `pkg/file.css`.",
+      "pattern": "^(@[a-z0-9][a-z0-9._~-]*/)?[a-z0-9][a-z0-9._~-]*(/[A-Za-z0-9._~-]+)*$"
+    },
     "values": {
       "type": "array",
       "minItems": 1,

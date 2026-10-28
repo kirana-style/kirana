@@ -128,6 +128,13 @@ const definitions: Record<string, Schema> = {
     additionalProperties: false,
   },
   files: { type: "array", items: { $ref: "#/$defs/file" } },
+  specifier: {
+    type: "string",
+    description:
+      "An npm package, or a module in one: `@fontsource-variable/lora`, `pkg/file.css`.",
+    pattern:
+      "^(@[a-z0-9][a-z0-9._~-]*/)?[a-z0-9][a-z0-9._~-]*(/[A-Za-z0-9._~-]+)*$",
+  },
   values: {
     type: "array",
     minItems: 1,
@@ -199,6 +206,26 @@ export const ITEM_SCHEMA: Schema = {
       additionalProperties: false,
     },
     files: { $ref: "#/$defs/files" },
+    font: {
+      type: "object",
+      description:
+        "A font item's family and stylesheet (KF-050): `ui add` imports the stylesheet in the app's entry.",
+      required: ["family", "import"],
+      properties: {
+        family: {
+          type: "string",
+          description:
+            "The stack a design's tokens write: `'Lora Variable', serif`.",
+          minLength: 1,
+        },
+        import: {
+          $ref: "#/$defs/specifier",
+          description:
+            "The stylesheet that loads the family, from a package in `dependencies`.",
+        },
+      },
+      additionalProperties: false,
+    },
     design: {
       type: "object",
       description:
@@ -217,6 +244,15 @@ export const ITEM_SCHEMA: Schema = {
               properties: {
                 attribute: { type: "string", pattern: "^data-[a-z0-9-]+$" },
                 values: { $ref: "#/$defs/values" },
+                items: {
+                  type: "object",
+                  description:
+                    "The item each value installs, by value: a font item per family (KF-050).",
+                  patternProperties: {
+                    "^.+$": { $ref: "#/$defs/reference" },
+                  },
+                  additionalProperties: false,
+                },
               },
               additionalProperties: false,
             },

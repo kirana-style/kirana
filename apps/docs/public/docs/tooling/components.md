@@ -71,6 +71,9 @@ your package manager, and Kirana checks what was written before your next build.
 `add` never changes a file you already have unless you pass `--overwrite`.
 `--dry-run` shows what it would do.
 
+A font (`ui add font-lora`) is a package and the stylesheet that loads it, which
+`add` imports after Kirana's stylesheet.
+
 ## The lockfile
 
 `kirana-style.lock.json` records each installed component: the registry it came
@@ -98,6 +101,10 @@ where your design system's styles are. Then it places every installed component
 again: a registry that flattened its style modules for the new design gives you
 that build, with only the new style's values in it. A file you changed stops it
 until you look, or pass `--overwrite`.
+
+When a code picks a font the project does not have, it is installed, as `init`
+installs the fonts its code names. A font no axis uses any more stays, and the
+command says so.
 
 ## Updating and removing
 

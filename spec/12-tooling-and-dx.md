@@ -131,7 +131,8 @@ own checks read, so the format has one definition.
 | frameworks           | per framework (`react`, `vue`, `svelte`, `solid`, `angular`), per base (`base`, `aria`, `ark` …): the markup files, and the packages and items only that base needs        |
 | files                | files every framework installs alike (a library, a stylesheet)                                                                                                             |
 | setup                | a design system's wiring: the configuration it spreads, the stylesheets the app imports, the styles `<html>` takes, each by `module` and `export` or an `@/registry/` path |
-| design               | a design system's axes, each the `<html>` attribute it is written to with its values (the first the default), the axis registries flatten for, and its preset layouts      |
+| font                 | a font item's `family` (the stack a design's tokens write) and `import`, the stylesheet that loads it, from a package in `dependencies`                                    |
+| design               | a design system's axes: the `<html>` attribute, its values (the first the default) and the item each installs (`items`); the axis to flatten; its preset layouts           |
 | flattened            | its style modules flattened for each value of that axis and each base (`builds.vega.base`), which installation takes for the project's design                              |
 | meta                 | free data, for documentation and provenance                                                                                                                                |
 
@@ -140,7 +141,9 @@ where it installs, under the project's alias for `ui`, `component`, `lib`, `hook
 `file` at its own `target`, relative to the project's root; `path` is relative to that place and
 never leaves it; `hash` is `sha256-` and the base64 SHA-256 of `content`'s UTF-8 bytes, as
 subresource integrity writes it. An item MUST list every framework and base it supports, and only
-those, each with at least one file.
+those, each with at least one file. A `font` item MUST have a `font`, and only a font item has one;
+its `import` is in a package its `dependencies` lists. An axis's `items` name items only for its own
+values (KF-050).
 
 **KRN-DX-022** — A registry MUST be addressable as a URL template holding `{name}`, and its index
 is the item named `index`: `{ name, homepage, items }`, each entry with the item's `name`, `type`,
@@ -208,7 +211,9 @@ markup MUST become the icon library's own component, every other attribute kept,
 and the placeholder's dropped; a placeholder that names no icon for the library stops the command.
 The npm packages the items and their icons need and the project does not list are installed with
 its package manager, and each item is recorded in the
-lockfile (KRN-DX-025) with both hashes of every file. Then `kirana-style check` MUST run on the
+lockfile (KRN-DX-025) with both hashes of every file. A font item's `import` MUST be imported once
+in the script that imports Kirana's stylesheet, after it; a project without one (a PostCSS
+`@kirana;` directive) is told to import it by hand. Then `kirana-style check` MUST run on the
 scripts written, from the project's root, an error in them exiting 1; `--no-check` skips it. Exit 1
 when an item cannot be read or installed, 2 without an item or with settings it cannot use.
 
@@ -267,7 +272,10 @@ fields to their own settings; the design's axes set as attributes on `<html>`, w
 design system's styles (a layout's `<html>` element, or a static app's `index.html`); and every
 installed item placed again for the new design, as `update` writes it: a file the project left as
 installed is replaced, one it changed stops the command unless `--overwrite`, and the lockfile
-records the new design and hashes. `init --preset <code>` starts a project with a design.
+records the new design and hashes. The items the new values name in their axis's `items` that are
+not installed MUST be installed as `add` installs them, a font's stylesheet imported; an installed
+one no value names any more is reported for `ui remove`, not removed. `init --preset <code>` starts
+a project with a design, installing the items its values name.
 `--dry-run` writes nothing. Exit 1 for a code no layout reads or a project without a design system
 installed, 2 for an unknown option or settings it cannot use.
 

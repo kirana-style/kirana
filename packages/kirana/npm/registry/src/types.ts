@@ -48,18 +48,25 @@ export type Item = {
   styles?: RegistryFile[]
   frameworks?: Partial<Record<Framework, Record<string, Base>>>
   files?: RegistryFile[]
+  font?: Font
   design?: Design
   flattened?: Flattened
   setup?: Setup
   meta?: Record<string, unknown>
 }
 
+/** A font item's family and the stylesheet that loads it (KF-050). */
+export type Font = { family: string; import: string }
+
 /** One preset field, from bit 0: the axis it sets, its values in index order, and its width. */
 export type PresetField = { axis: string; values: string[]; bits: number }
 
 /** A design system's axes and preset layouts (D-110). */
 export type Design = {
-  axes: Record<string, { attribute: string; values: string[] }>
+  axes: Record<
+    string,
+    { attribute: string; values: string[]; items?: Record<string, string> }
+  >
   flatten?: string
   presets?: Record<string, PresetField[]>
 }

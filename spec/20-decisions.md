@@ -1525,14 +1525,17 @@ the implementation tracker names its evidence.
 ### D-107 — Registry items in Kirana's own format, with a lockfile
 
 - **Status:** Accepted (2026-10-25). For kirana-ui's installer; the format third-party registries
-  use too.
+  use too. Amended 2026-10-29 for KF-050.
 - **Decision:** a registry item is one JSON document of Kirana's own (KRN-DX-021): its style modules
   as written, one source for every framework, and its markup per framework and base, which
   installation flattens for the project's design. Registries are URL templates by namespace, with
   `@kirana` built in, and private ones send headers read from the environment. Every file carries a
   SHA-256 integrity hash, and a project's installs are recorded in `kirana-style.lock.json`. The
   format is published as JSON Schema by `@kirana-style/registry/schema` and checked by the package's
-  own reading of those schemas.
+  own reading of those schemas. A `font` item carries `font`: the family its design's tokens write and
+  the stylesheet that loads it, a module of a package it depends on, which `ui add` imports in the
+  app's entry. A design system's axis names the item each value installs (`items`), which
+  `ui init --preset` and `ui preset` add.
 - **Rationale:** shadcn/ui's format holds one copy per framework and style, flattened ahead, and its
   CLI installs React only: kirana-ui would need a copy per combination (12 today), and could not
   install a design it did not build ahead. Carrying the unflattened styles once and the markup per
@@ -1542,7 +1545,10 @@ the implementation tracker names its evidence.
   definition.
 - **Trade-off:** shadcn/ui's CLI cannot read these items, so kirana-ui keeps a shadcn export for
   React users who stay on it. The lockfile is one file more in a project; it is plain JSON, named for
-  the command that writes it, not for a registry, since one project installs from several.
+  the command that writes it, not for a registry, since one project installs from several. A
+  family's item is named per value rather than found by a `font-<value>` convention: a value such as
+  `inherit` names none, and a registry names its items as it likes. `ui preset` does not remove a
+  family no value names any more: the project may use it elsewhere, so it says so instead.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
 ### D-108 — Installed files name each other through the project's aliases
