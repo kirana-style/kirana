@@ -18,7 +18,7 @@ export const border = "k4j_ kk_ k4w_ k4x_ kp_ kf_ kh_ ki_ kj_ kr_ ks_ kt_ km_ kn
 export function Panel({ size, sx }: { size: string; sx?: string }) {
   return (
     <div
-      {...__k.sx(["k0_HV2H kJ_pnCg kJ-KFHz_iExv ka_pZ99 kM_vJdK k1g_mTvr", /* @__PURE__ */ __k.b("ku_OAhx", "--ku", (`${size}px`)), "k0*_ k1*_ k2*_ k3*_ k4*_", (sx)], [], [])}
+      {...__k.sx(["k0_HV2H kJ_pnCg kJ-KFHz_iExv ka_pZ99 kM_vJdK k1g_mTvr", /* @__PURE__ */ __k.b("ku_OAhx", "--ku", (`${size}px`)), "k0*_ k1*_ k2*_ k3*_ k4*_ kS*_ kP*_ kQ*_ kR*_ kT*_ kU*_", (sx)], [], [])}
     />
   )
 }

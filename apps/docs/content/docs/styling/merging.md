@@ -118,6 +118,12 @@ other three keep `1rem`. The same is true across modules and across components:
 merging is defined on longhands, so nothing depends on which shorthand each author
 happened to use.
 
+Removing a whole box removes it on both axes. A component that pads its sides
+with `paddingInline`, composed with `css({ padding: { "*": null, base: "0" } })`,
+loses its side padding too: in any writing mode, the four physical sides are the
+four logical ones. Removing one side, `paddingLeft`, leaves `paddingInline`
+alone, since which logical side it is depends on the text's direction.
+
 ## A component's own `sx`
 
 A component that takes `sx` should merge it **last**, so its caller can override:

@@ -176,46 +176,66 @@ pub fn is_logical(kebab: &str) -> bool {
         || bare.ends_with("-end-radius")
 }
 
+/// Each logical longhand and the physical one it is in horizontal-tb, left-to-right writing.
+const COUNTERPARTS: &[(&str, &str)] = &[
+    ("margin-inline-start", "margin-left"),
+    ("margin-inline-end", "margin-right"),
+    ("margin-block-start", "margin-top"),
+    ("margin-block-end", "margin-bottom"),
+    ("padding-inline-start", "padding-left"),
+    ("padding-inline-end", "padding-right"),
+    ("padding-block-start", "padding-top"),
+    ("padding-block-end", "padding-bottom"),
+    ("inset-inline-start", "left"),
+    ("inset-inline-end", "right"),
+    ("inset-block-start", "top"),
+    ("inset-block-end", "bottom"),
+    ("inline-size", "width"),
+    ("block-size", "height"),
+    ("min-inline-size", "min-width"),
+    ("min-block-size", "min-height"),
+    ("max-inline-size", "max-width"),
+    ("max-block-size", "max-height"),
+    ("border-inline-start-width", "border-left-width"),
+    ("border-inline-end-width", "border-right-width"),
+    ("border-block-start-width", "border-top-width"),
+    ("border-block-end-width", "border-bottom-width"),
+    ("border-inline-start-color", "border-left-color"),
+    ("border-inline-end-color", "border-right-color"),
+    ("border-block-start-color", "border-top-color"),
+    ("border-block-end-color", "border-bottom-color"),
+    ("border-inline-start-style", "border-left-style"),
+    ("border-inline-end-style", "border-right-style"),
+    ("border-block-start-style", "border-top-style"),
+    ("border-block-end-style", "border-bottom-style"),
+    ("border-start-start-radius", "border-top-left-radius"),
+    ("border-start-end-radius", "border-top-right-radius"),
+    ("border-end-start-radius", "border-bottom-left-radius"),
+    ("border-end-end-radius", "border-bottom-right-radius"),
+];
+
 /// The physical longhand a logical one conflicts with in horizontal-tb, left-to-right writing,
 /// used only to report `mixed-logical-physical`.
 pub fn physical_counterpart(kebab: &str) -> Option<&'static str> {
-    Some(match kebab {
-        "margin-inline-start" => "margin-left",
-        "margin-inline-end" => "margin-right",
-        "margin-block-start" => "margin-top",
-        "margin-block-end" => "margin-bottom",
-        "padding-inline-start" => "padding-left",
-        "padding-inline-end" => "padding-right",
-        "padding-block-start" => "padding-top",
-        "padding-block-end" => "padding-bottom",
-        "inset-inline-start" => "left",
-        "inset-inline-end" => "right",
-        "inset-block-start" => "top",
-        "inset-block-end" => "bottom",
-        "inline-size" => "width",
-        "block-size" => "height",
-        "min-inline-size" => "min-width",
-        "min-block-size" => "min-height",
-        "max-inline-size" => "max-width",
-        "max-block-size" => "max-height",
-        "border-inline-start-width" => "border-left-width",
-        "border-inline-end-width" => "border-right-width",
-        "border-block-start-width" => "border-top-width",
-        "border-block-end-width" => "border-bottom-width",
-        "border-inline-start-color" => "border-left-color",
-        "border-inline-end-color" => "border-right-color",
-        "border-block-start-color" => "border-top-color",
-        "border-block-end-color" => "border-bottom-color",
-        "border-inline-start-style" => "border-left-style",
-        "border-inline-end-style" => "border-right-style",
-        "border-block-start-style" => "border-top-style",
-        "border-block-end-style" => "border-bottom-style",
-        "border-start-start-radius" => "border-top-left-radius",
-        "border-start-end-radius" => "border-top-right-radius",
-        "border-end-start-radius" => "border-bottom-left-radius",
-        "border-end-end-radius" => "border-bottom-right-radius",
-        _ => return None,
-    })
+    COUNTERPARTS.iter().find(|(logical, _)| *logical == kebab).map(|(_, physical)| *physical)
+}
+
+/// The logical longhands of every box whose physical sides `longhands` all hold: the four sides of
+/// a box are its four logical sides in any writing mode, so `padding`'s are `padding-inline-start`
+/// … `padding-block-end` (KF-064). A box partly held adds nothing, since which logical side a
+/// physical one is depends on the writing mode; no shorthand holds a whole box's logical sides.
+pub fn logical_box(longhands: &[&str]) -> Vec<&'static str> {
+    COUNTERPARTS
+        .iter()
+        .filter(|(_, physical)| {
+            let group = flow_group(physical).0;
+            COUNTERPARTS
+                .iter()
+                .filter(|(_, other)| flow_group(other).0 == group)
+                .all(|(_, other)| longhands.contains(other))
+        })
+        .map(|(logical, _)| *logical)
+        .collect()
 }
 
 /// The group of longhands that can set the same thing on some element as `kebab`, whatever its

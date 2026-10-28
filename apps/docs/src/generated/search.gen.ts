@@ -787,7 +787,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Merging and removal",
     "section": "cascade",
     "heading": "Shorthands merge per longhand",
-    "text": "expands to four longhands, replaces one of them, and the other three keep . The same is true across modules and across components: merging is defined on longhands, so nothing depends on which shorthand each author happened to use."
+    "text": "expands to four longhands, replaces one of them, and the other three keep . The same is true across modules and across components: merging is defined on longhands, so nothing depends on which shorthand each author happened to use. Removing a whole box removes it on both axes. A component that pads its sides with , composed with , loses its side padding too: in any writing mode, the four physical sides are the four logical ones. Removing one side, , leaves alone, since which logical side it is depends on the text's direction."
   },
   {
     "id": "/docs/styling/merging#a-component-s-own-sx",

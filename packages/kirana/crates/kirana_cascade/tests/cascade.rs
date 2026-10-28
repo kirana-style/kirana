@@ -283,7 +283,8 @@ proptest::proptest! {
     /// KRN-TEST-003 (3): merging the compiled handles — shorthand atoms, tombstones and unfolds — gives
     /// every longhand the value the author's intent gives it, where a shorthand assigns its value to
     /// each longhand it names and `null` removes them (at one condition set, or at all of them at the
-    /// top). Each write is merged as its own handle, as separate styles are.
+    /// top, with the logical sides of a whole box it names, KF-064). Each write is merged as its own
+    /// handle, as separate styles are.
     #[test]
     fn shorthand_atoms_merge_like_expanded_longhands(
         sequence in proptest::collection::vec(
@@ -298,7 +299,13 @@ proptest::proptest! {
             compile(&mut handle, write);
             merged.merge(&handle);
             let (name, value, hover, top) = write;
-            for longhand in longhands_of(FAMILY[name]).unwrap() {
+            let mut longhands: Vec<String> = longhands_of(FAMILY[name]).unwrap().into_iter().map(|p| p.name).collect();
+            if value.is_none() && top && !hover {
+                let names: Vec<&str> = longhands.iter().map(String::as_str).collect();
+                let logical: Vec<String> = kirana_css_data::logical_box(&names).into_iter().map(str::to_owned).collect();
+                longhands.extend(logical);
+            }
+            for longhand in longhands.iter().map(|name| Property::longhand(name.clone())) {
                 match value {
                     Some(value) => {
                         intent.retain(|(existing, at, _)| !(*existing == longhand.name && *at == hover));
