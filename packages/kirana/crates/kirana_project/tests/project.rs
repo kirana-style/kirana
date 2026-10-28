@@ -610,6 +610,43 @@ fn a_dependency_changed_on_disk_is_noticed_without_an_invalidation() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// A preset's files are listed once however many of its modules read them, and an edit to one they
+/// share is still seen through every importer's cached exports (KF-060).
+#[test]
+fn a_file_two_imported_modules_share_is_read_once_and_followed() {
+    let shared = "export const unit = \"1px\"\n";
+    let (root, project) = temp_project(&[
+        ("package.json", "{\"name\":\"app\"}"),
+        ("shared.ts", shared),
+        ("a.ts", "import { unit } from \"./shared\"\nexport const a = unit\n"),
+        ("b.ts", "import { unit } from \"./shared\"\nexport const b = unit\n"),
+        ("index.ts", "export { a } from \"./a\"\nexport { b } from \"./b\"\n"),
+    ]);
+    project.reuse_transforms();
+    let input = "import { css } from \"@kirana-style/core\"\nimport { a, b } from \"./index\"\nexport const box = css({ width: a, height: b })\n";
+    let other = "import { css } from \"@kirana-style/core\"\nimport { a } from \"./index\"\nexport const line = css({ maxWidth: a })\n";
+    let first = project.transform(&root.join("input.ts"), input);
+    let names = |transformed: &kirana_project::Transformed| {
+        transformed
+            .dependencies
+            .iter()
+            .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(names(&first), ["a.ts", "b.ts", "index.ts", "shared.ts"]);
+    // Answered from the cached exports of `index.ts`, which read both of its sources.
+    assert_eq!(names(&project.transform(&root.join("other.ts"), other)), ["a.ts", "b.ts", "index.ts", "shared.ts"]);
+    fs::write(root.join("shared.ts"), shared.replace("1px", "2px")).unwrap();
+    project.transform(&root.join("shared.ts"), &shared.replace("1px", "2px"));
+    project.transform(&root.join("input.ts"), input);
+    project.transform(&root.join("other.ts"), other);
+    let sheet = project.stylesheet(false);
+    for declaration in ["width: 2px", "height: 2px", "max-width: 2px"] {
+        assert!(sheet.contains(declaration), "{declaration} in {sheet}");
+    }
+    fs::remove_dir_all(root).unwrap();
+}
+
 #[test]
 fn a_finished_stylesheet_keeps_runtime_tokens_and_what_the_bundle_names() {
     let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const glow = defineTokens(\"glow\", { soft: \"1px\" }, { runtime: true })\nexport const size = defineTokens(\"size\", { read: \"2px\", named: \"3px\", unused: \"4px\", kept: { value: \"5px\", runtime: true } }, { variable: true })\n";
