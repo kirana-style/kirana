@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/postcss",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Kirana for PostCSS: compiles the project into the stylesheet at the `@kirana;` directive. Next.js with Turbopack, and any PostCSS pipeline.",
   "license": "MIT",
   "author": "The Kirana authors",
