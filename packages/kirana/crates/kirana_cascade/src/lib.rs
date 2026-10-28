@@ -489,7 +489,12 @@ pub fn write_plan(name: &str) -> Result<WritePlan, DeclarationError> {
 }
 
 fn build_plan(name: &str) -> Result<WritePlan, DeclarationError> {
-    let longhands = longhands_of(name)?;
+    Ok(plan_of(longhands_of(name)?))
+}
+
+/// The plan for writing `longhands`: the shorthands they cover whole, and those they share some
+/// longhands with.
+fn plan_of(longhands: Vec<Property>) -> WritePlan {
     let mut covered = Vec::new();
     let mut overlapping = Vec::new();
     for (shorthand, members) in shorthand_table() {
@@ -505,7 +510,7 @@ fn build_plan(name: &str) -> Result<WritePlan, DeclarationError> {
     // write removes or unfolds a narrower atom), so the narrower atom's longhands must be in place
     // before the broader one unfolds and finds them already owned.
     overlapping.sort_by_key(|(_, _, breadth)| *breadth);
-    Ok(WritePlan { longhands, covered, overlapping })
+    WritePlan { longhands, covered, overlapping }
 }
 
 /// Ops that come before setting a property at `conditions`: unfold every shorthand atom no broader
@@ -541,15 +546,23 @@ pub fn prepare_set(
 /// `prop: null` (every condition set when `every`) or `{ [condition]: null }`.
 pub fn removal(plan: &WritePlan, target: &Target, conditions: &ConditionSet, every: bool) -> Handle {
     let mut handle = Handle::default();
-    for (shorthand, keep, _) in &plan.overlapping {
-        handle.apply(unfold(target, shorthand, keep, (!every).then_some(conditions)));
-    }
-    for property in plan.covered.iter().chain(&plan.longhands) {
-        handle.apply(if every {
-            Op::RemoveProperty(target.clone(), property.clone())
-        } else {
-            Op::Remove(EntryKey::new(target.clone(), property.clone(), conditions.clone()))
-        });
+    // A whole property removed removes the box it covers in logical sides too: `"*": null` on
+    // `padding` drops an earlier `paddingInline`, which would otherwise outrank a later `padding`
+    // (KF-064). A removal under conditions keeps to the property it names.
+    let names: Vec<&str> = plan.longhands.iter().map(|property| property.name.as_str()).collect();
+    let other = if every { kirana_css_data::logical_box(&names) } else { Vec::new() };
+    let other = (!other.is_empty()).then(|| plan_of(other.into_iter().map(Property::longhand).collect()));
+    for plan in std::iter::once(plan).chain(other.as_ref()) {
+        for (shorthand, keep, _) in &plan.overlapping {
+            handle.apply(unfold(target, shorthand, keep, (!every).then_some(conditions)));
+        }
+        for property in plan.covered.iter().chain(&plan.longhands) {
+            handle.apply(if every {
+                Op::RemoveProperty(target.clone(), property.clone())
+            } else {
+                Op::Remove(EntryKey::new(target.clone(), property.clone(), conditions.clone()))
+            });
+        }
     }
     handle
 }

@@ -548,9 +548,9 @@
           "brotli": 61
         },
         "js": {
-          "raw": 50,
-          "gzip": 63,
-          "brotli": 53
+          "raw": 80,
+          "gzip": 78,
+          "brotli": 60
         }
       },
       "merge-16-later-argument-wins": {
@@ -563,6 +563,18 @@
           "raw": 34,
           "gzip": 54,
           "brotli": 38
+        }
+      },
+      "merge-16-whole-box-removes-logical-sides": {
+        "css": {
+          "raw": 419,
+          "gzip": 194,
+          "brotli": 156
+        },
+        "js": {
+          "raw": 1262,
+          "gzip": 606,
+          "brotli": 494
         }
       },
       "merge-17-skipped-inputs": {
@@ -848,9 +860,9 @@
           "brotli": 311
         },
         "js": {
-          "raw": 1227,
-          "gzip": 699,
-          "brotli": 601
+          "raw": 1257,
+          "gzip": 712,
+          "brotli": 607
         }
       },
       "smoke": {

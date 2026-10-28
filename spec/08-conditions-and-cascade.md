@@ -55,6 +55,13 @@ flowchart LR
 | `prop: { "*": null, …entries }` | Removes every entry not listed, then applies the listed entries.     |
 | `prop: null`                    | Removes every entry for the longhand.                                |
 
+A removal of every entry (`prop: null`, `"*": null`) of a property that holds a whole box's physical
+sides (`padding`, `margin`, `inset`, `borderWidth`, `borderRadius` …) MUST also remove the box's logical
+sides (`paddingInline`, `paddingBlockStart` …): in any writing mode they are the same four sides, and an
+earlier logical entry would otherwise outrank the later shorthand at ladder step 5 (KF-064). A removal
+of one side, or under a condition, removes only what it names: which logical side a physical one is
+depends on the writing mode.
+
 The merge result is the same whether it is computed at build time or by the private runtime
 ([09](./09-dynamic-styles.md#private-runtime)).
 

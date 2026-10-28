@@ -770,7 +770,11 @@ export const chip = recipe({ slots: ["root"], base: { root: { height: "1rem" } }
         styles[2]["entries"][0],
         serde_json::json!({ "property": "padding", "value": null, "conditions": null })
     );
-    assert_eq!(styles[2]["entries"][5]["conditions"][0]["text"], ":hover");
+    // The whole box removed on both axes (KF-064), and the hover removal after it.
+    let removed: Vec<&str> =
+        styles[2]["entries"].as_array().unwrap().iter().filter_map(|entry| entry["property"].as_str()).collect();
+    assert!(removed.contains(&"padding-inline") && removed.contains(&"padding-block-end"), "{removed:?}");
+    assert!(styles[2]["entries"].as_array().unwrap().iter().any(|entry| entry["conditions"][0]["text"] == ":hover"));
     assert_eq!(styles[3]["entries"][0]["assigns"], "color.muted");
     assert_eq!(styles[3]["entries"][1]["keyframes"].as_array().unwrap().len(), 1);
     let parts = &json["recipes"][0]["parts"];

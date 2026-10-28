@@ -843,10 +843,10 @@ describe("use-logical-properties", () => {
       ),
       "utf8"
     )
-    const table = source.slice(source.indexOf("pub fn physical_counterpart"))
+    const table = source.slice(source.indexOf("const COUNTERPARTS"))
     const camel = (name: string) =>
       name.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase())
-    const pairs = [...table.matchAll(/"([a-z-]+)" => "([a-z-]+)",/g)]
+    const pairs = [...table.matchAll(/\("([a-z-]+)", "([a-z-]+)"\),/g)]
       .map(([, logical, physical]) => [camel(physical!), camel(logical!)])
       .filter(([, logical]) =>
         /Inline(Start|End)|StartStart|StartEnd|EndStart|EndEnd/.test(logical!)
