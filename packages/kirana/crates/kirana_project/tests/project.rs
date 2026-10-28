@@ -591,6 +591,33 @@ fn a_build_reuses_a_transform_whose_inputs_are_unchanged() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// A watch session reuses transforms too (KF-063), but never one that missed an import: it compiles
+/// each time, as without reuse, until the file it names exists.
+#[test]
+fn a_transform_that_missed_an_import_is_never_reused() {
+    let input = "import { css } from \"@kirana-style/core\"\nimport { space } from \"./tokens\"\nexport const box = css({ gap: space[1] })\n";
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("input.ts", input)]);
+    project.reuse_transforms();
+    let path = root.join("input.ts");
+    let missed = project.transform(&path, input);
+    assert!(missed.diagnostics.iter().any(|d| d.code == Code::UnresolvedImport));
+    project.transform(&path, input);
+    assert_eq!(project.work().reused, 0);
+    // Created, and the session told: the next transform finds it.
+    fs::write(
+        root.join("tokens.ts"),
+        "import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { 1: \"1px\" })\n",
+    )
+    .unwrap();
+    project.invalidate(&root.join("tokens.ts"));
+    let found = project.transform(&path, input);
+    assert!(!found.diagnostics.iter().any(|d| d.code == Code::UnresolvedImport), "{:?}", found.diagnostics);
+    // Resolved now: the next one is reused.
+    project.transform(&path, input);
+    assert_eq!(project.work().reused, 1);
+    fs::remove_dir_all(root).unwrap();
+}
+
 #[test]
 fn a_dependency_changed_on_disk_is_noticed_without_an_invalidation() {
     let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { 1: \"1px\" })\n";

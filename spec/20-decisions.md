@@ -1095,12 +1095,13 @@ the implementation tracker names its evidence.
 ### D-085 — A one-shot build compiles each module once
 
 - **Status:** Accepted (2026-10-19). Amends D-049's premise, not its decision: there is still no
-  persistent cache.
+  persistent cache. Amended 2026-10-29 for KF-063: a dev server and a watch build reuse too.
 - **Decision:** In a one-shot build, a transform of a module whose source, parse mode and naming
   mode are unchanged returns its previous transform.
   - "Unchanged" includes every file its evaluation read, each checked against the hash it had then,
     the export cache's own provenance test.
-  - The Vite and Rolldown hosts turn this on at `buildStart`, except in a dev server or a watch build.
+  - The Vite and Rolldown hosts turn this on at `buildStart`, in a dev server and a watch build too
+    (KF-063). A module whose last compile missed an import is never reused.
   - `invalidate()`, `remove()` and a changed `package.json` drop the reused transforms.
   - The language server and `kirana-style check` never reuse.
 - **Rationale:** Vite compiles the same modules for the client and again for the SSR build, and
@@ -1109,9 +1110,14 @@ the implementation tracker names its evidence.
     2.4 s CPU profile, the largest single item.
   - **Measured:** compiling once took the lab's Kirana scale-curve build from 2.40 s to 2.14 s at
     1,000 components and from 13.99 s to 11.38 s at 10,000, the median of three cold builds each.
-- **Trade-off:** One stored transform per module for the build's lifetime. It stays off where a file
-  created later could change how an import resolves, which provenance does not see, and where memory
-  is budgeted: a dev server, a watch build, the language server.
+- **Trade-off:** One stored transform per module for the session's lifetime, replaced when the
+  module changes. It was off in a dev server and a watch build, since a file created later could
+  change how an import resolves, which provenance does not see. A created file now makes the session
+  resolve every import again and drops the reused transforms
+  ([10](./10-compiler-architecture.md#incremental-graphs)), and a module that missed an import is
+  never reused, so it is on there too, where hosts sent unchanged modules again and each was a full
+  compile (149.6 µs against Panda's 0.8 µs, KF-063). The language server still never reuses: it
+  compiles what the editor holds as it changes.
 - **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md#parallelism-and-cache),
   `research/compiler-algorithm.md` (P2).
 

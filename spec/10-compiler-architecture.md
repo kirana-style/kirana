@@ -354,10 +354,11 @@ hashes, in a compact binary encoding. Deleting the cache MUST only cost time, ne
 that skips that work saves nothing measurable, while every key it has to get right is a way to serve
 stale CSS. The in-memory incremental graph, which is what the dev server uses, is unaffected.
 
-**Within one build (D-085).** A one-shot build reuses a module's transform when its source and every
-file its evaluation read are unchanged, so the SSR build does not compile again what the client build
-compiled. It is in memory, for that build only, and off in a dev server, a watch build and the
-language server.
+**Within one session (D-085).** A bundler session reuses a module's transform when its source and
+every file its evaluation read are unchanged, so the SSR build does not compile again what the client
+build compiled, and a dev server or a watch build answers a module it is sent again unchanged from
+memory (KF-063). A module whose last compile missed an import is compiled each time, as the file it
+names may be created later. It is in memory, for the session only, and off in the language server.
 
 **A style written out in full (KF-059).** A `css()` call whose arguments are only strings, numbers,
 `null` and objects of them under plain keys compiles once a session: a later call of the same source
