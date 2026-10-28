@@ -1630,6 +1630,29 @@ the implementation tracker names its evidence.
 - **Elaborated in:** [06-authoring-api](./06-authoring-api.md),
   [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 
+### D-113 — The browser engine is the WASI build with an in-memory project
+
+- **Status:** Accepted (2026-10-28). Answers KF-056 and KF-057.
+- **Decision:** the engine runs in a browser as the `wasm32-wasip1-threads` build (D-055) whose
+  browser loader mounts an in-memory file system (napi-rs's `wasm.browser.fs`), published as
+  `@kirana-style/compiler-browser`: no `cpu` field, its loader, worker, runtime packages and the
+  Kirana runtime compiled modules import bundled beside the `.wasm`, so a page or a proxy serves its
+  files as they are. `createProject({ config, files })` writes the project to the volume, builds the
+  engine's JSON with the Driver's own pure step (`@kirana-style/compiler/engine-json`) and wraps the
+  `Compiler` session; diagnostics come with line and column. CI serves the packed tarball to
+  Chromium from a cross-origin-isolated page and requires its output to match the native engine's
+  byte for byte. No `wasm32-unknown-unknown` build (KRN-CMP-012).
+- **Rationale:** the WASI build already matches native, and the in-memory file system lets a
+  module's imports, its tokens and the configuration's scale modules resolve as on disk, which a
+  second target would have to rebuild. Measured on 2026-10-28 (headless Chromium, warm cache): the
+  engine starts in about 260 ms and compiles a three-file project in 14 to 28 ms.
+- **Trade-off:** the page must be cross-origin isolated (COOP `same-origin`, COEP `require-corp`),
+  since the engine's memory is a `SharedArrayBuffer`, and the `.wasm` is 9.1 MB (2.7 MB compressed).
+  The configuration arrives evaluated: the page runs `kirana.config.ts` itself, and presets that are
+  npm packages are its to provide.
+- **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md),
+  [11-integrations](./11-integrations.md#runtimes).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                              |
@@ -1639,8 +1662,8 @@ the implementation tracker names its evidence.
 | [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099                                                                                     |
 | [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112                      |
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                        |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085                                                                              |
-| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102                                    |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113                                                                       |
+| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                             |
 | [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111               |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                                   |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                  |

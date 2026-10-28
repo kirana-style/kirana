@@ -1,0 +1,32 @@
+{
+  "name": "@kirana-style/compiler-browser",
+  "version": "0.3.4",
+  "description": "The Kirana engine in a browser: WebAssembly with an in-memory project, for playgrounds and editors on the web.",
+  "license": "MIT",
+  "author": "The Kirana authors",
+  "homepage": "https://kirana.style",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kirana-style/kirana.git",
+    "directory": "packages/kirana/npm/compiler-browser"
+  },
+  "bugs": {
+    "url": "https://github.com/kirana-style/kirana/issues"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./project": "./src/project.ts",
+    "./runtime": "./src/runtime.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@kirana-style/compiler": "workspace:*",
+    "@kirana-style/core": "workspace:*"
+  }
+}

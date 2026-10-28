@@ -222,6 +222,14 @@
         "magic-string": "catalog:",
       },
     },
+    "packages/kirana/npm/compiler-browser": {
+      "name": "@kirana-style/compiler-browser",
+      "version": "0.3.4",
+      "dependencies": {
+        "@kirana-style/compiler": "workspace:*",
+        "@kirana-style/core": "workspace:*",
+      },
+    },
     "packages/kirana/npm/core": {
       "name": "@kirana-style/core",
       "version": "0.3.4",
@@ -1302,6 +1310,8 @@
     "@kirana-style/bun": ["@kirana-style/bun@workspace:packages/kirana/npm/bun"],
 
     "@kirana-style/compiler": ["@kirana-style/compiler@workspace:packages/kirana/npm/compiler"],
+
+    "@kirana-style/compiler-browser": ["@kirana-style/compiler-browser@workspace:packages/kirana/npm/compiler-browser"],
 
     "@kirana-style/core": ["@kirana-style/core@workspace:packages/kirana/npm/core"],
 
