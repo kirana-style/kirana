@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, mkdirSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import path from "node:path"
 import { pathToFileURL } from "node:url"
-import { describe, expect, it } from "vite-plus/test"
+import { describe, expect, it, vi } from "vite-plus/test"
 
 import { moduleHooks, moduleTypeScript, readJsonc } from "../src/config.ts"
 
@@ -458,6 +458,15 @@ describe("native loading", () => {
     expect(isMusl({ header: { glibcVersionRuntime: "2.39" } })).toBe(false)
     expect(isMusl({ header: {} })).toBe(true)
     expect(isMusl(undefined)).toBe(true)
+  })
+
+  it("asks Node's diagnostic report for the C library once per process (KF-058)", async () => {
+    vi.resetModules()
+    const report = vi.spyOn(process.report, "getReport")
+    const { loadNative: load } = await import("../src/native.ts")
+    for (let i = 0; i < 3; i++) load({}, (id) => ({ from: id }))
+    expect(report).toHaveBeenCalledTimes(process.platform === "linux" ? 1 : 0)
+    report.mockRestore()
   })
 
   it("prefers an installed platform package, then the workspace build, then WASI", () => {
