@@ -130,7 +130,8 @@ export function createKirana(
     async renderChunk(
       this: { error: (message: string) => never },
       code: string,
-      chunk: { fileName: string }
+      chunk: { fileName: string },
+      output: { sourcemap?: boolean | "inline" | "hidden" | null }
     ) {
       if (development()) return null
       const compiler = await session()
@@ -153,7 +154,10 @@ export function createKirana(
       }
       for (const name of names) named.add(name)
       if (!dense()) return null
-      return compiler.dense(code, chunk.fileName) ?? null
+      // The renaming's map only for a build that writes maps: it is most of the pass (KF-061).
+      return (
+        compiler.dense(code, chunk.fileName, Boolean(output.sourcemap)) ?? null
+      )
     },
 
     load: {

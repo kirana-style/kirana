@@ -2,7 +2,8 @@ import { cpSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import path from "node:path"
 import { rolldown } from "rolldown"
 import type { OutputAsset, OutputChunk } from "rolldown"
-import { afterAll, describe, expect, it } from "vite-plus/test"
+import { Driver } from "@kirana-style/compiler"
+import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 import kirana, { createKirana } from "../src/index.ts"
 import type { KiranaRolldownOptions } from "../src/index.ts"
@@ -23,7 +24,8 @@ afterAll(() =>
 async function bundle(
   root: string,
   fileName?: string,
-  names?: KiranaRolldownOptions["names"]
+  names?: KiranaRolldownOptions["names"],
+  sourcemap = true
 ) {
   const build = await rolldown({
     input: path.join(root, "src/main.ts"),
@@ -31,7 +33,7 @@ async function bundle(
     logLevel: "silent",
     plugins: [kirana({ root, fileName, names })],
   })
-  return (await build.generate({ dir: "dist", sourcemap: true })).output
+  return (await build.generate({ dir: "dist", sourcemap })).output
 }
 
 describe("KRN-INT-002 Rolldown on its own", () => {
@@ -106,11 +108,14 @@ describe("KRN-INT-002 Rolldown on its own", () => {
       "export const merged = (wide: boolean) => cx(box, wide && css({ paddingTop: 0, color: { ':hover': null } }))",
       "",
     ].join("\n")
-    const build = async (names: KiranaRolldownOptions["names"]) => {
+    const build = async (
+      names: KiranaRolldownOptions["names"],
+      sourcemap = true
+    ) => {
       const root = app()
       writeFileSync(path.join(root, "src/main.ts"), source)
       writeFileSync(path.join(root, "src/plain.ts"), "export const plain = 1\n")
-      const output = await bundle(root, undefined, names)
+      const output = await bundle(root, undefined, names, sourcemap)
       const chunks = output.filter((file) => file.type === "chunk")
       expect(chunks).toHaveLength(2)
       const js = chunks.find((chunk) => chunk.isEntry) as OutputChunk
@@ -142,6 +147,16 @@ describe("KRN-INT-002 Rolldown on its own", () => {
     expect(dense.js.map?.sources.some((file) => file.endsWith("main.ts"))).toBe(
       true
     )
+    // A build that writes no maps gets the same names, and the renaming builds none (KF-061).
+    const renaming = vi.spyOn(Driver.prototype, "dense")
+    const unmapped = await build("dense", false)
+    // One call per chunk, each asking for no map.
+    expect(renaming.mock.calls.map((call) => call[2])).toEqual([false, false])
+    renaming.mockRestore()
+    expect(unmapped.js.code).toBe(
+      dense.js.code.replace(/\n\/\/# sourceMappingURL=.*$/, "")
+    )
+    expect(unmapped.js.map).toBeNull()
   })
 
   it("writes the variable tokens the bundle uses, and runtime ones (D-086)", async () => {
