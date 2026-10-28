@@ -143,6 +143,67 @@ describe("KRN-DX-021 an item", () => {
       },
     ])
   })
+
+  it("wants a font on a font item, on no other, from a package it lists, and axis items for its values (KF-050)", () => {
+    const lora: Item = {
+      name: "font-lora",
+      type: "font",
+      version: "1.0.0",
+      dependencies: { "@fontsource-variable/lora": "^5.2.0" },
+      font: {
+        family: "'Lora Variable', serif",
+        import: "@fontsource-variable/lora/wght.css",
+      },
+    }
+    expect(check(lora).problems).toEqual([])
+    expect(
+      check({ ...lora, font: { ...lora.font!, import: "lora" } }).problems
+    ).toEqual([
+      {
+        pointer: "/font/import",
+        message: "is in lora, which dependencies does not list",
+      },
+    ])
+    expect(
+      check({ ...lora, font: { family: "x", import: "Not A Package" } })
+        .problems
+    ).toEqual([expect.objectContaining({ pointer: "/font/import" })])
+    const { dependencies: __, ...unlisted } = lora
+    expect(check(unlisted).problems).toEqual([
+      expect.objectContaining({ pointer: "/font/import" }),
+    ])
+    const { font: _, ...bare } = lora
+    expect(check(bare).problems).toEqual([
+      { pointer: "/font", message: "is required for a font item" },
+    ])
+    expect(check({ ...lora, type: "lib" }).problems).toEqual([
+      {
+        pointer: "/font",
+        message: "is only for a font item; this one is a lib",
+      },
+    ])
+    const kit: Item = {
+      name: "kit",
+      type: "design-system",
+      version: "1.0.0",
+      design: {
+        axes: {
+          font: {
+            attribute: "data-font",
+            values: ["inter", "lora"],
+            items: { lora: "font-lora", serif: "@fonts/font-serif" },
+          },
+        },
+      },
+    }
+    expect(check(kit).problems).toEqual([
+      {
+        pointer: "/design/axes/font/items/serif",
+        message:
+          "names an item for serif, which is not one of the axis's values",
+      },
+    ])
+  })
 })
 
 describe("KRN-DX-022 an index", () => {

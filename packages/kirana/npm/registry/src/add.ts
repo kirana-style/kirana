@@ -3,7 +3,8 @@
  * checked (KRN-DX-026), its framework's and base's markup chosen, every file placed under the
  * project's alias for its type with its `@/registry/` imports rewritten to those aliases, the npm
  * packages added with the project's package manager, and each item recorded in the lockfile
- * (KRN-DX-025). Nothing is written when a file the project has would change, unless `--overwrite`.
+ * (KRN-DX-025). A font item's stylesheet is imported in the app's entry (KF-050). Nothing is written
+ * when a file the project has would change, unless `--overwrite`.
  */
 import { spawnSync } from "node:child_process"
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
@@ -14,12 +15,14 @@ import {
   installCommand,
   main as kirana,
   parseDiagnostics,
+  sources,
 } from "@kirana-style/compiler"
 import type { Diagnostic } from "@kirana-style/compiler"
 
 import { hashOf } from "./check.ts"
 import { parseArgs } from "./command.ts"
 import type { Options, Run } from "./command.ts"
+import { importFonts } from "./font.ts"
 import { resolveIcons } from "./icons.ts"
 import { readLockfile, writeLockfile } from "./lockfile.ts"
 import { aliasDirectory, frameworkOf, readProject } from "./project.ts"
@@ -349,6 +352,11 @@ export async function runAdd(
     for (const file of placed.filter((entry) => entry.item === key))
       write(`  ${marks[file.state]} ${file.relative}\n`)
   }
+  const fonts = importFonts(planned, scriptsOf(project.root), (file) =>
+    readFileSync(path.join(project.root, file), "utf8")
+  )
+  for (const line of fonts.report) write(`font: ${line}\n`)
+  for (const line of fonts.manual) write(`by hand: ${line}\n`)
   const packages = missingPackages(planned, project, placed)
   const commands = installCommand(project.manager, packages, [])
   for (const command of commands) write(`packages: ${command}\n`)
@@ -364,6 +372,7 @@ export async function runAdd(
     return 0
   }
   writePlaced(placed)
+  writeEdits(project.root, fonts.edits)
   if (!installPackages(commands, project, write, options)) return 1
   record(lockfile, planned, placed)
   writeLockfile(project.root, lockfile)
@@ -444,6 +453,20 @@ export const designSystemsOf = (planned: readonly Planned[]): string[] =>
   planned
     .filter((entry) => entry.item.type === "design-system")
     .map((entry) => entry.key)
+
+/** The project's scripts, relative to its root, with forward slashes. */
+export const scriptsOf = (root: string): string[] =>
+  sources(root).map((file) =>
+    path.relative(root, file).split(path.sep).join("/")
+  )
+
+/** Writes edited texts, by file relative to `root`. */
+export function writeEdits(
+  root: string,
+  edits: ReadonlyMap<string, string>
+): void {
+  for (const [file, text] of edits) writeFileSync(path.join(root, file), text)
+}
 
 /** Writes every file that is new or differs. */
 export function writePlaced(placed: readonly Placed[]): void {

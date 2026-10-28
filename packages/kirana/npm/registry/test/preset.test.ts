@@ -340,6 +340,100 @@ describe("KRN-DX-032 kirana-style ui preset", () => {
     expect(again.text).not.toContain("  + ")
   })
 
+  it("installs the font a code's value names, and leaves one no value names for remove (KF-050)", async () => {
+    const font = (name: string, files: RegistryFile[] = []): Item => ({
+      name: `font-${name}`,
+      type: "font",
+      version: "1.0.0",
+      dependencies: { [`@fontsource/${name}`]: "^5.0.0" },
+      font: { family: name, import: `@fontsource/${name}` },
+      files,
+    })
+    const values = ["inter", "lora", "serif", "gone"]
+    const fonted: Item = {
+      ...KIT,
+      design: {
+        ...DESIGN,
+        axes: {
+          ...DESIGN.axes,
+          font: {
+            attribute: "data-font",
+            values,
+            items: {
+              inter: "font-inter",
+              lora: "@acme/font-lora",
+              serif: "font-serif",
+              gone: "font-gone",
+            },
+          },
+        },
+        // style from bit 0, font from bit 1: f0 inter, f2 lora, f4 serif, f6 gone.
+        presets: {
+          f: [
+            { axis: "style", values: ["nova", "vega"], bits: 1 },
+            { axis: "font", values, bits: 2 },
+          ],
+        },
+      },
+    }
+    const cwd = await installed(
+      { base: "base" },
+      {
+        "acme/kit.json": JSON.stringify(fonted),
+        "acme/font-inter.json": JSON.stringify(font("inter")),
+        "acme/font-lora.json": JSON.stringify(font("lora")),
+        "acme/font-serif.json": JSON.stringify(
+          font("serif", [
+            {
+              ...file("serif.css", "@font-face {}\n", "file"),
+              target: "src/serif.css",
+            },
+          ])
+        ),
+        "src/main.ts": 'import "@kirana-style/core/stylesheet.css"\n',
+        "src/serif.css": "/* mine */\n",
+      }
+    )
+    const inter = await run(cwd, "preset", "f0", "--no-check")
+    expect(inter.code).toBe(0)
+    expect(inter.text).toContain("@acme/font-inter 1.0.0\n")
+    expect(inter.text).toContain(
+      "font: src/main.ts: imports @fontsource/inter\n"
+    )
+    expect(inter.commands).toEqual(["npm install @fontsource/inter@^5.0.0"])
+    expect(read(cwd, "src/main.ts")).toContain('import "@fontsource/inter"')
+    expect(readLockfile(cwd).items["@acme/font-inter"]).toBeDefined()
+    const lora = await run(cwd, "preset", "f2", "--no-check")
+    expect(lora.text).toContain("@acme/font-lora 1.0.0\n")
+    expect(lora.text).toContain(
+      "unused: @acme/font-inter, which no value names now: kirana-style ui remove @acme/font-inter\n"
+    )
+    // The four installed, and the one added.
+    expect(lora.text).toContain("kirana-style.lock.json: 5 item(s) recorded\n")
+    // A file the project has stops it, unless --overwrite; an item the registry lacks stops it too.
+    const serif = await run(cwd, "preset", "f4", "--no-check")
+    expect(serif.code).toBe(1)
+    expect(serif.text).toContain("  ! src/serif.css\n")
+    expect(read(cwd, "src/serif.css")).toBe("/* mine */\n")
+    const overwritten = await run(cwd, "preset", "f4", "--overwrite")
+    expect(overwritten.code).toBe(0)
+    expect(read(cwd, "src/serif.css")).toBe("@font-face {}\n")
+    const gone = await run(cwd, "preset", "f6", "--no-check")
+    expect(gone.code).toBe(1)
+    expect(gone.text).toContain("acme/font-gone.json")
+    // No script imports Kirana's stylesheet: the import is a step by hand.
+    const bare = await installed(
+      { base: "base" },
+      {
+        "acme/kit.json": JSON.stringify(fonted),
+        "acme/font-inter.json": JSON.stringify(font("inter")),
+      }
+    )
+    expect((await run(bare, "preset", "f0", "--no-check")).text).toContain(
+      `by hand: import "@fontsource/inter" after Kirana's stylesheet\n`
+    )
+  })
+
   it("redraws icons with the library a code names, adding its packages", async () => {
     const cwd = await installed()
     const { commands } = await run(

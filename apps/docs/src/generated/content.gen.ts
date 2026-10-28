@@ -4608,6 +4608,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "fonts",
+        "text": "Fonts",
+        "level": 2
+      },
+      {
         "id": "the-index",
         "text": "The index",
         "level": 2

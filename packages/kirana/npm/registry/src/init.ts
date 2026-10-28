@@ -2,7 +2,8 @@
  * `kirana-style ui init` (KRN-DX-029, D-109): Kirana itself where the project lacks it (the
  * compiler's own `init` plan), the `ui` settings, the registry's design-system item installed as
  * `add` installs it, and its `setup` wired in: the configuration spread into `kirana.config.*`, its
- * stylesheets imported after Kirana's, its `<html>` styles on the document. Every change is planned
+ * stylesheets imported after Kirana's, its `<html>` styles on the document. With a preset, the font
+ * items its values name are installed too, each stylesheet imported (KF-050). Every change is planned
  * first, against files as the earlier changes leave them; a change it cannot make safely is printed
  * as a step to do by hand.
  */
@@ -39,6 +40,7 @@ import {
 import type { Placed } from "./add.ts"
 import { parseArgs } from "./command.ts"
 import type { Options } from "./command.ts"
+import { axisItems, importFonts, STYLESHEET } from "./font.ts"
 import { readLockfile, writeLockfile } from "./lockfile.ts"
 import { aliasDirectory, frameworkOf, pathsOf, readProject } from "./project.ts"
 import { read, RegistryError } from "./read.ts"
@@ -56,7 +58,6 @@ import { fetchExample, writeExample } from "./template.ts"
 import type { Framework, IconLibrary, Index, Item } from "./types.ts"
 import { version } from "./version.ts"
 
-const STYLESHEET = "@kirana-style/core/stylesheet.css"
 /** Folders never searched for the project's own stylesheet. */
 const SKIPPED = new Set(["node_modules", "dist", "build", "out", "coverage"])
 const CONFIGS = [
@@ -717,8 +718,10 @@ export async function runInit(
       settings,
       options
     )
-    // A preset, read with the design system's own layouts before anything is placed for it.
+    // A preset, read with the design system's own layouts before anything is placed for it, and
+    // the font items its values name (KF-050).
     const preset = parsed.values.get("--preset")?.at(-1)
+    const fonts: string[] = []
     if (preset !== undefined) {
       const item = (await read(design, settings, options)).document as Item
       const values = item.design && decodePreset(preset, item.design)
@@ -729,12 +732,19 @@ export async function runInit(
       const given = settingsOf(values, item.design!)
       Object.assign(chosen, given)
       settings = { ...settings, ...given }
+      fonts.push(...axisItems(item.design!, given.design, design))
     }
     settings = prepareAliases(files, settings, chosen, report, manual, next)
-    planned = await plan([design], settings, project, options)
+    planned = await plan([design, ...fonts], settings, project, options)
     placed = place(planned, settings, project, files.absolute)
-    const system = planned.at(-1)!.item
+    const system = planned.find((entry) => entry.key === design)!.item
     setUp(files, chosen, system, placed, settings, report, manual)
+    const imports = importFonts(planned, files.scripts(), (file) =>
+      files.read(file)
+    )
+    for (const [file, text] of imports.edits) files.write(file, text)
+    report.push(...imports.report)
+    manual.push(...imports.manual)
     if (chosen.design && system.design)
       setAttributes(
         files,

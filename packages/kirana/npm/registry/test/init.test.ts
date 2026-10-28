@@ -304,6 +304,71 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     expect(read(tilde, "src/main.tsx")).toContain("from '~/lib/kit/document'")
   })
 
+  it("installs the font items a preset's values name, each stylesheet imported after Kirana's (KF-050)", async () => {
+    const font = (name: string, family: string): Item => ({
+      name: `font-${name}`,
+      type: "font",
+      version: "1.0.0",
+      dependencies: { [`@fontsource-variable/${name}`]: "^5.2.0" },
+      font: { family, import: `@fontsource-variable/${name}` },
+    })
+    const design = {
+      axes: {
+        font: {
+          attribute: "data-font",
+          values: ["inter", "lora"],
+          items: { inter: "font-inter", lora: "font-lora" },
+        },
+        fontHeading: {
+          attribute: "data-font-heading",
+          values: ["inherit", "lora"],
+          items: { lora: "font-lora" },
+        },
+      },
+      presets: {
+        k: [
+          { axis: "font", values: ["inter", "lora"], bits: 1 },
+          { axis: "fontHeading", values: ["inherit", "lora"], bits: 1 },
+        ],
+      },
+    }
+    const designed = { ...kit(), design }
+    const fonts = {
+      "acme/font-inter.json": JSON.stringify(font("inter", "'Inter Variable'")),
+      "acme/font-lora.json": JSON.stringify(font("lora", "'Lora Variable'")),
+    }
+    // font inter, heading lora: 0 + 2; then lora for both: one item, once.
+    const cwd = vite(fonts, designed)
+    const { code, text, commands } = await init(
+      cwd,
+      "--registry",
+      ACME,
+      "--preset",
+      "k2"
+    )
+    expect(code).toBe(0)
+    expect(text).toContain("@acme/font-inter 1.0.0\n")
+    expect(text).toContain("@acme/font-lora 1.0.0\n")
+    expect(text).toContain(
+      "setup: src/main.tsx: imports @fontsource-variable/inter\n"
+    )
+    expect(commands.join(" ")).toContain("@fontsource-variable/lora@^5.2.0")
+    const entry = read(cwd, "src/main.tsx")
+    expect(entry.indexOf("@kirana-style/core/stylesheet.css")).toBeLessThan(
+      entry.indexOf("@fontsource-variable/inter")
+    )
+    expect(entry).toContain("import '@fontsource-variable/lora'")
+    expect(Object.keys(readLockfile(cwd).items)).toEqual([
+      "@acme/font-inter",
+      "@acme/font-lora",
+      "@acme/kit",
+    ])
+    const both = vite(fonts, designed)
+    const once = await init(both, "--registry", ACME, "--preset", "k3")
+    expect(once.text.match(/@acme\/font-lora 1\.0\.0/g)).toHaveLength(1)
+    expect(read(both, "src/main.tsx").match(/fontsource/g)).toHaveLength(1)
+  })
+
   it("starts with a preset's design: the settings, <html>'s attributes and the flattened builds", async () => {
     const design = {
       axes: { style: { attribute: "data-style", values: ["nova", "vega"] } },

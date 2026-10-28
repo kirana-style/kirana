@@ -475,6 +475,45 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     expect(text.match(/^@acme\/kit /gm)).toHaveLength(1)
   })
 
+  it("imports a font item's stylesheet once, after Kirana's, or says to (KF-050)", async () => {
+    const LORA: Item = {
+      name: "font-lora",
+      type: "font",
+      version: "1.0.0",
+      dependencies: { "@fontsource-variable/lora": "^5.2.0" },
+      font: {
+        family: "'Lora Variable', serif",
+        import: "@fontsource-variable/lora",
+      },
+    }
+    const entry =
+      'import "@kirana-style/core/stylesheet.css"\nimport { App } from "./app"\n\nApp()\n'
+    const cwd = project({}, [LORA], { "src/main.ts": entry })
+    const dry = await add(cwd, "@acme/font-lora", "--dry-run")
+    expect(dry.text).toContain(
+      "font: src/main.ts: imports @fontsource-variable/lora\n"
+    )
+    expect(read(cwd, "src/main.ts")).toBe(entry)
+    const { code, text, commands } = await add(cwd, "@acme/font-lora")
+    expect(code).toBe(0)
+    expect(text).toContain("@acme/font-lora 1.0.0\n")
+    expect(commands).toEqual(["npm install @fontsource-variable/lora@^5.2.0"])
+    expect(read(cwd, "src/main.ts")).toBe(
+      'import "@kirana-style/core/stylesheet.css"\nimport { App } from "./app"\nimport "@fontsource-variable/lora"\n\nApp()\n'
+    )
+    expect(readLockfile(cwd).items["@acme/font-lora"]).toMatchObject({
+      version: "1.0.0",
+      files: {},
+    })
+    // Once: the entry has it now.
+    expect((await add(cwd, "@acme/font-lora")).text).not.toContain("font: ")
+    // A project whose entry does not import Kirana's stylesheet (Next.js's `@kirana;`).
+    const directive = project({}, [LORA])
+    expect((await add(directive, "@acme/font-lora")).text).toContain(
+      `by hand: import "@fontsource-variable/lora" after Kirana's stylesheet\n`
+    )
+  })
+
   it("runs the package manager in a shell, a signal as a failure", () => {
     expect(runInShell("exit 3", root)).toBe(3)
     expect(runInShell("kill -9 $$", root)).toBe(1)

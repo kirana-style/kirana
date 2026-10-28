@@ -130,6 +130,48 @@ codes.
 A code is the layout's letter and a base-62 number holding one index per field,
 from bit 0. Fields may also set `framework`, `base` and `iconLibrary`.
 
+An axis can name the item each of its values installs, in `items`. A font axis
+names a font item per family, and a value with nothing to install, such as a
+heading that inherits the body's font, names none:
+
+```json
+"fontHeading": {
+  "attribute": "data-font-heading",
+  "values": ["inherit", "lora"],
+  "items": { "lora": "font-lora" }
+}
+```
+
+`ui init --preset` installs the items its values name, and `ui preset` installs
+the ones a new code names. An item no value names any more stays installed, and
+`preset` says it can go with `ui remove`.
+
+## Fonts
+
+An item of type `font` names its family, the stack your tokens write, and the
+stylesheet that loads it, from a package it lists in `dependencies`:
+
+```json
+{
+  "name": "font-lora",
+  "type": "font",
+  "version": "1.0.0",
+  "dependencies": { "@fontsource-variable/lora": "^5.2.0" },
+  "font": {
+    "family": "'Lora Variable', serif",
+    "import": "@fontsource-variable/lora"
+  }
+}
+```
+
+`ui add font-lora` installs the package and imports the stylesheet once, where
+the project imports Kirana's stylesheet, after it. A project that loads Kirana's
+stylesheet through PostCSS (Next.js's `@kirana;`) is told to add the import by
+hand.
+
+The checks refuse a font item without its `font`, a `font` on any other item, and
+an `import` from a package the item's dependencies do not list.
+
 An item can carry its style modules flattened for each value of that axis and
 each base, beside the modules as written. Installation takes the build for the
 project's design, and the modules as written for a design you did not build:

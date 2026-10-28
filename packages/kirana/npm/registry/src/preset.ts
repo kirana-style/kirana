@@ -3,7 +3,9 @@
  * The code is read with the installed design system's own layouts; the design goes to `ui.design`
  * (the framework, base and icon library to their own settings), its axes to attributes on `<html>`,
  * and every installed item is placed again for it, as `update` writes: a file the project left as
- * installed is replaced, one it changed stops the command unless `--overwrite`.
+ * installed is replaced, one it changed stops the command unless `--overwrite`. The font items the
+ * new values name are installed as `add` installs them, and one no value names any more is left for
+ * `remove` (KF-050).
  */
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs"
 import path from "node:path"
@@ -15,10 +17,17 @@ import {
   chooseBase,
   installPackages,
   missingPackages,
+  place,
+  plan,
+  record,
+  scriptsOf,
+  writeEdits,
   writePlaced,
 } from "./add.ts"
+import type { Placed, Planned } from "./add.ts"
 import { failureLine, parseArgs } from "./command.ts"
 import type { Options } from "./command.ts"
+import { allAxisItems, axisItems, importFonts } from "./font.ts"
 import { writeLockfile } from "./lockfile.ts"
 import { read } from "./read.ts"
 import { FRAMEWORKS, ICON_LIBRARIES } from "./schema.ts"
@@ -312,6 +321,45 @@ export async function runPreset(
     write
   )
 
+  // The font items the new values name that are not installed, placed as `add` places them.
+  const wanted = axisItems(design, chosen.design, system.key)
+  let added: Planned[]
+  let fonts: Placed[]
+  try {
+    added = await plan(
+      wanted.filter((key) => lockfile.items[key] === undefined),
+      next,
+      project,
+      options
+    )
+    fonts = place(added, next, project)
+  } catch (error) {
+    write(`${(error as Error).message}\n`)
+    return 1
+  }
+  const marks = { new: "+", same: "=", differs: "!" } as const
+  for (const { key, item } of added) {
+    write(`${key} ${item.version}\n`)
+    for (const file of fonts.filter((entry) => entry.item === key))
+      write(`  ${marks[file.state]} ${file.relative}\n`)
+  }
+  const imports = importFonts(added, scriptsOf(project.root), (file) =>
+    readFileSync(path.join(project.root, file), "utf8")
+  )
+  for (const line of imports.report) write(`font: ${line}\n`)
+  for (const line of imports.manual) write(`by hand: ${line}\n`)
+  for (const key of allAxisItems(design, system.key))
+    if (lockfile.items[key] !== undefined && !wanted.includes(key))
+      write(
+        `unused: ${key}, which no value names now: kirana-style ui remove ${key}\n`
+      )
+  if (!parsed.flags.has("--overwrite"))
+    conflicts.push(
+      ...fonts
+        .filter((file) => file.state === "differs")
+        .map((file) => file.relative)
+    )
+
   // The settings and the document.
   const configFile = settings.file
   if (configFile === undefined) {
@@ -358,7 +406,7 @@ export async function runPreset(
       "by hand: set the design's attributes on <html>, as no layout or index.html has it\n"
     )
 
-  const packages = missingPackages([], project, writes)
+  const packages = missingPackages(added, project, [...writes, ...fonts])
   const commands = installCommand(project.manager, packages, [])
   for (const command of commands) write(`packages: ${command}\n`)
   if (conflicts.length > 0) {
@@ -378,11 +426,18 @@ export async function runPreset(
       withAttributes(readFileSync(document, "utf8"), attributes)
     )
   writePlaced(writes)
+  writePlaced(fonts)
+  writeEdits(project.root, imports.edits)
   for (const file of deletes) unlinkSync(file)
   if (!installPackages(commands, project, write, options)) return 1
   recordStatuses(lockfile, statuses, writes)
+  record(lockfile, added, fonts)
   writeLockfile(project.root, lockfile)
-  write(`kirana-style.lock.json: ${statuses.length} item(s) recorded\n`)
+  write(
+    `kirana-style.lock.json: ${statuses.length + added.length} item(s) recorded\n`
+  )
   if (parsed.flags.has("--no-check")) return 0
-  return (await checkWritten(writes, project.root, write)) ? 0 : 1
+  return (await checkWritten([...writes, ...fonts], project.root, write))
+    ? 0
+    : 1
 }

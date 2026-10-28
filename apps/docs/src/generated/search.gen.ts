@@ -5097,7 +5097,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installing components",
     "section": "tooling",
     "heading": "Adding components",
-    "text": "Each component comes with the components it needs, in order. Its files land under your alias for their type, for components by default, and its icons are drawn with your icon library. The packages it needs are installed with your package manager, and Kirana checks what was written before your next build. never changes a file you already have unless you pass . shows what it would do."
+    "text": "Each component comes with the components it needs, in order. Its files land under your alias for their type, for components by default, and its icons are drawn with your icon library. The packages it needs are installed with your package manager, and Kirana checks what was written before your next build. never changes a file you already have unless you pass . shows what it would do. A font ( ) is a package and the stylesheet that loads it, which imports after Kirana's stylesheet."
   },
   {
     "id": "/docs/tooling/components#the-lockfile",
@@ -5113,7 +5113,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installing components",
     "section": "tooling",
     "heading": "Changing the design",
-    "text": "A design system says which axes it has (a style, a base colour, a radius …) and how a preset code holds them. Give a code to , or change it later: writes the design to and sets its attributes on , where your design system's styles are. Then it places every installed component again: a registry that flattened its style modules for the new design gives you that build, with only the new style's values in it. A file you changed stops it until you look, or pass ."
+    "text": "A design system says which axes it has (a style, a base colour, a radius …) and how a preset code holds them. Give a code to , or change it later: writes the design to and sets its attributes on , where your design system's styles are. Then it places every installed component again: a registry that flattened its style modules for the new design gives you that build, with only the new style's values in it. A file you changed stops it until you look, or pass . When a code picks a font the project does not have, it is installed, as installs the fonts its code names. A font no axis uses any more stays, and the command says so."
   },
   {
     "id": "/docs/tooling/components#updating-and-removing",
@@ -5176,7 +5176,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Publishing a registry",
     "section": "tooling",
     "heading": "Its design, and flattened builds",
-    "text": "A design system also says, in , what reads: each axis as the attribute it sets on , with its values (the first the default); the axis your registry flattens for; and the layouts of its preset codes. A code is the layout's letter and a base-62 number holding one index per field, from bit 0. Fields may also set , and . An item can carry its style modules flattened for each value of that axis and each base, beside the modules as written. Installation takes the build for the project's design, and the modules as written for a design you did not build: Build them with the checks that prove a flattened module renders what the module as written does for that design: the installer takes them as they are."
+    "text": "A design system also says, in , what reads: each axis as the attribute it sets on , with its values (the first the default); the axis your registry flattens for; and the layouts of its preset codes. A code is the layout's letter and a base-62 number holding one index per field, from bit 0. Fields may also set , and . An axis can name the item each of its values installs, in . A font axis names a font item per family, and a value with nothing to install, such as a heading that inherits the body's font, names none: installs the items its values name, and installs the ones a new code names. An item no value names any more stays installed, and says it can go with ."
+  },
+  {
+    "id": "/docs/tooling/registries#fonts",
+    "href": "/docs/tooling/registries#fonts",
+    "page": "Publishing a registry",
+    "section": "tooling",
+    "heading": "Fonts",
+    "text": "An item of type names its family, the stack your tokens write, and the stylesheet that loads it, from a package it lists in : installs the package and imports the stylesheet once, where the project imports Kirana's stylesheet, after it. A project that loads Kirana's stylesheet through PostCSS (Next.js's ) is told to add the import by hand. The checks refuse a font item without its , a on any other item, and an from a package the item's dependencies do not list. An item can carry its style modules flattened for each value of that axis and each base, beside the modules as written. Installation takes the build for the project's design, and the modules as written for a design you did not build: Build them with the checks that prove a flattened module renders what the module as written does for that design: the installer takes them as they are."
   },
   {
     "id": "/docs/tooling/registries#the-index",
