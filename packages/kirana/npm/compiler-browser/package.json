@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/compiler-browser",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "The Kirana engine in a browser: WebAssembly with an in-memory project, for playgrounds and editors on the web.",
   "license": "MIT",
   "author": "The Kirana authors",

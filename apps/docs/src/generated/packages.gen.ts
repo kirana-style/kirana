@@ -10,145 +10,145 @@ export type PackageEntry = {
 export const PACKAGES: readonly PackageEntry[] = [
   {
     "name": "@kirana-style/core",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana authoring API: typed styles, tokens, recipes and relations, compiled away at build time."
   },
   {
     "name": "@kirana-style/vite",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Vite: the Rolldown adapter plus the dev server, with the live stylesheet and CSS hot updates."
   },
   {
     "name": "@kirana-style/rolldown",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Rolldown: compiles modules and emits the stylesheet."
   },
   {
     "name": "@kirana-style/webpack",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for webpack 5 and Rspack: a loader that compiles modules and a plugin that finishes the stylesheet."
   },
   {
     "name": "@kirana-style/next",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Next.js: one `withKirana` for Turbopack (a loader, with the stylesheet from @kirana-style/postcss) and webpack."
   },
   {
     "name": "@kirana-style/postcss",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for PostCSS: compiles the project into the stylesheet at the `@kirana;` directive. Next.js with Turbopack, and any PostCSS pipeline."
   },
   {
     "name": "@kirana-style/rspack",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Rspack and Rsbuild: the webpack adapter, which Rspack runs unchanged, and an Rsbuild plugin."
   },
   {
     "name": "@kirana-style/bun",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Bun's bundler: compiles modules and finishes the stylesheet."
   },
   {
     "name": "@kirana-style/esbuild",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for esbuild: compiles modules and finishes the stylesheet esbuild bundles."
   },
   {
     "name": "@kirana-style/jest",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Jest: a transformer that compiles modules, then hands them to your usual one."
   },
   {
     "name": "@kirana-style/astro",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Astro: the integration that compiles .astro components and finishes the stylesheet."
   },
   {
     "name": "@kirana-style/angular",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Angular: the [sx] directive, the Analog (Vite) plugin and Angular CLI builders."
   },
   {
     "name": "@kirana-style/ember",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Ember on Embroider and Vite: css() in .gjs and .gts files, and the sx template helper."
   },
   {
     "name": "@kirana-style/gatsby",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Gatsby: a plugin that adds Kirana's webpack plugin to every stage of the build."
   },
   {
     "name": "@kirana-style/parcel-transformer",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Parcel: a transformer that compiles styles in scripts, with the stylesheet from @kirana-style/postcss."
   },
   {
     "name": "@kirana-style/adonis",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for AdonisJS: the kirana() Edge global, reading the class map of a server app's styles."
   },
   {
     "name": "@kirana-style/remix",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana for Remix 3: compiles components after node-tsx and the asset server, and serves the stylesheet as middleware."
   },
   {
     "name": "@kirana-style/compiler",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "The Kirana Driver: configuration, the native compiler session and the commands kirana-style runs."
   },
   {
     "name": "kirana-style",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana's command line: npx kirana-style@latest init sets a project up; check, build, trace and migrate."
   },
   {
     "name": "@kirana-style/preset-scales",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Scale tokens for Kirana: a Tailwind CSS v4-compatible palette, spacing, type ramp, radii, shadows and breakpoints."
   },
   {
     "name": "@kirana-style/states",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Component states as Kirana condition keys: each part's data attributes, typed, generated from the UI library's own declarations, for Base UI, Ark UI, React Aria, Reka UI, Bits UI and Angular Primitives."
   },
   {
     "name": "@kirana-style/registry",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana's component registry: the commands kirana-style ui runs, and the registry format's JSON Schemas, types and checks."
   },
   {
     "name": "@kirana-style/eslint-plugin",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana's lint rules for ESLint and Oxlint, read from the compiler: its diagnostics, property order, tokens, forwarded sx, and the overrides that silently lose."
   },
   {
     "name": "@kirana-style/biome-plugin",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "published": true,
     "description": "Kirana's lint rules for Biome, as GritQL plugins: a forwarded sx that is not last, className next to styleProps(), dark mode written as prefers-color-scheme or dark:, and class-string helpers."
   }

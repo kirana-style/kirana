@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/biome-plugin",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Kirana's lint rules for Biome, as GritQL plugins: a forwarded sx that is not last, className next to styleProps(), dark mode written as prefers-color-scheme or dark:, and class-string helpers.",
   "license": "MIT",
   "author": "The Kirana authors",

@@ -1,6 +1,6 @@
 {
   "name": "@kirana-style/esbuild",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Kirana for esbuild: compiles modules and finishes the stylesheet esbuild bundles.",
   "license": "MIT",
   "author": "The Kirana authors",
