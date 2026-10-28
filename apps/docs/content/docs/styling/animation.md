@@ -68,7 +68,14 @@ export const fade = defineTokens("fade", {
 
 That emits an `@property` rule, so a transition or keyframe on `--fade-stop`
 animates smoothly instead of jumping. A registered token may also be a keyframe
-key.
+key, and a frame takes a custom property by its name, as `css()` does:
+
+```tsx
+const reveal = keyframes({
+  from: { "--scroll-fade-t": "0px" },
+  to: { "--scroll-fade-t": "24px" },
+})
+```
 
 ## Respecting motion preferences
 

@@ -109,9 +109,25 @@ export function cx(..._handles: readonly Sx[]): StyleHandle {
   return uncompiled("cx")
 }
 
+/**
+ * What a framework's type entry declares for the whole program. `@kirana-style/core/solid`,
+ * `/preact` and `/qwik` set `classAttribute: "class"`: their JSX takes `class`, so `props()`
+ * compiles to `{ class, style }` there (KF-047).
+ */
+// oxlint-disable-next-line typescript/no-empty-object-type -- filled by declaration merging.
+export interface Register {}
+
+/** The key `props()` returns classes under: `className`, or what a type entry registers. */
+export type ClassAttribute = Register extends {
+  classAttribute: infer K extends string
+}
+  ? K
+  : "className"
+
 /** `{ className, style }` for components and render-prop libraries that do not take `sx` (KRN-API-015). */
 export function props(..._handles: readonly (Sx | string)[]): {
-  className?: string
+  [K in ClassAttribute]?: string
+} & {
   style?: Record<string, string>
 } {
   return uncompiled("props")
@@ -206,9 +222,15 @@ export const select: {
   child: () => uncompiled("select.child"),
 }
 
-export function keyframes(
-  _frames: Readonly<Record<string, Properties>>
-): Keyframes {
+/**
+ * A keyframe: CSS properties, and the custom properties an animation moves (`"--fade": "0px"`,
+ * a scroll timeline's reveal), as `css()` takes them (KF-055).
+ */
+type Frame = Properties & {
+  readonly [property: `--${string}`]: Primitive | Token | null | undefined
+}
+
+export function keyframes(_frames: Readonly<Record<string, Frame>>): Keyframes {
   return uncompiled("keyframes")
 }
 

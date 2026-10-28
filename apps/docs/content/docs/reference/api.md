@@ -60,6 +60,9 @@ props(...handles: readonly (Sx | string)[]): { className?: string; style?: Recor
 
 The compiled props for a component that does not read `sx`. Conventionally
 imported as `props as styleProps`.
+
+In Solid, Preact and Qwik it returns `{ class, style }`, the attribute their JSX
+takes, and that framework's type entry types it so.
 [Styling other people's components](/docs/styling/external-components).
 
 ## `recipe(config)`
@@ -104,7 +107,7 @@ beat. Targets are element names or attribute selectors.
 ## `keyframes(frames)`
 
 ```ts
-keyframes(frames: Record<string, Properties>): Keyframes
+keyframes(frames: Record<string, Properties & { [property: `--${string}`]: string | number }>): Keyframes
 ```
 
 A name usable as `animationName` from any module.

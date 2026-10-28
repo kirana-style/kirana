@@ -2528,7 +2528,14 @@ export const fade = defineTokens("fade", {
 
 That emits an `@property` rule, so a transition or keyframe on `--fade-stop`
 animates smoothly instead of jumping. A registered token may also be a keyframe
-key.
+key, and a frame takes a custom property by its name, as `css()` does:
+
+```tsx
+const reveal = keyframes({
+  from: { "--scroll-fade-t": "0px" },
+  to: { "--scroll-fade-t": "24px" },
+})
+```
 
 ## Respecting motion preferences
 
@@ -4907,6 +4914,10 @@ export const Card = (props: { wide: boolean }) => (
 A `class` already on the element is merged with the styles into the one `class`
 it ends up with, and so is a `className`.
 
+`props()` follows the same rule: it returns `{ class, style }`, so its result
+spreads onto an element as it is, and the type entry types it that way. Read its
+`class`, never its `className`.
+
 ## Next
 
 - [Your first component](/docs/start/first-component): a button with a hover state
@@ -4979,6 +4990,10 @@ export const Card = (props: { wide: boolean }) => (
 
 A `class` already on the element is merged with the styles into the one `class`
 it ends up with, and so is a `className`.
+
+`props()` follows the same rule: it returns `{ class, style }`, so its result
+spreads onto an element as it is, and the type entry types it that way. Read its
+`class`, never its `className`.
 
 ## Next
 
@@ -5702,6 +5717,10 @@ export const Card = component$((props: { wide: boolean }) => (
 Keep the handles at module level, as here: the optimizer moves each `$` function
 into a module of its own, which imports them. A `class` already on the element is
 merged with the styles into the one `class` it ends up with.
+
+`props()` follows the same rule: it returns `{ class, style }`, so its result
+spreads onto an element as it is, and the type entry types it that way. Read its
+`class`, never its `className`.
 
 ## In development
 
@@ -8364,6 +8383,9 @@ props(...handles: readonly (Sx | string)[]): { className?: string; style?: Recor
 
 The compiled props for a component that does not read `sx`. Conventionally
 imported as `props as styleProps`.
+
+In Solid, Preact and Qwik it returns `{ class, style }`, the attribute their JSX
+takes, and that framework's type entry types it so.
 [Styling other people's components](/docs/styling/external-components).
 
 ## `recipe(config)`
@@ -8408,7 +8430,7 @@ beat. Targets are element names or attribute selectors.
 ## `keyframes(frames)`
 
 ```ts
-keyframes(frames: Record<string, Properties>): Keyframes
+keyframes(frames: Record<string, Properties & { [property: `--${string}`]: string | number }>): Keyframes
 ```
 
 A name usable as `animationName` from any module.

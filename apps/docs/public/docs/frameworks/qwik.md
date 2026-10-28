@@ -92,6 +92,10 @@ Keep the handles at module level, as here: the optimizer moves each `$` function
 into a module of its own, which imports them. A `class` already on the element is
 merged with the styles into the one `class` it ends up with.
 
+`props()` follows the same rule: it returns `{ class, style }`, so its result
+spreads onto an element as it is, and the type entry types it that way. Read its
+`class`, never its `className`.
+
 ## In development
 
 Qwik updates the page from the server render, so run the dev server in its SSR

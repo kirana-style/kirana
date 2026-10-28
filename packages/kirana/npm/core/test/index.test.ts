@@ -57,6 +57,21 @@ describe("recipe types", () => {
   })
 })
 
+describe("keyframes types", () => {
+  it("take CSS properties and custom properties in a frame (KF-055)", () => {
+    const make = () => {
+      const reveal = core.keyframes({
+        from: { "--scroll-fade-t": "0px" },
+        to: { "--scroll-fade-t": "24px", opacity: 1 },
+      })
+      // @ts-expect-error a frame takes CSS properties, and `colour` is none
+      core.keyframes({ from: { colour: "red" } })
+      return reveal
+    }
+    expectTypeOf<ReturnType<typeof make>>().toEqualTypeOf<core.Keyframes>()
+  })
+})
+
 describe("counter-style types", () => {
   it("name a list style and a counter, and take descriptors only", () => {
     const make = () => {

@@ -1148,7 +1148,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Animation",
     "section": "dynamic",
     "heading": "Animating a custom property",
-    "text": "A custom property does not interpolate unless the browser knows its type. Register it by giving the token a syntax, and it becomes animatable: That emits an rule, so a transition or keyframe on animates smoothly instead of jumping. A registered token may also be a keyframe key."
+    "text": "A custom property does not interpolate unless the browser knows its type. Register it by giving the token a syntax, and it becomes animatable: That emits an rule, so a transition or keyframe on animates smoothly instead of jumping. A registered token may also be a keyframe key, and a frame takes a custom property by its name, as does:"
   },
   {
     "id": "/docs/styling/animation#respecting-motion-preferences",
@@ -2255,7 +2255,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Preact",
     "section": "frameworks",
     "heading": "5. Write a component",
-    "text": "A already on the element is merged with the styles into the one it ends up with, and so is a ."
+    "text": "A already on the element is merged with the styles into the one it ends up with, and so is a . follows the same rule: it returns , so its result spreads onto an element as it is, and the type entry types it that way. Read its , never its ."
   },
   {
     "id": "/docs/frameworks/preact#next",
@@ -2302,7 +2302,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Solid",
     "section": "frameworks",
     "heading": "5. Write a component",
-    "text": "A already on the element is merged with the styles into the one it ends up with, and so is a ."
+    "text": "A already on the element is merged with the styles into the one it ends up with, and so is a . follows the same rule: it returns , so its result spreads onto an element as it is, and the type entry types it that way. Read its , never its ."
   },
   {
     "id": "/docs/frameworks/solid#next",
@@ -2758,7 +2758,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Qwik",
     "section": "frameworks",
     "heading": "5. Write a component",
-    "text": "Keep the handles at module level, as here: the optimizer moves each function into a module of its own, which imports them. A already on the element is merged with the styles into the one it ends up with."
+    "text": "Keep the handles at module level, as here: the optimizer moves each function into a module of its own, which imports them. A already on the element is merged with the styles into the one it ends up with. follows the same rule: it returns , so its result spreads onto an element as it is, and the type entry types it that way. Read its , never its ."
   },
   {
     "id": "/docs/frameworks/qwik#in-development",
@@ -4192,7 +4192,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "API reference",
     "section": "reference",
     "heading": "props(...handles)",
-    "text": "The compiled props for a component that does not read . Conventionally imported as . Styling other people's components ."
+    "text": "The compiled props for a component that does not read . Conventionally imported as . In Solid, Preact and Qwik it returns , the attribute their JSX takes, and that framework's type entry types it so. Styling other people's components ."
   },
   {
     "id": "/docs/reference/api#recipe-config",
