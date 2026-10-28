@@ -5,44 +5,44 @@
 
 ### Features
 
-* a part that anchors a relation can read its own kind beside it ([#163](https://github.com/kirana-style/kirana/issues/163)) ([71131ad](https://github.com/kirana-style/kirana/commit/71131adc72d053b547879b1ebaddbc4f22b012bc))
-* add @kirana-style/compiler-browser, the engine in a browser page ([#155](https://github.com/kirana-style/kirana/issues/155)) ([566f300](https://github.com/kirana-style/kirana/commit/566f300bfe33f94f4c51399f1b199b0ae3915b64))
-* angular parts merge sx through partSx beside SxDirective ([#167](https://github.com/kirana-style/kirana/issues/167)) ([0138926](https://github.com/kirana-style/kirana/commit/0138926c8249b337682b84f64d1587fb3e2d1740))
-* font items, imported by ui add and installed by a preset ([#168](https://github.com/kirana-style/kirana/issues/168)) ([e6dc629](https://github.com/kirana-style/kirana/commit/e6dc62989b81038a6110eb731ccf4fc0b8325c12))
-* own() claims an attribute for one component's style ([#169](https://github.com/kirana-style/kirana/issues/169)) ([52f6e52](https://github.com/kirana-style/kirana/commit/52f6e52bb3840521e3fc86ac6b1017aed6a6b8bb))
-* style helpers evaluate object.entries, fromEntries and map ([#160](https://github.com/kirana-style/kirana/issues/160)) ([05421b8](https://github.com/kirana-style/kirana/commit/05421b8cccff73fdc0cf57aa288a2606b200eafd))
+* a part that anchors a relation can read its own kind beside it ([#163](https://github.com/kirana-style/kirana/pull/163)) ([71131ad](https://github.com/kirana-style/kirana/commit/71131adc72d053b547879b1ebaddbc4f22b012bc))
+* add @kirana-style/compiler-browser, the engine in a browser page ([#155](https://github.com/kirana-style/kirana/pull/155)) ([566f300](https://github.com/kirana-style/kirana/commit/566f300bfe33f94f4c51399f1b199b0ae3915b64))
+* angular parts merge sx through partSx beside SxDirective ([#167](https://github.com/kirana-style/kirana/pull/167)) ([0138926](https://github.com/kirana-style/kirana/commit/0138926c8249b337682b84f64d1587fb3e2d1740))
+* font items, imported by ui add and installed by a preset ([#168](https://github.com/kirana-style/kirana/pull/168)) ([e6dc629](https://github.com/kirana-style/kirana/commit/e6dc62989b81038a6110eb731ccf4fc0b8325c12))
+* own() claims an attribute for one component's style ([#169](https://github.com/kirana-style/kirana/pull/169)) ([52f6e52](https://github.com/kirana-style/kirana/commit/52f6e52bb3840521e3fc86ac6b1017aed6a6b8bb))
+* style helpers evaluate object.entries, fromEntries and map ([#160](https://github.com/kirana-style/kirana/pull/160)) ([05421b8](https://github.com/kirana-style/kirana/commit/05421b8cccff73fdc0cf57aa288a2606b200eafd))
 
 
 ### Bug fixes
 
-* a relation read compiles in a module that does not import kirana ([#159](https://github.com/kirana-style/kirana/issues/159)) ([cb073a4](https://github.com/kirana-style/kirana/commit/cb073a4aa5f1c5039ed2182a18118d8123d11851))
-* an import no style reads is not reported unresolved or cyclic ([#148](https://github.com/kirana-style/kirana/issues/148)) ([40eff25](https://github.com/kirana-style/kirana/commit/40eff2516620feade8130c8a2cf74b3d1b45fd06))
-* an import of a file created during a watch session resolves ([#164](https://github.com/kirana-style/kirana/issues/164)) ([afdb700](https://github.com/kirana-style/kirana/commit/afdb7007c9908f7c3f3036e6eaec9cb0d2ac197f))
-* angular and ember peer @kirana-style/vite at the release's version ([#157](https://github.com/kirana-style/kirana/issues/157)) ([09d71db](https://github.com/kirana-style/kirana/commit/09d71db1124dc722e54fbcfee70f3a511cfceea4))
-* props() and keyframes() are typed as they compile ([#158](https://github.com/kirana-style/kirana/issues/158)) ([b797caa](https://github.com/kirana-style/kirana/commit/b797caa8f040ffc0e0dccfb513b76ef0517e407b))
-* removing a whole box removes its logical sides too ([#171](https://github.com/kirana-style/kirana/issues/171)) ([f838ff1](https://github.com/kirana-style/kirana/commit/f838ff1de7c7b31c0c576fcda3394fc27abd5cd5))
-* ui init gives a javascript next.js app its tsconfig and typescript ([#149](https://github.com/kirana-style/kirana/issues/149)) ([6eee0fd](https://github.com/kirana-style/kirana/commit/6eee0fdda35deca7ad66721ff12b3791bfba228c))
+* a relation read compiles in a module that does not import kirana ([#159](https://github.com/kirana-style/kirana/pull/159)) ([cb073a4](https://github.com/kirana-style/kirana/commit/cb073a4aa5f1c5039ed2182a18118d8123d11851))
+* an import no style reads is not reported unresolved or cyclic ([#148](https://github.com/kirana-style/kirana/pull/148)) ([40eff25](https://github.com/kirana-style/kirana/commit/40eff2516620feade8130c8a2cf74b3d1b45fd06))
+* an import of a file created during a watch session resolves ([#164](https://github.com/kirana-style/kirana/pull/164)) ([afdb700](https://github.com/kirana-style/kirana/commit/afdb7007c9908f7c3f3036e6eaec9cb0d2ac197f))
+* angular and ember peer @kirana-style/vite at the release's version ([#157](https://github.com/kirana-style/kirana/pull/157)) ([09d71db](https://github.com/kirana-style/kirana/commit/09d71db1124dc722e54fbcfee70f3a511cfceea4))
+* props() and keyframes() are typed as they compile ([#158](https://github.com/kirana-style/kirana/pull/158)) ([b797caa](https://github.com/kirana-style/kirana/commit/b797caa8f040ffc0e0dccfb513b76ef0517e407b))
+* removing a whole box removes its logical sides too ([#171](https://github.com/kirana-style/kirana/pull/171)) ([f838ff1](https://github.com/kirana-style/kirana/commit/f838ff1de7c7b31c0c576fcda3394fc27abd5cd5))
+* ui init gives a javascript next.js app its tsconfig and typescript ([#149](https://github.com/kirana-style/kirana/pull/149)) ([6eee0fd](https://github.com/kirana-style/kirana/commit/6eee0fdda35deca7ad66721ff12b3791bfba228c))
 
 
 ### Performance
 
-* a dev server and a watch build reuse unchanged transforms ([#170](https://github.com/kirana-style/kirana/issues/170)) ([3eac1cf](https://github.com/kirana-style/kirana/commit/3eac1cfb6a730fae900d6c81ed86b9b5833baf22))
-* a style written out in full compiles once a session ([#166](https://github.com/kirana-style/kirana/issues/166)) ([ec84bd3](https://github.com/kirana-style/kirana/commit/ec84bd35af1068fbfe0a6aa52972b70ed2eff05f))
-* dense names build the renaming's source map only when the build writes maps ([#161](https://github.com/kirana-style/kirana/issues/161)) ([a655efd](https://github.com/kirana-style/kirana/commit/a655efd0632b97c86190cca95c5ce7b73dd38a88))
-* reading a preset's tokens no longer walks the whole preset ([#165](https://github.com/kirana-style/kirana/issues/165)) ([b92775d](https://github.com/kirana-style/kirana/commit/b92775d74d96b8f4b357616937ddc7921ac1c73a))
-* the engine loader looks up the c library once per process ([#156](https://github.com/kirana-style/kirana/issues/156)) ([344a932](https://github.com/kirana-style/kirana/commit/344a932ed212900c6cdeb980d135d5c248fd93c2))
-* the stylesheet is written from one atom index, not every module's atoms ([#162](https://github.com/kirana-style/kirana/issues/162)) ([6718147](https://github.com/kirana-style/kirana/commit/6718147b0bb444f3d63403047c726d31e823a517))
+* a dev server and a watch build reuse unchanged transforms ([#170](https://github.com/kirana-style/kirana/pull/170)) ([3eac1cf](https://github.com/kirana-style/kirana/commit/3eac1cfb6a730fae900d6c81ed86b9b5833baf22))
+* a style written out in full compiles once a session ([#166](https://github.com/kirana-style/kirana/pull/166)) ([ec84bd3](https://github.com/kirana-style/kirana/commit/ec84bd35af1068fbfe0a6aa52972b70ed2eff05f))
+* dense names build the renaming's source map only when the build writes maps ([#161](https://github.com/kirana-style/kirana/pull/161)) ([a655efd](https://github.com/kirana-style/kirana/commit/a655efd0632b97c86190cca95c5ce7b73dd38a88))
+* reading a preset's tokens no longer walks the whole preset ([#165](https://github.com/kirana-style/kirana/pull/165)) ([b92775d](https://github.com/kirana-style/kirana/commit/b92775d74d96b8f4b357616937ddc7921ac1c73a))
+* the engine loader looks up the c library once per process ([#156](https://github.com/kirana-style/kirana/pull/156)) ([344a932](https://github.com/kirana-style/kirana/commit/344a932ed212900c6cdeb980d135d5c248fd93c2))
+* the stylesheet is written from one atom index, not every module's atoms ([#162](https://github.com/kirana-style/kirana/pull/162)) ([6718147](https://github.com/kirana-style/kirana/commit/6718147b0bb444f3d63403047c726d31e823a517))
 
 
 ### Documentation
 
-* take the benchmarks of kirana 0.3.4 from kirana-lab ([#153](https://github.com/kirana-style/kirana/issues/153)) ([f093aa7](https://github.com/kirana-style/kirana/commit/f093aa7a693e38fcc8d252f9e797c775e2321ca1))
-* the roadmap lists the products planned beside the compiler ([#154](https://github.com/kirana-style/kirana/issues/154)) ([7806842](https://github.com/kirana-style/kirana/commit/7806842cbd7ebf67efa98131f3343891351df01c))
+* take the benchmarks of kirana 0.3.4 from kirana-lab ([#153](https://github.com/kirana-style/kirana/pull/153)) ([f093aa7](https://github.com/kirana-style/kirana/commit/f093aa7a693e38fcc8d252f9e797c775e2321ca1))
+* the roadmap lists the products planned beside the compiler ([#154](https://github.com/kirana-style/kirana/pull/154)) ([7806842](https://github.com/kirana-style/kirana/commit/7806842cbd7ebf67efa98131f3343891351df01c))
 
 
 ### Dependencies
 
-* bump the minor-and-patch group with 4 updates ([#151](https://github.com/kirana-style/kirana/issues/151)) ([4bb63be](https://github.com/kirana-style/kirana/commit/4bb63be11279c059c28f33e120b6fc36af06da02))
+* bump the minor-and-patch group with 4 updates ([#151](https://github.com/kirana-style/kirana/pull/151)) ([4bb63be](https://github.com/kirana-style/kirana/commit/4bb63be11279c059c28f33e120b6fc36af06da02))
 
 ## [0.3.4](https://github.com/kirana-style/kirana/compare/v0.3.3...v0.3.4) (2026-10-27)
 
