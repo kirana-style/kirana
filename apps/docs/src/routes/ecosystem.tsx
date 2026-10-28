@@ -272,6 +272,21 @@ function EcosystemPage() {
         lede={`${PACKAGES.length} packages, one engine behind them, and the tools around it. A row says so when something is not there to use yet.`}
       />
 
+      {/*
+        The products beside the compiler, hidden for now; the roadmap shows the table. To bring it
+        back here, import ProductTable from "@/components/site/product-table", restore this chapter
+        as 01, renumber the rest, and drop the Tooling table's docs framework row.
+
+      <PageSection
+        number="01"
+        label="Products"
+        title="The compiler, and what is built on it"
+        lede="Kirana UI is there to use with the compiler. The rest are planned, each released on its own."
+      >
+        <ProductTable />
+      </PageSection>
+      */}
+
       <PageSection
         number="01"
         label="How it fits"
