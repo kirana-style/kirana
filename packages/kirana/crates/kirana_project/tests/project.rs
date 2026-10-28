@@ -129,6 +129,80 @@ fn a_deleted_dependency_is_recomputed() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// A file created during a session is found by the imports that named it before it existed, and by
+/// one it now comes before in the resolution order.
+#[test]
+fn a_file_created_during_the_session_is_resolved() {
+    let space = "import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { 1: \"1px\" })\n";
+    let direct = "import { css } from \"@kirana-style/core\"\nimport { space } from \"./tokens\"\nexport const box = css({ gap: space[1] })\n";
+    let nested = "import { css } from \"@kirana-style/core\"\nimport { space } from \"./scale\"\nexport const row = css({ rowGap: space[1] })\n";
+    let starred = "import { css } from \"@kirana-style/core\"\nimport { space } from \"./all\"\nexport const col = css({ columnGap: space[1] })\n";
+    let found = "import { css } from \"@kirana-style/core\"\nimport { space } from \"./scale\"\nexport const pad = css({ padding: space[1] })\n";
+    let (root, project) = temp_project(&[
+        ("package.json", "{\"name\":\"app\"}"),
+        ("scale.ts", "export { space } from \"./tokens\"\n"),
+        ("all.ts", "export * from \"./tokens\"\n"),
+        ("direct.ts", direct),
+        ("nested.ts", nested),
+        ("starred.ts", starred),
+        ("found.ts", found),
+        ("theme/index.ts", "export const width = \"1px\"\n"),
+        (
+            "width.ts",
+            "import { css } from \"@kirana-style/core\"\nimport { width } from \"./theme\"\nexport const line = css({ width })\n",
+        ),
+    ]);
+    let unresolved = |name: &str, source: &str| {
+        project.transform(&root.join(name), source).diagnostics.iter().any(|d| d.code == Code::UnresolvedImport)
+    };
+    assert!(unresolved("direct.ts", direct));
+    assert!(unresolved("nested.ts", nested));
+    assert!(unresolved("starred.ts", starred));
+    // Answered from `scale.ts`'s cached exports, which remember their miss.
+    assert!(unresolved("found.ts", found));
+    let width = fs::read_to_string(root.join("width.ts")).unwrap();
+    project.transform(&root.join("width.ts"), &width);
+    let all = |names: &[&str]| names.iter().map(|name| root.join(name)).collect::<Vec<_>>();
+
+    // A file the session has not read: every module whose compile missed an import is returned,
+    // again at each change until it compiles.
+    fs::write(root.join("notes.md"), "").unwrap();
+    assert_eq!(project.invalidate(&root.join("notes.md")), all(&["direct.ts", "found.ts", "nested.ts", "starred.ts"]));
+    fs::write(root.join("tokens.ts"), space).unwrap();
+    assert_eq!(project.invalidate(&root.join("tokens.ts")), all(&["direct.ts", "found.ts", "nested.ts", "starred.ts"]));
+    assert!(!unresolved("direct.ts", direct));
+    assert!(!unresolved("nested.ts", nested));
+    assert!(!unresolved("found.ts", found));
+    project.transform(&root.join("starred.ts"), starred);
+    let sheet = project.stylesheet(false);
+    for property in ["gap: 1px", "row-gap: 1px", "column-gap: 1px", "padding: 1px"] {
+        assert!(sheet.contains(property), "{property} in {sheet}");
+    }
+    // Compiled since: a later file returns none of them.
+    fs::write(root.join("theme.ts"), "export const width = \"2px\"\n").unwrap();
+    assert_eq!(project.invalidate(&root.join("theme.ts")), Vec::<PathBuf>::new());
+    // `./theme` now names `theme.ts`, before `theme/index.ts`.
+    project.transform(&root.join("width.ts"), &width);
+    assert!(project.stylesheet(false).contains("width: 2px"), "{}", project.stylesheet(false));
+    // An edit of a file the session read is not a new file: the import is not resolved again.
+    project.remove(&root.join("direct.ts"));
+    fs::write(root.join("scale.ts"), "export { space } from \"./tokens\"\n\n").unwrap();
+    assert_eq!(project.invalidate(&root.join("scale.ts")), all(&["found.ts", "nested.ts"]));
+    // A file reported changed, then deleted with nothing said: the cached exports that read it see
+    // it gone.
+    fs::write(root.join("c.ts"), "export const top = \"3px\"\n").unwrap();
+    fs::write(root.join("d.ts"), "export { top } from \"./c\"\n").unwrap();
+    let user =
+        "import { css } from \"@kirana-style/core\"\nimport { top } from \"./d\"\nexport const at = css({ top })\n";
+    project.transform(&root.join("user.ts"), user);
+    assert!(project.stylesheet(false).contains("top: 3px"));
+    assert_eq!(project.invalidate(&root.join("c.ts")), all(&["user.ts"]));
+    fs::remove_file(root.join("c.ts")).unwrap();
+    project.transform(&root.join("user.ts"), user);
+    assert!(!project.stylesheet(false).contains("top: 3px"), "{}", project.stylesheet(false));
+    fs::remove_dir_all(root).unwrap();
+}
+
 /// A spread of a state from `states.ts`, which re-exports it from `kirana.ts` (KF-038).
 const SEPARATOR: &str = "import { css } from \"@kirana-style/core\"\nimport { orientation } from \"./states\"\nexport const separator = css({ width: { base: \"1px\", ...{ [orientation.vertical]: \"100%\" } } })\n";
 const STATES: &str =

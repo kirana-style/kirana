@@ -40,6 +40,8 @@ pub(crate) struct ExportsEntry {
     pub exports: Arc<Exports>,
     /// `(dependency, hash seen)` for every module read while evaluating.
     pub provenance: Vec<(PathBuf, u64)>,
+    /// Whether an import failed to resolve while evaluating ([`ModuleHost::missed`]).
+    pub missed: bool,
 }
 
 /// The evaluator host for one module: resolves imports through the project and records which
@@ -55,6 +57,8 @@ pub(crate) struct ModuleHost<'p> {
     cut: Cell<usize>,
     /// Every import cycle closed while this module was evaluated, as `a.ts → b.ts → a.ts`.
     cycles: RefCell<Vec<String>>,
+    /// Whether an import failed to resolve, here or in a module it imported.
+    missed: Cell<bool>,
 }
 
 impl<'p> ModuleHost<'p> {
@@ -66,7 +70,14 @@ impl<'p> ModuleHost<'p> {
             stars: RefCell::default(),
             cut: Cell::new(usize::MAX),
             cycles: RefCell::default(),
+            missed: Cell::new(false),
         }
+    }
+
+    /// Whether an import failed to resolve, here or in a module it imported: a file created later
+    /// may be the one it names.
+    pub fn missed(&self) -> bool {
+        self.missed.get()
     }
 
     /// The cycle importing `path` closes, when it is already on the stack: noted as a cut.
@@ -134,6 +145,7 @@ impl<'p> ModuleHost<'p> {
         {
             self.read.borrow_mut().push((path.to_path_buf(), entry.hash));
             self.read.borrow_mut().extend(entry.provenance.iter().cloned());
+            self.missed.set(self.missed.get() || entry.missed);
             return Some(entry.exports.clone());
         }
         let source = self.project.fs.read_to_string(path).ok()?;
@@ -179,6 +191,8 @@ impl<'p> ModuleHost<'p> {
         // closed further up the stack cut a value this module read, which another starting point
         // would have had in full: those exports stay this evaluation's own (KF-038).
         self.cycles.borrow_mut().extend(nested.cycles.take());
+        let missed = nested.missed.get();
+        self.missed.set(self.missed.get() || missed);
         let depth = self.stack.len();
         let cut = nested.cut.get();
         if cut < depth {
@@ -188,7 +202,7 @@ impl<'p> ModuleHost<'p> {
             state.hashes.insert(path.to_path_buf(), hash);
             state.exports.insert(
                 path.to_path_buf(),
-                ExportsEntry { hash, exports: exports.clone(), provenance: provenance.clone() },
+                ExportsEntry { hash, exports: exports.clone(), provenance: provenance.clone(), missed },
             );
         }
         self.read.borrow_mut().push((path.to_path_buf(), hash));
@@ -205,6 +219,7 @@ impl Host for ModuleHost<'_> {
         }
         // `resolve_file`, not `resolve`: only it finds the importer's tsconfig, so `paths` aliases apply.
         let Ok(resolution) = self.project.resolver.resolve_file(from, specifier) else {
+            self.missed.set(true);
             // A module the bundler provides (`externals`) is a runtime value, as a Node.js built-in is.
             if self.project.config.externals.iter().any(|prefix| specifier.starts_with(prefix.as_str())) {
                 return Value::unknown("external module");

@@ -89,6 +89,9 @@ pub(crate) struct State {
     pub counter_styles: FxHashMap<String, Arc<kirana_ir::CounterStyleDef>>,
     /// dependency → modules whose output used its exports.
     pub importers: FxHashMap<PathBuf, FxHashSet<PathBuf>>,
+    /// Modules whose last compile had an import that did not resolve: a file created since may be
+    /// the one it names.
+    pub unresolved: FxHashSet<PathBuf>,
     /// `(package, namespace)` → files declaring that token namespace, from every evaluation.
     pub namespaces: std::collections::BTreeMap<(String, String), std::collections::BTreeSet<String>>,
     /// Relation marker → `(name, files declaring it)`. A relation is identified by package and name,
@@ -253,6 +256,7 @@ impl Project {
             // The module's record is the one this transform wrote: the stylesheet is unchanged.
             return Transformed { css_changed: false, ..previous };
         }
+        self.state.write().expect("not poisoned").unresolved.remove(path);
         if !kirana_frontend::may_be_style_bearing(source) {
             self.state.write().expect("not poisoned").work.prefiltered += 1;
             let css_changed = self.set_record(path, ModuleRecord::default());
@@ -291,6 +295,9 @@ impl Project {
             let mut state = self.state.write().expect("not poisoned");
             for dependency in &dependencies {
                 state.importers.entry(dependency.clone()).or_default().insert(path.to_path_buf());
+            }
+            if host.missed() {
+                state.unresolved.insert(path.to_path_buf());
             }
         }
         let record = ModuleRecord::new(&self.names, &output, &definitions);
@@ -347,7 +354,18 @@ impl Project {
     /// depend on it, transitively (KRN-INT-009).
     pub fn invalidate(&self, path: &Path) -> Vec<PathBuf> {
         let file = self.display_name(path);
+        let exists = self.fs.read_to_string(path).is_ok();
         let mut state = self.state.write().expect("not poisoned");
+        // A file the session never read may be new, and one it read may be gone: either can change
+        // what an import resolves to, which the resolver caches. Every resolution is made again, and
+        // the modules that failed one compile again. Hosts invalidate between transforms, never
+        // during one, as clearing the resolver's cache requires.
+        let reshaped = !exists || !state.hashes.contains_key(path);
+        if reshaped {
+            self.resolver.clear_cache();
+            state.exports.clear();
+            state.reused.clear();
+        }
         state.revision += 1;
         // Its declarations are recorded again when it is next evaluated; a long-lived session (the
         // language server) must not keep a namespace or relation the file no longer declares.
@@ -364,6 +382,16 @@ impl Project {
         let mut affected = Vec::new();
         let mut queue = vec![path.to_path_buf()];
         let mut seen = FxHashSet::default();
+        if reshaped {
+            // Kept until each compiles again: a host that does not recompile what is returned asks
+            // again at the next change.
+            let unresolved: Vec<PathBuf> = state.unresolved.iter().cloned().collect();
+            for module in unresolved {
+                seen.insert(module.clone());
+                affected.push(module.clone());
+                queue.push(module);
+            }
+        }
         while let Some(current) = queue.pop() {
             for importer in state.importers.get(&current).into_iter().flatten() {
                 if seen.insert(importer.clone()) {
@@ -386,6 +414,7 @@ impl Project {
         state.revision += 1;
         forget_declarations(&mut state, &file);
         state.reused.remove(path);
+        state.unresolved.remove(path);
         state.take_module(path).is_some_and(|record| !record.is_empty())
     }
 
