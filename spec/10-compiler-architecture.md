@@ -327,6 +327,12 @@ sequenceDiagram
 The host re-requests affected modules through its normal transform path; the engine never calls back into
 host code.
 
+A change to a file the session has not read (a file created since, a `tsconfig.json`) or to one that is
+gone can change what an import resolves to, which the resolver caches. The engine then resolves every
+import again, and the modules whose last compile had an import that did not resolve are affected, at
+each such change until they compile again: an import written before its file exists resolves once it
+does.
+
 ## Parallelism and cache
 
 **KRN-CMP-009** — Prefiltering, parsing, evaluation and IR construction for independent modules MUST run
