@@ -1,0 +1,16 @@
+[
+  {
+    "code": "KRN1403",
+    "name": "relation-placement",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 788,
+      "end": 811
+    },
+    "message": "reads a relation `after` its anchor, but no earlier sibling carries the anchor",
+    "help": [
+      "put the anchor on an earlier sibling, or read it with `within`"
+    ]
+  }
+]

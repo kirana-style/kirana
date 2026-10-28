@@ -108,6 +108,24 @@ placement check accepts it, for both kinds of ancestor read. A parent read reach
 the anchor's children only, where `within` reaches any depth: a port of `*:w-full`
 written with `within` would also widen a grandchild inside a wrapper.
 
+The same holds beside it. shadcn/ui's `ItemContent` keeps its width when it
+follows another, and its caller is the one that repeats it, so the part anchors
+the relation and reads it `after()`:
+
+```tsx
+const content = relation("item-content")
+
+const styles = {
+  content: css(content.anchor, {
+    flex: { base: "1 1 0%", [content.after()]: "none" },
+  }),
+}
+```
+
+The placement check accepts an `after()` or `before()` read on an element that
+carries its own anchor: another instance beside it, which only the caller's tree
+holds.
+
 ## Anchors are placed, not guessed
 
 The anchor must sit on the element whose state you are reading. That sounds

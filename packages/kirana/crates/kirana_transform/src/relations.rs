@@ -100,13 +100,16 @@ fn check_tree(tree: &Tree, file: &str, out: &mut Vec<Diagnostic>) {
                     "reads a relation `parent` of its anchor, but its parent in this tree does not carry the anchor",
                     "put the anchor on the parent element, or read it with `within`",
                 ),
+                // Likewise among siblings: a part its caller repeats reads the one before or after it,
+                // which its own definition never shows (KF-054).
                 RelationKind::After => (
-                    siblings[..position].iter().any(|sibling| has(tree, *sibling, marker)),
+                    has(tree, index, marker) || siblings[..position].iter().any(|sibling| has(tree, *sibling, marker)),
                     "reads a relation `after` its anchor, but no earlier sibling carries the anchor",
                     "put the anchor on an earlier sibling, or read it with `within`",
                 ),
                 RelationKind::Before => (
-                    siblings.iter().skip(position + 1).any(|sibling| has(tree, *sibling, marker)),
+                    has(tree, index, marker)
+                        || siblings.iter().skip(position + 1).any(|sibling| has(tree, *sibling, marker)),
                     "reads a relation `before` its anchor, but no later sibling carries the anchor",
                     "put the anchor on a later sibling",
                 ),
