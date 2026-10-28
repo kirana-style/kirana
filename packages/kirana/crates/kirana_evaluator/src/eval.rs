@@ -55,6 +55,9 @@ pub struct Evaluator<'p, 'a, 'c> {
     pub(crate) ctx: Context<'c>,
     pub(crate) host: &'c dyn Host,
     symbols: RefCell<FxHashMap<SymbolId, Option<Value>>>,
+    /// Whether each evaluated binding's value is static: an imported token object can hold a whole
+    /// palette, and every read of it asked again (KF-060).
+    statics: RefCell<FxHashMap<SymbolId, bool>>,
     calls: RefCell<FxHashMap<(u32, u32), Value>>,
     /// Calls that can only return a plain object at runtime (`Object.fromEntries()`), by span, with
     /// the callee's name. Such a value is a runtime value like any other, except where a style
@@ -116,6 +119,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             ctx,
             host,
             symbols: RefCell::default(),
+            statics: RefCell::default(),
             calls: RefCell::default(),
             plain_objects: RefCell::default(),
             diagnostics: RefCell::default(),
@@ -554,16 +558,24 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
 
     fn identifier(&self, identifier: &IdentifierReference<'a>) -> Value {
         let span = sp(identifier.span);
-        let value = match self.symbol_of(identifier) {
-            None => match identifier.name.as_str() {
-                "undefined" => Value::Undefined,
-                "NaN" => Value::Number(f64::NAN),
-                "Infinity" => Value::Number(f64::INFINITY),
-                _ => Value::unknown("global"),
-            },
-            Some(symbol) => self.symbol_value(symbol),
+        let (value, is_static) = match self.symbol_of(identifier) {
+            None => {
+                let value = match identifier.name.as_str() {
+                    "undefined" => Value::Undefined,
+                    "NaN" => Value::Number(f64::NAN),
+                    "Infinity" => Value::Number(f64::INFINITY),
+                    _ => Value::unknown("global"),
+                };
+                let is_static = value.is_static();
+                (value, is_static)
+            }
+            Some(symbol) => {
+                let value = self.symbol_value(symbol);
+                let is_static = self.symbol_is_static(symbol, &value);
+                (value, is_static)
+            }
         };
-        if value.is_static() {
+        if is_static {
             return value;
         }
         if let Some(import) = value.unresolved_import() {
@@ -640,6 +652,19 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         self.keep_held(Memo::Symbol(symbol), start);
         self.symbols.borrow_mut().insert(symbol, Some(value.clone()));
         value
+    }
+
+    /// `value.is_static()` for the value of `symbol`, remembered once the value is final (a binding
+    /// read while it is evaluated is a placeholder).
+    fn symbol_is_static(&self, symbol: SymbolId, value: &Value) -> bool {
+        if let Some(known) = self.statics.borrow().get(&symbol) {
+            return *known;
+        }
+        let is_static = value.is_static();
+        if matches!(self.symbols.borrow().get(&symbol), Some(Some(_))) {
+            self.statics.borrow_mut().insert(symbol, is_static);
+        }
+        is_static
     }
 
     fn compute_symbol(&self, symbol: SymbolId) -> Value {

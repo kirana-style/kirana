@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use kirana_evaluator::{Context, Evaluator, Host, ImportName, portable};
 use kirana_ir::{Dep, Key, Value};
-use kirana_shared::{FxHashMap, hash64};
+use kirana_shared::{FxHashMap, FxHashSet, hash64};
 use oxc_resolver::{ResolveOptions, Resolver, TsconfigDiscovery};
 
 use crate::Project;
@@ -85,17 +85,21 @@ impl<'p> ModuleHost<'p> {
 
     /// `(file, hash seen)` for every file read, directly or through re-exports, deduplicated.
     pub fn provenance(&self) -> Vec<(PathBuf, u64)> {
-        let mut read = self.read.borrow().clone();
+        // Deduplicated before sorting: a path compares component by component, and each import of
+        // a preset brings every file the preset reads (KF-060).
+        let mut seen = FxHashSet::default();
+        let mut read: Vec<(PathBuf, u64)> =
+            self.read.borrow().iter().filter(|entry| seen.insert(*entry)).cloned().collect();
         read.sort();
-        read.dedup();
         read
     }
 
     /// Files read directly or through re-exports, deduplicated and sorted.
     pub fn dependencies(&self) -> Vec<PathBuf> {
-        let mut paths: Vec<PathBuf> = self.read.borrow().iter().map(|(path, _)| path.clone()).collect();
+        let mut seen = FxHashSet::default();
+        let mut paths: Vec<PathBuf> =
+            self.read.borrow().iter().filter(|(path, _)| seen.insert(path)).map(|(path, _)| path.clone()).collect();
         paths.sort();
-        paths.dedup();
         paths
     }
 
@@ -174,7 +178,8 @@ impl<'p> ModuleHost<'p> {
         .ok()?;
         self.project.register_definitions(&definitions, &package, &file);
         let exports = Arc::new(exports);
-        let provenance = nested.read.into_inner();
+        // Kept deduplicated: every importer's cache hit checks and copies it.
+        let provenance = nested.provenance();
         // A cycle that closed at this module leaves its exports as every importer sees them. One that
         // closed further up the stack cut a value this module read, which another starting point
         // would have had in full: those exports stay this evaluation's own (KF-038).
