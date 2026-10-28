@@ -834,7 +834,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Precedence",
     "section": "cascade",
     "heading": "Combinations that cannot match",
-    "text": "A key nested in another it can never meet, such as two values of one attribute or two libraries' states declared apart with , matches no element. Its entries are left out of the stylesheet. A style written once for several libraries can nest one state helper inside another without shipping rules nothing can match, and without a word from the compiler, since the configuration declared the libraries apart. Any other such key is a mistake, and the compiler says so with an info, . An attribute your component writes itself, whatever library it is built on, is yours even where a vocabulary names it: a sheet's , which Base UI also names for its popups. List it in , and its keys meet every library's states instead of being left out beside them."
+    "text": "A key nested in another it can never meet, such as two values of one attribute or two libraries' states declared apart with , matches no element. Its entries are left out of the stylesheet. A style written once for several libraries can nest one state helper inside another without shipping rules nothing can match, and without a word from the compiler, since the configuration declared the libraries apart. Any other such key is a mistake, and the compiler says so with an info, . An attribute your component writes itself, whatever library it is built on, is yours even where a vocabulary names it: a sheet's , which Base UI also names for its popups. List it in , and its keys meet every library's states instead of being left out beside them. That list is the whole project's, so the popups would lose the vocabulary's meaning of too. Claim it for one component instead, with : The claim holds in that style and in every style built on its handle; the popups' styles keep it apart as before."
   },
   {
     "id": "/docs/styling/precedence#layers",
@@ -4187,6 +4187,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Merges handles, skipping , and . Merging ."
   },
   {
+    "id": "/docs/reference/api#own-attributes",
+    "href": "/docs/reference/api#own-attributes",
+    "page": "API reference",
+    "section": "reference",
+    "heading": "own(...attributes)",
+    "text": "A handle with no styles that claims attributes your component writes itself, by name: . In that style, and in every style built on it, a key on the attribute is the component's, though a library's vocabulary names it too. Combinations that cannot match ."
+  },
+  {
     "id": "/docs/reference/api#props-handles",
     "href": "/docs/reference/api#props-handles",
     "page": "API reference",
@@ -4399,7 +4407,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Configuration reference",
     "section": "reference",
     "heading": "conditions.ownAttributes",
-    "text": "Attributes your own components write, by name ( ), whatever library they are built on. A vocabulary may name one too, as Base UI does for its popups' side, but on your component the attribute is yours: keeps nothing apart by it, so a sheet's side nested in React Aria's entering state is emitted rather than left out. Two values of the attribute still never meet."
+    "text": "Attributes your own components write, by name ( ), whatever library they are built on. A vocabulary may name one too, as Base UI does for its popups' side, but on your component the attribute is yours: keeps nothing apart by it, so a sheet's side nested in React Aria's entering state is emitted rather than left out. Two values of the attribute still never meet. To claim one for a single component, leaving it to the vocabulary elsewhere, use in that component's style."
   },
   {
     "id": "/docs/reference/config#classes",
@@ -5215,7 +5223,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Built",
-    "text": ", , , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 50 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, the design system as JSON, tracing a property, an"
+    "text": ", , , , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 50 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, the design system as JSON, tracing a property, "
   },
   {
     "id": "/docs/project/status#partial",

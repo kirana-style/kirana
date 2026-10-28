@@ -98,6 +98,13 @@ the later handle's value replaces the earlier one. Static arguments merge at bui
 arguments merge through the private runtime ([09](./09-dynamic-styles.md#private-runtime)). Merge rules
 are owned by [08](./08-conditions-and-cascade.md#merge-semantics).
 
+**KRN-API-021** — `own(...attributes)` MUST return a handle with no styles that claims attributes its
+component writes itself, by name (`own("data-side")`). In the `css()` call it is an argument of, and
+in every style built on a handle carrying the claim, a condition on a claimed attribute is named by
+no `conditions.exclusiveAcross` vocabulary, as `conditions.ownAttributes` makes it for the whole
+project ([08](./08-conditions-and-cascade.md#the-precedence-ladder), D-105). Each argument MUST be an
+attribute name, and there MUST be one; otherwise `invalid-value`.
+
 ## The `sx` prop
 
 ```tsx

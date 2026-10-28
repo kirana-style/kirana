@@ -3835,6 +3835,7 @@ export const PAGES: readonly PageMeta[] = [
       "reference",
       "css",
       "cx",
+      "own",
       "props",
       "recipe",
       "relation",
@@ -3861,6 +3862,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "cx-handles",
         "text": "cx(...handles)",
+        "level": 2
+      },
+      {
+        "id": "own-attributes",
+        "text": "own(...attributes)",
         "level": 2
       },
       {
@@ -6227,6 +6233,7 @@ export const NAV: readonly NavGroup[] = [
           "reference",
           "css",
           "cx",
+          "own",
           "props",
           "recipe",
           "relation",

@@ -222,7 +222,9 @@ Attributes your own components write, by name (`"data-side"`), whatever library
 they are built on. A vocabulary may name one too, as Base UI does for its popups'
 side, but on your component the attribute is yours: `exclusiveAcross` keeps nothing
 apart by it, so a sheet's side nested in React Aria's entering state is emitted
-rather than left out. Two values of the attribute still never meet.
+rather than left out. Two values of the attribute still never meet. To claim one
+for a single component, leaving it to the vocabulary elsewhere, use
+[`own()`](/docs/reference/api#ownattributes) in that component's style.
 
 ## `classes`
 

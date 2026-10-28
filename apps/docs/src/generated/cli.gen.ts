@@ -16,6 +16,7 @@ export const COMMANDS: readonly string[] = [
 /** `@kirana-style/core`'s runtime exports, in source order. */
 export const API: readonly string[] = [
   "css",
+  "own",
   "cx",
   "props",
   "recipe",

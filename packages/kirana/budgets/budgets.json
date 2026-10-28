@@ -637,6 +637,18 @@
           "brotli": 252
         }
       },
+      "own-attributes-handle": {
+        "css": {
+          "raw": 624,
+          "gzip": 237,
+          "brotli": 194
+        },
+        "js": {
+          "raw": 1177,
+          "gzip": 578,
+          "brotli": 466
+        }
+      },
       "parse-error": {
         "css": {
           "raw": 85,

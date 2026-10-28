@@ -1475,8 +1475,8 @@ the implementation tracker names its evidence.
 
 ### D-105 — Entries no element can match are left out
 
-- **Status:** Accepted (2026-10-25). Answers KF-030; amended 2026-10-26 for KF-036 and 2026-10-27 for
-  KF-042.
+- **Status:** Accepted (2026-10-25). Answers KF-030; amended 2026-10-26 for KF-036, 2026-10-27 for
+  KF-042 and 2026-10-29 for KF-044.
 - **Decision:** an entry whose condition set holds two conditions the compiler proves exclusive (what
   `ambiguous-precedence` already proves of two sets) is not emitted; the key is the `unreachable-entry`
   info (KRN1305), except when only `conditions.exclusiveAcross` makes the pair exclusive, which is left
@@ -1492,7 +1492,11 @@ the implementation tracker names its evidence.
   sheet's `data-side`, Base UI's popups' too): the project lists such attributes in
   `conditions.ownAttributes`, which the across rule never takes for a vocabulary's (KF-042). A
   warning for every pruned pair was the other answer, but it would report the design again, as
-  KF-036 found.
+  KF-036 found. The list is project-wide, so listing `data-side` for the sheet also took Base UI's
+  popups' side out of the vocabulary and kept their rules no element matches: `own("data-side")`
+  claims it for one component's style instead, carried by its handle into every style built on it
+  (KRN-API-021, KF-044). A claim on a key was the other answer, but a key claimed in one place and
+  plain in another would be two conditions with one selector.
 - **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 
 ### D-106 — A definition says how each entry was written

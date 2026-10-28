@@ -26,6 +26,7 @@ describe("KRN-API uncompiled calls fail loudly", () => {
     ["positionTry", () => core.positionTry({ positionArea: "top" })],
     ["viewTransition", () => core.viewTransition({ old: { opacity: 0 } })],
     ["counterStyle", () => core.counterStyle({ system: "cyclic" })],
+    ["own", () => core.own("data-side")],
   ]
   it.each(calls)("%s throws", (name, call) => {
     expect(call).toThrow(`Kirana: ${name}() ran without being compiled`)
