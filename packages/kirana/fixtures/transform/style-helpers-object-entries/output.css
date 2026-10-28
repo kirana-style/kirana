@@ -1,0 +1,180 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  :root {
+    --kvFN39: 1px;
+  }
+}
+@layer kirana.contextual {
+  .k5T-C9M_D9ur :where(svg) {
+    fill: red;
+  }
+}
+@layer kirana.atoms {
+  .k40_9anN {
+    background: var(--k40);
+  }
+  .ku_FIQV {
+    inset: 0px;
+  }
+  .k6_GvB4 {
+    margin-bottom: 1px;
+  }
+  .k7_8bbU {
+    margin-left: 2px;
+  }
+  .k8_8bbU {
+    margin-right: 2px;
+  }
+  .k9_GvB4 {
+    margin-top: 1px;
+  }
+  .k1m_FFnR {
+    border-inline-color: var(--k1m);
+  }
+  .k1p_BS8c {
+    border-inline-style: var(--k1p);
+  }
+  .k1v_oQLM {
+    border-block-color: var(--k1v);
+  }
+  .k1y_f8qg {
+    border-block-style: var(--k1y);
+  }
+  .k1n_rAng {
+    border-inline-start-color: var(--k1n);
+  }
+  .k1o_Bcnb {
+    border-inline-end-color: var(--k1o);
+  }
+  .k1w_LtJj {
+    border-block-start-color: var(--k1w);
+  }
+  .k3B_kwz4 {
+    accent-color: var(--k3B);
+  }
+  .k44_y7EM {
+    background-color: var(--k44);
+  }
+  .k4U_LXeA {
+    caret-color: var(--k4U);
+  }
+  .k50_D9ur {
+    color: red;
+  }
+  .k50_OuAg {
+    color: var(--k50);
+  }
+  .k57_0b2p {
+    column-rule-color: var(--k57);
+  }
+  .k58_p3zk {
+    column-rule-style: var(--k58);
+  }
+  .k5T_eJ5M {
+    fill: var(--k5T);
+  }
+  .k5n_bOc8 {
+    content: var(--k5n);
+  }
+  .k66_ItKJ {
+    flood-color: var(--k66);
+  }
+  .k7e_pSfp {
+    lighting-color: var(--k7e);
+  }
+  .k87_ufrO {
+    opacity: 0.5;
+  }
+  .k8b_NoVg {
+    outline-color: var(--k8b);
+  }
+  .k8d_Frq4 {
+    outline-style: var(--k8d);
+  }
+  .k99_IReK {
+    scrollbar-color: var(--k99);
+  }
+  .k9D_zGDU {
+    text-decoration-color: var(--k9D);
+  }
+  .k9L_WxyE {
+    text-emphasis-color: var(--k9L);
+  }
+  .k9h_Lfef {
+    stop-color: var(--k9h);
+  }
+  .k9j_hM7R {
+    stroke: var(--k9j);
+  }
+  .kg_vqnf {
+    border-top-width: 4px;
+  }
+  .klJTi8_kbjD {
+    --kvFN39: 2px;
+  }
+  .kl_yTYu {
+    border-top-color: var(--kl);
+  }
+  .km_jXt3 {
+    border-right-color: var(--km);
+  }
+  .kn_JYRm {
+    border-bottom-color: var(--kn);
+  }
+  .ko_sniH {
+    border-left-color: var(--ko);
+  }
+  .kq_5sOf {
+    border-top-style: solid;
+  }
+  .ks_5sOf {
+    border-bottom-style: solid;
+  }
+  .kt_8Gds {
+    border-left-style: dashed;
+  }
+  @media (min-width: 40rem) {
+    .k50-RekC_LB88 {
+      color: blue;
+    }
+  }
+  .kb-246u_zsK3:where(:first-child) {
+    border-top-left-radius: .5rem;
+  }
+  .kc-246u_wwfA:where(:first-child) {
+    border-top-right-radius: 0;
+  }
+  .kd-246u_wwfA:where(:first-child) {
+    border-bottom-right-radius: 0;
+  }
+  .ke-246u_zsK3:where(:first-child) {
+    border-bottom-left-radius: .5rem;
+  }
+  @media (min-width: 40rem) {
+    .kb-qxdQ_HV2H:where(:first-child) {
+      border-top-left-radius: 1rem;
+    }
+    .kc-qxdQ_wwfA:where(:first-child) {
+      border-top-right-radius: 0;
+    }
+    .kd-qxdQ_wwfA:where(:first-child) {
+      border-bottom-right-radius: 0;
+    }
+    .ke-qxdQ_HV2H:where(:first-child) {
+      border-bottom-left-radius: 1rem;
+    }
+  }
+  .kb-STrL_BBZQ:where(:first-child[data-style="vega"]) {
+    border-top-left-radius: .375rem;
+  }
+  .kc-STrL_wwfA:where(:first-child[data-style="vega"]) {
+    border-top-right-radius: 0;
+  }
+  .kd-STrL_wwfA:where(:first-child[data-style="vega"]) {
+    border-bottom-right-radius: 0;
+  }
+  .ke-STrL_BBZQ:where(:first-child[data-style="vega"]) {
+    border-bottom-left-radius: .375rem;
+  }
+}

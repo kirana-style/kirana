@@ -877,6 +877,18 @@
           "brotli": 867
         }
       },
+      "style-helpers-object-entries": {
+        "css": {
+          "raw": 3346,
+          "gzip": 981,
+          "brotli": 853
+        },
+        "js": {
+          "raw": 6611,
+          "gzip": 2221,
+          "brotli": 1936
+        }
+      },
       "sx-forwarded-to-external": {
         "css": {
           "raw": 147,

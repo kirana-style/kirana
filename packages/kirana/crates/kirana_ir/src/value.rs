@@ -226,15 +226,71 @@ pub enum StylePart {
 pub enum Expr {
     Value(Value),
     Param(usize),
-    Template { quasis: Vec<Arc<str>>, expressions: Vec<Expr> },
-    Member { object: Box<Expr>, property: Box<Expr> },
-    Call { callee: Box<Expr>, arguments: Vec<Expr> },
-    Binary { operator: BinaryOp, left: Box<Expr>, right: Box<Expr> },
-    Unary { operator: UnaryOp, argument: Box<Expr> },
-    Logical { operator: LogicalOp, left: Box<Expr>, right: Box<Expr> },
-    Conditional { test: Box<Expr>, consequent: Box<Expr>, alternate: Box<Expr> },
+    Template {
+        quasis: Vec<Arc<str>>,
+        expressions: Vec<Expr>,
+    },
+    Member {
+        object: Box<Expr>,
+        property: Box<Expr>,
+    },
+    Call {
+        callee: Box<Expr>,
+        arguments: Vec<Expr>,
+    },
+    Binary {
+        operator: BinaryOp,
+        left: Box<Expr>,
+        right: Box<Expr>,
+    },
+    Unary {
+        operator: UnaryOp,
+        argument: Box<Expr>,
+    },
+    Logical {
+        operator: LogicalOp,
+        left: Box<Expr>,
+        right: Box<Expr>,
+    },
+    Conditional {
+        test: Box<Expr>,
+        consequent: Box<Expr>,
+        alternate: Box<Expr>,
+    },
     Object(Vec<(ExprKey, Expr)>),
     Array(Vec<Expr>),
+    /// `Object.entries(x)` and its kin, over a value known at build time (KF-053).
+    Builtin {
+        builtin: Builtin,
+        argument: Box<Expr>,
+    },
+    /// `array.map(callback)`: the callback's parameters follow the enclosing function's, so its
+    /// body reads both; each is the item, one element of it (`([key, value]) =>`) or the index.
+    Map {
+        array: Box<Expr>,
+        slots: Vec<Slot>,
+        body: Box<Expr>,
+    },
+}
+
+/// A global function the evaluator runs on build-time values (KF-053).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Builtin {
+    ObjectEntries,
+    ObjectKeys,
+    ObjectValues,
+    ObjectFromEntries,
+}
+
+/// What a `map` callback's parameter receives.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Slot {
+    /// `(item) =>`.
+    Item,
+    /// One element of an array item: `([key, value]) =>` is `ItemAt(0)`, `ItemAt(1)`.
+    ItemAt(usize),
+    /// `(item, index) =>`.
+    Index,
 }
 
 /// An object key in a lowered expression.

@@ -2646,6 +2646,17 @@ different property depending on state, write both and choose between handles:
 - If a page reports many `dynamic-bridged` values you did not expect, something
   that could be static is not: usually a token read through an intermediate
   variable the evaluator cannot follow.
+- A helper that builds a value per key folds when its inputs do. Inside a helper,
+  the `Object` functions over entries, keys and values, and `.map()` with a
+  callback written in place, run at build time:
+
+  ```tsx
+  const END = { base: radius.lg, [vega]: radius.md }
+  const perStyle = (value: (r: string) => string) =>
+    Object.fromEntries(Object.entries(END).map(([key, r]) => [key, value(r)]))
+
+  css({ borderRadius: { ":first-child": perStyle((r) => `${r} 0 0 ${r}`) } })
+  ```
 ---
 # Fallback values
 Source: https://kirana.style/docs/styling/fallbacks

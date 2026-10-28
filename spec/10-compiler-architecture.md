@@ -120,6 +120,15 @@ sits under its own name (`space[7]` on `space`), at the expression or, inside a 
 call (KF-039). A token in `===`, `==`, `!=`, `!==` and `typeof` is the string the compiled code holds
 in its place, its CSS text: a variable token never equals a keyword such as `"none"`.
 
+Inside a descriptor, the global `Object`'s `entries`, `keys`, `values` and `fromEntries` run on folded
+values, and `array.map(callback)` runs a callback written in place as an arrow or function expression
+with an expression or single `return` body, whose parameters are the item (a name, or an array pattern
+of names) and the index; the callback reads the enclosing function's parameters too. A key reads back
+as it was written, so a condition key stays a condition (KF-053). Anything else in their place (a
+callback passed by name, a default, a third parameter, a value that is not an object or an array)
+leaves the call a runtime value. Outside a descriptor these globals are not folded: `Object.fromEntries()`
+there still builds a plain object at runtime, which `not-evaluable` reports.
+
 A ternary whose test does not fold but whose branches do yields a finite-dynamic value
 ([09](./09-dynamic-styles.md#classification)). A position that requires a static value (token definitions,
 relation names) and receives a non-foldable expression produces `not-evaluable`.

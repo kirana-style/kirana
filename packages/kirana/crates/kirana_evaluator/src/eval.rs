@@ -6,8 +6,8 @@ use std::sync::Arc;
 use kirana_diagnostics::{Code, Diagnostic, Span};
 use kirana_frontend::Parsed;
 use kirana_ir::{
-    Api, BinaryOp, Descriptor, Dynamic, Expr, ExprKey, Key, LogicalOp, Method, UnaryOp, Value, Written, WrittenEntry,
-    WrittenValue, number_to_string,
+    Api, BinaryOp, Builtin, Descriptor, Dynamic, Expr, ExprKey, Key, LogicalOp, Method, Slot, UnaryOp, Value, Written,
+    WrittenEntry, WrittenValue, number_to_string,
 };
 use kirana_shared::FxHashMap;
 use oxc_ast::AstKind;
@@ -1014,18 +1014,110 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                     })
                     .collect::<Option<_>>()?,
             ),
-            Expression::CallExpression(call) => Expr::Call {
-                callee: lower(&call.callee)?,
-                arguments: call
-                    .arguments
-                    .iter()
-                    .map(|argument| match argument {
-                        Argument::SpreadElement(_) => None,
-                        argument => self.lower(argument.to_expression(), params),
-                    })
-                    .collect::<Option<_>>()?,
-            },
+            Expression::CallExpression(call) => self.lower_call(call, params)?,
             other => Expr::Value(Some(self.eval(other)).filter(Value::is_static)?),
+        })
+    }
+
+    /// A call in a function's body: `Object.entries(…)` and its kin, `array.map(callback)` (KF-053),
+    /// or a call of another function.
+    fn lower_call(&self, call: &oxc_ast::ast::CallExpression<'a>, params: &[Option<SymbolId>]) -> Option<Expr> {
+        let arguments: Vec<&Expression<'a>> = call
+            .arguments
+            .iter()
+            .map(|argument| match argument {
+                Argument::SpreadElement(_) => None,
+                argument => Some(argument.to_expression()),
+            })
+            .collect::<Option<_>>()?;
+        if let Expression::StaticMemberExpression(member) = call.callee.without_parentheses()
+            && let [argument] = arguments.as_slice()
+        {
+            if let Some(builtin) = self.builtin(&member.object, member.property.name.as_str()) {
+                return Some(Expr::Builtin { builtin, argument: Box::new(self.lower(argument, params)?) });
+            }
+            if member.property.name == "map" {
+                return self.lower_map(&member.object, argument, params);
+            }
+        }
+        Some(Expr::Call {
+            callee: Box::new(self.lower(&call.callee, params)?),
+            arguments: arguments.into_iter().map(|argument| self.lower(argument, params)).collect::<Option<_>>()?,
+        })
+    }
+
+    /// `Object.<name>` as a builtin, when `object` is the global `Object` no binding shadows.
+    fn builtin(&self, object: &Expression<'a>, name: &str) -> Option<Builtin> {
+        let Expression::Identifier(object) = object else { return None };
+        if object.name != "Object" || self.symbol_of(object).is_some() {
+            return None;
+        }
+        Some(match name {
+            "entries" => Builtin::ObjectEntries,
+            "keys" => Builtin::ObjectKeys,
+            "values" => Builtin::ObjectValues,
+            "fromEntries" => Builtin::ObjectFromEntries,
+            _ => return None,
+        })
+    }
+
+    /// `array.map(callback)`, the callback an arrow or function expression whose parameters are the
+    /// item (a name, or an array pattern of names) and the index. Its parameters are appended to the
+    /// enclosing function's, so its body reads both.
+    fn lower_map(
+        &self,
+        array: &Expression<'a>,
+        callback: &Expression<'a>,
+        params: &[Option<SymbolId>],
+    ) -> Option<Expr> {
+        let (formal, rest, body) = match callback.without_parentheses() {
+            Expression::ArrowFunctionExpression(arrow) if !arrow.r#async => (
+                &arrow.params,
+                arrow.params.rest.is_some(),
+                match &arrow.body {
+                    ArrowFunctionBody::FunctionBody(body) => single_return(body)?,
+                    body => body.to_expression(),
+                },
+            ),
+            Expression::FunctionExpression(function) if !function.r#async && !function.generator => {
+                (&function.params, function.params.rest.is_some(), function.body.as_deref().and_then(single_return)?)
+            }
+            _ => return None,
+        };
+        if rest || formal.items.len() > 2 || formal.items.iter().any(|param| param.initializer.is_some()) {
+            return None;
+        }
+        let mut scope = params.to_vec();
+        let mut slots = Vec::new();
+        for (position, param) in formal.items.iter().enumerate() {
+            match (&param.pattern, position) {
+                (BindingPattern::BindingIdentifier(identifier), 0) => {
+                    scope.push(identifier.symbol_id.get());
+                    slots.push(Slot::Item);
+                }
+                (BindingPattern::BindingIdentifier(identifier), _) => {
+                    scope.push(identifier.symbol_id.get());
+                    slots.push(Slot::Index);
+                }
+                (BindingPattern::ArrayPattern(pattern), 0) if pattern.rest.is_none() => {
+                    for (index, element) in pattern.elements.iter().enumerate() {
+                        match element {
+                            None => {}
+                            Some(BindingPattern::BindingIdentifier(identifier)) => {
+                                scope.push(identifier.symbol_id.get());
+                                slots.push(Slot::ItemAt(index));
+                            }
+                            Some(_) => return None,
+                        }
+                    }
+                }
+                _ => return None,
+            }
+        }
+        Some(Expr::Map {
+            array: Box::new(self.lower(array, params)?),
+            slots,
+            body: Box::new(self.lower(body, &scope)?),
         })
     }
 
@@ -1325,6 +1417,26 @@ pub(crate) fn apply(
                     call_arguments.iter().map(|argument| run(argument, arguments)).collect::<Option<Vec<_>>>()?;
                 apply(&inner, &values, evaluator, span)?
             }
+            Expr::Builtin { builtin, argument } => run_builtin(*builtin, run(argument, arguments)?)?,
+            Expr::Map { array, slots, body } => {
+                let Value::Array(items) = run(array, arguments)? else { return None };
+                let mut mapped = Vec::with_capacity(items.len());
+                for (index, item) in items.iter().enumerate() {
+                    let mut scope = arguments.to_vec();
+                    for slot in slots {
+                        scope.push(match slot {
+                            Slot::Item => item.clone(),
+                            Slot::ItemAt(at) => match item {
+                                Value::Array(elements) => elements.get(*at).cloned().unwrap_or(Value::Undefined),
+                                _ => return None,
+                            },
+                            Slot::Index => Value::Number(index as f64),
+                        });
+                    }
+                    mapped.push(run(body, &scope)?);
+                }
+                Value::Array(Arc::new(mapped))
+            }
         })
     }
     if arguments.len() > descriptor.params {
@@ -1338,6 +1450,40 @@ pub(crate) fn apply(
         }
     }
     run(&descriptor.body, &arguments, evaluator, span)
+}
+
+/// Runs `Object.entries`, `keys`, `values` or `fromEntries` on a static value (KF-053). A key reads
+/// back as the value it was written with, so a condition key stays a condition.
+fn run_builtin(builtin: Builtin, value: Value) -> Option<Value> {
+    let key_value = |key: &Key| match key {
+        Key::Str(text) => Value::Str(text.clone()),
+        Key::Conditions(conditions) => Value::Conditions(conditions.clone()),
+        Key::Select(target) => Value::Select(target.clone()),
+        Key::Token(token) => Value::Token(token.clone()),
+    };
+    Some(match (builtin, value) {
+        (Builtin::ObjectEntries, Value::Object(entries)) => Value::Array(Arc::new(
+            entries.iter().map(|(key, value)| Value::Array(Arc::new(vec![key_value(key), value.clone()]))).collect(),
+        )),
+        (Builtin::ObjectKeys, Value::Object(entries)) => {
+            Value::Array(Arc::new(entries.iter().map(|(key, _)| key_value(key)).collect()))
+        }
+        (Builtin::ObjectValues, Value::Object(entries)) => {
+            Value::Array(Arc::new(entries.iter().map(|(_, value)| value.clone()).collect()))
+        }
+        (Builtin::ObjectFromEntries, Value::Array(pairs)) => Value::Object(Arc::new(
+            pairs
+                .iter()
+                .map(|pair| match pair {
+                    Value::Array(pair) => {
+                        Some((to_key(pair.first()?)?, pair.get(1).cloned().unwrap_or(Value::Undefined)))
+                    }
+                    _ => None,
+                })
+                .collect::<Option<_>>()?,
+        )),
+        _ => return None,
+    })
 }
 
 /// A template's parts with the empty texts left out and adjacent texts joined.

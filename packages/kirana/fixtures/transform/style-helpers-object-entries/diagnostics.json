@@ -1,0 +1,350 @@
+[
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 4695,
+      "end": 4712
+    },
+    "message": "color is set at runtime through --k50",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 4735,
+      "end": 4751
+    },
+    "message": "backgroundColor is set at runtime through --k44",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 4771,
+      "end": 4788
+    },
+    "message": "outlineColor is set at runtime through --k8b",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 4812,
+      "end": 4825
+    },
+    "message": "borderBlockColor is set at runtime through --k1v",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 4850,
+      "end": 4863
+    },
+    "message": "borderInlineColor is set at runtime through --k1m",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 4881,
+      "end": 4900
+    },
+    "message": "caretColor is set at runtime through --k4U",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 4914,
+      "end": 4937
+    },
+    "message": "stroke is set at runtime through --k9j",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 4955,
+      "end": 4975
+    },
+    "message": "floodColor is set at runtime through --k66",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 4996,
+      "end": 5020
+    },
+    "message": "lightingColor is set at runtime through --k7e",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5037,
+      "end": 5055
+    },
+    "message": "stopColor is set at runtime through --k9h",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5077,
+      "end": 5090
+    },
+    "message": "scrollbarColor is set at runtime through --k99",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5118,
+      "end": 5135
+    },
+    "message": "borderInlineEndColor is set at runtime through --k1o",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5164,
+      "end": 5192
+    },
+    "message": "borderBlockStartColor is set at runtime through --k1w",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5217,
+      "end": 5232
+    },
+    "message": "textEmphasisColor is set at runtime through --k9L",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5262,
+      "end": 5285
+    },
+    "message": "borderInlineStartColor is set at runtime through --k1n",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5304,
+      "end": 5325
+    },
+    "message": "accentColor is set at runtime through --k3B",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5348,
+      "end": 5373
+    },
+    "message": "borderLeftColor is set at runtime through --ko",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5397,
+      "end": 5414
+    },
+    "message": "borderRightColor is set at runtime through --km",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5436,
+      "end": 5458
+    },
+    "message": "borderTopColor is set at runtime through --kl",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5483,
+      "end": 5513
+    },
+    "message": "borderBottomColor is set at runtime through --kn",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5533,
+      "end": 5551
+    },
+    "message": "outlineStyle is set at runtime through --k8d",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5574,
+      "end": 5603
+    },
+    "message": "columnRuleStyle is set at runtime through --k58",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5628,
+      "end": 5655
+    },
+    "message": "borderInlineStyle is set at runtime through --k1p",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5679,
+      "end": 5706
+    },
+    "message": "borderBlockStyle is set at runtime through --k1y",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5729,
+      "end": 5746
+    },
+    "message": "columnRuleColor is set at runtime through --k57",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5794,
+      "end": 5827
+    },
+    "message": "textDecorationColor is set at runtime through --k9D",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5839,
+      "end": 5881
+    },
+    "message": "fill is set at runtime through --k5T",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5899,
+      "end": 5920
+    },
+    "message": "background is set at runtime through --k40",
+    "help": []
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 5956,
+      "end": 5979
+    },
+    "message": "content is set at runtime through --k5n",
+    "help": []
+  }
+]
