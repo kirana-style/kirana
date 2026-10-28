@@ -145,6 +145,46 @@ file work the same way.
 A value known only at runtime, such as `css({ marginLeft: offset })`, is bridged
 through a custom property, as in [dynamic styles](/docs/styling/dynamic).
 
+## A part that takes `sx`
+
+A design system's parts are attribute directives, such as a button directive on
+a `<button>`, and a part merges its own styles with its caller's, the caller's
+last, as a component does everywhere else. Three exports make that work:
+
+- `partSx(own, sx)` does the merge `[sx]` does, and returns the host's `class`
+  and `style`;
+- `SxInput` types the part's input: an Angular CLI build type-checks the
+  compiled copy, where handles are class strings;
+- `provideSxPart()`, in the part's `providers`, keeps `SxDirective` off its
+  element.
+
+```ts file="src/app/button.ts"
+import { Directive, computed, input } from "@angular/core"
+import { partSx, provideSxPart } from "@kirana-style/angular"
+import type { SxInput } from "@kirana-style/angular"
+import { css } from "@kirana-style/core"
+
+const button = css({ paddingInline: "1rem", borderRadius: "0.5rem" })
+
+@Directive({
+  selector: "button[uiButton]",
+  providers: [provideSxPart()],
+  host: { "[class]": "part().class", "[style]": "part().style" },
+})
+export class Button {
+  readonly sx = input<SxInput>()
+  protected readonly part = computed(() => partSx(button, this.sx()))
+}
+```
+
+A template that imports `SxDirective` for its plain elements can then hold the
+part too: `<button uiButton [sx]="styles.wide">`. Both read the one `[sx]`
+binding, and only the part applies it.
+
+Without `provideSxPart()`, the directive would add the caller's classes as well,
+and they would be lost the next time the part's class binding changed. With
+another class-name prefix, pass it as the merge's third argument.
+
 ### Another class-name prefix
 
 If `kirana.config` sets [`names.prefix`](/docs/reference/config), tell the

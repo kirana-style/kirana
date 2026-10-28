@@ -2496,6 +2496,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "a-part-that-takes-sx",
+        "text": "A part that takes sx",
+        "level": 2
+      },
+      {
         "id": "another-class-name-prefix",
         "text": "Another class-name prefix",
         "level": 3
