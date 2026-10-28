@@ -729,3 +729,45 @@ fn trace_questions_cost_their_line_not_the_file() {
     assert!(took < std::time::Duration::from_secs(20), "{took:?}");
     fs::remove_dir_all(root).unwrap();
 }
+
+/// The stylesheet is written from an atom index kept as records change (KF-062), not from a walk of
+/// every module. After edits and removals it is the stylesheet a fresh session writes for the
+/// modules left, byte for byte: shared atoms, the first module's copy of a class, unfolds two
+/// modules share, and a theme's marker dependency.
+#[test]
+fn the_atom_index_writes_what_a_fresh_session_writes() {
+    let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const theme = defineTokens(\"theme\", { ink: \"black\" }, { variable: true })\n";
+    let module = |colour: &str, extra: &str| {
+        format!(
+            "import {{ css, cx, defineTheme }} from \"@kirana-style/core\"\nimport {{ theme }} from \"./tokens\"\nexport const box = css({{ color: \"{colour}\", padding: \"1rem\" }})\nexport const pick = (on: boolean) => cx(box, on && css({{ paddingTop: null }}))\n{extra}\n"
+        )
+    };
+    let themed = "export const dark = defineTheme(theme, { ink: \"white\" })";
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("tokens.ts", tokens)]);
+    let path = |name: &str| root.join(name);
+    project.transform(&path("a.ts"), &module("red", themed));
+    project.transform(&path("b.ts"), &module("red", ""));
+    project.transform(&path("c.ts"), &module("blue", ""));
+    project.transform(&path("d.ts"), &module("green", ""));
+    // An edit keeps one class of the old record and drops another; a removal drops an unfold one
+    // other module still has.
+    project.transform(&path("b.ts"), &module("green", ""));
+    assert!(project.remove(&path("c.ts")));
+    let fresh = |files: &[(&str, String)]| {
+        let (other, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("tokens.ts", tokens)]);
+        for (name, source) in files {
+            project.transform(&other.join(name), source);
+        }
+        let css = project.stylesheet(false);
+        fs::remove_dir_all(other).unwrap();
+        css
+    };
+    let left = [("a.ts", module("red", themed)), ("b.ts", module("green", "")), ("d.ts", module("green", ""))];
+    assert_eq!(project.stylesheet(false), fresh(&left));
+    // Every module gone: nothing left of them.
+    for name in ["a.ts", "b.ts", "d.ts"] {
+        assert!(project.remove(&path(name)));
+    }
+    assert_eq!(project.stylesheet(false), fresh(&[]));
+    fs::remove_dir_all(root).unwrap();
+}
