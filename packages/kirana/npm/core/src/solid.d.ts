@@ -3,7 +3,8 @@
  *
  *   /// <reference types="@kirana-style/core/solid" />
  *
- * With `jsx: "solid"` (detected from `jsxImportSource`), `sx` compiles to `class`.
+ * With `jsx: "solid"` (detected from `jsxImportSource`), `sx` compiles to `class`, and
+ * `props()` returns `{ class, style }`.
  */
 import type { Sx } from "@kirana-style/core"
 
@@ -13,5 +14,12 @@ declare module "solid-js" {
     interface DOMAttributes<T> {
       sx?: Sx
     }
+  }
+}
+
+declare module "@kirana-style/core" {
+  // `props()` returns `{ class, style }` here (KF-047).
+  interface Register {
+    classAttribute: "class"
   }
 }

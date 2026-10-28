@@ -3,7 +3,8 @@
  *
  *   /// <reference types="@kirana-style/core/preact" />
  *
- * With `jsx: "preact"` (detected from `jsxImportSource`), `sx` compiles to `class`.
+ * With `jsx: "preact"` (detected from `jsxImportSource`), `sx` compiles to `class`, and
+ * `props()` returns `{ class, style }`.
  */
 import type { Sx } from "@kirana-style/core"
 
@@ -17,5 +18,12 @@ declare module "preact" {
     interface SVGAttributes<Target extends EventTarget = SVGElement> {
       sx?: Sx
     }
+  }
+}
+
+declare module "@kirana-style/core" {
+  // `props()` returns `{ class, style }` here (KF-047).
+  interface Register {
+    classAttribute: "class"
   }
 }

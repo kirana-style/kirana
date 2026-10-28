@@ -411,6 +411,8 @@ const TYPE_EXPORTS: &[&str] = &[
     "RelationOptions",
     "TokenValues",
     "Tokens",
+    "Register",
+    "ClassAttribute",
 ];
 
 fn join(code: &mut Code, sources: Vec<Vec<Piece>>) {
@@ -642,7 +644,11 @@ mod tests {
         let source = include_str!("../../../npm/core/src/index.ts");
         let declared: Vec<&str> = source
             .lines()
-            .filter_map(|line| line.strip_prefix("export type ").or_else(|| line.strip_prefix("export declare type ")))
+            .filter_map(|line| {
+                ["export type ", "export declare type ", "export interface "]
+                    .into_iter()
+                    .find_map(|prefix| line.strip_prefix(prefix))
+            })
             .filter_map(|rest| rest.split(|c: char| !c.is_ascii_alphanumeric()).next())
             .collect();
         assert!(declared.len() > 10, "{declared:?}");

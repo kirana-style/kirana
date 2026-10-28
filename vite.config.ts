@@ -242,6 +242,8 @@ export default defineConfig({
       "packages/kirana/examples/**",
       // The bundler tests' sample apps, outside every tsconfig on purpose (packages/kirana/tsconfig.json).
       "packages/kirana/npm/*/test/app/**",
+      // Each declares a framework's type entry for its own program (npm/core/test/types.test.ts).
+      "packages/kirana/npm/core/test/types/**",
       "packages/kirana/npm/*/test/.app-*/**",
       "packages/kirana/npm/eslint-plugin/test/fixtures/**",
       "packages/kirana/npm/biome-plugin/test/fixtures/**",

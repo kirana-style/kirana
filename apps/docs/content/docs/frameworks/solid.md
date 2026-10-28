@@ -67,6 +67,10 @@ export const Card = (props: { wide: boolean }) => (
 A `class` already on the element is merged with the styles into the one `class`
 it ends up with, and so is a `className`.
 
+`props()` follows the same rule: it returns `{ class, style }`, so its result
+spreads onto an element as it is, and the type entry types it that way. Read its
+`class`, never its `className`.
+
 ## Next
 
 - [Your first component](/docs/start/first-component): a button with a hover state

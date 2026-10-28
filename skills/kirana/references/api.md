@@ -11,6 +11,7 @@ says so: the file is not under the bundler plugin, or not in the paths given to 
 css(...styles: (Style | Sx)[]): StyleHandle      // merges left to right
 cx(...handles: Sx[]): StyleHandle                // skips null, undefined, false
 props(...handles: (Sx | string)[]): { className?, style? }  // import { props as styleProps }
+                                                 // { class?, style? } in Solid, Preact and Qwik
 ```
 
 ```tsx
