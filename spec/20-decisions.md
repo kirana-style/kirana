@@ -1647,18 +1647,21 @@ the implementation tracker names its evidence.
 
 ### D-112 — A relation may be read where its anchor is not installed
 
-- **Status:** Accepted (2026-10-27). Answers KF-037.
+- **Status:** Accepted (2026-10-27). Answers KF-037. Amended 2026-10-29 for KF-067: `optional` covers
+  an anchor without its readers too.
 - **Decision:** `relation(name, { optional: true })` declares a relation whose readers may be installed
   without the component that applies its anchor. R1 (`relation-without-anchor`) leaves its reads alone;
-  such a read compiles as any other and never matches where no element carries the anchor. The options
-  take `optional` and nothing else, a boolean; anything more is `not-evaluable`.
+  such a read compiles as any other and never matches where no element carries the anchor. The same
+  holds from the other side: R2 (`relation-unused`) leaves alone an anchor applied where no component
+  reads it, as Tooltip anchors a relation for a Kbd the project may not install. The options take
+  `optional` and nothing else, a boolean; anything more is `not-evaluable`.
 - **Rationale:** a registry installs its items one at a time. kirana-ui's select fills a vertical Field
   it sits in, read through Field's relation in a module both share; a project with the select and no
   Field (every Vue project, Ark UI's slice having no Field) failed `kirana-style check` with R1, an
   error, though the read is well defined there: it never matches, as the raw
   `:where([data-slot="field"][data-orientation="vertical"] > *)` it fell back to never does.
 - **Trade-off:** an optional relation whose anchor is forgotten in a project that has both components
-  is no longer an error. The relation checks still see its reads (R3, R4, `kirana-style analyze`),
+  is no longer an error, nor one whose reads are forgotten a warning. The relation checks still see its reads (R3, R4, `kirana-style analyze`),
   which the raw key hid; a warning for registry files alone was the other choice, but the compiler
   cannot tell an installed file from one the project wrote.
 - **Elaborated in:** [06-authoring-api](./06-authoring-api.md),

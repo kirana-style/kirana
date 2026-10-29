@@ -776,9 +776,9 @@
           "brotli": 177
         },
         "js": {
-          "raw": 667,
-          "gzip": 384,
-          "brotli": 299
+          "raw": 1027,
+          "gzip": 518,
+          "brotli": 412
         }
       },
       "relations-own-sibling": {

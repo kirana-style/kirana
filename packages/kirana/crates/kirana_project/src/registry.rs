@@ -526,7 +526,8 @@ impl Project {
         let mut reads: BTreeMap<&str, String> = BTreeMap::new();
         let mut relation_names: BTreeMap<&str, &str> = BTreeMap::new();
         // Relations declared `{ optional: true }`: read where their anchor's component may not be
-        // installed, which R1 leaves alone (KF-037, D-112).
+        // installed, which R1 leaves alone (KF-037, D-112), and anchored where their readers may not
+        // be, which R2 leaves alone (KF-067).
         let mut optional_relations = BTreeSet::new();
         let mut classes: BTreeMap<&str, (&Atom, String)> = BTreeMap::new();
         let mut segments: BTreeMap<&str, (&kirana_ir::EntryKey, String)> = BTreeMap::new();
@@ -652,7 +653,10 @@ impl Project {
             }
         }
         for marker in &anchors {
-            if !reads.contains_key(marker) && (walked || !exported.contains(*marker)) {
+            if !reads.contains_key(marker)
+                && !optional_relations.contains(*marker)
+                && (walked || !exported.contains(*marker))
+            {
                 // The declaring module may only have been evaluated, not compiled: its name is then
                 // in the session's table of declarations.
                 let name = relation_names

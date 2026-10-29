@@ -7,6 +7,12 @@ export const fillInField = css({
   width: { [fieldScope.parent('[data-orientation="vertical"]')]: "100%" },
 })
 
+// Tooltip anchors this one for a Kbd to read, and is installed without it: no reader, and no
+// `relation-unused` (KF-067). One declared required and never read is still reported.
+const tooltipScope = relation("tooltip", { optional: true })
+const lonely = relation("lonely")
+export const Tooltip = () => <div sx={[tooltipScope.anchor, lonely.anchor]} />
+
 // Declared required, or with nothing said: read without an anchor, still an error.
 const required = relation("required", { optional: false })
 const plain = relation("plain", {})

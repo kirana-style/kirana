@@ -5,6 +5,12 @@
 const fieldScope = {"name": "field", "anchor": "krMLjf"}
 export const fillInField = "kaF-izCk_yp7g"
 
+// Tooltip anchors this one for a Kbd to read, and is installed without it: no reader, and no
+// `relation-unused` (KF-067). One declared required and never read is still reported.
+const tooltipScope = {"name": "tooltip", "anchor": "krBwfW"}
+const lonely = {"name": "lonely", "anchor": "krPbxo"}
+export const Tooltip = () => <div className="krBwfW krPbxo" />
+
 // Declared required, or with nothing said: read without an anchor, still an error.
 const required = {"name": "required", "anchor": "krXKDV"}
 const plain = {"name": "plain", "anchor": "krKoKJ"}
