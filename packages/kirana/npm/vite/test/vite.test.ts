@@ -118,7 +118,8 @@ describe("KRN-INT-009 several dev servers", () => {
     const load = () =>
       (plugin.load as { handler: Hook }).handler.call({}, stylesheet)
     const httpServer = new EventEmitter()
-    ;(plugin.configureServer as Hook)({ httpServer })
+    const environments = { client: { hot: { on() {} } } }
+    ;(plugin.configureServer as Hook)({ httpServer, environments })
     expect(await load()).toContain("@layer kirana")
     httpServer.emit("close")
     expect(await load()).toBe(PLACEHOLDER)
@@ -719,6 +720,96 @@ describe("KRN-INT-009 development server", () => {
       expect(
         String((await client.transformRequest(stylesheet))!.code)
       ).toContain("order: 5")
+    } finally {
+      await server.close()
+    }
+  })
+
+  it("sends the stylesheet again to a page that ran an older one (KF-071)", async () => {
+    const root = app()
+    const server = await createServer({
+      root,
+      logLevel: "silent",
+      configFile: false,
+      plugins: [kirana()],
+      // Nothing compiles in the background, so each revision below is one this test made.
+      server: {
+        middlewareMode: true,
+        ws: false,
+        watch: null,
+        preTransformRequests: false,
+      },
+    })
+    try {
+      const client = server.environments.client
+      await client.transformRequest("/src/main.ts")
+      const stylesheet = (await client.pluginContainer.resolveId(
+        "@kirana-style/core/stylesheet.css",
+        path.join(root, "src/main.ts")
+      ))!.id
+      // The module the page runs reports the revision of the stylesheet it holds, read afresh.
+      const held = async () => {
+        const module = client.moduleGraph.getModuleById(stylesheet)
+        if (module) client.moduleGraph.invalidateModule(module)
+        return Number(
+          /import\.meta\.hot\.send\("kirana:stylesheet", (\d+)\)/.exec(
+            String((await client.transformRequest(stylesheet))!.code)
+          )![1]
+        )
+      }
+      const first = await held()
+      // The page's report reaches the listener the plugin registers on the client channel.
+      const plugins = server.config.plugins
+      const main = plugins.find((plugin) => plugin.name === "kirana")!
+      const late = plugins.find((plugin) => plugin.name === "kirana:late")!
+      let report: (held: number) => void = () => {}
+      const environment = Object.create(client, {
+        hot: {
+          value: {
+            on: (_: string, listener: typeof report) => (report = listener),
+          },
+        },
+      })
+      ;(main.configureServer as (server: unknown) => void)(
+        Object.create(server, {
+          environments: { value: { client: environment } },
+          httpServer: { value: null },
+        })
+      )
+      const reload = vi
+        .spyOn(client, "reloadModule")
+        .mockResolvedValue(undefined)
+      report(first)
+      expect(reload).not.toHaveBeenCalled()
+      // A module compiles after the page's stylesheet was served, and the update it sends is lost
+      // on a page still loading: the page's report brings it again.
+      await (
+        main.transform as {
+          handler: (this: unknown, ...args: unknown[]) => Promise<unknown>
+        }
+      ).handler.call(
+        { addWatchFile() {}, warn() {}, error() {} },
+        'import { css } from "@kirana-style/core"\nexport const late = css({ order: 6 })',
+        path.join(root, "src/late.ts")
+      )
+      await vi.waitFor(() => expect(reload).toHaveBeenCalled())
+      reload.mockClear()
+      report(first)
+      expect(reload).toHaveBeenCalled()
+      reload.mockClear()
+      report(await held())
+      expect(reload).not.toHaveBeenCalled()
+      // Another file of that name is not the stylesheet.
+      const hooks = late as unknown as Record<
+        "load" | "transform",
+        { handler: (this: unknown, ...args: unknown[]) => unknown }
+      >
+      expect(
+        hooks.load.handler.call({}, "/elsewhere/stylesheet.css")
+      ).toBeNull()
+      expect(
+        hooks.transform.handler.call({}, "", "/elsewhere/stylesheet.css")
+      ).toBeNull()
     } finally {
       await server.close()
     }

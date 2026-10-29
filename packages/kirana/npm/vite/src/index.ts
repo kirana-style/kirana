@@ -6,7 +6,11 @@
 import { createRequire } from "node:module"
 import path from "node:path"
 
-import { stylesheetPath } from "@kirana-style/compiler/host"
+import {
+  ASSET_QUERY,
+  cleanId,
+  stylesheetPath,
+} from "@kirana-style/compiler/host"
 import { createKirana } from "@kirana-style/rolldown"
 import type { KiranaRolldownOptions } from "@kirana-style/rolldown"
 import type { Plugin, ViteDevServer } from "vite"
@@ -48,6 +52,12 @@ const BURST = 250
  * asked for.
  */
 const RETRIES = 20
+
+/**
+ * What the stylesheet module sends the dev server when it runs in the page: the revision of the
+ * stylesheet it holds (KF-071).
+ */
+const HELD = "kirana:stylesheet"
 
 /** The module compiled output imports for the runtime merge (`kirana_transform`). */
 const RUNTIME = "@kirana-style/core/internal"
@@ -96,6 +106,9 @@ export default function kirana(
   let deadline = 0
   let sent = 0
   let retry: ReturnType<typeof setTimeout> | undefined
+  /** How many times a transform changed the stylesheet, and the count the last one served had. */
+  let revision = 0
+  let served = 0
 
   /**
    * Tells browsers the stylesheet changed, once per burst of transforms (KRN-INT-009).
@@ -106,6 +119,7 @@ export default function kirana(
    * stream that never stops can hold one back.
    */
   const scheduleCssUpdate = () => {
+    revision++
     if (servers.size === 0) return
     const now = Date.now()
     if (pending === undefined && now - sent >= QUIET) {
@@ -237,6 +251,12 @@ export default function kirana(
     configureServer(devServer) {
       servers.add(devServer)
       devServer.httpServer?.once("close", () => servers.delete(devServer))
+      // A page that ran a stylesheet older than the current one missed an update: Vite's client
+      // drops one for a module that has not run yet, and on a cold start every update can arrive
+      // while the page is still loading its modules (KF-071).
+      devServer.environments.client.hot.on(HELD, (held: number) => {
+        if (held < revision) push()
+      })
     },
 
     async hotUpdate({ file, modules }) {
@@ -247,10 +267,36 @@ export default function kirana(
       return extra.length ? [...modules, ...extra] : undefined
     },
   }
+  /**
+   * What runs after Vite's own plugins. On a dev server, the stylesheet module, once Vite's CSS
+   * plugin has made it a script, reports the revision it holds when the page runs it; `load` notes
+   * the revision of the stylesheet it reads. In a build, the stylesheets other plugins added are
+   * filled.
+   */
   const late: Plugin = {
     name: "kirana:late",
-    apply: "build",
     enforce: "post",
+    load: {
+      order: "pre",
+      filter: { id: /stylesheet\.css/ },
+      handler(id) {
+        if (cleanId(id) === stylesheetFile) served = revision
+        return null
+      },
+    },
+    transform: {
+      order: "post",
+      filter: { id: /stylesheet\.css/ },
+      handler(code, id) {
+        if (
+          servers.size === 0 ||
+          cleanId(id) !== stylesheetFile ||
+          ASSET_QUERY.test(id)
+        )
+          return null
+        return `${code}\nif (import.meta.hot) import.meta.hot.send(${JSON.stringify(HELD)}, ${served})\n`
+      },
+    },
     generateBundle: {
       order: "post",
       async handler(_output, bundle) {

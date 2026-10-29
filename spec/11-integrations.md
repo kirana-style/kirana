@@ -164,7 +164,10 @@ and answers `?inline` with the live stylesheet, which SvelteKit's server render 
 finds the stylesheet's own transform still running (Vite pre-transforms an entry's imports, so the page's
 first component can compile after the stylesheet was read) invalidates the module as an edit would, so
 Vite discards that stale result rather than caching it, and sends the update again once Vite has
-analysed the module. CI starts the
+analysed the module. Vite's client drops an update for a module the page has not run yet, and on a
+cold start with many modules every update can arrive before the stylesheet runs; so the stylesheet
+module, once it runs, sends the revision it holds (`kirana:stylesheet`), and the server sends the update
+again to a page behind it (KF-071). CI starts the
 dev server of every Vite-based example and requires a style edit to reach the page, in place without
 a reload where the framework updates components that way (Vue, Nuxt, Svelte, SvelteKit). (The watch-build-only
 limitation recorded earlier is resolved.)
