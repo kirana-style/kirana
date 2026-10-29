@@ -17,6 +17,7 @@ import {
   Driver,
   findConfigAbove,
   formatDiagnostic,
+  position,
   isMusl,
   loadConfigFile,
   loadNative,
@@ -652,6 +653,25 @@ describe("diagnostic formatting", () => {
     expect(formatDiagnostic({ ...base, file: "", help: [] })).toBe(
       "error[KRN1403] relation-placement: m"
     )
+  })
+
+  it("places every offset as walking the source from its start does (KF-075)", () => {
+    const walked = (source: string, offset: number) => {
+      const lines = Buffer.from(source)
+        .subarray(0, offset)
+        .toString()
+        .split("\n")
+      return `${lines.length}:${lines.at(-1)!.length + 1}`
+    }
+    // Two-, three- and four-byte characters, a CRLF, empty lines, and no newline at the end.
+    const first = "ab\n\u00e9cd\r\n\n\u20ac \u{1f600}x\n\nend"
+    const second = "\n\none"
+    const bytes = Buffer.byteLength(first)
+    // Alternating sources: each is indexed again when it comes back.
+    for (let offset = 0; offset <= bytes + 2; offset++) {
+      expect(position(first, offset)).toBe(walked(first, offset))
+      expect(position(second, offset % 6)).toBe(walked(second, offset % 6))
+    }
   })
 })
 
