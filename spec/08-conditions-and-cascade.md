@@ -218,6 +218,12 @@ begins with a single order statement:
 | `kirana.contextual` | `select.*` styles, written in ladder order.                                                                                                 |
 | `kirana.atoms`      | Element-own atoms (including `mode` handles' `color-scheme`), written in ladder order (D-036).                                              |
 
+With `layers.tiers` (D-114), `kirana.atoms` holds one sub-layer per tier of the ladder, an atom's
+condition set's rank (steps 2 to 4), breadth and property rank (step 5), declared in ladder order at the
+layer's start (`@layer t0, t1, …`), so a tier outranks the one before it by layer order wherever its
+rules sit. Atoms of one tier keep their ladder order and share rules only within it.
+`kirana.contextual` stays one block in ladder order.
+
 Every atom selector has specificity (0,1,0), so within a layer the later rule wins and writing atoms in
 ladder order is the whole precedence mechanism; no sublayer per ladder bucket is needed.
 

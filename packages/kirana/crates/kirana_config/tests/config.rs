@@ -28,7 +28,7 @@ fn defaults() {
 fn full_configuration() {
     let config = Config::from_json(
         r#"{"root":"/app","targets":{"chrome":123,"safari":"17.5","firefox":"120"},
-            "layers":{"before":["reset","base"],"after":["over-rides_2"]},
+            "layers":{"before":["reset","base"],"after":["over-rides_2"],"tiers":true},
             "dynamic":{"branchBudget":8},"names":{"prefix":"ds"},"jsx":"react",
             "diagnostics":{"relation-unused":"off"}}"#,
     )
@@ -36,6 +36,8 @@ fn full_configuration() {
     assert_eq!(config.root, "/app");
     assert_eq!(config.layers.before, ["reset", "base"]);
     assert_eq!(config.layers.after, ["over-rides_2"]);
+    assert!(config.layers.tiers);
+    assert!(!Config::default().layers.tiers);
     assert!(config.targets_at_floor());
     assert_eq!(config.level(Code::RelationUnused), Some(Level::Off));
     let lower = Config::from_json(r#"{"targets":{"safari":"16.4"}}"#).unwrap();

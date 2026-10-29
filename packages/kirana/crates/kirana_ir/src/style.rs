@@ -510,6 +510,16 @@ pub struct LadderKey {
     class: String,
 }
 
+impl LadderKey {
+    /// Whether two atoms sit in one tier of the ladder: the same condition set's rank, breadth and
+    /// property rank. Atoms of one tier never outrank each other but by their position, which only
+    /// an `ambiguous-precedence` pair depends on; `layers.tiers` writes each tier as a sub-layer
+    /// (KF-052).
+    pub fn same_tier(&self, other: &LadderKey) -> bool {
+        self.conditions == other.conditions && self.breadth == other.breadth && self.rank == other.rank
+    }
+}
+
 pub fn ladder_key(atom: &Atom) -> LadderKey {
     LadderKey {
         conditions: crate::condition::set_key(&atom.key.conditions),

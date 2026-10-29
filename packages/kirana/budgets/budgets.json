@@ -361,6 +361,18 @@
           "brotli": 209
         }
       },
+      "layers-tiers": {
+        "css": {
+          "raw": 1012,
+          "gzip": 442,
+          "brotli": 356
+        },
+        "js": {
+          "raw": 517,
+          "gzip": 367,
+          "brotli": 315
+        }
+      },
       "lone-surrogates": {
         "css": {
           "raw": 318,

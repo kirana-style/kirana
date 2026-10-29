@@ -1686,6 +1686,30 @@ the implementation tracker names its evidence.
 - **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md),
   [11-integrations](./11-integrations.md#runtimes).
 
+### D-114 — Ladder tiers as sub-layers, opt-in
+
+- **Status:** Accepted (2026-10-29). Answers KF-052's first step.
+- **Decision:** with `layers.tiers: true`, `kirana.atoms` holds one sub-layer per tier of the
+  precedence ladder (an atom's condition set's rank, its breadth and its property rank), declared in
+  ladder order by one statement at the layer's start (`@layer t0, t1, …`). Atoms within a tier keep
+  their ladder order, and rules merge within a tier only. `kirana.contextual` stays whole. Off by
+  default: the output is unchanged unless a project turns it on.
+- **Rationale:** a stylesheet split by route or chunk (KF-052's option A) can load its parts in any
+  order, and an atom then outranks another by its place in a file. Under layers, the order statement
+  ranks the tiers wherever their rules sit. Kirana refuses `!important`, so layer order alone
+  decides. Measured on 2026-10-29: the docs site renders the same with tiers on all 119 routes in
+  both schemes (137,518 elements; the 2 that differ are an animation mid-fade, as between two
+  identical builds), and style recalculation is within noise (a page's load and 20 colour-scheme
+  switches on four routes, median of nine alternating runs, headless Chromium).
+- **Trade-off:** the docs site's stylesheet grows 2.3 % gzipped (21.3 to 21.8 KB, 69 tiers): a
+  declaration shared by atoms of two tiers is written twice. Tier names are positions in this
+  sheet's ladder, so two sheets built apart still rank by load order across sheets; a split
+  stylesheet must declare every tier of the build in its shared part. The contextual layer keeps
+  its order by position, since two ancestors can bring one key's atoms to a descendant. Opt-in until
+  kirana-lab's conformance and recalculation runs confirm it on kirana-ui's site.
+- **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md#layer-plan),
+  [13-output-and-performance](./13-output-and-performance.md).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                              |
@@ -1693,12 +1717,12 @@ the implementation tracker names its evidence.
 | the brand notes                                               | D-001                                                                                                                                                                  |
 | [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101, D-112 |
 | [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099                                                                                     |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112                      |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114               |
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                        |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113                                                                       |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                             |
 | [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111               |
-| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087                                                                                                   |
+| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114                                                                                            |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                  |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                           |
 | the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                                                               |

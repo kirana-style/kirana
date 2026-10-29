@@ -8,11 +8,13 @@ Every key there is, and what each one changes.
 ## `layers`
 
 ```ts
-layers: { before?: string[], after?: string[] }   // default: { before: [], after: [] }
+layers: { before?: string[], after?: string[], tiers?: boolean }   // default: { before: [], after: [], tiers: false }
 ```
 
 Layer names placed around Kirana's own layer, for your global CSS. Each must be a
-valid CSS identifier, and none may be `kirana`. See [layers](/docs/config/layers).
+valid CSS identifier, and none may be `kirana`. `tiers` puts each step of the
+precedence ladder in a sub-layer of `kirana.atoms`. See
+[layers](/docs/config/layers).
 
 ## `targets`
 

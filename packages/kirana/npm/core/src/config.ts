@@ -79,6 +79,11 @@ export type KiranaConfig = {
   readonly layers?: {
     readonly before?: readonly string[]
     readonly after?: readonly string[]
+    /**
+     * Each tier of the precedence ladder in its own sub-layer of `kirana.atoms`, so atoms outrank
+     * each other by layer order rather than their place in the file (D-114). Off by default.
+     */
+    readonly tiers?: boolean
   }
   readonly dynamic?: { readonly branchBudget?: number }
   readonly names?: { readonly prefix?: string }

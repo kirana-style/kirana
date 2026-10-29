@@ -31,6 +31,8 @@ use lightningcss::targets::Targets;
 pub struct EmitOptions {
     pub layers_before: Vec<String>,
     pub layers_after: Vec<String>,
+    /// Each ladder tier of `kirana.atoms` in its own sub-layer (`layers.tiers`, D-114).
+    pub tiers: bool,
     pub minify: bool,
     /// The class-name prefix (for mode markers).
     pub prefix: String,
@@ -664,12 +666,19 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
     own.sort_by_cached_key(|atom| ladder_key(atom));
     contextual.dedup_by(|a, b| a.class == b.class);
     own.dedup_by(|a, b| a.class == b.class);
-    for (layer, list) in [("@layer kirana.contextual", &contextual), ("@layer kirana.atoms", &own)] {
-        if !list.is_empty() {
-            writer.open(layer);
-            write_atoms(&mut writer, list, layer == "@layer kirana.atoms");
-            writer.close();
+    if !contextual.is_empty() {
+        writer.open("@layer kirana.contextual");
+        write_atoms(&mut writer, &contextual, false);
+        writer.close();
+    }
+    if !own.is_empty() {
+        writer.open("@layer kirana.atoms");
+        if options.tiers {
+            write_tiers(&mut writer, &own);
+        } else {
+            write_atoms(&mut writer, &own, true);
         }
+        writer.close();
     }
 
     let css = writer.finish();
@@ -678,6 +687,31 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
         Some(targets) => lower(css, *targets, options.minify),
     };
     EmitOutput { pruned, ..output }
+}
+
+/// Ladder-ordered atoms of `kirana.atoms`, one sub-layer per tier (D-114): the order statement names
+/// every tier first, so layer order, not a rule's place, ranks one tier above another. Rules merge
+/// within a tier only. The contextual layer stays whole: two ancestors can each bring an atom of one
+/// key to a descendant, and there the order between them decides.
+fn write_tiers(writer: &mut Writer, atoms: &[&Atom]) {
+    let mut tiers: Vec<Vec<&Atom>> = Vec::new();
+    let mut last: Option<kirana_ir::LadderKey> = None;
+    for atom in atoms {
+        let key = ladder_key(atom);
+        match &last {
+            Some(previous) if previous.same_tier(&key) => tiers.last_mut().expect("a tier is open").push(atom),
+            _ => tiers.push(vec![atom]),
+        }
+        last = Some(key);
+    }
+    let names: Vec<String> = (0..tiers.len()).map(|index| format!("t{index}")).collect();
+    let separator = writer.separator();
+    writer.statement(&format!("@layer {}", names.join(separator)));
+    for (name, tier) in names.iter().zip(&tiers) {
+        writer.open(&format!("@layer {name}"));
+        write_atoms(writer, tier, true);
+        writer.close();
+    }
 }
 
 /// Rewrites the stylesheet for browsers below the default floor.

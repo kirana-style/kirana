@@ -253,6 +253,7 @@ impl Project {
         let options = EmitOptions {
             layers_before: self.config.layers.before.clone(),
             layers_after: self.config.layers.after.clone(),
+            tiers: self.config.layers.tiers,
             minify,
             prefix: self.names.prefix.clone(),
             lower_for: self.lowering_targets(),

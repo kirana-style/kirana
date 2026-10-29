@@ -32,6 +32,38 @@ Nothing Kirana emits is unlayered, custom-property assignments included. That is
 what lets a reset stay a reset: it cannot accidentally outrank a component style,
 and a component style cannot accidentally outrank a theme.
 
+## Tiers
+
+Within `kirana.atoms`, a hover outranks the base by coming later in the file.
+`layers.tiers` makes each step of that order a layer of its own:
+
+```ts file="kirana.config.ts"
+export default defineConfig({
+  layers: { before: ["reset", "base"], tiers: true },
+})
+```
+
+```css
+@layer kirana.atoms {
+  @layer t0, t1, t2;
+  @layer t0 {
+    .k50_W0yl {
+      color: black;
+    }
+  }
+  @layer t1 {
+    .k50-KFHz_D9ur:where(:hover) {
+      color: red;
+    }
+  }
+}
+```
+
+Each tier then outranks the ones before it wherever its rules sit, which is what
+a stylesheet split into parts needs. The page renders the same. Rules that share a
+declaration merge only within a tier, so the stylesheet grows a little (2.3 %
+gzipped on this site). It is off by default.
+
 ## Your own layers
 
 ```ts file="kirana.config.ts"

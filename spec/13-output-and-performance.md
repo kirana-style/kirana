@@ -30,7 +30,8 @@ support for them.
 
 **KRN-OUT-003 — One layer order statement.** The stylesheet MUST begin with the complete layer order
 declared in [08](./08-conditions-and-cascade.md#layer-plan), so every rule's position is fixed before
-any rule appears, regardless of how hosts split or concatenate CSS.
+any rule appears, regardless of how hosts split or concatenate CSS. With `layers.tiers`, the atoms'
+tiers are sub-layers declared at the start of `kirana.atoms` (D-114).
 
 **KRN-OUT-004 — Names.** Class and variable names MUST contain no file paths, component names or other
 source text, in development as in production (D-037). Formats are owned by
