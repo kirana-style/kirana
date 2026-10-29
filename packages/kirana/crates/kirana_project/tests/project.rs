@@ -901,7 +901,8 @@ fn the_atom_index_writes_what_a_fresh_session_writes() {
             "import {{ css, cx, defineTheme }} from \"@kirana-style/core\"\nimport {{ theme }} from \"./tokens\"\nexport const box = css({{ color: \"{colour}\", padding: \"1rem\" }})\nexport const pick = (on: boolean) => cx(box, on && css({{ paddingTop: null }}))\n{extra}\n"
         )
     };
-    let themed = "export const dark = defineTheme(theme, { ink: \"white\" })";
+    // A shorthand unfolded on two targets, and one on a target nothing unfolds.
+    let themed = "export const dark = defineTheme(theme, { ink: \"white\" })\nexport const shade = (on: boolean) => cx(css({ \"::before\": { padding: \"2px\" }, \"::after\": { padding: \"3px\" } }), on && css({ \"::before\": { paddingTop: null } }))";
     let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("tokens.ts", tokens)]);
     let path = |name: &str| root.join(name);
     project.transform(&path("a.ts"), &module("red", themed));
@@ -912,6 +913,8 @@ fn the_atom_index_writes_what_a_fresh_session_writes() {
     // other module still has.
     project.transform(&path("b.ts"), &module("green", ""));
     assert!(project.remove(&path("c.ts")));
+    // A module earlier in path order now writes classes later ones wrote first.
+    project.transform(&path("0.ts"), &module("green", ""));
     let fresh = |files: &[(&str, String)]| {
         let (other, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("tokens.ts", tokens)]);
         for (name, source) in files {
@@ -921,10 +924,15 @@ fn the_atom_index_writes_what_a_fresh_session_writes() {
         fs::remove_dir_all(other).unwrap();
         css
     };
-    let left = [("a.ts", module("red", themed)), ("b.ts", module("green", "")), ("d.ts", module("green", ""))];
+    let left = [
+        ("0.ts", module("green", "")),
+        ("a.ts", module("red", themed)),
+        ("b.ts", module("green", "")),
+        ("d.ts", module("green", "")),
+    ];
     assert_eq!(project.stylesheet(false), fresh(&left));
     // Every module gone: nothing left of them.
-    for name in ["a.ts", "b.ts", "d.ts"] {
+    for name in ["a.ts", "0.ts", "b.ts", "d.ts"] {
         assert!(project.remove(&path(name)));
     }
     assert_eq!(project.stylesheet(false), fresh(&[]));

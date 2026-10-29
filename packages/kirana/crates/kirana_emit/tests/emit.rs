@@ -229,6 +229,11 @@ fn selectors_and_at_rules() {
     let contextual =
         atoms.iter().find(|atom| matches!(&atom.key.target, Target::Contextual { child: true, .. })).unwrap();
     assert!(selector(contextual).ends_with(":where(:hover) > :where([data-slot=\"icon\"])::before"));
+    // The compound rides the first relation of the set only.
+    let within = Condition::Relation { marker: "krA".into(), kind: RelationKind::Within, state: String::new() };
+    let parent = Condition::Relation { marker: "krB".into(), kind: RelationKind::Parent, state: ":hover".into() };
+    let both = atom(Target::Element, "color", vec![Condition::Pseudo(":focus".into()), within, parent], "red", vec![]);
+    assert!(selector(&both).ends_with(":where(.krB:hover > *:focus):where(.krA *)"), "{}", selector(&both));
     assert_eq!(
         at_rules(&atoms[6]),
         ["@supports (display: grid)", "@media (width >= 64rem)", "@container card (min-width: 20rem)"]

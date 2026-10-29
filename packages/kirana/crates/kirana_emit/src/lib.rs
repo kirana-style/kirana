@@ -21,8 +21,8 @@ use std::fmt::Write as _;
 
 use kirana_css_data::{PropertyRank, Sets, flow_key, sets};
 use kirana_ir::{
-    Atom, Condition, CounterStyleDef, Dep, KeyframesDef, PositionTryDef, RelationKind, Target, ThemeDef, TokenDef,
-    TokenValue, ViewTransitionDef, fallback_values, ladder_key, ladder_rank,
+    Atom, Condition, CounterStyleDef, Dep, KeyframesDef, LadderRank, PositionTryDef, RelationKind, Target, ThemeDef,
+    TokenDef, TokenValue, ViewTransitionDef, fallback_values, ladder_rank,
 };
 use kirana_shared::FxHashMap;
 use lightningcss::stylesheet::{MinifyOptions, ParserOptions, PrinterOptions, StyleSheet};
@@ -184,46 +184,63 @@ impl Deps {
 /// compound rides along inside its `:where()` — `:where(.m *:hover)` matches exactly what
 /// `:where(:hover):where(.m *)` matches, in eight fewer bytes per rule.
 pub fn selector(atom: &Atom) -> String {
-    let mut selector = format!(".{}", atom.class);
-    let mut compound = String::new();
-    let mut relations = 0;
-    for condition in atom.key.conditions.conditions() {
-        if let Condition::Pseudo(text) | Condition::Attribute(text) = condition {
-            compound.push_str(text);
+    let mut selector = String::new();
+    push_selector(&mut selector, atom);
+    selector
+}
+
+/// [`selector`] written onto `out`: a rule's selector list is built in one string.
+fn push_selector(out: &mut String, atom: &Atom) {
+    let conditions = atom.key.conditions.conditions();
+    let compound = |out: &mut String| {
+        for condition in conditions {
+            if let Condition::Pseudo(text) | Condition::Attribute(text) = condition {
+                out.push_str(text);
+            }
         }
-    }
+    };
+    out.push('.');
+    out.push_str(&atom.class);
     // The compound joins the first relation, so it is written before the others.
-    let mut riding = compound.as_str();
-    for condition in atom.key.conditions.conditions() {
-        let (marker, kind, state) = match condition {
-            Condition::Relation { marker, kind, state } => (marker, kind, state),
-            _ => continue,
+    let mut relations = 0;
+    for condition in conditions {
+        let Condition::Relation { marker, kind, state } = condition else { continue };
+        let (open, close) = match kind {
+            RelationKind::Within => (":where(.", " *"),
+            RelationKind::Parent => (":where(.", " > *"),
+            RelationKind::After => (":where(.", " ~ *"),
+            RelationKind::Before => (":where(:has(~ .", ")"),
         };
+        out.push_str(open);
+        out.push_str(marker);
+        out.push_str(state);
+        out.push_str(close);
+        if relations == 0 {
+            compound(out);
+        }
+        out.push(')');
         relations += 1;
-        let _ = match kind {
-            RelationKind::Within => write!(selector, ":where(.{marker}{state} *{riding})"),
-            RelationKind::Parent => write!(selector, ":where(.{marker}{state} > *{riding})"),
-            RelationKind::After => write!(selector, ":where(.{marker}{state} ~ *{riding})"),
-            RelationKind::Before => write!(selector, ":where(:has(~ .{marker}{state}){riding})"),
-        };
-        riding = "";
     }
-    if relations == 0 && !compound.is_empty() {
-        let _ = write!(selector, ":where({compound})");
+    let has_compound = || {
+        conditions.iter().any(
+            |condition| matches!(condition, Condition::Pseudo(text) | Condition::Attribute(text) if !text.is_empty()),
+        )
+    };
+    if relations == 0 && has_compound() {
+        out.push_str(":where(");
+        compound(out);
+        out.push(')');
     }
     match &atom.key.target {
         Target::Element => {}
-        Target::PseudoElement(name) => selector.push_str(name),
-        Target::Contextual { child, selector: target, pseudo_element } => {
-            let _ = write!(
-                selector,
-                "{}:where({target}){}",
-                if *child { " > " } else { " " },
-                pseudo_element.as_deref().unwrap_or("")
-            );
+        Target::PseudoElement(name) => out.push_str(name),
+        Target::Contextual { child, selector, pseudo_element } => {
+            out.push_str(if *child { " > :where(" } else { " :where(" });
+            out.push_str(selector);
+            out.push(')');
+            out.push_str(pseudo_element.as_deref().unwrap_or(""));
         }
     }
-    selector
 }
 
 /// The at-rule preludes wrapping an atom, outermost first.
@@ -308,7 +325,7 @@ impl<'a> Decided<'a> {
         self.any = Some(index);
         self.property.insert(name, index);
         match covered(atom) {
-            Some(longhands) => longhands.iter().for_each(|longhand| self.longhand(longhand, index)),
+            Some(covered) => covered.longhands().iter().for_each(|longhand| self.longhand(longhand, index)),
             None => self.everything = Some(index),
         }
     }
@@ -325,9 +342,9 @@ impl<'a> Decided<'a> {
     /// property, one of its longhands, or a property that competes with one.
     fn free(&self, atom: &Atom, index: usize) -> bool {
         let after = |at: Option<&usize>| at.is_some_and(|at| *at > index);
-        covered(atom).is_some_and(|longhands| {
+        covered(atom).is_some_and(|covered| {
             !after(self.property.get(atom.key.property.name.as_str()))
-                && longhands.iter().all(|longhand| self.free_since(longhand, index))
+                && covered.longhands().iter().all(|longhand| self.free_since(longhand, index))
         })
     }
 
@@ -350,13 +367,28 @@ fn is_vendor(name: &str) -> bool {
 
 /// The longhands an atom decides ([`sets`]); `None` for a shorthand whose longhands are not all
 /// known, which competes with everything, and for a shorthand atom the property data does not know.
-fn covered(atom: &Atom) -> Option<Vec<&str>> {
+fn covered(atom: &Atom) -> Option<Covered<'_>> {
     let name = atom.key.property.name.as_str();
     match sets(name) {
         Sets::Itself if atom.key.property.rank == PropertyRank::Shorthand => None,
-        Sets::Itself => Some(vec![name]),
-        Sets::Longhands(longhands) => Some(longhands.to_vec()),
+        Sets::Itself => Some(Covered::Itself([name])),
+        Sets::Longhands(longhands) => Some(Covered::Longhands(longhands)),
         Sets::Unknown => None,
+    }
+}
+
+/// What [`covered`] names, held without a copy: every atom of the stylesheet asks.
+enum Covered<'a> {
+    Itself([&'a str; 1]),
+    Longhands(&'static [&'static str]),
+}
+
+impl<'a> Covered<'a> {
+    fn longhands(&self) -> &[&'a str] {
+        match self {
+            Covered::Itself(name) => name,
+            Covered::Longhands(longhands) => longhands,
+        }
     }
 }
 
@@ -433,24 +465,31 @@ fn write_block(writer: &mut Writer, block: &mut Vec<&Atom>, own: bool) {
     if own {
         arrange(block);
     }
-    let mut rules: Vec<(Vec<String>, &str, &str)> = Vec::new();
+    // Each rule's selector list is one string, its selectors written onto it.
+    let mut rules: Vec<(String, &str, &str)> = Vec::new();
     let mut merge_into: FxHashMap<(&str, &str), usize> = FxHashMap::default();
     let mut decided = Decided::default();
     for atom in block.drain(..) {
         let property = atom.key.property.name.as_str();
         let value = atom.value.css.as_str();
         match merge_into.get(&(property, value)) {
-            Some(&index) if decided.free(atom, index) => rules[index].0.push(selector(atom)),
+            Some(&index) if decided.free(atom, index) => {
+                let selectors = &mut rules[index].0;
+                selectors.push_str(", ");
+                push_selector(selectors, atom);
+            }
             _ => {
                 let index = rules.len();
-                rules.push((vec![selector(atom)], property, value));
+                let mut selectors = String::new();
+                push_selector(&mut selectors, atom);
+                rules.push((selectors, property, value));
                 merge_into.insert((property, value), index);
                 decided.record(atom, index);
             }
         }
     }
     for (selectors, property, value) in rules {
-        writer.open(&selectors.join(", "));
+        writer.open(&selectors);
         writer.declaration(property, value);
         writer.close();
     }
@@ -530,14 +569,18 @@ fn write_view_transition(writer: &mut Writer, transition: &ViewTransitionDef) {
 /// Writes the stylesheet for a set of live atoms and marker dependencies (KRN-OUT-008: callers
 /// pass only what the build graph references).
 pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitOutput {
-    emit_refs(&atoms.iter().collect::<Vec<_>>(), marker_deps, options)
+    // Ladder order (D-036), the class breaking ties.
+    let mut ranked: Vec<(LadderRank, &Atom)> = atoms.iter().map(|atom| (ladder_rank(atom), atom)).collect();
+    ranked.sort_by(|a, b| a.0.cmp(&b.0).then_with(|| a.1.class.cmp(&b.1.class)));
+    ranked.dedup_by(|later, earlier| later.1.class == earlier.1.class);
+    emit_ranked(&ranked.iter().map(|(rank, atom)| (rank, *atom)).collect::<Vec<_>>(), marker_deps, options)
 }
 
-/// [`emit`] for atoms held elsewhere: the registry shares its atoms rather than copying them for each
-/// stylesheet.
-pub fn emit_refs(atoms: &[&Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitOutput {
+/// [`emit`] for atoms already in ladder order, one per class, each with its [`ladder_rank`]: the
+/// registry keeps its atoms that way as modules change, so writing a stylesheet sorts nothing.
+pub fn emit_ranked(atoms: &[(&LadderRank, &Atom)], marker_deps: &[Dep], options: &EmitOptions) -> EmitOutput {
     let mut deps = Deps::default();
-    for atom in atoms {
+    for (_, atom) in atoms {
         atom.value.deps.iter().for_each(|dep| deps.add(dep));
     }
     // What rules read is written. A token only code names (a token object, a runtime value) is
@@ -668,19 +711,10 @@ pub fn emit_refs(atoms: &[&Atom], marker_deps: &[Dep], options: &EmitOptions) ->
         writer.close();
     }
 
-    let mut contextual: Vec<&Atom> = atoms.iter().copied().filter(|atom| atom.key.target.is_contextual()).collect();
-    let mut own: Vec<&Atom> = atoms.iter().copied().filter(|atom| !atom.key.target.is_contextual()).collect();
-    // Atoms already in class order (the registry's) need no class in their key: a stable sort keeps
-    // that order among ties, and comparing classes was most of the sort.
-    if atoms.is_sorted_by(|a, b| a.class <= b.class) {
-        contextual.sort_by_cached_key(|atom| ladder_rank(atom));
-        own.sort_by_cached_key(|atom| ladder_rank(atom));
-    } else {
-        contextual.sort_by_cached_key(|atom| ladder_key(atom));
-        own.sort_by_cached_key(|atom| ladder_key(atom));
-    }
-    contextual.dedup_by(|a, b| a.class == b.class);
-    own.dedup_by(|a, b| a.class == b.class);
+    // Each layer keeps the ladder order the atoms came in.
+    let (contextual, own): (Vec<_>, Vec<_>) =
+        atoms.iter().copied().partition(|(_, atom)| atom.key.target.is_contextual());
+    let contextual: Vec<&Atom> = contextual.into_iter().map(|(_, atom)| atom).collect();
     if !contextual.is_empty() {
         writer.open("@layer kirana.contextual");
         write_atoms(&mut writer, &contextual, false);
@@ -691,7 +725,7 @@ pub fn emit_refs(atoms: &[&Atom], marker_deps: &[Dep], options: &EmitOptions) ->
         if options.tiers {
             write_tiers(&mut writer, &own);
         } else {
-            write_atoms(&mut writer, &own, true);
+            write_atoms(&mut writer, &own.into_iter().map(|(_, atom)| atom).collect::<Vec<_>>(), true);
         }
         writer.close();
     }
@@ -708,16 +742,15 @@ pub fn emit_refs(atoms: &[&Atom], marker_deps: &[Dep], options: &EmitOptions) ->
 /// every tier first, so layer order, not a rule's place, ranks one tier above another. Rules merge
 /// within a tier only. The contextual layer stays whole: two ancestors can each bring an atom of one
 /// key to a descendant, and there the order between them decides.
-fn write_tiers(writer: &mut Writer, atoms: &[&Atom]) {
+fn write_tiers(writer: &mut Writer, atoms: &[(&LadderRank, &Atom)]) {
     let mut tiers: Vec<Vec<&Atom>> = Vec::new();
-    let mut last: Option<kirana_ir::LadderRank> = None;
-    for atom in atoms {
-        let key = ladder_rank(atom);
-        match &last {
-            Some(previous) if previous.same_tier(&key) => tiers.last_mut().expect("a tier is open").push(atom),
+    let mut last: Option<&LadderRank> = None;
+    for &(rank, atom) in atoms {
+        match last {
+            Some(previous) if previous.same_tier(rank) => tiers.last_mut().expect("a tier is open").push(atom),
             _ => tiers.push(vec![atom]),
         }
-        last = Some(key);
+        last = Some(rank);
     }
     let names: Vec<String> = (0..tiers.len()).map(|index| format!("t{index}")).collect();
     let separator = writer.separator();

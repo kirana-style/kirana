@@ -533,6 +533,14 @@ pub fn ladder_key(atom: &Atom) -> LadderKey {
     LadderKey { rank: ladder_rank(atom), class: atom.class.clone() }
 }
 
+/// Whether two atoms rank alike, told without building either rank: [`ladder_rank`] reads only their
+/// conditions, longhand count and property rank.
+pub fn same_rank(a: &Atom, b: &Atom) -> bool {
+    a.key.conditions == b.key.conditions
+        && a.value.longhands == b.value.longhands
+        && a.key.property.rank == b.key.property.rank
+}
+
 /// An atom's place in the ladder but for the class ([`LadderRank`]).
 pub fn ladder_rank(atom: &Atom) -> LadderRank {
     LadderRank {
