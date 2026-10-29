@@ -12,7 +12,8 @@ import path from "node:path"
 import { rspack } from "@rspack/core"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
 import webpack from "webpack"
-import { afterAll, describe, expect, it } from "vite-plus/test"
+import { Driver } from "@kirana-style/compiler"
+import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 import { PLACEHOLDER } from "@kirana-style/compiler/host"
 
@@ -127,6 +128,18 @@ async function bundle(root: string, options: Options = {}) {
   }
 }
 
+/** Every module compiles off the host's thread (`transformAsync`) and none on it (`transform`). */
+function offThread() {
+  const sync = vi.spyOn(Driver.prototype, "transform")
+  const async = vi.spyOn(Driver.prototype, "transformAsync")
+  return () => {
+    expect(async).toHaveBeenCalled()
+    expect(sync).not.toHaveBeenCalled()
+    sync.mockRestore()
+    async.mockRestore()
+  }
+}
+
 describe("KRN-INT-003 webpack and Rspack", () => {
   it("webpack with native CSS: every atom, including a module built after the stylesheet", async () => {
     const { css, js, files, errors } = await bundle(app())
@@ -149,6 +162,8 @@ describe("KRN-INT-003 webpack and Rspack", () => {
 
   it("compiles modules a persistent cache restored, which skip the loader", async () => {
     const root = app()
+    // The loader and the restored modules alike compile off webpack's thread.
+    const compiled = offThread()
     const first = await bundle(root, { cache: true })
     expect(first.css).toContain("display:grid")
     // Another process, as the next build is: a session that has compiled nothing yet.
@@ -157,6 +172,7 @@ describe("KRN-INT-003 webpack and Rspack", () => {
     expect(second.errors).toBe("")
     expect(second.css).toContain("display:grid")
     expect(second.css).toBe(first.css)
+    compiled()
   })
 
   it("webpack with css-loader and mini-css-extract-plugin, as Next.js builds", async () => {

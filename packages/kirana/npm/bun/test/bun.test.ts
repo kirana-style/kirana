@@ -7,6 +7,7 @@ import {
 } from "node:fs"
 import path from "node:path"
 import { stylesheetPath, PLACEHOLDER } from "@kirana-style/compiler/host"
+import { Driver } from "@kirana-style/compiler"
 import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 import kirana from "../src/index.ts"
@@ -62,6 +63,18 @@ function builder(minify = false, serve = false) {
     },
     end: (outputs: string[]) =>
       end({ outputs: outputs.map((file) => ({ path: file })) }),
+  }
+}
+
+/** Every module compiles off the host's thread (`transformAsync`) and none on it (`transform`). */
+function offThread() {
+  const sync = vi.spyOn(Driver.prototype, "transform")
+  const async = vi.spyOn(Driver.prototype, "transformAsync")
+  return () => {
+    expect(async).toHaveBeenCalled()
+    expect(sync).not.toHaveBeenCalled()
+    sync.mockRestore()
+    async.mockRestore()
   }
 }
 
@@ -160,6 +173,30 @@ describe("KRN-INT-003 Bun bundler", () => {
     expect(readFileSync(live, "utf8")).toContain("order: 3")
     // Unchanged styles leave the file alone.
     await load(path.join(root, "src/a.js"))
+  })
+
+  it("compiles modules off Bun's thread, and writes the live stylesheet in turn", async () => {
+    const root = project({
+      "src/a.js":
+        'import { css } from "@kirana-style/core"\nexport const a = css({ order: 3 })\n',
+      "src/b.js":
+        'import { css } from "@kirana-style/core"\nexport const b = css({ order: 4 })\n',
+    })
+    const { build, resolve, load } = builder(false, true)
+    kirana({ root, driver: { importModule: (url) => import(url) } }).setup(
+      build
+    )
+    const live = resolve("@kirana-style/core/stylesheet.css")!.path
+    const compiled = offThread()
+    // Both change the stylesheet at once: the file ends with what both wrote.
+    await Promise.all([
+      load(path.join(root, "src/a.js")),
+      load(path.join(root, "src/b.js")),
+    ])
+    compiled()
+    const css = readFileSync(live, "utf8")
+    expect(css).toContain("order: 3")
+    expect(css).toContain("order: 4")
   })
 
   it("defaults the root to the working directory", () => {

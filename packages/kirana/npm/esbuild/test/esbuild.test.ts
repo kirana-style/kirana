@@ -7,6 +7,7 @@ import {
 } from "node:fs"
 import path from "node:path"
 import * as esbuild from "esbuild"
+import { Driver } from "@kirana-style/compiler"
 import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 import kirana from "../src/index.ts"
@@ -38,6 +39,7 @@ import { css } from "@kirana-style/core"
 import { space } from "./tokens.ts"
 import { plain } from "./plain.js"
 import { comment } from "./comment.js"
+
 const card = css({ display: "grid", gap: space[4] })
 document.body.className = String(card) + plain + comment
 `
@@ -61,6 +63,18 @@ const options = (root: string) => ({
   ],
 })
 
+/** Every module compiles off the host's thread (`transformAsync`) and none on it (`transform`). */
+function offThread() {
+  const sync = vi.spyOn(Driver.prototype, "transform")
+  const async = vi.spyOn(Driver.prototype, "transformAsync")
+  return () => {
+    expect(async).toHaveBeenCalled()
+    expect(sync).not.toHaveBeenCalled()
+    sync.mockRestore()
+    async.mockRestore()
+  }
+}
+
 describe("KRN-INT-003 esbuild", () => {
   it("compiles modules and finishes the written stylesheet", async () => {
     const root = project(FILES)
@@ -72,6 +86,13 @@ describe("KRN-INT-003 esbuild", () => {
     expect(readFileSync(path.join(root, "out/main.js"), "utf8")).toContain(
       "k5O_"
     )
+  })
+
+  it("compiles modules off esbuild's thread, so they compile in parallel", async () => {
+    const root = project(FILES)
+    const compiled = offThread()
+    await esbuild.build(options(root))
+    compiled()
   })
 
   it("finishes the stylesheet in memory when esbuild does not write", async () => {

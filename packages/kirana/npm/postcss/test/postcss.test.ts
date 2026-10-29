@@ -9,6 +9,7 @@ import { tmpdir } from "node:os"
 import path from "node:path"
 
 import postcss from "postcss"
+import { Driver } from "@kirana-style/compiler"
 import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 import kirana, { Project, WATCHED, projectFor, sources } from "../src/index.ts"
@@ -44,6 +45,18 @@ async function run(root: string, css: string, options = {}) {
   return postcss([kirana({ root, ...options })]).process(css, {
     from: path.join(root, "app/globals.css"),
   })
+}
+
+/** Every module compiles off the host's thread (`transformAsync`) and none on it (`transform`). */
+function offThread() {
+  const sync = vi.spyOn(Driver.prototype, "transform")
+  const async = vi.spyOn(Driver.prototype, "transformAsync")
+  return () => {
+    expect(async).toHaveBeenCalled()
+    expect(sync).not.toHaveBeenCalled()
+    sync.mockRestore()
+    async.mockRestore()
+  }
 }
 
 describe("KRN-INT-010 PostCSS", () => {
@@ -83,6 +96,8 @@ describe("KRN-INT-010 PostCSS", () => {
 
   it("compiles what changed since the last run, and forgets what was deleted", async () => {
     const root = project({ "card.tsx": CARD })
+    // Off PostCSS's thread, every changed file at once.
+    const compiled = offThread()
     const first = await run(root, "@kirana;")
     expect(first.css).toContain("rgb(1, 2, 3)")
     // An edit (with a new modification time) reaches the next run; untouched files are not read again.
@@ -95,6 +110,7 @@ describe("KRN-INT-010 PostCSS", () => {
     rmSync(file)
     const third = await run(root, "@kirana;")
     expect(third.css).not.toContain("rgb(4, 5, 6)")
+    compiled()
   })
 
   it("minifies in production or when asked", async () => {

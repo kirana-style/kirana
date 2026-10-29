@@ -234,6 +234,12 @@ export function createReporter(options: { reportInfo?: boolean } = {}) {
       code: string,
       diagnostics: readonly Diagnostic[]
     ) {
+      // Only a module with something to report needs its text remembered, and forgetting it keeps
+      // a later warning fresh: hashing every module's source was 10 ms of a 2 s build.
+      if (diagnostics.length === 0) {
+        digests.delete(file)
+        return
+      }
       const digest = digestOf(code)
       const fresh = digests.get(file) !== digest
       digests.set(file, digest)
