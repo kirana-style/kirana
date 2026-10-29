@@ -170,7 +170,7 @@ export class KiranaPlugin {
                 throw new WebpackError(message)
               },
             },
-            root,
+            driver.root,
             driver.diagnostics()
           )
         } catch (error) {

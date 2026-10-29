@@ -60,6 +60,23 @@ export function findConfigAbove(start: string): string | undefined {
 }
 
 /**
+ * The root a host's Driver compiles from: `root`, unless it has no configuration and sits in a
+ * package whose root has one. Vite's `root` is often a folder of the package, and `kirana-style ui
+ * init` writes `kirana.config.ts` beside `package.json`, where the plugin did not look (KF-069). The
+ * configuration's directory is then the root, as `--config <file>` makes it, so the paths it names
+ * resolve from where it is.
+ */
+export function hostRoot(root: string): string {
+  for (let directory = root; ; directory = path.dirname(directory)) {
+    if (findConfigFile(directory)) return directory
+    const top =
+      existsSync(path.join(directory, "package.json")) ||
+      path.dirname(directory) === directory
+    if (top) return root
+  }
+}
+
+/**
  * A configuration file that could not be loaded: which file, and what failed in it, instead of
  * Node.js's stack (KF-016).
  */

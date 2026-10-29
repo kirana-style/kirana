@@ -129,7 +129,7 @@ export default function kirana(options: KiranaBunOptions = {}) {
 
       build.onEnd(async ({ outputs }) => {
         const compiled = await session()
-        reporter.project(context, root, compiled.diagnostics())
+        reporter.project(context, compiled.root, compiled.diagnostics())
         const css = compiled.stylesheet(Boolean(build.config.minify))
         for (const { path } of outputs) {
           if (!path.endsWith(".css") || !existsSync(path)) continue

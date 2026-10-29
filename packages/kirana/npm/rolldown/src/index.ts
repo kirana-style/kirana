@@ -253,7 +253,8 @@ export function createKirana(
 
     async buildEnd() {
       if (development()) return
-      reporter.project(this, state.root, (await session()).diagnostics())
+      const compiler = await session()
+      reporter.project(this, compiler.root, compiler.diagnostics())
     },
 
     // First, so every plugin that reads CSS assets reads the finished stylesheet: Astro inlines

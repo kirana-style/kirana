@@ -1611,7 +1611,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The configuration file",
     "section": "config",
     "heading": "How it is found",
-    "text": "The compiler looks in the project root, in this order, and takes the first match: TypeScript and JavaScript files are imported natively; the default export is the configuration. A TypeScript configuration written as an ES module loads as one even when your says , as writes, and so do the TypeScript files it imports. Node.js loads the file as it is, without a bundler, and so its imports: a relative import in the configuration, or in a module it imports, needs its extension ( , not ). When the file fails to load, the command says which file and which module it could not find, and exits with 2."
+    "text": "The compiler looks in the project root, in this order, and takes the first match: A build whose root is a folder of your package with no configuration of its own, as Vite's is, reads the one beside , where writes it. That folder is then the project root. TypeScript and JavaScript files are imported natively; the default export is the configuration. A TypeScript configuration written as an ES module loads as one even when your says , as writes, and so do the TypeScript files it imports. Node.js loads the file as it is, without a bundler, and so its imports: a relative import in the configuration, or in a module it imports, needs its extension ( , not ). When the file fails to load, the command says which file and which module it could not find, and exits with 2."
   },
   {
     "id": "/docs/config/file#in-a-workspace",
@@ -1627,7 +1627,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The configuration file",
     "section": "config",
     "heading": "What overrides what",
-    "text": "Options passed to the adapter override the file, key by key: The project root comes from the adapter (Vite's ; for the CLI, the directory of the configuration a path reads, or the working directory) and cannot be set in the file."
+    "text": "Options passed to the adapter override the file, key by key: The project root comes from the adapter (Vite's , or the package root above it that holds the configuration; for the CLI, the directory of the configuration a path reads, or the working directory) and cannot be set in the file."
   },
   {
     "id": "/docs/config/file#unknown-keys-are-errors",
@@ -3290,7 +3290,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Vite",
     "section": "bundlers",
     "heading": "Options",
-    "text": "All are optional, and most projects pass nothing: the plugin finds in the Vite root on its own."
+    "text": "All are optional, and most projects pass nothing: the plugin finds in the Vite root on its own, or beside when the Vite root is a folder of the package without one."
   },
   {
     "id": "/docs/integrations/vite#dense-names",

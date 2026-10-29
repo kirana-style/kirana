@@ -114,7 +114,7 @@ export default function kirana(options: KiranaEsbuildOptions = {}): Plugin {
 
       build.onEnd(async (result) => {
         const compiler = await session()
-        reporter.project(context, root, compiler.diagnostics())
+        reporter.project(context, compiler.root, compiler.diagnostics())
         const css = compiler.stylesheet(Boolean(build.initialOptions.minify))
         if (css !== written) {
           written = css

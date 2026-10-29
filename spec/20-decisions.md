@@ -1358,10 +1358,13 @@ the implementation tracker names its evidence.
 
 ### D-097 — A path reads the nearest configuration above it
 
-- **Status:** Accepted (2026-10-24). Answers KF-003 and KF-016.
+- **Status:** Accepted (2026-10-24). Answers KF-003 and KF-016; amended 2026-10-29 for KF-069.
 - **Decision:** `kirana-style check`, `trace` and `export` group their paths by the nearest
   `kirana.config.*` above each, as TypeScript finds a `tsconfig.json`, falling back to the working
-  directory's; `--config <file>` forces one. The configuration is still loaded by Node.js without a
+  directory's; `--config <file>` forces one. A host's Driver whose root has no configuration looks up
+  to the package root (the nearest directory with a `package.json`), and the directory where it finds
+  one is the project root: Vite's `root` is often a folder of the package, and `kirana-style ui init`
+  writes the configuration beside `package.json`. The configuration is still loaded by Node.js without a
   bundler, and a failure names the file and the missing module instead of printing Node's stack.
 - **Rationale:** run at a workspace root, `check` read no app's configuration: kirana-ui saw 30
   diagnostics there and 11 from the app, the extra 19 being warnings the app's `conditions.exclusive`
@@ -1369,7 +1372,9 @@ the implementation tracker names its evidence.
   each app's own.
 - **Trade-off:** bundling the configuration, as Vite does, would accept extensionless imports, but
   would put a bundler on the path of every command; the message says what to change instead. `build`
-  and `analyze` still read the working directory's configuration, since each writes one result.
+  and `analyze` still read the working directory's configuration, since each writes one result. A host
+  stops at the package root, so an app inside a workspace never reads the workspace's configuration
+  by accident; a folder that holds its own keeps it.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
 ### D-098 — Two traps a port falls into are said

@@ -140,7 +140,7 @@ const plugin: PluginCreator<KiranaPostcssOptions> = (options = {}) => {
             throw node.error(message)
           },
         },
-        project.root,
+        driver.root,
         driver.diagnostics()
       )
       node.replaceWith(postcss.parse(css, { from: result.opts.from }).nodes)

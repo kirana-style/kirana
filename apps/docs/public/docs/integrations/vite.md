@@ -32,7 +32,8 @@ kirana({
 ```
 
 All are optional, and most projects pass nothing: the plugin finds
-`kirana.config.*` in the Vite root on its own.
+`kirana.config.*` in the Vite root on its own, or beside `package.json` when the
+Vite root is a folder of the package without one.
 
 ## Dense names
 

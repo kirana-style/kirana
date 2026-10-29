@@ -3676,6 +3676,10 @@ The compiler looks in the project root, in this order, and takes the first match
 4. `kirana.config.mjs`
 5. `kirana.config.json`
 
+A build whose root is a folder of your package with no configuration of its own,
+as Vite's `root: "viewer"` is, reads the one beside `package.json`, where
+`kirana-style ui init` writes it. That folder is then the project root.
+
 TypeScript and JavaScript files are imported natively; the default export is the
 configuration.
 
@@ -3705,9 +3709,9 @@ Options passed to the adapter override the file, key by key:
 kirana({ config: { names: { prefix: "app" } } })
 ```
 
-The project root comes from the adapter (Vite's `root`; for the CLI, the directory
-of the configuration a path reads, or the working directory) and cannot be set in
-the file.
+The project root comes from the adapter (Vite's `root`, or the package root above
+it that holds the configuration; for the CLI, the directory of the configuration a
+path reads, or the working directory) and cannot be set in the file.
 
 ## Unknown keys are errors
 
@@ -6768,7 +6772,8 @@ kirana({
 ```
 
 All are optional, and most projects pass nothing: the plugin finds
-`kirana.config.*` in the Vite root on its own.
+`kirana.config.*` in the Vite root on its own, or beside `package.json` when the
+Vite root is a folder of the package without one.
 
 ## Dense names
 
