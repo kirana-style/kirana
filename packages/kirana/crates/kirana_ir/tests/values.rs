@@ -50,7 +50,7 @@ fn value_helpers() {
     assert!(!Value::Object(Arc::new(vec![(Key::Str("a".into()), dynamic.clone())])).is_static());
     assert_eq!(object.get("a"), Some(&Value::Number(2.0)));
     let style = Dynamic::Style(vec![
-        StylePart::Static(Handle::default()),
+        StylePart::Static(Arc::new(Handle::default())),
         StylePart::Conditional { test: (0, 1), consequent: Handle::default(), alternate: Handle::default() },
         StylePart::Runtime((2, 3)),
         StylePart::Spread((6, 7)),

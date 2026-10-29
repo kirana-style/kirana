@@ -1,6 +1,8 @@
 //! Relation placement in one JSX tree (KRN-CAS-005, rules R3 and R4), and a read with a state on the
 //! element that carries the anchor itself (KF-066).
 
+use std::sync::Arc;
+
 use kirana_diagnostics::{Code, Diagnostic, Span};
 use kirana_evaluator::{Evaluator, relation_reads};
 use kirana_ir::{Condition, Handle, RelationKind};
@@ -28,10 +30,12 @@ fn info<'a>(evaluator: &Evaluator<'_, 'a, '_>, element: &JSXElement<'a>) -> Info
             continue;
         }
         for part in evaluator.sx_parts(container.expression.to_expression()).0 {
-            let handles: Vec<Handle> = match part {
+            let handles: Vec<Arc<Handle>> = match part {
                 kirana_ir::StylePart::Static(handle) => vec![handle],
-                kirana_ir::StylePart::Conditional { consequent, alternate, .. } => vec![consequent, alternate],
-                kirana_ir::StylePart::Bridge { handle, .. } => vec![handle],
+                kirana_ir::StylePart::Conditional { consequent, alternate, .. } => {
+                    vec![Arc::new(consequent), Arc::new(alternate)]
+                }
+                kirana_ir::StylePart::Bridge { handle, .. } => vec![Arc::new(handle)],
                 kirana_ir::StylePart::Runtime(_) | kirana_ir::StylePart::Spread(_) => Vec::new(),
             };
             for handle in handles {

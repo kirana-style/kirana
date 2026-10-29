@@ -70,7 +70,7 @@ impl Code {
                 self.text(", ");
             }
             match part {
-                StylePart::Static(handle) => self.handle(names, Arc::new(handle.clone())),
+                StylePart::Static(handle) => self.handle(names, handle.clone()),
                 StylePart::Conditional { test, consequent, alternate } => {
                     self.text("(");
                     self.source(*test);

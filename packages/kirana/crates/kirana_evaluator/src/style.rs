@@ -1,7 +1,6 @@
 //! Building handles from style objects (KRN-API-001, KRN-CAS-001, KRN-CAS-004) and style parts
 //! from handle expressions (KRN-DYN-002, KRN-DYN-003).
 
-use std::borrow::Cow;
 use std::sync::Arc;
 
 use kirana_cascade::{
@@ -22,44 +21,69 @@ use crate::eval::Evaluator;
 pub struct Parts(pub Vec<StylePart>);
 
 impl Parts {
-    /// Adds a handle, merged into the last static part. One built for this style is owned and its
-    /// operations move; one another value holds is borrowed and copied only where it starts a part.
-    fn push_static(&mut self, handle: Cow<'_, Handle>) {
+    /// Adds a handle built for this style: merged into the last static part, its operations moving.
+    fn push_static(&mut self, handle: Handle) {
         // An `own()` handle renders nothing but carries its claim on (KF-044).
         if handle.is_empty() && handle.own.is_empty() {
             return;
         }
-        match (self.0.last_mut(), handle) {
-            (Some(StylePart::Static(last)), Cow::Owned(handle)) => last.absorb(handle),
-            (Some(StylePart::Static(last)), Cow::Borrowed(handle)) => last.merge(handle),
-            (_, handle) => self.0.push(StylePart::Static(handle.into_owned())),
+        match self.0.last_mut() {
+            Some(StylePart::Static(last)) => Arc::make_mut(last).absorb(handle),
+            _ => self.0.push(StylePart::Static(Arc::new(handle))),
+        }
+    }
+
+    /// Adds a handle another value holds (`cx(card)`, `sx={card}`): merged into the last static part,
+    /// or, where it starts one, shared rather than copied.
+    fn push_shared(&mut self, handle: &Arc<Handle>) {
+        if handle.is_empty() && handle.own.is_empty() {
+            return;
+        }
+        match self.0.last_mut() {
+            Some(StylePart::Static(last)) => Arc::make_mut(last).merge(handle),
+            _ => self.0.push(StylePart::Static(handle.clone())),
         }
     }
 
     fn push(&mut self, part: StylePart) {
         match part {
-            StylePart::Static(handle) => self.push_static(Cow::Owned(handle)),
+            StylePart::Static(handle) => match Arc::try_unwrap(handle) {
+                Ok(handle) => self.push_static(handle),
+                Err(shared) => self.push_shared(&shared),
+            },
             other => self.0.push(other),
         }
     }
 
     /// The single static handle (empty when there are no parts), if the parts are static.
-    pub fn static_handle(&self) -> Option<Handle> {
+    pub fn static_handle(&self) -> Option<Arc<Handle>> {
         match self.0.as_slice() {
-            [] => Some(Handle::default()),
+            [] => Some(Arc::default()),
             [StylePart::Static(handle)] => Some(handle.clone()),
             _ => None,
         }
     }
 
+    /// [`Parts::static_handle`] taken out of the parts, copied only when another value shares it.
+    pub fn into_static_handle(self) -> Option<Handle> {
+        match <[StylePart; 1]>::try_from(self.0) {
+            Ok([StylePart::Static(handle)]) => Some(Arc::unwrap_or_clone(handle)),
+            Ok(_) => None,
+            Err(parts) => parts.is_empty().then(Handle::default),
+        }
+    }
+
     /// A handle value, or a dynamic style value.
     pub fn into_value(self) -> Value {
-        // The one static handle is copied once, into the value: the copy holds exactly what it needs,
-        // where the handle built in place keeps the room each of its lists and strings grew. A
-        // session keeps values (up to 16,384 literal styles), so that room is memory held: 6 MB
-        // across a 40,000-edit session.
         match <[StylePart; 1]>::try_from(self.0) {
-            Ok([StylePart::Static(handle)]) => Value::Handle(Arc::new(handle.clone())),
+            // A handle built here is copied once, into the value: the copy holds exactly what it
+            // needs, where the handle built in place keeps the room each of its lists and strings
+            // grew. A session keeps values (up to 16,384 literal styles), so that room is memory held:
+            // 6 MB across a 40,000-edit session. Another value's handle, untouched, is shared as it is.
+            Ok([StylePart::Static(handle)]) => Value::Handle(match Arc::try_unwrap(handle) {
+                Ok(built) => Arc::new(built.clone()),
+                Err(shared) => shared,
+            }),
             Ok([part]) => Value::Dynamic(Arc::new(Dynamic::Style(vec![part]))),
             Err(parts) if parts.is_empty() => Value::Handle(Arc::new(Handle::default())),
             Err(parts) => Value::Dynamic(Arc::new(Dynamic::Style(parts))),
@@ -140,7 +164,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
     /// Converts a handle-position value (an `sx` value, a `cx` argument) into style parts.
     pub(crate) fn push_handle_value(&self, value: &Value, span: (u32, u32), parts: &mut Parts, strings: Strings) {
         match value {
-            Value::Handle(handle) => parts.push_static(Cow::Borrowed(handle)),
+            Value::Handle(handle) => parts.push_shared(handle),
             Value::Null | Value::Undefined | Value::Bool(_) => {}
             Value::Array(items) => items.iter().for_each(|item| self.push_handle_value(item, span, parts, strings)),
             Value::Dynamic(dynamic) => match &**dynamic {
@@ -163,7 +187,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
                         Value::Str(_) if strings == Strings::Utility => {
                             let mut lowered = Parts::default();
                             self.push_handle_value(value, *span, &mut lowered, strings);
-                            lowered.static_handle()
+                            lowered.into_static_handle()
                         }
                         other => static_handle(other),
                     };
@@ -391,7 +415,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
     pub(crate) fn static_style(&self, value: &Value, span: (u32, u32)) -> Handle {
         let mut parts = Parts::default();
         self.push_css_argument(value, span, &mut parts);
-        parts.static_handle().unwrap_or_default()
+        parts.into_static_handle().unwrap_or_default()
     }
 
     fn style_object(
@@ -552,7 +576,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
                     let branch = |value: &Value| {
                         let mut inner = Parts::default();
                         self.property(name, value, target, conditions, top, span, &mut inner);
-                        inner.static_handle()
+                        inner.into_static_handle()
                     };
                     match (branch(consequent), branch(alternate)) {
                         (Some(consequent), Some(alternate)) => {
@@ -584,7 +608,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
     /// A removal, recorded as written at the current path.
     fn push_removal(&self, mut handle: Handle, parts: &mut Parts) {
         handle.stamp(&self.written(None));
-        parts.push_static(Cow::Owned(handle));
+        parts.push_static(handle);
     }
 
     /// Writes expanded declarations as one handle part, recorded as `value` written at the current
@@ -618,7 +642,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
             self.report_unsplittable(&property, span);
         }
         handle.stamp(&self.written(Some(value)));
-        parts.push_static(Cow::Owned(handle));
+        parts.push_static(handle);
     }
 
     /// A `firstThatWorks` run (KRN-API-017): every member expands on its own, and each longhand
@@ -815,4 +839,47 @@ pub fn relation_reads(handle: &Handle) -> Vec<(String, kirana_ir::RelationKind)>
         }
     }
     reads
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn color(css: &str) -> Handle {
+        let mut handle = Handle::default();
+        let key = EntryKey::new(Target::Element, Property::longhand("color"), ConditionSet::default());
+        handle.apply(Op::Set(key, AtomValue { css: css.into(), deps: vec![], longhands: 1 }));
+        handle
+    }
+
+    #[test]
+    fn a_handle_another_value_holds_is_shared_until_merged_into() {
+        let held = Arc::new(color("red"));
+        // Alone (`cx(card)`), the value is the very handle the other value holds.
+        let mut parts = Parts::default();
+        parts.push_shared(&held);
+        assert!(matches!(parts.static_handle(), Some(handle) if Arc::ptr_eq(&handle, &held)));
+        assert!(matches!(parts.into_value(), Value::Handle(value) if Arc::ptr_eq(&value, &held)));
+        // Merged into, it is copied and the other value's stays as it was.
+        let mut parts = Parts::default();
+        parts.push(StylePart::Static(held.clone()));
+        parts.push(StylePart::Static(Arc::new(color("blue"))));
+        assert_eq!(parts.into_value(), Value::Handle(Arc::new(color("blue"))));
+        assert_eq!(*held, color("red"));
+        // An empty handle adds no part, whichever way it comes.
+        let mut parts = Parts::default();
+        parts.push_static(Handle::default());
+        parts.push_shared(&Arc::default());
+        assert!(parts.0.is_empty());
+        // A handle built here is taken out without a copy, one shared with a copy.
+        let mut parts = Parts::default();
+        parts.push_static(color("green"));
+        assert_eq!(parts.into_static_handle(), Some(color("green")));
+        let mut parts = Parts::default();
+        parts.push_shared(&held);
+        assert_eq!(parts.into_static_handle(), Some(color("red")));
+        assert_eq!(Parts::default().into_static_handle(), Some(Handle::default()));
+        assert_eq!(Parts(vec![StylePart::Runtime((0, 1))]).into_static_handle(), None);
+        assert_eq!(Parts(vec![StylePart::Runtime((0, 1)), StylePart::Spread((2, 3))]).into_static_handle(), None);
+    }
 }
