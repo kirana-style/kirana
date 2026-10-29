@@ -37,7 +37,7 @@ export default function kiranaLoader(
   const file = this.resourcePath
   session
     .driver()
-    .then((driver) => {
+    .then(async (driver) => {
       // In a build the plugin writes the finished stylesheet into the emitted asset; while watching,
       // the entry is the live stylesheet (see index.ts).
       if (file === session.stylesheetFile) {
@@ -51,7 +51,8 @@ export default function kiranaLoader(
         callback(null, source, map)
         return
       }
-      const result = driver.transform(file, source, {
+      // The engine compiles off the bundler's thread, so the loaders of many modules run at once.
+      const result = await driver.transformAsync(file, source, {
         map: this.sourceMap !== false,
       })
       session.compiled.add(file)

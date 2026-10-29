@@ -3,6 +3,7 @@ import path from "node:path"
 
 import { STYLE_BEARING } from "@kirana-style/compiler/host"
 import { KiranaPlugin } from "@kirana-style/webpack"
+import { Driver } from "@kirana-style/compiler"
 import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 import { LOADER, SCRIPTS, rule, withKirana } from "../src/index.ts"
@@ -28,6 +29,18 @@ function project(files: Record<string, string>): string {
     writeFileSync(path.join(root, name), text)
   }
   return root
+}
+
+/** Every module compiles off the host's thread (`transformAsync`) and none on it (`transform`). */
+function offThread() {
+  const sync = vi.spyOn(Driver.prototype, "transform")
+  const async = vi.spyOn(Driver.prototype, "transformAsync")
+  return () => {
+    expect(async).toHaveBeenCalled()
+    expect(sync).not.toHaveBeenCalled()
+    sync.mockRestore()
+    async.mockRestore()
+  }
 }
 
 describe("KRN-INT-010 Next.js with Turbopack", () => {
@@ -112,6 +125,7 @@ describe("the Turbopack loader", () => {
     const addDependency = vi.fn()
     const file = path.join(root, "card.tsx")
     const source = `import { css } from "@kirana-style/core"\nimport { color } from "./tokens"\nexport const card = css({ color: color.brand })\n`
+    const compiled = offThread()
     const { error, code, map } = await load(
       { root, resourcePath: file, addDependency },
       source
@@ -120,6 +134,7 @@ describe("the Turbopack loader", () => {
     expect(code).not.toContain("css({")
     expect(map).toEqual(expect.objectContaining({ version: 3 }))
     expect(addDependency).toHaveBeenCalledWith(path.join(root, "tokens.ts"))
+    compiled()
     expect(driverFor(root)).toBe(driverFor(root))
   })
 

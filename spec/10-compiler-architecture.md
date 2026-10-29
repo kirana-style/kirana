@@ -345,9 +345,13 @@ on thread scheduling.
 **In a bundler host.** A bundler calls `transform` once per module. Vite runs those hooks
 concurrently, and a synchronous call compiled them one after another on its thread. The Vite and
 Rolldown hosts' builds call `transformAsync`, which compiles on the Node.js worker pool instead,
-while the dev server keeps one transform at a time. The registry is shared and the stylesheet is
-written in path order, so the output is byte-identical either way. The WASI engine compiles on the
-calling thread.
+while the dev server keeps one transform at a time. The esbuild, Bun, webpack, Next.js and Parcel
+hosts do too, and the PostCSS host and webpack's modules restored from a persistent cache compile
+every file they need at once; a 1,000-module esbuild build took 294 ms one module at a time and
+147 ms so. Bun's dev server queues its writes of the live stylesheet, so the newest is written last.
+Hosts whose API is synchronous keep `transform`: Node's `load` hook (Remix), Jest's `process` and
+ESLint's rules. The registry is shared and the stylesheet is written in path order, so the output is
+byte-identical either way. The WASI engine compiles on the calling thread.
 
 **KRN-CMP-010** — A persistent cache (default `node_modules/.cache/kirana`) MUST store per-module
 extraction results keyed by compiler version, configuration hash, module content hash and provenance

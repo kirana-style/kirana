@@ -148,19 +148,26 @@ export class KiranaPlugin {
       compilation.hooks.finishModules.tapPromise(NAME, async (modules) => {
         const driver = await session.driver()
         // Modules a persistent cache restored never reached the loader: compile them from disk, so
-        // their atoms are in the stylesheet. Their cached code already names the same classes.
+        // their atoms are in the stylesheet, all at once off webpack's thread. Their cached code
+        // already names the same classes.
+        const restored = new Set<string>()
         for (const module of modules) {
           // A module without a file (webpack's runtime) has no `resource`, and is no script.
           const file = String((module as { resource?: string }).resource).split(
             "?"
           )[0]!
-          if (!SCRIPT_FILE.test(file) || session.compiled.has(file)) continue
-          const source = await readFile(file, "utf8")
-          if (!shouldCompile(file, source, driver.libraries)) continue
-          // Only the stylesheet needs these: the cached code is what the bundle keeps.
-          driver.transform(file, source, { map: false })
-          session.compiled.add(file)
+          if (SCRIPT_FILE.test(file) && !session.compiled.has(file))
+            restored.add(file)
         }
+        await Promise.all(
+          [...restored].map(async (file) => {
+            const source = await readFile(file, "utf8")
+            if (!shouldCompile(file, source, driver.libraries)) return
+            // Only the stylesheet needs these: the cached code is what the bundle keeps.
+            await driver.transformAsync(file, source, { map: false })
+            session.compiled.add(file)
+          })
+        )
         try {
           session.reporter.project(
             {

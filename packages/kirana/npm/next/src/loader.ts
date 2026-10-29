@@ -41,12 +41,13 @@ export default function kiranaLoader(
   const callback = this.async()
   const file = this.resourcePath
   driverFor(this.getOptions().root)
-    .then((driver) => {
+    .then(async (driver) => {
       if (!shouldCompile(file, source, driver.libraries)) {
         callback(null, source, map)
         return
       }
-      const result = driver.transform(file, source, {
+      // The engine compiles off the bundler's thread, so the loaders of many modules run at once.
+      const result = await driver.transformAsync(file, source, {
         map: this.sourceMap !== false,
       })
       for (const dependency of result.dependencies)

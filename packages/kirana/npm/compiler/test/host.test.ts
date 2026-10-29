@@ -148,6 +148,10 @@ describe("host helpers", () => {
     expect(warnings).toHaveLength(1)
     reporter.module(context, "a.tsx", "two", found)
     expect(warnings).toHaveLength(2)
+    // A compile with nothing to report forgets the text, so the warning is new again after it.
+    reporter.module(context, "a.tsx", "three", [])
+    reporter.module(context, "a.tsx", "two", found)
+    expect(warnings).toHaveLength(3)
     expect(() =>
       reporter.module(context, "a.tsx", "two", [diagnostic("error")])
     ).toThrow("error")
@@ -155,6 +159,6 @@ describe("host helpers", () => {
     const verbose = createReporter({ reportInfo: true })
     verbose.project(context, "/nowhere", found)
     verbose.project(context, "/nowhere", found)
-    expect(warnings).toHaveLength(4)
+    expect(warnings).toHaveLength(5)
   })
 })

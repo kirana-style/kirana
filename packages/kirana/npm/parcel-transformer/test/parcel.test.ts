@@ -1,5 +1,6 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
 import path from "node:path"
+import { Driver } from "@kirana-style/compiler"
 import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 
 import transformer, { driverFor, transform } from "../src/index.ts"
@@ -40,6 +41,18 @@ function asset(filePath: string, code: string) {
 
 const TOKENS = `import { defineTokens } from "@kirana-style/core"\nexport const color = defineTokens("color", { ink: "rgb(1, 2, 3)" })\n`
 
+/** Every module compiles off the host's thread (`transformAsync`) and none on it (`transform`). */
+function offThread() {
+  const sync = vi.spyOn(Driver.prototype, "transform")
+  const async = vi.spyOn(Driver.prototype, "transformAsync")
+  return () => {
+    expect(async).toHaveBeenCalled()
+    expect(sync).not.toHaveBeenCalled()
+    sync.mockRestore()
+    async.mockRestore()
+  }
+}
+
 describe("D-070 Parcel", () => {
   it("compiles a script's styles in place and watches what they read", async () => {
     const root = project({
@@ -50,9 +63,11 @@ describe("D-070 Parcel", () => {
     const source = `import { css } from "@kirana-style/core"\nimport { color } from "./tokens"\nconst card = css({ color: color.ink })\nexport const Card = () => <div sx={card} />\n`
     const { fake, invalidated, written } = asset(file, source)
     const logger = { warn: vi.fn() }
+    const compiled = offThread()
     expect(
       await transform({ asset: fake, options: { projectRoot: root }, logger })
     ).toEqual([fake])
+    compiled()
     expect(written[0]).toContain("className")
     expect(invalidated).toContain(path.join(root, "kirana.config.json"))
     expect(invalidated).toContain(path.join(root, "src/tokens.ts"))

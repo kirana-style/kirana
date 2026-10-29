@@ -92,9 +92,13 @@ export default function kirana(options: KiranaBunOptions = {}) {
             `kirana-bun-${createHash("sha256").update(root).digest("hex").slice(0, 12)}.css`
           )
         : undefined
-      const refresh = async () => {
-        if (live) await writeFile(live, (await session()).stylesheet(false))
-      }
+      // Modules compile in parallel, so stylesheet writes are queued: each takes the stylesheet as
+      // it is when its turn comes, and the last one written is the newest.
+      let writing = Promise.resolve()
+      const refresh = () =>
+        (writing = writing.then(async () => {
+          if (live) await writeFile(live, (await session()).stylesheet(false))
+        }))
       if (live) {
         writeFileSync(live, "")
         build.onResolve(
@@ -116,8 +120,9 @@ export default function kirana(options: KiranaBunOptions = {}) {
         if (!compiler.compiles(path)) return undefined
         const code = await readFile(path, "utf8")
         if (!shouldCompile(path, code, compiler.libraries)) return undefined
-        // Bun's loader takes the code alone: a map would be built and dropped.
-        const result = compiler.transform(path, code, { map: false })
+        // Bun's loader takes the code alone: a map would be built and dropped. The engine compiles
+        // off Bun's thread, so modules compile in parallel.
+        const result = await compiler.transformAsync(path, code, { map: false })
         reporter.module(context, path, code, result.diagnostics)
         if (result.cssChanged) await refresh()
         if (result.code === undefined) return undefined
