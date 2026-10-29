@@ -111,12 +111,16 @@ import kiranaCss from "@kirana-style/core/stylesheet.css?url"
 
 - **In development** the plugin serves the live stylesheet and pushes updates
   over Vite's hot channel, so a style change restyles the page without a reload.
+  A page that is still loading its modules on a cold start cannot take an
+  update yet; when the stylesheet runs, it tells the server which one it holds,
+  and the server sends a newer one.
 - **In a build** it replaces the placeholder rule with the real stylesheet and
   renames the asset to a content hash.
 
 `kirana()` returns two plugins, which Vite flattens, so it is still one entry in
-`plugins`. The second, `kirana:late`, runs at the end of a build for a stylesheet
-asset a framework adds after the first has filled the others (Qwik does).
+`plugins`. The second, `kirana:late`, runs after Vite's own: at the end of a build
+for a stylesheet asset a framework adds after the first has filled the others
+(Qwik does), and on a dev server to have the stylesheet report what it holds.
 
 `?url`, `?raw` and `?inline` behave the way they do for any other Vite asset.
 
