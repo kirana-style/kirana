@@ -1,6 +1,7 @@
 //! The walk that finds style sites and records edits.
 
 use std::borrow::Cow;
+use std::sync::Arc;
 
 use kirana_diagnostics::{Code as DiagnosticCode, Diagnostic, Span};
 use kirana_evaluator::Evaluator;
@@ -178,11 +179,12 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             && style_sources.is_empty()
             && let Some(handle) = parts.static_handle()
         {
-            if !names.dom_class_string(&handle).is_empty() {
+            let classes = names.dom_class_string(&handle);
+            if !classes.is_empty() {
                 code.text(format!("{class}="));
-                code.dom_handle(names, &handle);
+                code.dom_classes(names, &classes, Arc::new(handle));
             } else {
-                code.record(&handle);
+                code.record(Arc::new(handle));
             }
             self.push(sx_span(sx), code);
             return;
@@ -231,7 +233,7 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
                         && let Some(handle) = parts.static_handle()
                     {
                         let mut code = Code::default();
-                        code.handle(self.evaluator.context().names, &handle);
+                        code.handle(self.evaluator.context().names, Arc::new(handle));
                         self.push(sp(literal.span), code);
                     }
                 } else if let Some(source) = root.and_then(|root| self.evaluator.import_source(root))
@@ -301,12 +303,13 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             && let Some(handle) = parts.static_handle()
         {
             code.text(format!("{class}: "));
-            if names.dom_class_string(&handle).is_empty() {
+            let classes = names.dom_class_string(&handle);
+            if classes.is_empty() {
                 // The property stays, so the object keeps its commas; an element with no class.
                 code.text("undefined");
-                code.record(&handle);
+                code.record(Arc::new(handle));
             } else {
-                code.dom_handle(names, &handle);
+                code.dom_classes(names, &classes, Arc::new(handle));
             }
             self.push(sp(sx.span), code);
             return;
@@ -344,10 +347,10 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
         let class = self.evaluator.context().config.jsx.class_attribute();
         let parts = self.evaluator.call_parts(call);
         let mut code = Code::default();
-        match parts.static_handle() {
-            Some(handle) if !names.dom_class_string(&handle).is_empty() => {
+        match parts.static_handle().map(|handle| (names.dom_class_string(&handle), handle)) {
+            Some((classes, handle)) if !classes.is_empty() => {
                 code.text(format!("{{{class:?}: "));
-                code.dom_handle(names, &handle);
+                code.dom_classes(names, &classes, Arc::new(handle));
                 code.text("}");
             }
             Some(_) => code.text("{}"),
@@ -547,7 +550,7 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
                 {
                     let mut code = Code::default();
                     code.text("{");
-                    code.handle(self.evaluator.context().names, &handle);
+                    code.handle(self.evaluator.context().names, Arc::new(handle));
                     code.text("}");
                     self.push(sp(literal.span), code);
                 }

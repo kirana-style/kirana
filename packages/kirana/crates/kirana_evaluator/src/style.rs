@@ -1,6 +1,7 @@
 //! Building handles from style objects (KRN-API-001, KRN-CAS-001, KRN-CAS-004) and style parts
 //! from handle expressions (KRN-DYN-002, KRN-DYN-003).
 
+use std::borrow::Cow;
 use std::sync::Arc;
 
 use kirana_cascade::{
@@ -21,21 +22,23 @@ use crate::eval::Evaluator;
 pub struct Parts(pub Vec<StylePart>);
 
 impl Parts {
-    fn push_static(&mut self, handle: &Handle) {
+    /// Adds a handle, merged into the last static part. One built for this style is owned and its
+    /// operations move; one another value holds is borrowed and copied only where it starts a part.
+    fn push_static(&mut self, handle: Cow<'_, Handle>) {
         // An `own()` handle renders nothing but carries its claim on (KF-044).
         if handle.is_empty() && handle.own.is_empty() {
             return;
         }
-        if let Some(StylePart::Static(last)) = self.0.last_mut() {
-            last.merge(handle);
-        } else {
-            self.0.push(StylePart::Static(handle.clone()));
+        match (self.0.last_mut(), handle) {
+            (Some(StylePart::Static(last)), Cow::Owned(handle)) => last.absorb(handle),
+            (Some(StylePart::Static(last)), Cow::Borrowed(handle)) => last.merge(handle),
+            (_, handle) => self.0.push(StylePart::Static(handle.into_owned())),
         }
     }
 
     fn push(&mut self, part: StylePart) {
         match part {
-            StylePart::Static(handle) => self.push_static(&handle),
+            StylePart::Static(handle) => self.push_static(Cow::Owned(handle)),
             other => self.0.push(other),
         }
     }
@@ -51,9 +54,15 @@ impl Parts {
 
     /// A handle value, or a dynamic style value.
     pub fn into_value(self) -> Value {
-        match self.static_handle() {
-            Some(handle) => Value::Handle(Arc::new(handle)),
-            None => Value::Dynamic(Arc::new(Dynamic::Style(self.0))),
+        // The one static handle is copied once, into the value: the copy holds exactly what it needs,
+        // where the handle built in place keeps the room each of its lists and strings grew. A
+        // session keeps values (up to 16,384 literal styles), so that room is memory held: 6 MB
+        // across a 40,000-edit session.
+        match <[StylePart; 1]>::try_from(self.0) {
+            Ok([StylePart::Static(handle)]) => Value::Handle(Arc::new(handle.clone())),
+            Ok([part]) => Value::Dynamic(Arc::new(Dynamic::Style(vec![part]))),
+            Err(parts) if parts.is_empty() => Value::Handle(Arc::new(Handle::default())),
+            Err(parts) => Value::Dynamic(Arc::new(Dynamic::Style(parts))),
         }
     }
 }
@@ -131,7 +140,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
     /// Converts a handle-position value (an `sx` value, a `cx` argument) into style parts.
     pub(crate) fn push_handle_value(&self, value: &Value, span: (u32, u32), parts: &mut Parts, strings: Strings) {
         match value {
-            Value::Handle(handle) => parts.push_static(handle),
+            Value::Handle(handle) => parts.push_static(Cow::Borrowed(handle)),
             Value::Null | Value::Undefined | Value::Bool(_) => {}
             Value::Array(items) => items.iter().for_each(|item| self.push_handle_value(item, span, parts, strings)),
             Value::Dynamic(dynamic) => match &**dynamic {
@@ -572,7 +581,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
     /// A removal, recorded as written at the current path.
     fn push_removal(&self, mut handle: Handle, parts: &mut Parts) {
         handle.stamp(&self.written(None));
-        parts.push_static(&handle);
+        parts.push_static(Cow::Owned(handle));
     }
 
     /// Writes expanded declarations as one handle part, recorded as `value` written at the current
@@ -606,7 +615,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
             self.report_unsplittable(&property, span);
         }
         handle.stamp(&self.written(Some(value)));
-        parts.push_static(&handle);
+        parts.push_static(Cow::Owned(handle));
     }
 
     /// A `firstThatWorks` run (KRN-API-017): every member expands on its own, and each longhand
@@ -783,7 +792,7 @@ fn static_handle(value: &Value) -> Option<Handle> {
         Value::Handle(handle) => Some((**handle).clone()),
         Value::Null | Value::Undefined | Value::Bool(false) => Some(Handle::default()),
         Value::Array(items) => items.iter().try_fold(Handle::default(), |mut merged, item| {
-            merged.merge(&static_handle(item)?);
+            merged.absorb(static_handle(item)?);
             Some(merged)
         }),
         _ => None,
