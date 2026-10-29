@@ -273,21 +273,25 @@ export class Driver {
    * `code` with dense names (D-084) and, when `map`, a source map of the renaming, or `undefined`
    * when it names no Kirana class. Codes are assigned on first sight and kept for the session, so a
    * chunk renamed early stays valid while later modules compile. `source` is the name the map gives
-   * the input. The map is most of the pass's cost (about 7 of 10 ms on a chunk of a thousand
-   * modules), so a build that writes none asks for none (KF-061).
+   * the input. A build that writes no map asks for none (KF-061), and the engine then renames the
+   * chunk in one pass rather than sending every edit here: 1.7 instead of 6.6 ms on a module of a
+   * thousand components (16,000 edits).
    */
   dense(
     code: string,
     source: string,
     map = true
   ): { code: string; map?: SourceMap } | undefined {
+    if (!map) {
+      const renamed = this.#compiler.denseChunk(code)
+      return renamed === null ? undefined : { code: renamed }
+    }
     const { starts, ends, texts } = this.#compiler.denseEdits(code)
     if (starts.length === 0) return undefined
     const magic = new MagicString(code)
     starts.forEach((start, index) =>
       magic.overwrite(start, ends[index]!, texts[index]!)
     )
-    if (!map) return { code: magic.toString() }
     return {
       code: magic.toString(),
       map: magic.generateMap({

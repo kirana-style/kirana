@@ -96,35 +96,57 @@ impl DenseNames {
     /// the names after a [`MARK`], removing every mark.
     pub fn edits(&self, prefix: &str, text: &str, marked: bool) -> Vec<Edit> {
         let mut edits = Vec::new();
-        for name in names(prefix, text, marked) {
-            if let Some((start, end)) = name.mark {
-                edits.push(Edit { start, end, text: String::new() });
-            }
-            if let Some((start, end)) = name.condition
-                && let Some(code) = self.conditions.get(&text[start..end])
-            {
-                edits.push(Edit { start, end, text: code.clone() });
-            }
-            if let Some((start, end)) = name.value
-                && let Some(code) = self.values.get(&text[start..end])
-            {
-                edits.push(Edit { start, end, text: code.clone() });
-            }
-        }
+        self.for_each_replacement(prefix, text, marked, |start, end, code| {
+            edits.push(Edit { start, end, text: code.to_owned() });
+        });
         edits
     }
 
     /// `text` with every Kirana name renamed (with `marked`, as [`DenseNames::edits`]).
     pub fn rename(&self, prefix: &str, text: &str, marked: bool) -> String {
-        let mut out = String::with_capacity(text.len());
+        self.renamed(prefix, text, marked).unwrap_or_else(|| text.to_owned())
+    }
+
+    /// [`DenseNames::rename`] written in one pass, or `None` when nothing in `text` changes: a chunk
+    /// renamed without a source map needs no list of edits.
+    pub fn renamed(&self, prefix: &str, text: &str, marked: bool) -> Option<String> {
+        let mut out: Option<String> = None;
         let mut last = 0;
-        for edit in self.edits(prefix, text, marked) {
-            out.push_str(&text[last..edit.start]);
-            out.push_str(&edit.text);
-            last = edit.end;
-        }
+        self.for_each_replacement(prefix, text, marked, |start, end, code| {
+            let out = out.get_or_insert_with(|| String::with_capacity(text.len()));
+            out.push_str(&text[last..start]);
+            out.push_str(code);
+            last = end;
+        });
+        let mut out = out?;
         out.push_str(&text[last..]);
-        out
+        Some(out)
+    }
+
+    /// Calls `replace` with each replacement in order, as `(start, end, text)`: each mark removed,
+    /// and each hash that has a code given it.
+    fn for_each_replacement(
+        &self,
+        prefix: &str,
+        text: &str,
+        marked: bool,
+        mut replace: impl FnMut(usize, usize, &str),
+    ) {
+        for name in names(prefix, text, marked) {
+            if let Some((start, end)) = name.mark {
+                replace(start, end, "");
+            }
+            if let Some((start, end)) = name.condition
+                && let Some(code) = self.conditions.get(&text[start..end])
+            {
+                replace(start, end, code);
+            }
+            if let Some((start, end)) = name.value
+                && let Some(code) = self.values.get(&text[start..end])
+            {
+                replace(start, end, code);
+            }
+        }
     }
 }
 
@@ -384,6 +406,26 @@ mod tests {
         );
         let marks: Vec<_> = names("k", chunk, true).into_iter().map(|name| name.mark.is_some()).collect();
         assert_eq!(marks, [true, true, true, true]);
+    }
+
+    #[test]
+    fn a_chunk_renamed_in_one_pass_is_its_edits_applied() {
+        let mut dense = DenseNames::default();
+        dense.extend([(Segment::Condition, "KFHz", 1), (Segment::Value, "D9ur", 1)]);
+        let chunk = r#"a("^~k50-KFHz_D9ur ^~krAbc12 ^~k50*_"), b(".k50-KFHz_D9ur{}"), c("^~--k50-KFHz", 1), d("^~x")"#;
+        let mut applied = String::new();
+        let mut last = 0;
+        for edit in dense.edits("k", chunk, true) {
+            applied.push_str(&chunk[last..edit.start]);
+            applied.push_str(&edit.text);
+            last = edit.end;
+        }
+        applied.push_str(&chunk[last..]);
+        assert_eq!(dense.renamed("k", chunk, true), Some(applied));
+        // Nothing to rename: no mark before a name, or no code for its hashes.
+        assert_eq!(dense.renamed("k", r#"b(".k50-KFHz_D9ur{}"), d("^~x")"#, true), None);
+        assert_eq!(dense.renamed("k", "k50_xxxx", false), None);
+        assert_eq!(dense.rename("k", "k50_xxxx", false), "k50_xxxx");
     }
 
     #[test]

@@ -444,6 +444,13 @@ impl Project {
         self.state.read().expect("not poisoned").dense.edits(&self.names.prefix, text, true)
     }
 
+    /// A chunk `text` with dense names, as [`Project::dense_edits`] applied, written in one pass for a
+    /// build that writes no source map (KF-061); `None` when it names no Kirana class.
+    pub fn dense_chunk(&self, text: &str) -> Option<String> {
+        self.assign_dense();
+        self.state.read().expect("not poisoned").dense.renamed(&self.names.prefix, text, true)
+    }
+
     /// A stylesheet `text` with dense names (D-084): every name in it is the compiler's.
     pub fn dense_rename(&self, text: &str) -> String {
         self.assign_dense();
