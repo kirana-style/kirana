@@ -21,36 +21,55 @@ pub fn hash64(bytes: &[u8]) -> u64 {
 
 /// Hashes several parts with an unambiguous separator, so `("ab", "c")` and `("a", "bc")` differ.
 pub fn hash_parts(parts: &[&str]) -> u64 {
-    let mut buffer = Vec::with_capacity(parts.iter().map(|part| part.len() + 1).sum());
+    // Every class name hashes a few short parts: they are laid out on the stack, and only a long
+    // value needs the heap. The bytes hashed are the same either way.
+    let length: usize = parts.iter().map(|part| part.len() + 1).sum();
+    let mut stack = [0u8; 256];
+    let mut heap = Vec::new();
+    let buffer: &mut [u8] = if length <= stack.len() {
+        &mut stack[..length]
+    } else {
+        heap.resize(length, 0);
+        &mut heap
+    };
+    let mut at = 0;
     for part in parts {
-        buffer.extend_from_slice(part.as_bytes());
-        buffer.push(0);
+        buffer[at..at + part.len()].copy_from_slice(part.as_bytes());
+        at += part.len() + 1;
     }
-    hash64(&buffer)
+    hash64(buffer)
 }
 
 /// The `width` lowest base-62 digits of `value`, most significant first.
-pub fn base62(mut value: u64, width: usize) -> String {
-    let mut digits = vec![b'0'; width];
-    for slot in digits.iter_mut().rev() {
-        *slot = ALPHABET[(value % 62) as usize];
-        value /= 62;
+pub fn base62(value: u64, width: usize) -> String {
+    let mut out = String::with_capacity(width);
+    push_base62(&mut out, value, width);
+    out
+}
+
+/// [`base62`] written onto `out`, for a name built in one string.
+pub fn push_base62(out: &mut String, value: u64, width: usize) {
+    for place in (0..width).rev() {
+        // A place past the largest power of 62 a `u64` holds is a leading zero.
+        let digit = 62u64.checked_pow(place as u32).map_or(0, |power| value / power % 62);
+        out.push(char::from(ALPHABET[digit as usize]));
     }
-    String::from_utf8(digits).expect("the alphabet is ASCII")
 }
 
 /// Base-62 text of `value` with no padding (`0` is `"0"`).
-pub fn base62_compact(mut value: u64) -> String {
-    let mut digits = Vec::new();
-    loop {
-        digits.push(ALPHABET[(value % 62) as usize]);
-        value /= 62;
-        if value == 0 {
-            break;
-        }
+pub fn base62_compact(value: u64) -> String {
+    let mut out = String::new();
+    push_base62_compact(&mut out, value);
+    out
+}
+
+/// [`base62_compact`] written onto `out`.
+pub fn push_base62_compact(out: &mut String, value: u64) {
+    let mut width = 1;
+    while 62u64.checked_pow(width as u32).is_some_and(|power| power <= value) {
+        width += 1;
     }
-    digits.reverse();
-    String::from_utf8(digits).expect("the alphabet is ASCII")
+    push_base62(out, value, width);
 }
 
 /// `camelCase` or `WebkitLineClamp` → `kebab-case` / `-webkit-line-clamp`. Custom properties

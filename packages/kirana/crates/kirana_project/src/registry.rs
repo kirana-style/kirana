@@ -44,11 +44,15 @@ impl ModuleRecord {
             relations: definitions.relations.clone(),
             ..ModuleRecord::default()
         };
-        let mut seen = BTreeSet::new();
+        let mut seen = kirana_shared::FxHashSet::default();
         for (_, handle) in &output.handles {
-            for atom in Atom::from_handle(names, handle) {
-                if seen.insert(atom.class.clone()) {
-                    record.atoms.push(Arc::new(atom));
+            for op in &handle.ops {
+                // A class seen already (handles of one module share their entries) is not built again.
+                let Op::Set(key, value) = op else { continue };
+                let class = names.class(op);
+                if !seen.contains(&class) {
+                    seen.insert(class.clone());
+                    record.atoms.push(Arc::new(Atom { class, key: key.clone(), value: value.clone() }));
                 }
             }
             for op in &handle.ops {

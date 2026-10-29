@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 use std::sync::Arc;
 
 use kirana_css_data::{PropertyRank, is_logical, property_index};
-use kirana_shared::{base62, base62_compact, hash_parts};
+use kirana_shared::{base62, hash_parts, push_base62, push_base62_compact};
 
 use crate::condition::{Condition, ConditionSet, compare_sets};
 use crate::defs::Dep;
@@ -52,9 +52,16 @@ impl Property {
     /// The property code of a class name (D-037): the base-62 index of a known property, or a
     /// five-character hash of a custom property.
     pub fn code(&self) -> String {
+        let mut code = String::new();
+        self.push_code(&mut code);
+        code
+    }
+
+    /// [`Property::code`] written onto `out`: class names are built in one string.
+    fn push_code(&self, out: &mut String) {
         match property_index(&self.name) {
-            Some(index) if !self.name.starts_with("--") => base62_compact(index as u64),
-            _ => base62(hash_parts(&[&self.name]), 5),
+            Some(index) if !self.name.starts_with("--") => push_base62_compact(out, index as u64),
+            _ => push_base62(out, hash_parts(&[&self.name]), 5),
         }
     }
 }
@@ -151,28 +158,39 @@ impl EntryKey {
     /// The conflict-key segment of a class name: property code, then `-` + a 3-character target
     /// hash when the target is not the element, then `-` + a 4-character condition hash.
     pub fn segment(&self) -> String {
-        let mut segment = property_segment(&self.target, &self.property);
-        if !self.conditions.is_empty() {
-            segment.push('-');
-            segment.push_str(&base62(hash_parts(&[&self.conditions.canonical()]), 4));
-        }
+        let mut segment = String::new();
+        self.push_segment(&mut segment);
         segment
+    }
+
+    fn push_segment(&self, out: &mut String) {
+        self.property.push_code(out);
+        push_target_segment(out, &self.target);
+        push_condition_segment(out, &self.conditions);
     }
 }
 
-/// The key prefix shared by every entry of one property on one target.
-pub fn property_segment(target: &Target, property: &Property) -> String {
-    let mut segment = property.code();
-    let canonical = match target {
-        Target::Element => return segment,
-        Target::PseudoElement(name) => name.clone(),
-        Target::Contextual { child, selector, pseudo_element } => {
-            format!("{}{selector}{}", if *child { "> " } else { "  " }, pseudo_element.as_deref().unwrap_or(""))
-        }
+/// `-` + a 3-character hash of a target other than the element.
+fn push_target_segment(out: &mut String, target: &Target) {
+    let hash = match target {
+        Target::Element => return,
+        Target::PseudoElement(name) => hash_parts(&[name]),
+        Target::Contextual { child, selector, pseudo_element } => hash_parts(&[&format!(
+            "{}{selector}{}",
+            if *child { "> " } else { "  " },
+            pseudo_element.as_deref().unwrap_or("")
+        )]),
     };
-    segment.push('-');
-    segment.push_str(&base62(hash_parts(&[&canonical]), 3));
-    segment
+    out.push('-');
+    push_base62(out, hash, 3);
+}
+
+/// `-` + a 4-character hash of a condition set that is not empty.
+fn push_condition_segment(out: &mut String, conditions: &ConditionSet) {
+    if !conditions.is_empty() {
+        out.push('-');
+        push_base62(out, hash_parts(&[&conditions.canonical()]), 4);
+    }
 }
 
 /// The CSS value of one entry.
@@ -246,9 +264,32 @@ pub struct Handle {
 impl Handle {
     /// Applies `later` on top of `self` with the rules of KRN-CAS-004.
     pub fn merge(&mut self, later: &Handle) {
-        for op in &later.ops {
-            self.apply(op.clone());
+        if self.ops.is_empty() {
+            // A handle's operations are already merged: applied one by one to nothing, they give
+            // themselves back.
+            self.ops.clone_from(&later.ops);
+        } else {
+            for op in &later.ops {
+                self.apply(op.clone());
+            }
         }
+        self.merge_markers(later);
+    }
+
+    /// [`Handle::merge`] of a handle no longer needed: its operations move instead of being copied,
+    /// which is what building a style does with each declaration's handle.
+    pub fn absorb(&mut self, later: Handle) {
+        if self.ops.is_empty() {
+            self.ops = later.ops;
+        } else {
+            for op in later.ops {
+                self.apply(op);
+            }
+        }
+        self.merge_markers(&Handle { ops: Vec::new(), ..later });
+    }
+
+    fn merge_markers(&mut self, later: &Handle) {
         for marker in &later.markers {
             if !self.markers.contains(marker) {
                 self.markers.push(marker.clone());
@@ -392,42 +433,76 @@ impl Names {
     /// `{prefix}{property segment}*_` for a property removal;
     /// `{prefix}{shorthand code}/{kept codes joined by .}{target}{-conditions | *}_` for an unfold.
     pub fn class(&self, op: &Op) -> String {
+        let mut class = String::with_capacity(self.prefix.len() + 12);
+        self.push_class(&mut class, op);
+        class
+    }
+
+    /// [`Names::class`] written onto `out`. Every class of a project is built here, so it builds the
+    /// name in place rather than from a string per segment.
+    fn push_class(&self, out: &mut String, op: &Op) {
+        out.push_str(&self.prefix);
         match op {
-            Op::Set(key, value) => format!("{}{}_{}", self.prefix, key.segment(), value_segment(value)),
-            Op::Remove(key) => format!("{}{}_", self.prefix, key.segment()),
+            Op::Set(key, value) => {
+                key.push_segment(out);
+                out.push('_');
+                push_value_segment(out, value);
+            }
+            Op::Remove(key) => {
+                key.push_segment(out);
+                out.push('_');
+            }
             Op::RemoveProperty(target, property) => {
-                format!("{}{}*_", self.prefix, property_segment(target, property))
+                property.push_code(out);
+                push_target_segment(out, target);
+                out.push_str("*_");
             }
             Op::Unfold { target, shorthand, keep, conditions } => {
-                let codes: Vec<String> = keep.iter().map(Property::code).collect();
-                // The target segment follows the codes: `property_segment` minus the shorthand's code.
-                let target_segment = property_segment(target, shorthand)[shorthand.code().len()..].to_owned();
-                let scope = match conditions {
-                    None => "*".to_owned(),
-                    Some(conditions) => EntryKey::new(target.clone(), shorthand.clone(), conditions.clone()).segment()
-                        [shorthand.code().len() + target_segment.len()..]
-                        .to_owned(),
-                };
-                format!("{}{}/{}{target_segment}{scope}_", self.prefix, shorthand.code(), codes.join("."))
+                shorthand.push_code(out);
+                out.push('/');
+                for (index, property) in keep.iter().enumerate() {
+                    if index > 0 {
+                        out.push('.');
+                    }
+                    property.push_code(out);
+                }
+                // The target segment follows the codes.
+                push_target_segment(out, target);
+                match conditions {
+                    None => out.push('*'),
+                    Some(conditions) => push_condition_segment(out, conditions),
+                }
+                out.push('_');
             }
         }
     }
 
     /// The class attribute text of a handle: markers, then one class per op.
     pub fn class_string(&self, handle: &Handle) -> String {
-        handle.markers.iter().cloned().chain(handle.ops.iter().map(|op| self.class(op))).collect::<Vec<_>>().join(" ")
+        self.join_classes(handle, |_| true)
     }
 
     /// The `class` attribute a host element receives: markers and set entries only. Tombstones
     /// exist to carry removals into later runtime merges, so they never reach the DOM.
     pub fn dom_class_string(&self, handle: &Handle) -> String {
-        handle
-            .markers
-            .iter()
-            .cloned()
-            .chain(handle.ops.iter().filter(|op| matches!(op, Op::Set(..))).map(|op| self.class(op)))
-            .collect::<Vec<_>>()
-            .join(" ")
+        self.join_classes(handle, |op| matches!(op, Op::Set(..)))
+    }
+
+    /// A handle's markers, then the class of each op `keep` accepts, joined by spaces.
+    fn join_classes(&self, handle: &Handle, keep: fn(&Op) -> bool) -> String {
+        let mut out = String::new();
+        let mut separator = "";
+        for marker in &handle.markers {
+            out.push_str(separator);
+            out.push_str(marker);
+            separator = " ";
+        }
+        for op in handle.ops.iter().filter(|op| keep(op)) {
+            out.push_str(separator);
+            self.push_class(&mut out, op);
+            separator = " ";
+        }
+        out
     }
 
     /// The custom property a bridged entry reads (KRN-DYN-003).
@@ -459,11 +534,18 @@ impl Names {
 /// build. The fourth character costs about 1.7 % of the stylesheet and buys two orders of
 /// magnitude of headroom.
 pub fn value_segment(value: &AtomValue) -> String {
-    if value.longhands <= 1 {
-        base62(hash_parts(&[&value.css]), 4)
+    let mut segment = String::new();
+    push_value_segment(&mut segment, value);
+    segment
+}
+
+fn push_value_segment(out: &mut String, value: &AtomValue) {
+    let hash = if value.longhands <= 1 {
+        hash_parts(&[&value.css])
     } else {
-        base62(hash_parts(&[&value.css, &value.longhands.to_string()]), 4)
-    }
+        hash_parts(&[&value.css, &value.longhands.to_string()])
+    };
+    push_base62(out, hash, 4);
 }
 
 /// One rule-producing unit: a set entry with its class name.

@@ -38,26 +38,28 @@ impl Code {
         self.text(serde_json::to_string(text).expect("strings serialize"));
     }
 
-    /// A class string literal for a handle, recording the handle.
-    pub fn handle(&mut self, names: &kirana_ir::Names, handle: &Handle) {
-        self.string(&names.written(&names.class_string(handle)));
+    /// A class string literal for a handle, recording the handle. A handle a value holds is
+    /// shared, not copied.
+    pub fn handle(&mut self, names: &kirana_ir::Names, handle: Arc<Handle>) {
+        self.string(&names.written(&names.class_string(&handle)));
         self.record(handle);
     }
 
-    /// A class literal for a host element (no tombstones), recording the handle.
-    pub fn dom_handle(&mut self, names: &kirana_ir::Names, handle: &Handle) {
-        self.string(&names.written(&names.dom_class_string(handle)));
+    /// A host element's class literal (no tombstones), already written by the caller, recording the
+    /// handle it came from.
+    pub fn dom_classes(&mut self, names: &kirana_ir::Names, classes: &str, handle: Arc<Handle>) {
+        self.string(&names.written(classes));
         self.record(handle);
     }
 
-    pub fn record(&mut self, handle: &Handle) {
+    pub fn record(&mut self, handle: Arc<Handle>) {
         if !handle.is_empty() {
             for dep in &handle.marker_deps {
                 if !self.marker_deps.contains(dep) {
                     self.marker_deps.push(dep.clone());
                 }
             }
-            self.handles.push(Arc::new(handle.clone()));
+            self.handles.push(handle);
         }
     }
 
@@ -68,14 +70,14 @@ impl Code {
                 self.text(", ");
             }
             match part {
-                StylePart::Static(handle) => self.handle(names, handle),
+                StylePart::Static(handle) => self.handle(names, Arc::new(handle.clone())),
                 StylePart::Conditional { test, consequent, alternate } => {
                     self.text("(");
                     self.source(*test);
                     self.text(") ? ");
-                    self.handle(names, consequent);
+                    self.handle(names, Arc::new(consequent.clone()));
                     self.text(" : ");
-                    self.handle(names, alternate);
+                    self.handle(names, Arc::new(alternate.clone()));
                 }
                 StylePart::Runtime(span) => {
                     self.text("(");
@@ -91,7 +93,7 @@ impl Code {
                     self.runtime = true;
                     self.text(PURE);
                     self.text("__k.b(");
-                    self.handle(names, handle);
+                    self.handle(names, Arc::new(handle.clone()));
                     self.text(", ");
                     self.string(&names.written(variable));
                     self.text(", (");
@@ -105,7 +107,7 @@ impl Code {
     /// Code for a value a Kirana call produced. Returns `false` when the call should stay as is.
     pub fn value(&mut self, names: &kirana_ir::Names, value: &Value) -> bool {
         match value {
-            Value::Handle(handle) => self.handle(names, handle),
+            Value::Handle(handle) => self.handle(names, handle.clone()),
             Value::Dynamic(dynamic) => {
                 // An open or conditional result is a runtime call that stays as written.
                 let Dynamic::Style(parts) = &**dynamic else { return false };
@@ -163,7 +165,7 @@ impl Code {
             if index > 0 {
                 self.text(", ");
             }
-            self.handle(names, handle);
+            self.handle(names, Arc::new(handle.clone()));
         }
         self.text("]");
     }

@@ -77,14 +77,23 @@ impl Condition {
 
     /// Canonical text: used for normal-form sorting, hashing and the final tie-break.
     pub fn canonical(&self) -> String {
-        match self {
-            Condition::Pseudo(text) | Condition::Attribute(text) => text.clone(),
-            Condition::Media(query) => format!("@media {query}"),
-            Condition::Container { name: Some(name), query } => format!("@container {name} {query}"),
-            Condition::Container { name: None, query } => format!("@container {query}"),
-            Condition::Supports(query) => format!("@supports {query}"),
-            Condition::Relation { marker, kind, state } => format!("relation {kind:?} .{marker}{state}"),
-        }
+        let mut canonical = String::new();
+        self.push_canonical(&mut canonical);
+        canonical
+    }
+
+    /// [`Condition::canonical`] written onto `out`, for a set's text built in one string.
+    fn push_canonical(&self, out: &mut String) {
+        use std::fmt::Write;
+        // Writing to a `String` cannot fail.
+        let _ = match self {
+            Condition::Pseudo(text) | Condition::Attribute(text) => write!(out, "{text}"),
+            Condition::Media(query) => write!(out, "@media {query}"),
+            Condition::Container { name: Some(name), query } => write!(out, "@container {name} {query}"),
+            Condition::Container { name: None, query } => write!(out, "@container {query}"),
+            Condition::Supports(query) => write!(out, "@supports {query}"),
+            Condition::Relation { marker, kind, state } => write!(out, "relation {kind:?} .{marker}{state}"),
+        };
     }
 
     /// Whether this condition belongs in the rule's selector (not an at-rule wrapper).
@@ -250,7 +259,14 @@ impl ConditionSet {
 
     /// Canonical text of the whole set.
     pub fn canonical(&self) -> String {
-        self.0.iter().map(Condition::canonical).collect::<Vec<_>>().join(" & ")
+        let mut canonical = String::new();
+        for (index, condition) in self.0.iter().enumerate() {
+            if index > 0 {
+                canonical.push_str(" & ");
+            }
+            condition.push_canonical(&mut canonical);
+        }
+        canonical
     }
 }
 
