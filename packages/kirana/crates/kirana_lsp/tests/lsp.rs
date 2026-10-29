@@ -718,6 +718,11 @@ fn answers_in_process_without_a_connection() {
     // An error is the message; a notification the server cannot read sends nothing back.
     assert!(f.server.call("textDocument/semanticTokens/full", json!({})).unwrap_err().contains("unhandled request"));
     assert_eq!(f.server.notify("textDocument/didOpen", json!(1)), Vec::<Value>::new());
+    // Started for a thread that may not block, it indexes the same project one file after another.
+    let mut serial = Server::start_serial(&config(&f.root), &json!({})).unwrap();
+    let hints =
+        serial.call("textDocument/inlayHint", json!({ "textDocument": { "uri": uri }, "range": range })).unwrap();
+    assert!(hints.as_array().is_some_and(|hints| !hints.is_empty()), "{hints}");
 }
 
 #[test]

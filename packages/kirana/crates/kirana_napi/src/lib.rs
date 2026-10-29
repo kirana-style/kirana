@@ -345,7 +345,8 @@ impl LanguageServer {
     #[napi(constructor)]
     pub fn new(config_json: String, initialize_params: String) -> napi::Result<Self> {
         let params = json_value(&initialize_params)?;
-        let server = kirana_lsp::Server::start(&config_json, &params).map_err(napi::Error::from_reason)?;
+        // A page runs it on its main thread, which may not block (KF-065).
+        let server = kirana_lsp::Server::start_serial(&config_json, &params).map_err(napi::Error::from_reason)?;
         Ok(Self { server })
     }
 

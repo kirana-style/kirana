@@ -1674,7 +1674,9 @@ the implementation tracker names its evidence.
   engine's JSON with the Driver's own pure step (`@kirana-style/compiler/engine-json`) and wraps the
   `Compiler` session; diagnostics come with line and column. The project's language server runs
   there too: the binding's `LanguageServer` holds `kirana_lsp::Server` and is asked in process, JSON
-  in and out (`request`, `notify`), and `project.language` opens each file the project writes in it,
+  in and out (`request`, `notify`), indexing the project one file after another, since a page's main
+  thread may not block on the threads a parallel build waits for; `project.language` opens each file
+  the project writes in it,
   so a web editor shows the summary, the code lens and hovers the desktop editors show. CI serves the
   packed tarball to Chromium from a cross-origin-isolated page and requires its output, the
   summaries among it, to match the native engine's byte for byte. No `wasm32-unknown-unknown` build

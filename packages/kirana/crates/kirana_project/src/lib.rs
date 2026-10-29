@@ -63,6 +63,8 @@ pub struct Project {
     /// language server do. A bundler build compiles only what it reaches, so it cannot tell that an
     /// exported relation has no reader (D-090).
     pub(crate) walked: std::sync::atomic::AtomicBool,
+    /// Whether `build` compiles one file after another on the calling thread (`Project::compile_serially`).
+    pub(crate) serial: std::sync::atomic::AtomicBool,
     pub(crate) root: PathBuf,
     pub(crate) fs: Arc<dyn Fs>,
     pub(crate) resolver: oxc_resolver::Resolver,
@@ -238,6 +240,7 @@ impl Project {
             dense: std::sync::atomic::AtomicBool::new(false),
             reuse: std::sync::atomic::AtomicBool::new(false),
             walked: std::sync::atomic::AtomicBool::new(false),
+            serial: std::sync::atomic::AtomicBool::new(false),
             root,
             fs,
             config,
@@ -516,17 +519,26 @@ impl Project {
         let mut sorted = paths.to_vec();
         sorted.sort();
         sorted.dedup();
-        sorted
-            .par_iter()
-            .map(|path| {
-                let result = self
-                    .fs
-                    .read_to_string(path)
-                    .map(|source| self.transform(path, &source))
-                    .map_err(|error| error.to_string());
-                (path.clone(), result)
-            })
-            .collect()
+        let compile = |path: &PathBuf| {
+            let result = self
+                .fs
+                .read_to_string(path)
+                .map(|source| self.transform(path, &source))
+                .map_err(|error| error.to_string());
+            (path.clone(), result)
+        };
+        if self.serial.load(std::sync::atomic::Ordering::Relaxed) {
+            sorted.iter().map(compile).collect()
+        } else {
+            sorted.par_iter().map(compile).collect()
+        }
+    }
+
+    /// From now on, `build` compiles one file after another on the calling thread. A browser page's
+    /// main thread may not block, and a parallel build waits there for the threads compiling with it
+    /// (`Atomics.wait`), so the language server a page runs indexes this way (KF-065).
+    pub fn compile_serially(&self) {
+        self.serial.store(true, std::sync::atomic::Ordering::Relaxed);
     }
 
     fn package_name(&self, path: &Path) -> String {
