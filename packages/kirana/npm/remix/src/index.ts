@@ -40,7 +40,7 @@ export function compile(url: string, source: string): string | undefined {
   const file = fileURLToPath(url)
   const driver = session()
   if (!shouldCompile(file, source, driver.libraries)) return undefined
-  const result = driver.transform(file, source)
+  const result = driver.transform(file, source, { map: false })
   for (const diagnostic of result.diagnostics) {
     const message = formatDiagnostic(diagnostic, source)
     if (diagnostic.severity === "error") throw new Error(message)

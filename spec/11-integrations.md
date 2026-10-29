@@ -39,7 +39,11 @@ flowchart TB
 change batching and affected-module tracking. A host adapter MUST only:
 
 1. select which module ids reach the Driver (the prefilter still runs in the engine);
-2. forward `transform(id, code)` results (code, source map, dependencies) to the host;
+2. forward `transform(id, code)` results (code, source map, dependencies) to the host, asking for no
+   source map where the host writes none: a Vite environment without `build.sourcemap` (Vite's default,
+   a dev server always has maps), a webpack compilation whose loader context says `sourceMap: false`,
+   and hosts that take code alone (esbuild, Bun, Jest, Parcel, Remix, PostCSS, the linter, the Angular
+   mirror). A map copies the whole module and is about a tenth of a compile;
 3. serve the stylesheet entry (below) in development and emit it in production;
 4. register reported dependencies and file changes with the host's watcher;
 5. map host lifecycle hooks (build start/end, HMR) to Driver calls.

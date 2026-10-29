@@ -11,6 +11,8 @@ import { createReporter, shouldCompile } from "@kirana-style/compiler/host"
 
 export type LoaderContext = {
   resourcePath: string
+  /** Whether the compilation wants source maps; unset in a runner without it (Turbopack). */
+  sourceMap?: boolean
   getOptions: () => { root: string }
   async: () => (error: Error | null, code?: string, map?: unknown) => void
   addDependency?: (file: string) => void
@@ -44,7 +46,9 @@ export default function kiranaLoader(
         callback(null, source, map)
         return
       }
-      const result = driver.transform(file, source)
+      const result = driver.transform(file, source, {
+        map: this.sourceMap !== false,
+      })
       for (const dependency of result.dependencies)
         this.addDependency?.(dependency)
       reporter.module(

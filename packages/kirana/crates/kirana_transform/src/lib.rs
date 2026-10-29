@@ -54,8 +54,10 @@ pub(crate) struct Edit {
     pub marker_deps: Vec<Dep>,
 }
 
-/// Rewrites a module whose evaluator has been created over the parsed source.
-pub fn transform(evaluator: &Evaluator<'_, '_, '_>) -> TransformOutput {
+/// Rewrites a module whose evaluator has been created over the parsed source. `maps` false leaves the
+/// source map out: building one copies the whole module into it, a tenth of a compile, which a build
+/// that writes no maps throws away.
+pub fn transform(evaluator: &Evaluator<'_, '_, '_>, maps: bool) -> TransformOutput {
     let mut visitor = visit::Rewriter::new(evaluator);
     visitor.run();
     let parsed = evaluator.parsed();
@@ -112,23 +114,17 @@ pub fn transform(evaluator: &Evaluator<'_, '_, '_>) -> TransformOutput {
             }
         }
     }
-    let map = magic
-        .source_map(SourceMapOptions {
-            include_content: true,
-            // The module path itself, so bundlers and coverage tools resolve the map to the same file.
-            source: Arc::from(evaluator.context().path.to_string_lossy().as_ref()),
-            hires: Hires::Boundary,
-        })
-        .to_json_string();
-    TransformOutput {
-        code: Some(magic.to_string()),
-        map: Some(map),
-        handles,
-        recipes,
-        marker_deps,
-        anchors,
-        diagnostics,
-    }
+    let map = maps.then(|| {
+        magic
+            .source_map(SourceMapOptions {
+                include_content: true,
+                // The module path itself, so bundlers and coverage tools resolve the map to the same file.
+                source: Arc::from(evaluator.context().path.to_string_lossy().as_ref()),
+                hires: Hires::Boundary,
+            })
+            .to_json_string()
+    });
+    TransformOutput { code: Some(magic.to_string()), map, handles, recipes, marker_deps, anchors, diagnostics }
 }
 
 /// After the directive prologue (`"use client"`) and any hashbang.

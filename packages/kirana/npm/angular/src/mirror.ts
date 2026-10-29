@@ -82,7 +82,7 @@ export async function createMirror(
       copyFileSync(from, to)
       return
     }
-    const result = driver.transform(from, text)
+    const result = driver.transform(from, text, { map: false })
     texts.set(path.relative(root, from).replaceAll("\\", "/"), text)
     reported.push(...result.diagnostics)
     writeFileSync(to, result.code ?? text)

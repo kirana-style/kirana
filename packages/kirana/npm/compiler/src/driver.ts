@@ -41,6 +41,12 @@ export type DriverOptions = {
   importModule?: ImportFile
 }
 
+/** How one module is compiled. */
+export type TransformOptions = {
+  /** Whether to build the source map; `true` unless the host writes none. */
+  map?: boolean
+}
+
 export type TransformResult = {
   code?: string
   map?: string
@@ -160,18 +166,30 @@ export class Driver {
     )
   }
 
-  /** Compiles one module (KRN-CMP-007). */
-  transform(id: string, code: string): TransformResult {
-    return toResult(this.#compiler.transform(id, code))
+  /**
+   * Compiles one module (KRN-CMP-007). `map: false` leaves its source map out: a host that writes
+   * none (a build without source maps, a linter, a stylesheet-only host) asks for none, since the
+   * map copies the whole module and is about a tenth of a compile.
+   */
+  transform(
+    id: string,
+    code: string,
+    options: TransformOptions = {}
+  ): TransformResult {
+    return toResult(this.#compiler.transform(id, code, options.map))
   }
 
   /**
    * `transform` on a worker thread, so a bundler that runs module hooks concurrently compiles
    * modules in parallel. The WASI engine compiles on the calling thread, as `transform` does.
    */
-  async transformAsync(id: string, code: string): Promise<TransformResult> {
-    if (this.engine !== "native") return this.transform(id, code)
-    return toResult(await this.#compiler.transformAsync(id, code))
+  async transformAsync(
+    id: string,
+    code: string,
+    options: TransformOptions = {}
+  ): Promise<TransformResult> {
+    if (this.engine !== "native") return this.transform(id, code, options)
+    return toResult(await this.#compiler.transformAsync(id, code, options.map))
   }
 
   /** Whether a module is this application's to compile (its own, or a listed library's). */

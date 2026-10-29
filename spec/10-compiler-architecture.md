@@ -376,7 +376,8 @@ place and the rule it names stays current.
 ## Bindings
 
 - **Native:** `kirana_napi` exposes a long-lived `Compiler` session: `new Compiler(config)`,
-  `transform(id, code)` (code and map, or unchanged; diagnostics; dependencies; whether the stylesheet changed),
+  `transform(id, code, map?)` (code and map, or unchanged; diagnostics; dependencies; whether the stylesheet
+  changed; `map` false leaves the source map out, for a host that writes none),
   `stylesheet(minify)`, `diagnostics()`, `invalidate(id)` (the affected importers), `remove(id)`, and `runCli(argv)`; `inspect(id,
   span)` arrives with the language server. Each transform crosses the boundary once with compact results —
   never serialized ASTs.

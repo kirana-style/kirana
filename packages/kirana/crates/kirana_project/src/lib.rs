@@ -143,6 +143,7 @@ pub(crate) struct Reusable {
     hash: u64,
     jsx: bool,
     marked: bool,
+    maps: bool,
     provenance: Vec<(PathBuf, u64)>,
     output: Transformed,
 }
@@ -235,13 +236,19 @@ impl Project {
 
     /// Transforms one module (KRN-CMP-007).
     pub fn transform(&self, path: &Path, source: &str) -> Transformed {
-        self.transform_as(path, source, kirana_frontend::source_type(path))
+        self.transform_with(path, source, true)
+    }
+
+    /// [`Project::transform`], with its source map only when `maps`: a host that writes none (a
+    /// build without `sourcemap`, a lint, a stylesheet-only host) asks for none.
+    pub fn transform_with(&self, path: &Path, source: &str, maps: bool) -> Transformed {
+        self.transform_as(path, source, kirana_frontend::source_type(path), maps)
     }
 
     /// [`Project::transform`] parsing with JSX whatever the path's extension: the language server
     /// appends a component's template bindings to its script block as JSX (`Card.vue.setup.ts`).
     pub fn transform_jsx(&self, path: &Path, source: &str) -> Transformed {
-        self.transform_as(path, source, kirana_frontend::source_type(path).with_jsx(true))
+        self.transform_as(path, source, kirana_frontend::source_type(path).with_jsx(true), true)
     }
 
     /// From now on, a transform of a module whose source, and every file its evaluation read, are
@@ -252,7 +259,13 @@ impl Project {
         self.reuse.store(true, std::sync::atomic::Ordering::Relaxed);
     }
 
-    fn transform_as(&self, path: &Path, source: &str, source_type: kirana_frontend::SourceType) -> Transformed {
+    fn transform_as(
+        &self,
+        path: &Path,
+        source: &str,
+        source_type: kirana_frontend::SourceType,
+        maps: bool,
+    ) -> Transformed {
         let hash = hash64(source.as_bytes());
         {
             let mut state = self.state.write().expect("not poisoned");
@@ -262,7 +275,7 @@ impl Project {
         let reuse = self.reuse.load(std::sync::atomic::Ordering::Relaxed);
         let marked = self.dense.load(std::sync::atomic::Ordering::Relaxed);
         let jsx = source_type.is_jsx();
-        if reuse && let Some(previous) = self.reusable(path, hash, jsx, marked) {
+        if reuse && let Some(previous) = self.reusable(path, hash, jsx, marked, maps) {
             self.state.write().expect("not poisoned").work.reused += 1;
             // The module's record is the one this transform wrote: the stylesheet is unchanged.
             return Transformed { css_changed: false, ..previous };
@@ -287,7 +300,7 @@ impl Project {
         let context = Context { path, file: &file, package: &package, names, config: &self.config };
         let outcome = kirana_frontend::with_parsed_as(source_type, &file, source, |parsed| {
             let evaluator = Evaluator::new(parsed, context, &host);
-            let output = kirana_transform::transform(&evaluator);
+            let output = kirana_transform::transform(&evaluator, maps);
             let (mut diagnostics, definitions) = evaluator.finish();
             diagnostics.extend(output.diagnostics.iter().cloned());
             (output, diagnostics, definitions)
@@ -323,7 +336,7 @@ impl Project {
         diagnostics.sort_by(|a, b| a.span.start.cmp(&b.span.start).then(a.code.code().cmp(b.code.code())));
         let transformed = Transformed { code: output.code, map: output.map, diagnostics, css_changed, dependencies };
         if reuse {
-            let entry = Reusable { hash, jsx, marked, provenance, output: transformed.clone() };
+            let entry = Reusable { hash, jsx, marked, maps, provenance, output: transformed.clone() };
             self.state.write().expect("not poisoned").reused.insert(path.to_path_buf(), entry);
         }
         transformed
@@ -333,7 +346,7 @@ impl Project {
     /// way, and every file it read still has the hash it had then. One that missed an import is
     /// never reused: it compiles each time, as without reuse, so the file it names is found once it
     /// exists and the session has been told (KF-063).
-    fn reusable(&self, path: &Path, hash: u64, jsx: bool, marked: bool) -> Option<Transformed> {
+    fn reusable(&self, path: &Path, hash: u64, jsx: bool, marked: bool, maps: bool) -> Option<Transformed> {
         let entry = {
             let state = self.state.read().expect("not poisoned");
             if state.unresolved.contains(path) {
@@ -344,6 +357,7 @@ impl Project {
         let current = entry.hash == hash
             && entry.jsx == jsx
             && entry.marked == marked
+            && entry.maps == maps
             && entry.provenance.iter().all(|(file, seen)| self.current_hash(file) == Some(*seen));
         current.then_some(entry.output)
     }

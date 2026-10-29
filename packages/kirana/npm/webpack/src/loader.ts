@@ -11,6 +11,8 @@ import { sessions } from "./session.ts"
 export type LoaderContext = {
   resourcePath: string
   resourceQuery: string
+  /** Whether the compilation wants source maps (`devtool`); unset in a runner without it. */
+  sourceMap?: boolean
   getOptions: () => { session: string }
   async: () => (error: Error | null, code?: string, map?: unknown) => void
   addDependency: (file: string) => void
@@ -49,7 +51,9 @@ export default function kiranaLoader(
         callback(null, source, map)
         return
       }
-      const result = driver.transform(file, source)
+      const result = driver.transform(file, source, {
+        map: this.sourceMap !== false,
+      })
       session.compiled.add(file)
       for (const dependency of result.dependencies)
         this.addDependency(dependency)

@@ -71,6 +71,12 @@ export type Host = {
    * where it is, and its name is added to `filled`.
    */
   renames?: boolean
+  /**
+   * Whether the module a transform hook is compiling needs its source map, given the hook's
+   * context (Vite: its environment's `build.sourcemap`). Unset, every module gets one; a dev
+   * server always does.
+   */
+  sourcemaps?: (context: unknown) => boolean
 }
 
 /**
@@ -221,12 +227,15 @@ export function createKirana(
         const file = cleanId(id)
         const compiler = await session()
         if (!compiler.compiles(file)) return null
+        // A build that writes no source maps throws each module's away, and building one copies
+        // the whole module: a tenth of a compile.
+        const map = development() || (host.sourcemaps?.(this) ?? true)
         // A build compiles off the bundler's thread, so modules compile in parallel
         // (`Driver.transformAsync`). A dev server keeps one transform at a time: its stylesheet
         // updates follow the order transforms finish in.
         const result = development()
-          ? compiler.transform(file, code)
-          : await compiler.transformAsync(file, code)
+          ? compiler.transform(file, code, { map })
+          : await compiler.transformAsync(file, code, { map })
         for (const dependency of result.dependencies)
           this.addWatchFile(dependency)
         reporter.module(this, file, code, result.diagnostics)

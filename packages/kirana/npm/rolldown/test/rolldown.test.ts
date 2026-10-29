@@ -466,6 +466,39 @@ describe("components and the stylesheet asset, hook by hook", () => {
     expect(changed).toEqual(["css"])
   })
 
+  it("builds a source map only for a module whose build writes one (and always on a dev server)", async () => {
+    const asked = vi.spyOn(Driver.prototype, "transformAsync")
+    const dev = vi.spyOn(Driver.prototype, "transform")
+    const source =
+      'import { css } from "@kirana-style/core"\nexport const a = css({ color: "red" })\n'
+    for (const [host, expected] of [
+      [{}, true],
+      [{ sourcemaps: () => false }, false],
+      [{ sourcemaps: () => true }, true],
+    ] as const) {
+      const root = app()
+      const { plugin } = createKirana({ root }, host)
+      const transform = (plugin.transform.handler as Hook).bind(context)
+      const result = (await transform(source, path.join(root, "src/a.ts"))) as {
+        map?: string
+      }
+      expect(asked.mock.lastCall![2]).toEqual({ map: expected })
+      expect(Boolean(result.map)).toBe(expected)
+    }
+    const root = app()
+    const { plugin } = createKirana(
+      { root },
+      { development: () => true, sourcemaps: () => false }
+    )
+    await (plugin.transform.handler as Hook).bind(context)(
+      source,
+      path.join(root, "src/a.ts")
+    )
+    expect(dev.mock.lastCall![2]).toEqual({ map: true })
+    asked.mockRestore()
+    dev.mockRestore()
+  })
+
   it("fills the stylesheet in place when something else renames it", async () => {
     const { plugin, filled } = createKirana(
       { root: app() },

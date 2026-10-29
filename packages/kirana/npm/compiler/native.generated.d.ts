@@ -8,13 +8,14 @@ export declare class Compiler {
    * diagnostics JSON as the message.
    */
   constructor(configJson: string)
-  transform(id: string, code: string): TransformResult
+  /** `map` false leaves the source map out, for a host that writes none. */
+  transform(id: string, code: string, map?: boolean | undefined | null): TransformResult
   /**
    * `transform` on a worker thread: a bundler that runs module hooks concurrently compiles
    * modules in parallel, and its own thread stays free. The registry is shared and the
    * stylesheet is written in path order, so the order transforms finish in changes nothing.
    */
-  transformAsync(id: string, code: string): Promise<TransformResult>
+  transformAsync(id: string, code: string, map?: boolean | undefined | null): Promise<TransformResult>
   stylesheet(minify: boolean): string
   /**
    * The stylesheet of a finished bundle (D-086): `named` is every variable token its chunks and

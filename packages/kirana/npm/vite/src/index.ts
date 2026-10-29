@@ -70,6 +70,19 @@ function resolves(root: string, specifier: string): boolean {
  * stylesheet asset early, before Astro inlines small stylesheets; a framework that adds its CSS asset
  * later in that hook (Qwik) is filled by the second. Vite flattens the pair in `plugins`.
  */
+/**
+ * Whether the environment a transform runs in writes source maps: its `build.sourcemap`, which
+ * Vite leaves `false` unless asked. A context without an environment gets maps.
+ */
+function sourcemapsOf(context: unknown): boolean {
+  const environment = (
+    context as { environment?: { config: { build: { sourcemap?: unknown } } } }
+  ).environment
+  return (
+    environment === undefined || Boolean(environment.config.build.sourcemap)
+  )
+}
+
 export default function kirana(
   options: KiranaViteOptions = {}
 ): [Plugin, Plugin] {
@@ -159,6 +172,7 @@ export default function kirana(
     cssChanged: scheduleCssUpdate,
     bundlesCss: true,
     renames: renameStylesheet,
+    sourcemaps: (context) => sourcemapsOf(context),
   })
   // Vite reports changes through `hotUpdate`, below; answering `watchChange` too would invalidate twice.
   // Its hooks are typed by the `rolldown` package, and Vite types them with the Rolldown it runs on:

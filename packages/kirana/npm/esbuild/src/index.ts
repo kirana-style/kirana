@@ -102,7 +102,8 @@ export default function kirana(options: KiranaEsbuildOptions = {}): Plugin {
         if (!compiler.compiles(file)) return undefined
         const code = await readFile(file, "utf8")
         if (!shouldCompile(file, code, compiler.libraries)) return undefined
-        const result = compiler.transform(file, code)
+        // esbuild takes the code alone: a map would be built and dropped.
+        const result = compiler.transform(file, code, { map: false })
         reporter.module(context, file, code, result.diagnostics)
         if (result.code === undefined) return undefined
         return {
