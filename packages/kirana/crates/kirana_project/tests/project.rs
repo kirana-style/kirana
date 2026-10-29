@@ -962,3 +962,88 @@ fn a_style_written_out_in_full_compiles_once_a_session() {
     assert_eq!(styles(&project), 3);
     fs::remove_dir_all(root).unwrap();
 }
+
+/// A long session keeps what its modules define and import now, not everything they ever did: an
+/// edited keyframes block's old name leaves the registry, a removed module's names go with it, and
+/// an import a module drops no longer compiles it again.
+#[test]
+fn a_long_session_keeps_only_what_modules_still_define_and_import() {
+    let frames = |to: &str| {
+        format!(
+            "import {{ css, keyframes }} from \"@kirana-style/core\"\nexport const spin = keyframes({{ from: {{ opacity: 0 }}, to: {{ opacity: {to} }} }})\nexport const a = css({{ animationName: spin }})\n"
+        )
+    };
+    let (root, project) =
+        temp_project(&[("package.json", "{\"name\":\"app\"}"), ("helper.ts", "export const gap = \"1px\"\n")]);
+    let anim = root.join("anim.ts");
+    let first = project.transform(&anim, &frames("1")).code.unwrap();
+    let name = |code: &str| {
+        let at = code.find("spin = ").unwrap() + 8;
+        code[at..at + code[at..].find('"').unwrap()].to_owned()
+    };
+    let old = name(&first);
+    // A style naming the keyframes by their emitted name finds them while they are defined.
+    let reader = root.join("reader.ts");
+    let reads = format!(
+        "import {{ css }} from \"@kirana-style/core\"\nexport const b = css({{ animationName: \"{old}\", color: \"red\" }})\n"
+    );
+    project.transform(&reader, &reads);
+    assert!(project.stylesheet(false).contains(&format!("@keyframes {old}")));
+    // Edited: the old name is defined nowhere, so a module compiled now does not bring it back.
+    let edited = project.transform(&anim, &frames("0.5")).code.unwrap();
+    assert_ne!(name(&edited), old);
+    project.transform(&reader, &reads.replace("red", "blue"));
+    assert!(!project.stylesheet(false).contains(&format!("@keyframes {old}")), "{}", project.stylesheet(false));
+    // Removed: its names go too.
+    let current = name(&edited);
+    project.remove(&anim);
+    let reads_current = reads.replace(&old, &current);
+    project.transform(&reader, &reads_current);
+    assert!(!project.stylesheet(false).contains(&format!("@keyframes {current}")));
+
+    // An import dropped: an edit of the file it named no longer compiles the module again.
+    let user = root.join("user.ts");
+    let importing =
+        "import { css } from \"@kirana-style/core\"\nimport { gap } from \"./helper\"\nexport const c = css({ gap })\n";
+    project.transform(&user, importing);
+    assert_eq!(project.invalidate(&root.join("helper.ts")), std::slice::from_ref(&user));
+    project.transform(&user, importing);
+    project.transform(&user, "import { css } from \"@kirana-style/core\"\nexport const c = css({ gap: \"2px\" })\n");
+    assert_eq!(project.invalidate(&root.join("helper.ts")), Vec::<PathBuf>::new());
+    // Nor does one a module that stopped carrying styles, or one that no longer parses, had.
+    project.transform(&user, importing);
+    project.transform(&user, "export const plain = 1\n");
+    assert_eq!(project.invalidate(&root.join("helper.ts")), Vec::<PathBuf>::new());
+    project.transform(&user, importing);
+    project.transform(&user, "import { css } from \"@kirana-style/core\"\nexport const c = css({ gap: \n");
+    assert_eq!(project.invalidate(&root.join("helper.ts")), Vec::<PathBuf>::new());
+    project.transform(&user, importing);
+    project.remove(&user);
+    assert_eq!(project.invalidate(&root.join("helper.ts")), Vec::<PathBuf>::new());
+    fs::remove_dir_all(root).unwrap();
+}
+
+/// The session's styles written out in full are bounded: past 16,384 the cache starts over, so an
+/// editor typing styles does not keep every keystroke (KF-059).
+#[test]
+fn styles_written_out_in_full_are_kept_up_to_a_bound() {
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}")]);
+    let style = |index: usize| format!("css({{ color: \"#{index:06x}\" }})");
+    let mut many = String::from("import { css } from \"@kirana-style/core\"\n");
+    for index in 0..=16_384 {
+        many += &format!("export const s{index} = {}\n", style(index));
+    }
+    project.transform(&root.join("many.ts"), &many);
+    assert_eq!(project.work().styles, 0);
+    let again = |index: usize| {
+        project.transform(
+            &root.join("again.ts"),
+            &format!("import {{ css }} from \"@kirana-style/core\"\nexport const x = {}\n", style(index)),
+        );
+        project.work().styles
+    };
+    // The last one kept, the first one dropped when the cache started over.
+    assert_eq!(again(16_384), 1);
+    assert_eq!(again(0), 1);
+    fs::remove_dir_all(root).unwrap();
+}

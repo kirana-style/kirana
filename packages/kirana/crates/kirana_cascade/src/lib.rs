@@ -473,6 +473,9 @@ pub struct WritePlan {
     pub overlapping: Vec<(Property, Vec<Property>, u8)>,
 }
 
+/// How many write plans the process keeps (`write_plan`).
+pub const PLANS_KEPT: usize = 1 << 12;
+
 /// The plan for writing `name` (camelCase or kebab-case).
 ///
 /// Memoised: the plan depends on nothing but the name and the static shorthand table, and building
@@ -484,7 +487,13 @@ pub fn write_plan(name: &str) -> Result<WritePlan, DeclarationError> {
         return Ok(plan.clone());
     }
     let plan = build_plan(name)?;
-    plans.write().expect("not poisoned").insert(name.to_owned(), plan.clone());
+    let mut plans = plans.write().expect("not poisoned");
+    // Every known property fits; custom properties do not, since an editor compiles each name as it
+    // is typed (`--w`, `--wi` …): past the bound the cache starts over.
+    if plans.len() >= PLANS_KEPT {
+        plans.clear();
+    }
+    plans.insert(name.to_owned(), plan.clone());
     Ok(plan)
 }
 

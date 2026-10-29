@@ -347,3 +347,14 @@ fn box_families_match_the_typed_longhands() {
     assert_eq!(breadth("border"), 12);
     assert_eq!(breadth("color"), 1);
 }
+
+#[test]
+fn write_plans_are_kept_up_to_a_bound() {
+    // Custom properties typed in an editor, one plan each: past the bound the cache starts over,
+    // and every plan is still built right.
+    for index in 0..=PLANS_KEPT {
+        let plan = write_plan(&format!("--typed-{index}")).unwrap();
+        assert_eq!(plan.longhands.len(), 1);
+    }
+    assert_eq!(write_plan("padding").unwrap().longhands.len(), 4);
+}
