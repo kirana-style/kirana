@@ -10,6 +10,8 @@
  *   `index.d.ts` re-exports each module as `<Part>DataAttributes` (`SelectPopupDataAttributes`), and
  *   its `index.parts.d.ts` gives the part's public name (`SelectPopup as Popup`). A part that reuses
  *   another component's (`AlertDialog.Popup` is `DialogPopup`) is re-exported under its own name.
+ *   A part also has the states its implementation's mapping writes for `open` and its module
+ *   leaves out (`openAttributes`).
  * - `src/ark-ui.ts` from `@zag-js/docs` (MIT, Copyright (c) 2021 Chakra UI), the data-attribute
  *   reference of the Zag machines Ark UI is built on, at the Zag version Ark UI depends on. Kept to
  *   the components and parts `@ark-ui/react` exports; Ark UI for Vue, Solid and Svelte name them
@@ -122,6 +124,71 @@ function baseUiStates(file: string, seen = new Set<string>()): State[] {
   return out
 }
 
+/**
+ * The attributes a Base UI part's `stateAttributesMapping` writes for `open: true` and for
+ * `open: false`, read by evaluating what its implementation (`<Part>.mjs` beside its module)
+ * passes, or spreads in order, from Base UI's CommonJS build. Accordion's item, header and panel
+ * pass `accordionStateAttributesMapping`, which spreads `collapsibleOpenStateMapping` and so writes
+ * `data-closed` when the panel is not open, while their own modules declare `open` alone (KF-072).
+ * The accordion's trigger spreads the trigger's mapping after it, whose `open` writes
+ * `data-panel-open` alone. A mapping that writes `open` itself, inline, is not read.
+ */
+function openAttributes(module: string): string[] {
+  const implementation = module.replace(/DataAttributes\.d\.ts$/, ".mjs")
+  if (!existsSync(implementation)) return []
+  const text = readFileSync(implementation, "utf8")
+  const imports = new Map(
+    [...text.matchAll(/import \{([^}]*)\} from "(\.[^"]+)\.mjs";/g)].flatMap(
+      ([, names, specifier]) =>
+        names!.split(",").map((name) => {
+          const [exported, local = exported] = name.trim().split(/\s+as\s+/)
+          const file = path.resolve(
+            path.dirname(implementation),
+            `${specifier}.js`
+          )
+          return [local!, () => require(file)[exported!] as unknown] as const
+        })
+    )
+  )
+  const direct = /stateAttributesMapping: (\w+)/.exec(text)?.[1]
+  const literal =
+    /const stateAttributesMapping = \{([^}]*)\}/.exec(text)?.[1] ?? ""
+  if (/\bopen\s*[(:]/.test(literal)) return []
+  const spreads = direct
+    ? [direct]
+    : [...literal.matchAll(/\.\.\.(\w+)/g)].map(([, name]) => name!)
+  const mapping = Object.assign(
+    {},
+    ...spreads.map((name) => imports.get(name)?.())
+  ) as { open?: (open: boolean) => Record<string, string> | null }
+  if (typeof mapping.open !== "function") return []
+  return [true, false].flatMap((open) => Object.keys(mapping.open!(open) ?? {}))
+}
+
+/**
+ * A part's states with the ones its mapping writes for `open` and its module leaves out
+ * (`openAttributes`). One added that way is described as the part's own `open` is, for the other
+ * state ("Present when the accordion panel is closed.").
+ */
+function withOpenStates(module: string, own: State[]): State[] {
+  const out = [...own]
+  const open = own.find((state) => state.name === "open")
+  for (const attribute of openAttributes(module)) {
+    if (out.some((state) => state.attribute === attribute)) continue
+    const name = attribute
+      .slice("data-".length)
+      .replace(/-(\w)/g, (_, letter: string) => letter.toUpperCase())
+    const doc = open?.doc.replace(/\bopen\b/, name) ?? ""
+    out.splice(open ? out.indexOf(open) + 1 : out.length, 0, {
+      name,
+      attribute,
+      doc,
+      values: [],
+    })
+  }
+  return out
+}
+
 function baseUi(): { vocabulary: Vocabulary; version: string } {
   const { directory: root, version } = installed("@base-ui/react")
   const out: Vocabulary = new Map()
@@ -143,7 +210,8 @@ function baseUi(): { vocabulary: Vocabulary; version: string } {
     )
     if (!namespace) {
       // A component without parts (`Button`, `Toggle`): its own module, under its own name.
-      for (const [name, module] of modules) out.set(name, baseUiStates(module))
+      for (const [name, module] of modules)
+        out.set(name, withOpenStates(module, baseUiStates(module)))
       continue
     }
     const parts = readFileSync(
@@ -157,7 +225,8 @@ function baseUi(): { vocabulary: Vocabulary; version: string } {
       // Named for the public part (`AlertDialogPopupDataAttributes` for `DialogPopup as Popup`).
       const module =
         modules.get(`${namespace[1]}${exported}`) ?? modules.get(local!)
-      if (module) byPart.set(exported!, baseUiStates(module))
+      if (module)
+        byPart.set(exported!, withOpenStates(module, baseUiStates(module)))
     }
     if (byPart.size > 0) out.set(namespace[1]!, byPart)
   }
