@@ -6,7 +6,7 @@
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
-use kirana_diagnostics::line_column;
+use kirana_diagnostics::LineIndex;
 use kirana_ir::{ConditionSet, Dep, EntryKey, Handle, Key, Op, Value, WrittenValue};
 use serde::Serialize;
 
@@ -214,11 +214,20 @@ impl Project {
             read_in: relation.read_in,
         });
         let mut out = DesignSystem { relations: relations.collect(), ..DesignSystem::default() };
+        // A tokens file declares many: its lines are indexed once for all of them.
+        let mut lines: BTreeMap<String, LineIndex> = BTreeMap::new();
         out.tokens = self
             .tokens()
             .into_iter()
             .map(|token| TokenExport {
-                origin: format!("{}:{}", token.file, line_column(&source(&token.file), token.span.start).0),
+                origin: format!(
+                    "{}:{}",
+                    token.file,
+                    lines
+                        .entry(token.file.clone())
+                        .or_insert_with(|| LineIndex::new(&source(&token.file)))
+                        .line(token.span.start)
+                ),
                 identity: token.identity,
                 package: token.package,
                 value: token.value,

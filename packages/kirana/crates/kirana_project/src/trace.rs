@@ -4,6 +4,7 @@ use std::cmp::Ordering;
 use std::collections::BTreeMap;
 use std::path::Path;
 
+use kirana_diagnostics::LineIndex;
 use kirana_ir::{Atom, ConditionClass, Handle, Recipe, ladder_order};
 use serde::Serialize;
 
@@ -139,29 +140,13 @@ pub(crate) fn recipe_parts(recipe: &Recipe) -> Vec<(&Handle, RecipePart)> {
     parts
 }
 
-/// The byte offset each line of a source starts at, to find an offset's line by binary search: a
-/// trace asks it of every site of the file, and counting newlines from the start each time made a
-/// question cost the length of the file (KF-028).
-pub(crate) struct LineStarts(Vec<usize>);
-
-impl LineStarts {
-    pub(crate) fn new(source: &str) -> Self {
-        Self(std::iter::once(0).chain(source.match_indices('\n').map(|(at, _)| at + 1)).collect())
-    }
-
-    /// The 1-based line of `offset`, as `kirana_diagnostics::line_column` counts it.
-    fn line(&self, offset: u32) -> usize {
-        self.0.partition_point(|start| *start <= offset as usize)
-    }
-}
-
 impl Project {
     /// Traces `property` (kebab-case) for the sites of `path` that cover `line` (1-based).
     pub fn trace(&self, path: &Path, source: &str, line: usize, property: &str) -> Vec<TraceLine> {
-        self.trace_lines(path, &LineStarts::new(source), line, property)
+        self.trace_lines(path, &LineIndex::new(source), line, property)
     }
 
-    fn trace_lines(&self, path: &Path, lines: &LineStarts, line: usize, property: &str) -> Vec<TraceLine> {
+    fn trace_lines(&self, path: &Path, lines: &LineIndex, line: usize, property: &str) -> Vec<TraceLine> {
         let state = self.state.read().expect("not poisoned");
         let Some(record) = state.modules.get(path) else { return Vec::new() };
         let covers_line = |span: &(u32, u32)| lines.line(span.0) <= line && line <= lines.line(span.1);
@@ -264,7 +249,7 @@ impl Project {
     /// that checks thousands of entries asks once.
     pub fn trace_all(&self, queries: &[TraceQuery]) -> Vec<TraceAnswer> {
         // Each file is read, compiled and indexed by line once, however many queries name it.
-        let mut sources: BTreeMap<std::path::PathBuf, Option<LineStarts>> = BTreeMap::new();
+        let mut sources: BTreeMap<std::path::PathBuf, Option<LineIndex>> = BTreeMap::new();
         queries
             .iter()
             .map(|query| {
@@ -274,7 +259,7 @@ impl Project {
                     .or_insert_with(|| {
                         let source = self.fs.read_to_string(&path).ok()?;
                         self.transform(&path, &source);
-                        Some(LineStarts::new(&source))
+                        Some(LineIndex::new(&source))
                     })
                     .as_ref();
                 let property = kirana_shared::kebab_case(&query.property);

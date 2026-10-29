@@ -8,7 +8,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 
-use kirana_diagnostics::{Code, Diagnostic, line_column};
+use kirana_diagnostics::{Code, Diagnostic, LineIndex};
 use kirana_ir::{Atom, Dep};
 use serde::Serialize;
 
@@ -243,15 +243,17 @@ impl Project {
     }
 
     fn findings(&self, diagnostics: &[Diagnostic], code: Code) -> Vec<Finding> {
-        let mut sources: BTreeMap<&str, String> = BTreeMap::new();
+        let mut sources: BTreeMap<&str, (String, LineIndex)> = BTreeMap::new();
         diagnostics
             .iter()
             .filter(|diagnostic| diagnostic.code == code)
             .map(|diagnostic| {
-                let source = sources
-                    .entry(&diagnostic.file)
-                    .or_insert_with(|| self.fs.read_to_string(&self.root.join(&diagnostic.file)).unwrap_or_default());
-                let (line, column) = line_column(source, diagnostic.span.start);
+                let (source, lines) = sources.entry(&diagnostic.file).or_insert_with(|| {
+                    let source = self.fs.read_to_string(&self.root.join(&diagnostic.file)).unwrap_or_default();
+                    let lines = LineIndex::new(&source);
+                    (source, lines)
+                });
+                let (line, column) = lines.line_column(source, diagnostic.span.start);
                 Finding { file: diagnostic.file.clone(), line, column, message: diagnostic.message.clone() }
             })
             .collect()
