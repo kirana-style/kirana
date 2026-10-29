@@ -70,9 +70,9 @@ const FIXES: Record<string, string> = {
   "unreachable-entry":
     "Info: a nested condition key can never match together with the one around it (two values of one attribute, a `conditions.exclusive` group). Its entries are left out of the stylesheet; write each state's value under its own key. Two libraries' states kept apart by `exclusiveAcross` are left out too, without the info.",
   "relation-without-anchor":
-    "A style reads a relation whose `anchor` is never applied, so it can never match. Apply `rel.anchor` on the element whose state is read.",
+    "A style reads a relation whose `anchor` is never applied, so it can never match. Apply `rel.anchor` on the element whose state is read, or declare the relation `{ optional: true }` when its anchor's component may not be installed.",
   "relation-unused":
-    "A relation is anchored but never read. Remove the anchor, or read it with `within`/`after`/`before`.",
+    "A relation is anchored but never read. Remove the anchor, or read it with `within`/`after`/`before`. A component that anchors it for another the project may not install declares it `relation(name, { optional: true })`.",
   "relation-placement":
     "A relation is read from a position its anchor cannot be in (`within` needs the anchor on an ancestor, `after` on an earlier sibling). Move the anchor or use the other read.",
   "relation-name-collision":

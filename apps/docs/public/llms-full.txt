@@ -2201,7 +2201,7 @@ Because the compiler checks it. Two errors you get for free:
   example.
 
 A relation that is anchored and never read is reported too (`relation-unused`),
-so dead relations do not accumulate. One that its module keeps to itself is
+so dead relations do not accumulate, unless it is optional (below). One that its module keeps to itself is
 checked in every build. One that is exported is checked where the whole project
 is compiled, by `kirana-style check` and in your editor: a bundler build compiles
 only the modules it reaches, so a shared component's reader may simply not be
@@ -2214,15 +2214,17 @@ A module that holds only the reads, with no `css()` of its own, compiles them to
 
 A component set installed one item at a time can have a reader whose anchor's
 component is not installed: a select that fills the Field it sits in, in a
-project without Field. Declare that relation optional, and the read is left
-alone where no anchor exists, where it never matches:
+project without Field. It can also have an anchor whose readers are not
+installed: a Tooltip that anchors a relation for the Kbd inside it, in a project
+without Kbd. Declare that relation optional, and the read is left alone where no
+anchor exists, where it never matches, and the anchor where nothing reads it:
 
 ```ts
 export const fieldScope = relation("field", { optional: true })
 ```
 
 Where both are installed, an optional relation is placed and checked like any
-other; only the missing anchor is not an error.
+other; only the missing anchor or the missing reader is not reported.
 
 ### Nested in its own kind
 

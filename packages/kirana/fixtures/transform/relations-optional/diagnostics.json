@@ -5,8 +5,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 759,
-      "end": 797
+      "start": 1115,
+      "end": 1153
     },
     "message": "relation() takes a string name, then `{ optional: true }` at most",
     "help": []
@@ -17,8 +17,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 821,
-      "end": 856
+      "start": 1177,
+      "end": 1212
     },
     "message": "relation() takes a string name, then `{ optional: true }` at most",
     "help": []
@@ -29,8 +29,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 878,
-      "end": 918
+      "start": 1234,
+      "end": 1274
     },
     "message": "relation() takes a string name, then `{ optional: true }` at most",
     "help": []
@@ -62,5 +62,17 @@
     "help": [
       "apply `relation.anchor` to the element whose state is read"
     ]
+  },
+  {
+    "code": "KRN1402",
+    "name": "relation-unused",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 663,
+      "end": 681
+    },
+    "message": "relation \"lonely\" is anchored but never read",
+    "help": []
   }
 ]
