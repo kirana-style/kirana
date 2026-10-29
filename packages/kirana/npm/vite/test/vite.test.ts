@@ -14,6 +14,8 @@ import { afterAll, describe, expect, it, vi } from "vite-plus/test"
 import { build, createServer } from "vite"
 import type { Rolldown } from "vite"
 
+import { Driver } from "@kirana-style/compiler"
+
 import kirana, {
   PLACEHOLDER,
   cleanId,
@@ -212,6 +214,33 @@ describe("KRN-INT-008 listed libraries", () => {
 })
 
 describe("KRN-INT-002 production build", () => {
+  it("asks for source maps only where the build writes them", async () => {
+    const asked = vi.spyOn(Driver.prototype, "transformAsync")
+    const built = async (sourcemap: boolean) => {
+      asked.mockClear()
+      const output = (await build({
+        root: app(),
+        logLevel: "silent",
+        configFile: false,
+        plugins: [kirana()],
+        build: { write: false, minify: false, sourcemap },
+      })) as Rolldown.RolldownOutput
+      return {
+        asked: asked.mock.calls.map((call) => call[2]),
+        maps: output.output.filter((file) => file.fileName.endsWith(".map")),
+      }
+    }
+    // Vite's default writes none: none is built.
+    const without = await built(false)
+    expect(without.asked.length).toBeGreaterThan(0)
+    expect(without.asked).toEqual(without.asked.map(() => ({ map: false })))
+    expect(without.maps).toEqual([])
+    const withMaps = await built(true)
+    expect(withMaps.asked).toEqual(withMaps.asked.map(() => ({ map: true })))
+    expect(withMaps.maps.length).toBeGreaterThan(0)
+    asked.mockRestore()
+  })
+
   it("compiles modules and replaces the stylesheet placeholder", async () => {
     const root = app()
     const output = (await build({

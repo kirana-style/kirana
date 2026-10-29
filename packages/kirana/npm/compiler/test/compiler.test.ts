@@ -66,6 +66,17 @@ describe("KRN-INT-001 Driver", () => {
     })
     // The stylesheet does not depend on the order transforms finished in.
     expect(parallel.stylesheet(true)).toBe(sync.stylesheet(true))
+    // A host that writes no source maps asks for none, on either thread, and gets the same code.
+    const [id] = ids
+    const source = files["src/m0.tsx"]!
+    expect(sync.transform(id!, source).map).toContain('"mappings"')
+    expect(sync.transform(id!, source, { map: false })).toEqual({
+      ...sync.transform(id!, source),
+      map: undefined,
+    })
+    expect(
+      (await parallel.transformAsync(id!, source, { map: false })).map
+    ).toBeUndefined()
 
     // The WASI engine has no worker pool here: `transformAsync` compiles on the calling thread.
     const native = loadNative()

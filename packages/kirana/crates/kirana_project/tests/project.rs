@@ -618,6 +618,27 @@ fn a_transform_that_missed_an_import_is_never_reused() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// A host that writes no source maps asks for none, and gets the same code; a reused transform is
+/// one built the same way.
+#[test]
+fn a_transform_without_a_map_writes_the_same_code() {
+    let input = "import { css } from \"@kirana-style/core\"\nexport const box = css({ gap: \"1px\" })\n";
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("input.ts", input)]);
+    let path = root.join("input.ts");
+    let mapped = project.transform(&path, input);
+    let bare = project.transform_with(&path, input, false);
+    assert!(mapped.map.is_some());
+    assert_eq!(bare.map, None);
+    assert_eq!(bare.code, mapped.code);
+    project.reuse_transforms();
+    project.transform_with(&path, input, false);
+    assert!(project.transform(&path, input).map.is_some(), "a transform without a map is not reused for one with");
+    assert_eq!(project.work().reused, 0);
+    assert_eq!(project.transform(&path, input).map, mapped.map);
+    assert_eq!(project.work().reused, 1);
+    fs::remove_dir_all(root).unwrap();
+}
+
 #[test]
 fn a_dependency_changed_on_disk_is_noticed_without_an_invalidation() {
     let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { 1: \"1px\" })\n";

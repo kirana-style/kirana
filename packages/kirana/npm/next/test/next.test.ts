@@ -97,6 +97,16 @@ function load(
 describe("the Turbopack loader", () => {
   const TOKENS = `import { defineTokens } from "@kirana-style/core"\nexport const color = defineTokens("color", { brand: { value: "#0af", variable: true } })\n`
 
+  it("asks for a source map unless the compilation writes none", async () => {
+    const root = project({})
+    const file = path.join(root, "card.tsx")
+    const source = `import { css } from "@kirana-style/core"\nexport const card = css({ color: "red" })\n`
+    expect((await load({ root, resourcePath: file }, source)).map).toBeTruthy()
+    expect(
+      (await load({ root, resourcePath: file, sourceMap: false }, source)).map
+    ).toBeUndefined()
+  })
+
   it("compiles a module with styles, and records what it read", async () => {
     const root = project({ "tokens.ts": TOKENS })
     const addDependency = vi.fn()

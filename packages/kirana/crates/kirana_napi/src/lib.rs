@@ -84,6 +84,7 @@ pub struct TransformTask {
     project: Arc<Project>,
     id: String,
     code: String,
+    maps: bool,
 }
 
 impl napi::Task for TransformTask {
@@ -91,7 +92,7 @@ impl napi::Task for TransformTask {
     type JsValue = TransformResult;
 
     fn compute(&mut self) -> napi::Result<Self::Output> {
-        Ok(self.project.transform(Path::new(&self.id), &self.code))
+        Ok(self.project.transform_with(Path::new(&self.id), &self.code, self.maps))
     }
 
     fn resolve(&mut self, _env: napi::Env, output: Self::Output) -> napi::Result<Self::JsValue> {
@@ -110,17 +111,28 @@ impl Compiler {
             .map_err(|diagnostics| napi::Error::from_reason(render_json(&diagnostics)))
     }
 
+    /// `map` false leaves the source map out, for a host that writes none.
     #[napi]
-    pub fn transform(&self, id: String, code: String) -> TransformResult {
-        transform_result(self.project.transform(Path::new(&id), &code))
+    pub fn transform(&self, id: String, code: String, map: Option<bool>) -> TransformResult {
+        transform_result(self.project.transform_with(Path::new(&id), &code, map.unwrap_or(true)))
     }
 
     /// `transform` on a worker thread: a bundler that runs module hooks concurrently compiles
     /// modules in parallel, and its own thread stays free. The registry is shared and the
     /// stylesheet is written in path order, so the order transforms finish in changes nothing.
     #[napi(ts_return_type = "Promise<TransformResult>")]
-    pub fn transform_async(&self, id: String, code: String) -> napi::bindgen_prelude::AsyncTask<TransformTask> {
-        napi::bindgen_prelude::AsyncTask::new(TransformTask { project: self.project.clone(), id, code })
+    pub fn transform_async(
+        &self,
+        id: String,
+        code: String,
+        map: Option<bool>,
+    ) -> napi::bindgen_prelude::AsyncTask<TransformTask> {
+        napi::bindgen_prelude::AsyncTask::new(TransformTask {
+            project: self.project.clone(),
+            id,
+            code,
+            maps: map.unwrap_or(true),
+        })
     }
 
     #[napi]

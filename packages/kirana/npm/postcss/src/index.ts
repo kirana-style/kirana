@@ -91,7 +91,7 @@ export class Project {
       driver.remove(file)
     }
     for (const file of changed)
-      driver.transform(file, readFileSync(file, "utf8"))
+      driver.transform(file, readFileSync(file, "utf8"), { map: false })
     return driver.stylesheet(minify)
   }
 }

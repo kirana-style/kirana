@@ -1,4 +1,9 @@
-export { Driver, type DriverOptions, type TransformResult } from "./driver.ts"
+export {
+  Driver,
+  type DriverOptions,
+  type TransformOptions,
+  type TransformResult,
+} from "./driver.ts"
 export {
   addImport,
   diff as diffChange,

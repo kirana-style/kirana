@@ -52,7 +52,7 @@ export async function transform({
   if (driver.configFile) asset.invalidateOnFileChange(driver.configFile)
   const source = await asset.getCode()
   if (!shouldCompile(asset.filePath, source, driver.libraries)) return [asset]
-  const result = driver.transform(asset.filePath, source)
+  const result = driver.transform(asset.filePath, source, { map: false })
   for (const dependency of result.dependencies)
     asset.invalidateOnFileChange(dependency)
   reporter.module(

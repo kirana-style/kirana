@@ -104,7 +104,7 @@ export function inspect(context: Context): Inspection {
     : rootOf(file, context.cwd)
   const driver = driverFor(root)
   const module = moduleOf(file, text)
-  const result = driver.transform(module, text)
+  const result = driver.transform(module, text, { map: false })
   const relative = path.relative(driver.root, module).split(path.sep).join("/")
   // ASCII text has the same byte and string offsets.
   const ascii = Buffer.byteLength(text) === text.length

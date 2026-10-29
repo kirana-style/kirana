@@ -140,7 +140,7 @@ export async function runDev(
       }
       const text = readFileSync(file, "utf8")
       texts.set(path.relative(root, file).replaceAll("\\", "/"), text)
-      report(driver.transform(file, text).diagnostics, (name) =>
+      report(driver.transform(file, text, { map: false }).diagnostics, (name) =>
         texts.get(name)
       )
     }

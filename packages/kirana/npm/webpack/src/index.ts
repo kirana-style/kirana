@@ -157,7 +157,8 @@ export class KiranaPlugin {
           if (!SCRIPT_FILE.test(file) || session.compiled.has(file)) continue
           const source = await readFile(file, "utf8")
           if (!shouldCompile(file, source, driver.libraries)) continue
-          driver.transform(file, source)
+          // Only the stylesheet needs these: the cached code is what the bundle keeps.
+          driver.transform(file, source, { map: false })
           session.compiled.add(file)
         }
         try {

@@ -116,7 +116,8 @@ export default function kirana(options: KiranaBunOptions = {}) {
         if (!compiler.compiles(path)) return undefined
         const code = await readFile(path, "utf8")
         if (!shouldCompile(path, code, compiler.libraries)) return undefined
-        const result = compiler.transform(path, code)
+        // Bun's loader takes the code alone: a map would be built and dropped.
+        const result = compiler.transform(path, code, { map: false })
         reporter.module(context, path, code, result.diagnostics)
         if (result.cssChanged) await refresh()
         if (result.code === undefined) return undefined

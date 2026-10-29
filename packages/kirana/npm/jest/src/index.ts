@@ -68,7 +68,7 @@ export function createTransformer(options: KiranaJestOptions = {}) {
       })
       let code = source
       if (shouldCompile(file, source, driver.libraries)) {
-        const result = driver.transform(file, source)
+        const result = driver.transform(file, source, { map: false })
         for (const diagnostic of result.diagnostics) {
           const message = formatDiagnostic(diagnostic, source)
           if (diagnostic.severity === "error") throw new Error(message)
