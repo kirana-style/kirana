@@ -12,6 +12,10 @@ use oxc_resolver::{ResolveOptions, Resolver, TsconfigDiscovery};
 
 use crate::Project;
 
+/// How many styles written out in full a session keeps (KF-059): a large application's distinct
+/// literal styles fit, a long editing session's every keystroke does not.
+pub(crate) const STYLES: usize = 1 << 14;
+
 pub(crate) fn resolver() -> Resolver {
     Resolver::new(ResolveOptions {
         tsconfig: Some(TsconfigDiscovery::Auto),
@@ -293,7 +297,13 @@ impl Host for ModuleHost<'_> {
     }
 
     fn keep_style(&self, key: String, value: &Value) {
-        self.project.styles.write().expect("not poisoned").insert(key, value.clone());
+        let mut styles = self.project.styles.write().expect("not poisoned");
+        // An editor session compiles every keystroke of a style it types: past the bound the cache
+        // starts over, as the runtime's merge cache does, rather than holding every one.
+        if styles.len() >= STYLES {
+            styles.clear();
+        }
+        styles.insert(key, value.clone());
     }
 
     fn lookup_dep(&self, name: &str) -> Option<Dep> {

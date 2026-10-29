@@ -361,11 +361,20 @@ memory (KF-063). A module whose last compile missed an import is compiled each t
 names may be created later. It is in memory, for the session only, and off in the language server.
 
 **A style written out in full (KF-059).** A `css()` call whose arguments are only strings, numbers,
-`null` and objects of them under plain keys compiles once a session: a later call of the same source
-is answered by that source and the names it is compiled with, in any module. Nothing such a value
-holds depends on another file, so the session never drops it. A call that reports a diagnostic, or
-names a token or rule by its emitted name, compiles where it is written, so its diagnostics keep their
-place and the rule it names stays current.
+`null` and objects of them under plain keys compiles once a session: a later call of the same source is
+answered by that source and the names it is compiled with, in any module. Nothing such a value holds
+depends on another file; the cache starts over past 16,384 styles, since an editor compiles every
+keystroke of one it types. A call that reports a diagnostic, or names a token or rule by its emitted
+name, compiles where it is written, so its diagnostics keep their place and the rule it names stays
+current.
+
+**A long session.** The language server, a dev server and a watch build keep one session for hours,
+so what it remembers MUST stay bounded by the project, not by its edits: a definition name (a token
+variable, keyframes, a position-try fallback, a view transition, a counter style) that no module
+defines any more leaves the registry when the module defining it compiles again or is removed (a
+content-hashed name changes with every edit); an import a module no longer makes stops recompiling
+it; and the caches keyed by text, styles written out in full and write plans (4,096, which custom
+properties typed one keystroke at a time would grow), start over past their bound.
 
 ## Configuration boundary
 

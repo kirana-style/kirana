@@ -94,6 +94,14 @@ pub(crate) struct State {
     pub counter_styles: FxHashMap<String, Arc<kirana_ir::CounterStyleDef>>,
     /// dependency → modules whose output used its exports.
     pub importers: FxHashMap<PathBuf, FxHashSet<PathBuf>>,
+    /// module → the files its last compile read: what it stops importing leaves `importers`, so an
+    /// edit there no longer compiles it again.
+    pub imports: FxHashMap<PathBuf, Vec<PathBuf>>,
+    /// file → the names its last evaluation defined (variable tokens, keyframes, position-try
+    /// fallbacks, view transitions, counter styles), and name → the files defining it. A name no
+    /// file defines any more leaves the registries: a content-hashed name changes with every edit.
+    pub definers: FxHashMap<String, Vec<String>>,
+    pub defined_by: FxHashMap<String, FxHashSet<String>>,
     /// Modules whose last compile had an import that did not resolve: a file created since may be
     /// the one it names.
     pub unresolved: FxHashSet<PathBuf>,
@@ -133,6 +141,52 @@ impl State {
         let previous = self.modules.remove(path)?;
         self.index.remove(path, &previous);
         Some(previous)
+    }
+
+    /// Records what `path`'s compile read, taking back the edges of what it no longer imports.
+    pub(crate) fn set_imports(&mut self, path: &Path, dependencies: &[PathBuf]) {
+        for old in self.imports.remove(path).unwrap_or_default() {
+            if dependencies.contains(&old) {
+                continue;
+            }
+            let importers = self.importers.get_mut(&old).expect("recorded with the import");
+            importers.remove(path);
+            if importers.is_empty() {
+                self.importers.remove(&old);
+            }
+        }
+        for dependency in dependencies {
+            self.importers.entry(dependency.clone()).or_default().insert(path.to_path_buf());
+        }
+        if !dependencies.is_empty() {
+            self.imports.insert(path.to_path_buf(), dependencies.to_vec());
+        }
+    }
+
+    /// Records the names `file` defines now; one no file defines any more leaves the registries.
+    pub(crate) fn set_definitions(&mut self, file: &str, names: Vec<String>) {
+        let current: FxHashSet<&str> = names.iter().map(String::as_str).collect();
+        for old in self.definers.remove(file).unwrap_or_default() {
+            if current.contains(old.as_str()) {
+                continue;
+            }
+            let files = self.defined_by.get_mut(&old).expect("recorded with the file");
+            files.remove(file);
+            if files.is_empty() {
+                self.defined_by.remove(&old);
+                self.tokens.remove(&old);
+                self.keyframes.remove(&old);
+                self.position_tries.remove(&old);
+                self.view_transitions.remove(&old);
+                self.counter_styles.remove(&old);
+            }
+        }
+        for name in &names {
+            self.defined_by.entry(name.clone()).or_default().insert(file.to_owned());
+        }
+        if !names.is_empty() {
+            self.definers.insert(file.to_owned(), names);
+        }
     }
 }
 
@@ -269,7 +323,11 @@ impl Project {
         }
         self.state.write().expect("not poisoned").unresolved.remove(path);
         if !kirana_frontend::may_be_style_bearing(source) {
-            self.state.write().expect("not poisoned").work.prefiltered += 1;
+            {
+                let mut state = self.state.write().expect("not poisoned");
+                state.work.prefiltered += 1;
+                state.set_imports(path, &[]);
+            }
             let css_changed = self.set_record(path, ModuleRecord::default());
             return Transformed {
                 code: None,
@@ -295,6 +353,7 @@ impl Project {
         let (output, diagnostics, definitions) = match outcome {
             Ok(result) => result,
             Err(diagnostics) => {
+                self.state.write().expect("not poisoned").set_imports(path, &[]);
                 let css_changed = self.set_record(path, ModuleRecord::default());
                 return Transformed { code: None, map: None, diagnostics, css_changed, dependencies: Vec::new() };
             }
@@ -304,9 +363,7 @@ impl Project {
         let provenance = if reuse { host.provenance() } else { Vec::new() };
         {
             let mut state = self.state.write().expect("not poisoned");
-            for dependency in &dependencies {
-                state.importers.entry(dependency.clone()).or_default().insert(path.to_path_buf());
-            }
+            state.set_imports(path, &dependencies);
             if host.missed() {
                 state.unresolved.insert(path.to_path_buf());
             }
@@ -432,6 +489,8 @@ impl Project {
         let mut state = self.state.write().expect("not poisoned");
         state.revision += 1;
         forget_declarations(&mut state, &file);
+        state.set_definitions(&file, Vec::new());
+        state.set_imports(path, &[]);
         state.reused.remove(path);
         state.unresolved.remove(path);
         state.take_module(path).is_some_and(|record| !record.is_empty())
@@ -518,6 +577,16 @@ impl Project {
         for style in &definitions.counter_styles {
             state.counter_styles.insert(style.name.clone(), style.clone());
         }
+        let names = definitions
+            .tokens
+            .iter()
+            .map(|token| token.variable.clone())
+            .chain(definitions.keyframes.iter().map(|frames| frames.name.clone()))
+            .chain(definitions.position_tries.iter().map(|fallback| fallback.name.clone()))
+            .chain(definitions.view_transitions.iter().map(|transition| transition.class.clone()))
+            .chain(definitions.counter_styles.iter().map(|style| style.name.clone()))
+            .collect();
+        state.set_definitions(file, names);
     }
 }
 
