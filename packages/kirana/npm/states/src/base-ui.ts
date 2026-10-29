@@ -9,8 +9,8 @@
  *   export default defineConfig({ conditions: { exclusive } })
  */
 export const exclusive: string[][] = [
-  ["[data-starting-style]", "[data-ending-style]"],
   ["[data-open]", "[data-closed]"],
+  ["[data-starting-style]", "[data-ending-style]"],
   ["[data-valid]", "[data-invalid]"],
   ["[data-checked]", "[data-unchecked]"],
 ]
@@ -29,6 +29,8 @@ export const Accordion = {
     disabled: "[data-disabled]",
     /** Present when the accordion item is open. */
     open: "[data-open]",
+    /** Present when the accordion item is closed. */
+    closed: "[data-closed]",
   },
   Header: {
     /** Indicates the index of the accordion item. */
@@ -37,6 +39,8 @@ export const Accordion = {
     disabled: "[data-disabled]",
     /** Present when the accordion item is open. */
     open: "[data-open]",
+    /** Present when the accordion item is closed. */
+    closed: "[data-closed]",
   },
   Trigger: {
     /** Indicates the index of the accordion item. */
@@ -51,6 +55,8 @@ export const Accordion = {
     index: "[data-index]",
     /** Present when the accordion panel is open. */
     open: "[data-open]",
+    /** Present when the accordion panel is closed. */
+    closed: "[data-closed]",
     /** Indicates the orientation of the accordion. */
     orientation: "[data-orientation]",
     /** Present when the accordion item is disabled. */

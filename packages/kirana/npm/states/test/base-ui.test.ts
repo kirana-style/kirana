@@ -3,7 +3,7 @@ import { css } from "@kirana-style/core"
 import { describe, expect, it } from "vite-plus/test"
 
 import * as states from "../src/base-ui.ts"
-import { exclusive, Select, Switch } from "../src/base-ui.ts"
+import { Accordion, exclusive, Select, Switch } from "../src/base-ui.ts"
 import { entries, SELECTOR } from "./entries.ts"
 
 // This suite runs under the Kirana Vite plugin, so the vocabulary is compiled exactly as an
@@ -28,6 +28,14 @@ describe("@kirana-style/states/base-ui", () => {
       expect(selector, `${component}.${part}.${state}`).toMatch(SELECTOR)
     expect(Switch.Root.checked).toBe("[data-checked]")
     expect(Select.Popup.side.inlineEnd).toBe('[data-side="inline-end"]')
+  })
+
+  it("has the states a part's open mapping writes that its module leaves out (KF-072)", () => {
+    // Base UI writes `data-closed` on the accordion's item, header and panel, through the
+    // collapsible's mapping; its trigger writes `data-panel-open` alone.
+    for (const part of [Accordion.Item, Accordion.Header, Accordion.Panel])
+      expect(part.closed).toBe("[data-closed]")
+    expect("closed" in Accordion.Trigger).toBe(false)
   })
 
   it("lists the states Base UI sets one at a time, each one of its selectors", () => {
