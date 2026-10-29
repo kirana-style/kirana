@@ -75,6 +75,13 @@ known at runtime: [values known at runtime](/docs/styling/dynamic).
 applied, so it can never match: [relations](/docs/styling/relations). A build
 checks the relations whose module it compiled; `kirana-style check` checks them all.
 
+**`relation-read-on-anchor`**: an info. An element carries a relation's anchor
+and reads a state through it, `<form sx={[form.anchor, card]}>` with
+`form.within('[data-disabled="true"]')` in its style. The read matches only inside
+another form, never on this one, so the card does not change when the form is
+disabled. For the element's own state, use the state as the condition key:
+`'[data-disabled="true"]': 0.55`.
+
 **`invalid-fallback`**, **`invalid-position-try`**, **`invalid-view-transition`**
 and **`invalid-counter-style`** report a value the browser would drop or misread:
 

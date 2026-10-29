@@ -1,8 +1,9 @@
-//! Relation placement in one JSX tree (KRN-CAS-005, rules R3 and R4).
+//! Relation placement in one JSX tree (KRN-CAS-005, rules R3 and R4), and a read with a state on the
+//! element that carries the anchor itself (KF-066).
 
 use kirana_diagnostics::{Code, Diagnostic, Span};
 use kirana_evaluator::{Evaluator, relation_reads};
-use kirana_ir::{Handle, RelationKind};
+use kirana_ir::{Condition, Handle, RelationKind};
 use oxc_ast::ast::{JSXAttributeItem, JSXAttributeName, JSXAttributeValue, JSXChild, JSXElement, JSXExpression};
 use oxc_ast_visit::{Visit, walk};
 
@@ -11,6 +12,8 @@ use oxc_ast_visit::{Visit, walk};
 struct Info {
     markers: Vec<String>,
     reads: Vec<(String, RelationKind)>,
+    /// `(marker, state)` of each `within` or `parent` read with a state: an ancestor's state.
+    stated: Vec<(String, String)>,
     span: (u32, u32),
 }
 
@@ -34,6 +37,17 @@ fn info<'a>(evaluator: &Evaluator<'_, 'a, '_>, element: &JSXElement<'a>) -> Info
             for handle in handles {
                 result.markers.extend(handle.markers.iter().cloned());
                 result.reads.extend(relation_reads(&handle));
+                for (key, _) in handle.entries() {
+                    for condition in key.conditions.conditions() {
+                        if let Condition::Relation { marker, kind: RelationKind::Within | RelationKind::Parent, state } =
+                            condition
+                            && !state.is_empty()
+                            && !result.stated.iter().any(|(m, s)| m == marker && s == state)
+                        {
+                            result.stated.push((marker.clone(), state.clone()));
+                        }
+                    }
+                }
             }
         }
     }
@@ -72,6 +86,29 @@ fn has(tree: &Tree, index: usize, marker: &str) -> bool {
 
 fn check_tree(tree: &Tree, file: &str, out: &mut Vec<Diagnostic>) {
     for (index, (node, parent)) in tree.nodes.iter().enumerate() {
+        // An element that carries the anchor and reads an ancestor's state through it reads an outer
+        // instance (D-101), never its own state: `<form sx={[form.anchor, card]}>` with a
+        // `form.within("[data-disabled]")` in `card` stays as it is when the form is disabled. What
+        // was meant is the state as a condition key (KF-066).
+        for (marker, state) in &node.stated {
+            if has(tree, index, marker) {
+                out.push(
+                    Diagnostic::new(
+                        Code::RelationReadOnAnchor,
+                        file,
+                        Span::new(node.span.0, node.span.1),
+                        format!(
+                            "reads `{state}` through a relation whose anchor this element carries: the read matches \
+                             inside another element with the anchor, never on this element's own state"
+                        ),
+                    )
+                    .with_help(format!(
+                        "for this element's own state, use `{state}` as the condition key; to read an outer \
+                         instance's, keep the read"
+                    )),
+                );
+            }
+        }
         for (marker, kind) in &node.reads {
             let anywhere = (0..tree.nodes.len()).any(|other| has(tree, other, marker));
             if !anywhere {

@@ -1433,7 +1433,7 @@ the implementation tracker names its evidence.
 
 ### D-101 — A parent read, and a reader that carries its own anchor
 
-- **Status:** Accepted (2026-10-24). Answers KF-018; amended 2026-10-29 for KF-054.
+- **Status:** Accepted (2026-10-24). Answers KF-018; amended 2026-10-29 for KF-054 and for KF-066.
 - **Decision:** a relation has a fourth read, `parent(condition?)`, compiled to
   `:where(.anchor[condition] > *)`: the reader is a child of the anchor. R3 accepts a `within` or
   `parent` read on an element that also carries the anchor, which can only mean an outer instance.
@@ -1447,6 +1447,9 @@ the implementation tracker names its evidence.
   `:where(… > *)` conditions, which the relation checks never see.
 - **Trade-off:** in one tree, R3 can no longer catch an anchor put on the reader by mistake when the
   author meant a wrapper, nor R4 one meant for a sibling; R1 still reports a relation never anchored.
+  A `within` or `parent` read with a state on such an element is the likeliest mistake (a form that
+  reads its own disabled state through its relation, KF-066), so it is reported as an info,
+  `relation-read-on-anchor`, which a nested group's stateless read does not meet.
 - **Elaborated in:** [06-authoring-api](./06-authoring-api.md),
   [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 

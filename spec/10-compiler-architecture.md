@@ -441,6 +441,7 @@ help: move `field.anchor` to the element that wraps both, or use `field.after(â€
 | KRN1402 | `relation-unused`               | warning  | 08        |
 | KRN1403 | `relation-placement`            | error    | 08        |
 | KRN1404 | `relation-name-collision`       | error    | 08        |
+| KRN1405 | `relation-read-on-anchor`       | info     | 08        |
 | KRN1501 | `unknown-token`                 | error    | 07        |
 | KRN1502 | `token-namespace-collision`     | error    | 07        |
 | KRN1503 | `variable-default-scope`        | warning  | 07        |

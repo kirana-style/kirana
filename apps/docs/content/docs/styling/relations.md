@@ -115,6 +115,10 @@ placement check accepts it, for both kinds of ancestor read. A parent read reach
 the anchor's children only, where `within` reaches any depth: a port of `*:w-full`
 written with `within` would also widen a grandchild inside a wrapper.
 
+A read with a state there, such as a form that reads
+`form.within('[data-disabled="true"]')`, is reported as `relation-read-on-anchor`,
+an info: it never sees the form's own state, which a plain condition key reads.
+
 The same holds beside it. shadcn/ui's `ItemContent` keeps its width when it
 follows another, and its caller is the one that repeats it, so the part anchors
 the relation and reads it `after()`:

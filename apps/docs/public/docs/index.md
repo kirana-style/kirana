@@ -46,7 +46,7 @@ install guide, and each is built and checked in a browser on every change:
   `ambiguous-precedence` diagnostic tells you when two values could both apply.
 - **Tokens and themes.** Design tokens compile to constants or custom properties,
   and every colour can be a `light-dark()` pair, so dark mode needs no variant.
-- **Real diagnostics.** 50 checks with codes, severities and help text, from
+- **Real diagnostics.** 51 checks with codes, severities and help text, from
   unknown properties to a component that forgets to pass `sx` on.
 
 ## What it is not
