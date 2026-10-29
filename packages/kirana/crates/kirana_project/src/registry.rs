@@ -3,13 +3,14 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use kirana_diagnostics::{Code, Diagnostic, Span, apply_level};
-use kirana_emit::{EmitOptions, EmitOutput, emit_refs};
+use kirana_emit::{EmitOptions, EmitOutput, emit_ranked};
 use kirana_evaluator::{Definitions, relation_reads};
 use kirana_ir::dense::{self, Edit, Segment};
-use kirana_ir::{Atom, Dep, EntryKey, Handle, Names, Op, Property, Recipe, Target};
+use kirana_ir::{Atom, Dep, EntryKey, Handle, LadderRank, Names, Op, Property, Recipe, Target, ladder_rank, same_rank};
+use kirana_shared::{FxHashMap, FxHashSet};
 use kirana_transform::TransformOutput;
 use lightningcss::targets::{Browsers, Targets};
 
@@ -84,17 +85,57 @@ impl ModuleRecord {
 }
 
 /// What every module contributes to the stylesheet, kept as records change, so that writing it walks
-/// the atoms once instead of every module's copy of them (KF-062).
+/// the atoms once instead of every module's copy of them (KF-062), in the order it writes them.
 #[derive(Debug, Default)]
 pub(crate) struct AtomIndex {
     /// Class → each module writing it, with its atom. The stylesheet takes the first module's, in
     /// path order, as a walk of the modules in that order did: two atoms share a class only when
     /// `class-name-collision` reports them.
-    atoms: BTreeMap<String, BTreeMap<ModuleKey, Arc<Atom>>>,
+    atoms: FxHashMap<Arc<str>, Writers>,
+    /// Every class in the stylesheet's order (D-036): ranked when it arrives, and again only when
+    /// the atom written for it ranks otherwise, so writing the stylesheet sorts nothing. Grouped by
+    /// rank, since most classes share one of a few: placing a class compares ranks among those few,
+    /// then classes alone.
+    ordered: BTreeMap<LadderRank, BTreeSet<Arc<str>>>,
+    /// Shorthand → the classes of its atoms, so the shorthands a runtime merge unfolds (every one a
+    /// shorthand of the property table) are found without walking every class. A class names its
+    /// property, whichever module's atom is written.
+    by_property: BTreeMap<String, BTreeSet<Arc<str>>>,
     /// The marker dependencies of each module that has any, in path order.
     marker_deps: BTreeMap<ModuleKey, Vec<Dep>>,
-    /// `(shorthand, target)` → how many unfold tokens name it, across modules.
-    unfolds: BTreeMap<(String, Target), usize>,
+    /// Shorthand → target → how many unfold tokens name it, across modules.
+    unfolds: BTreeMap<String, BTreeMap<Target, usize>>,
+}
+
+/// The modules writing one class, and the rank of the atom the stylesheet takes from them.
+#[derive(Debug)]
+struct Writers {
+    rank: LadderRank,
+    modules: BTreeMap<ModuleKey, Arc<Atom>>,
+    /// The longhand rules a runtime unfold of the written atom reads, built when a stylesheet first
+    /// needs them and dropped when the class's modules change.
+    longhands: OnceLock<Vec<(LadderRank, Atom)>>,
+}
+
+impl Writers {
+    /// The atom the stylesheet takes: the first module's.
+    fn written(&self) -> &Arc<Atom> {
+        self.modules.first_key_value().expect("a class has a module").1
+    }
+}
+
+/// The longhand rules a runtime unfold of `atom` reads, with their ranks.
+fn longhands(names: &Names, atom: &Atom) -> Vec<(LadderRank, Atom)> {
+    let longhands = kirana_cascade::longhands_of(&atom.key.property.name).unwrap_or_default();
+    longhands
+        .into_iter()
+        .map(|longhand| {
+            let key = EntryKey { property: longhand, ..atom.key.clone() };
+            let op = Op::Set(key.clone(), atom.value.clone());
+            let sibling = Atom { class: names.class(&op), key, value: atom.value.clone() };
+            (ladder_rank(&sibling), sibling)
+        })
+        .collect()
 }
 
 /// A module's path as the index orders it: its bytes, each separator as `\0`, which sorts as the
@@ -111,37 +152,175 @@ impl ModuleKey {
 }
 
 impl AtomIndex {
-    pub(crate) fn add(&mut self, path: &Path, record: &ModuleRecord) {
+    /// Puts `record` in place of `previous` as what the module at `path` writes. A class both write
+    /// stays where it is unless its atom now ranks otherwise, so recompiling a module ranks only
+    /// what it changed.
+    pub(crate) fn replace(&mut self, path: &Path, previous: Option<&ModuleRecord>, record: &ModuleRecord) {
         let module = ModuleKey::new(path);
+        if let Some(previous) = previous {
+            let kept: FxHashSet<&str> = record.atoms.iter().map(|atom| atom.class.as_str()).collect();
+            for atom in previous.atoms.iter().filter(|atom| !kept.contains(atom.class.as_str())) {
+                self.remove_atom(&module, &atom.class);
+            }
+            self.marker_deps.remove(&module);
+            for (shorthand, target) in &previous.unfolds {
+                let targets = self.unfolds.get_mut(&shorthand.name).expect("added with the record");
+                let count = targets.get_mut(target).expect("added with the record");
+                *count -= 1;
+                if *count == 0 {
+                    targets.remove(target);
+                    if targets.is_empty() {
+                        self.unfolds.remove(&shorthand.name);
+                    }
+                }
+            }
+        }
         for atom in &record.atoms {
-            self.atoms.entry(atom.class.clone()).or_default().entry(module.clone()).or_insert_with(|| atom.clone());
+            self.add_atom(&module, atom);
         }
         if !record.marker_deps.is_empty() {
             self.marker_deps.insert(module, record.marker_deps.clone());
         }
         for (shorthand, target) in &record.unfolds {
-            *self.unfolds.entry((shorthand.name.clone(), target.clone())).or_default() += 1;
+            *self.unfolds.entry(shorthand.name.clone()).or_default().entry(target.clone()).or_default() += 1;
         }
     }
 
-    pub(crate) fn remove(&mut self, path: &Path, record: &ModuleRecord) {
-        let module = ModuleKey::new(path);
-        for atom in &record.atoms {
-            let modules = self.atoms.get_mut(&atom.class).expect("added with the record");
-            modules.remove(&module);
-            if modules.is_empty() {
-                self.atoms.remove(&atom.class);
+    fn add_atom(&mut self, module: &ModuleKey, atom: &Arc<Atom>) {
+        match self.atoms.get_mut(atom.class.as_str()) {
+            Some(writers) => {
+                let before = writers.written().clone();
+                writers.modules.insert(module.clone(), atom.clone());
+                self.rerank(&atom.class, &before);
+            }
+            None => {
+                // One copy of the class, shared by the three places that hold it.
+                let class: Arc<str> = Arc::from(atom.class.as_str());
+                let rank = ladder_rank(atom);
+                self.place(&rank, &class);
+                let property = &atom.key.property.name;
+                if kirana_css_data::is_shorthand(property) {
+                    self.by_property.entry(property.clone()).or_default().insert(class.clone());
+                }
+                let modules = BTreeMap::from([(module.clone(), atom.clone())]);
+                self.atoms.insert(class, Writers { rank, modules, longhands: OnceLock::new() });
             }
         }
-        self.marker_deps.remove(&module);
-        for (shorthand, target) in &record.unfolds {
-            let key = (shorthand.name.clone(), target.clone());
-            let count = self.unfolds.get_mut(&key).expect("added with the record");
-            *count -= 1;
-            if *count == 0 {
-                self.unfolds.remove(&key);
+    }
+
+    fn remove_atom(&mut self, module: &ModuleKey, class: &str) {
+        let writers = self.atoms.get_mut(class).expect("added with the record");
+        let before = writers.written().clone();
+        writers.modules.remove(module);
+        if writers.modules.is_empty() {
+            let (class, Writers { rank, .. }) = self.atoms.remove_entry(class).expect("found above");
+            let property = &before.key.property.name;
+            if kirana_css_data::is_shorthand(property) {
+                let classes = self.by_property.get_mut(property).expect("added with the class");
+                classes.remove(&class);
+                if classes.is_empty() {
+                    self.by_property.remove(property);
+                }
+            }
+            self.unplace(&rank, &class);
+        } else {
+            self.rerank(class, &before);
+        }
+    }
+
+    /// Moves `class` in the stylesheet's order when the atom written for it, once `before`, now
+    /// ranks otherwise: only a collision gives one class two ranks.
+    fn rerank(&mut self, class: &str, before: &Atom) {
+        let writers = self.atoms.get_mut(class).expect("still written");
+        writers.longhands.take();
+        let after = writers.modules.first_key_value().expect("a class has a module").1;
+        if same_rank(before, after) {
+            return;
+        }
+        let rank = ladder_rank(after);
+        let old = std::mem::replace(&mut writers.rank, rank.clone());
+        let class = self.atoms.get_key_value(class).expect("still written").0.clone();
+        self.unplace(&old, &class);
+        self.place(&rank, &class);
+    }
+
+    /// Puts `class` among the classes of `rank`.
+    fn place(&mut self, rank: &LadderRank, class: &Arc<str>) {
+        match self.ordered.get_mut(rank) {
+            Some(classes) => {
+                classes.insert(class.clone());
+            }
+            None => {
+                self.ordered.insert(rank.clone(), BTreeSet::from([class.clone()]));
             }
         }
+    }
+
+    /// Takes `class` from the classes of `rank`.
+    fn unplace(&mut self, rank: &LadderRank, class: &Arc<str>) {
+        let classes = self.ordered.get_mut(rank).expect("placed with the class");
+        classes.remove(class);
+        if classes.is_empty() {
+            self.ordered.remove(rank);
+        }
+    }
+
+    /// The marker dependencies of every module, each once, in path order.
+    fn marker_deps(&self) -> Vec<Dep> {
+        let mut deps = Vec::new();
+        for dep in self.marker_deps.values().flatten() {
+            if !deps.contains(dep) {
+                deps.push(dep.clone());
+            }
+        }
+        deps
+    }
+
+    /// Each class's written atom with its rank, in the stylesheet's order.
+    fn written(&self) -> impl Iterator<Item = (&LadderRank, &Atom)> {
+        self.ordered
+            .iter()
+            .flat_map(move |(rank, classes)| classes.iter().map(move |class| (rank, &**self.atoms[&**class].written())))
+    }
+
+    /// A runtime merge can unfold a shorthand atom into its longhands, reusing the atom's value
+    /// segment. Those longhand rules exist only where some module can unfold that shorthand: these
+    /// are they, in the stylesheet's order. A class a module writes itself keeps that module's atom,
+    /// and a class two shorthands' longhands share keeps the one met first.
+    fn siblings(&self, names: &Names) -> Vec<(&LadderRank, &Atom)> {
+        let mut siblings: Vec<(&LadderRank, &Atom)> = self
+            .unfolds
+            .iter()
+            .flat_map(|(shorthand, targets)| {
+                let classes = self.by_property.get(shorthand).into_iter().flatten();
+                classes
+                    .map(|class| &self.atoms[&**class])
+                    .filter(|writers| targets.contains_key(&writers.written().key.target))
+            })
+            .flat_map(|writers| writers.longhands.get_or_init(|| longhands(names, writers.written())))
+            .map(|(rank, sibling)| (rank, sibling))
+            .filter(|(_, sibling)| !self.atoms.contains_key(sibling.class.as_str()))
+            .collect();
+        // A stable sort keeps the first of a class ahead of the others, and `dedup` keeps that one.
+        siblings.sort_by(|a, b| a.0.cmp(b.0).then_with(|| a.1.class.cmp(&b.1.class)));
+        siblings.dedup_by(|later, earlier| later.1.class == earlier.1.class);
+        siblings
+    }
+
+    /// The stylesheet's atoms in its order, with their ranks: each class's written atom, and the
+    /// longhand siblings merged in where they rank.
+    fn ranked(&self, names: &Names) -> Vec<(&LadderRank, &Atom)> {
+        let siblings = self.siblings(names);
+        let mut out = Vec::with_capacity(self.atoms.len() + siblings.len());
+        let mut rest = siblings.into_iter().peekable();
+        for (rank, atom) in self.written() {
+            while let Some(sibling) = rest.next_if(|(other, sibling)| (*other, &sibling.class) < (rank, &atom.class)) {
+                out.push(sibling);
+            }
+            out.push((rank, atom));
+        }
+        out.extend(rest);
+        out
     }
 }
 
@@ -210,44 +389,6 @@ impl Project {
             .unwrap_or_default()
     }
 
-    fn live(&self) -> (Vec<Arc<Atom>>, Vec<Dep>) {
-        let state = self.state.read().expect("not poisoned");
-        let index = &state.index;
-        // In class order, as the index keeps them: the stylesheet writer then sorts without
-        // comparing classes.
-        let atoms: Vec<Arc<Atom>> = index
-            .atoms
-            .values()
-            .map(|modules| modules.values().next().expect("an entry has a module").clone())
-            .collect();
-        let mut deps = Vec::new();
-        for dep in index.marker_deps.values().flatten() {
-            if !deps.contains(dep) {
-                deps.push(dep.clone());
-            }
-        }
-        // A runtime merge can unfold a shorthand atom into its longhands, reusing the atom's value
-        // segment. Those longhand rules exist only where some module can unfold that shorthand.
-        let siblings: Vec<Atom> = atoms
-            .iter()
-            .filter(|atom| index.unfolds.contains_key(&(atom.key.property.name.clone(), atom.key.target.clone())))
-            .flat_map(|atom| {
-                kirana_cascade::longhands_of(&atom.key.property.name).unwrap_or_default().into_iter().map(|longhand| {
-                    let key = EntryKey { property: longhand, ..atom.key.clone() };
-                    let op = Op::Set(key.clone(), atom.value.clone());
-                    Atom { class: self.names.class(&op), key, value: atom.value.clone() }
-                })
-            })
-            .collect();
-        // Into class order, the modules' atoms first: a stable sort keeps a class a module writes
-        // itself ahead of the sibling that shares it, and `dedup` keeps that one.
-        let mut merged = atoms;
-        merged.extend(siblings.into_iter().map(Arc::new));
-        merged.sort_by(|a, b| a.class.cmp(&b.class));
-        merged.dedup_by(|later, earlier| later.class == earlier.class);
-        (merged, deps)
-    }
-
     /// The stylesheet for every module in the build graph (KRN-OUT-001 – -003, -007, -008).
     pub fn stylesheet(&self, minify: bool) -> String {
         self.write_stylesheet(minify, None).css
@@ -263,7 +404,7 @@ impl Project {
     }
 
     fn write_stylesheet(&self, minify: bool, named: Option<std::collections::BTreeSet<String>>) -> EmitOutput {
-        let revision = {
+        let (revision, output) = {
             let state = self.state.read().expect("not poisoned");
             if let Some((at, cached_minify, cached_named, output)) = &state.cached.stylesheet
                 && *at == state.revision
@@ -272,19 +413,19 @@ impl Project {
             {
                 return output.clone();
             }
-            state.revision
+            let options = EmitOptions {
+                layers_before: self.config.layers.before.clone(),
+                layers_after: self.config.layers.after.clone(),
+                tiers: self.config.layers.tiers,
+                minify,
+                prefix: self.names.prefix.clone(),
+                lower_for: self.lowering_targets(),
+                named: named.clone(),
+            };
+            // Written from the index as it stands, borrowed rather than copied out of it.
+            let atoms = state.index.ranked(&self.names);
+            (state.revision, emit_ranked(&atoms, &state.index.marker_deps(), &options))
         };
-        let (atoms, deps) = self.live();
-        let options = EmitOptions {
-            layers_before: self.config.layers.before.clone(),
-            layers_after: self.config.layers.after.clone(),
-            tiers: self.config.layers.tiers,
-            minify,
-            prefix: self.names.prefix.clone(),
-            lower_for: self.lowering_targets(),
-            named: named.clone(),
-        };
-        let output = emit_refs(&atoms.iter().map(|atom| &**atom).collect::<Vec<_>>(), &deps, &options);
         self.state.write().expect("not poisoned").cached.stylesheet = Some((revision, minify, named, output.clone()));
         output
     }
@@ -315,9 +456,10 @@ impl Project {
         if !self.state.read().expect("not poisoned").dense_stale {
             return;
         }
-        let mut classes: Vec<String> = self.live().0.iter().map(|atom| atom.class.clone()).collect();
+        let mut classes: Vec<String> = Vec::new();
         {
             let state = self.state.read().expect("not poisoned");
+            classes.extend(state.index.ranked(&self.names).into_iter().map(|(_, atom)| atom.class.clone()));
             for record in state.modules.values() {
                 for (_, handle) in &record.handles {
                     classes.extend(handle.ops.iter().map(|op| self.names.class(op)));
@@ -558,6 +700,8 @@ impl Project {
         let atom = state.modules.get(path).and_then(|record| record.atoms.first().cloned()).expect("an atom");
         let mut different_value = (*atom).clone();
         different_value.value.css = "a different value".to_owned();
+        // Ranked otherwise too, so the index moves the class when this module writes it first.
+        different_value.value.longhands = 7;
         let mut different_key = (*atom).clone();
         different_key.class = format!("{}_zzz", &atom.class[..atom.class.rfind('_').expect("value segment")]);
         different_key.key.property = kirana_ir::Property::longhand("--renamed");

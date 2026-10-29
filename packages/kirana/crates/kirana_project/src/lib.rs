@@ -130,8 +130,8 @@ pub(crate) struct State {
 impl State {
     /// Records `record` for `path`, keeping the atom index in step; returns the record it replaced.
     pub(crate) fn put_module(&mut self, path: &Path, record: ModuleRecord) -> Option<ModuleRecord> {
-        let previous = self.take_module(path);
-        self.index.add(path, &record);
+        let previous = self.modules.remove(path);
+        self.index.replace(path, previous.as_ref(), &record);
         self.modules.insert(path.to_path_buf(), record);
         previous
     }
@@ -139,7 +139,7 @@ impl State {
     /// Forgets the record for `path`, keeping the atom index in step.
     pub(crate) fn take_module(&mut self, path: &Path) -> Option<ModuleRecord> {
         let previous = self.modules.remove(path)?;
-        self.index.remove(path, &previous);
+        self.index.replace(path, Some(&previous), &ModuleRecord::default());
         Some(previous)
     }
 
