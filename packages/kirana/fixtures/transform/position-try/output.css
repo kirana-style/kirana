@@ -20,11 +20,11 @@
   }
 }
 @layer kirana.atoms {
-  .k8B_AWUj {
-    position-try-fallbacks: --kpg9VA;
-  }
   .k8B_mMqN {
     position-try-fallbacks: --kp9KfV, --kpOing, flip-block;
+  }
+  .k8B_AWUj {
+    position-try-fallbacks: --kpg9VA;
   }
   .k8y_127D {
     position-anchor: --trigger;

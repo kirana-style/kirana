@@ -1076,7 +1076,10 @@ the implementation tracker names its evidence.
   - Each 4-character value hash becomes a code of 1–2 characters from one space shared by every key.
   - The property code and the target segment stay.
   - Codes go to the most used segments first and never change within a session, so the client and the
-    SSR build agree.
+    SSR build agree. Segments used as often go in the order the stylesheet writes them (amended
+    2026-10-29), so a property's rules carry codes in sequence: with D-087's order by value, the
+    docs site's dense stylesheet is 1.4 % smaller in gzip and 2.5 % in brotli, kirana-ui's 0.7 % and
+    1.4 %.
   - Transforms mark every name they write (`^~`). Chunks are renamed in `renderChunk`, before content
     hashes and with source maps, and only marked names change.
   - A segment past the 3,906 codes keeps its hash.
@@ -1165,9 +1168,11 @@ the implementation tracker names its evidence.
 
 ### D-087 — Atoms of one conflict key are ordered to share rules; competition ignores writing mode
 
-- **Status:** Accepted (2026-10-19). Elaborates D-036.
+- **Status:** Accepted (2026-10-19). Elaborates D-036. Amended 2026-10-29: the atoms between the
+  shared ends go by value.
 - **Decision:** In `kirana.atoms`, the writer orders the atoms that share a conflict key so that a
   declaration ending one key's atoms starts the next key's, and the two share a rule (KRN-OUT-010).
+  The atoms between go by value, so like declarations sit side by side for the compressor.
   The ladder still orders the keys. Whether a rule may move past another to share a declaration is
   decided by what each one sets, whatever the writing mode (KRN-OUT-009):
   - a flow-relative longhand competes with every physical longhand of its group;
@@ -1183,6 +1188,9 @@ the implementation tracker names its evidence.
     horizontal, left-to-right writing, so in right-to-left text a `margin-right` rule could move past
     a `margin-inline-start` one and win where the ladder says it loses. It also treated a shorthand
     that Lightning CSS does not split (`text-wrap`, `columns`) as a longhand of its own name.
+  - **By value between the shared ends** (2026-10-29): hash order scattered a property's values,
+    which gzip and brotli then match less well. Measured, raw bytes unchanged: the docs site's
+    stylesheet 0.8 % smaller in gzip and 1.9 % in brotli, kirana-ui's 0.24 % and 0.7 %.
   - **Measured on Kirana's docs site:** the stylesheet is 0.6 % smaller raw, 0.14 % in
     gzip and 0.37 % in brotli, with 31 fewer rules. Of the merges the research script counted, 4
     remain free of a competing rule in between, worth 85 bytes: the script ignored competitors in

@@ -539,6 +539,50 @@ fn dense_names_cover_the_build_and_keep_their_codes() {
 }
 
 #[test]
+fn dense_codes_used_as_often_follow_the_stylesheet() {
+    // Three values of one property, each used once: the stylesheet writes them by value, and their
+    // codes go out in that order, so the rules read `_0`, `_1`, `_2` (D-084).
+    let card = "import { css } from \"@kirana-style/core\"\nexport const a = css({ color: \"red\" })\nexport const b = css({ color: \"blue\" })\nexport const c = css({ color: \"green\" })\n";
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("card.ts", card)]);
+    project.mark_dense();
+    project.transform(&root.join("card.ts"), card);
+    let css = project.dense_rename(&project.stylesheet(true));
+    let written: Vec<usize> = ["_0{color:blue}", "_1{color:green}", "_2{color:red}"]
+        .iter()
+        .map(|rule| css.find(rule).unwrap_or_else(|| panic!("{rule} in {css}")))
+        .collect();
+    assert!(written.is_sorted(), "{css}");
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn dense_codes_do_not_depend_on_the_order_modules_compiled_in() {
+    // Tombstones of conditions no rule holds: their segments are only in the modules' handles, and
+    // used as often, so the order the modules are read in gives their codes.
+    let files = [
+        ("a.ts", "import { css } from \"@kirana-style/core\"\nexport const a = css({ color: { \":hover\": null } })\n"),
+        ("b.ts", "import { css } from \"@kirana-style/core\"\nexport const b = css({ color: { \":focus\": null } })\n"),
+        (
+            "c.ts",
+            "import { css } from \"@kirana-style/core\"\nexport const c = css({ color: { \":active\": null } })\n",
+        ),
+    ];
+    let renamed = |order: &[usize]| {
+        let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), files[0], files[1], files[2]]);
+        project.mark_dense();
+        let mut out = vec![String::new(); files.len()];
+        for &index in order {
+            let (name, source) = files[index];
+            out[index] = project.transform(&root.join(name), source).code.unwrap();
+        }
+        let chunks: Vec<String> = out.iter().map(|code| project.dense_chunk(code).unwrap()).collect();
+        fs::remove_dir_all(root).unwrap();
+        chunks
+    };
+    assert_eq!(renamed(&[0, 1, 2]), renamed(&[2, 1, 0]));
+}
+
+#[test]
 fn a_build_reuses_a_transform_whose_inputs_are_unchanged() {
     let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { 1: \"1px\" })\n";
     let input = "import { css } from \"@kirana-style/core\"\nimport { space } from \"./tokens\"\nexport const box = css({ gap: space[1] })\n";

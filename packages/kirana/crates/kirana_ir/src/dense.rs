@@ -61,26 +61,29 @@ pub struct DenseNames {
 }
 
 impl DenseNames {
-    /// Assigns codes to the hashes in `uses` that have none yet: the most used first, ties in hash
-    /// order, after every code already assigned. `uses` holds `(segment, hash, count)`; a hash may
-    /// appear more than once and its counts add up.
+    /// Assigns codes to the hashes in `uses` that have none yet: the most used first, ties in the
+    /// order `uses` first names them, after every code already assigned. `uses` holds `(segment,
+    /// hash, count)`; a hash may appear more than once and its counts add up. A caller that lists a
+    /// stylesheet's names in the order it writes them gets a property's rules with codes in sequence,
+    /// which compresses better than codes in the order of their hashes.
     pub fn extend<'a>(&mut self, uses: impl IntoIterator<Item = (Segment, &'a str, usize)>) {
-        let mut counts: BTreeMap<(Segment, &str), usize> = BTreeMap::new();
-        for (segment, hash, count) in uses {
-            *counts.entry((segment, hash)).or_default() += count;
+        // Each hash's count and where it was first named.
+        let mut counts: BTreeMap<(Segment, &str), (usize, usize)> = BTreeMap::new();
+        for (seen, (segment, hash, count)) in uses.into_iter().enumerate() {
+            counts.entry((segment, hash)).or_insert((0, seen)).0 += count;
         }
         for segment in [Segment::Condition, Segment::Value] {
             let map = match segment {
                 Segment::Condition => &mut self.conditions,
                 Segment::Value => &mut self.values,
             };
-            let mut fresh: Vec<(&str, usize)> = counts
+            let mut fresh: Vec<(&str, usize, usize)> = counts
                 .iter()
                 .filter(|((kind, hash), _)| *kind == segment && !map.contains_key(*hash))
-                .map(|((_, hash), count)| (*hash, *count))
+                .map(|((_, hash), (count, seen))| (*hash, *count, *seen))
                 .collect();
-            fresh.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
-            for (hash, _) in fresh {
+            fresh.sort_by(|a, b| b.1.cmp(&a.1).then(a.2.cmp(&b.2)));
+            for (hash, _, _) in fresh {
                 let Some(code) = code(map.len()) else { break };
                 map.insert(hash.to_owned(), code);
             }
@@ -352,7 +355,11 @@ mod tests {
     }
 
     #[test]
-    fn codes_follow_use_then_hash_and_never_change() {
+    fn codes_follow_use_then_first_sight_and_never_change() {
+        let mut dense = DenseNames::default();
+        // `CCCC` and `AAAA` are used as often: the one named first comes first.
+        dense.extend([(Segment::Value, "CCCC", 1), (Segment::Value, "BBBB", 3), (Segment::Value, "AAAA", 1)]);
+        assert_eq!(dense.rename_plain("k", "k1_BBBB k1_CCCC k1_AAAA"), "k1_0 k1_1 k1_2");
         let mut dense = DenseNames::default();
         dense.extend([(Segment::Value, "AAAA", 1), (Segment::Value, "BBBB", 3), (Segment::Value, "CCCC", 1)]);
         dense.extend([(Segment::Condition, "KFHz", 2), (Segment::Value, "AAAA", 9)]);

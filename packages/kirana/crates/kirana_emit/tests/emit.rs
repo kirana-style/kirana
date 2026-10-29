@@ -289,6 +289,20 @@ fn rules_that_repeat_a_declaration_share_it() {
     );
 }
 
+/// The atoms of one conflict key never meet on an element, so they are written by value, which puts
+/// like declarations side by side (D-087).
+#[test]
+fn the_atoms_of_one_key_are_written_by_value() {
+    let values = ["red", "blue", "green", "rebeccapurple"];
+    let atoms: Vec<Atom> = values.iter().map(|value| atom(Target::Element, "color", vec![], value, vec![])).collect();
+    let css = emit(&atoms, &[], &EmitOptions { minify: true, ..EmitOptions::default() }).css;
+    let written: Vec<usize> = ["color:blue", "color:green", "color:rebeccapurple", "color:red"]
+        .iter()
+        .map(|declaration| css.find(declaration).unwrap_or_else(|| panic!("{declaration} in {css}")))
+        .collect();
+    assert!(written.is_sorted(), "{css}");
+}
+
 /// A rule only moves past declarations that cannot compete with it.
 #[test]
 fn a_competing_declaration_blocks_the_merge() {

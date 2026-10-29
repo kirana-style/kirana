@@ -7,17 +7,17 @@
   .k0_HV2H, .k0-KFHz_HV2H:where(:hover) {
     padding: 1rem;
   }
-  .k5_Aboe {
-    margin: auto;
-  }
-  .k5_Fm3s {
-    margin: calc(1px + 2px);
-  }
   .k5_Vpbm {
     margin: 0.25rem;
   }
   .k5_pq3K {
     margin: 3px;
+  }
+  .k5_Aboe {
+    margin: auto;
+  }
+  .k5_Fm3s {
+    margin: calc(1px + 2px);
   }
   .ka_Vpbm {
     border-radius: 0.25rem;
@@ -28,11 +28,11 @@
   .kp_H6xW {
     border-style: solid;
   }
-  .k50_h8o3 {
-    color: rgb(1, 2, 3);
-  }
   .k50_ix8O {
     color: #0af;
+  }
+  .k50_h8o3 {
+    color: rgb(1, 2, 3);
   }
   .k5O_23ai {
     display: flex;

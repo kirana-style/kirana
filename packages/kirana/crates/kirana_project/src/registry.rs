@@ -458,16 +458,19 @@ impl Project {
     }
 
     /// Codes for the hashes of every name the modules write and the stylesheet holds, counted once
-    /// per site that writes them.
+    /// per site that writes them. The stylesheet's names come first, in the order it writes them, so
+    /// codes used as often go out in that order (D-084); the modules follow by path, so a build
+    /// gives the same codes however its modules compiled.
     fn assign_dense(&self) {
         if !self.state.read().expect("not poisoned").dense_stale {
             return;
         }
-        let mut classes: Vec<String> = Vec::new();
+        let mut classes: Vec<String> = vec![self.stylesheet(true)];
         {
             let state = self.state.read().expect("not poisoned");
-            classes.extend(state.index.ranked(&self.names).into_iter().map(|(_, atom)| atom.class.clone()));
-            for record in state.modules.values() {
+            let mut records: Vec<_> = state.modules.iter().collect();
+            records.sort_unstable_by(|a, b| a.0.cmp(b.0));
+            for (_, record) in records {
                 for (_, handle) in &record.handles {
                     classes.extend(handle.ops.iter().map(|op| self.names.class(op)));
                 }

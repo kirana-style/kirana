@@ -8,7 +8,7 @@
 //! 4. `kirana.contextual`: `select.*` styles, ladder-ordered;
 //! 5. `kirana.atoms`: element atoms, ladder-ordered. Every selector is (0,1,0) through
 //!    `:where()`, so source order is the precedence ladder. Atoms that share a conflict key are
-//!    ordered among themselves so that more rules share a declaration.
+//!    ordered among themselves so that more rules share a declaration, and otherwise by value.
 //!
 //! Production output is minified by the writer itself, so colours and values are never
 //! re-serialized. Lightning CSS runs only when configured targets are below the default floor.
@@ -399,7 +399,9 @@ impl<'a> Covered<'a> {
 /// renders the same. The writer merges two rules only when no rule between them decides a competing
 /// property, so a declaration that ends one key's run and starts the next one's is written once.
 /// Each boundary takes at most one such declaration, the longest, and a run whose first atom the
-/// previous boundary chose keeps it first.
+/// previous boundary chose keeps it first. The atoms between are written by value, so like
+/// declarations sit side by side and compress better than in the order of their hashes: about 1 %
+/// of the docs site's stylesheet in gzip and 2 % in brotli (D-087).
 ///
 /// Atoms of the contextual layer are left in ladder order: two ancestors can each bring one with the
 /// same key to a descendant, and there the order between them decides.
@@ -440,7 +442,7 @@ fn arrange(block: &mut [&Atom]) {
     let mut arranged: Vec<&Atom> = Vec::with_capacity(block.len());
     for ((run, first), last) in runs.into_iter().zip(first).zip(last) {
         let mut atoms = block[run].to_vec();
-        atoms.sort_by_key(|atom| {
+        let place = |atom: &&Atom| {
             let css = Some(atom.value.css.as_str());
             if css == first {
                 0
@@ -449,7 +451,8 @@ fn arrange(block: &mut [&Atom]) {
             } else {
                 1
             }
-        });
+        };
+        atoms.sort_by(|a, b| place(a).cmp(&place(b)).then_with(|| a.value.css.cmp(&b.value.css)));
         arranged.extend(atoms);
     }
     block.copy_from_slice(&arranged);
