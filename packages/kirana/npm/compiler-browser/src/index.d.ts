@@ -2,6 +2,8 @@ import type { Project, ProjectOptions } from "./project.ts"
 
 export type {
   Diagnostic,
+  Language,
+  LanguageMessage,
   Position,
   Project,
   ProjectOptions,

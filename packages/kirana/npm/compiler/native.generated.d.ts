@@ -77,6 +77,28 @@ export declare class Compiler {
   lowerTailwind(file: string, classes: string): string
 }
 
+/**
+ * The language server in process (KF-065): a host with no stdin and stdout to give it, a page with
+ * the WebAssembly engine among them, asks it what an editor asks over LSP, as JSON.
+ */
+export declare class LanguageServer {
+  /**
+   * Opens a session as `initialize` does: `config_json` is the engine's configuration, and
+   * `initialize_params` the client's `initialize` parameters (`initializationOptions` among them).
+   */
+  constructor(configJson: string, initializeParams: string)
+  /**
+   * A request (`textDocument/inlayHint`, `textDocument/hover` …): its result as JSON. Its error
+   * is thrown.
+   */
+  request(method: string, paramsJson: string): string
+  /**
+   * A notification (`textDocument/didOpen`, `didChange`, `didClose` …): the notifications the
+   * server sends back, as a JSON array of `{ method, params }`.
+   */
+  notify(method: string, paramsJson: string): string
+}
+
 /** The class map for server templates (D-069). */
 export interface ClassMapResult {
   /** Where to write it. */

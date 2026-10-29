@@ -37,6 +37,7 @@ TypeScript already provides.
 | Zed                       | Extension registering the language server                                                  |
 | Neovim, Helix             | Documented `lspconfig` / language configuration                                            |
 | JetBrains IDEs            | LSP client plugin                                                                          |
+| An editor in a web page   | `@kirana-style/compiler-browser`'s `project.language`: the same server in process (KF-065) |
 
 Built (sprint 6): VS Code and Zed extensions under `packages/kirana/editors/`, both starting the
 project's own `node_modules/.bin/kirana-style lsp` (D-064; Zed finds it through the root `package.json`,

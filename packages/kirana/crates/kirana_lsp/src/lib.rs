@@ -259,6 +259,22 @@ impl Server {
         })
     }
 
+    /// One request answered in process, for a host with no connection to the client: a browser,
+    /// whose editor asks what an editor asks over stdio (KF-065). Its result, or its error's message;
+    /// a panic is an error for this request alone, as over a connection.
+    pub fn call(&mut self, method: &str, params: Value) -> Result<Value, String> {
+        let request = Request::new(lsp_server::RequestId::from(0), method.to_owned(), params);
+        respond(request.id.clone(), method, || self.request(&request)).response_result.map_err(|error| error.message)
+    }
+
+    /// One notification handled in process: what the server sends back (each document's
+    /// `textDocument/publishDiagnostics`), as `{ method, params }` objects.
+    pub fn notify(&mut self, method: &str, params: Value) -> Vec<Value> {
+        let notification = Notification::new(method.to_owned(), params);
+        let sent = guarded(method, || self.notification(notification)).unwrap_or_default();
+        sent.into_iter().map(|out| json!({ "method": out.method, "params": out.params })).collect()
+    }
+
     /// The current text of a file: the open document, else the file on disk.
     pub(crate) fn source(&self, path: &Path) -> Option<String> {
         self.documents.get(path).cloned().or_else(|| std::fs::read_to_string(path).ok())

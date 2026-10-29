@@ -14,7 +14,12 @@ import { runtime } from "../src/runtime.ts"
  * The native engine on a directory, which is what the WebAssembly engine on its in-memory volume
  * is to a page: the same session, reading the files the project writes.
  */
-const engine: Engine = { Compiler: loadNative().Compiler, __volume: fs }
+const native = loadNative()
+const engine: Engine = {
+  Compiler: native.Compiler,
+  LanguageServer: native.LanguageServer,
+  __volume: fs,
+}
 
 /** A fresh root, POSIX and canonical so the engine's paths match the project's. */
 function root(): string {
@@ -99,6 +104,7 @@ describe("openProject", () => {
   it("keeps a diagnostic that names no file of the project as the engine wrote it", () => {
     const project = openProject(
       {
+        ...engine,
         Compiler: class {
           transform = () => ({
             diagnostics: JSON.stringify([
@@ -120,7 +126,6 @@ describe("openProject", () => {
           invalidate = () => []
           remove = () => true
         },
-        __volume: fs,
       },
       { root: root(), files: { "a.tsx": "" } }
     )
@@ -146,6 +151,81 @@ describe("openProject", () => {
     expect(() => project.transform("Card.tsx")).toThrow(
       "Card.tsx is not a file of this project"
     )
+  })
+})
+
+describe("the project's language server (KF-065)", () => {
+  /** An inlay hint's label: its text, or its parts' text joined. */
+  const label = (hint: { label: string | { value: string }[] }) =>
+    typeof hint.label === "string"
+      ? hint.label
+      : hint.label.map((part) => part.value).join("")
+  const whole = {
+    start: { line: 0, character: 0 },
+    end: { line: 99, character: 0 },
+  }
+
+  it("answers what an editor asks, on the files the project writes", () => {
+    const project = openProject(engine, {
+      root: root(),
+      files: { "src/tokens.ts": TOKENS, "src/Card.tsx": CARD },
+      language: { summaryLength: 0 },
+    })
+    const { language } = project
+    const uri = language.uri("src/Card.tsx")
+    expect(uri).toBe(`file://${project.root}/src/Card.tsx`)
+    const hints = () =>
+      (
+        language.request("textDocument/inlayHint", {
+          textDocument: { uri },
+          range: whole,
+        }) as { label: string | { value: string }[] }[]
+      ).map(label)
+    // The summary after `sx={card}`, as an editor draws it.
+    expect(hints().join("\n")).toContain("hover:")
+    const lenses = language.request("textDocument/codeLens", {
+      textDocument: { uri },
+    }) as { command: { title: string } }[]
+    expect(lenses.map((lens) => lens.command.title).join("\n")).toContain(
+      "css()"
+    )
+    // A file written now is the text the server reads.
+    project.write("src/Card.tsx", CARD.replace('"2rem"', '"3rem"'))
+    expect(hints().join("\n")).toContain("3rem")
+    // A notification hands back what the server sends.
+    const sent = language.notify("textDocument/didChange", {
+      textDocument: { uri, version: 9 },
+      contentChanges: [{ text: CARD }],
+    })
+    expect(sent[0]).toMatchObject({
+      method: "textDocument/publishDiagnostics",
+      params: { uri },
+    })
+    expect(() =>
+      language.request("textDocument/semanticTokens/full", {})
+    ).toThrow("unhandled request")
+    // A removed file closes, and is gone; one never written was never open.
+    project.remove("src/Card.tsx")
+    project.remove("src/Never.tsx")
+    expect(hints).toThrow("cannot read")
+  })
+})
+
+describe("the binding's LanguageServer", () => {
+  it("throws on an argument, a configuration or a message it cannot read", () => {
+    // An argument that is not a string, then text that is not JSON or no configuration.
+    expect(() => new native.LanguageServer(1 as never, "{}")).toThrow()
+    expect(() => new native.LanguageServer("{}", 1 as never)).toThrow()
+    expect(() => new native.LanguageServer("not json", "{}")).toThrow()
+    expect(() => new native.LanguageServer("{}", "not json")).toThrow()
+    const server = new native.LanguageServer(
+      JSON.stringify({ root: root() }),
+      "{}"
+    )
+    expect(() => server.request("textDocument/hover", "not json")).toThrow()
+    expect(() => server.notify("textDocument/didOpen", "not json")).toThrow()
+    expect(() => server.request(1 as never, "{}")).toThrow()
+    expect(() => server.notify("textDocument/didOpen", 1 as never)).toThrow()
   })
 })
 

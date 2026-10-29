@@ -1665,16 +1665,20 @@ the implementation tracker names its evidence.
 
 ### D-113 — The browser engine is the WASI build with an in-memory project
 
-- **Status:** Accepted (2026-10-28). Answers KF-056 and KF-057.
+- **Status:** Accepted (2026-10-28). Answers KF-056 and KF-057; amended 2026-10-29 for KF-065.
 - **Decision:** the engine runs in a browser as the `wasm32-wasip1-threads` build (D-055) whose
   browser loader mounts an in-memory file system (napi-rs's `wasm.browser.fs`), published as
   `@kirana-style/compiler-browser`: no `cpu` field, its loader, worker, runtime packages and the
   Kirana runtime compiled modules import bundled beside the `.wasm`, so a page or a proxy serves its
   files as they are. `createProject({ config, files })` writes the project to the volume, builds the
   engine's JSON with the Driver's own pure step (`@kirana-style/compiler/engine-json`) and wraps the
-  `Compiler` session; diagnostics come with line and column. CI serves the packed tarball to
-  Chromium from a cross-origin-isolated page and requires its output to match the native engine's
-  byte for byte. No `wasm32-unknown-unknown` build (KRN-CMP-012).
+  `Compiler` session; diagnostics come with line and column. The project's language server runs
+  there too: the binding's `LanguageServer` holds `kirana_lsp::Server` and is asked in process, JSON
+  in and out (`request`, `notify`), and `project.language` opens each file the project writes in it,
+  so a web editor shows the summary, the code lens and hovers the desktop editors show. CI serves the
+  packed tarball to Chromium from a cross-origin-isolated page and requires its output, the
+  summaries among it, to match the native engine's byte for byte. No `wasm32-unknown-unknown` build
+  (KRN-CMP-012).
 - **Rationale:** the WASI build already matches native, and the in-memory file system lets a
   module's imports, its tokens and the configuration's scale modules resolve as on disk, which a
   second target would have to rebuild. Measured on 2026-10-28 (headless Chromium, warm cache): the
@@ -1682,7 +1686,8 @@ the implementation tracker names its evidence.
 - **Trade-off:** the page must be cross-origin isolated (COOP `same-origin`, COEP `require-corp`),
   since the engine's memory is a `SharedArrayBuffer`, and the `.wasm` is 9.1 MB (2.7 MB compressed).
   The configuration arrives evaluated: the page runs `kirana.config.ts` itself, and presets that are
-  npm packages are its to provide.
+  npm packages are its to provide. The language server is a second session on the same files, which
+  indexes the project when it starts: it starts on the first question, not with the project.
 - **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md),
   [11-integrations](./11-integrations.md#runtimes).
 

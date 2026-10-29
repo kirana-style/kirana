@@ -331,6 +331,46 @@ pub fn scan_component(file: String, source: String) -> String {
     serde_json::json!({ "blocks": blocks, "bindings": bindings, "target": target }).to_string()
 }
 
+/// The language server in process (KF-065): a host with no stdin and stdout to give it, a page with
+/// the WebAssembly engine among them, asks it what an editor asks over LSP, as JSON.
+#[napi]
+pub struct LanguageServer {
+    server: kirana_lsp::Server,
+}
+
+#[napi]
+impl LanguageServer {
+    /// Opens a session as `initialize` does: `config_json` is the engine's configuration, and
+    /// `initialize_params` the client's `initialize` parameters (`initializationOptions` among them).
+    #[napi(constructor)]
+    pub fn new(config_json: String, initialize_params: String) -> napi::Result<Self> {
+        let params = json_value(&initialize_params)?;
+        let server = kirana_lsp::Server::start(&config_json, &params).map_err(napi::Error::from_reason)?;
+        Ok(Self { server })
+    }
+
+    /// A request (`textDocument/inlayHint`, `textDocument/hover` …): its result as JSON. Its error
+    /// is thrown.
+    #[napi]
+    pub fn request(&mut self, method: String, params_json: String) -> napi::Result<String> {
+        let params = json_value(&params_json)?;
+        self.server.call(&method, params).map(|result| result.to_string()).map_err(napi::Error::from_reason)
+    }
+
+    /// A notification (`textDocument/didOpen`, `didChange`, `didClose` …): the notifications the
+    /// server sends back, as a JSON array of `{ method, params }`.
+    #[napi]
+    pub fn notify(&mut self, method: String, params_json: String) -> napi::Result<String> {
+        let params = json_value(&params_json)?;
+        Ok(serde_json::Value::Array(self.server.notify(&method, params)).to_string())
+    }
+}
+
+/// A JSON argument, or the error a caller sees for text that is not JSON.
+fn json_value(text: &str) -> napi::Result<serde_json::Value> {
+    serde_json::from_str(text).map_err(|error| napi::Error::from_reason(error.to_string()))
+}
+
 /// Runs the language server on this process's stdin and stdout until the client shuts it down;
 /// returns the exit code. It blocks: `kirana-style lsp` is a process of its own.
 #[napi]

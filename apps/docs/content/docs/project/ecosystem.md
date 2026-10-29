@@ -64,12 +64,12 @@ Every framework has a guide and a tested example; the
 
 ## Runtime and distribution
 
-| What runs it                                     | Detail                                                                                                  |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| Node.js ≥ 22.18, Bun, Deno                       | Any of them runs the compiler and the command line                                                      |
-| Native engine (Node-API)                         | A prebuilt package per platform on npm, eight in all, install-tested in CI                              |
-| WASI fallback (WebContainers, no native addon)   | `@kirana-style/compiler-wasm32-wasi`, with byte-identical output                                        |
-| A browser page (playgrounds, editors on the web) | `@kirana-style/compiler-browser`: the WASI engine with an in-memory project, byte-identical in Chromium |
+| What runs it                                     | Detail                                                                                                                          |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Node.js ≥ 22.18, Bun, Deno                       | Any of them runs the compiler and the command line                                                                              |
+| Native engine (Node-API)                         | A prebuilt package per platform on npm, eight in all, install-tested in CI                                                      |
+| WASI fallback (WebContainers, no native addon)   | `@kirana-style/compiler-wasm32-wasi`, with byte-identical output                                                                |
+| A browser page (playgrounds, editors on the web) | `@kirana-style/compiler-browser`: the WASI engine with an in-memory project and its language server, byte-identical in Chromium |
 
 ## Configuration keys in the specification but not the build
 
