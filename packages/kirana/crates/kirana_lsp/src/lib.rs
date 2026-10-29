@@ -182,6 +182,17 @@ impl Server {
     /// Opens the session and indexes the workspace, so tokens and relations declared anywhere are
     /// known before the first hover.
     pub fn start(config_json: &str, params: &Value) -> Result<Server, String> {
+        Self::start_with(config_json, params, false)
+    }
+
+    /// [`Server::start`] for a host that asks in process from a thread that may not block: a browser
+    /// page's main thread, where the WebAssembly engine runs the binding's `LanguageServer`. The
+    /// project is indexed one file after another (`Project::compile_serially`, KF-065).
+    pub fn start_serial(config_json: &str, params: &Value) -> Result<Server, String> {
+        Self::start_with(config_json, params, true)
+    }
+
+    fn start_with(config_json: &str, params: &Value, serial: bool) -> Result<Server, String> {
         let mut config: Value = serde_json::from_str(config_json).map_err(|error| error.to_string())?;
         if config.get("root").is_none_or(|root| root.as_str().is_none_or(str::is_empty)) {
             let from_params = params
@@ -197,6 +208,9 @@ impl Server {
         let project = Project::new(&config.to_string(), Arc::new(OsFs)).map_err(|diagnostics| {
             diagnostics.iter().map(|diagnostic| diagnostic.message.clone()).collect::<Vec<_>>().join("; ")
         })?;
+        if serial {
+            project.compile_serially();
+        }
         let (indexed, _) = project.compile_paths(std::slice::from_ref(&root));
         let mut module_diagnostics: BTreeMap<PathBuf, Vec<Diagnostic>> = BTreeMap::new();
         for diagnostic in indexed.into_iter().filter(|diagnostic| !diagnostic.file.is_empty()) {
@@ -257,6 +271,22 @@ impl Server {
             components,
             published: BTreeSet::new(),
         })
+    }
+
+    /// One request answered in process, for a host with no connection to the client: a browser,
+    /// whose editor asks what an editor asks over stdio (KF-065). Its result, or its error's message;
+    /// a panic is an error for this request alone, as over a connection.
+    pub fn call(&mut self, method: &str, params: Value) -> Result<Value, String> {
+        let request = Request::new(lsp_server::RequestId::from(0), method.to_owned(), params);
+        respond(request.id.clone(), method, || self.request(&request)).response_result.map_err(|error| error.message)
+    }
+
+    /// One notification handled in process: what the server sends back (each document's
+    /// `textDocument/publishDiagnostics`), as `{ method, params }` objects.
+    pub fn notify(&mut self, method: &str, params: Value) -> Vec<Value> {
+        let notification = Notification::new(method.to_owned(), params);
+        let sent = guarded(method, || self.notification(notification)).unwrap_or_default();
+        sent.into_iter().map(|out| json!({ "method": out.method, "params": out.params })).collect()
     }
 
     /// The current text of a file: the open document, else the file on disk.

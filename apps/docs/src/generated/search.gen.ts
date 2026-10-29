@@ -4688,6 +4688,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Run from the project root and connect over stdio. It runs beside the TypeScript server and answers styling questions only: property names and token keys are TypeScript's, through 's types."
   },
   {
+    "id": "/docs/tooling/editor#an-editor-in-a-web-page",
+    "href": "/docs/tooling/editor#an-editor-in-a-web-page",
+    "page": "Editor support",
+    "section": "tooling",
+    "heading": "An editor in a web page",
+    "text": "A playground or a web IDE runs the same server in the page, on the in-memory project the browser engine compiles. takes the requests an editor sends over LSP, as objects, and hands back what the server answers: The server starts on the first request, and every file the project writes reaches it as an editor's change would."
+  },
+  {
     "id": "/docs/tooling/editor#the-style-card",
     "href": "/docs/tooling/editor#the-style-card",
     "page": "Editor support",

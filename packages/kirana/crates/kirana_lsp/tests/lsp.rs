@@ -702,6 +702,29 @@ fn commands_show_css_explain_and_convert() {
     }
 }
 
+/// A host with no connection asks in process, as the browser binding does (KF-065).
+#[test]
+fn answers_in_process_without_a_connection() {
+    let mut f = fixture(json!({}));
+    let uri = f.uri();
+    let open = json!({ "textDocument": { "uri": uri, "languageId": "typescriptreact", "version": 1, "text": CARD } });
+    let sent = f.server.notify("textDocument/didOpen", open);
+    assert_eq!(sent[0]["method"], "textDocument/publishDiagnostics");
+    assert_eq!(sent[0]["params"]["uri"], json!(uri));
+    let range = f.range("import");
+    let hints =
+        f.server.call("textDocument/inlayHint", json!({ "textDocument": { "uri": uri }, "range": range })).unwrap();
+    assert!(hints.as_array().is_some_and(|hints| !hints.is_empty()), "{hints}");
+    // An error is the message; a notification the server cannot read sends nothing back.
+    assert!(f.server.call("textDocument/semanticTokens/full", json!({})).unwrap_err().contains("unhandled request"));
+    assert_eq!(f.server.notify("textDocument/didOpen", json!(1)), Vec::<Value>::new());
+    // Started for a thread that may not block, it indexes the same project one file after another.
+    let mut serial = Server::start_serial(&config(&f.root), &json!({})).unwrap();
+    let hints =
+        serial.call("textDocument/inlayHint", json!({ "textDocument": { "uri": uri }, "range": range })).unwrap();
+    assert!(hints.as_array().is_some_and(|hints| !hints.is_empty()), "{hints}");
+}
+
 #[test]
 fn unknown_requests_are_method_not_found() {
     let mut f = fixture(json!({}));

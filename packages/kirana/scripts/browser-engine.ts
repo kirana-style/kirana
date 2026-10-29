@@ -1,7 +1,8 @@
 /**
  * The browser engine's check (D-113, KRN-CMP-012): `@kirana-style/compiler-browser`'s packed tarball
  * is served to headless Chromium from a cross-origin-isolated page, compiles projects held in memory,
- * and must write what the native engine writes for the same files, byte for byte. It also prints how
+ * and must write what the native engine writes for the same files, byte for byte, the language
+ * server's summaries of each file among them (KF-065). It also prints how
  * long the engine takes to start and to compile, the numbers the playground is planned on.
  *
  *   bun scripts/browser-engine.ts                    # the tarball in dist-packages/ (bun run pack)
@@ -105,6 +106,8 @@ type Compiled = {
   modules: Record<string, string | undefined>
   diagnostics: string[]
   css: string
+  /** Each file's inlay hints from the language server: where each is, and its text. */
+  hints: Record<string, string[]>
 }
 
 /** What the native engine writes for a fixture, from a directory as a project on disk. */
@@ -112,8 +115,9 @@ function native(fixture: Fixture): Compiled {
   const directory = fs.realpathSync(
     fs.mkdtempSync(path.join(tmpdir(), "kirana-browser-engine-"))
   )
+  const { Compiler, LanguageServer } = loadNative()
   const project = openProject(
-    { Compiler: loadNative().Compiler, __volume: fs },
+    { Compiler, LanguageServer, __volume: fs },
     { root: directory, config: fixture.config, files: fixture.files }
   )
   return compile(project)
@@ -131,7 +135,24 @@ function compile(project: ReturnType<typeof openProject>): Compiled {
         `${diagnostic.file} ${diagnostic.code} ${diagnostic.message}`
       )
   }
-  return { modules, diagnostics, css: project.stylesheet(true) }
+  const hints: Record<string, string[]> = {}
+  for (const file of project.files())
+    hints[file] = (
+      project.language.request("textDocument/inlayHint", {
+        textDocument: { uri: project.language.uri(file) },
+        range: {
+          start: { line: 0, character: 0 },
+          end: { line: 1e4, character: 0 },
+        },
+      }) as {
+        position: { line: number; character: number }
+        label: string | { value: string }[]
+      }[]
+    ).map(
+      ({ position, label }) =>
+        `${position.line}:${position.character} ${typeof label === "string" ? label : label.map((part) => part.value).join("")}`
+    )
+  return { modules, diagnostics, css: project.stylesheet(true), hints }
 }
 
 const PAGE = `<!doctype html>
@@ -150,7 +171,17 @@ const PAGE = `<!doctype html>
       for (const diagnostic of result.diagnostics)
         diagnostics.push(diagnostic.file + " " + diagnostic.code + " " + diagnostic.message)
     }
-    return { modules, diagnostics, css: project.stylesheet(true) }
+    const hints = {}
+    for (const file of project.files())
+      hints[file] = project.language
+        .request("textDocument/inlayHint", {
+          textDocument: { uri: project.language.uri(file) },
+          range: { start: { line: 0, character: 0 }, end: { line: 1e4, character: 0 } },
+        })
+        .map(({ position, label }) =>
+          position.line + ":" + position.character + " " +
+          (typeof label === "string" ? label : label.map((part) => part.value).join("")))
+    return { modules, diagnostics, css: project.stylesheet(true), hints }
   }
   window.ready = true
 </script>
@@ -238,7 +269,8 @@ try {
       JSON.stringify(actual.modules) === JSON.stringify(expected.modules) &&
       actual.css === expected.css &&
       JSON.stringify(actual.diagnostics) ===
-        JSON.stringify(expected.diagnostics)
+        JSON.stringify(expected.diagnostics) &&
+      JSON.stringify(actual.hints) === JSON.stringify(expected.hints)
     console.log(
       `${same ? "ok  " : "FAIL"} ${fixture.name}: ${actual.css.length} bytes of CSS in ${took.toFixed(0)} ms`
     )

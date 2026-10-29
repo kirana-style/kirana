@@ -4237,6 +4237,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 3
       },
       {
+        "id": "an-editor-in-a-web-page",
+        "text": "An editor in a web page",
+        "level": 3
+      },
+      {
         "id": "what-you-get",
         "text": "What you get",
         "level": 2
