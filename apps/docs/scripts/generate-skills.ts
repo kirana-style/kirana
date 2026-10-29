@@ -75,6 +75,8 @@ const FIXES: Record<string, string> = {
     "A relation is anchored but never read. Remove the anchor, or read it with `within`/`after`/`before`. A component that anchors it for another the project may not install declares it `relation(name, { optional: true })`.",
   "relation-placement":
     "A relation is read from a position its anchor cannot be in (`within` needs the anchor on an ancestor, `after` on an earlier sibling). Move the anchor or use the other read.",
+  "relation-read-on-anchor":
+    "Info: an element carries a relation's anchor and reads a state through it (`within`, `parent`), which matches only inside another element with the anchor, never on this one. For the element's own state, use the state as the condition key (`'[data-disabled=\"true\"]'`).",
   "relation-name-collision":
     "Two modules declare a relation with one name, so they share a marker. Declare it once, export it, and import it where it is read.",
   "unknown-token":

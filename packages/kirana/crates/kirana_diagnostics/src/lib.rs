@@ -79,6 +79,7 @@ catalogue! {
     RelationUnused = "KRN1402", "relation-unused", Warning;
     RelationPlacement = "KRN1403", "relation-placement", Error;
     RelationNameCollision = "KRN1404", "relation-name-collision", Error;
+    RelationReadOnAnchor = "KRN1405", "relation-read-on-anchor", Info;
     UnknownToken = "KRN1501", "unknown-token", Error;
     TokenNamespaceCollision = "KRN1502", "token-namespace-collision", Error;
     VariableDefaultScope = "KRN1503", "variable-default-scope", Warning;

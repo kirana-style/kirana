@@ -282,6 +282,13 @@ In a bundler build, R1 covers the relations whose declaring module the build com
 module the build never compiled (a shared component reading an ancestor this application does not
 render) is left to `kirana-style check`, which compiles every module (D-062).
 
+An element whose own `sx` carries a relation's anchor and a `within` or `parent` read of it with a
+state (`form.within('[data-disabled="true"]')`) is accepted by R3, as an outer instance, but it never
+reads the element's own state: `relation-read-on-anchor` (info) names the state and the condition key
+that reads it on the element itself (D-101, KF-066). A read with no state, as a group nested in its
+own kind writes, and an `after` or `before` read, where a repeated part reads the one beside it, are
+not reported.
+
 Any reference to `field.anchor` counts as applying it for R1 and R2 — in an `sx` array, a component prop,
 `props()` or a render prop — because anchors routinely travel through components. Placement that crosses
 component boundaries cannot always be proven statically. Such reads produce no

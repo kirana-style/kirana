@@ -1,0 +1,30 @@
+[
+  {
+    "code": "KRN1405",
+    "name": "relation-read-on-anchor",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 571,
+      "end": 609
+    },
+    "message": "reads `[data-disabled=\"true\"]` through a relation whose anchor this element carries: the read matches inside another element with the anchor, never on this element's own state",
+    "help": [
+      "for this element's own state, use `[data-disabled=\"true\"]` as the condition key; to read an outer instance's, keep the read"
+    ]
+  },
+  {
+    "code": "KRN1405",
+    "name": "relation-read-on-anchor",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1044,
+      "end": 1080
+    },
+    "message": "reads `:hover` through a relation whose anchor this element carries: the read matches inside another element with the anchor, never on this element's own state",
+    "help": [
+      "for this element's own state, use `:hover` as the condition key; to read an outer instance's, keep the read"
+    ]
+  }
+]

@@ -152,6 +152,12 @@ export const DIAGNOSTICS: readonly DiagnosticEntry[] = [
     "family": "Relations"
   },
   {
+    "code": "KRN1405",
+    "name": "relation-read-on-anchor",
+    "severity": "info",
+    "family": "Relations"
+  },
+  {
     "code": "KRN1501",
     "name": "unknown-token",
     "severity": "error",

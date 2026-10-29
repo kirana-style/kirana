@@ -50,7 +50,7 @@ install guide, and each is built and checked in a browser on every change:
   `ambiguous-precedence` diagnostic tells you when two values could both apply.
 - **Tokens and themes.** Design tokens compile to constants or custom properties,
   and every colour can be a `light-dark()` pair, so dark mode needs no variant.
-- **Real diagnostics.** 50 checks with codes, severities and help text, from
+- **Real diagnostics.** 51 checks with codes, severities and help text, from
   unknown properties to a component that forgets to pass `sx` on.
 
 ## What it is not
@@ -182,7 +182,7 @@ answers them:
 | Custom-property assignments were emitted unlayered and beat conditions beside them                                                              | Nothing is emitted outside a layer                                                                                                                                                                   |
 | Tokens had to live in `*.stylex.ts` files and be imported by name                                                                               | Tokens are ordinary exports, imported any way TypeScript allows                                                                                                                                      |
 | `sx` passed to a component that ignores it, or spread past a wrapper, was silent                                                                | `sx-on-external-component` and `unused-sx`, including one module away                                                                                                                                |
-| Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [50 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
+| Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [51 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
 | The official compiler is Babel; the Rust one is a community port behind it                                                                      | The engine is Kirana's own, in Rust on [oxc](https://oxc.rs), with a WASI build that writes the same bytes where no native one runs                                                                  |
 | No utility vocabulary: a Tailwind team rebuilt the scales by hand                                                                               | [`@kirana-style/preset-scales`](/docs/tokens/preset-scales) is Tailwind v4's scales, and [utility strings](/docs/styling/utilities) compile to the same atoms as the object form                     |
 | A port from Tailwind was done by hand                                                                                                           | [`kirana-style migrate tailwind`](/docs/migration/from-tailwind), measured below                                                                                                                     |
@@ -2246,6 +2246,10 @@ An element that carries an anchor and reads it can only mean an outer one, so th
 placement check accepts it, for both kinds of ancestor read. A parent read reaches
 the anchor's children only, where `within` reaches any depth: a port of `*:w-full`
 written with `within` would also widen a grandchild inside a wrapper.
+
+A read with a state there, such as a form that reads
+`form.within('[data-disabled="true"]')`, is reported as `relation-read-on-anchor`,
+an info: it never sees the form's own state, which a plain condition key reads.
 
 The same holds beside it. shadcn/ui's `ItemContent` keeps its width when it
 follows another, and its caller is the one that repeats it, so the part anchors
@@ -7699,7 +7703,7 @@ them, the compiler says so (`ambiguous-precedence`) instead of silently picking.
 `conditions.exclusive` is how you tell it that a library never sets two
 attributes together.
 
-**A diagnostics catalogue.** 50 codes with stable names, severities and help
+**A diagnostics catalogue.** 51 codes with stable names, severities and help
 text, and a configuration key to re-level the non-errors. StyleX reports
 compilation failures; it does not have a catalogue you can suppress, raise, or
 look up.
@@ -10559,6 +10563,13 @@ known at runtime: [values known at runtime](/docs/styling/dynamic).
 applied, so it can never match: [relations](/docs/styling/relations). A build
 checks the relations whose module it compiled; `kirana-style check` checks them all.
 
+**`relation-read-on-anchor`**: an info. An element carries a relation's anchor
+and reads a state through it, `<form sx={[form.anchor, card]}>` with
+`form.within('[data-disabled="true"]')` in its style. The read matches only inside
+another form, never on this one, so the card does not change when the form is
+disabled. For the element's own state, use the state as the condition key:
+`'[data-disabled="true"]': 0.55`.
+
 **`invalid-fallback`**, **`invalid-position-try`**, **`invalid-view-transition`**
 and **`invalid-counter-style`** report a value the browser would drop or misread:
 
@@ -11007,7 +11018,7 @@ line coverage. The [changelog](/changelog) lists every release.
 - Tokens: inlined, variable, per-mode, registered (`@property`)
 - Themes and colour modes
 - Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB
-- 50 diagnostics with stable codes
+- 51 diagnostics with stable codes
 - `@kirana-style/vite` for Vite 8, with hot updates
 - An adapter package for every other bundler, and one for Jest; see
   [bundlers](/docs/integrations/bundlers)

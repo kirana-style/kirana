@@ -52,6 +52,20 @@
     "help": []
   },
   {
+    "code": "KRN1405",
+    "name": "relation-read-on-anchor",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 920,
+      "end": 956
+    },
+    "message": "reads `[data-disabled=\"true\"]` through a relation whose anchor this element carries: the read matches inside another element with the anchor, never on this element's own state",
+    "help": [
+      "for this element's own state, use `[data-disabled=\"true\"]` as the condition key; to read an outer instance's, keep the read"
+    ]
+  },
+  {
     "code": "KRN1403",
     "name": "relation-placement",
     "severity": "error",
