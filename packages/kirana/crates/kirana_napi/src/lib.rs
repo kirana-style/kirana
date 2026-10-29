@@ -185,6 +185,13 @@ impl Compiler {
         out
     }
 
+    /// `code` with dense names (D-084), renamed here in one pass for a build that writes no source
+    /// map; `None` when it names no Kirana class.
+    #[napi]
+    pub fn dense_chunk(&self, code: String) -> Option<String> {
+        self.project.dense_chunk(&code)
+    }
+
     /// `text` with dense names (D-084).
     #[napi]
     pub fn dense_rename(&self, text: String) -> String {

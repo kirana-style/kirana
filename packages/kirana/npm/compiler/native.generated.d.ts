@@ -34,6 +34,11 @@ export declare class Compiler {
    * so far; assigning any the build needs first.
    */
   denseEdits(code: string): DenseEdits
+  /**
+   * `code` with dense names (D-084), renamed here in one pass for a build that writes no source
+   * map; `None` when it names no Kirana class.
+   */
+  denseChunk(code: string): string | null
   /** `text` with dense names (D-084). */
   denseRename(text: string): string
   /** The class map of `classes.modules`, compiling them first; `None` without `classes`. */

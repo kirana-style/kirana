@@ -511,6 +511,8 @@ fn dense_names_cover_the_build_and_keep_their_codes() {
     };
     for code in [&card_out, &page_out] {
         let renamed = apply(code);
+        // A build without source maps gets the same text in one pass.
+        assert_eq!(project.dense_chunk(code).as_ref(), Some(&renamed));
         assert!(!renamed.contains(kirana_ir::dense::MARK), "{renamed}");
         // Every atom the module names has its rule.
         for atom in renamed
@@ -522,8 +524,10 @@ fn dense_names_cover_the_build_and_keep_their_codes() {
             }
         }
     }
-    // The string the module wrote itself is left as it was.
+    // The string the module wrote itself is left as it was, and a chunk that names no class the
+    // compiler wrote is not renamed.
     assert!(apply(&page_out).contains("\"k50_D9ur\""));
+    assert_eq!(project.dense_chunk("export const quoted = \"k50_D9ur\"\n"), None);
     // A module compiled later keeps every earlier code and adds its own.
     let before = project.dense_rename(&css);
     let extra = "import { css } from \"@kirana-style/core\"\nexport const x = css({ color: \"rebeccapurple\", margin: { \":focus\": \"2px\" } })\n";
