@@ -232,7 +232,10 @@ fn rejects_bad_invocations() {
 #[test]
 fn migrates_stylex_sources() {
     let source = b"import * as stylex from \"@stylexjs/stylex\"\nexport const t = stylex.defineVars({ a: \"1px\" })\nconst el = <div {...stylex.props(stylex.defaultMarker())} />\n";
-    let root = temp(&[("src/tokens.stylex.tsx", source), ("src/readme.md", b"# not a source")]);
+    let styles =
+        b"import * as stylex from \"@stylexjs/stylex\"\nexport const s = stylex.create({ a: { width: 10 } })\n";
+    let root =
+        temp(&[("src/tokens.stylex.tsx", source), ("src/styles.tsx", styles), ("src/readme.md", b"# not a source")]);
     let src = root.join("src").to_string_lossy().into_owned();
 
     // Without `--write` the file is untouched and the diff and report are printed.
@@ -240,22 +243,26 @@ fn migrates_stylex_sources() {
     assert_eq!(code, 0, "{output}");
     assert!(output.contains("- export const t = stylex.defineVars"), "{output}");
     assert!(output.contains("+ export const t = defineTokens(\"t\", { a: \"1px\" }, { variable: true })"), "{output}");
-    assert!(output.contains("1 file(s), 1 to rewrite, 1 report item(s)"), "{output}");
+    assert!(output.contains("2 file(s), 2 to rewrite, 1 report item(s)"), "{output}");
     assert!(output.contains("default marker"), "{output}");
     assert_eq!(fs::read(root.join("src/tokens.stylex.tsx")).unwrap(), source);
 
-    // With it, the file is rewritten and the report is written where asked.
+    // With it, the file is rewritten under its new name (`.stylex` goes, KF-074) and the report is
+    // written where asked.
     let report = root.join("report.txt").to_string_lossy().into_owned();
     let (code, output) = run(&["migrate", "stylex", &src, "--write", "--report", &report]);
     assert_eq!(code, 0, "{output}");
-    assert!(output.contains("1 rewritten"), "{output}");
-    let rewritten = fs::read_to_string(root.join("src/tokens.stylex.tsx")).unwrap();
+    assert!(output.contains("2 rewritten"), "{output}");
+    assert!(!root.join("src/tokens.stylex.tsx").exists());
+    // A file that keeps its name is written in place.
+    assert!(fs::read_to_string(root.join("src/styles.tsx")).unwrap().contains("width: \"10px\""));
+    let rewritten = fs::read_to_string(root.join("src/tokens.tsx")).unwrap();
     assert!(rewritten.contains("defineTokens"), "{rewritten}");
     assert!(fs::read_to_string(&report).unwrap().contains("default marker"));
 
     // A second run has nothing left to do.
     let (_, output) = run(&["migrate", "stylex", &src]);
-    assert!(output.contains("1 file(s), 0 to rewrite"), "{output}");
+    assert!(output.contains("2 file(s), 0 to rewrite"), "{output}");
     fs::remove_dir_all(root).unwrap();
 }
 

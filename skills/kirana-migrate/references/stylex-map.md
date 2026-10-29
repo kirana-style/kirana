@@ -17,7 +17,16 @@
 | `stylex.when.descendant`, `anySibling`                              | no equivalent: write a `:has()` condition                                      |
 | `default:` inside a value                                           | `base:`                                                                        |
 | `default: null`                                                     | omit the key (Kirana's `base: null` removes an earlier value)                  |
-| `*.stylex.ts` files                                                 | renamed to `*.ts` by the codemod                                               |
+| `*.stylex.ts`, `*.stylex.js` files                                  | renamed to `*.ts`, `*.js` by the codemod, with the imports of them             |
+| a bare number (`borderWidth: 10`, `transitionDuration: 150`)        | the unit StyleX gave it (`"10px"`, `"150ms"`), written by the codemod          |
+| `marginHorizontal`, `start`, `borderTopStartRadius` …               | `marginInline`, `insetInlineStart`, `borderStartStartRadius` …                 |
+| `float: "start"`                                                    | `float: "inline-start"`                                                        |
+| a fallback array `["100vh", "100dvh"]`                              | `firstThatWorks("100dvh", "100vh")`                                            |
+| `{ default, "@media (prefers-color-scheme: dark)" }` in a theme     | `{ light, dark }`                                                              |
+| a condition block at the top of a style (`":hover": { color }`)     | inside each property: `color: { base, ":hover" }`                              |
+| `!important`                                                        | none; the codemod reports it (the precedence ladder orders every rule)         |
+| a selector with no condition (`":autofill + label"`)                | reported by the codemod: port it by hand                                       |
+| a Flow file                                                         | strip its types first (`flow-remove-types`); the codemod cannot read Flow      |
 
 ## After the codemod
 

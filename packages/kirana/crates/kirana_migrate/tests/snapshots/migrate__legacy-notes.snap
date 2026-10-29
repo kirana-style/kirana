@@ -1,0 +1,14 @@
+---
+source: crates/kirana_migrate/tests/migrate.rs
+expression: result.notes
+---
+[
+    Note {
+        offset: 1425,
+        message: "`:autofill + label` is not a condition Kirana takes (\":autofill + label\": expected a pseudo-class, an attribute selector or an at-rule): port this selector by hand",
+    },
+    Note {
+        offset: 1651,
+        message: "`!important` on fontWeight: Kirana writes none, since its precedence ladder orders every rule; remove it and check what it was overriding",
+    },
+]

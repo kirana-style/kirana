@@ -1,0 +1,52 @@
+---
+source: crates/kirana_migrate/tests/migrate.rs
+expression: result.source
+---
+// What StyleX reads one way and Kirana another (KF-074), as StyleX's own benchmark fixtures write it.
+import { css, defineTheme, defineTokens, firstThatWorks, keyframes } from "@kirana-style/core"
+import { sizes } from './sizes.js';
+import { colors } from './colors';
+
+const DARK = '@media (prefers-color-scheme: dark)';
+
+export const spacing = { small: '4px' };
+
+export const surface = defineTokens("surface", {
+  canvas: { light: 'white', dark: 'black' },
+  print: { default: 'white', '@media print': 'white', [DARK]: 'black' },
+}, { variable: true });
+
+const systemTheme = {
+  '--accent': { light: 'blue', dark: 'lightblue' },
+};
+
+export const SystemTheme = defineTheme(colors, systemTheme);
+export const accent = [systemTheme['--accent'].light, systemTheme['--accent'].dark];
+
+const spin = keyframes({
+  from: { insetInlineStart: 0, borderWidth: "1px" },
+  to: { insetInlineStart: "10px", borderWidth: "2px" },
+});
+
+export const styles = {
+  button: css({
+    borderWidth: "1px",
+    borderStartStartRadius: "4px",
+    marginInline: "-8px",
+    transitionDuration: "150ms",
+    lineHeight: 1.25,
+    opacity: 0,
+    minHeight: firstThatWorks('100dvh', '100vh'),
+    float: "inline-start",
+    color: { base: 'black', ':hover': 'blue', '@media (min-width: 600px)': { ':hover': 'green' } },
+    paddingInlineStart: { ':hover': "2px" },
+    padding: { '@media (min-width: 600px)': "12px" },
+    '::placeholder': {
+      color: { base: 'gray', ':focus': 'silver' },
+    },
+    ':autofill + label': { color: 'red' },
+  }),
+  link: css({ color: { base: 'blue', ':focus': 'navy', ':hover': 'purple' } }),
+  sized: (size) => css({ width: size, height: "20px", animationName: spin }),
+  loud: css({ fontWeight: 'bold !important' }),
+};

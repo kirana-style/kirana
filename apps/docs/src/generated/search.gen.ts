@@ -3791,7 +3791,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from StyleX",
     "section": "migration",
     "heading": "The codemod",
-    "text": "It makes the mechanical rewrites, renames files, and prints a report of everything it would not decide: Two follow-up passes still live as scripts in the compiler's repository: on an element you own becomes ; on a component from a package becomes , because those never read ."
+    "text": "It makes the mechanical rewrites, renames files with the imports of them, and prints a report of everything it would not decide: Inside a style, it writes what StyleX read in the way StyleX read it, so the port renders the same: A bare number gets the unit StyleX gave it. becomes , and a duration's becomes . Zero, and a number its property takes, stay as they are , as in . StyleX's own property names become the standard ones. is and is . Its logical floats are standard too: is . A fallback array becomes . In the later value wins where it works, so it is . A theme value for dark mode becomes a mode object. is , and the file's reads of it follow. A condition block at the top of a style moves into each property it sets. joins as , the same CSS. It reports these and leaves them as written: , which Kirana never writes: its ladder orders every rule. Removing it changes what the rule beats, so check what it was overriding. A selector Kirana takes no condition for , such as . A Flow file , which it cannot read. Strip its types first with , then run it again. Two follow-up passes still live as scripts in the compiler's repository: on an element you own becomes ; on a component from a packag"
   },
   {
     "id": "/docs/migration/from-stylex#after-the-codemod",
