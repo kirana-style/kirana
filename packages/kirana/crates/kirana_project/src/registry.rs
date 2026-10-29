@@ -2,11 +2,11 @@
 //! project-wide checks over it.
 
 use std::collections::{BTreeMap, BTreeSet};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::Arc;
 
 use kirana_diagnostics::{Code, Diagnostic, Span, apply_level};
-use kirana_emit::{EmitOptions, EmitOutput, emit};
+use kirana_emit::{EmitOptions, EmitOutput, emit_refs};
 use kirana_evaluator::{Definitions, relation_reads};
 use kirana_ir::dense::{self, Edit, Segment};
 use kirana_ir::{Atom, Dep, EntryKey, Handle, Names, Op, Property, Recipe, Target};
@@ -22,7 +22,8 @@ pub struct ModuleRecord {
     pub handles: Vec<((u32, u32), Arc<Handle>)>,
     /// `(site span, recipe)` for every recipe written; its handles are in `handles` too.
     pub recipes: Vec<((u32, u32), Arc<Recipe>)>,
-    pub atoms: Vec<Atom>,
+    /// Shared with the atom index, which holds every module's atoms.
+    pub atoms: Vec<Arc<Atom>>,
     pub marker_deps: Vec<Dep>,
     pub anchors: Vec<String>,
     /// Relation markers read by atoms.
@@ -47,7 +48,7 @@ impl ModuleRecord {
         for (_, handle) in &output.handles {
             for atom in Atom::from_handle(names, handle) {
                 if seen.insert(atom.class.clone()) {
-                    record.atoms.push(atom);
+                    record.atoms.push(Arc::new(atom));
                 }
             }
             for op in &handle.ops {
@@ -85,20 +86,34 @@ pub(crate) struct AtomIndex {
     /// Class → each module writing it, with its atom. The stylesheet takes the first module's, in
     /// path order, as a walk of the modules in that order did: two atoms share a class only when
     /// `class-name-collision` reports them.
-    atoms: BTreeMap<String, BTreeMap<PathBuf, Atom>>,
+    atoms: BTreeMap<String, BTreeMap<ModuleKey, Arc<Atom>>>,
     /// The marker dependencies of each module that has any, in path order.
-    marker_deps: BTreeMap<PathBuf, Vec<Dep>>,
+    marker_deps: BTreeMap<ModuleKey, Vec<Dep>>,
     /// `(shorthand, target)` → how many unfold tokens name it, across modules.
     unfolds: BTreeMap<(String, Target), usize>,
 }
 
+/// A module's path as the index orders it: its bytes, each separator as `\0`, which sorts as the
+/// path's components do and compares as bytes, where a path compares component by component. A key
+/// is shared by every atom of its module.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct ModuleKey(Arc<[u8]>);
+
+impl ModuleKey {
+    fn new(path: &Path) -> Self {
+        let text = path.to_string_lossy();
+        Self(text.bytes().map(|byte| if byte == b'/' || byte == b'\\' { 0 } else { byte }).collect())
+    }
+}
+
 impl AtomIndex {
     pub(crate) fn add(&mut self, path: &Path, record: &ModuleRecord) {
+        let module = ModuleKey::new(path);
         for atom in &record.atoms {
-            self.atoms.entry(atom.class.clone()).or_default().entry(path.to_path_buf()).or_insert_with(|| atom.clone());
+            self.atoms.entry(atom.class.clone()).or_default().entry(module.clone()).or_insert_with(|| atom.clone());
         }
         if !record.marker_deps.is_empty() {
-            self.marker_deps.insert(path.to_path_buf(), record.marker_deps.clone());
+            self.marker_deps.insert(module, record.marker_deps.clone());
         }
         for (shorthand, target) in &record.unfolds {
             *self.unfolds.entry((shorthand.name.clone(), target.clone())).or_default() += 1;
@@ -106,14 +121,15 @@ impl AtomIndex {
     }
 
     pub(crate) fn remove(&mut self, path: &Path, record: &ModuleRecord) {
+        let module = ModuleKey::new(path);
         for atom in &record.atoms {
             let modules = self.atoms.get_mut(&atom.class).expect("added with the record");
-            modules.remove(path);
+            modules.remove(&module);
             if modules.is_empty() {
                 self.atoms.remove(&atom.class);
             }
         }
-        self.marker_deps.remove(path);
+        self.marker_deps.remove(&module);
         for (shorthand, target) in &record.unfolds {
             let key = (shorthand.name.clone(), target.clone());
             let count = self.unfolds.get_mut(&key).expect("added with the record");
@@ -190,13 +206,15 @@ impl Project {
             .unwrap_or_default()
     }
 
-    fn live(&self) -> (Vec<Atom>, Vec<Dep>) {
+    fn live(&self) -> (Vec<Arc<Atom>>, Vec<Dep>) {
         let state = self.state.read().expect("not poisoned");
         let index = &state.index;
-        let mut atoms: BTreeMap<String, Atom> = index
+        // In class order, as the index keeps them: the stylesheet writer then sorts without
+        // comparing classes.
+        let atoms: Vec<Arc<Atom>> = index
             .atoms
-            .iter()
-            .map(|(class, modules)| (class.clone(), modules.values().next().expect("an entry has a module").clone()))
+            .values()
+            .map(|modules| modules.values().next().expect("an entry has a module").clone())
             .collect();
         let mut deps = Vec::new();
         for dep in index.marker_deps.values().flatten() {
@@ -207,7 +225,7 @@ impl Project {
         // A runtime merge can unfold a shorthand atom into its longhands, reusing the atom's value
         // segment. Those longhand rules exist only where some module can unfold that shorthand.
         let siblings: Vec<Atom> = atoms
-            .values()
+            .iter()
             .filter(|atom| index.unfolds.contains_key(&(atom.key.property.name.clone(), atom.key.target.clone())))
             .flat_map(|atom| {
                 kirana_cascade::longhands_of(&atom.key.property.name).unwrap_or_default().into_iter().map(|longhand| {
@@ -217,10 +235,13 @@ impl Project {
                 })
             })
             .collect();
-        for atom in siblings {
-            atoms.entry(atom.class.clone()).or_insert(atom);
-        }
-        (atoms.into_values().collect(), deps)
+        // Into class order, the modules' atoms first: a stable sort keeps a class a module writes
+        // itself ahead of the sibling that shares it, and `dedup` keeps that one.
+        let mut merged = atoms;
+        merged.extend(siblings.into_iter().map(Arc::new));
+        merged.sort_by(|a, b| a.class.cmp(&b.class));
+        merged.dedup_by(|later, earlier| later.class == earlier.class);
+        (merged, deps)
     }
 
     /// The stylesheet for every module in the build graph (KRN-OUT-001 – -003, -007, -008).
@@ -259,7 +280,7 @@ impl Project {
             lower_for: self.lowering_targets(),
             named: named.clone(),
         };
-        let output = emit(&atoms, &deps, &options);
+        let output = emit_refs(&atoms.iter().map(|atom| &**atom).collect::<Vec<_>>(), &deps, &options);
         self.state.write().expect("not poisoned").cached.stylesheet = Some((revision, minify, named, output.clone()));
         output
     }
@@ -290,7 +311,7 @@ impl Project {
         if !self.state.read().expect("not poisoned").dense_stale {
             return;
         }
-        let mut classes: Vec<String> = self.live().0.into_iter().map(|atom| atom.class).collect();
+        let mut classes: Vec<String> = self.live().0.iter().map(|atom| atom.class.clone()).collect();
         {
             let state = self.state.read().expect("not poisoned");
             for record in state.modules.values() {
@@ -531,9 +552,9 @@ impl Project {
         let mut state = self.state.write().expect("not poisoned");
         state.revision += 1;
         let atom = state.modules.get(path).and_then(|record| record.atoms.first().cloned()).expect("an atom");
-        let mut different_value = atom.clone();
+        let mut different_value = (*atom).clone();
         different_value.value.css = "a different value".to_owned();
-        let mut different_key = atom.clone();
+        let mut different_key = (*atom).clone();
         different_key.class = format!("{}_zzz", &atom.class[..atom.class.rfind('_').expect("value segment")]);
         different_key.key.property = kirana_ir::Property::longhand("--renamed");
         let theme = |ink: &str| {
@@ -544,7 +565,7 @@ impl Project {
             }))
         };
         let ghost = ModuleRecord {
-            atoms: vec![different_value, different_key],
+            atoms: vec![Arc::new(different_value), Arc::new(different_key)],
             marker_deps: vec![theme("black"), theme("white")],
             ..ModuleRecord::default()
         };

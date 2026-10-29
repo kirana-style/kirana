@@ -79,9 +79,9 @@ pub fn transform(evaluator: &Evaluator<'_, '_, '_>) -> TransformOutput {
     }
     let mut magic = MagicString::new(source);
     let top = top_level(&edits);
-    let rendered = std::cell::RefCell::new(Vec::new());
+    let rendered = Rendered::default();
     for edit in &top {
-        rendered.borrow_mut().push((edit.start, edit.end));
+        rendered.borrow_mut().insert((edit.start, edit.end));
         let text = render_pieces(source, &edit.pieces, &edits, &rendered);
         magic.update(edit.start, edit.end, text).expect("edits replace non-empty, non-overlapping ranges");
     }
@@ -153,7 +153,9 @@ fn top_level(edits: &[Edit]) -> Vec<&Edit> {
     top
 }
 
-type Rendered = std::cell::RefCell<Vec<(u32, u32)>>;
+/// The edits written so far, by span: a set, since a module with a thousand styles asks it for each
+/// of its edits.
+type Rendered = std::cell::RefCell<kirana_shared::FxHashSet<(u32, u32)>>;
 
 /// Renders pieces, applying edits nested inside copied source ranges.
 fn render_pieces(source: &str, pieces: &[Piece], edits: &[Edit], rendered: &Rendered) -> String {
@@ -176,7 +178,7 @@ fn render_range(source: &str, start: u32, end: u32, edits: &[Edit], rendered: &R
     let mut out = String::new();
     let mut cursor = start;
     for edit in top_level(&inside) {
-        rendered.borrow_mut().push((edit.start, edit.end));
+        rendered.borrow_mut().insert((edit.start, edit.end));
         out.push_str(&source[cursor as usize..edit.start as usize]);
         out.push_str(&render_pieces(source, &edit.pieces, &inside, rendered));
         cursor = edit.end;

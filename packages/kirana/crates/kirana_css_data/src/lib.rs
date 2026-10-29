@@ -9,6 +9,11 @@
 pub mod generated;
 pub mod grammar;
 
+use std::borrow::Cow;
+use std::sync::OnceLock;
+
+use rustc_hash::{FxHashMap, FxHashSet};
+
 use generated::{
     COLOUR_KEYWORDS, FAMILY_2_END, FAMILY_4_END, KEYWORDS, NUMERIC, PROPERTIES, PROPERTY_INDEX, PSEUDO_CLASSES,
     PSEUDO_ELEMENTS, SHORTHANDS,
@@ -19,9 +24,12 @@ pub fn shorthands() -> &'static [&'static str] {
     SHORTHANDS
 }
 
-/// The position of a property in [`PROPERTIES`]: its code in class names (D-037).
+/// The position of a property in [`PROPERTIES`]: its code in class names (D-037). Every class name
+/// and every atom the stylesheet writes asks it, so the table is read once into a map rather than
+/// searched each time.
 pub fn property_index(kebab: &str) -> Option<usize> {
-    PROPERTY_INDEX.binary_search_by(|(name, _)| name.cmp(&kebab)).ok().map(|found| usize::from(PROPERTY_INDEX[found].1))
+    static INDEX: OnceLock<FxHashMap<&'static str, u16>> = OnceLock::new();
+    INDEX.get_or_init(|| PROPERTY_INDEX.iter().copied().collect()).get(kebab).map(|index| usize::from(*index))
 }
 
 /// The longhands of a box shorthand family (`padding`, `gap`, `border-inline-width`, …): the
@@ -100,7 +108,8 @@ pub fn accepts_number(kebab: &str) -> bool {
 
 /// Whether MDN documents the property as a shorthand.
 pub fn is_shorthand(kebab: &str) -> bool {
-    SHORTHANDS.binary_search(&kebab).is_ok()
+    static SET: OnceLock<FxHashSet<&'static str>> = OnceLock::new();
+    SET.get_or_init(|| SHORTHANDS.iter().copied().collect()).contains(kebab)
 }
 
 fn is_vendor(name: &str, colons: &str) -> bool {
@@ -225,16 +234,22 @@ pub fn physical_counterpart(kebab: &str) -> Option<&'static str> {
 /// … `padding-block-end` (KF-064). A box partly held adds nothing, since which logical side a
 /// physical one is depends on the writing mode; no shorthand holds a whole box's logical sides.
 pub fn logical_box(longhands: &[&str]) -> Vec<&'static str> {
+    // Each pair's box, as the physical sides it needs, worked out once: every whole removal asks.
+    static BOXES: OnceLock<Vec<Vec<&'static str>>> = OnceLock::new();
+    let boxes = BOXES.get_or_init(|| {
+        COUNTERPARTS
+            .iter()
+            .map(|(_, physical)| {
+                let group = flow_key(physical).0;
+                COUNTERPARTS.iter().filter(|(_, other)| flow_key(other).0 == group).map(|(_, other)| *other).collect()
+            })
+            .collect()
+    });
     COUNTERPARTS
         .iter()
-        .filter(|(_, physical)| {
-            let group = flow_group(physical).0;
-            COUNTERPARTS
-                .iter()
-                .filter(|(_, other)| flow_group(other).0 == group)
-                .all(|(_, other)| longhands.contains(other))
-        })
-        .map(|(logical, _)| *logical)
+        .zip(boxes)
+        .filter(|(_, sides)| sides.iter().all(|side| longhands.contains(side)))
+        .map(|((logical, _), _)| *logical)
         .collect()
 }
 
@@ -247,9 +262,29 @@ pub fn logical_box(longhands: &[&str]) -> Vec<&'static str> {
 /// vertical writing, while `margin-left` never sets the top margin. A group may hold properties that
 /// never meet, which only costs the stylesheet writer a merge.
 pub fn flow_group(kebab: &str) -> (String, bool) {
+    let (group, logical) = flow_key(kebab);
+    (group.into_owned(), logical)
+}
+
+/// [`flow_group`] without a copy: a known property's group comes from a table built once (the
+/// stylesheet writer asks it for every longhand of every atom), a custom property is its own group,
+/// and only an unknown name is worked out each time.
+pub fn flow_key(kebab: &str) -> (Cow<'_, str>, bool) {
+    static GROUPS: OnceLock<FxHashMap<&'static str, (String, bool)>> = OnceLock::new();
     if kebab.starts_with("--") {
-        return (kebab.to_owned(), false);
+        return (Cow::Borrowed(kebab), false);
     }
+    let groups = GROUPS.get_or_init(|| PROPERTIES.iter().map(|name| (*name, group_of(name))).collect());
+    match groups.get(kebab) {
+        Some((group, logical)) => (Cow::Borrowed(group.as_str()), *logical),
+        None => {
+            let (group, logical) = group_of(kebab);
+            (Cow::Owned(group), logical)
+        }
+    }
+}
+
+fn group_of(kebab: &str) -> (String, bool) {
     let tokens: Vec<&str> = kebab.split('-').collect();
     let mut kept: Vec<&str> = Vec::with_capacity(tokens.len());
     let (mut logical, mut sided) = (false, false);
@@ -291,7 +326,7 @@ pub fn competes(a: &str, b: &str) -> bool {
     if a == b || vendor(a) || vendor(b) {
         return true;
     }
-    let ((first, first_logical), (second, second_logical)) = (flow_group(a), flow_group(b));
+    let ((first, first_logical), (second, second_logical)) = (flow_key(a), flow_key(b));
     first == second && (first_logical || second_logical)
 }
 

@@ -726,18 +726,11 @@ impl<'a> Evaluator<'_, 'a, '_> {
     /// The variable tokens, keyframes, position-try fallbacks, view transitions and counter styles a
     /// piece of CSS text refers to.
     pub fn deps_in(&self, text: &str) -> Vec<Dep> {
-        let prefix = &self.ctx.names.prefix;
         let mut deps = Vec::new();
-        let markers = [
-            (format!("--{prefix}v"), 'v'),
-            (format!("{prefix}f"), 'f'),
-            (format!("--{prefix}p"), 'p'),
-            (format!("{prefix}w"), 'w'),
-            (format!("{prefix}c"), 'c'),
-        ];
-        for (marker, kind) in markers {
+        for (marker, kind) in &self.markers {
+            let kind = *kind;
             let mut from = 0;
-            while let Some(offset) = text[from..].find(&marker) {
+            while let Some(offset) = text[from..].find(marker.as_str()) {
                 let start = from + offset;
                 let end = start + marker.len() + kirana_ir::NAME_HASH;
                 from = start + marker.len();

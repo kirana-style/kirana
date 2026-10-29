@@ -82,6 +82,9 @@ pub struct Evaluator<'p, 'a, 'c> {
     pub(crate) parsed: &'p Parsed<'a>,
     pub(crate) ctx: Context<'c>,
     pub(crate) host: &'c dyn Host,
+    /// The emitted-name markers `deps_in` looks for, with the kind each names, built once: it reads
+    /// every atom value.
+    pub(crate) markers: [(String, char); 5],
     symbols: RefCell<FxHashMap<SymbolId, Option<Value>>>,
     /// The attributes the `css()` call being compiled claims through `own()` handles (KF-044).
     pub(crate) claimed: RefCell<Vec<String>>,
@@ -148,6 +151,16 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             parsed,
             ctx,
             host,
+            markers: {
+                let prefix = &ctx.names.prefix;
+                [
+                    (format!("--{prefix}v"), 'v'),
+                    (format!("{prefix}f"), 'f'),
+                    (format!("--{prefix}p"), 'p'),
+                    (format!("{prefix}w"), 'w'),
+                    (format!("{prefix}c"), 'c'),
+                ]
+            },
             symbols: RefCell::default(),
             claimed: RefCell::default(),
             statics: RefCell::default(),

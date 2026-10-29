@@ -15,14 +15,16 @@
 
 pub mod minify;
 
+use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::fmt::Write as _;
 
-use kirana_css_data::{PropertyRank, Sets, flow_group, sets};
+use kirana_css_data::{PropertyRank, Sets, flow_key, sets};
 use kirana_ir::{
     Atom, Condition, CounterStyleDef, Dep, KeyframesDef, PositionTryDef, RelationKind, Target, ThemeDef, TokenDef,
-    TokenValue, ViewTransitionDef, fallback_values, ladder_key,
+    TokenValue, ViewTransitionDef, fallback_values, ladder_key, ladder_rank,
 };
+use kirana_shared::FxHashMap;
 use lightningcss::stylesheet::{MinifyOptions, ParserOptions, PrinterOptions, StyleSheet};
 use lightningcss::targets::Targets;
 
@@ -290,9 +292,9 @@ pub fn atom_rule(atom: &Atom, minify: bool) -> String {
 /// a shorthand and its longhands, and a vendor-prefixed alias.
 #[derive(Default)]
 struct Decided<'a> {
-    property: BTreeMap<&'a str, usize>,
+    property: FxHashMap<&'a str, usize>,
     /// By flow group, and whether the property is the flow-relative member.
-    group: BTreeMap<(String, bool), usize>,
+    group: FxHashMap<(Cow<'a, str>, bool), usize>,
     /// The last rule that competes with every property: a vendor-prefixed one, or a shorthand whose
     /// longhands are not in the property table.
     everything: Option<usize>,
@@ -316,7 +318,7 @@ impl<'a> Decided<'a> {
             self.everything = Some(index);
         }
         self.property.insert(name, index);
-        self.group.insert(flow_group(name), index);
+        self.group.insert(flow_key(name), index);
     }
 
     /// Whether `atom`'s declaration may join rule `index`: no rule after it decides the atom's
@@ -337,7 +339,7 @@ impl<'a> Decided<'a> {
         if is_vendor(name) {
             return !after(self.any.as_ref());
         }
-        let (group, logical) = flow_group(name);
+        let (group, logical) = flow_key(name);
         !after(self.group.get(&(group.clone(), true))) && !(logical && after(self.group.get(&(group, false))))
     }
 }
@@ -432,7 +434,7 @@ fn write_block(writer: &mut Writer, block: &mut Vec<&Atom>, own: bool) {
         arrange(block);
     }
     let mut rules: Vec<(Vec<String>, &str, &str)> = Vec::new();
-    let mut merge_into: BTreeMap<(&str, &str), usize> = BTreeMap::new();
+    let mut merge_into: FxHashMap<(&str, &str), usize> = FxHashMap::default();
     let mut decided = Decided::default();
     for atom in block.drain(..) {
         let property = atom.key.property.name.as_str();
@@ -528,6 +530,12 @@ fn write_view_transition(writer: &mut Writer, transition: &ViewTransitionDef) {
 /// Writes the stylesheet for a set of live atoms and marker dependencies (KRN-OUT-008: callers
 /// pass only what the build graph references).
 pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitOutput {
+    emit_refs(&atoms.iter().collect::<Vec<_>>(), marker_deps, options)
+}
+
+/// [`emit`] for atoms held elsewhere: the registry shares its atoms rather than copying them for each
+/// stylesheet.
+pub fn emit_refs(atoms: &[&Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitOutput {
     let mut deps = Deps::default();
     for atom in atoms {
         atom.value.deps.iter().for_each(|dep| deps.add(dep));
@@ -660,10 +668,17 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
         writer.close();
     }
 
-    let mut contextual: Vec<&Atom> = atoms.iter().filter(|atom| atom.key.target.is_contextual()).collect();
-    let mut own: Vec<&Atom> = atoms.iter().filter(|atom| !atom.key.target.is_contextual()).collect();
-    contextual.sort_by_cached_key(|atom| ladder_key(atom));
-    own.sort_by_cached_key(|atom| ladder_key(atom));
+    let mut contextual: Vec<&Atom> = atoms.iter().copied().filter(|atom| atom.key.target.is_contextual()).collect();
+    let mut own: Vec<&Atom> = atoms.iter().copied().filter(|atom| !atom.key.target.is_contextual()).collect();
+    // Atoms already in class order (the registry's) need no class in their key: a stable sort keeps
+    // that order among ties, and comparing classes was most of the sort.
+    if atoms.is_sorted_by(|a, b| a.class <= b.class) {
+        contextual.sort_by_cached_key(|atom| ladder_rank(atom));
+        own.sort_by_cached_key(|atom| ladder_rank(atom));
+    } else {
+        contextual.sort_by_cached_key(|atom| ladder_key(atom));
+        own.sort_by_cached_key(|atom| ladder_key(atom));
+    }
     contextual.dedup_by(|a, b| a.class == b.class);
     own.dedup_by(|a, b| a.class == b.class);
     if !contextual.is_empty() {
@@ -695,9 +710,9 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
 /// key to a descendant, and there the order between them decides.
 fn write_tiers(writer: &mut Writer, atoms: &[&Atom]) {
     let mut tiers: Vec<Vec<&Atom>> = Vec::new();
-    let mut last: Option<kirana_ir::LadderKey> = None;
+    let mut last: Option<kirana_ir::LadderRank> = None;
     for atom in atoms {
-        let key = ladder_key(atom);
+        let key = ladder_rank(atom);
         match &last {
             Some(previous) if previous.same_tier(&key) => tiers.last_mut().expect("a tier is open").push(atom),
             _ => tiers.push(vec![atom]),

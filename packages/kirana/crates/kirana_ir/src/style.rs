@@ -502,31 +502,44 @@ pub fn ladder_order(a: &Atom, b: &Atom) -> Ordering {
 /// atoms are compared O(n log n) times; `sort_by_cached_key(ladder_key)` builds one per atom.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct LadderKey {
+    rank: LadderRank,
+    /// Last, so it only breaks ties.
+    class: String,
+}
+
+/// [`LadderKey`] without the class, which only breaks ties: atoms already in class order, sorted
+/// stably by this, come out in the same order with far less to compare, since most atoms share
+/// every other field (`ladder_rank`).
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct LadderRank {
     conditions: crate::condition::SetKey,
     /// Fewer longhands first: ladder step 5 ranks the narrower declaration higher.
     breadth: std::cmp::Reverse<u8>,
     rank: PropertyRank,
     canonical: String,
-    class: String,
 }
 
-impl LadderKey {
+impl LadderRank {
     /// Whether two atoms sit in one tier of the ladder: the same condition set's rank, breadth and
     /// property rank. Atoms of one tier never outrank each other but by their position, which only
     /// an `ambiguous-precedence` pair depends on; `layers.tiers` writes each tier as a sub-layer
     /// (KF-052).
-    pub fn same_tier(&self, other: &LadderKey) -> bool {
+    pub fn same_tier(&self, other: &LadderRank) -> bool {
         self.conditions == other.conditions && self.breadth == other.breadth && self.rank == other.rank
     }
 }
 
 pub fn ladder_key(atom: &Atom) -> LadderKey {
-    LadderKey {
+    LadderKey { rank: ladder_rank(atom), class: atom.class.clone() }
+}
+
+/// An atom's place in the ladder but for the class ([`LadderRank`]).
+pub fn ladder_rank(atom: &Atom) -> LadderRank {
+    LadderRank {
         conditions: crate::condition::set_key(&atom.key.conditions),
         breadth: std::cmp::Reverse(atom.value.longhands),
         rank: atom.key.property.rank,
         canonical: atom.key.conditions.canonical(),
-        class: atom.class.clone(),
     }
 }
 
