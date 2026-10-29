@@ -263,3 +263,246 @@ fn shared_helpers_are_renamed() {
         "{out}"
     );
 }
+
+/// What StyleX reads one way and Kirana another (KF-074), in one JavaScript file: bare numbers,
+/// legacy names, fallback arrays, theme values for dark mode, condition blocks at the top of a
+/// style, and what is reported instead of rewritten.
+#[test]
+fn the_legacy_fixture() {
+    let source = include_str!("../../../fixtures/migrate/legacy.js");
+    let result = run("legacy.js", source);
+    insta::assert_snapshot!("legacy", result.source);
+    insta::assert_debug_snapshot!("legacy-notes", result.notes);
+}
+
+fn style(entry: &str) -> String {
+    rewritten(&format!("import * as stylex from \"@stylexjs/stylex\"\nconst s = stylex.create({{ a: {entry} }})\n"))
+}
+
+/// StyleX gives a bare number `px` (`ms` on a duration); Kirana takes one only where the property's
+/// grammar does, so the unit is written where Kirana would refuse the number.
+#[test]
+fn bare_numbers_get_the_unit_stylex_gave_them() {
+    let out = style(
+        "{ width: 10, margin: -4, animationDelay: 20, zIndex: 2, flexGrow: 1, top: 0, '--gap': 4, colour: 3, left: -size, height: { default: 10, ':hover': 1.5 } }",
+    );
+    for expected in [
+        "width: \"10px\"",
+        "margin: \"-4px\"",
+        "animationDelay: \"20ms\"",
+        "zIndex: 2",
+        "flexGrow: 1",
+        "top: 0",
+        "'--gap': 4",
+        "colour: 3",
+        "left: -size",
+        "height: { base: \"10px\", ':hover': \"1.5px\" }",
+    ] {
+        assert!(out.contains(expected), "{expected} in {out}");
+    }
+}
+
+/// StyleX's fallback array, the later value where it works, is `firstThatWorks` preferring the
+/// first; an array of anything but literals, or of one value, is left alone.
+#[test]
+fn fallback_arrays_become_first_that_works() {
+    let out = style(
+        "{ minHeight: ['100vh', '100dvh'], width: [10, 20], top: [0, '1px'], left: [size, 1], right: ['1px'], bottom: [...edges, '1px'] }",
+    );
+    assert!(out.contains("minHeight: firstThatWorks('100dvh', '100vh')"), "{out}");
+    assert!(out.contains("width: firstThatWorks(\"20px\", \"10px\")"), "{out}");
+    assert!(out.contains("top: firstThatWorks('1px', 0)"), "{out}");
+    assert!(
+        out.contains("left: [size, 1]") && out.contains("right: ['1px']") && out.contains("[...edges, '1px']"),
+        "{out}"
+    );
+    assert!(out.contains("import { css, firstThatWorks } from \"@kirana-style/core\""), "{out}");
+}
+
+/// StyleX's own property names become the standard ones, keys written as strings too; a name
+/// Kirana knows, and a shorthand key whose value is a variable, stay.
+#[test]
+fn legacy_names_become_standard_ones() {
+    let out = style(
+        "{ start: 0, 'end': 1, marginHorizontal: 2, gridGap: 2, borderStartColor: 'red', marginInline: 4, '::after': { paddingEnd: 2 }, float: 'end', clear: 'start', ...{ paddingStart } }",
+    );
+    for expected in [
+        "insetInlineStart: 0",
+        "insetInlineEnd: \"1px\"",
+        "marginInline: \"2px\"",
+        // Kirana knows `grid-gap`, so it stays.
+        "gridGap: \"2px\"",
+        "borderInlineStartColor: 'red'",
+        "marginInline: \"4px\"",
+        "paddingInlineEnd: \"2px\"",
+        "float: \"inline-end\"",
+        "clear: 'start'",
+    ] {
+        assert!(out.contains(expected), "{expected} in {out}");
+    }
+    let shorthand = style("{ start }");
+    assert!(shorthand.contains("{ start }"), "{shorthand}");
+}
+
+/// A condition block at the top of a style moves inside each property it sets, joining a
+/// conditions object already there; nested blocks nest their conditions.
+#[test]
+fn condition_blocks_move_into_their_properties() {
+    let out = style(
+        "{ color: { default: null, ':focus': 'pink' }, ':hover': { color: 'blue', opacity: 0.5 }, '@media print': { ':active': { color: 'black' }, color: 'gray' }, width: { default: 1, '@media print': { ':hover': 2 } }, '@media print ': { width: { ':active': 3 } } }",
+    );
+    assert!(
+        out.contains(
+            "css({ color: { ':focus': 'pink', ':hover': 'blue', '@media print': { base: 'gray', ':active': 'black' } }, opacity: { ':hover': 0.5 }, width: { base: \"1px\", '@media print': { ':hover': \"2px\" }, '@media print ': { ':active': \"3px\" } } })"
+        ),
+        "{out}"
+    );
+    // A later block sets what an earlier one did: the later wins, as in StyleX.
+    let twice =
+        style("{ ':hover': { color: 'blue' }, ':focus': { color: 'red' }, ':hover:focus': { color: 'green' } }");
+    assert!(twice.contains("color: { ':hover': 'blue', ':focus': 'red', ':hover:focus': 'green' }"), "{twice}");
+}
+
+/// A style several lines long is written back one property a line, in its own indentation, a block
+/// first or not; a pseudo-element's block keeps every rewrite made inside it.
+#[test]
+fn a_lifted_style_keeps_its_layout() {
+    let out = rewritten(
+        "import * as stylex from \"@stylexjs/stylex\"\nconst s = stylex.create({\n  a: {\n    ':hover': { color: 'blue' },\n    color: 'red',\n    '::after': { start: 0, width: 10 },\n  },\n})\n",
+    );
+    assert!(
+        out.contains("  a: css({\n    color: { base: 'red', ':hover': 'blue' },\n    '::after': { insetInlineStart: 0, width: \"10px\" },\n  }),"),
+        "{out}"
+    );
+}
+
+/// What the walk passes over: a spread in a theme or a conditions object, a string it cannot read
+/// as text, an attribute that is not a spread.
+#[test]
+fn the_walk_passes_over_what_it_does_not_rewrite() {
+    let out = rewritten(
+        "import * as stylex from \"@stylexjs/stylex\"\nconst t = stylex.defineVars({ ...base, ink: 'black' })\nconst s = stylex.create({ a: { color: { ...x, default: 'red' }, content: '\\uD800' } })\nconst e = <div className=\"x\" {...stylex.props(s.a)} />\n",
+    );
+    assert!(out.contains("{ ...base, ink: 'black' }") && out.contains("{ ...x, base: 'red' }"), "{out}");
+    assert!(out.contains("content: '\\uD800'") && out.contains("<div className=\"x\" sx={[s.a]} />"), "{out}");
+}
+
+/// Keys set twice, as JavaScript allows: the later value wins, and conditions set twice merge.
+#[test]
+fn what_is_set_twice_merges_with_the_later_winning() {
+    let out = style("{ color: 'red', color: 'black', ':hover': { color: 'blue' }, color: 'gray' }");
+    assert!(out.contains("css({ color: { base: 'gray', ':hover': 'blue' } })"), "{out}");
+    let merged = style("{ color: { ':hover': { default: 'a' } }, ':hover': { color: { ':focus': 'b' } } }");
+    assert!(merged.contains("css({ color: { ':hover': { base: 'a', ':focus': 'b' } } })"), "{merged}");
+}
+
+/// Two rewrites over one range inside a style to lift: it is left where it is, and both are said.
+#[test]
+fn a_style_with_overlapping_rewrites_is_not_lifted() {
+    let source = "import * as stylex from \"@stylexjs/stylex\"\nconst s = stylex.create({ a: { opacity: stylex.when.ancestor(\"[data-x=\\\"default: null\\\"]\"), ':hover': { color: 'blue' } } })\n";
+    let reported = notes(source);
+    assert!(reported.iter().any(|note| note.contains("condition blocks were left where they are")), "{reported:?}");
+    assert!(reported.iter().any(|note| note.contains("overlapping rewrite skipped")), "{reported:?}");
+    assert!(rewritten(source).contains("':hover': { color: 'blue' }"));
+}
+
+/// What lifting cannot place is reported and left as written.
+#[test]
+fn condition_blocks_it_cannot_move_are_reported() {
+    for entry in [
+        "{ ...base, ':hover': { color: 'blue' } }",
+        "{ [key]: 'x', ':hover': { color: 'blue' } }",
+        "{ ':hover': { '::after': { color: 'blue' } } }",
+        "{ ':hover': { ...base, [key]: 'x', color: 'blue' } }",
+        "{ color: { ...base, default: 'red' }, ':hover': { color: 'blue' } }",
+        "{ color: { [stylex.when.ancestor(':focus')]: 'red' }, ':hover': { color: 'blue' } }",
+        "{ color: { default: { ...base } }, ':hover': { color: 'blue' } }",
+        "{ color: { ':focus': { ...base } }, ':hover': { color: 'blue' } }",
+    ] {
+        let source =
+            format!("import * as stylex from \"@stylexjs/stylex\"\nconst s = stylex.create({{ a: {entry} }})\n");
+        assert!(notes(&source).iter().any(|note| note.contains("cannot move")), "{entry}: {:?}", notes(&source));
+        assert!(rewritten(&source).contains("':hover': {"), "{entry}");
+    }
+    // A selector Kirana takes no condition for, at the top or inside a property.
+    let source = "import * as stylex from \"@stylexjs/stylex\"\nconst s = stylex.create({ a: { ':autofill + label': { color: 'red' }, color: { default: 'blue', ':not(.x) > h1': 'red' } } })\n";
+    let reported = notes(source);
+    assert_eq!(reported.iter().filter(|note| note.contains("port this selector by hand")).count(), 2, "{reported:?}");
+}
+
+/// `!important` is reported, never dropped: Kirana writes none, and removing it changes what the
+/// rule beats.
+#[test]
+fn important_is_reported() {
+    let source = "import * as stylex from \"@stylexjs/stylex\"\nconst s = stylex.create({ a: { color: 'red !important', content: `\"x\" !important`, width: `${size}px` } })\n";
+    let reported = notes(source);
+    assert_eq!(reported.iter().filter(|note| note.contains("`!important` on")).count(), 2, "{reported:?}");
+    assert!(rewritten(source).contains("'red !important'"));
+}
+
+/// A theme value for dark mode is a mode object, its condition written out, quoted as a computed
+/// key, or held in a constant; the file's reads of it follow. Any other shape stays.
+#[test]
+fn dark_scheme_theme_values_become_modes() {
+    let out = rewritten(
+        "import * as stylex from \"@stylexjs/stylex\"\nconst DARK = '@media (prefers-color-scheme: dark)'\nconst OTHER = '@media print'\nconst values = { ink: { default: 'black', [DARK]: 'white' }, mark: { default: 'red', ['@media (prefers-color-scheme: dark)']: 'pink' }, wide: { default: 1, [OTHER]: 2 }, spread: { ...x, default: 1 }, plain: 'blue' }\nexport const theme = stylex.defineVars(values)\nexport const read = [values.ink.default, values.ink[DARK], values.wide[OTHER], other.ink.default, values.ink[0]]\nexport const t = stylex.createTheme(theme)\n",
+    );
+    assert!(out.contains("ink: { light: 'black', dark: 'white' }"), "{out}");
+    assert!(out.contains("mark: { light: 'red', dark: 'pink' }"), "{out}");
+    assert!(out.contains("wide: { default: 1, [OTHER]: 2 }") && out.contains("spread: { ...x, default: 1 }"), "{out}");
+    assert!(
+        out.contains("[values.ink.light, values.ink.dark, values.wide[OTHER], other.ink.default, values.ink[0]]"),
+        "{out}"
+    );
+    // Written in the call itself.
+    let inline = rewritten(
+        "import * as stylex from \"@stylexjs/stylex\"\nexport const t = stylex.createTheme(colors, { ink: { default: 'black', '@media (prefers-color-scheme: dark)': 'white' } })\n",
+    );
+    assert!(inline.contains("ink: { light: 'black', dark: 'white' }"), "{inline}");
+}
+
+/// A Flow file is named as one, with the way to read it; any other file that does not parse
+/// keeps the plain note.
+#[test]
+fn a_flow_file_is_named_as_such() {
+    let flow = "/**\n * Copyright\n *\n * @flow strict\n */\n\nimport * as stylex from '@stylexjs/stylex';\nopaque type T: 'a' = 'a';\n";
+    let result = run("theme.stylex.js", flow);
+    assert_eq!(result.source, flow);
+    assert!(
+        result.notes[0].message.contains("Flow") && result.notes[0].message.contains("flow-remove-types"),
+        "{:?}",
+        result.notes
+    );
+    assert!(!run("broken.js", "const = =\n// @flow, after the code\n").notes[0].message.contains("Flow"));
+}
+
+/// Every script extension loses `.stylex`, and so do the specifiers naming one; `as const` is
+/// written into TypeScript only.
+#[test]
+fn stylex_files_of_every_extension_are_renamed() {
+    for (from, to) in
+        [("theme.stylex.js", Some("theme.js")), ("theme.stylex.mjs", Some("theme.mjs")), ("theme.stylex.css", None)]
+    {
+        assert_eq!(run(from, "export const a = 1\n").rename.as_deref(), to, "{from}");
+    }
+    let out = rewritten(
+        "import a from './a.stylex.js'\nimport b from \"./b.stylex.tsx\"\nimport c from './c.stylexy'\nimport d from './d.stylex.json'\n",
+    );
+    assert!(out.contains("'./a.js'") && out.contains("\"./b.tsx\""), "{out}");
+    assert!(out.contains("'./c.stylexy'") && out.contains("'./d.stylex.json'"), "{out}");
+    let consts =
+        "import * as stylex from \"@stylexjs/stylex\"\nexport const sizes = stylex.defineConsts({ small: 4 })\n";
+    assert!(run("sizes.stylex.ts", consts).source.contains("{ small: 4 } as const"));
+    assert!(run("sizes.stylex.js", consts).source.contains("export const sizes = { small: 4 }\n"));
+}
+
+/// Frames and dynamic styles are styles too; anything else in their place is left alone.
+#[test]
+fn keyframes_and_dynamic_styles_are_read_as_styles() {
+    let out = rewritten(
+        "import * as stylex from \"@stylexjs/stylex\"\nconst k = stylex.keyframes({ from: { start: 0, top: 4 }, to: 'none' })\nconst j = stylex.keyframes(frames)\nconst s = stylex.create({ a: (x) => ({ height: 4 }), b: (x) => x ? one : two })\n",
+    );
+    assert!(out.contains("from: { insetInlineStart: 0, top: \"4px\" }, to: 'none'"), "{out}");
+    assert!(out.contains("keyframes(frames)"), "{out}");
+    assert!(out.contains("a: (x) => css({ height: \"4px\" })"), "{out}");
+}

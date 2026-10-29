@@ -155,8 +155,8 @@ kirana-style migrate stylex src          # print the diff and the report
 kirana-style migrate stylex src --write  # apply it
 ```
 
-It makes the mechanical rewrites, renames `*.stylex.ts` files, and prints a report
-of everything it would not decide:
+It makes the mechanical rewrites, renames `*.stylex.*` files with the imports
+of them, and prints a report of everything it would not decide:
 
 | StyleX                | Kirana         |
 | --------------------- | -------------- |
@@ -165,6 +165,33 @@ of everything it would not decide:
 | `createTheme`         | `defineTheme`  |
 | markers               | `relation`     |
 | `{...stylex.props()}` | `sx`           |
+
+Inside a style, it writes what StyleX read in the way StyleX read it, so the port
+renders the same:
+
+- **A bare number gets the unit StyleX gave it.** `borderWidth: 10` becomes
+  `"10px"`, and a duration's `150` becomes `"150ms"`.
+- **Zero, and a number its property takes, stay as they are**, as in
+  `lineHeight: 1.5`.
+- **StyleX's own property names become the standard ones.** `marginHorizontal` is
+  `marginInline` and `start` is `insetInlineStart`.
+- **Its logical floats are standard too:** `float: "start"` is `"inline-start"`.
+- **A fallback array becomes `firstThatWorks`.** In `["100vh", "100dvh"]` the
+  later value wins where it works, so it is `firstThatWorks("100dvh", "100vh")`.
+- **A theme value for dark mode becomes a mode object.**
+  `{ default, "@media (prefers-color-scheme: dark)" }` is `{ light, dark }`, and
+  the file's reads of it follow.
+- **A condition block at the top of a style moves into each property it sets.**
+  `":hover": { color }` joins `color` as `color: { base, ":hover" }`, the same CSS.
+
+It reports these and leaves them as written:
+
+- **`!important`**, which Kirana never writes: its
+  [ladder](/docs/styling/precedence) orders every rule. Removing it changes what
+  the rule beats, so check what it was overriding.
+- **A selector Kirana takes no condition for**, such as `":autofill + label"`.
+- **A Flow file**, which it cannot read. Strip its types first with
+  `flow-remove-types`, then run it again.
 
 Two follow-up passes still live as scripts in the compiler's repository:
 
