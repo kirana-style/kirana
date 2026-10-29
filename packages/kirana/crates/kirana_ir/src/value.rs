@@ -212,8 +212,8 @@ pub enum Dynamic {
 /// One part of a runtime-merged style, in merge order.
 #[derive(Debug, Clone, PartialEq)]
 pub enum StylePart {
-    /// A handle known at build time.
-    Static(Handle),
+    /// A handle known at build time, shared with the value it came from until something merges into it.
+    Static(Arc<Handle>),
     /// A class expression: one of two handles chosen by a runtime test.
     Conditional { test: SourceSpan, consequent: Handle, alternate: Handle },
     /// A handle only known at runtime (a prop, a runtime recipe call).
