@@ -244,6 +244,42 @@ describe("KRN-INT-002 Rolldown on its own", () => {
     expect(css).toContain(`${variable}:6px`)
   })
 
+  it("forgets a token a rebuild no longer names (D-086)", async () => {
+    const root = app()
+    writeFileSync(
+      path.join(root, "src/tokens.ts"),
+      'import { defineTokens } from "@kirana-style/core"\nexport const size = defineTokens("size", { other: "6px" }, { variable: true })\n'
+    )
+    // One plugin, built again as a watch build rebuilds it.
+    const plugin = kirana({ root })
+    const run = async (main: string) => {
+      writeFileSync(path.join(root, "src/main.ts"), main)
+      const built = await rolldown({
+        input: path.join(root, "src/main.ts"),
+        cwd: root,
+        logLevel: "silent",
+        plugins: [plugin],
+      })
+      const { output } = await built.generate({ dir: "dist" })
+      return String(
+        (output.find((file) => file.fileName === "kirana.css") as OutputAsset)
+          .source
+      )
+    }
+    const declared = (css: string) => css.match(/--kv[0-9A-Za-z]{4}:6px/g)
+    const reads =
+      'import "@kirana-style/core/stylesheet.css"\nimport { size } from "./tokens.ts"\ndocument.body.style.gap = size.other\n'
+    expect(declared(await run(reads))).toHaveLength(1)
+    // The edit drops the only read: the next stylesheet leaves the token out.
+    expect(
+      declared(
+        await run(
+          'import "@kirana-style/core/stylesheet.css"\nimport "./tokens.ts"\n'
+        )
+      )
+    ).toBeNull()
+  })
+
   it("fails a later build that reads a token the stylesheet left out (D-086)", async () => {
     const root = app()
     writeFileSync(
@@ -497,6 +533,45 @@ describe("components and the stylesheet asset, hook by hook", () => {
     expect(dev.mock.lastCall![2]).toEqual({ map: true })
     asked.mockRestore()
     dev.mockRestore()
+  })
+
+  it("writes the tokens every environment names, and starts one's again when it rebuilds (D-086)", async () => {
+    const root = app()
+    const tokens = path.join(root, "src/tokens.ts")
+    const source =
+      'import { defineTokens } from "@kirana-style/core"\nexport const size = defineTokens("size", { other: "6px" }, { variable: true })\n'
+    writeFileSync(tokens, source)
+    const { plugin } = createKirana({ root })
+    const emitted: string[] = []
+    const inside = (name: string) => ({
+      ...context,
+      environment: { name },
+      emitFile: (file: { source: string }) => emitted.push(file.source),
+    })
+    const [client, ssr] = [inside("client"), inside("ssr")]
+    const compiled = (await (plugin.transform.handler as Hook).call(
+      client,
+      source,
+      tokens
+    )) as { code: string }
+    const [variable] = compiled.code.match(/--kv[0-9A-Za-z]{4}/)!
+    const stylesheet = async () => {
+      await (plugin.generateBundle.handler as Hook).call(client, {}, {})
+      return emitted.at(-1)
+    }
+    // The server's bundle names the token; the client's stylesheet, written after it, keeps it.
+    await (plugin.buildStart as Hook).call(ssr)
+    await (plugin.renderChunk as Hook).call(
+      ssr,
+      `gap("${variable}")`,
+      { fileName: "server.js" },
+      {}
+    )
+    await (plugin.buildStart as Hook).call(client)
+    expect(await stylesheet()).toContain(`${variable}:6px`)
+    // The server builds again and names it no more.
+    await (plugin.buildStart as Hook).call(ssr)
+    expect(await stylesheet()).not.toContain(`${variable}:6px`)
   })
 
   it("fills the stylesheet in place when something else renames it", async () => {

@@ -1135,7 +1135,8 @@ the implementation tracker names its evidence.
 ### D-086 — A variable token is declared only where something uses it
 
 - **Status:** Accepted (2026-10-19). Amends D-035: the definition still decides how a token compiles,
-  but a variable token is declared only when used.
+  but a variable token is declared only when used. Amended 2026-10-29: the names a bundle holds are
+  each environment's from its latest build, so a watch rebuild forgets a token it no longer names.
 - **Decision:** A Vite or Rolldown production build writes a variable token's declaration, or its
   `@property` registration, only when one of these holds:
   - a rule reads it;

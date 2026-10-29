@@ -254,7 +254,7 @@ export default function kirana(
     generateBundle: {
       order: "post",
       async handler(_output, bundle) {
-        await fill(bundle, this.emitFile.bind(this))
+        await fill(bundle, this)
       },
     },
   }

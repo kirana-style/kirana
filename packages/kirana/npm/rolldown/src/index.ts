@@ -31,6 +31,13 @@ import type { OutputBundle, Plugin } from "rolldown"
 /** A request for part of a Vue, Svelte or Astro component, which carries a query. */
 const COMPONENT_PART = /\.(?:vue|svelte|astro)\?/
 
+/**
+ * The Vite environment a hook runs in (`client`, `ssr`, …), or `""` under Rolldown alone, which
+ * builds one bundle at a time.
+ */
+const environmentOf = (context: unknown) =>
+  (context as { environment?: { name: string } }).environment?.name ?? ""
+
 export type KiranaRolldownOptions = {
   /** The project root: where `kirana.config.*` and `@kirana-style/core` are found. Default: the working directory. */
   root?: string
@@ -97,11 +104,20 @@ export function createKirana(
   const fileName = options.fileName ?? "kirana.css"
   const dense = () => options.names === "dense" && !development()
   /**
-   * Every variable token the bundle's chunks and other files name, across environments, and the
-   * ones the last stylesheet left out by identity (D-086): a token only code names is written when
-   * the finished bundle still names it, and a chunk rendered later must not name one left out.
+   * The variable tokens and keyframes each environment's bundle names, and the ones the last
+   * stylesheet left out by identity (D-086): a token only code names is written when the finished
+   * bundle still names it, and a chunk rendered later must not name one left out. A stylesheet reads
+   * every environment's names (a server bundle renders the client's classes); each build of an
+   * environment, a watch rebuild among them, starts its own again, so the names an earlier rebuild
+   * emitted do not pile up.
    */
-  const named = new Set<string>()
+  const named = new Map<string, Set<string>>()
+  const namedBy = (context: unknown) => {
+    const environment = environmentOf(context)
+    let names = named.get(environment)
+    if (names === undefined) named.set(environment, (names = new Set()))
+    return names
+  }
   let pruned = new Map<string, string>()
 
   const session = () => {
@@ -119,6 +135,7 @@ export function createKirana(
     name: "kirana",
 
     async buildStart() {
+      named.set(environmentOf(this), new Set())
       const compiler = await session()
       // Vite compiles the same modules for the client and again for the server, and a dev server
       // or a watch build sends unchanged ones again: each is answered from its first transform
@@ -159,7 +176,8 @@ export function createKirana(
           `kirana: ${chunk.fileName} names keyframes the stylesheet left out: ${keyframes.join(", ")}. Nothing the stylesheet's own build bundled named them. Apply them in a style a module of that build compiles (\`animationName\`), so a rule reads them (D-094).`
         )
       }
-      for (const name of names) named.add(name)
+      const own = namedBy(this)
+      for (const name of names) own.add(name)
       if (!dense()) return null
       // The renaming's map only for a build that writes maps: it is most of the pass (KF-061).
       return (
@@ -263,11 +281,11 @@ export function createKirana(
       order: "pre",
       async handler(_output, bundle) {
         if (!host.bundlesCss) {
-          const css = await finished(bundle)
+          const css = await finished(bundle, this)
           this.emitFile({ type: "asset", fileName, source: css })
           return
         }
-        await fill(bundle, this.emitFile.bind(this))
+        await fill(bundle, this)
       },
     },
   } satisfies Plugin
@@ -276,14 +294,16 @@ export function createKirana(
    * The stylesheet for this bundle (D-086, D-094): the token and keyframes names its other files
    * hold join the chunks', and the definitions left out are kept for the chunks rendered after it.
    */
-  const finished = async (bundle: OutputBundle) => {
+  const finished = async (bundle: OutputBundle, context: unknown) => {
     const compiler = await session()
+    const own = namedBy(context)
     for (const file of Object.values(bundle)) {
       if (file.type === "asset" && typeof file.source === "string")
         for (const name of definitionNames(file.source, compiler.prefix))
-          named.add(name)
+          own.add(name)
     }
-    const result = compiler.finishedStylesheet(named, dense())
+    const every = new Set([...named.values()].flatMap((names) => [...names]))
+    const result = compiler.finishedStylesheet(every, dense())
     pruned = new Map(
       result.pruned.map((token) => [token.variable, token.identity])
     )
@@ -298,13 +318,15 @@ export function createKirana(
    */
   const fill = async (
     bundle: OutputBundle,
-    emitFile: (file: {
-      type: "asset"
-      fileName: string
-      source: string
-    }) => unknown
+    context: {
+      emitFile: (file: {
+        type: "asset"
+        fileName: string
+        source: string
+      }) => unknown
+    }
   ) => {
-    const css = await finished(bundle)
+    const css = await finished(bundle, context)
     for (const [key, asset] of Object.entries(bundle)) {
       if (asset.type !== "asset") continue
       const source = fillStylesheet(String(asset.source), css)
@@ -318,7 +340,7 @@ export function createKirana(
         renamed.get(asset.fileName) ?? renameAsset(asset.fileName, source)
       renamed.set(asset.fileName, hashed)
       delete bundle[key]
-      emitFile({ type: "asset", fileName: hashed, source })
+      context.emitFile({ type: "asset", fileName: hashed, source })
     }
     // Every rename so far, not only this pass's: a server bundle names the client's asset.
     for (const [from, to] of renamed) {

@@ -121,9 +121,10 @@ uses it (D-086): a rule reads it, the bundle's chunks or other files still name 
 `runtime: true` (per token or for its group; it implies `variable: true`). A token's definition
 module names all its tokens in the object it compiles to, but the bundler drops that object when
 nothing reads it at runtime, so the definition alone does not keep a token. A chunk rendered after
-the stylesheet that names a token it left out MUST fail the build with the token's identity. A build
-with no finished bundle (a dev server, `kirana-style check`, a host that reports none) declares every
-variable token its code names.
+the stylesheet that names a token it left out MUST fail the build with the token's identity. What the
+bundle names is what each environment's latest build emitted, read across environments: a watch
+rebuild that no longer names a token leaves it out. A build with no finished bundle (a dev server,
+`kirana-style check`, a host that reports none) declares every variable token its code names.
 
 ## Modes and themes
 
