@@ -194,17 +194,17 @@ impl Project {
             .filter(|path| !state.modules[**path].atoms.is_empty())
             .map(|path| {
                 let record = &state.modules[*path];
-                let size = |atom: &&Atom| rule_bytes.get(atom.class.as_str()).copied().unwrap_or(0);
+                let size = |atom: &Atom| rule_bytes.get(atom.class.as_str()).copied().unwrap_or(0);
                 ModuleSize {
                     file: self.display_name(path),
                     sites: record.handles.len(),
                     atoms: record.atoms.len(),
-                    bytes: record.atoms.iter().map(|atom| size(&atom)).sum(),
+                    bytes: record.atoms.iter().map(|atom| size(atom)).sum(),
                     exclusive: record
                         .atoms
                         .iter()
                         .filter(|atom| uses.get(&atom.class).is_none_or(|(_, modules)| modules.len() == 1))
-                        .map(|atom| size(&atom))
+                        .map(|atom| size(atom))
                         .sum(),
                 }
             })
