@@ -1342,6 +1342,11 @@ export const PAGES: readonly PageMeta[] = [
     ],
     "headings": [
       {
+        "id": "tiers",
+        "text": "Tiers",
+        "level": 2
+      },
+      {
         "id": "your-own-layers",
         "text": "Your own layers",
         "level": 2

@@ -1661,6 +1661,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Kirana writes every rule inside a layer, and declares the order in one statement at the top of the stylesheet: The first line is yours: the names from and . The second is Kirana's own, and its order is fixed. Nothing Kirana emits is unlayered, custom-property assignments included. That is what lets a reset stay a reset: it cannot accidentally outrank a component style, and a component style cannot accidentally outrank a theme."
   },
   {
+    "id": "/docs/config/layers#tiers",
+    "href": "/docs/config/layers#tiers",
+    "page": "Layers and global CSS",
+    "section": "config",
+    "heading": "Tiers",
+    "text": "Within , a hover outranks the base by coming later in the file. makes each step of that order a layer of its own: Each tier then outranks the ones before it wherever its rules sit, which is what a stylesheet split into parts needs. The page renders the same. Rules that share a declaration merge only within a tier, so the stylesheet grows a little (2.3 % gzipped on this site). It is off by default."
+  },
+  {
     "id": "/docs/config/layers#your-own-layers",
     "href": "/docs/config/layers#your-own-layers",
     "page": "Layers and global CSS",
@@ -4327,7 +4335,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Configuration reference",
     "section": "reference",
     "heading": "layers",
-    "text": "Layer names placed around Kirana's own layer, for your global CSS. Each must be a valid CSS identifier, and none may be . See layers ."
+    "text": "Layer names placed around Kirana's own layer, for your global CSS. Each must be a valid CSS identifier, and none may be . puts each step of the precedence ladder in a sub-layer of . See layers ."
   },
   {
     "id": "/docs/reference/config#targets",

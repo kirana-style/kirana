@@ -1,0 +1,16 @@
+[
+  {
+    "code": "KRN1401",
+    "name": "relation-without-anchor",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 0,
+      "end": 0
+    },
+    "message": "relation \"group\" is read but its anchor is never applied",
+    "help": [
+      "apply `relation.anchor` to the element whose state is read"
+    ]
+  }
+]

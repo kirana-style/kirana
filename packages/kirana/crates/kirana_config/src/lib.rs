@@ -51,6 +51,10 @@ pub struct Layers {
     pub before: Vec<String>,
     #[serde(default)]
     pub after: Vec<String>,
+    /// Each tier of the precedence ladder in its own sub-layer of `kirana.atoms`, so atoms outrank
+    /// each other by layer order rather than by their place in the file (KF-052, D-114).
+    #[serde(default)]
+    pub tiers: bool,
 }
 
 #[derive(Debug, Clone, Deserialize, PartialEq)]
