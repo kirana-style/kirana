@@ -8313,6 +8313,11 @@ inside the layer the order of the rules **is** the
 [precedence ladder](/docs/styling/precedence). A merge that could move a rule past
 a competing declaration is not taken.
 
+Within one property and condition set, an element only ever gets one value, so
+the order of those rules is free. Apart from the two that share a rule with a
+neighbour, they go by value, which puts `padding: 1rem` next to `padding: 1.5rem`
+and compresses better than the order of their hashes.
+
 ## Class names
 
 <!-- ::figure-class-name -->
@@ -8349,7 +8354,9 @@ application, so it can number them instead of hashing them:
 - **The property code and the target stay.** They are what the runtime reads to
   merge, so merging works exactly as before and no lookup table ships.
 
-The most used segments get the shortest codes. A code, once given, never changes
+The most used segments get the shortest codes, and segments used as often are
+numbered in the order the stylesheet writes them, so one property's rules carry
+codes in sequence. A code, once given, never changes
 for the rest of the build, so a chunk renamed early stays valid while later modules
 compile. The stylesheet keeps its rules in the same order; only the names in it
 change.

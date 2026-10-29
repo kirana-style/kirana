@@ -27,11 +27,11 @@
   .k75_NvtF {
     inline-size: var(--k75);
   }
-  .k50_D9ur {
-    color: red;
-  }
   .k50_NYVC {
     color: light-dark(oklch(0.145 0 0), oklch(0.985 0 0));
+  }
+  .k50_D9ur {
+    color: red;
   }
   .k5O_23ai {
     display: flex;

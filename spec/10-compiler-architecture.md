@@ -253,7 +253,8 @@ prefix `k`, development and production use the same names:
 - Readable names come from `kirana-style trace` and the language server, not from a second naming scheme.
 - **Dense names (D-084).** A production build with `names: "dense"` renames the condition and value
   segments of every name the compiler wrote, and of the stylesheet. They become codes of 1–2
-  characters, assigned from the whole build in order of use and kept for the session. The property
+  characters, assigned from the whole build in order of use (ties in the order the stylesheet writes
+  them) and kept for the session. The property
   code and the target stay, so merging is unchanged. Transforms write a `^~` mark before each name, so
   only those are renamed; renaming runs in the host's `renderChunk`. A build that writes source maps
   renames from the engine's edits, so the map follows them; one that writes none has the engine

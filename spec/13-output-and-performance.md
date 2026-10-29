@@ -65,7 +65,7 @@ elements at the same specificity.
 
 **KRN-OUT-010 — Order within a conflict key.** In `kirana.atoms`, the writer MAY order the atoms that
 share a conflict key in any way, since a merge leaves an element at most one of them (D-087), and
-SHOULD choose the order that lets adjacent keys share a rule. It MUST keep ladder order for atoms of
+SHOULD choose the order that lets adjacent keys share a rule, the other atoms by value. It MUST keep ladder order for atoms of
 `kirana.contextual` that share a key: two ancestors can each give one descendant such an atom.
 
 **KRN-OUT-008 — Dead-style elimination.** The stylesheet MUST contain only atoms referenced by modules

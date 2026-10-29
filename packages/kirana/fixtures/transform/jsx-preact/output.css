@@ -7,11 +7,11 @@
   .k5O_fqMV {
     display: grid;
   }
-  .kaF_ZFLY {
-    width: var(--kaF);
-  }
   .kaF_yp7g {
     width: 100%;
+  }
+  .kaF_ZFLY {
+    width: var(--kaF);
   }
   .k50-KFHz_D9ur:where(:hover) {
     color: red;
