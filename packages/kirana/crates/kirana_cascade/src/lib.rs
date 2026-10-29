@@ -5,7 +5,8 @@
 //! that split shorthands. Kirana keeps the author's own text for longhands so colours are never
 //! rewritten; only values produced by splitting a shorthand use Lightning CSS's serialization.
 
-use std::sync::{OnceLock, RwLock};
+use std::borrow::Cow;
+use std::sync::{Arc, OnceLock, RwLock};
 
 use kirana_css_data::{accepts_number, is_known_property, physical_counterpart};
 use kirana_ir::{ConditionSet, EntryKey, Handle, Op, Property, Target, number_to_string};
@@ -86,6 +87,22 @@ pub fn longhands_of(name: &str) -> Result<Vec<Property>, DeclarationError> {
     Ok(out)
 }
 
+/// [`longhands_of`] for the checks every handle runs, which ask it for each shorthand they meet: a
+/// shorthand's longhands come from a table built once, any other name is worked out as before.
+pub fn known_longhands(name: &str) -> Option<Cow<'static, [Property]>> {
+    static TABLE: OnceLock<kirana_shared::FxHashMap<&'static str, Vec<Property>>> = OnceLock::new();
+    let table = TABLE.get_or_init(|| {
+        kirana_css_data::shorthands()
+            .iter()
+            .filter_map(|name| longhands_of(name).ok().map(|longhands| (*name, longhands)))
+            .collect()
+    });
+    match table.get(name) {
+        Some(longhands) => Some(Cow::Borrowed(longhands.as_slice())),
+        None => longhands_of(name).ok().map(Cow::Owned),
+    }
+}
+
 fn collect_longhands(id: &PropertyId<'_>, out: &mut Vec<Property>) {
     match id.longhands() {
         Some(longhands) => longhands.iter().for_each(|longhand| collect_longhands(longhand, out)),
@@ -163,12 +180,15 @@ pub fn declare_with(
     if let Some(reason) = grammar_problem(&property, &text, variable_value) {
         return Err(DeclarationError::InvalidValue { property, reason });
     }
-    let parsed = LProperty::parse_string(PropertyId::from(property.as_str()), &text, ParserOptions::default())
-        .expect("structurally valid values always parse, falling back to unparsed tokens");
+    let id = PropertyId::from(property.as_str());
     let family = kirana_css_data::family_longhands(&property).is_some();
-    if parsed.property_id().longhands().is_none() && !family {
+    // A longhand stands as written, unparsed: the grammar has checked its value, and a parse keeps
+    // the property's own id, which its name already gives.
+    if id.longhands().is_none() && !family {
         return Ok(single(Property::longhand(property.clone()), text.clone()));
     }
+    let parsed = LProperty::parse_string(id, &text, ParserOptions::default())
+        .expect("structurally valid values always parse, falling back to unparsed tokens");
     // One component sets every longhand of a box shorthand to itself, so the declaration stays one
     // shorthand atom (D-045). A bare `var()` could hold several components, so it qualifies only
     // when the project declares it with single-component values; a `var()` nested in a function
@@ -320,8 +340,8 @@ pub fn mixed_logical_physical(handle: &Handle) -> Vec<MixedAxes> {
         .enumerate()
         .flat_map(|(order, (key, value))| {
             let names = match key.property.rank {
-                kirana_css_data::PropertyRank::Shorthand => longhands_of(&key.property.name)
-                    .map(|longhands| longhands.into_iter().map(|longhand| longhand.name).collect())
+                kirana_css_data::PropertyRank::Shorthand => known_longhands(&key.property.name)
+                    .map(|longhands| longhands.iter().map(|longhand| longhand.name.clone()).collect())
                     .unwrap_or_default(),
                 _ => vec![key.property.name.clone()],
             };
@@ -368,8 +388,8 @@ pub fn inset_beside_translate(handle: &Handle) -> Vec<(String, String)> {
         // A shorthand is reported once, as written (`inset-inline`).
         let inline = |name: &str| matches!(name, "inset-inline-start" | "inset-inline-end");
         let covers = match key.property.rank {
-            kirana_css_data::PropertyRank::Shorthand => longhands_of(&key.property.name)
-                .is_ok_and(|longhands| longhands.iter().any(|longhand| inline(&longhand.name))),
+            kirana_css_data::PropertyRank::Shorthand => known_longhands(&key.property.name)
+                .is_some_and(|longhands| longhands.iter().any(|longhand| inline(&longhand.name))),
             _ => inline(&key.property.name),
         };
         if covers {
@@ -479,14 +499,15 @@ pub const PLANS_KEPT: usize = 1 << 12;
 /// The plan for writing `name` (camelCase or kebab-case).
 ///
 /// Memoised: the plan depends on nothing but the name and the static shorthand table, and building
-/// one walks every shorthand. A declaration asks for it on every transform of every module.
-pub fn write_plan(name: &str) -> Result<WritePlan, DeclarationError> {
-    static PLANS: OnceLock<RwLock<kirana_shared::FxHashMap<String, WritePlan>>> = OnceLock::new();
+/// one walks every shorthand. A declaration asks for it on every transform of every module, so the
+/// cache hands out a shared plan rather than a copy of its lists.
+pub fn write_plan(name: &str) -> Result<Arc<WritePlan>, DeclarationError> {
+    static PLANS: OnceLock<RwLock<kirana_shared::FxHashMap<String, Arc<WritePlan>>>> = OnceLock::new();
     let plans = PLANS.get_or_init(RwLock::default);
     if let Some(plan) = plans.read().expect("not poisoned").get(name) {
         return Ok(plan.clone());
     }
-    let plan = build_plan(name)?;
+    let plan = Arc::new(build_plan(name)?);
     let mut plans = plans.write().expect("not poisoned");
     // Every known property fits; custom properties do not, since an editor compiles each name as it
     // is typed (`--w`, `--wi` …): past the bound the cache starts over.

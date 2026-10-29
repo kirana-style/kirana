@@ -89,7 +89,8 @@ Rules:
 
 1. The shorthand/longhand tables come from the engine's property data (generated from MDN's CC0
    `mdn-data`; the licensing notes).
-2. Value splitting uses Lightning CSS's typed property parsers.
+2. Value splitting uses Lightning CSS's typed property parsers. A longhand is not parsed: once the
+   grammar has checked it, its text stands as written.
 3. **Box families.** The 31 shorthands whose single component sets every longhand to itself (`padding`,
    `margin`, `inset`, `gap`, `overflow`, `border-radius`, `border-width|style|color`, `place-*`,
    `overscroll-behavior`, `scroll-margin|padding` and their block/inline forms) stay one atom for a

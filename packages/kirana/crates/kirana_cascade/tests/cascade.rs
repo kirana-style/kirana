@@ -52,6 +52,37 @@ fn longhand_names() {
 }
 
 #[test]
+fn known_longhands_are_longhands_of() {
+    // The table holds every shorthand; any other name is worked out as `longhands_of` does.
+    let names = kirana_css_data::shorthands().iter().copied().chain(["color", "margin-top", "--x", "colour"]);
+    for name in names {
+        assert_eq!(known_longhands(name).map(|longhands| longhands.into_owned()), longhands_of(name).ok(), "{name}");
+    }
+}
+
+#[test]
+fn a_longhand_parses_as_its_own_property() {
+    // `declare_with` skips Lightning CSS's parse for a longhand because the parse would only give
+    // back the id the name already gives: so for every longhand a shorthand splits into.
+    use lightningcss::properties::{Property as Parsed, PropertyId};
+    use lightningcss::stylesheet::ParserOptions;
+    let longhands = kirana_css_data::shorthands().iter().flat_map(|name| longhands_of(name).unwrap());
+    let mut checked = 0;
+    for longhand in longhands.chain([Property::longhand("--x")]) {
+        let id = PropertyId::from(longhand.name.as_str());
+        if id.longhands().is_some() || kirana_css_data::family_longhands(&longhand.name).is_some() {
+            continue;
+        }
+        for value in ["inherit", "var(--x)"] {
+            let parsed = Parsed::parse_string(id.clone(), value, ParserOptions::default()).unwrap();
+            assert_eq!(parsed.property_id(), id, "{} with {value}", longhand.name);
+        }
+        checked += 1;
+    }
+    assert!(checked > 100, "{checked} longhands");
+}
+
+#[test]
 fn single_component_shorthands_are_atoms() {
     let tokens = |variable: &str| match variable {
         "--one" => Some(vec!["1px".to_owned()]),

@@ -667,7 +667,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
         Some(combined)
     }
 
-    fn plan(&self, name: &str, span: (u32, u32)) -> Option<WritePlan> {
+    fn plan(&self, name: &str, span: (u32, u32)) -> Option<Arc<WritePlan>> {
         write_plan(name).map_err(|error| self.report_declaration(error, span)).ok()
     }
 
