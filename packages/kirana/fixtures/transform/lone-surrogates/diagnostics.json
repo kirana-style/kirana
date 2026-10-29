@@ -96,7 +96,7 @@
     },
     "message": "string `sx` values need a utility grammar",
     "help": [
-      "add a preset that declares one — presets: [scales()] — or write css({ … })"
+      "add a preset that declares one (`import scales from \"@kirana-style/preset-scales/preset\"`, then `presets: [scales()]`), or write css({ … })"
     ]
   },
   {
@@ -110,7 +110,7 @@
     },
     "message": "string `sx` values need a utility grammar",
     "help": [
-      "add a preset that declares one — presets: [scales()] — or write css({ … })"
+      "add a preset that declares one (`import scales from \"@kirana-style/preset-scales/preset\"`, then `presets: [scales()]`), or write css({ … })"
     ]
   }
 ]

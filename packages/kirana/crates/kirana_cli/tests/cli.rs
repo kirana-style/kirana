@@ -272,6 +272,8 @@ fn migrates_tailwind_sources() {
     let (code, output) = run(&["migrate", "tailwind", &src]);
     assert_eq!(code, 2, "{output}");
     assert!(output.contains("needs a utility grammar"), "{output}");
+    // The preset is a default export: the hint imports it so (KF-068).
+    assert!(output.contains("import scales from \"@kirana-style/preset-scales/preset\""), "{output}");
 
     let config = serde_json::json!({
         "root": root.to_string_lossy(),

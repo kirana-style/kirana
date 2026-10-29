@@ -360,9 +360,10 @@ pub fn run(args: &[String], out: &mut dyn Write) -> i32 {
     }
 }
 
-/// What the Tailwind lowering needs and a project without a utility grammar lacks.
-const NO_GRAMMAR: &str = "needs a utility grammar: add `presets: [scales()]` from \
-     `@kirana-style/preset-scales/preset` to kirana.config, and your theme's scales under `utilities`";
+/// What the Tailwind lowering needs and a project without a utility grammar lacks. The preset is the
+/// module's default export, so the hint writes the import as it must be written (KF-068).
+const NO_GRAMMAR: &str = "needs a utility grammar: add `import scales from \"@kirana-style/preset-scales/preset\"` \
+     to kirana.config with `presets: [scales()]`, and your theme's scales under `utilities`";
 
 /// One class string lowered as `migrate tailwind` lowers a `className` in `file` (KF-004), with no
 /// custom variants or utilities declared; an error without a utility grammar.
