@@ -182,7 +182,10 @@ impl<'a> Evaluator<'_, 'a, '_> {
                     Code::UtilitySurfaceDisabled,
                     span,
                     "string `sx` values need a utility grammar",
-                    Some("add a preset that declares one — presets: [scales()] — or write css({ … })"),
+                    Some(
+                        "add a preset that declares one (`import scales from \"@kirana-style/preset-scales/preset\"`, \
+                         then `presets: [scales()]`), or write css({ … })",
+                    ),
                 ),
             },
             Value::Object(_) => self.report(
