@@ -9,7 +9,12 @@ import type { SourceMap } from "magic-string"
 
 import type { KiranaConfig } from "@kirana-style/core/config"
 
-import { importFile, resolveConfig, resolveConfigSync } from "./config.ts"
+import {
+  hostRoot,
+  importFile,
+  resolveConfig,
+  resolveConfigSync,
+} from "./config.ts"
 import type { ImportFile } from "./config.ts"
 import type { Diagnostic } from "./diagnostics.ts"
 import type {
@@ -73,6 +78,10 @@ function toResult(result: {
 }
 
 export class Driver {
+  /**
+   * The project root: the one asked for, or the package root above it that holds the configuration
+   * (`hostRoot`). Project diagnostics name their files from it.
+   */
   readonly root: string
   readonly configFile: string | undefined
   /** The class-name prefix (`names.prefix`). */
@@ -114,7 +123,7 @@ export class Driver {
   /** Loads configuration and opens a session; invalid configuration throws with diagnostics. */
   static async create(options: DriverOptions = {}): Promise<Driver> {
     // Absolute, so the configuration module, the engine and the class map resolve from it alike.
-    const root = path.resolve(options.root ?? process.cwd())
+    const root = hostRoot(path.resolve(options.root ?? process.cwd()))
     const { file, json } = await resolveConfig(
       root,
       options.config,
@@ -131,7 +140,7 @@ export class Driver {
     options: DriverOptions & { requireModule?: (file: string) => unknown } = {}
   ): Driver {
     // Absolute, so the configuration module, the engine and the class map resolve from it alike.
-    const root = path.resolve(options.root ?? process.cwd())
+    const root = hostRoot(path.resolve(options.root ?? process.cwd()))
     const { file, json } = resolveConfigSync(
       root,
       options.config,

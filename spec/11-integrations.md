@@ -52,7 +52,9 @@ An adapter MUST NOT interpret styles, decide rewrites, or merge classes (D-028).
 
 ## Configuration
 
-`kirana.config.ts` (or `.mts`, `.js`, `.mjs`, `.json`) at the project root. The Driver loads it — a
+`kirana.config.ts` (or `.mts`, `.js`, `.mjs`, `.json`) at the project root. A host root with none, inside
+a package whose root has one (Vite's `root` set to a folder of the package), reads the package root's,
+which becomes the project root (D-097, KF-069). The Driver loads it — a
 TypeScript config is imported natively (Node.js type stripping, Bun, Deno) once per session — and hands
 the engine resolved data (KRN-CMP-013). Options passed to a host adapter override the file key by key.
 A `.ts` configuration, and each `.ts` file it imports, loads as an ES module when it holds `import` or

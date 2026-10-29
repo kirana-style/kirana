@@ -5,7 +5,12 @@ import path from "node:path"
 import { pathToFileURL } from "node:url"
 import { describe, expect, it, vi } from "vite-plus/test"
 
-import { moduleHooks, moduleTypeScript, readJsonc } from "../src/config.ts"
+import {
+  hostRoot,
+  moduleHooks,
+  moduleTypeScript,
+  readJsonc,
+} from "../src/config.ts"
 
 import {
   ConfigLoadError,
@@ -798,6 +803,28 @@ describe("kirana command", () => {
       } as unknown as Parameters<typeof main>[3])
     ).rejects.toThrow()
     expect(findConfigAbove(path.parse(root).root)).toBeUndefined()
+  })
+
+  it("reads the package root's configuration from a folder of the package that has none (KF-069)", async () => {
+    // Vite's `root: "viewer"`, and the configuration `ui init` wrote beside `package.json`.
+    const root = project({
+      "package.json": '{"name":"app"}',
+      "kirana.config.json": '{"names":{"prefix":"zz"}}',
+      "viewer/index.html": "",
+      "own/kirana.config.json": '{"names":{"prefix":"own"}}',
+      "nested/package.json": '{"name":"nested"}',
+    })
+    const driver = await Driver.create({ root: path.join(root, "viewer") })
+    expect([driver.root, driver.prefix]).toEqual([root, "zz"])
+    expect(
+      Driver.createSync({ root: path.join(root, "viewer") }).configFile
+    ).toBe(path.join(root, "kirana.config.json"))
+    // A folder with its own configuration keeps it; a package of its own stops the search.
+    expect(hostRoot(path.join(root, "own"))).toBe(path.join(root, "own"))
+    expect(hostRoot(path.join(root, "nested"))).toBe(path.join(root, "nested"))
+    // No package and no configuration up to the file system's root: the root asked for.
+    const bare = project({})
+    expect(hostRoot(bare)).toBe(bare)
   })
 
   it("hands `kirana-style lsp` to the language server with the resolved configuration", async () => {
