@@ -12,7 +12,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use clap::{Parser, Subcommand, ValueEnum};
-use kirana_diagnostics::{Diagnostic, Severity, render_github, render_human, render_json};
+use kirana_diagnostics::{Diagnostic, LineIndex, Severity, render_github, render_human, render_json};
 use kirana_project::Project;
 pub use kirana_project::plain_path;
 use kirana_shared::OsFs;
@@ -436,8 +436,9 @@ fn migrate_files(
             continue;
         };
         let migration = migrate(file, &source);
+        let lines = LineIndex::new(&source);
         for note in &migration.notes {
-            let (line, column) = kirana_diagnostics::line_column(&source, note.offset);
+            let (line, column) = lines.line_column(&source, note.offset);
             notes.push(format!("{}:{line}:{column}: {}", file.display(), note.message));
         }
         if !migration.changed(&source) {
@@ -502,7 +503,10 @@ fn diff(file: &str, before: &str, after: &str) -> String {
 }
 
 fn print_diagnostics(out: &mut dyn Write, diagnostics: &[Diagnostic], format: Format, sources: &[(String, String)]) {
-    let source = |file: &str| sources.iter().find(|(name, _)| name == file).map(|(_, text)| text.as_str());
+    // Each file's lines are indexed once, for all of its diagnostics.
+    let indexed: std::collections::HashMap<&str, (&str, LineIndex)> =
+        sources.iter().map(|(name, text)| (name.as_str(), (text.as_str(), LineIndex::new(text)))).collect();
+    let source = |file: &str| indexed.get(file).map(|(text, lines)| (*text, lines));
     match format {
         Format::Json => {
             let _ = writeln!(out, "{}", render_json(diagnostics));

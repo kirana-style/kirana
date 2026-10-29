@@ -234,7 +234,8 @@ pub fn validate_override(name: &str) -> Result<Code, OverrideError> {
     Ok(code)
 }
 
-/// 1-based line and column of a byte offset.
+/// 1-based line and column of a byte offset. Walks the text to the offset: to place many offsets in
+/// one text, build its [`LineIndex`] once.
 pub fn line_column(source: &str, offset: u32) -> (usize, usize) {
     let offset = (offset as usize).min(source.len());
     let before = &source[..offset];
@@ -243,8 +244,42 @@ pub fn line_column(source: &str, offset: u32) -> (usize, usize) {
     (line, column)
 }
 
-/// Renders a diagnostic for a terminal, with the source line and a caret underline.
-pub fn render_human(diagnostic: &Diagnostic, source: Option<&str>) -> String {
+/// Where each line of a text starts, so an offset's line is a binary search rather than a walk
+/// from the start of the text. `trace` met the walk first (KF-028); placing each of a large file's
+/// diagnostics by walking it took 10 s of a 12 s `kirana-style check` (one 6.6 MB module, 2,600
+/// diagnostics). It holds no text: each method takes the text it was built from.
+pub struct LineIndex(Vec<usize>);
+
+impl LineIndex {
+    pub fn new(text: &str) -> Self {
+        Self(std::iter::once(0).chain(text.match_indices('\n').map(|(at, _)| at + 1)).collect())
+    }
+
+    /// The 1-based line of a byte offset.
+    pub fn line(&self, offset: u32) -> usize {
+        self.0.partition_point(|start| *start <= offset as usize)
+    }
+
+    /// 1-based line and column of a byte offset in `text`, as [`line_column`] counts them.
+    pub fn line_column(&self, text: &str, offset: u32) -> (usize, usize) {
+        let offset = (offset as usize).min(text.len());
+        let line = self.line(offset as u32);
+        (line, text[self.0[line - 1]..offset].chars().count() + 1)
+    }
+
+    /// The text of a 1-based line, without its line break, as `text.lines()` gives it; empty past
+    /// the last line.
+    pub fn line_text<'t>(&self, text: &'t str, line: usize) -> &'t str {
+        let Some(&start) = self.0.get(line.wrapping_sub(1)) else { return "" };
+        let end = self.0.get(line).map_or(text.len(), |next| next - 1);
+        let text = &text[start.min(text.len())..end.max(start).min(text.len())];
+        text.strip_suffix('\r').unwrap_or(text)
+    }
+}
+
+/// Renders a diagnostic for a terminal, with the source line and a caret underline. `source` is the
+/// file's text and its [`LineIndex`], built once for all of a file's diagnostics.
+pub fn render_human(diagnostic: &Diagnostic, source: Option<(&str, &LineIndex)>) -> String {
     let mut out = String::new();
     let _ = writeln!(
         out,
@@ -255,10 +290,10 @@ pub fn render_human(diagnostic: &Diagnostic, source: Option<&str>) -> String {
         diagnostic.message
     );
     match source {
-        Some(text) if !diagnostic.file.is_empty() && diagnostic.span != Span::default() => {
-            let (line, column) = line_column(text, diagnostic.span.start);
+        Some((text, lines)) if !diagnostic.file.is_empty() && diagnostic.span != Span::default() => {
+            let (line, column) = lines.line_column(text, diagnostic.span.start);
             let _ = writeln!(out, "  --> {}:{line}:{column}", diagnostic.file);
-            let line_text = text.lines().nth(line - 1).unwrap_or_default();
+            let line_text = lines.line_text(text, line);
             let width = (diagnostic.span.end.saturating_sub(diagnostic.span.start) as usize)
                 .clamp(1, line_text.chars().count().saturating_sub(column - 1).max(1));
             let gutter = line.to_string();
@@ -279,7 +314,7 @@ pub fn render_human(diagnostic: &Diagnostic, source: Option<&str>) -> String {
 
 /// Renders a diagnostic as a GitHub Actions workflow command, which annotates the file in a pull
 /// request: `::error file=src/a.tsx,line=3,col=5,title=KRN1201 unknown-property::message`.
-pub fn render_github(diagnostic: &Diagnostic, source: Option<&str>) -> String {
+pub fn render_github(diagnostic: &Diagnostic, source: Option<(&str, &LineIndex)>) -> String {
     let level = match diagnostic.severity {
         Severity::Error => "error",
         Severity::Warning => "warning",
@@ -288,8 +323,8 @@ pub fn render_github(diagnostic: &Diagnostic, source: Option<&str>) -> String {
     let mut properties = Vec::new();
     if !diagnostic.file.is_empty() {
         properties.push(format!("file={}", github_property(&diagnostic.file)));
-        if let Some(text) = source.filter(|_| diagnostic.span != Span::default()) {
-            let (line, column) = line_column(text, diagnostic.span.start);
+        if let Some((text, lines)) = source.filter(|_| diagnostic.span != Span::default()) {
+            let (line, column) = lines.line_column(text, diagnostic.span.start);
             properties.push(format!("line={line},col={column}"));
         }
     }
