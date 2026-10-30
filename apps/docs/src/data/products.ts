@@ -1,8 +1,7 @@
 /**
  * Kirana's products beside the compiler: the one you can use with it today and the ones that are
- * planned. The roadmap shows them (`components/site/product-table.tsx`); the `/ecosystem` chapter
- * that shows them too is commented out. A product without `href` is not there to use yet, and the
- * table marks it "Planned".
+ * planned. The roadmap shows them (`components/site/product-table.tsx`). A product without `href` is
+ * not there to use yet, and the table marks it "Planned".
  */
 import {
   Book02Icon,
