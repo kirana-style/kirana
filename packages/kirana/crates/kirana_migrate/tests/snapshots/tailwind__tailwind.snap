@@ -85,9 +85,9 @@ const styles = {
     contentVisibility: "auto",
   }),
   cardDiv3: css({
-    // tailwind: *:p-2 — `*:p-2`: `*` is not a contextual target: an element name, attribute selectors and pseudo-classes
+    // tailwind: *:p-2 — `*:p-2`: `*` is not a contextual target: an element name, classes, attribute selectors and pseudo-classes
     // tailwind: hover:*:p-2 — `hover:*:p-2`: a contextual target under a condition of the element itself; write it in css() by hand
-    // tailwind: *:after:p-2 — `*:after:p-2`: `::after` is not a contextual target: an element name, attribute selectors and pseudo-classes
+    // tailwind: *:after:p-2 — `*:after:p-2`: `::after` is not a contextual target: an element name, classes, attribute selectors and pseudo-classes
     // tailwind: [&_svg]:[&_a]:p-2 — `[&_svg]:[&_a]:p-2`: a contextual target under a condition of the element itself; write it in css() by hand
     [select.child('[data-slot="x"]')]: {
       padding: space[2],

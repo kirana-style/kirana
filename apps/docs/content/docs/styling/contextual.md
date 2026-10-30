@@ -8,7 +8,7 @@ keywords: [select, descendant, child, contextual, svg, layer]
 
 # Contextual styles
 
-`select` styles elements _below_ an element you render, by name or attribute:
+`select` styles elements _below_ an element you render, by name, class or attribute:
 
 ```tsx
 import { css, select } from "@kirana-style/core"
@@ -47,8 +47,8 @@ a size and it keeps it.
 
 ## What a target may be
 
-One compound selector: an element name, attribute selectors and pseudo-classes,
-alone or together:
+One compound selector: an element name, classes, attribute selectors and
+pseudo-classes, alone or together:
 
 ```tsx
 select.descendant("svg")
@@ -56,9 +56,13 @@ select.child("li")
 select.descendant('[data-slot="indicator"]')
 select.child("span:last-child") // the last span child
 select.descendant("a:hover") // a link while it is hovered
+select.descendant(".ts-chart__grid") // a class a library renders
+select.child("svg.ts-chart:hover")
 ```
 
-No combinators (`a > b`) and no pseudo-elements: a target is the element itself.
+No combinators (`a > b`), no IDs and no pseudo-elements: a target is the element
+itself. A pseudo-element is a key inside the target's style
+(`[select.child("li")]: { "::marker": {…} }`).
 
 ## A state under a target is the parent's
 
@@ -80,9 +84,11 @@ compiler adds an info (`select-state-on-parent`) suggesting the target form. Whe
 the parent's state is what you mean, read it through a
 [relation](/docs/styling/relations) and the info goes away.
 
-Class selectors are not targets: Kirana's class names are hashes, and a
-handwritten class is markup the compiler cannot verify. An unsupported target is
-an error (`unsupported-contextual-target`).
+A class is for markup you do not write: a chart library's
+`<g class="ts-chart__grid">` offers no other hook. Kirana's own class names are
+hashes that change with the style, so never target them: read the element through
+a relation, or give it a data attribute. Anything else is an error
+(`unsupported-contextual-target`), reported once.
 
 ## When to reach for it
 

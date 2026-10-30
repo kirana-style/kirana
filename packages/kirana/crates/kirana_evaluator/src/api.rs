@@ -167,10 +167,11 @@ impl<'a> Evaluator<'_, 'a, '_> {
                     self.report(
                         Code::UnsupportedContextualTarget,
                         span,
-                        "a contextual target is an element name, attribute selectors and pseudo-classes: one compound selector",
-                        Some("for example select.descendant('svg') or select.child('[data-slot=\"icon\"]')"),
+                        "a contextual target is one compound selector: an element name, classes, attribute selectors and pseudo-classes, with no combinator or pseudo-element",
+                        Some("for example select.descendant('svg'), select.descendant('.ts-chart__grid') or select.child('[data-slot=\"icon\"]:hover'); a pseudo-element is a key inside the target's style"),
                     );
-                    Value::unknown("select target")
+                    // Reported here, so the key it becomes is not a `dynamic-key` too (KF-079).
+                    Value::unknown(crate::helpers::REPORTED)
                 }
             },
         }

@@ -10,7 +10,7 @@ export const icons = css({
 })
 export const invalid = css({
   color: { [select.descendant("svg")]: "red" },
-  [select.descendant(".class")]: { color: "red" },
+  [select.descendant("#id")]: { color: "red" },
   [select.child("a > b")]: { color: "red" },
   [select.descendant("9x")]: { color: "red" },
   [select.child("")]: { color: "red" },

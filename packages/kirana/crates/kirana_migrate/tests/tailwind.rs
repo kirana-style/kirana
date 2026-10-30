@@ -313,7 +313,7 @@ fn variants_the_codemod_resolves_itself() {
         "`grouped:p-2`: `grouped:` reads another element's state",
         "`after:after:p-2`: a pseudo-element inside another block; write it in css() by hand",
         "`[&_svg]:[a]:p-2`: `:is(a)` is a state of the contextual target, which css() cannot select",
-        "`[&_svg[a]x]:p-2`: `svg[a]x` is not a contextual target: an element name, attribute selectors and pseudo-classes",
+        "`[&_svg[a]x]:p-2`: `svg[a]x` is not a contextual target: an element name, classes, attribute selectors and pseudo-classes",
         "`[foo]` is not a utility",
         "`p-(--gap`: no such value",
     ] {
@@ -1313,4 +1313,24 @@ fn a_contextual_rule_under_an_exported_condition_stays_with_its_parent() {
     );
     // The rule without one moves onto the target.
     assert!(migrated.contains("':is([data-slot=\"field\"] > [data-slot=\"item\"])': space[1]"), "{migrated}");
+}
+
+/// A library's class names the target (KF-079): upstream shadcn reaches into Recharts with
+/// `[&_.recharts-…]`. A class followed by a descendant is still a combinator, so it stays a note.
+#[test]
+fn a_class_names_the_contextual_target() {
+    let (source, report) = snippet(
+        "a.tsx",
+        "export const A = () => <div className=\"[&_.recharts-dot]:p-2 [&>svg.icon]:p-2 *:[.row]:p-2 [&_.recharts-grid_line]:p-2\" />\n",
+    );
+    assert!(source.contains("[select.descendant(\".recharts-dot\")]"), "{source}");
+    assert!(source.contains("[select.child(\"svg.icon\")]"), "{source}");
+    assert!(source.contains("[select.child(\".row\")]"), "{source}");
+    assert!(
+        report
+            .iter()
+            .any(|note| note
+                .starts_with("`[&_.recharts-grid_line]:p-2`: `.recharts-grid line` is not a contextual target")),
+        "{report:#?}"
+    );
 }

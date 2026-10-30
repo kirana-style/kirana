@@ -877,6 +877,18 @@
           "brotli": 495
         }
       },
+      "select-class-target": {
+        "css": {
+          "raw": 367,
+          "gzip": 222,
+          "brotli": 186
+        },
+        "js": {
+          "raw": 240,
+          "gzip": 185,
+          "brotli": 152
+        }
+      },
       "select-contextual": {
         "css": {
           "raw": 678,
@@ -887,6 +899,18 @@
           "raw": 211,
           "gzip": 162,
           "brotli": 147
+        }
+      },
+      "select-refused-target": {
+        "css": {
+          "raw": 85,
+          "gzip": 72,
+          "brotli": 61
+        },
+        "js": {
+          "raw": 146,
+          "gzip": 135,
+          "brotli": 113
         }
       },
       "select-state-on-parent": {

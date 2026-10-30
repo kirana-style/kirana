@@ -1303,7 +1303,7 @@ impl<'s> Walker<'s> {
         if let Some((kind, target)) = select {
             if !kirana_ir::is_contextual_target(&target) {
                 return Err(format!(
-                    "`{utility}`: `{target}` is not a contextual target: an element name, attribute selectors and pseudo-classes"
+                    "`{utility}`: `{target}` is not a contextual target: an element name, classes, attribute selectors and pseudo-classes"
                 ));
             }
             if let Some(inversion) = self.inversion(kind, &target, &conditions, &parsed, is_dark, utility)

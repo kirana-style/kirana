@@ -410,9 +410,16 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                             }
                             let key = match &property.key {
                                 PropertyKey::StaticIdentifier(name) => Key::Str(Arc::from(name.name.as_str())),
-                                key if property.computed => match to_key(&self.eval(key.to_expression())) {
-                                    Some(key) => key,
-                                    None => return Value::unknown(format!("dynamic key@{}:{}", span.0, span.1)),
+                                key if property.computed => match self.eval(key.to_expression()) {
+                                    // A key whose own problem was reported, as a refused `select` target is
+                                    // (KF-079), is not a `dynamic-key` as well.
+                                    Value::Unknown(reason) if &*reason == crate::helpers::REPORTED => {
+                                        return Value::unknown(crate::helpers::REPORTED);
+                                    }
+                                    value => match to_key(&value) {
+                                        Some(key) => key,
+                                        None => return Value::unknown(format!("dynamic key@{}:{}", span.0, span.1)),
+                                    },
                                 },
                                 key => match key.as_expression() {
                                     Some(Expression::StringLiteral(literal)) => match literal.value.as_str() {

@@ -104,7 +104,7 @@ What the utility surface refuses, because a string cannot say it, an object can:
   and the reader's condition is `[inX.within()]`. A `data-slot` nobody reads anchors nothing;
 - **contextual targets**: `[&_svg]:` and `**:` are `select.descendant`, `[&>svg]:` and `*:` are
   `select.child`; the variant after `*:` names the target (`*:data-[slot=x]:` is
-  `select.child('[data-slot="x"]')`), and shadcn's `:not([class*='size-'])` guards are dropped (a contextual rule already loses to the element's own size). A `w-` or `h-` guard is reported when dropped: in Tailwind it also let a child opt out through `max-w-*` or `min-h-*`, which set no width of their own, so such a child needs `width: auto`;
+  `select.child('[data-slot="x"]')`, `[&_.recharts-dot]:` is `select.descendant(".recharts-dot")`, D-061), and shadcn's `:not([class*='size-'])` guards are dropped (a contextual rule already loses to the element's own size). A `w-` or `h-` guard is reported when dropped: in Tailwind it also let a child opt out through `max-w-*` or `min-h-*`, which set no width of their own, so such a child needs `width: auto`;
 - **contextual rules on a `data-slot` target, inverted**: Tailwind let a parent's `*:data-[slot=x]:w-full`
   beat the target's own `w-fit`; a `select` block ranks below it (D-016), which stays. So when the
   parent is known — an element written with `data-slot="p"`, or a recipe's base applied by elements of

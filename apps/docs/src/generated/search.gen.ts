@@ -1038,7 +1038,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Contextual styles",
     "section": "composition",
     "heading": "Contextual styles",
-    "text": "styles elements below an element you render, by name or attribute: reaches any depth; only direct children. Both are top-level keys holding a style object, like a pseudo-element."
+    "text": "styles elements below an element you render, by name, class or attribute: reaches any depth; only direct children. Both are top-level keys holding a style object, like a pseudo-element."
   },
   {
     "id": "/docs/styling/contextual#they-lose-to-the-element-s-own-styles",
@@ -1054,7 +1054,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Contextual styles",
     "section": "composition",
     "heading": "What a target may be",
-    "text": "One compound selector: an element name, attribute selectors and pseudo-classes, alone or together: No combinators ( ) and no pseudo-elements: a target is the element itself."
+    "text": "One compound selector: an element name, classes, attribute selectors and pseudo-classes, alone or together: No combinators ( ), no IDs and no pseudo-elements: a target is the element itself. A pseudo-element is a key inside the target's style ( )."
   },
   {
     "id": "/docs/styling/contextual#a-state-under-a-target-is-the-parent-s",
@@ -1062,7 +1062,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Contextual styles",
     "section": "composition",
     "heading": "A state under a target is the parent's",
-    "text": "A condition nested inside a target's style object reads the element that carries the style, as it does under a pseudo-element. The target's own state goes into the target: Tailwind's means the second. The first compiles, and the compiler adds an info ( ) suggesting the target form. When the parent's state is what you mean, read it through a relation and the info goes away. Class selectors are not targets: Kirana's class names are hashes, and a handwritten class is markup the compiler cannot verify. An unsupported target is an error ( )."
+    "text": "A condition nested inside a target's style object reads the element that carries the style, as it does under a pseudo-element. The target's own state goes into the target: Tailwind's means the second. The first compiles, and the compiler adds an info ( ) suggesting the target form. When the parent's state is what you mean, read it through a relation and the info goes away. A class is for markup you do not write: a chart library's offers no other hook. Kirana's own class names are hashes that change with the style, so never target them: read the element through a relation, or give it a data attribute. Anything else is an error ( ), reported once."
   },
   {
     "id": "/docs/styling/contextual#when-to-reach-for-it",
@@ -4240,7 +4240,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "API reference",
     "section": "reference",
     "heading": "select.descendant(target)  ·  select.child(target)",
-    "text": "Top-level keys that style elements below this one, in a layer their own styles beat. Targets are element names or attribute selectors. Contextual styles ."
+    "text": "Top-level keys that style elements below this one, in a layer their own styles beat. A target is one compound selector: an element name, classes, attribute selectors and pseudo-classes. Contextual styles ."
   },
   {
     "id": "/docs/reference/api#keyframes-frames",
