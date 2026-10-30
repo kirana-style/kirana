@@ -14,7 +14,7 @@ use kirana_ir::{
     ambiguous_pairs, parse_condition_key, push_dep,
 };
 
-use crate::eval::Evaluator;
+use crate::eval::{DYNAMIC_SPREAD, Evaluator, RuntimePart};
 
 /// Style parts in merge order, with adjacent static handles merged at build time.
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -177,7 +177,11 @@ impl<'a> Evaluator<'_, 'a, '_> {
                         ),
                         Some("write the declarations in css({ … }), or pass a handle css() made"),
                     ),
-                    None => parts.push(StylePart::Runtime(*open)),
+                    // An object with a key or spread decided at runtime is not a handle either.
+                    None => match self.runtime_reason(value) {
+                        Some(reason) => self.report_unknown(&reason, span),
+                        None => parts.push(StylePart::Runtime(*open)),
+                    },
                 },
                 Dynamic::Spread(span) => parts.push(StylePart::Spread(*span)),
                 Dynamic::Style(inner) => inner.iter().cloned().for_each(|part| parts.push(part)),
@@ -232,20 +236,35 @@ impl<'a> Evaluator<'_, 'a, '_> {
         if reason == crate::helpers::REPORTED {
             return;
         }
-        if reason.starts_with("dynamic spread") {
-            self.report(
-                Code::DynamicSpread,
-                span,
-                "a spread in a style must be known at build time",
-                Some("declare the properties explicitly instead of spreading a runtime object"),
-            );
-        } else if reason.starts_with("dynamic key") {
-            self.report(
-                Code::DynamicKey,
-                span,
-                "a property or condition key must be known at build time",
-                Some("use a fixed key, or move the choice into a conditional value"),
-            );
+        if let Some(part) = RuntimePart::read(reason) {
+            // Where it is written, when that is this module; else where the style uses it.
+            let (span, from) =
+                if part.file == self.ctx.file { (part.span, part.origin) } else { (span, Some(part.file)) };
+            if part.kind == DYNAMIC_SPREAD {
+                self.report(
+                    Code::DynamicSpread,
+                    span,
+                    match from {
+                        None => "a spread in a style must be known at build time".to_owned(),
+                        Some(file) => format!(
+                            "a spread in a style must be known at build time: this object, from {file}, spreads a runtime value"
+                        ),
+                    },
+                    Some("declare the properties explicitly instead of spreading a runtime object"),
+                );
+            } else {
+                self.report(
+                    Code::DynamicKey,
+                    span,
+                    match from {
+                        None => "a property or condition key must be known at build time".to_owned(),
+                        Some(file) => format!(
+                            "a property or condition key must be known at build time: this object, from {file}, has one decided at runtime"
+                        ),
+                    },
+                    Some("use a fixed key, or move the choice into a conditional value"),
+                );
+            }
         } else {
             self.report(
                 Code::NotEvaluable,
@@ -881,6 +900,27 @@ mod tests {
         let key = EntryKey::new(Target::Element, Property::longhand("color"), ConditionSet::default());
         handle.apply(Op::Set(key, AtomValue { css: css.into(), deps: vec![], longhands: 1 }));
         handle
+    }
+
+    /// A runtime key's or spread's reason reads back as written: a module under a scope (`@acme`)
+    /// keeps its name whole, and an origin comes after it on its own line.
+    #[test]
+    fn a_runtime_part_reads_back_from_its_reason() {
+        let part = RuntimePart {
+            kind: crate::eval::DYNAMIC_KEY,
+            span: (3, 9),
+            file: "node_modules/@acme/ui/a.ts",
+            origin: None,
+        };
+        let reason = part.reason();
+        assert_eq!(&*reason, "dynamic key@3:9@node_modules/@acme/ui/a.ts");
+        let read = RuntimePart::read(&reason).unwrap();
+        assert_eq!((read.kind, read.span, read.file, read.origin), (part.kind, part.span, part.file, None));
+        let anchored =
+            RuntimePart { kind: DYNAMIC_SPREAD, file: "card.tsx", origin: Some("parts.ts"), ..part }.reason();
+        let read = RuntimePart::read(&anchored).unwrap();
+        assert_eq!((read.kind, read.file, read.origin), (DYNAMIC_SPREAD, "card.tsx", Some("parts.ts")));
+        assert!(RuntimePart::read("global").is_none());
     }
 
     #[test]

@@ -61,6 +61,15 @@ css({ [key]: value }) // error: dynamic-key
 css({ ...someObject }) // error: dynamic-spread
 ```
 
+Naming the object first changes nothing. The error points at the key where it is
+written, and an object imported from another module is reported where the style
+uses it:
+
+```tsx
+const keyed = { display: "grid", [side]: 0 } // error: dynamic-key, at side
+css(keyed)
+```
+
 A style built from data is refused too. Some calls only ever build a plain object,
 never a handle, and a merge cannot apply an object:
 

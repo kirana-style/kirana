@@ -97,8 +97,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 201,
-      "end": 263
+      "start": 231,
+      "end": 255
     },
     "message": "a property or condition key must be known at build time",
     "help": [

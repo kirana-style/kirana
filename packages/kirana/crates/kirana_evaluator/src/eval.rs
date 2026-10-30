@@ -67,6 +67,43 @@ fn quasi_text<'s>(quasi: &TemplateElement<'s>) -> Option<&'s str> {
 }
 
 /// A byte span as the IR stores it.
+/// The reason prefixes of an object with a key, or a spread, decided at runtime ([`RuntimePart`]).
+pub(crate) const DYNAMIC_KEY: &str = "dynamic key@";
+pub(crate) const DYNAMIC_SPREAD: &str = "dynamic spread@";
+
+/// An object's key or spread decided at runtime, as its value's reason carries it: what it is,
+/// where it is written and in which module, so a style that uses the object reports it there. A
+/// spread of an imported object is anchored at the spread, and names the module it comes from.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct RuntimePart<'r> {
+    pub kind: &'static str,
+    pub span: (u32, u32),
+    pub file: &'r str,
+    pub origin: Option<&'r str>,
+}
+
+impl<'r> RuntimePart<'r> {
+    /// `{kind}{start}:{end}@{file}`, then a line with the origin when there is one.
+    pub fn reason(&self) -> Arc<str> {
+        let origin = self.origin.map(|origin| format!("\n{origin}")).unwrap_or_default();
+        Arc::from(format!("{}{}:{}@{}{origin}", self.kind, self.span.0, self.span.1, self.file))
+    }
+
+    /// The part a reason describes, when it is one.
+    pub fn read(reason: &'r str) -> Option<Self> {
+        let (kind, at) = [DYNAMIC_KEY, DYNAMIC_SPREAD]
+            .into_iter()
+            .find_map(|kind| reason.strip_prefix(kind).map(|at| (kind, at)))?;
+        let (at, origin) = match at.split_once('\n') {
+            Some((at, origin)) => (at, Some(origin)),
+            None => (at, None),
+        };
+        let (place, file) = at.split_once('@').unwrap_or_default();
+        let (start, end) = place.split_once(':').unwrap_or_default();
+        Some(Self { kind, span: (start.parse().unwrap_or_default(), end.parse().unwrap_or_default()), file, origin })
+    }
+}
+
 pub(crate) fn sp(span: oxc_span::Span) -> (u32, u32) {
     (span.start, span.end)
 }
@@ -96,6 +133,11 @@ pub struct Evaluator<'p, 'a, 'c> {
     /// the callee's name. Such a value is a runtime value like any other, except where a style
     /// handle is expected: no merge can apply an object, so it is reported there (KF-010).
     pub(crate) plain_objects: RefCell<FxHashMap<(u32, u32), &'static str>>,
+    /// Bindings of an object whose key, or a spread in it, is decided at runtime, by the span of each
+    /// read, with the reason it is not a style. A read is a runtime value like any other, except
+    /// where a style is expected: there it is reported at the key or the spread, not merged at
+    /// runtime as a handle, which would apply nothing.
+    pub(crate) runtime_objects: RefCell<FxHashMap<(u32, u32), Arc<str>>>,
     diagnostics: RefCell<Vec<Diagnostic>>,
     pub(crate) definitions: RefCell<Definitions>,
     depth: Cell<u32>,
@@ -166,6 +208,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             statics: RefCell::default(),
             calls: RefCell::default(),
             plain_objects: RefCell::default(),
+            runtime_objects: RefCell::default(),
             diagnostics: RefCell::default(),
             definitions: RefCell::default(),
             depth: Cell::new(0),
@@ -402,7 +445,24 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                         ObjectPropertyKind::SpreadProperty(spread) => match self.eval(&spread.argument) {
                             Value::Object(inner) => entries.extend(inner.iter().cloned()),
                             Value::Null | Value::Undefined => {}
-                            _ => return Value::unknown(format!("dynamic spread@{}:{}", span.0, span.1)),
+                            other => {
+                                let at = sp(spread.span);
+                                return Value::Unknown(match self.runtime_reason(&other) {
+                                    // Spreading a binding of such an object: its own key or spread is the
+                                    // problem, reported there, or at this spread when it was imported.
+                                    Some(reason) => match RuntimePart::read(&reason) {
+                                        Some(part) if part.file != self.ctx.file => RuntimePart {
+                                            span: at,
+                                            file: self.ctx.file,
+                                            origin: Some(part.origin.unwrap_or(part.file)),
+                                            ..part
+                                        }
+                                        .reason(),
+                                        _ => reason,
+                                    },
+                                    None => self.runtime_part(DYNAMIC_SPREAD, at),
+                                });
+                            }
                         },
                         ObjectPropertyKind::ObjectProperty(property) => {
                             if property.kind != PropertyKind::Init || property.method {
@@ -418,7 +478,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                                     }
                                     value => match to_key(&value) {
                                         Some(key) => key,
-                                        None => return Value::unknown(format!("dynamic key@{}:{}", span.0, span.1)),
+                                        None => return Value::Unknown(self.runtime_part(DYNAMIC_KEY, sp(key.span()))),
                                     },
                                 },
                                 key => match key.as_expression() {
@@ -667,7 +727,28 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                 self.plain_objects.borrow_mut().insert(span, builder);
             }
         }
+        // So is a binding of an object with a key or spread decided at runtime, or of such a binding.
+        if let Some(reason) = self.runtime_reason(&value) {
+            self.runtime_objects.borrow_mut().insert(span, reason);
+        }
         Value::Dynamic(Arc::new(Dynamic::Open(span)))
+    }
+
+    /// The reason of an object literal with a key or a spread decided at runtime, written here.
+    fn runtime_part(&self, kind: &'static str, span: (u32, u32)) -> Arc<str> {
+        RuntimePart { kind, span, file: self.ctx.file, origin: None }.reason()
+    }
+
+    /// Why a value is such an object, or a read of a binding of one.
+    pub(crate) fn runtime_reason(&self, value: &Value) -> Option<Arc<str>> {
+        match value {
+            Value::Unknown(reason) if RuntimePart::read(reason).is_some() => Some(reason.clone()),
+            Value::Dynamic(dynamic) => match &**dynamic {
+                Dynamic::Open(open) => self.runtime_objects.borrow().get(open).cloned(),
+                _ => None,
+            },
+            _ => None,
+        }
     }
 
     /// Reports an unresolved import once per module: every value that depends on it compiles as a

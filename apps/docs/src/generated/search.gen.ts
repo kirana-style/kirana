@@ -1211,7 +1211,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Values known at runtime",
     "section": "dynamic",
     "heading": "What is not allowed",
-    "text": "Two things the compiler refuses, because they would mean generating styles at runtime: A style built from data is refused too. Some calls only ever build a plain object, never a handle, and a merge cannot apply an object: , and ; and . Passing what one returns to , or is : Write the declarations out instead. A value the compiler cannot read in a handle position is otherwise taken as a handle known at runtime, which is what lets merge a caller's style. A style's shape is fixed at build time; its values may vary. If you need a different property depending on state, write both and choose between handles:"
+    "text": "Two things the compiler refuses, because they would mean generating styles at runtime: Naming the object first changes nothing. The error points at the key where it is written, and an object imported from another module is reported where the style uses it: A style built from data is refused too. Some calls only ever build a plain object, never a handle, and a merge cannot apply an object: , and ; and . Passing what one returns to , or is : Write the declarations out instead. A value the compiler cannot read in a handle position is otherwise taken as a handle known at runtime, which is what lets merge a caller's style. A style's shape is fixed at build time; its values may vary. If you need a different property depending on state, write both and choose between handles:"
   },
   {
     "id": "/docs/styling/dynamic#keeping-runtime-values-honest",

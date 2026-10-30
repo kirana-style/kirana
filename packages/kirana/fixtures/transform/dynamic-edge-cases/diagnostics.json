@@ -65,8 +65,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 595,
-      "end": 639
+      "start": 605,
+      "end": 629
     },
     "message": "a property or condition key must be known at build time",
     "help": [
@@ -91,8 +91,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 744,
-      "end": 785
+      "start": 754,
+      "end": 775
     },
     "message": "a property or condition key must be known at build time",
     "help": [

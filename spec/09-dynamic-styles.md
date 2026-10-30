@@ -128,6 +128,11 @@ Rules:
 
 **KRN-DYN-006** — Every error above MUST carry the source span, the reason, and at least one concrete fix
 (for example "move `props.color` into a variant", "declare the property explicitly instead of spreading").
+The span of a `dynamic-key` or `dynamic-spread` is the key or the spread itself. An object holding one,
+bound to a name and then used as a style (`css(keyed)`, `sx={keyed}`, `{ ...keyed }`), is reported the
+same way, at the key where it is written; imported from another module, it is reported where the style
+uses it, naming that module. Such a binding is never merged at runtime as a handle, which would apply
+nothing.
 
 ## Private runtime
 

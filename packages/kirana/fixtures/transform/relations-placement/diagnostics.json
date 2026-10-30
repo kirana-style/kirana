@@ -1,19 +1,5 @@
 [
   {
-    "code": "KRN1603",
-    "name": "dynamic-key",
-    "severity": "error",
-    "file": "input.tsx",
-    "span": {
-      "start": 394,
-      "end": 435
-    },
-    "message": "a property or condition key must be known at build time",
-    "help": [
-      "use a fixed key, or move the choice into a conditional value"
-    ]
-  },
-  {
     "code": "KRN1301",
     "name": "unknown-condition",
     "severity": "error",
@@ -24,20 +10,6 @@
     },
     "message": "\"hover\": expected a pseudo-class, an attribute selector or an at-rule",
     "help": []
-  },
-  {
-    "code": "KRN1603",
-    "name": "dynamic-key",
-    "severity": "error",
-    "file": "input.tsx",
-    "span": {
-      "start": 463,
-      "end": 507
-    },
-    "message": "a property or condition key must be known at build time",
-    "help": [
-      "use a fixed key, or move the choice into a conditional value"
-    ]
   },
   {
     "code": "KRN1101",

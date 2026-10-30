@@ -77,8 +77,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 899,
-      "end": 941
+      "start": 925,
+      "end": 939
     },
     "message": "a spread in a style must be known at build time",
     "help": [
