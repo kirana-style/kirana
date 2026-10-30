@@ -48,6 +48,9 @@ function filesOf(item: Item): [string, RegistryFile][] {
   for (const [value, bases] of Object.entries(item.flattened?.builds ?? {}))
     for (const [base, files] of Object.entries(bases))
       add(`/flattened/builds/${value}/${base}`, files)
+  for (const [axis, values] of Object.entries(item.flattened?.axes ?? {}))
+    for (const [value, files] of Object.entries(values))
+      add(`/flattened/axes/${axis}/${value}`, files)
   for (const [framework, bases] of Object.entries(item.frameworks ?? {}))
     for (const [base, entry] of Object.entries(bases))
       add(`/frameworks/${framework}/${base}/files`, entry.files)
@@ -87,8 +90,8 @@ const packageOf = (specifier: string) =>
 
 /**
  * What the item schema cannot check across fields (KF-050): a font item names its font and the
- * package its stylesheet is in, and only a font item has one; an axis names items only for its
- * own values.
+ * package its stylesheet is in, and only a font item has one; an axis build replaces a file the
+ * item installs (KF-080); an axis names items only for its own values.
  */
 function itemProblems(item: Item): Problem[] {
   const problems: Problem[] = []
@@ -107,6 +110,21 @@ function itemProblems(item: Item): Problem[] {
       pointer: "/font/import",
       message: `is in ${packageOf(item.font.import)}, which dependencies does not list`,
     })
+  // An axis build replaces one of the item's files; one that replaces none would install nothing.
+  const own = new Set(
+    filesOf(item)
+      .filter(([pointer]) => !pointer.startsWith("/flattened/axes/"))
+      .map(([, file]) => `${file.type}:${file.path}`)
+  )
+  for (const [axis, values] of Object.entries(item.flattened?.axes ?? {}))
+    for (const [value, files] of Object.entries(values))
+      files.forEach((file, index) => {
+        if (!own.has(`${file.type}:${file.path}`))
+          problems.push({
+            pointer: `/flattened/axes/${axis}/${value}/${index}`,
+            message: `replaces ${file.type} ${file.path}, which the item does not install`,
+          })
+      })
   for (const [axis, { values, items }] of Object.entries(
     item.design?.axes ?? {}
   ))

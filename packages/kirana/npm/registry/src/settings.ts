@@ -47,6 +47,8 @@ export type Settings = {
   iconLibrary: IconLibrary
   /** `ui.design`: the design system's axis values the project uses, none by default. */
   design: Readonly<Record<string, string>>
+  /** `ui.allDesigns`: style modules and design files as written, every design kept (KF-080). */
+  allDesigns?: true
   /** The defaults, with `ui.aliases` over them. */
   aliases: Readonly<Partial<Record<AliasedType, string>>>
 }
@@ -86,6 +88,7 @@ export async function loadSettings(
     base,
     iconLibrary,
     design,
+    allDesigns,
     aliases,
   } = ui as {
     registries?: Record<string, RegistryEntry>
@@ -93,6 +96,7 @@ export async function loadSettings(
     base?: string
     iconLibrary?: IconLibrary
     design?: Record<string, string>
+    allDesigns?: boolean
     aliases?: Partial<Record<AliasedType, string>>
   }
   const registries = new Map<string, Registry>([
@@ -116,6 +120,7 @@ export async function loadSettings(
     ...(base === undefined ? {} : { base }),
     iconLibrary: iconLibrary ?? "lucide",
     design: design ?? {},
+    ...(allDesigns ? { allDesigns } : {}),
     aliases: { ...DEFAULT_ALIASES, ...aliases },
   }
 }

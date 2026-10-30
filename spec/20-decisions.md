@@ -1659,6 +1659,18 @@ the implementation tracker names its evidence.
   flattening installs every style compiled, which is correct and larger. A preset's rules between
   axes (Kirana UI's square corners for Lyra) are the design system's site's to apply when it makes a
   code; the installer decodes what the code says.
+- **Amended (2026-10-31, KF-080):** an item may also carry `flattened.axes`: for each other axis,
+  each value's build of the files that read that axis alone, each replacing the item's file of the
+  same type and path. Installation takes each axis's build for the project's value, beside the style
+  build, so a design system's colours, fonts and radius install as the project chose them, and the
+  stylesheet holds that design alone. `ui.allDesigns` (`ui init --all-designs`) takes no build at
+  all and keeps every design, for a project with a theme switcher of its own. Builds are per axis,
+  not per combination: every combination of seven axes would be millions of builds, while a file
+  that reads one axis alone has one build per value. A file reading two axes (a radius that depends
+  on the style) stays as written unless the registry splits it. There is no `ui add --all-designs`:
+  `update` and `preset` place items again from the settings, so a choice made for one install would
+  be undone by the next; the setting is the one place. Icons stay the project's one library either
+  way.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
 ### D-111 — The registry runs on its own, and init leaves a project that can run it

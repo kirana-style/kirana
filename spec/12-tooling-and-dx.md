@@ -199,11 +199,14 @@ read once (KRN-DX-026). The project's settings under `ui`:
 | aliases     | the import specifier for each file type: `ui`, `lib`, `component`, `hook`, `page`; `@/components/ui`, `@/lib`, `@/components` and `@/hooks` by default |
 | iconLibrary | the library each `<IconPlaceholder>` is drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                           |
 | design      | the design system's axis values the project uses (`{ style: "vega", baseColor: "stone" }`), which `ui preset` writes                                   |
+| allDesigns  | `true` to install style modules and design files as written, every design kept, not the registry's builds for `design` (KF-080)                        |
 
 An item with `frameworks` and none for the project's framework, or several bases and no `ui.base`,
 MUST stop the command, naming what the item supports. An item's style modules MUST be its
 `flattened` build for `ui.design`'s value of the build's axis and the project's base when the item
-has one, and as written otherwise (D-110). Each file is written in the directory the
+has one, and as written otherwise (D-110). Each of its `flattened.axes` MUST then replace, for
+`ui.design`'s value of that axis, each file of the same type and path with the value's build; a
+value without a build keeps the files as written (KF-080). With `ui.allDesigns`, no build is taken. Each file is written in the directory the
 project's `tsconfig.json` (its `extends` and `references` followed) maps its type's alias to, or at
 its `target` for a `file`; its `@/registry/<type>/<path>` imports become the alias (D-108). A file
 the project already has with other content MUST stop the command before anything is written, unless
@@ -237,7 +240,9 @@ source archive read once, the example's `package.json` named after the directory
 as `add` does. Kirana's packages it installs, `@kirana-style/registry` among them when the project
 lacks it, MUST be at the release's version (unless the design system names one) and recorded
 exactly, with the package manager's exact flag, so the project can run `kirana-style ui` alone
-(D-111). A named import it adds joins the module's existing named import of the same module. The
+(D-111). A named import it adds joins the module's existing named import of the same module.
+`--all-designs` MUST write `allDesigns: true` to the `ui` settings, so this and every later command
+keeps every design installed (KF-080). The
 check after writing (for `init`, `add`, `update` and `preset`) MUST leave out `relation-unused` for a
 relation declared in a file of a design-system item it installed: the items that read it come
 later. A Next.js app without a `tsconfig.json` (a JavaScript one, as Next.js writes its tsconfig
@@ -292,7 +297,8 @@ installed, 2 for an unknown option or settings it cannot use.
 
 **KRN-DX-025** — The lockfile MUST be `kirana-style.lock.json`, at the project's root:
 `{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came
-from, its version, the framework and base, the design it was flattened for (`style=vega`), and for
+from, its version, the framework and base, the builds it was flattened for (`style=vega`, or several:
+`style=vega, baseColor=stone`), and for
 each installed file, by its path in the project, the hash of the registry's content (`source`) and
 of what was written (`written`). A changed `source` under the same version MUST be refused, and the
 two hashes tell a registry's change from the project's own edit.

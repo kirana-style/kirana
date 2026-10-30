@@ -353,6 +353,92 @@ describe("D-110 kirana-style ui add takes the registry's flattening", () => {
   })
 })
 
+/** The kit with its tokens built for each colour but one, and shared's styles for a colour too. */
+const KIT_BY_COLOR: Item = {
+  ...KIT,
+  flattened: {
+    axis: "style",
+    builds: {},
+    axes: {
+      color: {
+        stone: [file("kit/tokens.ts", "export const stone = {}\n", "lib")],
+      },
+    },
+  },
+}
+const SHARED_BY_COLOR: Item = {
+  ...SHARED,
+  flattened: {
+    ...SHARED.flattened!,
+    axes: { color: { stone: [file("shared.styles.ts", "stone\n")] } },
+  },
+}
+
+describe("KF-080 kirana-style ui add flattens every axis the registry built for, or none", () => {
+  it("takes each axis's build for the project's value, and the files as written for another", async () => {
+    const byColor = {
+      "acme/kit.json": JSON.stringify(KIT_BY_COLOR),
+      "acme/shared.json": JSON.stringify(SHARED_BY_COLOR),
+    }
+    const cwd = await installed(
+      { base: "base", design: { style: "vega", color: "stone" } },
+      byColor
+    )
+    expect(read(cwd, "src/lib/kit/tokens.ts")).toBe("export const stone = {}\n")
+    // The colour's build replaces the style's, which is a build of the same file.
+    expect(read(cwd, "src/components/ui/shared.styles.ts")).toBe("stone\n")
+    expect(read(cwd, "src/components/ui/button.styles.ts")).toBe(
+      'export const button = "vega base"\n'
+    )
+    const locked = readLockfile(cwd).items
+    expect(locked["@acme/kit"]!.design).toBe("color=stone")
+    expect(locked["@acme/shared"]!.design).toBe("style=vega, color=stone")
+    // A colour the registry did not build, or none: as written.
+    const neutral = await run(cwd, "preset", code(1, 0), "--no-check")
+    expect(neutral.code).toBe(0)
+    expect(read(cwd, "src/lib/kit/tokens.ts")).toBe(
+      "export const tokens = {}\n"
+    )
+    expect(read(cwd, "src/components/ui/shared.styles.ts")).toBe("vega base\n")
+    const styleOnly = await installed(
+      { base: "base", design: { style: "vega" } },
+      byColor
+    )
+    expect(read(styleOnly, "src/lib/kit/tokens.ts")).toBe(
+      "export const tokens = {}\n"
+    )
+  })
+
+  it("keeps every design with ui.allDesigns: no build, the files as written", async () => {
+    const cwd = await installed(
+      {
+        base: "base",
+        design: { style: "vega", color: "stone" },
+        allDesigns: true,
+      },
+      {
+        "acme/kit.json": JSON.stringify(KIT_BY_COLOR),
+        "acme/shared.json": JSON.stringify(SHARED_BY_COLOR),
+      }
+    )
+    expect(read(cwd, "src/lib/kit/tokens.ts")).toBe(
+      "export const tokens = {}\n"
+    )
+    expect(read(cwd, "src/components/ui/button.styles.ts")).toBe(
+      'export const button = "every style"\n'
+    )
+    expect(read(cwd, "src/components/ui/shared.styles.ts")).toBe("every\n")
+    const locked = readLockfile(cwd).items
+    expect(locked["@acme/button"]!.design).toBeUndefined()
+    expect(locked["@acme/shared"]!.design).toBeUndefined()
+    // A preset then writes the design and the attributes, and keeps every file as it is.
+    const preset = await run(cwd, "preset", code(1, 0), "--no-check")
+    expect(preset.code).toBe(0)
+    expect(preset.text).not.toContain("  + ")
+    expect(read(cwd, "index.html")).toContain('data-color="neutral"')
+  })
+})
+
 describe("KRN-DX-032 kirana-style ui preset", () => {
   it("writes the design, sets <html>'s attributes, and places every item again", async () => {
     const cwd = await installed()

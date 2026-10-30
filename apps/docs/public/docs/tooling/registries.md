@@ -183,6 +183,27 @@ project's design, and the modules as written for a design you did not build:
 Build them with the checks that prove a flattened module renders what the module
 as written does for that design: the installer takes them as they are.
 
+The other axes are flattened per file. A file that reads one axis alone, such as a
+palette of base colours, can carry a build for each value of that axis under
+`axes`, and installation replaces the file with the build for the project's value:
+
+```json
+"flattened": {
+  "axis": "style",
+  "builds": {},
+  "axes": {
+    "baseColor": {
+      "stone": [{ "path": "kit/base-colors.ts", "type": "lib", "content": "…", "hash": "sha256-…" }]
+    }
+  }
+}
+```
+
+Each axis has its own builds, never one per combination of axes, so give each axis
+its own file. A file that reads two axes stays as written. A value you did not
+build keeps the file as written, and the checks refuse a build that replaces no
+file of the item.
+
 ## The index
 
 The index is the item named `index`, valid against

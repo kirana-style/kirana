@@ -416,6 +416,45 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     ).toBe("k1 is not a preset code of @acme/kit, which describes no design\n")
   })
 
+  it("keeps every design with --all-designs, saved as ui.allDesigns (KF-080)", async () => {
+    const design = {
+      axes: { style: { attribute: "data-style", values: ["nova", "vega"] } },
+      flatten: "style",
+      presets: { k: [{ axis: "style", values: ["nova", "vega"], bits: 1 }] },
+    }
+    const vega = "export const kitConfig = { vega: true }\n"
+    const designed: Item = {
+      ...kit(),
+      design,
+      flattened: {
+        axis: "style",
+        builds: {},
+        axes: { style: { vega: [file("kit/config.ts", "lib", vega)] } },
+      },
+    }
+    const flattened = vite({}, designed)
+    expect(
+      (await init(flattened, "--registry", ACME, "--preset", "k1")).code
+    ).toBe(0)
+    expect(read(flattened, "src/lib/kit/config.ts")).toBe(vega)
+    const every = vite({}, designed)
+    const { code, text } = await init(
+      every,
+      "--registry",
+      ACME,
+      "--preset",
+      "k1",
+      "--all-designs"
+    )
+    expect(code).toBe(0)
+    expect(text).toContain('"allDesigns":true')
+    expect(read(every, "kirana.config.ts")).toContain('"allDesigns": true')
+    expect(read(every, "src/lib/kit/config.ts")).toBe(
+      "export const kitConfig = {}\n"
+    )
+    expect(read(every, "index.html")).toContain('data-style="vega"')
+  })
+
   it("lets a tsconfig that type-checks the configuration take its .ts import", async () => {
     const tsconfig = (text: string) => next({ "tsconfig.json": text })
     const emitsNothing = tsconfig(

@@ -50,7 +50,10 @@ export type Planned = {
   /** The item's files and its base's, in the order they install. */
   files: RegistryFile[]
   packages: Packages
-  /** The flattened build its style modules are (`style=vega`); none when they are as written. */
+  /**
+   * The flattened builds it installs, `style=vega` or several (`style=vega, baseColor=stone`); none
+   * when every file is as written.
+   */
   design?: string
 }
 
@@ -115,14 +118,33 @@ export function planItem(
     chosen.framework === undefined
       ? undefined
       : item.frameworks![chosen.framework]![chosen.base!]!
-  // The registry's flattening for the project's design and base, when it built one (D-110).
-  const axis = item.flattened?.axis
+  // The registry's flattenings for the project's design and base, when it built them (D-110); with
+  // `ui.allDesigns`, none: every design stays (KF-080).
+  const flattened = settings.allDesigns ? undefined : item.flattened
+  const axis = flattened?.axis
   const value = axis === undefined ? undefined : settings.design[axis]
   const base = chosen.base ?? settings.base
   const build =
     value === undefined || base === undefined
       ? undefined
-      : item.flattened!.builds[value]?.[base]
+      : flattened!.builds[value]?.[base]
+  // Each file that reads one other axis alone, as the registry built it for the project's value.
+  const built = Object.entries(flattened?.axes ?? {}).flatMap(
+    ([name, values]) => {
+      const chosenValue = settings.design[name]
+      const files = chosenValue === undefined ? undefined : values[chosenValue]
+      return files === undefined ? [] : [{ name, value: chosenValue!, files }]
+    }
+  )
+  const replaced = new Map(
+    built.flatMap(({ files }) =>
+      files.map((file) => [`${file.type}:${file.path}`, file] as const)
+    )
+  )
+  const designs = [
+    ...(build === undefined ? [] : [`${axis}=${value}`]),
+    ...built.map((flat) => `${flat.name}=${flat.value}`),
+  ]
   return {
     key,
     template: registryOf(parseReference(key).namespace, settings).template,
@@ -132,9 +154,9 @@ export function planItem(
       ...(item.files ?? []),
       ...(build ?? item.styles ?? []),
       ...(entry?.files ?? []),
-    ],
+    ].map((file) => replaced.get(`${file.type}:${file.path}`) ?? file),
     packages: { ...item.dependencies, ...entry?.dependencies },
-    ...(build === undefined ? {} : { design: `${axis}=${value}` }),
+    ...(designs.length === 0 ? {} : { design: designs.join(", ") }),
   }
 }
 

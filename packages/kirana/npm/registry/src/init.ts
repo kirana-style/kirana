@@ -133,11 +133,16 @@ type Chosen = {
   iconLibrary?: IconLibrary
   /** The design a `--preset` code gives (D-110). */
   design?: Record<string, string>
+  /** `--all-designs`: every design kept, not the registry's builds for the design (KF-080). */
+  allDesigns?: true
   registries: Record<string, string>
 }
 
 /** Reads the flags into `Chosen`, or the message for exit 2. */
-function chosenOf(values: Map<string, string[]>): Chosen | string {
+function chosenOf(
+  values: Map<string, string[]>,
+  allDesigns: boolean
+): Chosen | string {
   const framework = values.get("--framework")?.at(-1)
   if (framework !== undefined && !FRAMEWORKS.includes(framework as Framework))
     return `kirana-style ui init: --framework is one of ${FRAMEWORKS.join(", ")}`
@@ -154,6 +159,7 @@ function chosenOf(values: Map<string, string[]>): Chosen | string {
   return {
     ...(framework === undefined ? {} : { framework: framework as Framework }),
     ...(base === undefined ? {} : { base }),
+    ...(allDesigns ? { allDesigns } : {}),
     registries,
   }
 }
@@ -168,6 +174,7 @@ function withChosen(settings: Settings, chosen: Chosen): Settings {
     registries,
     ...(chosen.framework === undefined ? {} : { framework: chosen.framework }),
     ...(chosen.base === undefined ? {} : { base: chosen.base }),
+    ...(chosen.allDesigns ? { allDesigns: chosen.allDesigns } : {}),
   }
 }
 
@@ -440,6 +447,7 @@ function setUp(
       ? {}
       : { iconLibrary: chosen.iconLibrary }),
     ...(chosen.design === undefined ? {} : { design: chosen.design }),
+    ...(chosen.allDesigns ? { allDesigns: chosen.allDesigns } : {}),
     ...(Object.keys(chosen.registries).length > 0
       ? { registries: chosen.registries }
       : {}),
@@ -624,6 +632,7 @@ export async function runInit(
       "--no-pointer",
       "--rtl",
       "--no-rtl",
+      "--all-designs",
     ],
     [
       "--framework",
@@ -634,7 +643,10 @@ export async function runInit(
       "--preset",
     ]
   )
-  const chosen = typeof parsed === "string" ? parsed : chosenOf(parsed.values)
+  const chosen =
+    typeof parsed === "string"
+      ? parsed
+      : chosenOf(parsed.values, parsed.flags.has("--all-designs"))
   if (typeof parsed === "string" || typeof chosen === "string") {
     write(`${typeof parsed === "string" ? parsed : (chosen as string)}\n`)
     return 2

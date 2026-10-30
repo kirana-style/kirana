@@ -103,7 +103,8 @@ Commands in this release:
                          (--framework, --base, --registry @namespace=<template>), and the registry's
                          design system (--design <item>) installed and wired in; --template <example>
                          [directory] starts a new project from one of Kirana's examples, --preset
-                         <code> sets its design; --pointer (data-pointer on <html>: buttons get the
+                         <code> sets its design, --all-designs (ui.allDesigns) keeps every other
+                         design installed too; --pointer (data-pointer on <html>: buttons get the
                          pointer cursor) and --rtl (dir="rtl" on <html>), --no-pointer and --no-rtl
                          take them off; --dry-run, --overwrite, --no-check
   add <item…>            install items and every item they need: files at the project's aliases

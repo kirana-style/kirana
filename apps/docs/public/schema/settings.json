@@ -31,6 +31,10 @@
         "remixicon"
       ]
     },
+    "allDesigns": {
+      "type": "boolean",
+      "description": "Install style modules and design files as written, every design kept, instead of the registry's builds for `design` (KF-080)."
+    },
     "design": {
       "type": "object",
       "description": "The design system's axis values the project uses, which `ui preset` writes.",
