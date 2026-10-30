@@ -169,6 +169,18 @@
           "brotli": 489
         }
       },
+      "dynamic-runtime-objects": {
+        "css": {
+          "raw": 150,
+          "gzip": 117,
+          "brotli": 101
+        },
+        "js": {
+          "raw": 1121,
+          "gzip": 554,
+          "brotli": 444
+        }
+      },
       "dynamic-values": {
         "css": {
           "raw": 552,

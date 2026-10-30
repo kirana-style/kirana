@@ -89,8 +89,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 767,
-      "end": 783
+      "start": 770,
+      "end": 773
     },
     "message": "a property or condition key must be known at build time",
     "help": [
@@ -103,8 +103,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 806,
-      "end": 832
+      "start": 808,
+      "end": 816
     },
     "message": "a spread in a style must be known at build time",
     "help": [

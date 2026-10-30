@@ -152,7 +152,9 @@ impl<'a> Evaluator<'_, 'a, '_> {
                         kind: *kind,
                         state,
                     }])),
-                    None => Value::unknown("relation state"),
+                    // Reported here, so the key it becomes is not a `dynamic-key` too, as a refused
+                    // contextual target is not (KF-079).
+                    None => Value::unknown(crate::helpers::REPORTED),
                 }
             }
             Method::Select { child } => match arguments.first() {

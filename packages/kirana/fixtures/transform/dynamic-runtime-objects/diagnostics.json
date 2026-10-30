@@ -1,0 +1,84 @@
+[
+  {
+    "code": "KRN1603",
+    "name": "dynamic-key",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 476,
+      "end": 480
+    },
+    "message": "a property or condition key must be known at build time",
+    "help": [
+      "use a fixed key, or move the choice into a conditional value"
+    ]
+  },
+  {
+    "code": "KRN1604",
+    "name": "dynamic-spread",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 521,
+      "end": 529
+    },
+    "message": "a spread in a style must be known at build time",
+    "help": [
+      "declare the properties explicitly instead of spreading a runtime object"
+    ]
+  },
+  {
+    "code": "KRN1603",
+    "name": "dynamic-key",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 743,
+      "end": 748
+    },
+    "message": "a property or condition key must be known at build time: this object, from parts.ts, has one decided at runtime",
+    "help": [
+      "use a fixed key, or move the choice into a conditional value"
+    ]
+  },
+  {
+    "code": "KRN1603",
+    "name": "dynamic-key",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 786,
+      "end": 794
+    },
+    "message": "a property or condition key must be known at build time: this object, from parts.ts, has one decided at runtime",
+    "help": [
+      "use a fixed key, or move the choice into a conditional value"
+    ]
+  },
+  {
+    "code": "KRN1604",
+    "name": "dynamic-spread",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 846,
+      "end": 857
+    },
+    "message": "a spread in a style must be known at build time: this object, from parts.ts, spreads a runtime value",
+    "help": [
+      "declare the properties explicitly instead of spreading a runtime object"
+    ]
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 1012,
+      "end": 1023
+    },
+    "message": "color is set at runtime through --k50",
+    "help": []
+  }
+]
