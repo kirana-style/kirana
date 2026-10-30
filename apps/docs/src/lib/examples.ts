@@ -33,4 +33,6 @@ export type ShowcaseSnippet = {
     readonly message: string
     readonly help: readonly string[]
   }[]
+  /** Those diagnostics as `kirana-style check` prints them; empty for the others. */
+  readonly report: string
 }

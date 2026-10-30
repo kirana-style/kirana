@@ -49,7 +49,7 @@ of host-only dependencies.
 | Tier | Crate                | Responsibility                                                                                                             |
 | ---- | -------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | 0    | `kirana_shared`      | Hashing (XXH3-64), base-62 text, case conversion, the filesystem trait with OS and in-memory implementations.              |
-| 0    | `kirana_diagnostics` | Diagnostic type, catalogue, rendering (human, JSON; LSP later), severity overrides.                                        |
+| 0    | `kirana_diagnostics` | Diagnostic type, catalogue, rendering (human through Oxc's graphical report, JSON, GitHub), severity overrides.            |
 | 1    | `kirana_css_data`    | Property index, shorthand and numeric tables, logical/physical pairs, pseudo-class tables — generated from `mdn-data`.     |
 | 1    | `kirana_config`      | Resolved configuration schema (serde) and validation.                                                                      |
 | 1    | `kirana_ir`          | Style IR: conditions and their normal form, the ladder, handles and merge, names, token/theme/keyframes definitions.       |
@@ -409,16 +409,18 @@ properties typed one keystroke at a time would grow), start over past their boun
 **KRN-CMP-011** — Every diagnostic MUST have a stable code, a name, a severity, a primary span, an
 explanation, and optional fixes, and MUST render identically in the CLI (human and JSON), the language
 server (LSP `Diagnostic`), lint rules, and CI annotations. A diagnostic's code and name never change
-meaning once released.
+meaning once released. The human rendering is Oxc's graphical report, the one Oxlint prints (D-116),
+and the bundler adapters print the same text through the engine (`renderDiagnostics`):
 
 ```text
-error[KRN1403] relation-placement
-  --> src/components/field.tsx:42:18
-   |
-42 |       <label sx={label}>
-   |                  ^^^^^ reads field.within(…) but the anchor is on this element's sibling
-   |
-help: move `field.anchor` to the element that wraps both, or use `field.after(…)`
+  × KRN1403 relation-placement: reads field.within(…) but the anchor is on this element's sibling
+    ╭─[src/components/field.tsx:42:18]
+ 41 │     <div sx={row}>
+ 42 │       <label sx={label}>
+    ·                  ─────
+ 43 │         {children}
+    ╰────
+  help: move `field.anchor` to the element that wraps both, or use `field.after(…)`
 ```
 
 ### Diagnostic catalogue

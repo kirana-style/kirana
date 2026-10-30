@@ -10,7 +10,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
 
 import {
-  formatDiagnostic,
+  formatDiagnostics,
   installCommand,
   main as kirana,
   parseDiagnostics,
@@ -434,12 +434,15 @@ export async function checkWritten(
       !(diagnostic.name === "relation-unused" && quiet.has(diagnostic.file))
   )
   // A diagnostic with a span points into a file the check just read; one without names its file.
-  const source = ({ file, span }: Diagnostic) =>
-    span.start > 0 || span.end > 0
-      ? readFileSync(path.join(root, file), "utf8")
-      : undefined
-  for (const diagnostic of shown)
-    write(`${formatDiagnostic(diagnostic, source(diagnostic))}\n`)
+  const spanned = new Set(
+    shown
+      .filter(({ span }) => span.start > 0 || span.end > 0)
+      .map(({ file }) => file)
+  )
+  const source = (file: string) =>
+    spanned.has(file) ? readFileSync(path.join(root, file), "utf8") : undefined
+  for (const report of formatDiagnostics(shown, source)) write(`\n${report}\n`)
+  if (shown.length) write("\n")
   const errors = shown.filter((diagnostic) => diagnostic.severity === "error")
   write(`${shown.length} diagnostic(s), ${errors.length} error(s)\n`)
   if (errors.length === 0) return true

@@ -140,6 +140,40 @@ describe("terminal sessions", () => {
     expect(lines.at(-1)).toBe("plain &lt;text&gt;")
   })
 
+  it("colours a diagnostic report by its severity, its frame muted (D-116)", () => {
+    const html = highlightTerminal(
+      [
+        "  ⚠ KRN1703 sx-on-external-component: not read",
+        "    ╭─[src/menu.tsx:14:21]",
+        " 13 │   <Menu.Portal>",
+        " 14 │     <Menu.Popup sx={popup} />",
+        "    ·                 ──────────",
+        "    ·",
+        "    ╰────",
+        "  help: spread the compiled props",
+        "  × KRN1401 relation-without-anchor: never applied (a.tsx)",
+        "  ☞ KRN1601 dynamic-bridged: bridged",
+      ].join("\n")
+    )
+    expect(tokens(html, "type")).toEqual(["⚠", "                 ──────────"])
+    expect(tokens(html, "deleted")).toEqual(["×"])
+    expect(tokens(html, "strong")).toEqual([
+      "KRN1703 sx-on-external-component",
+      "KRN1401 relation-without-anchor",
+      "KRN1601 dynamic-bridged",
+    ])
+    expect(tokens(html, "comment")).toEqual([
+      "    ╭─[src/menu.tsx:14:21]",
+      " 13 │",
+      " 14 │",
+      "    ·",
+      "    ·",
+      "    ╰────",
+      "☞",
+    ])
+    expect(html.split("\n")[2]).toContain("   &lt;Menu.Portal&gt;")
+  })
+
   it("treats every line of a shell block as a command, except comments and blank lines", () => {
     const html = highlightTerminal(
       "kirana-style init\n\n# a note\nkirana-style doctor\n",

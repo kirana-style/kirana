@@ -18,8 +18,14 @@ The compiler catches this rather than letting you find it in the browser:
 
 ```console
 $ kirana-style check src
-warning[KRN1703] sx-on-external-component: a component from "@base-ui/react"
-receives `sx`, which it does not read
+
+  ⚠ KRN1703 sx-on-external-component: a component from "@base-ui/react/menu" receives `sx`, which it does not read
+    ╭─[src/menu.tsx:14:21]
+ 13 │       <Menu.Portal>
+ 14 │         <Menu.Popup sx={popup} />
+    ·                     ──────────
+ 15 │       </Menu.Portal>
+    ╰────
   help: spread the compiled props instead: {...props(styles.root, sx)}
 ```
 

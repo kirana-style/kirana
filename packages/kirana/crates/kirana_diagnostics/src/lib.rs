@@ -1,8 +1,9 @@
 //! Diagnostics (KRN-CMP-011): a stable catalogue, one diagnostic type, and renderers that the CLI,
 //! the bundler adapters and the language server share.
 
-use std::fmt::Write as _;
+use std::{borrow::Cow, fmt::Write as _};
 
+use oxc_diagnostics::{GraphicalReportHandler, GraphicalTheme, LabeledSpan, SourceCode};
 use serde::{Deserialize, Serialize};
 
 /// How serious a diagnostic is.
@@ -12,16 +13,6 @@ pub enum Severity {
     Info,
     Warning,
     Error,
-}
-
-impl Severity {
-    fn label(self) -> &'static str {
-        match self {
-            Severity::Info => "info",
-            Severity::Warning => "warning",
-            Severity::Error => "error",
-        }
-    }
 }
 
 macro_rules! catalogue {
@@ -166,6 +157,33 @@ impl Serialize for Diagnostic {
     }
 }
 
+/// The shape [`Serialize`] writes, read back: a host hands the engine's diagnostics back to be
+/// rendered (`renderDiagnostics`). The name says which diagnostic it is; the code follows from it.
+impl<'de> Deserialize<'de> for Diagnostic {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        #[derive(Deserialize)]
+        struct Wire {
+            name: String,
+            severity: Severity,
+            file: String,
+            span: Span,
+            message: String,
+            help: Vec<String>,
+        }
+        let wire = Wire::deserialize(deserializer)?;
+        let code = Code::from_name(&wire.name)
+            .ok_or_else(|| serde::de::Error::custom(format!("unknown diagnostic `{}`", wire.name)))?;
+        Ok(Self {
+            code,
+            severity: wire.severity,
+            file: wire.file,
+            span: wire.span,
+            message: wire.message,
+            help: wire.help,
+        })
+    }
+}
+
 impl Diagnostic {
     /// A diagnostic at its catalogue severity.
     pub fn new(code: Code, file: impl Into<String>, span: Span, message: impl Into<String>) -> Self {
@@ -266,50 +284,212 @@ impl LineIndex {
         let line = self.line(offset as u32);
         (line, text[self.0[line - 1]..offset].chars().count() + 1)
     }
+}
 
-    /// The text of a 1-based line, without its line break, as `text.lines()` gives it; empty past
-    /// the last line.
-    pub fn line_text<'t>(&self, text: &'t str, line: usize) -> &'t str {
-        let Some(&start) = self.0.get(line.wrapping_sub(1)) else { return "" };
-        let end = self.0.get(line).map_or(text.len(), |next| next - 1);
-        let text = &text[start.min(text.len())..end.max(start).min(text.len())];
-        text.strip_suffix('\r').unwrap_or(text)
+/// A line longer than this, in bytes, stays out of a frame, which would print it whole: minified or
+/// generated code. The location goes after the message instead.
+const LONG_LINE: usize = 1_000;
+
+/// A frame stays a glance: a span over more lines than this is underlined on its first line.
+const SPAN_LINES: usize = 6;
+
+/// Renders diagnostics for a terminal as Oxc's graphical report, the one oxlint prints (D-116): the
+/// severity, code, name and message, the span underlined among the lines around it in a frame headed
+/// `file:line:column`, then the help. A diagnostic with a file and no span names the file after its
+/// message, and one on a line too long to draw names `file:line:column` there. `source` gives a
+/// file's text; one file's diagnostics share one line index, so a module with thousands of them is
+/// read once (KF-028). `colour` adds ANSI colours, for a terminal that shows them. Each report is
+/// its own string, starting with a blank line and ending with a line break.
+pub fn render_human<'a>(
+    diagnostics: &'a [Diagnostic],
+    source: &dyn Fn(&str) -> Option<&'a str>,
+    colour: bool,
+) -> Vec<String> {
+    let mut indexes: std::collections::HashMap<&str, LineIndex> = std::collections::HashMap::new();
+    let reports: Vec<Report<'a>> = diagnostics
+        .iter()
+        .map(|diagnostic| {
+            let (file, span) = (diagnostic.file.as_str(), diagnostic.span);
+            let mut report = Report {
+                title: diagnostic.message.clone(),
+                code: format!("{} {}", diagnostic.code.code(), diagnostic.code.name()),
+                severity: match diagnostic.severity {
+                    Severity::Error => oxc_diagnostics::Severity::Error,
+                    Severity::Warning => oxc_diagnostics::Severity::Warning,
+                    Severity::Info => oxc_diagnostics::Severity::Advice,
+                },
+                help: (!diagnostic.help.is_empty()).then(|| diagnostic.help.join("\n")),
+                labels: Vec::new(),
+                source: None,
+                column: None,
+            };
+            let text = Some(span)
+                .filter(|span| *span != Span::default() && !file.is_empty())
+                .and_then(|span| source(file).filter(|text| within(text, span)));
+            match text {
+                None if !file.is_empty() => {
+                    let _ = write!(report.title, " ({file})");
+                }
+                None => {}
+                Some(text) => {
+                    let lines = indexes.entry(file).or_insert_with(|| LineIndex::new(text));
+                    let (line, column) = lines.line_column(text, span.start);
+                    match frame(text.as_bytes(), span) {
+                        None => {
+                            let _ = write!(report.title, " ({file}:{line}:{column})");
+                        }
+                        Some((line_start, end)) => {
+                            report.labels.push(LabeledSpan::new(None, span.start, end - span.start));
+                            report.source = Some(Source { name: file, text });
+                            // The handler counts the header's column in bytes; an editor, and every
+                            // other location Kirana prints, in characters.
+                            let bytes = span.start as usize - line_start + 1;
+                            if bytes != column {
+                                report.column = Some((format!(":{line}:{bytes}]"), format!(":{line}:{column}]")));
+                            }
+                        }
+                    }
+                }
+            }
+            report
+        })
+        .collect();
+    let theme = if colour { GraphicalTheme::unicode() } else { GraphicalTheme::unicode_nocolor() };
+    let handler = GraphicalReportHandler::new_themed(theme).with_links(false).with_width(400);
+    let mut out: Vec<String> = Vec::with_capacity(reports.len());
+    // Writing to a `String` cannot fail, and `within` keeps every span inside its text, the only
+    // other reason a report stops.
+    let _ = handler.render_reports_until(
+        reports.iter().map(|report| report as &dyn oxc_diagnostics::Diagnostic),
+        &mut |_, text| {
+            out.push(match &reports[out.len()].column {
+                Some((bytes, characters)) => {
+                    let header = text.find("─[").unwrap_or_default();
+                    format!("{}{}", &text[..header], text[header..].replacen(bytes.as_str(), characters, 1))
+                }
+                None => text.to_owned(),
+            });
+            true
+        },
+    );
+    out
+}
+
+/// Whether terminal reports get colours: `FORCE_COLOR` turns them on unless it is `0` or `false`,
+/// else a non-empty `NO_COLOR` turns them off, else a terminal gets them (force-color.org,
+/// no-color.org).
+pub fn colour(is_terminal: bool, force_colour: Option<&str>, no_colour: Option<&str>) -> bool {
+    match (force_colour, no_colour) {
+        (Some(force), _) => !matches!(force, "0" | "false"),
+        (None, Some(no)) if !no.is_empty() => false,
+        _ => is_terminal,
     }
 }
 
-/// Renders a diagnostic for a terminal, with the source line and a caret underline. `source` is the
-/// file's text and its [`LineIndex`], built once for all of a file's diagnostics.
-pub fn render_human(diagnostic: &Diagnostic, source: Option<(&str, &LineIndex)>) -> String {
-    let mut out = String::new();
-    let _ = writeln!(
-        out,
-        "{}[{}] {}: {}",
-        diagnostic.severity.label(),
-        diagnostic.code.code(),
-        diagnostic.code.name(),
-        diagnostic.message
-    );
-    match source {
-        Some((text, lines)) if !diagnostic.file.is_empty() && diagnostic.span != Span::default() => {
-            let (line, column) = lines.line_column(text, diagnostic.span.start);
-            let _ = writeln!(out, "  --> {}:{line}:{column}", diagnostic.file);
-            let line_text = lines.line_text(text, line);
-            let width = (diagnostic.span.end.saturating_sub(diagnostic.span.start) as usize)
-                .clamp(1, line_text.chars().count().saturating_sub(column - 1).max(1));
-            let gutter = line.to_string();
-            let _ = writeln!(out, "{} |", " ".repeat(gutter.len()));
-            let _ = writeln!(out, "{gutter} | {line_text}");
-            let _ = writeln!(out, "{} | {}{}", " ".repeat(gutter.len()), " ".repeat(column - 1), "^".repeat(width));
-        }
-        _ if !diagnostic.file.is_empty() => {
-            let _ = writeln!(out, "  --> {}", diagnostic.file);
-        }
-        _ => {}
+/// Whether a span lies in `text` on character boundaries.
+fn within(text: &str, span: Span) -> bool {
+    span.start <= span.end && text.is_char_boundary(span.start as usize) && text.is_char_boundary(span.end as usize)
+}
+
+/// Where a span's frame starts and its underline ends: the start of its first line, and the span's
+/// end, or its first line's when the span is long ([`SPAN_LINES`]). `None` when a line the frame
+/// would print, the span's own or one beside them, is longer than [`LONG_LINE`]. No scan goes past
+/// that limit, so a module that is one long line costs each diagnostic no more.
+fn frame(bytes: &[u8], span: Span) -> Option<(usize, u32)> {
+    let start = span.start as usize;
+    let first = line_start(bytes, start)?;
+    if first > 0 {
+        line_start(bytes, first - 1)?;
     }
-    for help in &diagnostic.help {
-        let _ = writeln!(out, "help: {help}");
+    let first_end = line_end(bytes, start)?;
+    let end = span.end as usize;
+    let whole =
+        end - start <= LONG_LINE && bytes[start..end].iter().filter(|byte| **byte == b'\n').count() < SPAN_LINES;
+    let (end, last) = if whole { (end, line_end(bytes, end)?) } else { (first_end, first_end) };
+    if last < bytes.len() {
+        line_end(bytes, last + 1)?;
     }
-    out
+    Some((first, end as u32))
+}
+
+/// The start of the line that holds `at`, when it is at most [`LONG_LINE`] bytes back.
+fn line_start(bytes: &[u8], at: usize) -> Option<usize> {
+    let from = at.saturating_sub(LONG_LINE);
+    match bytes[from..at].iter().rposition(|byte| *byte == b'\n') {
+        Some(index) => Some(from + index + 1),
+        None => (from == 0).then_some(0),
+    }
+}
+
+/// The end of the line that holds `at` (its line break, or the end of the text), when it is at most
+/// [`LONG_LINE`] bytes on.
+fn line_end(bytes: &[u8], at: usize) -> Option<usize> {
+    let to = (at + LONG_LINE).min(bytes.len());
+    match bytes[at..to].iter().position(|byte| *byte == b'\n') {
+        Some(index) => Some(at + index),
+        None => (to == bytes.len()).then_some(to),
+    }
+}
+
+/// A file's text, named, for the graphical handler. Reports of one file hold the same text, which
+/// is how the handler knows to keep its line index.
+#[derive(Debug)]
+struct Source<'a> {
+    name: &'a str,
+    text: &'a str,
+}
+
+impl SourceCode for Source<'_> {
+    fn data(&self) -> &[u8] {
+        self.text.as_bytes()
+    }
+
+    fn name(&self) -> Option<&str> {
+        Some(self.name)
+    }
+}
+
+/// One diagnostic as the graphical handler reads it.
+#[derive(Debug)]
+struct Report<'a> {
+    title: String,
+    code: String,
+    severity: oxc_diagnostics::Severity,
+    help: Option<String>,
+    labels: Vec<LabeledSpan>,
+    source: Option<Source<'a>>,
+    /// The frame's `:line:column]` as the handler writes it, and as Kirana counts it.
+    column: Option<(String, String)>,
+}
+
+impl std::fmt::Display for Report<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.title)
+    }
+}
+
+impl std::error::Error for Report<'_> {}
+
+impl oxc_diagnostics::Diagnostic for Report<'_> {
+    fn code(&self) -> Option<Cow<'_, str>> {
+        Some(Cow::Borrowed(&self.code))
+    }
+
+    fn severity(&self) -> Option<oxc_diagnostics::Severity> {
+        Some(self.severity)
+    }
+
+    fn help(&self) -> Option<Cow<'_, str>> {
+        self.help.as_deref().map(Cow::Borrowed)
+    }
+
+    fn source_code(&self) -> Option<&dyn SourceCode> {
+        self.source.as_ref().map(|source| source as &dyn SourceCode)
+    }
+
+    fn labels(&self) -> &[LabeledSpan] {
+        &self.labels
+    }
 }
 
 /// Renders a diagnostic as a GitHub Actions workflow command, which annotates the file in a pull

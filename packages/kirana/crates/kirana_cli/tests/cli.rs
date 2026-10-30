@@ -161,8 +161,14 @@ fn reports_errors_with_source_excerpts() {
     let broken = root.join("broken.ts").to_string_lossy().into_owned();
     let (code, output) = run(&["--config-json", &config, "check", &broken]);
     assert_eq!(code, 1);
-    assert!(output.contains("error[KRN1201] unknown-property"), "{output}");
-    assert!(output.contains("--> broken.ts:2:"), "{output}");
+    assert!(output.contains("  × KRN1201 unknown-property"), "{output}");
+    assert!(output.contains("╭─[broken.ts:2:"), "{output}");
+    assert!(!output.contains('\u{1b}'), "{output}");
+    // For a terminal that shows them, the same report in colour (D-116).
+    let mut coloured = Vec::new();
+    let args: Vec<String> = ["kirana-style", "--config-json", &config, "check", &broken].map(String::from).to_vec();
+    assert_eq!(kirana_cli::run_coloured(&args, &mut coloured, true), 1);
+    assert!(String::from_utf8(coloured).unwrap().contains("\u{1b}[38;2;225;80;80;1m×\u{1b}[0m"));
     let binary = root.join("binary.ts").to_string_lossy().into_owned();
     let (code, output) = run(&["--config-json", &config, "check", &binary]);
     assert_eq!(code, 1, "{output}");

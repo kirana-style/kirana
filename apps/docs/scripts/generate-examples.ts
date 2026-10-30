@@ -8,7 +8,7 @@
  */
 import { readdir, readFile, writeFile } from "node:fs/promises"
 import { basename, join, relative } from "node:path"
-import { Driver } from "@kirana-style/compiler"
+import { Driver, formatDiagnostics } from "@kirana-style/compiler"
 
 import {
   highlightSource,
@@ -121,18 +121,23 @@ for (const file of (await readdir(showcaseDir)).sort()) {
     message: string
     help: string[]
   }[] = []
+  // What `kirana-style check` prints for it, under the name the window's tab gives the file.
+  let report = ""
   if (name.startsWith("diagnostic")) {
     const driver = await Driver.create({ root })
     const result = driver.transform(join(showcaseDir, `${name}.tsx`), source)
     driver.stylesheet(false)
-    diagnostics = [...result.diagnostics, ...driver.diagnostics()].map(
-      (diagnostic) => ({
-        code: diagnostic.code,
-        name: diagnostic.name,
-        message: diagnostic.message,
-        help: [...diagnostic.help],
-      })
-    )
+    const found = [...result.diagnostics, ...driver.diagnostics()]
+    diagnostics = found.map((diagnostic) => ({
+      code: diagnostic.code,
+      name: diagnostic.name,
+      message: diagnostic.message,
+      help: [...diagnostic.help],
+    }))
+    report = formatDiagnostics(
+      found.map((diagnostic) => ({ ...diagnostic, file: "menu.tsx" })),
+      () => source
+    ).join("\n\n")
   }
   if (name.startsWith("diagnostic") && diagnostics.length === 0) {
     problems.push(`showcase/${file}: meant to fail, and compiled clean`)
@@ -147,6 +152,7 @@ for (const file of (await readdir(showcaseDir)).sort()) {
         ? highlightTerminal(source, true)
         : highlightSource(source, lang),
     diagnostics,
+    report,
   })
 }
 

@@ -1,10 +1,11 @@
 //! The Node-API binding (tier 4). A long-lived `Compiler` session; every call crosses the
 //! boundary once with compact values (engineering rule 5 in doc 13).
 
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use kirana_diagnostics::render_json;
+use kirana_diagnostics::{Diagnostic, render_human, render_json};
 use kirana_frontend::sfc;
 use kirana_project::Project;
 use kirana_shared::OsFs;
@@ -388,10 +389,25 @@ pub fn run_lsp(config_json: String) -> i32 {
     kirana_lsp::serve_stdio(&config_json)
 }
 
-/// Runs the `kirana-style` command line; returns `[exitCode, output]`.
+/// Runs the `kirana-style` command line; returns `[exitCode, output]`. `colour` adds ANSI colours to
+/// its diagnostics, for a terminal that shows them.
 #[napi]
-pub fn run_cli(args: Vec<String>) -> (i32, String) {
+pub fn run_cli(args: Vec<String>, colour: Option<bool>) -> (i32, String) {
     let mut output = Vec::new();
-    let code = kirana_cli::run(&args, &mut output);
+    let code = kirana_cli::run_coloured(&args, &mut output, colour.unwrap_or(false));
     (code, String::from_utf8_lossy(&output).into_owned())
+}
+
+/// Renders diagnostics, as the engine reports them in JSON, the way the command line prints them
+/// (D-116): one report each. `sources` holds the text of each file they name, read once for all of
+/// that file's reports.
+#[napi]
+pub fn render_diagnostics(
+    diagnostics_json: String,
+    sources: HashMap<String, String>,
+    colour: bool,
+) -> napi::Result<Vec<String>> {
+    let diagnostics: Vec<Diagnostic> =
+        serde_json::from_str(&diagnostics_json).map_err(|error| napi::Error::from_reason(error.to_string()))?;
+    Ok(render_human(&diagnostics, &|file| sources.get(file).map(String::as_str), colour))
 }

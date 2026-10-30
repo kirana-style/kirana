@@ -16,9 +16,16 @@ import {
   compilesModule,
 } from "../src/host.ts"
 
+/** A diagnostic of the catalogue at each severity, which the engine renders. */
+const NAMES = {
+  error: ["KRN1201", "unknown-property"],
+  warning: ["KRN1104", "import-cycle"],
+  info: ["KRN1601", "dynamic-bridged"],
+} as const
+
 const diagnostic = (severity: Diagnostic["severity"]): Diagnostic => ({
-  code: "KRN0000",
-  name: severity,
+  code: NAMES[severity][0],
+  name: NAMES[severity][1],
   severity,
   file: "a.tsx",
   span: { start: 0, end: 0 },

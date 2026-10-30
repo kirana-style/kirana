@@ -26,11 +26,14 @@ justifyContent at src/components/drawer.tsx:88
 ## Driver
 
 ```ts
-import { Driver, formatDiagnostic } from "@kirana-style/compiler"
+import { Driver, formatDiagnostics } from "@kirana-style/compiler"
 
 const driver = await Driver.create({ root: process.cwd() })
 const result = driver.transform("/abs/path/button.tsx", source) // { code?, map?, diagnostics, cssChanged, dependencies }
 const css = driver.stylesheet(true)
+// The diagnostics as `kirana-style check` prints them, one report each; `{ colour: true }` for a terminal.
+for (const report of formatDiagnostics(result.diagnostics, () => source))
+  console.warn(report)
 const affected = driver.invalidate("/abs/path/tokens.ts") // importers to recompile
 
 // For tools, from the same session: each file compiled once.

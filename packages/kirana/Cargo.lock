@@ -880,6 +880,7 @@ name = "kirana_diagnostics"
 version = "0.3.5"
 dependencies = [
  "insta",
+ "oxc_diagnostics",
  "serde",
  "serde_json",
 ]

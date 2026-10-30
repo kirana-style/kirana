@@ -429,8 +429,9 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     // The design system's relation is read by items not installed yet; the other item's is a finding.
     expect(text).not.toContain('relation "deck"')
     expect(text).toContain(
-      'warning[KRN1402] relation-unused: relation "orphan" is anchored but never read (src/lib/orphan/relation.ts:2:'
+      '  ⚠ KRN1402 relation-unused: relation "orphan" is anchored but never read\n'
     )
+    expect(text).toContain("╭─[src/lib/orphan/relation.ts:2:")
     expect(text).toMatch(/1 diagnostic\(s\), 0 error\(s\)\n$/)
     // A diagnostic without a span names its file alone.
     const reader: Item = {
@@ -448,7 +449,7 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     const unanchored = await add(project({}, [reader]), "@acme/reader")
     expect(unanchored.code).toBe(1)
     expect(unanchored.text).toContain(
-      'error[KRN1401] relation-without-anchor: relation "field" is read but its anchor is never applied (src/lib/reader.ts)\n'
+      '  × KRN1401 relation-without-anchor: relation "field" is read but its anchor is never applied (src/lib/reader.ts)\n'
     )
   })
 

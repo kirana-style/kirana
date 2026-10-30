@@ -4518,7 +4518,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style check",
-    "text": "Report diagnostics without writing anything. It walks the paths you give it, skipping , , dotfiles and files. Human output underlines the span and prints the help line: prints an array of , for an editor or a script. The exit code is 1 when anything is an error. prints one GitHub Actions workflow command per diagnostic, which annotates the line in the pull request's diff: errors as errors, warnings as warnings, infos as notices. Paths are relative to the project root, so run it from the repository root or a project at the root. fails the run, exit code 1, when there are more than warnings; makes every warning block a merge, without re-levelling them in the configuration. adds a line saying how much work the engine did: the modules it saw, those its prefilter rejected, those it parsed, and those it parsed only for their imports."
+    "text": "Report diagnostics without writing anything. It walks the paths you give it, skipping , , dotfiles and files. Human output is the report Oxlint prints: the code and the message, the lines around the mistake with it underlined, and the help line. In a terminal it is in colour; turns colour off, and turns it on where the output is not a terminal. prints an array of , for an editor or a script. The exit code is 1 when anything is an error. prints one GitHub Actions workflow command per diagnostic, which annotates the line in the pull request's diff: errors as errors, warnings as warnings, infos as notices. Paths are relative to the project root, so run it from the repository root or a project at the root. fails the run, exit code 1, when there are more than warnings; makes every warning block a merge, without re-levelling them in the configuration. adds a line saying how much work the engine did: the modules it saw, those its prefilter rejected, those it parsed, and those it parsed only for their imports."
   },
   {
     "id": "/docs/tooling/cli#which-configuration",
@@ -5027,7 +5027,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Diagnostics reference",
     "section": "tooling",
     "heading": "Reading one",
-    "text": "Code, name, message, location, and a help line that says what to do. gives the same fields as data."
+    "text": "A report has three parts: a mark for the severity ( an error, a warning, an info), then the code, the name and the message; a frame with the lines around the mistake and the mistake underlined, headed ; a help line that says what to do. It is the report Oxlint prints, and the build prints the same one, so a bundler's overlay shows it as it is. gives the same fields as data."
   },
   {
     "id": "/docs/tooling/debugging",

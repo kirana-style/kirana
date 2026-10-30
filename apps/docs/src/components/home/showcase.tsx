@@ -537,6 +537,14 @@ function BuildWindow({ name }: { name: string }) {
   )
 }
 
+/** A line of a report as a terminal colours it: the title and underline red, help blue, the frame muted. */
+function reportLine(line: string) {
+  if (/^\s*(×|· +\S)/.test(line)) return styles.error
+  if (/^\s*help:/.test(line)) return styles.help
+  if (/^\s*(╭─|╰─)/.test(line)) return styles.muted
+  return null
+}
+
 function CheckWindow() {
   const snippet = SHOWCASE.diagnostic!
   return (
@@ -546,19 +554,10 @@ function CheckWindow() {
       </Pane>
       <Pane tabs={["Terminal"]} area="terminal">
         <Terminal commands={["kirana-style check menu.tsx"]}>
-          {snippet.diagnostics.map((diagnostic) => (
-            <span key={diagnostic.code + diagnostic.message}>
-              <span sx={styles.error}>error[{diagnostic.code}]</span>{" "}
-              {diagnostic.name}: {diagnostic.message}
+          {`${snippet.report}\n`.split("\n").map((line, index) => (
+            <span key={index} sx={reportLine(line)}>
+              {line}
               {"\n"}
-              <span sx={styles.muted}>{"  --> menu.tsx"}</span>
-              {"\n"}
-              {diagnostic.help.map((line) => (
-                <span key={line} sx={styles.help}>
-                  help: {line}
-                  {"\n"}
-                </span>
-              ))}
             </span>
           ))}
           <span sx={styles.muted}>

@@ -51,12 +51,33 @@ export function terminal(
   }
 }
 
+/**
+ * Whether diagnostics written to `stream` get colours, as the engine's binary decides it:
+ * `FORCE_COLOR` turns them on unless it is `0` or `false`, else a non-empty `NO_COLOR` turns them
+ * off, else a terminal gets them.
+ */
+export function colourOf(
+  stream: { isTTY?: boolean },
+  env: NodeJS.ProcessEnv = process.env
+): boolean {
+  if (env.FORCE_COLOR !== undefined)
+    return env.FORCE_COLOR !== "0" && env.FORCE_COLOR !== "false"
+  if (env.NO_COLOR) return false
+  return stream.isTTY === true
+}
+
+/**
+ * Runs `kirana-style` with `argv`, writing its output through `write`; returns the exit code.
+ * `colour` adds ANSI colours to diagnostics, for a terminal that shows them: the binary passes
+ * whether its standard output does.
+ */
 export async function main(
   argv: readonly string[],
   cwd: string,
   write: (text: string) => void,
   native?: NativeBinding,
-  io?: Omit<Io, "write">
+  io?: Omit<Io, "write">,
+  colour = false
 ): Promise<number> {
   const [command, ...rest] = argv
   // These work before a configuration exists, or to find out why one does not load. Only `init`
@@ -74,7 +95,7 @@ export async function main(
       native && (() => native)
     )
   if (command === "dev")
-    return (await runDev(rest, cwd, write, { native })).code
+    return (await runDev(rest, cwd, write, { native, colour })).code
   // The component registry's commands, from their own package (D-103).
   if (command === "ui") return runUi(rest, cwd, write)
   const binding = native ?? loadNative()
@@ -82,7 +103,7 @@ export async function main(
     // The language server owns stdin and stdout until the editor shuts it down (KRN-DX-001).
     if (command === "lsp")
       return binding.runLsp((await resolveConfig(cwd)).json)
-    return await runGrouped(argv, cwd, write, binding)
+    return await runGrouped(argv, cwd, write, binding, colour)
   } catch (error) {
     if (!(error instanceof ConfigLoadError)) throw error
     write(`${error.message}\n`)
@@ -114,19 +135,17 @@ async function runGrouped(
   argv: readonly string[],
   cwd: string,
   write: (text: string) => void,
-  binding: NativeBinding
+  binding: NativeBinding,
+  colour: boolean
 ): Promise<number> {
   const [command = "", ...rest] = argv
   const forced = valueOf(rest, "--config")
   const args = withoutOption(rest, "--config")
   const run = (json: string, commandArgs: readonly string[]) =>
-    binding.runCli([
-      "kirana-style",
-      "--config-json",
-      json,
-      command,
-      ...commandArgs,
-    ])
+    binding.runCli(
+      ["kirana-style", "--config-json", json, command, ...commandArgs],
+      colour
+    )
   const paths = PER_PATH.has(command) ? pathsOf(command, args) : []
   const every = withPaths(args, paths, [...paths.keys()], cwd)
   if (forced !== undefined) {

@@ -146,8 +146,14 @@ enum From {
     },
 }
 
-/// Runs the command line; returns the exit code. Output goes to `out`.
+/// Runs the command line; returns the exit code. Output goes to `out`, without colours.
 pub fn run(args: &[String], out: &mut dyn Write) -> i32 {
+    run_coloured(args, out, false)
+}
+
+/// Runs the command line as [`run`] does; `colour` adds ANSI colours to the diagnostics, for a
+/// terminal that shows them ([`kirana_diagnostics::colour`]).
+pub fn run_coloured(args: &[String], out: &mut dyn Write, colour: bool) -> i32 {
     let cli = match Cli::try_parse_from(args) {
         Ok(cli) => cli,
         Err(error) => {
@@ -169,7 +175,7 @@ pub fn run(args: &[String], out: &mut dyn Write) -> i32 {
     let project = match Project::new(&config.to_string(), Arc::new(OsFs)) {
         Ok(project) => project,
         Err(diagnostics) => {
-            print_diagnostics(out, &diagnostics, Format::Human, &[]);
+            print_diagnostics(out, &diagnostics, Format::Human, &[], colour);
             return 2;
         }
     };
@@ -188,7 +194,7 @@ pub fn run(args: &[String], out: &mut dyn Write) -> i32 {
                     diagnostics.push(diagnostic.clone());
                 }
             }
-            print_diagnostics(out, &diagnostics, Format::Human, &sources);
+            print_diagnostics(out, &diagnostics, Format::Human, &sources, colour);
             let css = project.stylesheet(minify);
             let mut writes = vec![(target, css)];
             writes.extend(map.map(|map| (map.out, map.json)));
@@ -204,7 +210,7 @@ pub fn run(args: &[String], out: &mut dyn Write) -> i32 {
         }
         Command::Check { paths, format, max_warnings, stats } => {
             let (diagnostics, sources) = project.compile_paths(&paths);
-            print_diagnostics(out, &diagnostics, format, &sources);
+            print_diagnostics(out, &diagnostics, format, &sources, colour);
             if stats {
                 let work = project.work();
                 let share = if work.seen == 0 {
@@ -500,26 +506,37 @@ fn diff(file: &str, before: &str, after: &str) -> String {
     out
 }
 
-fn print_diagnostics(out: &mut dyn Write, diagnostics: &[Diagnostic], format: Format, sources: &[(String, String)]) {
-    // Each file's lines are indexed once, for all of its diagnostics.
-    let indexed: std::collections::HashMap<&str, (&str, LineIndex)> =
-        sources.iter().map(|(name, text)| (name.as_str(), (text.as_str(), LineIndex::new(text)))).collect();
-    let source = |file: &str| indexed.get(file).map(|(text, lines)| (*text, lines));
+fn print_diagnostics(
+    out: &mut dyn Write,
+    diagnostics: &[Diagnostic],
+    format: Format,
+    sources: &[(String, String)],
+    colour: bool,
+) {
+    let texts: std::collections::HashMap<&str, &str> =
+        sources.iter().map(|(name, text)| (name.as_str(), text.as_str())).collect();
     match format {
         Format::Json => {
             let _ = writeln!(out, "{}", render_json(diagnostics));
             return;
         }
         Format::Github => {
+            // Each file's lines are indexed once, for all of its diagnostics.
+            let indexed: std::collections::HashMap<&str, (&str, LineIndex)> =
+                texts.iter().map(|(name, text)| (*name, (*text, LineIndex::new(text)))).collect();
             for diagnostic in diagnostics {
-                let _ = writeln!(out, "{}", render_github(diagnostic, source(&diagnostic.file)));
+                let source = indexed.get(diagnostic.file.as_str()).map(|(text, lines)| (*text, lines));
+                let _ = writeln!(out, "{}", render_github(diagnostic, source));
             }
             return;
         }
         Format::Human => {}
     }
-    for diagnostic in diagnostics {
-        let _ = write!(out, "{}", render_human(diagnostic, source(&diagnostic.file)));
+    for report in render_human(diagnostics, &|file| texts.get(file).copied(), colour) {
+        let _ = write!(out, "{report}");
+    }
+    if !diagnostics.is_empty() {
+        let _ = writeln!(out);
     }
     let errors = diagnostics.iter().filter(|diagnostic| diagnostic.severity == Severity::Error).count();
     let _ = writeln!(out, "{} diagnostic(s), {errors} error(s)", diagnostics.len());

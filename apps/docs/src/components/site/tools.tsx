@@ -71,11 +71,11 @@ export function CliArt() {
           <T tone="strong">kirana-style check src</T>
         </Row>
         <Row flat typed={1}>
-          <T tone="danger">error[KRN1401]</T>
+          <T tone="danger">× KRN1401</T>
           <T>relation-without-anchor</T>
         </Row>
         <Row flat typed={2}>
-          <T tone="muted">{"  --> src/menu.tsx"}</T>
+          <T tone="muted">{"  (src/menu.tsx)"}</T>
         </Row>
         <Row flat typed={3}>
           <T tone="prompt">help:</T>

@@ -110,12 +110,29 @@ its own that neither imports back. A type-only import (`import type`,
 
 ```console
 $ kirana-style check src
-error[KRN1301] unknown-condition: ":hover" is a condition, and conditions nest
-inside property values (src/card.tsx:12:3)
+
+  × KRN1301 unknown-condition: ":hover" is a condition, and conditions nest inside property values
+    ╭─[src/card.tsx:12:3]
+ 11 │   transition: "color 150ms",
+ 12 │   ":hover": { color: "blue" },
+    ·   ────────
+ 13 │ })
+    ╰────
   help: write `property: { [condition]: value }`
+
+1 diagnostic(s), 1 error(s)
 ```
 
-Code, name, message, location, and a help line that says what to do. `kirana-style check
---format json` gives the same fields as data.
+A report has three parts:
+
+- a mark for the severity (`×` an error, `⚠` a warning, `☞` an info), then the
+  code, the name and the message;
+- a frame with the lines around the mistake and the mistake underlined, headed
+  `file:line:column`;
+- a help line that says what to do.
+
+It is the report Oxlint prints, and the build prints the same one, so a bundler's
+overlay shows it as it is. `kirana-style check --format json` gives the same fields
+as data.
 
 <!-- ::diagnostics-figure -->
