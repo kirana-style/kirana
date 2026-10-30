@@ -9,9 +9,9 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Component, Path, PathBuf};
 
-use kirana_config::{Grammar, Rule};
+use kirana_config::{Grammar, Rule, Variant};
 use kirana_ir::{TokenDef, TokenValue, Value};
-use kirana_utility::{Expr, Scales, Tree};
+use kirana_utility::{Exported, Expr, Scales, Tree};
 use oxc_ast::ast::{
     Argument, ArrowFunctionExpression, BindingPattern, BindingProperty, CallExpression, Declaration, Expression,
     FormalParameters, Function, IdentifierReference, ImportDeclaration, ImportDeclarationSpecifier, JSXAttribute,
@@ -285,6 +285,7 @@ pub fn lower(path: &Path, classes: &str, options: &Options<'_>, environment: &dy
     let style = (!lowered.entries.is_empty() || !lowered.left.is_empty())
         .then(|| format!("css({})", Walker::object(&lowered, "  ")));
     let mut items: Vec<String> = lowered.anchors.iter().map(|anchor| format!("{anchor}.anchor")).collect();
+    items.extend(lowered.handles.iter().cloned());
     if let Some(style) = &style {
         walker.core.insert("css");
         walker.styles.push(("style".to_owned(), style.clone()));
@@ -472,6 +473,8 @@ struct Lowered {
     entries: Vec<Entry>,
     /// Relations this element anchors, by identifier.
     anchors: Vec<String>,
+    /// Handles its utilities apply (`utilities.handles`, D-115), as imported, before its own style.
+    handles: Vec<String>,
     /// Utilities left in a comment, with the reason.
     left: Vec<String>,
 }
@@ -553,6 +556,9 @@ struct Walker<'s> {
     pending_component: bool,
     /// Per-mode tokens for non-colour `dark:` values: key, light and dark values.
     mode_tokens: Vec<(String, Vec<Part>, Vec<Part>)>,
+    /// Condition keys written as an exported variant (`[breakpoint.md]`, D-115) → whether the
+    /// condition is an at-rule, which the rendered key no longer shows.
+    exported: BTreeMap<String, bool>,
     /// The name of their token group in this file.
     modes_name: String,
     /// The properties of the `cva` being rewritten, from its base, whose pairs an option may drop.
@@ -597,6 +603,7 @@ impl<'s> Walker<'s> {
             styles_name,
             insert_at: 0,
             imports: BTreeMap::new(),
+            exported: BTreeMap::new(),
             recipes: BTreeSet::new(),
             recipe_anchors: BTreeMap::new(),
             anchors_applied: BTreeSet::new(),
@@ -781,7 +788,9 @@ impl<'s> Walker<'s> {
             .is_ok_and(|declarations| declarations.iter().all(|(property, _)| !property.starts_with('{')));
         // A dropped `:not([class*='w-'])` guard let a class the caller passes win in Tailwind; on the
         // target, the rule would beat it.
-        if is_dark || parsed.important || !lowers || utility.contains("[class") {
+        // An exported condition is imported by this file, not by the target's.
+        let exported = conditions.iter().any(|condition| self.exported.contains_key(condition));
+        if is_dark || parsed.important || !lowers || utility.contains("[class") || exported {
             return None;
         }
         let inversion = Inversion {
@@ -868,7 +877,7 @@ impl<'s> Walker<'s> {
                 "`{variant}:` is a custom variant in your CSS; declare it under `utilities.variants` and run again"
             ));
         }
-        kirana_utility::variant(self.options.grammar, variant, utility).map_err(|failure| failure.message)
+        kirana_utility::variant(self.options.grammar, self, variant, utility).map_err(|failure| failure.message)
     }
 
     /// `group-hover/menu` → `[menuGroup.within(":hover")]`.
@@ -1080,7 +1089,9 @@ impl<'s> Walker<'s> {
         for light in &mut lowered.entries {
             let paired = matches!(light.value.first(), Some(Part::Text(text)) if text.starts_with("light-dark("));
             let states = |conditions: &[String]| {
-                conditions.iter().all(|condition| !condition.starts_with("\"@") && condition != "\"*\"")
+                conditions.iter().all(|condition| {
+                    !condition.starts_with("\"@") && condition != "\"*\"" && self.exported.get(condition) != Some(&true)
+                })
             };
             let Some(dark) = dark_colours
                 .iter()
@@ -1249,7 +1260,29 @@ impl<'s> Walker<'s> {
                 select = Some(target);
                 continue;
             }
-            let condition = self.condition(variant, utility)?;
+            // A variant naming an export is written as that export, imported (D-115); its text, where a
+            // key can write it, still says what kind of condition it is.
+            let mut reference = None;
+            if let Some(Variant::Export(source)) = self.options.grammar.variants.get(*variant) {
+                let exported = kirana_utility::exported_condition(self, source, variant, utility)
+                    .map_err(|failure| failure.message)?;
+                let key = format!("[{}]", self.token(&source.module, &source.export, &source.path));
+                match exported {
+                    Exported::Relation => {
+                        self.exported.insert(key.clone(), false);
+                        conditions.push(key);
+                        continue;
+                    }
+                    Exported::Key(text) => {
+                        self.exported.insert(key.clone(), text.starts_with('@'));
+                        reference = Some((key, text));
+                    }
+                }
+            }
+            let (key, condition) = match reference {
+                Some((key, text)) => (Some(key), text),
+                None => (None, self.condition(variant, utility)?),
+            };
             if let Some((_, target)) = select.as_mut().filter(|_| !condition.starts_with('@')) {
                 // After `*:`, an attribute or an element names the target: `*:data-[slot=x]:`.
                 *target = narrow_target(target, &condition).ok_or_else(|| {
@@ -1261,9 +1294,10 @@ impl<'s> Walker<'s> {
                         "`{utility}`: a pseudo-element inside another block; write it in css() by hand"
                     ));
                 }
+                // Written as text: whether a block gets its `content` is read from its key.
                 block = Some(js_string(&condition));
             } else {
-                conditions.push(js_string(&condition));
+                conditions.push(key.unwrap_or_else(|| js_string(&condition)));
             }
         }
         if let Some((kind, target)) = select {
@@ -1314,6 +1348,22 @@ impl<'s> Walker<'s> {
             }
             return Ok(());
         }
+        // A utility the design system has as a handle applies that handle (D-115).
+        let failed = |failure: kirana_utility::Failure| match failure.help {
+            Some(help) => format!("{} ({help})", failure.message),
+            None => failure.message,
+        };
+        if let Some(source) = kirana_utility::handle(self.options.grammar, utility).map_err(failed)? {
+            if let Some(recipe) = &self.current_recipe {
+                return Err(format!(
+                    "`{utility}` is a handle, which a recipe cannot hold: apply `{}` where `{recipe}` is called",
+                    source.reference()
+                ));
+            }
+            let reference = self.token(&source.module, &source.export, &source.path);
+            lowered.handles.push(reference);
+            return Ok(());
+        }
         let custom = self.options.custom_utilities.iter().any(|custom| {
             custom == parsed.name || custom.strip_suffix('*').is_some_and(|prefix| parsed.name.starts_with(prefix))
         });
@@ -1321,17 +1371,13 @@ impl<'s> Walker<'s> {
             && kirana_utility::declarations(self.options.grammar, self, parsed.name, parsed.negative, utility).is_err()
         {
             return Err(format!(
-                "`{}` is a custom utility in your CSS; declare it under `utilities.utilities` and run again",
+                "`{}` is a custom utility in your CSS; declare its declarations under `utilities.utilities`, or the handle that has them under `utilities.handles`, and run again",
                 parsed.name
             ));
         }
         let declarations =
-            kirana_utility::declarations(self.options.grammar, self, parsed.name, parsed.negative, utility).map_err(
-                |failure| match failure.help {
-                    Some(help) => format!("{} ({help})", failure.message),
-                    None => failure.message,
-                },
-            )?;
+            kirana_utility::declarations(self.options.grammar, self, parsed.name, parsed.negative, utility)
+                .map_err(failed)?;
         for (property, value) in declarations {
             // A property written `{scale.key}` is that token, set as a computed key.
             let token = kirana_utility::property_token(self.options.grammar, self, &property);
@@ -1484,6 +1530,7 @@ impl<'s> Walker<'s> {
     fn style_items(&mut self, classes: &str, offset: u32, name: &str) -> Vec<String> {
         let lowered = self.lower(classes, offset);
         let mut items: Vec<String> = lowered.anchors.iter().map(|anchor| format!("{anchor}.anchor")).collect();
+        items.extend(lowered.handles.iter().cloned());
         if !lowered.entries.is_empty() || !lowered.left.is_empty() {
             let key = self.style_name(name);
             self.core.insert("css");
@@ -1858,6 +1905,7 @@ impl<'s> Walker<'s> {
             let (span, classes) = self.constants[name].clone();
             let lowered = self.lower(&classes, span.start);
             let mut arguments: Vec<String> = lowered.anchors.iter().map(|anchor| format!("{anchor}.anchor")).collect();
+            arguments.extend(lowered.handles.iter().cloned());
             arguments.push(Self::object(&lowered, ""));
             self.core.insert("css");
             self.edits.push((span, format!("css({})", arguments.join(", "))));

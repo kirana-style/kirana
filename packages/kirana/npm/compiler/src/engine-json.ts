@@ -5,10 +5,12 @@
  * cannot drift.
  */
 import type {
+  ExportSource,
   KiranaConfig,
   ScaleSource,
   UtilityGrammar,
   UtilityRule,
+  UtilityVariant,
 } from "@kirana-style/core/config"
 
 /** The `jsx` modes other than React's. */
@@ -63,8 +65,8 @@ export function engineJson(
 }
 
 /**
- * The presets' utility grammars and the project's, merged in order: a later scale, root or variant
- * replaces an earlier one of the same name (KRN-TOK-008). A relative scale module is resolved from
+ * The presets' utility grammars and the project's, merged in order: a later scale, root, variant or
+ * handle replaces an earlier one of the same name (KRN-TOK-008). A relative module is resolved from
  * the project root, since the engine reads it from whichever module uses the utility.
  */
 export function mergeGrammars(
@@ -76,18 +78,29 @@ export function mergeGrammars(
   if (present.length === 0) return undefined
   const scales: Record<string, ScaleSource[]> = {}
   const utilities: Record<string, readonly UtilityRule[]> = {}
-  const variants: Record<string, string> = {}
+  const variants: Record<string, UtilityVariant> = {}
+  const handles: Record<string, ExportSource> = {}
+  const resolved = (module: string) =>
+    /^\.\.?\//.test(module) ? resolveModule(root, module) : module
   for (const grammar of present) {
     for (const [name, sources] of Object.entries(grammar.scales ?? {})) {
       scales[name] = sources.map((source) => ({
-        module: /^\.\.?\//.test(source.module)
-          ? resolveModule(root, source.module)
-          : source.module,
+        module: resolved(source.module),
         export: source.export,
       }))
     }
     Object.assign(utilities, grammar.utilities)
-    Object.assign(variants, grammar.variants)
+    for (const [name, variant] of Object.entries(grammar.variants ?? {})) {
+      variants[name] =
+        typeof variant === "string"
+          ? variant
+          : { ...variant, module: resolved(variant.module) }
+    }
+    for (const [name, source] of Object.entries(grammar.handles ?? {})) {
+      handles[name] = { ...source, module: resolved(source.module) }
+    }
   }
-  return { scales, utilities, variants }
+  // Only when declared, so a grammar without handles reaches the engine as before.
+  const declared = Object.keys(handles).length > 0
+  return { scales, utilities, variants, ...(declared ? { handles } : {}) }
 }

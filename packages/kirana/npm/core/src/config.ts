@@ -8,6 +8,18 @@ type Level = "off" | "info" | "warning" | "error"
 /** One export of one module holding a scale's values: `{ module: "@kirana-style/preset-scales", export: "space" }`. */
 export type ScaleSource = { readonly module: string; readonly export: string }
 
+/**
+ * One export of one module and the path to a value inside it, read as an import would read it:
+ * `{ module: "@kirana-style/preset-scales", export: "breakpoint", path: ["md"] }` is `breakpoint.md`.
+ */
+export type ExportSource = ScaleSource & { readonly path?: readonly string[] }
+
+/**
+ * A variant: the condition key `css()` accepts (`":hover"`, `"@media (width >= 48rem)"`), or the
+ * export holding the condition, which `migrate tailwind` then imports (D-115).
+ */
+export type UtilityVariant = string | ExportSource
+
 /** What one utility root sets (`design-notes/utility-surface.md`). */
 export type UtilityRule =
   /** The root alone: `flex` → `{ display: "flex" }`. */
@@ -47,8 +59,13 @@ export type UtilityGrammar = {
   readonly scales?: Readonly<Record<string, readonly ScaleSource[]>>
   /** Utility root → alternatives, tried in order. */
   readonly utilities?: Readonly<Record<string, readonly UtilityRule[]>>
-  /** Variant name → the condition key `css()` accepts (`:hover`, `@media (width >= 48rem)`). */
-  readonly variants?: Readonly<Record<string, string>>
+  /** Variant name → its condition, as a key or as the export holding it (`breakpoint.md`). */
+  readonly variants?: Readonly<Record<string, UtilityVariant>>
+  /**
+   * Utility name → the style handle it applies, first in the element's `sx` (D-115): a utility the
+   * design system already has as a handle. One that only sets declarations is a `static` rule.
+   */
+  readonly handles?: Readonly<Record<string, ExportSource>>
 }
 
 /** A preset: data only — its tokens are imported as modules; its grammar is declared here (KRN-TOK-008). */

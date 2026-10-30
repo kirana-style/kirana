@@ -1141,6 +1141,18 @@
           "brotli": 504
         }
       },
+      "utility-surface-exports": {
+        "css": {
+          "raw": 615,
+          "gzip": 293,
+          "brotli": 248
+        },
+        "js": {
+          "raw": 580,
+          "gzip": 285,
+          "brotli": 237
+        }
+      },
       "values-grammar": {
         "css": {
           "raw": 645,
@@ -1220,8 +1232,8 @@
       "instantiations": 1336
     },
     "states": {
-      "types": 4301,
-      "instantiations": 146
+      "types": 4314,
+      "instantiations": 162
     },
     "sx-react": {
       "types": 2058,

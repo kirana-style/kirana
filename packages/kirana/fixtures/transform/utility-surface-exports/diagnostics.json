@@ -1,0 +1,44 @@
+[
+  {
+    "code": "KRN1707",
+    "name": "utility-unsupported",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 644,
+      "end": 691
+    },
+    "message": "`mode-dark:p-1`: `mode-dark` is a relation's condition, which a utility string cannot hold",
+    "help": [
+      "write the style with css() and the condition as a key: [mode.dark]"
+    ]
+  },
+  {
+    "code": "KRN1707",
+    "name": "utility-unsupported",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 644,
+      "end": 691
+    },
+    "message": "`md:scroll-fade`: `scroll-fade` is a handle, applied whole: a variant cannot make it conditional, nor `-` or `!` change it",
+    "help": [
+      "apply the handle where the condition holds, or write its declarations under the condition in css()"
+    ]
+  },
+  {
+    "code": "KRN1707",
+    "name": "utility-unsupported",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 644,
+      "end": 691
+    },
+    "message": "`not-a-handle`: `notAHandle` is not a style handle",
+    "help": [
+      "point `utilities.handles` at an export css() made"
+    ]
+  }
+]

@@ -6,6 +6,7 @@
 
 use std::sync::Arc;
 
+use kirana_diagnostics::Code;
 use kirana_ir::{Key, Value};
 use kirana_utility::{Expr, Scales, Tree};
 
@@ -55,14 +56,35 @@ fn tree_value(tree: Tree<Value>) -> Value {
 }
 
 impl Evaluator<'_, '_, '_> {
-    /// Lowers a utility string to the style object it stands for, reporting what cannot be lowered.
-    /// `None` when no grammar is configured (the surface is disabled).
-    pub(crate) fn utility_object(&self, text: &str, span: (u32, u32)) -> Option<Value> {
+    /// Lowers a utility string to the handles it applies (`utilities.handles`, D-115) and the style
+    /// object the rest stands for, reporting what cannot be lowered. `None` when no grammar is
+    /// configured (the surface is disabled).
+    pub(crate) fn utility_object(&self, text: &str, span: (u32, u32)) -> Option<(Vec<Value>, Value)> {
         let grammar = self.ctx.config.utilities.as_ref()?;
+        let mut handles = Vec::new();
         // The element's own declarations, then each pseudo-element's, in first-seen order.
         let mut blocks: Vec<(Option<String>, Vec<Lowered>)> = vec![(None, Vec::new())];
         let mut declarations = Vec::new();
         for utility in kirana_utility::utilities(text) {
+            match kirana_utility::handle(grammar, utility) {
+                Ok(Some(source)) => {
+                    match kirana_utility::export_value(self, source) {
+                        Some(handle @ Value::Handle(_)) => handles.push(handle),
+                        _ => self.report(
+                            Code::UtilityUnsupported,
+                            span,
+                            format!("`{utility}`: `{}` is not a style handle", source.reference()),
+                            Some("point `utilities.handles` at an export css() made"),
+                        ),
+                    }
+                    continue;
+                }
+                Ok(None) => {}
+                Err(failure) => {
+                    self.report(failure.code, span, failure.message, failure.help.as_deref());
+                    continue;
+                }
+            }
             match kirana_utility::lower(grammar, self, utility) {
                 Ok(lowered) => declarations.extend(lowered),
                 Err(failure) => self.report(failure.code, span, failure.message, failure.help.as_deref()),
@@ -103,6 +125,6 @@ impl Evaluator<'_, '_, '_> {
             }
             entries.push((Key::Str(Arc::from(block.as_str())), Value::Object(Arc::new(object(declarations)))));
         }
-        Some(Value::Object(Arc::new(entries)))
+        Some((handles, Value::Object(Arc::new(entries))))
     }
 }

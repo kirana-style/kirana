@@ -201,7 +201,12 @@ impl<'a> Evaluator<'_, 'a, '_> {
             },
             Value::Str(_) if strings == Strings::ClassName => parts.push(StylePart::Runtime(span)),
             Value::Str(text) => match self.utility_object(text, span) {
-                Some(object) => self.push_css_argument(&object, span, parts),
+                Some((handles, object)) => {
+                    for handle in &handles {
+                        self.push_handle_value(handle, span, parts, strings);
+                    }
+                    self.push_css_argument(&object, span, parts);
+                }
                 None => self.report(
                     Code::UtilitySurfaceDisabled,
                     span,

@@ -150,7 +150,7 @@ fn utility_grammar() {
     )
     .unwrap();
     let grammar = config.utilities.unwrap();
-    assert_eq!(grammar.variants["hover"], ":hover");
+    assert_eq!(grammar.variants["hover"], Variant::from(":hover"));
     assert!(matches!(&grammar.utilities["flex"][0], Rule::Static(rule) if rule.declarations["display"] == "flex"));
     assert!(
         matches!(&grammar.utilities["p"][0], Rule::Scale(rule) if rule.negative && rule.scale.as_deref() == Some("space"))
@@ -202,4 +202,48 @@ fn utility_grammar() {
     // Without a root there is nothing to be relative to, and the module stays as written.
     let config = Config::from_json(r#"{"utilities":{"scales":{"a":[{"module":"./theme.ts","export":"a"}]}}}"#).unwrap();
     assert_eq!(config.utilities.unwrap().scales["a"][0].module, "./theme.ts");
+}
+
+/// A variant may name an exported condition, and a utility an exported handle (D-115).
+#[test]
+fn exported_variants_and_handles() {
+    let config = Config::from_json(
+        r#"{"root":"/app","utilities":{
+            "variants":{
+                "md":{"module":"@kirana-style/preset-scales","export":"breakpoint","path":["md"]},
+                "dark":{"module":"./styles/mode.ts","export":"DARK"}
+            },
+            "handles":{"scroll-fade":{"module":"./styles/scroll-fade.styles.ts","export":"scrollFade"}}
+        }}"#,
+    )
+    .unwrap();
+    let grammar = config.utilities.unwrap();
+    let Variant::Export(md) = &grammar.variants["md"] else { panic!("an export") };
+    assert_eq!((md.module.as_str(), md.reference()), ("@kirana-style/preset-scales", "breakpoint.md".to_owned()));
+    let Variant::Export(dark) = &grammar.variants["dark"] else { panic!("an export") };
+    assert!(dark.module.replace('\\', "/").ends_with("/app/styles/mode.ts"), "{}", dark.module);
+    assert!(dark.path.is_empty());
+    let handle = &grammar.handles["scroll-fade"];
+    assert!(handle.module.replace('\\', "/").ends_with("/app/styles/scroll-fade.styles.ts"), "{}", handle.module);
+    assert_eq!(handle.reference(), "scrollFade");
+    assert_eq!(
+        messages(
+            r#"{"utilities":{
+                "variants":{"a":{"module":"","export":"x"},"b":{"module":"m","export":"x","path":[""]},"c":":c"},
+                "handles":{"d":{"module":"m","export":""},"md:e":{"module":"m","export":"e"},
+                           "-f":{"module":"m","export":"f"},"g h":{"module":"m","export":"g"},"":{"module":"m","export":"i"}}
+            }}"#
+        ),
+        [
+            "utilities.variants.a: a module, an export and non-empty path keys are needed",
+            "utilities.variants.b: a module, an export and non-empty path keys are needed",
+            "utilities.handles.d: a module, an export and non-empty path keys are needed",
+            "utilities.handles: \"\" is not a utility name (no variant, `-`, `!` or space)",
+            "utilities.handles: \"-f\" is not a utility name (no variant, `-`, `!` or space)",
+            "utilities.handles: \"g h\" is not a utility name (no variant, `-`, `!` or space)",
+            "utilities.handles: \"md:e\" is not a utility name (no variant, `-`, `!` or space)",
+        ]
+    );
+    let shape = messages(r#"{"utilities":{"variants":{"x":{"module":"m"}}}}"#);
+    assert!(shape[0].contains("did not match any variant"), "{shape:?}");
 }

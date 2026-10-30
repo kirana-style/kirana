@@ -1,0 +1,17 @@
+{
+  "utilities": {
+    "scales": { "space": [{ "module": "./scales.ts", "export": "space" }] },
+    "utilities": { "p": [{ "properties": ["padding"], "scale": "space" }] },
+    "variants": {
+      "hover": ":hover",
+      "lg": { "module": "./conditions.ts", "export": "breakpoint", "path": ["lg"] },
+      "@md": { "module": "./conditions.ts", "export": "containerQuery", "path": ["md"] },
+      "dark": { "module": "./conditions.ts", "export": "DARK" },
+      "mode-dark": { "module": "./conditions.ts", "export": "mode", "path": ["dark"] }
+    },
+    "handles": {
+      "scroll-fade": { "module": "./handles.ts", "export": "scrollFade" },
+      "not-a-handle": { "module": "./handles.ts", "export": "notAHandle" }
+    }
+  }
+}

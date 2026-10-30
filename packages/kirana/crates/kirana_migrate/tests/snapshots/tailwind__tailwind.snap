@@ -78,7 +78,7 @@ const styles = {
     padding: space[2],
   }),
   cardDiv2: css({
-    // tailwind: no-scrollbar — `no-scrollbar` is a custom utility in your CSS; declare it under `utilities.utilities` and run again
+    // tailwind: no-scrollbar — `no-scrollbar` is a custom utility in your CSS; declare its declarations under `utilities.utilities`, or the handle that has them under `utilities.handles`, and run again
     // tailwind: data-open:block — `data-open:` is a custom variant in your CSS; declare it under `utilities.variants` and run again
     padding: { "*": null, base: space[4] },
     "--gap": { "@media (width >= 48rem)": `calc(${space[1]} * 4)` },

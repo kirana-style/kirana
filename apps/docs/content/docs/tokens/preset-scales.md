@@ -69,6 +69,9 @@ compiler folds the call into the value, so it costs nothing at runtime.
 `breakpoint.*` and `containerQuery.*` are separate because they share step names
 and mean different things: one queries the viewport, the other a container.
 
+The preset's breakpoint and container variants name these exports, so the
+Tailwind codemod writes `md:` as `[breakpoint.md]`, imported.
+
 > [!NOTE] It is data, not a design system
 > The preset deliberately stops at scales. It has no `primary`, `muted` or
 > `background`: those are decisions about _your_ product, and they belong in your

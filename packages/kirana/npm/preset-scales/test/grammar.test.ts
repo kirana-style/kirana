@@ -208,7 +208,15 @@ describe("utility and object forms produce identical atoms", () => {
   }, 120_000)
 
   it("every variant", () => {
-    for (const [variant, condition] of Object.entries(grammar.variants!)) {
+    for (const [variant, configured] of Object.entries(grammar.variants!)) {
+      // An exported condition is the value at its path in the preset's export.
+      const condition =
+        typeof configured === "string"
+          ? configured
+          : ((configured.path ?? []).reduce<unknown>(
+              (value, key) => (value as Record<string, unknown>)[key],
+              tokens[configured.export]
+            ) as string)
       // A pseudo-element is a block; `before:` and `after:` also get their `content`.
       const content = ["::before", "::after"].includes(condition)
         ? `content: '""', `
@@ -359,5 +367,24 @@ export const s = css({ paddingLeft: spacing(9.5), marginTop: spacing(0), gap: sp
     expect(css).toContain("gap: -0.1875rem")
     expect(scales.spacing(4)).toBe(scales.space[4])
     expect(scales.spacing(0)).toBe(scales.space[0])
+  })
+})
+
+describe("migrate tailwind with the preset (D-115)", () => {
+  it("writes a breakpoint as the preset's condition and knows the pointer variants", () => {
+    const lowered = driver.lowerTailwind(
+      "md:p-6 @md:p-4 pointer-fine:inline-block any-pointer-coarse:p-4",
+      "src/card.tsx"
+    )
+    expect(lowered.style).toContain("[breakpoint.md]: space[6]")
+    expect(lowered.style).toContain("[containerQuery.md]: space[4]")
+    expect(lowered.style).toContain(
+      'display: { "@media (pointer: fine)": "inline-block" }'
+    )
+    expect(lowered.style).toContain('"@media (any-pointer: coarse)": space[4]')
+    expect(lowered.left).toEqual([])
+    expect(lowered.module).toContain(
+      'import { breakpoint, containerQuery, space } from "@kirana-style/preset-scales"'
+    )
   })
 })

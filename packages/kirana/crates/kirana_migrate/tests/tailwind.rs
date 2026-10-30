@@ -1174,3 +1174,143 @@ fn a_class_string_lowers_on_its_own() {
     let empty = lower(&file, "", &options, &environment);
     assert_eq!((empty.style, empty.module.as_str()), (None, ""));
 }
+
+/// The fixture's grammar with variants and handles that name exports of `conditions.ts` and
+/// `handles.ts` (D-115), as `kirana_config` leaves a relative module: absolute.
+fn design_system(dark: bool) -> Grammar {
+    let mut grammar: Grammar = project().config().utilities.clone().unwrap();
+    let export = |file: &str, export: &str, path: &[&str]| kirana_config::ExportSource {
+        module: root().join(file).to_string_lossy().into_owned(),
+        export: export.to_owned(),
+        path: path.iter().map(|key| (*key).to_owned()).collect(),
+    };
+    let variants = [
+        ("lg", export("conditions.ts", "breakpoint", &["lg"])),
+        ("after-x", export("conditions.ts", "AFTER", &[])),
+        ("mode-dark", export("conditions.ts", "mode", &["dark"])),
+        ("broken", export("conditions.ts", "NOT_A_CONDITION", &[])),
+    ];
+    for (name, source) in variants {
+        grammar.variants.insert(name.to_owned(), kirana_config::Variant::Export(source));
+    }
+    if dark {
+        grammar
+            .variants
+            .insert("dark".to_owned(), kirana_config::Variant::Export(export("conditions.ts", "DARK", &[])));
+    }
+    grammar.handles.insert("scroll-fade".to_owned(), export("handles.ts", "scrollFade", &[]));
+    grammar
+}
+
+fn run_with(grammar: &Grammar, name: &str, source: &str) -> (String, Vec<String>) {
+    let project = project();
+    let (variants, utilities) = custom();
+    let relations = ProjectMap::default();
+    let options = Options { grammar, custom_variants: &variants, custom_utilities: &utilities, project: &relations };
+    let file = root().join(name);
+    let migration = migrate(&file, source, &options, &Env { project: &project, file: &file });
+    let report = notes(&migration);
+    (migration.source, report)
+}
+
+/// A variant naming an export is written as that export, imported (KF-076 part 5).
+#[test]
+fn an_exported_variant_is_written_as_its_export() {
+    let (source, report) = run_with(
+        &design_system(false),
+        "a.tsx",
+        "export const A = () => <p className=\"p-2 lg:p-4 lg:hover:p-1 mode-dark:p-1 after-x:p-2 [&_svg]:lg:p-1 bg-primary dark:bg-muted lg:bg-ring\" />\n",
+    );
+    assert!(source.contains("import { breakpoint, mode } from \"./conditions\"\n"), "{source}");
+    assert!(
+        source.contains("padding: { base: space[2], [breakpoint.lg]: { base: space[4], \":hover\": space[1] }, [mode.dark]: space[1] }"),
+        "{source}"
+    );
+    // A pseudo-element is a block written as its text; a contextual target keeps the condition.
+    assert!(source.contains("\"::after\": {"), "{source}");
+    assert!(
+        source.contains("[select.descendant(\"svg\")]: {\n      padding: { [breakpoint.lg]: space[1] },"),
+        "{source}"
+    );
+    // An exported at-rule is still an at-rule: `dark:` does not reach under it.
+    assert!(source.contains("[breakpoint.lg]: theme.ring"), "{source}");
+    assert!(report.is_empty(), "{report:?}");
+    let (source, report) =
+        run_with(&design_system(false), "b.tsx", "export const B = () => <p className=\"broken:p-2\" />\n");
+    assert!(
+        source.contains("// tailwind: broken:p-2 — `broken:p-2`: `broken` names `NOT_A_CONDITION`, which"),
+        "{source}"
+    );
+    assert_eq!(report, ["`broken:p-2`: `broken` names `NOT_A_CONDITION`, which is not one condition"]);
+}
+
+/// With a `dark` variant of its own, a design system's dark condition sets every property: no
+/// per-mode tokens and no `light-dark()` pairs (KF-076 part 6).
+#[test]
+fn a_configured_dark_variant_sets_every_property() {
+    let source = "export const A = () => <p className=\"opacity-50 dark:opacity-80 bg-primary dark:bg-muted\" />\n";
+    let (migrated, report) = run_with(&design_system(true), "a.tsx", source);
+    assert!(migrated.contains("opacity: { base: \"50%\", [DARK]: \"80%\" }"), "{migrated}");
+    assert!(migrated.contains("backgroundColor: { base: theme.primary, [DARK]: theme.muted }"), "{migrated}");
+    assert!(migrated.contains("import { DARK } from \"./conditions\""), "{migrated}");
+    assert!(!migrated.contains("defineTokens") && !migrated.contains("light-dark("), "{migrated}");
+    assert!(report.is_empty(), "{report:?}");
+}
+
+/// A utility the design system has as a handle applies it, first in `sx` (KF-078 part 2).
+#[test]
+fn a_handle_utility_applies_its_handle() {
+    let grammar = design_system(false);
+    let (source, report) = run_with(
+        &grammar,
+        "a.tsx",
+        "import { cva } from \"class-variance-authority\"\n\
+         const LIST = \"scroll-fade p-2\"\n\
+         const variants = cva(\"scroll-fade\")\n\
+         export const A = () => <><div className=\"p-2 scroll-fade\" /><div className=\"scroll-fade\" /><div className=\"md:scroll-fade\" /><ul className={LIST} /></>\n",
+    );
+    assert!(source.contains("import { scrollFade } from \"./handles\"\n"), "{source}");
+    assert!(source.contains("<div sx={[scrollFade, styles.aDiv]} />"), "{source}");
+    assert!(source.contains("<div sx={scrollFade} />"), "{source}");
+    assert!(source.contains("const LIST = css(scrollFade, {\n"), "{source}");
+    assert_eq!(
+        report,
+        [
+            "`scroll-fade` is a handle, which a recipe cannot hold: apply `scrollFade` where `variants` is called",
+            "`md:scroll-fade`: `scroll-fade` is a handle, applied whole: a variant cannot make it conditional, nor `-` or `!` change it (apply the handle where the condition holds, or write its declarations under the condition in css())",
+        ]
+    );
+    // One class string on its own: the handle comes before the style.
+    let project = project();
+    let (variants, utilities) = custom();
+    let relations = ProjectMap::default();
+    let options =
+        Options { grammar: &grammar, custom_variants: &variants, custom_utilities: &utilities, project: &relations };
+    let file = root().join("report.tsx");
+    let lowered = lower(&file, "scroll-fade p-2", &options, &Env { project: &project, file: &file });
+    assert!(lowered.module.ends_with("const sx = [scrollFade, styles.style]\n"), "{}", lowered.module);
+}
+
+/// A contextual rule under an exported condition stays with the parent, whose file imports it.
+#[test]
+fn a_contextual_rule_under_an_exported_condition_stays_with_its_parent() {
+    let project = project();
+    let grammar = design_system(false);
+    let (variants, utilities) = custom();
+    let empty = ProjectMap::default();
+    let mut options =
+        Options { grammar: &grammar, custom_variants: &variants, custom_utilities: &utilities, project: &empty };
+    let file = root().join("a.tsx");
+    let source = "export const Item = () => <p data-slot=\"item\" className=\"p-2\" />\n\
+                  export const Field = () => <div data-slot=\"field\" className=\"*:data-[slot=item]:lg:p-4 *:data-[slot=item]:p-1\" />\n";
+    let mut map = ProjectMap::default();
+    map.add(&file, &survey(&file, source, &options, &Env { project: &project, file: &file }));
+    options.project = &map;
+    let migrated = migrate(&file, source, &options, &Env { project: &project, file: &file }).source;
+    assert!(
+        migrated.contains("[select.child('[data-slot=\"item\"]')]: {\n      padding: { [breakpoint.lg]: space[4] },"),
+        "{migrated}"
+    );
+    // The rule without one moves onto the target.
+    assert!(migrated.contains("':is([data-slot=\"field\"] > [data-slot=\"item\"])': space[1]"), "{migrated}");
+}

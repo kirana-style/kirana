@@ -78,7 +78,12 @@ fn config(root: &Path) -> String {
                 "line-clamp": [{ "properties": ["lineClamp"], "number": { "step": 1 } }],
                 "size": [{ "properties": ["width"], "scale": "sizes" }],
             },
-            "variants": { "hover": ":hover", "md": "@media (width >= 48rem)" },
+            "variants": {
+                "hover": ":hover",
+                "md": "@media (width >= 48rem)",
+                "lg": { "module": tokens, "export": "breakpoint", "path": ["lg"] },
+            },
+            "handles": { "scroll-fade": { "module": tokens, "export": "scrollFade" } },
         },
     })
     .to_string()
@@ -465,12 +470,21 @@ fn completion_offers_conditions_values_targets_and_utilities() {
     assert_eq!(targets, ["descendant", "child"]);
     let utilities = labels(&f.ok("textDocument/completion", at("sx=\"flex p-", 11)));
     assert!(utilities.contains(&"p-4".to_owned()) && utilities.contains(&"bg-".to_owned()), "{utilities:?}");
-    let roots = labels(&f.ok("textDocument/completion", at("sx=\"flex", 5)));
+    let completed = f.ok("textDocument/completion", at("sx=\"flex", 5));
+    let roots = labels(&completed);
     assert!(
         roots.contains(&"hover:".to_owned())
             && roots.contains(&"items-center".to_owned())
             && roots.contains(&"flex".to_owned())
     );
+    // An exported variant and a handle name where they come from (D-115).
+    let detail = |label: &str| {
+        let items = completed.get("items").unwrap_or(&completed).as_array().unwrap().clone();
+        let item = items.into_iter().find(|item| item["label"] == label).unwrap();
+        item["detail"].as_str().unwrap().replace(&f.root.join("tokens.ts").to_string_lossy().into_owned(), "tokens")
+    };
+    assert_eq!(detail("lg:"), "breakpoint.lg from tokens");
+    assert_eq!(detail("scroll-fade"), "the handle scrollFade from tokens");
     // An `sx` array string, a variant prefix, and colour values in a scale.
     let array = text.replace("sx={[box, css({ width: w })]}", "sx={[box, \"hover:bg-\"]}");
     f.open(&array);

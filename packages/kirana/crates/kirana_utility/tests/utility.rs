@@ -5,8 +5,8 @@ use std::sync::Arc;
 
 use kirana_config::Grammar;
 use kirana_diagnostics::Code;
-use kirana_ir::{Key, Value};
-use kirana_utility::{Declaration, Expr, Scales};
+use kirana_ir::{Condition, Key, RelationKind, Value};
+use kirana_utility::{Declaration, Exported, Expr, Scales};
 
 fn object(entries: &[(&str, Value)]) -> Value {
     Value::Object(Arc::new(entries.iter().map(|(key, value)| (Key::Str(Arc::from(*key)), value.clone())).collect()))
@@ -39,6 +39,32 @@ fn scales() -> Fake {
     map.insert(("./s".to_owned(), "size".to_owned()), object(&[("sm", Value::str("0.875rem"))]));
     map.insert(("./s".to_owned(), "leading".to_owned()), object(&[("sm", Value::str("1.25"))]));
     map.insert(("./s".to_owned(), "compose".to_owned()), object(&[("x", Value::str("var(--x)"))]));
+    let condition = |condition: Condition| Value::Conditions(Arc::new(vec![condition]));
+    map.insert(
+        ("./c".to_owned(), "breakpoint".to_owned()),
+        object(&[("lg", condition(Condition::Media("(width >= 64rem)".to_owned())))]),
+    );
+    map.insert(
+        ("./c".to_owned(), "query".to_owned()),
+        object(&[("lg", condition(Condition::Container { name: None, query: "(width >= 32rem)".to_owned() }))]),
+    );
+    map.insert(("./c".to_owned(), "DARK".to_owned()), Value::str("@media (prefers-color-scheme: dark)"));
+    map.insert(
+        ("./c".to_owned(), "mode".to_owned()),
+        condition(Condition::Relation {
+            marker: "ui".to_owned(),
+            kind: RelationKind::Within,
+            state: "[data-mode=\"dark\"]".to_owned(),
+        }),
+    );
+    map.insert(
+        ("./c".to_owned(), "both".to_owned()),
+        Value::Conditions(Arc::new(vec![
+            Condition::Pseudo(":hover".to_owned()),
+            Condition::Pseudo(":focus".to_owned()),
+        ])),
+    );
+    map.insert(("./h".to_owned(), "fade".to_owned()), Value::str("a handle"));
     Fake(map)
 }
 
@@ -86,8 +112,16 @@ fn grammar() -> Grammar {
             "@print": "@media print",
             "after": "::after",
             "before": "::before",
-            "disabled": ":disabled"
-        }
+            "disabled": ":disabled",
+            "lg": {"module": "./c", "export": "breakpoint", "path": ["lg"]},
+            "@xl": {"module": "./c", "export": "query", "path": ["lg"]},
+            "dark": {"module": "./c", "export": "DARK"},
+            "mode-dark": {"module": "./c", "export": "mode"},
+            "both": {"module": "./c", "export": "both"},
+            "@both": {"module": "./c", "export": "both"},
+            "nothing": {"module": "./c", "export": "missing", "path": ["x"]}
+        },
+        "handles": {"scroll-fade": {"module": "./h", "export": "fade"}}
     });
     serde_json::from_value(json).expect("a grammar")
 }
@@ -236,7 +270,7 @@ fn variants_are_conditions_and_pseudo_elements_are_blocks() {
 #[test]
 fn tailwind_builtin_variants() {
     let condition =
-        |variant: &str| kirana_utility::variant(&grammar(), variant, "u").map_err(|failure| failure.message);
+        |variant: &str| kirana_utility::variant(&grammar(), &scales(), variant, "u").map_err(|failure| failure.message);
     for (variant, expected) in [
         ("@md/card", "@container card (width >= 28rem)"),
         ("@[250px]", "@container (width >= 250px)"),
@@ -289,7 +323,7 @@ fn tailwind_builtin_variants() {
         ("[&:hover_b]", "`u`: arbitrary selector variants are not utilities"),
         ("[&:hover>b]", "`u`: arbitrary selector variants are not utilities"),
     ] {
-        let failure = kirana_utility::variant(&grammar(), variant, "u").expect_err(variant);
+        let failure = kirana_utility::variant(&grammar(), &scales(), variant, "u").expect_err(variant);
         let text = format!("{}{}", failure.message, failure.help.map(|help| format!(" | {help}")).unwrap_or_default());
         assert!(text.starts_with(message), "{variant}: {text}");
     }
@@ -332,7 +366,7 @@ fn a_named_container_needs_the_container_utility() {
     grammar.utilities.remove("@container");
     let failure = kirana_utility::lower(&grammar, &scales(), "@container/card").expect_err("no @container");
     assert_eq!(failure.message, "`@container/card` is not a utility");
-    assert!(kirana_utility::variant(&grammar, "[&:is(a,b)]", "u").is_ok());
+    assert!(kirana_utility::variant(&grammar, &scales(), "[&:is(a,b)]", "u").is_ok());
 }
 
 #[test]
@@ -462,4 +496,50 @@ fn grouping_parentheses_keep_their_math() {
     // A function's own parenthesis is not math: `var(--a-b)` stays one name.
     assert_eq!(kirana_utility::arbitrary("[calc(var(--a-b)+1px)]").as_deref(), Some("calc(var(--a-b) + 1px)"));
     assert_eq!(kirana_utility::arbitrary("[(1px-2px)]").as_deref(), Some("(1px-2px)"));
+}
+
+#[test]
+fn exported_variants_read_their_condition() {
+    let grammar = grammar();
+    let condition = |variant: &str| kirana_utility::variant(&grammar, &scales(), variant, "u");
+    assert_eq!(condition("lg").unwrap(), "@media (width >= 64rem)");
+    assert_eq!(condition("dark").unwrap(), "@media (prefers-color-scheme: dark)");
+    // A named container query takes its query from the exported condition.
+    assert_eq!(condition("@xl/card").unwrap(), "@container card (width >= 32rem)");
+    assert_eq!(condition("not-lg").unwrap_err().code, Code::UnknownUtilityVariant);
+    assert_eq!(condition("@both/card").unwrap_err().message, "`u`: no variant `@both/card`");
+    let relation = condition("mode-dark").unwrap_err();
+    assert_eq!(relation.code, Code::UtilityUnsupported);
+    assert_eq!(relation.message, "`u`: `mode-dark` is a relation's condition, which a utility string cannot hold");
+    assert_eq!(relation.help.as_deref(), Some("write the style with css() and the condition as a key: [mode]"));
+    for variant in ["both", "nothing"] {
+        let failure = condition(variant).unwrap_err();
+        assert_eq!(failure.code, Code::UnknownUtilityVariant);
+        assert!(failure.message.contains("which is not one condition"), "{}", failure.message);
+    }
+    assert_eq!(
+        condition("nothing").unwrap_err().message,
+        "`u`: `nothing` names `missing.x`, which is not one condition"
+    );
+    let source = &match &grammar.variants["mode-dark"] {
+        kirana_config::Variant::Export(source) => source.clone(),
+        kirana_config::Variant::Key(_) => unreachable!("an export"),
+    };
+    assert_eq!(kirana_utility::exported_condition(&scales(), source, "mode-dark", "u"), Ok(Exported::Relation));
+    let declarations = lower("lg:p-4").unwrap();
+    assert_eq!(declarations[0].conditions, ["@media (width >= 64rem)"]);
+}
+
+#[test]
+fn handles_apply_whole() {
+    let grammar = grammar();
+    let source = kirana_utility::handle(&grammar, "scroll-fade").unwrap().expect("a handle");
+    assert_eq!((source.module.as_str(), source.reference()), ("./h", "fade".to_owned()));
+    assert_eq!(kirana_utility::export_value(&scales(), source), Some(Value::str("a handle")));
+    assert_eq!(kirana_utility::handle(&grammar, "p-4").unwrap(), None);
+    for utility in ["md:scroll-fade", "-scroll-fade", "scroll-fade!"] {
+        let failure = kirana_utility::handle(&grammar, utility).unwrap_err();
+        assert_eq!(failure.code, Code::UtilityUnsupported);
+        assert!(failure.message.contains("`scroll-fade` is a handle, applied whole"), "{}", failure.message);
+    }
 }

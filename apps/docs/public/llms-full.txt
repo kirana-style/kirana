@@ -1326,7 +1326,7 @@ Variants go before the utility and stack, in Tailwind's own forms. There is no
 | Kind              | Variants                                                                  |
 | ----------------- | ------------------------------------------------------------------------- |
 | States            | `hover:`, `focus-visible:`, `disabled:`                                   |
-| Media             | `md:`, `motion-reduce:`, `print:`                                         |
+| Media             | `md:`, `motion-reduce:`, `print:`, `pointer-fine:`, `any-pointer-coarse:` |
 | Direction         | `rtl:`                                                                    |
 | Attributes        | `data-open:`, `data-[state=open]:`, `data-side=left:`, `aria-invalid:`    |
 | Structure         | `has-[svg]:`, `not-first:`, `nth-3:`, `[&:nth-child(2)]:`                 |
@@ -1418,8 +1418,22 @@ export default defineConfig({
 })
 ```
 
+Your design system's own conditions and styles are names too: a variant may name
+the export that holds its condition, and `utilities.handles` names a style
+handle a utility applies before the string's own declarations:
+
+```ts file="kirana.config.ts"
+utilities: {
+  variants: { dark: { module: "./src/styles/mode.ts", export: "DARK" } },
+  handles: { "scroll-fade": { module: "./src/styles/scroll-fade.styles.ts", export: "scrollFade" } },
+}
+```
+
+A handle applies whole, so `md:scroll-fade` is `utility-unsupported`, as is a
+variant whose export is a relation's condition, which a string key cannot hold.
+
 Later presets and your own `utilities` replace earlier ones scale by scale, root
-by root and variant by variant. The full shape is in the
+by root, variant by variant and handle by handle. The full shape is in the
 [configuration reference](/docs/reference/config#utilities).
 ---
 # At-rules
@@ -3195,6 +3209,9 @@ compiler folds the call into the value, so it costs nothing at runtime.
 
 `breakpoint.*` and `containerQuery.*` are separate because they share step names
 and mean different things: one queries the viewport, the other a container.
+
+The preset's breakpoint and container variants name these exports, so the
+Tailwind codemod writes `md:` as `[breakpoint.md]`, imported.
 
 > [!NOTE] It is data, not a design system
 > The preset deliberately stops at scales. It has no `primary`, `muted` or
@@ -7466,6 +7483,32 @@ export default defineConfig({
 })
 ```
 
+A design system with conditions and styles of its own names them, and the code
+the codemod writes imports them as a hand port would:
+
+```ts file="kirana.config.ts"
+utilities: {
+  variants: {
+    // your breakpoints, if they are not the preset's
+    md: { module: "./src/styles/screens.ts", export: "screen", path: ["md"] },
+    // your dark mode: every `dark:` value goes under it
+    dark: { module: "./src/styles/mode.ts", export: "DARK" },
+  },
+  // an `@utility` in your CSS that you already have as a handle
+  handles: { "scroll-fade": { module: "./src/styles/scroll-fade.styles.ts", export: "scrollFade" } },
+}
+```
+
+What each one becomes:
+
+| You configure                 | The codemod writes                                                    |
+| ----------------------------- | --------------------------------------------------------------------- |
+| a variant as an export        | that export as a computed key, imported: `[DARK]`, `[screen.md]`      |
+| nothing (the preset's `md:`)  | `{ [breakpoint.md]: space[6] }`: the preset's breakpoints are exports |
+| a handle                      | the handle, imported, first in `sx`: `sx={[scrollFade, styles.list]}` |
+| a handle under a variant      | a report: a handle applies whole                                      |
+| an `@utility` of declarations | no handle: declare a `static` rule under `utilities`                  |
+
 Then run it over your sources and your CSS. The CSS is read for `@custom-variant`
 and `@utility`, so a custom variant nobody declared is reported instead of
 silently getting Tailwind's default meaning:
@@ -7476,12 +7519,22 @@ kirana-style migrate tailwind src src/globals.css --write
 kirana-style check src
 ```
 
-A colour's `dark:` value becomes a `light-dark()` pair. Any other property's
-becomes a `{ light, dark }` token in a small group at the top of the file, which
-follows the colour scheme and Kirana's [`mode`](/docs/tokens/themes-and-modes)
-handles.
+Without a dark variant of your own, a colour's `dark:` value becomes a
+`light-dark()` pair. Any other property's becomes a `{ light, dark }` token in a
+small group at the top of the file, which follows the colour scheme and Kirana's
+[`mode`](/docs/tokens/themes-and-modes) handles.
 
 So where your theme switch sets `.dark`, set `mode.dark` too.
+
+With a `dark` variant configured, every `dark:` value, colours included, goes
+under that condition instead: your theme switch already decides what dark is. It
+ranks as its kind of condition on Kirana's ladder, so a media query loses to
+`aria-expanded:`, where Tailwind printed `dark:` last.
+
+Tailwind's pointer variants are the preset's too, as Tailwind defines them:
+
+- `pointer-fine:`, `pointer-coarse:` and `pointer-none:` are `@media (pointer: …)`;
+- `any-pointer-fine:` and the other two are `@media (any-pointer: …)`.
 
 A Base UI part rendering one of your components (`render={<Button />}`) hands
 its styles to that component as `sx`, since both are one element and a class
@@ -7541,6 +7594,7 @@ What it reports rather than guesses:
 
 - `!important` under a variant;
 - custom variants and utilities nobody declared;
+- a handle under a variant, negated or with `!`;
 - a contextual target under a condition (`focus:**:text-x`);
 - targets that are class names;
 - `in-*` on anything but a `data-slot` (`in-data-[slot=x]:` becomes a relation
@@ -8885,7 +8939,7 @@ presets: [scales()] // default: []
 Presets contribute data to the configuration: today, a utility grammar that
 turns on [utility strings](/docs/styling/utilities). A preset is
 `{ name: string, utilities?: UtilityGrammar }`; later presets replace earlier ones
-scale by scale, root by root and variant by variant.
+scale by scale, root by root, variant by variant and handle by handle.
 
 ## `utilities`
 
@@ -8893,17 +8947,42 @@ scale by scale, root by root and variant by variant.
 utilities: {
   scales: { color: [{ module: "./src/theme.ts", export: "theme" }] },
   utilities: { stack: [{ static: { display: "flex", flexDirection: "column" } }] },
-  variants: { selected: '[aria-selected="true"]' },
+  variants: {
+    selected: '[aria-selected="true"]',
+    dark: { module: "./src/styles/mode.ts", export: "DARK" },
+  },
+  handles: { "scroll-fade": { module: "./src/styles/scroll-fade.styles.ts", export: "scrollFade" } },
 }
 ```
 
-The application's own grammar, merged after every preset. It has three parts:
+The application's own grammar, merged after every preset. It has four parts:
 
 | Part        | What it holds                                                                                                                                        |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `scales`    | Where a scale's values come from: exports of modules, looked up as an `import` would be (relative modules from the project root), searched in order. |
 | `utilities` | What each root sets, as rules tried in order.                                                                                                        |
-| `variants`  | A name for any condition `css()` accepts; one starting with `::` is a pseudo-element block.                                                          |
+| `variants`  | A name for any condition `css()` accepts, or the export holding one; a condition starting with `::` is a pseudo-element block.                       |
+| `handles`   | A utility name for a style handle the design system exports, applied whole.                                                                          |
+
+An export is `{ module, export, path? }`, read as an `import` would read
+`export` and then each key of `path`. A variant written as one is the design
+system's own condition:
+
+- `kirana-style migrate tailwind` writes it as a computed key, imported:
+  `[breakpoint.md]`, `[DARK]`;
+- a utility string uses the condition it holds;
+- the scales preset declares its breakpoints and container queries this way, and
+  a project with its own breakpoints names its own export under the same variant;
+- the export may be a condition, a key string, or a relation's condition, which
+  only the codemod can write: a string key cannot hold a relation.
+
+A handle is a utility the design system already has as a `css()` handle:
+
+- the codemod imports it and puts it first in the element's `sx` array:
+  `sx={[scrollFade, styles.list]}`;
+- a utility string applies it before its own declarations;
+- it applies whole, so under a variant, negated or with `!` it is reported;
+- a utility that only sets declarations needs no handle: it is a `static` rule.
 
 A rule is one of three kinds:
 

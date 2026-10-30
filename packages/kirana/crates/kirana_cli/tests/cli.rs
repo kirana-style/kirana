@@ -385,6 +385,48 @@ fn migrated_relations_are_imported_where_they_are_read() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// `kirana-style migrate tailwind` against a design system (D-115): its breakpoint and dark condition
+/// as exports, and a utility its CSS defines that it has as a handle (KF-076, KF-078).
+#[test]
+fn migrates_tailwind_against_a_design_system() {
+    let root = temp(&[
+        ("scales.ts", b"import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { \"2\": \"0.5rem\", \"6\": \"1.5rem\" })\n"),
+        ("styles/conditions.ts", b"import { media } from \"@kirana-style/core\"\nexport const breakpoint = { md: media(\"(width >= 48rem)\") }\nexport const DARK = \"@media (prefers-color-scheme: dark)\"\n"),
+        ("styles/scroll-fade.styles.ts", b"import { css } from \"@kirana-style/core\"\nexport const scrollFade = css({ maskImage: \"linear-gradient(black, transparent)\" })\n"),
+        ("src/a.tsx", b"export const A = () => <p className=\"p-2 md:p-6 dark:p-6 scroll-fade md:scroll-fade\" />\n"),
+        ("src/theme.css", b"@utility scroll-fade {\n  mask-image: linear-gradient(black, transparent);\n}\n@utility shimmer {\n  opacity: 0.5;\n}\n"),
+        ("src/b.tsx", b"export const B = () => <p className=\"shimmer\" />\n"),
+    ]);
+    let config = serde_json::json!({
+        "root": root.to_string_lossy(),
+        "utilities": {
+            "scales": { "space": [{ "module": "./scales.ts", "export": "space" }] },
+            "utilities": { "p": [{ "properties": ["padding"], "scale": "space" }] },
+            "variants": {
+                "md": { "module": "./styles/conditions.ts", "export": "breakpoint", "path": ["md"] },
+                "dark": { "module": "./styles/conditions.ts", "export": "DARK" }
+            },
+            "handles": { "scroll-fade": { "module": "./styles/scroll-fade.styles.ts", "export": "scrollFade" } }
+        }
+    })
+    .to_string();
+    let src = root.join("src").to_string_lossy().into_owned();
+    let (code, output) = run(&["--config-json", &config, "migrate", "tailwind", &src, "--write"]);
+    assert_eq!(code, 0, "{output}");
+    assert!(output.contains("`md:scroll-fade`: `scroll-fade` is a handle, applied whole"), "{output}");
+    assert!(output.contains("or the handle that has them under `utilities.handles`"), "{output}");
+    assert!(!output.contains("per-mode tokens"), "{output}");
+    let rewritten = fs::read_to_string(root.join("src/a.tsx")).unwrap();
+    assert!(rewritten.contains("import { DARK, breakpoint } from \"../styles/conditions\"\n"), "{rewritten}");
+    assert!(rewritten.contains("import { scrollFade } from \"../styles/scroll-fade.styles\"\n"), "{rewritten}");
+    assert!(
+        rewritten.contains("padding: { base: space[2], [breakpoint.md]: space[6], [DARK]: space[6] },"),
+        "{rewritten}"
+    );
+    assert!(rewritten.contains("<p sx={[scrollFade, styles.aP]} />"), "{rewritten}");
+    fs::remove_dir_all(root).unwrap();
+}
+
 /// A `.stylex.ts` file is renamed when the rewrite is applied.
 #[test]
 fn migrating_renames_token_files() {
