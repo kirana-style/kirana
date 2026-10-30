@@ -103,7 +103,9 @@ Commands in this release:
                          (--framework, --base, --registry @namespace=<template>), and the registry's
                          design system (--design <item>) installed and wired in; --template <example>
                          [directory] starts a new project from one of Kirana's examples, --preset
-                         <code> sets its design; --dry-run, --overwrite, --no-check
+                         <code> sets its design; --pointer (data-pointer on <html>: buttons get the
+                         pointer cursor) and --rtl (dir="rtl" on <html>), --no-pointer and --no-rtl
+                         take them off; --dry-run, --overwrite, --no-check
   add <item…>            install items and every item they need: files at the project's aliases
                          (ui.aliases, through tsconfig.json's paths), packages with its package
                          manager, each recorded in kirana-style.lock.json; --dry-run, --overwrite,
@@ -118,7 +120,8 @@ Commands in this release:
                          it; --dry-run
   preset <code>          change the project's design: the code read with its design system's layouts,
                          ui.design and <html>'s attributes set, every item placed again for it;
-                         --dry-run, --overwrite, --no-check
+                         --pointer, --rtl, --no-pointer, --no-rtl as init's; --dry-run, --overwrite,
+                         --no-check
   view <item…>           what an item is: its frameworks and bases, files, styles and dependencies
                          (@acme/card, or button for @kirana's); --json prints the items as read
   search [query]         the items of every registry's index whose name, title or description holds
@@ -126,6 +129,8 @@ Commands in this release:
   validate <document…>   check registry items, indexes and lockfiles: their schema, and every file's
                          hash; a document is a file, a URL, or an item of the project's registries
                          (@acme/card, button for @kirana's, @acme/index for an index)
+
+--no-check skips the kirana-style check a command runs on the scripts it wrote.
 
 Coming in later releases: build, mcp.
 `

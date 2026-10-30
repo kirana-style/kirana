@@ -406,9 +406,7 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     })
     expect(
       (await init(twoLayouts, "--registry", ACME, "--preset", "k1")).text
-    ).toContain(
-      'by hand: set the design\'s attributes on <html>: data-style="vega"'
-    )
+    ).toContain('by hand: set <html>\'s attributes: data-style="vega"')
     expect(
       (await init(vite({}, designed), "--registry", ACME, "--preset", "z1"))
         .text
@@ -444,6 +442,69 @@ describe("KRN-DX-029 kirana-style ui init", () => {
         "allowImportingTsExtensions"
       )
     }
+  })
+
+  it("writes --pointer and --rtl on <html> in the root document each template has (KF-077)", async () => {
+    // A static app's index.html (Vite, Parcel, Bun, Ember, Analog).
+    const static_ = vite()
+    const both = await init(static_, "--registry", ACME, "--pointer", "--rtl")
+    expect(both.code).toBe(0)
+    expect(both.text).toContain(
+      'setup: index.html: <html data-pointer dir="rtl">'
+    )
+    expect(read(static_, "index.html")).toContain(
+      '<html dir="rtl" data-pointer lang="en">'
+    )
+    expect(both.text).toContain(
+      "by hand: dir=\"rtl\" is on <html>: give your components' library the direction too where it reads it from a provider (Base UI's DirectionProvider, React Aria's I18nProvider)"
+    )
+    // A layout that renders <html> (Next.js, React Router, TanStack Start, SolidStart), beside the
+    // design system's styles.
+    const layout = next()
+    const pointer = await init(layout, "--registry", ACME, "--pointer")
+    expect(pointer.text).toContain("setup: app/layout.tsx: <html data-pointer>")
+    expect(pointer.text).not.toContain("DirectionProvider")
+    expect(read(layout, "app/layout.tsx")).toContain(
+      '<html data-pointer sx={htmlStyles} lang="en">'
+    )
+    // The Angular CLI's src/index.html, and SvelteKit's src/app.html.
+    for (const page of ["src/index.html", "src/app.html"]) {
+      const cwd = vite({
+        [page]: '<html lang="en">\n%sveltekit.body%</html>\n',
+      })
+      rmSync(path.join(cwd, "index.html"))
+      expect((await init(cwd, "--registry", ACME, "--rtl")).text).toContain(
+        `setup: ${page}: <html dir="rtl">`
+      )
+      expect(read(cwd, page)).toContain('<html dir="rtl" lang="en">')
+    }
+    // Already there, written another way: replaced, never doubled; --no-pointer takes it off.
+    const set = next({
+      "app/layout.tsx":
+        "export default ({ children }) => <html dir='ltr' data-pointer={true}><body>{children}</body></html>\n",
+    })
+    expect(
+      (await init(set, "--registry", ACME, "--rtl", "--no-pointer")).code
+    ).toBe(0)
+    expect(read(set, "app/layout.tsx")).toContain(
+      '<html sx={htmlStyles} dir="rtl"><body>'
+    )
+    // No root document the CLI can write (Nuxt, Astro, Laravel, Rails), or two layouts: said.
+    const none = next({
+      "app/other/layout.tsx": "export default () => <html><body /></html>\n",
+    })
+    expect(
+      (await init(none, "--registry", ACME, "--pointer", "--rtl")).text
+    ).toContain('by hand: set <html>\'s attributes: data-pointer dir="rtl"\n')
+    const contradicting = await init(vite(), "--pointer", "--no-pointer")
+    expect(contradicting).toMatchObject({
+      code: 2,
+      text: "kirana-style ui init: --pointer and --no-pointer contradict each other\n",
+    })
+    // Without either, <html> is left as it is.
+    const plain = vite()
+    expect((await init(plain, "--registry", ACME)).code).toBe(0)
+    expect(read(plain, "index.html")).toContain('<html lang="en">')
   })
 
   it("names the design system with --design, and the framework and base with their flags", async () => {

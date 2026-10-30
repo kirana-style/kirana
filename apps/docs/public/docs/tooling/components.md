@@ -57,6 +57,40 @@ component has several:
 npx kirana-style ui init --framework react --base aria
 ```
 
+Turn on the pointer cursor on buttons, or right to left, with the flags
+shadcn/ui's `init` takes:
+
+```bash
+npx kirana-style ui init --pointer --rtl
+```
+
+| Flag        | Writes on `<html>` | What follows from it                                                    |
+| ----------- | ------------------ | ----------------------------------------------------------------------- |
+| `--pointer` | `data-pointer`     | the design system's reset gives every enabled button the pointer cursor |
+| `--rtl`     | `dir="rtl"`        | every logical property in the components turns round                    |
+
+A component library that reads the direction from a provider needs it too, as
+Base UI and React Aria do; `init` prints that as a step by hand.
+
+Both go in the project's root document, found in this order:
+
+| Where `<html>` is              | Templates                                         | `init` does         |
+| ------------------------------ | ------------------------------------------------- | ------------------- |
+| the one layout that renders it | Next.js, React Router, TanStack Start, SolidStart | sets the attributes |
+| `index.html`                   | Vite, Parcel, Bun, Ember, Analog                  | sets the attributes |
+| `src/index.html`               | Angular CLI                                       | sets the attributes |
+| `src/app.html`                 | SvelteKit                                         | sets the attributes |
+| elsewhere, or in two layouts   | Nuxt, Astro, Laravel, Rails                       | prints them to set  |
+
+Neither is kept in the `ui` settings: the components need no rewriting for
+them, so `<html>` is the one place that says what the project has. On a project
+already set up, `preset` takes the same flags, and their `--no-` forms take one
+off:
+
+```bash
+npx kirana-style ui preset k2bS6 --pointer
+```
+
 ## Adding components
 
 ```bash
@@ -70,6 +104,10 @@ your package manager, and Kirana checks what was written before your next build.
 
 `add` never changes a file you already have unless you pass `--overwrite`.
 `--dry-run` shows what it would do.
+
+Each command that writes components ends by checking the scripts it wrote with
+Kirana. `--no-check` skips that, for a project whose configuration cannot load
+until its packages are installed.
 
 A font (`ui add font-lora`) is a package and the stylesheet that loads it, which
 `add` imports after Kirana's stylesheet.
