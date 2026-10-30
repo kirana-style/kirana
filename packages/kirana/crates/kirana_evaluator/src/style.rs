@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use kirana_cascade::{
     DeclarationError, DeclarationWarning, Expanded, RawValue, WritePlan, breadth, declare_with, inset_beside_translate,
-    longhands_of, mixed_logical_physical, prepare_set, removal, write_plan,
+    joint_removal, longhands_of, mixed_logical_physical, prepare_set, removal, write_plan,
 };
 use kirana_css_data::PropertyRank::Shorthand;
 use kirana_diagnostics::Code;
@@ -427,9 +427,13 @@ impl<'a> Evaluator<'_, 'a, '_> {
         parts: &mut Parts,
     ) {
         let top = *target == Target::Element && conditions.is_empty();
-        for (key, value) in entries {
+        let mut joint = self.joint_removal(entries, target);
+        for (index, (key, value)) in entries.iter().enumerate() {
             let _key = self.enter(key);
             let span = self.entry_span(key, span);
+            if let Some((_, handle)) = joint.take_if(|(at, _)| *at == index) {
+                self.push_removal(handle, parts);
+            }
             match key {
                 Key::Str(name) if name.starts_with("::") => {
                     let pseudo = name.split('(').next().unwrap_or(name);
@@ -492,6 +496,28 @@ impl<'a> Evaluator<'_, 'a, '_> {
                 Key::Str(name) => self.property(name, value, target, conditions, true, span, parts),
             }
         }
+    }
+
+    /// What the whole removals among `entries` remove together (KF-076), and the entry it goes with.
+    fn joint_removal(&self, entries: &[(Key, Value)], target: &Target) -> Option<(usize, Handle)> {
+        let whole = |value: &Value| match value {
+            Value::Null => true,
+            Value::Object(inner) => {
+                inner.iter().any(|(key, value)| matches!((key, value), (Key::Str(key), Value::Null) if &**key == "*"))
+            }
+            _ => false,
+        };
+        // Names that are not properties have no plan; their own entry reports them.
+        let removals: Vec<(usize, Arc<WritePlan>)> = entries
+            .iter()
+            .enumerate()
+            .filter_map(|(index, (key, value))| match key {
+                Key::Str(name) if whole(value) => write_plan(name).ok().map(|plan| (index, plan)),
+                _ => None,
+            })
+            .collect();
+        let plans: Vec<&WritePlan> = removals.iter().map(|(_, plan)| &**plan).collect();
+        joint_removal(&plans, target).map(|(first, handle)| (removals[first].0, handle))
     }
 
     /// One property's value. `top` is true for `prop: value` itself and false inside its conditional

@@ -649,6 +649,18 @@
           "brotli": 38
         }
       },
+      "merge-22-both-axes-remove-physical-box": {
+        "css": {
+          "raw": 756,
+          "gzip": 275,
+          "brotli": 231
+        },
+        "js": {
+          "raw": 1380,
+          "gzip": 697,
+          "brotli": 587
+        }
+      },
       "own-attributes": {
         "css": {
           "raw": 307,
@@ -1174,9 +1186,9 @@
           "brotli": 16310
         },
         "js": {
-          "raw": 332663,
-          "gzip": 69544,
-          "brotli": 54209
+          "raw": 332688,
+          "gzip": 69561,
+          "brotli": 54237
         }
       },
       "docs-ui": {
