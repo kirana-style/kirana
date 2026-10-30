@@ -195,6 +195,7 @@ describe("KRN-DX-029 a project from one of Kirana's examples", () => {
       ...SOURCE,
       [`${EXAMPLE}tsconfig.json`]:
         '{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }',
+      [`${EXAMPLE}index.html`]: '<html lang="en"><body></body></html>\n',
     }
     const { fetch, asked } = serving(tarball(source))
     const registry = path.join(root, "registry")
@@ -223,6 +224,7 @@ describe("KRN-DX-029 a project from one of Kirana's examples", () => {
         `@acme=${registry}/{name}.json`,
         "--design",
         "@acme/kit",
+        "--pointer",
         "--no-check",
       ],
       cwd,
@@ -238,6 +240,10 @@ describe("KRN-DX-029 a project from one of Kirana's examples", () => {
     )
     expect(existsSync(path.join(cwd, "app/src/lib/kit/kit.ts"))).toBe(true)
     expect(existsSync(path.join(cwd, "app/kirana-style.lock.json"))).toBe(true)
+    // The template's own root document takes the project options (KF-077).
+    expect(readFileSync(path.join(cwd, "app/index.html"), "utf8")).toBe(
+      '<html data-pointer lang="en"><body></body></html>\n'
+    )
   })
 
   it("takes one directory, no dry run, and says when the example cannot be had", async () => {

@@ -45,8 +45,12 @@ import { FRAMEWORKS, NAMESPACE_PATTERN, REFERENCE_PATTERN } from "./schema.ts"
 import { loadSettings } from "./settings.ts"
 import type { Settings } from "./settings.ts"
 import {
+  attributeList,
   attributesOf,
   decodePreset,
+  DIRECTION,
+  findDocument,
+  optionAttributes,
   rendersHtml,
   settingsOf,
   withAttributes,
@@ -365,29 +369,19 @@ function allowTsImports(
 }
 
 /**
- * The design's axes as attributes on `<html>`: in the one layout that renders it, else in a static
- * app's `index.html`; a step by hand when there is neither.
+ * The design's axes and the project options as attributes on `<html>`, in the root document
+ * `findDocument` names; a step by hand when there is none.
  */
 function setAttributes(
   files: Files,
-  attributes: Readonly<Record<string, string>>,
+  attributes: Readonly<Record<string, string | undefined>>,
   report: string[],
   manual: string[]
 ): void {
-  const layouts = files
-    .scripts()
-    .filter((file) => rendersHtml(files.read(file)!))
-  const document =
-    layouts.length === 1
-      ? layouts[0]!
-      : layouts.length === 0 && files.read("index.html") !== undefined
-        ? "index.html"
-        : undefined
-  const listed = Object.entries(attributes)
-    .map(([name, value]) => `${name}="${value}"`)
-    .join(" ")
+  const document = findDocument(files.scripts(), (file) => files.read(file))
+  const listed = attributeList(attributes)
   if (document === undefined) {
-    manual.push(`set the design's attributes on <html>: ${listed}`)
+    manual.push(`set <html>'s attributes: ${listed}`)
     return
   }
   files.write(document, withAttributes(files.read(document)!, attributes))
@@ -622,7 +616,15 @@ export async function runInit(
   const parsed = parseArgs(
     "init",
     args,
-    ["--dry-run", "--overwrite", "--no-check"],
+    [
+      "--dry-run",
+      "--overwrite",
+      "--no-check",
+      "--pointer",
+      "--no-pointer",
+      "--rtl",
+      "--no-rtl",
+    ],
     [
       "--framework",
       "--base",
@@ -635,6 +637,11 @@ export async function runInit(
   const chosen = typeof parsed === "string" ? parsed : chosenOf(parsed.values)
   if (typeof parsed === "string" || typeof chosen === "string") {
     write(`${typeof parsed === "string" ? parsed : (chosen as string)}\n`)
+    return 2
+  }
+  const asked = optionAttributes(parsed.flags)
+  if (typeof asked === "string") {
+    write(`kirana-style ui init: ${asked}\n`)
     return 2
   }
   // The project: where the command runs, or the template's new directory.
@@ -742,13 +749,15 @@ export async function runInit(
     for (const [file, text] of imports.edits) files.write(file, text)
     report.push(...imports.report)
     manual.push(...imports.manual)
-    if (chosen.design && system.design)
-      setAttributes(
-        files,
-        attributesOf(system.design, chosen.design),
-        report,
-        manual
-      )
+    const attributes = {
+      ...(chosen.design && system.design
+        ? attributesOf(system.design, chosen.design)
+        : {}),
+      ...asked,
+    }
+    if (Object.keys(attributes).length > 0)
+      setAttributes(files, attributes, report, manual)
+    if (asked.dir === "rtl") manual.push(DIRECTION)
     lockfile = readLockfile(root)
   } catch (error) {
     write(`${(error as Error).message}\n`)

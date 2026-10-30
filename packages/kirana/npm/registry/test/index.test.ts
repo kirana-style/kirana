@@ -101,6 +101,17 @@ describe("KRN-DX-020 the commands kirana-style ui runs", () => {
     expect(unknown.status).toBe(2)
   })
 
+  it("says what --pointer, --rtl and --no-check do (KF-077)", async () => {
+    const { text } = await run("--help")
+    expect(text).toContain(
+      '--pointer (data-pointer on <html>: buttons get the\n                         pointer cursor) and --rtl (dir="rtl" on <html>)'
+    )
+    expect(text).toContain("--pointer, --rtl, --no-pointer, --no-rtl as init's")
+    expect(text).toContain(
+      "--no-check skips the kirana-style check a command runs on the scripts it wrote."
+    )
+  })
+
   it("lists every option each command takes in its help (KF-035)", async () => {
     const { text } = await run("--help")
     const source = path.join(import.meta.dirname, "../src")

@@ -243,7 +243,14 @@ relation declared in a file of a design-system item it installed: the items that
 later. A Next.js app without a `tsconfig.json` (a JavaScript one, as Next.js writes its tsconfig
 only on its first run) MUST get one: the options Next.js requires, `noEmit` and the `@/*` alias,
 with `typescript`, `@types/react` and `@types/node` installed, since the items are TypeScript
-(KF-046).
+(KF-046). `--pointer` and `--rtl`, spelled as shadcn/ui's, MUST set `data-pointer` (the attribute a
+design system's reset reads for `cursor: pointer` on buttons) and `dir="rtl"` on `<html>` in the
+root document: the one script that renders `<html>`, else the first of `index.html`,
+`src/index.html` and `src/app.html` the project has; with none, or several layouts, the attributes
+are printed as a step by hand, and `--rtl` also prints that a component library reading the
+direction from a provider needs it. `--no-pointer` and `--no-rtl` take them off; a flag given with
+its `--no-` exits 2. Neither is written to the `ui` settings: no later command rewrites an item for
+them, so `<html>` stays the one place that holds them (KF-077).
 
 **KRN-DX-030** — `kirana-style ui outdated [item…]` and `ui diff [item…]` MUST read each installed
 item (every one in the lockfile by default) again from its registry, place it as installing it now
@@ -269,14 +276,17 @@ project left as installed, keeps the rest, and drops the item from the lockfile.
 with the installed design system's preset layouts (its first letter names the layout, the rest is a
 base-62 number holding one index per field from bit 0, an index past a list's end reading as its
 first value), the result written to `ui.design`, with the `framework`, `base` and `iconLibrary`
-fields to their own settings; the design's axes set as attributes on `<html>`, where `init` put the
-design system's styles (a layout's `<html>` element, or a static app's `index.html`); and every
+fields to their own settings; the design's axes set as attributes on `<html>` in the root document,
+found as `init --pointer` finds it; and every
 installed item placed again for the new design, as `update` writes it: a file the project left as
 installed is replaced, one it changed stops the command unless `--overwrite`, and the lockfile
 records the new design and hashes. The items the new values name in their axis's `items` that are
 not installed MUST be installed as `add` installs them, a font's stylesheet imported; an installed
 one no value names any more is reported for `ui remove`, not removed. `init --preset <code>` starts
-a project with a design, installing the items its values name.
+a project with a design, installing the items its values name. `--pointer`, `--rtl`,
+`--no-pointer` and `--no-rtl` MUST act as `init`'s on the same document, each attribute the tag has
+replaced in place (bare, quoted or a JSX expression), never doubled; without them the tag keeps
+what it has (KF-077). What was written is checked as `add` checks it, unless `--no-check`.
 `--dry-run` writes nothing. Exit 1 for a code no layout reads or a project without a design system
 installed, 2 for an unknown option or settings it cannot use.
 

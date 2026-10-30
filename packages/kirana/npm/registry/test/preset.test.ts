@@ -14,8 +14,10 @@ import { hashOf } from "../src/check.ts"
 import { main } from "../src/index.ts"
 import { readLockfile } from "../src/lockfile.ts"
 import {
+  attributeList,
   decodePreset,
   documentOf,
+  optionAttributes,
   rendersHtml,
   setUi,
   settingsOf,
@@ -245,6 +247,47 @@ describe("D-110 the settings and the document a preset writes", () => {
     )
   })
 
+  it("set the project options on <html>, in whatever form the tag has them (KF-077)", () => {
+    expect(
+      withAttributes("<html lang='en'>", { "data-pointer": "", dir: "rtl" })
+    ).toBe("<html dir=\"rtl\" data-pointer lang='en'>")
+    // Bare, single-quoted, a JSX expression: replaced in place, never doubled.
+    expect(
+      withAttributes("<html data-pointer dir='ltr' lang=\"en\">", {
+        "data-pointer": "",
+        dir: "rtl",
+      })
+    ).toBe('<html data-pointer dir="rtl" lang="en">')
+    expect(
+      withAttributes("<html data-pointer={true} dir={dir}>", {
+        "data-pointer": undefined,
+        dir: undefined,
+      })
+    ).toBe("<html>")
+    // A longer name that starts the same is another attribute; taking off one it lacks changes nothing.
+    expect(
+      withAttributes('<html dirname="x" />', {
+        dir: undefined,
+        "data-pointer": "",
+      })
+    ).toBe('<html data-pointer dirname="x" />')
+    expect(
+      attributeList({
+        "data-style": "vega",
+        "data-pointer": "",
+        dir: undefined,
+      })
+    ).toBe('data-style="vega" data-pointer without dir')
+    expect(optionAttributes(new Set(["--pointer", "--no-rtl"]))).toEqual({
+      "data-pointer": "",
+      dir: undefined,
+    })
+    expect(optionAttributes(new Set())).toEqual({})
+    expect(optionAttributes(new Set(["--rtl", "--no-rtl"]))).toBe(
+      "--rtl and --no-rtl contradict each other"
+    )
+  })
+
   it("find the document: a layout that renders <html>, else index.html", () => {
     const at = (files: Record<string, string>) => {
       const cwd = mkdtempSync(path.join(root, "document-"))
@@ -271,6 +314,14 @@ describe("D-110 the settings and the document a preset writes", () => {
     expect(rendersHtml("/* <html> unclosed")).toBe(false)
     expect(at({ "a.tsx": "<html>", "b.tsx": "<html>" })).toBeUndefined()
     expect(at({})).toBeUndefined()
+    // The Angular CLI's page, then SvelteKit's, where the root has no index.html (KF-077).
+    expect(at({ "src/index.html": "<html>", "src/app.html": "<html>" })).toBe(
+      path.join("src", "index.html")
+    )
+    expect(at({ "src/app.html": "<html>" })).toBe(path.join("src", "app.html"))
+    expect(at({ "index.html": "<html>", "src/app.html": "<html>" })).toBe(
+      "index.html"
+    )
   })
 })
 
@@ -560,6 +611,68 @@ describe("KRN-DX-032 kirana-style ui preset", () => {
     expect(text).toContain("unknown-property")
   })
 
+  it("sets --pointer and --rtl on <html> once, takes them off, and says where it cannot (KF-077)", async () => {
+    const cwd = await installed()
+    const on = await run(
+      cwd,
+      "preset",
+      code(1, 0),
+      "--pointer",
+      "--rtl",
+      "--no-check"
+    )
+    expect(on.code).toBe(0)
+    expect(on.text).toContain(
+      'document: index.html: <html> data-style="vega" data-color="neutral" data-pointer dir="rtl"\n'
+    )
+    expect(on.text).toContain(
+      'by hand: dir="rtl" is on <html>: give your components\' library the direction too'
+    )
+    const document =
+      '<html dir="rtl" data-pointer data-color="neutral" data-style="vega" lang="en">'
+    expect(read(cwd, "index.html")).toContain(document)
+    // Already set: the same document again.
+    await run(cwd, "preset", code(1, 0), "--pointer", "--rtl", "--no-check")
+    expect(read(cwd, "index.html")).toContain(document)
+    // A code alone leaves them as they are.
+    await run(cwd, "preset", code(1, 0), "--no-check")
+    expect(read(cwd, "index.html")).toContain(document)
+    const off = await run(
+      cwd,
+      "preset",
+      code(1, 0),
+      "--no-pointer",
+      "--no-rtl",
+      "--no-check"
+    )
+    expect(off.text).toContain(
+      'document: index.html: <html> data-style="vega" data-color="neutral" without data-pointer without dir\n'
+    )
+    expect(off.text).not.toContain("DirectionProvider")
+    expect(read(cwd, "index.html")).toContain(
+      '<html data-color="neutral" data-style="vega" lang="en">'
+    )
+    // No <html> to write to: the step by hand names every attribute.
+    rmSync(path.join(cwd, "index.html"))
+    const missing = await run(
+      cwd,
+      "preset",
+      code(1, 0),
+      "--pointer",
+      "--no-check"
+    )
+    expect(missing.code).toBe(0)
+    expect(missing.text).toContain(
+      'by hand: set <html>\'s attributes, as no layout or HTML page renders it: data-style="vega" data-color="neutral" data-pointer\n'
+    )
+    expect(
+      await run(cwd, "preset", code(1, 0), "--pointer", "--no-pointer")
+    ).toMatchObject({
+      code: 2,
+      text: "kirana-style ui preset: --pointer and --no-pointer contradict each other\n",
+    })
+  })
+
   it("says what it cannot do", async () => {
     const cwd = await installed()
     const fails = async (...argv: string[]) => await run(cwd, "preset", ...argv)
@@ -608,7 +721,7 @@ describe("KRN-DX-032 kirana-style ui preset", () => {
     const cwd = await installed()
     rmSync(path.join(cwd, "index.html"))
     expect((await run(cwd, "preset", code(1, 0), "--no-check")).text).toContain(
-      "by hand: set the design's attributes on <html>, as no layout or index.html has it\n"
+      'by hand: set <html>\'s attributes, as no layout or HTML page renders it: data-style="vega" data-color="neutral"\n'
     )
     const plain = await installed()
     rmSync(path.join(plain, "kirana.config.json"))

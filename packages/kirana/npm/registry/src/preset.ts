@@ -184,36 +184,107 @@ export function setUi(
   return `${text.slice(0, open)}${body}${text.slice(close)}`
 }
 
-/** `<html …>` with these attributes set, each replaced where the tag has it and added where it does not. */
+/**
+ * `<html …>` with these attributes set, each replaced where the tag has it (bare, quoted or as a JSX
+ * expression) and added where it does not; an empty value is written bare, an undefined one removed.
+ */
 export function withAttributes(
   text: string,
-  attributes: Readonly<Record<string, string>>
+  attributes: Readonly<Record<string, string | undefined>>
 ): string {
   const start = text.indexOf("<html")
   const end = text.indexOf(">", start)
   let tag = text.slice(start, end)
   for (const [name, value] of Object.entries(attributes)) {
-    const at = tag.indexOf(` ${name}="`)
-    tag =
-      at < 0
-        ? `<html ${name}="${value}"${tag.slice("<html".length)}`
-        : `${tag.slice(0, at)} ${name}="${value}"${tag.slice(tag.indexOf('"', at + name.length + 3) + 1)}`
+    const written = value === "" ? name : `${name}="${value}"`
+    const found = new RegExp(
+      `\\s${name}(?:=(?:"[^"]*"|'[^']*'|\\{[^}]*\\}))?(?=[\\s/]|$)`
+    ).exec(tag)
+    if (found)
+      tag = `${tag.slice(0, found.index)}${value === undefined ? "" : ` ${written}`}${tag.slice(found.index + found[0].length)}`
+    else if (value !== undefined)
+      tag = `<html ${written}${tag.slice("<html".length)}`
   }
   return `${text.slice(0, start)}${tag}${text.slice(end)}`
 }
 
+/** Attributes as a command prints them: as `withAttributes` writes them, and `without` the removed. */
+export const attributeList = (
+  attributes: Readonly<Record<string, string | undefined>>
+) =>
+  Object.entries(attributes)
+    .map(([name, value]) =>
+      value === undefined
+        ? `without ${name}`
+        : value === ""
+          ? name
+          : `${name}="${value}"`
+    )
+    .join(" ")
+
 /**
- * Where the design's attributes go: the one script that renders `<html>` (a layout), else a static
- * app's `index.html`; undefined when there is neither, or several layouts.
+ * The static pages that hold `<html>` where no script renders it: a Vite app's, then the Angular
+ * CLI's, then SvelteKit's template.
  */
-export function documentOf(root: string): string | undefined {
-  const layouts = sources(root).filter((file) =>
-    rendersHtml(readFileSync(file, "utf8"))
-  )
-  if (layouts.length === 1) return layouts[0]!
-  const html = path.join(root, "index.html")
-  return layouts.length === 0 && existsSync(html) ? html : undefined
+const PAGES = ["index.html", "src/index.html", "src/app.html"]
+
+/**
+ * The root document, relative to the project: the one script that renders `<html>` (a layout), else
+ * the first of `PAGES` the project has; undefined when there is neither, or several layouts.
+ */
+export function findDocument(
+  scripts: readonly string[],
+  textOf: (file: string) => string | undefined
+): string | undefined {
+  const layouts = scripts.filter((file) => rendersHtml(textOf(file)!))
+  if (layouts.length > 0) return layouts.length === 1 ? layouts[0] : undefined
+  return PAGES.find((page) => textOf(page) !== undefined)
 }
+
+/** `findDocument` on the files on disk, as an absolute path. */
+export function documentOf(root: string): string | undefined {
+  const found = findDocument(
+    sources(root).map((file) =>
+      path.relative(root, file).split(path.sep).join("/")
+    ),
+    (file) => {
+      const absolute = path.join(root, file)
+      return existsSync(absolute) ? readFileSync(absolute, "utf8") : undefined
+    }
+  )
+  return found && path.join(root, found)
+}
+
+/** The attribute the registry's reset reads to give enabled buttons `cursor: pointer` (KF-077). */
+export const POINTER = "data-pointer"
+
+/**
+ * The project options on `<html>` (KF-077), as shadcn/ui spells them: `--pointer` and `--rtl` set
+ * them, `--no-pointer` and `--no-rtl` take them off. The `ui` settings do not keep them: Kirana's
+ * components use logical properties, so no later command rewrites anything for them, and `<html>`
+ * stays the one place that says what the project has. The message for exit 2 when both of a pair
+ * are given.
+ */
+export function optionAttributes(
+  flags: ReadonlySet<string>
+): Record<string, string | undefined> | string {
+  const attributes: Record<string, string | undefined> = {}
+  for (const [option, name, value] of [
+    ["pointer", POINTER, ""],
+    ["rtl", "dir", "rtl"],
+  ] as const) {
+    const on = flags.has(`--${option}`)
+    const off = flags.has(`--no-${option}`)
+    if (on && off) return `--${option} and --no-${option} contradict each other`
+    if (on) attributes[name] = value
+    else if (off) attributes[name] = undefined
+  }
+  return attributes
+}
+
+/** Where a component library reads direction from rather than `dir` (KF-077): a step by hand. */
+export const DIRECTION =
+  "dir=\"rtl\" is on <html>: give your components' library the direction too where it reads it from a provider (Base UI's DirectionProvider, React Aria's I18nProvider)"
 
 /** The design's axes as `<html>` attributes. */
 export const attributesOf = (
@@ -238,9 +309,18 @@ export async function runPreset(
     "--dry-run",
     "--overwrite",
     "--no-check",
+    "--pointer",
+    "--no-pointer",
+    "--rtl",
+    "--no-rtl",
   ])
   if (typeof parsed === "string") {
     write(`${parsed}\n`)
+    return 2
+  }
+  const asked = optionAttributes(parsed.flags)
+  if (typeof asked === "string") {
+    write(`kirana-style ui preset: ${asked}\n`)
     return 2
   }
   if (parsed.rest.length !== 1) {
@@ -390,19 +470,16 @@ export async function runPreset(
     `settings: ${path.relative(project.root, configFile)}: ui ${JSON.stringify(ui)}\n`
   )
   const document = documentOf(project.root)
-  const attributes = attributesOf(design, chosen.design)
+  const attributes = { ...attributesOf(design, chosen.design), ...asked }
   if (document)
     write(
-      `document: ${path.relative(project.root, document)}: <html> ${Object.entries(
-        attributes
-      )
-        .map(([name, value]) => `${name}="${value}"`)
-        .join(" ")}\n`
+      `document: ${path.relative(project.root, document)}: <html> ${attributeList(attributes)}\n`
     )
   else
     write(
-      "by hand: set the design's attributes on <html>, as no layout or index.html has it\n"
+      `by hand: set <html>'s attributes, as no layout or HTML page renders it: ${attributeList(attributes)}\n`
     )
+  if (asked.dir === "rtl") write(`by hand: ${DIRECTION}\n`)
 
   const packages = missingPackages(added, project, [...writes, ...fonts])
   const commands = installCommand(project.manager, packages, [])
