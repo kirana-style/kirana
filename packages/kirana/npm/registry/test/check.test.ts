@@ -121,6 +121,48 @@ describe("KRN-DX-021 an item", () => {
     ])
   })
 
+  it("wants each axis build to replace a file the item installs, its hash checked (KF-080)", () => {
+    const item: Item = {
+      name: "kit",
+      type: "design-system",
+      version: "1.0.0",
+      files: [file("kit/palettes.ts", "lib", "every\n")],
+      styles: [file("kit.styles.ts", "ui", "every\n")],
+      flattened: {
+        axis: "style",
+        builds: {},
+        axes: {
+          baseColor: {
+            stone: [file("kit/palettes.ts", "lib", "stone\n")],
+            zinc: [
+              file("kit/palettes.ts", "ui", "zinc\n"),
+              file("kit/other.ts", "lib", "zinc\n"),
+            ],
+          },
+          theme: {
+            blue: [
+              file("kit.styles.ts", "ui", "blue\n", { hash: hashOf("red\n") }),
+            ],
+          },
+        },
+      },
+    }
+    expect(check(item).problems).toEqual([
+      {
+        pointer: "/flattened/axes/baseColor/zinc/0",
+        message: "replaces ui kit/palettes.ts, which the item does not install",
+      },
+      {
+        pointer: "/flattened/axes/baseColor/zinc/1",
+        message: "replaces lib kit/other.ts, which the item does not install",
+      },
+      {
+        pointer: "/flattened/axes/theme/blue/0/hash",
+        message: `does not match the content, whose hash is ${hashOf("blue\n")}`,
+      },
+    ])
+  })
+
   it("wants a target on a file of type file, and on no other", () => {
     const item: Item = {
       name: "setup",

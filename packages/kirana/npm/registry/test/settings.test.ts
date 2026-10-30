@@ -100,6 +100,24 @@ describe("KRN-DX-026 a project's registries", () => {
     ])
   })
 
+  it("keep every design when ui.allDesigns says so, and only then (KF-080)", async () => {
+    const all = project({
+      "kirana.config.json": JSON.stringify({ ui: { allDesigns: true } }),
+    })
+    expect((await loadSettings(all)).allDesigns).toBe(true)
+    const off = project({
+      "kirana.config.json": JSON.stringify({ ui: { allDesigns: false } }),
+    })
+    expect("allDesigns" in (await loadSettings(off))).toBe(false)
+    const wrong = project({
+      "kirana.config.json": JSON.stringify({ ui: { allDesigns: "yes" } }),
+    })
+    const error = await loadSettings(wrong).catch((caught: unknown) => caught)
+    expect((error as Error).message).toBe(
+      `${path.join(wrong, "kirana.config.json")}: ui/allDesigns must be a boolean`
+    )
+  })
+
   it("are checked before anything is fetched, every problem named", async () => {
     const root = project({
       "kirana.config.json": JSON.stringify({

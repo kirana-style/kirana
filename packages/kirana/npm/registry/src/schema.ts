@@ -291,7 +291,7 @@ export const ITEM_SCHEMA: Schema = {
     flattened: {
       type: "object",
       description:
-        "Its style modules flattened for each value of `axis` and each base (D-110), in place of `styles`.",
+        "Its style modules flattened for each value of `axis` and each base (D-110), in place of `styles`; with `axes`, the files that read one other axis alone, built for each of its values (KF-080).",
       required: ["axis", "builds"],
       properties: {
         axis: { type: "string", minLength: 1 },
@@ -302,6 +302,25 @@ export const ITEM_SCHEMA: Schema = {
               type: "object",
               patternProperties: {
                 [`^${NAME}$`]: {
+                  type: "array",
+                  minItems: 1,
+                  items: { $ref: "#/$defs/file" },
+                },
+              },
+              additionalProperties: false,
+            },
+          },
+          additionalProperties: false,
+        },
+        axes: {
+          type: "object",
+          description:
+            "For each axis, each value's build of the files that read that axis alone: a build replaces the item's file of the same type and path.",
+          patternProperties: {
+            "^[A-Za-z][A-Za-z0-9]*$": {
+              type: "object",
+              patternProperties: {
+                "^.+$": {
                   type: "array",
                   minItems: 1,
                   items: { $ref: "#/$defs/file" },
@@ -477,6 +496,11 @@ export const SETTINGS_SCHEMA: Schema = {
       type: "string",
       description: "The library `ui add` draws each `<IconPlaceholder>` with.",
       enum: ICON_LIBRARIES,
+    },
+    allDesigns: {
+      type: "boolean",
+      description:
+        "Install style modules and design files as written, every design kept, instead of the registry's builds for `design` (KF-080).",
     },
     design: {
       type: "object",

@@ -304,6 +304,7 @@ What `kirana-style ui add` installs, and where:
 | `aliases`     | the import specifier for each file type, `ui`, `lib`, `component`, `hook` and `page`                                              |
 | `iconLibrary` | the library icons are drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                        |
 | `design`      | the design system's values your project uses, such as `{ style: "vega" }`, which `kirana-style ui preset` writes                  |
+| `allDesigns`  | `true` to install every design, not only the one `design` names, for a project that switches designs itself                       |
 
 The aliases default to shadcn/ui's:
 

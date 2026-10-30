@@ -75,6 +75,11 @@ export type Design = {
 export type Flattened = {
   axis: string
   builds: Record<string, Record<string, RegistryFile[]>>
+  /**
+   * The files that read one other axis alone, built for each of its values (KF-080): each build
+   * replaces the item's file of the same type and path.
+   */
+  axes?: Record<string, Record<string, RegistryFile[]>>
 }
 
 /** An installed module's export: `{ module: "@/registry/lib/kit/config", export: "kitConfig" }`. */

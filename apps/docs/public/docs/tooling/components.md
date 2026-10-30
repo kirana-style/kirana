@@ -137,8 +137,19 @@ npx kirana-style ui preset k2bS6
 `preset` writes the design to `ui.design` and sets its attributes on `<html>`,
 where your design system's styles are. Then it places every installed component
 again: a registry that flattened its style modules for the new design gives you
-that build, with only the new style's values in it. A file you changed stops it
+that build, with only the new style's values in it. So do its colours, fonts and
+radius, where the registry built them for each value. A file you changed stops it
 until you look, or pass `--overwrite`.
+
+To keep every design installed instead, for a theme switcher of your own, start
+with `--all-designs`:
+
+```bash
+npx kirana-style ui init --preset k2bS6 --all-designs
+```
+
+It sets `ui.allDesigns`, and every later `add`, `update` and `preset` installs the
+files as written, with every design in them. Icons stay your one library.
 
 When a code picks a font the project does not have, it is installed, as `init`
 installs the fonts its code names. A font no axis uses any more stays, and the
