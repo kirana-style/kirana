@@ -1,0 +1,44 @@
+[
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 461,
+      "end": 470
+    },
+    "message": "Menu passes its props, `sx` included, to \"menu-lib\", which does not read it",
+    "help": [
+      "take `sx` out of that component's props and pass it on: sx={[styles.root, sx]} on an element, {...props(styles.root, sx)} on an installed component"
+    ]
+  },
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 486,
+      "end": 495
+    },
+    "message": "a component from \"@acme/ds-icons\" receives `sx`, which it does not read",
+    "help": [
+      "spread the compiled props instead: {...props(styles.root, sx)}"
+    ]
+  },
+  {
+    "code": "KRN1703",
+    "name": "sx-on-external-component",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 512,
+      "end": 521
+    },
+    "message": "a component from \"menu-lib\" receives `sx`, which it does not read",
+    "help": [
+      "spread the compiled props instead: {...props(styles.root, sx)}"
+    ]
+  }
+]

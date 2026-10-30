@@ -130,7 +130,7 @@ const FIXES: Record<string, string> = {
   "unknown-class-name":
     "A template asks the class map for a style it does not list. Export it from a module in `classes.modules`, or fix the name.",
   "sx-on-external-component":
-    "`sx` given to a component from an installed package, which does not read it. Spread `{...styleProps(a, sx)}` (`props as styleProps` from `@kirana-style/core`) instead.",
+    "`sx` given to a component from an installed package, which does not read it. Spread `{...styleProps(a, sx)}` (`props as styleProps` from `@kirana-style/core`) instead. A Kirana library listed in `libraries` is compiled as the app's own, and its components read `sx`.",
 }
 
 const source = await readFile(

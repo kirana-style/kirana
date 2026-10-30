@@ -247,7 +247,8 @@ impl Compiler {
     }
 
     /// The file `specifier` resolves to from the module `from`, as the build resolves it; `None` for
-    /// an installed package or a specifier that does not resolve.
+    /// an installed package the application does not compile (one not in `libraries`) or a specifier
+    /// that does not resolve.
     #[napi]
     pub fn resolve(&self, from: String, specifier: String) -> Option<String> {
         let from = Path::new(&from);

@@ -155,6 +155,10 @@ export const Card = () => <article sx={card.anchor}><h2 sx={title} /></article>
       "node_modules/installed/package.json":
         '{"name":"installed","main":"index.js"}',
       "node_modules/installed/index.js": "export const x = 1",
+      "kirana.config.mjs": 'export default { libraries: ["@acme/ds"] }',
+      "node_modules/@acme/ds/package.json":
+        '{"name":"@acme/ds","main":"index.js"}',
+      "node_modules/@acme/ds/index.js": "export const Button = () => null",
     })
     const driver = await Driver.create({ root })
     expect(driver.check(["src"])).toEqual([])
@@ -185,6 +189,10 @@ export const Card = () => <article sx={card.anchor}><h2 sx={title} /></article>
     )
     expect(driver.resolve(from, "./missing")).toBeUndefined()
     expect(driver.resolve(from, "installed")).toBeUndefined()
+    // A listed library is compiled as the application's own, so it resolves as its files do.
+    expect(driver.resolve(from, "@acme/ds")).toBe(
+      path.join(root, "node_modules/@acme/ds/index.js")
+    )
     expect(driver.relations()).toEqual([
       expect.objectContaining({
         name: "card",

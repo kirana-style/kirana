@@ -59,6 +59,10 @@ listed libraries out of dependency pre-bundling, in the browser and in a server
 environment that pre-bundles (a Cloudflare Worker's), and out of server
 externals. With Next.js, also add the package to `transpilePackages`.
 
+Its components take `sx` as yours do, so `<Button sx={wide} />` merges `wide` over
+the library's styles. The compiler, the lint rules and the Tailwind codemod treat
+them as your own components, not as installed ones that ignore `sx`.
+
 ## Why not ship compiled CSS
 
 A library compiled on its own bakes its compiler version and configuration into

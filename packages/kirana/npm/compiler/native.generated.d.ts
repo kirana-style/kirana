@@ -60,7 +60,8 @@ export declare class Compiler {
   tokens(): string
   /**
    * The file `specifier` resolves to from the module `from`, as the build resolves it; `None` for
-   * an installed package or a specifier that does not resolve.
+   * an installed package the application does not compile (one not in `libraries`) or a specifier
+   * that does not resolve.
    */
   resolve(from: string, specifier: string): string | null
   /** Every relation the session has seen declared, as JSON. */

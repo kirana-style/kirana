@@ -865,7 +865,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Styling other people's components",
     "section": "composition",
     "heading": "Styling other people's components",
-    "text": "works on elements your module renders. A component from an installed package renders its own elements, and unless it happens to read a prop called , giving it one does nothing. The compiler catches this rather than letting you find it in the browser:"
+    "text": "works on elements your module renders. A component from an installed package renders its own elements, and unless it happens to read a prop called , giving it one does nothing. A Kirana library listed in is the exception: the app compiles it as its own, and its components read . The compiler catches this rather than letting you find it in the browser:"
   },
   {
     "id": "/docs/styling/external-components#props",
@@ -4043,7 +4043,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Publishing a library",
     "section": "building",
     "heading": "In the app",
-    "text": "List the package: Its modules are now compiled from like your own, and its exported tokens work in your styles. With Vite nothing else is needed: the adapter keeps listed libraries out of dependency pre-bundling, in the browser and in a server environment that pre-bundles (a Cloudflare Worker's), and out of server externals. With Next.js, also add the package to ."
+    "text": "List the package: Its modules are now compiled from like your own, and its exported tokens work in your styles. With Vite nothing else is needed: the adapter keeps listed libraries out of dependency pre-bundling, in the browser and in a server environment that pre-bundles (a Cloudflare Worker's), and out of server externals. With Next.js, also add the package to . Its components take as yours do, so merges over the library's styles. The compiler, the lint rules and the Tailwind codemod treat them as your own components, not as installed ones that ignore ."
   },
   {
     "id": "/docs/building/libraries#why-not-ship-compiled-css",
@@ -5019,7 +5019,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Diagnostics reference",
     "section": "tooling",
     "heading": "The ones you will actually meet",
-    "text": ": you gave to a component that does not read it. Spread compiled props instead: styling other people's components . : a component takes and never applies it, so callers think they can style it and cannot. : two values could both apply and the ladder cannot order them. Nest one condition inside the other, or declare the pair exclusive: precedence . : a box has both logical and physical longhands set, in a way whose outcome could mislead. Pick one axis family. It also covers an inline logical inset beside a translate that moves along x: translates have no logical form, so the element is off centre in right-to-left text. Use a physical inset with the translate. : an info. A condition key nested in another that it can never meet, such as . Nothing under it can apply, so it is left out of the stylesheet. Two libraries' states the configuration declares apart with are left out the same way, but quietly: nesting them is how a style is written once for every library. : an info. A pseudo-class nested under a target, , is the state of the element carrying the style. For the link's own hover, write it into the target: . : a shorthand whose value cannot be split into longhands exactly, usually"
+    "text": ": you gave to a component that does not read it. Spread compiled props instead: styling other people's components . A library listed in is compiled as your own, so its components are not reported. : a component takes and never applies it, so callers think they can style it and cannot. : two values could both apply and the ladder cannot order them. Nest one condition inside the other, or declare the pair exclusive: precedence . : a box has both logical and physical longhands set, in a way whose outcome could mislead. Pick one axis family. It also covers an inline logical inset beside a translate that moves along x: translates have no logical form, so the element is off centre in right-to-left text. Use a physical inset with the translate. : an info. A condition key nested in another that it can never meet, such as . Nothing under it can apply, so it is left out of the stylesheet. Two libraries' states the configuration declares apart with are left out the same way, but quietly: nesting them is how a style is written once for every library. : an info. A pseudo-class nested under a target, , is the state of the element carrying the style. For the link's own hover, write it into the ta"
   },
   {
     "id": "/docs/tooling/diagnostics#reading-one",

@@ -5,7 +5,9 @@ Source: https://kirana.style/docs/styling/external-components
 
 `sx` works on elements your module renders. A component from an installed package
 renders its own elements, and unless it happens to read a prop called `sx`, giving
-it one does nothing.
+it one does nothing. A Kirana library listed in
+[`libraries`](/docs/building/libraries) is the exception: the app compiles it as
+its own, and its components read `sx`.
 
 The compiler catches this rather than letting you find it in the browser:
 

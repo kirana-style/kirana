@@ -6,7 +6,8 @@ use std::path::{Path, PathBuf};
 use kirana_project::Project;
 
 /// The migration engine's view of a project, from the file being migrated: what an import of it
-/// evaluates to, which specifiers are installed packages, and how it imports another file. `kirana
+/// evaluates to, which specifiers are installed packages it does not compile (a listed library's
+/// components read `sx`), and how it imports another file. `kirana
 /// migrate tailwind` and the language server's "Convert Tailwind classes" share it.
 pub struct ProjectEnvironment<'p> {
     pub project: &'p Project,

@@ -338,7 +338,10 @@ a workspace package, or a published library, and duplicate atoms MUST be emitted
   application lists them in `libraries`; every adapter then compiles those packages' modules from
   `node_modules` as it compiles the application's own, so their atoms land in the application's single
   stylesheet deduplicated with its own, under its prefix, targets and layers, and their tokens and
-  relations resolve through the same evaluator. The Vite adapter keeps listed libraries out of
+  relations resolve through the same evaluator. Their components read `sx` as the application's own do:
+  `sx-on-external-component`, `Driver.resolve` (which the lint rules read components through) and the
+  Tailwind codemod treat a listed library's modules as project source, matched as
+  `node_modules/<name>/` as the adapters match them. The Vite adapter keeps listed libraries out of
   dependency pre-bundling in every environment that pre-bundles (the client's, and a server
   environment that discovers dependencies, such as Cloudflare's Worker in workerd) and out of SSR
   externals, and names the runtime (`@kirana-style/core/internal`), which compiled output imports

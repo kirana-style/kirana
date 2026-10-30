@@ -136,7 +136,10 @@ styles. The fix is `{...props(...)}`. The same warning MUST be produced one modu
 project component whose parameters leave `sx` inside a rest object that it spreads onto a component from
 an installed package or onto a host element (`function Trigger({ ...props }) { return <Menu.Trigger
 {...props} /> }`). A written `sx` attribute compiles; `sx` carried inside a spread does not. The fix is to
-take `sx` out and pass it on: `{...props(styles, sx)}` or `sx={[styles, sx]}`.
+take `sx` out and pass it on: `{...props(styles, sx)}` or `sx={[styles, sx]}`. A package listed in
+`libraries` is not an installed package here: the application compiles it as its own (KRN-INT-008), so
+its components read `sx`, are not reported, and are checked one module away as a project component is.
+The Tailwind codemod gives them `sx`, not `{...styleProps(...)}`, for the same reason.
 
 ## `props()` — styles for components that do not take `sx`
 

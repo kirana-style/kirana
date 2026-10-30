@@ -38,7 +38,9 @@ Any non-error can be re-levelled, including to `"off"`, in
 
 **`sx-on-external-component`**: you gave `sx` to a component that does not read
 it. Spread compiled props instead:
-[styling other people's components](/docs/styling/external-components).
+[styling other people's components](/docs/styling/external-components). A
+library listed in `libraries` is compiled as your own, so its components are not
+reported.
 
 **`unused-sx`**: a component takes `sx` and never applies it, so callers think
 they can style it and cannot.
