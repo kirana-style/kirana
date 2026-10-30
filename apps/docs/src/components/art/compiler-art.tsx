@@ -1,6 +1,6 @@
 /**
- * The compiler page's scene, in its own module so the brand kit can draw it too (a route file
- * exports only its route).
+ * The compiler page's scene, in its own module so it can be imported outside the route (a route
+ * file exports only its route).
  */
 import {
   CpuIcon,

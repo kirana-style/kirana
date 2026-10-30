@@ -88,9 +88,14 @@ const styles = {
       base: surface.switchThumb,
       [State.Switch.Thumb.checked]: surface.switchThumbChecked,
     },
+    // `translate` is physical: in right-to-left text the track starts on the
+    // right, so the checked thumb moves left.
     translate: {
       base: "0",
-      [State.Switch.Thumb.checked]: `calc(100% - 2px)`,
+      [State.Switch.Thumb.checked]: {
+        base: "calc(100% - 2px)",
+        ":dir(rtl)": "calc(2px - 100%)",
+      },
     },
   }),
 }

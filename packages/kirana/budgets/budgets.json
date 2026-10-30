@@ -1181,14 +1181,14 @@
     "libraries": {
       "ui": {
         "css": {
-          "raw": 78660,
-          "gzip": 19176,
-          "brotli": 16310
+          "raw": 78733,
+          "gzip": 19204,
+          "brotli": 16323
         },
         "js": {
-          "raw": 332688,
-          "gzip": 69561,
-          "brotli": 54237
+          "raw": 332716,
+          "gzip": 69571,
+          "brotli": 54304
         }
       },
       "docs-ui": {

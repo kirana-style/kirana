@@ -114,8 +114,8 @@ const styles = {
      * Size per axis. No `base` on purpose: the default stays the token's own
      * declaration on `:root`, merely inherited, so any element-level condition
      * beats it. Where a value has to apply unconditionally and be overridden,
-     * both branches are attribute conditions and specificity decides: the
-     * two-attribute compound below wins over the one-attribute rule.
+     * both branches are attribute conditions and the ladder decides: the
+     * two-attribute compound below has more conditions, so it wins.
      */
     [drawerCtx.contentWidth]: {
       '[data-swipe-axis="x"]': {

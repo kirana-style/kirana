@@ -169,10 +169,7 @@ export const SCENES: Record<SceneId, Scene> = {
   },
 }
 
-/**
- * The picture at `width` pixels wide, from `public/scenes` (the brand kit's
- * `render:site-scenes` writes them).
- */
+/** The picture at `width` pixels wide, from `public/scenes`. */
 export function sceneImage(id: SceneId, width: 800 | 1200 | 1600): string {
   return `/scenes/${id}-${width}.webp`
 }
