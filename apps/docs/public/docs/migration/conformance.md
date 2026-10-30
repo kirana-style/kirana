@@ -40,7 +40,7 @@ why. A file of exceptions that nobody reads is the same as no test.
 ## How it runs
 
 The harness builds the Kirana app and the two baselines, serves all three, crawls
-every route and diffs. It is how 60+ blocks
+every route and diffs. It is how the blocks
 and every component were verified, and it is what caught the merge-order bugs
 that a human review had passed.
 

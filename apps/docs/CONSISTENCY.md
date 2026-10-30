@@ -62,6 +62,12 @@ on:
 - **a command missing** from the CLI page, its description or spec 12.
 - **a `/docs/<page>#<heading>` link** to a page or a heading that does not exist;
 - **a scales colour written flat** (`color.zinc500`) where the preset nests it by hue (`color.zinc[500]`).
+- **an entry point of `@kirana-style/core`** (its `exports`) missing from the API page's table;
+- **a configuration key** `kirana_config` reads with no section on the configuration page, or a
+  nested key its parent's section does not name;
+- **an editor window's hint** (`//:`) on a line of its own, or a lone `{" "}`: the formatter's damage
+  when the block has no `<!-- prettier-ignore -->`;
+- **a package in no group** of `/ecosystem`'s cards, or in two, or a group naming no package.
 
 A list that is deliberately partial (the frameworks with single-file components, the hosts with hot
 updates) is marked on the line before it: `<!-- consistency: subset -->` in markdown,

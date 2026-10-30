@@ -8,8 +8,8 @@ keywords: [roadmap, milestones, plan, future, wasm, language server, 1.0]
 
 # Roadmap
 
-Seven milestones and two decision gates. Six are done and on npm; the seventh is
-1.0. Dates are deliberately absent: this is built by one person with AI
+The roadmap has {{fact:milestones-word}} milestones and two decision gates;
+{{fact:milestones-done-word}} of them are done and on npm, and the last is 1.0. Dates are deliberately absent: this is built by one person with AI
 assistance, and a date would be fiction.
 
 <!-- ::roadmap -->

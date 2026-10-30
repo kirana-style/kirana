@@ -70,7 +70,7 @@ const styles = {
     borderColor: accent.base,
   }),
   done: css({ backgroundColor: accent.base }),
-  // Seven milestones: the last fills its row, in two columns or four.
+  // An odd count leaves a column empty in the last row: the last milestone fills it.
   last: css({ gridColumn: "span 2" }),
   name: css({
     fontSize: fontSize.sm,
@@ -93,7 +93,9 @@ export function RoadmapOverview() {
           href={`#${milestone.anchor}`}
           sx={[
             styles.cell,
-            index === MILESTONES.length - 1 ? styles.last : null,
+            index === MILESTONES.length - 1 && MILESTONES.length % 2
+              ? styles.last
+              : null,
           ]}
         >
           <span sx={styles.label}>

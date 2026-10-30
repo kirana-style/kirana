@@ -284,8 +284,8 @@ an example, and checks its styles in a browser. No package runs an install scrip
 so there is nothing to allow-list.
 
 > [!NOTE] Yarn needs every platform
-> Yarn looks up all eight platform packages to write its lockfile, even the seven
-> it will not install. A tarball set packed on one machine has only that
+> Yarn looks up every platform package to write its lockfile, even the ones it
+> will not install. A tarball set packed on one machine has only that
 > machine's, so use npm, pnpm or Bun there.
 
 ### From a checkout of the repository

@@ -595,8 +595,8 @@ an example, and checks its styles in a browser. No package runs an install scrip
 so there is nothing to allow-list.
 
 > [!NOTE] Yarn needs every platform
-> Yarn looks up all eight platform packages to write its lockfile, even the seven
-> it will not install. A tarball set packed on one machine has only that
+> Yarn looks up every platform package to write its lockfile, even the ones it
+> will not install. A tarball set packed on one machine has only that
 > machine's, so use npm, pnpm or Bun there.
 
 ### From a checkout of the repository
@@ -7894,7 +7894,7 @@ why. A file of exceptions that nobody reads is the same as no test.
 ## How it runs
 
 The harness builds the Kirana app and the two baselines, serves all three, crawls
-every route and diffs. It is how 60+ blocks
+every route and diffs. It is how the blocks
 and every component were verified, and it is what caught the merge-order bugs
 that a human review had passed.
 
@@ -11080,7 +11080,7 @@ Source: https://kirana.style/docs/project/status
 # What works today
 
 Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the
-API. It compiles three real applications in our shadcn/ui port (a demo, 60+
+API. It compiles three real applications in our shadcn/ui port (a demo, the
 shadcn blocks and one page per component), and its own test suite keeps 100 %
 line coverage. The [changelog](/changelog) lists every release.
 
@@ -11165,8 +11165,8 @@ line coverage. The [changelog](/changelog) lists every release.
 Source: https://kirana.style/docs/project/roadmap
 # Roadmap
 
-Seven milestones and two decision gates. Six are done and on npm; the seventh is
-1.0. Dates are deliberately absent: this is built by one person with AI
+The roadmap has seven milestones and two decision gates;
+six of them are done and on npm, and the last is 1.0. Dates are deliberately absent: this is built by one person with AI
 assistance, and a date would be fiction.
 
 | Milestone | Status | What it covers |

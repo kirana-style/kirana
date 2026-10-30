@@ -9,7 +9,7 @@ keywords: [status, support, what works, version, limitations]
 # What works today
 
 Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the
-API. It compiles three real applications in our shadcn/ui port (a demo, 60+
+API. It compiles three real applications in our shadcn/ui port (a demo, the
 shadcn blocks and one page per component), and its own test suite keeps 100 %
 line coverage. The [changelog](/changelog) lists every release.
 
@@ -62,7 +62,7 @@ line coverage. The [changelog](/changelog) lists every release.
   [lint](/docs/tooling/lint)
 - Agent skills for writing Kirana and migrating to it, installable with
   `npx skills add`; see [agent skills](/docs/project/agent-skills)
-- Every package on npm, with the native engine for eight platforms and a WASI
+- Every package on npm, with the native engine for {{fact:native-targets-word}} platforms and a WASI
   build, released together from CI with provenance; the template helpers on
   Packagist, RubyGems and Hex; the VS Code extension on the Marketplace and Open
   VSX. CI installs the packed packages with npm, pnpm, Yarn (both linkers) and Bun

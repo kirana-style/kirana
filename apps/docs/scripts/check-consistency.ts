@@ -20,6 +20,12 @@
  *   command name  the command written as `kirana <command>`, or run as `npx kirana`, `bunx
  *                 kirana` and the like: it is `kirana-style` (D-082), since npm does not give out
  *                 the name `kirana`, and a runner would fetch whatever has it
+ *   links         a `/docs/<page>#<heading>` link to a page or heading that does not exist
+ *   colours       a scales colour written flat (`color.zinc500`)
+ *   entry points  an export of `@kirana-style/core` missing from the API page's table
+ *   config        a key `kirana_config` reads missing from the configuration page
+ *   editors       an editor window's hint the formatter moved onto a line of its own
+ *   groups        a package in no group of `/ecosystem`'s cards, or in two
  *
  * A passage that records history (a sprint) is exempt when the line before it is
  * `<!-- consistency: history -->`, and a list that is a deliberate subset (the frameworks with
@@ -34,6 +40,7 @@ import { join, relative } from "node:path"
 
 import { COMMANDS } from "../src/generated/cli.gen.ts"
 import { LINT } from "../src/generated/lint.gen.ts"
+import { PACKAGES } from "../src/generated/packages.gen.ts"
 import { COUNTS, LISTS, PUBLISHED } from "../src/data/facts.ts"
 import { LINT_RULES } from "../src/data/tooling.ts"
 import { SCENES } from "../src/brand/scenes.ts"
@@ -250,7 +257,7 @@ function literals(text: string): { body: string; index: number }[] {
 const NUMBER =
   "(\\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)"
 const COUNTED = new RegExp(
-  `\\b${NUMBER}\\s+(diagnostics|diagnostic codes|codes with stable|checks with codes|(?:lint |Kirana |more |new )?rules|packages|commands|framework guides)\\b`,
+  `\\b${NUMBER}\\s+(diagnostics|diagnostic codes|codes with stable|checks with codes|(?:lint |Kirana |more |new )?rules|packages|commands|framework guides|platforms|agent skills|milestones)\\b`,
   "gi"
 )
 
@@ -730,6 +737,149 @@ for (const path of [
       `\`${match[0]}\`: the preset's colours are nested by hue, \`color.${match[1]}[${match[2]}]\``
     )
 }
+
+/** Every entry point of `@kirana-style/core` is in the API reference's table. */
+const apiPage = await readFile(
+  join(app, "content/docs/reference/api.md"),
+  "utf8"
+)
+const entryPoints = apiPage.slice(
+  apiPage.indexOf("## Entry points"),
+  apiPage.indexOf("\n## ", apiPage.indexOf("## Entry points") + 1)
+)
+const coreExports = Object.keys(
+  (
+    JSON.parse(
+      await readFile(
+        join(repository, "packages/kirana/npm/core/package.json"),
+        "utf8"
+      )
+    ) as { exports: Record<string, unknown> }
+  ).exports
+).filter((path) => path !== "./package.json")
+for (const path of coreExports) {
+  const listed =
+    path === "."
+      ? entryPoints.includes("`@kirana-style/core`")
+      : new RegExp(`\`(@kirana-style/core)?${path.slice(1)}\``).test(
+          entryPoints
+        )
+  if (!listed)
+    report(
+      "apps/docs/content/docs/reference/api.md",
+      lineOf(apiPage, apiPage.indexOf("## Entry points")),
+      `@kirana-style/core${path.slice(1)} is an entry point the table does not list`
+    )
+}
+
+/**
+ * Every key `kirana_config` reads is on the configuration page: a top-level key has a heading of
+ * its own, a nested one is named in its parent's section.
+ */
+const configSource = await readFile(
+  join(repository, "packages/kirana/crates/kirana_config/src/lib.rs"),
+  "utf8"
+)
+const configPage = await readFile(
+  join(app, "content/docs/reference/config.md"),
+  "utf8"
+)
+function configFields(struct: string): { name: string; type: string }[] {
+  const match = new RegExp(
+    `((?:#\\[[^\\n]*\\]\\n)*)pub struct ${struct} \\{([\\s\\S]*?)\\n\\}`
+  ).exec(configSource)
+  if (!match) return []
+  const camel = match[1]!.includes("camelCase")
+  return [
+    ...match[2]!.matchAll(/((?:\s*#\[[^\n]*\]\n)*)\s*pub (\w+): ([^,\n]+),/g),
+  ].map(([, attributes, field, type]) => ({
+    name:
+      /rename = "(\w+)"/.exec(attributes!)?.[1] ??
+      (camel
+        ? field!.replace(/_(\w)/g, (_, letter: string) => letter.toUpperCase())
+        : field!),
+    type: type!.replace(/^Option<(.*)>$/, "$1"),
+  }))
+}
+const configFieldsTop = configFields("Config")
+if (configFieldsTop.length < 5)
+  throw new Error("check-consistency: kirana_config's Config was not found")
+for (const { name, type } of configFieldsTop) {
+  const heading = configPage.indexOf(`## \`${name}`)
+  if (heading < 0) {
+    report(
+      "apps/docs/content/docs/reference/config.md",
+      1,
+      `\`${name}\`: a configuration key with no section`
+    )
+    continue
+  }
+  const end = configPage.indexOf("\n## ", heading + 1)
+  const section = configPage.slice(heading, end < 0 ? undefined : end)
+  for (const field of configFields(type))
+    if (
+      !configPage.includes(`\`${name}.${field.name}`) &&
+      !new RegExp(`(\`${field.name}\`|\\b${field.name}\\??:)`).test(section)
+    )
+      report(
+        "apps/docs/content/docs/reference/config.md",
+        lineOf(configPage, heading),
+        `\`${name}.${field.name}\`: a configuration key the page does not name`
+      )
+}
+
+/**
+ * An editor window's hints sit on their element's line (`<a> //: …`). The formatter moves one onto a
+ * line of its own, after a `{" "}`, unless the block has `<!-- prettier-ignore -->` before it.
+ */
+for (const path of await files(join(app, "content"), /\.md$/)) {
+  const text = await readFile(path, "utf8")
+  for (const match of text.matchAll(/^```tsx editor[^\n]*\n([\s\S]*?)^```/gm)) {
+    const start = lineOf(text, match.index ?? 0)
+    match[1]!.split("\n").forEach((line, index) => {
+      if (/^\s*(\/\/:|\{" "\}\s*$)/.test(line))
+        report(
+          relativePath(path),
+          start + 1 + index,
+          "an editor hint on a line of its own: put it back on its element's line and add <!-- prettier-ignore --> before the block"
+        )
+    })
+  }
+}
+
+/** Every package is in one group of `/ecosystem`'s package cards, and only one. */
+const packageCards = await readFile(
+  join(app, "src/components/site/packages.tsx"),
+  "utf8"
+)
+const grouped = [
+  ...packageCards
+    .slice(
+      packageCards.indexOf("const GROUPS"),
+      packageCards.indexOf("const styles")
+    )
+    .matchAll(/packages: \[([^\]]*)\]/g),
+].flatMap((match) =>
+  [...match[1]!.matchAll(/"([^"]+)"/g)].map((name) => name[1]!)
+)
+for (const { name } of PACKAGES) {
+  const times = grouped.filter((listed) => listed === name).length
+  if (times !== 1)
+    report(
+      "apps/docs/src/components/site/packages.tsx",
+      lineOf(packageCards, packageCards.indexOf("const GROUPS")),
+      times
+        ? `${name} is in ${times} package groups`
+        : `${name} is in no package group`
+    )
+}
+for (const name of grouped)
+  if (!PACKAGES.some((entry) => entry.name === name))
+    report(
+      "apps/docs/src/components/site/packages.tsx",
+      lineOf(packageCards, packageCards.indexOf(`"${name}"`)),
+      `${name} is in a package group but not a package`
+    )
 
 if (problems.length) {
   console.error(problems.join("\n"))

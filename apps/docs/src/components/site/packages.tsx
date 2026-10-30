@@ -37,7 +37,7 @@ import { Keycap } from "@/components/site/accents"
 import { IllustratedCard, pill } from "@/components/site/illustrated-card"
 import { At, Card, Row, Scene, T, Tag, Tile } from "@/components/site/visuals"
 import { SVGL } from "@/generated/svgl-icons.gen"
-import { PACKAGES } from "@/generated/packages.gen"
+import { PACKAGES, SKILLS } from "@/generated/packages.gen"
 
 import { FEATURES, PILLARS } from "@/data/claims"
 import { frame } from "@/components/home/frame"
@@ -52,6 +52,8 @@ const GROUPS: {
   href: string
   /** What a group of several packages is; a single package says it itself. */
   text?: string
+  /** A card across the row, for a group too long for a third of it. */
+  wide?: boolean
 }[] = [
   {
     title: "Authoring",
@@ -65,9 +67,10 @@ const GROUPS: {
     title: "Compiler and CLI",
     icon: CubeIcon,
     accent: "tea",
-    text: "The engine and the kirana-style command, the small package npx runs on a project's first run, before Kirana is installed, and the registry client kirana-style ui runs.",
+    text: "The engine and the kirana-style command, the engine as WebAssembly for a browser page, the small package npx runs on a project's first run, before Kirana is installed, and the registry client kirana-style ui runs.",
     packages: [
       "@kirana-style/compiler",
+      "@kirana-style/compiler-browser",
       "kirana-style",
       "@kirana-style/registry",
     ],
@@ -84,6 +87,7 @@ const GROUPS: {
     title: "Bundler adapters",
     icon: PlugSocketIcon,
     accent: "tea",
+    wide: true,
     text: "A thin adapter per host: it hands modules to the engine and puts the stylesheet where the bundler expects it.",
     packages: [
       "@kirana-style/vite",
@@ -128,7 +132,7 @@ const GROUPS: {
     accent: "tea",
     text: "Installed with npx skills add: one for writing Kirana, one for moving to it from Tailwind or StyleX. Their diagnostics and lint references are generated from the compiler.",
     packages: [],
-    tools: { names: ["kirana", "kirana-migrate"], kind: "skill" },
+    tools: { names: SKILLS, kind: "skill" },
     href: "/docs/project/agent-skills",
   },
 ]
@@ -443,8 +447,7 @@ export function PackageGroups() {
           return (
             <IllustratedCard
               key={group.title}
-              // Only the adapters list more than three packages: their card is wide.
-              wide={entries.length > 3}
+              wide={group.wide}
               art={<ArtFor />}
               title={group.title}
               note={count}
