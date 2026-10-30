@@ -249,9 +249,10 @@ export const buttonIcons = css({
 ```
 
 `select.descendant(target)` and `select.child(target)` accept one compound selector: an element name,
-attribute selectors and pseudo-classes, alone or together (D-061). Class selectors, IDs, combinators and
-pseudo-elements are rejected
-(`unsupported-contextual-target`). Contextual styles always lose to the target element's own styles
+classes, attribute selectors and pseudo-classes, alone or together (D-061). A class names markup another
+library renders (`select.descendant(".ts-chart__grid")`); Kirana's own class names are hashes and are
+not targets. IDs, combinators and pseudo-elements are rejected (`unsupported-contextual-target`, reported
+once: the refused key is not also a `dynamic-key`). Contextual styles always lose to the target element's own styles
 (D-016); precedence is owned by [08](./08-conditions-and-cascade.md#contextual-styles).
 
 A condition nested inside a target's style object is the state of the element carrying the style, not of

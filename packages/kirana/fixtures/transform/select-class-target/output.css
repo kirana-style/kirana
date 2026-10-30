@@ -1,0 +1,13 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.contextual {
+  .k87-W7a_zzQn > :where(svg.ts-chart.ts-chart--line:hover) {
+    opacity: 0.8;
+  }
+  .k9q-e3g_tIfm :where(.ts-chart__grid) {
+    stroke-opacity: 1;
+  }
+  .k9r-LFp_SyNM :where(g.ts-chart__series:not(.ts-chart__series--muted)) {
+    stroke-width: 2;
+  }
+}

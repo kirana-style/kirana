@@ -14,31 +14,17 @@
     ]
   },
   {
-    "code": "KRN1603",
-    "name": "dynamic-key",
-    "severity": "error",
-    "file": "input.tsx",
-    "span": {
-      "start": 603,
-      "end": 951
-    },
-    "message": "a property or condition key must be known at build time",
-    "help": [
-      "use a fixed key, or move the choice into a conditional value"
-    ]
-  },
-  {
     "code": "KRN1303",
     "name": "unsupported-contextual-target",
     "severity": "error",
     "file": "input.tsx",
     "span": {
       "start": 656,
-      "end": 683
+      "end": 680
     },
-    "message": "a contextual target is an element name, attribute selectors and pseudo-classes: one compound selector",
+    "message": "a contextual target is one compound selector: an element name, classes, attribute selectors and pseudo-classes, with no combinator or pseudo-element",
     "help": [
-      "for example select.descendant('svg') or select.child('[data-slot=\"icon\"]')"
+      "for example select.descendant('svg'), select.descendant('.ts-chart__grid') or select.child('[data-slot=\"icon\"]:hover'); a pseudo-element is a key inside the target's style"
     ]
   },
   {
@@ -47,12 +33,12 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 707,
-      "end": 728
+      "start": 704,
+      "end": 725
     },
-    "message": "a contextual target is an element name, attribute selectors and pseudo-classes: one compound selector",
+    "message": "a contextual target is one compound selector: an element name, classes, attribute selectors and pseudo-classes, with no combinator or pseudo-element",
     "help": [
-      "for example select.descendant('svg') or select.child('[data-slot=\"icon\"]')"
+      "for example select.descendant('svg'), select.descendant('.ts-chart__grid') or select.child('[data-slot=\"icon\"]:hover'); a pseudo-element is a key inside the target's style"
     ]
   },
   {
@@ -61,12 +47,12 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 752,
-      "end": 775
+      "start": 749,
+      "end": 772
     },
-    "message": "a contextual target is an element name, attribute selectors and pseudo-classes: one compound selector",
+    "message": "a contextual target is one compound selector: an element name, classes, attribute selectors and pseudo-classes, with no combinator or pseudo-element",
     "help": [
-      "for example select.descendant('svg') or select.child('[data-slot=\"icon\"]')"
+      "for example select.descendant('svg'), select.descendant('.ts-chart__grid') or select.child('[data-slot=\"icon\"]:hover'); a pseudo-element is a key inside the target's style"
     ]
   },
   {
@@ -75,12 +61,12 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 799,
-      "end": 815
+      "start": 796,
+      "end": 812
     },
-    "message": "a contextual target is an element name, attribute selectors and pseudo-classes: one compound selector",
+    "message": "a contextual target is one compound selector: an element name, classes, attribute selectors and pseudo-classes, with no combinator or pseudo-element",
     "help": [
-      "for example select.descendant('svg') or select.child('[data-slot=\"icon\"]')"
+      "for example select.descendant('svg'), select.descendant('.ts-chart__grid') or select.child('[data-slot=\"icon\"]:hover'); a pseudo-element is a key inside the target's style"
     ]
   },
   {
@@ -89,12 +75,12 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 839,
-      "end": 866
+      "start": 836,
+      "end": 863
     },
-    "message": "a contextual target is an element name, attribute selectors and pseudo-classes: one compound selector",
+    "message": "a contextual target is one compound selector: an element name, classes, attribute selectors and pseudo-classes, with no combinator or pseudo-element",
     "help": [
-      "for example select.descendant('svg') or select.child('[data-slot=\"icon\"]')"
+      "for example select.descendant('svg'), select.descendant('.ts-chart__grid') or select.child('[data-slot=\"icon\"]:hover'); a pseudo-element is a key inside the target's style"
     ]
   },
   {
@@ -103,8 +89,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 1025,
-      "end": 1034
+      "start": 1022,
+      "end": 1031
     },
     "message": "pseudo-elements cannot nest",
     "help": []
@@ -115,8 +101,8 @@
     "severity": "error",
     "file": "input.tsx",
     "span": {
-      "start": 1089,
-      "end": 1126
+      "start": 1086,
+      "end": 1123
     },
     "message": "select.* keys are top-level style keys whose value is a style object",
     "help": []

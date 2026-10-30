@@ -85,7 +85,8 @@ select.child(target: string): SelectTarget
 ```
 
 Top-level keys that style elements below this one, in a layer their own styles
-beat. Targets are element names or attribute selectors.
+beat. A target is one compound selector: an element name, classes, attribute
+selectors and pseudo-classes.
 [Contextual styles](/docs/styling/contextual).
 
 ## `keyframes(frames)`

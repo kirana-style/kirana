@@ -60,7 +60,7 @@ const FIXES: Record<string, string> = {
   "ambiguous-precedence":
     "Two conditions of the same kind can match together with different values and nothing orders them. Nest one inside the other, or list the pair in `conditions.exclusive` when they never match together. Do not re-level it to hide the tie.",
   "unsupported-contextual-target":
-    "A `select.descendant()`/`select.child()` target must be one compound selector: an element name, attribute selectors and pseudo-classes.",
+    "A `select.descendant()`/`select.child()` target must be one compound selector: an element name, classes, attribute selectors and pseudo-classes. No combinator, ID or pseudo-element; a pseudo-element is a key inside the target's style.",
   "select-state-on-parent":
     "Info: a pseudo-class nested under a `select` target is the state of the element carrying the style, not the target's. For the target's own, put it in the target: `select.child(\"a:hover\")`.",
   "unreachable-entry":

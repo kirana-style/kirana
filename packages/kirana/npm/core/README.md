@@ -46,7 +46,7 @@ export function Field({
 | `props(...handles)`                                                    | `{ className, style }` for components that do not take `sx` (Base UI parts, render props)                |
 | `recipe({ base, variants, compoundVariants, defaultVariants, slots })` | Variants; a call with static options compiles to a constant                                              |
 | `relation(name)`                                                       | `anchor`, and the reads `within(state?)`, `after(state?)`, `before(state?)`                              |
-| `select.descendant(target)`, `select.child(target)`                    | Contextual keys that style an element name or attribute selector below; they lose to its own styles      |
+| `select.descendant(target)`, `select.child(target)`                    | Contextual keys that style an element, class or attribute selector below; they lose to its own styles    |
 | `keyframes(frames)`                                                    | A name usable as `animationName` from any module                                                         |
 | `defineTokens(namespace, values, { variable? })`                       | Tokens; plain values inline, `variable: true` makes custom properties, `{ light, dark }` is a mode value |
 | `defineTheme(tokens, overrides)`                                       | A handle that overrides variable tokens for a subtree                                                    |

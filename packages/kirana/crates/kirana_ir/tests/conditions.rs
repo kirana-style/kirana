@@ -62,6 +62,47 @@ fn parses_compound_selectors() {
     assert!(error.to_string().starts_with("\"hover\": "));
 }
 
+/// One compound selector the target itself matches: an element name, classes, attributes and
+/// pseudo-classes (D-061); a library's class is the only hook its markup offers (KF-079).
+#[test]
+fn contextual_targets_are_one_compound_selector() {
+    for target in [
+        "svg",
+        "[data-slot=\"icon\"]",
+        "span:last-child",
+        ".ts-chart__grid",
+        "svg.ts-chart",
+        ".a.b:hover",
+        "g.-x._y[data-z]",
+        " .a:not(.b) ",
+        "a[href$=\".pdf\"].c",
+        "li:nth-child(2n).c",
+    ] {
+        assert!(is_contextual_target(target), "{target}");
+    }
+    for target in [
+        "",
+        ".",
+        ".9a",
+        ".-9a",
+        ".-",
+        "..a",
+        ".a .b",
+        ".a > b",
+        ".a+b",
+        ".a::before",
+        "#id",
+        ".a\\:b",
+        "*.a",
+        "9x.a",
+        ".a[x",
+        ".a:has(x",
+        ".a:bogus",
+    ] {
+        assert!(!is_contextual_target(target), "{target}");
+    }
+}
+
 #[test]
 fn normal_form_sorts_and_deduplicates() {
     let a = ConditionSet::new(vec![Condition::Pseudo(":hover".into()), Condition::Media("(x)".into())]);

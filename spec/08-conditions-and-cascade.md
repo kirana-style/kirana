@@ -242,8 +242,8 @@ custom-property assignments, which StyleX left unlayered (U3).
 **KRN-CAS-006** — Styles created with `select.descendant()` or `select.child()` compile to
 `.k… :where(<target>)` or `.k… > :where(<target>)` in `kirana.contextual`. Because that layer is below
 `kirana.atoms`, any style the target element applies to itself wins, whatever its conditions (D-016).
-Targets are one compound selector: an optional element name, attribute selectors and pseudo-classes
-(`span:last-child`, `a:hover`; D-061) ([06](./06-authoring-api.md#select--contextual-descendant-styles)).
+Targets are one compound selector: an optional element name, classes, attribute selectors and
+pseudo-classes (`span:last-child`, `a:hover`, `svg.ts-chart`; D-061) ([06](./06-authoring-api.md#select--contextual-descendant-styles)).
 
 **INFERENCE:** this replaces both StyleX's hand-down custom properties (A8) and Tailwind's
 `[&_svg:not([class*='size-'])]` guard: the guard exists only because Tailwind's parent selector would

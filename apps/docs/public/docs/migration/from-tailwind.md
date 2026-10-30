@@ -217,7 +217,7 @@ What it reports rather than guesses:
 - custom variants and utilities nobody declared;
 - a handle under a variant, negated or with `!`;
 - a contextual target under a condition (`focus:**:text-x`);
-- targets that are class names;
+- targets with a combinator inside (`[&_.recharts-grid_line]:`);
 - `in-*` on anything but a `data-slot` (`in-data-[slot=x]:` becomes a relation
   every `data-slot="x"` element anchors);
 - a colour's `dark:` with no value at rest;

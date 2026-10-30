@@ -1,0 +1,16 @@
+[
+  {
+    "code": "KRN1303",
+    "name": "unsupported-contextual-target",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 180,
+      "end": 230
+    },
+    "message": "a contextual target is one compound selector: an element name, classes, attribute selectors and pseudo-classes, with no combinator or pseudo-element",
+    "help": [
+      "for example select.descendant('svg'), select.descendant('.ts-chart__grid') or select.child('[data-slot=\"icon\"]:hover'); a pseudo-element is a key inside the target's style"
+    ]
+  }
+]

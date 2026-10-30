@@ -756,17 +756,28 @@ the implementation tracker names its evidence.
   Tailwind; `pt-4` before `p-0` also wins, where tailwind-merge would have deleted it.
 - **Elaborated in:** `packages/kirana/design-notes/utility-surface.md`.
 
-### D-061 — A contextual target may carry pseudo-classes
+### D-061 — A contextual target may carry pseudo-classes and classes
 
-- **Status:** Accepted. Extends KRN-CAS-006.
+- **Status:** Accepted. Extends KRN-CAS-006. Amended for KF-079: classes.
 - **Decision:** `select.child()` and `select.descendant()` take one compound selector: an optional
-  element name, attribute selectors and pseudo-classes (`span:last-child`, `a:hover`,
-  `svg:not([data-icon])`). Combinators, pseudo-elements and class selectors stay errors.
+  element name, classes, attribute selectors and pseudo-classes (`span:last-child`, `a:hover`,
+  `svg:not([data-icon])`, `.ts-chart__grid`, `svg.ts-chart:hover`). A class is a plain CSS identifier,
+  without escapes. Combinators, pseudo-elements and IDs stay errors, and a refused target is reported
+  once, as `unsupported-contextual-target`, not again as the `dynamic-key` its call becomes.
 - **Rationale:** a pseudo-class is as verifiable as an attribute — it names the target's own state or
   position, not markup the compiler cannot see — and contextual rules live in their own layer, below the
   target's own styles, so the ladder is unaffected. shadcn/ui's `[&>span:last-child]:truncate` and
   `*:hover:…` had no Kirana form: 58 of the migrated Tailwind original's report items were targets or
-  target states.
+  target states. Classes were left out because Kirana's own class names are hashes and a handwritten
+  class is markup the compiler cannot see, but a data attribute is just as unseen, and the ban held
+  nothing: `[class~="x"]` and `:not(.x)` were already accepted. A class is the only hook a library's
+  markup offers (TanStack Charts' `<g class="ts-chart__grid">`; upstream shadcn reaches into Recharts
+  with `[&_.recharts-cartesian-grid_line]`), and it changes nothing Kirana relies on: the target is
+  hashed into the atom's class, written inside `:where()` in `kirana.contextual`, and never read by the
+  merge or the class map (D-069).
+- **Consequences:** a target naming one of Kirana's own classes compiles but breaks when the hash
+  changes; such a target is written as a relation or a data attribute instead. `migrate tailwind`
+  lowers `[&_.foo]:` and `*:[.foo]:`; a class followed by a combinator (`[&_.a_b]`) is still reported.
 - **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 
 ### D-062 — A build checks R1 only for relations it compiled

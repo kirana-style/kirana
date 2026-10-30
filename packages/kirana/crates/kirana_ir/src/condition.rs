@@ -187,20 +187,71 @@ pub fn parse_simple_selectors(text: &str) -> Result<Vec<Condition>, String> {
     Ok(conditions)
 }
 
-/// `svg`, `[data-slot="icon"]`, `span:last-child`, `a:hover`: an optional element name, then attribute
-/// selectors and pseudo-classes — one compound selector, which the target itself matches (D-061).
+/// `svg`, `[data-slot="icon"]`, `.ts-chart__grid`, `span:last-child`, `a:hover`: an optional element
+/// name, then classes, attribute selectors and pseudo-classes — one compound selector, which the
+/// target itself matches (D-061).
 pub fn is_contextual_target(selector: &str) -> bool {
     let selector = selector.trim();
-    let name_end = selector.find(['[', ':']).unwrap_or(selector.len());
+    let name_end = selector.find(['[', ':', '.']).unwrap_or(selector.len());
     let (name, rest) = selector.split_at(name_end);
     let name_ok = name.is_empty()
         || name.chars().next().is_some_and(|first| first.is_ascii_alphabetic())
             && name.chars().all(|character| character.is_ascii_alphanumeric() || character == '-');
-    let rest_ok = rest.is_empty()
-        || parse_simple_selectors(rest).is_ok_and(|conditions| {
-            conditions.iter().all(|condition| matches!(condition, Condition::Attribute(_) | Condition::Pseudo(_)))
-        });
+    let rest_ok = without_classes(rest).is_some_and(|rest| {
+        rest.is_empty()
+            || parse_simple_selectors(&rest).is_ok_and(|conditions| {
+                conditions.iter().all(|condition| matches!(condition, Condition::Attribute(_) | Condition::Pseudo(_)))
+            })
+    });
     name_ok && rest_ok && !selector.is_empty()
+}
+
+/// The compound selector with its top-level classes taken out, or `None` when one is not a plain
+/// CSS identifier. A dot inside brackets or parentheses (`[href$=".pdf"]`, `:not(.a)`) belongs to the
+/// attribute or the argument.
+fn without_classes(compound: &str) -> Option<String> {
+    let bytes = compound.as_bytes();
+    let mut out = String::with_capacity(compound.len());
+    let mut index = 0;
+    while index < bytes.len() {
+        match bytes[index] {
+            b'.' => {
+                let name = &compound[index + 1..];
+                let length = name
+                    .find(|character: char| {
+                        !(character.is_ascii_alphanumeric() || character == '-' || character == '_')
+                    })
+                    .unwrap_or(name.len());
+                if !is_identifier(&name[..length]) {
+                    return None;
+                }
+                index += 1 + length;
+            }
+            open @ (b'[' | b'(') => {
+                let close = if open == b'[' { b']' } else { b')' };
+                // An unclosed one is copied whole, so `parse_simple_selectors` refuses it.
+                let end = find_closing(bytes, index, open, close).map_or(bytes.len(), |end| end + 1);
+                out.push_str(&compound[index..end]);
+                index = end;
+            }
+            _ => {
+                let end = bytes[index + 1..]
+                    .iter()
+                    .position(|byte| matches!(byte, b'.' | b'[' | b'('))
+                    .map_or(bytes.len(), |offset| index + 1 + offset);
+                out.push_str(&compound[index..end]);
+                index = end;
+            }
+        }
+    }
+    Some(out)
+}
+
+/// `ts-chart__grid`, `_private`, `-x`: a CSS identifier written without escapes, which starts with
+/// neither a digit nor `-` and a digit.
+fn is_identifier(name: &str) -> bool {
+    let after_dash = name.strip_prefix('-').unwrap_or(name);
+    after_dash.chars().next().is_some_and(|first| !first.is_ascii_digit())
 }
 
 fn find_closing(bytes: &[u8], open_index: usize, open: u8, close: u8) -> Option<usize> {
