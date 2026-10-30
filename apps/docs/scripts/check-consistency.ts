@@ -681,6 +681,56 @@ for (const [, title, href, scene] of nav.matchAll(
     )
 }
 
+/**
+ * Every `/docs/<page>#<heading>` link names a page and a heading it has: a renamed heading breaks
+ * its links without a build error.
+ */
+const pagesDir = join(app, "src/generated/pages")
+const headings = new Map<string, Set<string>>()
+for (const path of await files(pagesDir, /\.json$/)) {
+  const page = JSON.parse(await readFile(path, "utf8")) as {
+    headings?: { id: string }[]
+  }
+  const slug = relative(pagesDir, path)
+    .replace(/\.json$/, "")
+    .replace(/(^|\/)index$/, "")
+  headings.set(slug, new Set((page.headings ?? []).map(({ id }) => id)))
+}
+for (const path of [
+  ...(await files(join(app, "content"), /\.md$/)),
+  ...(await files(join(app, "src"), /\.tsx?$/)),
+]) {
+  if (path.includes("/generated/")) continue
+  const text = await readFile(path, "utf8")
+  for (const match of text.matchAll(
+    /\/docs\/([a-z0-9/-]+?)(?:\.md)?#([\w-]+)/g
+  )) {
+    const ids = headings.get(match[1]!)
+    if (!ids || !ids.has(match[2]!))
+      report(
+        relativePath(path),
+        lineOf(text, match.index ?? 0),
+        ids
+          ? `/docs/${match[1]}#${match[2]}: the page has no such heading`
+          : `/docs/${match[1]}: no such page`
+      )
+  }
+}
+
+/** The scales preset nests colours by hue: `color.zinc[500]`, never `color.zinc500`. */
+for (const path of [
+  ...(await files(join(app, "content"), /\.md$/)),
+  ...(await files(join(repository, "skills"), /\.md$/)),
+]) {
+  const text = await readFile(path, "utf8")
+  for (const match of text.matchAll(/\bcolor\.([a-z]+)(\d{2,3})\b/g))
+    report(
+      relativePath(path),
+      lineOf(text, match.index ?? 0),
+      `\`${match[0]}\`: the preset's colours are nested by hue, \`color.${match[1]}[${match[2]}]\``
+    )
+}
+
 if (problems.length) {
   console.error(problems.join("\n"))
   console.error(

@@ -92,12 +92,11 @@ A class list puts the CSS on the element; a style object puts it behind a name. 
 the language server writes it back where you read: every element's line ends with
 what it gets, in a class list's words.
 
+<!-- prettier-ignore -->
 ```tsx editor file="src/plan.tsx"
 export function Plan({ featured }: { featured: boolean }) {
   return (
-    <article sx={[card, featured && raised]}>
-      {" "}
-      //: ▦ grid · gap 1rem · p 1rem · featured: shadow lg
+    <article sx={[card, featured && raised]}> //: ▦ grid · gap 1rem · p 1rem · featured: shadow lg
       <h2 sx={title}>Pro</h2> //: text 1.25rem · 600 · ink
     </article>
   )

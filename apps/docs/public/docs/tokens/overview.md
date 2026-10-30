@@ -105,7 +105,7 @@ css({
 
 A production build writes a variable token's declaration only when something uses
 it. That means a rule that reads it, or the finished JavaScript still naming it, as
-`el.style.gap = space.lg` does. A design system can define a hundred variable
+`el.style.color = theme.text` does. A design system can define a hundred variable
 tokens, and a page that reads ten ships ten.
 
 A token read by code the compiler never sees needs saying so. Examples: a plain

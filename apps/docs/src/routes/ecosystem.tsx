@@ -102,6 +102,11 @@ const BUNDLERS: {
     note: "@kirana-style/next with @kirana-style/postcss, on the dev server too",
     href: "/docs/frameworks/nextjs",
   },
+  {
+    name: "Storybook",
+    note: "@kirana-style/vite, through the Vite builder",
+    href: "/docs/integrations/storybook",
+  },
 ]
 
 const TOOLING: { name: string; status?: Status; note: string; href: string }[] =
@@ -125,6 +130,11 @@ const TOOLING: { name: string; status?: Status; note: string; href: string }[] =
       name: "kirana-style init, doctor, dev",
       note: "Set a project up from a diff (npx kirana-style@latest init on the first run), check the setup or write a bug report, watch without a bundler",
       href: "/docs/tooling/cli",
+    },
+    {
+      name: "kirana-style ui",
+      note: "Install components from a registry, keep them updated, and see what changed",
+      href: "/docs/tooling/cli#kirana-style-ui",
     },
     {
       name: "Language server, VS Code and Zed",

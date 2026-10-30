@@ -62,7 +62,7 @@ to the compiler without a line saying what to do about it fails the build.
    merge per condition, `sx` forwarded last, `styleProps` for installed
    components, colours as `light-dark()` pairs.
 3. **`kirana-style check`**, and fix every error by its code.
-4. **Lint**, with whichever of ESLint, Oxlint or Biome the project runs.
+4. **Lint**, with whichever of {{fact:linters-or}} the project runs.
 5. **`kirana-style trace file:line property`** when it compiles and looks wrong.
 6. **`kirana-style doctor --report`** when it looks like a Kirana bug, and ask before
    filing it.

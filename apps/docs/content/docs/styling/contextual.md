@@ -40,8 +40,8 @@ a size and it keeps it.
 
 ```tsx
 <button sx={button}>
-  <Icon sx={css({ width: "1.25rem", height: "1.25rem" })} />{" "}
   {/* 1.25rem wins */}
+  <Icon sx={css({ width: "1.25rem", height: "1.25rem" })} />
 </button>
 ```
 

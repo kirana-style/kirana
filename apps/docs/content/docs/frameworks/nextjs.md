@@ -140,10 +140,10 @@ import "@kirana-style/core/stylesheet.css"
 Next runs a server and a client compiler over the same app, and a server
 component is only seen by the server one. Every compiler of a project shares one
 compiler session, which is how those atoms reach the stylesheet the client writes.
-Details in [other bundlers](/docs/integrations/bundlers#nextjs).
 
-With webpack, a style change in `next dev --webpack` shows after a reload: CSS
-hot updates are not implemented for webpack.
+With webpack, `next dev --webpack` updates the stylesheet as Turbopack does: the
+adapter rewrites a live stylesheet file on every edit, and Next rebuilds it and
+sends it as a CSS hot update ([development servers](/docs/integrations/bundlers#development-servers)).
 
 ## Next
 

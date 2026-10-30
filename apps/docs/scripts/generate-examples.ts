@@ -27,7 +27,8 @@ const check = process.argv.includes("--check")
 
 /** `.kirana-placeholder` is the stylesheet entry the adapter replaces; it is not a rule of the example. */
 const PLACEHOLDER = /\.kirana-placeholder\s*\{[^}]*\}\s*/g
-const RULE = /^\s*\.([A-Za-z][\w-]*)\s*[,{]/gm
+/** A rule's leading class, conditional ones too (`.k1:where(:hover)`, `.k2::before`). */
+const RULE = /^\s*\.([A-Za-z][\w-]*)(?=[\s,{:[])/gm
 
 const files = (await readdir(examplesDir))
   .filter((name) => name.endsWith(".tsx"))

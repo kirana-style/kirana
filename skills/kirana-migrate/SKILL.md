@@ -14,7 +14,7 @@ beside it, and port in small steps.
 1. **Give the project its vocabulary first.** For Tailwind, add `@kirana-style/preset-scales` to
    `kirana.config.ts` (`import scales from "@kirana-style/preset-scales/preset"`, a default export,
    then `presets: [scales()]`) and point `utilities.scales.color` at the theme module, so
-   `space[4]`, `color.zinc500` and `breakpoint.md` mean what they meant. Declare
+   `space[4]`, `color.zinc[500]` and `breakpoint.md` mean what they meant. Declare
    shadcn's `@custom-variant`s under `utilities.variants`, or pass the CSS file to the codemod.
 2. **Dry-run the codemod, read the diff and the report:**
    ```bash

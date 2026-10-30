@@ -41,6 +41,7 @@ export function Field({
 | Export                                                                 | What it is                                                                                               |
 | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `css(...styles)`                                                       | A style handle from style objects and other handles, merged in order                                     |
+| `own(...attributes)`                                                   | Claims attributes the component writes itself (`"data-side"`), for the style built on it                 |
 | `cx(...handles)`                                                       | Merges handles; `null`, `undefined` and `false` are skipped                                              |
 | `props(...handles)`                                                    | `{ className, style }` for components that do not take `sx` (Base UI parts, render props)                |
 | `recipe({ base, variants, compoundVariants, defaultVariants, slots })` | Variants; a call with static options compiles to a constant                                              |
@@ -81,5 +82,5 @@ Subpaths:
 
 ## Status
 
-Feasibility phase: the package exports TypeScript source (Node.js ≥ 22.18, Bun and Vite run it
-directly). See [the project status](https://kirana.style/docs/project/status).
+On npm at a 0.x version: before 1.0, a minor version may change the API. The package ships
+JavaScript with its type declarations. See [the project status](https://kirana.style/docs/project/status).

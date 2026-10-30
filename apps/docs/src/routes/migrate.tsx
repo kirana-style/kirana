@@ -240,7 +240,7 @@ function MigratePage() {
         <p sx={styles.note}>
           What conformance does not prove: right-to-left layouts, states outside
           the harness's list, and elements without a data-slot.{" "}
-          <DocsLink href="/docs/migration/from-tailwind#measured-this-repositorys-tailwind-original">
+          <DocsLink href="/docs/migration/from-tailwind#measured-the-tailwind-original-of-our-shadcn-ui-port">
             <More>The full account</More>
           </DocsLink>
         </p>

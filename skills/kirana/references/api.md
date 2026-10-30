@@ -126,7 +126,7 @@ export const ocean = defineTheme(color, {
 
 A token value may also be `{ light, dark }` (a non-colour per mode), `{ value, variable }`, or
 `{ value, syntax, inherits? }` to register an animatable custom property (`@property`).
-`@kirana-style/preset-scales` provides Tailwind v4's scales as tokens (`space[4]`, `color.zinc500`,
+`@kirana-style/preset-scales` provides Tailwind v4's scales as tokens (`space[4]`, `color.zinc[500]`,
 `breakpoint.md`); a token nothing reads emits nothing. Its utility grammar, which lets `sx` take a
 string (`sx="px-4 text-sm"`), is the default export of the `/preset` entry:
 `import scales from "@kirana-style/preset-scales/preset"`, then `presets: [scales()]` in

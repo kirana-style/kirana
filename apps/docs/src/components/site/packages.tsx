@@ -58,15 +58,20 @@ const GROUPS: {
     title: "Authoring",
     icon: PaintBrush01Icon,
     accent: "tea",
-    packages: ["@kirana-style/core"],
+    text: "The API a module imports to write styles, and the states of headless component libraries as condition keys.",
+    packages: ["@kirana-style/core", "@kirana-style/states"],
     href: "/docs/reference/api",
   },
   {
     title: "Compiler and CLI",
     icon: CubeIcon,
     accent: "tea",
-    text: "The engine and the kirana command, and the small package npx runs on a project's first run, before Kirana is installed.",
-    packages: ["@kirana-style/compiler", "kirana-style"],
+    text: "The engine and the kirana-style command, the small package npx runs on a project's first run, before Kirana is installed, and the registry client kirana-style ui runs.",
+    packages: [
+      "@kirana-style/compiler",
+      "kirana-style",
+      "@kirana-style/registry",
+    ],
     href: "/docs/tooling/cli",
   },
   {
@@ -97,6 +102,7 @@ const GROUPS: {
       "@kirana-style/ember",
       "@kirana-style/parcel-transformer",
       "@kirana-style/adonis",
+      "@kirana-style/remix",
     ],
     href: "/docs/integrations/bundlers",
   },
@@ -439,8 +445,8 @@ export function PackageGroups() {
           return (
             <IllustratedCard
               key={group.title}
-              // The three small groups sit side by side; the adapters, wide, below them.
-              wide={entries.length > 2}
+              // Only the adapters list more than three packages: their card is wide.
+              wide={entries.length > 3}
               art={<ArtFor />}
               title={group.title}
               note={count}

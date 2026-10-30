@@ -60,6 +60,8 @@ on:
 - **a product's name beside a generic icon** in a heading, where its logo belongs;
 - **a lint rule missing** from the lint page, the rule cards, spec 12 or a plugin README;
 - **a command missing** from the CLI page, its description or spec 12.
+- **a `/docs/<page>#<heading>` link** to a page or a heading that does not exist;
+- **a scales colour written flat** (`color.zinc500`) where the preset nests it by hue (`color.zinc[500]`).
 
 A list that is deliberately partial (the frameworks with single-file components, the hosts with hot
 updates) is marked on the line before it: `<!-- consistency: subset -->` in markdown,
@@ -118,3 +120,48 @@ Every mismatch found in the review that led to this file, so the patterns are vi
 The causes repeat: a list typed in prose when the feature landed and never revisited (11–14, 21–27);
 a new capability added to its own page but not to the summaries that list capabilities (1–10); and a
 page that drew its own version of a shared component (16–20).
+
+## What was found, 2026-10-30: guides, hosts, tooling and summaries
+
+| #   | Where                                                            | What it said                                                                                                         | What was true                                                                   |
+| --- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| 29  | Symfony guide, server templates                                  | `kirana-style build --minify`                                                                                        | `build` needs `--out` (and the paths), so that line fails                       |
+| 30  | Next.js guide, the webpack README                                | CSS hot updates "not implemented" for webpack                                                                        | the adapter rewrites a live file and webpack sends the hot update (KRN-INT-009) |
+| 31  | Next.js guide                                                    | a link to `bundlers#nextjs`                                                                                          | no such section                                                                 |
+| 32  | Status, `/migrate`                                               | links to a Tailwind section under an old heading                                                                     | `#measured-the-tailwind-original-of-our-shadcn-ui-port`                         |
+| 33  | The npm-status note's tarball link                               | `#install-from-tarballs`                                                                                             | `#from-tarballs`                                                                |
+| 34  | `docs/project/ecosystem`, `/ecosystem`                           | frameworks without Next.js, Remix, Waku, Vike, Docusaurus, SolidStart, VitePress; no Storybook; no `kirana-style ui` | every guide, and the registry commands                                          |
+| 35  | Status                                                           | the command line without `analyze` or `ui`                                                                           | both built                                                                      |
+| 36  | `/compiler`, the CLI card                                        | build, check, export and trace                                                                                       | init, doctor, dev, analyze, migrate and ui too                                  |
+| 37  | `/ecosystem`, package groups                                     | no `@kirana-style/remix`, `states` or `registry`; "the kirana command"                                               | 24 packages, all listed; the command is `kirana-style`                          |
+| 38  | CLI page                                                         | `check` without `--stats`                                                                                            | the flag exists                                                                 |
+| 39  | The compiler README                                              | `check --format human\|json`; `bun run kirana:build` "through Turbo"                                                 | `github` too; `vp run engine`, and there is no Turbo                            |
+| 40  | The core README                                                  | no `own()`; "feasibility phase", TypeScript source                                                                   | `own()` is exported; the package ships JavaScript and declarations              |
+| 41  | The Vite README, the registry README                             | no `names: "dense"`; `ui init` without `--preset`, `--overwrite`, `--no-check`                                       | all are options                                                                 |
+| 42  | Root README                                                      | `node_modules/.bin/kirana`                                                                                           | the binary is `kirana-style`                                                    |
+| 43  | The `kirana` skill's frameworks reference, the agent-skills page | bundlers without PostCSS; the linters typed as a list                                                                | PostCSS too; `{{fact:linters-or}}`                                              |
+
+Again a summary written when a feature landed and not revisited (34–37, 43), a README left behind
+by its package (39–41), and a link to a heading since renamed (31–33).
+
+## What was found, 2026-10-30: start, styling, tokens, configuration and reference
+
+| #   | Where                                                | What it said                                                                                  | What was true                                                                                   |
+| --- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 44  | Semantic tokens, themes and modes, the scales preset | `color.zinc50`, `color.amber500`, `color.violet500`                                           | `color` is grouped by hue: `color.zinc[50]`                                                     |
+| 45  | Utility strings, the object a string stands for      | `paddingInline: { default: … }`                                                               | the unconditional key is `base`; `default` is StyleX's                                          |
+| 46  | Configuration reference, scale rule options          | `iconLibrary` and `design` among a scale rule's options                                       | both are `ui` keys, read by `kirana-style ui`                                                   |
+| 47  | Configuration reference, `ui`                        | `ui: { preset: "k0" }`; `framework` as package names (`solid-js`, `@angular/core`)            | no `preset` key (`ui preset` writes `design`); the values are `solid`, `angular` …              |
+| 48  | Configuration reference, `conditions.ownAttributes`  | a link to `api#ownattributes`                                                                 | `#own-attributes`                                                                               |
+| 49  | API reference                                        | `defineTokens` options without `runtime`; no `CounterStyle`; four entry points                | `runtime: true` (D-086); `CounterStyle` is exported; the framework type entries and `class-map` |
+| 50  | Layers, tiers                                        | `@layer t0, t1, t2;` for two tiers; "2.3 % gzipped on this site"                              | tiers are numbered by the ones used, so `t0, t1`; a measure with no source in the data          |
+| 51  | Your first component                                 | "thirteen classes", typed                                                                     | fifteen rules; the Classes tab counts only the unconditional ones                               |
+| 52  | Mental model, the editor window                      | the hint on `<article>` pushed to its own line by the formatter, after a `{" "}`              | `<!-- prettier-ignore -->` keeps a hint on its element's line                                   |
+| 53  | Why Kirana                                           | editors: VS Code, Zed, Neovim and Helix; "published" as something StyleX has and Kirana lacks | its forks and any LSP editor too (`EDITORS`); every package is on npm                           |
+| 54  | Component states                                     | Reka UI and Bits UI among the libraries without a vocabulary                                  | both have one                                                                                   |
+| 55  | The scales preset                                    | exports without `textShadow`; "7,391 utilities", typed                                        | `textShadow` is exported; the test asserts no count                                             |
+| 56  | Anchor positioning                                   | `--kp9KfV` for a block without `width`                                                        | the name is the fixture's, whose block sets `width: anchor-size(width)`                         |
+| 57  | Tokens                                               | `el.style.gap = space.lg`, on a page whose `space` has no `lg` and is not variable            | a variable token of that page, `theme.text`                                                     |
+
+The causes: an access path or key written from memory rather than from the package (44, 45, 57),
+rows filed under the wrong key (46, 47), and numbers typed into prose (50, 51, 55).

@@ -55,7 +55,8 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 npx kirana-style dev resources/styles --out public/kirana/kirana.css
 ```
 
-`kirana-style build --minify` writes both files once, for production.
+`kirana-style build resources/styles --out public/kirana/kirana.css --minify` writes
+both files once, for production.
 
 ## 5. Use it in Twig
 

@@ -61,8 +61,8 @@ in TypeScript modules, Kirana's CLI compiles them, and the templates name them.
    npx kirana-style dev resources/styles --out public/kirana/kirana.css
    ```
 
-   `kirana-style dev` rewrites both on every edit; `kirana-style build --minify` writes them
-   once, for production.
+   `kirana-style dev` rewrites both on every edit; `kirana-style build` with the
+   same arguments and `--minify` writes them once, for production.
 
 3. **A template names styles** through its language's helper, which reads the
    class map and merges the names, later ones winning, as an `sx` list does:

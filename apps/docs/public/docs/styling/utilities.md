@@ -18,7 +18,7 @@ css({
   display: "inline-flex",
   alignItems: "center",
   gap: space[1.5],
-  paddingInline: { default: space[3], "@media (width >= 48rem)": space[4] },
+  paddingInline: { base: space[3], "@media (width >= 48rem)": space[4] },
   backgroundColor: {
     ":hover": "color-mix(in oklab, <blue-600> 90%, transparent)",
   },

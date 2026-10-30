@@ -31,6 +31,7 @@ Each one has an example CI builds and checks in a browser on every change.
 | PostCSS                        | `@kirana-style/postcss`, for any PostCSS pipeline               |
 | Jest                           | `@kirana-style/jest`                                            |
 | Next.js, Turbopack and webpack | `@kirana-style/next` with `@kirana-style/postcss`               |
+| Storybook                      | `@kirana-style/vite`, through the Vite builder                  |
 
 See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 
@@ -39,15 +40,15 @@ See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 Every framework has a guide and a tested example; the
 [frameworks page](/docs/frameworks/overview) picks yours.
 
-| Framework                                  | How styles reach the markup                                     |
-| ------------------------------------------ | --------------------------------------------------------------- |
-| React 19, TanStack Start                   | `sx` compiles to `className`; this site is a TanStack Start app |
-| Preact, Solid, Qwik 2                      | `sx` compiles to `class`                                        |
-| Vue, Nuxt, Svelte, SvelteKit, Astro        | `sx` in their templates                                         |
-| Angular (CLI and Analog)                   | `[sx]` in templates, merged at runtime                          |
-| React Router, Gatsby, Ember, Meteor        | as their component layer does                                   |
-| No framework                               | handles are class strings                                       |
-| Laravel, Symfony, Rails, Phoenix, AdonisJS | templates read a [class map](/docs/frameworks/server-templates) |
+| Framework                                                        | How styles reach the markup                                     |
+| ---------------------------------------------------------------- | --------------------------------------------------------------- |
+| React 19, Next.js, TanStack Start, Remix, Waku, Vike, Docusaurus | `sx` compiles to `className`; this site is a TanStack Start app |
+| Preact, Solid, SolidStart, Qwik 2                                | `sx` compiles to `class`                                        |
+| Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro                   | `sx` in their templates                                         |
+| Angular (CLI and Analog)                                         | `[sx]` in templates, merged at runtime                          |
+| React Router, Gatsby, Ember, Meteor                              | as their component layer does                                   |
+| No framework                                                     | handles are class strings                                       |
+| Laravel, Symfony, Rails, Phoenix, AdonisJS                       | templates read a [class map](/docs/frameworks/server-templates) |
 
 ## Tooling
 
@@ -55,6 +56,7 @@ Every framework has a guide and a tested example; the
 | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | `kirana-style build`, `check`, `analyze`, `export`, `trace`                             | [the CLI](/docs/tooling/cli)                                         |
 | `kirana-style init`, `doctor`, `doctor --report`, `dev`                                 | [the CLI](/docs/tooling/cli)                                         |
+| `kirana-style ui`, components installed from a registry                                 | [the CLI](/docs/tooling/cli#kirana-style-ui)                         |
 | `kirana-style migrate stylex`                                                           | [migration from StyleX](/docs/migration/from-stylex)                 |
 | `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod) |
 | Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                               |

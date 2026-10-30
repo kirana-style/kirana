@@ -193,7 +193,7 @@ on any element.
 
 A vocabulary is a plain object of selectors, so writing one takes a few lines. Any
 library that marks state with data attributes works: Radix and its ports
-(`data-state="open"`), Reka UI, Bits UI, or the components you write yourself. Put it in a module of your project:
+(`data-state="open"`), or the components you write yourself. Put it in a module of your project:
 
 ```ts file="src/states.ts"
 export const Dialog = {
