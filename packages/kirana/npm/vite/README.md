@@ -28,4 +28,5 @@ What it does:
   and patches every chunk and asset that names it.
 
 Options: `kirana({ config })` overrides `kirana.config.*` key by key; `reportInfo: true` also prints
-informational diagnostics such as `dynamic-bridged`.
+informational diagnostics such as `dynamic-bridged`; `names: "dense"` gives a production build short
+class names.

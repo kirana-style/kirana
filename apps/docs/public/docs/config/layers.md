@@ -40,7 +40,7 @@ export default defineConfig({
 
 ```css
 @layer kirana.atoms {
-  @layer t0, t1, t2;
+  @layer t0, t1;
   @layer t0 {
     .k50_W0yl {
       color: black;
@@ -56,8 +56,8 @@ export default defineConfig({
 
 Each tier then outranks the ones before it wherever its rules sit, which is what
 a stylesheet split into parts needs. The page renders the same. Rules that share a
-declaration merge only within a tier, so the stylesheet grows a little (2.3 %
-gzipped on this site). It is off by default.
+declaration merge only within a tier, so the stylesheet grows a little. It is off
+by default.
 
 ## Your own layers
 

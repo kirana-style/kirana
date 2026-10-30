@@ -217,7 +217,7 @@ const ITEMS: {
   {
     title: "The CLI",
     accent: "crater",
-    text: "kirana-style build, check, export and trace: compile a tree, report every diagnostic (as GitHub annotations in CI), describe the design system, and ask which declaration wins a property and why.",
+    text: "kirana-style init sets a project up and doctor checks it; build and dev compile a tree; check, analyze, export and trace report every diagnostic (as GitHub annotations in CI), size the stylesheet, describe the design system and ask which declaration wins a property and why; migrate and ui bring in styles and components.",
     href: "/docs/tooling/cli",
     art: CliArt,
   },

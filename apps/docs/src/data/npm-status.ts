@@ -8,7 +8,7 @@ import { PUBLISHED } from "./release.ts"
 /** Where the tarball install is written down. */
 export const TARBALLS = {
   text: "Installation",
-  href: "/docs/start/installation#install-from-tarballs",
+  href: "/docs/start/installation#from-tarballs",
 } as const
 
 /**

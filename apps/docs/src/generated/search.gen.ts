@@ -94,7 +94,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Why Kirana",
     "section": "start",
     "heading": "You can see the CSS again",
-    "text": "Runtime cost was one reason teams left CSS-in-JS. The other was reading. A Tailwind class list is the CSS, written on the element: tells you what the gets without leaving the line. A style object moves that into a constant somewhere else, and reading a component turns into jumping to and back. Kirana's language server gives the class list back, without putting it in your markup: At the end of every element's line , what it ends up with, in a class list's words and coloured by kind: . Values under a guard lead with it ( ). On hover , a card: the box model drawn as DevTools draws it, every declaration with in pixels and the token it reads, and the compiled rule. On one property, every entry in precedence order and the step that decided. In VS Code , a Style Inspector that follows the cursor and turns or on to show what applies then, and Style Fold, which reads a long object as its summary until you edit it, like Tailwind Fold, for objects. It works in , , and files and Angular templates, in VS Code, Zed, Neovim and Helix. It answers from the compiler session the build uses, so the editor and the stylesheet never disagree. So the trade is no longer readability for types. You keep what"
+    "text": "Runtime cost was one reason teams left CSS-in-JS. The other was reading. A Tailwind class list is the CSS, written on the element: tells you what the gets without leaving the line. A style object moves that into a constant somewhere else, and reading a component turns into jumping to and back. Kirana's language server gives the class list back, without putting it in your markup: At the end of every element's line , what it ends up with, in a class list's words and coloured by kind: . Values under a guard lead with it ( ). On hover , a card: the box model drawn as DevTools draws it, every declaration with in pixels and the token it reads, and the compiled rule. On one property, every entry in precedence order and the step that decided. In VS Code , a Style Inspector that follows the cursor and turns or on to show what applies then, and Style Fold, which reads a long object as its summary until you edit it, like Tailwind Fold, for objects. It works in , , and files and Angular templates, in VS Code and the editors built on it, Zed, Neovim, Helix and any other editor that speaks LSP. It answers from the compiler session the build uses, so the editor and the stylesheet never disagree. "
   },
   {
     "id": "/docs/start/why-kirana#what-stylex-got-right-and-what-kirana-adds",
@@ -102,7 +102,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Why Kirana",
     "section": "start",
     "heading": "What StyleX got right, and what Kirana adds",
-    "text": "StyleX, which Meta open-sourced at the end of 2023, showed that compiled, atomic CSS-in-JS works at scale. Kirana keeps its premise: atomic output, constants that cost nothing until used, styles as values passed through one prop, and colours. The same shadcn/ui app, ported from Tailwind to StyleX (0.19) for comparison, shows these problems, each measured and written down with evidence. Kirana answers them: Framework reach is the other half: works in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (Angular templates take it as a directive, Ember's as a helper), and Kirana has adapters for Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, with Next.js on Turbopack or webpack. See frameworks . StyleX has things Kirana does not: it is published, used in production at Meta and elsewhere, and has a community. Migrating from StyleX is honest about that."
+    "text": "StyleX, which Meta open-sourced at the end of 2023, showed that compiled, atomic CSS-in-JS works at scale. Kirana keeps its premise: atomic output, constants that cost nothing until used, styles as values passed through one prop, and colours. The same shadcn/ui app, ported from Tailwind to StyleX (0.19) for comparison, shows these problems, each measured and written down with evidence. Kirana answers them: Framework reach is the other half: works in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (Angular templates take it as a directive, Ember's as a helper), and Kirana has adapters for Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, with Next.js on Turbopack or webpack. See frameworks . StyleX has things Kirana does not: it is used in production at Meta and elsewhere, and has a community. Migrating from StyleX is honest about that."
   },
   {
     "id": "/docs/start/why-kirana#why-not-tailwind-and-cn",
@@ -291,7 +291,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Your first component",
     "section": "start",
     "heading": "What to notice",
-    "text": "The condition lives inside the value. is written once, with its resting value and its hover value together: You never look in two places to find out what colour a button is. Colours are pairs. There is no dark variant, no prefix and no second stylesheet. The browser picks the half that matches the page's , which the app sets once on . The second variant is a second handle. merges them in order, and the merge happens per entry : the quiet style's base colour replaces the first one's base colour, and its hover colour replaces the hover colour. Everything it does not mention (the padding, the radius, the font) is still there. Merging has the rule, and how to drop an entry you did not name. One class per declaration. Open the Classes tab: thirteen classes, each a single declaration. How it works explains why that keeps the stylesheet small."
+    "text": "The condition lives inside the value. is written once, with its resting value and its hover value together: You never look in two places to find out what colour a button is. Colours are pairs. There is no dark variant, no prefix and no second stylesheet. The browser picks the half that matches the page's , which the app sets once on . The second variant is a second handle. merges them in order, and the merge happens per entry : the quiet style's base colour replaces the first one's base colour, and its hover colour replaces the hover colour. Everything it does not mention (the padding, the radius, the font) is still there. Merging has the rule, and how to drop an entry you did not name. One class per declaration. Open the CSS tab: every rule is one class with a single declaration. How it works explains why that keeps the stylesheet small."
   },
   {
     "id": "/docs/start/first-component#next",
@@ -952,7 +952,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Component states",
     "section": "composition",
     "heading": "Other libraries, and your own components",
-    "text": "A vocabulary is a plain object of selectors, so writing one takes a few lines. Any library that marks state with data attributes works: Radix and its ports ( ), Reka UI, Bits UI, or the components you write yourself. Put it in a module of your project: is what makes a misspelt state an error. The compiler knows two values of one attribute never hold together, so and need no nesting."
+    "text": "A vocabulary is a plain object of selectors, so writing one takes a few lines. Any library that marks state with data attributes works: Radix and its ports ( ), or the components you write yourself. Put it in a module of your project: is what makes a misspelt state an error. The compiler knows two values of one attribute never hold together, so and need no nesting."
   },
   {
     "id": "/docs/styling/states#next",
@@ -1462,7 +1462,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Starting with no preset, then scales",
     "section": "tokens",
     "heading": "How the grammar behaves",
-    "text": "The grammar is data, but a few of its rules decide results you will notice. Each matches what Tailwind v4 renders, and a property test checks every one of the 7,391 utilities it generates against the equivalent style object. A font size carries its line height. sets the font size and the line height paired with it. The pair is a default, not a declaration of its own: keeps , whichever comes first; replaces the pair with . The paired line heights are Tailwind's ratios written as numbers rounded up at five decimals ( is for ). A CSS minifier would round a down and cost 14px text a fraction of a pixel per line; rounded up, a line is never short. Uniform box utilities are logical axes. sets the block and the inline padding, so: a later replaces an earlier , as did; a later replaces only the inline axis. Composed utilities combine instead of replacing. Each pair below ends up in one property: Each utility sets a layer, a registered, non-inheriting custom property such as (as Tailwind's ones are), and the property reads all of them. So class order does not change the result. Transitions read their timing from layers too. sets the list of properties and reads the duration and easing utili"
+    "text": "The grammar is data, but a few of its rules decide results you will notice. Each matches what Tailwind v4 renders, and a property test checks every utility it generates against the equivalent style object. A font size carries its line height. sets the font size and the line height paired with it. The pair is a default, not a declaration of its own: keeps , whichever comes first; replaces the pair with . The paired line heights are Tailwind's ratios written as numbers rounded up at five decimals ( is for ). A CSS minifier would round a down and cost 14px text a fraction of a pixel per line; rounded up, a line is never short. Uniform box utilities are logical axes. sets the block and the inline padding, so: a later replaces an earlier , as did; a later replaces only the inline axis. Composed utilities combine instead of replacing. Each pair below ends up in one property: Each utility sets a layer, a registered, non-inheriting custom property such as (as Tailwind's ones are), and the property reads all of them. So class order does not change the result. Transitions read their timing from layers too. sets the list of properties and reads the duration and easing utilities from their lay"
   },
   {
     "id": "/docs/tokens/semantic-tokens",
@@ -1666,7 +1666,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Layers and global CSS",
     "section": "config",
     "heading": "Tiers",
-    "text": "Within , a hover outranks the base by coming later in the file. makes each step of that order a layer of its own: Each tier then outranks the ones before it wherever its rules sit, which is what a stylesheet split into parts needs. The page renders the same. Rules that share a declaration merge only within a tier, so the stylesheet grows a little (2.3 % gzipped on this site). It is off by default."
+    "text": "Within , a hover outranks the base by coming later in the file. makes each step of that order a layer of its own: Each tier then outranks the ones before it wherever its rules sit, which is what a stylesheet split into parts needs. The page renders the same. Rules that share a declaration merge only within a tier, so the stylesheet grows a little. It is off by default."
   },
   {
     "id": "/docs/config/layers#your-own-layers",
@@ -1831,7 +1831,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Next.js",
     "section": "frameworks",
     "heading": "With webpack only",
-    "text": "A project that always builds with can skip PostCSS and use the webpack adapter on its own: Next runs a server and a client compiler over the same app, and a server component is only seen by the server one. Every compiler of a project shares one compiler session, which is how those atoms reach the stylesheet the client writes. Details in other bundlers . With webpack, a style change in shows after a reload: CSS hot updates are not implemented for webpack."
+    "text": "A project that always builds with can skip PostCSS and use the webpack adapter on its own: Next runs a server and a client compiler over the same app, and a server component is only seen by the server one. Every compiler of a project shares one compiler session, which is how those atoms reach the stylesheet the client writes. With webpack, updates the stylesheet as Turbopack does: the adapter rewrites a live stylesheet file on every edit, and Next rebuilds it and sends it as a CSS hot update ( development servers )."
   },
   {
     "id": "/docs/frameworks/nextjs#next",
@@ -3025,7 +3025,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Server templates",
     "section": "server",
     "heading": "How it works",
-    "text": "You write styles in modules listed under in . Each exported handle, and each handle inside an exported object, is a style a template can name: The CLI writes two files : the stylesheet, and a class map of every name with the classes it compiles to: rewrites both on every edit; writes them once, for production. A template names styles through its language's helper, which reads the class map and merges the names, later ones winning, as an list does:"
+    "text": "You write styles in modules listed under in . Each exported handle, and each handle inside an exported object, is a style a template can name: The CLI writes two files : the stylesheet, and a class map of every name with the classes it compiles to: rewrites both on every edit; with the same arguments and writes them once, for production. A template names styles through its language's helper, which reads the class map and merges the names, later ones winning, as an list does:"
   },
   {
     "id": "/docs/frameworks/server-templates#merging-without-a-runtime",
@@ -4288,7 +4288,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "API reference",
     "section": "reference",
     "heading": "defineTokens(namespace, values, options?)",
-    "text": "A token group. Values may be a plain value, , , or to register an animatable custom property. Tokens ."
+    "text": "A token group. Values may be a plain value, , , or to register an animatable custom property. Any of them, or the whole group, may say : its custom property is then always written, for code the compiler never sees. Tokens ."
   },
   {
     "id": "/docs/reference/api#definetheme-tokens-overrides",
@@ -4518,7 +4518,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style check",
-    "text": "Report diagnostics without writing anything. It walks the paths you give it, skipping , , dotfiles and files. Human output underlines the span and prints the help line: prints an array of , for an editor or a script. The exit code is 1 when anything is an error. prints one GitHub Actions workflow command per diagnostic, which annotates the line in the pull request's diff: errors as errors, warnings as warnings, infos as notices. Paths are relative to the project root, so run it from the repository root or a project at the root. fails the run, exit code 1, when there are more than warnings; makes every warning block a merge, without re-levelling them in the configuration."
+    "text": "Report diagnostics without writing anything. It walks the paths you give it, skipping , , dotfiles and files. Human output underlines the span and prints the help line: prints an array of , for an editor or a script. The exit code is 1 when anything is an error. prints one GitHub Actions workflow command per diagnostic, which annotates the line in the pull request's diff: errors as errors, warnings as warnings, infos as notices. Paths are relative to the project root, so run it from the repository root or a project at the root. fails the run, exit code 1, when there are more than warnings; makes every warning block a merge, without re-levelling them in the configuration. adds a line saying how much work the engine did: the modules it saw, those its prefilter rejected, those it parsed, and those it parsed only for their imports."
   },
   {
     "id": "/docs/tooling/cli#which-configuration",
@@ -5255,7 +5255,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Built",
-    "text": ", , , , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 51 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, the design system as JSON, tracing a property, "
+    "text": ", , , , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 51 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, what the stylesheet holds and why, the design s"
   },
   {
     "id": "/docs/project/status#partial",
@@ -5696,7 +5696,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Agent skills",
     "section": "project",
     "heading": "The loop it follows",
-    "text": "Learn the project. Run for the tokens, themes, recipes and relations that exist, by their real names, then . Write the style , with the rules: conditions inside the value, entries merge per condition, forwarded last, for installed components, colours as pairs. , and fix every error by its code. Lint , with whichever of ESLint, Oxlint or Biome the project runs. when it compiles and looks wrong. when it looks like a Kirana bug, and ask before filing it. Every step answers from the compiler, so an agent that follows it checks its own work instead of guessing whether a class string it remembered still exists."
+    "text": "Learn the project. Run for the tokens, themes, recipes and relations that exist, by their real names, then . Write the style , with the rules: conditions inside the value, entries merge per condition, forwarded last, for installed components, colours as pairs. , and fix every error by its code. Lint , with whichever of Oxlint, ESLint or Biome the project runs. when it compiles and looks wrong. when it looks like a Kirana bug, and ask before filing it. Every step answers from the compiler, so an agent that follows it checks its own work instead of guessing whether a class string it remembered still exists."
   },
   {
     "id": "/docs/project/agent-skills#with-llms-txt",

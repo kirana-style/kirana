@@ -37,7 +37,7 @@ So this page is what it costs, not what it should cost in theory.
 | `data-[state=open]:rotate-90` | `{ rotate: { '[data-state="open"]': "90deg" } }`                            |
 
 The vocabulary itself carries over: `@kirana-style/preset-scales` is generated from
-Tailwind v4's own theme, so `space[4]`, `color.zinc500` and `breakpoint.md` are
+Tailwind v4's own theme, so `space[4]`, `color.zinc[500]` and `breakpoint.md` are
 the values you already know.
 
 ## The four that do not translate directly

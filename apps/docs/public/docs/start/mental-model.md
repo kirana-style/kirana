@@ -81,9 +81,7 @@ what it gets, in a class list's words.
 ```tsx editor file="src/plan.tsx"
 export function Plan({ featured }: { featured: boolean }) {
   return (
-    <article sx={[card, featured && raised]}>
-      {" "}
-      //: ▦ grid · gap 1rem · p 1rem · featured: shadow lg
+    <article sx={[card, featured && raised]}> //: ▦ grid · gap 1rem · p 1rem · featured: shadow lg
       <h2 sx={title}>Pro</h2> //: text 1.25rem · 600 · ink
     </article>
   )

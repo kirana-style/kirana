@@ -28,5 +28,6 @@ export default withKirana({})
 - **Several compilers.** Every compiler of a project (Next.js's server, edge and client) shares one
   compiler session, so atoms from server components reach the client's stylesheet.
 
-Options: `root` (default: the compiler's context), `config`, `reportInfo`. Watch builds rewrite the
-stylesheet; CSS hot updates on the dev server are not implemented yet.
+Options: `root` (default: the compiler's context), `config`, `reportInfo`. Under a dev server or a
+watch build the plugin rewrites a live stylesheet file on every change, so webpack rebuilds the
+stylesheet and sends it as a CSS hot update.

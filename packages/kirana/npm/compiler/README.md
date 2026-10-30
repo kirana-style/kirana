@@ -9,7 +9,7 @@ itself is the `kirana-style` package)
 
 ```bash
 kirana-style build <paths…> --out dist/kirana.css [--minify]   # compile and write the stylesheet
-kirana-style check <paths…> [--format human|json]             # diagnostics; exits 1 on errors
+kirana-style check <paths…> [--format human|json|github]      # diagnostics; exits 1 on errors
 kirana-style trace <file>:<line> <property>… [--format json] # why a value wins at one site
 ```
 
@@ -52,8 +52,8 @@ bun run build        # release: scripts/build-native.ts → napi build --platfor
 bun run build:debug  # debug, faster to compile
 ```
 
-From the repository root, `bun run kirana:build` does the same, and `bun dev` / `bun run build` run it
-through Turbo before the apps. The script finds cargo in `~/.cargo/bin` when `PATH` lacks it and prints
+From the repository root, `vp run engine` does the same, and `vp run dev` / `vp run build` run it
+before the apps. The script finds cargo in `~/.cargo/bin` when `PATH` lacks it and prints
 the rustup install command when Rust is missing.
 
 `KIRANA_NATIVE_PATH` points the loader at another build.

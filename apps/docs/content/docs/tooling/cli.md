@@ -250,6 +250,10 @@ the repository root or a project at the root.
 warnings; `0` makes every warning block a merge, without re-levelling them in the
 configuration.
 
+`--stats` adds a line saying how much work the engine did: the modules it saw,
+those its prefilter rejected, those it parsed, and those it parsed only for their
+imports.
+
 ```yaml
 # .github/workflows/ci.yml
 - run: npx kirana-style check src --format github --max-warnings 0

@@ -82,8 +82,8 @@ without putting it in your markup:
   `md` on to show what applies then, and Style Fold, which reads a long object as
   its summary until you edit it, like Tailwind Fold, for objects.
 
-It works in `.tsx`, `.vue`, `.svelte` and `.astro` files and Angular templates, in VS Code, Zed,
-Neovim and Helix. It answers from the compiler session the build uses, so the
+It works in `.tsx`, `.vue`, `.svelte` and `.astro` files and Angular templates, in VS Code and
+the editors built on it, Zed, Neovim, Helix and any other editor that speaks LSP. It answers from the compiler session the build uses, so the
 editor and the stylesheet never disagree.
 
 So the trade is no longer readability for types. You keep what made object
@@ -127,8 +127,8 @@ templates take it as a directive, Ember's as a helper), and Kirana has adapters
 for Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, with Next.js on Turbopack or webpack. See
 [frameworks](/docs/frameworks/overview).
 
-StyleX has things Kirana does not: it is published, used in production at Meta
-and elsewhere, and has a community. [Migrating from StyleX](/docs/migration/from-stylex)
+StyleX has things Kirana does not: it is used in production at Meta and
+elsewhere, and has a community. [Migrating from StyleX](/docs/migration/from-stylex)
 is honest about that.
 
 ## Why not Tailwind and `cn()`?

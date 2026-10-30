@@ -36,7 +36,7 @@ import { color, space, radius, breakpoint } from "@kirana-style/preset-scales"
 const card = css({
   borderRadius: radius.xl,
   padding: { base: space[4], [breakpoint.md]: space[6] },
-  backgroundColor: color.zinc50,
+  backgroundColor: color.zinc[50],
 })
 ```
 
@@ -52,7 +52,7 @@ output.
 | `color`                                                                          | 26 hues × 11 steps in `oklch`, plus `black` and `white`         |
 | `space`, `spacing()`                                                             | `0`, `px`, `0.5` … `96`, in rem; any quarter step               |
 | `fontFamily`, `fontSize`, `lineHeight`, `fontWeight`, `letterSpacing`, `leading` | the type ramp, with line heights paired to sizes                |
-| `radius`, `shadow`, `blur`                                                       | the radii, shadows and blurs                                    |
+| `radius`, `shadow`, `textShadow`, `blur`                                         | the radii, shadows, text shadows and blurs                      |
 | `duration`, `easing`                                                             | motion values                                                   |
 | `zIndex`, `screen`, `containerSize`                                              | layering, and raw widths                                        |
 | `breakpoint`, `containerQuery`                                                   | ready-made conditions: `[breakpoint.md]`, `[containerQuery.lg]` |
@@ -137,8 +137,8 @@ css({ animationName: animation.spin, animationDuration: "1s" })
 ## How the grammar behaves
 
 The grammar is data, but a few of its rules decide results you will notice. Each
-matches what Tailwind v4 renders, and a property test checks every one of the
-7,391 utilities it generates against the equivalent style object.
+matches what Tailwind v4 renders, and a property test checks every utility it
+generates against the equivalent style object.
 
 **A font size carries its line height.** `text-sm` sets the font size and the line
 height paired with it. The pair is a default, not a declaration of its own:

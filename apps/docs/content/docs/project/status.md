@@ -37,9 +37,12 @@ line coverage. The [changelog](/changelog) lists every release.
   helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and
   AdonisJS; see [server templates](/docs/frameworks/server-templates)
 - The command line: setting a project up and checking it (with a bug report),
-  compiling without a bundler, reports for CI with GitHub annotations, the design
-  system as JSON, tracing a property, and both codemods; see
-  [the CLI](/docs/tooling/cli)
+  compiling without a bundler, reports for CI with GitHub annotations, what the
+  stylesheet holds and why, the design system as JSON, tracing a property, and both
+  codemods; see [the CLI](/docs/tooling/cli)
+- `kirana-style ui` with `@kirana-style/registry`: components installed from a
+  registry into your project, updated and diffed later; see
+  [the CLI](/docs/tooling/cli#kirana-style-ui)
 - CSS helpers, each checked at build time:
   - `firstThatWorks()`: [fallback values](/docs/styling/fallbacks)
   - `positionTry()`: [anchor positioning](/docs/styling/anchor-positioning)
@@ -49,7 +52,7 @@ line coverage. The [changelog](/changelog) lists every release.
   [utility strings](/docs/styling/utilities) in `sx`
 - `kirana-style migrate tailwind`, proven on the Tailwind original of our shadcn/ui port: zero
   computed-style differences after the codemod and 38 hand fixes
-  ([the numbers](/docs/migration/from-tailwind#measured-this-repository-s-tailwind-original))
+  ([the numbers](/docs/migration/from-tailwind#measured-the-tailwind-original-of-our-shadcn-ui-port))
 
 - `kirana-style lsp`, the language server, with VS Code and Zed extensions, in
   TypeScript, Vue, Svelte and Astro files and Angular templates; see

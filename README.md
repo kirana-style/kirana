@@ -182,7 +182,7 @@ code --install-extension packages/kirana/editors/vscode/kirana.vsix --force
 antigravity --install-extension packages/kirana/editors/vscode/kirana.vsix --force   # if its CLI is on PATH
 ```
 
-This repository has no `node_modules/.bin/kirana`, so `.vscode/settings.json`
+This repository has no `node_modules/.bin/kirana-style`, so `.vscode/settings.json`
 points the extension at the compiler entry instead:
 
 ```json

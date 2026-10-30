@@ -142,12 +142,14 @@ custom property or a system without the symbols it needs is reported.
 ## `defineTokens(namespace, values, options?)`
 
 ```ts
-defineTokens(namespace: string, values: TokenValues, options?: { variable?: boolean }): Tokens
+defineTokens(namespace: string, values: TokenValues, options?: { variable?: boolean; runtime?: boolean }): Tokens
 ```
 
 A token group. Values may be a plain value, `{ light, dark }`, `{ value, variable }`,
-or `{ value, syntax, inherits? }` to register an animatable custom property.
-[Tokens](/docs/tokens/overview).
+or `{ value, syntax, inherits? }` to register an animatable custom property. Any
+of them, or the whole group, may say `runtime: true`: its custom property is then
+always written, for code the compiler never sees.
+[Tokens](/docs/tokens/overview#tokens-nothing-uses).
 
 ## `defineTheme(tokens, overrides)`
 
@@ -184,15 +186,19 @@ Condition values for computed keys. [Conditions](/docs/styling/conditions).
 | `SelectTarget`        | A contextual target, from `select.*`                                                    |
 | `Token`, `Keyframes`  | A token's CSS text; a keyframes name                                                    |
 | `PositionTry`         | An `@position-try` rule's dashed ident                                                  |
+| `CounterStyle`        | An `@counter-style` rule's name                                                         |
 | `Fallbacks<V>`        | A `firstThatWorks()` run of values `V`                                                  |
 | `ViewTransition`      | A `viewTransition()` class: a `StyleHandle` that is also its class name                 |
 
 ## Entry points
 
-| Import                              | What it gives                                 |
-| ----------------------------------- | --------------------------------------------- |
-| `@kirana-style/core`                | the API above                                 |
-| `@kirana-style/core/config`         | `defineConfig` for `kirana.config.ts`         |
-| `@kirana-style/core/react`          | the `sx` prop's types                         |
-| `@kirana-style/core/stylesheet.css` | the stylesheet entry                          |
-| `@kirana-style/core/internal`       | the private runtime, not for application code |
+| Import                                                   | What it gives                                         |
+| -------------------------------------------------------- | ----------------------------------------------------- |
+| `@kirana-style/core`                                     | the API above                                         |
+| `@kirana-style/core/config`                              | `defineConfig` for `kirana.config.ts`                 |
+| `@kirana-style/core/react`                               | the `sx` prop's types                                 |
+| `@kirana-style/core/preact`, `/solid`, `/qwik`, `/remix` | the `sx` prop's JSX types in that framework           |
+| `@kirana-style/core/vue`, `/svelte`, `/astro`            | the `sx` prop's template types; in Vue, `useSx()` too |
+| `@kirana-style/core/class-map`                           | `classMap()`, the class map server templates read     |
+| `@kirana-style/core/stylesheet.css`                      | the stylesheet entry                                  |
+| `@kirana-style/core/internal`                            | the private runtime, not for application code         |

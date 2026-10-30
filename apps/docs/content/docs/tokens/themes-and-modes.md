@@ -45,7 +45,7 @@ import { defineTheme } from "@kirana-style/core"
 import { theme } from "./tokens"
 
 export const brand = defineTheme(theme, {
-  primary: `light-dark(${color.violet500}, ${color.violet400})`,
+  primary: `light-dark(${color.violet[500]}, ${color.violet[400]})`,
 })
 
 <section sx={brand}>…</section>

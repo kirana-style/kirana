@@ -12,7 +12,7 @@ keywords:
 Scales tell you what values exist. Semantic tokens say what they _mean_: what a
 card's surface is, what "primary" is, what a border looks like. This is the layer
 that makes a component readable: `backgroundColor: theme.card` says something
-`color.zinc50` does not.
+`color.zinc[50]` does not.
 
 ```tsx
 import { defineTokens } from "@kirana-style/core"
@@ -21,11 +21,11 @@ import { color } from "@kirana-style/preset-scales"
 export const theme = defineTokens(
   "theme",
   {
-    background: `light-dark(${color.white}, ${color.zinc950})`,
-    foreground: `light-dark(${color.zinc950}, ${color.zinc50})`,
-    card: `light-dark(${color.white}, ${color.zinc900})`,
-    border: `light-dark(${color.zinc200}, ${color.zinc800})`,
-    primary: `light-dark(${color.amber500}, ${color.amber400})`,
+    background: `light-dark(${color.white}, ${color.zinc[950]})`,
+    foreground: `light-dark(${color.zinc[950]}, ${color.zinc[50]})`,
+    card: `light-dark(${color.white}, ${color.zinc[900]})`,
+    border: `light-dark(${color.zinc[200]}, ${color.zinc[800]})`,
+    primary: `light-dark(${color.amber[500]}, ${color.amber[400]})`,
   },
   { variable: true }
 )
@@ -42,7 +42,7 @@ line.
 
 ```tsx
 // the whole story of this colour, in one place
-card: `light-dark(${color.white}, ${color.zinc900})`
+card: `light-dark(${color.white}, ${color.zinc[900]})`
 ```
 
 The application sets `color-scheme` once, at the root

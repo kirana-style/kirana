@@ -14,6 +14,7 @@ import { css, positionTry } from "@kirana-style/core"
 const below = positionTry({
   positionArea: "bottom span-right",
   marginTop: "4px",
+  width: "anchor-size(width)",
 })
 const above = positionTry({ positionArea: "top", marginBottom: "4px" })
 
@@ -33,6 +34,7 @@ rule with that name:
   @position-try --kp9KfV {
     position-area: bottom span-right;
     margin-top: 4px;
+    width: anchor-size(width);
   }
 }
 ```

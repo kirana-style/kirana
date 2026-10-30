@@ -34,7 +34,7 @@ hover colour. Everything it does not mention (the padding, the radius, the font)
 is still there. [Merging](/docs/styling/merging) has the rule, and how to drop an
 entry you did not name.
 
-**One class per declaration.** Open the Classes tab: thirteen classes, each a
+**One class per declaration.** Open the CSS tab: every rule is one class with a
 single declaration. [How it works](/docs/start/how-it-works#the-pipeline) explains
 why that keeps the stylesheet small.
 

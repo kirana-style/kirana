@@ -147,8 +147,8 @@ without putting it in your markup:
   `md` on to show what applies then, and Style Fold, which reads a long object as
   its summary until you edit it, like Tailwind Fold, for objects.
 
-It works in `.tsx`, `.vue`, `.svelte` and `.astro` files and Angular templates, in VS Code, Zed,
-Neovim and Helix. It answers from the compiler session the build uses, so the
+It works in `.tsx`, `.vue`, `.svelte` and `.astro` files and Angular templates, in VS Code and
+the editors built on it, Zed, Neovim, Helix and any other editor that speaks LSP. It answers from the compiler session the build uses, so the
 editor and the stylesheet never disagree.
 
 So the trade is no longer readability for types. You keep what made object
@@ -192,8 +192,8 @@ templates take it as a directive, Ember's as a helper), and Kirana has adapters
 for Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, with Next.js on Turbopack or webpack. See
 [frameworks](/docs/frameworks/overview).
 
-StyleX has things Kirana does not: it is published, used in production at Meta
-and elsewhere, and has a community. [Migrating from StyleX](/docs/migration/from-stylex)
+StyleX has things Kirana does not: it is used in production at Meta and
+elsewhere, and has a community. [Migrating from StyleX](/docs/migration/from-stylex)
 is honest about that.
 
 ## Why not Tailwind and `cn()`?
@@ -662,7 +662,7 @@ hover colour. Everything it does not mention (the padding, the radius, the font)
 is still there. [Merging](/docs/styling/merging) has the rule, and how to drop an
 entry you did not name.
 
-**One class per declaration.** Open the Classes tab: thirteen classes, each a
+**One class per declaration.** Open the CSS tab: every rule is one class with a
 single declaration. [How it works](/docs/start/how-it-works#the-pipeline) explains
 why that keeps the stylesheet small.
 
@@ -754,9 +754,7 @@ what it gets, in a class list's words.
 ```tsx editor file="src/plan.tsx"
 export function Plan({ featured }: { featured: boolean }) {
   return (
-    <article sx={[card, featured && raised]}>
-      {" "}
-      //: ▦ grid · gap 1rem · p 1rem · featured: shadow lg
+    <article sx={[card, featured && raised]}> //: ▦ grid · gap 1rem · p 1rem · featured: shadow lg
       <h2 sx={title}>Pro</h2> //: text 1.25rem · 600 · ink
     </article>
   )
@@ -1241,7 +1239,7 @@ css({
   display: "inline-flex",
   alignItems: "center",
   gap: space[1.5],
-  paddingInline: { default: space[3], "@media (width >= 48rem)": space[4] },
+  paddingInline: { base: space[3], "@media (width >= 48rem)": space[4] },
   backgroundColor: {
     ":hover": "color-mix(in oklab, <blue-600> 90%, transparent)",
   },
@@ -2108,7 +2106,7 @@ on any element.
 
 A vocabulary is a plain object of selectors, so writing one takes a few lines. Any
 library that marks state with data attributes works: Radix and its ports
-(`data-state="open"`), Reka UI, Bits UI, or the components you write yourself. Put it in a module of your project:
+(`data-state="open"`), or the components you write yourself. Put it in a module of your project:
 
 ```ts file="src/states.ts"
 export const Dialog = {
@@ -2345,8 +2343,8 @@ a size and it keeps it.
 
 ```tsx
 <button sx={button}>
-  <Icon sx={css({ width: "1.25rem", height: "1.25rem" })} />{" "}
   {/* 1.25rem wins */}
+  <Icon sx={css({ width: "1.25rem", height: "1.25rem" })} />
 </button>
 ```
 
@@ -2803,6 +2801,7 @@ import { css, positionTry } from "@kirana-style/core"
 const below = positionTry({
   positionArea: "bottom span-right",
   marginTop: "4px",
+  width: "anchor-size(width)",
 })
 const above = positionTry({ positionArea: "top", marginBottom: "4px" })
 
@@ -2822,6 +2821,7 @@ rule with that name:
   @position-try --kp9KfV {
     position-area: bottom span-right;
     margin-top: 4px;
+    width: anchor-size(width);
   }
 }
 ```
@@ -3055,7 +3055,7 @@ css({
 
 A production build writes a variable token's declaration only when something uses
 it. That means a rule that reads it, or the finished JavaScript still naming it, as
-`el.style.gap = space.lg` does. A design system can define a hundred variable
+`el.style.color = theme.text` does. A design system can define a hundred variable
 tokens, and a page that reads ten ships ten.
 
 A token read by code the compiler never sees needs saying so. Examples: a plain
@@ -3140,7 +3140,7 @@ import { color, space, radius, breakpoint } from "@kirana-style/preset-scales"
 const card = css({
   borderRadius: radius.xl,
   padding: { base: space[4], [breakpoint.md]: space[6] },
-  backgroundColor: color.zinc50,
+  backgroundColor: color.zinc[50],
 })
 ```
 
@@ -3156,7 +3156,7 @@ output.
 | `color`                                                                          | 26 hues × 11 steps in `oklch`, plus `black` and `white`         |
 | `space`, `spacing()`                                                             | `0`, `px`, `0.5` … `96`, in rem; any quarter step               |
 | `fontFamily`, `fontSize`, `lineHeight`, `fontWeight`, `letterSpacing`, `leading` | the type ramp, with line heights paired to sizes                |
-| `radius`, `shadow`, `blur`                                                       | the radii, shadows and blurs                                    |
+| `radius`, `shadow`, `textShadow`, `blur`                                         | the radii, shadows, text shadows and blurs                      |
 | `duration`, `easing`                                                             | motion values                                                   |
 | `zIndex`, `screen`, `containerSize`                                              | layering, and raw widths                                        |
 | `breakpoint`, `containerQuery`                                                   | ready-made conditions: `[breakpoint.md]`, `[containerQuery.lg]` |
@@ -3241,8 +3241,8 @@ css({ animationName: animation.spin, animationDuration: "1s" })
 ## How the grammar behaves
 
 The grammar is data, but a few of its rules decide results you will notice. Each
-matches what Tailwind v4 renders, and a property test checks every one of the
-7,391 utilities it generates against the equivalent style object.
+matches what Tailwind v4 renders, and a property test checks every utility it
+generates against the equivalent style object.
 
 **A font size carries its line height.** `text-sm` sets the font size and the line
 height paired with it. The pair is a default, not a declaration of its own:
@@ -3306,7 +3306,7 @@ Source: https://kirana.style/docs/tokens/semantic-tokens
 Scales tell you what values exist. Semantic tokens say what they _mean_: what a
 card's surface is, what "primary" is, what a border looks like. This is the layer
 that makes a component readable: `backgroundColor: theme.card` says something
-`color.zinc50` does not.
+`color.zinc[50]` does not.
 
 ```tsx
 import { defineTokens } from "@kirana-style/core"
@@ -3315,11 +3315,11 @@ import { color } from "@kirana-style/preset-scales"
 export const theme = defineTokens(
   "theme",
   {
-    background: `light-dark(${color.white}, ${color.zinc950})`,
-    foreground: `light-dark(${color.zinc950}, ${color.zinc50})`,
-    card: `light-dark(${color.white}, ${color.zinc900})`,
-    border: `light-dark(${color.zinc200}, ${color.zinc800})`,
-    primary: `light-dark(${color.amber500}, ${color.amber400})`,
+    background: `light-dark(${color.white}, ${color.zinc[950]})`,
+    foreground: `light-dark(${color.zinc[950]}, ${color.zinc[50]})`,
+    card: `light-dark(${color.white}, ${color.zinc[900]})`,
+    border: `light-dark(${color.zinc[200]}, ${color.zinc[800]})`,
+    primary: `light-dark(${color.amber[500]}, ${color.amber[400]})`,
   },
   { variable: true }
 )
@@ -3336,7 +3336,7 @@ line.
 
 ```tsx
 // the whole story of this colour, in one place
-card: `light-dark(${color.white}, ${color.zinc900})`
+card: `light-dark(${color.white}, ${color.zinc[900]})`
 ```
 
 The application sets `color-scheme` once, at the root
@@ -3438,7 +3438,7 @@ import { defineTheme } from "@kirana-style/core"
 import { theme } from "./tokens"
 
 export const brand = defineTheme(theme, {
-  primary: `light-dark(${color.violet500}, ${color.violet400})`,
+  primary: `light-dark(${color.violet[500]}, ${color.violet[400]})`,
 })
 
 <section sx={brand}>…</section>
@@ -3787,7 +3787,7 @@ export default defineConfig({
 
 ```css
 @layer kirana.atoms {
-  @layer t0, t1, t2;
+  @layer t0, t1;
   @layer t0 {
     .k50_W0yl {
       color: black;
@@ -3803,8 +3803,8 @@ export default defineConfig({
 
 Each tier then outranks the ones before it wherever its rules sit, which is what
 a stylesheet split into parts needs. The page renders the same. Rules that share a
-declaration merge only within a tier, so the stylesheet grows a little (2.3 %
-gzipped on this site). It is off by default.
+declaration merge only within a tier, so the stylesheet grows a little. It is off
+by default.
 
 ## Your own layers
 
@@ -4273,10 +4273,10 @@ import "@kirana-style/core/stylesheet.css"
 Next runs a server and a client compiler over the same app, and a server
 component is only seen by the server one. Every compiler of a project shares one
 compiler session, which is how those atoms reach the stylesheet the client writes.
-Details in [other bundlers](/docs/integrations/bundlers#nextjs).
 
-With webpack, a style change in `next dev --webpack` shows after a reload: CSS
-hot updates are not implemented for webpack.
+With webpack, `next dev --webpack` updates the stylesheet as Turbopack does: the
+adapter rewrites a live stylesheet file on every edit, and Next rebuilds it and
+sends it as a CSS hot update ([development servers](/docs/integrations/bundlers#development-servers)).
 
 ## Next
 
@@ -6314,8 +6314,8 @@ in TypeScript modules, Kirana's CLI compiles them, and the templates name them.
    npx kirana-style dev resources/styles --out public/kirana/kirana.css
    ```
 
-   `kirana-style dev` rewrites both on every edit; `kirana-style build --minify` writes them
-   once, for production.
+   `kirana-style dev` rewrites both on every edit; `kirana-style build` with the
+   same arguments and `--minify` writes them once, for production.
 
 3. **A template names styles** through its language's helper, which reads the
    class map and merges the names, later ones winning, as an `sx` list does:
@@ -6472,7 +6472,8 @@ export const card = css({ padding: "1rem", borderRadius: "0.5rem" })
 npx kirana-style dev resources/styles --out public/kirana/kirana.css
 ```
 
-`kirana-style build --minify` writes both files once, for production.
+`kirana-style build resources/styles --out public/kirana/kirana.css --minify` writes
+both files once, for production.
 
 ## 5. Use it in Twig
 
@@ -7370,7 +7371,7 @@ So this page is what it costs, not what it should cost in theory.
 | `data-[state=open]:rotate-90` | `{ rotate: { '[data-state="open"]': "90deg" } }`                            |
 
 The vocabulary itself carries over: `@kirana-style/preset-scales` is generated from
-Tailwind v4's own theme, so `space[4]`, `color.zinc500` and `breakpoint.md` are
+Tailwind v4's own theme, so `space[4]`, `color.zinc[500]` and `breakpoint.md` are
 the values you already know.
 
 ## The four that do not translate directly
@@ -8676,12 +8677,14 @@ custom property or a system without the symbols it needs is reported.
 ## `defineTokens(namespace, values, options?)`
 
 ```ts
-defineTokens(namespace: string, values: TokenValues, options?: { variable?: boolean }): Tokens
+defineTokens(namespace: string, values: TokenValues, options?: { variable?: boolean; runtime?: boolean }): Tokens
 ```
 
 A token group. Values may be a plain value, `{ light, dark }`, `{ value, variable }`,
-or `{ value, syntax, inherits? }` to register an animatable custom property.
-[Tokens](/docs/tokens/overview).
+or `{ value, syntax, inherits? }` to register an animatable custom property. Any
+of them, or the whole group, may say `runtime: true`: its custom property is then
+always written, for code the compiler never sees.
+[Tokens](/docs/tokens/overview#tokens-nothing-uses).
 
 ## `defineTheme(tokens, overrides)`
 
@@ -8718,18 +8721,22 @@ Condition values for computed keys. [Conditions](/docs/styling/conditions).
 | `SelectTarget`        | A contextual target, from `select.*`                                                    |
 | `Token`, `Keyframes`  | A token's CSS text; a keyframes name                                                    |
 | `PositionTry`         | An `@position-try` rule's dashed ident                                                  |
+| `CounterStyle`        | An `@counter-style` rule's name                                                         |
 | `Fallbacks<V>`        | A `firstThatWorks()` run of values `V`                                                  |
 | `ViewTransition`      | A `viewTransition()` class: a `StyleHandle` that is also its class name                 |
 
 ## Entry points
 
-| Import                              | What it gives                                 |
-| ----------------------------------- | --------------------------------------------- |
-| `@kirana-style/core`                | the API above                                 |
-| `@kirana-style/core/config`         | `defineConfig` for `kirana.config.ts`         |
-| `@kirana-style/core/react`          | the `sx` prop's types                         |
-| `@kirana-style/core/stylesheet.css` | the stylesheet entry                          |
-| `@kirana-style/core/internal`       | the private runtime, not for application code |
+| Import                                                   | What it gives                                         |
+| -------------------------------------------------------- | ----------------------------------------------------- |
+| `@kirana-style/core`                                     | the API above                                         |
+| `@kirana-style/core/config`                              | `defineConfig` for `kirana.config.ts`                 |
+| `@kirana-style/core/react`                               | the `sx` prop's types                                 |
+| `@kirana-style/core/preact`, `/solid`, `/qwik`, `/remix` | the `sx` prop's JSX types in that framework           |
+| `@kirana-style/core/vue`, `/svelte`, `/astro`            | the `sx` prop's template types; in Vue, `useSx()` too |
+| `@kirana-style/core/class-map`                           | `classMap()`, the class map server templates read     |
+| `@kirana-style/core/stylesheet.css`                      | the stylesheet entry                                  |
+| `@kirana-style/core/internal`                            | the private runtime, not for application code         |
 ---
 # Configuration reference
 Source: https://kirana.style/docs/reference/config
@@ -8795,7 +8802,7 @@ projects never set it:
 | ---------- | ---------------- | ------------------------------ |
 | `"react"`  | `className`      | anything not below             |
 | `"preact"` | `class`          | `"preact"`                     |
-| `"solid"`  | `class`          | `"solid-js"`                   |
+| `"solid"`  | `class`          | `"solid-js"`, `"solid-js/h"`   |
 | `"qwik"`   | `class`          | `"@qwik.dev/core"`             |
 
 See [supported frameworks](/docs/frameworks/overview).
@@ -8854,18 +8861,16 @@ A rule is one of three kinds:
 
 A scale rule takes these options:
 
-| Option        | What it does                                                                                                                                                                                                |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `number`      | `{ step, unit }`: a number that is not a key, as `w-50` is 50 × `0.25rem`. A rule may have `number` and no `scale`.                                                                                         |
-| `pair`        | Properties set from other scales at the same key: `text-sm` also sets its line height. A utility that sets that property itself (`text-sm leading-6`) wins, and a modifier (`text-sm/relaxed`) replaces it. |
-| `alpha`       | A colour: `/90` mixes it with `transparent`.                                                                                                                                                                |
-| `negative`    | `-mt-2` negates the value.                                                                                                                                                                                  |
-| `fractions`   | `w-1/2` is a percentage.                                                                                                                                                                                    |
-| `format`      | The value inside other text: `brightness({value})`.                                                                                                                                                         |
-| `aliases`     | Utility keys spelled differently from the scale's: `in-out` reads `inOut`.                                                                                                                                  |
-| `iconLibrary` | the library icons are drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                                                                                                  |
-| `design`      | the design system's values your project uses, such as `{ style: "vega" }`, which `kirana-style ui preset` writes                                                                                            |
-| `also`        | Declarations set alongside, as written (a keyword rule takes it too).                                                                                                                                       |
+| Option      | What it does                                                                                                                                                                                                |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `number`    | `{ step, unit }`: a number that is not a key, as `w-50` is 50 × `0.25rem`. A rule may have `number` and no `scale`.                                                                                         |
+| `pair`      | Properties set from other scales at the same key: `text-sm` also sets its line height. A utility that sets that property itself (`text-sm leading-6`) wins, and a modifier (`text-sm/relaxed`) replaces it. |
+| `alpha`     | A colour: `/90` mixes it with `transparent`.                                                                                                                                                                |
+| `negative`  | `-mt-2` negates the value.                                                                                                                                                                                  |
+| `fractions` | `w-1/2` is a percentage.                                                                                                                                                                                    |
+| `format`    | The value inside other text: `brightness({value})`.                                                                                                                                                         |
+| `aliases`   | Utility keys spelled differently from the scale's: `in-out` reads `inOut`.                                                                                                                                  |
+| `also`      | Declarations set alongside, as written (a keyword rule takes it too).                                                                                                                                       |
 
 In any text of a rule, `{scale.key}` is that token, and a property written
 `{scale.key}` sets the token's custom property. That is how a ring and a shadow
@@ -8941,7 +8946,7 @@ side, but on your component the attribute is yours: `exclusiveAcross` keeps noth
 apart by it, so a sheet's side nested in React Aria's entering state is emitted
 rather than left out. Two values of the attribute still never meet. To claim one
 for a single component, leaving it to the vocabulary elsewhere, use
-[`own()`](/docs/reference/api#ownattributes) in that component's style.
+[`own()`](/docs/reference/api#own-attributes) in that component's style.
 
 ## `classes`
 
@@ -8975,7 +8980,7 @@ Who sets them:
 ## `ui`
 
 ```ts
-ui: { framework: "react", preset: "k0" } // default: none
+ui: { framework: "react", iconLibrary: "lucide" } // default: none
 ```
 
 The component registry's settings, read by [`kirana-style ui`](/docs/tooling/cli#kirana-style-ui)
@@ -9006,11 +9011,13 @@ ui: {
 
 What `kirana-style ui add` installs, and where:
 
-| Key         | Holds                                                                                                                             |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `framework` | whose markup to install; by default the framework your project depends on (`react`, `vue`, `svelte`, `solid-js`, `@angular/core`) |
-| `base`      | which base's markup, such as `base` or `aria`; by default the only one an item has                                                |
-| `aliases`   | the import specifier for each file type, `ui`, `lib`, `component`, `hook` and `page`                                              |
+| Key           | Holds                                                                                                                             |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `framework`   | whose markup to install: `react`, `vue`, `svelte`, `solid` or `angular`; by default the one whose package your project depends on |
+| `base`        | which base's markup, such as `base` or `aria`; by default the only one an item has                                                |
+| `aliases`     | the import specifier for each file type, `ui`, `lib`, `component`, `hook` and `page`                                              |
+| `iconLibrary` | the library icons are drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                        |
+| `design`      | the design system's values your project uses, such as `{ style: "vega" }`, which `kirana-style ui preset` writes                  |
 
 The aliases default to shadcn/ui's:
 
@@ -9274,6 +9281,10 @@ the repository root or a project at the root.
 `--max-warnings <n>` fails the run, exit code 1, when there are more than `n`
 warnings; `0` makes every warning block a merge, without re-levelling them in the
 configuration.
+
+`--stats` adds a line saying how much work the engine did: the modules it saw,
+those its prefilter rejected, those it parsed, and those it parsed only for their
+imports.
 
 ```yaml
 # .github/workflows/ci.yml
@@ -11097,9 +11108,12 @@ line coverage. The [changelog](/changelog) lists every release.
   helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and
   AdonisJS; see [server templates](/docs/frameworks/server-templates)
 - The command line: setting a project up and checking it (with a bug report),
-  compiling without a bundler, reports for CI with GitHub annotations, the design
-  system as JSON, tracing a property, and both codemods; see
-  [the CLI](/docs/tooling/cli)
+  compiling without a bundler, reports for CI with GitHub annotations, what the
+  stylesheet holds and why, the design system as JSON, tracing a property, and both
+  codemods; see [the CLI](/docs/tooling/cli)
+- `kirana-style ui` with `@kirana-style/registry`: components installed from a
+  registry into your project, updated and diffed later; see
+  [the CLI](/docs/tooling/cli#kirana-style-ui)
 - CSS helpers, each checked at build time:
   - `firstThatWorks()`: [fallback values](/docs/styling/fallbacks)
   - `positionTry()`: [anchor positioning](/docs/styling/anchor-positioning)
@@ -11109,7 +11123,7 @@ line coverage. The [changelog](/changelog) lists every release.
   [utility strings](/docs/styling/utilities) in `sx`
 - `kirana-style migrate tailwind`, proven on the Tailwind original of our shadcn/ui port: zero
   computed-style differences after the codemod and 38 hand fixes
-  ([the numbers](/docs/migration/from-tailwind#measured-this-repository-s-tailwind-original))
+  ([the numbers](/docs/migration/from-tailwind#measured-the-tailwind-original-of-our-shadcn-ui-port))
 
 - `kirana-style lsp`, the language server, with VS Code and Zed extensions, in
   TypeScript, Vue, Svelte and Astro files and Angular templates; see
@@ -11737,6 +11751,7 @@ Each one has an example CI builds and checks in a browser on every change.
 | PostCSS                        | `@kirana-style/postcss`, for any PostCSS pipeline               |
 | Jest                           | `@kirana-style/jest`                                            |
 | Next.js, Turbopack and webpack | `@kirana-style/next` with `@kirana-style/postcss`               |
+| Storybook                      | `@kirana-style/vite`, through the Vite builder                  |
 
 See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 
@@ -11745,15 +11760,15 @@ See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 Every framework has a guide and a tested example; the
 [frameworks page](/docs/frameworks/overview) picks yours.
 
-| Framework                                  | How styles reach the markup                                     |
-| ------------------------------------------ | --------------------------------------------------------------- |
-| React 19, TanStack Start                   | `sx` compiles to `className`; this site is a TanStack Start app |
-| Preact, Solid, Qwik 2                      | `sx` compiles to `class`                                        |
-| Vue, Nuxt, Svelte, SvelteKit, Astro        | `sx` in their templates                                         |
-| Angular (CLI and Analog)                   | `[sx]` in templates, merged at runtime                          |
-| React Router, Gatsby, Ember, Meteor        | as their component layer does                                   |
-| No framework                               | handles are class strings                                       |
-| Laravel, Symfony, Rails, Phoenix, AdonisJS | templates read a [class map](/docs/frameworks/server-templates) |
+| Framework                                                        | How styles reach the markup                                     |
+| ---------------------------------------------------------------- | --------------------------------------------------------------- |
+| React 19, Next.js, TanStack Start, Remix, Waku, Vike, Docusaurus | `sx` compiles to `className`; this site is a TanStack Start app |
+| Preact, Solid, SolidStart, Qwik 2                                | `sx` compiles to `class`                                        |
+| Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro                   | `sx` in their templates                                         |
+| Angular (CLI and Analog)                                         | `[sx]` in templates, merged at runtime                          |
+| React Router, Gatsby, Ember, Meteor                              | as their component layer does                                   |
+| No framework                                                     | handles are class strings                                       |
+| Laravel, Symfony, Rails, Phoenix, AdonisJS                       | templates read a [class map](/docs/frameworks/server-templates) |
 
 ## Tooling
 
@@ -11761,6 +11776,7 @@ Every framework has a guide and a tested example; the
 | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | `kirana-style build`, `check`, `analyze`, `export`, `trace`                             | [the CLI](/docs/tooling/cli)                                         |
 | `kirana-style init`, `doctor`, `doctor --report`, `dev`                                 | [the CLI](/docs/tooling/cli)                                         |
+| `kirana-style ui`, components installed from a registry                                 | [the CLI](/docs/tooling/cli#kirana-style-ui)                         |
 | `kirana-style migrate stylex`                                                           | [migration from StyleX](/docs/migration/from-stylex)                 |
 | `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod) |
 | Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                               |
@@ -12039,7 +12055,7 @@ to the compiler without a line saying what to do about it fails the build.
    merge per condition, `sx` forwarded last, `styleProps` for installed
    components, colours as `light-dark()` pairs.
 3. **`kirana-style check`**, and fix every error by its code.
-4. **Lint**, with whichever of ESLint, Oxlint or Biome the project runs.
+4. **Lint**, with whichever of Oxlint, ESLint or Biome the project runs.
 5. **`kirana-style trace file:line property`** when it compiles and looks wrong.
 6. **`kirana-style doctor --report`** when it looks like a Kirana bug, and ask before
    filing it.

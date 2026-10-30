@@ -25,8 +25,8 @@ https://kirana.style/docs/start/installation.md.
 | No framework                                                    | `@kirana-style/vite` or a bundler adapter                                                                                                               | `element.className = String(cx(a, b))` (later handles win) |
 
 Bundlers without a framework: `@kirana-style/vite`, `@kirana-style/rolldown`, `@kirana-style/webpack`,
-`@kirana-style/rspack` (also Rsbuild), `@kirana-style/bun`, `@kirana-style/esbuild`, `@kirana-style/parcel-transformer`;
-`@kirana-style/jest` for tests. Storybook's Vite builders read the project's `vite.config`, so stories
+`@kirana-style/rspack` (also Rsbuild), `@kirana-style/bun`, `@kirana-style/esbuild`, `@kirana-style/parcel-transformer`,
+`@kirana-style/postcss` for any PostCSS pipeline; `@kirana-style/jest` for tests. Storybook's Vite builders read the project's `vite.config`, so stories
 compile as the app does; import the stylesheet in `.storybook/preview`.
 
 ## A component that takes `sx`
