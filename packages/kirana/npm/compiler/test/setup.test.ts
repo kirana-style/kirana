@@ -1031,8 +1031,8 @@ describe("KRN-DX-008 kirana-style dev", () => {
     listeners[0]!("types.d.ts")
     listeners[0]!("node_modules/x/index.js")
     await new Promise((resolve) => setTimeout(resolve, 30))
-    expect(output).toContain("error[KRN1203] unitless-length")
-    expect(output).toContain("(src/a.ts:2:")
+    expect(output).toContain("  × KRN1203 unitless-length")
+    expect(output).toContain("╭─[src/a.ts:2:")
     expect(read(root, "out/k.css")).toContain("rgb(4, 5, 6)")
     // Nothing pending: nothing happens.
     session.flush()

@@ -1,5 +1,7 @@
-/** Diagnostics as the engine reports them (KRN-CMP-011). */
+import type { NativeBinding } from "./native.ts"
+import { loadNative } from "./native.ts"
 
+/** Diagnostics as the engine reports them (KRN-CMP-011). */
 export type Diagnostic = {
   code: string
   name: string
@@ -16,8 +18,8 @@ export function parseDiagnostics(json: string): Diagnostic[] {
 }
 
 /**
- * The last source asked about, as UTF-8, with the byte offset each of its lines starts at. A host
- * formats a module's diagnostics one after another, and walking the source to each one cost 7.8 s
+ * The last source asked about, as UTF-8, with the byte offset each of its lines starts at. A caller
+ * places a module's diagnostics one after another, and walking the source to each one cost 7.8 s
  * for 1,567 warnings in a 6.6 MB module (KF-075).
  */
 let indexed: { source: string; bytes: Buffer; starts: number[] } | undefined
@@ -49,19 +51,41 @@ export function position(source: string, offset: number): string {
 }
 
 /**
- * One line per diagnostic plus help lines, for host warnings and errors. With the module's source
- * the location is `file:line:column`; project-wide diagnostics without a span name the file only.
+ * Diagnostics as the command line prints them (D-116), one report each: Oxc's graphical report, the
+ * one oxlint prints, with the span underlined among the lines around it in a frame headed
+ * `file:line:column`, then the help. `sourceOf` gives the text of a file a diagnostic names; the
+ * engine reads each file once for all of its reports, as a module with thousands of warnings needs
+ * (KF-075). `colour` adds ANSI colours, for a terminal that shows them: a host's warnings and errors
+ * go without, since an overlay or a log shows them as written. A report has no blank line before
+ * it and no line break after it.
  */
+export function formatDiagnostics(
+  diagnostics: readonly Diagnostic[],
+  sourceOf: (file: string) => string | undefined = () => undefined,
+  options: { colour?: boolean; native?: NativeBinding } = {}
+): string[] {
+  if (diagnostics.length === 0) return []
+  const sources: Record<string, string> = {}
+  const asked = new Set<string>()
+  for (const { file } of diagnostics) {
+    if (!file || asked.has(file)) continue
+    asked.add(file)
+    const text = sourceOf(file)
+    if (text !== undefined) sources[file] = text
+  }
+  return (options.native ?? loadNative())
+    .renderDiagnostics(
+      JSON.stringify(diagnostics),
+      sources,
+      options.colour ?? false
+    )
+    .map((report) => report.slice(1, -1))
+}
+
+/** One diagnostic, as {@link formatDiagnostics} renders it; `source` is the text of its file. */
 export function formatDiagnostic(
   diagnostic: Diagnostic,
   source?: string
 ): string {
-  const spanned = diagnostic.span.start > 0 || diagnostic.span.end > 0
-  const at =
-    source !== undefined && spanned
-      ? `:${position(source, diagnostic.span.start)}`
-      : ""
-  const location = diagnostic.file ? ` (${diagnostic.file}${at})` : ""
-  const help = diagnostic.help.map((line) => `\n  help: ${line}`).join("")
-  return `${diagnostic.severity}[${diagnostic.code}] ${diagnostic.name}: ${diagnostic.message}${location}${help}`
+  return formatDiagnostics([diagnostic], () => source)[0]!
 }

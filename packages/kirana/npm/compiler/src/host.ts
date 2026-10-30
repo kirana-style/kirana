@@ -9,7 +9,7 @@ import { readFileSync, readdirSync } from "node:fs"
 import { createRequire } from "node:module"
 import path from "node:path"
 
-import { formatDiagnostic } from "./diagnostics.ts"
+import { formatDiagnostics } from "./diagnostics.ts"
 import type { Diagnostic } from "./diagnostics.ts"
 
 /** The placeholder rule the stylesheet entry compiles to until the adapter replaces it. */
@@ -204,21 +204,20 @@ export function createReporter(options: { reportInfo?: boolean } = {}) {
     sourceOf: (file: string) => string | undefined,
     warn: boolean
   ) => {
-    const format = (diagnostic: Diagnostic) =>
-      formatDiagnostic(diagnostic, sourceOf(diagnostic.file))
-    for (const diagnostic of diagnostics) {
-      if (
-        warn &&
-        (diagnostic.severity === "warning" ||
-          (options.reportInfo && diagnostic.severity === "info"))
-      ) {
-        context.warn(format(diagnostic))
-      }
-    }
-    const errors = diagnostics.filter(
-      (diagnostic) => diagnostic.severity === "error"
+    const shown = diagnostics.filter(
+      (diagnostic) =>
+        diagnostic.severity === "error" ||
+        (warn &&
+          (diagnostic.severity === "warning" ||
+            (options.reportInfo && diagnostic.severity === "info")))
     )
-    if (errors.length) context.error(errors.map(format).join("\n"))
+    const reports = formatDiagnostics(shown, sourceOf)
+    const errors: string[] = []
+    for (const [index, diagnostic] of shown.entries()) {
+      if (diagnostic.severity === "error") errors.push(reports[index]!)
+      else context.warn(reports[index]!)
+    }
+    if (errors.length) context.error(errors.join("\n\n"))
   }
 
   return {

@@ -16,7 +16,9 @@ import {
   ConfigLoadError,
   Driver,
   findConfigAbove,
+  colourOf,
   formatDiagnostic,
+  formatDiagnostics,
   position,
   isMusl,
   loadConfigFile,
@@ -617,6 +619,11 @@ describe("Node-API boundary", () => {
       ) => Record<string, (...args: unknown[]) => unknown>
     }
     expect(() => native.runCli!(123)).toThrow()
+    expect(() => native.runCli!(["kirana-style"], "yes")).toThrow()
+    expect(() => native.renderDiagnostics!(1, {}, false)).toThrow()
+    expect(() => native.renderDiagnostics!("[]", { a: 1 }, false)).toThrow()
+    expect(() => native.renderDiagnostics!("[]", {}, "yes")).toThrow()
+    expect(() => native.renderDiagnostics!("{", {}, false)).toThrow()
     expect(() => new native.Compiler(1)).toThrow()
     const compiler = new native.Compiler("{}")
     expect(() => compiler.transform!(1, 2)).toThrow()
@@ -634,16 +641,17 @@ describe("Node-API boundary", () => {
 })
 
 describe("diagnostic formatting", () => {
-  it("formats with and without a file", () => {
-    const base = {
-      code: "KRN1403",
-      name: "relation-placement",
-      severity: "error" as const,
-      span: { start: 4, end: 9 },
-      message: "m",
-    }
+  const base = {
+    code: "KRN1403",
+    name: "relation-placement",
+    severity: "error" as const,
+    span: { start: 4, end: 9 },
+    message: "m",
+  }
+
+  it("draws the engine's graphical report, as the command line prints it (D-116)", () => {
     expect(formatDiagnostic({ ...base, file: "a.tsx", help: ["h"] })).toBe(
-      "error[KRN1403] relation-placement: m (a.tsx)\n  help: h"
+      "  × KRN1403 relation-placement: m (a.tsx)\n  help: h"
     )
     // Offsets count UTF-8 bytes: `é` is two.
     expect(
@@ -651,16 +659,71 @@ describe("diagnostic formatting", () => {
         { ...base, file: "a.tsx", help: [], span: { start: 5, end: 6 } },
         "ab\n\u00e9cd"
       )
-    ).toBe("error[KRN1403] relation-placement: m (a.tsx:2:2)")
+    ).toBe(
+      [
+        "  × KRN1403 relation-placement: m",
+        "   ╭─[a.tsx:2:2]",
+        " 1 │ ab",
+        " 2 │ \u00e9cd",
+        "   ·  ─",
+        "   ╰────",
+      ].join("\n")
+    )
     expect(
       formatDiagnostic(
         { ...base, file: "a.tsx", help: [], span: { start: 0, end: 0 } },
         "abc"
       )
-    ).toBe("error[KRN1403] relation-placement: m (a.tsx)")
+    ).toBe("  × KRN1403 relation-placement: m (a.tsx)")
     expect(formatDiagnostic({ ...base, file: "", help: [] })).toBe(
-      "error[KRN1403] relation-placement: m"
+      "  × KRN1403 relation-placement: m"
     )
+  })
+
+  it("hands each file to the engine once, and colours on request", () => {
+    const asked: string[] = []
+    const sourceOf = (file: string) => {
+      asked.push(file)
+      return file === "a.tsx" ? "const a = 1\n" : undefined
+    }
+    const at = (file: string, start: number) => ({
+      ...base,
+      file,
+      help: [],
+      span: { start, end: start + 1 },
+    })
+    const reports = formatDiagnostics(
+      [at("a.tsx", 6), at("b.tsx", 1), at("a.tsx", 10), at("", 0)],
+      sourceOf
+    )
+    expect(asked).toEqual(["a.tsx", "b.tsx"])
+    expect(reports).toHaveLength(4)
+    expect(reports[0]).toContain("╭─[a.tsx:1:7]")
+    expect(reports[1]).toBe("  × KRN1403 relation-placement: m (b.tsx)")
+    expect(reports[2]).toContain("╭─[a.tsx:1:11]")
+    const [coloured] = formatDiagnostics([at("a.tsx", 6)], sourceOf, {
+      colour: true,
+    })
+    expect(coloured).toContain("\u001b[38;2;225;80;80;1m×\u001b[0m")
+    // Without the sources, each report names its file.
+    expect(formatDiagnostics([at("a.tsx", 6)])).toEqual([
+      "  × KRN1403 relation-placement: m (a.tsx)",
+    ])
+    // Nothing to draw asks nothing of the engine.
+    expect(formatDiagnostics([], sourceOf, { native: {} as never })).toEqual([])
+    expect(() =>
+      formatDiagnostics([{ ...at("", 0), name: "no-such" }])
+    ).toThrow("unknown diagnostic `no-such`")
+  })
+
+  it("colours a terminal's output unless the environment says otherwise", () => {
+    expect(colourOf({ isTTY: true }, {})).toBe(true)
+    expect(colourOf({}, {})).toBe(false)
+    expect(colourOf({ isTTY: true }, { NO_COLOR: "1" })).toBe(false)
+    expect(colourOf({ isTTY: true }, { NO_COLOR: "" })).toBe(true)
+    expect(colourOf({}, { FORCE_COLOR: "1", NO_COLOR: "1" })).toBe(true)
+    expect(colourOf({ isTTY: true }, { FORCE_COLOR: "0" })).toBe(false)
+    expect(colourOf({ isTTY: true }, { FORCE_COLOR: "false" })).toBe(false)
   })
 
   it("places every offset as walking the source from its start does (KF-075)", () => {
@@ -680,6 +743,9 @@ describe("diagnostic formatting", () => {
       expect(position(first, offset)).toBe(walked(first, offset))
       expect(position(second, offset % 6)).toBe(walked(second, offset % 6))
     }
+    // The same source asked about again keeps its index.
+    expect(position(first, 0)).toBe("1:1")
+    expect(position(first, 3)).toBe("2:1")
   })
 })
 

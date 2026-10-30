@@ -138,8 +138,18 @@ export interface PrunedToken {
   identity: string
 }
 
-/** Runs the `kirana-style` command line; returns `[exitCode, output]`. */
-export declare function runCli(args: Array<string>): [number, string]
+/**
+ * Renders diagnostics, as the engine reports them in JSON, the way the command line prints them
+ * (D-116): one report each. `sources` holds the text of each file they name, read once for all of
+ * that file's reports.
+ */
+export declare function renderDiagnostics(diagnosticsJson: string, sources: Record<string, string>, colour: boolean): Array<string>
+
+/**
+ * Runs the `kirana-style` command line; returns `[exitCode, output]`. `colour` adds ANSI colours to
+ * its diagnostics, for a terminal that shows them.
+ */
+export declare function runCli(args: Array<string>, colour?: boolean | undefined | null): [number, string]
 
 /**
  * Runs the language server on this process's stdin and stdout until the client shuts it down;

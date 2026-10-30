@@ -210,12 +210,15 @@ export function highlightInline(value: string): string {
 /**
  * A terminal session: `$ ` lines are commands, highlighted as shell after a prompt;
  * the rest is the program's output, coloured the way a terminal colours it —
- * errors red, warnings amber, help and passes green, a diff's lines by side.
+ * errors red, warnings amber, help and passes green, a diff's lines by side, and
+ * a diagnostic report's frame muted with its underline in the report's colour.
  * Bash blocks (`commands`) are every line a command, except comments.
  */
 export function highlightTerminal(source: string, commands = false): string {
   const prompt = span("prompt", "$")
   const command = (line: string) => `${prompt} ${highlightSource(line, "bash")}`
+  // The colour of the diagnostic report being printed, for its underline.
+  let mark = "deleted"
   return source
     .replace(/\n$/, "")
     .split("\n")
@@ -227,6 +230,22 @@ export function highlightTerminal(source: string, commands = false): string {
       }
       if (line.startsWith("$ ")) return command(line.slice(2))
       const text = escape(line)
+      // Kirana's report (D-116): the severity's mark, the code and name, then the frame, its
+      // source lines and the underline.
+      const report = /^(\s*)(×|⚠|☞) (KRN\d+ [\w-]+):/.exec(line)
+      if (report) {
+        mark = { "×": "deleted", "⚠": "type", "☞": "comment" }[report[2]!]!
+        return `${report[1]}${span(mark, report[2]!)} ${span("strong", report[3]!)}${escape(line.slice(report[0].length - 1))}`
+      }
+      if (/^\s*(╭─\[|╰─)/.test(line)) return span("comment", text)
+      const frame = /^(\s*\d* )([│·])(.*)$/.exec(line)
+      if (frame) {
+        const gutter = span("comment", escape(frame[1]! + frame[2]!))
+        const rest = escape(frame[3]!)
+        return frame[2] === "·" && rest.trim()
+          ? gutter + span(mark, rest)
+          : gutter + rest
+      }
       const head = /^(\s*)(error|warning)(\[[A-Z]+\d+\])?(\s+[\w-]+)?:/.exec(
         line
       )
@@ -237,7 +256,7 @@ export function highlightTerminal(source: string, commands = false): string {
       if (/^\s*help:/.test(line))
         return text.replace("help:", span("inserted", "help:"))
       if (/^\s*(✓|All good)/.test(line))
-        return text.replace(/(✓|All good\.?)/, (mark) => span("inserted", mark))
+        return text.replace(/(✓|All good\.?)/, (pass) => span("inserted", pass))
       if (/^\s*✗/.test(line)) return text.replace("✗", span("deleted", "✗"))
       if (/^\s*! /.test(line)) return text.replace("!", span("type", "!"))
       if (/^(\+\+\+|---) /.test(line)) return span("strong", text)

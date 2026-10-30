@@ -223,12 +223,23 @@ kirana-style check src --format github --max-warnings 0
 ```
 
 It walks the paths you give it, skipping `node_modules`, `dist`, dotfiles and
-`.d.ts` files. Human output underlines the span and prints the help line:
+`.d.ts` files.
+
+Human output is the report Oxlint prints: the code and the message, the lines
+around the mistake with it underlined, and the help line. In a terminal it is in
+colour; `NO_COLOR` turns colour off, and `FORCE_COLOR` turns it on where the
+output is not a terminal.
 
 ```console
 $ kirana-style check src
-warning[KRN1703] sx-on-external-component: a component from "@base-ui/react"
-receives `sx`, which it does not read (src/menu.tsx:14:7)
+
+  ⚠ KRN1703 sx-on-external-component: a component from "@base-ui/react/menu" receives `sx`, which it does not read
+    ╭─[src/menu.tsx:14:21]
+ 13 │       <Menu.Portal>
+ 14 │         <Menu.Popup sx={popup} />
+    ·                     ──────────
+ 15 │       </Menu.Portal>
+    ╰────
   help: spread the compiled props instead: {...props(styles.root, sx)}
 
 1 diagnostic(s), 0 error(s)

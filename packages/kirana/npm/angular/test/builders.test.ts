@@ -159,8 +159,9 @@ describe("D-068 the Angular CLI mirror", () => {
       `import { css } from "@kirana-style/core"\nexport const a = css({ width: 5 })\n`
     )
     mirror.update("src/app/card.ts")
-    expect(mirror.messages()[0]).toMatch(
-      /^error\[KRN1203\] unitless-length: .*\(src\/app\/card\.ts:2:/
+    expect(mirror.messages()[0]!.severity).toBe("error")
+    expect(mirror.messages()[0]!.text).toMatch(
+      /^ {2}× KRN1203 unitless-length: .*\n.*╭─\[src\/app\/card\.ts:2:/
     )
     rmSync(path.join(root, "src/app/card.ts"))
     mirror.update("src/app/card.ts")
@@ -233,12 +234,12 @@ describe("D-068 the Angular CLI builders", () => {
       await new Promise((resolve) => setTimeout(resolve, 300))
     }
     for await (const _ of application({ watch: true } as never, fake));
-    expect(logged.some((line) => line.startsWith("error error[KRN1203]"))).toBe(
+    expect(logged.some((line) => line.startsWith("error   × KRN1203"))).toBe(
       true
     )
-    expect(
-      logged.some((line) => line.startsWith("warn warning[KRN1302]"))
-    ).toBe(true)
+    expect(logged.some((line) => line.startsWith("warn   ⚠ KRN1302"))).toBe(
+      true
+    )
     expect(logged.some((line) => line.includes("KRN1601"))).toBe(false)
     const reported = logged.length
     for await (const _ of devServer({} as never, fake));

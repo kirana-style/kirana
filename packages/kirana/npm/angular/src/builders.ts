@@ -68,9 +68,9 @@ export function withMirror<
 
 /** Prints the mirror's warnings and errors through the builder's logger (infos stay quiet). */
 function report(context: BuilderContext, mirror: Mirror) {
-  for (const message of mirror.messages())
-    if (message.startsWith("error")) context.logger.error(message)
-    else if (message.startsWith("warning")) context.logger.warn(message)
+  for (const { severity, text } of mirror.messages())
+    if (severity === "error") context.logger.error(text)
+    else if (severity === "warning") context.logger.warn(text)
 }
 
 export async function* application(

@@ -1792,6 +1792,32 @@ the implementation tracker names its evidence.
 - **Elaborated in:** [06-authoring-api](./06-authoring-api.md#the-utility-surface),
   [07-tokens-themes-presets](./07-tokens-themes-presets.md#presets).
 
+### D-116 — Diagnostics print as Oxc's graphical report
+
+- **Status:** Accepted (2026-10-31).
+- **Decision:** a human diagnostic is rendered by `oxc_diagnostics`' graphical report handler, the
+  one Oxlint prints: the severity's mark (`×`, `⚠`, `☞` for an info), the code and name, the message,
+  then the span underlined among the line before and after it in a frame headed
+  `file:line:column`, then each help line. The command line, `kirana-style dev`, `ui add` and every
+  bundler adapter print it; the adapters through the engine (`renderDiagnostics`), so there is one
+  renderer. Colour is for a terminal: the binaries colour when standard output is one, `FORCE_COLOR`
+  (unless `0` or `false`) forces it and a non-empty `NO_COLOR` turns it off. A host's warnings and
+  errors stay uncoloured. The header's column counts characters, as every other location Kirana
+  prints. A diagnostic with a file and no span names the file after its message.
+- **Rationale:** a bundler's overlay showed a one-line `error[KRN1603] dynamic-key: … (file:86:13)`
+  with no source, while the command line drew a caret under one line; the two disagreed, and a
+  reader had to open the file to see what the span covered. Oxc's handler is already compiled into
+  the engine (the parser depends on it), so the frame costs no dependency, matches the lint output
+  a project running Oxlint sees beside it, and reads one file's line index once for all of its
+  reports (KF-028).
+- **Trade-off:** the frame prints whole lines, so a line over a thousand bytes, the span's own or
+  one beside it, is left out and the location follows the message instead (minified or generated
+  code). A span over more than six lines is underlined on its first line, which hides how far it
+  reaches. The handler counts its header's column in bytes; the renderer rewrites it in
+  characters. The summary line keeps Kirana's wording (`1 diagnostic(s), 0 error(s)`).
+- **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md#diagnostics),
+  [12-tooling-and-dx](./12-tooling-and-dx.md#cli).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                                     |
@@ -1801,9 +1827,9 @@ the implementation tracker names its evidence.
 | [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099, D-115                                                                                     |
 | [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114                      |
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                               |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113                                                                              |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116                                                                       |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                    |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111                      |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116               |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114                                                                                                   |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                         |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                                  |

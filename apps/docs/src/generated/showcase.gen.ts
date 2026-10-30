@@ -16,62 +16,71 @@ export const SHOWCASE: Readonly<Record<string, ShowcaseSnippet>> = {
           "apply `relation.anchor` to the element whose state is read"
         ]
       }
-    ]
+    ],
+    "report": "  × KRN1401 relation-without-anchor: relation \"menu\" is read but its anchor is never applied (menu.tsx)\n  help: apply `relation.anchor` to the element whose state is read"
   },
   "kirana-init": {
     "name": "kirana-init",
     "lang": "bash",
     "source": "# set up this project, showing each change as a diff\nnpx kirana-style@latest init\n# then check the engine, the versions and the wiring\nnpx kirana-style doctor\n",
     "html": "<span class=\"th-token th-comment\"># set up this project, showing each change as a diff</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style@latest init\n<span class=\"th-token th-comment\"># then check the engine, the versions and the wiring</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style doctor",
-    "diagnostics": []
+    "diagnostics": [],
+    "report": ""
   },
   "migrate-after": {
     "name": "migrate-after",
     "lang": "tsx",
     "source": "import { css } from \"@kirana-style/core\"\nimport { color, compose, radius, space } from \"@kirana-style/preset-scales\"\n\nconst styles = {\n  cardDiv: css({\n    display: \"flex\",\n    flexDirection: \"column\",\n    gap: space[4],\n    borderRadius: radius.xl,\n    borderStyle: compose[\"border-style\"],\n    borderWidth: \"1px\",\n    paddingBlock: space[6],\n    paddingInline: space[6],\n    backgroundColor: {\n      base: `light-dark(${color.white}, ${color.zinc[900]})`,\n      \":hover\": `light-dark(${color.zinc[50]}, ${color.zinc[900]})`,\n    },\n  }),\n}\n\nexport function Card({ children }: { children: React.ReactNode }) {\n  return <div sx={styles.cardDiv}>{children}</div>\n}\n",
     "html": "<span class=\"th-token th-keyword\">import</span> { css } <span class=\"th-token th-keyword\">from</span> <span class=\"th-token th-string\">&quot;@kirana-style/core&quot;</span>\n<span class=\"th-token th-keyword\">import</span> { color, compose, radius, space } <span class=\"th-token th-keyword\">from</span> <span class=\"th-token th-string\">&quot;@kirana-style/preset-scales&quot;</span>\n\n<span class=\"th-token th-keyword\">const</span> styles = {\n  <span class=\"th-token th-property\">cardDiv</span>: <span class=\"th-token th-function\">css</span>({\n    <span class=\"th-token th-property\">display</span>: <span class=\"th-token th-string\">&quot;flex&quot;</span>,\n    <span class=\"th-token th-property\">flexDirection</span>: <span class=\"th-token th-string\">&quot;column&quot;</span>,\n    <span class=\"th-token th-property\">gap</span>: space[<span class=\"th-token th-number\">4</span>],\n    <span class=\"th-token th-property\">borderRadius</span>: radius.<span class=\"th-token th-property\">xl</span>,\n    <span class=\"th-token th-property\">borderStyle</span>: compose[<span class=\"th-token th-string\">&quot;border-style&quot;</span>],\n    <span class=\"th-token th-property\">borderWidth</span>: <span class=\"th-token th-string\">&quot;1px&quot;</span>,\n    <span class=\"th-token th-property\">paddingBlock</span>: space[<span class=\"th-token th-number\">6</span>],\n    <span class=\"th-token th-property\">paddingInline</span>: space[<span class=\"th-token th-number\">6</span>],\n    <span class=\"th-token th-property\">backgroundColor</span>: {\n      <span class=\"th-token th-property\">base</span>: <span class=\"th-token th-string\">`light-dark(</span><span class=\"th-token th-operator\">${</span>color.<span class=\"th-token th-property\">white</span><span class=\"th-token th-operator\">}</span><span class=\"th-token th-string\">, </span><span class=\"th-token th-operator\">${</span>color.<span class=\"th-token th-property\">zinc</span>[<span class=\"th-token th-number\">900</span>]<span class=\"th-token th-operator\">}</span><span class=\"th-token th-string\">)`</span>,\n      <span class=\"th-token th-string\">&quot;:hover&quot;</span>: <span class=\"th-token th-string\">`light-dark(</span><span class=\"th-token th-operator\">${</span>color.<span class=\"th-token th-property\">zinc</span>[<span class=\"th-token th-number\">50</span>]<span class=\"th-token th-operator\">}</span><span class=\"th-token th-string\">, </span><span class=\"th-token th-operator\">${</span>color.<span class=\"th-token th-property\">zinc</span>[<span class=\"th-token th-number\">900</span>]<span class=\"th-token th-operator\">}</span><span class=\"th-token th-string\">)`</span>,\n    },\n  }),\n}\n\n<span class=\"th-token th-keyword\">export</span> <span class=\"th-token th-keyword\">function</span> <span class=\"th-token th-function\">Card</span>({ children }: { <span class=\"th-token th-property\">children</span>: <span class=\"th-token th-type\">React</span>.<span class=\"th-token th-property\">ReactNode</span> }) {\n  <span class=\"th-token th-keyword\">return</span> &lt;<span class=\"th-token th-tag\">div</span> <span class=\"th-token th-attr\">sx</span>={styles.<span class=\"th-token th-property\">cardDiv</span>}&gt;{children}&lt;/<span class=\"th-token th-tag\">div</span>&gt;\n}\n",
-    "diagnostics": []
+    "diagnostics": [],
+    "report": ""
   },
   "migrate-before": {
     "name": "migrate-before",
     "lang": "tsx",
     "source": "export function Card({ children }: { children: React.ReactNode }) {\n  return (\n    <div className=\"flex flex-col gap-4 rounded-xl border p-6 bg-white hover:bg-zinc-50 dark:bg-zinc-900\">\n      {children}\n    </div>\n  )\n}\n",
     "html": "<span class=\"th-token th-keyword\">export</span> <span class=\"th-token th-keyword\">function</span> <span class=\"th-token th-function\">Card</span>({ children }: { <span class=\"th-token th-property\">children</span>: <span class=\"th-token th-type\">React</span>.<span class=\"th-token th-property\">ReactNode</span> }) {\n  <span class=\"th-token th-keyword\">return</span> (\n    &lt;<span class=\"th-token th-tag\">div</span> <span class=\"th-token th-attr\">className</span>=<span class=\"th-token th-string\">&quot;flex flex-col gap-4 rounded-xl border p-6 bg-white hover:bg-zinc-50 dark:bg-zinc-900&quot;</span>&gt;\n      {children}\n    &lt;/<span class=\"th-token th-tag\">div</span>&gt;\n  )\n}\n",
-    "diagnostics": []
+    "diagnostics": [],
+    "report": ""
   },
   "migrate-stylex-command": {
     "name": "migrate-stylex-command",
     "lang": "bash",
     "source": "# print the diff and the report, then apply it\nkirana-style migrate stylex src\nkirana-style migrate stylex src --write\nkirana-style check src\n",
     "html": "<span class=\"th-token th-comment\"># print the diff and the report, then apply it</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> migrate stylex src\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> migrate stylex src <span class=\"th-token th-attr\">--write</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> check src",
-    "diagnostics": []
+    "diagnostics": [],
+    "report": ""
   },
   "migrate-tailwind-command": {
     "name": "migrate-tailwind-command",
     "lang": "bash",
     "source": "# read the diff and the report, then apply it\nkirana-style migrate tailwind src src/globals.css\nkirana-style migrate tailwind src src/globals.css --write\nkirana-style check src\n",
     "html": "<span class=\"th-token th-comment\"># read the diff and the report, then apply it</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> migrate tailwind src src/globals.css\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> migrate tailwind src src/globals.css <span class=\"th-token th-attr\">--write</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> check src",
-    "diagnostics": []
+    "diagnostics": [],
+    "report": ""
   },
   "path-css": {
     "name": "path-css",
     "lang": "tsx",
     "source": "const card = css({\n  display: \"grid\",\n  gap: \"1rem\",\n  color: { base: \"#111\", \":hover\": \"#06c\" },\n})\n",
     "html": "<span class=\"th-token th-keyword\">const</span> card = <span class=\"th-token th-function\">css</span>({\n  <span class=\"th-token th-property\">display</span>: <span class=\"th-token th-string\">&quot;grid&quot;</span>,\n  <span class=\"th-token th-property\">gap</span>: <span class=\"th-token th-string\">&quot;1rem&quot;</span>,\n  <span class=\"th-token th-property\">color</span>: { <span class=\"th-token th-property\">base</span>: <span class=\"th-token th-string\">&quot;#111&quot;</span>, <span class=\"th-token th-string\">&quot;:hover&quot;</span>: <span class=\"th-token th-string\">&quot;#06c&quot;</span> },\n})\n",
-    "diagnostics": []
+    "diagnostics": [],
+    "report": ""
   },
   "path-preset": {
     "name": "path-preset",
     "lang": "tsx",
     "source": "<div sx=\"flex gap-4 p-6 md:grid\" />\n// or the same scales as tokens:\ncss({ gap: space[4], color: color.sky[600] })\n",
     "html": "&lt;<span class=\"th-token th-tag\">div</span> <span class=\"th-token th-attr\">sx</span>=<span class=\"th-token th-string\">&quot;flex gap-4 p-6 md:grid&quot;</span> /&gt;\n<span class=\"th-token th-comment\">// or the same scales as tokens:</span>\n<span class=\"th-token th-function\">css</span>({ <span class=\"th-token th-property\">gap</span>: space[<span class=\"th-token th-number\">4</span>], <span class=\"th-token th-property\">color</span>: color.<span class=\"th-token th-property\">sky</span>[<span class=\"th-token th-number\">600</span>] })\n",
-    "diagnostics": []
+    "diagnostics": [],
+    "report": ""
   },
   "path-system": {
     "name": "path-system",
     "lang": "tsx",
     "source": "const ui = defineTokens(\"ui\", {\n  surface: { light: \"#fff\", dark: \"#0a0a0a\" },\n})\nconst button = recipe({ base, variants })\n",
     "html": "<span class=\"th-token th-keyword\">const</span> ui = <span class=\"th-token th-function\">defineTokens</span>(<span class=\"th-token th-string\">&quot;ui&quot;</span>, {\n  <span class=\"th-token th-property\">surface</span>: { <span class=\"th-token th-property\">light</span>: <span class=\"th-token th-string\">&quot;#fff&quot;</span>, <span class=\"th-token th-property\">dark</span>: <span class=\"th-token th-string\">&quot;#0a0a0a&quot;</span> },\n})\n<span class=\"th-token th-keyword\">const</span> button = <span class=\"th-token th-function\">recipe</span>({ base, variants })\n",
-    "diagnostics": []
+    "diagnostics": [],
+    "report": ""
   }
 }

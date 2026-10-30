@@ -17,7 +17,7 @@ import {
 } from "node:fs"
 import path from "node:path"
 
-import { Driver, formatDiagnostic } from "@kirana-style/compiler"
+import { Driver, formatDiagnostics } from "@kirana-style/compiler"
 import type { Diagnostic } from "@kirana-style/compiler"
 import { SKIPPED, shouldCompile } from "@kirana-style/compiler/host"
 
@@ -47,8 +47,8 @@ export type Mirror = {
   replacements: { replace: string; with: string }[]
   /** Mirrors one changed or deleted file (and what read from it); returns whether anything changed. */
   update: (file: string) => boolean
-  /** Diagnostics from the last pass, formatted. */
-  messages: () => string[]
+  /** Diagnostics from the last pass, each formatted with its severity. */
+  messages: () => { severity: Diagnostic["severity"]; text: string }[]
 }
 
 const SCRIPT = /\.[cm]?tsx?$/
@@ -115,10 +115,13 @@ export async function createMirror(
       for (const changed of affected) mirror(path.relative(source, changed))
       return stylesheet()
     },
-    messages: () =>
-      reported.map((diagnostic) =>
-        formatDiagnostic(diagnostic, texts.get(diagnostic.file))
-      ),
+    messages: () => {
+      const formatted = formatDiagnostics(reported, (file) => texts.get(file))
+      return reported.map(({ severity }, index) => ({
+        severity,
+        text: formatted[index]!,
+      }))
+    },
   }
 }
 

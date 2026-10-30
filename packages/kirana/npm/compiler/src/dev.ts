@@ -15,7 +15,7 @@ import {
 import type { FSWatcher } from "node:fs"
 import path from "node:path"
 
-import { formatDiagnostic } from "./diagnostics.ts"
+import { formatDiagnostics } from "./diagnostics.ts"
 import type { Diagnostic } from "./diagnostics.ts"
 import { Driver } from "./driver.ts"
 import { SCRIPT_FILE, SKIPPED, sources } from "./host.ts"
@@ -23,6 +23,8 @@ import type { NativeBinding } from "./native.ts"
 
 export type DevOptions = {
   native?: NativeBinding
+  /** ANSI colours in the diagnostics, for a terminal that shows them. */
+  colour?: boolean
   /** Watches a directory recursively, calling back with changed paths relative to it (tests replace it). */
   watch?: (
     directory: string,
@@ -99,9 +101,11 @@ export async function runDev(
     diagnostics: readonly Diagnostic[],
     sourceOf: (file: string) => string | undefined
   ) => {
-    for (const diagnostic of diagnostics) {
-      const text = formatDiagnostic(diagnostic, sourceOf(diagnostic.file))
-      if (!printed.has(text)) write(`${text}\n`)
+    for (const text of formatDiagnostics(diagnostics, sourceOf, {
+      colour: options.colour,
+      native: options.native,
+    })) {
+      if (!printed.has(text)) write(`\n${text}\n`)
       printed.add(text)
     }
   }

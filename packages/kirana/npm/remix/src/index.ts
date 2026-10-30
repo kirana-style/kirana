@@ -9,7 +9,7 @@
  */
 import { fileURLToPath } from "node:url"
 
-import { Driver, formatDiagnostic } from "@kirana-style/compiler"
+import { Driver, formatDiagnostics } from "@kirana-style/compiler"
 import type { DriverOptions } from "@kirana-style/compiler"
 import { shouldCompile } from "@kirana-style/compiler/host"
 
@@ -37,10 +37,10 @@ export function compile(url: string, source: string): string | undefined {
   const driver = session()
   if (!shouldCompile(file, source, driver.libraries)) return undefined
   const result = driver.transform(file, source, { map: false })
-  for (const diagnostic of result.diagnostics) {
-    const message = formatDiagnostic(diagnostic, source)
-    if (diagnostic.severity === "error") throw new Error(message)
-    if (diagnostic.severity === "warning") console.warn(message)
+  const messages = formatDiagnostics(result.diagnostics, () => source)
+  for (const [index, diagnostic] of result.diagnostics.entries()) {
+    if (diagnostic.severity === "error") throw new Error(messages[index])
+    if (diagnostic.severity === "warning") console.warn(messages[index])
   }
   return result.code ?? undefined
 }

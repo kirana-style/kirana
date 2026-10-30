@@ -11,7 +11,7 @@ import { createRequire } from "node:module"
 import path from "node:path"
 
 import type { DriverOptions } from "@kirana-style/compiler"
-import { Driver, formatDiagnostic } from "@kirana-style/compiler"
+import { Driver, formatDiagnostics } from "@kirana-style/compiler"
 import { shouldCompile } from "@kirana-style/compiler/host"
 import type { KiranaConfig } from "@kirana-style/core/config"
 
@@ -66,10 +66,10 @@ export function createTransformer(options: KiranaJestOptions = {}) {
       let code = source
       if (shouldCompile(file, source, driver.libraries)) {
         const result = driver.transform(file, source, { map: false })
-        for (const diagnostic of result.diagnostics) {
-          const message = formatDiagnostic(diagnostic, source)
-          if (diagnostic.severity === "error") throw new Error(message)
-          if (diagnostic.severity === "warning") console.warn(message)
+        const messages = formatDiagnostics(result.diagnostics, () => source)
+        for (const [index, diagnostic] of result.diagnostics.entries()) {
+          if (diagnostic.severity === "error") throw new Error(messages[index])
+          if (diagnostic.severity === "warning") console.warn(messages[index])
         }
         code = result.code ?? source
       }

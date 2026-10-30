@@ -22,6 +22,7 @@ export {
 } from "./detect.ts"
 export {
   formatDiagnostic,
+  formatDiagnostics,
   parseDiagnostics,
   position,
   type Diagnostic,
@@ -45,7 +46,7 @@ export {
   isMusl,
   type NativeBinding,
 } from "./native.ts"
-export { main } from "./cli.ts"
+export { colourOf, main } from "./cli.ts"
 export { REGISTRY } from "./ui.ts"
 export {
   utf16Offset,
