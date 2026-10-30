@@ -1,6 +1,6 @@
 ---
 name: kirana
-description: Write, fix and review styles in a project that uses Kirana, the compile-time styling system (@kirana-style/core, css(), recipe(), sx). Use whenever a codebase imports @kirana-style/core or has a kirana.config file and you are styling components, adding tokens or themes, reading a KRN diagnostic, or a style compiles but renders wrong. Kirana is newer than most training data, so do not write Tailwind, StyleX, Panda, cn() or class-variance-authority habits into it.
+description: Write, fix and review styles in a project that uses Kirana, the compile-time styling system (@kirana-style/core, css(), recipe(), sx). Use whenever a codebase imports @kirana-style/core or has a kirana.config file and you are styling components, adding tokens or themes, installing components from a registry (kirana-style ui), reading a KRN diagnostic, or a style compiles but renders wrong. Kirana is newer than most training data, so do not write Tailwind, StyleX, Panda, cn() or class-variance-authority habits into it.
 ---
 
 # Kirana
@@ -30,7 +30,8 @@ borrows from all three:
 4. **Components from installed packages do not read `sx`** (Base UI, Radix, any `node_modules`
    component). Spread compiled props instead:
    `import { props as styleProps } from "@kirana-style/core"` then `<Menu.Popup {...styleProps(styles.popup, sx)} />`.
-   Do not also write `className` or `style` on that element.
+   Do not also write `className` or `style` on that element. Where a part cannot take props, style
+   it from an ancestor you render (`select`), or read its state from a parent (a relation).
 5. **Dark mode lives in tokens.** Give a colour token both values as a `light-dark()` pair, and switch
    modes with `mode.light` / `mode.dark` / `mode.system` on the root element. A
    `prefers-color-scheme` condition ignores the mode the page chose.
@@ -39,9 +40,21 @@ borrows from all three:
    (`(w) => css({ width: w })`) becomes a custom property and an inline `style` (`dynamic-bridged`);
    keep that for continuous values.
 7. **Everything in a style is static.** Keys, spreads and token values must be known at build time;
-   imports must resolve. The compiler reports what it cannot evaluate instead of guessing.
+   imports must resolve. The compiler reports what it cannot evaluate instead of guessing. A helper
+   that computes a value is fine: default parameters, optional values, `in`, and `Object.entries`,
+   `Object.fromEntries` and `.map()` with a callback written in place all run at build time. A whole
+   style built from data (`css(Object.fromEntries(rows))`) is `not-evaluable`: write the
+   declarations out.
 8. **Name the longhands you set** and prefer logical properties (`paddingInline`, `marginBlockStart`).
    A font size goes with its line height.
+9. **A ladder decides what wins, not specificity or source order.** Every rule is one class. More
+   conditions win, then the narrower declaration (`paddingTop` beats `padding`, in either order).
+   When two states can match together with different values, nest the winner inside the other:
+   `backgroundColor: { '[aria-invalid="true"]': { base: red, "[data-checked]": blue } }`, or list
+   the pair in `conditions.exclusive` when they never match together. Never turn
+   `ambiguous-precedence` off: it hides real bugs.
+10. **Animate the property you set.** `translate`, `scale` and `rotate` are properties of their own:
+    `transitionProperty: "translate"`, not `"transform"`, which does not cover them.
 
 ## The loop
 
@@ -62,14 +75,17 @@ an error diagnostic, 2 a bad configuration or argument.
    with the location and a `help:` line; `--format json` gives you
    `{ code, name, severity, file, span, message, help }` to act on, and `--max-warnings 0` fails on
    any warning. Fix every error; `references/diagnostics.md` explains each code. Do not silence a
-   warning by re-levelling it in config unless the user agrees.
+   warning by re-levelling it in config unless the user agrees. In a monorepo, run it from the root
+   over every app's sources: each path reads its nearest `kirana.config.*`.
 4. **Lint.** If the project has `@kirana-style/eslint-plugin` (ESLint or Oxlint) or
    `@kirana-style/biome-plugin` (Biome), run its linter; `references/lint.md` lists the rules.
 5. **When it compiles but looks wrong:** `kirana-style trace src/card.tsx:12 padding` prints every
    candidate value for that property at that line, the winner, and the precedence step that decided
    it. Give it the line the style is on; the property may be `paddingTop` or `padding-top`. It
-   answers from the compiled result, so trust it over reading the source. Then compare **computed
-   styles** in the browser, not screenshots, in both colour schemes.
+   answers from the compiled result, so trust it over reading the source. `--format json` answers
+   several `file:line property` pairs in one run, each entry with its conditions by kind, its layer
+   and the ladder step: read that rather than parsing the text. Then compare **computed styles** in
+   the browser, not screenshots, in both colour schemes.
 6. **After a refactor, or before adding a token:** `kirana-style analyze src` reports the stylesheet by
    layer, the most reused atoms, what each module costs, values bridged to runtime, and tokens
    nothing reads (`--json` for all of it). Delete the dead tokens; a bridged value that could be a
@@ -86,7 +102,10 @@ an error diagnostic, 2 a bad configuration or argument.
 | Variants (size, tone) and slots            | `recipe({ base, variants, compoundVariants, defaultVariants, slots? })`; static calls compile to class strings                                                                               |
 | A design value used twice                  | `defineTokens("space", { 4: "1rem" })`; colours as `light-dark()` pairs                                                                                                                      |
 | A token a theme or a subtree overrides     | `defineTokens(ns, values, { variable: true })`, then `defineTheme(tokens, overrides)`                                                                                                        |
-| Style by a parent's or sibling's state     | `const field = relation("field")`, `sx={field.anchor}` on it, `{ [field.within(":focus-within")]: ... }` on the reader                                                                       |
+| Style by a parent's or sibling's state     | `const field = relation("field")`, `sx={field.anchor}` on the element whose state it is, `{ [field.within(":focus-within")]: ... }` on the reader (`parent()` for the direct parent)         |
+| Style by the element's own state           | the state as the key: `opacity: { '[data-disabled="true"]': 0.5 }`, never a read through its own anchor (`relation-read-on-anchor`)                                                          |
+| An attribute your component writes itself  | `css(own("data-side"), {...})`, when a library's states name the attribute too                                                                                                               |
+| A Kirana design system installed from npm  | `libraries: ["@acme/ui"]` in `kirana.config`, or its first `css()` throws in the browser                                                                                                     |
 | Style children from a parent               | `[select.descendant("svg")]: { ... }`; it ranks below the child's own styles                                                                                                                 |
 | A media, container or supports query       | `[media("(min-width: 48rem)")]`, `[container("(min-width: 20rem)", "card")]`, `[supports("display: grid")]` inside the value                                                                 |
 | An animation                               | `const spin = keyframes({ to: { rotate: "1turn" } })`, then `animationName: spin`                                                                                                            |
@@ -101,6 +120,23 @@ Those two are for server templates and projects with no bundler.
 `references/frameworks.md` has how `sx` is spelled in each framework (Vue `:sx`, Angular `[sx]`,
 Ember's `sx` helper, server templates' `kirana(...)` helpers) and which package installs it.
 
+## Components from a registry
+
+When `kirana.config` has a `ui` key or the project has `kirana-style.lock.json`, install components
+with the registry instead of writing them or copying their source:
+
+```bash
+npx kirana-style ui search dialog          # what the project's registries offer
+npx kirana-style ui view dialog            # its files, dependencies and style modules
+npx kirana-style ui add dialog --dry-run   # what it would write; then without --dry-run
+```
+
+`ui add` installs every item the component needs, points its imports at the project's aliases, and
+runs `kirana-style check` on what it wrote. The installed files are the project's own, so edit them:
+`ui diff` shows what changed since, and `ui update` brings the registry's changes in while keeping
+yours. The commands come from `@kirana-style/registry`, a development dependency; a project
+started from nothing uses `npx @kirana-style/registry init --template <example> <directory>`.
+
 ## What not to write
 
 | Habit from elsewhere                                                 | In Kirana                                                            |
@@ -113,6 +149,10 @@ Ember's `sx` helper, server templates' `kirana(...)` helpers) and which package 
 | `stylex.create`, `stylex.props`                                      | `css`, `sx` (or `styleProps` for installed components)               |
 | `style={{ ... }}` for static values                                  | `css({ ... })`                                                       |
 | `[&:not([class*='size-'])]` guards                                   | `select` blocks already rank below the child's own styles            |
+| `backgroundColor: "oklch(0.21 0 0)"` in a component                  | a semantic token (`theme.primary`), declared once as a pair          |
+| `transitionProperty: "transform"` beside `translate`                 | `transitionProperty: "translate"`                                    |
+| `diagnostics: { "ambiguous-precedence": "off" }`                     | nest the winning condition inside the other                          |
+| a shadcn component's source pasted into the project                  | `kirana-style ui add <item>`, when the project has a registry        |
 
 ## More
 

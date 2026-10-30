@@ -35,8 +35,8 @@ the agent you use (Claude Code, Cursor, Codex, OpenCode and the others it
 supports), in your project or globally with `-g`, and `npx skills update` keeps
 them current.
 
-They live in the repository's `skills/` folder; until the repository is public,
-point the command at a checkout instead (`npx skills add ./kirana`).
+They live in the repository's `skills/` folder; to try a change to them before it
+is merged, point the command at a checkout (`npx skills add ./kirana`).
 
 ## What each one teaches
 

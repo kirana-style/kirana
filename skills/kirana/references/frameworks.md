@@ -29,6 +29,21 @@ Bundlers without a framework: `@kirana-style/vite`, `@kirana-style/rolldown`, `@
 `@kirana-style/jest` for tests. Storybook's Vite builders read the project's `vite.config`, so stories
 compile as the app does; import the stylesheet in `.storybook/preview`.
 
+## A component that takes `sx`
+
+The caller's styles go last in the root's own `sx`, so they win property by property. Each framework
+hands them over differently:
+
+| Framework      | The component                                                                                                                                     |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JSX frameworks | `function Card({ sx, ...props }: { sx?: Sx })` and `sx={[styles.card, sx]}`: take `sx` out of the rest spread                                     |
+| Vue            | `defineOptions({ inheritAttrs: false })`, `const { sx, attrs } = useSx()` from `@kirana-style/core/vue`, then `v-bind="attrs" :sx="[button, sx]"` |
+| Svelte         | `let { class: sx, style, ...rest } = $props()`, then `{style} sx={[button, sx]}`: the caller's `sx` arrives as `class`                            |
+| Angular        | a part directive: `partSx(own, this.sx())` from `@kirana-style/angular` bound to the host's `class` and `style`, `SxInput`, and `provideSxPart()` |
+
+Without that, Vue passes the caller's classes through to the root beside its own, and the
+stylesheet's order, not the caller, decides between them.
+
 ## Server templates
 
 Styles live in TypeScript modules listed in `classes.modules` of `kirana.config.ts`; the CLI

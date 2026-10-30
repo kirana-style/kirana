@@ -5680,7 +5680,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Agent skills",
     "section": "project",
     "heading": "Agent skills",
-    "text": "A model's training data does not contain Kirana, so a coding agent left to itself writes Tailwind or StyleX and calls it Kirana. The plain-text docs explain the system; the two skills in Kirana's repository tell an agent how to work in it: what to check first, which mistakes compile and still render wrong, and what to run when something does. The command installs them for the agent you use (Claude Code, Cursor, Codex, OpenCode and the others it supports), in your project or globally with , and keeps them current. They live in the repository's folder; until the repository is public, point the command at a checkout instead ( )."
+    "text": "A model's training data does not contain Kirana, so a coding agent left to itself writes Tailwind or StyleX and calls it Kirana. The plain-text docs explain the system; the two skills in Kirana's repository tell an agent how to work in it: what to check first, which mistakes compile and still render wrong, and what to run when something does. The command installs them for the agent you use (Claude Code, Cursor, Codex, OpenCode and the others it supports), in your project or globally with , and keeps them current. They live in the repository's folder; to try a change to them before it is merged, point the command at a checkout ( )."
   },
   {
     "id": "/docs/project/agent-skills#what-each-one-teaches",
