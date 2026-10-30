@@ -273,6 +273,12 @@ fn migrates_tailwind_sources() {
         ("scales.ts", b"import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { \"2\": \"0.5rem\" })\n"),
         ("src/a.tsx", b"import { Thing } from \"./thing\"\nexport const A = () => <p className=\"p-2 data-open:block no-scrollbar\" />\nexport const B = () => <Thing className=\"p-2\" />\n"),
         ("src/theme.css", b"@custom-variant data-open (&[data-state=open]);\n@utility no-scrollbar {\n  scrollbar-width: none;\n}\n@utility {\n}\n"),
+        // A listed library's component reads `sx`; an installed one that is not listed does not.
+        ("src/c.tsx", b"import { Button } from \"@acme/ds\"\nimport { Popup } from \"menu-lib\"\nexport const C = () => <Button className=\"p-2\" />\nexport const D = () => <Popup className=\"p-2\" />\n"),
+        ("node_modules/@acme/ds/package.json", b"{\"name\":\"@acme/ds\",\"main\":\"index.js\"}"),
+        ("node_modules/@acme/ds/index.js", b"export const Button = () => null\n"),
+        ("node_modules/menu-lib/package.json", b"{\"name\":\"menu-lib\",\"main\":\"index.js\"}"),
+        ("node_modules/menu-lib/index.js", b"export const Popup = () => null\n"),
     ]);
     let src = root.join("src").to_string_lossy().into_owned();
 
@@ -284,6 +290,7 @@ fn migrates_tailwind_sources() {
 
     let config = serde_json::json!({
         "root": root.to_string_lossy(),
+        "libraries": ["@acme/ds"],
         "utilities": {
             "scales": { "space": [{ "module": "./scales.ts", "export": "space" }] },
             "utilities": { "p": [{ "properties": ["padding"], "scale": "space" }] }
@@ -301,6 +308,9 @@ fn migrates_tailwind_sources() {
     let rewritten = fs::read_to_string(root.join("src/a.tsx")).unwrap();
     assert!(rewritten.contains("import { space } from \"../scales\""), "{rewritten}");
     assert!(rewritten.contains("<p sx={styles.aP} />"), "{rewritten}");
+    let rewritten = fs::read_to_string(root.join("src/c.tsx")).unwrap();
+    assert!(rewritten.contains("<Button sx={"), "{rewritten}");
+    assert!(rewritten.contains("<Popup {...styleProps("), "{rewritten}");
 
     // The same lowering, one class string at a time, for a tool (KF-004).
     let project = kirana_project::Project::new(&config, std::sync::Arc::new(kirana_shared::OsFs)).unwrap();

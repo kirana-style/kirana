@@ -33,7 +33,8 @@ pub trait Host {
     fn import(&self, from: &Path, specifier: &str, name: &ImportName) -> Value;
     /// A variable token or keyframes rule defined anywhere in the project, by emitted name.
     fn lookup_dep(&self, name: &str) -> Option<Dep>;
-    /// Whether `specifier` resolves into an installed package rather than project source.
+    /// Whether `specifier` resolves into an installed package the application does not compile, rather
+    /// than project source or a library listed in `libraries`: a component from one does not read `sx`.
     fn is_external(&self, from: &Path, specifier: &str) -> bool;
     /// The installed package a project module's exported component spreads its props into without
     /// reading `sx`, when it does.

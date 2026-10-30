@@ -281,9 +281,20 @@ impl Project {
         self.resolver.resolve_file(from, specifier).ok().map(|resolution| resolution.full_path())
     }
 
-    /// Whether `specifier`, imported from `from`, is an installed package rather than project source.
+    /// Whether `specifier`, imported from `from`, is an installed package the application does not
+    /// compile as its own, rather than project source or a listed library.
     pub fn is_external(&self, from: &Path, specifier: &str) -> bool {
         resolve::ModuleHost::new(self, Vec::new()).is_external(from, specifier)
+    }
+
+    /// Whether `path` is in an installed package the application does not compile as its own: under
+    /// `node_modules`, and not in a package listed in `libraries`, matched as `node_modules/<name>/`
+    /// as the hosts match it (KRN-INT-008). A listed library's components are compiled with the
+    /// application's, so they read `sx` as its own do.
+    pub(crate) fn outside_application(&self, path: &Path) -> bool {
+        let path = path.to_string_lossy().replace('\\', "/");
+        path.contains("/node_modules/")
+            && !self.config.libraries.iter().any(|name| path.contains(&format!("/node_modules/{name}/")))
     }
 
     /// The file name used in diagnostics: relative to the root when inside it.

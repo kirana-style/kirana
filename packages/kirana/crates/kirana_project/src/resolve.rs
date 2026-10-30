@@ -279,9 +279,11 @@ impl Host for ModuleHost<'_> {
     }
 
     fn is_external(&self, from: &Path, specifier: &str) -> bool {
-        self.project.resolver.resolve_file(from, specifier).ok().is_some_and(|resolution| {
-            resolution.full_path().components().any(|component| component.as_os_str() == "node_modules")
-        })
+        self.project
+            .resolver
+            .resolve_file(from, specifier)
+            .ok()
+            .is_some_and(|resolution| self.project.outside_application(&resolution.full_path()))
     }
 
     /// Asked only for specifiers that are not installed packages (the transform checks first).

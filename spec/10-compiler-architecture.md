@@ -276,10 +276,11 @@ every other module it MUST return "unchanged" so the host keeps the original byt
 4. applies all edits in one pass with span-based string editing (`string_wizard`, from the Rolldown
    ecosystem) and emits a source map (`oxc_sourcemap`) whose `sources` entry is the module id the host
    passed in, so bundlers and coverage tools resolve it to the same file;
-5. reports `sx-on-external-component` for `sx` on a component imported from an installed package, which
-   does not know the prop (D-041), and for `sx` on a project component that spreads its rest props, `sx`
-   included, onto such a component or a host element. The imported module's analysis is part of its
-   cached exports (`Exports::sx_forwarding`), so the check costs one lookup per call site.
+5. reports `sx-on-external-component` for `sx` on a component imported from an installed package the
+   application does not compile (one not listed in `libraries`), which does not know the prop (D-041),
+   and for `sx` on a project component that spreads its rest props, `sx` included, onto such a component
+   or a host element. The imported module's analysis is part of its cached exports
+   (`Exports::sx_forwarding`), so the check costs one lookup per call site.
 
 ## CSS emission
 

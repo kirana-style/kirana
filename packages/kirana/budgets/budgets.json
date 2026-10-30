@@ -973,6 +973,18 @@
           "brotli": 271
         }
       },
+      "sx-on-listed-library": {
+        "css": {
+          "raw": 144,
+          "gzip": 111,
+          "brotli": 93
+        },
+        "js": {
+          "raw": 487,
+          "gzip": 282,
+          "brotli": 231
+        }
+      },
       "themes-and-modes": {
         "css": {
           "raw": 932,

@@ -342,7 +342,8 @@ export class Driver {
 
   /**
    * The project file `specifier` resolves to from the module `from`, as the build resolves it, or
-   * undefined for an installed package or a specifier that does not resolve.
+   * undefined for an installed package the application does not compile (one not in `libraries`)
+   * or a specifier that does not resolve.
    */
   resolve(from: string, specifier: string): string | undefined {
     return this.#compiler.resolve(from, specifier) ?? undefined

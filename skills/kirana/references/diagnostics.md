@@ -50,7 +50,7 @@ Full page: https://kirana.style/docs/tooling/diagnostics.md
 | KRN1605 | `dynamic-variant` | info | Info: a recipe call with a runtime option resolves through the runtime table. Pass literal options where you can. |
 | KRN1701 | `unused-sx` | warning | A component takes `sx` and never applies it. Pass it on: `sx={[styles.root, sx]}`, and take it out of a rest spread. |
 | KRN1702 | `utility-surface-disabled` | error | A string `sx` without a utility grammar. Add a preset that declares one (`presets: [scales()]`), or write `css({…})`. |
-| KRN1703 | `sx-on-external-component` | warning | `sx` given to a component from an installed package, which does not read it. Spread `{...styleProps(a, sx)}` (`props as styleProps` from `@kirana-style/core`) instead. |
+| KRN1703 | `sx-on-external-component` | warning | `sx` given to a component from an installed package, which does not read it. Spread `{...styleProps(a, sx)}` (`props as styleProps` from `@kirana-style/core`) instead. A Kirana library listed in `libraries` is compiled as the app's own, and its components read `sx`. |
 | KRN1704 | `unknown-utility` | error | A utility the configured grammar does not know. Check the name, or write the style as an object. |
 | KRN1705 | `unknown-utility-variant` | error | A utility variant the grammar does not declare. Declare it under `utilities.variants`, or write the condition in an object. |
 | KRN1706 | `utility-not-static` | error | An interpolated utility string. Write whole strings, or an object with the value. |
