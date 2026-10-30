@@ -7,7 +7,7 @@ import { PACKAGES } from "../generated/packages.gen.ts"
 /**
  * Whether the packages are on npm, read from their `package.json` (`publishConfig.access` is
  * "public"; `private` stays true in the workspace). Every pre-release install note reads this one
- * flag, so publishing removed them all at once.
+ * flag, so publishing removes them all at once.
  */
 export const PUBLISHED = PACKAGES.every((entry) => entry.published)
 

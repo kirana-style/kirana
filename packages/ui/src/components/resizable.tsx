@@ -54,7 +54,6 @@ const styles = {
     flexShrink: 0,
     borderRadius: radius.lg,
     backgroundColor: theme.border,
-    // Was `[&[aria-orientation=horizontal]>div]:rotate-90` on the handle.
     rotate: {
       [peer.within('[aria-orientation="horizontal"]')]: "90deg",
     },

@@ -50,12 +50,10 @@ export type Session = {
 export const sessions: Map<string, Session> = registry("sessions")
 
 /**
- * One Driver and one reporter per project — root and configuration — shared by every compiler that
- * builds it. Next.js runs a server, an edge and a client compiler over one app: a server component is
- * compiled only by the server compiler while the stylesheet is emitted by the client one, so a Driver
- * per compiler would leave the client's stylesheet without the server components' atoms. Next.js builds
- * the server first, so the client's stylesheet, filled at the end of its own build, holds them all.
- * Sharing also reports a module's warnings once rather than once per compiler.
+ * One Driver and one reporter per project (root and configuration), shared by every compiler that
+ * builds it. Next.js compiles server components only in its server compiler but emits the stylesheet
+ * from the client one, which it builds last, so a shared Driver gives that stylesheet every atom.
+ * Sharing also reports a module's warnings once, not once per compiler.
  */
 const projects: Map<
   string,

@@ -1,15 +1,9 @@
 /**
- * How each package manager installs and runs a package, for the docs' install blocks: the page
- * draws them as tabs (`InstallTabs` in docs-ui) and the markdown twin writes them out
- * (`plainInstall`), from this one table.
- *
- * Three kinds of command:
- * - install: `packages` as dependencies, `dev` as dev dependencies;
- * - run: a package that is not installed, fetched for one command (`npx kirana-style@latest init`);
- * - exec: a package the project has installed (`pnpm exec kirana-style check`).
- *
- * Deno takes npm packages as `npm:` specifiers, and runs one with every permission (`-A`), as a
- * command line that reads and writes the project needs.
+ * How each package manager installs and runs a package, from one table: the page draws an install
+ * block as tabs (`InstallTabs` in docs-ui) and the markdown twin writes it out (`plainInstall`).
+ * `packages` and `dev` are installed; `run` fetches a package for one command
+ * (`npx kirana-style@latest init`); `exec` runs one the project has installed. Deno takes `npm:`
+ * specifiers and runs with every permission (`-A`), since the commands read and write the project.
  */
 export const PACKAGE_MANAGERS = ["npm", "pnpm", "yarn", "bun", "deno"] as const
 

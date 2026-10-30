@@ -1,13 +1,9 @@
 /**
- * Kirana for PostCSS (KRN-INT-010, `design-notes/turbopack.md`): in a stylesheet holding the
- * `@kirana;` directive, the plugin compiles the project and writes the stylesheet in its place.
- *
- * This is how a host that runs loaders but no plugins — Turbopack — still gets one stylesheet: the
- * module transform happens in a loader (`@kirana-style/next/loader`), the stylesheet here, each in a session
- * of its own. They agree without talking because a class name is a hash of what it styles, never of
- * the order modules compiled in (D-037). The project is compiled incrementally: a run transforms only
- * the files whose modification time changed, and what they invalidated. The plugin returns a
- * `dir-dependency` on the project, so a dev server runs it again when a component changes.
+ * Kirana for PostCSS (KRN-INT-010, `design-notes/turbopack.md`): the plugin compiles the project and
+ * writes the stylesheet in place of the `@kirana;` directive. A host with loaders but no plugins
+ * (Turbopack) transforms modules in `@kirana-style/next/loader`, in another session; the two agree
+ * because a class name hashes what it styles, not the compile order (D-037). A run transforms only
+ * the files whose modification time changed, and what they invalidated.
  */
 import { readFileSync, statSync } from "node:fs"
 import { createRequire } from "node:module"

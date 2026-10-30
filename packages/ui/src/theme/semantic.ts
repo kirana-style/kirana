@@ -1,25 +1,14 @@
 /**
- * Layer 2: semantic tokens.
- *
- * These are the shadcn design tokens, one-for-one with the `--background`,
- * `--primary`, `--sidebar-*` custom properties this project used under
- * Tailwind.
- *
- * Every colour is written once as `light-dark(<light>, <dark>)` rather than as
- * separate light, dark and system themes. The mode is the root element's
- * `color-scheme`, which ThemeProvider sets through a `mode` handle: `light dark`
- * follows the OS, `light` or `dark` pins it. Because no token is ever
- * reassigned, a derived token (`alpha`, `surface`, a context default elsewhere)
- * can read these on `:root` and still follow the mode wherever it is used.
- *
- * The groups are `variable: true`, so each token is one custom property and
- * derived values stay unresolved in the CSS.
+ * Semantic tokens. Every colour is one `light-dark(<light>, <dark>)` pair and the
+ * mode is the root's `color-scheme`, set by ThemeProvider's `mode` handle. No
+ * token is ever reassigned, so a derived token (`alpha`, `surface`) can read
+ * these on `:root` and still follow the mode wherever it is used.
  */
 
 import { defineTokens } from "@kirana-style/core"
 
 /**
- * Paper and ink: warm neutrals (hue 70 to 85, chroma at most 0.014) instead of shadcn's pure greys,
+ * Paper and ink: warm neutrals (hue 70 to 85, chroma at most 0.014) rather than pure greys,
  * so the landscapes' cream walls and gold light sit in the page rather than on clinical white.
  * The colours are shown on the brand page (`/brand`, Colour); `bun
  * scripts/check-contrast.ts` in apps/docs fails when a text pair drops below WCAG AA.
@@ -73,12 +62,8 @@ export const theme = defineTokens(
 )
 
 /**
- * The radius scale, derived from one base the way the Tailwind `@theme inline`
- * block did (sm ×0.6, md ×0.8, lg ×1, xl ×1.4, 2xl ×1.8, 3xl ×2.2, 4xl ×2.6).
- *
- * These deliberately shadow Tailwind's own radius scale: in this design system
- * `rounded-lg` always meant the derived 0.625rem, not Tailwind's 0.5rem. Kept
- * as variables rather than constants so a theme can restyle corner roundness.
+ * The radius scale, derived from one 0.625rem base, so `lg` is 0.625rem rather
+ * than Tailwind's 0.5rem. Variables, so a theme can restyle corner roundness.
  */
 export const radius = defineTokens(
   "radius",
@@ -97,15 +82,10 @@ export const radius = defineTokens(
 )
 
 /**
- * Translucent derivatives of the semantic palette, replacing Tailwind's
- * `bg-primary/80` slash syntax.
- *
- * Each is a `color-mix` over the base variable rather than a baked colour. The
- * base is a `light-dark()` pair, which is resolved where the mix is used, so the
- * translucent token follows the mode too.
- *
- * Only the combinations the components actually use are defined. Adding a new
- * opacity is a deliberate design-system change, not an inline decision.
+ * Translucent derivatives of the palette. Each is a `color-mix` over the base
+ * variable, resolved where it is used, so it follows the mode too. Only the
+ * combinations the components use are defined; a new opacity is a
+ * design-system change, not an inline decision.
  */
 export const alpha = defineTokens(
   "alpha",
@@ -152,21 +132,11 @@ export const alpha = defineTokens(
 )
 
 /**
- * Component-intent tokens, and the reason there is no `dark:` variant anywhere
- * in this design system.
- *
- * shadcn used `dark:` for more than swapping a colour: a form control is
- * *transparent* in light mode but a *translucent fill* in dark mode, an outline
- * button borrows `border` in light and `input` in dark, and an invalid ring is
- * 20% opaque in light and 40% in dark. Those are structural differences, so
- * retheming the palette underneath cannot express them.
- *
- * Naming the intent instead makes each one a single token with two values. The
- * component then says what it means — `backgroundColor: surface.control` — and
- * the light/dark decision lives in this one `light-dark()` value where it can be
- * reviewed, rather than being reconstructed from `dark:` utilities at 40 call
- * sites. The three tokens that are not colours take their dark value from the
- * mode themes in `theme/themes.ts`.
+ * Component-intent tokens, which is why there is no `dark:` variant: where light
+ * and dark differ in structure (a control transparent in light but filled in
+ * dark), the component names the intent (`surface.control`) and the decision
+ * lives in one `light-dark()` value. The tokens that are not colours take
+ * `{ light, dark }` mode values instead.
  */
 export const surface = defineTokens(
   "surface",
@@ -182,10 +152,7 @@ export const surface = defineTokens(
 
     /** Border and ring of anything failing validation. */
     borderInvalid: `light-dark(${theme.destructive}, ${alpha.destructive50})`,
-    /**
-     * A checked choice that is also invalid: the checked colour wins in light,
-     * the invalid one in dark, where the original's `dark:` variant outranked it.
-     */
+    /** A checked choice that is also invalid: the checked colour wins in light, the invalid one in dark. */
     borderInvalidChecked: `light-dark(${theme.primary}, ${alpha.destructive50})`,
     ringInvalid: `light-dark(${alpha.destructive20}, ${alpha.destructive40})`,
 
@@ -202,11 +169,7 @@ export const surface = defineTokens(
     outlineBorder: `light-dark(${theme.border}, ${theme.input})`,
     outlineBackground: `light-dark(${theme.background}, ${alpha.input30})`,
     outlineHover: `light-dark(${theme.muted}, ${alpha.input50})`,
-    /**
-     * An outline button whose popup is open. `muted` in light, but in dark the
-     * original's `dark:bg-input/30` outranks `aria-expanded:bg-muted`, so the
-     * open state keeps the resting fill.
-     */
+    /** An outline button whose popup is open: `muted` in light; in dark it keeps the resting fill. */
     outlineExpanded: `light-dark(${theme.muted}, ${alpha.input30})`,
 
     /** Destructive controls, which are tinted rather than filled. */
@@ -222,23 +185,13 @@ export const surface = defineTokens(
     switchThumb: `light-dark(${theme.background}, ${theme.foreground})`,
     switchThumbChecked: `light-dark(${theme.background}, ${theme.primaryForeground})`,
 
-    /**
-     * Blend mode for the hairline ring an Avatar draws over its own image. It
-     * darkens the edge on a light background and lightens it on a dark one, which
-     * is why this is a token and not a constant.
-     */
+    /** Blend mode for the hairline ring an Avatar draws over its image: darkens on light, lightens on dark. */
     imageRingBlend: { light: "darken", dark: "lighten" },
 
-    /**
-     * Brightness applied to a decorative photo, as a `brightness()` factor. `1`
-     * in light mode; dark mode dims it to `0.2` so it recedes (`dark:brightness-20`).
-     */
+    /** Brightness factor for a decorative photo, dimmed in dark mode so it recedes. */
     imageBrightness: { light: "1", dark: "0.2" },
 
-    /**
-     * Filter for a decorative cover photo: none in light mode, dimmed and
-     * desaturated in dark (`dark:brightness-[0.2] dark:grayscale`).
-     */
+    /** Filter for a decorative cover photo: none in light mode, dimmed and desaturated in dark. */
     imageDim: { light: "none", dark: "brightness(0.2) grayscale(1)" },
 
     /**

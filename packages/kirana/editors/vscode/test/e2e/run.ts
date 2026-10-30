@@ -32,9 +32,9 @@ await runTests({
     "--disable-extensions",
     "--skip-welcome",
     "--disable-workspace-trust",
-    // Without a display (no Xvfb), Electron's own headless platform still runs the extension host.
     // Hosted Ubuntu runners restrict the unprivileged user namespaces Electron's sandbox needs.
     ...(process.env.CI ? ["--no-sandbox"] : []),
+    // Without a display (no Xvfb), Electron's own headless platform still runs the extension host.
     ...(process.platform === "linux" && !process.env.DISPLAY
       ? ["--ozone-platform=headless", "--disable-gpu"]
       : []),

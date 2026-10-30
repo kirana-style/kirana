@@ -9,8 +9,6 @@ const styles = {
     flexShrink: 0,
     backgroundColor: theme.border,
   }),
-  // Was `data-horizontal:` / `data-vertical:`, two of the nine custom variants
-  // the old Tailwind layer defined. The condition reads the attribute directly.
   orientation: css({
     height: { '[data-orientation="horizontal"]': "1px" },
     width: {

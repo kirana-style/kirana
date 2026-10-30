@@ -12,13 +12,9 @@ import { spacing } from "../tokens/spacing"
 import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
 
 /**
- * The open/close motion, as keyframes rather than a transition.
- *
- * Base UI publishes the measured height as `--accordion-panel-height`, but it
- * puts `data-starting-style` on the panel itself, not on the inner box that
- * carries the height — so a transition has nothing to move between. The original
- * had the same problem and solved it the same way, with `animate-accordion-down`
- * from `tw-animate-css`: 200ms, `ease-out`.
+ * The open/close motion, as keyframes rather than a transition: Base UI puts
+ * `data-starting-style` on the panel, not on the inner box that carries
+ * `--accordion-panel-height`, so a transition has nothing to move between.
  */
 const accordionDown = keyframes({
   from: { height: 0 },
@@ -34,9 +30,8 @@ const styles = {
   root: css({ display: "flex", width: "100%", flexDirection: "column" }),
 
   item: css({
-    // `not-last:border-b`: every row but the last draws a divider. Written as
-    // the original's condition, not as "1px except the last": a caller's
-    // `borderBottomWidth` then reaches the last row too.
+    // Every row but the last draws a divider. Written as a condition, not as
+    // "1px except the last", so a caller's `borderBottomWidth` reaches the last row too.
     borderBottomWidth: { ":not(:last-child)": "1px" },
     borderBottomStyle: "solid",
     borderBottomColor: theme.border,
@@ -69,11 +64,7 @@ const styles = {
     pointerEvents: { '[aria-disabled="true"]': "none" },
     opacity: { '[aria-disabled="true"]': 0.5 },
   }),
-  /**
-   * Two chevrons, one shown per state. Was a pair of
-   * `group-aria-expanded/accordion-trigger:` rules reading the trigger from the
-   * icon; now the trigger is the marked ancestor and each icon reads it.
-   */
+  /** Two chevrons, one shown per state, each reading the trigger's relation. */
   chevron: css({
     marginInlineStart: "auto",
     flexShrink: 0,

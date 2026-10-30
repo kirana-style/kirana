@@ -9,7 +9,7 @@ import { fontSize, lineHeight } from "../tokens/typography"
 const styles = {
   root: css({
     display: "flex",
-    // `field-sizing-content`: grows with its content instead of scrolling.
+    // Grows with its content instead of scrolling.
     fieldSizing: "content",
     minHeight: spacing[16],
     paddingInline: spacing["2.5"],

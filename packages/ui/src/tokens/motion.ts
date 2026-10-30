@@ -25,32 +25,25 @@ export const easing = {
   linear: "linear",
   in: "cubic-bezier(0.4, 0, 1, 1)",
   /**
-   * The CSS keyword, not Tailwind's `ease-out`. `tw-animate-css` falls back to
-   * it for `animate-*` utilities, so a ported keyframe animation needs this
-   * gentler curve rather than `out` below.
+   * The CSS keyword, gentler than `out` below: `tw-animate-css` falls back to it
+   * for keyframe animations, so a ported one uses this.
    */
   cssOut: "ease-out",
   /**
-   * The CSS `ease` keyword: `tw-animate-css`'s default for `animate-in` and
-   * `animate-out`. Every popup, dialog and backdrop the original animated that
-   * way uses it, so `recipes/overlay.ts` does too.
+   * The CSS `ease` keyword, `tw-animate-css`'s default for `animate-in` and
+   * `animate-out`, so the popups, dialogs and backdrops in `recipes/overlay.ts` use it.
    */
   cssEase: "ease",
-  /** `ease-out`. Rarely correct for a Tailwind port — see `inOut`. */
+  /** `ease-out`. Rarely correct for a Tailwind port; see `inOut`. */
   out: "cubic-bezier(0, 0, 0.2, 1)",
   /**
-   * The curve `animate-pulse` carries, which is not any of Tailwind's `ease-*`
-   * tokens: the utility writes it literally. Close enough to `inOut` to read
-   * the same in a screenshot and not the same in a comparison.
+   * The curve `animate-pulse` writes literally, which is none of Tailwind's
+   * `ease-*` tokens. It looks like `inOut` but does not compare equal.
    */
   pulse: "cubic-bezier(0.4, 0, 0.6, 1)",
-  /**
-   * Tailwind's default transition curve, and therefore the right one for any
-   * transition the original wrote without an explicit `ease-*`. That is nearly
-   * all of them, so this is the default choice here too.
-   */
+  /** Tailwind's default transition curve, so the default for any transition without an explicit `ease-*`. */
   inOut: "cubic-bezier(0.4, 0, 0.2, 1)",
-  // Curves the shadcn components use for overlay and drawer motion.
+  // Overlay and drawer motion.
   emphasized: "cubic-bezier(0.22, 1, 0.36, 1)",
   overshoot: "cubic-bezier(0.45, 1.005, 0, 1.005)",
   decelerate: "cubic-bezier(0.32, 0.72, 0, 1)",

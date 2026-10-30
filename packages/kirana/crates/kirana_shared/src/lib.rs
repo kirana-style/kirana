@@ -81,10 +81,10 @@ pub fn kebab_case(name: &str) -> String {
     let mut out = String::with_capacity(name.len() + 4);
     for (index, character) in name.chars().enumerate() {
         if character.is_ascii_uppercase() {
-            // `ms` is the one vendor prefix that is written lowercase in camelCase (`msFlex`).
             out.push('-');
             out.push(character.to_ascii_lowercase());
         } else if index == 0 && name.starts_with("ms") && name[2..].starts_with(char::is_uppercase) {
+            // `ms` is the one vendor prefix that is written lowercase in camelCase (`msFlex`).
             out.push('-');
             out.push(character);
         } else {

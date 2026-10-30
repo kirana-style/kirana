@@ -94,7 +94,7 @@ fn token_colours(server: &Server, site: &str, text: &str) -> Vec<(usize, usize, 
 }
 
 /// A CSS colour as LSP's sRGB components, `None` for anything that is not a colour (`currentcolor`,
-/// system colours, `light-dark()` shows its light side).
+/// system colours); a `light-dark()` pair gives its light side.
 pub(crate) fn parse(text: &str) -> Option<Value> {
     let colour = CssColor::parse_string(text.trim()).ok()?;
     let colour = match colour {

@@ -1,11 +1,8 @@
 /**
  * How every page is parsed: the docs preset, plus one extension of our own that
- * highlights code blocks at build time.
- *
- * Highlighting happens here, in the generator, and never in the browser: the
- * extension replaces each code node with a `md-code` component node carrying the
- * finished markup and the original source, which `CodeBlock` renders. No grammar
- * reaches the client bundle, and the server and the client render the same tree.
+ * highlights code at build time, never in the browser. Code blocks become `md-code`
+ * nodes carrying the finished markup and the source, so no grammar reaches the
+ * client and the server and the client render the same tree.
  */
 import type {
   BlockNode,

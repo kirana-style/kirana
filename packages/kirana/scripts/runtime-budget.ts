@@ -3,14 +3,11 @@
  *
  *   bun scripts/runtime-budget.ts
  *
- * The budget is a hard test (`npm/core/test/internal.test.ts`), so the useful question is not
- * whether it passes but what is left and what could be given back. Each part is removed on its own
- * and the module re-minified: the difference is what that part costs, including whatever else the
- * minifier can then drop, which is why the numbers do not add up to the whole.
+ * The budget is a hard test (`npm/core/test/internal.test.ts`); this shows what each part costs, by
+ * removing it and re-minifying, so the parts do not add up to the whole.
  *
- * Run it with Node, as `bun run budget` does, because the test measures with Node's zlib. Bun's
- * gives a different number for the same bytes — 1,003 against 999 at the time of writing — and only
- * one of them can be the budget.
+ * Run it with Node, as `bun run budget` does: the test measures with Node's zlib, and Bun's gives a
+ * different size for the same bytes.
  */
 import { readFileSync } from "node:fs"
 import { gzipSync } from "node:zlib"

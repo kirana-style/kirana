@@ -11,12 +11,10 @@ import { spacing } from "../tokens/spacing"
 import { fontSize, lineHeight } from "../tokens/typography"
 import { zIndex } from "../tokens/z-index"
 
-/** A tooltip containing a keyboard shortcut tightens its trailing padding. */
-
 const styles = {
   positioner: css({ isolation: "isolate", zIndex: zIndex.popover }),
   content: css({
-    // `animate-in` without a duration class: tw-animate-css's 150ms default.
+    // `tw-animate-css`'s 150ms default rather than the overlays' 100ms.
     transitionDuration: duration[150],
     zIndex: zIndex.popover,
     display: "inline-flex",

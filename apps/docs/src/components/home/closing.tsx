@@ -1,6 +1,6 @@
 /**
- * How the homepage ends: the Platinum and Gold sponsors, or empty places for
- * them, and a blueprint card (the mark's construction drawing in white on one of
+ * How the homepage ends: the Platinum, Gold and Silver sponsors, or empty places
+ * for them, and a blueprint card (the mark's construction drawing in white on one of
  * Kirana's landscapes) with the ways in.
  */
 import { Link } from "@tanstack/react-router"
@@ -97,7 +97,7 @@ const styles = {
     fontWeight: fontWeight.normal,
     letterSpacing: letterSpacing.tight,
     textWrap: "balance",
-    // Two lines on the night side whatever the face's width: on one line it ran under the drawing.
+    // Two lines on the night side whatever the face's width: on one line it runs under the drawing.
     maxWidth: "10.5em",
   }),
   ctaText: css({
@@ -154,7 +154,7 @@ export function Sponsors() {
     ...SPONSORS.filter((sponsor) => sponsor.tier === "Gold sponsor"),
     ...SPONSORS.filter((sponsor) => sponsor.tier === "Silver sponsor"),
   ]
-  // Always four places: the sponsors there are, then vacancies.
+  // At least four places: the sponsors there are, then vacancies.
   const vacancies = Math.max(0, 4 - gold.length)
   return (
     <HomeSection

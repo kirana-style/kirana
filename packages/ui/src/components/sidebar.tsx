@@ -42,18 +42,8 @@ const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 /**
- * The sidebar root carries one marker that plays both Tailwind roles at once: it
- * was `group peer` there, read by descendants *and* by the main content beside
- * it. A `within` read covers the first, an `after` read the second, and the
- * single relation scopes them both.
- */
-/** `peer-data-[variant=inset]`: the main content reacts to the sidebar's variant. */
-
-/** Rows read the button beside them, which is what `peer/menu-button` did. */
-/**
- * `group-has-data-[sidebar=menu-action]/menu-item:pe-8` asked whether the row
- * containing this button also contains an action. Asked from the button itself it
- * is simply "is there an action after me", which is a sibling query.
+ * The sidebar root's relation is read by its descendants (`within`) and by the
+ * main content beside it (`after`).
  */
 
 const styles = {
@@ -97,7 +87,6 @@ const styles = {
     transitionProperty: "width",
     transitionDuration: duration[200],
     transitionTimingFunction: "linear",
-    // Was `group-data-[side=right]:rotate-180`, read from the sidebar root.
     rotate: {
       [sidebarMarker.within('[data-side="right"]')]: "180deg",
     },
@@ -201,8 +190,7 @@ const styles = {
         [sidebarMarker.within('[data-collapsible="offcanvas"]')]: "100%",
       },
       width: "2px",
-      // `hover:after:bg-sidebar-border`: the edge line that shows the rail is
-      // there. Compiles to `:hover::after`.
+      // The edge line that shows the rail is there.
       backgroundColor: { ":hover": theme.sidebarBorder },
     },
     backgroundColor: {
@@ -249,7 +237,7 @@ const styles = {
   input: css({
     height: spacing[8],
     width: "100%",
-    // `bg-background` over Input's `dark:bg-input/30`, which still won in dark.
+    // The page background in light mode, the Input's translucent fill in dark.
     backgroundColor: surface.outlineBackground,
     boxShadow: "none",
   }),
@@ -275,7 +263,6 @@ const styles = {
       base: "auto",
       [sidebarMarker.within('[data-collapsible="icon"]')]: "hidden",
     },
-    // Was the `no-scrollbar` utility from the ejected Tailwind layer.
     scrollbarWidth: "none",
     "::-webkit-scrollbar": { display: "none" },
   }),
@@ -340,7 +327,7 @@ const styles = {
     boxShadow: {
       ":focus-visible": `0 0 0 2px ${theme.sidebarRing}`,
     },
-    // Widens the touch target, but only where there is no pointer.
+    // Widens the touch target.
     "::after": {
       content: "''",
       position: "absolute",
@@ -424,9 +411,8 @@ const styles = {
     },
   }),
   /**
-   * Each size owns the whole of `height`, collapsed case included. The original
-   * wrote that case once with `size-8!`; here it is repeated per size, because
-   * a shared style declaring `height` again would wipe the size out.
+   * Each size owns the whole of `height`, collapsed case included, repeated per
+   * size because a shared style declaring `height` again would wipe the size out.
    */
   buttonSizeDefault: css({ height: spacing[8], fontSize: fontSize.sm }),
   buttonSizeSm: css({
@@ -443,14 +429,13 @@ const styles = {
       [sidebarMarker.within('[data-collapsible="icon"]')]: spacing[8],
     },
     fontSize: fontSize.sm,
-    /** `group-data-[collapsible=icon]:p-0!`: the tall button loses its padding. */
+    /** Collapsed to icons, the tall button loses its padding. */
     padding: {
       base: spacing[2],
       [sidebarMarker.within('[data-collapsible="icon"]')]: 0,
     },
   }),
 
-  /** Was `[&>span:last-child]:truncate`. */
   menuLabel: css({
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -488,8 +473,8 @@ const styles = {
     boxShadow: {
       ":focus-visible": `0 0 0 2px ${theme.sidebarRing}`,
     },
-    // A larger touch target on small screens; `md:after:hidden` drops it where
-    // a pointer is precise and it would overlap the neighbouring rows.
+    // A larger touch target on small screens, dropped from `md` up, where it
+    // would overlap the neighbouring rows.
     "::after": {
       content: "''",
       position: "absolute",
@@ -507,9 +492,8 @@ const styles = {
       [menuButtonMarker.after(":hover")]: theme.sidebarAccentForeground,
       [menuButtonMarker.after("[data-active]")]: theme.sidebarAccentForeground,
     },
-    // `md:opacity-0` loses to the hover, focus and expanded variants in
-    // Tailwind, but a bare `@media` key would beat them here. Nested, so the
-    // reveal conditions are evaluated inside the breakpoint.
+    // A bare `@media` key would beat the hover, focus and expanded reveals, so
+    // they are nested inside the breakpoint.
     opacity: {
       [breakpoint.md]: {
         base: 0,

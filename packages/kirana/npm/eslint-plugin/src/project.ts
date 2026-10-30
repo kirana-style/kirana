@@ -66,7 +66,7 @@ const inspections = new Map<string, Inspection>()
 /**
  * The module a file's linted text is compiled as. A Vue, Svelte or Astro component's linter hands
  * a rule one script block, which the build compiles as `Card.vue.setup.ts`: under that id the
- * compiler knows the template, not part of the module, reads the block's bindings (`const { sx } =
+ * compiler knows that the template, outside the module, reads the block's bindings (`const { sx } =
  * useSx()`, KF-026). Any other file is its own module.
  */
 function moduleOf(file: string, text: string): string {

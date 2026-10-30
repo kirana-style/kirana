@@ -1,11 +1,9 @@
 /**
  * `<!-- ::install packages="@kirana-style/core" dev="@kirana-style/vite" -->`: the install
- * command for npm, pnpm, Yarn, Bun and Deno, as tabs. The chosen package manager is
- * remembered, and every install block on the site follows it.
- *
- * `run="kirana-style@latest init"` shows how each one runs a package it has not installed, and
- * `exec="kirana-style check"` how it runs one the project has; the commands are in
- * `@workspace/docs-core/package-managers.ts`, which the markdown twin reads too.
+ * command for each package manager, as tabs; the chosen one is remembered and every block follows
+ * it. `run="kirana-style@latest init"` runs a package not installed, `exec="kirana-style check"`
+ * one the project has. The commands are in `@workspace/docs-core/package-managers.ts`, which the
+ * markdown twin reads too.
  */
 import { useSyncExternalStore } from "react"
 import { css } from "@kirana-style/core"

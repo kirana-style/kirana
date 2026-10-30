@@ -604,7 +604,7 @@ fn a_build_reuses_a_transform_whose_inputs_are_unchanged() {
     assert_eq!(second.dependencies, first.dependencies);
     assert!(!second.css_changed);
 
-    // A file the evaluation read changed on disk, with nothing telling the project: compiled again.
+    // A file the evaluation read changed on disk: compiled again.
     fs::write(root.join("tokens.ts"), tokens.replace("1px", "2px")).unwrap();
     project.invalidate(&root.join("tokens.ts"));
     let changed = project.transform(&path, input);

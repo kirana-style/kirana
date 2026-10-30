@@ -13,11 +13,6 @@ import { spacing } from "../tokens/spacing"
 import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
 import { zIndex } from "../tokens/z-index"
 
-/**
- * The swipe handle and the content both dim while a drawer opens on top of them,
- * and come back if the user starts dragging that nested drawer away again.
- */
-
 /** Live gesture values Base UI writes onto the popup. */
 const SWIPE_X = "var(--drawer-swipe-movement-x)"
 const SWIPE_Y = "var(--drawer-swipe-movement-y)"
@@ -27,12 +22,10 @@ const INSET = "var(--drawer-inset, 0px)"
 const FLICK = "calc(var(--drawer-swipe-strength) * 400ms)"
 
 /**
- * The stack geometry, composed here rather than in `theme/context.ts`.
- *
- * Every formula reads a variable Base UI writes onto the popup, so it has to be
- * assigned on the popup: a token default is substituted on `:root`, where
- * those variables do not exist, and the result is an invalid custom property
- * that silently takes the whole `transform` with it.
+ * The stack geometry, composed here rather than in `theme/context.ts`: every
+ * formula reads a variable Base UI writes onto the popup, and a token default is
+ * substituted on `:root`, where it would be invalid and take the whole
+ * `transform` with it.
  */
 /** How much each nested drawer shrinks the one behind it. */
 const STACK_STEP = "0.05"
@@ -56,7 +49,6 @@ const styles = {
     userSelect: "none",
     transitionProperty: "opacity",
     transitionTimingFunction: easing.decelerate,
-    // Conditions nest inside the property they apply to.
     backdropFilter: {
       "@supports (backdrop-filter: blur(1px))": `blur(${blur.xs})`,
     },
@@ -68,8 +60,7 @@ const styles = {
       "[data-starting-style]": 0,
       "[data-ending-style]": 0,
     },
-    // No plain default: it would sit outside the cascade layers and beat the
-    // condition. The `var()` above falls back to 0 instead.
+    // No plain default: the `var()` above falls back to 0.
     "--drawer-overlay-min-opacity": {
       "[data-snap-points]": "0.5",
     },
@@ -120,15 +111,10 @@ const styles = {
     width: drawerCtx.contentWidth,
 
     /**
-     * Size per axis.
-     *
-     * No `base` here on purpose: the default stays the token's own declaration
-     * on `:root`, where it is merely inherited and any element-level condition
-     * beats it. (Under StyleX a `default` beside an attribute condition landed
-     * in a later layer and silently won.)
-     *
-     * Where a value has to apply unconditionally *and* be overridden, both
-     * branches are attribute conditions, so ordinary specificity decides: the
+     * Size per axis. No `base` on purpose: the default stays the token's own
+     * declaration on `:root`, merely inherited, so any element-level condition
+     * beats it. Where a value has to apply unconditionally and be overridden,
+     * both branches are attribute conditions and specificity decides: the
      * two-attribute compound below wins over the one-attribute rule.
      */
     [drawerCtx.contentWidth]: {
@@ -360,13 +346,9 @@ const styles = {
     padding: spacing[4],
     paddingBottom: 0,
     /**
-     * `group-data-[swipe-axis=y]/drawer-popup:text-center md:text-start`.
-     *
-     * In Tailwind the group variant out-specifies the bare `md:` utility, so a
-     * bottom or top drawer stays centred at every width and `md:text-start`
-     * only reaches side drawers. Kirana's ladder also ranks the relation read
-     * above `@media`, but nesting states the intent outright and survives any
-     * change to the ladder.
+     * A top or bottom drawer stays centred at every width; the `md` start
+     * alignment only reaches side drawers. Nested, so the intent holds whatever
+     * the precedence ladder ranks first.
      */
     textAlign: {
       [drawerPopupMarker.within('[data-swipe-axis="y"]')]: "center",

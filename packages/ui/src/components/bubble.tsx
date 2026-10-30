@@ -14,16 +14,10 @@ import { spacing } from "../tokens/spacing"
 import { fontSize, leading, lineHeight } from "../tokens/typography"
 
 /**
- * A chat bubble.
- *
- * Every variant in the original styled the *child* from the parent —
- * `*:data-[slot=bubble-content]:bg-primary` and a matching
- * `[&>[data-slot=bubble-content]:is(button,a):hover]` rule for each. The variant
- * moved onto `BubbleContent`, which reads it through React context instead of
- * being styled from its parent. `Bubble` still takes the prop, so the API is unchanged.
- *
- * Dropping the `:is(button,a)` qualifier means hover applies whenever the bubble
- * is interactive, which is the only case it could apply before.
+ * A chat bubble. `Bubble` takes the variant and `BubbleContent` reads it through
+ * React context, so the content styles itself. A condition cannot match the
+ * element's own tag, so the hover styles apply to any content, not only a button
+ * or link.
  */
 
 const styles = {

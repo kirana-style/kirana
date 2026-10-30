@@ -1,17 +1,9 @@
 /**
- * The Kirana logo files, built from the petal K (`kirana-mark.ts`). Every
- * downloadable file, the favicon and the editors' icon come from `toSvg`;
- * nothing is drawn by hand elsewhere.
- *
- * - `mark`: the mark alone, 16 × 21.5 units;
- * - `square`: the mark centred on a 21.5 × 21.5 square, for favicons and the
- *   editors, where icons are square;
- * - `icon`: the mark on a rounded 24u tile, 15u tall, for app icons and
- *   avatars.
- *
- * The brand colours are the Highland morning gradients (`GRADIENTS`): they mark the places that
- * should stand out, such as the favicon, app icons and the editors' icon. The solid colours take
- * one colour for all three parts, as the site's header does.
+ * The Kirana logo files, built from the petal K (`kirana-mark.ts`): every downloadable file, the
+ * favicon and the editors' icon come from `toSvg`. `mark` is the mark alone; `square` centres it on
+ * a 21.5u square for favicons and the editors; `icon` sets it 15u tall on a rounded 24u tile for app
+ * icons and avatars. Brand files take the Highland morning gradients (`GRADIENTS`), the others one
+ * colour for all three parts, as the site's header does.
  */
 
 import { GRADIENTS, MARK, PAINT_ORDER, PARTS } from "./kirana-mark"

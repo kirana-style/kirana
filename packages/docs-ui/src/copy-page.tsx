@@ -1,10 +1,8 @@
 /**
  * "Copy page": the page as markdown, for a language model or an agent. The
  * main button copies it; the menu views it raw or opens it in an assistant with
- * the page's markdown URL in the prompt.
- *
- * The markdown is the generator's twin of the page (`/docs/<slug>.md`), so what
- * is copied is exactly what `llms-full.txt` carries.
+ * the page's markdown URL in the prompt. The markdown is the generator's twin of
+ * the page (`/docs/<slug>.md`), the same text `llms-full.txt` carries.
  */
 import { useState } from "react"
 import { css } from "@kirana-style/core"

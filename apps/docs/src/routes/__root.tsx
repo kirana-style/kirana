@@ -102,8 +102,8 @@ const MODE_SCRIPT = `(() => {
 
 /**
  * The paper and the night ground, for the browser's own chrome. Written in `<head>` directly:
- * TanStack Router keeps one `meta` per `name`, so a pair that differs only in `media` lost its
- * light half through `head()`, and a light-mode reader got dark browser chrome.
+ * TanStack Router keeps one `meta` per `name`, so through `head()` a pair that differs only in
+ * `media` loses its light half and a light-mode reader gets dark browser chrome.
  */
 function ThemeColorMeta() {
   return (
@@ -128,11 +128,9 @@ function ThemedDocument({ children }: { children: React.ReactNode }) {
   // `color-scheme` goes on the root element, not the body: the root decides the
   // page's scrollbars and canvas.
   return (
-    // `data-mode` with the scheme anchor: what an image per scheme (a brand
-    // logo) reads, since `light-dark()` only switches colours.
-    // The classes come from `documentProps`, as MODE_SCRIPT's do. Until the provider reads the
-    // cookie, a prerendered page hydrates in the system mode while the script has already set the
-    // saved one: React keeps the attributes it finds rather than warning about them.
+    // `data-mode` with the scheme anchor is what an image per scheme (a brand logo) reads, since
+    // `light-dark()` only switches colours. A prerendered page hydrates in the system mode after
+    // MODE_SCRIPT has set the saved one: React keeps the attributes it finds rather than warning.
     <html
       lang="en"
       data-mode={mode}

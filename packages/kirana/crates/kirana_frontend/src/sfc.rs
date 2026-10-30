@@ -1,14 +1,9 @@
-//! Vue, Svelte and Astro components for the language server (`design-notes/editor-components.md`):
-//! where a component's script blocks and `sx` bindings are, found by scanning its text. Angular
-//! templates too (D-068): an `@Component`'s inline `template` and the `.html` file its
-//! `templateUrl` names hold `[sx]="…"` bindings, read by the `SxDirective` at runtime.
-//!
-//! The build finds them with each framework's own parser (`npm/compiler/src/sfc.ts`), which the
-//! Rust server cannot load. This scanner reports the same blocks and bindings for the components
-//! those parsers accept — `npm/compiler/test/sfc-scan.test.ts` holds it to that over every example
-//! component — and the same module ids (`Card.vue.setup.ts`), so the editor and the build know a
-//! block by one name. It never parses JavaScript: it only skips strings, comments and balanced
-//! braces to find where an expression ends.
+//! Vue, Svelte and Astro components, and Angular templates (D-068), for the language server
+//! (`design-notes/editor-components.md`): where script blocks and `sx` bindings are, found by
+//! scanning the text. It reports the same blocks, bindings and module ids (`Card.vue.setup.ts`) as
+//! the build's parsers (`npm/compiler/src/sfc.ts`), which the Rust server cannot load;
+//! `npm/compiler/test/sfc-scan.test.ts` holds it to that. It never parses JavaScript: it skips
+//! strings, comments and balanced braces to find where an expression ends.
 
 use std::path::Path;
 

@@ -137,7 +137,7 @@ pub fn string_at(text: &str, offset: usize) -> Option<(usize, usize, u8)> {
     Some((start, end.min(bytes.len()), quote))
 }
 
-/// What a string at `start` (just after its opening quote) is in a style object.
+/// What a string literal is in a style object.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Slot {
     /// A key: a property, a condition or a pseudo-element. `nested` is true inside a property's

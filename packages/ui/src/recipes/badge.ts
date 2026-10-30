@@ -1,11 +1,7 @@
 /**
- * The Badge recipe.
- *
- * `[a]:hover:bg-primary/80` in the original applied a hover style only when the
- * badge rendered as a link. That selector targets the element's own tag name,
- * which a condition key cannot express, so the hover styles apply whenever the
- * badge is interactive — which is the case the variant existed for. A non-interactive
- * badge never receives hover in practice.
+ * The Badge recipe. A condition key cannot match the element's own tag, so the
+ * hover styles apply whatever the badge renders as; in practice only a badge
+ * rendered as a link receives hover.
  */
 
 import { css } from "@kirana-style/core"
@@ -48,8 +44,6 @@ const styles = {
     transitionProperty: "color, background-color, border-color, box-shadow",
     transitionDuration: duration[150],
     transitionTimingFunction: easing.inOut,
-    // Was `[&>svg]:size-3!`. The `!` existed to beat the button's icon rule
-    // when a badge sat inside one; an explicit token needs no such fight.
     [ctx.iconSize]: "0.75rem",
   }),
   ring: css({

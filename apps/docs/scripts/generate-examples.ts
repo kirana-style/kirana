@@ -1,15 +1,10 @@
 /**
- * Compiles every documentation example with the real compiler and writes what it
- * produced.
+ * Compiles every documentation example with the real compiler and writes what it produced, so the
+ * CSS, class names and diagnostics shown beside an example under `src/examples/` come from running
+ * `@kirana-style/compiler` over the same file the page renders live, never from prose. Also
+ * highlights the homepage's `showcase/` snippets.
  *
- * This is what keeps the site honest. An example under `src/examples/` is an
- * ordinary module of this app: the Vite plugin compiles it in the build, the page
- * renders it live, and the CSS, class names and diagnostics shown beside it come
- * from running `@kirana-style/compiler` over that same file — never from prose.
- *
- * Each example gets its own session, so its stylesheet is its own rules and
- * nothing else. Needs the native engine (`bun run kirana:build`); the output is
- * committed, so `dev` and `typecheck` do not.
+ * Needs the native engine (`vp run engine`); the output is committed, so `dev` and `typecheck` do not.
  */
 import { readdir, readFile, writeFile } from "node:fs/promises"
 import { basename, join, relative } from "node:path"

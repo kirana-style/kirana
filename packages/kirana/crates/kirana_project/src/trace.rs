@@ -248,7 +248,6 @@ impl Project {
     /// Answers every query, compiling each file once however many queries name it (KF-022): a tool
     /// that checks thousands of entries asks once.
     pub fn trace_all(&self, queries: &[TraceQuery]) -> Vec<TraceAnswer> {
-        // Each file is read, compiled and indexed by line once, however many queries name it.
         let mut sources: BTreeMap<std::path::PathBuf, Option<LineIndex>> = BTreeMap::new();
         queries
             .iter()

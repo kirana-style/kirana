@@ -1,12 +1,9 @@
 /**
- * Kirana for the Angular CLI (D-068, `design-notes/angular.md`). Angular's application builder
- * compiles TypeScript from its own program and offers no hook to change a source first, but it
- * honours `fileReplacements`, by redirecting module resolution to the replacement file. So the
- * builders keep a mirror of the source folder in `.kirana/`: every file copied, the ones that hold
- * styles compiled by Kirana. A replacement's relative imports and `templateUrl`s then resolve inside
- * the mirror, where every file exists. Every TypeScript file is replaced, the stylesheet is written
- * beside the mirror, and in watch mode each change is mirrored again — Angular, which watches the
- * replacements, rebuilds from there.
+ * Kirana for the Angular CLI (D-068, `design-notes/angular.md`). Angular's builder offers no hook to
+ * change a source, but honours `fileReplacements`, so the builders keep a mirror of the source folder
+ * in `.kirana/`: every file copied, the ones that hold styles compiled. Relative imports and
+ * `templateUrl`s resolve inside the mirror; in watch mode each change is mirrored again and Angular,
+ * which watches the replacements, rebuilds.
  */
 import {
   copyFileSync,

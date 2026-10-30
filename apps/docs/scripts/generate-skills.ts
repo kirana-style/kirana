@@ -1,18 +1,14 @@
 /**
- * Writes the generated references of the agent skills in `skills/` (D-078), from the compiler's own
+ * Writes the generated references of the agent skills in `skills/` (D-078) from the compiler's own
  * source, so a skill cannot fall behind it:
  *
  *   skills/kirana/references/diagnostics.md  every code in the catalogue, with what to do about it
  *   skills/kirana/references/lint.md         every lint rule, its configs and the linters that run it
  *
- * It also checks every skill: a `name` that matches its folder and a `description` of at most
- * 1024 characters (what `npx skills` reads), every `references/` file a skill names exists, and
- * every documentation URL names a page that exists.
- *
- * Like `generate-reference.ts` it reads source text and runs nothing. What to do about each
- * diagnostic is written below, once per code: a code added to the catalogue without a line here
- * fails the script, and so does a line for a code that no longer exists. `--check` fails when the
- * committed output is stale, which is what CI runs.
+ * It also checks every skill: its `name` matches its folder, its `description` is at most 1024
+ * characters (what `npx skills` reads), and every `references/` file and docs page it names exists.
+ * A catalogue code with no line in `FIXES` fails the script, and so does a line for a code that is
+ * gone. `--check` fails when the committed output is stale.
  */
 import { readdir, readFile, writeFile } from "node:fs/promises"
 import { join } from "node:path"

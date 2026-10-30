@@ -25,7 +25,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     borderRadius: radius.lg,
-    // Was `has-aria-invalid:*`: the group shows the error, not each slot.
+    // The group shows the error, not each slot.
     borderColor: {
       // Full strength in both modes: only the ring softens in dark.
       ':has([aria-invalid="true"])': theme.destructive,

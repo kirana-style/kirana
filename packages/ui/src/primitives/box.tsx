@@ -1,14 +1,8 @@
 /**
- * Layer 5: the layout primitives.
- *
- * These give the design system the Panda-flavoured prop API — `<Box p="4"
- * bg="card" rounded="lg">` — while every prop resolves to a style the compiler
- * already compiled. No style object is built during render.
- *
- * Deliberately narrow: the props cover layout and the semantic palette, and
- * nothing else. Anything more specific belongs in a component's own
- * `css()`, where it is named and reviewable, rather than spread across
- * call sites as ad-hoc utilities.
+ * The layout primitives. A prop like `<Box p="4" bg="card">` indexes a table of
+ * styles compiled ahead of time, so no style object is built during render. The
+ * props cover layout and the semantic palette only; anything more specific
+ * belongs in a component's own `css()`, where it is named and reviewable.
  */
 
 import type { Sx } from "../lib/sx"

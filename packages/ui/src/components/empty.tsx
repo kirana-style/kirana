@@ -25,8 +25,8 @@ const styles = {
     justifyContent: "center",
     gap: spacing[4],
     borderRadius: radius.xl,
-    // Dashed but zero width: the original set only `border-dashed`, so a
-    // caller's `borderWidth` is all it takes to draw the outline.
+    // Dashed but zero width, so a caller's `borderWidth` is all it takes to
+    // draw the outline.
     borderWidth: 0,
     borderStyle: "dashed",
     borderColor: theme.border,

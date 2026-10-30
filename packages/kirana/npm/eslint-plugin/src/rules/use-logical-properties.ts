@@ -1,13 +1,9 @@
 /**
  * `kirana/use-logical-properties`: a property fixed to the left or the right names the inline side
- * instead (`marginLeft` → `marginInlineStart`), so a right-to-left page mirrors it. Only the sides
- * and corners of the inline axis: top, bottom and sizes change only in vertical writing, where a
- * page is laid out for it anyway.
- *
- * Off unless enabled, since a page that is only ever left-to-right loses nothing, and never fixed
- * automatically: the two properties agree only in left-to-right text, so the change is the author's
- * call, offered as a suggestion. The pairs follow the compiler's own (`physical_counterpart` in
- * `kirana_css_data`, which `mixed-logical-physical` reads); a test holds them together.
+ * instead (`marginLeft` → `marginInlineStart`), so a right-to-left page mirrors it. Only the inline
+ * axis: top, bottom and sizes change only in vertical writing. A suggestion, never a fix, since the
+ * two agree only in left-to-right text. The pairs follow `physical_counterpart` in
+ * `kirana_css_data`; a test holds them together.
  */
 import { eachStyleObject, keyName } from "../ast.ts"
 import { docs } from "../types.ts"

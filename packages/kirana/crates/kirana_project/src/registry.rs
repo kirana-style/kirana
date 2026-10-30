@@ -89,8 +89,7 @@ impl ModuleRecord {
 #[derive(Debug, Default)]
 pub(crate) struct AtomIndex {
     /// Class → each module writing it, with its atom. The stylesheet takes the first module's, in
-    /// path order, as a walk of the modules in that order did: two atoms share a class only when
-    /// `class-name-collision` reports them.
+    /// path order: two atoms share a class only when `class-name-collision` reports them.
     atoms: FxHashMap<Arc<str>, Writers>,
     /// Every class in the stylesheet's order (D-036): ranked when it arrives, and again only when
     /// the atom written for it ranks otherwise, so writing the stylesheet sorts nothing. Grouped by
@@ -334,7 +333,6 @@ pub(crate) struct Cached {
     diagnostics: Option<(u64, Vec<Diagnostic>)>,
 }
 
-/// The markers of every relation in a value, inside arrays and objects too.
 /// The relations an exported value lets another module read: the relation itself, or a read of it (a
 /// condition, a style that reads it, or the bound `within`), at any depth of an object or array
 /// (KF-024). A module that exports `{ anchor, style: { lyra: ui.within(…) } }` lets others read the
@@ -436,9 +434,10 @@ impl Project {
         self.dense.store(true, std::sync::atomic::Ordering::Relaxed);
     }
 
-    /// The edits that give a chunk `text` dense names (D-084), renaming marked names and removing marks: every condition and value hash in the build
-    /// has a code, assigned the first time it is seen and kept for the rest of the session, so text
-    /// renamed earlier stays valid as later modules compile.
+    /// The edits that give a chunk `text` dense names (D-084), renaming marked names and removing
+    /// marks: every condition and value hash in the build has a code, assigned the first time it is
+    /// seen and kept for the rest of the session, so text renamed earlier stays valid as later
+    /// modules compile.
     pub fn dense_edits(&self, text: &str) -> Vec<Edit> {
         self.assign_dense();
         self.state.read().expect("not poisoned").dense.edits(&self.names.prefix, text, true)
@@ -633,7 +632,7 @@ impl Project {
         }
         for (marker, file) in &reads {
             // A relation declared in a module this build never compiled (its import only carried a
-            // style) is anchored where that module renders, which this build cannot see: `kirana
+            // style) is anchored where that module renders, which this build cannot see: `kirana-style
             // check`, compiling every module, decides it (D-062).
             if let Some(name) = relation_names.get(marker)
                 && !anchors.contains(marker)

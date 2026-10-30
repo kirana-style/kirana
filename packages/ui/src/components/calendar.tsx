@@ -26,16 +26,11 @@ import { spacing } from "../tokens/spacing"
 import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
 
 /**
- * react-day-picker is configured with a map of *class name strings*, not style
- * objects, so every style here is turned into a class with
- * `styleProps(...).className`. The styles themselves are ordinary `css()`.
- *
- * A day cell carries a relation anchor so the button inside it can react to the cell's
- * state — the `group/day` relationship in the original. Cell size and corner
- * radius stay variables because the whole grid has to agree on them.
+ * react-day-picker takes a map of class name strings, so every style here is
+ * turned into a class with `styleProps(...).className`. A day cell carries a
+ * relation anchor so the button inside it can react to the cell's state. Cell
+ * size and radius are variables because the whole grid has to agree on them.
  */
-/** Selected ranges round only at the ends of a week row. */
-/** Inside a card or popover the calendar drops its own background. */
 
 const styles = {
   root: css({
@@ -249,10 +244,9 @@ const styles = {
       '[data-range-middle="true"]': theme.foreground,
     },
     /**
-     * `default` restates the Button's own `rounded-lg`. A `null` here would not
-     * mean "leave the Button's radius alone": this namespace owns
-     * `borderRadius` once merged after the recipe, and `null` removes it, which
-     * squared every day in the grid.
+     * `base` restates the Button's own radius: this namespace owns
+     * `borderRadius` once merged after the recipe, so `null` would remove it and
+     * square every day in the grid.
      */
     borderRadius: {
       base: radius.lg,
@@ -340,8 +334,8 @@ function Calendar({
   sx?: Sx
   /**
    * Styles for days carrying a modifier, keyed by its name: the cell as `day`,
-   * its button as `button`. Replaces `modifiersClassNames`, whose class strings
-   * would race the calendar's own styles in stylesheet order.
+   * its button as `button`. Use it instead of `modifiersClassNames`, whose class
+   * strings would race the calendar's own styles in stylesheet order.
    */
   modifiersSx?: Record<string, { day?: Sx; button?: Sx }>
 }) {
@@ -400,8 +394,6 @@ function Calendar({
         />
       ),
       Chevron: ({ orientation }) => {
-        // Left and right chevrons mirror with writing direction; the dropdown
-        // caret always points down.
         if (orientation === "left") {
           return <Icon icon={ArrowLeft01Icon} size="1rem" />
         }

@@ -13,10 +13,6 @@ import { fontSize, fontWeight, leading, lineHeight } from "../tokens/typography"
 /**
  * A file attachment chip: a thumbnail or icon, a name, some metadata and an
  * optional action.
- *
- * The file this replaced was a usage demo importing `@/components/ui/attachment`,
- * a component that did not exist in this repository. This is that component,
- * written against the API the demo implied.
  */
 
 const styles = {

@@ -26,11 +26,10 @@ const CANDIDATES = [
 ]
 
 /**
- * `import()` where no bundler looks. webpack's persistent cache parses every module the Next.js
- * configuration loads, accepts only string-literal `import()`, and otherwise warns on every build
- * ("Build dependencies behind this expression are ignored"). The configuration file is read by the
- * Driver at run time, never a build dependency a bundler could track, so hiding the call loses
- * nothing. It also keeps the packer (`vite-plus/pack`) from rewriting the import when it compiles.
+ * `import()` where no bundler looks: webpack's persistent cache parses every module the Next.js
+ * configuration loads and warns on every build about an `import()` of a non-literal ("Build
+ * dependencies behind this expression are ignored"). The configuration is read at run time, never a
+ * build dependency, so hiding the call loses nothing; it also keeps `vite-plus/pack` from rewriting it.
  */
 export const importFile = new Function(
   "url",
@@ -61,10 +60,9 @@ export function findConfigAbove(start: string): string | undefined {
 
 /**
  * The root a host's Driver compiles from: `root`, unless it has no configuration and sits in a
- * package whose root has one. Vite's `root` is often a folder of the package, and `kirana-style ui
- * init` writes `kirana.config.ts` beside `package.json`, where the plugin did not look (KF-069). The
- * configuration's directory is then the root, as `--config <file>` makes it, so the paths it names
- * resolve from where it is.
+ * package whose root has one: Vite's `root` is often a folder of the package, while `kirana-style ui
+ * init` writes `kirana.config.ts` beside `package.json` (KF-069). The configuration's directory is
+ * then the root, as `--config <file>` makes it, so the paths it names resolve from where it is.
  */
 export function hostRoot(root: string): string {
   for (let directory = root; ; directory = path.dirname(directory)) {
@@ -256,7 +254,7 @@ function engineJson(
   inline: KiranaConfig
 ): string {
   return toEngineJson(root, config, inline, {
-    // Read only when the configuration names none, as before: it wins over the detected mode.
+    // Detected only when the configuration names none: a named mode wins.
     jsx: ({ ...config, ...inline }.jsx ?? detectJsx(root)) as
       | JsxMode
       | undefined,

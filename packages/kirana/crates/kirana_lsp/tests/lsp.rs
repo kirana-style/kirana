@@ -619,7 +619,6 @@ fn code_actions_fix_explain_show_and_convert() {
     let rewrite = convert.as_array().unwrap().iter().find(|a| a["kind"] == "refactor.rewrite").unwrap();
     let edits = rewrite["edit"]["changes"][&uri].as_array().unwrap();
     let new_text = edits[0]["newText"].as_str().unwrap();
-    eprintln!("EDITS {}", serde_json::to_string_pretty(&edits).unwrap());
     assert!(
         new_text.starts_with("sx={css({")
             && new_text.contains("display: \"flex\"")

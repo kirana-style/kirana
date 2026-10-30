@@ -1,7 +1,7 @@
 /**
- * A project's registries (KRN-DX-022, KRN-DX-026): `ui.registries` from the nearest
- * `kirana.config.*` at or above the working directory, read with the compiler's own loader and
- * checked against `SETTINGS_SCHEMA` before anything is fetched, with `@kirana` built in.
+ * A project's `ui` settings (KRN-DX-022, KRN-DX-026): `ui` from the nearest `kirana.config.*` at
+ * or above the working directory, read with the compiler's own loader and checked against
+ * `SETTINGS_SCHEMA` before anything is fetched, with the `@kirana` registry built in.
  */
 import path from "node:path"
 

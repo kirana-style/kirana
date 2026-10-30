@@ -1,20 +1,8 @@
 /**
  * Shared surface and row styling for every menu-shaped popup: DropdownMenu,
- * Select, Combobox and Command.
- *
- * The Tailwind original styled rows from the popup, with a suffix attribute
- * matcher reaching arbitrarily deep:
- *
- *   **:data-[slot$=-item]:focus:bg-foreground/10
- *   **:data-[slot$=-separator]:bg-foreground/5
- *   **:data-[variant=destructive]:focus:bg-foreground/10!
- *
- * That is three layers of indirection — and the `!` on the last one exists only
- * to win a specificity fight the first two started. None of it needs to exist:
- * a row knows when it is focused. The styles
- * moved onto the rows, and the popup hands down only the colours that differ
- * between its solid and glass surfaces, through `menuCtx`. The `!important`
- * disappeared with the conflict.
+ * ContextMenu, Menubar, Select and Combobox. Rows style themselves; the popup
+ * hands down only the colours that differ between its solid and glass surfaces,
+ * through `menuCtx`.
  */
 
 import { css } from "@kirana-style/core"
@@ -56,9 +44,8 @@ export const menuStyles = {
     padding: spacing[1],
     color: theme.popoverForeground,
     /**
-     * `shadow-md ring-1 ring-foreground/10`. Tailwind composes every box-shadow
-     * as inset, ring, then shadow, so the ring layer is listed first — and the
-     * first layer paints on top. `shadow.md` is two layers; both are needed.
+     * `shadow-md ring-1 ring-foreground/10`. The ring layer is listed first, as
+     * Tailwind composes it, so it paints on top. `shadow.md` is two layers.
      */
     boxShadow: `0 0 0 1px ${alpha.foreground10}, ${shadow.md}`,
     outlineStyle: "none",
@@ -133,7 +120,7 @@ export const menuStyles = {
       "[data-highlighted]": menuCtx.destructiveHighlight,
     },
   }),
-  /** Leaves room for a leading indicator column. Was `data-inset:ps-7`. */
+  /** Leaves room for a leading indicator column. */
   itemInset: css({ paddingInlineStart: spacing[7] }),
   /** Leaves room for a trailing check. */
   itemCheckable: css({
@@ -176,7 +163,7 @@ export const menuStyles = {
     justifyContent: "center",
   }),
 
-  /** The chevron on a submenu trigger. Mirrors itself in right-to-left text. */
+  /** The chevron on a submenu trigger. */
   submenuChevron: css({
     marginInlineStart: "auto",
   }),

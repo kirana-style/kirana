@@ -6,7 +6,7 @@
  * compiled the module that declares it (D-062), and the import disappears with
  * the styles that use it — so declared here, it enters an application's build
  * only when the application renders a `ButtonGroup`. Declared among the shared
- * markers, every application using `Button` alone failed its build.
+ * markers, it would fail the build of every application using `Button` alone.
  */
 import { relation } from "@kirana-style/core"
 

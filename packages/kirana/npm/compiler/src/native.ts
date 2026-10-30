@@ -60,14 +60,11 @@ const missing = (error: unknown, id: string) =>
   String((error as Error).message).includes(id)
 
 /**
- * Loads the engine (D-029, D-050, KRN-INT-006).
- *
- * In order: `KIRANA_NATIVE_PATH` (instrumented test builds); the installed platform package the
- * package manager picked from `optionalDependencies`; the workspace build beside this package; then
- * the WASI build — `@kirana-style/compiler-wasm32-wasi`, or the workspace's `kirana.wasi.cjs`. A native
- * addon that is installed but fails to load falls back to WASI with a warning, because the build
- * still works, only slower; with no WASI build either, its own error surfaces rather than "not
- * found". `KIRANA_FORCE_WASI=1` skips the native addon.
+ * Loads the engine (D-029, D-050, KRN-INT-006), in order: `KIRANA_NATIVE_PATH` (instrumented test
+ * builds), the platform package from `optionalDependencies`, the workspace build beside this package,
+ * then the WASI build (`@kirana-style/compiler-wasm32-wasi` or the workspace's `kirana.wasi.cjs`). An
+ * installed addon that fails to load falls back to WASI with a warning, since the build still works,
+ * only slower; with no WASI build its own error surfaces. `KIRANA_FORCE_WASI=1` skips the addon.
  */
 export function loadNative(
   env: NodeJS.ProcessEnv = process.env,

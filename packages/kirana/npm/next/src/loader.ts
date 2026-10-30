@@ -1,10 +1,8 @@
 /**
- * The Turbopack loader (KRN-INT-010): compiles one module in a session of the loader process. The
- * stylesheet is not its business — `@kirana-style/postcss` compiles the project into it — so it only
- * rewrites styles into class names, which are the same in both sessions (D-037).
- *
- * Turbopack implements part of webpack's loader API; `addDependency` and `emitWarning` are used only
- * where they exist.
+ * The Turbopack loader (KRN-INT-010): rewrites one module's styles into class names in the loader
+ * process's session; `@kirana-style/postcss` writes the stylesheet, with the same names (D-037).
+ * Turbopack implements part of webpack's loader API, so `addDependency` and `emitWarning` are used
+ * only where they exist.
  */
 import { Driver } from "@kirana-style/compiler"
 import { createReporter, shouldCompile } from "@kirana-style/compiler/host"

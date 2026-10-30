@@ -1,15 +1,9 @@
 /**
- * An editor window, drawn the way Kirana's extension looks in a dark theme: a title
- * bar with traffic lights and the file's path, numbered lines, and the summary the
- * language server writes after an element's line — Kirana's mark (the petal K, in its brand
- * gradients), then each part in
- * its group's colour (layout blue, box green, size cyan, colour orange, type yellow,
- * border purple; never red, which reads as an error).
- *
- * The window is dark in both colour schemes, as most editors are, and sets
- * `color-scheme: dark`, so highlighted code inside it takes the dark side of every
- * `light-dark()` token colour. Docs blocks marked `editor` render through it, and
- * the homepage's showcase builds its scenes from the same pieces.
+ * An editor window as Kirana's extension looks in a dark theme: traffic lights, numbered lines,
+ * and the language server's summary after a line, each part in its group's colour (never red,
+ * which reads as an error). It sets `color-scheme: dark` in both schemes, so highlighted code
+ * takes the dark side of every `light-dark()` token. Docs `editor` blocks and the homepage's
+ * showcase are built from it.
  */
 import { css } from "@kirana-style/core"
 import { SourceCodeIcon } from "@hugeicons/core-free-icons"

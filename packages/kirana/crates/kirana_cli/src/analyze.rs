@@ -1,5 +1,5 @@
-//! `kirana-style analyze`'s three renderings of [`Analysis`]: a terminal summary, JSON, and one
-//! self-contained HTML page.
+//! `kirana-style analyze`'s renderings of [`Analysis`]: a terminal summary and one self-contained
+//! HTML page (`--json` serializes it as it is).
 
 use kirana_project::{Analysis, Finding};
 

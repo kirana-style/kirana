@@ -1,10 +1,8 @@
 /**
- * The four tools the benchmarks compare, as chart series: a key a custom property can carry
- * (`stylex-swc`), and two colourings. The bars highlight Kirana in the page's accent against a
- * wash of it, since each bar is labelled. The lines need every tool told apart, so each takes its
- * own logo's colour: StyleX's magenta, a shade of it for its SWC build, and Tailwind CSS's sky
- * blue, each as a light-dark pair that holds on both papers, and softened, so Kirana's line in
- * the accent reads first. The line, its points, the legend and the tooltip all take one colour.
+ * The tools the benchmarks compare, as chart series: a key a custom property can carry
+ * (`stylex-swc`), and two colourings. The bars, each labelled, highlight Kirana in the accent
+ * against a wash of it. The lines need every tool told apart, so each takes its logo's colour,
+ * softened so Kirana's line in the accent reads first.
  */
 import { accent, tint } from "@workspace/docs-ui/accent.ts"
 import type { ChartConfig } from "@workspace/ui/components/chart"

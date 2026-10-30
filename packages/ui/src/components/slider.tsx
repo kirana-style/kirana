@@ -57,15 +57,15 @@ const styles = {
     borderWidth: "1px",
     borderStyle: "solid",
     borderColor: theme.ring,
-    // The original hardcodes white here rather than using a token, so the
-    // dot reads the same against either palette.
+    // White rather than a token, so the dot reads the same against either
+    // palette.
     backgroundColor: color.white,
     userSelect: "none",
     outlineStyle: "none",
     transitionProperty: "color, box-shadow",
     transitionDuration: duration[150],
     transitionTimingFunction: easing.inOut,
-    // Was `after:-inset-2`: widens the pointer target past the visible dot.
+    // Widens the pointer target past the visible dot.
     "::after": {
       content: "''",
       position: "absolute",

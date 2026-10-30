@@ -24,12 +24,9 @@ const styles = {
   content: css({ display: "flex", alignItems: "center", gap: spacing["0.5"] }),
   /**
    * The previous and next links tuck their arrow closer to the edge than a plain
-   * button would. The original needed `pl-1.5!` to beat the size variant; here the
-   * style is simply applied after it.
+   * button would. `"*": null` removes every earlier entry, the button size's
+   * conditional icon padding included, before the new base.
    */
-  // `pl-1.5!` / `pr-1.5!` in the original: the importance beat the button size's
-  // `has-data-[icon]` padding. In Kirana that is an explicit removal of every
-  // earlier entry, conditional ones included, before the new base.
   previous: css({ paddingInlineStart: { "*": null, base: spacing["1.5"] } }),
   next: css({ paddingInlineEnd: { "*": null, base: spacing["1.5"] } }),
   /** The word beside the arrow is dropped on narrow screens. */
@@ -113,7 +110,6 @@ function PaginationPrevious({
       {...props}
       sx={mergeSx(styles.previous, sx)}
     >
-      {/* The arrow points the way the text reads, so it mirrors in RTL. */}
       <Icon icon={ArrowLeft01Icon} data-icon="inline-start" />
       <span sx={styles.label}>{text}</span>
     </PaginationLink>

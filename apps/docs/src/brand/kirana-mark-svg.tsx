@@ -21,9 +21,9 @@ const MONO: Record<keyof typeof PARTS, number> = {
 }
 
 /**
- * The petal K. `brand` draws the reference's three gradients; `solid` fills every part with
+ * The petal K. `brand` draws the three brand gradients (`GRADIENTS`); `solid` fills every part with
  * `currentColor`; `mono` gives each part its own share of it; `outline` strokes the parts. Size it
- * with `height` (or `width`) in `sx`; the viewBox keeps the 16 × 21 proportions.
+ * with `height` (or `width`) in `sx`; the viewBox keeps the 16 × 21.5 proportions.
  */
 export function KiranaMark({
   variant = "brand",
@@ -34,7 +34,7 @@ export function KiranaMark({
   sx,
 }: {
   variant?: MarkVariant
-  /** Gradient stops per part, in place of the reference's (`PALETTES`). */
+  /** Gradient stops per part, in place of the brand's (a set from `PALETTES`). */
   stops?: Record<Part, [number, string][]>
   /**
    * The ground's colour: outlines the arm in it, under its fill, so where all three parts share

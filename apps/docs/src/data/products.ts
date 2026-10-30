@@ -1,8 +1,8 @@
 /**
  * Kirana's products beside the compiler: the one you can use with it today and the ones that are
- * planned. The roadmap shows them (`components/site/product-table.tsx`); the header's Ecosystem menu
- * and the `/ecosystem` chapter that read this list too are commented out for now. A product without `href` is not there to use yet: the menu shows it
- * disabled and the page marks it "Planned".
+ * planned. The roadmap shows them (`components/site/product-table.tsx`); the `/ecosystem` chapter
+ * that shows them too is commented out. A product without `href` is not there to use yet, and the
+ * table marks it "Planned".
  */
 import {
   Book02Icon,
@@ -19,9 +19,8 @@ import { UI_SITE } from "./links.ts"
 
 export type Product = {
   name: string
-  /** One line, as the menu's row shows it. */
   description: string
-  /** What the `/ecosystem` page says about it; `code` spans are set as code. */
+  /** What the product table says about it; `code` spans are set as code. */
   note: string
   /** Where it lives; absent while it is planned. */
   href?: string

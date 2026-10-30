@@ -113,11 +113,9 @@ function Carousel({
     plugins
   )
   /**
-   * Whether either arrow is still usable.
-   *
-   * Read through `useSyncExternalStore` rather than mirrored into state from an
-   * effect: Embla already is the external store, and subscribing to it directly
-   * avoids a render pass whose only job is to copy a value that already exists.
+   * Whether either arrow is still usable, read from Embla through
+   * `useSyncExternalStore` rather than copied into state from an effect, which
+   * would cost a render pass.
    */
   const subscribe = React.useCallback(
     (onStoreChange: () => void) => {
@@ -266,7 +264,6 @@ function CarouselPrevious({
         sx
       )}
     >
-      {/* Points the way the text reads, so it mirrors in right-to-left layouts. */}
       <Icon icon={ArrowLeft01Icon} />
       <VisuallyHidden>Previous slide</VisuallyHidden>
     </Button>

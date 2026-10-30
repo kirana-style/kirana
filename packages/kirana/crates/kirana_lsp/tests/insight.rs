@@ -293,7 +293,7 @@ fn outline_folding_and_style_ranges() {
 #[test]
 fn highlights_join_keys_and_elements() {
     let mut f = fixture(json!({}));
-    // On a key: the key, and the elements receiving it (the article and the spread is no site).
+    // On a key: the key, and the elements receiving it.
     let from_key = f.ok("textDocument/documentHighlight", f.at("padding: \"1rem\"", 2));
     let kinds: Vec<u64> = from_key.as_array().unwrap().iter().map(|h| h["kind"].as_u64().unwrap()).collect();
     // The article, and the `props(base)` spread: the compiler records that call as a site too.

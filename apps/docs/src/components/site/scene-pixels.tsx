@@ -1,16 +1,9 @@
 /**
- * A landscape in pixels: the brand's motif. The scene's picture is sampled cell by cell, its tones
- * posterised with the same 8 × 8 Bayer dither as the pixel K, and the cells thin out towards one
- * edge until the picture dissolves into the page. A soft band of sun crosses it every eighteen
- * seconds, warming the cells it passes, and the cells near the pointer brighten.
- *
- * Every page hero, the footer and the closing card draw their scene with it. Until WebGL has
- * drawn a frame, and wherever it cannot or would run without a GPU, the plain picture shows with a
- * CSS mask fading the same way, so nothing waits on the canvas.
- *
- * Same budget as `PixelField`: one triangle and one short fragment shader, drawn only while on
- * screen and the tab is visible, at most 30 frames a second and a device pixel ratio of 2, one
- * still frame for readers who prefer reduced motion, and everything freed on unmount.
+ * A landscape in pixels, the brand's motif: the scene's picture sampled cell by cell, posterised
+ * with the pixel K's 8 × 8 Bayer dither, thinning out towards one edge, crossed by a band of sun.
+ * Until WebGL has drawn a frame, and wherever it cannot or has no GPU, the plain picture shows
+ * with a CSS mask fading the same way. Same budget as `PixelField`: on screen and visible only,
+ * at most 30 frames a second and a pixel ratio of 2, one still frame under reduced motion.
  */
 import { useEffect, useRef } from "react"
 import { css } from "@kirana-style/core"
@@ -33,9 +26,9 @@ export type Dissolve = "up" | "down" | "left" | "right" | "hero"
 const WIDE = "(min-width: 64rem)"
 
 /**
- * Whether a context renders without a GPU. Chrome no longer refuses its software renderer for
- * `failIfMajorPerformanceCaveat` (machines without a GPU, as Lighthouse's are, get SwiftShader),
- * but it names the renderer.
+ * Whether a context renders without a GPU. Chrome does not refuse its software renderer
+ * (SwiftShader, on machines without a GPU such as Lighthouse's) for
+ * `failIfMajorPerformanceCaveat`, but it names the renderer.
  */
 function software(gl: WebGLRenderingContext): boolean {
   const info = gl.getExtension("WEBGL_debug_renderer_info")
@@ -400,9 +393,8 @@ export function ScenePixels({
     <div ref={root} aria-hidden="true" sx={[styles.root, sx]}>
       <img
         ref={image}
-        // The smaller picture only: once the canvas has drawn, this picture is hidden, and the
-        // canvas's cells show less detail than 800 pixels hold at any width. It is what shows
-        // until then, or instead where WebGL is not available.
+        // The 800-wide picture only: the canvas's cells show less detail than that at any width,
+        // and once the canvas has drawn this picture is hidden.
         src={sceneImage(scene, 800)}
         alt=""
         {...(priority

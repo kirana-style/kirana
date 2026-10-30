@@ -5,16 +5,9 @@
  *   bun scripts/pack.ts                       # this platform's native package only
  *   bun scripts/pack.ts --natives <dir>       # every `kirana.<triple>.node` found in <dir> (CI)
  *
- * The workspace keeps consuming TypeScript source (D-040): apps, tests and the compiler itself read
- * `src/*.ts` directly and none of that changes. Packing happens in a staging copy instead — compiled
- * to JavaScript with declarations by Vite+'s packer (`vite-plus/pack`, tsdown), one output file per
- * source file, `workspace:` and `catalog:` versions resolved, development scripts dropped — and
- * `npm pack` turns each copy into the tarball an install test installs.
- *
- * The native engine ships as one package per platform, listed as `optionalDependencies` of
- * `@kirana-style/compiler`, so the package manager installs only the one that matches. No package has an
- * install script, and this refuses to produce one that does: nobody should have to allow-list
- * Kirana to install it.
+ * The workspace keeps reading TypeScript source (D-040); each package is compiled in a staging copy
+ * with `workspace:` and `catalog:` versions resolved, then `npm pack`ed. The native engine ships as
+ * one optional package per platform. No package may have an install script (D-029).
  */
 import { spawnSync } from "node:child_process"
 import {
@@ -223,7 +216,6 @@ async function packOne(name: string): Promise<string> {
   rmSync(stage, { recursive: true, force: true })
   mkdirSync(stage, { recursive: true })
 
-  // Compile the sources the package exports, keeping the layout so exports only change extension.
   const inputs = [
     ...files(path.join(source, "src")).map((file) => path.join("src", file)),
     ...files(path.join(source, "bin")).map((file) => path.join("bin", file)),

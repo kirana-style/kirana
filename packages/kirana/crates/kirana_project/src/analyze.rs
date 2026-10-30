@@ -14,7 +14,7 @@ use serde::Serialize;
 
 use crate::Project;
 
-/// How many atoms a project reuses, and how often.
+/// What a compiled project puts in its stylesheet, and why.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Analysis {
     /// Modules that contribute to the stylesheet: atoms, or definitions such as tokens and themes.

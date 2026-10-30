@@ -1,16 +1,9 @@
 /**
- * A product's logo from SVGL (svgl.app), as an `<img>` of a file kept in `brands/` — never
- * hotlinked: `apps/docs/scripts/generate-svgl.ts` downloads the files once, and Vite serves them
- * fingerprinted with the site.
- *
- * `<img>` rather than inline `<svg>`: SVGL logos are multi-colour artwork, often with gradients
- * whose ids would collide when one logo is inlined twice on a page, and an image is cached once
- * for every use.
- *
- * A logo with light and dark variants renders both, and the site's colour scheme decides which
- * shows: `schemeMarker` on `<html>` carries the theme switch's mode, and `"system"` (also before
- * hydration) follows the OS. `prefers-color-scheme` alone would show the OS's variant on a site
- * the visitor switched to the other scheme — a dark logo on a dark page.
+ * A product's logo as an `<img>` of a file kept in `brands/`, never hotlinked
+ * (`apps/docs/scripts/generate-svgl.ts` downloads them). An image, not inline `<svg>`: gradient ids
+ * would collide when one logo is inlined twice, and an image is cached once. A logo with light and
+ * dark files renders both and `schemeMarker` picks one, so it follows the theme switch rather
+ * than `prefers-color-scheme`, which would show the OS's variant on a site switched to the other.
  */
 import { css } from "@kirana-style/core"
 

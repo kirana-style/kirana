@@ -1,12 +1,9 @@
 /**
- * `kirana-style doctor --report [file] [--trace <file>:<line> <property>] [--json]` (KRN-DX-008): a bug
- * report to paste into an issue. It holds what CONTRIBUTING asks for — versions, framework and
- * bundler, the diagnostics by code, and `kirana-style trace` output when asked — plus the doctor's checks,
- * the stylesheet's size and the resolved configuration.
- *
- * Nothing in it identifies the machine or its owner (D-077): the project root becomes `<project>`,
- * the home directory `~`, the user name `<user>`, configuration values under keys that name a
- * secret are masked, no environment variable is read into it, and no source text is included.
+ * `kirana-style doctor --report [file] [--trace <file>:<line> <property>] [--json]` (KRN-DX-008): a
+ * bug report to paste into an issue, with what CONTRIBUTING asks for plus the doctor's checks, the
+ * stylesheet's size and the resolved configuration. Nothing in it identifies the machine or its owner
+ * (D-077): the root, home directory and user name are replaced, values under secret-named keys are
+ * masked, and no environment variable or source text is read into it.
  */
 import { writeFileSync } from "node:fs"
 import os from "node:os"
@@ -216,7 +213,7 @@ export async function runReport(
     next && !next.startsWith("--") ? next : "kirana-report.md"
   )
   writeFileSync(file, markdown(report))
-  // Inside the project, the path as the person typed it; elsewhere, the whole path.
+  // Inside the project, the path relative to it; elsewhere, the whole path.
   const shown = path.relative(root, file)
   write(
     `wrote ${shown.startsWith("..") ? file : shown}: describe what happened and add a reproduction at the top, read the rest, then paste it into an issue\n`

@@ -1,7 +1,6 @@
 /**
  * Kirana's products beside the compiler, from `data/products.ts`: one row each, linked when it is
- * out and marked "Planned" when it is not. The roadmap shows it (`<!-- ::products -->`); the
- * `/ecosystem` page's chapter that showed it is commented out for now.
+ * out and marked "Planned" when it is not. The roadmap shows it (`<!-- ::products -->`).
  */
 import { css } from "@kirana-style/core"
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons"

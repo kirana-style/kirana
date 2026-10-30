@@ -3,12 +3,9 @@ import type { MarkdownDocument } from "@tanstack/markdown"
 import type { PageMeta } from "./types.ts"
 
 /**
- * Page lookup and lazy document loading, for an app that generated its content
- * with `generate()`.
- *
- * The app passes its own `import.meta.glob` of the generated page documents —
- * never eager, or every page of the site lands in the first chunk — and the
- * manifest's `PAGES`, which carries what the nav, search and pager need.
+ * Page lookup and lazy document loading for an app that generated its content with
+ * `generate()`. The app passes the manifest's `PAGES` and its own lazy
+ * `import.meta.glob` of the page documents (an eager one puts every page in the first chunk).
  */
 export function createPages(options: {
   pages: readonly PageMeta[]

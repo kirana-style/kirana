@@ -18,16 +18,14 @@ import { zIndex } from "../tokens/z-index"
 
 const styles = {
   overlay: css({
-    // `transition-opacity duration-150`: a plain transition, so Tailwind's
-    // default curve rather than the popup keyframes' `ease`.
+    // A plain transition, so Tailwind's default curve rather than the popups'
+    // `ease`.
     transitionDuration: duration[150],
     transitionTimingFunction: easing.inOut,
     position: "fixed",
     inset: 0,
     zIndex: zIndex.overlay,
     backgroundColor: "rgb(0 0 0 / 0.1)",
-    // Only blurs where the browser can do it cheaply. Conditions nest inside
-    // the property they apply to.
     backdropFilter: {
       "@supports (backdrop-filter: blur(1px))": `blur(${blur.xs})`,
     },

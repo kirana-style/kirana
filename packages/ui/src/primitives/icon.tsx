@@ -1,21 +1,6 @@
 /**
- * Layer 5: the Icon primitive.
- *
- * This exists to replace the single most repeated Tailwind pattern in the old
- * components, `[&_svg:not([class*='size-'])]:size-4`, which appeared 25 times.
- * That selector reached into whatever `<svg>` happened to be nested inside a
- * control and sized it, while sniffing the child's literal `class` attribute to
- * let callers opt out. Class names are hashed, so `[class*='size-']` can never
- * match, and a parent selector beats nothing the icon sets itself only because
- * contextual styles sit in a lower layer.
- *
- * The replacement inverts the relationship. A control declares how large its
- * icons should be by setting `ctx.iconSize`, and the icon reads it:
- *
- *   // in the button recipe
- *   { [ctx.iconSize]: "0.875rem" }
- *
- * An explicit `size` prop still wins, which is the opt-out the `:not()` was for.
+ * The Icon primitive. It sizes itself from `ctx.iconSize`, which the surrounding
+ * control sets (`{ [ctx.iconSize]: "0.875rem" }`); an explicit `size` prop wins.
  */
 
 import { css, props as styleProps } from "@kirana-style/core"
@@ -46,10 +31,8 @@ export type IconProps = Omit<
 }
 
 /**
- * `strokeWidth` defaults to 2, not Hugeicons' own 1.5. Every icon in the
- * original codebase passed 2 explicitly, and shadcn's upstream components are
- * drawn with lucide, whose default stroke is also 2. A port that forgets the
- * prop would otherwise render visibly thinner glyphs than its neighbours.
+ * `strokeWidth` defaults to 2, not Hugeicons' own 1.5, to match the lucide
+ * glyphs shadcn's components are drawn with.
  */
 export function Icon({ size, sx, strokeWidth = 2, ...props }: IconProps) {
   return (

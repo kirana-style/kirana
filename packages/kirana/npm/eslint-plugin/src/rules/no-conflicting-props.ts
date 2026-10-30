@@ -2,8 +2,7 @@
  * `kirana/no-conflicting-props`: a `className` or `style` written next to `{...styleProps(…)}` on
  * the same element. JSX keeps the last one written, so either the compiled styles replace the
  * attribute or the attribute replaces the compiled styles — one of them never reaches the DOM.
- * (StyleX has the same rule for `stylex.props`.) `sx` itself is fine: the compiler merges it with
- * the element's own `className`.
+ * `sx` itself is fine: the compiler merges it with the element's own `className`.
  */
 import { calls, kiranaImports, walk } from "../ast.ts"
 import { docs } from "../types.ts"

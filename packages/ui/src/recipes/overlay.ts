@@ -1,25 +1,9 @@
 /**
- * Enter and exit motion for anything that pops over the page: dialog, sheet,
- * drawer, dropdown, select, combobox, tooltip, toast.
- *
- * shadcn drove this with `tw-animate-css` keyframes — `animate-in fade-in-0
- * zoom-in-95 data-[side=bottom]:slide-in-from-top-2`. That package is gone, and
- * keyframes are the wrong tool here anyway: Base UI marks an element with
- * `data-starting-style` on the frame it mounts and `data-ending-style` while it
- * closes, which is exactly what a transition needs. Transitions also reverse
- * mid-flight, so a menu closed while still opening animates from where it
- * actually is rather than snapping.
- *
- * All the motion properties live in one namespace, so the enter and exit
- * states read together. A component that sets a plain `opacity` keeps them:
- * merging replaces only the entry with the same conditions.
- *
- * Timing follows `tw-animate-css`, not Tailwind's transition defaults:
- * `animate-in` is the CSS `ease` keyword, and every shadcn popup, dialog and
- * dialog backdrop sets `duration-100`. A component that differs overrides
- * `transitionDuration` or `transitionTimingFunction` after this style: the
- * tooltip keeps the 150ms default, and the sheet's backdrop is a plain Tailwind
- * transition.
+ * Enter and exit motion for anything that pops over the page. Base UI marks an
+ * element `data-starting-style` on the frame it mounts and `data-ending-style`
+ * while it closes, so these are transitions, which reverse mid-flight instead of
+ * snapping. Timing follows `tw-animate-css` (`ease`, 100ms); a component that
+ * differs overrides `transitionDuration` or `transitionTimingFunction` after this.
  */
 
 import { css } from "@kirana-style/core"

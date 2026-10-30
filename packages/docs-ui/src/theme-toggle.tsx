@@ -1,12 +1,8 @@
 /**
- * The site footer's theme control: one button that steps through System, Light and Dark, showing
- * the mode it is in, with `D` to do the same from the keyboard (`useThemeHotkey`, which the docs
- * bar's menu, `ThemeMenu`, uses too).
- *
- * The mode's icon and name are chosen in CSS from `<html data-mode>`, as the brand logos are: a
- * prerendered page writes the system mode, and the saved one is on `<html>` before the first paint
- * but in React's state only once the provider has read its cookie, so a label rendered from state
- * would show System first.
+ * The site footer's theme control: one button that steps through System, Light and Dark, with `D`
+ * doing the same from the keyboard (`useThemeHotkey`, shared with `ThemeMenu`). The mode's icon
+ * and name are chosen in CSS from `<html data-mode>`: the saved mode is on `<html>` before the
+ * first paint but in React's state only once the provider reads its cookie.
  */
 import { useEffect } from "react"
 import { css } from "@kirana-style/core"

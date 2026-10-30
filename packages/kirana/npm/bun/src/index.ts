@@ -1,12 +1,8 @@
 /**
- * The Bun bundler host adapter (KRN-INT-001, KRN-INT-003): `onLoad` compiles modules, and `onEnd`
- * writes the finished stylesheet into the CSS Bun emitted. It never interprets styles (D-028).
- *
- * The stylesheet entry loads as the placeholder rule, which Bun bundles like any CSS import; once
- * every module has loaded, the plugin replaces it in the written file. Bun names CSS imported from a
- * JavaScript entry after the entry (`main.css`), so the name stays right; a `naming` pattern that
- * hashes assets would carry the placeholder's hash, and a build with `write: false` keeps the
- * placeholder, since there is no file to finish.
+ * The Bun bundler host adapter (KRN-INT-001, KRN-INT-003): `onLoad` compiles modules and loads the
+ * stylesheet entry as the placeholder rule, and `onEnd` replaces it in the CSS Bun wrote. It never
+ * interprets styles (D-028). A `naming` pattern that hashes assets keeps the placeholder's hash, and
+ * a build with `write: false` keeps the placeholder, since there is no file to finish.
  */
 import { createHash } from "node:crypto"
 import { existsSync, writeFileSync } from "node:fs"

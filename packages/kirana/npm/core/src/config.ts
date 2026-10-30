@@ -127,16 +127,16 @@ export type KiranaConfig = {
     readonly ownAttributes?: readonly string[]
   }
   /**
-   * The class map for server templates (D-069): Blade, ERB, HEEx, Twig and Edge templates name the
-   * handles these modules export, and `kirana-style build` and `kirana-style dev` write their class strings to
-   * `out` as JSON for the template helpers.
-   */
-  /**
    * Specifier prefixes the bundler provides and Node.js resolution cannot find — Ember's `@ember/`
    * and `@glimmer/`, which `@kirana-style/ember` adds. Imports from them are runtime values, without an
    * `unresolved-import` warning.
    */
   readonly externals?: readonly string[]
+  /**
+   * The class map for server templates (D-069): Blade, ERB, HEEx, Twig and Edge templates name the
+   * handles these modules export, and `kirana-style build` and `kirana-style dev` write their class strings to
+   * `out` as JSON for the template helpers.
+   */
   readonly classes?: {
     /** Files or directories, relative to the root, whose exported handles templates use. */
     readonly modules: readonly string[]

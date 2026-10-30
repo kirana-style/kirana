@@ -1,12 +1,8 @@
 /**
- * `kirana-style init` (KRN-DX-008, D-066): sets a project up for Kirana. It detects the framework, bundler
- * and package manager, then plans four steps — the configuration file, the adapter in the host's
- * configuration, the stylesheet, and the types for `sx` — shows each change as a diff, and writes
- * them once confirmed. A configuration it cannot edit safely gets the step printed instead. The
- * install command is printed, and run only with `--install`.
- *
- * `kirana-style doctor` runs the same plan without writing: a step with something left to do is a step
- * the project is missing.
+ * `kirana-style init` (KRN-DX-008, D-066): detects the framework, bundler and package manager, plans
+ * four steps (configuration, adapter, stylesheet, `sx` types), shows each change as a diff and writes
+ * them once confirmed. A configuration it cannot edit safely gets the step printed instead; the
+ * install command runs only with `--install`. `kirana-style doctor` runs the same plan without writing.
  */
 import {
   existsSync,
@@ -250,7 +246,7 @@ export function insertLast(
   return `${text.slice(0, start)}${body}${comma}${separator}${entry}${line ? "," : ""}${inner.slice(body.length)}${text.slice(close)}`
 }
 
-/** Adds `key: [entry]` as the first property of `defineConfig({`. */
+/** Adds `property` as the first property of the object `opener` opens (`defineConfig({`). */
 function addProperty(
   text: string,
   opener: RegExp,

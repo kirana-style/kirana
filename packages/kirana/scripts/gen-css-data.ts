@@ -1,6 +1,6 @@
 /**
- * Generates `crates/kirana_css_data/src/generated.rs` from MDN's `mdn-data`
- * (CC0-1.0, https://github.com/mdn/data). Run with `bun run gen:css-data`;
+ * Generates `crates/kirana_css_data/src/generated.rs` and `npm/core/src/families.generated.ts` from
+ * MDN's `mdn-data` (CC0-1.0, https://github.com/mdn/data). Run with `bun run gen:css-data`;
  * CI regenerates it and fails when the committed file differs.
  *
  * The engine owns no hand-written property list: a property Kirana does not

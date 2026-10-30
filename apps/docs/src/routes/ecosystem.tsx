@@ -42,7 +42,7 @@ export const Route = createFileRoute("/ecosystem")({
   }),
 })
 
-/** What a row says when it is not simply there to use; a row without one works today. */
+/** What a row says when it is not there to use as it is; a row without one works today. */
 type Status = "Planned" | "Deferred" | "Not packaged"
 
 /** From `/docs/project/ecosystem`, the source of truth for status; each row opens its guide. */

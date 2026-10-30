@@ -14,8 +14,6 @@ import { shadow } from "../tokens/shadows"
 import { spacing } from "../tokens/spacing"
 import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
 
-/** The `line` list draws an underline instead of a filled pill. */
-
 const styles = {
   root: css({
     display: "flex",
@@ -212,7 +210,7 @@ function TabsTrigger({
       {...props}
       // Base UI hands the tab's state to a className function, so the active
       // indicator and its edge follow the real state rather than an attribute
-      // query inside a pseudo-element, a choice kept from the StyleX port.
+      // query inside a pseudo-element.
       className={(state) =>
         styleProps(
           styles.trigger,

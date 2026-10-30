@@ -15,10 +15,8 @@ const styles = {
     lineHeight: 1,
     userSelect: "none",
   }),
-  // Was `group-data-[disabled=true]:` on the surrounding Field, and
-  // `peer-disabled:` on the control this label is paired with. The first is an
-  // ancestor relationship, the second a sibling one, and each marker scopes
-  // which element is being observed.
+  // Disabled through the surrounding Field (an ancestor) or the control this
+  // label is paired with (a sibling).
   context: css({
     pointerEvents: {
       [fieldMarker.within('[data-disabled="true"]')]: "none",

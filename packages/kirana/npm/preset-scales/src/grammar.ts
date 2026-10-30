@@ -218,7 +218,7 @@ const width = (property: string, viewport: string): UtilityRule[] => [
 /** Margins, padding and insets: every side, both axes and both logical ends. */
 const SIDES: Record<string, string[]> = {
   // Both axes rather than the physical shorthand: the value is the same on every side in any writing
-  // mode, and a later `p-0` then replaces an earlier `py-4` entry for entry, as `cn()` did.
+  // mode, and a later `p-0` then replaces an earlier `py-4` entry for entry.
   "": ["Block", "Inline"],
   x: ["Inline"],
   y: ["Block"],
@@ -803,8 +803,7 @@ const utilities: Record<string, UtilityRule[]> = {
     ),
     // `transition-[width]`: the property as written, timed like the rest.
     keyword(["transitionProperty"], {}, TRANSITION),
-    // `transition-none` over a component's `transition-all` removed that whole utility through
-    // `cn()`; nothing transitions either way, and the timing and duration are back to initial.
+    // `transition-none`: nothing transitions, and the timing and duration are back to initial.
     keyword(
       ["transitionProperty"],
       { none: "none" },

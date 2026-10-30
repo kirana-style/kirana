@@ -254,13 +254,9 @@ function ToastDescription({
 
 /**
  * Hands this part's styles to the element it renders as, instead of spreading
- * them on the Base UI part.
- *
- * Base UI merges a part's `className` with its `render` element's by
- * concatenating the strings. Two sets of atomic classes setting the same
- * property then fight in the cascade, and the compiler's last-wins merge never runs:
- * the close button came out with the Button's colour and position instead of its
- * own. Passing `sx` through lets the Button merge them properly.
+ * them on the Base UI part. Base UI concatenates a part's `className` with its
+ * `render` element's, so two atomic classes setting one property would fight in
+ * the cascade; passing `sx` through lets the Button merge them.
  */
 function withSx(render: unknown, style: Sx) {
   if (!React.isValidElement<{ sx?: Sx }>(render)) return render as never

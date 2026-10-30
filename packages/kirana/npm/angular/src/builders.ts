@@ -5,8 +5,7 @@
  *   "build": { "builder": "@kirana-style/angular:application", "options": { … as before … } }
  *   "serve": { "builder": "@kirana-style/angular:dev-server", … }
  *
- * The dev server is Angular's, run with a context whose build target's options carry the mirror:
- * Angular reads those options itself and compiles them with its internal application build.
+ * The dev server is Angular's, given a context whose build target's options carry the mirror.
  */
 import path from "node:path"
 

@@ -128,10 +128,8 @@ type Entry = {
 }
 
 /**
- * What is built on Kirana today.
- *
- * All four are in this repository, which is the point: every claim on this page
- * is something the conformance harness checks on every run.
+ * What is built on Kirana today: the three applications of kirana-lab's corpus, which its
+ * conformance harness checks on each run, and this site.
  */
 const ENTRIES: Entry[] = [
   {

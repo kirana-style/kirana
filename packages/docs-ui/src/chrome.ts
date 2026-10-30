@@ -3,7 +3,7 @@
  * table of contents, and the headings a link scrolls to.
  */
 
-/** The bar: the logo, the search and the actions. */
+/** The bar: the logo and the actions. */
 export const BAR = "3.5rem"
 
 /** The tab row under the bar, from lg up; below lg the tabs are in the menu sheet. */

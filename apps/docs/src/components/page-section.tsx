@@ -16,7 +16,7 @@ import {
 
 import { Rail } from "@/components/site/patterns"
 
-/** The pieces the older pages (brand) and the cards everywhere share. */
+/** The pieces the brand pages and the cards everywhere share. */
 export const sectionStyles = {
   // A band ruled below, its content in the rail like every other page.
   section: css({

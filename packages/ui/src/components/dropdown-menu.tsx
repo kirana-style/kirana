@@ -9,7 +9,6 @@ import { Icon } from "../primitives/icon"
 import { dropdownMenuContentMarker } from "../theme/markers"
 
 const styles = {
-  /** Mirrors the submenu chevron when the document reads right to left. */
   chevron: css({ marginInlineStart: "auto" }),
 }
 

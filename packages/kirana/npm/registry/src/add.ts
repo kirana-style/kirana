@@ -1,10 +1,9 @@
 /**
  * `kirana-style ui add <item…>` (KRN-DX-028, D-108): each item and every item it needs, read and
- * checked (KRN-DX-026), its framework's and base's markup chosen, every file placed under the
- * project's alias for its type with its `@/registry/` imports rewritten to those aliases, the npm
- * packages added with the project's package manager, and each item recorded in the lockfile
- * (KRN-DX-025). A font item's stylesheet is imported in the app's entry (KF-050). Nothing is written
- * when a file the project has would change, unless `--overwrite`.
+ * checked (KRN-DX-026), placed under the project's alias for its type with its `@/registry/` imports
+ * rewritten, its packages installed and recorded in the lockfile (KRN-DX-025). A font item's
+ * stylesheet is imported in the app's entry (KF-050). Nothing is written when a file the project has
+ * would change, unless `--overwrite`.
  */
 import { spawnSync } from "node:child_process"
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"

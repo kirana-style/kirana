@@ -37,7 +37,8 @@ const styles = {
     color: theme.foreground,
   }),
   label: css({ fontWeight: fontWeight.semibold }),
-  // On a phone the second sentence wraps to a line of its own; the release is the news.
+  // Hidden on a phone, where the second sentence would wrap to a line of its own; the release is
+  // the news.
   detail: css({ display: { base: "none", [breakpoint.sm]: "inline" } }),
   link: css({
     color: theme.foreground,
@@ -63,11 +64,9 @@ const styles = {
 }
 
 /**
- * Closing the banner is remembered in this browser only. Storage can be
- * unavailable (a private window, blocked site data); then it simply shows
- * again next time.
+ * Closing hides this release's notice, in this browser only; the next release shows again. Storage
+ * can be unavailable (a private window, blocked site data); then it shows again next time.
  */
-/** Closing it hides this release's notice; the next release shows again. */
 const KEY = `kirana:status-banner-closed:${VERSION}`
 const EVENT = "kirana:status-banner"
 
@@ -88,15 +87,15 @@ function subscribe(onChange: () => void) {
   return () => window.removeEventListener(EVENT, onChange)
 }
 
+/** The newest post tagged `release` (posts are newest first), so the link follows each release. */
+const NOTES =
+  POSTS.find((post) => post.tags.includes("release"))?.href ?? "/changelog"
+
 /**
  * The line above the docs: the current release, and where to read about it.
  * The server always renders it; a reader who closed it does not see it again
  * after hydration, until the next release.
  */
-/** The newest post tagged `release` (posts are newest first), so the link follows each release. */
-const NOTES =
-  POSTS.find((post) => post.tags.includes("release"))?.href ?? "/changelog"
-
 export function StatusBanner() {
   const hidden = useSyncExternalStore(subscribe, closed, () => false)
   if (hidden) return null

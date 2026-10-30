@@ -1,15 +1,8 @@
 /**
- * A `md-code` node: markup highlighted at build time (docs-core), plus the
- * source to copy. A card with a header (language or file name, copy) and the
- * code in an inset panel; blocks longer than three lines get line numbers.
- *
- * Shell blocks and terminal sessions (`variant: "terminal"`) render as a
- * terminal window instead: traffic lights, a prompt before each command, and
- * output coloured the way a terminal colours it. Copying one copies only its
- * commands.
- *
- * A rule's two sides (```tsx do` and ```tsx dont`) render with a tick or a cross in
- * their header; a pair of them (`variant: "pair"`) side by side, the right way first.
+ * A `md-code` node: markup highlighted at build time (docs-core) and the source to copy, as a
+ * card with a header (language or file name, copy); blocks over three lines get line numbers.
+ * `terminal` blocks are a terminal window whose copy takes only the commands; a rule's two sides
+ * (`do`, `dont`) get a tick or a cross, and a `pair` sets them side by side, the right way first.
  */
 import { useState } from "react"
 import { css } from "@kirana-style/core"

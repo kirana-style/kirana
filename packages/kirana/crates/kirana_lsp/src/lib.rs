@@ -56,7 +56,8 @@ pub const THEME: &str = "kirana/theme";
 /// JavaScript, so a client restarts the server rather than the server reloading it.
 pub const RESTART: &str = "kirana/restart";
 
-/// What a client may turn off (`initializationOptions`); both default to on (KRN-DX-004).
+/// What a client may turn on or off (`initializationOptions`); the summary and the code lens default
+/// to on, the client capabilities to off (KRN-DX-004).
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct Options {
     /// The inline summary after `sx={…}`.

@@ -307,10 +307,11 @@ pub(crate) fn resolve_with(
     Resolved { kind, entries, conditions: conditions.into_iter().collect(), switches: switches.into_iter().collect() }
 }
 
-/// `(label, (uri, line, character, place))` per class: the `css()` or `recipe()` site, other than
-/// this one, that produces it, and the key inside it.
+/// A key's `(uri, line, character, place)`.
 type Location = (String, u32, u32, String);
 
+/// `(label, location)` per class: the `css()` or `recipe()` site, other than this one, that
+/// produces it, and the key inside it.
 fn origins(
     server: &Server,
     path: &Path,

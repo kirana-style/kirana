@@ -7,7 +7,6 @@
  */
 
 export const color = {
-  // amber
   amber50: "oklch(98.7% 0.022 95.277)",
   amber100: "oklch(96.2% 0.059 95.617)",
   amber200: "oklch(92.4% 0.12 95.746)",
@@ -20,7 +19,6 @@ export const color = {
   amber900: "oklch(41.4% 0.112 45.904)",
   amber950: "oklch(27.9% 0.077 45.635)",
 
-  // blue
   blue50: "oklch(97% 0.014 254.604)",
   blue100: "oklch(93.2% 0.032 255.585)",
   blue200: "oklch(88.2% 0.059 254.128)",
@@ -33,7 +31,6 @@ export const color = {
   blue900: "oklch(37.9% 0.146 265.522)",
   blue950: "oklch(28.2% 0.091 267.935)",
 
-  // cyan
   cyan50: "oklch(98.4% 0.019 200.873)",
   cyan100: "oklch(95.6% 0.045 203.388)",
   cyan200: "oklch(91.7% 0.08 205.041)",
@@ -46,7 +43,6 @@ export const color = {
   cyan900: "oklch(39.8% 0.07 227.392)",
   cyan950: "oklch(30.2% 0.056 229.695)",
 
-  // emerald
   emerald50: "oklch(97.9% 0.021 166.113)",
   emerald100: "oklch(95% 0.052 163.051)",
   emerald200: "oklch(90.5% 0.093 164.15)",
@@ -59,7 +55,6 @@ export const color = {
   emerald900: "oklch(37.8% 0.077 168.94)",
   emerald950: "oklch(26.2% 0.051 172.552)",
 
-  // fuchsia
   fuchsia50: "oklch(97.7% 0.017 320.058)",
   fuchsia100: "oklch(95.2% 0.037 318.852)",
   fuchsia200: "oklch(90.3% 0.076 319.62)",
@@ -72,7 +67,6 @@ export const color = {
   fuchsia900: "oklch(40.1% 0.17 325.612)",
   fuchsia950: "oklch(29.3% 0.136 325.661)",
 
-  // gray
   gray50: "oklch(98.5% 0.002 247.839)",
   gray100: "oklch(96.7% 0.003 264.542)",
   gray200: "oklch(92.8% 0.006 264.531)",
@@ -85,7 +79,6 @@ export const color = {
   gray900: "oklch(21% 0.034 264.665)",
   gray950: "oklch(13% 0.028 261.692)",
 
-  // green
   green50: "oklch(98.2% 0.018 155.826)",
   green100: "oklch(96.2% 0.044 156.743)",
   green200: "oklch(92.5% 0.084 155.995)",
@@ -98,7 +91,6 @@ export const color = {
   green900: "oklch(39.3% 0.095 152.535)",
   green950: "oklch(26.6% 0.065 152.934)",
 
-  // indigo
   indigo50: "oklch(96.2% 0.018 272.314)",
   indigo100: "oklch(93% 0.034 272.788)",
   indigo200: "oklch(87% 0.065 274.039)",
@@ -111,7 +103,6 @@ export const color = {
   indigo900: "oklch(35.9% 0.144 278.697)",
   indigo950: "oklch(25.7% 0.09 281.288)",
 
-  // lime
   lime50: "oklch(98.6% 0.031 120.757)",
   lime100: "oklch(96.7% 0.067 122.328)",
   lime200: "oklch(93.8% 0.127 124.321)",
@@ -124,7 +115,6 @@ export const color = {
   lime900: "oklch(40.5% 0.101 131.063)",
   lime950: "oklch(27.4% 0.072 132.109)",
 
-  // mauve
   mauve50: "oklch(98.5% 0 none)",
   mauve100: "oklch(96% 0.003 325.6)",
   mauve200: "oklch(92.2% 0.005 325.62)",
@@ -137,7 +127,6 @@ export const color = {
   mauve900: "oklch(21.2% 0.019 322.12)",
   mauve950: "oklch(14.5% 0.008 326)",
 
-  // mist
   mist50: "oklch(98.7% 0.002 197.1)",
   mist100: "oklch(96.3% 0.002 197.1)",
   mist200: "oklch(92.5% 0.005 214.3)",
@@ -150,7 +139,6 @@ export const color = {
   mist900: "oklch(21.8% 0.008 223.9)",
   mist950: "oklch(14.8% 0.004 228.8)",
 
-  // neutral
   neutral50: "oklch(98.5% 0 none)",
   neutral100: "oklch(97% 0 none)",
   neutral200: "oklch(92.2% 0 none)",
@@ -163,7 +151,6 @@ export const color = {
   neutral900: "oklch(20.5% 0 none)",
   neutral950: "oklch(14.5% 0 none)",
 
-  // olive
   olive50: "oklch(98.8% 0.003 106.5)",
   olive100: "oklch(96.6% 0.005 106.5)",
   olive200: "oklch(93% 0.007 106.5)",
@@ -176,7 +163,6 @@ export const color = {
   olive900: "oklch(22.8% 0.013 107.4)",
   olive950: "oklch(15.3% 0.006 107.1)",
 
-  // orange
   orange50: "oklch(98% 0.016 73.684)",
   orange100: "oklch(95.4% 0.038 75.164)",
   orange200: "oklch(90.1% 0.076 70.697)",
@@ -189,7 +175,6 @@ export const color = {
   orange900: "oklch(40.8% 0.123 38.172)",
   orange950: "oklch(26.6% 0.079 36.259)",
 
-  // pink
   pink50: "oklch(97.1% 0.014 343.198)",
   pink100: "oklch(94.8% 0.028 342.258)",
   pink200: "oklch(89.9% 0.061 343.231)",
@@ -202,7 +187,6 @@ export const color = {
   pink900: "oklch(40.8% 0.153 2.432)",
   pink950: "oklch(28.4% 0.109 3.907)",
 
-  // purple
   purple50: "oklch(97.7% 0.014 308.299)",
   purple100: "oklch(94.6% 0.033 307.174)",
   purple200: "oklch(90.2% 0.063 306.703)",
@@ -215,7 +199,6 @@ export const color = {
   purple900: "oklch(38.1% 0.176 304.987)",
   purple950: "oklch(29.1% 0.149 302.717)",
 
-  // red
   red50: "oklch(97.1% 0.013 17.38)",
   red100: "oklch(93.6% 0.032 17.717)",
   red200: "oklch(88.5% 0.062 18.334)",
@@ -228,7 +211,6 @@ export const color = {
   red900: "oklch(39.6% 0.141 25.723)",
   red950: "oklch(25.8% 0.092 26.042)",
 
-  // rose
   rose50: "oklch(96.9% 0.015 12.422)",
   rose100: "oklch(94.1% 0.03 12.58)",
   rose200: "oklch(89.2% 0.058 10.001)",
@@ -241,7 +223,6 @@ export const color = {
   rose900: "oklch(41% 0.159 10.272)",
   rose950: "oklch(27.1% 0.105 12.094)",
 
-  // sky
   sky50: "oklch(97.7% 0.013 236.62)",
   sky100: "oklch(95.1% 0.026 236.824)",
   sky200: "oklch(90.1% 0.058 230.902)",
@@ -254,7 +235,6 @@ export const color = {
   sky900: "oklch(39.1% 0.09 240.876)",
   sky950: "oklch(29.3% 0.066 243.157)",
 
-  // slate
   slate50: "oklch(98.4% 0.003 247.858)",
   slate100: "oklch(96.8% 0.007 247.896)",
   slate200: "oklch(92.9% 0.013 255.508)",
@@ -267,7 +247,6 @@ export const color = {
   slate900: "oklch(20.8% 0.042 265.755)",
   slate950: "oklch(12.9% 0.042 264.695)",
 
-  // stone
   stone50: "oklch(98.5% 0.001 106.423)",
   stone100: "oklch(97% 0.001 106.424)",
   stone200: "oklch(92.3% 0.003 48.717)",
@@ -280,7 +259,6 @@ export const color = {
   stone900: "oklch(21.6% 0.006 56.043)",
   stone950: "oklch(14.7% 0.004 49.25)",
 
-  // taupe
   taupe50: "oklch(98.6% 0.002 67.8)",
   taupe100: "oklch(96% 0.002 17.2)",
   taupe200: "oklch(92.2% 0.005 34.3)",
@@ -293,7 +271,6 @@ export const color = {
   taupe900: "oklch(21.4% 0.009 43.1)",
   taupe950: "oklch(14.7% 0.004 49.3)",
 
-  // teal
   teal50: "oklch(98.4% 0.014 180.72)",
   teal100: "oklch(95.3% 0.051 180.801)",
   teal200: "oklch(91% 0.096 180.426)",
@@ -306,7 +283,6 @@ export const color = {
   teal900: "oklch(38.6% 0.063 188.416)",
   teal950: "oklch(27.7% 0.046 192.524)",
 
-  // violet
   violet50: "oklch(96.9% 0.016 293.756)",
   violet100: "oklch(94.3% 0.029 294.588)",
   violet200: "oklch(89.4% 0.057 293.283)",
@@ -319,7 +295,6 @@ export const color = {
   violet900: "oklch(38% 0.189 293.745)",
   violet950: "oklch(28.3% 0.141 291.089)",
 
-  // yellow
   yellow50: "oklch(98.7% 0.026 102.212)",
   yellow100: "oklch(97.3% 0.071 103.193)",
   yellow200: "oklch(94.5% 0.129 101.54)",
@@ -332,7 +307,6 @@ export const color = {
   yellow900: "oklch(42.1% 0.095 57.708)",
   yellow950: "oklch(28.6% 0.066 53.813)",
 
-  // zinc
   zinc50: "oklch(98.5% 0 none)",
   zinc100: "oklch(96.7% 0.001 286.375)",
   zinc200: "oklch(92% 0.004 286.32)",
@@ -344,7 +318,6 @@ export const color = {
   zinc800: "oklch(27.4% 0.006 286.033)",
   zinc900: "oklch(21% 0.006 285.885)",
   zinc950: "oklch(14.1% 0.005 285.823)",
-  // keywords
   white: "#fff",
   black: "#000",
   transparent: "transparent",

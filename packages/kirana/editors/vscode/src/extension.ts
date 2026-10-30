@@ -164,11 +164,8 @@ function restart(): Promise<void> {
 }
 
 /**
- * Every start, stop and restart, one after another. A settings change, the server's
- * `kirana/restart` and the restart command can all arrive while a client is still starting;
- * run concurrently, two of them stop the same client and each start one, and the second
- * client's commands collide with the first's ("command 'kirana.showCompiledCss' already
- * exists").
+ * Every start, stop and restart, one after another: two restarts run concurrently start two
+ * clients, whose commands collide ("command 'kirana.showCompiledCss' already exists").
  */
 let queue: Promise<void> = Promise.resolve()
 function serially(task: () => Promise<void>): Promise<void> {

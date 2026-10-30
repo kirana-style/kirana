@@ -1,6 +1,6 @@
 /**
  * The playground: an example's source and the CSS the compiler wrote for it, as two editor
- * windows on one of Kirana's landscapes — the same windows, colours and frosted glass as the
+ * windows on one of Kirana's landscapes, with the same windows, colours and frosted glass as the
  * homepage's editor scene. Both panes are build output (`generate-examples.ts`), read-only until
  * the compiler runs in the page.
  */

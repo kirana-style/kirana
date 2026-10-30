@@ -1,14 +1,9 @@
 /**
- * The petal K in pixels: its three petals drawn in the brand colours into a texture, sampled
- * cell by cell and thresholded by an 8 × 8 Bayer matrix, each cell taking its petal's colour,
- * with a ray of light sweeping through and the pointer lighting the cells near it. The landscapes
- * use the same matrix in `ScenePixels`, which shares this file's shader helpers.
- *
- * Written for a small GPU budget: one triangle, one short fragment shader, no
- * library. It draws only while on screen and while the tab is visible, caps at
- * 30 frames a second and a device pixel ratio of 2, draws one still frame when
- * the reader prefers reduced motion, and frees its program and buffer on unmount.
- * Mask it from the outside (`sx` with `maskImage`) to keep text clear.
+ * The petal K in pixels: the mark drawn in its brand colours into a texture, sampled cell by cell
+ * and thresholded by an 8 × 8 Bayer matrix, with a ray of light and the pointer lighting cells.
+ * `ScenePixels` shares the shader helpers. A small GPU budget: one triangle, no library, drawn only
+ * on screen and while the tab is visible, at most 30 frames a second and a pixel ratio of 2, one
+ * still frame under reduced motion. Mask it from outside (`sx` with `maskImage`) to keep text clear.
  */
 import { useEffect, useRef } from "react"
 import { css } from "@kirana-style/core"

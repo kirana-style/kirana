@@ -1,10 +1,8 @@
 /**
- * The Astro integration (KRN-INT-004): `@kirana-style/vite` for Astro's Vite, which compiles `.astro`
- * components as they are read (`design-notes/sfc-masking.md`), plus the one step Astro needs after
- * its build. Astro links each page's stylesheet — or inlines a small one — by the name and content it
- * recorded before the bundle was finished, so the Vite plugin fills the stylesheet in place, and once
- * Astro has written every page this integration renames the file by its real content and rewrites
- * every reference to it.
+ * The Astro integration (KRN-INT-004): `@kirana-style/vite`, which compiles `.astro` components as
+ * they are read (`design-notes/sfc-masking.md`), plus one step after the build. Astro links or inlines
+ * each page's stylesheet by the name it recorded before the bundle was finished, so the stylesheet is
+ * filled in place and renamed by its real content once every page is written.
  */
 import { readFile, readdir, rename, writeFile } from "node:fs/promises"
 import path from "node:path"

@@ -2,13 +2,9 @@ import { EXAMPLES } from "@/generated/examples.gen"
 import type { CompiledExample } from "@/lib/examples"
 
 /**
- * Where compiled results come from.
- *
- * Today there is one engine: the curated examples, compiled by the real compiler
- * when the site was built. Arbitrary source cannot be compiled in a browser yet —
- * that needs the WASM engine (M4). When it exists, or when a server route is
- * added, it becomes another engine behind this interface and the playground does
- * not change.
+ * Where compiled results come from. The one engine is the curated examples, compiled by the real
+ * compiler when the site was built. Arbitrary source needs the WASM engine (M4) or a server route;
+ * either becomes another engine behind this interface, and the playground does not change.
  */
 export type CompileEngine = {
   readonly id: "curated" | "server" | "wasm"

@@ -64,10 +64,9 @@ export function defineAppConfig(options = {}) {
       // Published beside the bundles, so a stack trace from the deployed site, and Lighthouse's
       // look at the largest chunks, read the source. The code is open source anyway.
       sourcemap: true,
-      // Kirana's browser floor (D-026: Chrome 123, Safari 17.5, Firefox 120), the first versions with
-      // `light-dark()`. Vite's default target is older, so its CSS minifier rewrote `light-dark()` in
-      // plain stylesheets (the syntax colours in highlight.css) into `--lightningcss-light/dark`
-      // switches that nothing sets, and every token lost its colour.
+      // Kirana's browser floor (D-026), the first versions with `light-dark()`. Under Vite's older
+      // default target the CSS minifier rewrites `light-dark()` in plain stylesheets into
+      // `--lightningcss-light/dark` switches that nothing sets.
       cssTarget: ["chrome123", "safari17.5", "firefox120"],
     },
   }))

@@ -1,8 +1,7 @@
 /**
  * The homepage, top to bottom: what Kirana is, the compiler's own output, the editor, three ways to
- * start, the numbers, the frameworks, and where to go next. Every chapter is its own module under
- * `components/home/`; this file is only the order. Detail lives on the product pages and in the
- * docs; the homepage introduces each idea once and links there.
+ * start, the numbers, the frameworks, where to go next, and the sponsors. Every chapter is its own
+ * module under `components/home/`; this file is only the order.
  */
 import { Suspense, lazy } from "react"
 import type { ComponentType } from "react"

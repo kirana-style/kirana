@@ -21,8 +21,6 @@ import {
   lineHeight,
 } from "../tokens/typography"
 
-/** The choice's parts read its state from the choice itself. */
-
 /** Nudges the indicator onto the text's optical baseline. */
 const BASELINE_NUDGE = "0.1125rem"
 
@@ -233,7 +231,7 @@ const styles = {
   inputWrapper: css({ position: "relative", width: "100%", minWidth: 0 }),
   input: css({
     height: spacing[8],
-    // Taller on touch, where 44px is the minimum comfortable target.
+    // 44px tall below `sm`, the minimum comfortable touch target.
     minHeight: { base: spacing[11], [breakpoint.sm]: 0 },
     paddingInline: spacing["2.5"],
     paddingBlock: spacing[1],

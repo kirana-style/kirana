@@ -1,18 +1,10 @@
 /**
- * The webpack 5 and Rspack host adapter (KRN-INT-001, KRN-INT-003): a `pre` loader compiles modules,
- * and the plugin finishes the stylesheet entry. Rspack implements webpack's plugin and loader API,
- * so one adapter serves both. It never interprets styles (D-028).
- *
- * The stylesheet entry is ordinary CSS to the host — native CSS, `css-loader` with
- * `mini-css-extract-plugin`, Rsbuild's or Next.js's pipeline — so the host names and links it as it
- * does any stylesheet. The loader answers it with the placeholder rule, and the plugin writes the
- * finished stylesheet into the emitted asset at `processAssets`' optimize stage: after every module
- * is built, before the CSS minimizer, and before `realContentHash` renames the file by its real
- * content (on by default in production in both bundlers).
- *
- * Not `rebuildModule` at `finishModules`, which would let the host hash the right content from the
- * start: Rspack 2 panics ("should have event sender") rebuilding a module under Rsbuild's CSS
- * extraction.
+ * The webpack 5 and Rspack host adapter (KRN-INT-001, KRN-INT-003): a `pre` loader compiles modules
+ * and answers the stylesheet entry, ordinary CSS to the host, with the placeholder rule. The plugin
+ * fills the emitted asset at `processAssets`' optimize stage: after every module, before the CSS
+ * minimizer and `realContentHash`. Not `rebuildModule` at `finishModules`: Rspack 2 panics ("should
+ * have event sender") rebuilding a module under Rsbuild's CSS extraction. It never interprets styles
+ * (D-028).
  */
 import {
   fillStylesheet,

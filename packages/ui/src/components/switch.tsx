@@ -10,14 +10,8 @@ import { ring } from "../tokens/ring"
 import { spacing } from "../tokens/spacing"
 
 /**
- * The thumb sizes according to the track it sits in. Only the small track needs
- * a query — the default size is the thumb's own default.
- */
-
-/**
- * Hand-measured track geometry, carried over from the original. These are not on
- * the spacing scale because the thumb has to clear the track by exactly one
- * pixel at both sizes.
+ * Hand-measured track geometry, off the spacing scale because the thumb has to
+ * clear the track by exactly one pixel at both sizes.
  */
 const TRACK = {
   default: { width: "32px", height: "18.4px" },
@@ -94,8 +88,6 @@ const styles = {
       base: surface.switchThumb,
       [State.Switch.Thumb.checked]: surface.switchThumbChecked,
     },
-    // `translate` respects writing direction, so one value covers LTR and RTL —
-    // the original needed four `rtl:` overrides to say the same thing.
     translate: {
       base: "0",
       [State.Switch.Thumb.checked]: `calc(100% - 2px)`,

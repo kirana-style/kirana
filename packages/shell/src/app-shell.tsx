@@ -100,8 +100,8 @@ const styles = {
   separator: css({
     marginInlineStart: spacing["1"],
     marginInlineEnd: spacing["1"],
-    // `data-vertical:h-4 data-vertical:self-auto`: the same condition as the
-    // Separator's own entries, so these replace them rather than sit beside them.
+    // The same condition as the Separator's own entries, so these replace them
+    // rather than sit beside them.
     height: { '[data-orientation="vertical"]': spacing["4"] },
     alignSelf: { '[data-orientation="vertical"]': "auto" },
   }),

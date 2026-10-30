@@ -466,7 +466,6 @@ impl Names {
                     }
                     property.push_code(out);
                 }
-                // The target segment follows the codes.
                 push_target_segment(out, target);
                 match conditions {
                     None => out.push('*'),

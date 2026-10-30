@@ -31,7 +31,7 @@ const styles = {
   family: css({ color: theme.mutedForeground }),
 }
 
-/** Every diagnostic the compiler can emit, read from its own catalogue at build time. */
+/** Every diagnostic the compiler can emit, or one family's, read from its own catalogue at build time. */
 export function DiagnosticsTable({ family }: { family?: string }) {
   const rows = family
     ? DIAGNOSTICS.filter((entry) => entry.family === family)

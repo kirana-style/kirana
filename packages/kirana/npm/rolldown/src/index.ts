@@ -1,12 +1,8 @@
 /**
- * The Rolldown host adapter (KRN-INT-001, KRN-INT-002). It selects modules, forwards transform
- * results, emits the stylesheet entry and forwards file changes to the Driver; it never interprets
- * styles (D-028).
- *
- * The Vite adapter is this plugin plus Vite's dev-server hooks, because Vite's plugin API extends
- * Rolldown's: one implementation of the build path serves both hosts. The one difference is CSS:
- * Vite bundles it, so the stylesheet entry is a placeholder Vite processes and the plugin fills in;
- * Rolldown alone does not, so the plugin emits the stylesheet as an asset of its own.
+ * The Rolldown host adapter (KRN-INT-001, KRN-INT-002): it selects modules, forwards transform
+ * results and file changes to the Driver, and emits the stylesheet; it never interprets styles
+ * (D-028). The Vite adapter extends it. Vite bundles CSS, so there the stylesheet entry is a
+ * placeholder the plugin fills; Rolldown alone gets the stylesheet as an asset of its own.
  */
 import { COMPONENT, Driver } from "@kirana-style/compiler"
 import type { DriverOptions } from "@kirana-style/compiler"
@@ -104,12 +100,10 @@ export function createKirana(
   const fileName = options.fileName ?? "kirana.css"
   const dense = () => options.names === "dense" && !development()
   /**
-   * The variable tokens and keyframes each environment's bundle names, and the ones the last
-   * stylesheet left out by identity (D-086): a token only code names is written when the finished
-   * bundle still names it, and a chunk rendered later must not name one left out. A stylesheet reads
-   * every environment's names (a server bundle renders the client's classes); each build of an
-   * environment, a watch rebuild among them, starts its own again, so the names an earlier rebuild
-   * emitted do not pile up.
+   * The variable tokens and keyframes each environment's bundle names, and (`pruned`) the ones the
+   * last stylesheet left out, by identity (D-086). A stylesheet reads every environment's names, since
+   * a server bundle renders the client's classes; each build of an environment starts its set again,
+   * so a watch rebuild's names do not pile up.
    */
   const named = new Map<string, Set<string>>()
   const namedBy = (context: unknown) => {

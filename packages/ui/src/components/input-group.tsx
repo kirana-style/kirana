@@ -16,9 +16,7 @@ import { ring } from "../tokens/ring"
 import { spacing } from "../tokens/spacing"
 import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
 
-/** Inside a combobox popup the group must not draw its own focus ring. */
-
-/** `rounded-[calc(var(--radius)-Npx)]`, for the controls tucked inside a group. */
+/** A tighter radius for the controls tucked inside a group. */
 const TIGHT_3 = `calc(${radius.base} - 3px)`
 
 const styles = {
@@ -84,8 +82,7 @@ const styles = {
       },
       // Full strength in both modes: only the ring softens in dark.
       ':has([data-slot][aria-invalid="true"])': theme.destructive,
-      // Inside an open combobox the focused group keeps this ring, as in the
-      // original; the StyleX port's inherited border there was its own.
+      // Inside an open combobox the focused group keeps this ring.
     },
     boxShadow: {
       ':has([data-slot="input-group-control"]:focus-visible)': {

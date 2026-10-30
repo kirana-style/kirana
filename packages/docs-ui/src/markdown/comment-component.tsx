@@ -1,11 +1,8 @@
 /**
- * Markdown's comment components, dispatched by name.
- *
- * `<!-- ::example name="button-variants" -->` parses into a component node with
- * no tag of its own, so the renderer emits `md-comment-component` carrying
- * `data-component` and a JSON `data-attributes`. The app registers what its
- * pages can embed; an unknown name says so on the page rather than rendering
- * nothing.
+ * Markdown's comment components, dispatched by name. `<!-- ::example name="button-variants" -->`
+ * has no tag of its own, so the renderer emits `md-comment-component` carrying `data-component`
+ * and a JSON `data-attributes`. The app registers what its pages can embed; an unknown name says
+ * so on the page rather than rendering nothing.
  */
 export type CommentRegistry = Record<
   string,

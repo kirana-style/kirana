@@ -1,6 +1,6 @@
 //! The resolved configuration the engine receives (KRN-CMP-013). The Driver loads
 //! `kirana.config.*` and hands over plain JSON; the engine never evaluates configuration code.
-//! Keys and defaults are owned by [11-integrations](../../../../spec/11-integrations.md#configuration).
+//! Keys and defaults are owned by [11-integrations](../../../../../spec/11-integrations.md#configuration).
 
 use std::collections::BTreeMap;
 use std::path::{Component, Path, PathBuf};
@@ -434,7 +434,6 @@ fn normalize(path: &Path) -> String {
     out.to_string_lossy().into_owned()
 }
 
-/// An npm package name: `name` or `@scope/name`, lowercase, URL-safe.
 /// Each condition of `list` as condition text, or a problem naming it under `path`.
 fn normalize_conditions(list: &mut [String], path: &str, problems: &mut Vec<Diagnostic>) {
     for condition in list.iter_mut() {
@@ -447,6 +446,7 @@ fn normalize_conditions(list: &mut [String], path: &str, problems: &mut Vec<Diag
     }
 }
 
+/// An npm package name: `name` or `@scope/name`, lowercase, URL-safe.
 fn is_package_name(name: &str) -> bool {
     let part = |text: &str| {
         !text.is_empty()

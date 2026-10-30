@@ -740,7 +740,7 @@ describe("kirana command", () => {
     expect(
       (JSON.parse(output) as { name: string }[]).map((d) => d.name)
     ).toEqual(["dynamic-bridged"])
-    // One group, the working directory's: printed as before, with no header.
+    // One group, the working directory's: printed with no header.
     await run("check", "packages/ui/src", "--max-warnings", "3")
     expect(output.startsWith("no kirana.config")).toBe(false)
     // --config makes every path read one file, in either spelling.
@@ -785,7 +785,7 @@ describe("kirana command", () => {
     expect(
       await run("export", "apps/web/src", "--out", path.join(root, "out.json"))
     ).toBe(0)
-    // A path that does not exist is looked up from its parent, and fails as it did.
+    // A path that does not exist is looked up from its parent, and the engine fails on it.
     expect(await run("check", "apps/web/missing.tsx")).toBe(1)
   })
 

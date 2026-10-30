@@ -1,9 +1,8 @@
 /**
- * Colour sets (`PALETTES` or `SOLIDS`), side by side where the mark has to hold up: large on paper and
- * on ink, at 14 px in a dark editor's inline hint, and at 16 px in a dark browser tab. Under each
- * ground, each part's contrast against it: a part under 3 : 1 (the WCAG minimum for graphics) is
- * flagged, since it is the one that sinks into the ground. Each set copies or downloads as the mark
- * alone, with no ground (`markSvg`), for placing on a photo.
+ * Colour sets (`PALETTES` or `SOLIDS`), side by side where the mark has to hold up: large on paper
+ * and on ink, in a dark editor's inline hint, and at 16 px in a dark browser tab. Under each ground,
+ * each part's contrast against it; a part under 3 : 1 (the WCAG minimum for graphics) is flagged.
+ * Each set copies or downloads as the mark alone, with no ground (`markSvg`).
  */
 import { css } from "@kirana-style/core"
 

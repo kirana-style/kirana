@@ -1,15 +1,10 @@
 /**
- * Accents: the one colour a subtree is tinted with: a page, a docs tab, a homepage door.
- *
- * `accent.base` is a variable token. A wrapper assigns it (`sx={accents.forest}`) and everything
- * inside reads it. Shades are mixed where they are used, with `tint()`, never in the token's
- * default: a default resolves on `:root`, so a shade written there would ignore the wrapper.
- *
- * The hues are the scene hues: each is sampled from one of the landscapes in the brand's
- * photography and named for what it is in the picture, never for a place. Every entry is a
- * `light-dark()` pair, deep enough to be text on paper and light enough to be text on the night
- * background; `scripts/check-contrast.ts` in apps/docs measures both. Which page wears which hue
- * is `apps/docs/src/brand/scenes.ts`; why, the brand page (`/brand`, Colour).
+ * Accents: the one colour a subtree is tinted with (a page, a docs tab, a homepage door). A
+ * wrapper assigns the variable token `accent.base` (`sx={accents.forest}`) and everything inside
+ * reads it. Shades are mixed where they are used, with `tint()`: a default resolves on `:root`, so
+ * a shade written there would ignore the wrapper. Each hue is a `light-dark()` pair readable as
+ * text in both schemes (`scripts/check-contrast.ts` in apps/docs measures them); which page wears
+ * which is `apps/docs/src/brand/scenes.ts`.
  */
 import { css, defineTokens } from "@kirana-style/core"
 import type { StyleHandle } from "@kirana-style/core"

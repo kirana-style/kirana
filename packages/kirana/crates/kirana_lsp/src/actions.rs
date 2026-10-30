@@ -412,7 +412,7 @@ fn inline(server: &Server, path: &Path, text: &str, offset: usize) -> Option<Edi
     ))
 }
 
-/// "Vary at md" and "Add a :hover value": a plain property value in a `css()` becomes a conditional
+/// "Vary at md" and "vary on :hover": a plain property value in a `css()` becomes a conditional
 /// value with the same value under the condition, ready to change.
 fn vary(server: &Server, path: &Path, text: &str, offset: usize) -> Vec<Edit> {
     let Some((call, _)) = site_at(server, path, text, offset) else { return Vec::new() };

@@ -7,16 +7,8 @@
  *   bun scripts/verify-release.ts v0.2.0 --once     # one pass, no retries
  *
  * npm (every package, the engines included), RubyGems, Hex and Packagist (the mirror and the alias)
- * must have it. Two targets only report:
- *
- * - Open VSX holds an upload for review when its scan flags it (a namespace's first versions are
- *   flagged by name), and its API answers 404 until the review clears. The `editors` job fails when
- *   the upload itself fails, so a missing version here is a warning: the release ships, and the
- *   extension appears once the review clears.
- * - The VS Code Marketplace is uploaded by hand when there is no VSCE_PAT: a notice.
- *
- * The checks run together, each with a timeout, and the retries stop as soon as only these two are
- * left, so a held review or a hand upload never keeps the job waiting.
+ * must have it. Open VSX (which answers 404 while an upload is held for review) and the VS Code
+ * Marketplace (uploaded by hand without a VSCE_PAT) only report, and never keep the retries going.
  */
 import { readdirSync, readFileSync } from "node:fs"
 import path from "node:path"

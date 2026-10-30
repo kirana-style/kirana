@@ -6,15 +6,9 @@
  *   bun examples/run.ts vite-react --pm bun --no-browser        # Alpine: no Chromium to drive
  *   bun examples/run.ts next-turbopack --pm npm --registry      # kirana-style ui init and add
  *
- * The example is copied out of the repository — so nothing resolves through the workspace — and
- * every `@kirana-style/*` dependency is pointed at a tarball from `scripts/pack.ts`, with the package
- * manager's own override mechanism so the transitive ones (`@kirana-style/compiler` and its platform
- * package) come from the tarballs too. Nothing is published. Then it installs, builds, checks the
- * stylesheet holds the probe's atoms, serves the build and reads the probe's computed style back in
- * Chromium, hover included.
- *
- * The packed `@kirana-style/compiler` carries no native file, so a build that succeeds has loaded the
- * engine from the platform package the package manager chose.
+ * The example is copied out of the repository and every `@kirana-style/*` package, transitive ones
+ * included, is overridden with a tarball from `scripts/pack.ts`. The packed compiler carries no
+ * native file, so a build that succeeds loaded the engine from the platform package.
  */
 import { spawn, spawnSync } from "node:child_process"
 import {
@@ -73,11 +67,10 @@ const dev = args.includes("--dev")
  */
 const runtime = option("runtime") ?? "node"
 /**
- * The component registry's installer on a React example (KRN-DX-028, KRN-DX-029, KRN-DX-032): after
- * the install, `kirana-style ui init`, `ui add` and `ui preset` from a fixture registry
- * (`registry/`), the installed button mounted beside the probe, then the build and the page read back as usual, the button and
- * `<html>` included. npm only. A JavaScript Next.js example is left without a tsconfig: `ui init`
- * gives it Next.js's, and the TypeScript the items are written in (KF-046).
+ * The component registry's installer on a React example (KRN-DX-028, KRN-DX-029, KRN-DX-032):
+ * `kirana-style ui init`, `ui add` and `ui preset` from the fixture registry (`registry/`), with the
+ * installed button mounted beside the probe and checked too. npm only. A JavaScript Next.js example
+ * has no tsconfig, so `ui init` must give it one (KF-046).
  */
 const registry = args.includes("--registry")
 /**
@@ -658,12 +651,9 @@ async function withServer(
 }
 
 /**
- * Fails on two signs, in a development server's output, that Kirana reached an environment
- * uncompiled or late (KF-001): Vite discovered the runtime only while serving (the adapter names
- * it for pre-bundling, since compiled code imports it where no source file does, and the
- * re-optimisation that follows reloads the page or fails a server environment's request), or a
- * Kirana call ran uncompiled (a pre-bundled preset). A package the app's own source imports, an
- * adapter such as `@kirana-style/angular` included, is found by the framework's scan or not.
+ * Fails when a development server's output shows Kirana reached an environment late or uncompiled
+ * (KF-001): Vite discovered the runtime only while serving, which the adapter prevents by naming it
+ * for pre-bundling, or a Kirana call ran uncompiled (a pre-bundled preset).
  */
 function checkServerOutput(output: string) {
   // Vite 8 logs `dependency optimized: …` / `dependencies optimized: …` for what it found while
@@ -701,14 +691,9 @@ async function checkPage(
   const chrome = await chromium.launch(channel ? { channel } : {})
   try {
     if (development) {
-      // A development server's first visit is not the page a developer reads: Vite discovers the
-      // dependencies to pre-bundle (`@kirana-style/core/internal` among them), bundles them and
-      // reloads the page, and on a slow runner that first page can stay without its stylesheet
-      // (Ember in CI). Visit once and let the server finish, as a developer's first load does; the
-      // check below reads a fresh page, with every dependency already bundled.
-      // The budget is the server's, not the check's: in CI, Ember's pre-bundle of about a thousand
-      // packages was still running ("bundling dependencies…", no "optimized" after it) when a 30 s
-      // check gave up, and the page's scripts wait for it.
+      // On a first visit Vite pre-bundles dependencies and reloads the page, which on a slow runner
+      // can stay without its stylesheet (Ember in CI), so a warm-up visit lets the server finish.
+      // The 120 s budget is the server's: Ember's pre-bundle of about a thousand packages outran 30 s.
       const warm = await chrome.newPage()
       await warm.goto(url, { timeout: 120_000 })
       await warm.waitForLoadState("networkidle", { timeout: 120_000 })
@@ -741,13 +726,9 @@ async function checkPage(
         }
       }
     }
-    // A development server delivers the stylesheet after the page: it fills as modules compile and
-    // arrives as a hot update (KRN-INT-009), so the probe can exist before its styles do. Some reload
-    // the page once on first visit, too: Vite finds a dependency to pre-bundle (Ember's, in CI), and
-    // a read during the reload fails. Read until the values match, and fail with the last reading if
-    // they never do; 30 s covers a slow runner's first pre-bundle.
-    // The last resort, in development only: one reload, as a developer would press, then the same
-    // exact values or a failure with the last reading.
+    // A development server delivers the stylesheet after the page, as a hot update (KRN-INT-009),
+    // and may reload the page once, so read until the values match for 30 s. In development, one
+    // manual reload follows as a last resort.
     const settled = async (
       expected: Record<string, string>,
       reloads = development ? 1 : 0
@@ -835,7 +816,6 @@ async function checkPage(
   }
 }
 
-/** Every stylesheet a build wrote: CSS files, and `<style>` blocks in HTML (Astro inlines small ones). */
 /** The probe's atoms are in a stylesheet, in either spelling of the colour: a host's CSS minifier may
  * shorten it (webpack writes `#010203`). */
 function checkStylesheet(css: string) {
@@ -850,12 +830,12 @@ function checkStylesheet(css: string) {
   }
 }
 
+/** Every stylesheet a build wrote: CSS files, and `<style>` blocks in HTML (Astro inlines small ones). */
 function stylesheetText(output: string): string {
   return readdirSync(output, { recursive: true, encoding: "utf8" })
     .filter((name) => /\.(?:css|html)$/.test(name))
     .map((name) => {
       const text = readFileSync(path.join(output, name), "utf8")
-      // Astro inlines a small stylesheet into the page.
       return name.endsWith(".css")
         ? text
         : [...text.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)]

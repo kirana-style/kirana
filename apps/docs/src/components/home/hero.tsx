@@ -157,7 +157,6 @@ const styles = {
   line: css({ whiteSpace: "pre" }),
 }
 
-/** Source in, one compile, atomic CSS out: what the claim beside it says. */
 /**
  * The release and the project's public numbers, in one quiet line: the version on npm, last
  * week's downloads and the stars on GitHub once those answer, and the changelog.
@@ -197,6 +196,7 @@ function Status() {
   )
 }
 
+/** Source in, one compile, atomic CSS out: what the claim beside it says. */
 export function CompileScene() {
   return (
     <Stage sx={styles.art}>

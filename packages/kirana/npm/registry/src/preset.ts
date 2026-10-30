@@ -1,10 +1,8 @@
 /**
  * `kirana-style ui preset <code>` (KRN-DX-032, D-110): a project's design changed in one command.
- * The code is read with the installed design system's own layouts; the design goes to `ui.design`
- * (the framework, base and icon library to their own settings), its axes to attributes on `<html>`,
- * and every installed item is placed again for it, as `update` writes: a file the project left as
- * installed is replaced, one it changed stops the command unless `--overwrite`. The font items the
- * new values name are installed as `add` installs them, and one no value names any more is left for
+ * The code is read with the installed design system's own layouts; the design goes to `ui.design`,
+ * its axes to attributes on `<html>`, and every installed item is placed again as `update` writes
+ * it. The font items the new values name are installed; one no value names any more is left for
  * `remove` (KF-050).
  */
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs"

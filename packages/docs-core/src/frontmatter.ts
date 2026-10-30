@@ -1,10 +1,8 @@
 /**
- * The small YAML subset the documentation's frontmatter uses.
- *
- * `@tanstack/markdown` hands back the frontmatter block as raw text, and a full
- * YAML parser would be a dependency for four value shapes. Anything this does
- * not understand throws, so a typo in a page's frontmatter fails the build
- * instead of silently dropping a title.
+ * The small YAML subset the documentation's frontmatter uses: a full YAML parser
+ * would be a dependency for four value shapes. Anything this does not understand
+ * throws, so a typo in a page's frontmatter fails the build instead of silently
+ * dropping a title.
  */
 
 export type FrontmatterValue = string | number | boolean | string[]
@@ -62,11 +60,9 @@ export function parseFrontmatter(
 }
 
 /**
- * One logical line per entry.
- *
- * The repository's formatter reflows markdown, and a long inline array ends up
- * spread over several lines — sometimes starting on the line after its key. Both
- * shapes are folded back before parsing.
+ * One logical line per entry. The formatter reflows markdown, so a long inline
+ * array can spread over several lines, sometimes starting on the line after its
+ * key; both shapes are folded back before parsing.
  */
 function joinWrapped(text: string): string[] {
   const lines: string[] = []

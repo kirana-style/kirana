@@ -111,13 +111,13 @@ pub struct TokenRef {
     pub deps: Vec<Dep>,
 }
 
-/// A recipe definition ([06](../../../../spec/06-authoring-api.md#recipe--variants-and-slots)).
 /// The handles of one variant option or compound entry, one per slot.
 pub type SlotHandles = Vec<Handle>;
 
 /// `(group, option)` selections.
 pub type Selections = Vec<(String, String)>;
 
+/// A recipe definition ([06](../../../../spec/06-authoring-api.md#recipe--variants-and-slots)).
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Recipe {
     /// Slot names; `None` for a single-element recipe.

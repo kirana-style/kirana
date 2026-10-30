@@ -99,7 +99,6 @@ function BreadcrumbSeparator({ children, sx, ...props }: El<"li">) {
       {...props}
       sx={[styles.separator, sx]}
     >
-      {/* A chevron points the way the text reads, so it mirrors in RTL. */}
       {children ?? <Icon icon={ArrowRight01Icon} />}
     </li>
   )

@@ -321,7 +321,7 @@ pub fn is_pseudo_element(condition: &str) -> bool {
     condition.starts_with("::")
 }
 
-/// The distinct condition paths among a block's declarations, first-seen order; just the
+/// The distinct condition paths among a block's declarations, first-seen order; only the
 /// unconditional one when any declaration has no condition, since that covers the rest.
 pub fn condition_paths<'c>(paths: impl Iterator<Item = &'c Vec<String>>) -> Vec<Vec<String>> {
     let mut distinct: Vec<Vec<String>> = Vec::new();
@@ -750,7 +750,8 @@ fn lookup(value: &Value, key: &str) -> Option<(Vec<String>, Value)> {
     })
 }
 
-/// Up to three known names sharing the longest prefix with `name`.
+/// `did you mean …?` with up to three known names sharing the longest prefix with `name`; `None`
+/// when no name shares a first character.
 pub fn nearest<'n>(known: impl Iterator<Item = &'n String>, name: &str) -> Option<String> {
     let shared = |candidate: &str| candidate.chars().zip(name.chars()).take_while(|(a, b)| a == b).count();
     let mut candidates: Vec<(&String, usize)> =

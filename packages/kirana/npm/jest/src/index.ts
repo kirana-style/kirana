@@ -1,14 +1,11 @@
 /**
  * The Jest host adapter (KRN-INT-003): a transformer that compiles a module's styles, then hands the
- * result to the transformer the project already uses (`babel-jest` unless configured), which strips
- * types and JSX as before. Tests see the class names the application ships; no stylesheet is
- * written, because Jest renders no CSS.
+ * result to the project's transformer (`babel-jest` unless configured). No stylesheet is written.
  *
  *   transform: { "\\.[jt]sx?$": ["@kirana-style/jest", { transformer: "babel-jest" }] }
  *
- * Jest's `process` is synchronous, so the Driver is opened with `Driver.createSync`. Jest caches a
- * module by its own source: after changing tokens another module reads, run Jest once with
- * `--no-cache`.
+ * Jest's `process` is synchronous, hence `Driver.createSync`. Jest caches a module by its own source:
+ * after changing tokens another module reads, run Jest once with `--no-cache`.
  */
 import { createRequire } from "node:module"
 import path from "node:path"

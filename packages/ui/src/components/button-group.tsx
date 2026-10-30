@@ -50,8 +50,8 @@ function ButtonGroup({
     <div
       role="group"
       data-slot="button-group"
-      // Only when given, as in the original. The recipe still defaults to
-      // horizontal, but an unset attribute keeps a Field's
+      // Only when given. The recipe still defaults to horizontal, but an unset
+      // attribute keeps a Field's
       // `:has([data-orientation="horizontal"])` balance rule from firing.
       data-orientation={orientation}
       {...props}

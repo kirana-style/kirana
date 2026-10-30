@@ -1,5 +1,6 @@
-//! Hover (KRN-DX-002): on a style, the CSS it compiles to grouped by condition; on one property,
-//! its entries in ladder order with why the first wins; on a token, its value in both modes.
+//! Hover (KRN-DX-002): on a style, its card; on one property or condition, the CSS it compiles to
+//! and, for a property, its entries in ladder order with why the first wins; on a token, its value
+//! in both modes.
 
 use std::path::Path;
 
