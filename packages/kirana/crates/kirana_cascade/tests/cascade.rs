@@ -219,6 +219,57 @@ fn mixed_logical_and_physical() {
     );
 }
 
+/// What one style object's whole removals of `names` leave of `earlier`, and where the joint removal
+/// goes among them.
+fn jointly_removed(earlier: &Handle, names: &[&str]) -> (Option<usize>, Vec<String>) {
+    let plans: Vec<_> = names.iter().map(|name| write_plan(name).unwrap()).collect();
+    let refs: Vec<&WritePlan> = plans.iter().map(|plan| &**plan).collect();
+    let joint = joint_removal(&refs, &Target::Element);
+    let mut merged = earlier.clone();
+    for plan in &plans {
+        merged.merge(&removal(plan, &Target::Element, &ConditionSet::default(), true));
+    }
+    if let Some((_, handle)) = &joint {
+        merged.merge(handle);
+    }
+    (joint.map(|(first, _)| first), merged.entries().map(|(key, _)| key.property.name.clone()).collect())
+}
+
+#[test]
+fn removals_that_hold_a_whole_box_together_remove_its_other_half() {
+    // KF-076: both axes removed take the physical box, its shorthand and its sides with it.
+    let mut padded = Handle::default();
+    padded.apply(atom("padding", 4));
+    padded.apply(entry(Target::Element, "padding-top"));
+    padded.apply(entry(Target::Element, "color"));
+    assert_eq!(jointly_removed(&padded, &["color", "paddingBlock", "paddingInline"]), (Some(1), vec![]));
+    assert_eq!(
+        jointly_removed(&padded, &["paddingInlineStart", "paddingInlineEnd", "paddingBlockStart", "paddingBlockEnd"]),
+        (Some(0), vec!["color".to_owned()])
+    );
+    // Sizes are a box of two sides.
+    let mut sized = Handle::default();
+    sized.apply(entry(Target::Element, "width"));
+    sized.apply(entry(Target::Element, "height"));
+    assert_eq!(jointly_removed(&sized, &["inlineSize", "blockSize"]), (Some(0), vec![]));
+    // The converse: physical sides removed one by one take the logical ones.
+    let mut logical = Handle::default();
+    logical.apply(atom("padding-inline", 2));
+    logical.apply(atom("padding-block", 2));
+    assert_eq!(
+        jointly_removed(&logical, &["paddingTop", "paddingRight", "paddingBottom", "paddingLeft"]),
+        (Some(0), vec![])
+    );
+
+    // One axis alone keeps to what it names, and a removal that holds a box by itself needs nothing
+    // more.
+    let kept = ["padding", "padding-top", "color"].map(str::to_owned).to_vec();
+    assert_eq!(jointly_removed(&padded, &["paddingBlock"]), (None, kept.clone()));
+    assert_eq!(jointly_removed(&padded, &["padding"]).0, None);
+    assert_eq!(jointly_removed(&padded, &["padding", "paddingBlock", "paddingInline"]).0, None);
+    assert_eq!(jointly_removed(&padded, &[]), (None, kept));
+}
+
 proptest::proptest! {
     #[test]
     fn normalize_never_panics_and_is_idempotent(text in "\\PC{0,40}") {

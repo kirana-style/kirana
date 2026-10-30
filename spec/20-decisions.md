@@ -449,7 +449,7 @@ the implementation tracker names its evidence.
 
 ### D-045 — Shorthand atoms with exact merging
 
-- **Status:** Accepted (closes experiment E-04's packaging question). Amended 2026-10-29 for KF-064.
+- **Status:** Accepted (closes experiment E-04's packaging question). Amended 2026-10-29 for KF-064, 2026-10-30 for KF-076.
 - **Decision:** A box-family shorthand with one component, a shorthand the typed parsers cannot split, and
   a bridged shorthand compile to **one shorthand atom** that covers its longhands; typed multi-component
   values still expand. Merging stays per longhand (D-011): a write unfolds partially overlapping atoms no
@@ -461,7 +461,10 @@ the implementation tracker names its evidence.
   and removes them without tombstones (amends D-037's code assignment). A removal of every entry of a
   property that holds a whole box's physical sides removes the box's logical sides too: `"*": null` on
   `padding` drops an earlier `paddingInline`, which ladder step 5 would otherwise rank above the later
-  `padding`, leaving the sides padded (KF-064).
+  `padding`, leaving the sides padded (KF-064). The removals of one style object that hold a whole box
+  between them remove its other half too: `paddingBlock` and `paddingInline`, both `"*": null`, drop an
+  earlier `padding`, whose entry under a condition would otherwise outrank the later sides there; one
+  axis alone keeps to what it names (KF-076).
 - **Rationale:** Expansion cost 434 extra rules and 2.0 kB gzip on the demo. Keeping shorthands whole
   mirrors StyleX's `property-specificity` and Panda's property order; clearing longhands mirrors StyleX's
   `application-order`; unfold, breadth and derived codes make the result exact where both StyleX modes are

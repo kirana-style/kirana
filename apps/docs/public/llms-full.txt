@@ -1687,11 +1687,25 @@ other three keep `1rem`. The same is true across modules and across components:
 merging is defined on longhands, so nothing depends on which shorthand each author
 happened to use.
 
-Removing a whole box removes it on both axes. A component that pads its sides
-with `paddingInline`, composed with `css({ padding: { "*": null, base: "0" } })`,
-loses its side padding too: in any writing mode, the four physical sides are the
-four logical ones. Removing one side, `paddingLeft`, leaves `paddingInline`
-alone, since which logical side it is depends on the text's direction.
+Removing a whole box removes it on both axes, since in any writing mode the four
+physical sides are the four logical ones:
+
+- `padding: { "*": null }` also removes a component's `paddingInline`;
+- `paddingBlock` and `paddingInline` both `"*": null` in one style also remove a
+  component's `padding`, under every condition it set it;
+- one side or one axis alone (`paddingLeft`, `paddingBlock`) removes only what it
+  names, since which side it is depends on the text's direction.
+
+```tsx
+const empty = css({ padding: { base: "8px", "@media (width >= 48rem)": "24px" } })
+const tight = css({
+  paddingBlock: { "*": null, base: "4px" },
+  paddingInline: { "*": null, base: "4px" },
+})
+
+// 4px at every width: `empty`'s `padding` is removed with both axes.
+<div sx={[empty, tight]} />
+```
 
 ## A component's own `sx`
 

@@ -53,7 +53,9 @@ them to hand-typed attributes for Base UI parts, and likewise `@kirana-style/sta
 for `conditions: { exclusive }` in `kirana.config`, so `checked` and `unchecked` on one property are
 not `ambiguous-precedence`. Nesting two conditions means both must match, and
 the nested one wins.
-`"*": null` drops every earlier entry of a property; `base: null` drops the base entry only.
+`"*": null` drops every earlier entry of a property; `base: null` drops the base entry only. A whole
+box removed in one style, as `padding` or as `paddingBlock` with `paddingInline`, drops it on both
+axes, physical and logical.
 
 ## Variants
 

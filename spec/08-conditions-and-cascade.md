@@ -58,9 +58,14 @@ flowchart LR
 A removal of every entry (`prop: null`, `"*": null`) of a property that holds a whole box's physical
 sides (`padding`, `margin`, `inset`, `borderWidth`, `borderRadius` …) MUST also remove the box's logical
 sides (`paddingInline`, `paddingBlockStart` …): in any writing mode they are the same four sides, and an
-earlier logical entry would otherwise outrank the later shorthand at ladder step 5 (KF-064). A removal
-of one side, or under a condition, removes only what it names: which logical side a physical one is
-depends on the writing mode.
+earlier logical entry would otherwise outrank the later shorthand at ladder step 5 (KF-064). Likewise,
+when the removals of every entry in one style object hold all of a box's sides between them, logical
+(`paddingBlock` and `paddingInline`, or the four `paddingInlineStart` … `paddingBlockEnd`) or physical
+(the four `paddingTop` … `paddingLeft`), they MUST also remove the box's other half, shorthand included:
+an earlier `padding` under a condition would otherwise outrank the later logical sides there (KF-076).
+The joint removal applies with the first of those removals. A removal of one side or one axis, or under
+a condition, removes only what it names: which logical side a physical one is depends on the writing
+mode.
 
 The merge result is the same whether it is computed at build time or by the private runtime
 ([09](./09-dynamic-styles.md#private-runtime)).

@@ -234,22 +234,40 @@ pub fn physical_counterpart(kebab: &str) -> Option<&'static str> {
 /// … `padding-block-end` (KF-064). A box partly held adds nothing, since which logical side a
 /// physical one is depends on the writing mode; no shorthand holds a whole box's logical sides.
 pub fn logical_box(longhands: &[&str]) -> Vec<&'static str> {
-    // Each pair's box, as the physical sides it needs, worked out once: every whole removal asks.
-    static BOXES: OnceLock<Vec<Vec<&'static str>>> = OnceLock::new();
+    other_half(longhands, |(_, physical)| physical, |(logical, _)| logical)
+}
+
+/// The physical longhands of every box whose logical sides `longhands` all hold, the converse of
+/// [`logical_box`]: `padding-block` and `padding-inline` together are `padding`'s four sides
+/// (KF-076).
+pub fn physical_box(longhands: &[&str]) -> Vec<&'static str> {
+    other_half(longhands, |(logical, _)| logical, |(_, physical)| physical)
+}
+
+type Pair = (&'static str, &'static str);
+
+/// The `other` half of every pair whose box `longhands` hold whole by the `held` half.
+fn other_half(
+    longhands: &[&str],
+    held: fn(&Pair) -> &'static str,
+    other: fn(&Pair) -> &'static str,
+) -> Vec<&'static str> {
+    // Each pair's box, as the pairs that share its group, worked out once: every whole removal asks.
+    static BOXES: OnceLock<Vec<Vec<&'static Pair>>> = OnceLock::new();
     let boxes = BOXES.get_or_init(|| {
         COUNTERPARTS
             .iter()
             .map(|(_, physical)| {
                 let group = flow_key(physical).0;
-                COUNTERPARTS.iter().filter(|(_, other)| flow_key(other).0 == group).map(|(_, other)| *other).collect()
+                COUNTERPARTS.iter().filter(|(_, other)| flow_key(other).0 == group).collect()
             })
             .collect()
     });
     COUNTERPARTS
         .iter()
         .zip(boxes)
-        .filter(|(_, sides)| sides.iter().all(|side| longhands.contains(side)))
-        .map(|((logical, _), _)| *logical)
+        .filter(|(_, sides)| sides.iter().all(|side| longhands.contains(&held(side))))
+        .map(|(pair, _)| other(pair))
         .collect()
 }
 

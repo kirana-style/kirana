@@ -582,18 +582,48 @@ pub fn removal(plan: &WritePlan, target: &Target, conditions: &ConditionSet, eve
     let other = if every { kirana_css_data::logical_box(&names) } else { Vec::new() };
     let other = (!other.is_empty()).then(|| plan_of(other.into_iter().map(Property::longhand).collect()));
     for plan in std::iter::once(plan).chain(other.as_ref()) {
-        for (shorthand, keep, _) in &plan.overlapping {
-            handle.apply(unfold(target, shorthand, keep, (!every).then_some(conditions)));
-        }
-        for property in plan.covered.iter().chain(&plan.longhands) {
-            handle.apply(if every {
-                Op::RemoveProperty(target.clone(), property.clone())
-            } else {
-                Op::Remove(EntryKey::new(target.clone(), property.clone(), conditions.clone()))
-            });
-        }
+        remove_plan(&mut handle, plan, target, (!every).then_some(conditions));
     }
     handle
+}
+
+/// What the whole removals of one style object (`prop: null`, `"*": null`), in their order, remove
+/// together beyond what each removes by itself, and the position of the first one it belongs with.
+/// No single property holds a box's four logical sides, but `paddingBlock` and `paddingInline`
+/// removed side by side do, so the box's physical sides and shorthand go too: in any writing mode
+/// they are the same four sides, and an earlier `padding` would otherwise outlive an override that
+/// clears both axes (KF-076). Physical sides removed one by one take the logical ones likewise.
+/// One axis alone still keeps to what it names.
+pub fn joint_removal(removals: &[&WritePlan], target: &Target) -> Option<(usize, Handle)> {
+    let names: Vec<Vec<&str>> =
+        removals.iter().map(|plan| plan.longhands.iter().map(|property| property.name.as_str()).collect()).collect();
+    let held = names.concat();
+    // What each removes by itself: its longhands and, through `removal`, its own logical box.
+    let alone: Vec<&str> =
+        names.iter().flat_map(|names| kirana_css_data::logical_box(names)).chain(held.iter().copied()).collect();
+    let mut extra = kirana_css_data::physical_box(&held);
+    extra.extend(kirana_css_data::logical_box(&held));
+    extra.retain(|side| !alone.contains(side));
+    let groups: Vec<_> = extra.iter().map(|side| kirana_css_data::flow_key(side).0).collect();
+    let first = removals.iter().position(|plan| {
+        plan.longhands.iter().any(|property| groups.contains(&kirana_css_data::flow_key(&property.name).0))
+    })?;
+    let mut handle = Handle::default();
+    remove_plan(&mut handle, &plan_of(extra.into_iter().map(Property::longhand).collect()), target, None);
+    Some((first, handle))
+}
+
+/// Removes what `plan` writes: under `conditions`, or every entry when there are none.
+fn remove_plan(handle: &mut Handle, plan: &WritePlan, target: &Target, conditions: Option<&ConditionSet>) {
+    for (shorthand, keep, _) in &plan.overlapping {
+        handle.apply(unfold(target, shorthand, keep, conditions));
+    }
+    for property in plan.covered.iter().chain(&plan.longhands) {
+        handle.apply(match conditions {
+            None => Op::RemoveProperty(target.clone(), property.clone()),
+            Some(conditions) => Op::Remove(EntryKey::new(target.clone(), property.clone(), conditions.clone())),
+        });
+    }
 }
 
 fn unfold(target: &Target, shorthand: &Property, keep: &[Property], conditions: Option<&ConditionSet>) -> Op {
