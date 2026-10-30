@@ -382,7 +382,9 @@ conditions (`open && "bg-muted"`), on host elements and on components — and a 
 without substitutions. `className` strings are never parsed.
 
 Values: a scale key (`p-4`, `bg-blue-600`), a number of the rule's steps (`w-50`), a keyword
-(`items-center`), a bracketed value used as written (`p-[3px]`, spaces allowed inside brackets), a
+(`items-center`), a bracketed value used as written (`p-[3px]`, spaces allowed inside brackets) and
+routed by its shape as Tailwind infers its type (a colour to a root's colour rules, an image such as
+`bg-[url(…)]` or `bg-[linear-gradient(…)]` to its image rule, KF-076), a
 variable (`w-(--x)`), a negative (`-mt-2`), a colour with alpha (`bg-blue-600/50`, mixed with
 `transparent`), a fraction (`w-1/2`). Variants: the grammar's names (`hover:`, `md:`, `@md:`) and
 Tailwind's built-in forms — `data-*`, `aria-*`, `has-*`, `not-*`, `nth-*`, `supports-*`, `[&…]` on the
@@ -390,6 +392,9 @@ element itself, named and arbitrary container queries. A variant whose condition
 (`::after`) makes a block of its own (KRN-CAS-007); `::before` and `::after` get `content: ""`.
 Utilities that share a property compose through registered, non-inheriting tokens the grammar names
 as `{scale.key}` (`ring-2` and `shadow-sm` → one `box-shadow`), as Tailwind composes `--tw-*`.
+A rule's `pair` (`text-sm`'s line height) yields to the same property set directly wherever that one
+applies, and stays where it does not (`text-sm hover:leading-relaxed` keeps it at rest), as Tailwind's
+`var(--tw-leading, …)` falls back (KF-076).
 
 | Diagnostic                 | When                                                                                          |
 | -------------------------- | --------------------------------------------------------------------------------------------- |
@@ -410,7 +415,10 @@ as `{scale.key}` (`ring-2` and `shadow-sm` → one `box-shadow`), as Tailwind co
 
 **Status (2026-09-23):** both are built (D-058). `kirana-style migrate tailwind` lowers class strings with the
 configured utility grammar through the same crate as utility strings (`kirana_utility`), so an object
-it writes compiles to the atoms of the string it replaced; it reads `@custom-variant` and `@utility`
+it writes compiles to the atoms of the string it replaced, except a composed utility on a host element
+whose one static class list is all it is styled with, which is written resolved (`ring-1 ring-border`
+→ `` boxShadow: `0 0 0 1px ${theme.border}` ``, `border` → `borderStyle: "solid"`), since no other
+class can add a layer there (KF-076); it reads `@custom-variant` and `@utility`
 from the CSS files among its paths, turns `className` props into `sx` (or `{...props()}` on components
 from installed packages), and leaves every item it reports in a comment beside the style. Of the
 reports column, `cn` conflict deletions and wrapper default props are not detected: both need knowledge

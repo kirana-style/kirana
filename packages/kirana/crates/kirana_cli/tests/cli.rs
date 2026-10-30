@@ -270,8 +270,10 @@ fn migrates_stylex_sources() {
 #[test]
 fn migrates_tailwind_sources() {
     let root = temp(&[
-        ("scales.ts", b"import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { \"2\": \"0.5rem\" })\n"),
+        ("scales.ts", b"import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { \"2\": \"0.5rem\" })\nexport const compose = defineTokens(\"compose\", { width: { value: \"0px\", syntax: \"*\", inherits: false } })\n"),
         ("src/a.tsx", b"import { Thing } from \"./thing\"\nexport const A = () => <p className=\"p-2 data-open:block no-scrollbar\" />\nexport const B = () => <Thing className=\"p-2\" />\n"),
+        // A host element styled by nothing else gets its composition resolved; a component keeps it (KF-076).
+        ("src/ring.tsx", b"import { Thing } from \"./thing\"\nexport const R = () => <><p className=\"ring-2\" /><Thing className=\"ring-2\" /></>\n"),
         ("src/theme.css", b"@custom-variant data-open (&[data-state=open]);\n@utility no-scrollbar {\n  scrollbar-width: none;\n}\n@utility {\n}\n"),
         // A listed library's component reads `sx`; an installed one that is not listed does not.
         ("src/c.tsx", b"import { Button } from \"@acme/ds\"\nimport { Popup } from \"menu-lib\"\nexport const C = () => <Button className=\"p-2\" />\nexport const D = () => <Popup className=\"p-2\" />\n"),
@@ -292,13 +294,21 @@ fn migrates_tailwind_sources() {
         "root": root.to_string_lossy(),
         "libraries": ["@acme/ds"],
         "utilities": {
-            "scales": { "space": [{ "module": "./scales.ts", "export": "space" }] },
-            "utilities": { "p": [{ "properties": ["padding"], "scale": "space" }] }
+            "scales": {
+                "space": [{ "module": "./scales.ts", "export": "space" }],
+                "compose": [{ "module": "./scales.ts", "export": "compose" }]
+            },
+            "utilities": {
+                "p": [{ "properties": ["padding"], "scale": "space" }],
+                "ring": [{ "properties": ["{compose.width}"], "number": { "unit": "px" }, "also": { "boxShadow": "0 0 0 {compose.width} currentcolor" } }]
+            }
         }
     })
     .to_string();
     let (code, output) = run(&["--config-json", &config, "migrate", "tailwind", &src]);
     assert_eq!(code, 0, "{output}");
+    assert!(output.contains("+     boxShadow: \"0 0 0 2px currentcolor\","), "{output}");
+    assert!(output.contains("+     boxShadow: `0 0 0 ${compose.width} currentcolor`,"), "{output}");
     assert!(output.contains("+ const styles = {"), "{output}");
     assert!(output.contains("`data-open:` is a custom variant in your CSS"), "{output}");
     assert!(output.contains("`no-scrollbar` is a custom utility in your CSS"), "{output}");

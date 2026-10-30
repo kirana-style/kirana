@@ -63,6 +63,9 @@ fn grammar() -> Grammar {
             "ease": [{"properties": ["ease"], "scale": "space", "aliases": {"one": "1"}}],
             "leading": [{"properties": ["lineHeight"], "scale": "leading"}, {"properties": ["lineHeight"], "values": {"none": "1"}}],
             "z": [{"properties": ["zIndex"], "number": {}}],
+            "bg": [{"properties": ["backgroundColor"], "scale": "color", "alpha": true},
+                   {"properties": ["backgroundColor"], "values": {"current": "currentColor"}},
+                   {"properties": ["backgroundImage"], "values": {"none": "none"}}],
             "bright": [{"properties": ["filter"], "number": {"unit": "%"}, "format": "brightness({value})"}],
             "ring": [{"properties": ["{compose.x}"], "number": {"unit": "px"},
                       "also": {"boxShadow": "0 0 {compose.x}"}},
@@ -364,26 +367,62 @@ fn a_paired_value_yields_to_the_property_set_directly() {
     assert_eq!(text("text-sm/sm"), ["fontSize: size.sm", "lineHeight: leading.sm"]);
     assert_eq!(text("text-sm/none"), ["fontSize: size.sm", "lineHeight: 1"]);
     assert!(lower("text-sm/unknown").is_err());
-    let declarations: Vec<Declaration> = ["text-sm", "hover:leading-none", "after:text-sm"]
-        .into_iter()
-        .flat_map(|utility| lower(utility).unwrap())
-        .collect();
-    let settled = kirana_utility::settle_pairs(declarations);
-    let summary: Vec<String> = settled
-        .iter()
-        .map(|declaration| format!("{:?} {:?} {}", declaration.block, declaration.conditions, declaration.property))
-        .collect();
-    // The element's paired line height goes; the `::after` block's has no direct one and stays.
+    let settle = |utilities: &[&str]| -> Vec<String> {
+        let declarations: Vec<Declaration> = utilities.iter().flat_map(|utility| lower(utility).unwrap()).collect();
+        kirana_utility::settle_pairs(declarations)
+            .iter()
+            .map(|declaration| {
+                let paired = if matches!(declaration.value, Expr::Paired(_)) { " ~" } else { "" };
+                format!("{:?} {:?} {}{paired}", declaration.block, declaration.conditions, declaration.property)
+            })
+            .collect()
+    };
+    // The element's paired line height goes where `leading-none` applies, and stays at rest, where
+    // Tailwind's `var(--tw-leading, …)` falls back to it (KF-076); the `::after` block has no direct one.
     assert_eq!(
-        summary,
+        settle(&["text-sm", "hover:leading-none", "after:text-sm"]),
         [
             "None [] fontSize",
+            "None [] lineHeight ~",
             "None [\":hover\"] lineHeight",
             "Some(\"::after\") [] fontSize",
-            "Some(\"::after\") [] lineHeight"
+            "Some(\"::after\") [] lineHeight ~"
         ]
     );
-    assert!(matches!(settled[3].value, Expr::Paired(_)));
+    // A line height set at rest, or under fewer conditions, applies wherever the size's does.
+    assert_eq!(settle(&["md:hover:text-sm", "hover:leading-none"]).len(), 2);
+    assert_eq!(
+        settle(&["md:text-sm", "leading-none"]),
+        ["None [\"@media (width >= 48rem)\"] fontSize", "None [] lineHeight"]
+    );
+}
+
+#[test]
+fn a_bracketed_image_is_a_background_image() {
+    // As Tailwind 4 infers the `image` type (KF-076): every layer an image, `var()`s aside.
+    for (utility, expected) in [
+        ("bg-[url(/a.png)]", "backgroundImage: url(/a.png)"),
+        (
+            "bg-[repeating-linear-gradient(45deg,var(--b)_0_1px,transparent_1px_8px)]",
+            "backgroundImage: repeating-linear-gradient(45deg,var(--b) 0 1px,transparent 1px 8px)",
+        ),
+        ("bg-[radial-gradient(red,blue),var(--x)]", "backgroundImage: radial-gradient(red,blue),var(--x)"),
+        ("bg-[conic-gradient(red,blue)]", "backgroundImage: conic-gradient(red,blue)"),
+        ("bg-[image-set(url(a)_1x)]", "backgroundImage: image-set(url(a) 1x)"),
+        ("bg-[cross-fade(url(a),url(b))]", "backgroundImage: cross-fade(url(a),url(b))"),
+        ("bg-none", "backgroundImage: none"),
+        // Not an image: a colour, a lone variable, a word, a list with something else in it.
+        ("bg-[#fff]", "backgroundColor: #fff"),
+        ("bg-[var(--x)]", "backgroundColor: var(--x)"),
+        ("bg-[var(--x),var(--y)]", "backgroundColor: var(--x),var(--y)"),
+        ("bg-[linear-gradient(red,blue),red]", "backgroundColor: linear-gradient(red,blue),red"),
+        ("bg-[canvas]", "backgroundColor: canvas"),
+        ("bg-[foo]", "backgroundColor: foo"),
+        ("bg-(--x)", "backgroundColor: var(--x)"),
+        ("bg-blue-600", "backgroundColor: color.blue.600"),
+    ] {
+        assert_eq!(text(utility), [expected], "{utility}");
+    }
 }
 
 #[test]

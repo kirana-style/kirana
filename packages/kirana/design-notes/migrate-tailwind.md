@@ -27,7 +27,9 @@ Both read scales through the same resolution, so which utilities exist, which ru
 (`text-sm` against `text-blue-600`) applies and what a key's path is (`blue-600` is
 `color.blue[600]`) are decided once. The consequence worth having: **the object the codemod writes
 compiles to the same atoms as the utility string it came from**, which the property test already
-proves equal to the hand-written object. A codemod test compiles both and compares.
+proves equal to the hand-written object. A codemod test compiles both and compares. The one exception
+is a composed utility on an element nothing else can add a layer to, written resolved (below): its
+atoms are the resolved values', which compute to what the composition computes there.
 
 The grammar comes from the project's configuration, exactly as for utility strings: the codemod
 runs in the project being migrated, with `@kirana-style/preset-scales/preset` listed and the application's
@@ -132,6 +134,21 @@ What the utility surface refuses, because a string cannot say it, an object can:
 - **tailwind-merge's pair deletion in a `cva`**: an option setting a size alone (`text-[0.8rem]`) over
   a base `text-sm` removes the base's paired line height (`lineHeight: null`), as `cn()` deleted the
   whole base utility.
+- **composed utilities, resolved where nothing else composes** (KF-076): Tailwind's layers
+  (`--tw-ring-shadow`, `--tw-translate-y`, `--tw-grayscale`, `--tw-border-style`) combine across the
+  classes of one element, and with a component's own classes when the element is a component that
+  merges the class it is given. A host element whose `className` is one static class list (a string,
+  or a joiner of static strings only), without spread props or a contextual rule moved onto it, can
+  receive no other layer, unless a contextual rule elsewhere sets one: the survey records every layer a
+  `select` block sets or reads, and those stay composed. There each property reading layers is written
+  resolved, per condition: a layer set under the same or fewer conditions is substituted, an unset one
+  takes its registered initial value (`0`, `solid`, `currentcolor`, nothing for a filter step), and a
+  comma-separated item that reads only unset layers is left out (`box-shadow`'s four `0 0 #0000`). A
+  layer under other conditions (`md:ring-2 hover:ring-4`), one set without the property that reads it
+  (`ring-1 hover:ring-blue-600`), or one set by `dark:` keeps the composition. A layer is a registered
+  token that does not inherit, read from the evaluated token module. Components, recipes, constants,
+  other class props and `lowerTailwind` keep the composition, so a caller's `border` over a component's
+  `border-dashed` stays dashed, as in Tailwind.
 
 ## What it reports instead of guessing
 
@@ -196,7 +213,8 @@ strings.
 - `crates/kirana_migrate/tests/tailwind.rs`: the fixture (`fixtures/migrate-tailwind/`) as a snapshot,
   and every rewrite path.
 - The atoms test in the same file: for class strings covering scales, colours with alpha, negatives,
-  fractions, numbers, composed `ring`, pseudo-elements, containers and attribute variants, the
-  migrated module compiles to exactly the atoms of the same string as `sx`.
+  fractions, numbers, composed `ring`, `border`, `translate` and filters, pseudo-elements, containers
+  and attribute variants, the string lowered on its own (`lower`, which keeps every composition)
+  compiles to exactly the atoms of the same string as `sx`.
 - The exit (KRN-TEST-008): migrate the Tailwind original's apps, resolve the report, build, and pass
   conformance against the Tailwind twin.

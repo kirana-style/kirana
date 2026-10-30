@@ -2,15 +2,15 @@
 //! `design-notes/migrate-tailwind.md`).
 //!
 //! Class strings are lowered through `kirana_utility` and rendered as source, so the object compiles
-//! to the same atoms as the class string it replaces. Relations, contextual targets and `dark:` are
-//! handled here; what needs a person (`!important`, an undeclared custom variant, a dynamic class
+//! to the same atoms as the class string it replaces, but for a composition an element alone can
+//! resolve (`Walker::resolve_layers`). Relations, contextual targets and `dark:` are handled here; what needs a person (`!important`, an undeclared custom variant, a dynamic class
 //! string) is reported and left in a comment.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Component, Path, PathBuf};
 
 use kirana_config::{Grammar, Rule};
-use kirana_ir::Value;
+use kirana_ir::{TokenDef, TokenValue, Value};
 use kirana_utility::{Expr, Scales, Tree};
 use oxc_ast::ast::{
     Argument, ArrowFunctionExpression, BindingPattern, BindingProperty, CallExpression, Declaration, Expression,
@@ -37,6 +37,9 @@ pub trait Environment {
     fn specifier(&self, file: &Path) -> String;
     /// The file `specifier` resolves to from the file being migrated.
     fn resolve(&self, specifier: &str) -> Option<PathBuf>;
+    /// The definition of the token whose custom property is `variable`, from a module an `export`
+    /// has evaluated: a composition layer's registration and initial value.
+    fn token(&self, variable: &str) -> Option<std::sync::Arc<TokenDef>>;
 }
 
 /// What a first pass over every file ([`survey`]) learns about the others: which file anchors each
@@ -67,6 +70,9 @@ pub struct ProjectMap {
     pub rendered: BTreeSet<(PathBuf, String)>,
     /// Components that pass their `className` on to another of the project's components: from, to.
     pub class_forwards: BTreeSet<((PathBuf, String), (PathBuf, String))>,
+    /// The composition layers a contextual rule sets or reads anywhere (`*:shadow-sm`): an element
+    /// they may reach keeps composing those (KF-076).
+    pub contextual_layers: BTreeSet<String>,
 }
 
 /// A parent's contextual rule on a `data-slot` target (`*:data-[slot=x]:w-full`). A `select` block
@@ -158,6 +164,7 @@ impl ProjectMap {
         self.styled.extend(survey.styled.iter().cloned());
         self.rendered.extend(survey.rendered.iter().cloned());
         self.class_forwards.extend(survey.class_forwards.iter().cloned());
+        self.contextual_layers.extend(survey.contextual_layers.iter().cloned());
         self.recipes.extend(survey.recipes.iter().map(|recipe| (file.to_path_buf(), recipe.clone())));
         for slot in &survey.slots {
             self.anchors.entry(slot_identifier(slot)).or_insert_with(|| file.to_path_buf());
@@ -193,6 +200,7 @@ pub struct Survey {
     pub recipe_slots: BTreeSet<(String, String)>,
     pub rendered: BTreeSet<(PathBuf, String)>,
     pub class_forwards: BTreeSet<((PathBuf, String), (PathBuf, String))>,
+    pub contextual_layers: BTreeSet<String>,
 }
 
 /// The first pass: what a file would anchor and read, without writing anything.
@@ -213,6 +221,7 @@ pub fn survey(path: &Path, source: &str, options: &Options<'_>, environment: &dy
             recipe_slots: walker.recipe_slots,
             rendered: walker.rendered,
             class_forwards: walker.class_forwards,
+            contextual_layers: walker.contextual_layers,
         }
     })
     .unwrap_or_default()
@@ -451,6 +460,10 @@ struct Entry {
     value: Vec<Part>,
     /// Set by a rule's `pair` (`text-sm`'s line height): yields to the property set directly.
     paired: bool,
+    /// The value as the grammar gave it, and the layer the property is (`[compose["ring-width"]]`),
+    /// for a composition this element resolves (KF-076).
+    expr: Option<Expr>,
+    layer: Option<String>,
 }
 
 /// A class string, lowered.
@@ -552,6 +565,10 @@ struct Walker<'s> {
     /// The constants used as styles, and every reference to each.
     constants_styled: BTreeMap<String, usize>,
     constant_references: BTreeMap<String, usize>,
+    /// Whether the class string being lowered is the only style of a host element, which nothing
+    /// else can add a composition layer to, and the layers contextual rules here set or read.
+    alone: bool,
+    contextual_layers: BTreeSet<String>,
 }
 
 impl Scales for Walker<'_> {
@@ -616,6 +633,8 @@ impl<'s> Walker<'s> {
             constant_references: BTreeMap::new(),
             imported_names: BTreeMap::new(),
             styled: BTreeSet::new(),
+            alone: false,
+            contextual_layers: BTreeSet::new(),
         }
     }
 
@@ -949,16 +968,27 @@ impl<'s> Walker<'s> {
         if let Some(recipe) = self.current_recipe.clone() {
             self.recipe_properties.entry(recipe).or_default().extend(own);
         }
-        // A paired value yields to the same property set directly (`text-sm leading-snug`).
-        let direct: Vec<(Option<String>, String)> = lowered
+        // A paired value yields to the same property set directly (`text-sm leading-snug`) wherever
+        // that one applies: under a condition alone, the size's own stays at rest (KF-076).
+        let direct: Vec<(Option<String>, String, Vec<String>)> = lowered
             .entries
             .iter()
             .filter(|entry| !entry.paired)
-            .map(|entry| (entry.block.clone(), entry.property.clone()))
+            .map(|entry| (entry.block.clone(), entry.property.clone(), entry.conditions.clone()))
             .collect();
-        lowered
-            .entries
-            .retain(|entry| !entry.paired || !direct.contains(&(entry.block.clone(), entry.property.clone())));
+        lowered.entries.retain(|entry| {
+            !entry.paired
+                || !direct.iter().any(|(block, property, conditions)| {
+                    *block == entry.block
+                        && *property == entry.property
+                        && kirana_utility::covers(conditions, &entry.conditions)
+                })
+        });
+        // A `dark:` layer becomes a per-mode token, which the composition then has to read.
+        let dark_layers = dark.iter().any(|entry| {
+            entry.layer.is_some()
+                || entry.expr.as_ref().is_some_and(|expr| !layers_read(self.environment, expr).is_empty())
+        });
         let mut mode_places: BTreeMap<(Option<String>, Vec<String>, String), String> = BTreeMap::new();
         // `dark:` becomes the second half of a `light-dark()` pair with the value at rest. Only a
         // colour can be a pair; a background with no value at rest pairs with its initial
@@ -1074,7 +1104,79 @@ impl<'s> Walker<'s> {
             parts.push(Part::Text(")".to_owned()));
             light.value = merge_text(parts);
         }
+        if self.alone && !dark_layers {
+            self.resolve_layers(&mut lowered);
+        }
         lowered
+    }
+
+    /// Tailwind composes `box-shadow`, `translate`, `filter` and `border-style` from layers that any
+    /// class of the element may set. Where this style is all the element has (see `alone`), a
+    /// property whose layers are all set here, under its own conditions, is written resolved:
+    /// `ring-1 ring-border` is `boxShadow: \`0 0 0 1px ${theme.border}\``, `border` is `borderStyle:
+    /// "solid"`. A layer under other conditions, or one a contextual rule may set, keeps the
+    /// composition (KF-076).
+    fn resolve_layers(&mut self, lowered: &mut Lowered) {
+        let contextual =
+            |key: &String| self.contextual_layers.contains(key) || self.options.project.contextual_layers.contains(key);
+        let environment = self.environment;
+        let reads = |entry: &Entry| entry.expr.as_ref().map(|expr| layers_read(environment, expr)).unwrap_or_default();
+        let (mut consumed, mut needed) = (BTreeSet::new(), BTreeSet::new());
+        let mut resolved = Vec::new();
+        for (index, reader) in lowered.entries.iter().enumerate() {
+            let mut keys = reads(reader);
+            if reader.layer.is_some() || keys.is_empty() {
+                continue;
+            }
+            // The layers it reads, and those they read (`ring-shadow` reads `ring-width`).
+            let mut next = 0;
+            while let Some(key) = keys.get(next).cloned() {
+                for setter in lowered.entries.iter().filter(|setter| setter.layer.as_ref() == Some(&key)) {
+                    for read in reads(setter) {
+                        if !keys.contains(&read) {
+                            keys.push(read);
+                        }
+                    }
+                }
+                next += 1;
+            }
+            let setters: Vec<&Entry> = lowered
+                .entries
+                .iter()
+                .filter(|setter| setter.expr.is_some() && setter.layer.as_ref().is_some_and(|key| keys.contains(key)))
+                .collect();
+            // A layer set under fewer conditions applies here too; one under more is the business of
+            // the reader written beside it there. One under other conditions would compose with
+            // this one where both apply, and a layer set without its reader composes with this one.
+            let encloses = |setter: &&Entry| kirana_utility::covers(&setter.conditions, &reader.conditions);
+            let read_there = |setter: &&Entry| {
+                kirana_utility::covers(&reader.conditions, &setter.conditions)
+                    && lowered.entries.iter().any(|other| {
+                        other.layer.is_none()
+                            && other.conditions == setter.conditions
+                            && other.block == reader.block
+                            && reads(other).iter().any(|key| keys.contains(key))
+                    })
+            };
+            let local =
+                setters.iter().all(|setter| setter.block == reader.block && (encloses(setter) || read_there(setter)));
+            let mut setters: Vec<&Entry> = setters.into_iter().filter(encloses).collect();
+            // The innermost value of a layer wins, then the later one.
+            setters.sort_by_key(|setter| setter.conditions.len());
+            if local && !keys.iter().any(contextual) {
+                resolved.extend(reader.expr.as_ref().map(|expr| (index, resolve(environment, expr, &setters))));
+                consumed.extend(keys);
+            } else {
+                needed.extend(keys);
+            }
+        }
+        for (index, value) in resolved {
+            lowered.entries[index].value = tidy(self.parts(&value));
+            lowered.entries[index].expr = Some(value);
+        }
+        lowered
+            .entries
+            .retain(|entry| !entry.layer.as_ref().is_some_and(|key| consumed.contains(key) && !needed.contains(key)));
     }
 
     /// A per-mode token for a non-colour `dark:` value, declared once per file with the others.
@@ -1204,7 +1306,7 @@ impl<'s> Walker<'s> {
         }) {
             let property = if property.starts_with("--") { property } else { camel_property(&property) };
             let value = self.parts(&kirana_utility::written_expr(self.options.grammar, self, value));
-            let entry = Entry { block, conditions, property, value, paired: false };
+            let entry = Entry { block, conditions, property, value, ..Entry::default() };
             if is_dark {
                 dark.push(entry)
             } else {
@@ -1232,17 +1334,23 @@ impl<'s> Walker<'s> {
             )?;
         for (property, value) in declarations {
             // A property written `{scale.key}` is that token, set as a computed key.
-            let property = match kirana_utility::property_token(self.options.grammar, self, &property) {
+            let token = kirana_utility::property_token(self.options.grammar, self, &property);
+            let layer = token.as_ref().and_then(|token| layer(self.environment, token)).map(|(key, _)| key);
+            let property = match token {
                 Some(Expr::Token { module, export, path, .. }) => format!("[{}]", self.token(&module, &export, &path)),
                 _ => property,
             };
+            if block.as_deref().is_some_and(|block| block.starts_with("[select.")) {
+                self.contextual_layers.extend(layer.iter().cloned().chain(layers_read(self.environment, &value)));
+            }
             if parsed.important {
                 lowered.entries.push(Entry {
                     block: block.clone(),
                     conditions: vec!["\"*\"".to_owned()],
                     property: property.clone(),
                     value: vec![Part::Code("null".to_owned())],
-                    paired: false,
+                    layer: layer.clone(),
+                    ..Entry::default()
                 });
             }
             let paired = matches!(value, Expr::Paired(_));
@@ -1252,6 +1360,8 @@ impl<'s> Walker<'s> {
                 property,
                 value: self.parts(&value),
                 paired,
+                expr: Some(value),
+                layer,
             };
             if is_dark { dark.push(entry) } else { lowered.entries.push(entry) }
         }
@@ -1348,7 +1458,7 @@ impl<'s> Walker<'s> {
                                 conditions,
                                 property: "content".to_owned(),
                                 value: vec![Part::Text("\"\"".to_owned())],
-                                paired: false,
+                                ..Entry::default()
                             });
                         let all: Vec<Entry> = content.chain(entries.iter().map(|entry| (*entry).clone())).collect();
                         group_entries(&all.iter().collect::<Vec<_>>())
@@ -1815,8 +1925,41 @@ impl<'s> Walker<'s> {
     }
 
     fn class_name_attribute(&mut self, element: &JSXOpeningElement<'_>, attribute: &JSXAttribute<'_>) {
+        self.alone = self.is_alone(element, attribute);
         self.class_name_rewrite(element, attribute);
         self.forward_target = None;
+        self.alone = false;
+    }
+
+    /// Whether a host element's `className` is all it is styled with, so no other class can add a
+    /// layer to a composition its style resolves: one static class list, no spread props that may
+    /// carry a class, and no contextual rule moved onto it (KF-076). A component merges its own
+    /// styles with the one it is given, and keeps composing.
+    fn is_alone(&self, element: &JSXOpeningElement<'_>, attribute: &JSXAttribute<'_>) -> bool {
+        let one_list = match &attribute.value {
+            Some(JSXAttributeValue::StringLiteral(_)) => true,
+            Some(JSXAttributeValue::ExpressionContainer(container)) => {
+                container.expression.as_expression().is_some_and(|expression| match expression {
+                    Expression::CallExpression(call) if self.joiner(call).is_some() => call
+                        .arguments
+                        .iter()
+                        .all(|argument| argument.as_expression().and_then(Self::static_string).is_some()),
+                    _ => Self::static_string(expression).is_some(),
+                })
+            }
+            _ => false,
+        };
+        let spread = element.attributes.iter().any(|item| matches!(item, JSXAttributeItem::SpreadAttribute(_)));
+        let inverted = element.attributes.iter().any(|item| match item {
+            JSXAttributeItem::Attribute(slot) if attribute_name(slot) == Some("data-slot") => match &slot.value {
+                Some(JSXAttributeValue::StringLiteral(literal)) => {
+                    literal.value.as_str().is_some_and(|slot| !self.options.project.inversions_for(slot).is_empty())
+                }
+                _ => true,
+            },
+            _ => false,
+        });
+        one_list && matches!(element.name, JSXElementName::Identifier(_)) && !spread && !inverted
     }
 
     fn class_name_rewrite(&mut self, element: &JSXOpeningElement<'_>, attribute: &JSXAttribute<'_>) {
@@ -2066,7 +2209,7 @@ impl<'s> Walker<'s> {
                             conditions: Vec::new(),
                             property: paired.clone(),
                             value: vec![Part::Code("null".to_owned())],
-                            paired: false,
+                            ..Entry::default()
                         });
                     }
                 }
@@ -2391,6 +2534,120 @@ fn merge_text(parts: Vec<Part>) -> Vec<Part> {
             (_, part) => out.push(part),
         }
     }
+    out
+}
+
+/// A layer the grammar composes a property through (`compose.ring-width`): a registered token that
+/// does not inherit, as Tailwind registers `--tw-*`. Its key, and its initial value unless unset.
+fn layer(environment: &dyn Environment, expr: &Expr) -> Option<(String, Option<String>)> {
+    let Expr::Token { module, export, path, value: Value::Token(token) } = expr else { return None };
+    let definition = environment.token(token.variable.as_deref()?)?;
+    definition.registration.as_ref().filter(|registration| !registration.inherits)?;
+    let initial = match &definition.value {
+        TokenValue::Plain(value) if !value.is_empty() => Some(value.clone()),
+        _ => None,
+    };
+    Some((format!("{module}#{export}.{}", path.join(".")), initial))
+}
+
+/// The layers a value reads.
+fn layers_read(environment: &dyn Environment, expr: &Expr) -> Vec<String> {
+    match expr {
+        Expr::Text(_) => Vec::new(),
+        Expr::Token { .. } => layer(environment, expr).map(|(key, _)| key).into_iter().collect(),
+        Expr::Negate(inner) | Expr::Alpha(inner, _) | Expr::Paired(inner) => layers_read(environment, inner),
+        Expr::Concat(parts) => parts.iter().flat_map(|part| layers_read(environment, part)).collect(),
+    }
+}
+
+/// A value with the layers it reads replaced by what `setters` set them to: `Err` with the layer's
+/// initial value for one none of them sets. In a comma-separated list (`box-shadow`'s five layers)
+/// an item that only reads unset layers is left out, as a hand port writes one shadow.
+fn substitute(environment: &dyn Environment, expr: &Expr, setters: &[&Entry]) -> Result<Expr, Option<String>> {
+    let whole = |expr: &Expr| resolve(environment, expr, setters);
+    match expr {
+        Expr::Token { .. } => match layer(environment, expr) {
+            Some((key, initial)) => {
+                let setter = setters.iter().rev().find(|setter| setter.layer.as_ref() == Some(&key));
+                // Every setter carries its value: the ones without one are left out of `setters`.
+                setter.and_then(|setter| setter.expr.as_ref()).map(whole).ok_or(initial)
+            }
+            None => Ok(expr.clone()),
+        },
+        Expr::Negate(inner) => Ok(Expr::Negate(Box::new(whole(inner)))),
+        Expr::Alpha(inner, percent) => Ok(Expr::Alpha(Box::new(whole(inner)), *percent)),
+        // A size's paired line height is never a composition's.
+        Expr::Text(_) | Expr::Paired(_) => Ok(expr.clone()),
+        Expr::Concat(parts) => {
+            let mut items: Vec<Vec<Result<Expr, Option<String>>>> = vec![Vec::new()];
+            for part in parts {
+                match part {
+                    Expr::Text(text) => {
+                        for (index, piece) in text.split(',').enumerate() {
+                            if index > 0 {
+                                items.push(Vec::new());
+                            }
+                            items.last_mut().expect("starts with one").push(Ok(Expr::Text(piece.to_owned())));
+                        }
+                    }
+                    _ => items.last_mut().expect("starts with one").push(substitute(environment, part, setters)),
+                }
+            }
+            let set = |item: &Vec<Result<Expr, Option<String>>>| {
+                item.iter().any(|part| match part {
+                    Ok(Expr::Text(text)) => !text.trim().is_empty(),
+                    Ok(_) => true,
+                    Err(_) => false,
+                })
+            };
+            if items.len() > 1 && items.iter().any(set) {
+                items.retain(set);
+            }
+            let mut out = Vec::new();
+            for (index, item) in items.into_iter().enumerate() {
+                if index > 0 {
+                    out.push(Expr::Text(",".to_owned()));
+                }
+                out.extend(
+                    item.into_iter().map(|part| part.unwrap_or_else(|initial| Expr::Text(initial.unwrap_or_default()))),
+                );
+            }
+            Ok(Expr::Concat(out))
+        }
+    }
+}
+
+/// A value with its layers replaced, an unset one by its initial value.
+fn resolve(environment: &dyn Environment, expr: &Expr, setters: &[&Entry]) -> Expr {
+    substitute(environment, expr, setters).unwrap_or_else(|initial| Expr::Text(initial.unwrap_or_default()))
+}
+
+/// Spaces an unset layer left behind collapsed, and none at either end.
+fn tidy(parts: Vec<Part>) -> Vec<Part> {
+    let mut out: Vec<Part> = Vec::new();
+    let mut space = true;
+    for part in parts {
+        match part {
+            Part::Text(text) => {
+                let mut tidied = String::new();
+                for character in text.chars() {
+                    if character != ' ' || !space {
+                        tidied.push(character);
+                    }
+                    space = character == ' ';
+                }
+                out.push(Part::Text(tidied));
+            }
+            code => {
+                space = false;
+                out.push(code);
+            }
+        }
+    }
+    if let Some(Part::Text(text)) = out.last_mut() {
+        text.truncate(text.trim_end().len());
+    }
+    out.retain(|part| !matches!(part, Part::Text(text) if text.is_empty()));
     out
 }
 

@@ -90,6 +90,20 @@ Tailwind's `_` for a space works too.
 Tailwind's `--spacing(n)` inside brackets counts steps of the space scale, so
 `gap-[--spacing(var(--gap))]` is the scale's first step times `var(--gap)`.
 
+A root that sets more than one property reads the bracketed value's shape, as
+Tailwind infers its type:
+
+| Utility                                       | Sets                |
+| --------------------------------------------- | ------------------- |
+| `text-[13px]`                                 | the font size       |
+| `text-[#0af]`                                 | the colour          |
+| `bg-[url(/a.png)]`, `bg-[linear-gradient(…)]` | a background image  |
+| `bg-[var(--x)]`, any other bracketed value    | a background colour |
+
+`text-sm` also sets its line height, and a `leading-*` replaces it wherever that
+applies: `text-sm leading-relaxed` has one line height, and
+`text-sm hover:leading-relaxed` keeps the size's own at rest.
+
 Variants go before the utility and stack, in Tailwind's own forms. There is no
 `dark:`: every colour token is already a `light-dark()` pair.
 

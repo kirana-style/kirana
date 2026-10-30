@@ -42,7 +42,7 @@ const styles = {
     padding: space[2],
   }),
   card4: css({
-    borderStyle: "solid",
+    borderStyle: compose["border-style"],
     borderWidth: "1px",
   }),
   card5: css({
@@ -145,7 +145,7 @@ const badgeVariants = recipe({
     // tailwind: inline-flex — `inline-flex` is not a utility
     // tailwind: [&>svg]:p-4! — `[&>svg]:p-4!`: Kirana has no `!important`; the precedence ladder decides
     borderRadius: radius.lg,
-    borderStyle: "solid",
+    borderStyle: compose["border-style"],
     borderWidth: "1px",
     paddingInline: { base: space[2], ':has([data-icon="inline-end"])': space[1] },
     fontSize: fontSize.sm,
