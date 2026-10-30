@@ -12,8 +12,9 @@ beside it, and port in small steps.
 ## The process
 
 1. **Give the project its vocabulary first.** For Tailwind, add `@kirana-style/preset-scales` to
-   `kirana.config.ts` (`presets: [scales()]`) and point `utilities.scales.color` at the theme
-   module, so `space[4]`, `color.zinc500` and `breakpoint.md` mean what they meant. Declare
+   `kirana.config.ts` (`import scales from "@kirana-style/preset-scales/preset"`, a default export,
+   then `presets: [scales()]`) and point `utilities.scales.color` at the theme module, so
+   `space[4]`, `color.zinc500` and `breakpoint.md` mean what they meant. Declare
    shadcn's `@custom-variant`s under `utilities.variants`, or pass the CSS file to the codemod.
 2. **Dry-run the codemod, read the diff and the report:**
    ```bash
@@ -26,7 +27,8 @@ beside it, and port in small steps.
 4. **Resolve the report by hand,** with `references/tailwind-map.md` or `references/stylex-map.md`.
 5. **`npx kirana-style check src` until it is clean** (`--format json` to work through the list). `sx-on-external-component`, `unused-sx`,
    `relation-without-anchor` and `ambiguous-precedence` are the diagnostics a port produces; the
-   `kirana` skill's diagnostics reference says what to do about each.
+   `kirana` skill's diagnostics reference says what to do about each. After a StyleX port, expect
+   `mixed-logical-physical` too: StyleX's own property names hid it until the codemod renamed them.
 6. **Prove it renders the same.** Compare **computed styles**, not screenshots: for each element,
    read `getComputedStyle` in the original build and the Kirana build, in light and dark, at a few
    widths, with overlays open and rows hovered. A 1 px border, an easing curve and a missing hover

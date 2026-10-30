@@ -7,7 +7,7 @@
 | `flex items-center gap-2`                   | `{ display: "flex", alignItems: "center", gap: space[2] }`                            |
 | `px-4 py-2`                                 | `{ paddingInline: space[4], paddingBlock: space[2] }`                                 |
 | `text-sm`                                   | `{ fontSize: fontSize.sm, lineHeight: lineHeight.sm }`, always both                   |
-| `bg-primary/80`                             | `{ backgroundColor: alpha.primary80 }`, a `color-mix` token                           |
+| `bg-primary/80`                             | `` `color-mix(in oklab, ${theme.primary} 80%, transparent)` ``, as the codemod writes |
 | `hover:underline`                           | `{ textDecorationLine: { ":hover": "underline" } }`                                   |
 | `md:grid-cols-2`                            | `{ gridTemplateColumns: { [breakpoint.md]: "repeat(2, minmax(0, 1fr))" } }`           |
 | `dark:bg-zinc-900`                          | nothing: the colour token is a `light-dark()` pair                                    |

@@ -36,6 +36,11 @@ export function Card({ sx, ...props }: { sx?: Sx }) {
 }
 ```
 
+A helper that returns a value or a style object folds at build time when its inputs are static:
+default parameters, optional values, `in`, token comparisons, and `Object.entries`,
+`Object.fromEntries` and `.map()` with a callback written in place. Passing a plain object built
+from data to `css()` is `not-evaluable`.
+
 A conditional value is `{ base?, [condition]: value | nested conditional }`. Condition keys are
 pseudo-classes (`":hover"`), attribute selectors (`'[data-state="open"]'`), at-rule strings
 (`"@media (…)"`) or computed conditions (`[media(q)]`, `[container(q, name?)]`, `[supports(c)]`,
@@ -85,8 +90,9 @@ const field = relation("field")
 <div sx={[field.anchor, styles.field]}>
   <label sx={css({ opacity: { [field.within('[data-disabled="true"]')]: 0.5 } })} />
 </div>
-// within: the anchor is an ancestor (Tailwind group-*); after: an earlier sibling (peer-*);
-// before: a later sibling.
+// within: the anchor is an ancestor (Tailwind group-*); parent: the direct parent (*:, from the
+// child); after: an earlier sibling (peer-*); before: a later sibling. The element's own state is a
+// plain key ('[data-disabled="true"]'), never a read through the anchor it carries.
 // relation("field", { optional: true }): a reader installed without the anchor's component (a
 // registry item) never matches, instead of failing relation-without-anchor.
 
@@ -121,7 +127,10 @@ export const ocean = defineTheme(color, {
 A token value may also be `{ light, dark }` (a non-colour per mode), `{ value, variable }`, or
 `{ value, syntax, inherits? }` to register an animatable custom property (`@property`).
 `@kirana-style/preset-scales` provides Tailwind v4's scales as tokens (`space[4]`, `color.zinc500`,
-`breakpoint.md`); a token nothing reads emits nothing.
+`breakpoint.md`); a token nothing reads emits nothing. Its utility grammar, which lets `sx` take a
+string (`sx="px-4 text-sm"`), is the default export of the `/preset` entry:
+`import scales from "@kirana-style/preset-scales/preset"`, then `presets: [scales()]` in
+`kirana.config.ts`.
 
 ## Definitions
 
@@ -147,8 +156,8 @@ counterStyle(descriptors): CounterStyle          // an @counter-style rule's nam
 ## Types and entry points
 
 `StyleHandle` (opaque), `Sx` (`StyleHandle | null | undefined | false | readonly Sx[]`), `Style`,
-`ConditionalValue<V>`, `Condition`, `Token`, `Keyframes`, `PositionTry`, `Fallbacks<V>`,
-`ViewTransition`.
+`ConditionalValue<V>`, `Condition`, `SelectTarget`, `Token`, `Keyframes`, `PositionTry`,
+`Fallbacks<V>`, `ViewTransition`, `CounterStyle`.
 
 | Import                               | Gives                                            |
 | ------------------------------------ | ------------------------------------------------ |
