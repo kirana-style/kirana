@@ -3,13 +3,8 @@ import { css } from "@kirana-style/core"
 import type { Sx } from "../lib/sx"
 
 /**
- * The file this replaced was a Next.js documentation snippet rather than a
- * component: it imported `next/image` and `@/components/ui/aspect-ratio`, neither
- * of which exists here. This is the actual component it was demonstrating.
- *
- * The ratio is the one genuinely dynamic value, so it is bridged: one class
- * reads a custom property the element sets inline, rather than a class per
- * ratio.
+ * The ratio is dynamic, so it is bridged: one class reads a custom property the
+ * element sets inline, rather than a class per ratio.
  */
 
 const styles = {

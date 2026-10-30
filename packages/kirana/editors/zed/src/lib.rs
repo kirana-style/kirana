@@ -1,18 +1,14 @@
-//! The Kirana extension for Zed (D-064): registers `kirana-style lsp` for TypeScript, TSX, JavaScript, and
-//! Vue, Svelte and Astro components (their language extensions provide the languages), Angular
-//! templates in HTML files, and server templates — Blade, ERB, Twig and HEEx (D-069).
-//! The server is the project's own `node_modules/.bin/kirana-style`, so the editor runs the engine
-//! the build does; `lsp.kirana.binary` in Zed's settings overrides it, and a `kirana-style` on `PATH`
-//! is the last resort, where an older install's `kirana`, the command's name before it was
-//! `kirana-style`, is tried after it.
+//! The Kirana extension for Zed (D-064): registers `kirana-style lsp` for scripts, Vue, Svelte and
+//! Astro components, Angular templates and server templates (D-069). The server is the project's own
+//! `node_modules/.bin/kirana-style`, so the editor runs the engine the build does; `lsp.kirana.binary`
+//! overrides it, and `kirana-style` or the older `kirana` on `PATH` is the last resort.
 //!
-//! Zed reads only the files it indexes, and it does not index git-ignored folders such as
-//! `node_modules`, so the project's binary is found through `package.json`: a project that lists
-//! `kirana-style` has it in `node_modules/.bin`.
+//! Zed does not index git-ignored folders such as `node_modules`, so the project's binary is found
+//! through `package.json`: a project that lists `kirana-style` has it in `node_modules/.bin`.
 
 use zed_extension_api::{self as zed, LanguageServerId, Result, serde_json, settings::LspSettings};
 
-/// Where the binary comes from, in the order they are tried.
+/// The server command to run, with its arguments.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Found {
     pub command: String,

@@ -8,9 +8,6 @@ import { radius, surface, theme } from "../theme/semantic"
 import { spacing } from "../tokens/spacing"
 import { fontSize, lineHeight } from "../tokens/typography"
 
-/** Avatars inside a group overlap and gain a ring cut out of the background. */
-/** Was `group-has-data-[size=…]/avatar-group`: the group reads its children. */
-
 const GROUP_HAS_SM = ':has([data-slot="avatar"][data-size="sm"])'
 const GROUP_HAS_LG = ':has([data-slot="avatar"][data-size="lg"])'
 
@@ -42,15 +39,14 @@ const styles = {
       borderColor: theme.border,
       mixBlendMode: surface.imageRingBlend,
     },
-    // Was `*:data-[slot=avatar]:ring-2` plus `-space-x-2` on the group, both of
-    // which styled children from the parent. Inverted: the avatar decides how it
-    // behaves once it finds itself in a group.
+    // Inside a group an avatar overlaps its neighbour and gains a ring cut out
+    // of the background.
     boxShadow: {
       [avatarGroupMarker.within('[data-slot="avatar-group"]')]:
         `0 0 0 2px ${theme.background}`,
     },
-    // `-space-x-2` pulls each child over the next, so the last child, which may
-    // be the count, keeps its full width.
+    // Each child is pulled over the next, so the last child, which may be the
+    // count, keeps its full width.
     marginInlineEnd: {
       [avatarGroupMarker.within('[data-slot="avatar-group"]')]: {
         base: `calc(${spacing[2]} * -1)`,
@@ -109,9 +105,8 @@ const styles = {
       [avatarMarker.within('[data-size="sm"]')]: spacing[2],
       [avatarMarker.within('[data-size="lg"]')]: spacing[3],
     },
-    // At the smallest size the badge is a dot with no room for a glyph. Setting
-    // the icon size to zero is how a parent hides an icon now that
-    // `[&>svg]:hidden` has no equivalent.
+    // At the smallest size the badge is a dot with no room for a glyph, so the
+    // icon size is zero.
     [ctx.iconSize]: {
       base: spacing[2],
       [avatarMarker.within('[data-size="sm"]')]: "0px",
@@ -122,8 +117,8 @@ const styles = {
     display: "flex",
   }),
 
-  // Sized to match the avatars in its group: `group-has-data-[size=lg]`. A group
-  // mixing small and large avatars sizes it small, as the original's order did.
+  // Sized to match the avatars in its group. A group mixing small and large
+  // avatars sizes it small.
   groupCount: css({
     position: "relative",
     display: "flex",

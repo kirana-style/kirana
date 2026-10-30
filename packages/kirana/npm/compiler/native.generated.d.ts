@@ -23,8 +23,9 @@ export declare class Compiler {
    */
   finishedStylesheet(minify: boolean, named: Array<string>): FinishedStylesheet
   /**
-   * From now on, a transform of unchanged input returns the previous one: a one-shot build that
-   * compiles the same modules for more than one environment.
+   * From now on, a transform of unchanged input returns the previous one: a build, watch build or
+   * dev server compiles the same modules for more than one environment, and sends unchanged ones
+   * again (KF-063).
    */
   reuseTransforms(): void
   /** From now on, transforms mark the names they write, for a dense build (D-084). */

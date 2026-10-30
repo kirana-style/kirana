@@ -472,7 +472,7 @@ fn a_token_only_code_names_needs_the_bundle_to_name_it() {
         )
     };
 
-    // No bundle known: every token is written, as before.
+    // No bundle known: every token is written.
     let all = write(None);
     for name in ["--kvRead", "--kvBase", "--kvAlias", "--kvNamed", "--kvGone", "--kvRun"] {
         assert!(all.css.contains(&format!("{name}:")), "{name} in {}", all.css);

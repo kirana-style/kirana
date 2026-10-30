@@ -1,12 +1,8 @@
 /**
  * A mask that fades content out at the end of a scroll container, and only while
- * there is something still to scroll to.
- *
- * Ported from the `scroll-fade` utility in the ejected Tailwind layer. The
- * mechanism survives intact: a scroll-driven animation grows a registered custom
- * property as the container approaches its end, and a mask reads that property.
- * Browsers without `animation-timeline` get the fade unconditionally, which is
- * the same fallback the original declared.
+ * there is something still to scroll to. A scroll-driven animation grows a
+ * registered custom property as the container nears its end, and the mask reads
+ * it. Browsers without `animation-timeline` get the fade unconditionally.
  */
 
 import { css, keyframes } from "@kirana-style/core"
@@ -48,7 +44,7 @@ export const scrollFadeStyles = {
       [SUPPORTS_SCROLL_TIMELINE]: "calc(100% - 6rem) 100%",
     },
 
-    // Without scroll-driven animations the fade is simply always present.
+    // Without scroll-driven animations the fade is always present.
     [scrollFadeVars.size]: { base: "0px", [NO_SCROLL_TIMELINE]: FADE },
   }),
 }

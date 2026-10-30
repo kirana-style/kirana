@@ -2,11 +2,9 @@
  * The site header: logo, the three menus, the repository with its stars, the sponsor heart and
  * "Quick start" (`cta.tsx`). The theme is chosen in the footer.
  *
- * The menu is packages/ui's NavigationMenu (Base UI), which already morphs its
- * popup between panels of different sizes and slides content in from the side
- * the pointer came from. On top of it sits one pill that glides to whichever
- * trigger the pointer is over — or the open one — measured from the DOM and
- * moved by a CSS transition. Under reduced motion it jumps.
+ * The menu is packages/ui's NavigationMenu (Base UI), which morphs its popup between panels and
+ * slides content in from the pointer's side. One pill, measured from the DOM, glides to the
+ * trigger under the pointer, or the open one; under reduced motion it jumps.
  */
 import { useCallback, useLayoutEffect, useRef, useState } from "react"
 import { css, props as styleProps } from "@kirana-style/core"
@@ -100,7 +98,6 @@ const styles = {
     textDecorationLine: "none",
     color: theme.foreground,
   }),
-  // The petal K, 21 px tall beside the wordmark.
   logo: css({ height: "21px", width: "auto" }),
 
   nav: css({
@@ -193,8 +190,8 @@ const styles = {
   panelWide: css({ width: "60rem" }),
   panelMedium: css({ width: "48rem" }),
   panelNarrow: css({ width: "34rem" }),
-  // A framed card: the illustration on top, the words underneath. Hover
-  // lights the border in the card's accent and lifts the scene a little.
+  // A framed card: the illustration on top, the words underneath. Hover lifts the card and its
+  // scene; keyboard focus lights the border in the card's accent.
   featured: css({
     display: "grid",
     gridTemplateRows: "auto 1fr",

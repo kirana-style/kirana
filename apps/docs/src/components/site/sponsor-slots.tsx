@@ -1,8 +1,8 @@
 /**
  * Where sponsors show up outside their own page: beside every docs page
  * (under the table of contents), at the foot of the docs sidebar, and on the
- * homepage. Until a Gold sponsor exists, each slot is an empty frame that says
- * what would go there and links to the terms — an invitation, never a fake logo.
+ * homepage. Until a Platinum or Gold sponsor exists, a logo slot is an empty
+ * frame that links to the tiers: an invitation, never a fake logo.
  */
 import { css } from "@kirana-style/core"
 import { ArrowRight01Icon, FavouriteIcon } from "@hugeicons/core-free-icons"

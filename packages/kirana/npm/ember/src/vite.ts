@@ -1,9 +1,8 @@
 /**
- * Kirana for Ember on Embroider and Vite (D-072). A `.gjs` or `.gts` file holds a `<template>`
- * Kirana's parser does not read, so its Vite plugin runs after Embroider's instead and compiles the
- * JavaScript Embroider emitted for each module, where `css()` calls and their imports are as written.
- * Its transform takes those modules too, which a Vite plugin's filter would otherwise skip, and
- * `@ember/`, `@glimmer/` and `@embroider/virtual/` — modules only Embroider resolves — are runtime values (`externals`).
+ * Kirana for Ember on Embroider and Vite (D-072). Kirana's parser does not read a `.gjs` or `.gts`
+ * `<template>`, so its Vite plugin runs after Embroider's, on the JavaScript Embroider emitted, with
+ * the filter widened to those modules. The modules only Embroider resolves are runtime values
+ * (`externals`).
  *
  *   plugins: [classicEmberSupport(), ember(), babel({ … }), kiranaEmber()]
  */

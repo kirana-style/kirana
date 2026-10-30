@@ -8,8 +8,6 @@ import { containerName } from "../tokens/container"
 import { spacing } from "../tokens/spacing"
 import { fontSize, fontWeight, leading, lineHeight } from "../tokens/typography"
 
-/** A footer sits flush to the bottom edge, so the card drops its own bottom pad. */
-
 const styles = {
   root: css({
     display: "flex",
@@ -27,24 +25,17 @@ const styles = {
       base: ctx.cardSpacing,
       ':has([data-slot="card-footer"])': 0,
     },
-    // Was `has-[>img:first-child]:pt-0`: a card led by an image is edge to edge.
+    // A card led by an image is edge to edge.
     paddingTop: { base: ctx.cardSpacing, ":has(> img:first-child)": 0 },
   }),
 
-  // The inner rhythm, handed down to every part of the card. Was the
-  // `--card-spacing` custom property, now a typed contextual variable.
-  //
-  // Picked by the `size` prop rather than written as
-  // `{ base: 4, '[data-size="sm"]': 3 }`, kept from the StyleX port, which
-  // emitted a custom property's plain value outside the cascade layers. In
-  // Kirana every rule is layered, so the conditional form would also work.
+  // The inner rhythm, handed down to every part of the card.
   sizeDefault: css({ [ctx.cardSpacing]: spacing[4] }),
   sizeSm: css({ [ctx.cardSpacing]: spacing[3] }),
 
   header: css({
-    // `@container/card-header`: a size container, as in the original. Besides
-    // naming the container, it keeps a long description from widening a card
-    // that sizes to its content (`mx-auto max-w-md`).
+    // A size container: besides naming the container, it keeps a long
+    // description from widening a card that sizes to its content.
     containerType: "inline-size",
     containerName: containerName.cardHeader,
     display: "grid",
@@ -61,11 +52,6 @@ const styles = {
       ':has([data-slot="card-description"])': "auto auto",
     },
   }),
-  /**
-   * Was `[.border-b]:pb-(--card-spacing)`, which fired when a caller happened to
-   * add a `border-b` class. Class names are hashed now, so the intent became an
-   * explicit prop.
-   */
   headerBordered: css({
     borderBottomWidth: "1px",
     borderBottomStyle: "solid",
@@ -84,7 +70,7 @@ const styles = {
   description: css({ fontSize: fontSize.sm, color: theme.mutedForeground }),
   action: css({
     gridColumnStart: 2,
-    // `row-span-2 row-start-1`: longhands, because `gridRow: "span 2"` leaves
+    // Longhands, because `gridRow: "span 2"` leaves
     // the end at `auto` once the start is set, and the action spans one row.
     gridRowStart: 1,
     gridRowEnd: "span 2",
@@ -103,10 +89,6 @@ const styles = {
     backgroundColor: alpha.muted50,
     padding: ctx.cardSpacing,
   }),
-  /**
-   * Was `*:[img:first-child]:rounded-t-xl`, styling whichever image happened to
-   * be first. An image that should follow the card's corners uses this instead.
-   */
   image: css({
     width: "100%",
     borderStartStartRadius: { ":first-child": radius.xl },

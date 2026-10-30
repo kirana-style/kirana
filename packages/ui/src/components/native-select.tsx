@@ -15,8 +15,7 @@ const styles = {
   wrapper: css({
     position: "relative",
     width: "fit-content",
-    // Was `has-[select:disabled]:opacity-50`. The wrapper dims as a whole so the
-    // chevron fades with the field.
+    // The wrapper dims as a whole so the chevron fades with the field.
     opacity: { ":has(select:disabled)": 0.5 },
   }),
   select: css({

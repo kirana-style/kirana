@@ -1,11 +1,8 @@
 /**
- * The docs sidebar for the active tab: its sections as labelled groups, pages
- * as rows, sub-groups (when a section has any) as collapsible branches,
- * reference pages with a kind tag.
- *
- * One highlight slides to the hovered row and settles on the current page when
- * the pointer leaves — measured from the DOM, moved with a spring, jumping
- * under reduced motion. The scroll position survives reloads for the session.
+ * The docs sidebar for the active tab: its sections as labelled groups, pages as
+ * rows, sub-groups as collapsible branches, reference pages with a kind tag. One
+ * highlight slides to the hovered row and settles on the current page; the scroll
+ * position survives reloads for the session.
  */
 import {
   useCallback,
@@ -354,7 +351,7 @@ export function DocsSidebar({
   section: string | undefined
   /**
    * What leads the sidebar: the full-text search field (`true`), a field that
-   * filters the pages by title across every tab (`"filter"`), or nothing.
+   * filters the pages by title and section across every tab (`"filter"`), or nothing.
    */
   search?: boolean | "filter"
   /** Called when the sidebar navigates by keyboard (Enter in the filter). */

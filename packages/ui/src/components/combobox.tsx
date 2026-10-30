@@ -27,9 +27,6 @@ import { ring } from "../tokens/ring"
 import { spacing } from "../tokens/spacing"
 import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
 
-/** A clear button present means the dropdown trigger steps aside. */
-/** The empty state only shows when the list found nothing. */
-
 const styles = {
   trigger: css({ [ctx.iconSize]: "1rem" }),
   triggerIcon: css({ pointerEvents: "none", color: theme.mutedForeground }),

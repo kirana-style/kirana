@@ -1,12 +1,8 @@
 /**
- * The site's card: a picture on top, inset and rounded inside the card's frame (a scene from the
- * illustration kit on its grid and glow), then the title, a line of text, whatever the card lists, and pill links. The scene rises a
- * little on hover. The title is in the sans: the serif is for headings from 1.5rem up, where a
- * small bold serif beside a coloured icon read as decoration.
- *
- * Every card section on the site is built from it (the docs home's ways in, the
- * homepage's paths, packages and choices), so they read as one family. Wide cards
- * put the picture beside the text from `sm` up.
+ * The site's card: a scene from the illustration kit on top, inset and rounded inside the card's
+ * frame, then the title, a line of text, whatever the card lists, and pill links. The title is in
+ * the sans: the serif is for headings from 1.5rem up. Every card section on the site is built from
+ * it, so they read as one family; wide cards put the scene beside the text from `sm` up.
  */
 import { css } from "@kirana-style/core"
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons"

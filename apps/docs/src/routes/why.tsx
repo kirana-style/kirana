@@ -65,7 +65,7 @@ const styles = {
     textDecorationColor: accent.base,
     textUnderlineOffset: "4px",
   }),
-  // The editor beside what it answers: the mock, then the prose, side by side on wide screens.
+  // The editor beside what it answers: the editor scene, then the prose, side by side on wide screens.
   seeing: css({
     display: "grid",
     gap: spacing[8],

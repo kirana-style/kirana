@@ -14,12 +14,11 @@ const styles = {
     height: spacing[8],
     paddingInline: spacing["2.5"],
     paddingBlock: spacing[1],
-    // Was `text-base md:text-sm`: larger on touch to stop iOS zooming the page.
+    // Larger below `md`, to stop iOS zooming the page on focus.
     fontSize: { base: fontSize.base, [breakpoint.md]: fontSize.sm },
     lineHeight: { base: lineHeight.base, [breakpoint.md]: lineHeight.sm },
     pointerEvents: { ":disabled": "none" },
   }),
-  // `file:` utilities, as a real pseudo-element.
   file: css({
     "::file-selector-button": {
       display: "inline-flex",

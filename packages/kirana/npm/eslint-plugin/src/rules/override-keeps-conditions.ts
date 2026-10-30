@@ -1,12 +1,9 @@
 /**
  * `kirana/override-keeps-conditions`: a plain value passed through `sx` to a component that sets the
  * same property under a structural condition (`[data-orientation="vertical"]`, `[aria-*]`) does not
- * override it there. Kirana merges per property *and* condition, so the component's conditional
- * entry still wins when its attribute matches — the StyleX habit of replacing a whole property
- * fails silently. Interaction states (`:hover`) are not reported: keeping a component's hover over
- * a caller's plain value is usually intended.
- *
- * The component's entries come from the compiler (`sites` of the file that defines it).
+ * override it there, since Kirana merges per property *and* condition. Interaction states (`:hover`)
+ * are not reported: keeping a component's hover over a caller's plain value is usually intended.
+ * The component's entries are the compiler's `sites` of the file that defines it.
  */
 import { calls, kebab, keyName, kiranaImports, walk } from "../ast.ts"
 import { inspect } from "../project.ts"

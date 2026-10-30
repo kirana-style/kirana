@@ -1,24 +1,9 @@
 /**
- * The petal K: a mark of three parts — a stem, an arm and a leg — rebuilt from a grid and
- * Fibonacci circles so anyone can redraw it with a compass and a rule, not by tracing a file.
- *
- * Construction (units u; the mark is 16u × 21.5u):
- *
- * - **Width 16u, height 21.5u.** The stem's left edge is x = 0 and its top y = 0. The arm's tip is
- *   at (16, 2), 2u below the stem's top; the leg's tip is the bottom-right corner (16, 21.5).
- * - **One width, 5u (F5), for all three parts:** the stem is 5u wide, the arm 5u at its widest, the
- *   leg a 5u band.
- * - **One weight:** the stem rises 2u above the arm's tip and the leg ends 1.5u short of where the
- *   first cut ended, so the three parts show the same area to within 3 % ("Even" on /brand/mark).
- * - **The leg runs at 36°**, the angle of the golden triangle (cos 36° = φ / 2).
- * - **Every curve is an arc of a circle whose radius is a Fibonacci number** (3, 5, 8, 13, 55u), and
- *   every arc meets the next edge tangent to it: no kinks. Points are sharp only at the tips and
- *   where the leg docks under the arm.
- * - **The stem and the arm share one edge**: the arm's upper edge is also the stem's lower-right
- *   edge, from the notch at x = 5 down to the bottom tip.
- *
- * The values below are produced by the construction script (kirana-spec `brand/logo-fit/chosen.ts`),
- * which builds the mark from its circles and measures it against the reference drawing.
+ * The petal K: a stem, an arm and a leg, rebuilt from a grid and Fibonacci circles so anyone can
+ * redraw it with a compass and a rule. The mark is 16u × 21.5u, every part 5u wide, the leg at 36°
+ * (the golden triangle's angle), every curve an arc of Fibonacci radius tangent to the next edge;
+ * `RULES` gives the steps. The values come from a construction script that builds the mark from its
+ * circles and measures it against the reference drawing (`FIDELITY`).
  */
 
 export const MARK = {
@@ -424,8 +409,8 @@ const ramp = (
 
 /**
  * Scenery sets: one per landscape in the brand's photography, its colours picked from the picture
- * (sky, light, ground), each stop light enough to hold on ink. `kirana-spec/brand/platform` renders
- * the mark in each set on its own landscape. A set is named for its mood, never for a place.
+ * (sky, light, ground), each stop light enough to hold on ink. A set is named for its mood, never
+ * for a place.
  */
 export const SCENERY: readonly Palette[] = [
   ramp(

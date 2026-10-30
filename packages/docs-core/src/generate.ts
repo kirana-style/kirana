@@ -1,19 +1,9 @@
 /**
- * The content engine: parses a docs tree once and writes everything derived
- * from it —
- *
- *   <generatedDir>/pages/**.json   the parsed document per page, loaded lazily
- *   <generatedDir>/content.gen.ts  the manifest: pages, nav, order, posts
- *   <generatedDir>/search.gen.ts   the search records, which a site loads when search first opens
- *   <generatedDir>/highlight.css   the code colours, light and dark
- *   <publicDir>/llms.txt, llms-full.txt, docs/*.md   the same docs for language models
- *
- * `check: true` rebuilds into memory and fails when a committed file is stale,
- * which is what CI runs.
- *
- * Markdown is not compiled by Kirana (its Vite plugin only transforms script
- * files), so a page that writes `sx=` would be silently unstyled: the lint below
- * fails the build instead.
+ * The content engine: parses a docs tree once and writes the page documents
+ * (`pages/**.json`), the manifest (`content.gen.ts`), the search records
+ * (`search.gen.ts`) and `highlight.css` into `generatedDir`, and `llms.txt`,
+ * `llms-full.txt` and the `docs/*.md` twins into `publicDir`. `check: true`
+ * writes nothing and fails when a committed file is stale.
  */
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises"
 import { dirname, join, relative } from "node:path"
@@ -89,7 +79,7 @@ export async function generate(config: DocsConfig): Promise<void> {
 
   const files = new Map<string, string>()
 
-  /** Every `.md` file under `content/docs`, sorted so output never depends on the file system. */
+  /** Every `.md` file under `dir`, sorted so output never depends on the file system. */
   async function markdownFiles(dir: string): Promise<string[]> {
     const entries = await readdir(dir, { withFileTypes: true, recursive: true })
     return entries
@@ -536,11 +526,6 @@ export const SEARCH: readonly SearchRecord[] = ${JSON.stringify(
   )
 }
 
-/**
- * Drops HTML comments on a line of their own that are not components — notes
- * for tools, such as `<!-- prettier-ignore -->`, which the parser would
- * otherwise render as text. `<!-- ::name … -->` components are kept.
- */
 /** Fills each `{{fact:name}}` from `facts`; a name it does not know is an error, not a blank. */
 export function withFacts(
   markdown: string,
@@ -555,6 +540,11 @@ export function withFacts(
   })
 }
 
+/**
+ * Drops HTML comments on a line of their own that are not components, such as
+ * `<!-- prettier-ignore -->`, which the parser would otherwise render as text.
+ * `<!-- ::name … -->` components are kept.
+ */
 export function stripNotes(markdown: string): string {
   return markdown.replace(/^[ \t]*<!--(?!\s*::)[^\n]*?-->[ \t]*\n/gm, "")
 }

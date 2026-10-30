@@ -3,9 +3,10 @@ import { props as styleProps } from "@kirana-style/core"
 import type { Sx } from "@workspace/ui/lib/sx"
 
 /**
- * A link to a documentation page.
+ * A link to any page: a docs page, another route of the site, or an outside URL, opened in a new
+ * tab.
  *
- * Every page is served by the `/docs/$` splat route, so a plain `to="/docs/x"`
+ * Every docs page is served by the `/docs/$` splat route, so a plain `to="/docs/x"`
  * does not typecheck. This turns an href from the generated manifest into the
  * splat the router expects, and spreads the compiled styles, because `Link` is
  * an installed component and never reads `sx`.

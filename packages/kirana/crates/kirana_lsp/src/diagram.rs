@@ -286,8 +286,8 @@ pub(crate) fn box_svg(resolved: &Resolved, theme: Theme, compact: bool) -> Optio
             y + 9
         );
         let (cx, cy) = (x + width / 2, y + height / 2);
-        // A side band is 26px wide: a long value there is written once, on the top, when the
-        // sides agree with it, and cut otherwise.
+        // The left and right bands hold `band` characters: a longer value there is left to the top
+        // when it matches the top's, and cut otherwise.
         let value = |index: usize| {
             let text = sides[index].as_deref().unwrap_or("–");
             let narrow = index % 2 == 1 && text.chars().count() > band;

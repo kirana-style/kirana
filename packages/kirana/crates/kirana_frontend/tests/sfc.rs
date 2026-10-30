@@ -115,7 +115,6 @@ fn astro_frontmatter_and_markup_inside_expressions() {
 
 #[test]
 fn implied_end_tags_and_unterminated_input() {
-    // `<li>` without `</li>`: the list's close tag still ends the list.
     // A slash inside a tag that does not close it.
     assert_eq!(expressions(Framework::Svelte, "<p / sx={a}></p>"), vec!["a"]);
     // A slash inside an attribute's name, a fragment inside an Astro expression, and an
@@ -124,6 +123,7 @@ fn implied_end_tags_and_unterminated_input() {
     assert_eq!(expressions(Framework::Astro, "{on && <>t<p sx={a} /></>}"), vec!["a"]);
     assert!(expressions(Framework::Svelte, "<p sx={// none\n} />").is_empty());
     assert!(expressions(Framework::Svelte, "<p sx={// one\n/* two */} />").is_empty());
+    // `<li>` without `</li>`: the list's close tag still ends the list.
     let source = "<ul><li>a<li>b</ul><p sx={after} />";
     assert_eq!(expressions(Framework::Svelte, source), vec!["after"]);
     // Void elements, stray close tags, a lone `<`, a bare `=` and unterminated tags, strings and

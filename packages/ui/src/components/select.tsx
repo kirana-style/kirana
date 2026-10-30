@@ -71,7 +71,6 @@ const styles = {
       ":focus-visible": `0 0 0 ${ring.width} ${alpha.ring50}`,
       '[aria-invalid="true"]': `0 0 0 ${ring.width} ${surface.ringInvalid}`,
     },
-    // Was `data-placeholder:text-muted-foreground`.
     color: { [State.Select.Trigger.placeholder]: theme.mutedForeground },
     cursor: { ":disabled": "not-allowed" },
     opacity: { ":disabled": 0.5 },

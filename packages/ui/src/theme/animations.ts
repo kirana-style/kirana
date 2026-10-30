@@ -1,13 +1,8 @@
 /**
- * Layer 3: shared keyframes, replacing `tw-animate-css`.
- *
- * `keyframes()` returns a name usable as `animationName` from any module; the
- * `@keyframes` rule is emitted once, and only when a style references it.
- *
- * Only looping animations live here. The enter/exit motion that shadcn drove
- * with `animate-in` / `animate-out` utilities is handled by plain transitions
- * against Base UI's own `data-starting-style` and `data-ending-style`
- * attributes, which is both simpler and interruptible mid-flight.
+ * Shared looping keyframes. `keyframes()` returns a name usable as
+ * `animationName` from any module; the rule is emitted once, and only when a
+ * style references it. Enter and exit motion is transitions instead
+ * (`recipes/overlay.ts`).
  */
 
 import { keyframes } from "@kirana-style/core"

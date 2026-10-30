@@ -1,7 +1,6 @@
 /**
  * `kirana/no-classname-on-sx`: a `className` given to a project component that takes `sx` and not
- * `className`. The class never reaches the DOM — the silent style loss the Tailwind migration
- * guide describes, reported where it happens. A component that spreads the rest of its props
+ * `className`: the class never reaches the DOM. A component that spreads the rest of its props
  * (`{ sx, ...props }`) may pass the class on, so it is not reported.
  */
 import { readFileSync } from "node:fs"

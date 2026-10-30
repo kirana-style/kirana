@@ -1,5 +1,5 @@
 //! Diagnostics (KRN-CMP-011): a stable catalogue, one diagnostic type, and renderers that the CLI,
-//! the Vite adapter and (later) the language server share.
+//! the bundler adapters and the language server share.
 
 use std::fmt::Write as _;
 
@@ -245,9 +245,9 @@ pub fn line_column(source: &str, offset: u32) -> (usize, usize) {
 }
 
 /// Where each line of a text starts, so an offset's line is a binary search rather than a walk
-/// from the start of the text. `trace` met the walk first (KF-028); placing each of a large file's
-/// diagnostics by walking it took 10 s of a 12 s `kirana-style check` (one 6.6 MB module, 2,600
-/// diagnostics). It holds no text: each method takes the text it was built from.
+/// from the start of the text: placing each of a large file's diagnostics by walking it took 10 s of
+/// a 12 s `kirana-style check` (one 6.6 MB module, 2,600 diagnostics; KF-028). It holds no text:
+/// each method takes the text it was built from.
 pub struct LineIndex(Vec<usize>);
 
 impl LineIndex {

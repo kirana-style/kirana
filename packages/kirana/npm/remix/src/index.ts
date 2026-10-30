@@ -1,15 +1,11 @@
 /**
- * The Remix 3 host adapter. Remix compiles TypeScript and JSX itself, on the server with `node-tsx`
- * and for the browser in its asset server, and hands on only the JavaScript that comes out. So
- * Kirana runs after both, on the compiled JSX calls (`jsx("p", { sx })`), and the server process
- * holds the one compiler session that has seen every module:
+ * The Remix 3 host adapter. Remix compiles TypeScript and JSX itself (`node-tsx` on the server, the
+ * asset server for the browser), so Kirana runs after both, on the compiled JSX calls. Client entries
+ * render on the server too, so the server's one session has seen every module:
  *
  *   node --import remix/node-tsx --import @kirana-style/remix/node server.ts
  *   createAssetServer({ …, allowPackages: ["remix", "@kirana-style/core"], scripts: { loaders: [kiranaLoader] } })
  *   createRouter({ middleware: [stylesheet(), …] })   // serves /kirana.css
- *
- * Client entries render on the server too, so the session has compiled them before a browser asks
- * for one, and the stylesheet the middleware serves covers both.
  */
 import { fileURLToPath } from "node:url"
 

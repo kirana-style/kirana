@@ -1,7 +1,7 @@
 /**
  * The "not on npm yet" note on every install page, in one place: the `npm-status` embed draws it
  * and the markdown twin writes it. It shows while the packages are unpublished (`PUBLISHED` in
- * facts.ts) and is gone from every page, and every twin, once they are.
+ * release.ts) and is gone from every page, and every twin, once they are.
  */
 import { PUBLISHED } from "./release.ts"
 

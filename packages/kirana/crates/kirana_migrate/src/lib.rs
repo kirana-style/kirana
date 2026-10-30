@@ -1,21 +1,10 @@
 //! The StyleX codemod behind `kirana-style migrate stylex` (KRN-API-013, D-003).
 //!
-//! It rewrites the mechanical half of a migration and **reports** the other half rather than
-//! guessing at it. Every line in the report is a mistake a hand port from StyleX
-//! makes:
-//! a relation whose placement cannot be proven from one file, a `stylex.when` with no equivalent,
-//! a default marker that needs an import the codemod cannot choose.
-//!
-//! The one rewrite worth reading twice is `default: null`. StyleX's means "this entry has no value
-//! at rest"; Kirana's `base: null` is a merge instruction that removes an earlier handle's value
-//! (D-013). They are not the same thing, so the entry is dropped instead of translated — a
-//! translation would silently change what the component does.
-//!
-//! Inside a style, what StyleX reads one way and Kirana another is written as StyleX read it
-//! (KF-074): a bare number gets the unit StyleX gave it, StyleX's own property names become the
-//! standard ones, a fallback array becomes `firstThatWorks()`, and a condition block at the top of
-//! a style (`":hover": { color }`) moves inside each property. `!important` and a selector Kirana
-//! takes no condition for are reported, since dropping either changes what the style does.
+//! It rewrites the mechanical half of a migration and reports the half a hand port gets wrong
+//! (`!important`, a selector Kirana takes no condition for, a `stylex.when` with no equivalent,
+//! the default marker's import). A `default: null` entry is dropped, not translated: Kirana's
+//! `base: null` removes an earlier handle's value (D-013). Inside a style, values are written as
+//! StyleX read them (KF-074).
 
 pub mod environment;
 pub mod tailwind;
@@ -65,7 +54,7 @@ struct Edit {
     text: String,
 }
 
-/// The import the rewritten file needs, assembled from what the rewrites used.
+/// Stands where the StyleX import was until the walk knows which names the rewritten file imports.
 const IMPORT_MARKER: &str = "/*__KIRANA_IMPORT__*/";
 
 /// StyleX's own names for properties CSS names otherwise (its plugin's aliases), and the standard

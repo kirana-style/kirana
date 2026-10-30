@@ -283,7 +283,7 @@ fn deps() {
     assert_eq!(deps.len(), 2);
 }
 
-/// Why the value segment is four characters and not three (E-04).
+/// Why the value segment is four characters and not three (Q-01).
 ///
 /// These two colours are ordinary design-system values, and at three characters they name the same
 /// atom. Two values on one property that share a name are `class-name-collision`, which fails the

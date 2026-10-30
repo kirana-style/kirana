@@ -1,12 +1,8 @@
 /**
- * The esbuild host adapter (KRN-INT-001, KRN-INT-003): `onLoad` compiles modules, and `onEnd` writes
- * the finished stylesheet into the CSS esbuild bundled. It never interprets styles (D-028).
- *
- * The stylesheet entry loads as the placeholder rule, which esbuild bundles like any CSS import
- * (`main.css` beside `main.js`); once every module has loaded, the plugin replaces it — in the written
- * file, or in `outputFiles` when esbuild keeps them in memory (`write: false`). Watch and serve reload
- * the entry itself from a file the plugin keeps current, so what `serve` sends follows every edit. A
- * `naming` pattern that hashes CSS keeps the placeholder's hash.
+ * The esbuild host adapter (KRN-INT-001, KRN-INT-003): `onLoad` compiles modules and loads the
+ * stylesheet entry as the placeholder rule, and `onEnd` replaces it in the written CSS or in
+ * `outputFiles` (`write: false`). It never interprets styles (D-028). A `naming` pattern that hashes
+ * CSS keeps the placeholder's hash.
  */
 import { createHash } from "node:crypto"
 import { existsSync, writeFileSync } from "node:fs"
@@ -74,8 +70,8 @@ export default function kirana(options: KiranaEsbuildOptions = {}): Plugin {
       }
 
       // Watch and serve: the entry follows a file `onEnd` writes whenever the stylesheet changes, so a
-      // rebuild reloads it with the live stylesheet — which is what `serve` sends, from its own
-      // copy of the outputs. The first load, and every load of a one-shot build, is the placeholder.
+      // rebuild loads the live stylesheet, which `serve` sends from its own copy of the outputs. The
+      // first load, and every load of a one-shot build, is the placeholder.
       const live = path.join(
         tmpdir(),
         `kirana-esbuild-${createHash("sha256").update(root).digest("hex").slice(0, 12)}.css`

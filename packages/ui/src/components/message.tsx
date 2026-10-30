@@ -13,8 +13,6 @@ import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
  * `align="end"` reverses the row for the current user's own messages. Parts read
  * that from the row's marker rather than being styled by it.
  */
-/** A footer band lifts the avatar so it still lines up with the bubble. */
-/** A ghost bubble has no padding, so the bands align flush with it. */
 
 const styles = {
   group: css({

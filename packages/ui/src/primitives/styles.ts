@@ -1,14 +1,7 @@
 /**
- * Layer 5 support: the finite prop vocabulary the primitives index into.
- *
- * Every entry here is a style compiled ahead of time, so a prop like
- * `p="4"` is a table lookup rather than a style object built during render.
- * That is what keeps the Panda-like prop API free of a runtime.
- *
- * The vocabulary is deliberately a subset of Tailwind's. Spacing props carry
- * the full scale because layout needs it; colour props are restricted to the
- * semantic palette, so no component can reach for a raw `red500` background
- * and quietly break dark mode.
+ * The finite prop vocabulary the primitives index into, every entry compiled
+ * ahead of time. Colour props are restricted to the semantic palette, so no
+ * component can reach for a raw `red500` background and break dark mode.
  */
 
 import { css } from "@kirana-style/core"

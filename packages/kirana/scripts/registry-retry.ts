@@ -1,9 +1,7 @@
 /**
- * When a release asks npm again instead of stopping. The registry fails now and then for reasons that
- * have nothing to do with the package: 0.3.1 stopped on its first publish with E503 Service
- * Unavailable, and nothing had reached the registry. Those failures are retried; the ones that say
- * something about the package or the credentials (E401, E403, E404, E422, EOTP) are not, because
- * asking again gives the same answer.
+ * When a release asks npm again instead of stopping: a registry failure (0.3.1 stopped on an E503)
+ * is retried, and one about the package or the credentials (E401, E403, E404, E422, EOTP) is not,
+ * because asking again gives the same answer.
  */
 
 /** Seconds to wait before each further attempt; one entry per retry. */
@@ -14,7 +12,7 @@ export function transientStatus(status: number): boolean {
   return status === 408 || status === 429 || status >= 500
 }
 
-/** Whether `npm publish` failed for a reason another attempt may not meet, read from its stderr. */
+/** Whether `npm publish` failed for a transient reason, read from its stderr. */
 export function transientNpmError(stderr: string): boolean {
   const code = /npm (?:error|ERR!) code (\S+)/.exec(stderr)?.[1]
   if (code === undefined) return false

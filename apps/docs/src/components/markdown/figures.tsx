@@ -2,8 +2,7 @@
  * Figures for the guides, placed in markdown as `<!-- ::figure-… -->`. Each
  * draws what its page says, with the illustration kit: nothing here states a
  * fact the page does not. A second panel shows a second idea, and is left out
- * on narrow screens. Isometric scenes live on the docs home's shortcuts, where
- * they group sections rather than repeat a flat figure.
+ * on narrow screens.
  */
 import { css } from "@kirana-style/core"
 import {

@@ -4,9 +4,9 @@
  *   src/generated/diagnostics.gen.ts  every code in the diagnostics catalogue
  *   src/generated/packages.gen.ts     each package's version and publish status
  *   src/generated/lint.gen.ts         every lint rule: its config, fix and whether Biome runs it
- *   src/generated/cli.gen.ts          every `kirana` command, and `@kirana-style/core`'s exports
+ *   src/generated/cli.gen.ts          every `kirana-style` command, and `@kirana-style/core`'s exports
  *
- * Parsing Rust source text rather than running anything keeps this script free of
+ * Reading source text rather than running anything keeps this script free of
  * the native engine, so it runs anywhere. `--check` fails when the committed
  * output is stale, which is what CI runs.
  */
@@ -177,7 +177,7 @@ for (const name of biomeRules)
     throw new Error(`the Biome rule ${name} has no ESLint original`)
 
 /**
- * Every `kirana` command: the Rust command line's subcommands (hidden ones left out) and the ones
+ * Every `kirana-style` command: the Rust command line's subcommands (hidden ones left out) and the ones
  * the Node.js driver runs itself.
  */
 const cliSource = await readFile(

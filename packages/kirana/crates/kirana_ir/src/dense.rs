@@ -1,22 +1,8 @@
-//! Dense names (D-084): the condition and value hashes of finished class names replaced by short
-//! codes assigned from the whole build, keeping everything the runtime merge reads.
-//!
-//! A D-037 name is `{prefix}{property}[-{target 3}][-{conditions 4}]_{value 4}`. Dense names keep the
-//! prefix, the property code and the target segment, and replace the two 4-character hashes:
-//!
-//! - a condition hash becomes a code of 1 or 2 characters, never 3, so it is never mistaken for a
-//!   target segment and never equal to a hash;
-//! - a value hash becomes a code of 1 or 2 characters from one space shared by every key, because a
-//!   runtime unfold builds a longhand's name from a shorthand atom's value segment (D-045).
-//!
-//! In a chunk, only names the compiler wrote are renamed: a dense build writes [`MARK`] before each
-//! of them (`Names::written`), and renaming removes every mark. Text that only looks like a name — a
-//! documentation page quoting one — has no mark and stays as written. A stylesheet is the
-//! compiler's alone and is renamed unmarked.
-//!
-//! Codes are assigned once and never change for the life of a [`DenseNames`]: a segment seen later is
-//! appended after every earlier one. A segment with no code keeps its hash, which is longer than any
-//! code, so a name that misses the map costs bytes and never meets another name.
+//! Dense names (D-084): the condition and value hashes of finished class names replaced by codes of
+//! 1 or 2 characters assigned from the whole build. A code is never 3 characters, so it is never taken
+//! for a target segment; value codes share one space across keys because a runtime unfold builds a
+//! longhand's name from a shorthand atom's value segment (D-045). In a chunk only names after a
+//! [`MARK`] are renamed; a stylesheet is renamed unmarked. Codes never change once assigned.
 
 use std::collections::BTreeMap;
 

@@ -501,7 +501,6 @@ function ChannelRow({ channel }: { channel: Channel }) {
 function Wall() {
   const platinum = SPONSORS.filter((s) => s.tier === "Platinum sponsor")
   const gold = SPONSORS.filter((s) => s.tier === "Gold sponsor")
-  // Silver before Bronze.
   const sponsors = [
     ...SPONSORS.filter((s) => s.tier === "Silver sponsor"),
     ...SPONSORS.filter((s) => s.tier === "Bronze sponsor"),

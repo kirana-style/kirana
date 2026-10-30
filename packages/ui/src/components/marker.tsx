@@ -13,11 +13,8 @@ import { fontSize, lineHeight } from "../tokens/typography"
 
 /**
  * A Marker is an annotation row — a label, optionally with rules running out to
- * either side of it.
- *
- * The original styled inline links with `[a]:underline [a]:hover:text-foreground`.
- * Links inside the content use the `Link` primitive instead, so the row never
- * reaches into markup a caller writes.
+ * either side of it. Links inside the content use the `Link` primitive, so the
+ * row never reaches into markup a caller writes.
  */
 
 const styles = {

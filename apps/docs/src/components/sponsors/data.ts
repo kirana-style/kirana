@@ -2,7 +2,7 @@
  * Everything the sponsors page shows, in one place. Before launch:
  *
  * - set each channel's `url` once the account exists (a channel without one
- *   renders as "opens at launch", never as a dead link);
+ *   renders as "At launch", never as a dead link);
  * - confirm or change the tier amounts — they are proposals;
  * - add sponsors to `SPONSORS` as they arrive.
  */

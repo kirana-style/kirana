@@ -1,16 +1,9 @@
-//! Value grammars (KRN-CAS-010): whether a value fits a property's syntax as MDN writes it.
-//!
-//! The check is built never to reject valid CSS, including CSS newer than the data (P11):
-//!
-//! - A value with a word or function no grammar names, a dimension with a unit outside the data,
-//!   a substitution (`var()`, `env()`, `attr()`) or a bracketed block is [`Verdict::Unchecked`]:
-//!   it may be newer CSS, a name of the author's own, or anything after substitution.
-//! - A function is matched by its name alone. Its arguments are never judged, so a grammar's
-//!   hardest part (`calc()`, colour functions, gradients) cannot reject anything.
-//! - A type the data does not define matches any one component.
-//!
-//! What is left is the value's top level, made only of words and functions the data knows, and
-//! that is where the common mistakes are: `padding: red`, `display: center`, `width: -4px`.
+//! Value grammars (KRN-CAS-010): whether a value fits a property's syntax as MDN writes it, built
+//! never to reject valid CSS, including CSS newer than the data (P11). A word, function or unit the
+//! data does not name, a substitution (`var()`, `env()`, `attr()`) or a bracketed block is
+//! [`Verdict::Unchecked`]; a function is matched by its name alone, and a type the data does not
+//! define matches any one component. What is left is the value's top level, where the common
+//! mistakes are: `padding: red`, `display: center`, `width: -4px`.
 
 use std::cell::RefCell;
 use std::collections::HashMap;

@@ -88,7 +88,7 @@ pub fn longhands_of(name: &str) -> Result<Vec<Property>, DeclarationError> {
 }
 
 /// [`longhands_of`] for the checks every handle runs, which ask it for each shorthand they meet: a
-/// shorthand's longhands come from a table built once, any other name is worked out as before.
+/// shorthand's longhands come from a table built once, any other name goes through [`longhands_of`].
 pub fn known_longhands(name: &str) -> Option<Cow<'static, [Property]>> {
     static TABLE: OnceLock<kirana_shared::FxHashMap<&'static str, Vec<Property>>> = OnceLock::new();
     let table = TABLE.get_or_init(|| {
@@ -110,7 +110,7 @@ fn collect_longhands(id: &PropertyId<'_>, out: &mut Vec<Property>) {
     }
 }
 
-/// Whether `text` is one `var(...)` expression and nothing else.
+/// The custom property `text` reads when it is one `var(...)` expression and nothing else.
 fn single_var(text: &str) -> Option<&str> {
     let inner = text.strip_prefix("var(")?.strip_suffix(')')?;
     let mut depth = 0i32;
@@ -140,14 +140,13 @@ pub fn is_single_component(value: &str) -> bool {
 }
 
 /// Validates, normalizes and expands one declaration written as `camelCaseName: value`.
-///
-/// `variable_value` returns the declared value of a custom property the project defines, so a
-/// shorthand written as one such `var()` can be split when that value is a single component.
 pub fn declare(name: &str, raw: RawValue<'_>) -> Result<Expanded, DeclarationError> {
     declare_with(name, raw, &|_| None)
 }
 
-/// [`declare`] with knowledge of project variables.
+/// [`declare`] with knowledge of project variables: `variable_value` returns the declared values of
+/// a custom property the project defines, so a shorthand written as one such `var()` stays one atom
+/// when every value is a single component, and a token's values are checked against the grammar.
 pub fn declare_with(
     name: &str,
     raw: RawValue<'_>,

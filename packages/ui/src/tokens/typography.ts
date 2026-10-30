@@ -68,17 +68,12 @@ export const fontSize = {
 } as const
 
 /**
- * Line heights paired with each `fontSize` step, as unitless ratios so they scale
- * with the text the way Tailwind's `--text-*--line-height` do.
- *
- * Each ratio is stored **rounded up** at five decimals, not written as
- * `calc(1.25 / 0.875)`. The CSS minifier folds any such expression to five
- * decimals and rounds down: `1.42857` × 14px is 19.99998px, and Chrome lays text
- * out in 1/64px steps, so every small line became 19.984px. Across a long page
- * that drifted into a visible 1px shift against the Tailwind original, which
- * escapes the minifier by keeping the `calc` inside a custom property. Rounding
- * up lands every paired size on a whole pixel. The comment on each line keeps
- * Tailwind's original ratio.
+ * Line heights paired with each `fontSize` step, as unitless ratios stored
+ * rounded up at five decimals rather than as `calc(1.25 / 0.875)`. The minifier
+ * folds such a `calc` and rounds down (1.42857 × 14px is 19.99998px, which Chrome
+ * lays out at 19.984px), and over a long page the drift shows as a 1px shift.
+ * Rounding up lands every paired size on a whole pixel. Each line's comment is
+ * the exact ratio.
  */
 export const lineHeight = {
   xs: "1.33334", // 1 / 0.75

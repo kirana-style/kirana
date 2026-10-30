@@ -8,11 +8,7 @@ import { overlayStyles } from "../recipes/overlay"
 import { Icon } from "../primitives/icon"
 import { spacing } from "../tokens/spacing"
 
-/**
- * Structurally identical to DropdownMenu, and deliberately sharing its recipe:
- * under Tailwind both files repeated the same 1,000-character popup string and
- * the same `**:data-[slot$=-item]:` rules. Here they agree by construction.
- */
+/** Shares the menu recipe with DropdownMenu, so the two agree by construction. */
 
 const styles = {
   trigger: css({ userSelect: "none" }),

@@ -2,8 +2,9 @@
 //!
 //! - `kirana/inspect` `{ textDocument, position, active? }` → the resolved style of the site at the
 //!   position, and which entries hold when exactly the `active` conditions and switches do;
-//! - `kirana/styleRanges` `{ textDocument }` → each multi-line style object and its summary;
-//! - `kirana/stats` `{}` → the stylesheet's size.
+//! - `kirana/styleRanges` `{ textDocument }` → each style object, whether it spans lines, and its
+//!   summary;
+//! - `kirana/stats` `{}` → the stylesheet's size and rule count, and how many components compiled.
 
 use std::collections::BTreeSet;
 

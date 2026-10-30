@@ -1,12 +1,8 @@
 /**
- * The site's calls to action, one shape everywhere: "Quick start" is a raised pill with the page's
- * scene in a round chip at its end, the arrow in it growing a little in place on hover; the secondary one
- * beside it is the same pill outlined, quieter, with no chip. Both come in the header's size (`sm`,
- * 32 px) and a hero's (`lg`, 40 px), and grow to a finger's size (44 px) on a touch screen.
- *
- * The chip sits as far from the pill's top and bottom as from its end (5 px in the header, 6 px in a
- * hero and on a touch screen), so it is centred in the pill's round end. The button's 1 px border sits
- * outside its padding, so the end padding is one pixel less.
+ * The site's calls to action, one shape everywhere: "Quick start" is a filled pill with the page's
+ * scene in a round chip at its end; the secondary is the same pill outlined, with no chip. Both come
+ * in the header's size (`sm`, 32 px) and a hero's (`lg`, 40 px), and 44 px on a touch screen. The
+ * chip sits as far from the pill's end as from its top and bottom, so it is centred in the round end.
  */
 import type { ReactElement, ReactNode } from "react"
 import { css } from "@kirana-style/core"
@@ -110,7 +106,7 @@ const styles = {
   fromSm: css({ display: { base: "none", [breakpoint.sm]: "inline-flex" } }),
 }
 
-/** "Quick start", or another first step, as the raised pill with the scene's chip. */
+/** "Quick start", or another first step, as the filled pill with the scene's chip. */
 export function QuickStart({
   size = "lg",
   href = "/docs/start/quick-start",

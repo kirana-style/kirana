@@ -15,10 +15,6 @@ import { ring } from "../tokens/ring"
 import { spacing } from "../tokens/spacing"
 import { fontSize, fontWeight, leading, lineHeight } from "../tokens/typography"
 
-/** An item carrying a description aligns its media to the top instead of centre. */
-/** Inside a dropdown the menu already supplies the padding. */
-/** The group tightens its own spacing when it holds compact items. */
-
 const styles = {
   group: css({
     display: "flex",
@@ -54,7 +50,6 @@ const styles = {
       ":focus-visible": `0 0 0 ${ring.width} ${alpha.ring50}`,
     },
   }),
-  /** Was `[a]:hover:bg-muted` — applied when the item is interactive. */
   interactive: css({ backgroundColor: { ":hover": theme.muted } }),
 
   default: css({
@@ -120,13 +115,12 @@ const styles = {
       [itemMarker.within('[data-size="xs"]')]: spacing[6],
     },
   }),
-  /** Was `[&_img]:size-full [&_img]:object-cover`, now its own element. */
   image: css({ width: "100%", height: "100%", objectFit: "cover" }),
 
   content: css({
     display: "flex",
-    // `[&+[data-slot=item-content]]:flex-none`: a second content block right
-    // after another keeps its own width, so the first takes the space.
+    // A second content block right after another keeps its own width, so the
+    // first takes the space.
     flex: { base: 1, ':is([data-slot="item-content"] + *)': "none" },
     flexDirection: "column",
     gap: {
@@ -240,7 +234,7 @@ function Item({
   ...props
 }: Omit<useRender.ComponentProps<"div">, "className"> &
   VariantProps<typeof item> & {
-    /** Adds the hover affordance the original gave only to anchors. */
+    /** Adds the hover fill of a link or button. */
     interactive?: boolean
     sx?: Sx
   }) {

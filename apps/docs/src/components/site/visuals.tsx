@@ -1,12 +1,8 @@
 /**
- * The site's illustration kit. A scene is a fixed-size canvas; tiles, pills and
- * cards are placed on it by percentage, and wires are drawn underneath in one
- * SVG layer. Any scene can be shown flat or tilted isometrically (`iso`).
- *
- * Tiles and pills carry a halo in the page colour, so a wire passing behind
- * them stops cleanly at their edge. The glow under a card mixes the site's
- * accent palette. Icons are Hugeicons or SVGL (svgl.app); nothing is hand-drawn
- * except the wires. Everything follows the page's accent and colour scheme.
+ * The site's illustration kit. A scene is a fixed-size canvas; tiles, pills and cards are placed
+ * on it by percentage, over wires drawn in one SVG layer, flat or tilted isometrically (`iso`).
+ * Tiles and pills carry a halo in the page colour, so a wire behind them stops at their edge.
+ * Icons are Hugeicons or SVGL; nothing is hand-drawn except the wires.
  */
 import { css, keyframes } from "@kirana-style/core"
 

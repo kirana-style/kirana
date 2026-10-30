@@ -1,10 +1,9 @@
 /**
- * The /compare matrix. Every cell carries the page it is taken from — the
- * tool's own documentation, or this site's for Kirana and for the measured
- * StyleX port. A cell with nothing sourced says so rather than guessing.
- * Checked 2026-09-29; the editor, lint, migration and agent rows 2026-10-05;
- * Panda against 2.2.0, and the fallback, anchor, view-transition, bug-report,
- * agent-skill, design-system and CI rows, 2026-10-12.
+ * The /compare matrix. Every cell carries the page it is taken from: the tool's own documentation,
+ * or this site's for Kirana and for the measured StyleX port. A cell with nothing sourced says so.
+ * Checked 2026-09-29; the editor, lint, migration and agent rows 2026-10-05; Panda against 2.2.0,
+ * and the fallback, anchor, view-transition, bug-report, agent-skill, design-system and CI rows,
+ * 2026-10-12.
  */
 import { RUNTIME_SIZE } from "@/data/benchmarks"
 import { COUNTS, LISTS, sentence } from "@/data/facts"
@@ -16,7 +15,6 @@ export type Brand = keyof typeof SVGL
 
 export type Tool = "runtime" | "stylex" | "panda" | "tailwind" | "kirana"
 
-/** Each tool's name, and one line on what kind of tool it is. */
 /**
  * Each tool's name, one line on what kind of tool it is, and its logo (svgl.app, then
  * LogoForge). Kirana shows its own. A column that is a kind of tool rather than one product

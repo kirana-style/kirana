@@ -1,13 +1,9 @@
 /**
- * Asks the real language server what an editor shows for one file, and writes the answers.
- *
- * The homepage's editor scene and the editor guide draw a component as VS Code shows it with
- * Kirana's extension: the summary after each element, the code lens, the style card, the Style
- * Inspector, a token's colours, a diagnostic with its fix, Style Fold. None of that is drawn by
- * hand. This script opens `showcase/editor/plan.tsx` in `kirana-style lsp`, the same server an editor
- * starts, and records what it answers: the hints and lenses as data, the card and the token hover
- * as the HTML the hover's Markdown renders to, and the Inspector as the extension's own renderer
- * (`editors/vscode/src/inspector/render.ts`) draws it from `kirana/inspect`.
+ * Asks the real language server what an editor shows for one file and writes the answers to
+ * `src/generated/editor.gen.ts`, so the homepage's editor scene and the editor guide draw none of it
+ * by hand. It opens `showcase/editor/plan.tsx` in `kirana-style lsp` and records the hints and lenses
+ * as data, the hovers as the HTML their Markdown renders to, and the Inspector as the extension's own
+ * renderer (`editors/vscode/src/inspector/render.ts`) draws it from `kirana/inspect`.
  *
  * Needs the native engine (`vp run engine`); the output is committed, so `dev` does not.
  */

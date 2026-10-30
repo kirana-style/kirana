@@ -1,11 +1,8 @@
 /**
- * A Kirana project held in memory, for the engine in a browser (KRN-CMP-012, D-113): the files are
- * written to the WebAssembly engine's file system, so a module's imports, the tokens it reads and
- * the configuration's scale modules resolve as they would on disk, and the `Compiler` session
- * compiles them. The language server answers an editor's questions on the same files (KF-065).
- *
- * Nothing here loads the engine: `openProject` takes it, so the same code runs on the native engine
- * and a directory in the tests, and on the WebAssembly engine and its in-memory volume in a page.
+ * A Kirana project held in memory, for the engine in a browser (KRN-CMP-012, D-113): its files are
+ * written to the engine's file system, so imports, tokens and scale modules resolve as on disk, and
+ * the language server answers on the same files (KF-065). `openProject` takes the engine rather than
+ * loading it, so the tests run the same code on the native engine and a directory.
  */
 import { engineJson } from "@kirana-style/compiler/engine-json"
 import type { KiranaConfig } from "@kirana-style/core/config"

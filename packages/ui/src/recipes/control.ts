@@ -1,14 +1,8 @@
 /**
  * Shared chrome for text-entry controls: input, textarea, native select, and
- * the triggers that are meant to read as fields.
- *
- * This is one namespace rather than a set of mixins so every state of the
- * chrome (focus, invalid, disabled) is declared, and overridden, in one place.
- * Kirana merges per property *and* condition, so a component that sets a plain
- * `borderColor` keeps the focus and invalid colours below.
- *
- * Components compose this with their own box metrics (height, padding, font
- * size), which touch different properties and so merge cleanly.
+ * the triggers meant to read as fields. Every state (focus, invalid, disabled)
+ * is declared here, and Kirana merges per property and condition, so a component
+ * that sets a plain `borderColor` or its own box metrics keeps the rest.
  */
 
 import { css } from "@kirana-style/core"

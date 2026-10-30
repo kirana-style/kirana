@@ -12,12 +12,6 @@ import { duration, easing } from "../tokens/motion"
 import { ring } from "../tokens/ring"
 import { spacing } from "../tokens/spacing"
 
-/** The surrounding Field is disabled, so every control inside it dims. */
-/**
- * Focus lives on the wrapping FieldLabel rather than the box itself, so the box
- * must not draw its own ring — the label already drew one.
- */
-
 const styles = {
   root: css({
     position: "relative",
@@ -36,8 +30,7 @@ const styles = {
     transitionTimingFunction: easing.inOut,
     [ctx.iconSize]: "0.875rem",
 
-    // Was `after:-inset-x-3 after:-inset-y-2`: enlarges the hit area well past
-    // the 16px box without changing layout.
+    // Enlarges the hit area well past the 16px box without changing layout.
     "::after": {
       content: "''",
       position: "absolute",

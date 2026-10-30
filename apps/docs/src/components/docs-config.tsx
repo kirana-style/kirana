@@ -22,7 +22,7 @@ import { loadSearch, search } from "@/lib/search"
 
 /**
  * Tabs group sections; a page's URL never depends on its tab. Each tab wears the hue of the scene
- * it stands in (`src/brand/scenes.ts`): Learn the highlands, Frameworks the tea hills, Guides the
+ * it stands in (`src/brand/scenes.ts`): Learn the highlands, Frameworks the misty hills, Guides the
  * heritage street, Reference the crater, Project the old hall.
  */
 export const TABS: readonly DocsTab[] = [

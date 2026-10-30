@@ -31,9 +31,6 @@ const styles = {
     width: "fit-content",
     alignItems: "center",
     borderRadius: { base: radius.lg, '[data-size="sm"]': CLAMPED_MD_10 },
-    // The original passed the gap through an inline `--gap` custom property and
-    // read it back with `gap-[--spacing(var(--gap))]`. Three discrete values do
-    // not need a variable.
     gap: {
       base: spacing[2],
       '[data-spacing="1"]': spacing[1],

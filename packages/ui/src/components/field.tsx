@@ -17,9 +17,6 @@ import { fontSize, fontWeight, leading, lineHeight } from "../tokens/typography"
 /** A label that wraps a whole Field, which turns it into a selectable card. */
 const CARD = ':has(> [data-slot="field"])'
 
-/** A field holding a FieldContent block aligns to the top of it. */
-/** Was `group-has-data-horizontal/field`. */
-
 const styles = {
   set: css({
     display: "flex",
@@ -51,8 +48,7 @@ const styles = {
     // A group used as a checkbox list is tighter. A group directly inside
     // another is tighter still; that is a child rule, in globals.css.
     gap: { base: spacing[5], '[data-slot="checkbox-group"]': spacing[3] },
-    // Declared so the `responsive` orientation below can query it. This is the
-    // named container from `@container/field-group`.
+    // Declared so the `responsive` orientation below can query it.
     containerType: "inline-size",
     containerName: "field-group",
   }),
@@ -74,7 +70,7 @@ const styles = {
   /**
    * Stacks on a narrow container and lays out in a row once there is room. The
    * query names `field-group`, so it tracks the width of its FieldGroup rather
-   * than the viewport — which is what `@md/field-group:` meant.
+   * than the viewport.
    */
   responsive: css({
     flexDirection: { base: "column", [fieldGroupQuery.md]: "row" },
@@ -101,9 +97,8 @@ const styles = {
     opacity: {
       [fieldMarker.within('[data-disabled="true"]')]: 0.5,
     },
-    // A label wrapping a whole Field is a selectable card, like a radio tile.
-    // Was `has-[>[data-slot=field]]:` on every property below; the same test,
-    // so no prop is needed to opt in.
+    // A label wrapping a whole Field is a selectable card, like a radio tile,
+    // by a `:has()` test, so no prop is needed to opt in.
     width: { base: "fit-content", [CARD]: "100%" },
     flexDirection: { [CARD]: "column" },
     borderRadius: { [CARD]: radius.lg },
@@ -155,20 +150,18 @@ const styles = {
     lineHeight: leading.normal,
     fontWeight: fontWeight.normal,
     color: theme.mutedForeground,
-    // Was `group-has-data-horizontal/field:text-balance`. `data-horizontal` is
-    // shadcn's variant for `[data-orientation="horizontal"]`, and `group-has`
-    // asks whether the field *contains* one — a slider, say. A horizontal field
-    // is not its own descendant, so a checkbox or switch row wraps normally.
+    // Balanced when the field contains a horizontal control, a slider say. A
+    // horizontal field is not its own descendant, so a checkbox or switch row
+    // wraps normally.
     textWrap: {
       [fieldMarker.within(':has([data-orientation="horizontal"])')]: "balance",
     },
     // Links written straight into the description; see "Inline content" in
     // globals.css.
     "--inline-link-hover": theme.primary,
-    // Was `last:mt-0 nth-last-2:-mt-1`, tightening a description that sits
-    // directly above the control rather than at the end of the field, and
-    // `[[data-variant=legend]+&]:-mt-1.5`, pulling one up under a legend. The
-    // legend carries the default marker; its rule wins in every position.
+    // Tightens a description that sits directly above the control rather than
+    // at the end of the field, and pulls one up under a legend. The legend
+    // carries the default relation; its rule wins in every position.
     marginTop: {
       [peer.after('[data-variant="legend"]')]: `calc(${spacing["1.5"]} * -1)`,
       ":nth-last-child(2)": {
@@ -285,8 +278,7 @@ function FieldLabel({ sx, ...props }: React.ComponentProps<typeof Label>) {
   )
 }
 
-// `field-label`, as in the original: a Field's rules for its label (`*:data-[slot=field-label]`,
-// and the blocks in globals.css) reach a title too.
+// `field-label`, so a Field's rules for its label (here and in globals.css) reach a title too.
 function FieldTitle({ sx, ...props }: El) {
   return <div data-slot="field-label" {...props} sx={[styles.title, sx]} />
 }

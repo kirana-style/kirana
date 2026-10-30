@@ -1,19 +1,13 @@
 /**
  * The site's measured numbers, read from `benchmarks.json`: kirana-lab's newest run whose
- * conformance passed, taken by `scripts/take-benchmarks.ts` (the `benchmarks` workflow opens the
- * PR). The lab builds the same three applications with the published Kirana release, the StyleX
- * port (compiled by StyleX's Babel plugin and by its SWC compiler) and the Tailwind original, cold
- * and interleaved, and compares each pair by the ratio of their medians with a 95 % confidence
- * interval (its METHODOLOGY.md).
- *
- * Nothing here is typed by hand except the editor figures, which the lab does not measure yet and
- * which name the design note they come from. Every claim is worded from a comparison's verdict: a
- * difference whose interval includes 1 is "level", so a page cannot say more than the run measured.
+ * conformance passed, taken by `scripts/take-benchmarks.ts`. Nothing here is typed by hand except
+ * the editor figures, which the lab does not measure and which name the design note they come
+ * from. Every claim is worded from a comparison's verdict: an interval that includes 1 is "level".
  */
 import data from "./benchmarks.json"
 
 /**
- * The private runtime's cap, minified and gzipped: KRN-DYN-005 holds it under 1,100 bytes (D-083), and
+ * The private runtime's cap, minified and gzipped: KRN-DYN-005 holds it to at most 1,100 bytes (D-083), and
  * `npm/core/test/internal.test.ts` asserts it (design-notes/runtime-merge.md). Prose says "under
  * {{fact:runtime-size}}"; a component reads this.
  */
@@ -118,10 +112,7 @@ export const BENCH: Bench = {
   ),
 }
 
-/**
- * The tools this run measured, in the site's order. A run from before the lab built StyleX with
- * SWC has no `stylex-swc` rows, and then no page shows it.
- */
+/** The tools this run measured, in the site's order: a run without `stylex-swc` rows shows no SWC. */
 export const TOOLS: readonly Tool[] = (Object.keys(TARGET) as Tool[]).filter(
   (tool) => BENCH.rows.some((entry) => entry.target === TARGET[tool])
 )
@@ -160,7 +151,7 @@ export const BROWSER: readonly string[] = [
 
 /**
  * The large-dom table's sizes this run measured, smallest first, each with its browser scenario
- * (`CPU throttled 4×, about 22552 elements`); none for a run from before the lab had the corpus.
+ * (`CPU throttled 4×, about 22552 elements`); none for a run without the corpus.
  */
 export const LARGE_DOM: readonly {
   corpus: Corpus
@@ -334,6 +325,7 @@ export const DENSE = {
 export const capital = (text: string) =>
   text.charAt(0).toUpperCase() + text.slice(1)
 
+/** A chart's measure; lower is better for every one. */
 export type Metric = {
   id: string
   label: string
@@ -343,7 +335,6 @@ export type Metric = {
   /** One value per app, in `APPS` order. */
   values: Record<Tool, readonly number[]>
   total: Record<Tool, number>
-  /** Lower is better for every metric here. */
   note: string
 }
 

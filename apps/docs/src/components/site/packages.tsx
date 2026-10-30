@@ -1,8 +1,7 @@
 /**
- * The packages, grouped, each an illustrated card with a picture of what the group
- * does and its packages as pills; and
- * the three promises with everything they buy, as a grid with hatched gutters.
- * Package names, versions and descriptions come from the packages themselves.
+ * The packages, grouped, each an illustrated card with a picture of what the group does and its
+ * packages as pills; and the three promises with everything they buy, in cells split by 1px
+ * gutters. Package names, versions and descriptions come from the packages themselves.
  */
 import { css } from "@kirana-style/core"
 import {
@@ -129,7 +128,7 @@ const GROUPS: {
 ]
 
 const styles = {
-  // Three single packages side by side; the adapters, wide, below them.
+  // Three groups to a row from `lg`; the adapters' card is wide.
   groups: css({
     display: "grid",
     gap: spacing[4],
@@ -182,8 +181,7 @@ const styles = {
     transitionProperty: "background-color",
     transitionDuration: duration[150],
   }),
-  // The features sit in cells separated by hatched gutters.
-  // Eight features in cells split by 1px gutters.
+  // The features in cells split by 1px gutters.
   features: css({
     display: "grid",
     gap: "1px",

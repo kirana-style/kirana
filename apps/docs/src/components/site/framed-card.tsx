@@ -1,11 +1,8 @@
 /**
- * The frame every picture card on the site shares: the card is a bordered, rounded sheet, and its
- * picture sits inside it, inset and rounded on its own, with a hairline of its own. The picture's
- * corners are the card's less the inset, so the two curves stay concentric and the gap between them
- * is even all the way round.
- *
- * `IllustratedCard`, the tools grid on `/compiler` and the showcase are drawn with it. The text
- * under a picture keeps its own padding, on top of the card's inset.
+ * The frame every picture card on the site shares: a bordered, rounded sheet with its picture
+ * inset inside it, on a hairline of its own. The picture's corners are the card's less the inset,
+ * so the two curves stay concentric. The text under a picture keeps its own padding, on top of the
+ * card's inset.
  */
 import { css } from "@kirana-style/core"
 
@@ -34,7 +31,7 @@ export const framed = {
     transitionDuration: duration[200],
   }),
   /**
-   * Just the inset and the corner, for a card that already has its border and ground from elsewhere
+   * The inset and the corner alone, for a card that already has its border and ground from elsewhere
    * (the brand page's, which sit on `sectionStyles.bordered`).
    */
   inset: css({

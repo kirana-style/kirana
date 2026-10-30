@@ -19,7 +19,7 @@ export type PageMeta = {
   readonly keywords?: readonly string[]
   /**
    * What a reference page documents, shown as a badge in the sidebar:
-   * `api`, `config`, `cli`, `diagnostics` — free text, the layout picks the tint.
+   * `api`, `config`, `cli`, `diagnostics`; free text, shown as written.
    */
   readonly kind?: string
   readonly headings: readonly PageHeading[]

@@ -1,7 +1,7 @@
 /**
- * The bar's theme control: one icon button, the sun or the moon the page is showing, that opens
- * Light, Dark and System. The docs bar's control (the site's is the footer's `ThemeToggle`); `D`
- * steps the mode here too.
+ * The docs bar's theme control: one icon button, the sun or the moon the page is showing, that
+ * opens Light, Dark and System (the site's is the footer's `ThemeToggle`); `D` steps the mode here
+ * too.
  */
 import { css } from "@kirana-style/core"
 import { ComputerIcon, Moon02Icon, Sun03Icon } from "@hugeicons/core-free-icons"

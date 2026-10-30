@@ -27,9 +27,6 @@ import {
 } from "@hugeicons/core-free-icons"
 
 import type { SceneId } from "@/brand/scenes"
-// The Ecosystem menu is commented out below; restore these with it.
-// import { PRODUCTS } from "@/data/products"
-// import type { Product } from "@/data/products"
 
 type IconData = typeof SourceCodeIcon
 
@@ -64,24 +61,10 @@ export const SPONSOR: NavLinkItem & { href: string } = {
   scene: "golden-fields",
 }
 
-// /** A product from `data/products.ts` as a menu row. */
-// const product = (item: Product): NavLinkItem => ({
-//   title: item.name,
-//   description: item.description,
-//   href: item.href,
-//   icon: item.icon,
-//   scene: item.scene,
-// })
-//
-// const SHIPPED = PRODUCTS.filter((item) => item.href !== undefined)
-// const PLANNED = PRODUCTS.filter((item) => item.href === undefined)
-
 /**
  * The header's three menus. Each page is in one place: the case for Kirana and the tools around
  * the compiler under Product, everything you read while building under Docs, and the project
- * itself under Community. Sponsoring is the heart button beside them, not a menu item. A fourth,
- * Ecosystem (the products beside the compiler, the planned ones disabled and marked "Soon"), is
- * commented out after Product until it is wanted; the roadmap lists the products meanwhile.
+ * itself under Community.
  */
 export const MENUS: readonly Menu[] = [
   {
@@ -152,34 +135,6 @@ export const MENUS: readonly Menu[] = [
       },
     ],
   },
-  // Hidden for now (see above); move the Ecosystem row from Product into it when restoring.
-  // {
-  //   title: "Ecosystem",
-  //   featured: [],
-  //   columns: [
-  //     {
-  //       title: "Use today",
-  //       links: [
-  //         ...SHIPPED.map(product),
-  //         {
-  //           title: "Packages and tools",
-  //           description: "Packages, bundlers and their status",
-  //           href: "/ecosystem",
-  //           icon: PackageIcon,
-  //           scene: "rock-garden",
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       title: "Planned for the web",
-  //       links: PLANNED.filter((item) => item.target === "web").map(product),
-  //     },
-  //     {
-  //       title: "Beyond the browser",
-  //       links: PLANNED.filter((item) => item.target === "beyond").map(product),
-  //     },
-  //   ],
-  // },
   {
     title: "Docs",
     featured: [

@@ -1,5 +1,5 @@
 /**
- * Layer 5: visually hidden text, replacing Tailwind's `sr-only`.
+ * Visually hidden text, Tailwind's `sr-only`.
  *
  * Used for the accessible names of icon-only controls — a dialog's close button
  * has nothing but an X in it, so the label has to live somewhere a screen reader

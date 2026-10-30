@@ -1,16 +1,8 @@
 /**
- * The stylesheet for highlighted code.
- *
- * `@tanstack/highlight` emits class names (`th-token th-keyword`) and leaves the
- * colours to the page, and its own `createThemeCss()` pairs a light theme with a
- * dark one through a `.dark` selector. This site has no dark class: the scheme
- * lives in `color-scheme` on `<html>`, so every colour is one `light-dark()` pair
- * and both schemes resolve from a single declaration.
- *
- * It is a stylesheet rather than `css()` because the markup belongs to the
- * highlighter — the case `docs/catalogue.md` reserves global CSS for. It sits in
- * the `base` layer, below every Kirana rule, and every custom property is scoped
- * to the code block so nothing leaks into the rest of the page.
+ * The stylesheet for highlighted code. The scheme lives in `color-scheme` on
+ * `<html>`, not a `.dark` class as `createThemeCss()` expects, so every colour is
+ * one `light-dark()` pair. It is global CSS because the markup belongs to the
+ * highlighter; it sits in the `base` layer, scoped to code blocks and inline code.
  */
 import { githubDarkTheme } from "@tanstack/highlight/themes/github-dark"
 import { githubLightTheme } from "@tanstack/highlight/themes/github-light"

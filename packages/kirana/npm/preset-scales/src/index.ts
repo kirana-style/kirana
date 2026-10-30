@@ -1,14 +1,10 @@
 /**
- * `@kirana-style/preset-scales`: the scale vocabulary this repository's design system proved, with
- * values compatible with Tailwind CSS v4 (KRN-TOK-009, D-010). Data only — no semantic tokens, no
- * component styles. Import what you use; unused tokens emit nothing.
+ * `@kirana-style/preset-scales`: scales with values compatible with Tailwind CSS v4 (KRN-TOK-009,
+ * D-010). Data only: no semantic tokens, no component styles; unused tokens emit nothing. The utility
+ * names for string `sx` are the preset, at `@kirana-style/preset-scales/preset`.
  *
  *   import { space, color } from "@kirana-style/preset-scales"
  *   css({ padding: space[4], color: color.blue[600] })
- *
- * As a preset it also declares Tailwind v4's utility names over these scales, for string `sx`; the
- * preset lives at `@kirana-style/preset-scales/preset`, which a configuration file can import without
- * loading these tokens (`kirana.config.ts` runs uncompiled, where `defineTokens()` throws).
  */
 export {
   blur,

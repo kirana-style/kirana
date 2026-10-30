@@ -1,13 +1,9 @@
 //! Vue, Svelte and Astro components (`design-notes/editor-components.md`). Each script block is
 //! compiled as the module the build names it (`Card.vue.setup.ts`); the block the template sees is
 //! compiled with the template's `sx` bindings appended as JSX (`<div sx={…} />`), so a binding is a
-//! site like any `sx` in JSX. Every span the session reports is mapped back into the component
-//! here, so the features read a component as they read any module.
-//!
-//! Angular components (D-068) work the same way, their block being the whole `.ts` file: an inline
-//! template's `[sx]` bindings are appended to it. A template in an `.html` file is the document; its
-//! block is the `.ts` file whose `templateUrl` names it, which that document does not contain, so
-//! only the appended bindings map into it.
+//! site like any `sx` in JSX, and every span is mapped back into the component. An Angular
+//! component's block is its `.ts` file (D-068); for an `.html` template that file is elsewhere, so
+//! only the appended bindings map into the document.
 
 use std::path::{Path, PathBuf};
 

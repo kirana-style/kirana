@@ -14,7 +14,7 @@ fn notes(source: &str) -> Vec<String> {
     run("input.tsx", source).notes.into_iter().map(|note: Note| note.message).collect()
 }
 
-/// Everything the codemod rewrites, in one file, as the prototype rewrote this repository.
+/// Everything the codemod rewrites, in one file.
 #[test]
 fn the_whole_fixture() {
     let source = include_str!("../../../fixtures/migrate/input.tsx");
@@ -234,9 +234,8 @@ fn the_edges_of_each_rewrite() {
 }
 
 /// Two rewrites over one range: the second is skipped and said so, rather than corrupting the file.
-///
-/// A condition whose text contains `default:` is the way to produce one — the key scan finds it
-/// inside the string while the call around it is being replaced whole.
+/// A condition whose text holds `default:` produces one, since the key scan finds it inside the
+/// string while the call around it is replaced whole.
 #[test]
 fn overlapping_rewrites_are_reported() {
     let source = "import * as stylex from \"@stylexjs/stylex\"\nconst s = stylex.create({ a: { opacity: { [stylex.when.ancestor(\"[data-x=\\\"default: null\\\"]\")]: 1 } } })\n";

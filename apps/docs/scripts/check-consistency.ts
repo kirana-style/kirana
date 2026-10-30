@@ -419,9 +419,9 @@ function checkLogos(path: string, text: string) {
 const MAX_CODE_SPANS = 4
 
 /**
- * How the docs are written (the design notes' rules): no em dash outside code, no paragraph that is
- * mostly inline code, and a description that reads as the page's first sentence. Unlike the fact
- * checks, these hold for dated pages too: a blog post is history, its punctuation is not.
+ * How the docs are written: no em dash outside code, no paragraph that is mostly inline code, and a
+ * description that reads as the page's first sentence. Unlike the fact checks, these hold for dated
+ * pages too: a blog post is history, its punctuation is not.
  */
 function checkStyle(path: string, text: string) {
   // The READMEs and the contributor's guide are about the repository, where a paragraph of paths

@@ -1,12 +1,8 @@
 /**
- * A framed icon: a frosted outer ring around an inset card, the glyph on the
- * card. It is the site's glass in miniature — the same light rim and soft blur
- * as the `Backdrop` pane. `solid` fills the card with the accent and stands
- * beside a section's name (`Eyebrow`); `muted` is the header menus' quiet grey.
- *
- * The card is the ring's `::after`, under the glyph (`isolation` keeps it inside
- * the tile), so the tile is one element. Its corners follow the ring's, less the
- * inset, so the two curves stay concentric.
+ * A framed icon: a frosted outer ring around an inset card, the glyph on the card, the site's
+ * glass in miniature. `solid` fills the card with the accent (`Keycap`); `muted` is a quiet grey.
+ * The card is the ring's `::after`, under the glyph (`isolation` keeps it inside the tile), so the
+ * tile is one element; its corners are the ring's less the inset, so the curves stay concentric.
  */
 import { css } from "@kirana-style/core"
 
@@ -83,7 +79,7 @@ const styles = {
     borderRadius: SIZES.lg.radius,
     "::after": { inset: SIZES.lg.inset, borderRadius: SIZES.lg.inner },
   }),
-  // The glyph in the subtree's accent, or quiet grey where there is none (the header).
+  // The glyph in the subtree's accent, or in quiet grey.
   accent: css({ color: accent.base }),
   muted: css({ color: theme.mutedForeground }),
   // The card filled with the accent, the glyph on it in `accent.on` (white, or

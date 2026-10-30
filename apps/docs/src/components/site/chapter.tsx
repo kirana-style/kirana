@@ -1,13 +1,8 @@
 /**
- * A chapter's heading: how every section of a page opens.
- *
- * A label row (the chapter's number in the page's hue, its name in small mono capitals, a hairline
- * to the edge, and an optional link at the end), the title in the serif, and a lede. The numbers
- * let a reader keep their place down a long page; the label says what the chapter is about in two
- * or three words, so the title is free to say something.
- *
- * The serif is set at its regular weight. One word of a page's headline may be italic in the
- * page's hue (`Accent`, in page.tsx); in a chapter title an `<em>` is italic in ink.
+ * A chapter's heading, how every section of a page opens: a label row (the number in the page's
+ * hue, the name in small mono capitals, a hairline, an optional link), the title in the serif at
+ * its regular weight, and a lede. The label says what the chapter is about in two or three words,
+ * so the title is free to say something. In a chapter title an `<em>` is italic in ink.
  */
 import { css, props as styleProps } from "@kirana-style/core"
 

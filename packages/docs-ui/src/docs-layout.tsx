@@ -1,11 +1,8 @@
 /**
- * The docs frame: a top bar (logo, DOCS badge, the search, the app's actions),
- * the section tabs on a row of their own under it, a sticky sidebar for the
- * active tab, and the page.
- *
- * Each tab has an accent. The whole frame takes the active tab's accent, so the
- * tab's underline, the table-of-contents marker and anything else that reads
- * `accent.base` change colour together when you move between tabs.
+ * The docs frame: a top bar (logo, Docs badge, the app's actions), the section
+ * tabs and the search on a row under it, a sticky sidebar for the active tab, and
+ * the page. The frame takes the active tab's accent, so everything that reads
+ * `accent.base` changes colour with the tab.
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { css, props as styleProps } from "@kirana-style/core"
@@ -171,7 +168,6 @@ const styles = {
     minWidth: { [pointer.coarse]: "2.75rem" },
     minHeight: { [pointer.coarse]: "2.75rem" },
   }),
-  // Below lg the sidebar, and its search field, are in the sheet.
   mobileSearch: css({
     display: { base: "inline-grid", [breakpoint.lg]: "none" },
     minWidth: { [pointer.coarse]: "2.75rem" },
@@ -259,8 +255,6 @@ const styles = {
   }),
   sheetSidebar: css({ flex: 1, minHeight: 0 }),
   sheetTitle: css({ paddingInline: spacing[4], paddingBlockStart: spacing[4] }),
-  // One row: the current section, which opens the others in place, so the
-  // sheet keeps its room for the pages.
   // The current section as one row; the others open as a menu over the page
   // list rather than pushing it down.
   switcher: css({
@@ -337,10 +331,7 @@ const styles = {
   }),
 }
 
-/**
- * The sheet's section control: the current tab as one row; pressed, the other
- * tabs unfold under it as rows of their own.
- */
+/** The sheet's section control: the current tab as one row; pressed, the other tabs open as a menu under it. */
 function SectionSwitcher({
   active,
   onNavigate,

@@ -16,9 +16,8 @@ const styles = {
     lineHeight: lineHeight.sm,
   }),
 
-  // Tailwind reached into rows with `[&_tr]:border-b`. Each section instead
-  // states the border its own rows draw, and TableRow reads it from a relation
-  // rather than a selector into markup it does not own.
+  // Each section states the border its own rows draw, and TableRow reads it
+  // from a relation rather than a selector into markup it does not own.
   header: css({}),
   body: css({}),
   footer: css({
@@ -29,9 +28,8 @@ const styles = {
   }),
 
   row: css({
-    // Was `[&_tr:last-child]:border-0` on the body and `[&>tr]:last:border-b-0`
-    // on the footer. Both sections carry the default marker, and the last row
-    // of either drops its rule.
+    // Both sections carry the default relation, and the last row of either
+    // drops its rule.
     borderBottomWidth: {
       base: "1px",
       [peer.within('[data-slot="table-body"]')]: {
@@ -49,7 +47,6 @@ const styles = {
     transitionTimingFunction: easing.inOut,
     backgroundColor: {
       ":hover": alpha.muted50,
-      // Was `has-aria-expanded:`, a descendant query.
       ':has([aria-expanded="true"])': alpha.muted50,
       '[data-state="selected"]': theme.muted,
     },
@@ -63,7 +60,7 @@ const styles = {
     fontWeight: fontWeight.medium,
     whiteSpace: "nowrap",
     color: theme.foreground,
-    // Was `[&:has([role=checkbox])]:pe-0`: a checkbox cell needs no trailing gap.
+    // A checkbox cell needs no trailing gap.
     paddingInlineEnd: {
       base: spacing[2],
       ':has([role="checkbox"])': 0,

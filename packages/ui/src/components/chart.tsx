@@ -19,18 +19,10 @@ import {
 } from "../tokens/typography"
 
 /**
- * Charts on TanStack Charts, with shadcn's chart API around them: a `ChartConfig` that names and
- * colours each series, a `ChartContainer`, and `ChartTooltipContent` and `ChartLegendContent`.
- *
- * TanStack Charts renders the chart's SVG on the server and adopts it in the browser, so a
- * prerendered page shows the chart before any script runs. A chart is a definition
- * (`defineChart`, with marks and scales) rather than a tree of components: pass one to
- * `ChartContainer`, which sets the series colours, draws the tooltip body with
- * `ChartTooltipContent` and gives the chart the theme's colours.
- *
- * Series colours are custom properties on the container, `--color-<key>`, so a mark reads
- * `fill: "var(--color-desktop)"` as shadcn's charts do. A config entry with per-mode colours
- * uses CSS `light-dark()`, which resolves against the `color-scheme` the ThemeProvider sets.
+ * Charts on TanStack Charts, with shadcn's chart API around them. A chart is a definition
+ * (`defineChart`) passed to `ChartContainer`; its SVG renders on the server, so a prerendered page
+ * shows it before any script runs. Series colours are custom properties on the container,
+ * `--color-<key>`, so a mark reads `fill: "var(--color-desktop)"`.
  */
 
 const THEMES = ["light", "dark"] as const
@@ -83,10 +75,9 @@ export const chartTheme: ChartTheme = {
 
 /**
  * The tooltip extension, for a definition's `tooltip`. `ChartContainer` draws its body; its
- * surface is left without chrome, since the body brings its own. It glides after the pointer on a
- * stiff spring, settled in under 200 ms: the renderer's default spring took half a second and
- * trailed the cursor across a bar. A spring rather than a tween keeps its speed when the pointer
- * moves on mid-flight, so it follows without restarting.
+ * surface is left without chrome, since the body brings its own. A stiff spring settles in under
+ * 200 ms (the renderer's default takes half a second and trails the cursor across a bar), and a
+ * spring rather than a tween keeps its speed when the pointer moves on mid-flight.
  */
 export const chartTooltip = {
   use: tooltip,
@@ -167,7 +158,7 @@ const styles = {
     backgroundColor: "transparent",
   }),
   indicatorNested: css({ marginBlock: spacing["0.5"] }),
-  /** The series colour, the one genuinely per-render value here. */
+  /** The series colour, the one per-render value here. */
   indicatorColor: (value: string) =>
     css({
       backgroundColor: value,

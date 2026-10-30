@@ -240,7 +240,7 @@ export function DocsSearch({
   hotkey = true,
   sx,
 }: {
-  /** A search field (the sidebar's), or an icon button (a bar's). */
+  /** A search field, or an icon button (a bar's). */
   variant?: "field" | "icon"
   /** Whether this instance answers ⌘K; give it to one instance per page. */
   hotkey?: boolean

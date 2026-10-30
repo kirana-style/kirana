@@ -1,13 +1,8 @@
 /**
  * Kirana for Next.js (KRN-INT-003, KRN-INT-010): one `withKirana` for both of Next's bundlers.
- *
- * - **Turbopack** (`next dev`, `next build`, Next's default) runs loaders, not plugins. `withKirana`
- *   adds a `turbopack.rules` entry that runs `@kirana-style/next/loader` on the project's own scripts that
- *   can hold styles — Turbopack checks the content first, so no other module reaches JavaScript — and
- *   the stylesheet comes from `@kirana-style/postcss` at the `@kirana;` directive in a CSS file.
- * - **webpack** (`next build --webpack`) keeps the plugin of `@kirana-style/webpack/next`.
- *
- * Both write the same class names, so a project can switch bundlers without changing a file.
+ * Turbopack runs loaders, not plugins, so a `turbopack.rules` entry runs `@kirana-style/next/loader`
+ * on the project's scripts whose content can hold styles, and `@kirana-style/postcss` writes the
+ * stylesheet at `@kirana;`. webpack (`next build --webpack`) gets `@kirana-style/webpack/next`.
  */
 import { fileURLToPath } from "node:url"
 

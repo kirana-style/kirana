@@ -1,15 +1,8 @@
 /**
- * The custom properties Tailwind CSS v4 composes utilities through, as registered tokens: `ring-2`
- * and `shadow-sm` each set their own layer and the same five-layer `box-shadow`, `translate-x-4` and
- * `translate-y-2` each set one axis of `translate`, `grayscale` and `blur-sm` one step of `filter`, and
- * `fade-in-0` and `zoom-in-95` one part of the `enter` keyframes. Registered with `inherits: false`, as
- * Tailwind and tw-animate-css register `--tw-*`, so a parent's ring never reaches a child's shadow.
- *
- * A filter step has no value: unset, its reference falls back to nothing (`var(--k…,)`), so `filter`
- * lists only the steps an element sets, exactly as Tailwind's chain does.
- *
- * The utility grammar uses these (`{compose.ring-shadow}`); a style object may too, and then composes
- * with utilities on the same element.
+ * The custom properties Tailwind CSS v4 composes utilities through (`ring-2` and `shadow-sm` one layer
+ * each of `box-shadow`, `blur-sm` one step of `filter`), as registered tokens the grammar reads
+ * (`{compose.ring-shadow}`). `inherits: false`, as Tailwind registers `--tw-*`, so a parent's ring
+ * never reaches a child's shadow. A filter step has no value, so `filter` lists only the steps set.
  */
 import { defineTokens } from "@kirana-style/core"
 

@@ -19,11 +19,8 @@ export const PLACEHOLDER = '.kirana-placeholder{--kirana:"stylesheet"}'
 export const PLACEHOLDER_RULE = /\.kirana-placeholder\s*\{[^{}]*\}/
 
 /**
- * A module to compile, including one a framework re-emits under a query.
- *
- * TanStack Start's route splitting serves `route.tsx?tsr-split=component`, and a
- * plugin that only matched a bare extension would hand the browser the original,
- * uncompiled source of that chunk.
+ * A module to compile, including one a framework re-emits under a query: TanStack Start's route
+ * splitting serves `route.tsx?tsr-split=component`, which would reach the browser uncompiled.
  */
 export const SCRIPT = /\.[cm]?[jt]sx?(?:[?#]|$)/
 /** `?raw`, `?url` and `?inline` ask for the file itself, not for a module. */
@@ -113,7 +110,6 @@ export function shouldCompile(
   )
 }
 
-/** The module id without a query string. */
 /**
  * The variable tokens (`--{prefix}v` and four characters) and keyframes (`{prefix}f` and four) a
  * text names: what a finished bundle's chunks and stylesheets still use, so its stylesheet keeps
@@ -133,6 +129,7 @@ export function definitionNames(text: string, prefix: string): string[] {
   ]
 }
 
+/** The module id without a query string. */
 export function cleanId(id: string): string {
   return id.split("?", 1)[0]!
 }
@@ -192,12 +189,10 @@ export type ReportContext = {
 
 /**
  * Reports diagnostics the way every adapter does: warnings (and infos when asked) through the
- * host's warning channel, errors together as one failure.
- *
- * A host may compile the same module twice — Vite's client and SSR environments, webpack's
- * server and client compilers — and end the build twice. Each module's warnings are printed once
- * per source text and the project's once per message; errors still fail every time. A hash stands
- * in for the text, which would otherwise be a second copy of every module in memory.
+ * host's warning channel, errors together as one failure. A host may compile a module twice (Vite's
+ * client and SSR environments, webpack's server and client compilers) and end the build twice, so a
+ * module's warnings print once per source text and the project's once per identical list; errors
+ * fail every time. A hash stands in for the text, which would otherwise be a second copy in memory.
  */
 export function createReporter(options: { reportInfo?: boolean } = {}) {
   const digests = new Map<string, number>()

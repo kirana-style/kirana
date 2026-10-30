@@ -1,29 +1,20 @@
 /**
- * Generates the vocabularies of `@kirana-style/states`, each from what its library publishes about
- * its parts' states, and named by the library's own exports:
+ * Generates the vocabularies of `@kirana-style/states` in `npm/states/src`, each from what its
+ * library publishes about its parts' states, and named by the library's own exports:
  *
  *   bun run gen:states
  *
- * - `src/base-ui.ts` from `@base-ui/react` (MIT, Copyright (c) 2019 Material-UI SAS). Base UI
- *   documents each part's states as modules of `export declare const <state> = "data-<attribute>"`,
- *   with a description and, for a state that takes values, an `@type` union. A component's
- *   `index.d.ts` re-exports each module as `<Part>DataAttributes` (`SelectPopupDataAttributes`), and
- *   its `index.parts.d.ts` gives the part's public name (`SelectPopup as Popup`). A part that reuses
- *   another component's (`AlertDialog.Popup` is `DialogPopup`) is re-exported under its own name.
- *   A part also has the states its implementation's mapping writes for `open` and its module
- *   leaves out (`openAttributes`).
- * - `src/ark-ui.ts` from `@zag-js/docs` (MIT, Copyright (c) 2021 Chakra UI), the data-attribute
- *   reference of the Zag machines Ark UI is built on, at the Zag version Ark UI depends on. Kept to
- *   the components and parts `@ark-ui/react` exports; Ark UI for Vue, Solid and Svelte name them
- *   alike.
- * - `src/react-aria.ts` from `react-aria-components` (Apache-2.0, Copyright 2019 Adobe; the
- *   licence ships in the package's `licenses/`). Each component's `<Name>RenderProps` interface
- *   documents a state with `@selector`, inherited through `extends`, `Omit<>` and `Pick<>`. Kept to
- *   the components the package exports.
+ * - `base-ui.ts` from `@base-ui/react` (MIT, Copyright (c) 2019 Material-UI SAS): each part's
+ *   `<Part>DataAttributes` module, plus the `open` states its implementation writes (`openAttributes`).
+ * - `ark-ui.ts` from `@zag-js/docs` (MIT, Copyright (c) 2021 Chakra UI), the data-attribute reference
+ *   of the Zag machines Ark UI is built on, kept to the parts `@ark-ui/react` exports.
+ * - `react-aria.ts` from `react-aria-components` (Apache-2.0, Copyright 2019 Adobe; the licence
+ *   ships in the package's `licenses/`): the `@selector` of each `<Name>RenderProps` interface.
+ * - `reka-ui.ts` (MIT, Copyright (c) 2023 UnoVue), `bits-ui.ts` (MIT, Copyright (c) 2023 Hunter
+ *   Johnston) and `ng-primitives.ts` (Apache-2.0), read from each part's code.
  *
  * Each state becomes a condition key: an attribute's presence (`checked: "[data-checked]"`), or,
  * for a union of string literals, one key per value (`side.inlineEnd: '[data-side="inline-end"]'`).
- * The descriptions are the libraries' own.
  */
 import { spawnSync } from "node:child_process"
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
@@ -125,13 +116,10 @@ function baseUiStates(file: string, seen = new Set<string>()): State[] {
 }
 
 /**
- * The attributes a Base UI part's `stateAttributesMapping` writes for `open: true` and for
- * `open: false`, read by evaluating what its implementation (`<Part>.mjs` beside its module)
- * passes, or spreads in order, from Base UI's CommonJS build. Accordion's item, header and panel
- * pass `accordionStateAttributesMapping`, which spreads `collapsibleOpenStateMapping` and so writes
- * `data-closed` when the panel is not open, while their own modules declare `open` alone (KF-072).
- * The accordion's trigger spreads the trigger's mapping after it, whose `open` writes
- * `data-panel-open` alone. A mapping that writes `open` itself, inline, is not read.
+ * The attributes a Base UI part's `stateAttributesMapping` writes for `open: true` and `open: false`,
+ * by evaluating the mappings its implementation (`<Part>.mjs`) passes or spreads. Accordion's parts
+ * write `data-closed` this way while their modules declare `open` alone (KF-072). A mapping that
+ * writes `open` inline is not read.
  */
 function openAttributes(module: string): string[] {
   const implementation = module.replace(/DataAttributes\.d\.ts$/, ".mjs")

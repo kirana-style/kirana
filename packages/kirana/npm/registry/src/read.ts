@@ -31,7 +31,7 @@ export const DEFAULT_TIMEOUT = 30_000
 
 const LOOPBACK = new Set(["localhost", "127.0.0.1", "[::1]"])
 
-/** A namespace and a name, from `@namespace/name`, or `@kirana`'s when only a name is given. */
+/** A namespace and a name, from `@namespace/name`; anything else is a name in `@kirana`. */
 export function parseReference(reference: string): {
   namespace: string
   name: string

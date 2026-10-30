@@ -274,7 +274,7 @@ export function createMarkdownComponents(
   }
 }
 
-/** A markdown paragraph, for the same reason. */
+/** A markdown paragraph, for an embed that writes prose the way the page's own prose does. */
 export function MarkdownParagraph(props: React.ComponentProps<"p">) {
   return <p {...props} sx={styles.p} />
 }

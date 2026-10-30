@@ -33,7 +33,7 @@ const rule: Rule = {
     return {
       ImportDeclaration(node) {
         const source = node.source.value as string
-        // The package's first segment (`clsx/lite` → `clsx`), cut without a regex.
+        // The package's first segment (`clsx/lite` → `clsx`).
         const instead = HELPERS[source.split("/", 1)[0]!]
         if (instead)
           context.report({

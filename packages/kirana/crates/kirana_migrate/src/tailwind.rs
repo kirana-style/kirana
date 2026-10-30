@@ -1,12 +1,10 @@
 //! The Tailwind codemod behind `kirana-style migrate tailwind` (KRN-API-013, D-058,
 //! `design-notes/migrate-tailwind.md`).
 //!
-//! Class strings become `css()` objects through the utility surface's own lowering
-//! (`kirana_utility`), rendered as source rather than values, so the object written here compiles to
-//! the same atoms as the utility string it replaces. What that lowering cannot say — relations,
-//! contextual targets, `dark:` — is handled here, and what nothing can say without a person
-//! (`!important`, a custom variant nobody declared, a dynamic class string) is reported and left in a
-//! comment, never guessed.
+//! Class strings are lowered through `kirana_utility` and rendered as source, so the object compiles
+//! to the same atoms as the class string it replaces. Relations, contextual targets and `dark:` are
+//! handled here; what needs a person (`!important`, an undeclared custom variant, a dynamic class
+//! string) is reported and left in a comment.
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Component, Path, PathBuf};
@@ -2368,8 +2366,8 @@ impl<'s> Walker<'s> {
     }
 }
 
-/// Whether `text` uses the identifier `name`: not as part of a longer one, nor as a property key
-/// after a dot.
+/// Whether `text` uses the identifier `name`: not inside a longer one, after a dot (`a.name`), as
+/// an object key (`name:`), nor on a `//` line.
 fn mentions(text: &str, name: &str) -> bool {
     let word = |byte: u8| byte.is_ascii_alphanumeric() || byte == b'_' || byte == b'$';
     text.match_indices(name).any(|(at, _)| {

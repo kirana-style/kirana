@@ -1,12 +1,7 @@
 /**
- * "Source in, CSS out": six tabs, each a real file and what the compiler did with it, drawn as
- * one dark editor window whose panes change with the job. A compile shows the source, a terminal
- * running the build, the rendered result and the `kirana.css` it wrote; a diagnostic shows the
- * source and the terminal; a migration shows the file before and after, and the command.
- *
- * The terminal types its command, then prints what the compiler prints (`kirana-style build` ends with
- * its diagnostic count, `kirana-style check` with the diagnostics themselves), and the stylesheet streams
- * in line by line. Switching tabs replays it; under reduced motion everything is simply there.
+ * "Source in, CSS out": six tabs, each a real file and what the compiler did with it, in one dark
+ * editor window whose panes change with the job. The terminal types its command and prints what
+ * the compiler prints; switching tabs replays it, and under reduced motion everything is there.
  * Nothing in a pane is written by hand: sources, CSS and diagnostics come from the build.
  */
 import { useState } from "react"
@@ -694,8 +689,7 @@ export function Showcase() {
 
 /**
  * One of the showcase's scenes on a page of its own: the same window, with the open tab's label in
- * the title bar instead of the tab list, so a page shows the homepage's editor rather than drawing
- * another one.
+ * the title bar instead of the tab list.
  */
 export function ShowcaseScene({ id }: { id: Tab["id"] }) {
   const tab = TABS.find((item) => item.id === id)!

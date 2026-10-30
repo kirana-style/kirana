@@ -17,7 +17,7 @@ pub struct ConditionInfo {
     /// The relation read, by its name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relation: Option<String>,
-    /// Where the reader sits: `within`, `after` or `before` the anchor.
+    /// Where the reader sits: `within`, `parent`, `after` or `before` the anchor.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub placement: Option<&'static str>,
 }

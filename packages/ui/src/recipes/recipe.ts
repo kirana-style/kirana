@@ -1,42 +1,21 @@
 /**
- * Layer 4: recipes. The replacement for `class-variance-authority`.
- *
- * A recipe maps variant props onto styles the compiler already turned into
- * class strings. It selects from lookup tables — it never builds a style
- * object, so nothing is computed at render time.
- *
- *   const styles = {
- *     base: css({ ... }),
- *     primary: css({ ... }),
- *     sm: css({ ... }),
- *   }
+ * A recipe maps variant props onto compiled styles. It selects from lookup
+ * tables and never builds a style object, so nothing is computed at render time.
  *
  *   export const button = recipe({
  *     base: styles.base,
- *     variants: {
- *       variant: { primary: styles.primary, ghost: styles.ghost },
- *       size: { sm: styles.sm, md: styles.md },
- *     },
- *     defaults: { variant: "primary", size: "md" },
+ *     variants: { size: { sm: styles.sm, md: styles.md } },
+ *     defaults: { size: "md" },
  *   })
  *
- *   <button sx={[...button({ variant, size }), sx]} />
+ *   <button sx={[...button({ size }), sx]} />
  *
- * Boolean variants work by keying on `"true"` / `"false"`. Compound variants
- * are intentionally absent: appending a conditional style
- * (`isActive && styles.active`) covers the cases cva needed
- * `compoundVariants` for.
- *
- * Kirana's own `recipe()` can express all of this. This helper predates the
- * port and stays because components read `button.variants` directly; moving
- * to `recipe()` is tracked with the StyleX-to-Kirana follow-up.
+ * Boolean variants key on `"true"` / `"false"`. There are no compound
+ * variants: append a conditional style (`isActive && styles.active`) instead.
  */
 
 import type { Sx } from "@kirana-style/core"
 
-/**
- * Any `sx` value: a compiled handle, an array of them, or nothing.
- */
 type Style = Sx
 
 /** A map of variant name → option name → style. */

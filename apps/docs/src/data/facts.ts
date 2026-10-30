@@ -1,8 +1,7 @@
 /**
  * What the site says about Kirana that can go stale: counts, the lists of frameworks, bundlers,
- * linters and agent surfaces, and the CLI's commands. Each is computed from the source that owns
- * it — the compiler's catalogue, the lint plugins, the packages, the install guides — never typed
- * twice. Components import these; markdown writes `{{fact:name}}` and the content generator fills it in
+ * linters and agent surfaces, and the CLI's commands, each computed from the source that owns it.
+ * Components import these; markdown writes `{{fact:name}}` and the content generator fills it in
  * from `FACTS` (an unknown name fails the build). `scripts/check-consistency.ts` fails on a count
  * written out by hand. See CONSISTENCY.md.
  */

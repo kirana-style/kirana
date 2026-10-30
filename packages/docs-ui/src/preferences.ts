@@ -1,7 +1,7 @@
 /*
  * Layout choices (the page width, the collapsed sidebar) live in localStorage, read as external
  * stores: the server renders the default, the client switches after hydration, and a change in
- * one tab reaches the others through the storage event. The layout and the display menu read the
+ * one tab reaches the others through the storage event. The layout and the width toggle read the
  * same stores.
  */
 function preference(key: string) {

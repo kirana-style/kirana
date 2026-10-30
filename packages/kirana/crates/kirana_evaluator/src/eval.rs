@@ -247,12 +247,10 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         quiet
     }
 
-    /// The parsed module.
     pub fn parsed(&self) -> &'p Parsed<'a> {
         self.parsed
     }
 
-    /// The compilation context.
     pub fn context(&self) -> Context<'c> {
         self.ctx
     }
@@ -326,7 +324,6 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         (self.diagnostics.into_inner(), self.definitions.into_inner())
     }
 
-    /// Evaluates one expression.
     pub fn eval(&self, expression: &Expression<'a>) -> Value {
         let span = sp(expression.span());
         if self.depth.get() >= MAX_DEPTH {
@@ -550,7 +547,6 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         self.call(call)
     }
 
-    /// Evaluates an identifier reference.
     pub fn eval_identifier(&self, identifier: &IdentifierReference<'a>) -> Value {
         self.identifier(identifier)
     }

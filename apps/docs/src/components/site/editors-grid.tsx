@@ -1,6 +1,6 @@
 /**
  * The editors Kirana's language server runs in, as cells of frosted glass on a landscape: each
- * editor's logo in white, its name, and how it gets the server — the extension, Open VSX, or the
+ * editor's logo in white, its name, and how it gets the server: the extension, Open VSX, or the
  * editor's own LSP configuration. Cells are split by 1px gutters of the glass's rim.
  */
 import { css } from "@kirana-style/core"

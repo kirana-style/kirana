@@ -206,9 +206,8 @@ pub(crate) struct Reusable {
 
 /// What the session did, for KRN-PERF-002 and E-02.
 ///
-/// The claim these numbers stand behind is that work is proportional to styling, not to the
-/// dependency graph: most modules of an application carry no styles, and the prefilter is what
-/// keeps them from being parsed. A claim like that should be countable.
+/// They count the claim that work is proportional to styling, not to the dependency graph: most
+/// modules carry no styles, and the prefilter keeps them from being parsed.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Work {
     /// Modules handed to `transform`.

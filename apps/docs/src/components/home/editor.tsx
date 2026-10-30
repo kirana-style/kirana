@@ -1,16 +1,8 @@
 /**
- * "In your editor": what Kirana's extension shows, as a desktop you can look around.
- * A feature list on the left, picked by hovering it; on the right a framed scene — a dark
- * editor on one of Kirana's landscapes, behind frosted glass — that switches to the feature
- * picked: the summaries, the style card, the Style Inspector, Style Fold, a token's colours, a
- * diagnostic, and the editors it runs in.
- *
- * Nothing in the editor is drawn by hand. `scripts/generate-editor.ts` opens
- * `showcase/editor/plan.tsx` in `kirana-style lsp` and records its answers (`EDITOR_SAMPLE`): the code
- * lens and summaries are the server's, painted as the extension paints them; the hovers are the
- * HTML its Markdown renders to, in a frame styled as VS Code's hover; the Inspector is the
- * extension's own renderer. The colours are VS Code's with the GitHub Dark theme, the one the
- * docs' code blocks use.
+ * "In your editor": a feature list drives a framed scene of what Kirana's extension shows.
+ * Nothing in the editor is drawn by hand: `scripts/generate-editor.ts` opens
+ * `showcase/editor/plan.tsx` in `kirana-style lsp` and records its answers (`EDITOR_SAMPLE`),
+ * shown as VS Code shows them with the GitHub Dark theme.
  */
 import { useState } from "react"
 import { css, keyframes } from "@kirana-style/core"
@@ -398,8 +390,8 @@ const styles = {
   sidebarFrame: css({ height: "100%" }),
 
   // The figure is a size container whose width is the one the stage's padding percentages read,
-  // so the link can share the pane's right edge (spacing[3], then 6%) and sit centred in the band
-  // below it (spacing[16], then 11%): a percentage inset would read the stage's height instead.
+  // so the link can share the pane's right edge (6cqi) and sit centred in the band below it
+  // (5.5cqi): a percentage inset would read the stage's height instead.
   closer: css({
     position: "absolute",
     insetInlineEnd: { base: spacing[3], [breakpoint.md]: "6cqi" },

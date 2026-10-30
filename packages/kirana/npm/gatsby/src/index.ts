@@ -23,7 +23,6 @@ export function onCreateWebpackConfig(
   { actions }: CreateWebpackConfigArgs,
   given: KiranaGatsbyOptions = {}
 ): void {
-  // Gatsby's own `plugins` list is not Kirana's.
   const options = Object.fromEntries(
     Object.entries(given).filter(([key]) => key !== "plugins")
   ) as KiranaWebpackOptions

@@ -385,7 +385,6 @@ pub fn lower_tailwind(
     Ok(kirana_migrate::tailwind::lower(file, classes, &options, &environment))
 }
 
-/// The project as a Tailwind migration reads it: scales imported the way `file` would import them.
 /// The names of the `@custom-variant`s and `@utility`s declared in the CSS files under `paths`.
 fn custom_declarations(paths: &[PathBuf]) -> (BTreeSet<String>, BTreeSet<String>) {
     let mut files = Vec::new();
@@ -413,9 +412,8 @@ fn custom_declarations(paths: &[PathBuf]) -> (BTreeSet<String>, BTreeSet<String>
 
 /// `kirana-style migrate stylex` and `kirana-style migrate tailwind`: rewrite, or show what the rewrite would be.
 ///
-/// Nothing is written without `--write`, because a codemod over someone's source is the kind of
-/// thing that should be read before it happens. The report is printed either way: it is the part a
-/// person still has to do, and it is the reason the command does not simply claim success.
+/// Nothing is written without `--write`, so a codemod is read before it runs. The report is printed
+/// either way: it is the part a person still has to do.
 fn migrate_files(
     out: &mut dyn Write,
     paths: &[PathBuf],

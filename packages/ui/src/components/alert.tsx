@@ -13,9 +13,6 @@ import { breakpoint } from "../tokens/breakpoints"
 import { spacing } from "../tokens/spacing"
 import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
 
-/** An alert carrying an action reserves room for it on the trailing edge. */
-/** An alert with a leading icon becomes two columns. */
-
 const styles = {
   base: css({
     position: "relative",
@@ -49,11 +46,7 @@ const styles = {
   default: css({ backgroundColor: theme.card, color: theme.cardForeground }),
   destructive: css({ backgroundColor: theme.card, color: theme.destructive }),
 
-  /**
-   * The leading icon. Was `*:[svg]:row-span-2`, reaching into whatever svg
-   * happened to be a direct child; now an explicit slot so the grid placement
-   * and the `:has()` query above both have something real to match.
-   */
+  /** The leading icon, an explicit slot for the grid placement and the `:has()` query above to match. */
   icon: css({
     gridRow: "span 2",
     translate: `0 ${spacing["0.5"]}`,
@@ -71,7 +64,6 @@ const styles = {
     lineHeight: lineHeight.sm,
     // `text-balance` on small screens, `text-pretty` once there is room for it.
     textWrap: { base: "balance", [breakpoint.md]: "pretty" },
-    // Was `*:data-[slot=alert-description]:text-destructive/90` on the variant.
     color: {
       base: theme.mutedForeground,
       [alertMarker.within('[data-variant="destructive"]')]: alpha.destructive90,

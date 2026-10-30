@@ -6,26 +6,14 @@
  *   bun scripts/publish-npm.ts <dir>             # publish
  *   bun scripts/publish-npm.ts <dir> --dry-run   # print the levels and what would be skipped
  *
- * Why levels: npm's CDN caches a package's metadata for `max-age` (300 s), so for up to that long
- * after a publish an edge can serve a dependent's new version without its dependency's. A level is
- * published only once every edge must serve the level before it (served here, and `max-age` past
- * its last publish), so no install sees a new package without the new packages it depends on. A
- * release that stops halfway leaves every package it did not reach on its previous version, and
- * what it did publish already has its dependencies.
+ * Levels exist because npm's CDN caches metadata for `max-age` (300 s): a level is published only
+ * once every edge must serve the one before it, so no install sees a package without its
+ * dependencies. The final tag is used directly because `npm dist-tag` fails with E401 under trusted
+ * publishing (OIDC) although `npm publish` works.
  *
- * Why not publish everything under a staging tag and move `latest` afterwards: in CI, npm
- * authenticates with trusted publishing (OIDC), and while `npm publish` works through it, moving a
- * tag with `npm dist-tag` failed with E401 on every package in 0.3.0 although each trusted publisher
- * allowed it. Publishing under the final tag needs nothing but the publish.
- *
- * A version already on the registry is skipped, so a release that failed halfway can run again. One
- * left on another tag by an older, staged release has its tag moved, and the command is printed when
- * npm refuses.
- *
- * A registry that fails for its own reasons (a 5xx, a rate limit, a dropped connection) is asked
- * again, after each of `RETRY_DELAYS` (`registry-retry.ts`): 0.3.1 stopped on one E503. A failed
- * publish is first checked against the registry, since a PUT can be stored and still answered with
- * an error, and publishing it again would then fail with E403.
+ * A version already published is skipped (or its tag moved forward), so a failed release can run
+ * again. Transient registry failures are retried (`registry-retry.ts`), and a failed publish is
+ * first checked against the registry, since a stored PUT can still be answered with an error.
  */
 import { spawnSync } from "node:child_process"
 import { readdirSync } from "node:fs"

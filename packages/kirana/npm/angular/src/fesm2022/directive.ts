@@ -1,15 +1,9 @@
 /**
  * `[sx]` for Angular templates (D-068). A template reaches only its component's members, so `sx`
- * cannot be compiled away there as it is in JSX and in Vue, Svelte or Astro templates: this
- * directive merges the handles at runtime with Kirana's runtime instead, and keeps the element's own
- * classes and styles.
- *
- * The class carries Angular's partial declarations (`ɵɵngDeclareFactory`, `ɵɵngDeclareDirective`),
- * the form `ngc` emits for a library and Angular's linker compiles in every app build. They are
- * written here rather than generated because this workspace's TypeScript (7) has no JavaScript API
- * for `ngc` to run on; the Analog and Angular CLI examples build them in CI. The static types are the
- * ones `ngc` would declare, so templates type-check `[sx]` against `Sx`. The file sits under
- * `fesm2022/`, the Angular Package Format's folder, because Analog links only files on such a path.
+ * cannot be compiled away: this directive merges the handles with Kirana's runtime and keeps the
+ * element's own classes and styles. Its partial declarations (`ɵɵngDeclare*`, with the types `ngc`
+ * would declare) are hand-written because TypeScript 7 has no JavaScript API for `ngc`; the examples
+ * build them in CI. It sits under `fesm2022/` because Analog links only files on such a path.
  */
 import * as i0 from "@angular/core"
 
@@ -28,11 +22,10 @@ export function provideKirana(options: { prefix: string }): i0.Provider[] {
 }
 
 /**
- * Provided by a part: an attribute directive that takes `sx` itself and merges it with its own
- * styles, the caller's last (D-100, `partSx`). `SxDirective` on the same element then applies nothing, so a
- * template can import it for its plain elements and still hold parts (KF-049): both would read the
- * one `[sx]` binding, and a class `SxDirective` added would be dropped when the part's `[class]`
- * binding next changed. A part lists `provideSxPart()` in its `providers`.
+ * Provided by a part, a directive that merges `sx` with its own styles itself (D-100, `partSx`):
+ * `SxDirective` on the same element then applies nothing, since a class it added would be dropped
+ * when the part's `[class]` binding next changed (KF-049). A part lists `provideSxPart()` in its
+ * `providers`.
  */
 export const SX_PART = new i0.InjectionToken<boolean>("kirana sx part")
 

@@ -1,22 +1,8 @@
 /**
- * ButtonGroup, and the shared styles its children use to join up.
- *
- * This is the component the migration had to restructure rather than translate.
- * The Tailwind original drove everything from the parent:
- *
- *   *:data-slot:rounded-e-none
- *   [&>[data-slot]:not(:has(~[data-slot]))]:rounded-e-lg!
- *   [&>[data-slot]~[data-slot]]:rounded-s-none
- *   [&>[data-slot]~[data-slot]]:border-s-0
- *   [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit
- *
- * `[class*='w-']` cannot work once class names are hashed, and reaching into
- * children is what the `!important` below fought.
- *
- * So the relationship is inverted. The group carries a marker, and each child
- * applies `groupedItem`, which uses its own `:first-child` / `:last-child`
- * position to decide which corners to keep. The result needs no `!important` —
- * the old rule needed one purely to out-specify the sibling selector above it.
+ * ButtonGroup, and the shared styles its children use to join up. The group
+ * carries a relation and each child applies `groupedItem`, which reads its own
+ * position to decide which corners to keep, rather than the group reaching into
+ * its children.
  */
 
 import { css } from "@kirana-style/core"
@@ -32,8 +18,7 @@ import { spacing } from "../tokens/spacing"
  * Not `:last-child`: Base UI appends focus-guard `<span>`s inside the group while
  * a menu is open, so a dropdown trigger stops being the last child and its
  * rounded outer edge vanishes the moment you click it. Every control the group
- * styles carries `data-slot` and the guards do not, so this ignores them. It is
- * also what the Tailwind original matched on.
+ * styles carries `data-slot` and the guards do not, so this ignores them.
  */
 const LAST_CONTROL = ":not(:has(~ [data-slot]))"
 
@@ -42,7 +27,7 @@ const styles = {
     display: "flex",
     width: "fit-content",
     alignItems: "stretch",
-    // Was `has-[>[data-slot=button-group]]:gap-2`: nested groups stay separated.
+    // Nested groups stay separated.
     gap: {
       base: 0,
       ':has(> [data-slot="button-group"])': spacing[2],
@@ -58,8 +43,8 @@ const styles = {
    *
    * Which corners count as "outer" depends on the axis: in a row the first child
    * owns both start corners, in a column it owns both top corners. A row is
-   * anything not marked vertical: like the original, a default ButtonGroup
-   * writes no `data-orientation` at all.
+   * anything not marked vertical: a default ButtonGroup writes no
+   * `data-orientation` at all.
    */
   item: css({
     borderStartStartRadius: {

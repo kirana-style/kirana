@@ -14,11 +14,6 @@ import { spacing } from "../tokens/spacing"
 import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
 import { zIndex } from "../tokens/z-index"
 
-/**
- * The trigger's chevron flips while its menu is open. Reading that from the
- * trigger is what `group-data-popup-open/navigation-menu-trigger:` did.
- */
-
 /** The slow, settled curve Base UI's navigation menu morphs along. */
 const MORPH = "350ms"
 
@@ -349,8 +344,7 @@ function NavigationMenuIndicator({
 
 /**
  * The trigger's look, for a plain link that sits in the bar beside triggers:
- * `<NavigationMenuLink sx={navigationMenuTriggerStyle} />`. The original's
- * `navigationMenuTriggerStyle()` class string.
+ * `<NavigationMenuLink sx={navigationMenuTriggerStyle} />`.
  */
 const navigationMenuTriggerStyle = styles.trigger
 

@@ -23,9 +23,8 @@ const styles = {
     width: "fit-content",
     minWidth: spacing[5],
     paddingInline: spacing[1],
-    // Tucked into an InputGroup addon, the key cap follows the group's inner
-    // radius. Was `[&>kbd]:rounded-[calc(var(--radius)-5px)]` on the addon,
-    // which carries the default marker.
+    // Tucked into an InputGroup addon, which carries the default relation, the
+    // key cap follows the group's inner radius.
     borderRadius: {
       base: radius.sm,
       [peer.within('[data-slot="input-group-addon"]')]:
@@ -38,8 +37,7 @@ const styles = {
     userSelect: "none",
     [ctx.iconSize]: "0.75rem",
 
-    // Was `in-data-[slot=tooltip-content]:`, an ancestor variant. Inside a
-    // tooltip the colours invert, because the tooltip itself is inverted.
+    // Inside a tooltip the colours invert, because the tooltip itself is inverted.
     backgroundColor: {
       base: theme.muted,
       [tooltipContentMarker.within("[data-slot]")]: alpha.background20,

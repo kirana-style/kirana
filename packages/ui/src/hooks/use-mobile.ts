@@ -12,7 +12,6 @@ function subscribe(onChange: () => void) {
 export function useIsMobile() {
   // useSyncExternalStore reads the match during render instead of writing it
   // back from an effect, so there is no cascading second render on mount.
-  // The server snapshot mirrors the old `!!isMobile` default of `false`.
   return React.useSyncExternalStore(
     subscribe,
     () => window.innerWidth < MOBILE_BREAKPOINT,

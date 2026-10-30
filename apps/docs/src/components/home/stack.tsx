@@ -1,5 +1,5 @@
 /**
- * "Works with your stack": every framework with a guide, by its logo, and the one command that
+ * "Frameworks": every framework with a guide, by its logo, and the one command that
  * sets a project up. The step-by-step picker is the docs' Quick start; this is the overview.
  */
 import { css } from "@kirana-style/core"

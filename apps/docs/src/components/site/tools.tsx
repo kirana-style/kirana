@@ -1,7 +1,6 @@
 /**
- * "Connect Kirana to anything": the surfaces around the compiler, each with a
- * small line drawing. Status comes from the ecosystem page — what is planned
- * says so, and is drawn dashed.
+ * The surfaces around the compiler (the CLI, agents, editors, lint), each a framed card with a
+ * small line drawing.
  */
 import { css } from "@kirana-style/core"
 import {
@@ -95,7 +94,7 @@ export function CliArt() {
 }
 
 export function LlmArt() {
-  // Two sources on the left — the docs as text, and the skills an agent installs — and three
+  // Two sources on the left (the docs as text, and the skills an agent installs) and three
   // readers on the right, every reader joined to both.
   const readers = [31, 85, 139]
   const wires = [51, 122].flatMap((from) =>

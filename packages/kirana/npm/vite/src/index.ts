@@ -36,12 +36,9 @@ export type KiranaViteOptions = Omit<
 }
 
 /**
- * The gap that separates one burst of transforms from the next, and the longest a continuous stream
- * may hold an update back.
- *
- * An edit that arrives after `QUIET` of silence is sent at once, because KRN-PERF-004 gives the
- * whole round trip 50 ms and the watcher and the transform have already spent most of it. Transforms
- * that keep arriving are coalesced into one update at the end of the burst instead.
+ * `QUIET` is the silence that ends a burst of transforms, `BURST` the longest a continuous stream may
+ * hold an update back. An edit after `QUIET` of silence is sent at once: KRN-PERF-004 gives the whole
+ * round trip 50 ms, and the watcher and the transform have spent most of it.
  */
 const QUIET = 50
 const BURST = 250
@@ -76,11 +73,6 @@ function resolves(root: string, specifier: string): boolean {
 }
 
 /**
- * The plugin, and a second pass after every other plugin's `generateBundle`. The first pass fills the
- * stylesheet asset early, before Astro inlines small stylesheets; a framework that adds its CSS asset
- * later in that hook (Qwik) is filled by the second. Vite flattens the pair in `plugins`.
- */
-/**
  * Whether the environment a transform runs in writes source maps: its `build.sourcemap`, which
  * Vite leaves `false` unless asked. A context without an environment gets maps.
  */
@@ -93,6 +85,11 @@ function sourcemapsOf(context: unknown): boolean {
   )
 }
 
+/**
+ * The plugin, and a second pass after every other plugin's `generateBundle`. The first pass fills the
+ * stylesheet asset early, before Astro inlines small stylesheets; a framework that adds its CSS asset
+ * later in that hook (Qwik) is filled by the second. Vite flattens the pair in `plugins`.
+ */
 export default function kirana(
   options: KiranaViteOptions = {}
 ): [Plugin, Plugin] {
@@ -111,12 +108,9 @@ export default function kirana(
   let served = 0
 
   /**
-   * Tells browsers the stylesheet changed, once per burst of transforms (KRN-INT-009).
-   *
-   * The first transform after a quiet moment — someone saving a file — is sent immediately. While
-   * transforms keep arriving, as they do through a cold start, the update is held and the timer
-   * restarts, so hundreds of modules cost two updates rather than one each. `BURST` caps how long a
-   * stream that never stops can hold one back.
+   * Tells browsers the stylesheet changed, once per burst of transforms (KRN-INT-009): a save after a
+   * quiet moment is sent at once, and a cold start's hundreds of transforms cost two updates, not one
+   * each.
    */
   const scheduleCssUpdate = () => {
     revision++
@@ -141,14 +135,11 @@ export default function kirana(
 
   /**
    * Reloads the stylesheet module and tells the client to swap it, under the URL the client knows it
-   * by: `/node_modules/@kirana-style/core/stylesheet.css` in an installed app, `/@fs/…` when the package
-   * lives outside the project root (a workspace).
+   * by (`/node_modules/…` installed, `/@fs/…` in a workspace).
    *
-   * A module Vite has not analysed yet is one whose transform is still running, or one no browser
-   * asked for. Vite's update stops at it without a word, and its HMR invalidation lets a running
-   * transform cache the stylesheet it read before this change, which a reload would then serve. It is
-   * invalidated as an edited file is instead, which discards that result, and the update is tried
-   * again once Vite has analysed it.
+   * Vite's update stops silently at a module it has not analysed yet, and a reload would serve the
+   * stylesheet a running transform cached before this change. Such a module is invalidated as an
+   * edited file is, which discards that result, and the update is retried.
    */
   const push = (attempt = 0) => {
     clearTimeout(retry)
@@ -189,9 +180,8 @@ export default function kirana(
     sourcemaps: (context) => sourcemapsOf(context),
   })
   // Vite reports changes through `hotUpdate`, below; answering `watchChange` too would invalidate twice.
-  // Its hooks are typed by the `rolldown` package, and Vite types them with the Rolldown it runs on:
-  // the same package in an application, but a bundled copy under Vite+ (this workspace), where the
-  // identical shapes are distinct types.
+  // The cast: under Vite+ (this workspace) Vite types hooks with a bundled Rolldown, so the identical
+  // shapes are distinct types.
   const { watchChange: _, ...build } = plugin as unknown as Plugin
 
   const main: Plugin = {
@@ -216,12 +206,10 @@ export default function kirana(
     },
 
     /**
-     * The same per environment, with the runtime named up front, and the libraries bundled. The top-level `optimizeDeps`
-     * above is the client's; a server environment that pre-bundles its dependencies (Cloudflare's
-     * Worker, which runs in workerd) would pre-bundle the libraries and run them uncompiled. And
-     * compiled output imports the runtime, which no source file names, so an environment that
-     * discovers dependencies found it during the first request and optimised again: a page reload
-     * in the browser, and in workerd a second React and a failed first page.
+     * The same per environment: the top-level `optimizeDeps` is the client's, and a server environment
+     * that pre-bundles (Cloudflare's workerd) would run the libraries uncompiled. The runtime is named
+     * up front because no source file imports it, so discovery would find it on the first request and
+     * optimise again: a page reload, and in workerd a second React and a failed first page.
      */
     async configEnvironment(name, config) {
       const { libraries } = await session()

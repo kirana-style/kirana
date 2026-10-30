@@ -1,10 +1,4 @@
-/**
- * The Toggle recipe, shared by Toggle and ToggleGroupItem.
- *
- * `toggle-group.tsx` imported `toggleVariants` from `toggle.tsx` under Tailwind,
- * which is why the variant tables live here in `recipes/` rather than inside
- * either component.
- */
+/** The Toggle recipe, shared by Toggle and ToggleGroupItem. */
 
 import { css } from "@kirana-style/core"
 
@@ -50,11 +44,9 @@ const styles = {
   }),
 
   /**
-   * Each weight declares the whole background story, pressed state included.
-   *
-   * Styles merge per property, so a variant that set only `default` and `:hover`
-   * would silently drop a pressed condition inherited from the base — which is
-   * exactly how the selected item in a toggle group lost its highlight.
+   * Each weight declares the whole background, pressed state included: styles
+   * merge per property, so a variant that set only `base` and `:hover` would drop
+   * the pressed condition and a toggle group's selected item its highlight.
    *
    * `muted` in both modes: unlike Button, Toggle has no softer dark-mode hover.
    */
@@ -110,11 +102,8 @@ const styles = {
     },
     fontSize: "0.8rem",
     /**
-     * `text-[0.8rem]` sat beside the base's `text-sm`, and `cn` resolved the
-     * conflict by deleting `text-sm` — including the line-height that came with
-     * it. The toggle then inherited its parent's line-height: 1.5 on the page,
-     * the card's `text-sm` inside a card. Merging by property keeps the base's
-     * line-height instead, so the loss has to be restated as `inherit`.
+     * The parent's line height, as the original inherits it: 1.5 on the page,
+     * the card's `text-sm` inside a card. Without it the base's would apply.
      */
     lineHeight: "inherit",
     [ctx.iconSize]: "0.875rem",

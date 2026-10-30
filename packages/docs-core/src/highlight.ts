@@ -1,13 +1,8 @@
 /**
- * The one highlighter, shared by the markdown pipeline and the example compiler.
- *
- * It runs only in these scripts, so no grammar reaches the browser: pages ship
- * the markup it produced, coloured by the `--th-*` variables in `highlight.css`.
- *
- * The grammars colour keywords, strings and numbers; an editor also colours the
- * names around them. `enrich` adds that from the text the grammar left plain —
- * a call's name, a member or key, a JSX attribute, a command-line flag — so code
- * on a page reads the way it does in an editor.
+ * The one highlighter, run by the markdown pipeline and the docs scripts at build
+ * time, so no grammar reaches the browser: pages ship its markup, coloured by the
+ * `--th-*` variables in `highlight.css`. `enrich` also colours the names the
+ * grammars leave plain (calls, members, keys, JSX attributes, command-line flags).
  */
 import { createHighlighter } from "@tanstack/highlight/core"
 import { createTanStackMarkdownHighlighter } from "@tanstack/highlight/markdown"

@@ -58,7 +58,8 @@ pub struct TokenInfo {
     pub file: String,
     /// The token's entry in `defineTokens`.
     pub span: Span,
-    /// The value used in CSS: the inlined text, or `light-dark(…)` for a colour pair.
+    /// The value used in CSS: the inlined text, `light-dark(…)` for a colour pair, or the light and
+    /// dark values joined by a space for a mode token.
     pub value: String,
     /// Per-mode values, for a mode token or a colour pair; otherwise `None`.
     pub light: Option<String>,

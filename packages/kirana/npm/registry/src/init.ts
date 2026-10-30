@@ -1,11 +1,8 @@
 /**
- * `kirana-style ui init` (KRN-DX-029, D-109): Kirana itself where the project lacks it (the
- * compiler's own `init` plan), the `ui` settings, the registry's design-system item installed as
- * `add` installs it, and its `setup` wired in: the configuration spread into `kirana.config.*`, its
- * stylesheets imported after Kirana's, its `<html>` styles on the document. With a preset, the font
- * items its values name are installed too, each stylesheet imported (KF-050). Every change is planned
- * first, against files as the earlier changes leave them; a change it cannot make safely is printed
- * as a step to do by hand.
+ * `kirana-style ui init` (KRN-DX-029, D-109): Kirana's own setup where the project lacks it, the `ui`
+ * settings, the registry's design-system item and its `setup` wired in, and with a preset the font
+ * items its values name (KF-050). Every change is planned first, against files as the earlier changes
+ * leave them; a change it cannot make safely is printed as a step to do by hand.
  */
 import {
   existsSync,

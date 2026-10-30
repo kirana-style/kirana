@@ -29,8 +29,6 @@ import {
   lineHeight,
 } from "../tokens/typography"
 
-/** The trailing check hides when the row already shows a shortcut instead. */
-
 const styles = {
   root: css({
     display: "flex",
@@ -66,12 +64,9 @@ const styles = {
     lineHeight: lineHeight.sm,
     outlineStyle: "none",
     /**
-     * `has-[>[data-align=inline-start]]:[&>input]:ps-1.5` on InputGroup.
-     *
-     * That rule reached every direct `input` child; this one is not an
-     * `input-group-control`, so it does not pick up the context padding the
-     * styled control reads. The search addon here is always inline-start, so
-     * the value is constant.
+     * Not an `input-group-control`, so it does not read the group's context
+     * padding. The search addon here is always inline-start, so the value is
+     * constant.
      */
     paddingInlineStart: spacing["1.5"],
     cursor: { ":disabled": "not-allowed" },
@@ -85,7 +80,6 @@ const styles = {
     overflowX: "hidden",
     overflowY: "auto",
     outlineStyle: "none",
-    // Was the `no-scrollbar` utility from the ejected Tailwind layer.
     scrollbarWidth: "none",
     "::-webkit-scrollbar": { display: "none" },
   }),
@@ -130,8 +124,8 @@ const styles = {
     cursor: "default",
     alignItems: "center",
     gap: spacing[2],
-    // `in-data-[slot=dialog-content]:rounded-lg!`: rows round off more inside
-    // the command palette than they do in an inline command list.
+    // Rows round off more inside the command palette than they do in an
+    // inline command list.
     borderRadius: {
       base: radius.sm,
       [dialogContentMarker.within('[data-slot="dialog-content"]')]: radius.lg,
@@ -146,9 +140,8 @@ const styles = {
     /**
      * `[data-selected="true"]`, never bare `[data-selected]`. cmdk writes the
      * attribute on every row as `"true"` or `"false"`, so a presence selector
-     * highlights the whole list. Tailwind's `data-selected:` variant was defined
-     * as the `="true"` form for exactly this reason. Base UI, by contrast, adds
-     * and removes its attributes, so presence selectors are right there.
+     * highlights the whole list. Base UI adds and removes its attributes, so
+     * presence selectors are right there.
      */
     backgroundColor: { '[data-selected="true"]': theme.muted },
     color: { '[data-selected="true"]': theme.foreground },
@@ -162,13 +155,10 @@ const styles = {
       [commandItemMarker.within('[data-checked="true"]')]: 1,
     },
     /**
-     * `group-has-data-[slot=command-shortcut]/command-item:hidden`.
-     *
-     * Asked from the icon, "does my row contain a shortcut" is "does a shortcut
-     * come before me", because the icon is always rendered last. That is a
-     * sibling query. `when.descendant` would ask whether the icon itself
-     * contains a shortcut, which is never true — and a visible check would then
-     * share `margin-inline-start: auto` with the shortcut and pull it mid-row.
+     * Hidden when the row shows a shortcut. Asked from the icon, which is always
+     * rendered last, that is "does a shortcut come before me": a sibling query.
+     * A visible check would share `margin-inline-start: auto` with the shortcut
+     * and pull it mid-row.
      */
     display: {
       [commandShortcutMarker.after('[data-slot="command-shortcut"]')]: "none",

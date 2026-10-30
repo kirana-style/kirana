@@ -1,13 +1,9 @@
 /**
- * `kirana/sort-properties`: one property order in every style object (KRN-DX-010 makes ordering a
- * lint autofix, not a formatter's job). Properties go layout → box → typography → visual → the
- * rest, then custom properties, then nested blocks (pseudo-elements, `select`). A property's
- * conditional value goes `base`, then at-rules, relations, pseudo-classes and attributes — weakest
- * to strongest, the order ladder step 3 applies them — so the source reads in cascade order.
- *
- * Order never changes what Kirana compiles (the ladder decides precedence, not source order), so the
- * fix is safe; an object with a spread is left alone, since what the spread overrides depends on
- * where it sits.
+ * `kirana/sort-properties`: one property order in every style object (KRN-DX-010). Properties go
+ * layout, box, typography, visual, the rest, custom properties, then nested blocks; a conditional
+ * value goes `base`, at-rules, relations, pseudo-classes, attributes, the order ladder step 3
+ * applies them. Order never changes what Kirana compiles, so the fix is safe; an object with a
+ * spread is left alone, since what the spread overrides depends on where it sits.
  */
 import { eachStyleObject, isConditionKey, kebab, keyName } from "../ast.ts"
 import { docs } from "../types.ts"

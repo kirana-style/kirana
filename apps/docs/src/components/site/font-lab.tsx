@@ -1,14 +1,9 @@
 /**
- * The font lab: a floating panel for trying other typefaces on the live site, without a rebuild.
- *
- * Every font role in `@workspace/ui/tokens/typography` reads a named custom property
- * (`--font-heading`, …) and falls back to its typeface. The lab sets those properties on the root
- * element and loads the chosen family from Google Fonts. It is a development tool: the root route
- * loads it only under `import.meta.env.DEV`, so production builds do not contain it at all. Picks
- * are remembered in this browser only.
- *
- * Once a set is chosen, "Copy choices" puts it on the clipboard, and the faces are installed from
- * `@fontsource-variable` and written into `typeface` for real: the lab never ships a choice.
+ * The font lab: a floating panel for trying typefaces on the running site. Every font role in
+ * `@workspace/ui/tokens/typography` reads a custom property (`--font-heading`, …); the lab sets
+ * them on the root and loads the family from Google Fonts. The root route loads it only under
+ * `import.meta.env.DEV`. It never ships a choice: a chosen face is installed from
+ * `@fontsource-variable` and written into `typeface`.
  */
 import { useEffect, useState, useSyncExternalStore } from "react"
 import { css } from "@kirana-style/core"
@@ -323,7 +318,6 @@ function RoleField({
   )
 }
 
-// Rendered in the browser only, after hydration: the server's HTML never holds the panel.
 const subscribe = () => () => {}
 const isEnabled = () => true
 

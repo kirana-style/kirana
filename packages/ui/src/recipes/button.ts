@@ -1,19 +1,6 @@
 /**
- * The Button recipe: six weights × nine sizes, the densest variant set in the
- * design system.
- *
- * Notes on what changed from the Tailwind original:
- *
- *   - `[&_svg:not([class*='size-'])]:size-4` is gone. Each size declares
- *     `ctx.iconSize` and the `Icon` primitive reads it. Same result, and it no
- *     longer depends on inspecting a child's class attribute — impossible once
- *     class names are hashed.
- *   - `in-data-[slot=button-group]:rounded-lg` became a `within` read of the
- *     button-group relation.
- *   - `has-data-[icon=inline-end]:pe-2` became a plain `":has(…)"` key; no
- *     relation is needed to ask what an element contains.
- *   - Every `dark:` utility resolved into a `surface.*` token, because those
- *     were structural differences rather than palette swaps.
+ * The Button recipe: six weights and eight sizes. Each size sets `ctx.iconSize`,
+ * which the `Icon` primitive reads.
  */
 
 import { css } from "@kirana-style/core"
@@ -32,20 +19,12 @@ import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
 const CLAMPED_MD_10 = `min(${radius.md}, 10px)`
 const CLAMPED_MD_12 = `min(${radius.md}, 12px)`
 
-/** A button inside a ButtonGroup squares off to its neighbours. */
-
 const styles = {
   /**
-   * The label inside a button, trimmed to its capital letters.
-   *
-   * A flex container centres the text's line box, but the capitals are not at
-   * that box's centre. In the text face they sit up to 2px high once Chrome snaps the
-   * baseline to a whole pixel, and how far depends on the button's sub-pixel
-   * position on the page, so two identical buttons can look different.
-   * `text-box` trims the box to cap height and baseline, so the capitals are
-   * what gets centred. It needs an element: a bare text node has no box to trim,
-   * which is why `Button` wraps its text. Browsers without `text-box` keep the
-   * untrimmed rendering.
+   * The label inside a button, trimmed to its capital letters. Centring the line
+   * box leaves the capitals up to 2px high, by an amount that depends on the
+   * button's sub-pixel position; `text-box` centres the capitals instead. A bare
+   * text node has no box to trim, so `Button` wraps its text.
    */
   label: css({ textBox: "trim-both cap alphabetic" }),
 
@@ -69,8 +48,8 @@ const styles = {
     transitionTimingFunction: easing.inOut,
     [ctx.iconSize]: "1rem",
 
-    // `active:not-aria-[haspopup]:translate-y-px`: a plain button depresses on
-    // press, but one that opens a menu does not, since the menu is the feedback.
+    // A plain button depresses on press, but one that opens a menu does not,
+    // since the menu is the feedback.
     translate: {
       ":active": "0 1px",
       "[aria-haspopup]:active": null,
@@ -107,9 +86,8 @@ const styles = {
     backgroundColor: {
       base: surface.outlineBackground,
       ":hover": surface.outlineHover,
-      // Hover still wins while open, as `dark:hover:bg-input/50` out-specifies
-      // `aria-expanded:` in the original. An attribute key outranks `:hover`
-      // on the precedence ladder, so the hover is nested inside it.
+      // Hover still wins while open. An attribute key outranks `:hover` on the
+      // precedence ladder, so the hover is nested inside it.
       '[aria-expanded="true"]': {
         base: surface.outlineExpanded,
         ":hover": surface.outlineHover,
@@ -123,8 +101,8 @@ const styles = {
   secondary: css({
     backgroundColor: {
       base: theme.secondary,
-      // Was a raw `color-mix` in the class string: nudges the surface toward
-      // the text colour rather than fading it, so it reads the same in both modes.
+      // Nudges the surface toward the text colour rather than fading it, so it
+      // reads the same in both modes.
       ":hover": `color-mix(in oklch, ${theme.secondary}, ${theme.foreground} 5%)`,
       '[aria-expanded="true"]': theme.secondary,
     },
@@ -217,9 +195,8 @@ const styles = {
       ':has([data-icon="inline-start"])': spacing["1.5"],
     },
     fontSize: "0.8rem",
-    // `text-[0.8rem]` made `cn` delete the base's `text-sm`, line-height and
-    // all, so the original inherits its parent's: restated, as Toggle does.
-    // Without it, text that is not a trimmed label sat half a pixel high.
+    // The parent's line height, as the original and Toggle use: without it,
+    // text that is not a trimmed label sits half a pixel high.
     lineHeight: "inherit",
     [ctx.iconSize]: "0.875rem",
   }),
@@ -262,8 +239,7 @@ const styles = {
       base: CLAMPED_MD_12,
       [buttonGroupMarker.within('[data-slot="button-group"]')]: radius.lg,
     },
-    // Unlike `sm`, the original `icon-sm` has no icon-size rule: its icon stays
-    // at the base 1rem.
+    // Unlike `sm`, `icon-sm` keeps the base 1rem icon.
     [ctx.iconSize]: "1rem",
   }),
   iconLg: css({

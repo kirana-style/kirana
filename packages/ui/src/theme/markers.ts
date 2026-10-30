@@ -1,38 +1,19 @@
 /**
- * Layer 3: relations.
- *
- * Each is the equivalent of one Tailwind named group — the `group/button` class
- * you put on a parent so descendants can react to its state. Apply the anchor
- * to the element whose state is read:
+ * Relations. Put the `anchor` on the element whose state is read, and read it
+ * from a descendant (`within`) or a sibling (`after`, `before`):
  *
  *   <div data-state="open" sx={[cardMarker.anchor, styles.root]}>
+ *   opacity: { base: 0.5, [cardMarker.within('[data-state="open"]')]: 1 }
  *
- * and read it from a descendant or sibling:
- *
- *   opacity: {
- *     base: 0.5,
- *     [cardMarker.within('[data-state="open"]')]: 1,
- *   }
- *
- * The mapping from Tailwind: `within` covers `group-*` and `in-*`, `after`
- * covers `peer-*`, `before` reads a later sibling, and `group-has-*` is
- * `within(":has(…)")`. Plain `has-*` needs no relation: write a `":has(…)"`
- * key on the element itself. The relation scopes the relationship, so unrelated
- * components never collide — the job the `/name` suffix did.
- *
- * The anchor always sits on the element whose state is read. The compiler
- * checks it: a read with no anchor anywhere is `relation-without-anchor`, and a
- * `within` read with the anchor beside it in one JSX tree is
- * `relation-placement`.
- *
- * The `…Marker` names are kept from the StyleX port.
+ * The compiler reports a read with no anchor (`relation-without-anchor`) and a
+ * `within` read beside its anchor in one JSX tree (`relation-placement`).
  */
 
 import { relation } from "@kirana-style/core"
 
 /**
- * The unnamed relation: the replacement for Tailwind's bare
- * `peer` / `group`. Prefer a named relation when two relationships could overlap.
+ * The unnamed relation, for a bare `peer` or `group`. Prefer a named relation
+ * when two relationships could overlap.
  */
 export const peer = relation("peer")
 

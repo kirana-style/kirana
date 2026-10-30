@@ -1,13 +1,9 @@
 /**
- * Writes every logo file from `src/brand/logo.ts`: each lockup in each colour
- * under `public/brand/`, the favicon, and the editors' brand
- * (`packages/kirana/editors/brand/brand.json`), which the language server and
- * the VS Code extension both read, so the icon in hovers, hints and views follows
- * the logo. `--check` fails when a committed file differs from what the geometry
- * produces.
- *
- * PNG and ICO renders are made from these files by `scripts/rasterize-brand.ts`,
- * which needs Chrome and so is not part of `generate`.
+ * Writes every logo file from `src/brand/logo.ts`: each lockup in each colour under `public/brand/`,
+ * the favicon, and `packages/kirana/editors/brand/brand.json`, which the language server and the
+ * VS Code extension read for the icon in hovers, hints and views. `--check` fails when a committed
+ * file differs. PNG and ICO renders come from `scripts/rasterize-brand.ts`, which needs Chrome and so
+ * is not part of `generate`.
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises"
 import { join } from "node:path"

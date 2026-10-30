@@ -1,7 +1,7 @@
 /**
- * "Fits the project": the three ways to start — plain `css()`, Tailwind's system compiled, a
- * design system of your own — the choices Kirana leaves to you, why agents write it well, and the
- * measured numbers, each from `packages/kirana/design-notes/benchmark-results.md` or the docs that cite it.
+ * "Fits the project": the three ways to start (plain `css()`, Tailwind's system compiled, a
+ * design system of your own), and the two cards `/why` shows: the choices Kirana leaves to you
+ * and why agents write it well.
  */
 import { css } from "@kirana-style/core"
 import { CodeIcon, CommandLineIcon } from "@hugeicons/core-free-icons"
@@ -96,7 +96,6 @@ const styles = {
     alignItems: "center",
     gap: spacing[2],
   }),
-  // The numbers: cells split by hairline gutters, each led by what it measures.
 }
 
 export type Path = {

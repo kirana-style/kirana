@@ -1,10 +1,7 @@
 /**
- * One of Kirana's landscapes with frosted glass on it: the stage a desktop scene sits on. The
- * picture is the page's scene (`src/brand/scenes.ts`, WebP at 800 and 1600 pixels), or the one
- * given; the glass is a pane of white at low opacity that blurs what is behind it, with a light
- * rim, and whatever sits on the stage sits inside the pane. It is the page's one glass element.
- *
- * The picture is the same in both colour schemes: it is a scene, not a surface.
+ * One of Kirana's landscapes with a pane of frosted glass on it: the stage a desktop scene sits
+ * on. The picture is the page's scene (`src/brand/scenes.ts`) or the one given, the same in both
+ * colour schemes: it is a scene, not a surface.
  */
 import { css } from "@kirana-style/core"
 

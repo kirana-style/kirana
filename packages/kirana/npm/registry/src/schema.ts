@@ -44,7 +44,6 @@ export const FRAMEWORKS = [
   "solid",
   "angular",
 ] as const
-/** The item types. */
 export const ITEM_TYPES = [
   "component",
   "block",
@@ -454,8 +453,8 @@ export const ICON_LIBRARIES = [
 export const ALIASED_TYPES = ["ui", "lib", "component", "hook", "page"] as const
 
 /**
- * `ui` in `kirana.config.*`, as far as this release's commands read it (KRN-DX-022, KRN-DX-026,
- * KRN-DX-028). Its other keys belong to the commands still to come, so they pass.
+ * `ui` in `kirana.config.*`, as the commands read it (KRN-DX-022, KRN-DX-026, KRN-DX-028); a key it
+ * does not name passes.
  */
 export const SETTINGS_SCHEMA: Schema = {
   $schema: DIALECT,

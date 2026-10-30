@@ -1,8 +1,8 @@
 /**
- * The `kirana-style` command (its binary lives in the `kirana-style` package): `init`, `doctor` and `dev` run here, in Node.js, because they read and
- * write the project around the compiler; `ui` hands its arguments to the project's
- * `@kirana-style/registry`; everything else loads configuration and runs the native command line, or
- * the language server for `kirana-style lsp`.
+ * The `kirana-style` command (its binary lives in the `kirana-style` package). `init`, `doctor` and
+ * `dev` run here in Node.js because they read and write the project around the compiler; `ui` hands
+ * its arguments to the project's `@kirana-style/registry`; everything else loads configuration and
+ * runs the native command line, or the language server for `kirana-style lsp`.
  */
 import { spawnSync } from "node:child_process"
 import { statSync } from "node:fs"

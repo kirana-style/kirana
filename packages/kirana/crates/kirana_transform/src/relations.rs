@@ -59,8 +59,9 @@ fn info<'a>(evaluator: &Evaluator<'_, 'a, '_>, element: &JSXElement<'a>) -> Info
 }
 
 struct Tree {
-    /// Each element's info, its parent index and its index among its parent's element children.
+    /// Each element's info and its parent's index.
     nodes: Vec<(Info, Option<usize>)>,
+    /// Each element's element children, in source order.
     children: Vec<Vec<usize>>,
 }
 

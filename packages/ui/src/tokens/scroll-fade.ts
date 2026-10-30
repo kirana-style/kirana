@@ -3,9 +3,7 @@
  *
  * `syntax` registers it with `@property`, which is what makes the value
  * animatable — an unregistered custom property cannot be interpolated, so the
- * fade would snap rather than grow. This replaces the hand-written
- * `@property --scroll-fade-b` from the ejected Tailwind layer, which also did
- * not inherit.
+ * fade would snap rather than grow.
  */
 
 import { defineTokens } from "@kirana-style/core"

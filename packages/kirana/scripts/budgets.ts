@@ -7,21 +7,10 @@
  *   node scripts/budgets.ts --check    fails when the record is out of date (CI)
  *   … --summary                        also writes the difference to $GITHUB_STEP_SUMMARY
  *
- * Every measure is deterministic: the compiler's output is (the `determinism` job holds it to
- * that), compression runs at fixed levels in Node's zlib, and TypeScript counts instantiations
- * exactly. So the record changes only when the output or the types do, and a pull request that
- * changes either shows it in its diff, for review, instead of in a timing that varies run to run.
- *
- * - `size.fixtures`: each golden fixture's committed `output.css` and `output.tsx`.
- * - `size.libraries`: `packages/ui` (shadcn's components on Base UI) and `packages/docs-ui`,
- *   compiled module by module in one session, as a bundler would: the minified stylesheet, and the
- *   compiled modules concatenated.
- * - `size.runtime`: the private runtime, minified, as its hard limit measures it
- *   (`npm/core/test/internal.test.ts`).
- * - `types`: each project in `budgets/types/`, in types and instantiations above the `empty` one.
- *
- * The docs site's built stylesheet is printed when the site has been built, and never recorded:
- * it grows with the site's pages, not only with Kirana.
+ * Every measure is deterministic (the compiler's output, zlib at fixed levels, TypeScript's
+ * instantiation counts), so the record changes only when the output or the types do. The measures
+ * are each golden fixture's output, `packages/ui` and `packages/docs-ui` compiled module by module,
+ * the minified private runtime, and each `budgets/types/` project above the `empty` one.
  *
  * Run it with Node: Bun's zlib compresses the same bytes to a different size.
  */

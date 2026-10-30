@@ -22,8 +22,6 @@ const styles = {
     isolation: "isolate",
     zIndex: zIndex.overlay,
     backgroundColor: "rgb(0 0 0 / 0.1)",
-    // Only blurs where the browser can do it cheaply. Conditions nest inside
-    // the property they apply to.
     backdropFilter: {
       "@supports (backdrop-filter: blur(1px))": `blur(${blur.xs})`,
     },

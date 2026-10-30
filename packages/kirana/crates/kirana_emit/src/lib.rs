@@ -1,17 +1,8 @@
-//! The CSS writer (D-025, D-036). It writes the whole stylesheet from live atoms and their
-//! dependencies, in one deterministic order:
-//!
-//! 1. the layer order statement (KRN-OUT-003);
-//! 2. `kirana.tokens`: variable tokens on `:root`, per-mode overrides, keyframes, `@position-try`
-//!    fallbacks, `@counter-style` rules and view-transition classes;
-//! 3. `kirana.themes`: scoped theme overrides;
-//! 4. `kirana.contextual`: `select.*` styles, ladder-ordered;
-//! 5. `kirana.atoms`: element atoms, ladder-ordered. Every selector is (0,1,0) through
-//!    `:where()`, so source order is the precedence ladder. Atoms that share a conflict key are
-//!    ordered among themselves so that more rules share a declaration, and otherwise by value.
-//!
-//! Production output is minified by the writer itself, so colours and values are never
-//! re-serialized. Lightning CSS runs only when configured targets are below the default floor.
+//! The CSS writer (D-025, D-036): the whole stylesheet from live atoms and their dependencies, in
+//! one deterministic order: the layer statement (KRN-OUT-003), then `kirana.tokens`,
+//! `kirana.themes`, `kirana.contextual` and `kirana.atoms`. Every atom's conditions sit in
+//! `:where()`, so source order is the precedence ladder. The writer minifies by itself, so values are
+//! never re-serialized; Lightning CSS runs only for targets below the default floor.
 
 pub mod minify;
 
@@ -468,7 +459,6 @@ fn write_block(writer: &mut Writer, block: &mut Vec<&Atom>, own: bool) {
     if own {
         arrange(block);
     }
-    // Each rule's selector list is one string, its selectors written onto it.
     let mut rules: Vec<(String, &str, &str)> = Vec::new();
     let mut merge_into: FxHashMap<(&str, &str), usize> = FxHashMap::default();
     let mut decided = Decided::default();

@@ -68,11 +68,9 @@ const camel = (key: string) =>
 // `--text-shadow-*` are text shadows, not font sizes: Tailwind's `text-` prefix holds both.
 const fontSize = group("text-", undefined, "text-shadow-")
 /**
- * Tailwind writes each paired line height as a fraction, `calc(1.25 / 0.875)`. An app's CSS
- * minifier folds that to five decimals rounded to nearest (`1.42857`), and 14px text then lays out
- * 19.984px lines instead of 20px. The ratio is written here as a number rounded **up** at five
- * decimals, which no minifier changes and which never makes a line short (KF-012); the fraction
- * stays beside it as a comment.
+ * Tailwind's paired line heights are fractions (`calc(1.25 / 0.875)`), which a CSS minifier rounds
+ * to nearest, giving 14px text 19.984px lines. Each is written rounded up at five decimals instead,
+ * so no line is short (KF-012).
  */
 const lineHeightFractions = new Map<string, string>()
 const roundedUp = (fraction: string) => {
@@ -174,7 +172,6 @@ const output = path.join(
 )
 writeFileSync(output, lines.join("\n"))
 // Formatted with the repository's formatter so the CI freshness check compares like with like.
-// The workspace's formatter with its settings (vite.config.ts → fmt), as `vp check` applies them.
 const format = spawnSync("bunx", ["vp", "fmt", output], {
   cwd: path.join(import.meta.dirname, "../../.."),
   stdio: "inherit",

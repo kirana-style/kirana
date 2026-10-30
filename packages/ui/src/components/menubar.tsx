@@ -29,9 +29,6 @@ import { fontSize, fontWeight, lineHeight } from "../tokens/typography"
  * A Menubar is a row of DropdownMenus sharing keyboard focus, so most of its
  * parts are the dropdown's parts re-exported under menubar names. Only the bar
  * itself and its triggers are new.
- *
- * `pl-7` in the original assumed left-to-right text. These use logical padding,
- * so the indicator column is on the correct side in right-to-left layouts too.
  */
 
 const styles = {
@@ -62,9 +59,9 @@ const styles = {
       '[aria-expanded="true"]': theme.muted,
     },
   }),
-  // Was `min-w-36` on the menubar's popup, wider than a dropdown's.
+  // Wider than a dropdown's popup.
   content: css({ minWidth: spacing[36] }),
-  // Was `min-w-32` on its submenus, where a dropdown's are 96px.
+  // Wider than a dropdown's submenus, which are 96px.
   subContent: css({ minWidth: spacing[32] }),
   /** The indicator sits in a reserved leading column rather than trailing. */
   itemLeading: css({
@@ -138,7 +135,7 @@ function MenubarContent({
     <DropdownMenuContent
       data-slot="menubar-content"
       submenu
-      // The original's defaults: flush with the bar's inner edge, a little
+      // Flush with the bar's inner edge, and a little
       // further below it than a dropdown sits under its trigger.
       align={align}
       alignOffset={alignOffset}

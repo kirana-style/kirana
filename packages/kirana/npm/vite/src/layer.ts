@@ -1,14 +1,10 @@
 /**
- * `cssLayer(name, include)`: another package's stylesheets, wrapped in a cascade layer as Vite
- * loads them. CSS outside any layer beats every layered rule, whatever its specificity, so a theme
- * that ships unlayered CSS (VitePress's default theme, with its `* { padding: 0 }` reset) would win
- * over each style written with `css()`. Inside a layer that `kirana.config` orders before Kirana's
- * (`layers: { before: ["vitepress"] }`), it loses to them, as a reset should.
+ * `cssLayer(name, include)`: another package's stylesheets, wrapped in a cascade layer as Vite loads
+ * them. Unlayered CSS beats every layered rule, so a theme's reset (VitePress's `* { padding: 0 }`)
+ * would win over `css()`; in a layer `kirana.config` orders first (`layers: { before: [...] }`) it
+ * loses. The bundler-side form of `@import "…" layer(vendor)` (config/layers.md).
  *
  *   plugins: [kirana(), cssLayer("vitepress", "vitepress/dist/client/theme-default/")]
- *
- * It is the bundler-side form of `@import "…" layer(vendor)` (config/layers.md), for stylesheets a
- * package imports from JavaScript, where no `@import` line exists to edit.
  */
 import { cleanId } from "@kirana-style/compiler/host"
 import type { Plugin } from "vite"
