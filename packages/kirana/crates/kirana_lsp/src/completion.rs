@@ -4,7 +4,7 @@
 
 use std::path::Path;
 
-use kirana_config::{Grammar, Rule};
+use kirana_config::{ExportSource, Grammar, Rule, Variant};
 use kirana_ir::{Key, Value as IrValue};
 use serde_json::{Value, json};
 
@@ -144,6 +144,11 @@ fn values(property: &str, range: &lsp_types::Range) -> Value {
     Value::Array(items)
 }
 
+/// `breakpoint.md from @kirana-style/preset-scales`.
+fn exported(source: &ExportSource) -> String {
+    format!("{} from {}", source.reference(), source.module)
+}
+
 /// Utility completions for the word being typed: variants, then roots; a root's scale keys once the
 /// word names the root (`bg-` → `bg-red-500`, …).
 fn utilities(
@@ -160,12 +165,19 @@ fn utilities(
     let range = index.range(offset - utility.len(), offset);
     let mut items = Vec::new();
     if utility.is_empty() || !utility.contains('-') {
-        for (name, condition) in &grammar.variants {
+        for (name, variant) in &grammar.variants {
             let label = format!("{name}:");
-            let mut entry = item(&label, KEYWORD, condition, &range, &label);
+            let detail = match variant {
+                Variant::Key(condition) => condition.clone(),
+                Variant::Export(source) => exported(source),
+            };
+            let mut entry = item(&label, KEYWORD, &detail, &range, &label);
             entry["command"] = json!({ "title": "suggest", "command": "editor.action.triggerSuggest" });
             items.push(entry);
         }
+    }
+    for (name, source) in &grammar.handles {
+        items.push(item(name, PROPERTY, &format!("the handle {}", exported(source)), &range, name));
     }
     for (root, rules) in &grammar.utilities {
         for rule in rules {

@@ -6,10 +6,20 @@
  *
  * Built from small tables below; nothing here runs in the compiler.
  */
-import type { UtilityGrammar, UtilityRule } from "@kirana-style/core/config"
+import type {
+  UtilityGrammar,
+  UtilityRule,
+  UtilityVariant,
+} from "@kirana-style/core/config"
 
 const MODULE = "@kirana-style/preset-scales"
 const scale = (name: string) => [{ module: MODULE, export: name }]
+/** A variant naming this preset's own condition, so migrated code imports it (D-115). */
+const condition = (name: string, key: string) => ({
+  module: MODULE,
+  export: name,
+  path: [key],
+})
 
 /** Tailwind v4's spacing: a key of the scale, or any number of `0.25rem` steps (`w-50`). */
 const SPACING = { step: 0.25, unit: "rem" }
@@ -1193,7 +1203,7 @@ const utilities: Record<string, UtilityRule[]> = {
   ],
 }
 
-const variants: Record<string, string> = {
+const variants: Record<string, UtilityVariant> = {
   // Pseudo-classes
   ...Object.fromEntries(
     [
@@ -1240,36 +1250,50 @@ const variants: Record<string, string> = {
   backdrop: "::backdrop",
   "first-letter": "::first-letter",
   "first-line": "::first-line",
-  // Breakpoints, as `breakpoint.*` in this preset
-  sm: "@media (width >= 40rem)",
-  md: "@media (width >= 48rem)",
-  lg: "@media (width >= 64rem)",
-  xl: "@media (width >= 80rem)",
-  "2xl": "@media (width >= 96rem)",
+  // Breakpoints: `breakpoint.*` in this preset
+  ...Object.fromEntries(
+    ["sm", "md", "lg", "xl", "2xl"].map((key) => [
+      key,
+      condition("breakpoint", key),
+    ])
+  ),
   "max-sm": "@media (width < 40rem)",
   "max-md": "@media (width < 48rem)",
   "max-lg": "@media (width < 64rem)",
   "max-xl": "@media (width < 80rem)",
   "max-2xl": "@media (width < 96rem)",
-  // Container queries, as `containerQuery.*` in this preset
-  "@3xs": "@container (width >= 16rem)",
-  "@2xs": "@container (width >= 18rem)",
-  "@xs": "@container (width >= 20rem)",
-  "@sm": "@container (width >= 24rem)",
-  "@md": "@container (width >= 28rem)",
-  "@lg": "@container (width >= 32rem)",
-  "@xl": "@container (width >= 36rem)",
-  "@2xl": "@container (width >= 42rem)",
-  "@3xl": "@container (width >= 48rem)",
-  "@4xl": "@container (width >= 56rem)",
-  "@5xl": "@container (width >= 64rem)",
-  "@6xl": "@container (width >= 72rem)",
-  "@7xl": "@container (width >= 80rem)",
+  // Container queries: `containerQuery.*` in this preset
+  ...Object.fromEntries(
+    [
+      "3xs",
+      "2xs",
+      "xs",
+      "sm",
+      "md",
+      "lg",
+      "xl",
+      "2xl",
+      "3xl",
+      "4xl",
+      "5xl",
+      "6xl",
+      "7xl",
+    ].map((key) => [`@${key}`, condition("containerQuery", key)])
+  ),
   // Preferences
   "motion-safe": "@media (prefers-reduced-motion: no-preference)",
   "motion-reduce": "@media (prefers-reduced-motion: reduce)",
   "contrast-more": "@media (prefers-contrast: more)",
   print: "@media print",
+  // Input devices, as Tailwind CSS v4 defines them (KF-078)
+  ...Object.fromEntries(
+    ["pointer", "any-pointer"].flatMap((feature) =>
+      ["fine", "coarse", "none"].map((value) => [
+        `${feature}-${value}`,
+        `@media (${feature}: ${value})`,
+      ])
+    )
+  ),
 }
 
 export const grammar: UtilityGrammar = {

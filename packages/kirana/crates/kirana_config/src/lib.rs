@@ -177,9 +177,50 @@ pub struct Grammar {
     /// Utility root (`p`, `text`, `rounded-t`) → alternatives, tried in order.
     #[serde(default)]
     pub utilities: BTreeMap<String, Vec<Rule>>,
-    /// Variant name (`hover`, `md`) → the condition key `css()` accepts (`:hover`, `@media …`).
+    /// Variant name (`hover`, `md`) → the condition key `css()` accepts (`:hover`, `@media …`), or
+    /// the export holding it (`breakpoint.md`), so code written from the grammar names the design
+    /// system's own condition (D-115).
     #[serde(default)]
-    pub variants: BTreeMap<String, String>,
+    pub variants: BTreeMap<String, Variant>,
+    /// Utility name (`scroll-fade`) → the exported style handle it applies (D-115): a utility the
+    /// design system already has as a handle, where a `static` rule would copy its declarations.
+    #[serde(default)]
+    pub handles: BTreeMap<String, ExportSource>,
+}
+
+/// What a variant stands for.
+#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum Variant {
+    /// A condition key as written: `":hover"`, `"@media (width >= 48rem)"`.
+    Key(String),
+    /// An export whose value is a condition: a condition value or a key string.
+    Export(ExportSource),
+}
+
+impl From<&str> for Variant {
+    fn from(key: &str) -> Self {
+        Variant::Key(key.to_owned())
+    }
+}
+
+/// One export of one module, and the path to a value inside it (`breakpoint` and `["md"]`), read
+/// as an import would read it.
+#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
+pub struct ExportSource {
+    pub module: String,
+    pub export: String,
+    #[serde(default)]
+    pub path: Vec<String>,
+}
+
+impl ExportSource {
+    /// The value as an import names it: `breakpoint.md`.
+    #[must_use]
+    pub fn reference(&self) -> String {
+        self.path.iter().fold(self.export.clone(), |reference, key| format!("{reference}.{key}"))
+    }
 }
 
 /// One export of one module holding a scale's values, read as an import would read it.
@@ -335,9 +376,15 @@ impl Config {
         if let Some(grammar) = &mut config.utilities {
             validate_grammar(grammar, &mut problems);
             // A relative module is relative to the project root, wherever the importing file is.
-            for source in grammar.scales.values_mut().flatten() {
-                if !config.root.is_empty() && (source.module.starts_with("./") || source.module.starts_with("../")) {
-                    source.module = normalize(&Path::new(&config.root).join(&source.module));
+            let relative = |module: &str| module.starts_with("./") || module.starts_with("../");
+            let modules = grammar.scales.values_mut().flatten().map(|source| &mut source.module);
+            let exports = grammar.variants.values_mut().filter_map(|variant| match variant {
+                Variant::Export(source) => Some(&mut source.module),
+                Variant::Key(_) => None,
+            });
+            for module in modules.chain(exports).chain(grammar.handles.values_mut().map(|source| &mut source.module)) {
+                if !config.root.is_empty() && relative(module) {
+                    *module = normalize(&Path::new(&config.root).join(&*module));
                 }
             }
         }
@@ -388,8 +435,30 @@ fn is_ident(text: &str) -> bool {
         && text.chars().all(|character| character.is_ascii_alphanumeric() || character == '-' || character == '_')
 }
 
-/// Every scale a rule names exists, and every rule sets something.
+/// Every scale a rule names exists, every rule sets something, and every export a variant or a
+/// handle names is spelled out.
 fn validate_grammar(grammar: &Grammar, problems: &mut Vec<Diagnostic>) {
+    let exports = grammar
+        .variants
+        .iter()
+        .filter_map(|(name, variant)| match variant {
+            Variant::Export(source) => Some((format!("utilities.variants.{name}"), source)),
+            Variant::Key(_) => None,
+        })
+        .chain(grammar.handles.iter().map(|(name, source)| (format!("utilities.handles.{name}"), source)));
+    for (path, source) in exports {
+        if source.module.is_empty() || source.export.is_empty() || source.path.iter().any(String::is_empty) {
+            problems.push(invalid(format!("{path}: a module, an export and non-empty path keys are needed")));
+        }
+    }
+    for name in grammar.handles.keys() {
+        // A handle is applied by its whole name, so it cannot carry what `parse` splits off.
+        if name.is_empty() || name.starts_with('-') || name.contains([':', ' ', '!']) {
+            problems.push(invalid(format!(
+                "utilities.handles: {name:?} is not a utility name (no variant, `-`, `!` or space)"
+            )));
+        }
+    }
     for (root, rules) in &grammar.utilities {
         for rule in rules {
             let properties = match rule {

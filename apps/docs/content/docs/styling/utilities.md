@@ -110,7 +110,7 @@ Variants go before the utility and stack, in Tailwind's own forms. There is no
 | Kind              | Variants                                                                  |
 | ----------------- | ------------------------------------------------------------------------- |
 | States            | `hover:`, `focus-visible:`, `disabled:`                                   |
-| Media             | `md:`, `motion-reduce:`, `print:`                                         |
+| Media             | `md:`, `motion-reduce:`, `print:`, `pointer-fine:`, `any-pointer-coarse:` |
 | Direction         | `rtl:`                                                                    |
 | Attributes        | `data-open:`, `data-[state=open]:`, `data-side=left:`, `aria-invalid:`    |
 | Structure         | `has-[svg]:`, `not-first:`, `nth-3:`, `[&:nth-child(2)]:`                 |
@@ -202,6 +202,20 @@ export default defineConfig({
 })
 ```
 
+Your design system's own conditions and styles are names too: a variant may name
+the export that holds its condition, and `utilities.handles` names a style
+handle a utility applies before the string's own declarations:
+
+```ts file="kirana.config.ts"
+utilities: {
+  variants: { dark: { module: "./src/styles/mode.ts", export: "DARK" } },
+  handles: { "scroll-fade": { module: "./src/styles/scroll-fade.styles.ts", export: "scrollFade" } },
+}
+```
+
+A handle applies whole, so `md:scroll-fade` is `utility-unsupported`, as is a
+variant whose export is a relation's condition, which a string key cannot hold.
+
 Later presets and your own `utilities` replace earlier ones scale by scale, root
-by root and variant by variant. The full shape is in the
+by root, variant by variant and handle by handle. The full shape is in the
 [configuration reference](/docs/reference/config#utilities).

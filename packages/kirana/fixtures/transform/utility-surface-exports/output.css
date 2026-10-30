@@ -1,0 +1,33 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k0_Vpbm {
+    padding: 0.25rem;
+  }
+  .k0_Elck {
+    padding: 0.5rem;
+  }
+  .k7D_QNCC {
+    mask-image: linear-gradient(black, transparent);
+  }
+  @media (width >= 64rem) {
+    .k0-H4Dl_HV2H {
+      padding: 1rem;
+    }
+  }
+  @media (prefers-color-scheme: dark) {
+    .k0-YNZe_Elck {
+      padding: 0.5rem;
+    }
+  }
+  @container card (width >= 28rem) {
+    .k0-6g4Z_Vpbm {
+      padding: 0.25rem;
+    }
+  }
+  @media (width >= 64rem) {
+    .k0-dSbF_Elck:where(:hover) {
+      padding: 0.5rem;
+    }
+  }
+}

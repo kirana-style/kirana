@@ -73,4 +73,32 @@ describe("mergeGrammars", () => {
       { module: "@acme/tokens", export: "colors" },
     ])
   })
+
+  it("resolves the modules of exported variants and handles, and keeps condition keys (D-115)", () => {
+    const merged = mergeGrammars(
+      [
+        {
+          variants: {
+            md: { module: "@acme/ds", export: "breakpoint", path: ["md"] },
+            hover: ":hover",
+          },
+          handles: { fade: { module: "./a.ts", export: "fade" } },
+        },
+        {
+          variants: { dark: { module: "./mode.ts", export: "DARK" } },
+          handles: { fade: { module: "./fade.ts", export: "fade" } },
+        },
+      ],
+      "/app",
+      (root, module) => `${root}|${module}`
+    )!
+    expect(merged.variants).toEqual({
+      md: { module: "@acme/ds", export: "breakpoint", path: ["md"] },
+      hover: ":hover",
+      dark: { module: "/app|./mode.ts", export: "DARK" },
+    })
+    expect(merged.handles).toEqual({
+      fade: { module: "/app|./fade.ts", export: "fade" },
+    })
+  })
 })

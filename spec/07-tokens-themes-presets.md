@@ -169,7 +169,9 @@ diagnostic, never a silent drop. [Design Tokens Community Group](https://www.des
 A preset is a published package exporting data: token groups, condition constants, and — from milestone
 M5 — a utility grammar. Presets contain no compiler code. The object a configuration lists is
 `{ name, utilities? }`, exported from an entry that imports no tokens, because a configuration file runs
-uncompiled and `defineTokens()` throws outside the compiler.
+uncompiled and `defineTokens()` throws outside the compiler. A grammar's variant may name one of the
+preset's condition exports instead of writing its key, so code written from the grammar imports it
+(`@kirana-style/preset-scales`' breakpoints and container queries, D-115).
 
 ```ts
 // kirana.config.ts

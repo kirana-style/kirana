@@ -13,7 +13,7 @@ expression: notes(&migration)
     "`props.id` is not a static class string; it stays a class",
     "`cn(props.id)` is not a static class string; it stays a class",
     "`cn(props.id, other)` is not a static class string; it stays a class",
-    "`no-scrollbar` is a custom utility in your CSS; declare it under `utilities.utilities` and run again",
+    "`no-scrollbar` is a custom utility in your CSS; declare its declarations under `utilities.utilities`, or the handle that has them under `utilities.handles`, and run again",
     "`data-open:` is a custom variant in your CSS; declare it under `utilities.variants` and run again",
     "`*:p-2`: `*` is not a contextual target: an element name, attribute selectors and pseudo-classes",
     "`hover:*:p-2`: a contextual target under a condition of the element itself; write it in css() by hand",

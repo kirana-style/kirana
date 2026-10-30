@@ -61,10 +61,21 @@ The grammar has three parts:
     flex: [{ static: { display: "flex" } }],
     items: [{ properties: ["alignItems"], values: { center: "center", start: "flex-start" } }],
   },
-  // What each variant is: a condition key css() already accepts.
-  variants: { hover: ":hover", md: "@media (width >= 48rem)", open: "[data-state=\"open\"]" },
+  // What each variant is: a condition key css() already accepts, or the export holding one.
+  variants: {
+    hover: ":hover",
+    md: { module: "@kirana-style/preset-scales", export: "breakpoint", path: ["md"] },
+    open: "[data-state=\"open\"]",
+  },
+  // A utility that applies a design system's handle, before the string's own declarations.
+  handles: { "scroll-fade": { module: "./src/styles/scroll-fade.styles.ts", export: "scrollFade" } },
 }
 ```
+
+A variant that names an export (D-115) is read as an import reads it: a condition value of one
+condition, or a key string, gives the key the string lowers under; a relation's condition has no key
+text, so a string reports it (`utility-unsupported`) while the codemod, which writes source, imports it.
+A handle applies whole: under a variant, negated or with `!`, it is `utility-unsupported`.
 
 A pair is the scale's default, not a declaration of its own: `text-sm leading-6` keeps `leading-6`'s
 line height whichever comes first, as Tailwind's `--tw-leading` does, and `text-sm/relaxed` replaces it

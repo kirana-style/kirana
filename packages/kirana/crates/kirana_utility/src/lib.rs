@@ -6,7 +6,7 @@
 //! exist and what they set is decided in one place (`design-notes/migrate-tailwind.md`). Values are
 //! therefore symbolic: an [`Expr`] says where a value came from, and each caller renders it.
 
-use kirana_config::{Grammar, Rule, ScaleRule};
+use kirana_config::{ExportSource, Grammar, Rule, ScaleRule, Variant};
 use kirana_diagnostics::Code;
 use kirana_ir::Value;
 
@@ -376,7 +376,7 @@ pub fn lower(grammar: &Grammar, scales: &dyn Scales, utility: &str) -> Result<Ve
     let mut block = None;
     let mut conditions = Vec::new();
     for variant in &parsed.variants {
-        let condition = self::variant(grammar, variant, utility)?;
+        let condition = self::variant(grammar, scales, variant, utility)?;
         if !is_pseudo_element(&condition) {
             conditions.push(condition);
         } else if block.replace(condition).is_some() {
@@ -419,7 +419,7 @@ pub fn needs_content(block: &str) -> bool {
 
 /// A named or arbitrary container query: `@md/card` is `@container card (width >= 28rem)` when the
 /// grammar's `@md` is `@container (width >= 28rem)`; `@[250px]/card` is `@container card (width >= 250px)`.
-fn container(grammar: &Grammar, variant: &str) -> Option<String> {
+fn container(grammar: &Grammar, scales: &dyn Scales, variant: &str) -> Option<String> {
     let rest = variant.strip_prefix('@')?;
     let (size, name) = match split_outside_brackets(rest, '/').as_slice() {
         [size, name] => (*size, Some(*name)),
@@ -428,7 +428,11 @@ fn container(grammar: &Grammar, variant: &str) -> Option<String> {
     };
     let query = match arbitrary(size) {
         Some(width) => format!("(width >= {width})"),
-        None => grammar.variants.get(&format!("@{size}"))?.strip_prefix("@container ")?.to_owned(),
+        None => {
+            let named = format!("@{size}");
+            let condition = condition_of(grammar.variants.get(&named)?, scales, &named, variant).ok()?;
+            condition.strip_prefix("@container ")?.to_owned()
+        }
     };
     Some(match name {
         Some(name) => format!("@container {name} {query}"),
@@ -459,11 +463,11 @@ fn is_compound(selector: &str) -> bool {
 /// A variant's condition key: the grammar's, or one of Tailwind's built-in forms — `data-open` and
 /// `data-[state=open]`, `aria-invalid` and `aria-[sort=ascending]`, `has-*`, `not-*`, and a bracketed
 /// selector on the element itself (`[&:nth-child(2)]`, `[@media(hover:hover)]`, `[a]`).
-pub fn variant(grammar: &Grammar, variant: &str, utility: &str) -> Result<String, Failure> {
-    if let Some(condition) = grammar.variants.get(variant) {
-        return Ok(condition.clone());
+pub fn variant(grammar: &Grammar, scales: &dyn Scales, variant: &str, utility: &str) -> Result<String, Failure> {
+    if let Some(configured) = grammar.variants.get(variant) {
+        return condition_of(configured, scales, variant, utility);
     }
-    if let Some(condition) = container(grammar, variant) {
+    if let Some(condition) = container(grammar, scales, variant) {
         return Ok(condition);
     }
     for (prefix, pseudo) in [
@@ -510,7 +514,7 @@ pub fn variant(grammar: &Grammar, variant: &str, utility: &str) -> Result<String
         let Some(rest) = variant.strip_prefix(prefix) else { continue };
         let (inner, written) = match arbitrary(rest) {
             Some(selector) => (selector, true),
-            None => (self::variant(grammar, rest, utility)?, false),
+            None => (self::variant(grammar, scales, rest, utility)?, false),
         };
         if pseudo == ":has" || written || is_selector(&inner) {
             return Ok(format!("{pseudo}({inner})"));
@@ -545,6 +549,84 @@ pub fn variant(grammar: &Grammar, variant: &str, utility: &str) -> Result<String
         Code::UnknownUtilityVariant,
         format!("`{utility}`: no variant `{variant}`"),
         nearest(grammar.variants.keys(), variant),
+    ))
+}
+
+/// The value an export names: `path` inside `export` of `module`.
+pub fn export_value(scales: &dyn Scales, source: &ExportSource) -> Option<Value> {
+    let exported = scales.export(&source.module, &source.export);
+    source.path.iter().try_fold(exported, |value, key| value.get(key).cloned())
+}
+
+/// What an exported variant's value is (D-115).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Exported {
+    /// A condition a string key can write: a key string, or a condition value of one condition.
+    Key(String),
+    /// A relation's condition, which has no key text: only code that imports it can use it.
+    Relation,
+}
+
+/// An exported variant's value, read as an import reads it.
+pub fn exported_condition(
+    scales: &dyn Scales,
+    source: &ExportSource,
+    variant: &str,
+    utility: &str,
+) -> Result<Exported, Failure> {
+    match export_value(scales, source) {
+        Some(Value::Str(key)) => Ok(Exported::Key(key.to_string())),
+        Some(Value::Conditions(conditions)) => match conditions.as_slice() {
+            [kirana_ir::Condition::Relation { .. }, ..] => Ok(Exported::Relation),
+            [condition] => Ok(Exported::Key(condition.canonical())),
+            _ => Err(not_a_condition(source, variant, utility)),
+        },
+        _ => Err(not_a_condition(source, variant, utility)),
+    }
+}
+
+fn not_a_condition(source: &ExportSource, variant: &str, utility: &str) -> Failure {
+    fail(
+        Code::UnknownUtilityVariant,
+        format!("`{utility}`: `{variant}` names `{}`, which is not one condition", source.reference()),
+        Some("point `utilities.variants` at an exported condition or condition key".to_owned()),
+    )
+}
+
+/// A configured variant's condition key.
+fn condition_of(configured: &Variant, scales: &dyn Scales, variant: &str, utility: &str) -> Result<String, Failure> {
+    let source = match configured {
+        Variant::Key(key) => return Ok(key.clone()),
+        Variant::Export(source) => source,
+    };
+    match exported_condition(scales, source, variant, utility)? {
+        Exported::Key(key) => Ok(key),
+        Exported::Relation => Err(fail(
+            Code::UtilityUnsupported,
+            format!("`{utility}`: `{variant}` is a relation's condition, which a utility string cannot hold"),
+            Some(format!("write the style with css() and the condition as a key: [{}]", source.reference())),
+        )),
+    }
+}
+
+/// The handle a utility applies (`utilities.handles`, D-115), or `None` when it names none. A handle
+/// is a whole style, so a variant cannot make it conditional and `-` or `!` cannot change it.
+pub fn handle<'g>(grammar: &'g Grammar, utility: &str) -> Result<Option<&'g ExportSource>, Failure> {
+    let parsed = parse(utility);
+    let Some(source) = grammar.handles.get(parsed.name) else { return Ok(None) };
+    if parsed.variants.is_empty() && !parsed.important && !parsed.negative {
+        return Ok(Some(source));
+    }
+    Err(fail(
+        Code::UtilityUnsupported,
+        format!(
+            "`{utility}`: `{}` is a handle, applied whole: a variant cannot make it conditional, nor `-` or `!` change it",
+            parsed.name
+        ),
+        Some(
+            "apply the handle where the condition holds, or write its declarations under the condition in css()"
+                .to_owned(),
+        ),
     ))
 }
 

@@ -104,6 +104,32 @@ export default defineConfig({
 })
 ```
 
+A design system with conditions and styles of its own names them, and the code
+the codemod writes imports them as a hand port would:
+
+```ts file="kirana.config.ts"
+utilities: {
+  variants: {
+    // your breakpoints, if they are not the preset's
+    md: { module: "./src/styles/screens.ts", export: "screen", path: ["md"] },
+    // your dark mode: every `dark:` value goes under it
+    dark: { module: "./src/styles/mode.ts", export: "DARK" },
+  },
+  // an `@utility` in your CSS that you already have as a handle
+  handles: { "scroll-fade": { module: "./src/styles/scroll-fade.styles.ts", export: "scrollFade" } },
+}
+```
+
+What each one becomes:
+
+| You configure                 | The codemod writes                                                    |
+| ----------------------------- | --------------------------------------------------------------------- |
+| a variant as an export        | that export as a computed key, imported: `[DARK]`, `[screen.md]`      |
+| nothing (the preset's `md:`)  | `{ [breakpoint.md]: space[6] }`: the preset's breakpoints are exports |
+| a handle                      | the handle, imported, first in `sx`: `sx={[scrollFade, styles.list]}` |
+| a handle under a variant      | a report: a handle applies whole                                      |
+| an `@utility` of declarations | no handle: declare a `static` rule under `utilities`                  |
+
 Then run it over your sources and your CSS. The CSS is read for `@custom-variant`
 and `@utility`, so a custom variant nobody declared is reported instead of
 silently getting Tailwind's default meaning:
@@ -114,12 +140,22 @@ kirana-style migrate tailwind src src/globals.css --write
 kirana-style check src
 ```
 
-A colour's `dark:` value becomes a `light-dark()` pair. Any other property's
-becomes a `{ light, dark }` token in a small group at the top of the file, which
-follows the colour scheme and Kirana's [`mode`](/docs/tokens/themes-and-modes)
-handles.
+Without a dark variant of your own, a colour's `dark:` value becomes a
+`light-dark()` pair. Any other property's becomes a `{ light, dark }` token in a
+small group at the top of the file, which follows the colour scheme and Kirana's
+[`mode`](/docs/tokens/themes-and-modes) handles.
 
 So where your theme switch sets `.dark`, set `mode.dark` too.
+
+With a `dark` variant configured, every `dark:` value, colours included, goes
+under that condition instead: your theme switch already decides what dark is. It
+ranks as its kind of condition on Kirana's ladder, so a media query loses to
+`aria-expanded:`, where Tailwind printed `dark:` last.
+
+Tailwind's pointer variants are the preset's too, as Tailwind defines them:
+
+- `pointer-fine:`, `pointer-coarse:` and `pointer-none:` are `@media (pointer: …)`;
+- `any-pointer-fine:` and the other two are `@media (any-pointer: …)`.
 
 A Base UI part rendering one of your components (`render={<Button />}`) hands
 its styles to that component as `sx`, since both are one element and a class
@@ -179,6 +215,7 @@ What it reports rather than guesses:
 
 - `!important` under a variant;
 - custom variants and utilities nobody declared;
+- a handle under a variant, negated or with `!`;
 - a contextual target under a condition (`focus:**:text-x`);
 - targets that are class names;
 - `in-*` on anything but a `data-slot` (`in-data-[slot=x]:` becomes a relation

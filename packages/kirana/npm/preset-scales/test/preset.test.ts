@@ -74,6 +74,15 @@ describe("KRN-API-012 the preset", () => {
       utilities: grammar,
     })
     expect(Object.keys(grammar.utilities!)).toContain("px")
-    expect(grammar.variants!.md).toBe("@media (width >= 48rem)")
+    // A breakpoint names the preset's own condition, which migrated code imports (D-115).
+    expect(grammar.variants!.md).toEqual({
+      module: "@kirana-style/preset-scales",
+      export: "breakpoint",
+      path: ["md"],
+    })
+    expect(grammar.variants!["pointer-fine"]).toBe("@media (pointer: fine)")
+    expect(grammar.variants!["any-pointer-none"]).toBe(
+      "@media (any-pointer: none)"
+    )
   })
 })

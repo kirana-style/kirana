@@ -1745,21 +1745,57 @@ the implementation tracker names its evidence.
 - **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md#layer-plan),
   [13-output-and-performance](./13-output-and-performance.md).
 
+### D-115 — A grammar names a design system's conditions and handles
+
+- **Status:** Accepted (2026-10-30). Answers KF-076's fifth and sixth findings and KF-078.
+- **Decision:** a utility grammar's variant is a condition key or an export holding one,
+  `{ module, export, path? }`, read as an import reads it, as a scale names its source.
+  `utilities.handles` maps a utility name to an exported style handle in the same shape (the
+  proposal's `from` and `name` became `module` and `export`, the keys a scale source already uses).
+  `kirana-style migrate tailwind` writes an exported variant as that export, a computed key it
+  imports (`[breakpoint.md]`, `[DARK]`), and a handle as an import placed first in the element's
+  `sx`. A string `sx` lowers an exported variant to the condition the export holds and applies a
+  handle before its own declarations. `@kirana-style/preset-scales` declares its breakpoints and
+  container queries as its `breakpoint` and `containerQuery` exports, and adds Tailwind 4's
+  `pointer-*` and `any-pointer-*` media variants. With a `dark` variant configured, `dark:` is that
+  condition for every property, colours included; without one, colours stay `light-dark()` pairs
+  and other properties per-mode tokens.
+- **Rationale:** a ported design system already has its conditions and its shared styles as code,
+  and output that writes their values out reads unlike a hand port and stops following them when
+  they change. Naming an export reuses the import resolution scales use, so a project's own
+  breakpoints replace the preset's by redeclaring one variant. A configured dark condition is the
+  project's own theme switch (a `data-mode` attribute, a scheme query), which `light-dark()` does
+  not follow when the switch is not `color-scheme`; and one condition for every property keeps a
+  value's light and dark halves in one place. A handle composes; a `static` rule copying its
+  declarations would drift from it, so a utility that only sets declarations stays a `static` rule
+  and one the design system has as a handle names it.
+- **Trade-off:** a configured `dark` ranks as its kind of condition on the ladder, so a media query
+  loses to `aria-expanded:`, where Tailwind printed `dark:` last; the `light-dark()` path keeps that
+  order and remains the default. A relation's condition (`ui.within('[data-mode="dark"]')`) has no
+  key text: the codemod writes it, a string `sx` reports it (`utility-unsupported`). A handle applies
+  whole, so under a variant, negated, with `!` or inside a recipe it is reported. A dark mode that
+  is a compound of two conditions (the system's scheme unless the page chose light, or the page's
+  dark) is not one export; such a project exports one condition for `dark:` or keeps the default.
+  A variant's export is read only when used, so a wrong one is reported where it is used, not when
+  the configuration is read.
+- **Elaborated in:** [06-authoring-api](./06-authoring-api.md#the-utility-surface),
+  [07-tokens-themes-presets](./07-tokens-themes-presets.md#presets).
+
 ## Index by document
 
-| Document                                                      | Decisions                                                                                                                                                              |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| the brand notes                                               | D-001                                                                                                                                                                  |
-| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101, D-112 |
-| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099                                                                                     |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114               |
-| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                        |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113                                                                       |
-| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                             |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111               |
-| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114                                                                                            |
-| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                  |
-| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                           |
-| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                                                               |
-| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                                                             |
-| the roadmap                                                   | D-033, D-051, D-056                                                                                                                                                    |
+| Document                                                      | Decisions                                                                                                                                                                     |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| the brand notes                                               | D-001                                                                                                                                                                         |
+| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101, D-112, D-115 |
+| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099, D-115                                                                                     |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114                      |
+| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                               |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113                                                                              |
+| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                    |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111                      |
+| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114                                                                                                   |
+| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                         |
+| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                                  |
+| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                                                                      |
+| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                                                                    |
+| the roadmap                                                   | D-033, D-051, D-056                                                                                                                                                           |

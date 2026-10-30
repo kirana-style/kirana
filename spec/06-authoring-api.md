@@ -386,10 +386,14 @@ Values: a scale key (`p-4`, `bg-blue-600`), a number of the rule's steps (`w-50`
 routed by its shape as Tailwind infers its type (a colour to a root's colour rules, an image such as
 `bg-[url(…)]` or `bg-[linear-gradient(…)]` to its image rule, KF-076), a
 variable (`w-(--x)`), a negative (`-mt-2`), a colour with alpha (`bg-blue-600/50`, mixed with
-`transparent`), a fraction (`w-1/2`). Variants: the grammar's names (`hover:`, `md:`, `@md:`) and
-Tailwind's built-in forms — `data-*`, `aria-*`, `has-*`, `not-*`, `nth-*`, `supports-*`, `[&…]` on the
-element itself, named and arbitrary container queries. A variant whose condition is a pseudo-element
+`transparent`), a fraction (`w-1/2`). Variants: the grammar's names (`hover:`, `md:`, `@md:`), each
+a condition key or the export holding one (`breakpoint.md`, D-115), and Tailwind's built-in forms —
+`data-*`, `aria-*`, `has-*`, `not-*`, `nth-*`, `supports-*`, `[&…]` on the element itself, named and
+arbitrary container queries. A variant whose condition is a pseudo-element
 (`::after`) makes a block of its own (KRN-CAS-007); `::before` and `::after` get `content: ""`.
+A name the grammar's `handles` maps to an exported style handle applies that handle before the
+string's own declarations; it applies whole, so under a variant it is `utility-unsupported`, as is
+a variant whose export is a relation's condition (D-115).
 Utilities that share a property compose through registered, non-inheriting tokens the grammar names
 as `{scale.key}` (`ring-2` and `shadow-sm` → one `box-shadow`), as Tailwind composes `--tw-*`.
 A rule's `pair` (`text-sm`'s line height) yields to the same property set directly wherever that one
@@ -420,7 +424,10 @@ whose one static class list is all it is styled with, which is written resolved 
 → `` boxShadow: `0 0 0 1px ${theme.border}` ``, `border` → `borderStyle: "solid"`), since no other
 class can add a layer there (KF-076); it reads `@custom-variant` and `@utility`
 from the CSS files among its paths, turns `className` props into `sx` (or `{...props()}` on components
-from installed packages), and leaves every item it reports in a comment beside the style. Of the
+from installed packages), and leaves every item it reports in a comment beside the style. A variant
+the grammar names as an export is written as that export, imported (`[breakpoint.md]`); a utility the
+grammar maps to a handle imports the handle first in the element's `sx`; with a `dark` variant
+configured, `dark:` is that condition for every property (D-115). Of the
 reports column, `cn` conflict deletions and wrapper default props are not detected: both need knowledge
 outside the class string. `border` is not reported: the grammar's `border` sets `borderStyle` too.
 The lowering is also a call, `Driver.lowerTailwind(classes, file)` on `@kirana-style/compiler`: one class

@@ -92,7 +92,7 @@ presets: [scales()] // default: []
 Presets contribute data to the configuration: today, a utility grammar that
 turns on [utility strings](/docs/styling/utilities). A preset is
 `{ name: string, utilities?: UtilityGrammar }`; later presets replace earlier ones
-scale by scale, root by root and variant by variant.
+scale by scale, root by root, variant by variant and handle by handle.
 
 ## `utilities`
 
@@ -100,17 +100,42 @@ scale by scale, root by root and variant by variant.
 utilities: {
   scales: { color: [{ module: "./src/theme.ts", export: "theme" }] },
   utilities: { stack: [{ static: { display: "flex", flexDirection: "column" } }] },
-  variants: { selected: '[aria-selected="true"]' },
+  variants: {
+    selected: '[aria-selected="true"]',
+    dark: { module: "./src/styles/mode.ts", export: "DARK" },
+  },
+  handles: { "scroll-fade": { module: "./src/styles/scroll-fade.styles.ts", export: "scrollFade" } },
 }
 ```
 
-The application's own grammar, merged after every preset. It has three parts:
+The application's own grammar, merged after every preset. It has four parts:
 
 | Part        | What it holds                                                                                                                                        |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `scales`    | Where a scale's values come from: exports of modules, looked up as an `import` would be (relative modules from the project root), searched in order. |
 | `utilities` | What each root sets, as rules tried in order.                                                                                                        |
-| `variants`  | A name for any condition `css()` accepts; one starting with `::` is a pseudo-element block.                                                          |
+| `variants`  | A name for any condition `css()` accepts, or the export holding one; a condition starting with `::` is a pseudo-element block.                       |
+| `handles`   | A utility name for a style handle the design system exports, applied whole.                                                                          |
+
+An export is `{ module, export, path? }`, read as an `import` would read
+`export` and then each key of `path`. A variant written as one is the design
+system's own condition:
+
+- `kirana-style migrate tailwind` writes it as a computed key, imported:
+  `[breakpoint.md]`, `[DARK]`;
+- a utility string uses the condition it holds;
+- the scales preset declares its breakpoints and container queries this way, and
+  a project with its own breakpoints names its own export under the same variant;
+- the export may be a condition, a key string, or a relation's condition, which
+  only the codemod can write: a string key cannot hold a relation.
+
+A handle is a utility the design system already has as a `css()` handle:
+
+- the codemod imports it and puts it first in the element's `sx` array:
+  `sx={[scrollFade, styles.list]}`;
+- a utility string applies it before its own declarations;
+- it applies whole, so under a variant, negated or with `!` it is reported;
+- a utility that only sets declarations needs no handle: it is a `static` rule.
 
 A rule is one of three kinds:
 

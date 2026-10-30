@@ -122,7 +122,16 @@ What the utility surface refuses, because a string cannot say it, an object can:
   `mb-*` and `border-*`, so the margin is the same token; `*-reverse` and a child rule under a variant are reported;
 - **arbitrary properties**: `[content-visibility:auto]` is `contentVisibility: "auto"`, with Tailwind's
   `--spacing(n)` as `n` steps of the grammar's own `space[1]`;
-- **`dark:`**: every Kirana colour is a `light-dark()` pair, so a colour's `dark:` value is paired with
+- **exported variants and handles** (D-115): a variant the grammar names as an export is written as
+  that export, imported (`[breakpoint.md]`, `[DARK]`), and still ranks as the condition it holds (an
+  exported at-rule keeps its value under `dark:`'s state pairing). The preset's breakpoints and
+  container queries are its `breakpoint` and `containerQuery` exports. A contextual rule under an
+  exported condition stays with its parent, whose file imports it. A utility in `utilities.handles` is
+  imported and put first in the element's `sx` (after any anchor), and in a constant's `css()` before
+  its object; under a variant or inside a `cva` it is reported;
+- **`dark:` with a configured `dark` variant** is that condition for every property, colours included:
+  no `light-dark()` pair, no per-mode token;
+- **`dark:`** otherwise: every Kirana colour is a `light-dark()` pair, so a colour's `dark:` value is paired with
   the value at the same or the enclosing conditions into `light-dark(light, dark)` (a background with
   none pairs with `transparent`). Any other property gets a `{ light, dark }` token in a file-level
   group (`modes`), light half from the same place or `initial`; per-mode tokens follow the color scheme
@@ -160,7 +169,8 @@ silently dropped:
   value of that property — what `!important` achieved against the component's own entries.
 - **custom variants and utilities** from the project's CSS (`@custom-variant data-open`, `@utility
   no-scrollbar`), which the command reads from the CSS files among its paths: declare them under
-  `utilities.variants` / `utilities.utilities` and run again. Without that list, `data-open:` would
+  `utilities.variants` / `utilities.utilities` (or `utilities.handles`, for a utility the design system
+  has as a handle) and run again. Without that list, `data-open:` would
   silently get Tailwind's default meaning (`[data-open]`) instead of shadcn's.
 - **a contextual target under a condition of the element itself** (`focus:**:text-x`,
   `group-data-[size=sm]/avatar:[&>svg]:size-3`) and **a state of the target** (`*:hover:`): `select`

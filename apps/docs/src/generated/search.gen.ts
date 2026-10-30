@@ -669,7 +669,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Utility strings",
     "section": "writing",
     "heading": "Your own tokens",
-    "text": "A grammar reads its scales from modules, the way an would. Point a scale at your theme and reaches your semantic tokens: Later presets and your own replace earlier ones scale by scale, root by root and variant by variant. The full shape is in the configuration reference ."
+    "text": "A grammar reads its scales from modules, the way an would. Point a scale at your theme and reaches your semantic tokens: Your design system's own conditions and styles are names too: a variant may name the export that holds its condition, and names a style handle a utility applies before the string's own declarations: A handle applies whole, so is , as is a variant whose export is a relation's condition, which a string key cannot hold. Later presets and your own replace earlier ones scale by scale, root by root, variant by variant and handle by handle. The full shape is in the configuration reference ."
   },
   {
     "id": "/docs/styling/at-rules",
@@ -1430,7 +1430,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Starting with no preset, then scales",
     "section": "tokens",
     "heading": "What is in it",
-    "text": "names the steps Tailwind lists. For a step between them, as shadcn/ui writes , gives : a quarter of a rem per unit. The compiler folds the call into the value, so it costs nothing at runtime. and are separate because they share step names and mean different things: one queries the viewport, the other a container."
+    "text": "names the steps Tailwind lists. For a step between them, as shadcn/ui writes , gives : a quarter of a rem per unit. The compiler folds the call into the value, so it costs nothing at runtime. and are separate because they share step names and mean different things: one queries the viewport, the other a container. The preset's breakpoint and container variants name these exports, so the Tailwind codemod writes as , imported."
   },
   {
     "id": "/docs/tokens/preset-scales#level-3-your-own-semantic-layer",
@@ -3680,7 +3680,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Migrating from Tailwind",
     "section": "migration",
     "heading": "The codemod",
-    "text": "rewrites Tailwind's constructs into Kirana's: It uses the same utility grammar as utility strings, so the object it writes compiles to the atoms of the class string it replaces, except where it resolves a composed utility (below). First give the project the vocabulary, and point the colour scale at your theme: Then run it over your sources and your CSS. The CSS is read for and , so a custom variant nobody declared is reported instead of silently getting Tailwind's default meaning: A colour's value becomes a pair. Any other property's becomes a token in a small group at the top of the file, which follows the colour scheme and Kirana's handles. So where your theme switch sets , set too. A Base UI part rendering one of your components ( ) hands its styles to that component as , since both are one element and a class merged into the component's props would replace the component's own. and become a block, which, like Tailwind's rule, loses to a child's own margin or border. Composed utilities are written resolved where nothing else can add a layer: on a host element ( , not a component) whose is one static class list, with no spread props and no contextual rule in the project setting a "
+    "text": "rewrites Tailwind's constructs into Kirana's: It uses the same utility grammar as utility strings, so the object it writes compiles to the atoms of the class string it replaces, except where it resolves a composed utility (below). First give the project the vocabulary, and point the colour scale at your theme: A design system with conditions and styles of its own names them, and the code the codemod writes imports them as a hand port would: What each one becomes: Then run it over your sources and your CSS. The CSS is read for and , so a custom variant nobody declared is reported instead of silently getting Tailwind's default meaning: Without a dark variant of your own, a colour's value becomes a pair. Any other property's becomes a token in a small group at the top of the file, which follows the colour scheme and Kirana's handles. So where your theme switch sets , set too. With a variant configured, every value, colours included, goes under that condition instead: your theme switch already decides what dark is. It ranks as its kind of condition on Kirana's ladder, so a media query loses to , where Tailwind printed last. Tailwind's pointer variants are the preset's too, as Tailwind "
   },
   {
     "id": "/docs/migration/from-tailwind#measured-the-tailwind-original-of-our-shadcn-ui-port",
@@ -4383,7 +4383,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Configuration reference",
     "section": "reference",
     "heading": "presets",
-    "text": "Presets contribute data to the configuration: today, a utility grammar that turns on utility strings . A preset is ; later presets replace earlier ones scale by scale, root by root and variant by variant."
+    "text": "Presets contribute data to the configuration: today, a utility grammar that turns on utility strings . A preset is ; later presets replace earlier ones scale by scale, root by root, variant by variant and handle by handle."
   },
   {
     "id": "/docs/reference/config#utilities",
@@ -4391,7 +4391,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Configuration reference",
     "section": "reference",
     "heading": "utilities",
-    "text": "The application's own grammar, merged after every preset. It has three parts: A rule is one of three kinds: A scale rule takes these options: In any text of a rule, is that token, and a property written sets the token's custom property. That is how a ring and a shadow share one : its value is , and each utility sets one of the two."
+    "text": "The application's own grammar, merged after every preset. It has four parts: An export is , read as an would read and then each key of . A variant written as one is the design system's own condition: writes it as a computed key, imported: , ; a utility string uses the condition it holds; the scales preset declares its breakpoints and container queries this way, and a project with its own breakpoints names its own export under the same variant; the export may be a condition, a key string, or a relation's condition, which only the codemod can write: a string key cannot hold a relation. A handle is a utility the design system already has as a handle: the codemod imports it and puts it first in the element's array: ; a utility string applies it before its own declarations; it applies whole, so under a variant, negated or with it is reported; a utility that only sets declarations needs no handle: it is a rule. A rule is one of three kinds: A scale rule takes these options: In any text of a rule, is that token, and a property written sets the token's custom property. That is how a ring and a shadow share one : its value is , and each utility sets one of the two."
   },
   {
     "id": "/docs/reference/config#diagnostics",

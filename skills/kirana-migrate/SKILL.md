@@ -16,6 +16,11 @@ beside it, and port in small steps.
    then `presets: [scales()]`) and point `utilities.scales.color` at the theme module, so
    `space[4]`, `color.zinc[500]` and `breakpoint.md` mean what they meant. Declare
    shadcn's `@custom-variant`s under `utilities.variants`, or pass the CSS file to the codemod.
+   A design system with its own conditions names them as exports
+   (`variants: { dark: { module: "./styles/mode.ts", export: "DARK" } }`), and the codemod writes
+   `[DARK]` and imports it; an `@utility` it already has as a handle goes under `utilities.handles`
+   (`{ "scroll-fade": { module, export: "scrollFade" } }`), one that only sets declarations is a
+   `static` rule under `utilities.utilities`.
 2. **Dry-run the codemod, read the diff and the report:**
    ```bash
    npx kirana-style migrate tailwind src src/globals.css   # Tailwind: sources plus the CSS that declares variants and utilities
@@ -58,7 +63,9 @@ expressed, so a difference means something.
   styles. When the parent must win, let the target read the parent (a relation, or a condition on
   its own position such as `':is([data-slot="field"] > *)'`).
 - **Dark mode moves into tokens.** A colour's `dark:` becomes a `light-dark()` pair; where the old
-  theme switch set `.dark`, apply `mode.dark` too.
+  theme switch set `.dark`, apply `mode.dark` too. With a `dark` variant configured, every `dark:`
+  value goes under that condition instead, ranked as its kind of condition (a media query loses to
+  `aria-expanded:`).
 - **No preflight.** Tailwind gave every border a colour and reset margins; name what you need.
 - **Type sizes come with line heights.** `text-sm` set both; write both.
 

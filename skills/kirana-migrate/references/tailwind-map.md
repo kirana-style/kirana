@@ -14,6 +14,8 @@
 | `hover:underline`                           | `{ textDecorationLine: { ":hover": "underline" } }`                                   |
 | `md:grid-cols-2`                            | `{ gridTemplateColumns: { [breakpoint.md]: "repeat(2, minmax(0, 1fr))" } }`           |
 | `dark:bg-zinc-900`                          | nothing: the colour token is a `light-dark()` pair                                    |
+| `pointer-fine:inline-block`                 | `{ display: { "@media (pointer: fine)": "inline-block" } }`                           |
+| `scroll-fade` in `utilities.handles`        | `sx={[scrollFade, styles.list]}`, the handle imported                                 |
 | `group-hover:opacity-100`                   | `{ opacity: { [group.within(":hover")]: 1 } }` with `const group = relation("group")` |
 | `peer-checked:text-black`                   | `{ color: { [peer.after(":checked")]: "black" } }`                                    |
 | `*:w-full` on the parent                    | `{ width: { [group.parent()]: "100%" } }` on the child, the parent anchoring `group`  |
@@ -34,7 +36,8 @@ suit anything with states or your own tokens.
 
 ## What the codemod reports instead of guessing
 
-`!important` under a variant; undeclared custom variants and utilities; a contextual target under a
+`!important` under a variant; undeclared custom variants and utilities; a handle
+(`utilities.handles`) under a variant; a contextual target under a
 condition (`focus:**:text-x`); targets that are class names; `in-*` on anything but a `data-slot`;
 a colour's `dark:` with no value at rest; relations anchored in no migrated file; a dropped `w-`/`h-`
 guard; dynamic class strings; a `select` rule whose target sets the property itself.
