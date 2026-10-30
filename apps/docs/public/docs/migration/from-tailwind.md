@@ -78,7 +78,8 @@ the child's own style wins without a guard.
 | `[&_svg]:`      | [`select`](/docs/styling/contextual) |
 
 It uses the same [utility grammar](/docs/styling/utilities) as utility strings, so
-the object it writes compiles to exactly the atoms of the class string it replaces.
+the object it writes compiles to the atoms of the class string it replaces, except
+where it resolves a composed utility (below).
 
 <!-- ::figure-codemod -->
 
@@ -126,6 +127,31 @@ merged into the component's props would replace the component's own.
 
 `space-x-2` and `divide-y` become a `select.child(":not(:last-child)")` block,
 which, like Tailwind's `:where()` rule, loses to a child's own margin or border.
+
+[Composed utilities](/docs/styling/utilities#composed-utilities) are written
+resolved where nothing else can add a layer: on a host element (`<div>`, not a
+component) whose `className` is one static class list, with no spread props and
+no contextual rule in the project setting a layer it reads. Each condition gets
+its own value, with the layers set under fewer conditions.
+
+| Tailwind              | On such an element                           |
+| --------------------- | -------------------------------------------- |
+| `ring-1 ring-border`  | ``boxShadow: `0 0 0 1px ${theme.border}` ``  |
+| `-translate-y-1/2`    | `translate: "0 calc(calc(1/2 * 100%) * -1)"` |
+| `grayscale`           | `filter: "grayscale(100%)"`                  |
+| `border`              | `borderStyle: "solid"` with its width        |
+| `ring-2 hover:ring-4` | a `boxShadow` at rest and one on hover       |
+
+Everywhere else the layers stay, because Tailwind combined them across classes:
+
+- a component merges its own styles with the ones you pass, so
+  `<Button className="ring-1">` over a Button's `shadow-sm` shows both;
+- `cn("ring-2", open && "shadow-sm")` combines two styles;
+- a `border` passed to a component keeps `borderStyle: compose["border-style"]`,
+  which is `solid` unless the component set that layer, as a migrated
+  `border-dashed` does;
+- so a component written by hand with only `borderStyle: "dashed"` loses it to
+  the caller's `border`: set the layer there too.
 
 Where a class goes:
 

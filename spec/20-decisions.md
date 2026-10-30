@@ -703,7 +703,12 @@ the implementation tracker names its evidence.
   `(--x)`, pseudo-element variants, Tailwind's built-in variant forms, and composed utilities through
   `{scale.key}` token references, with the preset's `compose` tokens registered `inherits: false`.
 - **Rationale:** one lowering makes the codemod's output compile to the atoms of the string it
-  replaced (a test compares them), and every vocabulary fix helps both surfaces. Measured on the
+  replaced (a test compares them), and every vocabulary fix helps both surfaces. The codemod departs
+  from those atoms in one place (KF-076): on a host element whose one static class list is all it is
+  styled with, and that no contextual rule in the project can reach with a layer, a composed property
+  is written resolved (`` boxShadow: `0 0 0 1px ${theme.border}` ``, `borderStyle: "solid"`), since no
+  other class can add a layer there and the resolved value is what a hand port writes; components,
+  recipes and joined styles keep the layers, which Tailwind combined across their classes. Measured on the
   Tailwind original of the shadcn/ui port: 1,183 report items with the first grammar, 535 after these additions, with 8
   compile errors left, all reported (`design-notes/migrate-tailwind.md`).
 - **Consequences:** filters are not composed yet (Tailwind's chain relies on empty `var(--x,)`

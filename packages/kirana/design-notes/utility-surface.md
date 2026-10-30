@@ -69,6 +69,10 @@ The grammar has three parts:
 A pair is the scale's default, not a declaration of its own: `text-sm leading-6` keeps `leading-6`'s
 line height whichever comes first, as Tailwind's `--tw-leading` does, and `text-sm/relaxed` replaces it
 with the `lineHeight` scale's `relaxed` (both engine and codemod settle pairs through `settle_pairs`).
+The pair goes only where the direct value applies: `text-base hover:leading-6` keeps the size's line
+height at rest and `leading-6`'s on hover, where `line-height: var(--tw-leading, …)` falls back in
+Tailwind (KF-076). A direct value under conditions the pair does not have all of (`md:text-sm
+hover:leading-6`) leaves both, and the ladder decides where both apply.
 
 An application extends it in its own configuration — `utilities: { scales: { color: [{ module:
 "./src/theme.ts", export: "theme" }, …] } }` — so `bg-primary` reaches its semantic tokens. Later
@@ -88,7 +92,12 @@ then goes through the function `css()` itself uses. There is no second style pat
   inlines, inlines;
 - every existing diagnostic (unknown property, ambiguous precedence) applies unchanged.
 
-A value in brackets is used as written (`p-[3px]`, `bg-[#0af]`), except Tailwind's `--spacing(n)`,
+A value in brackets is used as written (`p-[3px]`, `bg-[#0af]`), and picks among a root's rules by
+its shape, as Tailwind infers a type: a colour goes to the colour rules (`text-[#0af]` against
+`text-[13px]`), and where the root has an image rule an image goes to it alone (`bg-[url(…)]`,
+`bg-[repeating-linear-gradient(…)]`: every comma-separated layer a `url()`, a gradient or `image()`,
+`image-set()`, `cross-fade()` or `element()`, `var()`s aside), anything else to the others. Brackets
+also take Tailwind's `--spacing(n)`,
 which is `calc(<space 1> * n)` with the `space` scale's token; `-` negates (`-mt-2`); `/n` on a
 colour mixes it with `transparent` the way Tailwind v4 does; `data-[x=y]:` and `aria-[x]:` are
 attribute conditions. `!important`, `group-*` and `peer-*` are not utilities in Kirana: the first is

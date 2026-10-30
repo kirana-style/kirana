@@ -34,21 +34,32 @@ pub enum Expr {
 }
 
 /// Drops each paired value ([`Expr::Paired`]) of a property another declaration of the same block
-/// sets directly: `text-sm leading-snug` keeps `leading-snug`'s line height whatever the order or
-/// the conditions of either. The pairs that stay are their values.
+/// sets directly wherever the pair applies: `text-sm leading-snug` keeps `leading-snug`'s line height
+/// whatever the order. The pairs that stay are their values: `text-base hover:leading-none` keeps the
+/// size's line height at rest, where Tailwind's `var(--tw-leading, …)` falls back to it (KF-076).
 pub fn settle_pairs(declarations: Vec<Declaration>) -> Vec<Declaration> {
-    let direct: Vec<(Option<String>, String)> = declarations
+    let direct: Vec<(Option<String>, String, Vec<String>)> = declarations
         .iter()
         .filter(|declaration| !matches!(declaration.value, Expr::Paired(_)))
-        .map(|declaration| (declaration.block.clone(), declaration.property.clone()))
+        .map(|declaration| (declaration.block.clone(), declaration.property.clone(), declaration.conditions.clone()))
         .collect();
     declarations
         .into_iter()
         .filter(|declaration| {
             !matches!(declaration.value, Expr::Paired(_))
-                || !direct.contains(&(declaration.block.clone(), declaration.property.clone()))
+                || !direct.iter().any(|(block, property, conditions)| {
+                    *block == declaration.block
+                        && *property == declaration.property
+                        && covers(conditions, &declaration.conditions)
+                })
         })
         .collect()
+}
+
+/// Whether a value set under `direct` applies wherever one under `paired` does: every condition of
+/// the first is among the second's (`[]` covers everything, `[":hover"]` covers `[md, ":hover"]`).
+pub fn covers(direct: &[String], paired: &[String]) -> bool {
+    direct.iter().all(|condition| paired.contains(condition))
 }
 
 /// One declaration of a utility, under its conditions (outermost first), on the element itself or
@@ -287,6 +298,70 @@ fn looks_like_colour(value: &str) -> bool {
             .any(|prefix| value.starts_with(prefix))
 }
 
+/// Whether an arbitrary value is an image, as Tailwind 4 infers its `image` type (KF-076): every
+/// comma-separated layer a `url()`, a gradient or an image function, `var()`s aside, and at least
+/// one of them. `bg-[repeating-linear-gradient(…)]` is a background image, `bg-[var(--x)]` a colour.
+fn looks_like_image(value: &str) -> bool {
+    let mut images = 0;
+    for layer in split_outside_parentheses(value, ',') {
+        let layer = layer.trim();
+        if layer.starts_with("var(") {
+            continue;
+        }
+        let gradient = ["conic", "linear", "radial"].iter().any(|kind| {
+            let kind = layer.strip_prefix("repeating-").unwrap_or(layer).strip_prefix(kind);
+            kind.is_some_and(|rest| rest.starts_with("-gradient("))
+        });
+        let function = ["url(", "element(", "image(", "cross-fade(", "image-set("].iter().any(|f| layer.starts_with(f));
+        if !gradient && !function {
+            return false;
+        }
+        images += 1;
+    }
+    images > 0
+}
+
+/// `text` split on `separator` outside `(…)`.
+fn split_outside_parentheses(text: &str, separator: char) -> Vec<&str> {
+    let mut parts = Vec::new();
+    let mut depth = 0usize;
+    let mut start = 0;
+    for (index, character) in text.char_indices() {
+        match character {
+            '(' => depth += 1,
+            ')' => depth = depth.saturating_sub(1),
+            _ if character == separator && depth == 0 => {
+                parts.push(&text[start..index]);
+                start = index + character.len_utf8();
+            }
+            _ => {}
+        }
+    }
+    parts.push(&text[start..]);
+    parts
+}
+
+/// Whether a rule sets an image (`backgroundImage`), which takes a bracketed value only when it is
+/// one, and is then the only rule of its root that does.
+fn sets_image(properties: &[String]) -> bool {
+    properties.iter().any(|property| property.ends_with("Image"))
+}
+
+/// Whether a root's rule may take a bracketed value of this shape: with colour and other rules
+/// (`text`), a colour goes to the colour rules; with an image rule (`bg`), an image to it alone.
+#[derive(Clone, Copy)]
+struct Shapes {
+    mixed: bool,
+    images: bool,
+}
+
+impl Shapes {
+    fn takes(self, colour_rule: bool, properties: &[String], value: &str) -> bool {
+        (!self.mixed || colour_rule == looks_like_colour(value))
+            && (!self.images || sets_image(properties) == looks_like_image(value))
+    }
+}
+
 /// A utility with its variants, as the engine lowers it: everything the grammar cannot say is a
 /// failure.
 pub fn lower(grammar: &Grammar, scales: &dyn Scales, utility: &str) -> Result<Vec<Declaration>, Failure> {
@@ -499,8 +574,14 @@ pub fn declarations(
         // A root with both colour and other rules (`text`): a bracketed value's shape picks one.
         let colour = |rule: &Rule| matches!(rule, Rule::Scale(scale) if scale.alpha);
         let mixed = rules.iter().any(colour) && rules.iter().any(|rule| !colour(rule));
+        let images = rules.iter().any(|rule| match rule {
+            Rule::Scale(rule) => sets_image(&rule.properties),
+            Rule::Keyword(rule) => sets_image(&rule.properties),
+            Rule::Static(_) => false,
+        });
+        let shapes = Shapes { mixed, images };
         for rule in rules {
-            if let Some(declarations) = apply(grammar, scales, rule, value, negative, mixed) {
+            if let Some(declarations) = apply(grammar, scales, rule, value, negative, shapes) {
                 // A property written `{scale.key}` must name a token this module can reach.
                 if let Some((property, _)) = declarations.iter().find(|(property, _)| {
                     property.starts_with('{') && property_token(grammar, scales, property).is_none()
@@ -575,7 +656,7 @@ fn apply(
     rule: &Rule,
     value: &str,
     negative: bool,
-    mixed: bool,
+    shapes: Shapes,
 ) -> Option<Vec<(String, Expr)>> {
     match rule {
         Rule::Static(rule) => {
@@ -590,16 +671,20 @@ fn apply(
             }
             let value = match rule.values.get(value) {
                 Some(value) => text_expr(grammar, scales, value, None)?,
-                None => {
-                    written_expr(grammar, scales, written(value).filter(|value| !(mixed && looks_like_colour(value)))?)
-                }
+                None => written_expr(
+                    grammar,
+                    scales,
+                    written(value).filter(|value| shapes.takes(false, &rule.properties, value))?,
+                ),
             };
             let mut declarations: Vec<(String, Expr)> =
                 rule.properties.iter().map(|property| (property.clone(), value.clone())).collect();
             declarations.extend(written_declarations(grammar, scales, &rule.also)?);
             Some(declarations)
         }
-        Rule::Scale(rule) => apply_scale(grammar, scales, rule, value, negative, mixed),
+        Rule::Scale(rule) => {
+            apply_scale(grammar, scales, rule, value, negative, |text| shapes.takes(rule.alpha, &rule.properties, text))
+        }
     }
 }
 
@@ -609,7 +694,7 @@ fn apply_scale(
     rule: &ScaleRule,
     value: &str,
     negative: bool,
-    mixed: bool,
+    takes: impl Fn(&str) -> bool,
 ) -> Option<Vec<(String, Expr)>> {
     if value.is_empty() || (negative && !rule.negative) {
         return None;
@@ -622,7 +707,7 @@ fn apply_scale(
     };
     let key_written = written(key);
     let mut resolved = if let Some(text) = key_written.clone() {
-        if mixed && rule.alpha != looks_like_colour(&text) {
+        if !takes(&text) {
             return None;
         }
         written_expr(grammar, scales, text)

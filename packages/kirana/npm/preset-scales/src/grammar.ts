@@ -717,7 +717,12 @@ const utilities: Record<string, UtilityRule[]> = {
   caption: [keyword(["captionSide"], { top: "top", bottom: "bottom" })],
 
   // Colour
-  bg: colour(["backgroundColor"]),
+  // A bracketed image (`bg-[url(…)]`, `bg-[linear-gradient(…)]`) is a background image, as
+  // Tailwind infers it; any other bracketed value stays a colour (KF-076).
+  bg: [
+    ...colour(["backgroundColor"]),
+    keyword(["backgroundImage"], { none: "none" }),
+  ],
   "bg-clip": [
     keyword(["backgroundClip"], {
       border: "border-box",

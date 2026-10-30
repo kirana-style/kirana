@@ -126,6 +126,12 @@ impl Project {
         out
     }
 
+    /// The definition of the token whose custom property is `variable`, once a module declaring it
+    /// was evaluated.
+    pub fn token_definition(&self, variable: &str) -> Option<std::sync::Arc<kirana_ir::TokenDef>> {
+        self.state.read().expect("not poisoned").tokens.get(variable).cloned()
+    }
+
     /// Every token the session has evaluated, by package, then identity.
     pub fn tokens(&self) -> Vec<TokenInfo> {
         let state = self.state.read().expect("not poisoned");

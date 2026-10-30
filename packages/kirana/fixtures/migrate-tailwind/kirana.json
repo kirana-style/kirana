@@ -171,6 +171,14 @@
           ],
           "scale": "color",
           "alpha": true
+        },
+        {
+          "properties": [
+            "backgroundImage"
+          ],
+          "values": {
+            "none": "none"
+          }
         }
       ],
       "font": [
@@ -205,7 +213,16 @@
         {
           "static": {
             "borderWidth": "1px",
-            "borderStyle": "solid"
+            "borderStyle": "{compose.border-style}"
+          }
+        },
+        {
+          "properties": [
+            "borderStyle",
+            "{compose.border-style}"
+          ],
+          "values": {
+            "dashed": "dashed"
           }
         },
         {
@@ -213,6 +230,27 @@
             "borderColor"
           ],
           "scale": "color"
+        }
+      ],
+      "translate-y": [
+        {
+          "properties": [
+            "{compose.translate-y}"
+          ],
+          "scale": "space",
+          "negative": true,
+          "fractions": true,
+          "also": {
+            "translate": "{compose.translate-x} {compose.translate-y}"
+          }
+        }
+      ],
+      "grayscale": [
+        {
+          "static": {
+            "{compose.grayscale}": "grayscale(100%)",
+            "filter": "{compose.blur} {compose.grayscale}"
+          }
         }
       ],
       "ring": [
@@ -239,9 +277,12 @@
       "shadow": [
         {
           "properties": [
-            "boxShadow"
+            "{compose.shadow}"
           ],
-          "scale": "shadow"
+          "scale": "shadow",
+          "also": {
+            "boxShadow": "{compose.ring-shadow}, {compose.shadow}"
+          }
         }
       ],
       "@container": [

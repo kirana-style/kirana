@@ -30,6 +30,10 @@ impl crate::tailwind::Environment for ProjectEnvironment<'_> {
     fn resolve(&self, specifier: &str) -> Option<PathBuf> {
         self.project.resolve(self.file, specifier)
     }
+
+    fn token(&self, variable: &str) -> Option<std::sync::Arc<kirana_ir::TokenDef>> {
+        self.project.token_definition(variable)
+    }
 }
 
 /// The nearest directory holding a `package.json`, and that file's contents.

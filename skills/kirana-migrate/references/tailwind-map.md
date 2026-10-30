@@ -7,6 +7,9 @@
 | `flex items-center gap-2`                   | `{ display: "flex", alignItems: "center", gap: space[2] }`                            |
 | `px-4 py-2`                                 | `{ paddingInline: space[4], paddingBlock: space[2] }`                                 |
 | `text-sm`                                   | `{ fontSize: fontSize.sm, lineHeight: lineHeight.sm }`, always both                   |
+| `text-sm hover:leading-relaxed`             | `{ lineHeight: { base: lineHeight.sm, ":hover": leading.relaxed } }`                  |
+| `bg-[url(…)]`, `bg-[…-gradient(…)]`         | `backgroundImage`; any other bracketed value is `backgroundColor`                     |
+| `ring-1 ring-border` on a lone `<div>`      | ``{ boxShadow: `0 0 0 1px ${theme.border}` }``; a component keeps the layers          |
 | `bg-primary/80`                             | `` `color-mix(in oklab, ${theme.primary} 80%, transparent)` ``, as the codemod writes |
 | `hover:underline`                           | `{ textDecorationLine: { ":hover": "underline" } }`                                   |
 | `md:grid-cols-2`                            | `{ gridTemplateColumns: { [breakpoint.md]: "repeat(2, minmax(0, 1fr))" } }`           |

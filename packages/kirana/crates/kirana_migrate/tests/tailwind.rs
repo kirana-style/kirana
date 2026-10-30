@@ -44,6 +44,10 @@ impl Environment for Env<'_> {
     fn resolve(&self, specifier: &str) -> Option<PathBuf> {
         self.project.resolve(self.file, specifier)
     }
+
+    fn token(&self, variable: &str) -> Option<Arc<kirana_ir::TokenDef>> {
+        self.project.token_definition(variable)
+    }
 }
 
 fn custom() -> (BTreeSet<String>, BTreeSet<String>) {
@@ -79,7 +83,9 @@ fn the_whole_fixture() {
     assert!(migration.changed(&source));
 }
 
-/// The objects the codemod writes compile to the atoms their utility strings compile to.
+/// The objects the codemod writes compile to the atoms their utility strings compile to, where it
+/// keeps Tailwind's composition layers: one class string lowered on its own, as for an element that
+/// may be given other classes (a host element styled by nothing else gets them resolved, KF-076).
 #[test]
 fn migrated_objects_compile_to_the_atoms_of_their_utility_strings() {
     let project = project();
@@ -104,19 +110,30 @@ fn migrated_objects_compile_to_the_atoms_of_their_utility_strings() {
         "-mt-2 w-1/2 rounded-lg p-50 bg-[rgb(1,2,3)]",
         "focus-visible:ring-[3px] focus-visible:ring-ring/50",
         "font-semibold opacity-50 border",
+        "border-dashed border -translate-y-1/2 grayscale ring-2 ring-blue-600",
         "after:absolute hover:after:bg-muted",
         "@container @md:p-2 data-horizontal:flex-row has-data-[icon=x]:px-1",
     ]
     .iter()
     .enumerate()
     {
-        let migrated =
-            run(&project, &format!("m{index}.tsx"), &format!("export const A = () => <p className=\"{classes}\" />\n"));
-        assert!(migrated.notes.is_empty(), "{classes}: {:?}", notes(&migrated));
-        let from_object = atoms(&format!("m{index}.tsx"), &migrated.source);
+        let grammar: Grammar = project.config().utilities.clone().unwrap();
+        let (variants, utilities) = custom();
+        let relations = ProjectMap::default();
+        let options = Options {
+            grammar: &grammar,
+            custom_variants: &variants,
+            custom_utilities: &utilities,
+            project: &relations,
+        };
+        let file = root().join(format!("m{index}.tsx"));
+        let migrated = lower(&file, classes, &options, &Env { project: &project, file: &file });
+        assert!(migrated.notes.is_empty(), "{classes}: {:?}", migrated.notes);
+        let module = format!("{}export const A = () => <p sx={{styles.style}} />\n", migrated.module);
+        let from_object = atoms(&format!("m{index}.tsx"), &module);
         let from_string = atoms(&format!("u{index}.tsx"), &format!("export const A = () => <p sx=\"{classes}\" />\n"));
         assert!(!from_object.is_empty(), "{classes}");
-        assert_eq!(from_object, from_string, "{classes}\n{}", migrated.source);
+        assert_eq!(from_object, from_string, "{classes}\n{module}");
     }
 }
 
@@ -594,6 +611,181 @@ fn consecutive_strings_in_a_joiner_are_one_class_list() {
 fn a_size_s_line_height_yields_to_one_set_directly() {
     let (source, _) = snippet("a.tsx", "export const A = () => <p className=\"[line-height:2] text-sm\" />\n");
     assert!(source.contains("lineHeight: \"2\",") && !source.contains("lineHeight.sm"), "{source}");
+}
+
+/// Tailwind's `text-*` sets `line-height: var(--tw-leading, <its own>)`: where a `leading-*` applies
+/// only under a condition, the size's own line height stays at rest (KF-076).
+#[test]
+fn a_size_keeps_its_line_height_where_a_leading_is_only_conditional() {
+    let (source, _) = snippet("a.tsx", "export const A = () => <p className=\"text-sm hover:[line-height:2]\" />\n");
+    assert!(source.contains("lineHeight: { base: lineHeight.sm, \":hover\": \"2\" },"), "{source}");
+    let (source, _) = snippet("a.tsx", "export const A = () => <p className=\"md:text-sm [line-height:2]\" />\n");
+    assert!(source.contains("lineHeight: \"2\",") && !source.contains("lineHeight.sm"), "{source}");
+}
+
+/// A bracketed image is a background image, as Tailwind infers its type (KF-076).
+#[test]
+fn a_bracketed_image_is_a_background_image() {
+    let (source, _) = snippet(
+        "a.tsx",
+        "export const A = () => <p className=\"bg-[repeating-linear-gradient(45deg,var(--border)_0_1px,transparent_1px_8px)]\" />\n",
+    );
+    assert!(
+        source
+            .contains(r#"backgroundImage: "repeating-linear-gradient(45deg,var(--border) 0 1px,transparent 1px 8px)""#),
+        "{source}"
+    );
+    let (source, _) = snippet("a.tsx", "export const A = () => <p className=\"bg-[var(--border)]\" />\n");
+    assert!(source.contains(r#"backgroundColor: "var(--border)""#), "{source}");
+}
+
+/// The style lowered for one element, by its key in `styles`.
+fn style_of<'s>(source: &'s str, key: &str) -> &'s str {
+    let start = source.find(&format!("  {key}: css({{")).unwrap_or_else(|| panic!("{key}: {source}"));
+    source[start..].split("\n  }),").next().unwrap()
+}
+
+/// A host element styled by its class list alone: nothing else can set a layer of Tailwind's
+/// compositions, so each property is written resolved, as a hand port writes it (KF-076).
+#[test]
+fn a_host_element_styled_by_nothing_else_resolves_its_layers() {
+    let (source, _) = snippet(
+        "a.tsx",
+        "export const A = () => <>\n  \
+         <p className=\"ring-2 ring-blue-600/50 border -translate-y-1/2 grayscale\" />\n  \
+         <i className={cn(\"ring-1\", \"border border-dashed\")} />\n  \
+         <b className={\"ring-2 hover:ring-4 hover:ring-blue-600\"} />\n  \
+         <s className=\"text-sm ring-1 ring-ring\" />\n  <u className=\"ring-2!\" />\n  \
+         <a className=\"ring-1 shadow-sm translate-y-4\" />\n</>\n",
+    );
+    assert_eq!(
+        style_of(&source, "aP"),
+        "  aP: css({\n    \
+         boxShadow: `0 0 0 2px color-mix(in oklab, ${color.blue[600]} 50%, transparent)`,\n    \
+         borderStyle: \"solid\",\n    \
+         borderWidth: \"1px\",\n    \
+         translate: \"0 calc(calc(1/2 * 100%) * -1)\",\n    \
+         filter: \"grayscale(100%)\","
+    );
+    assert_eq!(
+        style_of(&source, "aI"),
+        "  aI: css({\n    boxShadow: \"0 0 0 1px currentcolor\",\n    borderStyle: \"dashed\",\n    borderWidth: \"1px\","
+    );
+    // Each condition's value is resolved with the layers set under fewer conditions.
+    assert!(
+        style_of(&source, "aB")
+            .contains("boxShadow: { base: \"0 0 0 2px currentcolor\", \":hover\": `0 0 0 4px ${color.blue[600]}` },"),
+        "{source}"
+    );
+    assert!(style_of(&source, "aS").contains("boxShadow: `0 0 0 1px ${theme.ring}`,"), "{source}");
+    assert!(
+        style_of(&source, "aA")
+            .contains("boxShadow: `0 0 0 1px currentcolor, ${shadow.sm}`,\n    translate: `0 ${space[4]}`,"),
+        "{source}"
+    );
+    // `!important` removes every other value of the property; the layers it set go with them.
+    assert!(
+        style_of(&source, "aU").contains("boxShadow: { \"*\": null, base: \"0 0 0 2px currentcolor\" },"),
+        "{source}"
+    );
+    assert!(!source.contains("compose"), "{source}");
+}
+
+/// Where another class can add a layer, the composition stays: a component merges its own styles
+/// with the one it is given, spread props may carry a class, a class list joined with another or
+/// with the incoming class, a layer under other conditions or set without the property that reads it,
+/// a `dark:` layer, and a contextual rule that may reach the element (KF-076).
+#[test]
+fn layers_compose_where_another_class_can_add_one() {
+    let composed = [
+        "<Thing className=\"ring-2\" />",
+        "<p {...props} className=\"ring-2\" />",
+        "<p className={cn(\"ring-2\", open && \"shadow-sm\")} />",
+        "<p className={cn(\"ring-2\", props.className)} />",
+        "<p className=\"ring-2 hover:ring-blue-600\" />",
+        "<p className=\"md:ring-2 hover:ring-4\" />",
+        "<p className=\"ring-2 dark:ring-4\" />",
+    ];
+    for element in composed {
+        let (source, _) = snippet("a.tsx", &format!("export const A = (props) => {element}\n"));
+        assert!(source.contains("compose[\"ring-shadow\"]"), "{element}: {source}");
+    }
+    // A contextual rule in this file, or in another one, may set a layer on the element.
+    let (source, _) = snippet(
+        "a.tsx",
+        "export const A = () => <div className=\"[&_p]:ring-blue-600\"><p className=\"ring-2 border\" /></div>\n",
+    );
+    assert!(style_of(&source, "aP").contains("compose[\"ring-shadow\"]"), "{source}");
+    assert!(style_of(&source, "aP").contains("borderStyle: \"solid\""), "{source}");
+    let project = project();
+    let grammar: Grammar = project.config().utilities.clone().unwrap();
+    let (variants, utilities) = custom();
+    let empty = ProjectMap::default();
+    let mut options =
+        Options { grammar: &grammar, custom_variants: &variants, custom_utilities: &utilities, project: &empty };
+    let parent = root().join("parent.tsx");
+    let parent_source = "export const P = ({ children }) => <div className=\"[&_p]:ring-blue-600\">{children}</div>\n";
+    let mut map = ProjectMap::default();
+    map.add(&parent, &survey(&parent, parent_source, &options, &Env { project: &project, file: &parent }));
+    assert!(!map.contextual_layers.is_empty());
+    options.project = &map;
+    let child = root().join("child.tsx");
+    let migrated = migrate(
+        &child,
+        "export const C = () => <p className=\"ring-2\" />\n",
+        &options,
+        &Env { project: &project, file: &child },
+    );
+    assert!(migrated.source.contains("compose[\"ring-shadow\"]"), "{}", migrated.source);
+}
+
+/// Scales that are not registered tokens are not layers, whatever the grammar composes through them.
+#[test]
+fn only_a_registered_token_that_does_not_inherit_is_a_layer() {
+    struct Plain;
+    impl Environment for Plain {
+        fn export(&self, _: &str, export: &str) -> kirana_ir::Value {
+            let token = |name: &str| {
+                kirana_ir::Value::Token(Arc::new(kirana_ir::TokenRef {
+                    css: format!("var(--{name})"),
+                    variable: Some(format!("--{name}")),
+                    identity: format!("{export}.{name}"),
+                    deps: Vec::new(),
+                }))
+            };
+            let entries = vec![
+                (kirana_ir::Key::Str(Arc::from("width")), token("width")),
+                (kirana_ir::Key::Str(Arc::from("shadow")), kirana_ir::Value::str("0 0 #0000")),
+            ];
+            kirana_ir::Value::Object(Arc::new(entries))
+        }
+        fn is_external(&self, _: &str) -> bool {
+            false
+        }
+        fn specifier(&self, _: &Path) -> String {
+            "./plain".to_owned()
+        }
+        fn resolve(&self, _: &str) -> Option<PathBuf> {
+            None
+        }
+        fn token(&self, _: &str) -> Option<Arc<kirana_ir::TokenDef>> {
+            None
+        }
+    }
+    let grammar: Grammar = serde_json::from_value(serde_json::json!({
+        "scales": { "compose": [{ "module": "./plain", "export": "compose" }] },
+        "utilities": {
+            "ring": [{ "static": { "{compose.width}": "1px", "boxShadow": "{compose.width}, {compose.shadow}" } }]
+        }
+    }))
+    .unwrap();
+    let (variants, utilities) = custom();
+    let map = ProjectMap::default();
+    let options =
+        Options { grammar: &grammar, custom_variants: &variants, custom_utilities: &utilities, project: &map };
+    let file = root().join("plain.tsx");
+    let migrated = migrate(&file, "export const A = () => <p className=\"ring\" />\n", &options, &Plain);
+    assert!(migrated.source.contains("boxShadow: `${compose.width}, ${compose.shadow}`"), "{}", migrated.source);
 }
 
 #[test]

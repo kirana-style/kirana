@@ -301,6 +301,11 @@ describe("utility and object forms produce identical atoms", () => {
     same("px-2 px-4", `{ paddingInline: space["4"] }`)
     same("w-(--sidebar)", `{ width: "var(--sidebar)" }`)
     same("bg-(--brand)", `{ backgroundColor: "var(--brand)" }`)
+    same("bg-[url(/a.png)]", `{ backgroundImage: "url(/a.png)" }`)
+    same(
+      "bg-[repeating-linear-gradient(45deg,red_0_1px,transparent_1px_8px)]",
+      `{ backgroundImage: "repeating-linear-gradient(45deg,red 0 1px,transparent 1px 8px)" }`
+    )
     same(
       "-translate-x-1/2",
       '{ [compose["translate-x"]]: "calc(calc(1/2 * 100%) * -1)", translate: `${compose["translate-x"]} ${compose["translate-y"]}` }'
