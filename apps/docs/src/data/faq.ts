@@ -3,7 +3,7 @@
  * answer is stated, with its source, on the page it links to.
  */
 import { RUNTIME_SIZE } from "@/data/benchmarks"
-import { LISTS, sentence } from "@/data/facts"
+import { COUNTS, LISTS, sentence, Word } from "@/data/facts"
 
 export const FAQ: readonly {
   topic: string
@@ -72,7 +72,7 @@ export const FAQ: readonly {
       },
       {
         q: "Can my AI tools read these docs?",
-        a: "Yes: llms.txt, llms-full.txt and a markdown twin of every page, with Copy page and Open in ChatGPT or Claude on each. Two agent skills, installed with npx skills add, teach an agent to write Kirana and to migrate to it.",
+        a: `Yes: llms.txt, llms-full.txt and a markdown twin of every page, with Copy page and Open in ChatGPT or Claude on each. ${Word(COUNTS.skills)} agent skills, installed with npx skills add, teach an agent to write Kirana and to migrate to it.`,
         href: "/docs/project/llms",
         link: "Docs for language models",
       },

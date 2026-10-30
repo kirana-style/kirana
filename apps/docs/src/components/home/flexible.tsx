@@ -19,6 +19,7 @@ import {
   lineHeight,
 } from "@workspace/ui/tokens/typography"
 
+import { COUNTS, Word } from "@/data/facts"
 import { SHOWCASE } from "@/generated/showcase.gen"
 import { IllustratedCard } from "@/components/site/illustrated-card"
 import { At, Card, Row, Scene, T, Tile } from "@/components/site/visuals"
@@ -256,7 +257,7 @@ const AGENT_POINTS: readonly { title: string; text: string }[] = [
   },
   {
     title: "Skills and docs it can load",
-    text: "Two agent skills it installs with npx skills add, and llms.txt, llms-full.txt and a markdown twin of every page.",
+    text: `${Word(COUNTS.skills)} agent skills it installs with npx skills add, and llms.txt, llms-full.txt and a markdown twin of every page.`,
   },
   {
     title: "Its pick of scale",

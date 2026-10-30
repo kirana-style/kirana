@@ -152,7 +152,7 @@ const ENTRIES: Entry[] = [
     accent: "dusk",
     icon: GridViewIcon,
     scene: "misty-hills",
-    name: "60+ shadcn blocks",
+    name: "The shadcn blocks",
     category: "Blocks",
     description:
       "Dashboards, sidebars, login screens and previews: the largest single body of styles Kirana compiles, and the one that found most of the compiler's merge-order bugs.",

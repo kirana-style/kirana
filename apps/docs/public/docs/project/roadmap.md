@@ -3,8 +3,8 @@ Source: https://kirana.style/docs/project/roadmap
 
 # Roadmap
 
-Seven milestones and two decision gates. Six are done and on npm; the seventh is
-1.0. Dates are deliberately absent: this is built by one person with AI
+The roadmap has seven milestones and two decision gates;
+six of them are done and on npm, and the last is 1.0. Dates are deliberately absent: this is built by one person with AI
 assistance, and a date would be fiction.
 
 | Milestone | Status | What it covers |

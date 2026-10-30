@@ -4,7 +4,7 @@ Source: https://kirana.style/docs/project/status
 # What works today
 
 Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the
-API. It compiles three real applications in our shadcn/ui port (a demo, 60+
+API. It compiles three real applications in our shadcn/ui port (a demo, the
 shadcn blocks and one page per component), and its own test suite keeps 100 %
 line coverage. The [changelog](/changelog) lists every release.
 

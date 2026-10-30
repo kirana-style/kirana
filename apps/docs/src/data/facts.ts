@@ -8,11 +8,12 @@
 import { API, COMMANDS } from "../generated/cli.gen.ts"
 import { DIAGNOSTICS } from "../generated/diagnostics.gen.ts"
 import { LINT } from "../generated/lint.gen.ts"
-import { PACKAGES } from "../generated/packages.gen.ts"
+import { NATIVE_TARGETS, PACKAGES, SKILLS } from "../generated/packages.gen.ts"
 import { BENCH, CLAIMS, DENSE, RUNTIME_SIZE } from "./benchmarks.ts"
 import { FRAMEWORK_GUIDES } from "./frameworks.ts"
 import type { GuideGroup } from "./frameworks.ts"
 import { PUBLISHED, VERSION } from "./release.ts"
+import { MILESTONES } from "./roadmap.ts"
 import { LINTERS } from "./tooling.ts"
 
 export { CORE_PACKAGE, GITHUB, NPM, REPOSITORY } from "./links.ts"
@@ -64,6 +65,11 @@ export const COUNTS = {
   serverFrameworks: guides("server").length,
   bundlers: guides("bundlers").length,
   commands: COMMANDS.length,
+  nativeTargets: NATIVE_TARGETS.length,
+  skills: SKILLS.length,
+  milestones: MILESTONES.length,
+  milestonesDone: MILESTONES.filter((milestone) => milestone.status === "Done")
+    .length,
 } as const
 
 export const LISTS = {
@@ -85,6 +91,7 @@ export const LISTS = {
   commands: COMMANDS.map((command) => `kirana-style ${command}`),
   api: [...API],
   biomeRules: LINT.filter((rule) => rule.biome).map((rule) => rule.name),
+  skills: [...SKILLS],
 } as const
 
 /** Number words for counts a sentence starts with or spells out. */
@@ -105,6 +112,12 @@ const WORDS = [
 ]
 const word = (count: number) => WORDS[count] ?? String(count)
 
+/** A count spelled out at the start of a sentence: "Two agent skills". */
+export const Word = (count: number) => {
+  const spelled = word(count)
+  return spelled[0]!.toUpperCase() + spelled.slice(1)
+}
+
 /** The `{{fact:name}}` values markdown may use. */
 export const FACTS: Readonly<Record<string, string>> = {
   diagnostics: String(COUNTS.diagnostics),
@@ -113,6 +126,10 @@ export const FACTS: Readonly<Record<string, string>> = {
   "biome-rules": String(COUNTS.biomeRules),
   "biome-rules-word": word(COUNTS.biomeRules),
   packages: String(COUNTS.packages),
+  "native-targets-word": word(COUNTS.nativeTargets),
+  "skills-word": word(COUNTS.skills),
+  "milestones-word": word(COUNTS.milestones),
+  "milestones-done-word": word(COUNTS.milestonesDone),
   frameworks: sentence(LISTS.frameworks),
   libraries: sentence(LISTS.libraries),
   "frameworks-count": String(COUNTS.frameworks),

@@ -3838,7 +3838,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Verifying a migration",
     "section": "migration",
     "heading": "How it runs",
-    "text": "The harness builds the Kirana app and the two baselines, serves all three, crawls every route and diffs. It is how 60+ blocks and every component were verified, and it is what caught the merge-order bugs that a human review had passed. The harness runs in a separate repository beside the StyleX port and the Tailwind original, which this one does not carry."
+    "text": "The harness builds the Kirana app and the two baselines, serves all three, crawls every route and diffs. It is how the blocks and every component were verified, and it is what caught the merge-order bugs that a human review had passed. The harness runs in a separate repository beside the StyleX port and the Tailwind original, which this one does not carry."
   },
   {
     "id": "/docs/building/tips",
@@ -5247,7 +5247,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "What works today",
-    "text": "Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the API. It compiles three real applications in our shadcn/ui port (a demo, 60+ shadcn blocks and one page per component), and its own test suite keeps 100 % line coverage. The changelog lists every release."
+    "text": "Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the API. It compiles three real applications in our shadcn/ui port (a demo, the shadcn blocks and one page per component), and its own test suite keeps 100 % line coverage. The changelog lists every release."
   },
   {
     "id": "/docs/project/status#built",
@@ -5294,7 +5294,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Roadmap",
     "section": "project",
     "heading": "Roadmap",
-    "text": "Seven milestones and two decision gates. Six are done and on npm; the seventh is 1.0. Dates are deliberately absent: this is built by one person with AI assistance, and a date would be fiction. Until 1.0, releases come from the work below as it lands, each listed in the changelog ."
+    "text": "The roadmap has seven milestones and two decision gates; six of them are done and on npm, and the last is 1.0. Dates are deliberately absent: this is built by one person with AI assistance, and a date would be fiction. Until 1.0, releases come from the work below as it lands, each listed in the changelog ."
   },
   {
     "id": "/docs/project/roadmap#m0-foundations",
