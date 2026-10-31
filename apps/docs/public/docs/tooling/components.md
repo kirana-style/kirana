@@ -1,5 +1,5 @@
 # Installing components
-Source: https://kirana.style/docs/tooling/components
+Source: https://site.kirana-style.workers.dev/docs/tooling/components
 
 # Installing components
 

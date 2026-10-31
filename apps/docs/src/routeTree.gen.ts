@@ -15,6 +15,7 @@ import { Route as CompareRouteImport } from "./routes/compare"
 import { Route as CompilerRouteImport } from "./routes/compiler"
 import { Route as DocsRouteImport } from "./routes/docs"
 import { Route as EcosystemRouteImport } from "./routes/ecosystem"
+import { Route as EditorRouteImport } from "./routes/editor"
 import { Route as LicenseRouteImport } from "./routes/license"
 import { Route as MigrateRouteImport } from "./routes/migrate"
 import { Route as OpenSourceRouteImport } from "./routes/open-source"
@@ -22,6 +23,7 @@ import { Route as PartnersRouteImport } from "./routes/partners"
 import { Route as PlayRouteImport } from "./routes/play"
 import { Route as ShowcaseRouteImport } from "./routes/showcase"
 import { Route as SponsorsRouteImport } from "./routes/sponsors"
+import { Route as UiRouteImport } from "./routes/ui"
 import { Route as WhyRouteImport } from "./routes/why"
 import { Route as ApiRepoStatsRouteImport } from "./routes/api.repo-stats"
 import { Route as BlogIndexRouteImport } from "./routes/blog.index"
@@ -60,6 +62,11 @@ const EcosystemRoute = EcosystemRouteImport.update({
   path: "/ecosystem",
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditorRoute = EditorRouteImport.update({
+  id: "/editor",
+  path: "/editor",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LicenseRoute = LicenseRouteImport.update({
   id: "/license",
   path: "/license",
@@ -93,6 +100,11 @@ const ShowcaseRoute = ShowcaseRouteImport.update({
 const SponsorsRoute = SponsorsRouteImport.update({
   id: "/sponsors",
   path: "/sponsors",
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UiRoute = UiRouteImport.update({
+  id: "/ui",
+  path: "/ui",
   getParentRoute: () => rootRouteImport,
 } as any)
 const WhyRoute = WhyRouteImport.update({
@@ -138,6 +150,7 @@ export interface FileRoutesByFullPath {
   "/compiler": typeof CompilerRoute
   "/docs": typeof DocsRouteWithChildren
   "/ecosystem": typeof EcosystemRoute
+  "/editor": typeof EditorRoute
   "/license": typeof LicenseRoute
   "/migrate": typeof MigrateRoute
   "/open-source": typeof OpenSourceRoute
@@ -145,6 +158,7 @@ export interface FileRoutesByFullPath {
   "/play": typeof PlayRoute
   "/showcase": typeof ShowcaseRoute
   "/sponsors": typeof SponsorsRoute
+  "/ui": typeof UiRoute
   "/why": typeof WhyRoute
   "/api/repo-stats": typeof ApiRepoStatsRoute
   "/blog/$slug": typeof BlogSlugRoute
@@ -160,6 +174,7 @@ export interface FileRoutesByTo {
   "/compiler": typeof CompilerRoute
   "/docs": typeof DocsRouteWithChildren
   "/ecosystem": typeof EcosystemRoute
+  "/editor": typeof EditorRoute
   "/license": typeof LicenseRoute
   "/migrate": typeof MigrateRoute
   "/open-source": typeof OpenSourceRoute
@@ -167,6 +182,7 @@ export interface FileRoutesByTo {
   "/play": typeof PlayRoute
   "/showcase": typeof ShowcaseRoute
   "/sponsors": typeof SponsorsRoute
+  "/ui": typeof UiRoute
   "/why": typeof WhyRoute
   "/api/repo-stats": typeof ApiRepoStatsRoute
   "/blog/$slug": typeof BlogSlugRoute
@@ -183,6 +199,7 @@ export interface FileRoutesById {
   "/compiler": typeof CompilerRoute
   "/docs": typeof DocsRouteWithChildren
   "/ecosystem": typeof EcosystemRoute
+  "/editor": typeof EditorRoute
   "/license": typeof LicenseRoute
   "/migrate": typeof MigrateRoute
   "/open-source": typeof OpenSourceRoute
@@ -190,6 +207,7 @@ export interface FileRoutesById {
   "/play": typeof PlayRoute
   "/showcase": typeof ShowcaseRoute
   "/sponsors": typeof SponsorsRoute
+  "/ui": typeof UiRoute
   "/why": typeof WhyRoute
   "/api/repo-stats": typeof ApiRepoStatsRoute
   "/blog/$slug": typeof BlogSlugRoute
@@ -207,6 +225,7 @@ export interface FileRouteTypes {
     | "/compiler"
     | "/docs"
     | "/ecosystem"
+    | "/editor"
     | "/license"
     | "/migrate"
     | "/open-source"
@@ -214,6 +233,7 @@ export interface FileRouteTypes {
     | "/play"
     | "/showcase"
     | "/sponsors"
+    | "/ui"
     | "/why"
     | "/api/repo-stats"
     | "/blog/$slug"
@@ -229,6 +249,7 @@ export interface FileRouteTypes {
     | "/compiler"
     | "/docs"
     | "/ecosystem"
+    | "/editor"
     | "/license"
     | "/migrate"
     | "/open-source"
@@ -236,6 +257,7 @@ export interface FileRouteTypes {
     | "/play"
     | "/showcase"
     | "/sponsors"
+    | "/ui"
     | "/why"
     | "/api/repo-stats"
     | "/blog/$slug"
@@ -251,6 +273,7 @@ export interface FileRouteTypes {
     | "/compiler"
     | "/docs"
     | "/ecosystem"
+    | "/editor"
     | "/license"
     | "/migrate"
     | "/open-source"
@@ -258,6 +281,7 @@ export interface FileRouteTypes {
     | "/play"
     | "/showcase"
     | "/sponsors"
+    | "/ui"
     | "/why"
     | "/api/repo-stats"
     | "/blog/$slug"
@@ -274,6 +298,7 @@ export interface RootRouteChildren {
   CompilerRoute: typeof CompilerRoute
   DocsRoute: typeof DocsRouteWithChildren
   EcosystemRoute: typeof EcosystemRoute
+  EditorRoute: typeof EditorRoute
   LicenseRoute: typeof LicenseRoute
   MigrateRoute: typeof MigrateRoute
   OpenSourceRoute: typeof OpenSourceRoute
@@ -281,6 +306,7 @@ export interface RootRouteChildren {
   PlayRoute: typeof PlayRoute
   ShowcaseRoute: typeof ShowcaseRoute
   SponsorsRoute: typeof SponsorsRoute
+  UiRoute: typeof UiRoute
   WhyRoute: typeof WhyRoute
   ApiRepoStatsRoute: typeof ApiRepoStatsRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -333,6 +359,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof EcosystemRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/editor": {
+      id: "/editor"
+      path: "/editor"
+      fullPath: "/editor"
+      preLoaderRoute: typeof EditorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/license": {
       id: "/license"
       path: "/license"
@@ -380,6 +413,13 @@ declare module "@tanstack/react-router" {
       path: "/sponsors"
       fullPath: "/sponsors"
       preLoaderRoute: typeof SponsorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    "/ui": {
+      id: "/ui"
+      path: "/ui"
+      fullPath: "/ui"
+      preLoaderRoute: typeof UiRouteImport
       parentRoute: typeof rootRouteImport
     }
     "/why": {
@@ -451,6 +491,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompilerRoute: CompilerRoute,
   DocsRoute: DocsRouteWithChildren,
   EcosystemRoute: EcosystemRoute,
+  EditorRoute: EditorRoute,
   LicenseRoute: LicenseRoute,
   MigrateRoute: MigrateRoute,
   OpenSourceRoute: OpenSourceRoute,
@@ -458,6 +499,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlayRoute: PlayRoute,
   ShowcaseRoute: ShowcaseRoute,
   SponsorsRoute: SponsorsRoute,
+  UiRoute: UiRoute,
   WhyRoute: WhyRoute,
   ApiRepoStatsRoute: ApiRepoStatsRoute,
   BlogSlugRoute: BlogSlugRoute,

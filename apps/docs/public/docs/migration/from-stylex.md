@@ -1,5 +1,5 @@
 # Migrating from StyleX
-Source: https://kirana.style/docs/migration/from-stylex
+Source: https://site.kirana-style.workers.dev/docs/migration/from-stylex
 
 # Migrating from StyleX
 

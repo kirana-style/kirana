@@ -1,5 +1,5 @@
 # Relations
-Source: https://kirana.style/docs/styling/relations
+Source: https://site.kirana-style.workers.dev/docs/styling/relations
 
 # Relations
 

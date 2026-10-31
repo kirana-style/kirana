@@ -1,5 +1,5 @@
 # Agent skills
-Source: https://kirana.style/docs/project/agent-skills
+Source: https://site.kirana-style.workers.dev/docs/project/agent-skills
 
 # Agent skills
 

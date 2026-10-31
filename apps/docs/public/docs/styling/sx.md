@@ -1,5 +1,5 @@
 # The sx prop
-Source: https://kirana.style/docs/styling/sx
+Source: https://site.kirana-style.workers.dev/docs/styling/sx
 
 # The `sx` prop
 

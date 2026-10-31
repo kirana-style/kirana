@@ -1,5 +1,5 @@
 # Semantic tokens
-Source: https://kirana.style/docs/tokens/semantic-tokens
+Source: https://site.kirana-style.workers.dev/docs/tokens/semantic-tokens
 
 # Semantic tokens
 

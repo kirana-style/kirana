@@ -1,5 +1,5 @@
 # For LLMs
-Source: https://kirana.style/docs/project/llms
+Source: https://site.kirana-style.workers.dev/docs/project/llms
 
 # For LLMs
 

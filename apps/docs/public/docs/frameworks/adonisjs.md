@@ -1,5 +1,5 @@
 # AdonisJS
-Source: https://kirana.style/docs/frameworks/adonisjs
+Source: https://site.kirana-style.workers.dev/docs/frameworks/adonisjs
 
 # AdonisJS
 

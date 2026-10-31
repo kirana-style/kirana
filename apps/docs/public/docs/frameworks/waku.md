@@ -1,5 +1,5 @@
 # Waku
-Source: https://kirana.style/docs/frameworks/waku
+Source: https://site.kirana-style.workers.dev/docs/frameworks/waku
 
 # Waku
 

@@ -1,5 +1,5 @@
 # The configuration file
-Source: https://kirana.style/docs/config/file
+Source: https://site.kirana-style.workers.dev/docs/config/file
 
 # The configuration file
 

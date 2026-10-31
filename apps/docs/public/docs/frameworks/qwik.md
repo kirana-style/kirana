@@ -1,5 +1,5 @@
 # Qwik
-Source: https://kirana.style/docs/frameworks/qwik
+Source: https://site.kirana-style.workers.dev/docs/frameworks/qwik
 
 # Qwik
 

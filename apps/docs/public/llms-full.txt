@@ -1,10 +1,10 @@
 # Kirana documentation
 
-Every page, in reading order. Generated from the same source as https://kirana.style/docs.
+Every page, in reading order. Generated from the same source as https://site.kirana-style.workers.dev/docs.
 
 ---
 # Introduction
-Source: https://kirana.style/docs
+Source: https://site.kirana-style.workers.dev/docs
 # Introduction
 
 Kirana compiles the styles you write next to your components into a plain CSS file.
@@ -65,7 +65,7 @@ the source it can see.
 > what works today.
 ---
 # Why Kirana
-Source: https://kirana.style/docs/start/why-kirana
+Source: https://site.kirana-style.workers.dev/docs/start/why-kirana
 # Why Kirana
 
 "CSS-in-JS" means two different things, and most of the dislike is for the
@@ -284,7 +284,7 @@ is still one rule.
   installs as a dev extension until it is in Zed's registry.
 ---
 # Quick start
-Source: https://kirana.style/docs/start/quick-start
+Source: https://site.kirana-style.workers.dev/docs/start/quick-start
 # Quick start
 
 Pick your framework. The steps below are read from its guide, so they always match it.
@@ -311,7 +311,7 @@ same first run for pnpm, Yarn and Bun.
 - [Every framework guide](/docs/frameworks/overview), with what `sx` compiles to in each.
 ---
 # Installation
-Source: https://kirana.style/docs/start/installation
+Source: https://site.kirana-style.workers.dev/docs/start/installation
 # Installation
 
 ## Let `kirana-style init` do it
@@ -628,7 +628,7 @@ The native engine comes from the checkout's build (`vp run build` there, or
 `vp run engine`).
 ---
 # Your first component
-Source: https://kirana.style/docs/start/first-component
+Source: https://site.kirana-style.workers.dev/docs/start/first-component
 # Your first component
 
 A button, with a hover state and a second variant. Everything below is one file,
@@ -673,7 +673,7 @@ why that keeps the stylesheet small.
 - [Mental model](/docs/start/mental-model): the five ideas the rest builds on.
 ---
 # Mental model
-Source: https://kirana.style/docs/start/mental-model
+Source: https://site.kirana-style.workers.dev/docs/start/mental-model
 # Mental model
 
 Five ideas. Everything else in these docs is a consequence of one of them.
@@ -780,7 +780,7 @@ if it shows `p 1rem`, the element gets `padding: 1rem`. See
   _removes_ an earlier one. [Migration guide](/docs/migration/from-stylex).
 ---
 # How it works
-Source: https://kirana.style/docs/start/how-it-works
+Source: https://site.kirana-style.workers.dev/docs/start/how-it-works
 # How it works
 
 Kirana is a compiler. It reads your modules at build time, works out every style
@@ -857,7 +857,7 @@ Next: [the mental model](/docs/start/mental-model), five ideas that follow from
 this design, and make everything else predictable.
 ---
 # Writing styles
-Source: https://kirana.style/docs/styling/styles
+Source: https://site.kirana-style.workers.dev/docs/styling/styles
 # Writing styles
 
 `css()` takes style objects and returns a handle. A handle is an opaque value:
@@ -981,7 +981,7 @@ known at render time, which is its own topic:
 - [Conditions](/docs/styling/conditions): hover, breakpoints, attributes.
 ---
 # The sx prop
-Source: https://kirana.style/docs/styling/sx
+Source: https://site.kirana-style.workers.dev/docs/styling/sx
 # The `sx` prop
 
 `sx` is not an import. The compiler recognises it on any element in a module it
@@ -1079,7 +1079,7 @@ to the same atoms as its object; without one it is the `utility-surface-disabled
 error.
 ---
 # Conditions
-Source: https://kirana.style/docs/styling/conditions
+Source: https://site.kirana-style.workers.dev/docs/styling/conditions
 # Conditions
 
 A condition goes **inside** the value it changes, not around the object that
@@ -1221,7 +1221,7 @@ Next: [precedence](/docs/styling/precedence), the ladder that decides which
 condition wins.
 ---
 # Utility strings
-Source: https://kirana.style/docs/styling/utilities
+Source: https://site.kirana-style.workers.dev/docs/styling/utilities
 # Utility strings
 
 With a preset that declares a utility grammar, `sx` also takes a string:
@@ -1437,7 +1437,7 @@ by root, variant by variant and handle by handle. The full shape is in the
 [configuration reference](/docs/reference/config#utilities).
 ---
 # At-rules
-Source: https://kirana.style/docs/styling/at-rules
+Source: https://site.kirana-style.workers.dev/docs/styling/at-rules
 # At-rules
 
 An at-rule that a style depends on is written by Kirana, under a hashed name and
@@ -1602,7 +1602,7 @@ The compiler reads the constant across modules, so a query is written once and
 every style that names it is checked.
 ---
 # Merging and removal
-Source: https://kirana.style/docs/styling/merging
+Source: https://site.kirana-style.workers.dev/docs/styling/merging
 # Merging and removal
 
 Styles combine in three places: `css(a, b)`, `cx(a, b)`, and `sx={[a, b]}`. All
@@ -1751,7 +1751,7 @@ export function Card({
 Declaring `sx` and never applying it is reported (`unused-sx`).
 ---
 # Precedence
-Source: https://kirana.style/docs/styling/precedence
+Source: https://site.kirana-style.workers.dev/docs/styling/precedence
 # Precedence
 
 Every rule Kirana writes is a single class, so every rule has the same
@@ -1882,7 +1882,7 @@ the winner, and names the step that decided it, for example
 `step 5 (set 1 longhand < 4)`.
 ---
 # Styling other people's components
-Source: https://kirana.style/docs/styling/external-components
+Source: https://site.kirana-style.workers.dev/docs/styling/external-components
 # Styling other people's components
 
 `sx` works on elements your module renders. A component from an installed package
@@ -1978,7 +1978,7 @@ Two options, in order:
    resort: it is markup you do not own, and nothing checks it.
 ---
 # Component states
-Source: https://kirana.style/docs/styling/states
+Source: https://site.kirana-style.workers.dev/docs/styling/states
 # Component states
 
 A headless component library renders the behaviour and leaves the styling to you. It
@@ -2185,7 +2185,7 @@ of one attribute never hold together, so `open` and `closed` need no nesting.
   state.
 ---
 # Relations
-Source: https://kirana.style/docs/styling/relations
+Source: https://site.kirana-style.workers.dev/docs/styling/relations
 # Relations
 
 Sometimes an element's style depends on _another_ element's state: a label that
@@ -2356,7 +2356,7 @@ takes the nested gap over a style's wider one without restating it under every
 style.
 ---
 # Contextual styles
-Source: https://kirana.style/docs/styling/contextual
+Source: https://site.kirana-style.workers.dev/docs/styling/contextual
 # Contextual styles
 
 `select` styles elements _below_ an element you render, by name, class or attribute:
@@ -2459,7 +2459,7 @@ lands in the higher layer where it belongs.
 | The element is below you and you just need a default      | `select`                                       |
 ---
 # Recipes
-Source: https://kirana.style/docs/styling/recipes
+Source: https://site.kirana-style.workers.dev/docs/styling/recipes
 # Recipes
 
 A recipe is a component's variants in one place: a base style, named groups of
@@ -2566,7 +2566,7 @@ const styles = {
 ```
 ---
 # Animation
-Source: https://kirana.style/docs/styling/animation
+Source: https://site.kirana-style.workers.dev/docs/styling/animation
 # Animation
 
 ## Keyframes
@@ -2662,7 +2662,7 @@ selectors cannot prove it, declare them as exclusive once in
 which of the two wins.
 ---
 # Values known at runtime
-Source: https://kirana.style/docs/styling/dynamic
+Source: https://site.kirana-style.workers.dev/docs/styling/dynamic
 # Values known at runtime
 
 Kirana compiles styles, but some values are only known when the component runs: a
@@ -2776,7 +2776,7 @@ different property depending on state, write both and choose between handles:
   ```
 ---
 # Fallback values
-Source: https://kirana.style/docs/styling/fallbacks
+Source: https://site.kirana-style.workers.dev/docs/styling/fallbacks
 # Fallback values
 
 A browser drops a declaration whose value it does not understand and keeps the
@@ -2850,7 +2850,7 @@ the new value but renders it wrongly, use a [`supports()`](/docs/styling/conditi
 condition instead.
 ---
 # Anchor positioning
-Source: https://kirana.style/docs/styling/anchor-positioning
+Source: https://site.kirana-style.workers.dev/docs/styling/anchor-positioning
 # Anchor positioning
 
 CSS anchor positioning places an element against another one, and
@@ -2925,7 +2925,7 @@ a `css()` style on that element, or an inline `style` when the name depends on
 data.
 ---
 # View transitions
-Source: https://kirana.style/docs/styling/view-transitions
+Source: https://site.kirana-style.workers.dev/docs/styling/view-transitions
 # View transitions
 
 During a view transition the browser draws an element's old and new states in
@@ -3013,7 +3013,7 @@ Like keyframes, the class is hashed from its parts, so the same transition
 defined twice is one rule, and it ships only where something uses it.
 ---
 # Tokens
-Source: https://kirana.style/docs/tokens/overview
+Source: https://site.kirana-style.workers.dev/docs/tokens/overview
 # Tokens
 
 A token is a named value your styles refer to. In Kirana it is an ordinary
@@ -3167,7 +3167,7 @@ knowing the other's class names.
   top.
 ---
 # Starting with no preset, then scales
-Source: https://kirana.style/docs/tokens/preset-scales
+Source: https://site.kirana-style.workers.dev/docs/tokens/preset-scales
 # From no preset, to scales
 
 Kirana has no opinion about what your spacing scale is. There is no default theme
@@ -3366,7 +3366,7 @@ on a `light-dark()` token and follows the colour scheme.
 | Gradients (`bg-linear-*`, `from-*`, `to-*`) and `container` | A value; they are not in the preset yet                     |
 ---
 # Semantic tokens
-Source: https://kirana.style/docs/tokens/semantic-tokens
+Source: https://site.kirana-style.workers.dev/docs/tokens/semantic-tokens
 # Semantic tokens
 
 Scales tell you what values exist. Semantic tokens say what they _mean_: what a
@@ -3464,7 +3464,7 @@ One module, exported, imported by every component. In this repository it is
 than a decision in each component.
 ---
 # Themes and modes
-Source: https://kirana.style/docs/tokens/themes-and-modes
+Source: https://site.kirana-style.workers.dev/docs/tokens/themes-and-modes
 # Themes and modes
 
 ## Modes
@@ -3723,7 +3723,7 @@ switch them all.
   theme the semantic layer instead.
 ---
 # The configuration file
-Source: https://kirana.style/docs/config/file
+Source: https://site.kirana-style.workers.dev/docs/config/file
 # The configuration file
 
 Configuration is optional. Every key has a default, and a project with no
@@ -3813,7 +3813,7 @@ That is how a component library tells every app what its attributes guarantee;
 see [`conditions.exclusive`](/docs/reference/config).
 ---
 # Layers and global CSS
-Source: https://kirana.style/docs/config/layers
+Source: https://site.kirana-style.workers.dev/docs/config/layers
 # Layers and global CSS
 
 Kirana writes every rule inside a layer, and declares the order in one statement
@@ -3947,7 +3947,7 @@ Everything else belongs in `css()`, where the compiler can see it, check it and
 tell you when two declarations fight.
 ---
 # Choose a framework
-Source: https://kirana.style/docs/frameworks/overview
+Source: https://site.kirana-style.workers.dev/docs/frameworks/overview
 # Choose a framework
 
 Kirana compiles the styles you write next to your components into class names
@@ -4136,7 +4136,7 @@ passes, not a claim.
 The bundlers have their own examples, listed on [each page](/docs/integrations/bundlers).
 ---
 # React
-Source: https://kirana.style/docs/frameworks/react
+Source: https://site.kirana-style.workers.dev/docs/frameworks/react
 # React
 
 `sx` compiles to `className` (and `style` for values known only at runtime).
@@ -4209,7 +4209,7 @@ Run `vite`: the page is styled, and editing a value updates it without a reload.
 - Not on Vite? [Other bundlers](/docs/integrations/bundlers).
 ---
 # Next.js
-Source: https://kirana.style/docs/frameworks/nextjs
+Source: https://site.kirana-style.workers.dev/docs/frameworks/nextjs
 # Next.js
 
 Kirana works with both of Next.js's bundlers: **Turbopack**, the default for
@@ -4350,7 +4350,7 @@ sends it as a CSS hot update ([development servers](/docs/integrations/bundlers#
   and a variant, and the CSS it compiles to.
 ---
 # React Router
-Source: https://kirana.style/docs/frameworks/react-router
+Source: https://site.kirana-style.workers.dev/docs/frameworks/react-router
 # React Router
 
 React Router's framework mode builds with Vite, so Kirana's Vite plugin is all it
@@ -4430,7 +4430,7 @@ export default function Home() {
 - [The Vite plugin](/docs/integrations/vite).
 ---
 # TanStack Start
-Source: https://kirana.style/docs/frameworks/tanstack-start
+Source: https://site.kirana-style.workers.dev/docs/frameworks/tanstack-start
 # TanStack Start
 
 This site, and the three applications of our shadcn/ui port, are TanStack
@@ -4529,7 +4529,7 @@ and React on other bundlers is in [other bundlers](/docs/integrations/bundlers).
   and a variant, and the CSS it compiles to.
 ---
 # Gatsby
-Source: https://kirana.style/docs/frameworks/gatsby
+Source: https://site.kirana-style.workers.dev/docs/frameworks/gatsby
 # Gatsby
 
 Gatsby builds with webpack in stages: the browser bundle, and the server render
@@ -4599,7 +4599,7 @@ Type `sx` with `"types": ["@kirana-style/core/react"]` in `tsconfig.json`.
 - [Styles](/docs/styling/styles).
 ---
 # Remix
-Source: https://kirana.style/docs/frameworks/remix
+Source: https://site.kirana-style.workers.dev/docs/frameworks/remix
 # Remix
 
 Remix 3 has no bundler. `node-tsx` compiles TypeScript and JSX as Node loads the
@@ -4729,7 +4729,7 @@ at the line you wrote.
 - [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).
 ---
 # Waku
-Source: https://kirana.style/docs/frameworks/waku
+Source: https://site.kirana-style.workers.dev/docs/frameworks/waku
 # Waku
 
 Waku builds with Vite, and takes Vite plugins under `vite` in `waku.config.ts`.
@@ -4811,7 +4811,7 @@ export const getConfig = async () => ({ render: "static" }) as const
 - [The Vite plugin](/docs/integrations/vite).
 ---
 # Vike
-Source: https://kirana.style/docs/frameworks/vike
+Source: https://site.kirana-style.workers.dev/docs/frameworks/vike
 # Vike
 
 Vike builds with Vite, so Kirana's Vite plugin compiles every page, layout and
@@ -4899,7 +4899,7 @@ export default function Page() {
 - [The Vite plugin](/docs/integrations/vite).
 ---
 # Docusaurus
-Source: https://kirana.style/docs/frameworks/docusaurus
+Source: https://site.kirana-style.workers.dev/docs/frameworks/docusaurus
 # Docusaurus
 
 Docusaurus builds with webpack, twice: the browser bundle, and the server render
@@ -5011,7 +5011,7 @@ Style your own elements, or wrappers around Infima's, and it does not come up.
 - [Layers](/docs/config/layers).
 ---
 # Preact
-Source: https://kirana.style/docs/frameworks/preact
+Source: https://site.kirana-style.workers.dev/docs/frameworks/preact
 # Preact
 
 `sx` compiles to `class` (and a style attribute for values known only at
@@ -5088,7 +5088,7 @@ spreads onto an element as it is, and the type entry types it that way. Read its
 - [The Vite plugin](/docs/integrations/vite).
 ---
 # Solid
-Source: https://kirana.style/docs/frameworks/solid
+Source: https://site.kirana-style.workers.dev/docs/frameworks/solid
 # Solid
 
 `sx` compiles to `class` (and a style attribute for values known only at
@@ -5165,7 +5165,7 @@ spreads onto an element as it is, and the type entry types it that way. Read its
 - [The Vite plugin](/docs/integrations/vite).
 ---
 # SolidStart
-Source: https://kirana.style/docs/frameworks/solid-start
+Source: https://site.kirana-style.workers.dev/docs/frameworks/solid-start
 # SolidStart
 
 SolidStart 2 builds with Vite, with its configuration in `vite.config.ts`, so
@@ -5246,7 +5246,7 @@ export default function Home() {
 - [The Vite plugin](/docs/integrations/vite).
 ---
 # Vue
-Source: https://kirana.style/docs/frameworks/vue
+Source: https://site.kirana-style.workers.dev/docs/frameworks/vue
 # Vue
 
 Declare styles in `<script setup>` and apply them with `:sx`. Kirana compiles the
@@ -5359,7 +5359,7 @@ On Nuxt, follow the [Nuxt guide](/docs/frameworks/nuxt): the plugin goes in
   and a variant, and the CSS it compiles to.
 ---
 # Nuxt
-Source: https://kirana.style/docs/frameworks/nuxt
+Source: https://site.kirana-style.workers.dev/docs/frameworks/nuxt
 # Nuxt
 
 Nuxt compiles Vue components with Vite, so Kirana works as it does in
@@ -5423,7 +5423,7 @@ In `nuxt dev`, editing a style updates the page in place, without a reload.
 - [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).
 ---
 # VitePress
-Source: https://kirana.style/docs/frameworks/vitepress
+Source: https://site.kirana-style.workers.dev/docs/frameworks/vitepress
 # VitePress
 
 VitePress builds with Vite, and takes Vite plugins under `vite` in
@@ -5524,7 +5524,7 @@ Register it in the theme's `enhanceApp`, and use `<Note>` in any page.
 - [The Vite plugin](/docs/integrations/vite), and `cssLayer`.
 ---
 # Svelte
-Source: https://kirana.style/docs/frameworks/svelte
+Source: https://site.kirana-style.workers.dev/docs/frameworks/svelte
 # Svelte
 
 Declare styles in the component's `<script>` and apply them with `sx`. Kirana
@@ -5627,7 +5627,7 @@ plugin goes before `sveltekit()`, and the stylesheet in the root layout.
   and a variant, and the CSS it compiles to.
 ---
 # SvelteKit
-Source: https://kirana.style/docs/frameworks/sveltekit
+Source: https://site.kirana-style.workers.dev/docs/frameworks/sveltekit
 # SvelteKit
 
 SvelteKit compiles Svelte components with Vite, so Kirana works as it does in
@@ -5707,7 +5707,7 @@ In `vite dev`, editing a style updates the page in place, without a reload.
 - [Styles](/docs/styling/styles) and [conditions](/docs/styling/conditions).
 ---
 # Astro
-Source: https://kirana.style/docs/frameworks/astro
+Source: https://site.kirana-style.workers.dev/docs/frameworks/astro
 # Astro
 
 Declare styles in the frontmatter and apply them with `sx`. Kirana compiles the
@@ -5788,7 +5788,7 @@ is not compiled, and says so when it runs.
   and a variant, and the CSS it compiles to.
 ---
 # Qwik
-Source: https://kirana.style/docs/frameworks/qwik
+Source: https://site.kirana-style.workers.dev/docs/frameworks/qwik
 # Qwik
 
 `sx` compiles to `class` (and a style attribute for values known only at
@@ -5898,7 +5898,7 @@ style edit then reaches the page like any other edit.
 - [The Vite plugin](/docs/integrations/vite).
 ---
 # Angular
-Source: https://kirana.style/docs/frameworks/angular
+Source: https://site.kirana-style.workers.dev/docs/frameworks/angular
 # Angular
 
 Kirana works with both ways of building Angular: the **Angular CLI**, through two
@@ -6108,7 +6108,7 @@ and diagnostics, as in JSX.
 - [The Vite plugin](/docs/integrations/vite), for Analog.
 ---
 # Ember.js
-Source: https://kirana.style/docs/frameworks/ember
+Source: https://site.kirana-style.workers.dev/docs/frameworks/ember
 # Ember.js
 
 Ember's template-tag components (`.gjs`, `.gts`) hold a `<template>` next to
@@ -6199,7 +6199,7 @@ from the component's code.
 - [The Vite plugin](/docs/integrations/vite).
 ---
 # Meteor
-Source: https://kirana.style/docs/frameworks/meteor
+Source: https://site.kirana-style.workers.dev/docs/frameworks/meteor
 # Meteor
 
 Since Meteor 3.4 the `rspack` package bundles app code with Rspack, so Kirana's
@@ -6277,7 +6277,7 @@ export const App = () => <h1 sx={title}>Hello</h1>
 - [Styles](/docs/styling/styles).
 ---
 # No framework
-Source: https://kirana.style/docs/frameworks/vanilla
+Source: https://site.kirana-style.workers.dev/docs/frameworks/vanilla
 # No framework
 
 A style handle is a class string, and `cx` merges handles the way `sx` does. That
@@ -6334,7 +6334,7 @@ see the [CLI](/docs/tooling/cli).
   and a variant, and the CSS it compiles to.
 ---
 # Server templates
-Source: https://kirana.style/docs/frameworks/server-templates
+Source: https://site.kirana-style.workers.dev/docs/frameworks/server-templates
 # Server templates
 
 A server-rendered template cannot call `css()`. So a server app keeps its styles
@@ -6411,7 +6411,7 @@ change. Nothing about a style is decided in the template.
   template is read at build time.
 ---
 # Laravel
-Source: https://kirana.style/docs/frameworks/laravel
+Source: https://site.kirana-style.workers.dev/docs/frameworks/laravel
 # Laravel
 
 Blade templates name styles with `@kirana(…)`; the Kirana CLI writes the
@@ -6483,7 +6483,7 @@ your configuration to read it from elsewhere.
 - [Server templates](/docs/frameworks/server-templates): merging and the limits.
 ---
 # Symfony
-Source: https://kirana.style/docs/frameworks/symfony
+Source: https://site.kirana-style.workers.dev/docs/frameworks/symfony
 # Symfony
 
 Twig templates name styles with `kirana(…)`; the Kirana CLI writes the
@@ -6556,7 +6556,7 @@ both files once, for production.
 - [Server templates](/docs/frameworks/server-templates): merging and the limits.
 ---
 # Ruby on Rails
-Source: https://kirana.style/docs/frameworks/rails
+Source: https://site.kirana-style.workers.dev/docs/frameworks/rails
 # Ruby on Rails
 
 ERB views name styles with the `kirana` helper, which the gem's Railtie puts in
@@ -6620,7 +6620,7 @@ The helper reads the class map again whenever `kirana-style dev` rewrites it. Se
 - [Server templates](/docs/frameworks/server-templates): merging and the limits.
 ---
 # Phoenix
-Source: https://kirana.style/docs/frameworks/phoenix
+Source: https://site.kirana-style.workers.dev/docs/frameworks/phoenix
 # Phoenix
 
 HEEx templates name styles with `kirana/1`; the Kirana CLI writes the stylesheet
@@ -6702,7 +6702,7 @@ In your deploy, run `npx kirana-style build … --minify` before `mix phx.digest
 - [Server templates](/docs/frameworks/server-templates): merging and the limits.
 ---
 # AdonisJS
-Source: https://kirana.style/docs/frameworks/adonisjs
+Source: https://site.kirana-style.workers.dev/docs/frameworks/adonisjs
 # AdonisJS
 
 Edge templates name styles with `kirana(…)`, a global `@kirana-style/adonis` registers;
@@ -6780,7 +6780,7 @@ The global reads the class map again whenever `kirana-style dev` rewrites it.
 - [Server templates](/docs/frameworks/server-templates): merging and the limits.
 ---
 # Choose a bundler
-Source: https://kirana.style/docs/integrations/bundlers
+Source: https://site.kirana-style.workers.dev/docs/integrations/bundlers
 # Choose a bundler
 
 Every adapter does the same small job: it hands modules that carry styles to the
@@ -6815,7 +6815,7 @@ builds it. CI checks exactly that: one React example, built with every bundler,
 must produce the same set of classes as with Vite.
 ---
 # Vite
-Source: https://kirana.style/docs/integrations/vite
+Source: https://site.kirana-style.workers.dev/docs/integrations/vite
 # Vite
 
 `@kirana-style/vite` is the adapter for Vite 8 and Rolldown. It owns a compiler session,
@@ -6960,7 +6960,7 @@ Vite 8 is Rolldown-backed, and the plugin uses Rolldown's filters, so a
 Rolldown-only setup works the same way.
 ---
 # Rolldown
-Source: https://kirana.style/docs/integrations/rolldown
+Source: https://site.kirana-style.workers.dev/docs/integrations/rolldown
 # Rolldown
 
 Rolldown on its own does not bundle CSS, so the adapter writes the stylesheet
@@ -7006,7 +7006,7 @@ build writes it as `dist/kirana.css`.
 - [Every bundler](/docs/integrations/bundlers).
 ---
 # webpack
-Source: https://kirana.style/docs/integrations/webpack
+Source: https://site.kirana-style.workers.dev/docs/integrations/webpack
 # webpack
 
 The plugin adds its loader in front of your own (`enforce: "pre"`), so it reads
@@ -7053,7 +7053,7 @@ in production; turn it off and the file name stops tracking the styles.
 - [Every bundler](/docs/integrations/bundlers).
 ---
 # Rspack and Rsbuild
-Source: https://kirana.style/docs/integrations/rspack
+Source: https://site.kirana-style.workers.dev/docs/integrations/rspack
 # Rspack and Rsbuild
 
 Rspack runs webpack's plugins unchanged, so Kirana's webpack plugin is its
@@ -7113,7 +7113,7 @@ import "@kirana-style/core/stylesheet.css"
 - [Every bundler](/docs/integrations/bundlers).
 ---
 # Parcel
-Source: https://kirana.style/docs/integrations/parcel
+Source: https://site.kirana-style.workers.dev/docs/integrations/parcel
 # Parcel
 
 Parcel runs transformers in worker processes, with no step that sees every
@@ -7160,7 +7160,7 @@ Link that stylesheet from your HTML, as any other.
 - [Every bundler](/docs/integrations/bundlers).
 ---
 # Bun
-Source: https://kirana.style/docs/integrations/bun
+Source: https://site.kirana-style.workers.dev/docs/integrations/bun
 # Bun
 
 Bun writes CSS imported from an entry next to it (`main.css`), and the plugin
@@ -7219,7 +7219,7 @@ finish.
 - [Every bundler](/docs/integrations/bundlers).
 ---
 # esbuild
-Source: https://kirana.style/docs/integrations/esbuild
+Source: https://site.kirana-style.workers.dev/docs/integrations/esbuild
 # esbuild
 
 esbuild writes CSS imported from an entry beside it (`main.css`), and the plugin
@@ -7264,7 +7264,7 @@ import "@kirana-style/core/stylesheet.css"
 - [Every bundler](/docs/integrations/bundlers).
 ---
 # PostCSS
-Source: https://kirana.style/docs/integrations/postcss
+Source: https://site.kirana-style.workers.dev/docs/integrations/postcss
 # PostCSS
 
 `@kirana-style/postcss` replaces `@kirana;` (or the stylesheet entry's placeholder) with
@@ -7310,7 +7310,7 @@ export default { plugins: { "@kirana-style/postcss": {} } }
 - [Every bundler](/docs/integrations/bundlers).
 ---
 # Jest
-Source: https://kirana.style/docs/integrations/jest
+Source: https://site.kirana-style.workers.dev/docs/integrations/jest
 # Jest
 
 Jest runs no bundler, so Kirana is a transformer: it compiles a module's styles,
@@ -7346,7 +7346,7 @@ reads, run Jest once with `--no-cache`.
 - [Every bundler](/docs/integrations/bundlers).
 ---
 # Storybook
-Source: https://kirana.style/docs/integrations/storybook
+Source: https://site.kirana-style.workers.dev/docs/integrations/storybook
 # Storybook
 
 Storybook's Vite builders (`@storybook/react-vite`, `@storybook/vue3-vite` and
@@ -7400,7 +7400,7 @@ the variant compiles to, and editing a style updates the story on the dev server
   `mode.light` and `mode.dark` in the preview.
 ---
 # Migrating from Tailwind
-Source: https://kirana.style/docs/migration/from-tailwind
+Source: https://site.kirana-style.workers.dev/docs/migration/from-tailwind
 # Migrating from Tailwind
 
 We have done this migration at full scale (every shadcn/ui component, three
@@ -7777,7 +7777,7 @@ diagnostics for the mistakes that used to be silent, and a stylesheet that grows
 with distinct declarations instead of with markup.
 ---
 # Migrating from StyleX
-Source: https://kirana.style/docs/migration/from-stylex
+Source: https://site.kirana-style.workers.dev/docs/migration/from-stylex
 # Migrating from StyleX
 
 If you write StyleX today, most of your styles are already Kirana styles: both
@@ -7983,7 +7983,7 @@ will find the relations without anchors, the components that swallow `sx`, and t
 ambiguous pairs. Fix those and the port is done.
 ---
 # Verifying a migration
-Source: https://kirana.style/docs/migration/conformance
+Source: https://site.kirana-style.workers.dev/docs/migration/conformance
 # Verifying a migration
 
 When you rewrite an application's styling, the question is not "does it look
@@ -8031,7 +8031,7 @@ The harness runs in a separate repository beside the StyleX port and the
 Tailwind original, which this one does not carry.
 ---
 # Habits for a new project
-Source: https://kirana.style/docs/building/tips
+Source: https://site.kirana-style.workers.dev/docs/building/tips
 # Habits for a new project
 
 Fifteen habits from building every shadcn/ui component on Kirana and migrating
@@ -8314,7 +8314,7 @@ missing hover state were all invisible in screenshots and obvious in a diff. See
 [conformance](/docs/migration/conformance).
 ---
 # Building a design system
-Source: https://kirana.style/docs/building/design-system
+Source: https://site.kirana-style.workers.dev/docs/building/design-system
 # Building a design system
 
 Kirana is a compiler, not a design system. This repository builds one on top of
@@ -8367,7 +8367,7 @@ logical/physical box is flagged. Those are precisely the mistakes that make a
 system slowly stop being one.
 ---
 # Publishing a library
-Source: https://kirana.style/docs/building/libraries
+Source: https://site.kirana-style.workers.dev/docs/building/libraries
 # Publishing a library
 
 A Kirana library publishes its styles **uncompiled**, and each app that uses it
@@ -8437,7 +8437,7 @@ reasoning, with the measurements, is in the design note
 The one cost: an app that does not use Kirana cannot use a Kirana library.
 ---
 # The output
-Source: https://kirana.style/docs/building/output
+Source: https://site.kirana-style.workers.dev/docs/building/output
 # The output
 
 ## One declaration per rule
@@ -8577,7 +8577,7 @@ There is no style engine, no CSS-in-JS injection, and no rule generation at
 runtime.
 ---
 # Cloudflare Workers
-Source: https://kirana.style/docs/building/cloudflare-workers
+Source: https://site.kirana-style.workers.dev/docs/building/cloudflare-workers
 # Cloudflare Workers
 
 Cloudflare's Vite plugin runs an app's server half inside workerd, the runtime
@@ -8664,7 +8664,7 @@ A stylesheet you write goes through Vite's CSS minifier, which lowers
 [the Vite guide](/docs/integrations/vite#a-stylesheet-of-your-own) has the setting.
 ---
 # API reference
-Source: https://kirana.style/docs/reference/api
+Source: https://site.kirana-style.workers.dev/docs/reference/api
 # API reference
 
 Everything below is exported from `@kirana-style/core`, and every one of them is
@@ -8869,7 +8869,7 @@ Condition values for computed keys. [Conditions](/docs/styling/conditions).
 | `@kirana-style/core/internal`                            | the private runtime, not for application code         |
 ---
 # Configuration reference
-Source: https://kirana.style/docs/reference/config
+Source: https://site.kirana-style.workers.dev/docs/reference/config
 # Configuration reference
 
 Every key there is, and what each one changes.
@@ -9192,7 +9192,7 @@ Set by the adapter, not by you: the project root, which scopes a build and makes
 diagnostic paths relative.
 ---
 # The CLI
-Source: https://kirana.style/docs/tooling/cli
+Source: https://site.kirana-style.workers.dev/docs/tooling/cli
 # The CLI
 
 The `kirana-style` command, by what it does:
@@ -10016,7 +10016,7 @@ shown, and the command exits 1. With `--json`, each prints one object:
 Each failure is `{ document, message }`.
 ---
 # Editor support
-Source: https://kirana.style/docs/tooling/editor
+Source: https://site.kirana-style.workers.dev/docs/tooling/editor
 # Editor support
 
 <!-- ::editor-banner -->
@@ -10407,7 +10407,7 @@ budgets are 50 ms, 200 ms and 300 MB.
   the **Kirana** output channel.
 ---
 # Lint
-Source: https://kirana.style/docs/tooling/lint
+Source: https://site.kirana-style.workers.dev/docs/tooling/lint
 # Lint
 
 `@kirana-style/eslint-plugin` reports what the compiler knows, where the code is
@@ -10735,7 +10735,7 @@ inside `packages/ui` could not see, three real precedence ties, a shorthand that
 could not be split, and 21 unused styles.
 ---
 # Diagnostics reference
-Source: https://kirana.style/docs/tooling/diagnostics
+Source: https://site.kirana-style.workers.dev/docs/tooling/diagnostics
 # Diagnostics reference
 
 Every diagnostic has a stable code and a kebab-case name. Neither changes meaning
@@ -10867,7 +10867,7 @@ as data.
 <!-- ::diagnostics-figure -->
 ---
 # Debugging styles
-Source: https://kirana.style/docs/tooling/debugging
+Source: https://site.kirana-style.workers.dev/docs/tooling/debugging
 # Debugging styles
 
 A style is not doing what you expect. In rough order of likelihood:
@@ -10922,7 +10922,7 @@ Transition the property you actually set: `translate`, `scale` and `rotate` are
 not `transform`. See [animation](/docs/styling/animation).
 ---
 # Installing components
-Source: https://kirana.style/docs/tooling/components
+Source: https://site.kirana-style.workers.dev/docs/tooling/components
 # Installing components
 
 `kirana-style ui` copies components from a registry into your project, as
@@ -11109,7 +11109,7 @@ npx kirana-style ui add @acme/card
 your own.
 ---
 # Publishing a registry
-Source: https://kirana.style/docs/tooling/registries
+Source: https://site.kirana-style.workers.dev/docs/tooling/registries
 # Publishing a registry
 
 A registry is static JSON anyone can host: one document per item at a URL that
@@ -11330,7 +11330,7 @@ npx kirana-style ui validate public/r/button.json public/r/index.json
 in your registry's CI before you publish.
 ---
 # What works today
-Source: https://kirana.style/docs/project/status
+Source: https://site.kirana-style.workers.dev/docs/project/status
 # What works today
 
 Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the
@@ -11416,7 +11416,7 @@ line coverage. The [changelog](/changelog) lists every release.
   fix belongs, but sometimes the definition is elsewhere.
 ---
 # Roadmap
-Source: https://kirana.style/docs/project/roadmap
+Source: https://site.kirana-style.workers.dev/docs/project/roadmap
 # Roadmap
 
 The roadmap has seven milestones and two decision gates;
@@ -11557,7 +11557,7 @@ with the compiler; the rest are planned, with no dates for the same reason.
 
 | Product | Status | What it is |
 | --- | --- | --- |
-| [Kirana UI](https://ui.kirana.style) | Available | A registry of components styled with Kirana, installed with `kirana-style ui add` |
+| [Kirana UI](https://ui.kirana-style.workers.dev) | Available | A registry of components styled with Kirana, installed with `kirana-style ui add` |
 | Kirana Docs | Planned | Markdown pages built ahead of time on TanStack Start, with a twin of each page for agents |
 | Kirana Headless | Planned | The behaviour of menus, dialogs and fields, with no styles of its own |
 | Kirana Email | Planned | Styles inlined and checked against what email clients support |
@@ -11577,7 +11577,7 @@ Both are passed. The [status page](/docs/project/status) lists what that means
 concretely.
 ---
 # Releases and upgrading
-Source: https://kirana.style/docs/project/releases
+Source: https://site.kirana-style.workers.dev/docs/project/releases
 # Releases and upgrading
 
 ## Today
@@ -11623,7 +11623,7 @@ What is _not_ breaking: new diagnostics, new API, better messages, smaller outpu
    screenshots. [Conformance](/docs/migration/conformance) explains the method.
 ---
 # Benchmarks
-Source: https://kirana.style/docs/project/benchmarks
+Source: https://site.kirana-style.workers.dev/docs/project/benchmarks
 # Benchmarks
 
 Every number the site quotes comes from
@@ -11979,7 +11979,7 @@ in the lab's
 [METHODOLOGY.md](https://github.com/kirana-style/kirana-lab/blob/main/METHODOLOGY.md).
 ---
 # Ecosystem and status
-Source: https://kirana.style/docs/project/ecosystem
+Source: https://site.kirana-style.workers.dev/docs/project/ecosystem
 # Ecosystem and status
 
 What exists, and where to read about it. Every package below is on npm; anything
@@ -12056,7 +12056,7 @@ It fails validation today. (`libraries` works: see
 are scheduled.
 ---
 # Contributing
-Source: https://kirana.style/docs/project/contributing
+Source: https://site.kirana-style.workers.dev/docs/project/contributing
 # Contributing to Kirana
 
 Thank you for wanting to help. Kirana is small and independent, so every good
@@ -12184,7 +12184,7 @@ people. The full code of conduct is the Contributor Covenant, in
 `CODE_OF_CONDUCT.md`.
 ---
 # For LLMs
-Source: https://kirana.style/docs/project/llms
+Source: https://site.kirana-style.workers.dev/docs/project/llms
 # For LLMs
 
 Every page of this site is also served as markdown, and the whole set is served
@@ -12263,7 +12263,7 @@ worth handing to an agent alongside the pages above.
   suggestion, run `kirana-style build` or `kirana-style check` on it.
 ---
 # Agent skills
-Source: https://kirana.style/docs/project/agent-skills
+Source: https://site.kirana-style.workers.dev/docs/project/agent-skills
 # Agent skills
 
 A model's training data does not contain Kirana, so a coding agent left to itself

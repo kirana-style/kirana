@@ -1,5 +1,5 @@
 # How it works
-Source: https://kirana.style/docs/start/how-it-works
+Source: https://site.kirana-style.workers.dev/docs/start/how-it-works
 
 # How it works
 

@@ -1,5 +1,5 @@
 # The output
-Source: https://kirana.style/docs/building/output
+Source: https://site.kirana-style.workers.dev/docs/building/output
 
 # The output
 

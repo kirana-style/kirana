@@ -1,5 +1,5 @@
 # Habits for a new project
-Source: https://kirana.style/docs/building/tips
+Source: https://site.kirana-style.workers.dev/docs/building/tips
 
 # Habits for a new project
 

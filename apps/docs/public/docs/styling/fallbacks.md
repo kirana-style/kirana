@@ -1,5 +1,5 @@
 # Fallback values
-Source: https://kirana.style/docs/styling/fallbacks
+Source: https://site.kirana-style.workers.dev/docs/styling/fallbacks
 
 # Fallback values
 

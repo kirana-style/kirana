@@ -1,5 +1,5 @@
 # Writing styles
-Source: https://kirana.style/docs/styling/styles
+Source: https://site.kirana-style.workers.dev/docs/styling/styles
 
 # Writing styles
 

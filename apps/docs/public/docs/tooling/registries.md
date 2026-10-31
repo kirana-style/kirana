@@ -1,5 +1,5 @@
 # Publishing a registry
-Source: https://kirana.style/docs/tooling/registries
+Source: https://site.kirana-style.workers.dev/docs/tooling/registries
 
 # Publishing a registry
 

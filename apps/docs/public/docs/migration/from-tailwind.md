@@ -1,5 +1,5 @@
 # Migrating from Tailwind
-Source: https://kirana.style/docs/migration/from-tailwind
+Source: https://site.kirana-style.workers.dev/docs/migration/from-tailwind
 
 # Migrating from Tailwind
 

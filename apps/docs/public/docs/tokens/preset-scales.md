@@ -1,5 +1,5 @@
 # Starting with no preset, then scales
-Source: https://kirana.style/docs/tokens/preset-scales
+Source: https://site.kirana-style.workers.dev/docs/tokens/preset-scales
 
 # From no preset, to scales
 

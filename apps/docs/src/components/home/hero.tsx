@@ -3,8 +3,7 @@
  * in pixels, dissolving into the paper towards the words, with a real component compiling on top
  * of it. The measured figures are further down the page, in one place (`proof.tsx`).
  */
-import { Link } from "@tanstack/react-router"
-import { css, props as styleProps } from "@kirana-style/core"
+import { css } from "@kirana-style/core"
 import { Css3Icon, FileCodeIcon } from "@hugeicons/core-free-icons"
 
 import { accent } from "@workspace/docs-ui/accent.ts"
@@ -25,7 +24,7 @@ import { DocsLink } from "@/components/docs-link"
 import { QuickStart, SecondaryCta } from "@/components/site/cta"
 import { Rail } from "@/components/site/patterns"
 import { ScenePixels } from "@/components/site/scene-pixels"
-import { GITHUB, NPM } from "@/data/links"
+import { GITHUB, NPM, PLAYGROUND } from "@/data/links"
 import { VERSION } from "@/data/release"
 import { compact, useRepoStats } from "@/lib/repo-stats"
 import {
@@ -296,15 +295,7 @@ export function Hero() {
             </p>
             <div sx={styles.actions}>
               <QuickStart />
-              <SecondaryCta
-                render={
-                  <Link
-                    to="/play"
-                    search={{ example: undefined }}
-                    {...styleProps()}
-                  />
-                }
-              >
+              <SecondaryCta render={<DocsLink href={PLAYGROUND} />}>
                 See it compile
               </SecondaryCta>
             </div>

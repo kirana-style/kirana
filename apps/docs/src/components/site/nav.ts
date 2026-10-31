@@ -7,6 +7,7 @@ import {
   BookOpen01Icon,
   Clock01Icon,
   CommandLineIcon,
+  ComponentIcon,
   FavouriteIcon,
   GitBranchIcon,
   GitCompareIcon,
@@ -27,6 +28,7 @@ import {
 } from "@hugeicons/core-free-icons"
 
 import type { SceneId } from "@/brand/scenes"
+import { PLAYGROUND } from "@/data/links"
 
 type IconData = typeof SourceCodeIcon
 
@@ -108,10 +110,10 @@ export const MENUS: readonly Menu[] = [
           },
           {
             title: "In your editor",
-            description: "Every element's CSS on its line",
-            href: "/docs/tooling/editor",
+            description: "The CSS on every element",
+            href: "/editor",
             icon: CommandLineIcon,
-            scene: "crater-lake",
+            scene: "turquoise-lake",
           },
         ],
       },
@@ -119,8 +121,8 @@ export const MENUS: readonly Menu[] = [
         links: [
           {
             title: "Playground",
-            description: "See a component compile",
-            href: "/play",
+            description: "Compile in your browser",
+            href: PLAYGROUND,
             icon: PlayIcon,
             scene: "turquoise-lake",
           },
@@ -130,6 +132,13 @@ export const MENUS: readonly Menu[] = [
             href: "/ecosystem",
             icon: PackageIcon,
             scene: "rock-garden",
+          },
+          {
+            title: "Kirana UI",
+            description: "shadcn/ui, ported to Kirana",
+            href: "/ui",
+            icon: ComponentIcon,
+            scene: "misty-hills",
           },
         ],
       },
@@ -289,6 +298,7 @@ export const FOOTER: readonly {
     links: [
       { label: "Introduction", href: "/docs" },
       { label: "Why Kirana", href: "/why" },
+      { label: "In your editor", href: "/editor" },
       { label: "Quick start", href: "/docs/start/quick-start" },
       { label: "Installation", href: "/docs/start/installation" },
       { label: "Frameworks", href: "/docs/frameworks/overview" },
@@ -309,7 +319,7 @@ export const FOOTER: readonly {
       { label: "Editor support", href: "/docs/tooling/editor" },
       { label: "The compiler", href: "/compiler" },
       { label: "Compare", href: "/compare" },
-      { label: "Playground", href: "/play" },
+      { label: "Playground", href: PLAYGROUND },
     ],
   },
   {
@@ -320,6 +330,7 @@ export const FOOTER: readonly {
       { label: "What works today", href: "/docs/project/status" },
       { label: "Roadmap", href: "/docs/project/roadmap" },
       { label: "Ecosystem", href: "/ecosystem" },
+      { label: "Kirana UI", href: "/ui" },
       { label: "Showcase", href: "/showcase" },
       { label: "Contributing", href: "/docs/project/contributing" },
       { label: "Sponsor", href: "/sponsors" },

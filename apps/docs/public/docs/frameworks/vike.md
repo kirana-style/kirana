@@ -1,5 +1,5 @@
 # Vike
-Source: https://kirana.style/docs/frameworks/vike
+Source: https://site.kirana-style.workers.dev/docs/frameworks/vike
 
 # Vike
 

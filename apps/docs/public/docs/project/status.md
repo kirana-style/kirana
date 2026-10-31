@@ -1,5 +1,5 @@
 # What works today
-Source: https://kirana.style/docs/project/status
+Source: https://site.kirana-style.workers.dev/docs/project/status
 
 # What works today
 

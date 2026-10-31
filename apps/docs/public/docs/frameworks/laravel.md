@@ -1,5 +1,5 @@
 # Laravel
-Source: https://kirana.style/docs/frameworks/laravel
+Source: https://site.kirana-style.workers.dev/docs/frameworks/laravel
 
 # Laravel
 

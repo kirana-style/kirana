@@ -1,5 +1,5 @@
 # Component states
-Source: https://kirana.style/docs/styling/states
+Source: https://site.kirana-style.workers.dev/docs/styling/states
 
 # Component states
 

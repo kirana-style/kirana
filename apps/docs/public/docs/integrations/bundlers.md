@@ -1,5 +1,5 @@
 # Choose a bundler
-Source: https://kirana.style/docs/integrations/bundlers
+Source: https://site.kirana-style.workers.dev/docs/integrations/bundlers
 
 # Choose a bundler
 

@@ -1,5 +1,5 @@
 # Lint
-Source: https://kirana.style/docs/tooling/lint
+Source: https://site.kirana-style.workers.dev/docs/tooling/lint
 
 # Lint
 

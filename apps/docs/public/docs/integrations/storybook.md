@@ -1,5 +1,5 @@
 # Storybook
-Source: https://kirana.style/docs/integrations/storybook
+Source: https://site.kirana-style.workers.dev/docs/integrations/storybook
 
 # Storybook
 

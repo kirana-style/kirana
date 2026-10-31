@@ -33,6 +33,7 @@ import {
   VSCODE,
 } from "@/components/site/editor-window"
 import { Page, PageHero, PageSection } from "@/components/site/page"
+import { PLAYGROUND } from "@/data/links"
 import { engine, examples } from "@/lib/compile"
 
 export const Route = createFileRoute("/play")({
@@ -128,11 +129,9 @@ function Play() {
           <AlertTitle>These examples are compiled, not simulated</AlertTitle>
           <AlertDescription>
             Each window below was produced by the compiler in this repository
-            when the site was built. Editing source in the browser needs the
-            compiler running in the page, which is not built yet. Until then the
-            source is read-only rather than an editor that quietly compiles
-            nothing.{" "}
-            <DocsLink href="/docs/project/roadmap">See the roadmap</DocsLink>.
+            when the site was built, so the source here is read-only. To write
+            your own and compile it in the browser, with a released engine, use{" "}
+            <DocsLink href={PLAYGROUND}>the playground</DocsLink>.
           </AlertDescription>
         </Alert>
 

@@ -6,6 +6,7 @@
 import { generate } from "@workspace/docs-core/generate.ts"
 
 import { FACTS, VERSION } from "../src/data/facts.ts"
+import { PLAYGROUND, SITE_URL, UI_SITE } from "../src/data/links.ts"
 
 import type { GuideGroup } from "../src/data/frameworks.ts"
 import { frameworksMarkdown, guidesMarkdown } from "../src/data/frameworks.ts"
@@ -44,7 +45,7 @@ await generate({
     benchmarks: benchmarksMarkdown,
   },
   site: {
-    url: "https://kirana.style",
+    url: SITE_URL,
     fullTitle: "Kirana documentation",
     llms: [
       "# Kirana",
@@ -59,12 +60,15 @@ await generate({
       "",
       "## Beyond the docs",
       "",
-      "- [The compiler](https://kirana.style/compiler): the build-time pipeline, and what reaches the browser",
-      "- [Migrate](https://kirana.style/migrate): the Tailwind and StyleX codemods, measured on a whole codebase",
-      "- [Compare](https://kirana.style/compare): runtime CSS-in-JS, StyleX, Panda CSS and Tailwind, with sources",
-      "- [Ecosystem](https://kirana.style/ecosystem): every package, bundler, framework and tool, with status",
-      "- [Changelog](https://kirana.style/changelog): every release and what came with it",
-      "- [Why Kirana](https://kirana.style/why), [Open source](https://kirana.style/open-source), [License](https://kirana.style/license)",
+      `- [The compiler](${SITE_URL}/compiler): the build-time pipeline, and what reaches the browser`,
+      `- [In your editor](${SITE_URL}/editor): what the language server shows on every element, and where it runs`,
+      `- [Kirana UI](${SITE_URL}/ui): shadcn/ui's components and charts in typed styles, installed with \`kirana-style ui add\` ([its site](${UI_SITE}))`,
+      `- [Migrate](${SITE_URL}/migrate): the Tailwind and StyleX codemods, measured on a whole codebase`,
+      `- [Compare](${SITE_URL}/compare): runtime CSS-in-JS, StyleX, Panda CSS and Tailwind, with sources`,
+      `- [Ecosystem](${SITE_URL}/ecosystem): every package, bundler, framework and tool, with status`,
+      `- [Playground](${PLAYGROUND}): a project compiled in your browser by a released engine`,
+      `- [Changelog](${SITE_URL}/changelog): every release and what came with it`,
+      `- [Why Kirana](${SITE_URL}/why), [Open source](${SITE_URL}/open-source), [License](${SITE_URL}/license)`,
       "",
     ],
   },

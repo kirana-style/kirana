@@ -1,5 +1,5 @@
 # Benchmarks
-Source: https://kirana.style/docs/project/benchmarks
+Source: https://site.kirana-style.workers.dev/docs/project/benchmarks
 
 # Benchmarks
 

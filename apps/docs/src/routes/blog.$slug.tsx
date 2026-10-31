@@ -33,13 +33,12 @@ import { markdownComponents } from "@/components/markdown"
 import { SiteFooter, SiteHeader } from "@/components/site-chrome"
 import { ChapterLabel, chapter } from "@/components/site/chapter"
 import { Rail } from "@/components/site/patterns"
+import { SITE_URL } from "@/data/links"
 import { POSTS } from "@/generated/content.gen"
 
 const documents = import.meta.glob<{ default: MarkdownDocument }>(
   "../generated/pages/blog/*.json"
 )
-
-const SITE = "https://kirana.style"
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
@@ -202,7 +201,7 @@ function CopyLink({ url }: { url: string }) {
 
 function Post() {
   const { meta, document } = Route.useLoaderData()
-  const url = `${SITE}${meta.href}`
+  const url = `${SITE_URL}${meta.href}`
   const others = POSTS.filter((post) => post.href !== meta.href).slice(0, 3)
 
   return (

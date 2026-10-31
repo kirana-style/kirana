@@ -1,5 +1,5 @@
 # Rspack and Rsbuild
-Source: https://kirana.style/docs/integrations/rspack
+Source: https://site.kirana-style.workers.dev/docs/integrations/rspack
 
 # Rspack and Rsbuild
 

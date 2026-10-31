@@ -1,5 +1,5 @@
 # Server templates
-Source: https://kirana.style/docs/frameworks/server-templates
+Source: https://site.kirana-style.workers.dev/docs/frameworks/server-templates
 
 # Server templates
 

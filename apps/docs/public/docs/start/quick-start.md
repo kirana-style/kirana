@@ -1,5 +1,5 @@
 # Quick start
-Source: https://kirana.style/docs/start/quick-start
+Source: https://site.kirana-style.workers.dev/docs/start/quick-start
 
 # Quick start
 

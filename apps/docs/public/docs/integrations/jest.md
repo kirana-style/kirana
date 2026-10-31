@@ -1,5 +1,5 @@
 # Jest
-Source: https://kirana.style/docs/integrations/jest
+Source: https://site.kirana-style.workers.dev/docs/integrations/jest
 
 # Jest
 

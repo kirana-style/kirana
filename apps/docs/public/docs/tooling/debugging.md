@@ -1,5 +1,5 @@
 # Debugging styles
-Source: https://kirana.style/docs/tooling/debugging
+Source: https://site.kirana-style.workers.dev/docs/tooling/debugging
 
 # Debugging styles
 

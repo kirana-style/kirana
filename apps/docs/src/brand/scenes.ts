@@ -61,9 +61,9 @@ export const SCENES: Record<SceneId, Scene> = {
     ramp: "scene-misty-hills",
     position: "50% 45%",
     alt: "The sun rising over rows of tea on rolling hills, morning mist between them.",
-    uses: "The Frameworks tab, the homepage's closing card",
+    uses: "Kirana UI, the Frameworks tab, the homepage's closing card",
     reason:
-      "Rows of tea, many alike and each its own; and sunrise, for a start.",
+      "Rows of tea, many alike and each its own: components, and guides; and sunrise, for a start.",
   },
   "rock-garden": {
     id: "rock-garden",
@@ -92,8 +92,8 @@ export const SCENES: Record<SceneId, Scene> = {
     ramp: "scene-turquoise-lake",
     position: "50% 55%",
     alt: "Clear turquoise water below pale cliffs and wooded slopes.",
-    uses: "The playground",
-    reason: "Clear water to play in.",
+    uses: "The playground, the editor",
+    reason: "Clear water to play in, and to see to the bottom of.",
   },
   "heritage-street": {
     id: "heritage-street",

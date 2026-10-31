@@ -49,7 +49,7 @@ export const PRODUCTS: readonly Product[] = [
     note: "A registry of components styled with Kirana, installed with `kirana-style ui add`",
     href: UI_SITE,
     icon: ComponentIcon,
-    scene: "city-dusk",
+    scene: "misty-hills",
     target: "web",
   },
   {

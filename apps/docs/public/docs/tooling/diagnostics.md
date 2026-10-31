@@ -1,5 +1,5 @@
 # Diagnostics reference
-Source: https://kirana.style/docs/tooling/diagnostics
+Source: https://site.kirana-style.workers.dev/docs/tooling/diagnostics
 
 # Diagnostics reference
 

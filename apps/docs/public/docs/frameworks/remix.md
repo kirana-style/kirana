@@ -1,5 +1,5 @@
 # Remix
-Source: https://kirana.style/docs/frameworks/remix
+Source: https://site.kirana-style.workers.dev/docs/frameworks/remix
 
 # Remix
 

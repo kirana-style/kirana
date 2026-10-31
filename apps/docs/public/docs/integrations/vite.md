@@ -1,5 +1,5 @@
 # Vite
-Source: https://kirana.style/docs/integrations/vite
+Source: https://site.kirana-style.workers.dev/docs/integrations/vite
 
 # Vite
 

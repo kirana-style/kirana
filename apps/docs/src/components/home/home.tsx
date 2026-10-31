@@ -1,6 +1,6 @@
 /**
  * The homepage, top to bottom: what Kirana is, the compiler's own output, the editor, three ways to
- * start, the numbers, the frameworks, where to go next, and the sponsors. Every chapter is its own
+ * start, the numbers, the frameworks, the components, where to go next, and the sponsors. Every chapter is its own
  * module under `components/home/`; this file is only the order.
  */
 import { Suspense, lazy } from "react"
@@ -42,6 +42,7 @@ const Editor = later(() => import("./editor"), "Editor")
 const Flexible = later(() => import("./flexible"), "Flexible")
 const Proof = later(() => import("./proof"), "Proof")
 const Stack = later(() => import("./stack"), "Stack")
+const Components = later(() => import("./components"), "Components")
 const WhereNext = later(() => import("./where-next"), "WhereNext")
 const Sponsors = later(() => import("./closing"), "Sponsors")
 const Blueprint = later(() => import("./closing"), "Blueprint")
@@ -55,6 +56,7 @@ export function Home() {
       <Flexible />
       <Proof />
       <Stack />
+      <Components />
       <WhereNext />
       <Sponsors />
       <Blueprint />

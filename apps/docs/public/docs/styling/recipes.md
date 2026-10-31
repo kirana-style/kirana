@@ -1,5 +1,5 @@
 # Recipes
-Source: https://kirana.style/docs/styling/recipes
+Source: https://site.kirana-style.workers.dev/docs/styling/recipes
 
 # Recipes
 

@@ -1,5 +1,5 @@
 # Ecosystem and status
-Source: https://kirana.style/docs/project/ecosystem
+Source: https://site.kirana-style.workers.dev/docs/project/ecosystem
 
 # Ecosystem and status
 

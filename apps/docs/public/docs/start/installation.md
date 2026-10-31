@@ -1,5 +1,5 @@
 # Installation
-Source: https://kirana.style/docs/start/installation
+Source: https://site.kirana-style.workers.dev/docs/start/installation
 
 # Installation
 

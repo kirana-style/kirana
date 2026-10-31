@@ -1,5 +1,5 @@
 # PostCSS
-Source: https://kirana.style/docs/integrations/postcss
+Source: https://site.kirana-style.workers.dev/docs/integrations/postcss
 
 # PostCSS
 

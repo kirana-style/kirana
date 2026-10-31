@@ -1,5 +1,5 @@
 # Next.js
-Source: https://kirana.style/docs/frameworks/nextjs
+Source: https://site.kirana-style.workers.dev/docs/frameworks/nextjs
 
 # Next.js
 

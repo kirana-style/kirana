@@ -1,5 +1,5 @@
 # Anchor positioning
-Source: https://kirana.style/docs/styling/anchor-positioning
+Source: https://site.kirana-style.workers.dev/docs/styling/anchor-positioning
 
 # Anchor positioning
 

@@ -1,5 +1,5 @@
 # Solid
-Source: https://kirana.style/docs/frameworks/solid
+Source: https://site.kirana-style.workers.dev/docs/frameworks/solid
 
 # Solid
 

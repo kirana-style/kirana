@@ -1,5 +1,5 @@
 # Vue
-Source: https://kirana.style/docs/frameworks/vue
+Source: https://site.kirana-style.workers.dev/docs/frameworks/vue
 
 # Vue
 

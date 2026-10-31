@@ -27,6 +27,14 @@ export const SHOWCASE: Readonly<Record<string, ShowcaseSnippet>> = {
     "diagnostics": [],
     "report": ""
   },
+  "kirana-ui": {
+    "name": "kirana-ui",
+    "lang": "bash",
+    "source": "# set up the registry, its design system and a design, from a preset code\nnpx kirana-style ui init --preset k2bS6\n# then add components, each with the items it needs, as code you own\nnpx kirana-style ui add button dialog\n",
+    "html": "<span class=\"th-token th-comment\"># set up the registry, its design system and a design, from a preset code</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style ui init <span class=\"th-token th-attr\">--preset</span> k2bS6\n<span class=\"th-token th-comment\"># then add components, each with the items it needs, as code you own</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style ui add button dialog",
+    "diagnostics": [],
+    "report": ""
+  },
   "migrate-after": {
     "name": "migrate-after",
     "lang": "tsx",
