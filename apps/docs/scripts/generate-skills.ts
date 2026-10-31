@@ -38,7 +38,7 @@ const FIXES: Record<string, string> = {
   "unknown-property":
     "Not a CSS property (a typo such as `colour`, or a Tailwind class name used as a key). Use the camelCase CSS property name.",
   "invalid-value":
-    'The value does not fit the property\'s grammar: a keyword it does not take (`padding: "red"`), a negative size, or a token of the wrong kind (a colour token on `padding`). The message gives the grammar. Words the data does not know, function arguments and `var()` are never judged.',
+    "The value does not fit the property's grammar: a keyword it does not take (`padding: \"red\"`), a negative size, or a token of the wrong kind (a colour token on `padding`). The message gives the grammar. Words the data does not know, function arguments and `var()` are never judged, except a token's own values and the end of a `fallback()` chain.",
   "unitless-length":
     'A bare number on a length property. Write the unit: `width: "5px"`, or a token.',
   "unsplittable-shorthand":
@@ -46,7 +46,7 @@ const FIXES: Record<string, string> = {
   "mixed-logical-physical":
     "Logical and physical longhands on one box (`paddingInlineStart` and `padding`) sit side by side instead of replacing each other; or an inline logical inset beside a `translate`, which has no logical form and is off centre in right-to-left text. Use one family: `left` with a translate.",
   "invalid-fallback":
-    "A `firstThatWorks()` the browser would drop or misread: empty, nested, a runtime value, or values that set different longhands. Keep every value static and of the same shape.",
+    'A `firstThatWorks()` the browser would drop or misread: empty, nested, a runtime value, or values that set different longhands. Keep every value static and of the same shape. Or a `fallback()` chain the browser would never read past: every token but the last must be `{ syntax: "*" }` with no value, and the last one static CSS value.',
   "fallback-on-variable":
     "`firstThatWorks()` on a custom property: a variable never falls back, the last value always wins. Put the fallback where the variable is read: `var(--x, fallback)`.",
   "invalid-position-try":

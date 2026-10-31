@@ -298,6 +298,30 @@ validate as it would alone. The run is one atom whose class covers every value i
 different longhands. A run on a custom property MUST warn (`fallback-on-variable`). One value is that
 value. Outside a style, the call compiles to the preferred value.
 
+## `fallback()`
+
+```ts
+const fade = defineTokens("fade", {
+  size: { syntax: "*" },
+  top: { syntax: "*" },
+})
+export const region = css({
+  paddingBlockStart: fallback(fade.top, fade.size, "2.5rem"),
+})
+// .k… { padding-block-start: var(--kv…, var(--kv…, 2.5rem)) }
+export const deep = css({ [fade.size]: "6rem" })
+```
+
+**KRN-API-022** — `fallback(token, ...rest)` MUST compile to one `var()` chain, each token falling back
+to what follows it, read where it is used (D-117). Every argument but the last MUST be a token an
+element may leave unset (a registered token of the universal syntax with no value, KRN-TOK-011); the
+last MAY be any static CSS value, a token or another chain. The result MUST be accepted wherever a
+token is, in property values, `keyframes()` frames, template literals and token defaults, and compiles
+to its text outside a style; it is not a variable, so assigning it is `token-not-variable`. Rejected
+with `invalid-fallback`: fewer than two arguments, a first argument that is not a token, a token with
+a value (it is never unset, so the rest would never be read), and a last value that is not static or
+not one CSS value (a `firstThatWorks()` run).
+
 ## `positionTry()`
 
 ```ts

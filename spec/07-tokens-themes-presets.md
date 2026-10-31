@@ -107,7 +107,9 @@ when the token is referenced. A syntax that is not a string, or one that could e
 `invalid-value`; so is a registered token with `light` and `dark` values, since an initial value cannot
 depend on the mode. A token of the universal syntax (`"*"`) may leave `value` out (D-059): it starts
 unset, `@property` gets no `initial-value`, and every reference falls back to nothing
-(`var(--k…,)`) — how a chain such as Tailwind's `filter` lists only the steps an element sets.
+(`var(--k…,)`) — how a chain such as Tailwind's `filter` lists only the steps an element sets. Such
+tokens are what `fallback()` chains (KRN-API-022, D-117): `fallback(fade.top, fade.size, "2.5rem")` reads
+the first one the element sets, else the value, where a variable token's default would read the root's.
 
 ```ts
 export const scrollFade = defineTokens("scrollFade", {

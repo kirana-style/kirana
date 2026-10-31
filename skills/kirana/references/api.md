@@ -139,6 +139,7 @@ string (`sx="px-4 text-sm"`), is the default export of the `/preset` entry:
 ```ts
 keyframes(frames): Keyframes                     // use as animationName
 firstThatWorks(preferred, ...fallbacks)          // minHeight: firstThatWorks("100dvh", "100vh")
+fallback(token, ...rest)                         // var() chain: fallback(fade.top, fade.size, "2.5rem")
 positionTry(block): PositionTry                  // an @position-try rule's dashed ident
 viewTransition({ group?, imagePair?, old?, new? }): ViewTransition
 counterStyle(descriptors): CounterStyle          // an @counter-style rule's name: listStyleType, counter()
@@ -146,6 +147,9 @@ counterStyle(descriptors): CounterStyle          // an @counter-style rule's nam
 
 - `firstThatWorks` values must be static and expand to the same longhands; on a custom property
   use `var(--x, fallback)` instead.
+- `fallback` reads the first token an element sets: every token but the last is `{ syntax: "*" }`
+  with no value (a token with a value never falls back). Use it where a token's default would
+  read another token, since a default resolves on `:root`. The result is a value, never a key.
 - `positionTry` blocks take only inset, margin, size, self-alignment, `positionAnchor` and
   `positionArea`. List the result in `positionTryFallbacks`.
 - A `viewTransition` result is a handle for `sx` and also the `view-transition-class` name to hand

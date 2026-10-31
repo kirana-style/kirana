@@ -27,6 +27,7 @@ export const API: readonly string[] = [
   "defineTheme",
   "mode",
   "firstThatWorks",
+  "fallback",
   "positionTry",
   "counterStyle",
   "viewTransition",

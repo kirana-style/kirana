@@ -112,6 +112,12 @@ fn collect_longhands(id: &PropertyId<'_>, out: &mut Vec<Property>) {
 
 /// The custom property `text` reads when it is one `var(...)` expression and nothing else.
 fn single_var(text: &str) -> Option<&str> {
+    var_parts(text).map(|(variable, _)| variable)
+}
+
+/// The custom property one `var(...)` expression reads, and what it falls back to after the first
+/// comma (empty for `var(--k,)`).
+fn var_parts(text: &str) -> Option<(&str, Option<&str>)> {
     let inner = text.strip_prefix("var(")?.strip_suffix(')')?;
     let mut depth = 0i32;
     for character in inner.chars() {
@@ -122,7 +128,9 @@ fn single_var(text: &str) -> Option<&str> {
             _ => {}
         }
     }
-    Some(inner.split(',').next().unwrap_or(inner).trim())
+    let (variable, rest) =
+        inner.split_once(',').map_or((inner, None), |(variable, rest)| (variable, Some(rest.trim())));
+    Some((variable.trim(), rest))
 }
 
 /// Whether a declared value is one component (no top-level spaces, commas or slashes).
@@ -237,15 +245,30 @@ fn expand_into(property: &LProperty<'_>, out: &mut Vec<(Property, String)>) {
 
 /// Why a value does not fit its property's grammar (KRN-CAS-010), or `None` when it fits or cannot be
 /// judged. A value that is one project token is judged by each value the token declares, so a
-/// colour token on `padding` is caught.
+/// colour token on `padding` is caught. A token an element may leave unset (D-059: no value) holds
+/// anything an element gives it, so it is judged by what its reference falls back to, the end of a
+/// `fallback()` chain (KRN-API-022), and not at all when it falls back to nothing.
 fn grammar_problem(property: &str, text: &str, variable_value: &dyn Fn(&str) -> Option<Vec<String>>) -> Option<String> {
     use kirana_css_data::grammar::{Verdict, check};
-    let token = single_var(text).and_then(variable_value);
+    let mut text = text;
+    let mut fallen = false;
+    let token = loop {
+        let Some((variable, rest)) = var_parts(text) else { break None };
+        match variable_value(variable) {
+            Some(values) if values.iter().all(String::is_empty) => {
+                (text, fallen) = (rest.filter(|rest| !rest.is_empty())?, true);
+            }
+            values => break values,
+        }
+    };
     let values = token.clone().unwrap_or_else(|| vec![text.to_owned()]);
     values.iter().find_map(|value| match check(property, value) {
-        Verdict::Rejected { expected } => Some(match &token {
-            Some(_) => format!("the token's value `{value}` is not one it takes ({expected})"),
-            None => format!("`{value}` is not a value it takes ({expected})"),
+        Verdict::Rejected { expected } => Some(match (&token, fallen) {
+            (Some(_), _) => format!("the token's value `{value}` is not one it takes ({expected})"),
+            (None, true) => {
+                format!("`{value}`, what its unset tokens fall back to, is not a value it takes ({expected})")
+            }
+            (None, false) => format!("`{value}` is not a value it takes ({expected})"),
         }),
         Verdict::Accepted | Verdict::Unchecked => None,
     })

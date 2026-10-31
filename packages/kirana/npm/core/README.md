@@ -53,6 +53,7 @@ export function Field({
 | `mode.system`, `mode.light`, `mode.dark`                               | `color-scheme` handles for `<html>`                                                                      |
 | `media(query)`, `container(query, name?)`, `supports(condition)`       | Condition values for computed keys                                                                       |
 | `firstThatWorks(preferred, ...fallbacks)`                              | A value written once per member, the preferred last, for browsers that do not know it                    |
+| `fallback(token, ...rest)`                                             | The first unset-by-default token an element sets, else the next, else the last value: one `var()` chain  |
 | `positionTry(block)`                                                   | An `@position-try` rule's dashed ident, for `positionTryFallbacks`                                       |
 | `viewTransition({ group, imagePair, old, new })`                       | A view-transition class: a handle for `sx` that is also the class name                                   |
 | `counterStyle(descriptors)`                                            | An `@counter-style` rule's name, for `listStyleType` and `counter()`                                     |

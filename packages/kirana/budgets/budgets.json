@@ -1069,6 +1069,18 @@
           "brotli": 112
         }
       },
+      "tokens-fallback": {
+        "css": {
+          "raw": 1279,
+          "gzip": 516,
+          "brotli": 475
+        },
+        "js": {
+          "raw": 1273,
+          "gzip": 659,
+          "brotli": 577
+        }
+      },
       "tokens-in-module-and-replication": {
         "css": {
           "raw": 670,

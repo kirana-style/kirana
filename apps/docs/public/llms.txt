@@ -55,7 +55,7 @@ change the API. Pages state what is built and what is planned.
 
 - [Animation](https://site.kirana-style.workers.dev/docs/styling/animation.md): Animate with keyframes() and transitions, including a custom property the browser can interpolate.
 - [Values known at runtime](https://site.kirana-style.workers.dev/docs/styling/dynamic.md): What happens to a style that depends on props: class expressions, the custom-property bridge, and the runtime helper.
-- [Fallback values](https://site.kirana-style.workers.dev/docs/styling/fallbacks.md): Write one property several times with firstThatWorks(), so a browser that does not know the preferred value keeps the one before it.
+- [Fallback values](https://site.kirana-style.workers.dev/docs/styling/fallbacks.md): Write one property several times with firstThatWorks(), so a browser that does not know the preferred value keeps the one before it, and read the first token an element sets with fallback().
 - [Anchor positioning](https://site.kirana-style.workers.dev/docs/styling/anchor-positioning.md): Define fallback positions for an anchored element with positionTry(), each an @position-try rule checked at build time.
 - [View transitions](https://site.kirana-style.workers.dev/docs/styling/view-transitions.md): Style the pseudo-elements of a view transition with viewTransition(), which is at once a style for sx and the class name a framework's transition API takes.
 
