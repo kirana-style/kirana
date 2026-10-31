@@ -1,5 +1,59 @@
 # Changelog
 
+## [0.3.6](https://github.com/kirana-style/kirana/compare/v0.3.5...v0.3.6) (2026-10-31)
+
+
+### Features
+
+* a contextual target may name a class ([#206](https://github.com/kirana-style/kirana/pull/206)) ([e71ff55](https://github.com/kirana-style/kirana/commit/e71ff551e41d0b645c7e00e238b736ab0a54a090))
+* diagnostics print as oxc's graphical report, with the source ([#207](https://github.com/kirana-style/kirana/pull/207)) ([cbbdbe5](https://github.com/kirana-style/kirana/commit/cbbdbe5224e31739681576e1d29133122881d764))
+* fallback() reads a token, then another, then a value ([#211](https://github.com/kirana-style/kirana/pull/211)) ([6e72f71](https://github.com/kirana-style/kirana/commit/6e72f71274ae0f98fb0fddcb3b2674a10a8d8e90))
+* layers.tiers puts each ladder tier in a sub-layer of kirana.atoms ([#172](https://github.com/kirana-style/kirana/pull/172)) ([8bca0d5](https://github.com/kirana-style/kirana/commit/8bca0d55fe9edff698e4de10dcca2c2d4ee61093))
+* migrate stylex writes styles as stylex read them ([#193](https://github.com/kirana-style/kirana/pull/193)) ([88a3a42](https://github.com/kirana-style/kirana/commit/88a3a42df4b38cf024e57caf620c05ad82da54ff))
+* migrate tailwind reads a design system's conditions and handles ([#204](https://github.com/kirana-style/kirana/pull/204)) ([d753322](https://github.com/kirana-style/kirana/commit/d753322d29c272b1175278d30e480c29094ce40f))
+* relation-read-on-anchor, a state read on its own anchor ([#186](https://github.com/kirana-style/kirana/pull/186)) ([3676f00](https://github.com/kirana-style/kirana/commit/3676f000aeaaf00e0aed681e5050390cadc23db1))
+* the language server in a browser page, as project.language ([#184](https://github.com/kirana-style/kirana/pull/184)) ([c2d1bec](https://github.com/kirana-style/kirana/commit/c2d1bec0388bf3e430bdb92eb51b80d739b31c20))
+* ui flattens each design axis, or keeps every design ([#209](https://github.com/kirana-style/kirana/pull/209)) ([2559372](https://github.com/kirana-style/kirana/commit/2559372d569c8000daf2eb2ebe6cb5df1bcb4e0c))
+* ui init and ui preset take --pointer and --rtl ([#202](https://github.com/kirana-style/kirana/pull/202)) ([19859f8](https://github.com/kirana-style/kirana/commit/19859f8eb7fd41e5d7b5ada395af7c0522bc5e5f))
+
+
+### Bug fixes
+
+* a dev page that loaded an older stylesheet gets the current one ([#187](https://github.com/kirana-style/kirana/pull/187)) ([8ba8538](https://github.com/kirana-style/kirana/commit/8ba853804b1a71f8a47f99babd0c6ad0babe19f7))
+* a host reads the package root's config from a folder without one ([#183](https://github.com/kirana-style/kirana/pull/183)) ([47fa994](https://github.com/kirana-style/kirana/commit/47fa994a47339532272485cce2a4105b6704e49b))
+* a key or spread decided at runtime is reported where it is written ([#208](https://github.com/kirana-style/kirana/pull/208)) ([2594a25](https://github.com/kirana-style/kirana/commit/2594a255a0f6242c8693fbc86b4e63638ab8fcb9))
+* a listed library's components read sx, so it is not reported ([#196](https://github.com/kirana-style/kirana/pull/196)) ([16cc0d4](https://github.com/kirana-style/kirana/commit/16cc0d4fbd38a1e8c99309d38a2049740d45efea))
+* a long editor or dev session no longer grows its memory with every edit ([#175](https://github.com/kirana-style/kirana/pull/175)) ([76e8a41](https://github.com/kirana-style/kirana/commit/76e8a412e0e0d3d1fa1d67ccb1004fd02988d073))
+* a watch build forgets the tokens a rebuild no longer names ([#180](https://github.com/kirana-style/kirana/pull/180)) ([91bbc81](https://github.com/kirana-style/kirana/commit/91bbc8181f624b53186db9a64f78701e76640e41))
+* an optional relation anchored without its readers is not reported ([#181](https://github.com/kirana-style/kirana/pull/181)) ([4acdcf7](https://github.com/kirana-style/kirana/commit/4acdcf76259e425797b912ae088669f85ad359d4))
+* base-ui's accordion item, header and panel have closed ([#185](https://github.com/kirana-style/kirana/pull/185)) ([a33889f](https://github.com/kirana-style/kirana/commit/a33889ff0799cc7b6e57b8b7596dd518f738b923))
+* removing both logical axes clears a component's physical box ([#200](https://github.com/kirana-style/kirana/pull/200)) ([9b61d15](https://github.com/kirana-style/kirana/commit/9b61d15b397e30f63476c14d11d5e6c2da9e9dee))
+* tailwind migration keeps line heights, images and single layers ([#201](https://github.com/kirana-style/kirana/pull/201)) ([a34017c](https://github.com/kirana-style/kirana/commit/a34017cea2ffb6b2560df960d97adfed6e330e4e))
+* the utility grammar hints import scales as its default export ([#182](https://github.com/kirana-style/kirana/pull/182)) ([22fca2b](https://github.com/kirana-style/kirana/commit/22fca2b7e39e78b2f9b921a11a25bd64828d1e69))
+
+
+### Performance
+
+* a build that writes no source maps does not build them ([#176](https://github.com/kirana-style/kirana/pull/176)) ([4d8da10](https://github.com/kirana-style/kirana/commit/4d8da1039e915762767b7399604bf577c48ac44d))
+* a dense build without source maps renames chunks in one pass ([#189](https://github.com/kirana-style/kirana/pull/189)) ([4ab17c5](https://github.com/kirana-style/kirana/commit/4ab17c5b31dd693c840868018eaec6e8c9d3a049))
+* a style reused from another value is not copied ([#192](https://github.com/kirana-style/kirana/pull/192)) ([a79d1bd](https://github.com/kirana-style/kirana/commit/a79d1bdb95ab1c45fbeaae776f360fe25495f927))
+* check places a file's diagnostics without walking it for each one ([#194](https://github.com/kirana-style/kirana/pull/194)) ([a21f5d7](https://github.com/kirana-style/kirana/commit/a21f5d70873485c99d622c0110ac3696dafe5a20))
+* declarations compile without parsing longhands or copying plans ([#188](https://github.com/kirana-style/kirana/pull/188)) ([cd39382](https://github.com/kirana-style/kirana/commit/cd393829e0b92c7c41a75ad0bf68b77c89d9812d))
+* esbuild, bun, webpack, next and parcel compile modules in parallel ([#195](https://github.com/kirana-style/kirana/pull/195)) ([7961d2e](https://github.com/kirana-style/kirana/commit/7961d2e9df3d7c023680f420485501a012653cc7))
+* formatting diagnostics no longer walks the source for each one ([#190](https://github.com/kirana-style/kirana/pull/190)) ([700bea8](https://github.com/kirana-style/kirana/commit/700bea8d93387a268822b98da2e78045dc02bef1))
+* merging styles and naming their classes copies and allocates less ([#178](https://github.com/kirana-style/kirana/pull/178)) ([f9fb902](https://github.com/kirana-style/kirana/commit/f9fb902591a08955495a0ff1138255a536b5cb75))
+* styles compile and stylesheets are written with less repeated work ([#174](https://github.com/kirana-style/kirana/pull/174)) ([085984a](https://github.com/kirana-style/kirana/commit/085984a0c94f05a6122cfb50d31e79361c6cb693))
+* the stylesheet is written from atoms kept in its order ([#179](https://github.com/kirana-style/kirana/pull/179)) ([428dda4](https://github.com/kirana-style/kirana/commit/428dda4e3b44e0417293ea4f1d89f6f8fbb1a09a))
+* the stylesheet writes each key's values in order, which compresses better ([#191](https://github.com/kirana-style/kirana/pull/191)) ([4465ca5](https://github.com/kirana-style/kirana/commit/4465ca53f4b178e0674f820a975b76fb2d793441))
+
+
+### Documentation
+
+* counts from their sources, two readmes, four more checks ([#203](https://github.com/kirana-style/kirana/pull/203)) ([3855e4c](https://github.com/kirana-style/kirana/commit/3855e4c4c6d7d6a10872994d5b3c0232060ffde6))
+* every page says what the code does, and two more checks hold it ([#199](https://github.com/kirana-style/kirana/pull/199)) ([6615452](https://github.com/kirana-style/kirana/commit/661545274459072480780f25326018586bcf37d8))
+* take the benchmarks of kirana 0.3.5 from kirana-lab ([#177](https://github.com/kirana-style/kirana/pull/177)) ([0920e23](https://github.com/kirana-style/kirana/commit/0920e23fc9614474bce7702a1f8bfe8c3b3b30bd))
+* the agent skills say what shipped since 0.3.0 ([#197](https://github.com/kirana-style/kirana/pull/197)) ([8cfc693](https://github.com/kirana-style/kirana/commit/8cfc6938f0808fe2d6e977e5414826544219a4dc))
+
 ## [0.3.5](https://github.com/kirana-style/kirana/compare/v0.3.4...v0.3.5) (2026-10-28)
 
 
