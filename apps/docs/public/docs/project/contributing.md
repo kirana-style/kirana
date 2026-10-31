@@ -1,5 +1,5 @@
 # Contributing
-Source: https://kirana.style/docs/project/contributing
+Source: https://site.kirana-style.workers.dev/docs/project/contributing
 
 # Contributing to Kirana
 

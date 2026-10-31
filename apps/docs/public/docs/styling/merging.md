@@ -1,5 +1,5 @@
 # Merging and removal
-Source: https://kirana.style/docs/styling/merging
+Source: https://site.kirana-style.workers.dev/docs/styling/merging
 
 # Merging and removal
 

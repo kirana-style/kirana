@@ -1,5 +1,5 @@
 # Tokens
-Source: https://kirana.style/docs/tokens/overview
+Source: https://site.kirana-style.workers.dev/docs/tokens/overview
 
 # Tokens
 

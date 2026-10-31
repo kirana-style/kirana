@@ -1,5 +1,5 @@
 # Configuration reference
-Source: https://kirana.style/docs/reference/config
+Source: https://site.kirana-style.workers.dev/docs/reference/config
 
 # Configuration reference
 

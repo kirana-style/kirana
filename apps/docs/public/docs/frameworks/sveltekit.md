@@ -1,5 +1,5 @@
 # SvelteKit
-Source: https://kirana.style/docs/frameworks/sveltekit
+Source: https://site.kirana-style.workers.dev/docs/frameworks/sveltekit
 
 # SvelteKit
 

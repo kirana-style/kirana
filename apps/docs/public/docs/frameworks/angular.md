@@ -1,5 +1,5 @@
 # Angular
-Source: https://kirana.style/docs/frameworks/angular
+Source: https://site.kirana-style.workers.dev/docs/frameworks/angular
 
 # Angular
 

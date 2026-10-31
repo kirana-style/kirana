@@ -1,5 +1,5 @@
 # Utility strings
-Source: https://kirana.style/docs/styling/utilities
+Source: https://site.kirana-style.workers.dev/docs/styling/utilities
 
 # Utility strings
 

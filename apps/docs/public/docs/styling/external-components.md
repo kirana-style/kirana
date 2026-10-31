@@ -1,5 +1,5 @@
 # Styling other people's components
-Source: https://kirana.style/docs/styling/external-components
+Source: https://site.kirana-style.workers.dev/docs/styling/external-components
 
 # Styling other people's components
 

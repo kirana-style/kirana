@@ -20,6 +20,7 @@ import { RUNTIME_SIZE } from "@/data/benchmarks"
 import { chapter } from "@/components/site/chapter"
 import { DiagnosticFamilies } from "@/components/site/evidence"
 import { Tools } from "@/components/site/tools"
+import { PLAYGROUND } from "@/data/links"
 import { DIAGNOSTICS } from "@/generated/diagnostics.gen"
 import { FrameworkGrid } from "@/components/site/framework-grid"
 import { Card, CardGrid, Figures, Steps } from "@/components/site/cards"
@@ -257,13 +258,15 @@ function CompilerPage() {
             <Button
               size="lg"
               nativeButton={false}
-              render={<DocsLink href="/play">Open the playground</DocsLink>}
+              render={
+                <DocsLink href={PLAYGROUND}>Open the playground</DocsLink>
+              }
             />
           }
         >
-          The playground shows examples the compiler in this repository compiled
-          when the site was built: the source, the CSS and the classes, nothing
-          written by hand.
+          The playground compiles a project in your browser with a released
+          engine: your components and tokens in their own files, the stylesheet
+          by layer, and the diagnostics as your editor shows them.
         </NextStep>
       </PageSection>
     </Page>

@@ -1,5 +1,5 @@
 # Themes and modes
-Source: https://kirana.style/docs/tokens/themes-and-modes
+Source: https://site.kirana-style.workers.dev/docs/tokens/themes-and-modes
 
 # Themes and modes
 

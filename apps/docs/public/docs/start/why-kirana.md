@@ -1,5 +1,5 @@
 # Why Kirana
-Source: https://kirana.style/docs/start/why-kirana
+Source: https://site.kirana-style.workers.dev/docs/start/why-kirana
 
 # Why Kirana
 

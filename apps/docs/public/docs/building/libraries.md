@@ -1,5 +1,5 @@
 # Publishing a library
-Source: https://kirana.style/docs/building/libraries
+Source: https://site.kirana-style.workers.dev/docs/building/libraries
 
 # Publishing a library
 

@@ -1,5 +1,5 @@
 # Preact
-Source: https://kirana.style/docs/frameworks/preact
+Source: https://site.kirana-style.workers.dev/docs/frameworks/preact
 
 # Preact
 

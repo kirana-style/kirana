@@ -21,6 +21,8 @@ Every one of those happened. This file is how the site keeps from saying two thi
 | The runtime's size                              | KRN-DYN-005, asserted in `npm/core/test/internal.test.ts` → `RUNTIME_SIZE` in `src/data/benchmarks.ts`         | `RUNTIME_SIZE`; `{{fact:runtime-size}}`                                                                                     |
 | Whether the packages are on npm                 | `npm/*/package.json` (`private`) → `PUBLISHED` in `src/data/release.ts`                                        | the `<!-- ::npm-status -->` embed (`kind="helpers"` on a server framework's guide), from `src/data/npm-status.ts`           |
 | The mental model's ideas                        | its numbered headings (`## 1 · …`) in `content/docs/start/mental-model.md`                                     | the number is checked wherever a page says "N ideas"                                                                        |
+| The sites' addresses                            | `SITES` in `src/data/links.ts`: each site's Worker and its domain, and whether the domain is live              | `SITE_URL`, `PLAYGROUND`, `UI_SITE`, `UI_PAGES`                                                                             |
+| Kirana UI's frameworks                          | `UI_FRAMEWORKS` in `src/data/kirana-ui.ts`                                                                     | `UiFrameworks`, `UI_STATUS`                                                                                                 |
 
 `src/data/facts.ts` gathers the counts and lists. Components import `COUNTS`, `LISTS` and
 `sentence()`; markdown writes `{{fact:name}}`, which the content generator fills in from `FACTS` —
@@ -67,7 +69,13 @@ on:
   nested key its parent's section does not name;
 - **an editor window's hint** (`//:`) on a line of its own, or a lone `{" "}`: the formatter's damage
   when the block has no `<!-- prettier-ignore -->`;
-- **a package in no group** of `/ecosystem`'s cards, or in two, or a group naming no package.
+- **a package in no group** of `/ecosystem`'s cards, or in two, or a group naming no package;
+- **a site's address written outside `src/data/links.ts`**: a `workers.dev` address, or
+  `play.`/`ui.kirana.style`. Until a site's domain is added, its links go to its Worker; on the day
+  it is, one `live` in `SITES` changes every link, and an address written anywhere else would still
+  point at the Worker (or, written early, at a domain nothing answers yet);
+- **the docs site's domain routed while its links are not**: `wrangler.jsonc`'s `routes` added with
+  `SITES.docs.live` still false, or the other way round.
 
 A list that is deliberately partial (the frameworks with single-file components, the hosts with hot
 updates) is marked on the line before it: `<!-- consistency: subset -->` in markdown,

@@ -1,5 +1,5 @@
 # No framework
-Source: https://kirana.style/docs/frameworks/vanilla
+Source: https://site.kirana-style.workers.dev/docs/frameworks/vanilla
 
 # No framework
 

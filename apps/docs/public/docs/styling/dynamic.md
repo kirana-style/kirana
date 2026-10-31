@@ -1,5 +1,5 @@
 # Values known at runtime
-Source: https://kirana.style/docs/styling/dynamic
+Source: https://site.kirana-style.workers.dev/docs/styling/dynamic
 
 # Values known at runtime
 

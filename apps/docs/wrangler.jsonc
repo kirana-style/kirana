@@ -11,6 +11,7 @@
     "enabled": true,
   },
   // The custom domain, once the site should answer at kirana.style (the zone is on this Cloudflare
-  // account already):
+  // account already). Set `SITES.docs.live` in src/data/links.ts in the same change, so the site's
+  // own links (llms.txt, canonical links) follow; the consistency check refuses one without the other:
   // "routes": [{ "pattern": "kirana.style", "custom_domain": true }],
 }

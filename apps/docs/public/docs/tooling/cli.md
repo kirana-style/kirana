@@ -1,5 +1,5 @@
 # The CLI
-Source: https://kirana.style/docs/tooling/cli
+Source: https://site.kirana-style.workers.dev/docs/tooling/cli
 
 # The CLI
 

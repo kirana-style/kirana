@@ -1,5 +1,5 @@
 # webpack
-Source: https://kirana.style/docs/integrations/webpack
+Source: https://site.kirana-style.workers.dev/docs/integrations/webpack
 
 # webpack
 

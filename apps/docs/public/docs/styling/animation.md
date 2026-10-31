@@ -1,5 +1,5 @@
 # Animation
-Source: https://kirana.style/docs/styling/animation
+Source: https://site.kirana-style.workers.dev/docs/styling/animation
 
 # Animation
 

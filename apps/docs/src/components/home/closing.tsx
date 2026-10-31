@@ -3,8 +3,7 @@
  * for them, and a blueprint card (the mark's construction drawing in white on one of
  * Kirana's landscapes) with the ways in.
  */
-import { Link } from "@tanstack/react-router"
-import { css, props as styleProps } from "@kirana-style/core"
+import { css } from "@kirana-style/core"
 
 import { radius, theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
@@ -24,6 +23,7 @@ import { QuickStart, SecondaryCta } from "@/components/site/cta"
 import { Rail } from "@/components/site/patterns"
 import { ScenePixels } from "@/components/site/scene-pixels"
 import { SPONSORS } from "@/components/sponsors/data"
+import { PLAYGROUND } from "@/data/links"
 import { SponsorLogo, SponsorVacancy } from "@/components/site/sponsor-slots"
 
 import { HomeSection } from "./frame"
@@ -159,7 +159,7 @@ export function Sponsors() {
   return (
     <HomeSection
       accent="ochre"
-      number="07"
+      number="08"
       eyebrow="Sponsors"
       title={gold.length > 0 ? "Backed by" : "Back the compiler you build on"}
       lede={
@@ -205,20 +205,14 @@ export function Blueprint() {
             </h2>
             <p sx={styles.ctaText}>
               Every class Kirana writes comes from a line of your source, and
-              your editor shows which. Start with the quick start, or see what
-              the compiler made of the examples.
+              your editor shows which. Start with the quick start, or compile a
+              project of your own in the playground, in your browser.
             </p>
             <div sx={styles.ctaActions}>
               <QuickStart sx={styles.ctaPrimary} />
               <SecondaryCta
                 sx={styles.ctaSecondary}
-                render={
-                  <Link
-                    to="/play"
-                    search={{ example: undefined }}
-                    {...styleProps()}
-                  />
-                }
+                render={<DocsLink href={PLAYGROUND} />}
               >
                 Open the playground
               </SecondaryCta>

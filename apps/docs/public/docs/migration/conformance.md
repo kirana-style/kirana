@@ -1,5 +1,5 @@
 # Verifying a migration
-Source: https://kirana.style/docs/migration/conformance
+Source: https://site.kirana-style.workers.dev/docs/migration/conformance
 
 # Verifying a migration
 

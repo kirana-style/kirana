@@ -1,5 +1,5 @@
 # Astro
-Source: https://kirana.style/docs/frameworks/astro
+Source: https://site.kirana-style.workers.dev/docs/frameworks/astro
 
 # Astro
 

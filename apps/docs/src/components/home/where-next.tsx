@@ -49,6 +49,20 @@ const PAGES: readonly {
     text: "What happens between your file and the stylesheet, the numbers, and the checks that catch mistakes.",
   },
   {
+    href: "/editor",
+    scene: "turquoise-lake",
+    label: "In your editor",
+    title: "The CSS on every element",
+    text: "What the language server shows on each line, in the editor you use, answered by the compiler your build runs.",
+  },
+  {
+    href: "/ui",
+    scene: "misty-hills",
+    label: "Kirana UI",
+    title: "Components you don't have to port",
+    text: "shadcn/ui's components and charts on typed styles, installed into your project with kirana-style ui add.",
+  },
+  {
     href: "/migrate",
     scene: "heritage-street",
     label: "Migrate",
@@ -155,7 +169,7 @@ const styles = {
 export function WhereNext() {
   return (
     <HomeSection
-      number="06"
+      number="07"
       eyebrow="Where to next"
       title="Each page stands in its own place"
       lede="The rest of the site, in the order a newcomer tends to read it."

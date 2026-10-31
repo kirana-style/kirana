@@ -1,5 +1,5 @@
 # Your first component
-Source: https://kirana.style/docs/start/first-component
+Source: https://site.kirana-style.workers.dev/docs/start/first-component
 
 # Your first component
 

@@ -1,5 +1,5 @@
 # Parcel
-Source: https://kirana.style/docs/integrations/parcel
+Source: https://site.kirana-style.workers.dev/docs/integrations/parcel
 
 # Parcel
 

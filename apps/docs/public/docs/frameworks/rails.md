@@ -1,5 +1,5 @@
 # Ruby on Rails
-Source: https://kirana.style/docs/frameworks/rails
+Source: https://site.kirana-style.workers.dev/docs/frameworks/rails
 
 # Ruby on Rails
 

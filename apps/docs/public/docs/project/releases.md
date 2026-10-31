@@ -1,5 +1,5 @@
 # Releases and upgrading
-Source: https://kirana.style/docs/project/releases
+Source: https://site.kirana-style.workers.dev/docs/project/releases
 
 # Releases and upgrading
 

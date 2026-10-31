@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
-import { ArrowRight01Icon, LinkSquare02Icon } from "@hugeicons/core-free-icons"
+import {
+  ArrowRight01Icon,
+  LinkSquare02Icon,
+  PlayIcon,
+} from "@hugeicons/core-free-icons"
 
 import { accent, tint } from "@workspace/docs-ui/accent.ts"
 import { Icon } from "@workspace/ui/primitives/icon"
@@ -23,6 +27,11 @@ import { More } from "@/components/page-section"
 import { LogoIcon, PAGE_LOGOS } from "@/components/site/brands"
 import { InlineCode } from "@/components/site/code-tokens"
 import { FrameworkGrid } from "@/components/site/framework-grid"
+import { IllustratedCard } from "@/components/site/illustrated-card"
+import { AddArt } from "@/components/site/kirana-ui"
+import { Card, Row, T } from "@/components/site/visuals"
+import { UI_STATUS } from "@/data/kirana-ui"
+import { PLAYGROUND, UI_PAGES } from "@/data/links"
 import { PackageGroups } from "@/components/site/packages"
 import { Page, PageHero, PageSection } from "@/components/site/page"
 import { PACKAGES } from "@/generated/packages.gen"
@@ -181,7 +190,34 @@ function Described({ text }: { text: string }) {
     )
 }
 
+/** The playground, as the kit draws it: a style in, its CSS out, in the browser. */
+function PlayArt() {
+  return (
+    <Card title="Kirana Play" icon={PlayIcon} width={260} glow>
+      <Row flat>
+        <T tone="info">padding:</T>
+        <T>space[4],</T>
+      </Row>
+      <Row flat>
+        <T tone="info">color:</T>
+        <T>theme.primary,</T>
+      </Row>
+      <Row flat lit>
+        <T tone="muted">kirana.css, compiled in the page</T>
+      </Row>
+    </Card>
+  )
+}
+
 const styles = {
+  sites: css({
+    display: "grid",
+    gap: spacing[6],
+    gridTemplateColumns: {
+      base: "minmax(0, 1fr)",
+      [breakpoint.md]: "repeat(2, minmax(0, 1fr))",
+    },
+  }),
   // Package names are long and mono, so their column is wider than the other tables'.
   packageRow: css({
     gridTemplateColumns: {
@@ -366,6 +402,33 @@ function EcosystemPage() {
         <DocsLink href="/docs/project/ecosystem">
           <More>The full status page</More>
         </DocsLink>
+      </PageSection>
+
+      <PageSection
+        number="06"
+        label="Built on it"
+        title="Components to install, and a playground to try it"
+        lede="Two sites of their own, made with Kirana: the component library, and a playground that compiles a project in your browser."
+      >
+        <div sx={styles.sites}>
+          <IllustratedCard
+            art={<AddArt />}
+            title="Kirana UI"
+            href="/ui"
+            text={`shadcn/ui's components and charts on typed styles, installed with kirana-style ui add. ${UI_STATUS}.`}
+            links={[
+              { title: "What it is", href: "/ui" },
+              { title: "Browse the components", href: UI_PAGES.components },
+            ]}
+          />
+          <IllustratedCard
+            art={<PlayArt />}
+            title="Playground"
+            href={PLAYGROUND}
+            text="Components, tokens and kirana.config.ts in their own files, compiled by a released engine in your browser, with the stylesheet by layer and the diagnostics as your editor shows them."
+            links={[{ title: "Open the playground", href: PLAYGROUND }]}
+          />
+        </div>
       </PageSection>
     </Page>
   )

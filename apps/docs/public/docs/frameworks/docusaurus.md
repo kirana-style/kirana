@@ -1,5 +1,5 @@
 # Docusaurus
-Source: https://kirana.style/docs/frameworks/docusaurus
+Source: https://site.kirana-style.workers.dev/docs/frameworks/docusaurus
 
 # Docusaurus
 

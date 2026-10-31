@@ -1,5 +1,5 @@
 # Nuxt
-Source: https://kirana.style/docs/frameworks/nuxt
+Source: https://site.kirana-style.workers.dev/docs/frameworks/nuxt
 
 # Nuxt
 

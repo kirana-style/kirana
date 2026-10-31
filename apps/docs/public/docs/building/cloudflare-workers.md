@@ -1,5 +1,5 @@
 # Cloudflare Workers
-Source: https://kirana.style/docs/building/cloudflare-workers
+Source: https://site.kirana-style.workers.dev/docs/building/cloudflare-workers
 
 # Cloudflare Workers
 

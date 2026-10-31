@@ -1,5 +1,5 @@
 # Editor support
-Source: https://kirana.style/docs/tooling/editor
+Source: https://site.kirana-style.workers.dev/docs/tooling/editor
 
 # Editor support
 

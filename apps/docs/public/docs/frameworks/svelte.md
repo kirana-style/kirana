@@ -1,5 +1,5 @@
 # Svelte
-Source: https://kirana.style/docs/frameworks/svelte
+Source: https://site.kirana-style.workers.dev/docs/frameworks/svelte
 
 # Svelte
 

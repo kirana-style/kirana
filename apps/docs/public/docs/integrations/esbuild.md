@@ -1,5 +1,5 @@
 # esbuild
-Source: https://kirana.style/docs/integrations/esbuild
+Source: https://site.kirana-style.workers.dev/docs/integrations/esbuild
 
 # esbuild
 

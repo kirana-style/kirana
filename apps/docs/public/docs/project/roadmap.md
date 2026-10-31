@@ -1,5 +1,5 @@
 # Roadmap
-Source: https://kirana.style/docs/project/roadmap
+Source: https://site.kirana-style.workers.dev/docs/project/roadmap
 
 # Roadmap
 
@@ -141,7 +141,7 @@ with the compiler; the rest are planned, with no dates for the same reason.
 
 | Product | Status | What it is |
 | --- | --- | --- |
-| [Kirana UI](https://ui.kirana.style) | Available | A registry of components styled with Kirana, installed with `kirana-style ui add` |
+| [Kirana UI](https://ui.kirana-style.workers.dev) | Available | A registry of components styled with Kirana, installed with `kirana-style ui add` |
 | Kirana Docs | Planned | Markdown pages built ahead of time on TanStack Start, with a twin of each page for agents |
 | Kirana Headless | Planned | The behaviour of menus, dialogs and fields, with no styles of its own |
 | Kirana Email | Planned | Styles inlined and checked against what email clients support |

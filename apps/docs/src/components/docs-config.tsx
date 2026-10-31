@@ -17,6 +17,7 @@ import type { DocsConfig, DocsTab } from "@workspace/docs-ui/provider.tsx"
 import { DocsLink } from "@/components/docs-link"
 import { pageIcon } from "@/components/site/brands"
 import { RailSponsor, SidebarSponsor } from "@/components/site/sponsor-slots"
+import { SITE_URL } from "@/data/links"
 import { NAV, PAGES } from "@/generated/content.gen"
 import { loadSearch, search } from "@/lib/search"
 
@@ -95,7 +96,7 @@ export function SiteDocsProvider({ children }: { children: React.ReactNode }) {
         hash,
       })
     },
-    siteUrl: "https://kirana.style",
+    siteUrl: SITE_URL,
     siteName: "Kirana",
     pageIcon,
   }

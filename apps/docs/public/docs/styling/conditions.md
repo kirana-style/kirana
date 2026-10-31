@@ -1,5 +1,5 @@
 # Conditions
-Source: https://kirana.style/docs/styling/conditions
+Source: https://site.kirana-style.workers.dev/docs/styling/conditions
 
 # Conditions
 

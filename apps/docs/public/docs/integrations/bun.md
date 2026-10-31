@@ -1,5 +1,5 @@
 # Bun
-Source: https://kirana.style/docs/integrations/bun
+Source: https://site.kirana-style.workers.dev/docs/integrations/bun
 
 # Bun
 

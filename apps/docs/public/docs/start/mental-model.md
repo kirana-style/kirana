@@ -1,5 +1,5 @@
 # Mental model
-Source: https://kirana.style/docs/start/mental-model
+Source: https://site.kirana-style.workers.dev/docs/start/mental-model
 
 # Mental model
 

@@ -26,6 +26,9 @@
  *   config        a key `kirana_config` reads missing from the configuration page
  *   editors       an editor window's hint the formatter moved onto a line of its own
  *   groups        a package in no group of `/ecosystem`'s cards, or in two
+ *   addresses     a site's address written outside `src/data/links.ts` (a `workers.dev` one, or
+ *                 `play.`/`ui.kirana.style`), or this site's `wrangler.jsonc` routing its domain
+ *                 while `SITES.docs.live` still sends links to the Worker
  *
  * A passage that records history (a sprint) is exempt when the line before it is
  * `<!-- consistency: history -->`, and a list that is a deliberate subset (the frameworks with
@@ -43,6 +46,7 @@ import { LINT } from "../src/generated/lint.gen.ts"
 import { PACKAGES } from "../src/generated/packages.gen.ts"
 import { COUNTS, LISTS, PUBLISHED } from "../src/data/facts.ts"
 import { LINT_RULES } from "../src/data/tooling.ts"
+import { SITES } from "../src/data/links.ts"
 import { SCENES } from "../src/brand/scenes.ts"
 import type { SceneId } from "../src/brand/scenes.ts"
 
@@ -880,6 +884,40 @@ for (const name of grouped)
       lineOf(packageCards, packageCards.indexOf(`"${name}"`)),
       `${name} is in a package group but not a package`
     )
+
+// The sites' addresses, in one place (`src/data/links.ts`): a Worker's address written anywhere else
+// outlives the day its domain goes live, and a domain written early is a dead link until then.
+const ADDRESS = /[a-z0-9.-]+\.workers\.dev|\b(?:play|ui)\.kirana\.style\b/g
+const LINKS = join(app, "src/data/links.ts")
+const SELF = join(app, "scripts/check-consistency.ts")
+for (const path of [
+  ...(await files(join(app, "src"), /\.(ts|tsx)$/)),
+  ...(await files(join(app, "scripts"), /\.ts$/)),
+  ...(await files(join(app, "content"), /\.md$/)),
+  ...(await files(join(repository, "packages/docs-ui/src"), /\.(ts|tsx)$/)),
+  ...(await files(join(repository, "packages/docs-core/src"), /\.ts$/)),
+]) {
+  if (path === LINKS || path === SELF) continue
+  const text = await readFile(path, "utf8")
+  for (const match of text.matchAll(ADDRESS))
+    report(
+      relativePath(path),
+      lineOf(text, match.index),
+      `${match[0]} is a site's address: read it from SITES in src/data/links.ts`
+    )
+}
+// This site's domain goes live with its `routes`; links must follow in the same change.
+const wrangler = await readFile(join(app, "wrangler.jsonc"), "utf8")
+const routed = /^\s*"routes"\s*:/m.test(wrangler)
+const links = await readFile(LINKS, "utf8")
+if (routed !== SITES.docs.live)
+  report(
+    "apps/docs/src/data/links.ts",
+    lineOf(links, links.indexOf("docs: {")),
+    routed
+      ? "wrangler.jsonc routes kirana.style, but SITES.docs.live is false: links still go to the Worker"
+      : "SITES.docs.live is true, but wrangler.jsonc routes no domain: links go to an address nothing answers"
+  )
 
 if (problems.length) {
   console.error(problems.join("\n"))
