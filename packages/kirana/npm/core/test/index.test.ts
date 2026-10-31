@@ -23,6 +23,7 @@ describe("KRN-API uncompiled calls fail loudly", () => {
     ["container", () => core.container("(x)")],
     ["supports", () => core.supports("(x)")],
     ["firstThatWorks", () => core.firstThatWorks("100dvh", "100vh")],
+    ["fallback", () => core.fallback("" as core.Token, "2.5rem")],
     ["positionTry", () => core.positionTry({ positionArea: "top" })],
     ["viewTransition", () => core.viewTransition({ old: { opacity: 0 } })],
     ["counterStyle", () => core.counterStyle({ system: "cyclic" })],
@@ -118,6 +119,10 @@ describe("fallback, position-try and view-transition types", () => {
       core.positionTry({ color: "red" })
       // @ts-expect-error firstThatWorks takes at least one value
       core.firstThatWorks()
+      // @ts-expect-error fallback() needs what to read when the token is unset
+      core.fallback("" as core.Token)
+      // @ts-expect-error fallback() starts with a token
+      core.fallback("1rem", "2rem")
       const sx: core.Sx = [style, slide]
       const name: string = slide
       return { below, slide, sx, name }
@@ -131,5 +136,6 @@ describe("fallback, position-try and view-transition types", () => {
     expectTypeOf(core.firstThatWorks<"a" | "b">).returns.toEqualTypeOf<
       core.Fallbacks<"a" | "b">
     >()
+    expectTypeOf(core.fallback).returns.toEqualTypeOf<core.Token>()
   })
 })

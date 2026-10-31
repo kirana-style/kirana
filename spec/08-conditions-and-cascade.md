@@ -151,7 +151,9 @@ rejects valid CSS, including CSS newer than the data (P11):
   to, so `padding: -4px` is rejected; a math function is never range-checked.
 - **Token domains:** a value that is one project variable token is checked through each value the token
   declares, so a colour token on `padding` is `invalid-value` with no new API. An inlined token is
-  checked as the value it inlines.
+  checked as the value it inlines. A token an element may leave unset holds whatever it is given, so it is
+  checked through what its reference falls back to: the end of a `fallback()` chain (D-117), and
+  nothing for a bare `var(--k…,)`.
 - **Remembered verdicts:** a verdict depends on the property and the value text alone, so the compiler
   MAY remember it for the session; a token is resolved before the check, so an edited token's new
   value is judged afresh (D-092).

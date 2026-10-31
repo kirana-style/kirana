@@ -106,6 +106,10 @@ css({
 })
 ```
 
+To read the first of several such tokens an element sets, with a default when it
+sets none, chain them with
+[`fallback()`](/docs/styling/fallbacks#a-token-else-another-fallback).
+
 ## Tokens nothing uses
 
 A production build writes a variable token's declaration only when something uses

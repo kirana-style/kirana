@@ -113,6 +113,28 @@ fn single_component_shorthands_are_atoms() {
 }
 
 #[test]
+fn an_unset_token_is_judged_by_its_fallback() {
+    // D-059's unset tokens hold what an element gives them; `fallback()` chains them (KRN-API-022).
+    let tokens = |variable: &str| match variable {
+        "--unset" | "--other" => Some(vec![String::new()]),
+        "--ink" => Some(vec!["red".to_owned()]),
+        _ => None,
+    };
+    let declared = |value: &str| declare_with("padding-top", RawValue::Str(value), &tokens);
+    for value in
+        ["var(--unset,)", "var(--unset, 1rem)", "var(--unset, var(--other, 1rem))", "var(--unset, var(--library))"]
+    {
+        assert!(declared(value).is_ok(), "{value}");
+    }
+    let reason = |value: &str| match declared(value) {
+        Err(DeclarationError::InvalidValue { reason, .. }) => reason,
+        other => panic!("{value}: {other:?}"),
+    };
+    assert!(reason("var(--unset, var(--other, red))").starts_with("`red`, what its unset tokens fall back to,"));
+    assert!(reason("var(--unset, var(--ink))").starts_with("the token's value `red`"));
+}
+
+#[test]
 fn numbers() {
     assert_eq!(declare("opacity", RawValue::Number(0.5)).unwrap().declarations[0].1, "0.5");
     assert_eq!(declare("width", RawValue::Number(0.0)).unwrap().declarations[0].1, "0");

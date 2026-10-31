@@ -991,12 +991,14 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/styling/fallbacks",
     "file": "content/docs/styling/fallbacks.md",
     "title": "Fallback values",
-    "description": "Write one property several times with firstThatWorks(), so a browser that does not know the preferred value keeps the one before it.",
+    "description": "Write one property several times with firstThatWorks(), so a browser that does not know the preferred value keeps the one before it, and read the first token an element sets with fallback().",
     "section": "dynamic",
     "order": 3,
     "keywords": [
       "firstThatWorks",
       "fallback",
+      "var",
+      "unset token",
       "dvh",
       "svh",
       "progressive enhancement",
@@ -1011,6 +1013,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "what-it-refuses",
         "text": "What it refuses",
+        "level": 2
+      },
+      {
+        "id": "a-token-else-another-fallback",
+        "text": "A token, else another: fallback()",
         "level": 2
       },
       {
@@ -3855,6 +3862,7 @@ export const PAGES: readonly PageMeta[] = [
       "defineTheme",
       "mode",
       "firstThatWorks",
+      "fallback",
       "positionTry",
       "viewTransition",
       "counterStyle",
@@ -3907,6 +3915,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "firstthatworks-preferred-fallbacks",
         "text": "firstThatWorks(preferred, ...fallbacks)",
+        "level": 2
+      },
+      {
+        "id": "fallback-token-rest",
+        "text": "fallback(token, ...rest)",
         "level": 2
       },
       {
@@ -5402,10 +5415,12 @@ export const NAV: readonly NavGroup[] = [
       {
         "title": "Fallback values",
         "href": "/docs/styling/fallbacks",
-        "description": "Write one property several times with firstThatWorks(), so a browser that does not know the preferred value keeps the one before it.",
+        "description": "Write one property several times with firstThatWorks(), so a browser that does not know the preferred value keeps the one before it, and read the first token an element sets with fallback().",
         "keywords": [
           "firstThatWorks",
           "fallback",
+          "var",
+          "unset token",
           "dvh",
           "svh",
           "progressive enhancement",
@@ -6263,6 +6278,7 @@ export const NAV: readonly NavGroup[] = [
           "defineTheme",
           "mode",
           "firstThatWorks",
+          "fallback",
           "positionTry",
           "viewTransition",
           "counterStyle",

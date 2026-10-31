@@ -1426,7 +1426,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
     }
 }
 
-const ALL_APIS: [Api; 18] = [
+const ALL_APIS: [Api; 19] = [
     Api::Css,
     Api::Cx,
     Api::Props,
@@ -1441,6 +1441,7 @@ const ALL_APIS: [Api; 18] = [
     Api::Container,
     Api::Supports,
     Api::FirstThatWorks,
+    Api::Fallback,
     Api::PositionTry,
     Api::ViewTransition,
     Api::CounterStyle,

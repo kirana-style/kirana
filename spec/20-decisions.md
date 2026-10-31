@@ -1830,21 +1830,49 @@ the implementation tracker names its evidence.
 - **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md#diagnostics),
   [12-tooling-and-dx](./12-tooling-and-dx.md#cli).
 
+### D-117 — `fallback()`: a token, else the next, else a value
+
+- **Status:** Accepted (2026-10-31).
+- **Decision:** `fallback(token, ...rest)` compiles to one `var()` chain read where it is used:
+  `fallback(fade.top, fade.size, "2.5rem")` is `var(--kv…, var(--kv…, 2.5rem))`. Every argument
+  but the last is a token an element may leave unset, a registered token of the universal syntax with
+  no value (D-059); the last is any static CSS value, token or chain. The result is a token whose
+  CSS is the chain, so it is accepted wherever a token is (`css()`, conditional values, recipes,
+  `keyframes()` frames, template literals, a token's default) and is its text outside a style. It is
+  not a variable, so it cannot be assigned. An unset token on a property is judged by what it falls
+  back to (KRN-CAS-010), so a chain's end is checked against the property and a bare unset token is
+  not judged at all.
+- **Rationale:** a component with per-edge settings over a shared one (a scroll fade's top depth,
+  else its depth, else a default) needs the browser to pick the first one an element set. A
+  variable token's default resolves on `:root` (KRN-TOK-004), so a default that reads another token
+  sees the root's value, not the element's; `firstThatWorks()` picks by what the browser parses,
+  not by what is set. Kirana UI wrote the custom properties and the chain by hand (KF-081), which
+  gave up typing, hashing and the unused-token check. A token with a value never falls back, so a
+  chain that starts with one is dead past it and is refused (`invalid-fallback`).
+- **Trade-off:** the knobs must be declared `{ syntax: "*" }` with no value, which neither
+  interpolates nor checks what an element assigns; a knob that must animate is read through a
+  registered token that is assigned the chain (`[fade.depth]: fallback(…)`). A chain's default is
+  resolved where it is read: as a variable token's default it resolves on `:root`, as any default
+  does. `firstThatWorks()` cannot end a chain, since it writes one declaration per value.
+- **Elaborated in:** [06-authoring-api](./06-authoring-api.md#fallback),
+  [07-tokens-themes-presets](./07-tokens-themes-presets.md),
+  [08-conditions-and-cascade](./08-conditions-and-cascade.md).
+
 ## Index by document
 
-| Document                                                      | Decisions                                                                                                                                                                     |
-| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| the brand notes                                               | D-001                                                                                                                                                                         |
-| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101, D-112, D-115 |
-| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099, D-115                                                                                     |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114                      |
-| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                               |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116                                                                       |
-| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                    |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116               |
-| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114                                                                                                   |
-| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                         |
-| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                                  |
-| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                                                                      |
-| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                                                                    |
-| the roadmap                                                   | D-033, D-051, D-056                                                                                                                                                           |
+| Document                                                      | Decisions                                                                                                                                                                            |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| the brand notes                                               | D-001                                                                                                                                                                                |
+| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101, D-112, D-115, D-117 |
+| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099, D-115, D-117                                                                                     |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114, D-117                      |
+| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                                      |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116                                                                              |
+| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                           |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116                      |
+| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114                                                                                                          |
+| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                                |
+| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                                         |
+| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                                                                             |
+| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                                                                           |
+| the roadmap                                                   | D-033, D-051, D-056                                                                                                                                                                  |

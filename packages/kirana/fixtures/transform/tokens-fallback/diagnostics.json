@@ -1,0 +1,110 @@
+[
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1835,
+      "end": 1845
+    },
+    "message": "fade.depth always has a value, so fallback() would never read what follows it",
+    "help": [
+      "declare it { syntax: \"*\" } with no value, so an element may leave it unset"
+    ]
+  },
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1903,
+      "end": 1912
+    },
+    "message": "plain.gap always has a value, so fallback() would never read what follows it",
+    "help": [
+      "declare it { syntax: \"*\" } with no value, so an element may leave it unset"
+    ]
+  },
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1971,
+      "end": 1986
+    },
+    "message": "every value of fallback() but the last must be a token",
+    "help": [
+      "put a plain value last: it is what the chain ends with"
+    ]
+  },
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2033,
+      "end": 2060
+    },
+    "message": "fallback() takes a token and what to read when an element leaves it unset",
+    "help": [
+      "for example fallback(fade.edge, fade.size, \"2.5rem\")"
+    ]
+  },
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2119,
+      "end": 2140
+    },
+    "message": "the last value of fallback() must be known at build time",
+    "help": []
+  },
+  {
+    "code": "KRN1206",
+    "name": "invalid-fallback",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2201,
+      "end": 2234
+    },
+    "message": "the last value of fallback() must be one CSS value",
+    "help": [
+      "firstThatWorks() writes a declaration per value; a var() chain ends in one"
+    ]
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2267,
+      "end": 2320
+    },
+    "message": "width: `red`, what its unset tokens fall back to, is not a value it takes (auto | <length-percentage [0,∞]> | min-content | max-content | fit-content | fit-content(<length-percentage [0,∞]>) | <calc-size()> | <anchor-size()>)",
+    "help": []
+  },
+  {
+    "code": "KRN1506",
+    "name": "token-not-variable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2352,
+      "end": 2392
+    },
+    "message": "fallback(fade.top, \"1rem\") is not a variable token, so it cannot be assigned",
+    "help": [
+      "declare the token with `variable: true`"
+    ]
+  }
+]

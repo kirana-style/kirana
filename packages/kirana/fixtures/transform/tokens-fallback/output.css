@@ -1,0 +1,68 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@property --kv4noC {
+  syntax: "*";
+  inherits: true;
+}
+@property --kveHnr {
+  syntax: "*";
+  inherits: true;
+}
+@property --kvieC4 {
+  syntax: "*";
+  inherits: true;
+}
+@property --kvoOnm {
+  syntax: "*";
+  inherits: true;
+}
+@property --kvw8mM {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 0px;
+}
+@layer kirana.tokens {
+  :root {
+    --kvCDGB: var(--kveHnr, 1rem);
+  }
+  @keyframes kfNgVx {
+    from {
+      --kvw8mM: 0px;
+    }
+    to {
+      --kvw8mM: var(--kvoOnm, var(--kvieC4, 2.5rem));
+    }
+  }
+}
+@layer kirana.atoms {
+  .kV_AYXV {
+    margin-inline: var(--kvieC4, 1rem);
+  }
+  .k10_AmXa {
+    margin-block-end: var(--kvoOnm, var(--kvieC4, 1rem));
+  }
+  .kQ_Tnhh {
+    padding-inline-start: var(--kveHnr,);
+  }
+  .kT_tkQA {
+    padding-block-start: var(--kveHnr, var(--kvieC4, min(12%, 2.5rem)));
+  }
+  .kZ_9lIr {
+    margin-block-start: var(--kveHnr, 1rem);
+  }
+  .k2sckC_ALZU {
+    --kvieC4: 6rem;
+  }
+  .k3O_Uxgl {
+    animation-name: kfNgVx;
+  }
+  .k7D_wVRU {
+    mask-image: linear-gradient(transparent 0, #000 var(--kveHnr, var(--kvieC4, min(12%, 2.5rem))));
+  }
+  .k87_yu62 {
+    opacity: var(--kv4noC, 1);
+  }
+  .kAar3e_KEPB {
+    --kveHnr: 0.5rem;
+  }
+}

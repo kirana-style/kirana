@@ -1226,7 +1226,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "href": "/docs/styling/fallbacks",
     "page": "Fallback values",
     "section": "dynamic",
-    "text": "Write one property several times with firstThatWorks(), so a browser that does not know the preferred value keeps the one before it. "
+    "text": "Write one property several times with firstThatWorks(), so a browser that does not know the preferred value keeps the one before it, and read the first token an element sets with fallback(). "
   },
   {
     "id": "/docs/styling/fallbacks#fallback-values",
@@ -1251,6 +1251,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "dynamic",
     "heading": "What it refuses",
     "text": "The longhand rule exists because a shorthand with a cannot be split at build time: one value would set four longhands and the other the shorthand, and a browser would keep a fallback for some sides and the preferred value for others. A custom property never falls back, because the browser accepts any text for it; put the fallback where the variable is read, . One value is that value: is , which keeps code migrated from StyleX working."
+  },
+  {
+    "id": "/docs/styling/fallbacks#a-token-else-another-fallback",
+    "href": "/docs/styling/fallbacks#a-token-else-another-fallback",
+    "page": "Fallback values",
+    "section": "dynamic",
+    "heading": "A token, else another:  fallback()",
+    "text": "picks by what the browser understands. picks by what the element sets: the first of its tokens that has a value, else the next, else the last value. It compiles to one chain, read where it is used: A region with gets 6rem at the top, one with both gets 0.5rem, and one with neither gets the default. Each knob is a token an element may leave unset: the universal syntax with no value . A token with a value is never unset, so nothing after it would ever be read. A token's default cannot do this. A variable token's default is resolved on , so a default that reads another token sees the root's value, never the element's. The result works wherever a token does: in property values, conditions, recipes, template literals, frames and a token's default. It is a value, not a variable, so it cannot be a key. Outside a style it is the chain's text, for an inline style or a chart's option. To animate the result, assign it to a registered token and animate that: The last value may be a plain value, a token or another chain, and it is checked against the property, so is ."
   },
   {
     "id": "/docs/styling/fallbacks#when-to-use-supports-instead",
@@ -1359,7 +1367,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Tokens",
     "section": "tokens",
     "heading": "Registered tokens",
-    "text": "Give a token a syntax and it becomes a real registered property, which means the browser can animate it: This emits , and the token may then be used as a keyframe key. With the universal syntax a token may have no value at all. It starts unset, and every reference to it falls back to nothing ( ), so a chain of such tokens lists only the parts an element sets. That is how Tailwind composes :"
+    "text": "Give a token a syntax and it becomes a real registered property, which means the browser can animate it: This emits , and the token may then be used as a keyframe key. With the universal syntax a token may have no value at all. It starts unset, and every reference to it falls back to nothing ( ), so a chain of such tokens lists only the parts an element sets. That is how Tailwind composes : To read the first of several such tokens an element sets, with a default when it sets none, chain them with ."
   },
   {
     "id": "/docs/tokens/overview#tokens-nothing-uses",
@@ -4259,6 +4267,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "A property value written once per value, the preferred last, so a browser that does not understand it keeps the one before. Values must be known at build time and expand to the same longhands. Fallback values ."
   },
   {
+    "id": "/docs/reference/api#fallback-token-rest",
+    "href": "/docs/reference/api#fallback-token-rest",
+    "page": "API reference",
+    "section": "reference",
+    "heading": "fallback(token, ...rest)",
+    "text": "The first token an element sets, else the next, else the last value, as one chain read where it is used. Every token but the last must be one an element may leave unset ( with no value). The result is a value wherever a token is, and cannot be assigned. Fallback values ."
+  },
+  {
     "id": "/docs/reference/api#positiontry-block",
     "href": "/docs/reference/api#positiontry-block",
     "page": "API reference",
@@ -5255,7 +5271,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Built",
-    "text": ", , , , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 51 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, what the stylesheet holds and why, the design s"
+    "text": ", , , , , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 51 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, what the stylesheet holds and why, the design"
   },
   {
     "id": "/docs/project/status#partial",

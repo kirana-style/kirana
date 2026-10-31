@@ -1,11 +1,11 @@
-//! `firstThatWorks()`, `positionTry()`, `viewTransition()` and `counterStyle()` (KRN-API-017 to
-//! KRN-API-020).
+//! `firstThatWorks()`, `positionTry()`, `viewTransition()`, `counterStyle()` and `fallback()`
+//! (KRN-API-017 to KRN-API-020, KRN-API-022).
 
 use std::sync::Arc;
 
 use kirana_diagnostics::Code;
 use kirana_ir::{
-    Condition, CounterStyleDef, Dep, Handle, Key, PositionTryDef, TransitionPart, TransitionRule, Value,
+    Condition, CounterStyleDef, Dep, Handle, Key, PositionTryDef, TokenRef, TransitionPart, TransitionRule, Value,
     ViewTransitionDef, parse_condition_key,
 };
 use kirana_shared::kebab_case;
@@ -116,6 +116,82 @@ impl Evaluator<'_, '_, '_> {
             return members.remove(0);
         }
         Value::Fallbacks(Arc::new(members))
+    }
+
+    /// `fallback(token, ...rest)` (KRN-API-022, D-117): the first token an element sets, else the
+    /// next, else the last value, as one `var()` chain read where it is used. Every argument but the
+    /// last is a token an element may leave unset: a registered token of the universal syntax with no
+    /// value, whose reference already falls back (`var(--k…,)`). A token with a value is never unset,
+    /// so what follows it would never be read. The last is any token or static CSS value, a chain
+    /// too. The result is a token whose CSS is the chain, so it is a value wherever a token is, and
+    /// is written as its text outside a style; it is not a variable, and cannot be assigned.
+    pub(crate) fn fallback(&self, arguments: &[(Value, (u32, u32))], span: (u32, u32)) -> Value {
+        let Some(((last, last_at), tokens)) = arguments.split_last().filter(|(_, tokens)| !tokens.is_empty()) else {
+            return self.invalid(
+                Code::InvalidFallback,
+                span,
+                "fallback() takes a token and what to read when an element leaves it unset",
+                Some("for example fallback(fade.edge, fade.size, \"2.5rem\")"),
+            );
+        };
+        let mut read = Vec::new();
+        for (value, at) in tokens {
+            let Value::Token(token) = value else {
+                return self.invalid(
+                    Code::InvalidFallback,
+                    *at,
+                    "every value of fallback() but the last must be a token",
+                    Some("put a plain value last: it is what the chain ends with"),
+                );
+            };
+            match &token.variable {
+                Some(variable) if token.css == format!("var({variable},)") => read.push((token, variable)),
+                _ => {
+                    return self.invalid(
+                        Code::InvalidFallback,
+                        *at,
+                        format!(
+                            "{} always has a value, so fallback() would never read what follows it",
+                            token.identity
+                        ),
+                        Some("declare it { syntax: \"*\" } with no value, so an element may leave it unset"),
+                    );
+                }
+            }
+        }
+        let end = match last {
+            Value::Token(token) => token.css.clone(),
+            Value::Str(_) | Value::Number(_) => crate::ops::to_string(last).expect("strings and numbers print"),
+            value if !value.is_static() => {
+                return self.invalid(
+                    Code::InvalidFallback,
+                    *last_at,
+                    "the last value of fallback() must be known at build time",
+                    None,
+                );
+            }
+            _ => {
+                return self.invalid(
+                    Code::InvalidFallback,
+                    *last_at,
+                    "the last value of fallback() must be one CSS value",
+                    Some("firstThatWorks() writes a declaration per value; a var() chain ends in one"),
+                );
+            }
+        };
+        let css = read.iter().rev().fold(end.clone(), |rest, (_, variable)| format!("var({variable}, {rest})"));
+        let names = read.iter().map(|(token, _)| token.identity.as_str());
+        let last_name = match last {
+            Value::Token(token) => token.identity.clone(),
+            Value::Str(_) => format!("\"{end}\""),
+            _ => end,
+        };
+        Value::Token(Arc::new(TokenRef {
+            identity: format!("fallback({}, {last_name})", names.collect::<Vec<_>>().join(", ")),
+            deps: self.deps_in(&css),
+            css,
+            variable: None,
+        }))
     }
 
     /// `positionTry({ ... })`: an `@position-try` rule of positioning declarations, named by a

@@ -98,6 +98,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
                 _ => self.not_evaluable(span, "container() takes a query string and an optional name"),
             },
             Api::FirstThatWorks => self.first_that_works(&arguments, span),
+            Api::Fallback => self.fallback(&arguments, span),
             Api::PositionTry => self.position_try(arguments.first(), span),
             Api::ViewTransition => self.view_transition(arguments.first(), span),
             Api::CounterStyle => self.counter_style(arguments.first(), span),

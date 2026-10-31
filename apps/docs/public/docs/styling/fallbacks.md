@@ -66,6 +66,67 @@ put the fallback where the variable is read, `var(--gap, 16px)`.
 One value is that value: `firstThatWorks("grid")` is `"grid"`, which keeps code
 migrated from StyleX working.
 
+## A token, else another: `fallback()`
+
+`firstThatWorks()` picks by what the browser understands. `fallback()` picks by
+what the element sets: the first of its tokens that has a value, else the next,
+else the last value. It compiles to one `var()` chain, read where it is used:
+
+```tsx
+import { css, defineTokens, fallback } from "@kirana-style/core"
+
+export const fade = defineTokens("fade", {
+  size: { syntax: "*" },
+  top: { syntax: "*" },
+})
+
+const region = css({
+  paddingBlockStart: fallback(fade.top, fade.size, "min(12%, 2.5rem)"),
+})
+const deep = css({ [fade.size]: "6rem" })
+const shallowTop = css({ [fade.top]: "0.5rem" })
+```
+
+```css
+.kT_tkQA {
+  padding-block-start: var(--kveHnr, var(--kvieC4, min(12%, 2.5rem)));
+}
+```
+
+A region with `deep` gets 6rem at the top, one with both gets 0.5rem, and one with
+neither gets the default. Each knob is a token an element may leave unset: the
+[universal syntax with no value](/docs/tokens/overview#registered-tokens). A token
+with a value is never unset, so nothing after it would ever be read.
+
+A token's default cannot do this. A variable token's default is resolved on
+`:root`, so a default that reads another token sees the root's value, never the
+element's.
+
+The result works wherever a token does: in property values, conditions,
+recipes, template literals, `keyframes()` frames and a token's default. It is a
+value, not a variable, so it cannot be a key. Outside a style it is the chain's
+text, for an inline style or a chart's option. To animate the result, assign it
+to a registered token and animate that:
+
+```tsx
+const reveal = keyframes({
+  from: { [fade.depth]: "0px" },
+  to: { [fade.depth]: fallback(fade.size, "2.5rem") },
+})
+```
+
+The last value may be a plain value, a token or another chain, and it is checked
+against the property, so `padding: fallback(fade.top, "red")` is `invalid-value`.
+
+| Written                                       | Diagnostic                                                     |
+| --------------------------------------------- | -------------------------------------------------------------- |
+| `fallback(fade.top)`                          | `invalid-fallback`: it needs a value to fall back to           |
+| `fallback("1rem", fade.top)`                  | `invalid-fallback`: every value but the last must be a token   |
+| `fallback(theme.gap, "1rem")`                 | `invalid-fallback`: the token always has a value               |
+| `fallback(fade.top, value)`, value at runtime | `invalid-fallback`: the last value must be known at build time |
+| `fallback(fade.top, firstThatWorks(a, b))`    | `invalid-fallback`: a chain ends in one value                  |
+| `{ [fallback(fade.top, "1rem")]: "2rem" }`    | `token-not-variable`: the chain is a value, not a variable     |
+
 ## When to use `supports()` instead
 
 `firstThatWorks()` fits one property whose newer value a browser either parses or

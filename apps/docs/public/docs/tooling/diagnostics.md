@@ -81,12 +81,12 @@ disabled. For the element's own state, use the state as the condition key:
 **`invalid-fallback`**, **`invalid-position-try`**, **`invalid-view-transition`**
 and **`invalid-counter-style`** report a value the browser would drop or misread:
 
-| Diagnostic                | What it catches                                                                                     |
-| ------------------------- | --------------------------------------------------------------------------------------------------- |
-| `invalid-fallback`        | A [`firstThatWorks()`](/docs/styling/fallbacks) run whose values set different longhands            |
-| `invalid-position-try`    | A property a [`positionTry()`](/docs/styling/anchor-positioning) block ignores                      |
-| `invalid-view-transition` | A [`viewTransition()`](/docs/styling/view-transitions) part that is not one of the four             |
-| `invalid-counter-style`   | A [`counterStyle()`](/docs/styling/at-rules#counter-styles) descriptor or system that draws nothing |
+| Diagnostic                | What it catches                                                                                                                                                                                                 |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `invalid-fallback`        | A [`firstThatWorks()`](/docs/styling/fallbacks) run whose values set different longhands, or a [`fallback()`](/docs/styling/fallbacks#a-token-else-another-fallback) chain past a token that always has a value |
+| `invalid-position-try`    | A property a [`positionTry()`](/docs/styling/anchor-positioning) block ignores                                                                                                                                  |
+| `invalid-view-transition` | A [`viewTransition()`](/docs/styling/view-transitions) part that is not one of the four                                                                                                                         |
+| `invalid-counter-style`   | A [`counterStyle()`](/docs/styling/at-rules#counter-styles) descriptor or system that draws nothing                                                                                                             |
 
 **`unresolved-import`**: an import a style depends on could not be resolved, so
 its value compiles as a runtime value. Check the specifier and your tsconfig

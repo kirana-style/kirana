@@ -20,6 +20,7 @@ keywords:
     defineTheme,
     mode,
     firstThatWorks,
+    fallback,
     positionTry,
     viewTransition,
     counterStyle,
@@ -135,6 +136,18 @@ firstThatWorks<V>(...values: [V, ...V[]]): Fallbacks<V>
 A property value written once per value, the preferred last, so a browser that
 does not understand it keeps the one before. Values must be known at build time
 and expand to the same longhands. [Fallback values](/docs/styling/fallbacks).
+
+## `fallback(token, ...rest)`
+
+```ts
+fallback(token: Token, ...rest: [Token | Primitive, ...(Token | Primitive)[]]): Token
+```
+
+The first token an element sets, else the next, else the last value, as one
+`var()` chain read where it is used. Every token but the last must be one an
+element may leave unset (`{ syntax: "*" }` with no value). The result is a value
+wherever a token is, and cannot be assigned.
+[Fallback values](/docs/styling/fallbacks#a-token-else-another-fallback).
 
 ## `positionTry(block)`
 

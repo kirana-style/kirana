@@ -369,6 +369,19 @@ export function firstThatWorks<
   return uncompiled("firstThatWorks")
 }
 
+/**
+ * A token, else the next, else the last value, read where it is used:
+ * `fallback(fade.edge, fade.size, "2.5rem")` is `var(--kv…, var(--kv…, 2.5rem))` (KRN-API-022).
+ * Every token but the last must be one an element may leave unset: registered with
+ * `{ syntax: "*" }` and no value. The result is a value, not a token you can assign.
+ */
+export function fallback(
+  _token: Token,
+  ..._rest: readonly [Token | Primitive, ...(Token | Primitive)[]]
+): Token {
+  return uncompiled("fallback")
+}
+
 type PositionTryProperty =
   | "top"
   | "right"
