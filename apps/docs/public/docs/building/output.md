@@ -88,10 +88,10 @@ compile. The stylesheet keeps its rules in the same order; only the names in it
 change.
 
 Measured on the three applications of
-[the benchmarks](/docs/project/benchmarks), Kirana 0.3.5 with
+[the benchmarks](/docs/project/benchmarks), Kirana 0.3.6 with
 dense names makes the CSS 12 % smaller in gzip, and the CSS and
 JavaScript a page downloads 2 % smaller, with cold builds
-3 % slower. On this site, the stylesheet is 12.7 % smaller in
+level. On this site, the stylesheet is 12.7 % smaller in
 gzip and brotli.
 
 Dense names stay opt-in for one reason besides the build time: a code goes to the
