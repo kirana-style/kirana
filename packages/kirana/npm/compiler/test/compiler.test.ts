@@ -959,4 +959,62 @@ describe("kirana command", () => {
     const code = await new Promise((resolve) => child.on("exit", resolve))
     expect(code).toBe(0)
   })
+
+  it("writes a reply larger than the pipe whole while the editor is slow to read it", async () => {
+    // Node makes a pipe non-blocking once `process.stdout` is touched; the server's writer then
+    // gave up on a full pipe and the editor waited on a cut-off reply for good (0.3.6).
+    const names = Array.from(
+      { length: 4000 },
+      (_, index) => `n${index}: "${index}px"`
+    )
+    const root = project({
+      "package.json": '{"name":"app"}',
+      "src/tokens.ts": `import { defineTokens } from "@kirana-style/core"\nexport const space = defineTokens("space", { ${names.join(", ")} })\n`,
+    })
+    const bin = path.join(import.meta.dirname, "../../cli/bin/kirana-style.ts")
+    const child = spawn(process.execPath, [bin, "lsp"], { cwd: root })
+    const frame = (message: object) => {
+      const body = JSON.stringify({ jsonrpc: "2.0", ...message })
+      return `Content-Length: ${Buffer.byteLength(body)}\r\n\r\n${body}`
+    }
+    let received = Buffer.alloc(0)
+    const read = (chunk: Buffer) =>
+      (received = Buffer.concat([received, chunk]))
+    child.stdout.on("data", read)
+    child.stdin.write(
+      frame({ id: 1, method: "initialize", params: { capabilities: {} } })
+    )
+    await expect
+      .poll(() => received.toString(), { timeout: 10_000 })
+      .toContain('"hoverProvider":true')
+    received = Buffer.alloc(0)
+    child.stdin.write(frame({ method: "initialized", params: {} }))
+    child.stdin.write(
+      frame({ id: 2, method: "workspace/symbol", params: { query: "" } })
+    )
+    // A busy editor: nothing is read while the server writes far more than a pipe holds.
+    child.stdout.off("data", read)
+    child.stdout.pause()
+    await new Promise((resolve) => setTimeout(resolve, 1500))
+    child.stdout.on("data", read)
+    child.stdout.resume()
+    const whole = () => {
+      const header = received.indexOf("\r\n\r\n")
+      if (header < 0) return false
+      const length = Number(
+        /Content-Length: (\d+)/.exec(
+          received.subarray(0, header).toString()
+        )![1]
+      )
+      return received.length - header - 4 >= length
+    }
+    await expect.poll(whole, { timeout: 15_000 }).toBe(true)
+    expect(received.length).toBeGreaterThan(256 * 1024)
+    const body = received.subarray(received.indexOf("\r\n\r\n") + 4).toString()
+    expect(JSON.parse(body).result).toHaveLength(4000)
+    child.stdin.write(frame({ id: 3, method: "shutdown" }))
+    child.stdin.write(frame({ method: "exit" }))
+    const code = await new Promise((resolve) => child.on("exit", resolve))
+    expect(code).toBe(0)
+  }, 40_000)
 })
