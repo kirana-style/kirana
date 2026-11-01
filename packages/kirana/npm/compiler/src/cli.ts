@@ -69,7 +69,8 @@ export function colourOf(
 /**
  * Runs `kirana-style` with `argv`, writing its output through `write`; returns the exit code.
  * `colour` adds ANSI colours to diagnostics, for a terminal that shows them: the binary passes
- * whether its standard output does.
+ * whether its standard output does, asked of the descriptor (`isatty(1)`), never of
+ * `process.stdout`.
  */
 export async function main(
   argv: readonly string[],
@@ -82,6 +83,8 @@ export async function main(
   const [command, ...rest] = argv
   // These work before a configuration exists, or to find out why one does not load. Only `init`
   // touches `process.stdin`: once Node.js opens it, the language server can no longer read fd 0.
+  // Nothing on the way to `lsp` may touch `process.stdout` either: Node.js makes the pipe
+  // non-blocking, and the server's writer gives up on a full one, cutting a reply short.
   if (command === "init")
     return runInit(rest, cwd, {
       ...(io ?? terminal(process.stdin, process.stdout, write)),
