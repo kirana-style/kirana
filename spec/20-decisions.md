@@ -1351,17 +1351,25 @@ the implementation tracker names its evidence.
 
 ### D-095 — An argument that can only be a plain object is not a handle
 
-- **Status:** Accepted (2026-10-23). Narrows KRN-DYN-001's open-dynamic handle (KF-010).
+- **Status:** Accepted (2026-10-23). Narrows KRN-DYN-001's open-dynamic handle (KF-010). Amended
+  (2026-11-02, KF-085): a helper of the project's own that only ever builds an object is one too.
 - **Decision:** a call to `Object.fromEntries`, `Object.assign`, `Object.create`, `JSON.parse` or
   `structuredClone` (a global, not a binding of the module), or a binding of one, is reported as
-  `not-evaluable` where it reaches a `css()` or `cx()` argument or an `sx` value. Anywhere else it stays
-  an open-dynamic value.
+  `not-evaluable` where it reaches a `css()` or `cx()` argument or an `sx` value. So is a call the
+  compiler cannot fold of a function the project writes whose every `return` is an object literal
+  (an expression body that is one, through parentheses, `as` and `satisfies`), read by its name from
+  this module or an import; the report says where folding stopped: a body of more than one `return`,
+  a parameter that is a pattern or a rest, a default, an argument known only at runtime or with no
+  parameter, or the property whose value does not fold, with the member it could not read. Anywhere
+  else such a call stays an open-dynamic value.
 - **Rationale:** an unreadable argument is merged at runtime, because a handle can be known only then
   (`css(base, props.sx)`), so `css(Object.fromEntries(entries))` compiled to a merge of an object, which
   applies nothing, with no word from the build. Those calls can never return a handle, so they can be
   rejected without rejecting composition.
-- **Trade-off:** a helper of the author's own that returns a style object is still taken for a handle;
-  the documentation says a style must be written out.
+- **Trade-off:** a helper that may return a handle on one path (`if (on) return a; return { … }`) is
+  still taken for a handle, and so is one reached through an object or a namespace (`h.reveal()`).
+  Before KF-085 every helper of the author's own was: `css(reveal(…))` with a body the compiler
+  could not fold compiled to a merge of an object, which crashed a server render.
 - **Elaborated in:** [09-dynamic-styles](./09-dynamic-styles.md).
 
 ### D-096 — Tools ask the compiler, as data, in one compile

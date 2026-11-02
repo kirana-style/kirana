@@ -14,7 +14,7 @@ use kirana_ir::{
     ambiguous_pairs, parse_condition_key, push_dep,
 };
 
-use crate::eval::{DYNAMIC_SPREAD, Evaluator, RuntimePart};
+use crate::eval::{DYNAMIC_SPREAD, Evaluator, PlainObject, RuntimePart};
 
 /// Style parts in merge order, with adjacent static handles merged at build time.
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -169,13 +169,22 @@ impl<'a> Evaluator<'_, 'a, '_> {
             Value::Array(items) => items.iter().for_each(|item| self.push_handle_value(item, span, parts, strings)),
             Value::Dynamic(dynamic) => match &**dynamic {
                 Dynamic::Open(open) => match self.plain_objects.borrow().get(open) {
-                    Some(builder) => self.report(
+                    Some(PlainObject { builder, stopped_at: None }) => self.report(
                         Code::NotEvaluable,
                         span,
                         format!(
                             "{builder} builds a plain object at runtime, which no merge can apply: a style must be written out to compile"
                         ),
                         Some("write the declarations in css({ … }), or pass a handle css() made"),
+                    ),
+                    // A helper of the project's own, with where the compiler stopped folding it (KF-085).
+                    Some(PlainObject { builder, stopped_at: Some(stopped_at) }) => self.report(
+                        Code::NotEvaluable,
+                        span,
+                        format!(
+                            "{builder} builds a plain object at runtime, which no merge can apply: the compiler stops at {stopped_at}"
+                        ),
+                        Some("write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"),
                     ),
                     // An object with a key or spread decided at runtime is not a handle either.
                     None => match self.runtime_reason(value) {

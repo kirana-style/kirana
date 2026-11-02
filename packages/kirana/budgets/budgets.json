@@ -745,6 +745,18 @@
           "brotli": 536
         }
       },
+      "plain-object-helpers": {
+        "css": {
+          "raw": 281,
+          "gzip": 182,
+          "brotli": 156
+        },
+        "js": {
+          "raw": 2706,
+          "gzip": 1114,
+          "brotli": 954
+        }
+      },
       "position-try": {
         "css": {
           "raw": 728,

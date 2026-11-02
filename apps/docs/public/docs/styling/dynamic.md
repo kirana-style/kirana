@@ -82,6 +82,18 @@ Passing what one returns to `css()`, `cx()` or `sx` is `not-evaluable`:
 css(Object.fromEntries(entries)) // error: not-evaluable
 ```
 
+So is a helper of your own whose every `return` is an object, when the compiler
+cannot fold the call. The error says where it stopped:
+
+```tsx
+const fade = (names: string) => ({ animationName: names.split(",").join(", ") })
+css(fade("in, out")) // error: not-evaluable - stops at `.split` in the value of `animationName`
+```
+
+A helper folds when its body is one `return` of values built from its
+parameters, constants and operators. String and array methods other than `.map()`
+do not run, and neither do statements before the `return`.
+
 Write the declarations out instead. A value the compiler cannot read in a handle
 position is otherwise taken as a handle known at runtime, which is what lets
 `css(base, props.sx)` merge a caller's style.

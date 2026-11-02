@@ -44,7 +44,8 @@ borrows from all three:
    that computes a value is fine: default parameters, optional values, `in`, and `Object.entries`,
    `Object.fromEntries` and `.map()` with a callback written in place all run at build time. A whole
    style built from data (`css(Object.fromEntries(rows))`) is `not-evaluable`: write the
-   declarations out.
+   declarations out. So is a call of a helper whose every `return` is an object, when its body is
+   more than one `return` or calls a string method (`.split()`): the error names where it stopped.
 8. **Name the longhands you set** and prefer logical properties (`paddingInline`, `marginBlockStart`).
    A font size goes with its line height.
 9. **A ladder decides what wins, not specificity or source order.** Every rule is one class. More
