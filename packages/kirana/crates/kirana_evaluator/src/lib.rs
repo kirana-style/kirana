@@ -7,6 +7,7 @@ mod eval;
 mod forwarding;
 mod helpers;
 pub mod ops;
+mod pure;
 mod style;
 mod utility;
 
@@ -49,6 +50,11 @@ pub trait Host {
     fn cached_style(&self, key: &str) -> Option<Value>;
     /// Keeps a `css()` call's value for later calls of the same source.
     fn keep_style(&self, key: String, value: &Value);
+    /// Whether the module `specifier` names from `from` can go unloaded once nothing reads it at
+    /// runtime (D-118): loading it and what it loads does nothing but declare values
+    /// (`Evaluator::top_level_loads`), and each compiles with no diagnostic, so it counts as compiled
+    /// for the stylesheet and the project's checks without the bundler loading it.
+    fn droppable(&self, from: &Path, specifier: &str) -> bool;
 }
 
 /// Where and how a module is compiled.

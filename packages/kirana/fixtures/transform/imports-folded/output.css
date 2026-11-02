@@ -1,0 +1,72 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  :root {
+    --kv43pI: 1px;
+  }
+}
+@layer kirana.atoms {
+  .k0_HV2H {
+    padding: 1rem;
+  }
+  .k5_Q6sa {
+    margin: var(--kv43pI);
+  }
+  .ka_zgUg {
+    border-radius: 4px;
+  }
+  .kk_SiD8 {
+    border-color: teal;
+  }
+  .k1m_JXuo {
+    border-inline-color: teal;
+  }
+  .k1v_OVfB {
+    border-block-color: olive;
+  }
+  .kJ_ASX8 {
+    gap: 2px;
+  }
+  .k3B_u0lV {
+    accent-color: olive;
+  }
+  .k44_LB88 {
+    background-color: blue;
+  }
+  .k4U_mjaJ {
+    caret-color: navy;
+  }
+  .k50_wB7n {
+    color: crimson;
+  }
+  .k50_D9ur {
+    color: red;
+  }
+  .k57_kEmz {
+    column-rule-color: maroon;
+  }
+  .k5T_F2Xx {
+    fill: gold;
+  }
+  .k66_D9ur {
+    flood-color: red;
+  }
+  .k7e_KDNf {
+    lighting-color: coral;
+  }
+  .k8b_49ob {
+    outline-color: green;
+  }
+  .k9D_YxdK {
+    text-decoration-color: silver;
+  }
+  .k9L_mjaJ {
+    text-emphasis-color: navy;
+  }
+  .k9j_D9ur {
+    stroke: red;
+  }
+  .kaF_ZFLY {
+    width: var(--kaF);
+  }
+}

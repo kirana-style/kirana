@@ -272,7 +272,13 @@ every other module it MUST return "unchanged" so the host keeps the original byt
    runtime call it writes is marked `/* @__PURE__ */`, so a bundler drops a table or a runtime instance
    whose consumers all resolved at build time;
 3. removes Kirana authoring imports whose uses were all erased, and adds `@kirana-style/core/internal`
-   imports only for runtime functions the module still uses;
+   imports only for runtime functions the module still uses. It also removes an import every read of
+   whose bindings it folded away, when the module it names can go unloaded (D-118): loading it and
+   what it loads does nothing but declare values, and compiling each adds nothing to the build (no
+   diagnostic, rule, relation, anchor or class), so the build is the same whether the bundler would
+   have loaded that module or not. An import with no binding (`import "./reset.css"`), a type-only
+   one, one with a binding read in the output (types included), one with no binding read at all, and
+   every import of a component's script block stay as written;
 4. applies all edits in one pass with span-based string editing (`string_wizard`, from the Rolldown
    ecosystem) and emits a source map (`oxc_sourcemap`) whose `sources` entry is the module id the host
    passed in, so bundlers and coverage tools resolve it to the same file;

@@ -1,8 +1,8 @@
 import { runtime as __kirana_runtime } from "@kirana-style/core/internal";
 const __k = /* @__PURE__ */ __kirana_runtime("k", "className");
 
-import { brand, space } from "@acme/scales"
-import { gap } from "peer-kit"
+
+
 import { width } from "plain"
 import { missing } from "not-installed"
 import * as again from "./reexports"

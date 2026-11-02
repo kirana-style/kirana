@@ -1858,6 +1858,42 @@ the implementation tracker names its evidence.
   [07-tokens-themes-presets](./07-tokens-themes-presets.md),
   [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 
+### D-118 — Imports the compiler folded away are removed
+
+- **Status:** Accepted (2026-11-02).
+- **Decision:** the rewrite removes an import when every read of its bindings is inside code the
+  compiler replaced and wrote none of back, and the module it names can go unloaded along with
+  everything that module loads:
+  - loading each does nothing but declare values: every top-level statement is an import or
+    re-export, a declaration whose initializers call nothing but Kirana's API, a function, a type or
+    an empty statement. A cycle, an installed package Kirana does not evaluate and a module that does
+    not resolve count as acting;
+  - compiling each adds nothing to the build: no diagnostic, rule, variable declaration, relation,
+    anchor or class. Kirana compiles it for the answer without recording it, once a session and again
+    after an edit. An installed package the application does not compile adds nothing.
+
+  A component's script block (`Card.vue.setup.ts`) keeps every import: its template reads bindings
+  the compiler never sees.
+
+- **Rationale:** a component that reads tokens imports their modules, and once its styles are class
+  strings it reads none of their bindings. Whether such an import still loads its module depends on
+  the project. TypeScript without `verbatimModuleSyntax` drops it, which D-062 relies on: a relation's
+  module enters the build only through a reader that still loads it. JavaScript and
+  `verbatimModuleSyntax` keep it, and the bundler resolves, loads and compiles the module from every
+  importer. A module whose compile adds nothing makes the two the same build, so the rule needs no
+  knowledge of the project's TypeScript setup. 10,000 components of kirana-lab's scale curve
+  (`verbatimModuleSyntax`) built in a median of 9.2 s over six builds, and 7.6 s with these imports
+  gone, with the same stylesheet and scripts.
+- **Trade-off:** a module whose compile writes anything (a variable token's declarations, a rule, a
+  relation) keeps its import, since a bundler compiles it in one setup and never loads it in the
+  other; so does one whose compile reports a diagnostic, which the bundler's compile reports.
+  Purity is judged from the syntax: a getter read at load, or a call of a project function that only
+  builds a value, makes a module count as acting. An import whose bindings are never read is the
+  author's and stays, as does one read only in a type. The compiled module no longer names the modules
+  dropped from it, so a host that walks imports finds them through the transform's `dependencies`
+  (the plugins register those for their watchers already).
+- **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md#source-rewrite).
+
 ### D-119 — A component's physical side that beats a caller's logical one is reported
 
 - **Status:** Accepted (2026-11-02). Answers KF-083 without changing the merge.
@@ -1888,7 +1924,7 @@ the implementation tracker names its evidence.
 | [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099, D-115, D-117                                                                                     |
 | [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114, D-117, D-119               |
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                                      |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116                                                                              |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116, D-118                                                                       |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                           |
 | [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116                      |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114                                                                                                          |

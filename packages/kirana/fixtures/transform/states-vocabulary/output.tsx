@@ -1,7 +1,7 @@
 
-import { Select, Switch } from "@kirana-style/states/base-ui"
 
-import { Dialog } from "./states"
+
+
 
 const field = {"name": "field", "anchor": "kr2Ipz"}
 
