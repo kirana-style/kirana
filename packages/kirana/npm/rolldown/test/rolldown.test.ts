@@ -1,4 +1,10 @@
-import { cpSync, mkdtempSync, rmSync, writeFileSync } from "node:fs"
+import {
+  cpSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs"
 import path from "node:path"
 import { rolldown } from "rolldown"
 import type { OutputAsset, OutputChunk } from "rolldown"
@@ -445,6 +451,37 @@ describe("components and the stylesheet asset, hook by hook", () => {
     emitFile: () => "",
   }
 
+  it("registers the files a module read only when something watches them", async () => {
+    const root = app()
+    const main = path.join(root, "src/main.ts")
+    const code = readFileSync(main, "utf8")
+    const watched = async (
+      development: boolean,
+      meta: { watchMode?: boolean } | undefined
+    ) => {
+      const { plugin } = createKirana(
+        { root },
+        { development: () => development }
+      )
+      const files: string[] = []
+      const transform = plugin.transform as unknown as {
+        handler: (this: unknown, code: string, id: string) => Promise<unknown>
+      }
+      await transform.handler.call(
+        { ...context, meta, addWatchFile: (file: string) => files.push(file) },
+        code,
+        main
+      )
+      return files.map((file) => path.basename(file))
+    }
+    // A one-off build: nothing will watch them.
+    expect(await watched(false, { watchMode: false })).toEqual([])
+    // A watch build, a dev server, and a host that does not say: the token module is watched.
+    expect(await watched(false, { watchMode: true })).toEqual(["tokens.ts"])
+    expect(await watched(true, { watchMode: false })).toEqual(["tokens.ts"])
+    expect(await watched(false, undefined)).toEqual(["tokens.ts"])
+  })
+
   it("leaves chunks alone while a dev server runs", async () => {
     const { plugin } = createKirana(
       { root: app() },
@@ -500,6 +537,24 @@ describe("components and the stylesheet asset, hook by hook", () => {
       )
     ).toBeNull()
     expect(changed).toEqual(["css"])
+    // A one-off build watches nothing; a watch build, the component and the files it read.
+    const watchedBy = async (meta: { watchMode: boolean }) => {
+      const files: string[] = []
+      await (plugin.load.handler as Hook).call(
+        {
+          ...context,
+          meta,
+          addWatchFile: (file: string) => files.push(path.basename(file)),
+        },
+        card
+      )
+      return files
+    }
+    expect(await watchedBy({ watchMode: false })).toEqual([])
+    expect(await watchedBy({ watchMode: true })).toEqual([
+      "Card.svelte",
+      "tokens.ts",
+    ])
   })
 
   it("builds a source map only for a module whose build writes one (and always on a dev server)", async () => {

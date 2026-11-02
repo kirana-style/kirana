@@ -45,7 +45,8 @@ change batching and affected-module tracking. A host adapter MUST only:
    and hosts that take code alone (esbuild, Bun, Jest, Parcel, Remix, PostCSS, the linter, the Angular
    mirror). A map copies the whole module and is about a tenth of a compile;
 3. serve the stylesheet entry (below) in development and emit it in production;
-4. register reported dependencies and file changes with the host's watcher;
+4. register reported dependencies and file changes with the host's watcher, when the host watches (a dev
+   server, a watch build): a one-off build registers none;
 5. map host lifecycle hooks (build start/end, HMR) to Driver calls.
 
 An adapter MUST NOT interpret styles, decide rewrites, or merge classes (D-028).

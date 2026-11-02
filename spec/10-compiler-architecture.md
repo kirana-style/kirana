@@ -367,6 +367,10 @@ every file its evaluation read are unchanged, so the SSR build does not compile 
 build compiled, and a dev server or a watch build answers a module it is sent again unchanged from
 memory (KF-063). A module whose last compile missed an import is compiled each time, as the file it
 names may be created later. It is in memory, for the session only, and off in the language server.
+The engine says of each transform whether it was the reused one and whether it would be reused, and
+the Node.js `Driver` answers a module sent again with the same source from its own copy of a reusable
+transform, until a compile, an invalidation, a removal or a dense mark may have changed what it read:
+asking the engine copies the module across Node-API and back for an answer it already holds.
 
 **A style written out in full (KF-059).** A `css()` call whose arguments are only strings, numbers,
 `null` and objects of them under plain keys compiles once a session: a later call of the same source is

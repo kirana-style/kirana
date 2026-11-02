@@ -20,6 +20,10 @@ pub struct TransformResult {
     pub diagnostics: String,
     pub css_changed: bool,
     pub dependencies: Vec<String>,
+    /// The module's previous transform, answered again.
+    pub reused: bool,
+    /// The engine answers the same source with this transform until something it read changes.
+    pub reusable: bool,
 }
 
 /// One question for `Compiler.trace`: which value wins for `property` at `file:line` (1-based).
@@ -77,6 +81,8 @@ fn transform_result(result: kirana_project::Transformed) -> TransformResult {
         diagnostics: render_json(&result.diagnostics),
         css_changed: result.css_changed,
         dependencies: result.dependencies.iter().map(|path| path.to_string_lossy().into_owned()).collect(),
+        reused: result.reused,
+        reusable: result.reusable,
     }
 }
 

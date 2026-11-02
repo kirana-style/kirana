@@ -97,6 +97,13 @@ export function createKirana(
   /** Stylesheet assets filled in place (`Host.renames` false), by output file name. */
   const filled = new Set<string>()
   const development = () => host.development?.() ?? false
+  /**
+   * Whether anything watches the files a module read: a dev server, or a build run with
+   * `--watch`. A one-off build registers none, since each is a call on the bundler's thread and a
+   * module that reads tokens names several: 10,000 such components took 0.85 s of a 9.5 s build.
+   */
+  const watching = (context: { meta?: { watchMode?: boolean } }) =>
+    development() || context.meta?.watchMode !== false
   const fileName = options.fileName ?? "kirana.css"
   const dense = () => options.names === "dense" && !development()
   /**
@@ -193,10 +200,12 @@ export function createKirana(
           const source = await readFile(id, "utf8")
           // Vite watches a file outside the root only when it reads the file itself; a component read
           // here, from a workspace package beside the app, would otherwise never hot-reload (KF-020).
-          this.addWatchFile(id)
+          const watched = watching(this)
+          if (watched) this.addWatchFile(id)
           const result = await compiler.transformComponent(id, source)
-          for (const dependency of result.dependencies)
-            this.addWatchFile(dependency)
+          if (watched)
+            for (const dependency of result.dependencies)
+              this.addWatchFile(dependency)
           reporter.module(this, id, source, result.diagnostics)
           if (result.cssChanged) host.cssChanged?.()
           return result.code === undefined
@@ -248,8 +257,9 @@ export function createKirana(
         const result = development()
           ? compiler.transform(file, code, { map })
           : await compiler.transformAsync(file, code, { map })
-        for (const dependency of result.dependencies)
-          this.addWatchFile(dependency)
+        if (watching(this))
+          for (const dependency of result.dependencies)
+            this.addWatchFile(dependency)
         reporter.module(this, file, code, result.diagnostics)
         if (result.cssChanged) host.cssChanged?.()
         return result.code === undefined
