@@ -36,8 +36,8 @@ declare module "vue" {
  *   </template>
  *
  * `sx` is the caller's classes, typed as the handle `:sx` takes (at runtime, the one class string a
- * compiled handle is, KF-029); `attrs` is every other fallthrough attribute (listeners, `aria-*`, the
- * caller's inline `style`), to bind on the same element.
+ * compiled handle is, KF-029), its removals included (`"*": null`, KF-089); `attrs` is every other
+ * fallthrough attribute (listeners, `aria-*`, the caller's inline `style`), to bind on the same element.
  */
 export declare function useSx(): {
   sx: ComputedRef<StyleHandle | undefined>

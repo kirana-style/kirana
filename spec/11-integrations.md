@@ -207,7 +207,12 @@ concatenates with the root's own. `useSx()` from `@kirana-style/core/vue` return
 the other fallthrough attributes, for a component that turns `inheritAttrs` off and writes
 `:sx="[own, sx]"` on its root, so Kirana's runtime merges the caller's styles last (the adapter folds the root's own
 `v-bind` object into the compiled binding with Vue's `mergeProps`, since an element takes one); a Svelte component
-takes its `class` prop the same way, with no helper (D-100). The adapter compiles components in `load`
+takes its `class` prop the same way, with no helper (D-100). On a component (Vue's, Svelte's or Astro's,
+as each parser marks one), the compiled binding keeps the caller's removals in that class, so
+`"*": null` or `prop: null` reaches the component's merge as it does in JSX (D-100, KF-089). A
+template's `sx` compiles at runtime, so the adapter compiles the block the template sees with the
+`.anchor` chains its bindings name appended, in a function never called, and cuts them from the output:
+an anchor applied only in the template counts for R1 and R2 (KRN-CAS-005, KF-088). The adapter compiles components in `load`
 and names each one to the watcher, as Vite does for a file outside the root it reads itself, so a
 component from a workspace package hot-reloads (D-100).
 

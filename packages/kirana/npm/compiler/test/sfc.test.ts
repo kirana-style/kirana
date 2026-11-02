@@ -148,6 +148,56 @@ describe("KRN-INT-004 Vue", () => {
     expect(diagnostic?.file).toMatch(/F\.vue$/)
     expect(diagnostic!.span.start).toBeGreaterThan(40)
   })
+
+  it("passes a removal on to a component, not to an element (KF-089)", async () => {
+    const { result } = await compile(
+      "Field.vue",
+      `<script setup lang="ts">\n${SCRIPT}</script>\n<template>\n  <Label :sx="card"><p :sx="card" /></Label><component :is="x" :sx="card" />\n</template>\n`
+    )
+    expect(result.code).toContain(
+      '<Label v-bind="__kirana_sfc.sx([card], [], [], true)"><p v-bind="__kirana_sfc.sx([card], [], [])" /></Label>'
+    )
+    expect(result.code).toContain(
+      '<component :is="x" v-bind="__kirana_sfc.sx([card], [], [], true)" />'
+    )
+  })
+
+  it("applies a relation's anchor written only in the template (KF-088)", async () => {
+    const root = project()
+    const styles = path.join(root, "toggle.styles.ts")
+    const text =
+      'import { css, relation } from "@kirana-style/core"\nexport const toggle = relation("toggle")\nexport const icon = css({ color: { base: "red", [toggle.within("[data-pressed]")]: "blue" } })\n'
+    writeFileSync(styles, text)
+    const driver = await Driver.create({ root, importModule: load })
+    driver.transform(styles, text)
+    const unanchored = () =>
+      driver
+        .diagnostics()
+        .filter((diagnostic) => diagnostic.name === "relation-without-anchor")
+        .map((diagnostic) => diagnostic.message)
+    expect(unanchored()).toEqual([
+      'relation "toggle" is read but its anchor is never applied',
+    ])
+    // On a component, among other styles, beside a name the template alone has.
+    const { code, diagnostics } = await driver.transformComponent(
+      path.join(root, "Toggle.vue"),
+      `<script setup lang="ts">\nimport { css } from "@kirana-style/core"\nimport { toggle, icon } from "./toggle.styles.ts"\nconst root = css({ padding: "1rem" })\n</script>\n<template>\n  <Button :sx="[toggle.anchor, root, css.anchor]"><i v-for="item in items" :sx="[icon, item.anchor, root.x?.anchor]" /></Button>\n</template>\n`
+    )
+    expect(unanchored()).toEqual([])
+    // The anchors are compiled with the block and cut from it; what the engine said of them is
+    // the template's (`css` read without a call), not the block's.
+    expect(code).not.toContain("KF-088")
+    expect(code).toContain(
+      "__kirana_sfc.sx([[toggle.anchor, root, css.anchor]], [], [], true)"
+    )
+    expect(diagnostics).toEqual([])
+    // A relation the component declares, reads and anchors itself, on an element.
+    await driver.transformComponent(
+      path.join(root, "Tree.vue"),
+      `<script setup>\nimport { css, relation } from "@kirana-style/core"\nconst group = relation("folder")\nconst chevron = css({ rotate: { base: "0deg", [group.within("[data-open]")]: "90deg" } })\n</script>\n<template>\n  <div :sx="group.anchor"><i :sx="chevron" /></div>\n</template>\n`
+    )
+    expect(unanchored()).toEqual([])
+  })
 })
 
 describe("KRN-INT-004 Svelte", () => {
@@ -182,6 +232,19 @@ describe("KRN-INT-004 Svelte", () => {
       /^<script>\nimport \{ runtime[\s\S]*<\/script>\n<p \{\.\.\./
     )
   })
+
+  it("passes a removal on to a component, not to an element (KF-089)", async () => {
+    const { result } = await compile(
+      "Field.svelte",
+      `<script lang="ts">\n${SCRIPT}</script>\n<Label class="own" sx={card}><p sx={card} /></Label>\n`
+    )
+    expect(result.code).toContain(
+      '<Label  {...__kirana_attrs([card], ["own"], undefined, true)}><p {...__kirana_attrs([card], [], undefined)} /></Label>'
+    )
+    expect(result.code).toContain(
+      "const props = __kirana_sfc.sx(handles, classes, [], component);"
+    )
+  })
 })
 
 describe("KRN-INT-004 Astro", () => {
@@ -200,6 +263,24 @@ describe("KRN-INT-004 Astro", () => {
     expect(result.code).toContain(
       "<b class {...__kirana_attrs([card], [], undefined)} />"
     )
+  })
+
+  it("passes a removal on to a component, not to an element (KF-089)", async () => {
+    const source = `---\n${SCRIPT}---\n<Card sx={card} /><ui.Card sx={card} /><my-card sx={card} />\n`
+    const element = "<my-card {...__kirana_attrs([card], [], undefined)} />"
+    const { result } = await compile("Page.astro", source)
+    expect(result.code).toContain(
+      "<Card {...__kirana_attrs([card], [], undefined, true)} /><ui.Card {...__kirana_attrs([card], [], undefined, true)} />"
+    )
+    expect(result.code).toContain(element)
+    const legacy = isolated({
+      "@astrojs/compiler": workspacePackage("@astrojs/compiler"),
+    })
+    const old = await compile("Page.astro", source, legacy)
+    expect(old.result.code).toContain(
+      "<Card {...__kirana_attrs([card], [], undefined, true)} />"
+    )
+    expect(old.result.code).toContain(element)
   })
 
   it("adds a frontmatter when there is none", async () => {

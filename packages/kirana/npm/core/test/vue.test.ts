@@ -53,4 +53,31 @@ describe("useSx (KF-019)", () => {
       'class="k6V_5QUl k44_XvQd legacy active"'
     )
   })
+
+  it("applies a caller's removal to the component's conditional entries (KF-089)", async () => {
+    /** A label whose weight has a state entry: `{ base: 500, "[data-state]": 600 }`. */
+    const Label = defineComponent({
+      inheritAttrs: false,
+      setup() {
+        const { sx } = useSx()
+        return () =>
+          h(
+            "label",
+            k.sx(
+              [["k6V_5QUl k6V-KFHz_8Bc2", sx.value as unknown as string]],
+              [],
+              []
+            )
+          )
+      },
+    })
+    // `<Label :sx="normal">`, `normal = css({ fontWeight: { "*": null, base: 400 } })`: on a
+    // component, the binding passes its removal on.
+    const html = await renderToString(
+      createSSRApp({
+        render: () => h(Label, k.sx(["k6V*_ k6V_JlMz"], [], [], true)),
+      })
+    )
+    expect(html).toContain('class="k6V_JlMz"')
+  })
 })

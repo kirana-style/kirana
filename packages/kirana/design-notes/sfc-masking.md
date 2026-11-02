@@ -40,7 +40,14 @@ Rejected for now; recorded as the upgrade path if that merge ever shows in a pro
   the `class` attribute: Vue `v-bind="__kirana_sfc.sx([…], [], [])"`; Svelte and Astro
   `{...__kirana_attrs([…], [class], style)}`. The runtime merges the handles exactly as it does for
   dynamic `sx` in JSX (same function, same tombstones), so the output classes are the ones JSX
-  would produce.
+  would produce. On a component, as the parser marks one, the call takes a fourth argument, `true`:
+  the class keeps the merge's tombstones, which the component's own merge of its caller's `sx`
+  applies, as a handle passed in JSX carries them (KF-089).
+- The engine never sees a binding, so the `.anchor` chains the bindings name
+  (`:sx="[toggle.anchor, root]"`) are appended to the script the template sees, in an arrow
+  function never called, and cut from the compiled text: a relation anchored only in the template is
+  applied for the project-wide relation checks (KF-088). Only the chains, so nothing a binding calls
+  is compiled into the block.
 - The runtime import (and, for Svelte and Astro, a four-line helper) is added to the script the
   template can see: Vue's `<script setup>`, Svelte's instance script, Astro's frontmatter — created
   when the component has none.
@@ -54,7 +61,7 @@ parse template syntax itself, and a framework upgrade that changes its syntax ch
 |                            | Vue                                                                                | Svelte                                                                                           | Astro          |
 | -------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------- |
 | Binding                    | `:sx="expr"` (`v-bind:sx`)                                                         | `sx={expr}`                                                                                      | `sx={expr}`    |
-| Becomes                    | `v-bind="__kirana_sfc.sx([expr], [], [])"`                                         | `{...__kirana_attrs([expr], [class], style)}`                                                    | same as Svelte |
+| Becomes                    | `v-bind="__kirana_sfc.sx([expr], [], [])"`; `, true` added on a component          | `{...__kirana_attrs([expr], [class], style)}`; `, true` added on a component                     | same as Svelte |
 | Existing `class` / `style` | left in place: Vue merges `class` and `style` from `v-bind` with the element's own | folded into the call and removed: a spread and an attribute would otherwise overwrite each other | as Svelte      |
 | `style` of dynamic values  | object (Vue accepts it)                                                            | string: Svelte's spread sets `style` as text                                                     | string         |
 | Runtime goes into          | `<script setup>`                                                                   | instance `<script>`                                                                              | frontmatter    |
@@ -68,7 +75,8 @@ it with the element's own `style` text.
   with the "not compiled" message, which is loud. Declare styles in the script, as the examples do.
 - **Static class literals.** Every `sx` binding merges at runtime (option B would remove that).
 - **Diagnostics about the element** (`sx` on a component that drops it, relation placement) are not
-  reported for template bindings; script diagnostics are.
+  reported for template bindings; script diagnostics are. The appended anchors count for R1 and R2,
+  and whatever the engine says of them is dropped.
 - **Source maps** map the edited file to the original at the granularity of the edits (MagicString,
   high resolution); the compiled script block's own map is not composed into it.
 

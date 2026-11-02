@@ -256,7 +256,10 @@ prefix `k`, development and production use the same names:
   case is reported upstream. Lengthening on collision would make a name depend on which modules compiled
   first.
 - Tombstones and unfold tokens travel inside class strings so a later runtime merge can apply removals
-  and shorthand atoms exactly; the host element's `class` attribute never receives them.
+  and shorthand atoms exactly; the host element's `class` attribute never receives them. A Vue, Svelte or
+  Astro template's `sx` on a component keeps them in the class it passes, which the component's own
+  merge of its caller's `sx` applies (KF-089); a component that lets Vue fall the class through renders
+  them on its root, where no rule matches them.
 - Readable names come from `kirana-style trace` and the language server, not from a second naming scheme.
 - **Dense names (D-084).** A production build with `names: "dense"` renames the condition and value
   segments of every name the compiler wrote, and of the stylesheet. They become codes of 1–2

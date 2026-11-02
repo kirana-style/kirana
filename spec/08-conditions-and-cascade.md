@@ -305,7 +305,9 @@ own kind writes, and an `after` or `before` read, where a repeated part reads th
 not reported.
 
 Any reference to `field.anchor` counts as applying it for R1 and R2 — in an `sx` array, a component prop,
-`props()` or a render prop — because anchors routinely travel through components. Placement that crosses
+`props()` or a render prop, or a Vue, Svelte or Astro template's `sx`, which compiles at runtime and whose
+`.anchor` chains the build reads with the block the template sees (KF-088) — because anchors routinely
+travel through components. Placement that crosses
 component boundaries cannot always be proven statically. Such reads produce no
 diagnostic, and `kirana-style analyze` lists them as "unproven relation reads" so they can be covered by the
 conformance suite.

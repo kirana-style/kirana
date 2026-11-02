@@ -163,13 +163,18 @@ export function runtime(prefix: string, attribute: string) {
    */
   const settled = new Map<string, Props>()
 
-  /** The props for a host element: foreign classes first, then handles; bridged variables last. */
+  /**
+   * The props for a host element: foreign classes first, then handles; bridged variables last. For
+   * a component's template binding (`component`), the class keeps the merge's removals, so the
+   * component's own merge of its caller's `sx` applies them (KF-089); an element renders none.
+   */
   const sx = (
     handles: readonly Handle[],
     classNames: readonly unknown[],
-    styles: readonly unknown[]
+    styles: readonly unknown[],
+    component?: boolean
   ): Props => {
-    const key = JSON.stringify([handles, classNames, styles])
+    const key = JSON.stringify([handles, classNames, styles, component])
     let props = settled.get(key)
     if (!props) {
       const merged = merge([
@@ -177,7 +182,7 @@ export function runtime(prefix: string, attribute: string) {
         handles,
       ])
       const className = [...merged.c.values()]
-        .filter((token) => !token.endsWith("_"))
+        .filter((token) => component || !token.endsWith("_"))
         .join(" ")
       const style = Object.assign(
         {},

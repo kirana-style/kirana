@@ -1452,18 +1452,23 @@ the implementation tracker names its evidence.
 
 ### D-100 — A component takes its caller's `sx`, and a workspace component hot-reloads
 
-- **Status:** Accepted (2026-10-24). Answers KF-019 and KF-020.
+- **Status:** Accepted (2026-10-24). Answers KF-019 and KF-020; amended 2026-11-03 for KF-089.
 - **Decision:** `useSx()` in `@kirana-style/core/vue` (now a runtime entry, with `vue` an optional peer)
   gives a component the caller's `:sx` as a class string and its other fallthrough attributes; the
   component turns `inheritAttrs` off and merges `[own, sx]` in its root's `:sx`. Svelte needs no helper.
-  The adapters' component `load` calls `addWatchFile` on the component.
+  The adapters' component `load` calls `addWatchFile` on the component. A template's `sx` on a
+  component (Vue, Svelte, Astro) keeps the caller's removals in that class string, as a handle carries
+  them, so the component's merge applies them (KF-089).
 - **Rationale:** Vue concatenated a caller's classes with the root's, so `<Button :sx="tall">` carried
   two classes per property and the stylesheet's order chose. The merge needs the app's prefix, which the
   root's compiled `:sx` already has, so the helper only moves the caller's classes there. Vite watches a
   file outside the root only when Vite reads it, and the adapter reads components itself, so a
   workspace package's `.vue` file never reported a change.
-- **Trade-off:** a caller's removal (`{ padding: null }`) does not cross the component boundary: what
-  falls through is the classes an element renders, without tombstones.
+- **Trade-off:** a caller's removal (`{ padding: null }`, `"*": null`) crosses the component boundary
+  only as tombstone classes: a component that lets Vue fall the class through, or spreads Svelte's
+  `class` onto an element, renders them on that element, where no rule matches them. Until KF-089 it did
+  not cross at all (what fell through was the classes an element renders), so a port's override lost to
+  the component's state entries for the property.
 - **Elaborated in:** [11-integrations](./11-integrations.md).
 
 ### D-101 — A parent read, and a reader that carries its own anchor
