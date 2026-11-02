@@ -68,6 +68,9 @@ pub struct Project {
     pub(crate) root: PathBuf,
     pub(crate) fs: Arc<dyn Fs>,
     pub(crate) resolver: oxc_resolver::Resolver,
+    /// What each specifier resolved to from each importing file (`Project::resolved`), cleared
+    /// with the resolver's own cache.
+    pub(crate) resolutions: RwLock<FxHashMap<PathBuf, FxHashMap<String, Option<PathBuf>>>>,
     pub(crate) state: RwLock<State>,
     /// `css()` values compiled from source written out in full, by that source (KF-059). Such a
     /// value depends on nothing a later change in the session can touch, so it is never cleared.
@@ -234,6 +237,7 @@ impl Project {
         let root = PathBuf::from(&config.root);
         Ok(Project {
             resolver: resolve::resolver(),
+            resolutions: RwLock::default(),
             names,
             marked,
             dense: std::sync::atomic::AtomicBool::new(false),
@@ -277,7 +281,28 @@ impl Project {
 
     /// The file `specifier` resolves to from `from`.
     pub fn resolve(&self, from: &Path, specifier: &str) -> Option<PathBuf> {
-        self.resolver.resolve_file(from, specifier).ok().map(|resolution| resolution.full_path())
+        self.resolved(from, specifier)
+    }
+
+    /// [`Project::resolve`], from the session when the same file asked before: every import of
+    /// every module resolves, and a resolution walks the importer's directories and finds its
+    /// tsconfig, which a module that reads four bindings from a preset paid four times, and an
+    /// edit of the module again (KF-082). The importing file, not its directory, is the key: the
+    /// tsconfig that applies can depend on the file. Cleared with the resolver's own cache, when a
+    /// file appears or disappears.
+    pub(crate) fn resolved(&self, from: &Path, specifier: &str) -> Option<PathBuf> {
+        let known = self.resolutions.read().expect("not poisoned").get(from).and_then(|by| by.get(specifier).cloned());
+        if let Some(resolved) = known {
+            return resolved;
+        }
+        let resolved = self.resolver.resolve_file(from, specifier).ok().map(|resolution| resolution.full_path());
+        self.resolutions
+            .write()
+            .expect("not poisoned")
+            .entry(from.to_path_buf())
+            .or_default()
+            .insert(specifier.to_owned(), resolved.clone());
+        resolved
     }
 
     /// Whether `specifier`, imported from `from`, is an installed package the application does not
@@ -466,6 +491,7 @@ impl Project {
         let reshaped = !exists || !state.hashes.contains_key(path);
         if reshaped {
             self.resolver.clear_cache();
+            self.resolutions.write().expect("not poisoned").clear();
             state.exports.clear();
             state.reused.clear();
         }
