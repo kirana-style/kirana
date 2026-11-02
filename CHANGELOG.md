@@ -5,34 +5,34 @@
 
 ### Features
 
-* a component's physical side that beats a caller's logical one is reported ([#218](https://github.com/kirana-style/kirana/issues/218)) ([863aeb9](https://github.com/kirana-style/kirana/commit/863aeb9bbf7caa853dcb6fa6dfb9b67203a3b9a6))
-* kirana-style init sets up vinext, with an example and a guide ([#221](https://github.com/kirana-style/kirana/issues/221)) ([a7df384](https://github.com/kirana-style/kirana/commit/a7df384ae30ded242bd046907dcd4d06ae5b89e5))
+* a component's physical side that beats a caller's logical one is reported ([#218](https://github.com/kirana-style/kirana/pull/218)) ([863aeb9](https://github.com/kirana-style/kirana/commit/863aeb9bbf7caa853dcb6fa6dfb9b67203a3b9a6))
+* kirana-style init sets up vinext, with an example and a guide ([#221](https://github.com/kirana-style/kirana/pull/221)) ([a7df384](https://github.com/kirana-style/kirana/commit/a7df384ae30ded242bd046907dcd4d06ae5b89e5))
 
 
 ### Bug fixes
 
-* a registry item can publish its axis builds without style builds ([#220](https://github.com/kirana-style/kirana/issues/220)) ([56fdcd6](https://github.com/kirana-style/kirana/commit/56fdcd64672ffd090a6825c167e677c933d624ee))
-* a style helper that cannot fold is reported, not merged at runtime ([#224](https://github.com/kirana-style/kirana/issues/224)) ([8fa8235](https://github.com/kirana-style/kirana/commit/8fa8235f37e586c5da59228e89d7621a2d89cef9))
-* ark ui parts that call another part's getter have their state keys ([#227](https://github.com/kirana-style/kirana/issues/227)) ([41e2a65](https://github.com/kirana-style/kirana/commit/41e2a654de650cd79d8ffc4ca90f2d30f3c2380e))
-* ark ui's radio and segment group items have their state keys ([#225](https://github.com/kirana-style/kirana/issues/225)) ([68f070d](https://github.com/kirana-style/kirana/commit/68f070dfd5e2838b9d489f30049e38949aa58d80))
-* kirana-style check compiles every framework's components ([#228](https://github.com/kirana-style/kirana/issues/228)) ([78a50ff](https://github.com/kirana-style/kirana/commit/78a50ffa9756b227640338573e732ebab2f59ab0))
-* sx in a component's template records anchors and carries resets ([#226](https://github.com/kirana-style/kirana/issues/226)) ([6032bbd](https://github.com/kirana-style/kirana/commit/6032bbd364d87b57d50d918af44ebe767e553530))
-* the background shorthand takes a single layer, gradients included ([#223](https://github.com/kirana-style/kirana/issues/223)) ([024653e](https://github.com/kirana-style/kirana/commit/024653e33ffbf85d1e25f33adb07cf02f6283ce0))
-* the language server writes a reply larger than the pipe whole ([#212](https://github.com/kirana-style/kirana/issues/212)) ([929994f](https://github.com/kirana-style/kirana/commit/929994fb5569dd8c4036bd1b688d1785c9bcbdff))
+* a registry item can publish its axis builds without style builds ([#220](https://github.com/kirana-style/kirana/pull/220)) ([56fdcd6](https://github.com/kirana-style/kirana/commit/56fdcd64672ffd090a6825c167e677c933d624ee))
+* a style helper that cannot fold is reported, not merged at runtime ([#224](https://github.com/kirana-style/kirana/pull/224)) ([8fa8235](https://github.com/kirana-style/kirana/commit/8fa8235f37e586c5da59228e89d7621a2d89cef9))
+* ark ui parts that call another part's getter have their state keys ([#227](https://github.com/kirana-style/kirana/pull/227)) ([41e2a65](https://github.com/kirana-style/kirana/commit/41e2a654de650cd79d8ffc4ca90f2d30f3c2380e))
+* ark ui's radio and segment group items have their state keys ([#225](https://github.com/kirana-style/kirana/pull/225)) ([68f070d](https://github.com/kirana-style/kirana/commit/68f070dfd5e2838b9d489f30049e38949aa58d80))
+* kirana-style check compiles every framework's components ([#228](https://github.com/kirana-style/kirana/pull/228)) ([78a50ff](https://github.com/kirana-style/kirana/commit/78a50ffa9756b227640338573e732ebab2f59ab0))
+* sx in a component's template records anchors and carries resets ([#226](https://github.com/kirana-style/kirana/pull/226)) ([6032bbd](https://github.com/kirana-style/kirana/commit/6032bbd364d87b57d50d918af44ebe767e553530))
+* the background shorthand takes a single layer, gradients included ([#223](https://github.com/kirana-style/kirana/pull/223)) ([024653e](https://github.com/kirana-style/kirana/commit/024653e33ffbf85d1e25f33adb07cf02f6283ce0))
+* the language server writes a reply larger than the pipe whole ([#212](https://github.com/kirana-style/kirana/pull/212)) ([929994f](https://github.com/kirana-style/kirana/commit/929994fb5569dd8c4036bd1b688d1785c9bcbdff))
 
 
 ### Performance
 
-* a module resolves and reads each import once ([#216](https://github.com/kirana-style/kirana/issues/216)) ([7e481af](https://github.com/kirana-style/kirana/commit/7e481af23a3fee237532684d7d002e73c3cdf7b8))
-* a style compiles without repeating work it already did ([#215](https://github.com/kirana-style/kirana/issues/215)) ([f87b030](https://github.com/kirana-style/kirana/commit/f87b0300b890b5eed4ae2fa50960b745e3627905))
-* an import the compiler folded away is removed ([#219](https://github.com/kirana-style/kirana/issues/219)) ([4724deb](https://github.com/kirana-style/kirana/commit/4724deb189647856642b3ac39d7f51acb6685660))
-* an unchanged module is answered without the engine, and a one-off build watches no files ([#217](https://github.com/kirana-style/kirana/issues/217)) ([b919894](https://github.com/kirana-style/kirana/commit/b919894ee30cabc698420d230cb0f94c72856a95))
+* a module resolves and reads each import once ([#216](https://github.com/kirana-style/kirana/pull/216)) ([7e481af](https://github.com/kirana-style/kirana/commit/7e481af23a3fee237532684d7d002e73c3cdf7b8))
+* a style compiles without repeating work it already did ([#215](https://github.com/kirana-style/kirana/pull/215)) ([f87b030](https://github.com/kirana-style/kirana/commit/f87b0300b890b5eed4ae2fa50960b745e3627905))
+* an import the compiler folded away is removed ([#219](https://github.com/kirana-style/kirana/pull/219)) ([4724deb](https://github.com/kirana-style/kirana/commit/4724deb189647856642b3ac39d7f51acb6685660))
+* an unchanged module is answered without the engine, and a one-off build watches no files ([#217](https://github.com/kirana-style/kirana/pull/217)) ([b919894](https://github.com/kirana-style/kirana/commit/b919894ee30cabc698420d230cb0f94c72856a95))
 
 
 ### Documentation
 
-* take the benchmarks of kirana 0.3.6 from kirana-lab ([#214](https://github.com/kirana-style/kirana/issues/214)) ([af9c009](https://github.com/kirana-style/kirana/commit/af9c009b8d2433eb2d4b4ba4b71eef4e393dee6e))
-* take the benchmarks of kirana 0.3.6 from kirana-lab ([#222](https://github.com/kirana-style/kirana/issues/222)) ([430b667](https://github.com/kirana-style/kirana/commit/430b667e88bf86da6091e3153081bd3ab3d13c39))
+* take the benchmarks of kirana 0.3.6 from kirana-lab ([#214](https://github.com/kirana-style/kirana/pull/214)) ([af9c009](https://github.com/kirana-style/kirana/commit/af9c009b8d2433eb2d4b4ba4b71eef4e393dee6e))
+* take the benchmarks of kirana 0.3.6 from kirana-lab ([#222](https://github.com/kirana-style/kirana/pull/222)) ([430b667](https://github.com/kirana-style/kirana/commit/430b667e88bf86da6091e3153081bd3ab3d13c39))
 
 ## [0.3.6](https://github.com/kirana-style/kirana/compare/v0.3.5...v0.3.6) (2026-10-31)
 
