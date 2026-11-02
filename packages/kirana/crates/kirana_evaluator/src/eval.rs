@@ -12,13 +12,15 @@ use kirana_ir::{
 use kirana_shared::FxHashMap;
 use oxc_ast::AstKind;
 use oxc_ast::ast::{
-    Argument, ArrayExpressionElement, ArrowFunctionBody, BindingPattern, ChainElement, Expression, Function,
-    FunctionBody, IdentifierReference, ModuleExportName, ObjectPropertyKind, PropertyKey, PropertyKind, Statement,
-    StringLiteral, TemplateElement,
+    Argument, ArrayExpressionElement, ArrowFunctionBody, ArrowFunctionExpression, BindingPattern, ChainElement,
+    Expression, Function, FunctionBody, IdentifierReference, ModuleExportName, ObjectExpression, ObjectPropertyKind,
+    PropertyKey, PropertyKind, ReturnStatement, Statement, StringLiteral, TemplateElement,
 };
+use oxc_ast_visit::Visit;
 use oxc_semantic::SymbolId;
 use oxc_span::GetSpan;
 use oxc_syntax::operator::{BinaryOperator, LogicalOperator, UnaryOperator};
+use oxc_syntax::scope::ScopeFlags;
 
 use crate::{Context, Definitions, Host, ImportName, ops};
 
@@ -108,6 +110,19 @@ pub(crate) fn sp(span: oxc_span::Span) -> (u32, u32) {
     (span.start, span.end)
 }
 
+/// The reason prefix of a function the compiler cannot fold but can see only ever builds a plain
+/// object, every `return` an object literal; what stopped it follows. A call of it is not a handle
+/// (KF-085).
+const OBJECT_FUNCTION: &str = "a function that builds an object: ";
+
+/// A call that can only build a plain object at runtime: the callee as written, and for a helper
+/// of the project's own, where the compiler stopped folding it (KF-085).
+#[derive(Clone)]
+pub(crate) struct PlainObject {
+    pub builder: Arc<str>,
+    pub stopped_at: Option<Arc<str>>,
+}
+
 /// Key address → (the key, kept alive so the address stays its own; its span).
 type KeySpans = FxHashMap<usize, (Arc<str>, (u32, u32))>;
 
@@ -129,10 +144,14 @@ pub struct Evaluator<'p, 'a, 'c> {
     /// palette, and every read of it asked again (KF-060).
     statics: RefCell<FxHashMap<SymbolId, bool>>,
     calls: RefCell<FxHashMap<(u32, u32), Value>>,
-    /// Calls that can only return a plain object at runtime (`Object.fromEntries()`), by span, with
-    /// the callee's name. Such a value is a runtime value like any other, except where a style
-    /// handle is expected: no merge can apply an object, so it is reported there (KF-010).
-    pub(crate) plain_objects: RefCell<FxHashMap<(u32, u32), &'static str>>,
+    /// Calls that can only return a plain object at runtime (`Object.fromEntries()`, a helper whose
+    /// every `return` is an object literal), by span. Such a value is a runtime value like any
+    /// other, except where a style handle is expected: no merge can apply an object, so it is
+    /// reported there (KF-010, KF-085).
+    pub(crate) plain_objects: RefCell<FxHashMap<(u32, u32), PlainObject>>,
+    /// The member a pure function's body last failed to read (`.split` on a string): where a call
+    /// that cannot be folded stopped, for its report (KF-085).
+    stopped: RefCell<Option<Arc<str>>>,
     /// Bindings of an object whose key, or a spread in it, is decided at runtime, by the span of each
     /// read, with the reason it is not a style. A read is a runtime value like any other, except
     /// where a style is expected: there it is reported at the key or the spread, not merged at
@@ -208,6 +227,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             statics: RefCell::default(),
             calls: RefCell::default(),
             plain_objects: RefCell::default(),
+            stopped: RefCell::default(),
             runtime_objects: RefCell::default(),
             diagnostics: RefCell::default(),
             definitions: RefCell::default(),
@@ -590,11 +610,11 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             },
             Expression::CallExpression(call) => self.call(call),
             Expression::ArrowFunctionExpression(arrow) => {
-                let body = match &arrow.body {
-                    ArrowFunctionBody::FunctionBody(body) => single_return(body),
-                    body => Some(body.to_expression()),
+                let (body, objects) = match &arrow.body {
+                    ArrowFunctionBody::FunctionBody(body) => (single_return(body), returns_objects(body)),
+                    body => (Some(body.to_expression()), object_expression(body.to_expression()).is_some()),
                 };
-                self.lower_function(&arrow.params.items, arrow.params.rest.is_some(), body)
+                self.lower_function(&arrow.params.items, arrow.params.rest.is_some(), body, objects)
             }
             Expression::FunctionExpression(function) => self.lower_declared_function(function),
             _ => open(),
@@ -735,7 +755,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         if let Value::Dynamic(dynamic) = &value
             && let Dynamic::Open(bound) = &**dynamic
         {
-            let builder = self.plain_objects.borrow().get(bound).copied();
+            let builder = self.plain_objects.borrow().get(bound).cloned();
             if let Some(builder) = builder {
                 self.plain_objects.borrow_mut().insert(span, builder);
             }
@@ -1007,13 +1027,26 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
                         argument => Some(self.eval(argument.to_expression())).filter(Value::is_static),
                     })
                     .collect();
-                arguments
-                    .and_then(|arguments| apply(descriptor, &arguments, self, span))
-                    .unwrap_or_else(|| Value::Dynamic(Arc::new(Dynamic::Open(span))))
+                let applied = arguments.as_ref().and_then(|arguments| apply(descriptor, arguments, self, span));
+                applied.unwrap_or_else(|| {
+                    // A helper whose result is an object literal builds a plain object (KF-085).
+                    if let Expr::Object(properties) = &descriptor.body {
+                        let stopped_at = match &arguments {
+                            Some(arguments) => self.stopped_at(descriptor, properties, arguments, span),
+                            None => "an argument known only at runtime".to_owned(),
+                        };
+                        self.plain_object(call, Some(stopped_at));
+                    }
+                    Value::Dynamic(Arc::new(Dynamic::Open(span)))
+                })
             }
             _ => {
                 if let Some(name) = self.plain_object_builder(&call.callee) {
-                    self.plain_objects.borrow_mut().insert(span, name);
+                    self.plain_objects
+                        .borrow_mut()
+                        .insert(span, PlainObject { builder: Arc::from(name), stopped_at: None });
+                } else if let Some(stopped_at) = self.object_function(&call.callee) {
+                    self.plain_object(call, Some(stopped_at));
                 }
                 Value::Dynamic(Arc::new(Dynamic::Open(span)))
             }
@@ -1021,6 +1054,64 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         self.keep_held(Memo::Call(span), start);
         self.calls.borrow_mut().insert(span, value.clone());
         value
+    }
+
+    /// Where lowering stopped, when `callee` names a function, of this module or imported, that the
+    /// compiler cannot fold and that only ever builds an object. A read of the name is a runtime
+    /// value, so the binding's own value is asked (KF-085).
+    fn object_function(&self, callee: &Expression<'a>) -> Option<String> {
+        let Expression::Identifier(identifier) = callee.without_parentheses() else { return None };
+        match self.symbol_value(self.symbol_of(identifier)?) {
+            Value::Unknown(reason) => reason.strip_prefix(OBJECT_FUNCTION).map(str::to_owned),
+            _ => None,
+        }
+    }
+
+    /// Records `call`, of a helper that builds an object, as a plain object: by the callee as
+    /// written, with where folding it stopped (KF-085).
+    fn plain_object(&self, call: &oxc_ast::ast::CallExpression<'a>, stopped_at: Option<String>) {
+        let callee = call.callee.span();
+        let builder = format!("{}()", &self.parsed.source[callee.start as usize..callee.end as usize]);
+        self.plain_objects
+            .borrow_mut()
+            .insert(sp(call.span), PlainObject { builder: Arc::from(builder), stopped_at: stopped_at.map(Arc::from) });
+    }
+
+    /// Where a helper whose result is an object literal stopped folding at a call with static
+    /// arguments: an argument too many, a default, or the first property whose value does not fold,
+    /// with the member it could not read there (KF-085).
+    fn stopped_at(
+        &self,
+        descriptor: &Descriptor,
+        properties: &[(ExprKey, Expr)],
+        arguments: &[Value],
+        span: (u32, u32),
+    ) -> String {
+        if arguments.len() > descriptor.params {
+            return "an argument it has no parameter for".to_owned();
+        }
+        // Each part on its own, with the same defaults: a default that does not fold stops them all.
+        let stops = |body: &Expr| {
+            self.stopped.take();
+            let part =
+                Descriptor { params: descriptor.params, defaults: descriptor.defaults.clone(), body: body.clone() };
+            apply(&part, arguments, self, span).is_none().then(|| self.stopped.take())
+        };
+        let at = |what: String, member: Option<Arc<str>>| match member {
+            Some(member) => format!("`.{member}` in {what}"),
+            None => what,
+        };
+        if let Some(member) = stops(&Expr::Value(Value::Undefined)) {
+            return at("a parameter's default".to_owned(), member);
+        }
+        for (key, value) in properties {
+            if let ExprKey::Static(name) = key
+                && let Some(member) = stops(value)
+            {
+                return at(format!("the value of `{name}`"), member);
+            }
+        }
+        "its result".to_owned()
     }
 
     /// The name of a global that only ever builds a plain object (`Object.fromEntries`,
@@ -1070,39 +1161,63 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         if function.generator || function.r#async {
             return Value::unknown("function");
         }
-        let body = function.body.as_deref().and_then(single_return);
-        self.lower_function(&function.params.items, function.params.rest.is_some(), body)
+        let body = function.body.as_deref();
+        self.lower_function(
+            &function.params.items,
+            function.params.rest.is_some(),
+            body.and_then(single_return),
+            body.is_some_and(returns_objects),
+        )
     }
 
+    /// A function as a descriptor the evaluator can apply. One it cannot lower is unknown; when it
+    /// only ever builds an object (`objects`), the reason says where lowering stopped, so a call of
+    /// it where a handle is expected is reported rather than merged at runtime (KF-085).
     fn lower_function(
         &self,
         params: &[oxc_ast::ast::FormalParameter<'a>],
         has_rest: bool,
         body: Option<&Expression<'a>>,
+        objects: bool,
     ) -> Value {
-        let Some(body) = body else { return Value::unknown("function") };
+        let stop =
+            |at: &str| Value::unknown(if objects { format!("{OBJECT_FUNCTION}{at}") } else { "function".into() });
+        let Some(body) = body else { return stop("its body, which is more than a single `return`") };
         let mut symbols = Vec::new();
         for param in params {
             match &param.pattern {
                 BindingPattern::BindingIdentifier(identifier) => symbols.push(identifier.symbol_id.get()),
-                _ => return Value::unknown("function"),
+                _ => return stop("a parameter that is a pattern, not a name"),
             }
         }
         if has_rest {
-            return Value::unknown("function");
+            return stop("its rest parameter");
         }
         // A default reads the function's scope, the parameters before it included (KF-040).
         let mut defaults = Vec::new();
         for (index, param) in params.iter().enumerate() {
             if let Some(initializer) = &param.initializer {
-                let Some(default) = self.lower(initializer, &symbols) else { return Value::unknown("function") };
+                let Some(default) = self.lower(initializer, &symbols) else { return stop("a parameter's default") };
                 defaults.push((index, default));
             }
         }
         match self.lower(body, &symbols) {
             Some(body) => Value::Function(Arc::new(Descriptor { params: symbols.len(), defaults, body })),
-            None => Value::unknown("function"),
+            None => stop(&self.unlowered(body, &symbols)),
         }
+    }
+
+    /// The first property of an object literal whose value does not lower, for a report (KF-085).
+    fn unlowered(&self, body: &Expression<'a>, params: &[Option<SymbolId>]) -> String {
+        for property in object_expression(body).into_iter().flat_map(|object| &object.properties) {
+            if let ObjectPropertyKind::ObjectProperty(property) = property
+                && let Some(name) = property.key.static_name()
+                && self.lower(&property.value, params).is_none()
+            {
+                return format!("the value of `{}`", name.display());
+            }
+        }
+        "its result".to_owned()
     }
 
     fn lower(&self, expression: &Expression<'a>, params: &[Option<SymbolId>]) -> Option<Expr> {
@@ -1468,6 +1583,40 @@ fn single_return<'a, 'b>(body: &'b FunctionBody<'a>) -> Option<&'b Expression<'a
     }
 }
 
+/// The object literal an expression is, through parentheses and type assertions.
+fn object_expression<'a, 'b>(expression: &'b Expression<'a>) -> Option<&'b ObjectExpression<'a>> {
+    match expression {
+        Expression::ObjectExpression(object) => Some(object),
+        Expression::ParenthesizedExpression(inner) => object_expression(&inner.expression),
+        Expression::TSAsExpression(inner) => object_expression(&inner.expression),
+        Expression::TSSatisfiesExpression(inner) => object_expression(&inner.expression),
+        _ => None,
+    }
+}
+
+/// Whether a function body returns, and every `return` outside the functions nested in it hands
+/// back an object literal: such a function only ever builds a plain object, never a handle (KF-085).
+fn returns_objects(body: &FunctionBody<'_>) -> bool {
+    #[derive(Default)]
+    struct Returns {
+        objects: bool,
+        other: bool,
+    }
+    impl<'a> Visit<'a> for Returns {
+        fn visit_return_statement(&mut self, statement: &ReturnStatement<'a>) {
+            match statement.argument.as_ref().and_then(object_expression) {
+                Some(_) => self.objects = true,
+                None => self.other = true,
+            }
+        }
+        fn visit_function(&mut self, _: &Function<'a>, _: ScopeFlags) {}
+        fn visit_arrow_function_expression(&mut self, _: &ArrowFunctionExpression<'a>) {}
+    }
+    let mut returns = Returns::default();
+    returns.visit_function_body(body);
+    returns.objects && !returns.other
+}
+
 pub(crate) fn export_name(name: &ModuleExportName<'_>) -> String {
     match name {
         ModuleExportName::IdentifierName(name) => name.name.to_string(),
@@ -1571,7 +1720,13 @@ pub(crate) fn apply(
             Expr::Member { object, property } => {
                 let object = run(object, arguments)?;
                 let key = ops::to_string(&run(property, arguments)?)?;
-                Some(evaluator.member(&object, &key, span)).filter(Value::is_static)?
+                let found = evaluator.member(&object, &key, span);
+                if !found.is_static() {
+                    // Where a call stopped, should it be reported (KF-085).
+                    evaluator.stopped.replace(Some(Arc::from(key)));
+                    return None;
+                }
+                found
             }
             Expr::Binary { operator, left, right } => {
                 ops::binary(*operator, &run(left, arguments)?, &run(right, arguments)?)?

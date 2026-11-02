@@ -132,6 +132,13 @@ callback passed by name, a default, a third parameter, a value that is not an ob
 leaves the call a runtime value. Outside a descriptor these globals are not folded: `Object.fromEntries()`
 there still builds a plain object at runtime, which `not-evaluable` reports.
 
+A function whose every `return` is an object literal builds a plain object whatever it is given. When
+the evaluator cannot fold a call of it, the call is not taken for a handle: `not-evaluable` reports it
+where a handle is expected (D-095), saying where folding stopped (KF-085): a body of more than one
+`return`, a parameter that is a pattern or a rest, a default, an argument known only at runtime or
+with no parameter, or the first property whose value does not fold, with the member it could not read
+(`.split` on a string: string and array methods other than `.map()` are not run).
+
 A ternary whose test does not fold but whose branches do yields a finite-dynamic value
 ([09](./09-dynamic-styles.md#classification)). A position that requires a static value (token definitions,
 relation names) and receives a non-foldable expression produces `not-evaluable`.

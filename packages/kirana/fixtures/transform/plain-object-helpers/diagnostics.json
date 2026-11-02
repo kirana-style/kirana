@@ -1,0 +1,224 @@
+[
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 399,
+      "end": 412
+    },
+    "message": "split() builds a plain object at runtime, which no merge can apply: the compiler stops at `.split` in the value of `animationName`",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 623,
+      "end": 659
+    },
+    "message": "reveal() builds a plain object at runtime, which no merge can apply: the compiler stops at its body, which is more than a single `return`",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 893,
+      "end": 907
+    },
+    "message": "branches() builds a plain object at runtime, which no merge can apply: the compiler stops at its body, which is more than a single `return`",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1021,
+      "end": 1029
+    },
+    "message": "sized() builds a plain object at runtime, which no merge can apply: the compiler stops at an argument known only at runtime",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1129,
+      "end": 1152
+    },
+    "message": "picked() builds a plain object at runtime, which no merge can apply: the compiler stops at a parameter that is a pattern, not a name",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1247,
+      "end": 1258
+    },
+    "message": "rest() builds a plain object at runtime, which no merge can apply: the compiler stops at its rest parameter",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1359,
+      "end": 1366
+    },
+    "message": "dated() builds a plain object at runtime, which no merge can apply: the compiler stops at a parameter's default",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1485,
+      "end": 1507
+    },
+    "message": "defaulted() builds a plain object at runtime, which no merge can apply: the compiler stops at `.split` in a parameter's default",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1605,
+      "end": 1617
+    },
+    "message": "built() builds a plain object at runtime, which no merge can apply: the compiler stops at the value of `color`",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1734,
+      "end": 1748
+    },
+    "message": "keyed() builds a plain object at runtime, which no merge can apply: the compiler stops at its result",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1856,
+      "end": 1867
+    },
+    "message": "spread() builds a plain object at runtime, which no merge can apply: the compiler stops at its result",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1997,
+      "end": 2015
+    },
+    "message": "one() builds a plain object at runtime, which no merge can apply: the compiler stops at an argument it has no parameter for",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2077,
+      "end": 2082
+    },
+    "message": "split() builds a plain object at runtime, which no merge can apply: the compiler stops at `.split` in the value of `animationName`",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2112,
+      "end": 2125
+    },
+    "message": "shared() builds a plain object at runtime, which no merge can apply: the compiler stops at its body, which is more than a single `return`",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1101",
+    "name": "not-evaluable",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 2162,
+      "end": 2172
+    },
+    "message": "split() builds a plain object at runtime, which no merge can apply: the compiler stops at `.split` in the value of `animationName`",
+    "help": [
+      "write the declarations in css({ … }), or make the helper one `return` of values the compiler folds"
+    ]
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 2857,
+      "end": 2871
+    },
+    "message": "width is set at runtime through --kaF",
+    "help": []
+  }
+]

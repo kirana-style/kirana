@@ -39,7 +39,9 @@ export function Card({ sx, ...props }: { sx?: Sx }) {
 A helper that returns a value or a style object folds at build time when its inputs are static:
 default parameters, optional values, `in`, token comparisons, and `Object.entries`,
 `Object.fromEntries` and `.map()` with a callback written in place. Passing a plain object built
-from data to `css()` is `not-evaluable`.
+from data to `css()` is `not-evaluable`, and so is a call of a helper whose every `return` is an
+object when the compiler cannot fold it (a body of more than one `return`, a string method such as
+`.split()`, an argument known only at runtime): the error names where it stopped.
 
 A conditional value is `{ base?, [condition]: value | nested conditional }`. Condition keys are
 pseudo-classes (`":hover"`), attribute selectors (`'[data-state="open"]'`), at-rule strings
