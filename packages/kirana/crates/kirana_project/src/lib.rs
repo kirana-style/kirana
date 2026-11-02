@@ -47,6 +47,11 @@ pub struct Transformed {
     pub css_changed: bool,
     /// Files whose exports this module read (for watchers).
     pub dependencies: Vec<PathBuf>,
+    /// Whether this is the module's previous transform, answered again (`Project::reuse_transforms`).
+    pub reused: bool,
+    /// Whether the same source will be answered with this transform until the module or a file it
+    /// read changes: reuse is on and every import resolved. A host may answer it again itself.
+    pub reusable: bool,
 }
 
 /// A compilation session.
@@ -370,7 +375,7 @@ impl Project {
         if reuse && let Some(previous) = self.reusable(path, hash, jsx, marked, maps) {
             self.state.write().expect("not poisoned").work.reused += 1;
             // The module's record is the one this transform wrote: the stylesheet is unchanged.
-            return Transformed { css_changed: false, ..previous };
+            return Transformed { css_changed: false, reused: true, ..previous };
         }
         self.state.write().expect("not poisoned").unresolved.remove(path);
         if !kirana_frontend::may_be_style_bearing(source) {
@@ -386,6 +391,8 @@ impl Project {
                 diagnostics: Vec::new(),
                 css_changed,
                 dependencies: Vec::new(),
+                reused: false,
+                reusable: false,
             };
         }
         self.state.write().expect("not poisoned").work.parsed += 1;
@@ -406,7 +413,15 @@ impl Project {
             Err(diagnostics) => {
                 self.state.write().expect("not poisoned").set_imports(path, &[]);
                 let css_changed = self.set_record(path, ModuleRecord::default());
-                return Transformed { code: None, map: None, diagnostics, css_changed, dependencies: Vec::new() };
+                return Transformed {
+                    code: None,
+                    map: None,
+                    diagnostics,
+                    css_changed,
+                    dependencies: Vec::new(),
+                    reused: false,
+                    reusable: false,
+                };
             }
         };
         self.register_definitions(&definitions, &package, &file);
@@ -429,7 +444,16 @@ impl Project {
             })
             .collect();
         diagnostics.sort_by(|a, b| a.span.start.cmp(&b.span.start).then(a.code.code().cmp(b.code.code())));
-        let transformed = Transformed { code: output.code, map: output.map, diagnostics, css_changed, dependencies };
+        let missed = host.missed();
+        let transformed = Transformed {
+            code: output.code,
+            map: output.map,
+            diagnostics,
+            css_changed,
+            dependencies,
+            reused: false,
+            reusable: reuse && !missed,
+        };
         if reuse {
             let entry = Reusable { hash, jsx, marked, maps, provenance, output: transformed.clone() };
             self.state.write().expect("not poisoned").reused.insert(path.to_path_buf(), entry);

@@ -470,6 +470,87 @@ console.log(resolveConfigSync(${JSON.stringify(root)}).json)`,
     ).rejects.toThrow("invalid-config")
   })
 
+  it("answers a module the engine would reuse without asking the engine again", async () => {
+    const files = {
+      "package.json": '{"name":"app"}',
+      "src/tokens.ts": `import { defineTokens } from "@kirana-style/core"\nexport const space = defineTokens("space", { md: "1rem" })\n`,
+      "src/a.tsx": `import { css } from "@kirana-style/core"\nimport { space } from "./tokens"\nexport const a = css({ padding: space.md })\n`,
+      "src/b.tsx": INPUT,
+      "src/c.tsx": INPUT.replace("black", "navy"),
+      "src/missing.tsx": `import { css } from "@kirana-style/core"\nimport { gap } from "./nowhere"\nexport const m = css({ gap })\n`,
+    }
+    const root = project(files)
+    const at = (name: keyof typeof files) => path.join(root, name)
+    const source = (name: keyof typeof files) => files[name]
+    const native = loadNative()
+    const asked: string[] = []
+    const counting = {
+      ...native,
+      Compiler: class extends native.Compiler {
+        override transform(id: string, code: string, map?: boolean | null) {
+          asked.push(path.basename(id))
+          return super.transform(id, code, map)
+        }
+        override transformAsync(
+          id: string,
+          code: string,
+          map?: boolean | null
+        ) {
+          asked.push(path.basename(id))
+          return super.transformAsync(id, code, map)
+        }
+      },
+    } as unknown as typeof native
+    const driver = await Driver.create({ root, native: counting })
+    driver.reuseTransforms()
+    const ask = () => asked.splice(0)
+
+    // The same source again is the engine's reused transform, answered here.
+    const first = driver.transform(at("src/a.tsx"), source("src/a.tsx"))
+    expect(driver.transform(at("src/a.tsx"), source("src/a.tsx"))).toEqual({
+      ...first,
+      cssChanged: false,
+    })
+    expect(
+      await driver.transformAsync(at("src/a.tsx"), source("src/a.tsx"))
+    ).toEqual({ ...first, cssChanged: false })
+    expect(ask()).toEqual(["a.tsx"])
+    // Another source, or another source map setting, is the engine's to answer.
+    driver.transform(at("src/a.tsx"), `${source("src/a.tsx")}// edit\n`)
+    driver.transform(at("src/a.tsx"), `${source("src/a.tsx")}// edit\n`, {
+      map: false,
+    })
+    expect(ask()).toEqual(["a.tsx", "a.tsx"])
+    // Another module compiled: the engine checks again what this one read, and reuses it.
+    driver.transform(at("src/b.tsx"), source("src/b.tsx"))
+    const again = driver.transform(at("src/a.tsx"), source("src/a.tsx"))
+    expect(again).toEqual({ ...first, cssChanged: false })
+    driver.transform(at("src/a.tsx"), source("src/a.tsx"))
+    expect(ask()).toEqual(["b.tsx", "a.tsx"])
+    // A changed file it read: the engine compiles it again.
+    expect(driver.invalidate(at("src/tokens.ts"))).toContain(at("src/a.tsx"))
+    driver.transform(at("src/a.tsx"), source("src/a.tsx"))
+    expect(ask()).toEqual(["a.tsx"])
+    // A module that missed an import compiles each time, as the engine does.
+    driver.transform(at("src/missing.tsx"), source("src/missing.tsx"))
+    driver.transform(at("src/missing.tsx"), source("src/missing.tsx"))
+    expect(ask()).toEqual(["missing.tsx", "missing.tsx"])
+    // Two compiles at once: the one that settles second ran while the other compiled, so neither
+    // is kept from this round; the engine reuses both next time, and the Driver keeps them then.
+    await Promise.all([
+      driver.transformAsync(at("src/b.tsx"), `${source("src/b.tsx")}// edit\n`),
+      driver.transformAsync(at("src/c.tsx"), source("src/c.tsx")),
+    ])
+    for (let round = 0; round < 2; round += 1) {
+      await driver.transformAsync(
+        at("src/b.tsx"),
+        `${source("src/b.tsx")}// edit\n`
+      )
+      await driver.transformAsync(at("src/c.tsx"), source("src/c.tsx"))
+    }
+    expect(ask().sort()).toEqual(["b.tsx", "b.tsx", "c.tsx", "c.tsx"])
+  })
+
   it("defaults the root to the working directory", async () => {
     const driver = await Driver.create()
     expect(driver.root).toBe(process.cwd())

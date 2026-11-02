@@ -180,4 +180,8 @@ export interface TransformResult {
   diagnostics: string
   cssChanged: boolean
   dependencies: Array<string>
+  /** The module's previous transform, answered again. */
+  reused: boolean
+  /** The engine answers the same source with this transform until something it read changes. */
+  reusable: boolean
 }

@@ -60,14 +60,27 @@ export type TransformResult = {
   dependencies: string[]
 }
 
-/** A native transform result as the Driver hands it on. */
-function toResult(result: {
+/** A transform result as the engine returns it. */
+type NativeResult = {
   code?: string | null
   map?: string | null
   diagnostics: string
   cssChanged: boolean
   dependencies: string[]
-}): TransformResult {
+  reused: boolean
+  reusable: boolean
+}
+
+/** A transform the Driver answers again itself, for the source and session it was made in. */
+type Answer = {
+  code: string
+  map: boolean
+  generation: number
+  result: TransformResult
+}
+
+/** A native transform result as the Driver hands it on. */
+function toResult(result: NativeResult): TransformResult {
   return {
     code: result.code ?? undefined,
     map: result.map ?? undefined,
@@ -99,6 +112,14 @@ export class Driver {
   readonly #import: ImportFile
   /** Each component's block modules, by component file (Vue, Svelte, Astro). */
   readonly #components = new Map<string, string[]>()
+  /**
+   * The answers the engine would give again, by module (`reuseTransforms`). Asking the engine
+   * copies the whole module across Node-API and its result back, the diagnostics through JSON: an
+   * editor or a watcher that sends an unchanged module again is answered here.
+   */
+  readonly #answers = new Map<string, Answer>()
+  /** Moves on whenever the engine may have changed what an answer depends on. */
+  #generation = 0
 
   private constructor(
     root: string,
@@ -185,7 +206,18 @@ export class Driver {
     code: string,
     options: TransformOptions = {}
   ): TransformResult {
-    return toResult(this.#compiler.transform(id, code, options.map))
+    const map = options.map ?? true
+    const generation = this.#generation
+    return (
+      this.#answered(id, code, map) ??
+      this.#settle(
+        id,
+        code,
+        map,
+        generation,
+        this.#compiler.transform(id, code, options.map)
+      )
+    )
   }
 
   /**
@@ -198,7 +230,71 @@ export class Driver {
     options: TransformOptions = {}
   ): Promise<TransformResult> {
     if (this.engine !== "native") return this.transform(id, code, options)
-    return toResult(await this.#compiler.transformAsync(id, code, options.map))
+    const map = options.map ?? true
+    const generation = this.#generation
+    return (
+      this.#answered(id, code, map) ??
+      this.#settle(
+        id,
+        code,
+        map,
+        generation,
+        await this.#compiler.transformAsync(id, code, options.map)
+      )
+    )
+  }
+
+  /**
+   * The engine's answer to this module, when the Driver holds it: the same source and source map
+   * setting, and nothing compiled, invalidated or removed since. It is the engine's own reused
+   * transform, with the stylesheet unchanged.
+   */
+  #answered(
+    id: string,
+    code: string,
+    map: boolean
+  ): TransformResult | undefined {
+    const answer = this.#answers.get(id)
+    if (
+      answer === undefined ||
+      answer.generation !== this.#generation ||
+      answer.code !== code ||
+      answer.map !== map
+    )
+      return undefined
+    const { result } = answer
+    return {
+      ...result,
+      cssChanged: false,
+      diagnostics: [...result.diagnostics],
+      dependencies: [...result.dependencies],
+    }
+  }
+
+  /**
+   * Hands an engine transform on, keeping it to answer again when the engine would reuse it and
+   * nothing else compiled while it ran (`transformAsync` runs several at once). A compile may
+   * change what any kept answer read, so it moves the generation on; a reused transform does not.
+   */
+  #settle(
+    id: string,
+    code: string,
+    map: boolean,
+    generation: number,
+    native: NativeResult
+  ): TransformResult {
+    const result = toResult(native)
+    if (!native.reused) this.#changed()
+    const settled = generation + (native.reused ? 0 : 1)
+    if (native.reusable && this.#generation === settled)
+      this.#answers.set(id, { code, map, generation: settled, result })
+    else this.#answers.delete(id)
+    return result
+  }
+
+  /** The engine may have changed: no answer the Driver holds is current until asked again. */
+  #changed(): void {
+    this.#generation += 1
   }
 
   /** Whether a module is this application's to compile (its own, or a listed library's). */
@@ -224,7 +320,10 @@ export class Driver {
     })
     // A block that is gone (a removed `<script setup>`) leaves the build graph.
     for (const id of this.#components.get(file) ?? []) {
-      if (!result.modules.includes(id)) this.#compiler.remove(id)
+      if (!result.modules.includes(id)) {
+        this.#changed()
+        this.#compiler.remove(id)
+      }
     }
     this.#components.set(file, result.modules)
     const { modules: _, ...rest } = result
@@ -252,6 +351,7 @@ export class Driver {
    * it, and `dense` renames those and nothing else. Call it before the first transform.
    */
   markDense(): void {
+    this.#changed()
     this.#compiler.markDense()
   }
 
@@ -325,6 +425,7 @@ export class Driver {
    * session, as `kirana-style check` does; returns every diagnostic, project-wide ones included.
    */
   check(paths: readonly string[]): Diagnostic[] {
+    this.#changed()
     return parseDiagnostics(
       this.#compiler.check(paths.map((entry) => path.resolve(this.root, entry)))
     )
@@ -359,6 +460,7 @@ export class Driver {
    * answers, compiling each file once however many queries name it.
    */
   trace(queries: readonly TraceQuery[]): TraceAnswer[] {
+    this.#changed()
     const resolved = queries.map((query) => ({
       ...query,
       file: path.resolve(this.root, query.file),
@@ -378,6 +480,7 @@ export class Driver {
     paths: readonly string[] = [],
     { definitions = false }: { definitions?: boolean } = {}
   ): DesignSystemExport {
+    this.#changed()
     return JSON.parse(
       this.#compiler.export(
         paths.map((entry) => path.resolve(this.root, entry)),
@@ -392,6 +495,7 @@ export class Driver {
    * when the configuration has no utility grammar.
    */
   lowerTailwind(classes: string, file = "index.tsx"): TailwindLowering {
+    this.#changed()
     return JSON.parse(
       this.#compiler.lowerTailwind(path.resolve(this.root, file), classes)
     ) as TailwindLowering
@@ -402,6 +506,7 @@ export class Driver {
    * its block modules, and a block module reported back is named by its component.
    */
   invalidate(id: string): string[] {
+    this.#changed()
     const affected = (this.#components.get(id) ?? [id]).flatMap((module) =>
       this.#compiler.invalidate(module)
     )
@@ -410,6 +515,7 @@ export class Driver {
 
   /** A module (or component) left the build graph; returns whether the stylesheet changed. */
   remove(id: string): boolean {
+    this.#changed()
     const modules = this.#components.get(id) ?? [id]
     this.#components.delete(id)
     return modules.map((module) => this.#compiler.remove(module)).some(Boolean)
