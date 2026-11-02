@@ -63,6 +63,11 @@ pub(crate) struct ModuleHost<'p> {
     cycles: RefCell<Vec<String>>,
     /// Whether an import failed to resolve, here or in a module it imported.
     missed: Cell<bool>,
+    /// The exports this module's evaluation has read whole, by module: a second binding from the
+    /// same module needs neither its checks nor its provenance again, since no file changes during
+    /// a transform (KF-082). Exports a cycle cut short are not kept, as the project does not keep
+    /// them either: each read evaluates them again (KF-038).
+    exports: RefCell<FxHashMap<PathBuf, Arc<Exports>>>,
 }
 
 impl<'p> ModuleHost<'p> {
@@ -75,6 +80,7 @@ impl<'p> ModuleHost<'p> {
             cut: Cell::new(usize::MAX),
             cycles: RefCell::default(),
             missed: Cell::new(false),
+            exports: RefCell::default(),
         }
     }
 
@@ -124,8 +130,7 @@ impl<'p> ModuleHost<'p> {
         let Some(exports) = self.exports_of(path) else { return Vec::new() };
         let mut values = Vec::new();
         for star in &exports.stars {
-            let Ok(resolution) = self.project.resolver.resolve_file(path, star) else { continue };
-            let source = resolution.full_path();
+            let Some(source) = self.project.resolved(path, star) else { continue };
             if self.stars.borrow().contains(&source) {
                 continue;
             }
@@ -141,6 +146,19 @@ impl<'p> ModuleHost<'p> {
     }
 
     pub(crate) fn exports_of(&self, path: &Path) -> Option<Arc<Exports>> {
+        if let Some(exports) = self.exports.borrow().get(path) {
+            return Some(exports.clone());
+        }
+        let (exports, whole) = self.evaluated_exports(path)?;
+        if whole {
+            self.exports.borrow_mut().insert(path.to_path_buf(), exports.clone());
+        }
+        Some(exports)
+    }
+
+    /// The module's exports, and whether they are whole: from the project's cache, or evaluated
+    /// without a cycle cutting a value short.
+    fn evaluated_exports(&self, path: &Path) -> Option<(Arc<Exports>, bool)> {
         if self.closes_cycle(path).is_some() {
             return None;
         }
@@ -154,7 +172,7 @@ impl<'p> ModuleHost<'p> {
             self.read.borrow_mut().push((path.to_path_buf(), entry.hash));
             self.read.borrow_mut().extend(entry.provenance.iter().cloned());
             self.missed.set(self.missed.get() || entry.missed);
-            return Some(entry.exports.clone());
+            return Some((entry.exports.clone(), true));
         }
         let source = self.project.fs.read_to_string(path).ok()?;
         let hash = hash64(source.as_bytes());
@@ -204,7 +222,8 @@ impl<'p> ModuleHost<'p> {
         self.missed.set(self.missed.get() || missed);
         let depth = self.stack.len();
         let cut = nested.cut.get();
-        if cut < depth {
+        let whole = cut >= depth;
+        if !whole {
             self.cut.set(self.cut.get().min(cut));
         } else {
             let mut state = self.project.state.write().expect("not poisoned");
@@ -216,7 +235,7 @@ impl<'p> ModuleHost<'p> {
         }
         self.read.borrow_mut().push((path.to_path_buf(), hash));
         self.read.borrow_mut().extend(provenance);
-        Some(exports)
+        Some((exports, whole))
     }
 }
 
@@ -227,7 +246,7 @@ impl Host for ModuleHost<'_> {
             return Value::unknown("external module");
         }
         // `resolve_file`, not `resolve`: only it finds the importer's tsconfig, so `paths` aliases apply.
-        let Ok(resolution) = self.project.resolver.resolve_file(from, specifier) else {
+        let Some(path) = self.project.resolved(from, specifier) else {
             self.missed.set(true);
             // A module the bundler provides (`externals`) is a runtime value, as a Node.js built-in is.
             if self.project.config.externals.iter().any(|prefix| specifier.starts_with(prefix.as_str())) {
@@ -235,7 +254,6 @@ impl Host for ModuleHost<'_> {
             }
             return Value::unresolved(specifier, &self.project.display_name(from));
         };
-        let path = resolution.full_path();
         if let Some(chain) = self.closes_cycle(&path) {
             return Value::cycle(&chain);
         }
@@ -279,16 +297,12 @@ impl Host for ModuleHost<'_> {
     }
 
     fn is_external(&self, from: &Path, specifier: &str) -> bool {
-        self.project
-            .resolver
-            .resolve_file(from, specifier)
-            .ok()
-            .is_some_and(|resolution| self.project.outside_application(&resolution.full_path()))
+        self.project.resolved(from, specifier).is_some_and(|path| self.project.outside_application(&path))
     }
 
     /// Asked only for specifiers that are not installed packages (the transform checks first).
     fn sx_forwarded(&self, from: &Path, specifier: &str, name: &str) -> Option<String> {
-        let path = self.project.resolver.resolve_file(from, specifier).ok()?.full_path();
+        let path = self.project.resolved(from, specifier)?;
         self.exports_of(&path)?.sx_forwarding.get(name).cloned()
     }
 
