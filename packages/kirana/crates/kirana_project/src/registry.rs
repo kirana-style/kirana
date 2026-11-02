@@ -377,13 +377,27 @@ impl Project {
     /// The span of `relation("name")` in the project file `file`, or an empty span when it is not
     /// written that way.
     fn declaration(&self, file: &str, name: &str) -> Span {
-        let source = self.fs.read_to_string(&self.root.join(file)).unwrap_or_default();
+        let path = self.root.join(file);
+        let source = self.fs.read_to_string(&path).unwrap_or_else(|_| self.block_source(&path));
         ["\"", "'", "`"]
             .iter()
             .find_map(|quote| {
                 let call = format!("relation({quote}{name}{quote})");
                 source.find(&call).map(|start| Span::new(start as u32, (start + call.len()) as u32))
             })
+            .unwrap_or_default()
+    }
+
+    /// The text of a component's script block (`Card.vue.setup.ts`), which is no file of its own:
+    /// spans in it are the module's, which `component_diagnostics` places in the component. Empty for
+    /// any other path.
+    fn block_source(&self, path: &Path) -> String {
+        let component = path.with_extension("").with_extension("");
+        let text = self.fs.read_to_string(&component).unwrap_or_default();
+        kirana_frontend::sfc::framework_of(&component)
+            .map(|framework| kirana_frontend::sfc::scan(framework, &text))
+            .and_then(|scanned| scanned.blocks.into_iter().find(|block| block.id(&component) == path))
+            .map(|block| text[block.start..block.end].to_owned())
             .unwrap_or_default()
     }
 

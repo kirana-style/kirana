@@ -295,7 +295,8 @@ A relation named `field` owns one marker class (`.kr…`), applied through `fiel
 
 In a bundler build, R1 covers the relations whose declaring module the build compiled; one declared in a
 module the build never compiled (a shared component reading an ancestor this application does not
-render) is left to `kirana-style check`, which compiles every module (D-062).
+render) is left to `kirana-style check`, which compiles every module, the script blocks of Vue, Svelte and
+Astro components included (D-062).
 
 An element whose own `sx` carries a relation's anchor and a `within` or `parent` read of it with a
 state (`form.within('[data-disabled="true"]')`) is accepted by R3, as an outer instance, but it never
@@ -306,7 +307,8 @@ not reported.
 
 Any reference to `field.anchor` counts as applying it for R1 and R2 — in an `sx` array, a component prop,
 `props()` or a render prop, or a Vue, Svelte or Astro template's `sx`, which compiles at runtime and whose
-`.anchor` chains the build reads with the block the template sees (KF-088) — because anchors routinely
+`.anchor` chains the build reads with the block the template sees (KF-088), as `kirana-style check` and the
+language server read its bindings — because anchors routinely
 travel through components. Placement that crosses
 component boundaries cannot always be proven statically. Such reads produce no
 diagnostic, and `kirana-style analyze` lists them as "unproven relation reads" so they can be covered by the

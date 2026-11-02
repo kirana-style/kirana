@@ -9623,7 +9623,10 @@ kirana-style check src --format github --max-warnings 0
 ```
 
 It walks the paths you give it, skipping `node_modules`, `dist`, dotfiles and
-`.d.ts` files.
+`.d.ts` files. Scripts compile as modules, and Vue, Svelte and Astro components
+as the build compiles them: each script block, with the template's `sx`. A
+block's diagnostics are reported in the component, and a relation anchored or
+read in one counts.
 
 Human output is the report Oxlint prints: the code and the message, the lines
 around the mistake with it underlined, and the help line. In a terminal it is in

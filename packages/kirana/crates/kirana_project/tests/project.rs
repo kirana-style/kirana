@@ -902,6 +902,48 @@ export const item = css({ padding: { base: "1rem", [menu.within("[data-slot]")]:
     assert_eq!(unused(&project), 1);
 }
 
+/// A check compiles Vue, Svelte and Astro components as the build does: a relation anchored only in
+/// a template is applied (KF-088), and a block's diagnostics, its own and project-wide ones, are
+/// reported in the component, where its text is.
+#[test]
+fn a_check_compiles_components_as_the_build_does() {
+    let card = "<script>\nimport { css, relation } from \"@kirana-style/core\"\nconst card = relation(\"card\")\nconst tone = css({ color: { \"[data-a]\": \"red\", \"[data-b]\": \"blue\" } })\n</script>\n<div sx={[card.anchor, tone]}></div>\n";
+    let (root, project) = temp_project(&[
+        (
+            "toggle.styles.ts",
+            "import { css, relation } from \"@kirana-style/core\"\nexport const toggle = relation(\"toggle\")\nexport const icon = css({ color: { base: \"red\", [toggle.within(\"[data-pressed]\")]: \"blue\" } })\n",
+        ),
+        (
+            "Toggle.vue",
+            "<script setup lang=\"ts\">\nimport { toggle, icon } from \"./toggle.styles\"\n</script>\n<template>\n  <Button :sx=\"[toggle.anchor]\"><i :sx=\"icon\" /></Button>\n</template>\n",
+        ),
+        ("Card.svelte", card),
+        ("Empty.astro", "<p>No script.</p>\n"),
+    ]);
+    let (diagnostics, sources) = project.compile_paths(std::slice::from_ref(&root));
+    let found: Vec<(Code, &str, &str)> = diagnostics
+        .iter()
+        .map(|diagnostic| {
+            (
+                diagnostic.code,
+                diagnostic.file.as_str(),
+                &card[diagnostic.span.start as usize..diagnostic.span.end as usize],
+            )
+        })
+        .collect();
+    // The card's tie, in its script; its relation, anchored in the markup and read nowhere, where the
+    // script declares it. The toggle's relation is anchored in its template, so nothing is unanchored.
+    assert_eq!(
+        found,
+        [
+            (Code::AmbiguousPrecedence, "Card.svelte", "color"),
+            (Code::RelationUnused, "Card.svelte", "relation(\"card\")")
+        ]
+    );
+    assert_eq!(sources, [("Card.svelte".to_owned(), card.to_owned())]);
+    fs::remove_dir_all(root).unwrap();
+}
+
 /// A relation kept private whose readers leave its module inside an exported object is exported all
 /// the same (KF-024): a build that reaches the anchor and no reader says nothing. One whose anchor
 /// alone leaves is read nowhere else, and a report names where it is declared.
