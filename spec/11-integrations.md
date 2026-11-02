@@ -324,6 +324,15 @@ The Ark UI vocabulary adds to the reference what each exported part's `get<Part>
 indexes, item values and constants left out; a component the reference does not name takes the machine its
 hook imports (Segment Group runs Radio Group's) (KF-087).
 
+A part whose module (named by its component's module, `export { MenuCheckboxItem as CheckboxItem }`) merges
+other getters onto its element (`mergeProps(menu.getOptionItemProps(…), …)`) adds, after its own, each one's
+reference entry and what it sets; several are merged (Date Picker's `TableCell` takes the day, month or year
+cell's getter by view). The getters read are those of `connect`, of the package's other `connect…` functions
+(Drawer's `connectStack`) and of Ark UI's `usePresence`, through what a getter merges
+(`mergeProps(getItemProps(…), childApi.getTriggerProps())`), with or without `Props` in the name (Splitter's
+`getResizeTriggerIndicator`). A getter the module merges that none of them returns stops the generator.
+`RootProvider` has no entry: it renders `Root`'s element, which `Root`'s keys style (R3-FIX-27).
+
 A vocabulary is plain data (an `as const` object of attribute selectors), so a library without one, or a
 project's own components, needs a module of a few lines and nothing from the compiler.
 
