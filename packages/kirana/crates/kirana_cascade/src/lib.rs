@@ -155,7 +155,65 @@ pub fn declare(name: &str, raw: RawValue<'_>) -> Result<Expanded, DeclarationErr
 /// [`declare`] with knowledge of project variables: `variable_value` returns the declared values of
 /// a custom property the project defines, so a shorthand written as one such `var()` stays one atom
 /// when every value is a single component, and a token's values are checked against the grammar.
+///
+/// A string that reads no variable expands the same wherever it is written, so each thread
+/// remembers the ones it has expanded: an application writes the same declarations many times
+/// over (`display: "flex"` in most of its styles), and expanding one parses, checks and normalizes
+/// its value. A value with a `var()` is expanded each time, since the project's variables can change.
 pub fn declare_with(
+    name: &str,
+    raw: RawValue<'_>,
+    variable_value: &dyn Fn(&str) -> Option<Vec<String>>,
+) -> Result<Expanded, DeclarationError> {
+    match raw {
+        RawValue::Str(text) if !text.contains("var(") => {
+            remembered(name, text, EXPANSIONS_KEPT, || expand(name, raw, variable_value))
+        }
+        _ => expand(name, raw, variable_value),
+    }
+}
+
+/// How many expansions a thread keeps; past it the thread starts over.
+const EXPANSIONS_KEPT: usize = 1 << 14;
+
+thread_local! {
+    static EXPANSIONS: std::cell::RefCell<Expansions> = std::cell::RefCell::default();
+}
+
+/// One property's expansions, by value.
+type ByValue = kirana_shared::FxHashMap<Box<str>, Result<Expanded, DeclarationError>>;
+
+/// Expansions by property name, then value, so a lookup borrows both strings.
+#[derive(Default)]
+struct Expansions {
+    by_name: kirana_shared::FxHashMap<Box<str>, ByValue>,
+    len: usize,
+}
+
+fn remembered(
+    name: &str,
+    text: &str,
+    limit: usize,
+    expand: impl FnOnce() -> Result<Expanded, DeclarationError>,
+) -> Result<Expanded, DeclarationError> {
+    let known = EXPANSIONS
+        .with(|expansions| expansions.borrow().by_name.get(name).and_then(|values| values.get(text)).cloned());
+    if let Some(expanded) = known {
+        return expanded;
+    }
+    let expanded = expand();
+    EXPANSIONS.with(|expansions| {
+        let mut expansions = expansions.borrow_mut();
+        if expansions.len >= limit {
+            *expansions = Expansions::default();
+        }
+        expansions.by_name.entry(name.into()).or_default().insert(text.into(), expanded.clone());
+        expansions.len += 1;
+    });
+    expanded
+}
+
+fn expand(
     name: &str,
     raw: RawValue<'_>,
     variable_value: &dyn Fn(&str) -> Option<Vec<String>>,
@@ -356,6 +414,17 @@ pub fn is_color(text: &str) -> bool {
 /// (`padding: 0` after `paddingInlineStart`). A later, narrower write (`padding` then
 /// `paddingInlineEnd`, Tailwind's `p-2 pe-8`) wins as written and is not reported.
 pub fn mixed_logical_physical(handle: &Handle) -> Vec<MixedAxes> {
+    // Every pair starts from a logical longhand, which most handles do not set: they are told
+    // apart without copying a name.
+    let logical = |name: &str| physical_counterpart(name).is_some();
+    let any_logical = handle.entries().any(|(key, _)| match key.property.rank {
+        kirana_css_data::PropertyRank::Shorthand => known_longhands(&key.property.name)
+            .is_some_and(|longhands| longhands.iter().any(|longhand| logical(&longhand.name))),
+        _ => logical(&key.property.name),
+    });
+    if !any_logical {
+        return Vec::new();
+    }
     // A shorthand atom takes part through its longhands.
     let covered: Vec<(&kirana_ir::Target, &kirana_ir::ConditionSet, String, usize, u8)> = handle
         .entries()
@@ -689,4 +758,36 @@ fn compute_breadth(name: &str) -> u8 {
             .unwrap_or(0)
     };
     u8::try_from(longhands.len().max(overlapped)).unwrap_or(u8::MAX)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn remembers_expansions_and_starts_over_past_its_limit() {
+        // A thread of its own, so the other tests' expansions are not counted.
+        std::thread::spawn(|| {
+            let none = |_: &str| None;
+            let fresh = |name: &str, text: &str| expand(name, RawValue::Str(text), &none);
+            let len = || EXPANSIONS.with(|expansions| expansions.borrow().len);
+            let padding = || fresh("padding", "1px 2px");
+            assert_eq!(remembered("padding", "1px 2px", 2, padding), padding());
+            // The same pair again is answered from the table, which keeps one entry for it.
+            assert_eq!(remembered("padding", "1px 2px", 2, padding), padding());
+            assert_eq!(len(), 1);
+            // A rejection is remembered as well.
+            assert_eq!(remembered("color", "nope(", 2, || fresh("color", "nope(")), fresh("color", "nope("));
+            assert_eq!(len(), 2);
+            // A third distinct pair finds the table full: it is emptied, then holds the new one.
+            assert_eq!(remembered("display", "flex", 2, || fresh("display", "flex")), fresh("display", "flex"));
+            EXPANSIONS.with(|expansions| {
+                let expansions = expansions.borrow();
+                assert_eq!(expansions.len, 1);
+                assert!(!expansions.by_name.contains_key("padding"));
+            });
+        })
+        .join()
+        .unwrap();
+    }
 }

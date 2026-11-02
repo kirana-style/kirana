@@ -19,9 +19,12 @@ use crate::style::{Parts, Strings};
 impl<'a> Evaluator<'_, 'a, '_> {
     pub(crate) fn api_call(&self, api: Api, call: &CallExpression<'a>) -> Value {
         let span = sp(call.span);
-        let arguments = self.arguments(call);
+        // `css()` evaluates its arguments only when the session has not compiled the same call:
+        // a style written out in full is answered before any of them is needed (KF-059).
+        let arguments = if api == Api::Css { Vec::new() } else { self.arguments(call) };
         match api {
             Api::Css => self.literal_style(call, || {
+                let arguments = self.arguments(call);
                 // A handle an argument passes claims its attributes for every style object of the
                 // call (KF-044); the call's own handle carries them on.
                 let mut claims = Vec::new();
