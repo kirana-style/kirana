@@ -41,9 +41,14 @@ that test.
 The block the template sees (Vue `<script setup>`, Svelte's instance script, Astro's frontmatter)
 is compiled with one `<div sx={expression} />` per binding appended, parsed as TSX whatever the
 block's `lang` (`Project::transform_jsx`). Each binding becomes a site like any JSX `sx`, so every
-feature works unchanged; `component.rs` maps spans back. Diagnostics inside the appended JSX are
-dropped: an `{#each}` item or a slot prop is unresolved there by design, and the build reports
-nothing for templates either.
+feature works unchanged; `kirana_project::component` maps spans back. Diagnostics inside the
+appended JSX are dropped: an `{#each}` item or a slot prop is unresolved there by design, and the
+build reports nothing for templates either.
+
+`kirana-style check` compiles components the same way (`Project::compile_tree`), Angular ones
+(D-068) included, and the server indexes from that one pass: a relation anchored or read only in a
+component counts, and a project-wide diagnostic naming a block (`Card.vue.setup.ts`) is placed in
+the component, a relation's declaration found in the block's text.
 
 ## Limits
 

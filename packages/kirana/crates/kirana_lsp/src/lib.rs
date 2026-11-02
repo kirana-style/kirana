@@ -212,37 +212,20 @@ impl Server {
         if serial {
             project.compile_serially();
         }
-        let (indexed, _) = project.compile_paths(std::slice::from_ref(&root));
+        // Scripts, and Vue, Svelte, Astro and Angular components, compiled once for the session.
+        let indexed = project.compile_tree(std::slice::from_ref(&root));
         let mut module_diagnostics: BTreeMap<PathBuf, Vec<Diagnostic>> = BTreeMap::new();
-        for diagnostic in indexed.into_iter().filter(|diagnostic| !diagnostic.file.is_empty()) {
+        for diagnostic in indexed.diagnostics.into_iter().filter(|diagnostic| !diagnostic.file.is_empty()) {
             module_diagnostics.entry(root.join(&diagnostic.file)).or_default().push(diagnostic);
         }
         let mut components = BTreeMap::new();
-        let mut files = Vec::new();
-        kirana_project::collect_sources(&root, &mut files, kirana_frontend::sfc::COMPONENT_EXTENSIONS);
-        // Every collected file has a component's extension; one that cannot be read is skipped.
-        let readable = files.into_iter().filter_map(|path| {
-            let framework = kirana_frontend::sfc::framework_of(&path).unwrap_or(kirana_frontend::sfc::Framework::Vue);
-            std::fs::read_to_string(&path).ok().map(|text| (path, text, framework))
-        });
-        for (path, text, framework) in readable {
-            let (compiled, diagnostics) = component::compile(&project, &path, &text, framework);
+        for (path, modules, diagnostics) in indexed.components {
             module_diagnostics.insert(path.clone(), diagnostics);
-            components.insert(path, compiled);
+            components.insert(path, component::Compiled { modules });
         }
-        // Angular components (D-068): `.ts` files with `[sx]` in an inline template, and `.html`
-        // templates. Only files that mention `[sx]` are read twice.
-        let mut angular = Vec::new();
-        kirana_project::collect_sources(&root, &mut angular, &["ts", "html"]);
-        let disk = |file: &Path| std::fs::read_to_string(file).ok();
-        let marked = angular.into_iter().filter_map(|path| {
-            disk(&path).filter(|text| text.contains("sx]") || text.contains("bind-sx")).map(|text| (path, text))
-        });
-        for (path, text) in marked {
-            if let Some((compiled, diagnostics)) = component::angular(&project, &path, &text, &disk) {
-                module_diagnostics.insert(path.clone(), diagnostics);
-                components.insert(path, compiled);
-            }
+        for (path, module, diagnostics) in indexed.angular {
+            module_diagnostics.insert(path.clone(), diagnostics);
+            components.insert(path, component::Compiled { modules: vec![module] });
         }
         let option = |name: &str| params.pointer(&format!("/initializationOptions/{name}")).and_then(Value::as_bool);
         let options = Options {

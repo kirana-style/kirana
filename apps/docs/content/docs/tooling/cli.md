@@ -227,7 +227,16 @@ kirana-style check src --format github --max-warnings 0
 ```
 
 It walks the paths you give it, skipping `node_modules`, `dist`, dotfiles and
-`.d.ts` files.
+`.d.ts` files, and compiles:
+
+- each script as a module;
+- each Vue, Svelte and Astro component as the build does: every script block,
+  the one the template sees with the template's `sx`;
+- each Angular component's script with its template's `[sx]`, written inline or
+  in its own file.
+
+A component's diagnostics are reported in it, at their line, and a relation
+anchored or read only in a component counts.
 
 Human output is the report Oxlint prints: the code and the message, the lines
 around the mistake with it underlined, and the help line. In a terminal it is in

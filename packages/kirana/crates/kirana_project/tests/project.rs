@@ -902,6 +902,64 @@ export const item = css({ padding: { base: "1rem", [menu.within("[data-slot]")]:
     assert_eq!(unused(&project), 1);
 }
 
+/// A check compiles components as the build and the editor do: a relation anchored only in a
+/// template is applied (KF-088), in a Vue, Svelte or Astro template and in an Angular one, inline or
+/// in its `.html` file; a block's diagnostics, its own and project-wide ones, are reported in the
+/// component, where its text is, and an Angular script's once.
+#[test]
+fn a_check_compiles_components_as_the_build_does() {
+    let files = [
+        (
+            "toggle.styles.ts",
+            "import { css, relation } from \"@kirana-style/core\"\nexport const toggle = relation(\"toggle\")\nexport const menu = relation(\"menu\")\nexport const panel = relation(\"panel\")\nexport const icon = css({ color: { base: \"red\", [toggle.within(\"[data-pressed]\")]: \"blue\" }, backgroundColor: { base: \"white\", [menu.within(\"[data-open]\")]: \"green\" }, borderColor: { base: \"gray\", [panel.within(\"[data-open]\")]: \"teal\" } })\n",
+        ),
+        (
+            "Toggle.vue",
+            "<script setup lang=\"ts\">\nimport { toggle, icon } from \"./toggle.styles\"\n</script>\n<template>\n  <Button :sx=\"[toggle.anchor]\"><i :sx=\"icon\" /></Button>\n</template>\n",
+        ),
+        (
+            "Card.svelte",
+            "<script>\nimport { css, relation } from \"@kirana-style/core\"\nconst card = relation(\"card\")\nconst tone = css({ color: { \"[data-a]\": \"red\", \"[data-b]\": \"blue\" } })\n</script>\n<div sx={[card.anchor, tone]}></div>\n",
+        ),
+        ("Empty.astro", "<p>No script.</p>\n"),
+        (
+            "menu.component.ts",
+            "import { Component } from \"@angular/core\"\nimport { css } from \"@kirana-style/core\"\nimport { menu } from \"./toggle.styles\"\nconst tone = css({ color: { \"[data-a]\": \"red\", \"[data-b]\": \"blue\" } })\n@Component({ selector: \"app-menu\", template: `<div [sx]=\"[menu.anchor, tone]\"></div>` })\nexport class Menu {\n  protected readonly menu = menu\n  protected readonly tone = tone\n}\n",
+        ),
+        (
+            "panel.component.ts",
+            "import { Component } from \"@angular/core\"\nimport { panel } from \"./toggle.styles\"\n@Component({ selector: \"app-panel\", templateUrl: \"./panel.component.html\" })\nexport class Panel {\n  protected readonly panel = panel\n}\n",
+        ),
+        ("panel.component.html", "<section [sx]=\"panel.anchor\"></section>\n"),
+        // A template no component names compiles nothing.
+        ("stray.html", "<p [sx]=\"panel.anchor\"></p>\n"),
+    ];
+    let (root, project) = temp_project(&files);
+    let (diagnostics, sources) = project.compile_paths(std::slice::from_ref(&root));
+    let text = |file: &str| files.iter().find(|(name, _)| *name == file).map(|(_, text)| *text).unwrap();
+    let found: Vec<(Code, &str, &str)> = diagnostics
+        .iter()
+        .map(|diagnostic| {
+            let span = diagnostic.span.start as usize..diagnostic.span.end as usize;
+            (diagnostic.code, diagnostic.file.as_str(), &text(&diagnostic.file)[span])
+        })
+        .collect();
+    // The ties, in their scripts; the card's relation, anchored in the markup and read nowhere, where
+    // its script declares it. Every other relation is anchored in a template: nothing is unanchored.
+    assert_eq!(
+        found,
+        [
+            (Code::AmbiguousPrecedence, "menu.component.ts", "color"),
+            (Code::AmbiguousPrecedence, "Card.svelte", "color"),
+            (Code::RelationUnused, "Card.svelte", "relation(\"card\")")
+        ]
+    );
+    let named: Vec<&str> = sources.iter().map(|(name, _)| name.as_str()).collect();
+    assert_eq!(named, ["menu.component.ts", "Card.svelte"]);
+    assert_eq!(sources[1].1, text("Card.svelte"));
+    fs::remove_dir_all(root).unwrap();
+}
+
 /// A relation kept private whose readers leave its module inside an exported object is exported all
 /// the same (KF-024): a build that reaches the anchor and no reader says nothing. One whose anchor
 /// alone leaves is read nowhere else, and a report names where it is declared.

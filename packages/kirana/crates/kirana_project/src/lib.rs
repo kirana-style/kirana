@@ -4,6 +4,7 @@
 
 mod analyze;
 mod classes;
+pub mod component;
 mod describe;
 mod export;
 mod files;
@@ -31,7 +32,7 @@ pub use export::{
     Definition, DesignSystem, EntryExport, NamedExport, RecipeExport, RecipePartExport, StyleExport, ThemeExport,
     TokenExport,
 };
-pub use files::{SCRIPT_EXTENSIONS, absolute, collect_sources, plain_path};
+pub use files::{SCRIPT_EXTENSIONS, Tree, absolute, collect_sources, plain_path};
 pub use inspect::{Origin, RelationInfo, Site, SiteAtom, TokenInfo, split_light_dark};
 pub use registry::ModuleRecord;
 pub use trace::{RecipePart, TraceAnswer, TraceLine, TraceQuery};
@@ -634,17 +635,22 @@ impl Project {
     /// Transforms many files in parallel (KRN-CMP-009). Registry updates are ordered by path, so
     /// the result does not depend on thread scheduling.
     pub fn build(&self, paths: &[PathBuf]) -> Vec<(PathBuf, Result<Transformed, String>)> {
-        let mut sorted = paths.to_vec();
-        sorted.sort();
-        sorted.dedup();
-        let compile = |path: &PathBuf| {
+        self.each(paths, |path| {
             let result = self
                 .fs
                 .read_to_string(path)
                 .map(|source| self.transform(path, &source))
                 .map_err(|error| error.to_string());
             (path.clone(), result)
-        };
+        })
+    }
+
+    /// `compile` for each of `paths`, sorted and without repeats, in parallel unless the project
+    /// compiles serially; the results in path order.
+    pub(crate) fn each<T: Send>(&self, paths: &[PathBuf], compile: impl Fn(&PathBuf) -> T + Sync + Send) -> Vec<T> {
+        let mut sorted = paths.to_vec();
+        sorted.sort();
+        sorted.dedup();
         if self.serial.load(std::sync::atomic::Ordering::Relaxed) {
             sorted.iter().map(compile).collect()
         } else {
