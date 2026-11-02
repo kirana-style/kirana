@@ -185,12 +185,12 @@ as written does for that design: the installer takes them as they are.
 
 The other axes are flattened per file. A file that reads one axis alone, such as a
 palette of base colours, can carry a build for each value of that axis under
-`axes`, and installation replaces the file with the build for the project's value:
+`axes`, and installation replaces the file with the build for the project's value.
+`axes` sits beside `axis` and `builds`, which always come together, or alone in an
+item with no style modules, such as a design system's colours:
 
 ```json
 "flattened": {
-  "axis": "style",
-  "builds": {},
   "axes": {
     "baseColor": {
       "stone": [{ "path": "kit/base-colors.ts", "type": "lib", "content": "…", "hash": "sha256-…" }]

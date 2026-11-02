@@ -97,6 +97,14 @@ describe("validate: the JSON Schema subset the registry's schemas use", () => {
     expect(validate({ a: 1 }, {})).toEqual([])
   })
 
+  it("wants a key's companions beside it", () => {
+    const schema: Schema = { dependentRequired: { a: ["b", "c"] } }
+    expect(validate({ a: 1, b: 2 }, schema)).toEqual([
+      { pointer: "/c", message: "is required with a" },
+    ])
+    expect(validate({ b: 2 }, schema)).toEqual([])
+  })
+
   it("writes keys holding ~ and / as a JSON pointer does", () => {
     expect(
       validate({ "a/b~c": 1 }, { additionalProperties: false })[0]!.pointer

@@ -1,8 +1,8 @@
 /**
  * Checks a document against one of `schema.ts`'s schemas, in the subset of JSON Schema they use:
- * `type`, `properties`, `patternProperties`, `additionalProperties`, `required`, `minProperties`,
- * `items`, `minItems`, `enum`, `const`, `pattern`, `minLength`, `anyOf`, and `$ref` into the root's
- * `$defs`.
+ * `type`, `properties`, `patternProperties`, `additionalProperties`, `required`,
+ * `dependentRequired`, `minProperties`, `items`, `minItems`, `enum`, `const`, `pattern`, `minLength`,
+ * `anyOf`, and `$ref` into the root's `$defs`.
  * A keyword outside it throws, so a schema cannot say more than this checks.
  */
 import type { Schema } from "./schema.ts"
@@ -23,6 +23,7 @@ const KEYWORDS = new Set([
   "patternProperties",
   "additionalProperties",
   "required",
+  "dependentRequired",
   "minProperties",
   "items",
   "minItems",
@@ -154,6 +155,16 @@ export function validate(document: unknown, root: Schema): Problem[] {
   ) {
     for (const name of schema.required ?? [])
       if (!(name in value)) report(`${pointer}/${escape(name)}`, "is required")
+    for (const [name, companions] of Object.entries(
+      schema.dependentRequired ?? {}
+    ))
+      if (name in value)
+        for (const companion of companions)
+          if (!(companion in value))
+            report(
+              `${pointer}/${escape(companion)}`,
+              `is required with ${name}`
+            )
     const keys = Object.keys(value)
     if (
       schema.minProperties !== undefined &&

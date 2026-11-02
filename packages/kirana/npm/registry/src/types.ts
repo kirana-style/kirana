@@ -71,10 +71,14 @@ export type Design = {
   presets?: Record<string, PresetField[]>
 }
 
-/** Style modules flattened for each value of `axis` and each base (D-110). */
+/**
+ * Style modules flattened for each value of `axis` and each base (D-110), and the files built per
+ * value of another axis (`axes`). `axis` and `builds` come together; an item with no style modules
+ * publishes `axes` alone (KF-084).
+ */
 export type Flattened = {
-  axis: string
-  builds: Record<string, Record<string, RegistryFile[]>>
+  axis?: string
+  builds?: Record<string, Record<string, RegistryFile[]>>
   /**
    * The files that read one other axis alone, built for each of its values (KF-080): each build
    * replaces the item's file of the same type and path.

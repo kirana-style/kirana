@@ -353,12 +353,13 @@ describe("D-110 kirana-style ui add takes the registry's flattening", () => {
   })
 })
 
-/** The kit with its tokens built for each colour but one, and shared's styles for a colour too. */
+/**
+ * The kit with its tokens built for each colour but one, and no style builds (KF-084); shared's
+ * styles for a colour too.
+ */
 const KIT_BY_COLOR: Item = {
   ...KIT,
   flattened: {
-    axis: "style",
-    builds: {},
     axes: {
       color: {
         stone: [file("kit/tokens.ts", "export const stone = {}\n", "lib")],
