@@ -4,13 +4,19 @@ import { describe, expect, it } from "vite-plus/test"
 
 import * as states from "../src/ark-ui.ts"
 import {
+  ColorPicker,
+  DatePicker,
   Dialog,
+  Drawer,
   Menu,
   Progress,
   RadioGroup,
   SegmentGroup,
+  Splitter,
+  Steps,
   Switch,
   Tabs,
+  Tour,
 } from "../src/ark-ui.ts"
 import { entries, SELECTOR } from "./entries.ts"
 
@@ -96,6 +102,54 @@ describe("@kirana-style/states/ark-ui", () => {
     expect(SegmentGroup.Root.orientation.vertical).toBe(
       '[data-orientation="vertical"]'
     )
+  })
+
+  it("gives a part the getter its module merges, by another part's name (R3-FIX-27)", () => {
+    // `Menu.CheckboxItem` and `Menu.RadioItem` merge `getOptionItemProps`, which spreads the item's.
+    expect(Menu.CheckboxItem).toEqual(Menu.RadioItem)
+    expect(Menu.CheckboxItem).toMatchObject({
+      state: {
+        checked: '[data-state="checked"]',
+        unchecked: '[data-state="unchecked"]',
+      },
+      disabled: Menu.Item.disabled,
+      highlighted: Menu.Item.highlighted,
+    })
+    // Parts that render another part's element, under their own name.
+    expect(Steps.CompletedContent).toEqual(Steps.Content)
+    expect(ColorPicker.ValueSwatch).toEqual(ColorPicker.Swatch)
+    // Splitter's getter has no `Props` in its name: `getResizeTriggerIndicator`.
+    expect(Splitter.ResizeTriggerIndicator.dragging).toBe("[data-dragging]")
+  })
+
+  it("merges the getters a Date Picker cell takes per view (R3-FIX-27)", () => {
+    // `TableCell` merges `getDayTableCellProps`, `getMonthTableCellProps` or `getYearTableCellProps`.
+    expect(DatePicker.TableCell.selected).toBe("[data-selected]")
+    expect(DatePicker.TableCellTrigger).toMatchObject({
+      today: "[data-today]",
+      weekend: "[data-weekend]",
+      selected: "[data-selected]",
+      inRange: "[data-in-range]",
+      rangeStart: "[data-range-start]",
+      outsideRange: "[data-outside-range]",
+      unavailable: "[data-unavailable]",
+    })
+  })
+
+  it("follows what a getter merges, and the getters beside connect (R3-FIX-27)", () => {
+    // Menu's `getTriggerItemProps` merges the item's props with the submenu trigger's.
+    expect(Menu.TriggerItem).toMatchObject({
+      highlighted: Menu.Item.highlighted,
+      state: { open: '[data-state="open"]', closed: '[data-state="closed"]' },
+    })
+    // Drawer's `Indent` takes `connectStack`'s getter; Ark UI's presence writes `data-state` on
+    // a tab's content and the tour's spotlight.
+    expect(Drawer.Indent.active).toBe("[data-active]")
+    expect(Drawer.IndentBackground).toEqual(Drawer.Indent)
+    expect(Tabs.Content.state).toEqual(Tour.Spotlight.state)
+    expect(Tabs.Content.state.closed).toBe('[data-state="closed"]')
+    // `RootProvider` renders the root's element: `Root`'s keys are its.
+    expect(Tabs).not.toHaveProperty("RootProvider")
   })
 
   it("compiles as condition keys", () => {

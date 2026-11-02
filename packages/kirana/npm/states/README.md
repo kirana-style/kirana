@@ -70,7 +70,12 @@ a number (`index`) is its attribute's presence. Ark UI's `orientation` takes its
 `Orientation` type (`@zag-js/types`), since Zag's reference describes it in prose. Ark UI's parts
 also have what their prop getter in Zag's code sets and the reference leaves out, through the helpers
 it spreads: Radio Group's `Item`, `ItemText` and the item states of its `ItemControl`. Segment Group,
-which runs Radio Group's machine, has the same parts under its own name.
+which runs Radio Group's machine, has the same parts under its own name. A part whose component merges
+another part's getter onto its element has that getter's states: `Menu.CheckboxItem` and
+`Menu.RadioItem` the option item's, Date Picker's `TableCell` and `TableCellTrigger` those of the
+day, month and year cells, and a part that mounts and unmounts the `open` and `closed` Ark UI's
+presence writes (`Tabs.Content.state.open`). `RootProvider` has no entry: it renders `Root`'s
+element, which `Root`'s keys style.
 
 For another library, or your own components, write the same shape in a module of your own; see
 [States](https://kirana.style/docs/styling/states).
@@ -124,6 +129,10 @@ The Ark UI vocabulary's component and part names, state names and descriptions c
 > NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES
 > OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 > CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+The Ark UI vocabulary also reads Ark UI's own components (`@ark-ui/react` 5.39.3, Copyright (c) 2024
+Chakra UI, under the same MIT License): its part names, the states of its Field and Fieldset, the
+getters each part merges and the `open` and `closed` its presence writes.
 
 The React Aria vocabulary's component names, state names, selectors and descriptions come from
 `react-aria-components` 1.22.1, Copyright 2019 Adobe, used under the Apache License 2.0, whose full

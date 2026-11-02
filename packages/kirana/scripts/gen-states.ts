@@ -8,7 +8,8 @@
  *   `<Part>DataAttributes` module, plus the `open` states its implementation writes (`openAttributes`).
  * - `ark-ui.ts` from `@zag-js/docs` (MIT, Copyright (c) 2021 Chakra UI), the data-attribute reference
  *   of the Zag machines Ark UI is built on, with what each part's prop getter in the machine's
- *   `connect` sets that the reference leaves out, kept to the parts `@ark-ui/react` exports.
+ *   `connect` sets that the reference leaves out, kept to the parts `@ark-ui/react` exports, and the
+ *   getters a part's module merges under another part's name.
  * - `react-aria.ts` from `react-aria-components` (Apache-2.0, Copyright 2019 Adobe; the licence
  *   ships in the package's `licenses/`): the `@selector` of each `<Name>RenderProps` interface.
  * - `reka-ui.ts` (MIT, Copyright (c) 2023 UnoVue), `bits-ui.ts` (MIT, Copyright (c) 2023 Hunter
@@ -339,6 +340,15 @@ function descendants(node: unknown, out: Node[] = []): Node[] {
   return out
 }
 
+/** A module's syntax tree, every node in source order; throws if it is missing or does not parse. */
+function parsed(file: string): Node[] {
+  const name = path.basename(file)
+  if (!existsSync(file)) throw new Error(`${name} is missing`)
+  const { program, errors } = parseSync(name, readFileSync(file, "utf8"))
+  if (errors.length > 0) throw new Error(`${name}: ${errors[0]!.message}`)
+  return descendants(program)
+}
+
 const identifier = (node: unknown) =>
   (node as Node | null)?.type === "Identifier"
     ? ((node as Node).name as string)
@@ -430,11 +440,17 @@ function merge(into: Map<string, Written>, attribute: string, more: Written) {
  * The `data-*` attributes a getter (or a helper it spreads) sets, in source order: each
  * `"data-x": …` under it, and what it spreads from a function of the module
  * (`...getItemDataAttrs(props)`, as Radio Group's item parts do, KF-087) or from a const
- * (`...dataAttrs`, as Checkbox's parts do).
+ * (`...dataAttrs`, as Checkbox's parts do). What it merges is read as spread, and another
+ * machine's getter as this module's of that name: Menu's `getTriggerItemProps` returns
+ * `mergeProps(getItemProps(…), childApi.getTriggerProps())` (R3-FIX-27).
  */
 function getterAttributes(
   root: Node,
-  module: { functions: ReadonlyMap<string, Node>; shared: Map<string, Node> },
+  module: {
+    functions: ReadonlyMap<string, Node>
+    shared: Map<string, Node>
+    getters: ReadonlyMap<string, Node>
+  },
   out = new Map<string, Written>(),
   seen = new Set<Node>()
 ): Map<string, Written> {
@@ -442,6 +458,13 @@ function getterAttributes(
   seen.add(root)
   const nodes = descendants(root)
   const scope = new Map([...module.shared, ...declarations(nodes)])
+  const called = (expression: Node | undefined) => {
+    if (expression?.type !== "CallExpression") return undefined
+    const callee = expression.callee as Node
+    return callee.type === "MemberExpression"
+      ? module.getters.get(identifier(callee.property) ?? "")
+      : module.functions.get(identifier(callee) ?? "")
+  }
   for (const node of nodes) {
     const key = (node.key as Node | undefined)?.value
     if (
@@ -451,35 +474,42 @@ function getterAttributes(
       key.startsWith("data-")
     )
       merge(out, key, written(node.value as Node, scope))
-    if (node.type !== "SpreadElement") continue
-    const argument = node.argument as Node
     const spread =
-      argument.type === "CallExpression"
-        ? module.functions.get(identifier(argument.callee) ?? "")
-        : scope.get(identifier(argument) ?? "")
-    if (spread) getterAttributes(spread, module, out, seen)
+      node.type === "SpreadElement"
+        ? [node.argument as Node]
+        : node.type === "CallExpression" &&
+            identifier(node.callee) === "mergeProps"
+          ? (node.arguments as Node[])
+          : []
+    for (const argument of spread) {
+      const named = scope.get(identifier(argument) ?? "")
+      const target = called(argument) ?? called(named) ?? named
+      if (target) getterAttributes(target, module, out, seen)
+    }
   }
   return out
 }
 
 /**
- * What each part's prop getter in a Zag machine's `connect` sets (KF-087), by part: the methods of
- * the object `connect` returns, `getItemControlProps(props) { return normalize.element({ … }) }` for
- * `ItemControl`, or a function it names there (`getItemProps,`). Zag's reference leaves some of them
- * out: Radio Group's `Item` and `ItemText`, and all but `data-active` on its `ItemControl`. Read by
+ * What each prop getter in a Zag machine's `connect` sets (KF-087), by getter: the methods of the
+ * object `connect` returns, `getItemControlProps(props) { return normalize.element({ … }) }`, or a
+ * function it names there (`getItemProps,`). Zag's reference leaves some of them out: Radio Group's
+ * `Item` and `ItemText`, and all but `data-active` on its `ItemControl`. Another function that
+ * returns getters is read the same way (`connectStack`, Ark UI's `usePresence`, R3-FIX-27). Read by
  * the module's syntax tree, and throws if the shape is gone, so a Zag release that changes it fails
  * here rather than generating less.
  */
-function zagConnect(file: string): Map<string, Map<string, Written>> {
+function zagConnect(
+  file: string,
+  fn = "connect"
+): Map<string, Map<string, Written>> {
   const name = path.basename(file)
-  if (!existsSync(file)) throw new Error(`${name} is missing`)
-  const { program, errors } = parseSync(name, readFileSync(file, "utf8"))
-  if (errors.length > 0) throw new Error(`${name}: ${errors[0]!.message}`)
-  const all = descendants(program)
-  const connect = all.find(
-    (node) =>
-      node.type === "FunctionDeclaration" && identifier(node.id) === "connect"
-  )
+  const all = parsed(file)
+  const connect =
+    all.find(
+      (node) =>
+        node.type === "FunctionDeclaration" && identifier(node.id) === fn
+    ) ?? declarations(all).get(fn)
   const statements = ((connect?.body as Node | undefined)?.body ?? []) as Node[]
   const returned = statements.find(
     (statement) =>
@@ -487,7 +517,7 @@ function zagConnect(file: string): Map<string, Map<string, Written>> {
       (statement.argument as Node | null)?.type === "ObjectExpression"
   )?.argument as Node | undefined
   if (!returned)
-    throw new Error(`${name} no longer returns its getters from connect()`)
+    throw new Error(`${name} no longer returns its getters from ${fn}()`)
   // The module's functions, `function getItemDataAttrs(props) { … }` or a const holding one.
   const functions = new Map<string, Node>()
   for (const node of all) {
@@ -505,38 +535,35 @@ function zagConnect(file: string): Map<string, Map<string, Written>> {
   // The consts of `connect`'s body and of the module (`const dataAttrs = { … }`), not those of
   // another getter's body.
   const shared = declarations(
-    [...statements, ...(program.body as unknown as Node[])].flatMap(
-      (statement) =>
-        statement.type === "VariableDeclaration"
-          ? (statement.declarations as Node[])
-          : []
+    [...statements, ...(all[0]!.body as Node[])].flatMap((statement) =>
+      statement.type === "VariableDeclaration"
+        ? (statement.declarations as Node[])
+        : []
     )
   )
-  const byPart = new Map<string, Map<string, Written>>()
+  // Each getter's function, `getItemProps` or one without `Props` (Splitter's
+  // `getResizeTriggerIndicator`), so another machine's call of one can be followed.
+  const getters = new Map<string, Node>()
   for (const property of returned.properties as Node[]) {
     const key = identifier(property.key) ?? ""
-    if (
-      property.type !== "Property" ||
-      !key.startsWith("get") ||
-      !key.endsWith("Props") ||
-      key.length <= "getProps".length
-    )
-      continue
+    if (property.type !== "Property" || !/^get[A-Z]/.test(key)) continue
     const value = property.value as Node
     const named = identifier(value)
     const getter = named ? functions.get(named) : value
-    if (!getter)
+    if (!getter && key.endsWith("Props"))
       throw new Error(
-        `connect() returns ${key}, which ${name} no longer declares`
+        `${fn}() returns ${key}, which ${name} no longer declares`
       )
-    if (getter.type.includes("Function"))
-      byPart.set(
-        key.slice("get".length, -"Props".length),
-        getterAttributes(getter, { functions, shared })
-      )
+    if (getter?.type.includes("Function")) getters.set(key, getter)
   }
-  if (byPart.size === 0) throw new Error(`${name} no longer has prop getters`)
-  return byPart
+  if (![...getters.keys()].some((key) => key.endsWith("Props")))
+    throw new Error(`${name} no longer has prop getters`)
+  return new Map(
+    [...getters].map(([key, getter]) => [
+      key,
+      getterAttributes(getter, { functions, shared, getters }),
+    ])
+  )
 }
 
 /**
@@ -607,10 +634,102 @@ function presenceDocs(
     ""
 }
 
+/** An Ark UI component's folder: `dist/components/segment-group`. */
+const arkFolder = (arkDirectory: string, name: string) =>
+  path.join(
+    arkDirectory,
+    "dist/components",
+    name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
+  )
+
 /** An Ark UI component's hook: `dist/components/segment-group/use-segment-group.js`. */
 function arkHook(arkDirectory: string, name: string): string {
-  const kebab = name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
-  return path.join(arkDirectory, "dist/components", kebab, `use-${kebab}.js`)
+  const folder = arkFolder(arkDirectory, name)
+  return path.join(folder, `use-${path.basename(folder)}.js`)
+}
+
+/**
+ * Each part's module, by the component's own (`menu/menu.js`): `export { MenuCheckboxItem as
+ * CheckboxItem }` of `import { MenuCheckboxItem } from "./menu-checkbox-item.js"` (R3-FIX-27).
+ */
+function arkPartFiles(arkDirectory: string, name: string): Map<string, string> {
+  const folder = arkFolder(arkDirectory, name)
+  const all = parsed(path.join(folder, `${path.basename(folder)}.js`))
+  const imported = new Map<string, string>()
+  for (const node of all)
+    if (node.type === "ImportDeclaration")
+      for (const specifier of node.specifiers as Node[])
+        imported.set(
+          identifier(specifier.local)!,
+          (node.source as Node).value as string
+        )
+  const out = new Map<string, string>()
+  for (const node of all)
+    if (node.type === "ExportNamedDeclaration")
+      for (const specifier of node.specifiers as Node[]) {
+        const source = imported.get(identifier(specifier.local) ?? "")
+        if (source?.startsWith("./"))
+          out.set(identifier(specifier.exported)!, path.join(folder, source))
+      }
+  return out
+}
+
+/**
+ * The getters whose props an Ark UI part merges onto its element, in source order: each
+ * `menu.getOptionItemProps(…)` among the arguments of its `mergeProps(…)`, through the consts they
+ * name, as Date Picker's `TableCell` takes one per view from `{ day: datePicker.getDayTableCellProps,
+ * … }` (R3-FIX-27). A getter it calls for something else (an id, a child's props) is not merged.
+ */
+function arkCalls(file: string): string[] {
+  const all = parsed(file)
+  const scope = declarations(all)
+  const out: string[] = []
+  const seen = new Set<Node>()
+  const visit = (root: Node) => {
+    if (seen.has(root)) return
+    seen.add(root)
+    for (const node of descendants(root)) {
+      const property = identifier(node.property)
+      if (
+        node.type === "MemberExpression" &&
+        !node.computed &&
+        property &&
+        /^get[A-Z]/.test(property) &&
+        !out.includes(property)
+      )
+        out.push(property)
+      const named = scope.get(identifier(node) ?? "")
+      if (named) visit(named)
+    }
+  }
+  for (const node of all)
+    if (
+      node.type === "CallExpression" &&
+      identifier(node.callee) === "mergeProps"
+    )
+      for (const argument of node.arguments as Node[]) visit(argument)
+  return out
+}
+
+/**
+ * The getters of a Zag machine's `connect`, then those of any other `connect…` its package's index
+ * imports, under names `connect` does not use: Drawer's `connectStack` has `getIndentProps`
+ * (R3-FIX-27).
+ */
+function zagGetters(directory: string, machine: string) {
+  const dist = path.join(directory, "dist")
+  const out = zagConnect(path.join(dist, `${machine}.connect.mjs`))
+  for (const node of parsed(path.join(dist, "index.mjs"))) {
+    if (node.type !== "ImportDeclaration") continue
+    for (const specifier of node.specifiers as Node[]) {
+      const fn = identifier(specifier.imported)
+      if (!fn?.startsWith("connect") || fn === "connect") continue
+      const file = path.join(dist, (node.source as Node).value as string)
+      for (const [getter, attributes] of zagConnect(file, fn))
+        if (!out.has(getter)) out.set(getter, attributes)
+    }
+  }
+  return out
 }
 
 /** The Zag machine a hook runs, by the `@zag-js/<machine>` it imports beside `@zag-js/react`. */
@@ -644,55 +763,88 @@ async function arkUi(): Promise<{ vocabulary: Vocabulary; version: string }> {
     const machine = arkMachine(arkHook(arkDirectory, name))
     if (machine && machine in reference) machines.set(name, machine)
   }
+  // What Ark UI's presence hook merges onto a part that mounts and unmounts (R3-FIX-27).
+  const presence = zagConnect(
+    path.join(arkFolder(arkDirectory, "Presence"), "use-presence.js"),
+    "usePresence"
+  )
   const out: Vocabulary = new Map()
   for (const [name, machine] of machines) {
     const exported = ark[name]
     if (!exported || typeof exported !== "object") continue
-    const byPart = new Map<string, State[]>()
-    for (const [part, attributes] of Object.entries(reference[machine]!)) {
-      if (!(part in exported)) continue
-      byPart.set(
-        part,
-        Object.entries(attributes)
-          // `data-scope` and `data-part` name the part on every element of it: not states.
-          .filter(
-            ([attribute]) =>
-              attribute !== "data-scope" && attribute !== "data-part"
-          )
-          .map(([attribute, described]) => {
-            const state = zagState(attribute, described)
-            const values = state.values.length
-              ? undefined
-              : typed.get(attribute)
-            return values ? { ...state, values } : state
+    // A value one source's union leaves out; a presence the reference describes stays one.
+    const add = (list: State[], state: State) => {
+      const known = list.find((other) => other.attribute === state.attribute)
+      if (!known) list.push(state)
+      else if (known.values.length)
+        for (const value of state.values)
+          if (!known.values.includes(value)) known.values.push(value)
+    }
+    const fromReference = (list: State[], part: string) => {
+      for (const [attribute, described] of Object.entries(
+        reference[machine]![part] ?? {}
+      )) {
+        // `data-scope` and `data-part` name the part on every element of it: not states.
+        if (attribute === "data-scope" || attribute === "data-part") continue
+        const state = zagState(attribute, described)
+        const values = state.values.length ? undefined : typed.get(attribute)
+        add(list, values ? { ...state, values } : state)
+      }
+    }
+    const fromGetter = (list: State[], attributes: Map<string, Written>) => {
+      for (const [attribute, wrote] of attributes) {
+        const state = connectState(attribute, wrote, typed)
+        if (state)
+          add(list, {
+            ...state,
+            doc: state.values.length ? "" : describe(machine, attribute),
           })
-      )
+      }
+    }
+    const byPart = new Map<string, State[]>()
+    for (const part of Object.keys(reference[machine]!)) {
+      if (!(part in exported)) continue
+      const list: State[] = []
+      fromReference(list, part)
+      byPart.set(part, list)
     }
     if (byPart.size === 0) continue
     // What the reference leaves out, after what it gives, which keeps its descriptions (KF-087).
     const manifest = zag.resolve(`@zag-js/${machine}/package.json`)
-    const file = path.join(
-      path.dirname(manifest),
-      `dist/${machine}.connect.mjs`
-    )
-    for (const [part, attributes] of zagConnect(file)) {
-      if (!(part in exported)) continue
+    const getters = zagGetters(path.dirname(manifest), machine)
+    for (const [getter, attributes] of getters) {
+      const part = /^get(\w+)Props$/.exec(getter)?.[1]
+      if (!part || !(part in exported)) continue
       const list = byPart.get(part) ?? []
-      for (const [attribute, wrote] of attributes) {
-        const state = connectState(attribute, wrote, typed)
-        if (!state) continue
-        const known = list.find((other) => other.attribute === attribute)
-        if (!known)
-          list.push({
-            ...state,
-            doc: state.values.length ? "" : describe(machine, attribute),
-          })
-        // A value the reference's union leaves out; a presence it describes stays one.
-        else if (known.values.length)
-          for (const value of state.values)
-            if (!known.values.includes(value)) known.values.push(value)
-      }
+      fromGetter(list, attributes)
       if (list.length > 0 || byPart.has(part)) byPart.set(part, list)
+    }
+    // A part whose module merges another part's getter, or several, has their states after its own
+    // (R3-FIX-27): Menu's `CheckboxItem` merges `getOptionItemProps`, Date Picker's `TableCell` one
+    // getter per view, a part that mounts and unmounts `usePresence`'s. `RootProvider` renders
+    // `Root`'s element for a machine made elsewhere, so `Root`'s keys are its.
+    const files = arkPartFiles(arkDirectory, name)
+    for (const part of Object.keys(exported)) {
+      if (!/^[A-Z]/.test(part) || part === "RootProvider") continue
+      const file = files.get(part)
+      if (!file)
+        throw new Error(`${name}.${part} is no longer exported by its module`)
+      const merged = arkCalls(file).filter(
+        (getter) => getter !== `get${part}Props`
+      )
+      if (merged.length === 0) continue
+      const list = byPart.get(part) ?? []
+      for (const getter of merged)
+        fromReference(list, getter.replace(/^get|Props$/g, ""))
+      for (const getter of merged) {
+        const attributes = getters.get(getter) ?? presence.get(getter)
+        if (!attributes)
+          throw new Error(
+            `${name}.${part} merges ${getter}, which neither ${machine}'s connect nor usePresence returns`
+          )
+        fromGetter(list, attributes)
+      }
+      if (list.length > 0) byPart.set(part, list)
     }
     out.set(name, byPart)
   }
@@ -1310,8 +1462,9 @@ const outputs = [
     "Ark UI",
     [
       `// @generated by scripts/gen-states.ts from @zag-js/docs ${ark.version} and the prop getters of the`,
-      "// Zag machines Ark UI is built on (MIT, Copyright (c) 2021 Chakra UI): the descriptions are",
-      "// Zag's. Do not edit.",
+      "// Zag machines Ark UI is built on (MIT, Copyright (c) 2021 Chakra UI), with the parts and the",
+      "// getters each merges from Ark UI's components (MIT, Copyright (c) 2024 Chakra UI): the",
+      "// descriptions are Zag's. Do not edit.",
     ],
     ark.vocabulary
   ),

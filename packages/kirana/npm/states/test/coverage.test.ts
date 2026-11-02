@@ -17,6 +17,26 @@ const files = (directory: string): string[] =>
     .filter((entry) => entry.isFile())
     .map((entry) => path.join(entry.parentPath, entry.name))
 
+/** Zag's data-attribute reference, by machine and part. */
+const zagReference = () =>
+  JSON.parse(
+    readFileSync(
+      path.join(packageOf("@zag-js/docs"), "data/data-attr.json"),
+      "utf8"
+    )
+  ) as Record<string, Record<string, Record<string, string>>>
+
+/** An Ark UI component's hook, and the machine it imports: Segment Group runs Radio Group's (KF-087). */
+function arkHook(components: string, folder: string) {
+  const hook = path.join(components, folder, `use-${folder}.js`)
+  const source = existsSync(hook) ? readFileSync(hook, "utf8") : ""
+  const runs =
+    [...source.matchAll(/from "@zag-js\/([a-z-]+)"/g)]
+      .map(([, name]) => name!)
+      .find((name) => name !== "react") ?? folder
+  return { source, runs }
+}
+
 /**
  * Each library's components that write a state, read more simply than the generator does (any
  * `data-*` attribute their files set that is not a part's name on its element), against the
@@ -49,12 +69,7 @@ describe("every component that writes a state has a vocabulary", () => {
   })
 
   it("Ark UI", () => {
-    const zag = JSON.parse(
-      readFileSync(
-        path.join(packageOf("@zag-js/docs"), "data/data-attr.json"),
-        "utf8"
-      )
-    ) as Record<string, Record<string, Record<string, string>>>
+    const zag = zagReference()
     const components = path.join(packageOf("@ark-ui/react"), "dist/components")
     // Machinery with no state of its own to style: presence, a swap's animation, a JSON viewer's nodes.
     const internal = new Set(["Presence", "Swap", "JsonTreeView"])
@@ -64,13 +79,7 @@ describe("every component that writes a state has a vocabulary", () => {
         letter.toUpperCase()
       )
       if (internal.has(component)) continue
-      const hook = path.join(components, folder, `use-${folder}.js`)
-      const source = existsSync(hook) ? readFileSync(hook, "utf8") : ""
-      // The machine its hook imports: Segment Group runs Radio Group's (KF-087).
-      const runs =
-        [...source.matchAll(/from "@zag-js\/([a-z-]+)"/g)]
-          .map(([, name]) => name!)
-          .find((name) => name !== "react") ?? folder
+      const { source, runs } = arkHook(components, folder)
       const machine = Object.values(zag[runs] ?? {}).some((attributes) =>
         Object.keys(attributes).some(
           (name) => name !== "data-scope" && name !== "data-part"
@@ -78,6 +87,44 @@ describe("every component that writes a state has a vocabulary", () => {
       )
       const own = source.includes("dataAttr(")
       if ((machine || own) && !(component in ark)) missing.push(component)
+    }
+    expect(missing).toEqual([])
+  })
+
+  it("Ark UI's parts, by the getters their modules call", () => {
+    const zag = zagReference()
+    const components = path.join(packageOf("@ark-ui/react"), "dist/components")
+    const missing: string[] = []
+    for (const [component, parts] of Object.entries(ark)) {
+      if (component === "exclusive") continue
+      const folder = component.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
+      const { runs } = arkHook(components, folder)
+      // `export { MenuCheckboxItem as CheckboxItem }`, from `./menu-checkbox-item.js`: a part whose
+      // module calls a getter the reference gives states (`getOptionItemProps`) has them (R3-FIX-27).
+      // `RootProvider` renders the root's element, under `Root`'s keys.
+      const namespace = readFileSync(
+        path.join(components, folder, `${folder}.js`),
+        "utf8"
+      )
+      for (const [, local, part] of namespace.matchAll(
+        /(\w+) as ([A-Z]\w*)/g
+      )) {
+        const file = namespace.match(
+          new RegExp(`import \\{ ${local} \\} from "\\./([\\w-]+\\.js)"`)
+        )?.[1]
+        if (!file || part === "RootProvider") continue
+        const writes = [
+          ...readFileSync(path.join(components, folder, file), "utf8").matchAll(
+            /\.get([A-Z]\w*?)(?:Props)?\b/g
+          ),
+        ].some(([, name]) =>
+          Object.keys(zag[runs]?.[name!] ?? {}).some(
+            (attribute) =>
+              attribute !== "data-scope" && attribute !== "data-part"
+          )
+        )
+        if (writes && !(part! in parts)) missing.push(`${component}.${part}`)
+      }
     }
     expect(missing).toEqual([])
   })

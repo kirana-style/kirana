@@ -94,6 +94,10 @@ They differ where the libraries do:
   the reference leaves it out, as on Radio Group's items:
   `RadioGroup.Item.state.checked`. Segment Group runs Radio Group's machine and
   has the same parts.
+- **An Ark UI part built on another part's getter** has that getter's states:
+  `Menu.CheckboxItem.state.checked` takes the option item's, and
+  `DatePicker.TableCellTrigger.today` the day cell's. A root provider has no
+  entry: it renders the root's element, which `Root`'s keys style.
 - **React Aria** names a component per part, with no namespace:
   `Button.focusVisible`, `ListBoxItem.selected`. A state a component inherits
   from another's render props is there too.
