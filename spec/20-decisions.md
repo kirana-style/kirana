@@ -1858,6 +1858,27 @@ the implementation tracker names its evidence.
   [07-tokens-themes-presets](./07-tokens-themes-presets.md),
   [08-conditions-and-cascade](./08-conditions-and-cascade.md).
 
+### D-119 — A component's physical side that beats a caller's logical one is reported
+
+- **Status:** Accepted (2026-11-02). Answers KF-083 without changing the merge.
+- **Decision:** a project component that writes `sx={[…, sx]}` with its own `sx` prop on an element
+  exports the handle of what comes before `sx` there, when the build knows it (`Exports::sx_roots`). A
+  caller's `<Card sx={…}>` whose value the build knows is merged after it, and every logical and
+  physical pair across the two (one side from the component, the other from the caller) that the
+  component's side wins is `mixed-logical-physical` (KRN1205) at the caller's `sx`, naming the
+  component and the sides: `Card sets padding-top and padding-bottom on the element it applies sx to,
+  and they win over padding-block-start and padding-block-end here`. A pair the caller wins, or one
+  within either side, is not this report.
+- **Rationale:** KF-083 asked for `paddingBlock: { "*": null }` to remove a component's `paddingTop`
+  and `paddingBottom`, as `padding` does. One logical axis keeps to what it names because which physical
+  sides it is depends on the writing mode (08, KF-076): in vertical text the block axis is left and
+  right. So the merge stays, and the override that silently loses is reported where it is written,
+  where the fix is (set the physical sides, as the component does).
+- **Trade-off:** only a component whose root styles before `sx` are known at build time, imported
+  from project source, is checked; a component that merges `sx` elsewhere (`props(styles.root, sx)`)
+  or reads its root styles from props is not. The caller's value must be known at build time too.
+- **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md#merge-semantics).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                                            |
@@ -1865,7 +1886,7 @@ the implementation tracker names its evidence.
 | the brand notes                                               | D-001                                                                                                                                                                                |
 | [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101, D-112, D-115, D-117 |
 | [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099, D-115, D-117                                                                                     |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114, D-117                      |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114, D-117, D-119               |
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                                      |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116                                                                              |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                           |

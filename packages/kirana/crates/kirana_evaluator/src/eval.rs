@@ -675,6 +675,14 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         Some((identifier.name.to_string(), package))
     }
 
+    /// For an element named by a component imported from project source: the component's name and
+    /// the handle its own styles give the element it applies `sx` to (KF-083).
+    pub fn sx_root_of(&self, identifier: &IdentifierReference<'a>) -> Option<(String, kirana_ir::Handle)> {
+        let (specifier, name) = self.import_of(identifier)?;
+        let root = self.host.sx_root(self.ctx.path, specifier, &name)?;
+        Some((identifier.name.to_string(), root))
+    }
+
     /// The import source of a module-scope binding, by name.
     pub(crate) fn import_source_of_name(&self, name: &str) -> Option<&'a str> {
         let scoping = self.parsed.semantic.scoping();

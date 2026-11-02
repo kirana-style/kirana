@@ -85,6 +85,18 @@
           "brotli": 17
         }
       },
+      "component-axes": {
+        "css": {
+          "raw": 478,
+          "gzip": 207,
+          "brotli": 177
+        },
+        "js": {
+          "raw": 1293,
+          "gzip": 626,
+          "brotli": 533
+        }
+      },
       "config-invalid": {
         "css": {
           "raw": 0,

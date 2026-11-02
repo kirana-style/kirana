@@ -364,6 +364,29 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
         })
     }
 
+    /// A caller's `sx` on a project component merges after the component's own styles, on the element
+    /// it applies `sx` to. One logical axis removes and sets only its logical sides, since which
+    /// physical side each one is depends on the writing mode (08), so a physical side the component
+    /// sets can still win over it there, silently: reported where the caller writes `sx` (KF-083).
+    fn component_axes(&mut self, component: &str, root: kirana_ir::Handle, attribute: &JSXAttribute<'a>) {
+        let Some(expression) = (match &attribute.value {
+            Some(JSXAttributeValue::ExpressionContainer(container)) => container.expression.as_expression(),
+            _ => None,
+        }) else {
+            return;
+        };
+        let caller = self.evaluator.quietly(|| self.evaluator.eval(expression));
+        let Some((winners, losers)) = self.evaluator.beaten_sides(root, &caller) else { return };
+        let wins = if winners.len() == 1 { "it wins" } else { "they win" };
+        let message = format!(
+            "{component} sets {} on the element it applies `sx` to, and {wins} over {} here: a logical side never replaces a physical one",
+            winners.join(" and "),
+            losers.join(" and ")
+        );
+        let help = format!("set {} here as well, as {component} does", winners.join(" and "));
+        self.report(DiagnosticCode::MixedLogicalPhysical, sx_span(attribute), &message, Some(&help));
+    }
+
     fn props_call(&mut self, call: &CallExpression<'a>) {
         let names = self.evaluator.context().names;
         let class = self.evaluator.context().config.jsx.class_attribute();
@@ -600,6 +623,10 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
                         "take `sx` out of that component's props and pass it on: sx={[styles.root, sx]} on an element, {...props(styles.root, sx)} on an installed component",
                     ),
                 );
+            } else if let Some((component, root)) =
+                element_root(&element.name).and_then(|root| self.evaluator.sx_root_of(root))
+            {
+                self.component_axes(&component, root, attribute);
             }
         }
         walk::walk_jsx_opening_element(self, element);

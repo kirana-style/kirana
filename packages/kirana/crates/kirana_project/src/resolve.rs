@@ -32,6 +32,8 @@ pub(crate) fn resolver() -> Resolver {
 #[derive(Debug, Default)]
 pub(crate) struct Exports {
     pub values: FxHashMap<String, Value>,
+    /// Exported components' own handle on the element they apply `sx` to, before it (KF-083).
+    pub sx_roots: FxHashMap<String, kirana_ir::Handle>,
     pub stars: Vec<String>,
     /// Exported components that spread `sx`, unread, into an installed package: name → package.
     pub sx_forwarding: FxHashMap<String, String>,
@@ -203,6 +205,7 @@ impl<'p> ModuleHost<'p> {
                 .collect();
             let exports = Exports {
                 values,
+                sx_roots: evaluator.sx_root_exports().into_iter().collect(),
                 stars: evaluator.star_exports(),
                 sx_forwarding: evaluator.sx_forwarding_exports().into_iter().collect(),
             };
@@ -304,6 +307,11 @@ impl Host for ModuleHost<'_> {
     fn sx_forwarded(&self, from: &Path, specifier: &str, name: &str) -> Option<String> {
         let path = self.project.resolved(from, specifier)?;
         self.exports_of(&path)?.sx_forwarding.get(name).cloned()
+    }
+
+    fn sx_root(&self, from: &Path, specifier: &str, name: &str) -> Option<kirana_ir::Handle> {
+        let path = self.project.resolve(from, specifier)?;
+        self.exports_of(&path)?.sx_roots.get(name).cloned()
     }
 
     fn cached_style(&self, key: &str) -> Option<Value> {

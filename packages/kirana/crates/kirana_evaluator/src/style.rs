@@ -312,6 +312,28 @@ impl<'a> Evaluator<'_, 'a, '_> {
     }
 
     /// Warnings that need a whole merged handle.
+    /// What a caller's `sx` value loses to a component's own styles on the element the component
+    /// applies it to (`root`, merged first): the component's physical sides that win over the
+    /// caller's logical ones there, or the reverse, as `(the component's sides, the caller's)`.
+    /// Nothing when the value is not known at build time or nothing is lost (KF-083).
+    pub fn beaten_sides(&self, root: Handle, caller: &Value) -> Option<(Vec<String>, Vec<String>)> {
+        let caller = static_handle(caller)?;
+        let (theirs, ours) = (covered(&root), covered(&caller));
+        let mut merged = root;
+        merged.absorb(caller);
+        let (mut winners, mut losers) = (Vec::new(), Vec::new());
+        for pair in mixed_logical_physical(&merged) {
+            let (winner, loser) =
+                if pair.winner == pair.logical { (pair.logical, pair.physical) } else { (pair.physical, pair.logical) };
+            // Each side pairs with one other, so neither list repeats.
+            if theirs.contains(&winner) && !ours.contains(&winner) && ours.contains(&loser) {
+                winners.push(winner);
+                losers.push(loser);
+            }
+        }
+        (!winners.is_empty()).then_some((winners, losers))
+    }
+
     pub(crate) fn check_handle(&self, handle: &Handle, entries: &[(Key, Value)], span: (u32, u32)) {
         let own = self.owned(&handle.own);
         let declared = kirana_ir::Declared {
@@ -864,7 +886,23 @@ impl<'a> Evaluator<'_, 'a, '_> {
     }
 }
 
-fn static_handle(value: &Value) -> Option<Handle> {
+/// The longhands a handle's entries set, shorthands through theirs.
+fn covered(handle: &Handle) -> Vec<String> {
+    let mut names = Vec::new();
+    for (key, _) in handle.entries() {
+        match kirana_cascade::known_longhands(&key.property.name) {
+            Some(longhands) if key.property.rank == Shorthand => {
+                names.extend(longhands.iter().map(|longhand| longhand.name.clone()));
+            }
+            _ => names.push(key.property.name.clone()),
+        }
+    }
+    names
+}
+
+/// The one handle a value applies when the build knows it: a handle, nothing, or an array of them
+/// merged in order.
+pub(crate) fn static_handle(value: &Value) -> Option<Handle> {
     match value {
         Value::Handle(handle) => Some((**handle).clone()),
         Value::Null | Value::Undefined | Value::Bool(false) => Some(Handle::default()),
