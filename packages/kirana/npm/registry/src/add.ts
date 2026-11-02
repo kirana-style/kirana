@@ -127,7 +127,8 @@ export function planItem(
   const build =
     value === undefined || base === undefined
       ? undefined
-      : flattened!.builds[value]?.[base]
+      : // `builds` comes with `axis` (KF-084).
+        flattened!.builds![value]?.[base]
   // Each file that reads one other axis alone, as the registry built it for the project's value.
   const built = Object.entries(flattened?.axes ?? {}).flatMap(
     ([name, values]) => {

@@ -18,6 +18,8 @@ export type Schema = {
   patternProperties?: Record<string, Schema>
   additionalProperties?: false | Schema
   required?: readonly string[]
+  /** Each property's companions: when it is present, they must be too. */
+  dependentRequired?: Readonly<Record<string, readonly string[]>>
   minProperties?: number
   items?: Schema
   minItems?: number
@@ -291,8 +293,9 @@ export const ITEM_SCHEMA: Schema = {
     flattened: {
       type: "object",
       description:
-        "Its style modules flattened for each value of `axis` and each base (D-110), in place of `styles`; with `axes`, the files that read one other axis alone, built for each of its values (KF-080).",
-      required: ["axis", "builds"],
+        "Its style modules flattened for each value of `axis` and each base (D-110), in place of `styles`; with `axes`, the files that read one other axis alone, built for each of its values (KF-080). `axis` and `builds` come together, and `axes` can stand alone (KF-084).",
+      minProperties: 1,
+      dependentRequired: { axis: ["builds"], builds: ["axis"] },
       properties: {
         axis: { type: "string", minLength: 1 },
         builds: {

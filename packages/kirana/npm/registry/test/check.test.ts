@@ -163,6 +163,30 @@ describe("KRN-DX-021 an item", () => {
     ])
   })
 
+  it("takes axis builds alone, and axis and builds only together (KF-084)", () => {
+    const item: Item = {
+      name: "kit",
+      type: "design-system",
+      version: "1.0.0",
+      files: [file("kit/palettes.ts", "lib", "every\n")],
+      flattened: {
+        axes: {
+          baseColor: { stone: [file("kit/palettes.ts", "lib", "stone\n")] },
+        },
+      },
+    }
+    expect(check(item).problems).toEqual([])
+    expect(check({ ...item, flattened: { axis: "style" } }).problems).toEqual([
+      { pointer: "/flattened/builds", message: "is required with axis" },
+    ])
+    expect(check({ ...item, flattened: { builds: {} } }).problems).toEqual([
+      { pointer: "/flattened/axis", message: "is required with builds" },
+    ])
+    expect(check({ ...item, flattened: {} }).problems).toEqual([
+      { pointer: "/flattened", message: "must have at least 1 entry" },
+    ])
+  })
+
   it("wants a target on a file of type file, and on no other", () => {
     const item: Item = {
       name: "setup",

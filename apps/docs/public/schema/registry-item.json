@@ -189,11 +189,16 @@
     },
     "flattened": {
       "type": "object",
-      "description": "Its style modules flattened for each value of `axis` and each base (D-110), in place of `styles`; with `axes`, the files that read one other axis alone, built for each of its values (KF-080).",
-      "required": [
-        "axis",
-        "builds"
-      ],
+      "description": "Its style modules flattened for each value of `axis` and each base (D-110), in place of `styles`; with `axes`, the files that read one other axis alone, built for each of its values (KF-080). `axis` and `builds` come together, and `axes` can stand alone (KF-084).",
+      "minProperties": 1,
+      "dependentRequired": {
+        "axis": [
+          "builds"
+        ],
+        "builds": [
+          "axis"
+        ]
+      },
       "properties": {
         "axis": {
           "type": "string",
