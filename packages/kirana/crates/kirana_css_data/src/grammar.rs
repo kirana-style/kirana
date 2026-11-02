@@ -632,9 +632,7 @@ impl Matcher {
                 Some(syntax) => self.deeper(&parsed(syntax), None, tokens, at),
                 None => one_if(at < tokens.len(), at),
             },
-            Node::Seq(items) => items.iter().fold(vec![at], |starts, item| {
-                starts.iter().flat_map(|&start| self.ends(item, tokens, start)).collect::<Vec<_>>()
-            }),
+            Node::Seq(items) => self.sequence(items, tokens, at),
             Node::One(options) => options.iter().flat_map(|option| self.ends(option, tokens, at)).collect(),
             Node::All(items) => self.unordered(items, tokens, at, true),
             Node::Any(items) => self.unordered(items, tokens, at, false),
@@ -643,6 +641,37 @@ impl Matcher {
         out.sort_unstable();
         out.dedup();
         out
+    }
+
+    /// A sequence, with the commas CSS leaves out (CSS Values 4, 2.6): a `,` is omitted when nothing
+    /// before it in the sequence matched, since its start or the last comma, or when nothing after it
+    /// does. So `background`'s `<bg-layer>#? , <final-bg-layer>` takes a single layer (KF-086). A
+    /// comma written where it could be left out still matches, so no valid value is refused.
+    fn sequence(&self, items: &[Node], tokens: &[Token<'_>], at: usize) -> Vec<usize> {
+        // Each path: where it stands, whether a component matched since the last comma, and whether
+        // a comma was left out after one, so that nothing after it may match.
+        let mut paths = vec![(at, false, false)];
+        for item in items {
+            let mut next = Vec::new();
+            for &(start, matched, closed) in &paths {
+                if *item == Node::Literal(',') {
+                    if !closed && tokens.get(start) == Some(&Token::Comma) {
+                        next.push((start + 1, false, false));
+                    }
+                    next.push((start, matched, closed || matched));
+                    continue;
+                }
+                for end in self.ends(item, tokens, start) {
+                    if !closed || end == start {
+                        next.push((end, matched || end > start, closed));
+                    }
+                }
+            }
+            next.sort_unstable();
+            next.dedup();
+            paths = next;
+        }
+        paths.into_iter().map(|(end, ..)| end).collect()
     }
 
     fn deeper(&self, node: &Node, range: Option<(f64, f64)>, tokens: &[Token<'_>], at: usize) -> Vec<usize> {
@@ -857,6 +886,16 @@ mod tests {
             ("transition-timing-function", "cubic-bezier(0.4, 0, 0.2, 1)"),
             ("padding", "inherit"),
             ("display", "revert-layer"),
+            // One layer: the comma before `<final-bg-layer>` is left out with the layers it follows
+            // (KF-086).
+            ("background", "red"),
+            ("background", "radial-gradient(red, blue)"),
+            ("background", "radial-gradient(120% 90% at 20% 10%, #7c3aed, #1e1b4b 55%, #020617)"),
+            ("background", "linear-gradient(135deg, red, blue 45%)"),
+            ("background", "conic-gradient(from 0deg at 50% 50%, red, blue)"),
+            ("background", "red radial-gradient(circle at 50% 50%, red, blue)"),
+            ("background", "url(a.png) center / cover no-repeat"),
+            ("background", "url(a.png) no-repeat, linear-gradient(red, blue), white"),
         ] {
             assert_eq!(verdict(property, value), Verdict::Accepted, "{property}: {value}");
         }
@@ -879,6 +918,8 @@ mod tests {
             ("border-style", "1px"),
             ("padding", "1rem,"),
             ("width", "\"text\""),
+            ("background", "solid"),
+            ("background", "red, url(a.png)"),
         ] {
             // A rejection names the property's own syntax.
             let expected = lookup(PROPERTY_SYNTAX, property).unwrap();
@@ -992,8 +1033,14 @@ mod tests {
         assert_eq!(ends("a#"), vec![1]);
         let listed = tokenize("a, a").unwrap();
         assert_eq!(matcher.ends(&Parser::new("a#").one(), &listed, 0), vec![1, 3]);
-        assert_eq!(matcher.ends(&Parser::new("a ','").one(), &listed, 0), vec![2]);
+        assert_eq!(matcher.ends(&Parser::new("a ','").one(), &listed, 0), vec![1, 2]);
         assert_eq!(matcher.ends(&Parser::new("a '~'").one(), &listed, 0), Vec::<usize>::new());
+        // A comma is left out when nothing before it in the sequence matched, or nothing after it.
+        assert_eq!(matcher.ends(&Parser::new("',' a").one(), &tokens, 0), vec![1]);
+        assert_eq!(matcher.ends(&Parser::new("a ',' c?").one(), &tokens, 0), vec![1]);
+        assert_eq!(matcher.ends(&Parser::new("a ',' a").one(), &listed, 0), vec![3]);
+        // Between two components that both match, it must be written.
+        assert_eq!(matcher.ends(&Parser::new("a ',' b").one(), &tokens, 0), Vec::<usize>::new());
         // An undefined type matches any one component; at the end of the value, none.
         assert_eq!(matcher.ends(&Parser::new("<undefined-type>").one(), &tokens, 0), vec![1]);
         assert_eq!(matcher.ends(&Parser::new("<length>").one(), &tokens, 2), Vec::<usize>::new());

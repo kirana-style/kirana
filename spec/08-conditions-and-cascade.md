@@ -151,6 +151,9 @@ rejects valid CSS, including CSS newer than the data (P11):
 - **Functions by name:** a function is matched by its name alone, never by its arguments, so the hardest
   grammars (`calc()`, colour functions, gradients) cannot reject anything.
 - **Undefined types:** a type the data does not define matches any one component.
+- **Omitted commas:** a comma in a grammar is left out when nothing before it in its sequence matched,
+  or nothing after it, as CSS Values 4 says, so `background`'s `<bg-layer>#? , <final-bg-layer>` takes
+  a single layer (`background: red`, a lone gradient). A comma written there still matches.
 - **Ranges:** a range on a reference (`<length-percentage [0,∞]>`) holds for the base types it expands
   to, so `padding: -4px` is rejected; a math function is never range-checked.
 - **Token domains:** a value that is one project variable token is checked through each value the token
