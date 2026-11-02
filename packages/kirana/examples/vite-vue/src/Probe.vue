@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { css } from "@kirana-style/core"
+import { css, relation } from "@kirana-style/core"
 import { Switch } from "@kirana-style/states/base-ui"
 
 import Badge from "./Badge.vue"
@@ -23,6 +23,14 @@ const styles = {
 const gap = `${document.title.length % 3}px`
 const offset = css({ marginLeft: gap })
 const wide = css({ paddingInline: "8px" })
+
+/** Anchored only in the template (KF-088): the build fails if the compiler does not see it there. */
+const scope = relation("probe-scope")
+const inScope = css({
+  paddingBottom: { base: "0px", [scope.within("[data-scope]")]: "6px" },
+})
+/** A removal the badge's own merge applies to its state entry for the property (KF-089). */
+const plain = css({ paddingTop: { "*": null, base: "5px" } })
 </script>
 
 <template>
@@ -30,5 +38,9 @@ const wide = css({ paddingInline: "8px" })
     Styled by Kirana.
   </p>
   <span data-probe-state="" data-checked="" :sx="styles.state" />
-  <Badge :sx="wide" aria-label="badge">Badge</Badge>
+  <div data-scope="" :sx="scope.anchor">
+    <Badge :sx="[wide, plain]" aria-label="badge" data-probe-reset="">
+      Badge<i data-probe-anchor="" :sx="inScope" />
+    </Badge>
+  </div>
 </template>

@@ -1301,9 +1301,9 @@
       }
     },
     "runtime": {
-      "raw": 2022,
-      "gzip": 1087,
-      "brotli": 1006
+      "raw": 2029,
+      "gzip": 1094,
+      "brotli": 1009
     }
   },
   "types": {

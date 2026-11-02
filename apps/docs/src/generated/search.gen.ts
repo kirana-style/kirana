@@ -2467,7 +2467,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Vue",
     "section": "frameworks",
     "heading": "A component that takes  :sx",
-    "text": "On a component, a caller's arrives as the Vue falls through to its root, where Vue adds it beside the root's own classes: two classes for one property, and the stylesheet's order picks one. To let the caller's styles win, property by property, turn the fallthrough off and put them last in the root's own , with : is the caller's classes, and every other attribute it passed: listeners, and its inline style, bound on the same element. Then gives the button one class per property, the caller's where both set one."
+    "text": "On a component, a caller's arrives as the Vue falls through to its root, where Vue adds it beside the root's own classes: two classes for one property, and the stylesheet's order picks one. To let the caller's styles win, property by property, turn the fallthrough off and put them last in the root's own , with : is the caller's classes, and every other attribute it passed: listeners, and its inline style, bound on the same element. Then gives the button one class per property, the caller's where both set one. A caller's removals come along too. With , drops the button's own hover and state entries for the background, not only its base value, as does in JSX. On a component that lets Vue fall the class through, the removals land on its root as classes no rule matches."
   },
   {
     "id": "/docs/frameworks/vue#how-it-compiles",
@@ -2475,7 +2475,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Vue",
     "section": "frameworks",
     "heading": "How it compiles",
-    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes with a call to Kirana's small runtime, which merges the styles when the component renders. Keep calls in the script: one written inside the template is not compiled, and says so when it runs. An element takes one object binding, so an element's own object is merged into the compiled one with Vue's . A component imported from a workspace package, outside the app's root, compiles and hot-reloads like one inside it."
+    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes with a call to Kirana's small runtime, which merges the styles when the component renders. Keep calls in the script: one written inside the template is not compiled, and says so when it runs. An element takes one object binding, so an element's own object is merged into the compiled one with Vue's . A relation's anchor written in the template, , counts as applied, as one in the script does, so the relation's reads are not reported unanchored. A component imported from a workspace package, outside the app's root, compiles and hot-reloads like one inside it."
   },
   {
     "id": "/docs/frameworks/vue#nuxt",
@@ -2640,7 +2640,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Svelte",
     "section": "frameworks",
     "heading": "A component that takes  sx",
-    "text": "On a component, a caller's arrives as its and props. Take them and put the class last in the root's own , so the caller's styles win, property by property: Svelte passes nothing through on its own, so there is no fallthrough to turn off."
+    "text": "On a component, a caller's arrives as its and props. Take them and put the class last in the root's own , so the caller's styles win, property by property: Svelte passes nothing through on its own, so there is no fallthrough to turn off. A caller's removals ( , ) arrive in the class too, and the root's merge applies them to the button's own entries."
   },
   {
     "id": "/docs/frameworks/svelte#how-it-compiles",

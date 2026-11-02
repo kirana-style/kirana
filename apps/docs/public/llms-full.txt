@@ -5503,6 +5503,13 @@ listeners, `aria-*` and its inline style, bound on the same element. Then
 `<Button :sx="tall">` gives the button one class per property, the caller's where
 both set one.
 
+A caller's removals come along too. With
+`plain = css({ backgroundColor: { "*": null, base: "white" } })`,
+`<Button :sx="plain">` drops the button's own hover and state entries for the
+background, not only its base value, as `sx` does in JSX. On a component that
+lets Vue fall the class through, the removals land on its root as classes no rule
+matches.
+
 ## How it compiles
 
 The script compiles like any module: `css()` becomes class strings, and the
@@ -5513,6 +5520,10 @@ template is not compiled, and says so when it runs.
 
 An element takes one object binding, so an element's own `v-bind` object is
 merged into the compiled one with Vue's `mergeProps`.
+
+A relation's anchor written in the template, `:sx="[toggle.anchor, root]"`,
+counts as applied, as one in the script does, so the relation's reads are not
+reported unanchored.
 
 A component imported from a workspace package, outside the app's root, compiles
 and hot-reloads like one inside it.
@@ -5776,6 +5787,8 @@ property by property:
 ```
 
 Svelte passes nothing through on its own, so there is no fallthrough to turn off.
+A caller's removals (`"*": null`, `padding: null`) arrive in the class too, and
+the root's merge applies them to the button's own entries.
 
 ## How it compiles
 

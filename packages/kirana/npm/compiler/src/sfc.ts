@@ -59,6 +59,11 @@ type Binding = {
    * with Vue's `mergeProps` and removed (`v-bind="attrs" :sx="[own, sx]"`, `useSx()`).
    */
   spread?: { start: number; end: number; expression: string }
+  /**
+   * On a component, not an element: what arrives is the caller's `sx` for the component's own merge,
+   * so its removals (`"*": null`) stay in the class (KF-089).
+   */
+  component?: boolean
 }
 type Parsed = {
   blocks: Block[]
@@ -71,6 +76,20 @@ type Parsed = {
 const runtime = (prefix: string) =>
   `\nimport { runtime as __kirana_runtime_sfc } from "@kirana-style/core/internal";\nconst __kirana_sfc = __kirana_runtime_sfc(${JSON.stringify(prefix)}, "class");\n`
 
+/**
+ * A template's `sx` is compiled at runtime, so the engine never sees a relation's anchor named only
+ * there (`:sx="[scope.anchor, sx]"`) and would report the relation's reads unanchored (KF-088). The
+ * chains a binding names that end in `.anchor` are appended to the block the template sees, in a
+ * function never called, and cut from what the engine returns: only the chains, since compiling the
+ * whole binding would compile what it calls (a recipe, the runtime) into the block too. A chain
+ * starts after no `.`, `)` or `]`, which would make it a member of something else.
+ */
+const CHAINS =
+  /(?<![\w$.)\]]\s*)[A-Za-z_$][\w$]*(?:\s*\??\.\s*[A-Za-z_$][\w$]*)*/g
+
+/** Where the appended anchors start: a comment, which the engine leaves as it is. */
+const APPENDED = "\n/* kirana: the template's anchors (KF-088) */"
+
 /** Vue's own merge of attribute objects, for an element whose `v-bind="…"` is folded into `:sx`. */
 const MERGE = `import { mergeProps as __kirana_merge } from "vue";\n`
 
@@ -78,8 +97,8 @@ const MERGE = `import { mergeProps as __kirana_merge } from "vue";\n`
  * Svelte and Astro set `style` from a spread as text, so the runtime's style object (bridged custom
  * properties) becomes a declaration list, after the element's own `style`.
  */
-const ATTRS = `const __kirana_attrs = (handles, classes, style) => {
-  const props = __kirana_sfc.sx(handles, classes, []);
+const ATTRS = `const __kirana_attrs = (handles, classes, style, component) => {
+  const props = __kirana_sfc.sx(handles, classes, [], component);
   const own = props.style ? Object.entries(props.style).map(([name, value]) => name + ":" + value).join(";") : "";
   return { class: props.class, style: [style, own].filter(Boolean).join(";") || undefined };
 };
@@ -133,6 +152,8 @@ function quoted(name: string, text: string): string {
 
 type VueNode = {
   type: number
+  /** An element's kind: 1 for a component (`<Button>`, `<component :is>`). */
+  tagType?: number
   props?: {
     type: number
     name: string
@@ -196,6 +217,7 @@ async function parseVue(
           start: prop.loc.start.offset,
           end: prop.loc.end.offset,
           expression: prop.exp.content,
+          component: node.tagType === 1,
           ...(object
             ? {
                 spread: {
@@ -217,6 +239,13 @@ async function parseVue(
     target: setup ?? undefined,
   }
 }
+
+/** Svelte's nodes for a component: `<Button>`, `<svelte:component this={…}>`, `<svelte:self>`. */
+const SVELTE_COMPONENTS = new Set([
+  "Component",
+  "SvelteComponent",
+  "SvelteSelf",
+])
 
 type SvelteValue =
   | true
@@ -316,6 +345,7 @@ async function parseSvelte(
         ),
         class: own("class"),
         style: own("style"),
+        component: SVELTE_COMPONENTS.has((node as { type: string }).type),
       })
     }
     for (const [key, value] of Object.entries(node)) {
@@ -350,7 +380,7 @@ type EstreeNode = {
   type?: string
   start: number
   end: number
-  name?: { name?: unknown }
+  name?: { type?: string; name?: unknown }
   value?: (EstreeNode & { value?: unknown; expression?: EstreeNode }) | null
   attributes?: EstreeNode[]
 }
@@ -402,12 +432,17 @@ function astroRs(
           ? undefined
           : { start: found!.start, end: found!.end, expression: text }
       }
+      const { name } = node as EstreeNode
       bindings.push({
         start: sx.start,
         end: sx.end,
         expression: source.slice(expression.start, expression.end),
         class: own("class"),
         style: own("style"),
+        // Astro's rule: a capitalised name or a member (`<Card>`, `<ui.Card>`) is a component.
+        component:
+          name!.type === "JSXMemberExpression" ||
+          /^[A-Z]/.test(String(name!.name)),
       })
     }
     Object.values(node).forEach(walk)
@@ -499,6 +534,7 @@ async function parseAstro(
         expression: sx.value,
         class: own("class"),
         style: own("style"),
+        component: node.type === "component",
       })
     }
     node.children?.forEach(walk)
@@ -561,13 +597,30 @@ export async function compileComponent(options: {
   for (const block of parsed.blocks) {
     const id = `${file}.${block.label}.${block.lang}`
     const content = source.slice(block.start, block.end)
-    const compiled = compile(id, content)
+    const anchors =
+      block === parsed.target
+        ? parsed.bindings.flatMap(({ expression }) =>
+            [...expression.matchAll(CHAINS)]
+              .map(([chain]) => chain)
+              .filter((chain) => /\.\s*anchor$/.test(chain))
+          )
+        : []
+    const appended = anchors.length
+      ? `${APPENDED}\n;() => [${anchors.join(", ")}];\n`
+      : ""
+    const compiled = compile(id, content + appended)
+    const code =
+      appended && compiled.code
+        ? compiled.code.slice(0, compiled.code.lastIndexOf(APPENDED))
+        : compiled.code
     result.modules.push(id)
     result.cssChanged ||= compiled.cssChanged
     result.dependencies.push(...compiled.dependencies)
-    // Diagnostics point into the component, not into the block's module.
+    // Diagnostics point into the component, not into the block's module; the appended anchors are
+    // the template's, which the build does not check.
     const suffix = `.${block.label}.${block.lang}`
     for (const diagnostic of compiled.diagnostics) {
+      if (diagnostic.span.start >= content.length) continue
       result.diagnostics.push({
         ...diagnostic,
         file: diagnostic.file.slice(0, -suffix.length),
@@ -578,7 +631,7 @@ export async function compileComponent(options: {
       })
     }
     const extra = block === parsed.target ? injection : ""
-    const text = extra + (compiled.code ?? content)
+    const text = extra + (code ?? content)
     if (text === content) continue
     if (block.start === block.end) magic.appendLeft(block.start, text)
     else magic.overwrite(block.start, block.end, text)
@@ -600,7 +653,7 @@ export async function compileComponent(options: {
 
   for (const binding of parsed.bindings) {
     if (framework === "vue") {
-      const props = `__kirana_sfc.sx([${binding.expression}], [], [])`
+      const props = `__kirana_sfc.sx([${binding.expression}], [], []${binding.component ? ", true" : ""})`
       if (binding.spread) magic.remove(binding.spread.start, binding.spread.end)
       magic.overwrite(
         binding.start,
@@ -622,7 +675,7 @@ export async function compileComponent(options: {
     magic.overwrite(
       binding.start,
       binding.end,
-      `{...__kirana_attrs([${binding.expression}], ${classes}, ${style})}`
+      `{...__kirana_attrs([${binding.expression}], ${classes}, ${style}${binding.component ? ", true" : ""})}`
     )
   }
 

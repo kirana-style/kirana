@@ -85,6 +85,8 @@ property by property:
 ```
 
 Svelte passes nothing through on its own, so there is no fallthrough to turn off.
+A caller's removals (`"*": null`, `padding: null`) arrive in the class too, and
+the root's merge applies them to the button's own entries.
 
 ## How it compiles
 

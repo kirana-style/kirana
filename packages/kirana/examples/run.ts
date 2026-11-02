@@ -767,6 +767,26 @@ async function checkPage(
         )
       console.log("✓ a component state from @kirana-style/states applies")
     }
+    // A Vue example may carry a component its caller's `"*": null` overrides (KF-089), and an
+    // element reading a relation anchored only in the template (KF-088).
+    const reset = page.locator("[data-probe-reset]")
+    if ((await reset.count()) > 0) {
+      const read = {
+        reset: await reset.evaluate(
+          (element) => getComputedStyle(element).paddingTop
+        ),
+        anchored: await page
+          .locator("[data-probe-anchor]")
+          .evaluate((element) => getComputedStyle(element).paddingBottom),
+      }
+      if (read.reset !== "5px" || read.anchored !== "6px")
+        throw new Error(
+          `component probes are ${JSON.stringify(read)}, expected the caller's 5px and the anchored 6px`
+        )
+      console.log(
+        "✓ a caller's removal reaches the component, and a template's anchor applies"
+      )
+    }
     // An Angular example may carry a part beside `SxDirective` (KF-049): its own padding, and the
     // colour its caller's `sx` gives it, which wins.
     const part = page.locator("[data-probe-part]")

@@ -69,6 +69,19 @@ describe("KRN-DYN-005 private runtime", () => {
     })
   })
 
+  it("keeps removals in the class a component's template binding passes on (KF-089)", () => {
+    const fresh = runtime("k", "class")
+    // An element renders no removal; a component's own merge applies it to its entries.
+    expect(fresh.sx(["k3T*_ k3T_aaa"], [], [])).toStrictEqual({
+      class: "k3T_aaa",
+    })
+    const passed = fresh.sx(["k3T*_ k3T_aaa"], [], [], true)
+    expect(passed).toStrictEqual({ class: "k3T*_ k3T_aaa" })
+    expect(fresh.sx(["k3T_bbb k3T-KFHz_ccc", passed.class!], [], [])).toEqual({
+      class: "k3T_aaa",
+    })
+  })
+
   it("merges each combination once, and hands every element its own copy (D-083)", () => {
     const fresh = runtime("k", "className")
     const first = fresh.sx(

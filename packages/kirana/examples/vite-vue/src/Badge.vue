@@ -9,7 +9,11 @@ import { useSx } from "@kirana-style/core/vue"
 defineOptions({ inheritAttrs: false })
 const { sx, attrs } = useSx()
 
-const badge = css({ display: "inline-block", paddingInline: "4px" })
+const badge = css({
+  display: "inline-block",
+  paddingInline: "4px",
+  paddingTop: { base: "1px", "[aria-label]": "2px" },
+})
 </script>
 
 <template>
