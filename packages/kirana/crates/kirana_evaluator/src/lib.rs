@@ -14,7 +14,9 @@ use std::path::Path;
 use std::sync::Arc;
 
 use kirana_config::Config;
-use kirana_ir::{CounterStyleDef, Dep, KeyframesDef, Names, PositionTryDef, TokenDef, Value, ViewTransitionDef};
+use kirana_ir::{
+    CounterStyleDef, Dep, Handle, KeyframesDef, Names, PositionTryDef, TokenDef, Value, ViewTransitionDef,
+};
 
 pub use eval::Evaluator;
 pub use style::{Parts, relation_reads};
@@ -39,6 +41,9 @@ pub trait Host {
     /// The installed package a project module's exported component spreads its props into without
     /// reading `sx`, when it does.
     fn sx_forwarded(&self, from: &Path, specifier: &str, name: &str) -> Option<String>;
+    /// The handle a project module's exported component gives the element it applies its own `sx`
+    /// to, before that `sx` (`sx={[styles.root, sx]}`), when the build knows it (KF-083).
+    fn sx_root(&self, from: &Path, specifier: &str, name: &str) -> Option<Handle>;
     /// A `css()` call's value compiled earlier in the session from the same source, keyed by that
     /// source and the names it was compiled with (KF-059).
     fn cached_style(&self, key: &str) -> Option<Value>;

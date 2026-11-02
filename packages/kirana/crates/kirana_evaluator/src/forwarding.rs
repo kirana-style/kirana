@@ -4,9 +4,11 @@
 //! component from an installed package, or onto a host element, where only a written `sx` attribute
 //! compiles. Its callers' `sx` is silently dropped.
 
+use kirana_ir::{Handle, Value};
 use oxc_ast::ast::{
     ArrowFunctionBody, BindingPattern, Declaration, Expression, FormalParameters, FunctionBody, JSXAttributeItem,
-    JSXElementName, JSXMemberExpressionObject, JSXOpeningElement, PropertyKey, Statement,
+    JSXAttributeName, JSXAttributeValue, JSXElementName, JSXMemberExpressionObject, JSXOpeningElement, PropertyKey,
+    Statement,
 };
 use oxc_ast_visit::{Visit, walk};
 
@@ -17,6 +19,41 @@ impl<'a> Evaluator<'_, 'a, '_> {
     /// or onto a host element, without taking `sx` out of them first, as `(export name, target)`:
     /// the package specifier in quotes, or the element as `<form>`.
     pub fn sx_forwarding_exports(&self) -> Vec<(String, String)> {
+        self.exported_functions()
+            .into_iter()
+            .filter_map(|(exported, params, body)| Some((exported, self.forwarded_to(params, &body)?)))
+            .collect()
+    }
+
+    /// Exported components that write `sx={[…, sx]}` with their own `sx` prop on an element, and the
+    /// handle of what comes before it there, when the build knows it: a caller's `sx` merges after it,
+    /// on that element (KF-083).
+    pub fn sx_root_exports(&self) -> Vec<(String, Handle)> {
+        self.exported_functions()
+            .into_iter()
+            .filter_map(|(exported, params, body)| Some((exported, self.sx_root(params, &body)?)))
+            .collect()
+    }
+
+    /// The handle a component's own styles give the element it applies its `sx` prop to.
+    fn sx_root(&self, params: &FormalParameters<'a>, body: &Body<'_, 'a>) -> Option<Handle> {
+        let BindingPattern::ObjectPattern(object) = &params.items.first()?.pattern else { return None };
+        let sx = object.properties.iter().find_map(|property| match (&property.key, &property.value) {
+            (PropertyKey::StaticIdentifier(key), BindingPattern::BindingIdentifier(local)) if key.name == "sx" => {
+                Some(local.name.as_str())
+            }
+            _ => None,
+        })?;
+        let mut roots = SxRoots { evaluator: self, sx, root: None };
+        match body {
+            Body::Block(block) => roots.visit_function_body(block),
+            Body::Expression(expression) => roots.visit_expression(expression),
+        }
+        roots.root.flatten()
+    }
+
+    /// Every exported function, by the name it is exported as, with its parameters and body.
+    fn exported_functions(&self) -> Vec<(String, &FormalParameters<'a>, Body<'_, 'a>)> {
         let body = &self.parsed.program.body;
         let mut exports: Vec<(String, String)> = Vec::new();
         for statement in body {
@@ -39,7 +76,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
             .into_iter()
             .filter_map(|(local, exported)| {
                 let (params, body) = body.iter().find_map(|statement| function_named(statement, &local))?;
-                Some((exported, self.forwarded_to(params, &body)?))
+                Some((exported, params, body))
             })
             .collect()
     }
@@ -164,6 +201,39 @@ impl<'a> Visit<'a> for Spreads<'_> {
         };
         if spreads_rest && let Some(root) = root {
             self.roots.push(root);
+        }
+        walk::walk_jsx_opening_element(self, element);
+    }
+}
+
+/// The first element a component writes `sx={[…, sx]}` on, with its own `sx` last: the handle of
+/// what comes before it, when the build knows it.
+struct SxRoots<'e, 'p, 'a, 'c, 's> {
+    evaluator: &'e Evaluator<'p, 'a, 'c>,
+    sx: &'s str,
+    root: Option<Option<Handle>>,
+}
+
+impl<'a> Visit<'a> for SxRoots<'_, '_, 'a, '_, '_> {
+    fn visit_jsx_opening_element(&mut self, element: &JSXOpeningElement<'a>) {
+        if self.root.is_none()
+            && let Some(Expression::ArrayExpression(array)) = element.attributes.iter().find_map(|attribute| match attribute {
+                JSXAttributeItem::Attribute(attribute) if matches!(&attribute.name, JSXAttributeName::Identifier(name) if name.name == "sx") => {
+                    match &attribute.value {
+                        Some(JSXAttributeValue::ExpressionContainer(container)) => container.expression.as_expression(),
+                        _ => None,
+                    }
+                }
+                _ => None,
+            })
+            && let Some((last, before)) = array.elements.split_last()
+            && matches!(last.as_expression(), Some(Expression::Identifier(identifier)) if identifier.name == self.sx)
+        {
+            let values: Option<Vec<Value>> = before
+                .iter()
+                .map(|element| element.as_expression().map(|expression| self.evaluator.quietly(|| self.evaluator.eval(expression))))
+                .collect();
+            self.root = Some(values.and_then(|values| crate::style::static_handle(&Value::Array(std::sync::Arc::new(values)))));
         }
         walk::walk_jsx_opening_element(self, element);
     }

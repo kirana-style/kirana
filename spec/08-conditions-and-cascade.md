@@ -122,7 +122,11 @@ Rules:
    inset (`insetInlineStart`, `insetInlineEnd`, `insetInline`) beside a translate that moves along x by
    an amount known at build time is the same warning, since with `dir="rtl"` the inset changes side and
    the translate does not (D-098). A translate written per direction (under `:dir()` or `[dir]`) or read
-   from a custom property is not reported.
+   from a custom property is not reported. The same pairs are reported across a component (D-119): a
+   caller's `sx` on a project component that writes `sx={[…, sx]}` on an element is merged after the
+   component's own styles there, and a side the component sets that wins over the caller's is reported
+   where the caller writes `sx` (`paddingTop` in the component beats a caller's `paddingBlock`, which
+   keeps to its logical sides).
 
 ## Value normalization
 

@@ -1,0 +1,70 @@
+[
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 276,
+      "end": 326
+    },
+    "message": "Card sets padding-top and padding-bottom on the element it applies `sx` to, and they win over padding-block-start and padding-block-end here: a logical side never replaces a physical one",
+    "help": [
+      "set padding-top and padding-bottom here as well, as Card does"
+    ]
+  },
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 362,
+      "end": 400
+    },
+    "message": "Panel sets padding-top on the element it applies `sx` to, and it wins over padding-block-start here: a logical side never replaces a physical one",
+    "help": [
+      "set padding-top here as well, as Panel does"
+    ]
+  },
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 529,
+      "end": 553
+    },
+    "message": "Inset sets padding-inline-start on the element it applies `sx` to, and it wins over padding-left here: a logical side never replaces a physical one",
+    "help": [
+      "set padding-inline-start here as well, as Inset does"
+    ]
+  },
+  {
+    "code": "KRN1601",
+    "name": "dynamic-bridged",
+    "severity": "info",
+    "file": "input.tsx",
+    "span": {
+      "start": 980,
+      "end": 984
+    },
+    "message": "paddingBlock is set at runtime through --kS",
+    "help": []
+  },
+  {
+    "code": "KRN1205",
+    "name": "mixed-logical-physical",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1261,
+      "end": 1285
+    },
+    "message": "padding-block-start and padding-top are both set with the same number of longhands; the physical property wins",
+    "help": [
+      "use one axis family on an element"
+    ]
+  }
+]

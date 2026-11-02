@@ -50,10 +50,15 @@ order them. Nest one condition inside the other, or declare the pair exclusive:
 [precedence](/docs/styling/precedence).
 
 **`mixed-logical-physical`**: a box has both logical and physical longhands set,
-in a way whose outcome could mislead. Pick one axis family. It also covers an
-inline logical inset beside a translate that moves along x: translates have no
-logical form, so the element is off centre in right-to-left text. Use a physical
-inset with the translate.
+in a way whose outcome could mislead. Pick one axis family. It also covers:
+
+- an inline logical inset beside a translate that moves along x: translates have
+  no logical form, so the element is off centre in right-to-left text. Use a
+  physical inset with the translate;
+- a component's own physical side that wins over the logical one you pass it in
+  `sx`. On a Card whose styles set `paddingTop`, a `paddingBlock` you pass keeps
+  Card's top padding, since one logical axis never replaces a physical side. Set
+  the physical sides there, as Card does.
 
 **`unreachable-entry`**: an info. A condition key nested in another that it can
 never meet, such as `'[data-side="top"]': { '[data-side="bottom"]': … }`. Nothing

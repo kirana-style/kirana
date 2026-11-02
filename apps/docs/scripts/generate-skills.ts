@@ -44,7 +44,7 @@ const FIXES: Record<string, string> = {
   "unsplittable-shorthand":
     "A shorthand whose value cannot be split into longhands (`border: var(--x)`) stays whole, so a later style cannot remove one longhand. Write the longhands.",
   "mixed-logical-physical":
-    "Logical and physical longhands on one box (`paddingInlineStart` and `padding`) sit side by side instead of replacing each other; or an inline logical inset beside a `translate`, which has no logical form and is off centre in right-to-left text. Use one family: `left` with a translate.",
+    "Logical and physical longhands on one box (`paddingInlineStart` and `padding`) sit side by side instead of replacing each other; or an inline logical inset beside a `translate`, which has no logical form and is off centre in right-to-left text. Use one family: `left` with a translate. On a component's `sx` (`<Card sx={css({ paddingBlock: 0 })}>`), the component's own `paddingTop` wins: set the physical sides it sets.",
   "invalid-fallback":
     'A `firstThatWorks()` the browser would drop or misread: empty, nested, a runtime value, or values that set different longhands. Keep every value static and of the same shape. Or a `fallback()` chain the browser would never read past: every token but the last must be `{ syntax: "*" }` with no value, and the last one static CSS value.',
   "fallback-on-variable":
