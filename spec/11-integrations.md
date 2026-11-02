@@ -319,6 +319,11 @@ declarations and checked against its exports:
 | `./bits-ui`       | Bits UI (Svelte)                        | each exported part's state class, by the literal types of its `props`; a part's own name attribute left out                                                                                                                                                     |
 | `./ng-primitives` | Angular Primitives                      | each `createPrimitive` block's `dataBinding` calls and `ngpInteractions` flags, kept to blocks with a directive (D-102)                                                                                                                                         |
 
+The Ark UI vocabulary adds to the reference what each exported part's `get<Part>Props` in the machine's
+`connect` sets that the reference leaves out, through the helpers and consts the getter spreads, with ids,
+indexes, item values and constants left out; a component the reference does not name takes the machine its
+hook imports (Segment Group runs Radio Group's) (KF-087).
+
 A vocabulary is plain data (an `as const` object of attribute selectors), so a library without one, or a
 project's own components, needs a module of a few lines and nothing from the compiler.
 

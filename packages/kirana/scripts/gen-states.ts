@@ -7,7 +7,8 @@
  * - `base-ui.ts` from `@base-ui/react` (MIT, Copyright (c) 2019 Material-UI SAS): each part's
  *   `<Part>DataAttributes` module, plus the `open` states its implementation writes (`openAttributes`).
  * - `ark-ui.ts` from `@zag-js/docs` (MIT, Copyright (c) 2021 Chakra UI), the data-attribute reference
- *   of the Zag machines Ark UI is built on, kept to the parts `@ark-ui/react` exports.
+ *   of the Zag machines Ark UI is built on, with what each part's prop getter in the machine's
+ *   `connect` sets that the reference leaves out, kept to the parts `@ark-ui/react` exports.
  * - `react-aria.ts` from `react-aria-components` (Apache-2.0, Copyright 2019 Adobe; the licence
  *   ships in the package's `licenses/`): the `@selector` of each `<Name>RenderProps` interface.
  * - `reka-ui.ts` (MIT, Copyright (c) 2023 UnoVue), `bits-ui.ts` (MIT, Copyright (c) 2023 Hunter
@@ -20,6 +21,7 @@ import { spawnSync } from "node:child_process"
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { createRequire } from "node:module"
 import path from "node:path"
+import { parseSync } from "oxc-parser"
 
 const require = createRequire(import.meta.url)
 
@@ -322,6 +324,303 @@ function arkGetters(
   return byPart
 }
 
+/** An ESTree node, as `oxc-parser` returns it. */
+type Node = { type: string; [key: string]: unknown }
+
+/** A node and every node under it, in source order. */
+function descendants(node: unknown, out: Node[] = []): Node[] {
+  if (Array.isArray(node)) for (const item of node) descendants(item, out)
+  else if (node && typeof node === "object") {
+    const current = node as Node
+    if (typeof current.type === "string") out.push(current)
+    for (const [key, value] of Object.entries(current))
+      if (key !== "parent") descendants(value, out)
+  }
+  return out
+}
+
+const identifier = (node: unknown) =>
+  (node as Node | null)?.type === "Identifier"
+    ? ((node as Node).name as string)
+    : undefined
+
+/** The value of each `const` among some nodes, by name, the first of a name kept. */
+function declarations(nodes: readonly Node[]): Map<string, Node> {
+  const out = new Map<string, Node>()
+  for (const node of nodes) {
+    const name = identifier(node.id)
+    if (
+      node.type === "VariableDeclarator" &&
+      name &&
+      node.init &&
+      !out.has(name)
+    )
+      out.set(name, node.init as Node)
+  }
+  return out
+}
+
+/**
+ * What a getter writes on one attribute, over every place it sets it: its presence (`dataAttr(x)`,
+ * `x ? "" : void 0`), string literals (`checked ? "checked" : "unchecked"`), or a value it computes
+ * (an id, an index, `placement`), which no key can list. `varies` is false for a constant.
+ */
+type Written = {
+  presence: boolean
+  values: string[]
+  computed: boolean
+  varies: boolean
+}
+
+/** What an attribute's expression writes, following a `const` it names to that const's value. */
+function written(
+  expression: Node,
+  scope: ReadonlyMap<string, Node>,
+  out: Written = {
+    presence: false,
+    values: [],
+    computed: false,
+    varies: false,
+  },
+  seen = new Set<Node>()
+): Written {
+  const name = identifier(expression)
+  const value = expression.value
+  if (expression.type === "ConditionalExpression") {
+    out.varies = true
+    written(expression.consequent as Node, scope, out, seen)
+    written(expression.alternate as Node, scope, out, seen)
+  } else if (expression.type === "Literal" && typeof value === "string") {
+    if (!value) out.presence = true
+    else if (!out.values.includes(value)) out.values.push(value)
+  } else if (
+    (expression.type === "UnaryExpression" && expression.operator === "void") ||
+    (expression.type === "Literal" && value === null) ||
+    name === "undefined"
+  ) {
+    // The attribute left off.
+  } else if (
+    expression.type === "CallExpression" &&
+    identifier(expression.callee) === "dataAttr"
+  ) {
+    out.presence = true
+    out.varies = true
+  } else if (name && scope.has(name) && !seen.has(scope.get(name)!)) {
+    seen.add(scope.get(name)!)
+    written(scope.get(name)!, scope, out, seen)
+  } else out.computed = true
+  return out
+}
+
+/** A `Written` merged into the one already kept for its attribute. */
+function merge(into: Map<string, Written>, attribute: string, more: Written) {
+  const known = into.get(attribute)
+  if (!known) {
+    into.set(attribute, more)
+    return
+  }
+  known.presence ||= more.presence
+  known.computed ||= more.computed
+  known.varies ||= more.varies
+  for (const value of more.values)
+    if (!known.values.includes(value)) known.values.push(value)
+}
+
+/**
+ * The `data-*` attributes a getter (or a helper it spreads) sets, in source order: each
+ * `"data-x": …` under it, and what it spreads from a function of the module
+ * (`...getItemDataAttrs(props)`, as Radio Group's item parts do, KF-087) or from a const
+ * (`...dataAttrs`, as Checkbox's parts do).
+ */
+function getterAttributes(
+  root: Node,
+  module: { functions: ReadonlyMap<string, Node>; shared: Map<string, Node> },
+  out = new Map<string, Written>(),
+  seen = new Set<Node>()
+): Map<string, Written> {
+  if (seen.has(root)) return out
+  seen.add(root)
+  const nodes = descendants(root)
+  const scope = new Map([...module.shared, ...declarations(nodes)])
+  for (const node of nodes) {
+    const key = (node.key as Node | undefined)?.value
+    if (
+      node.type === "Property" &&
+      !node.computed &&
+      typeof key === "string" &&
+      key.startsWith("data-")
+    )
+      merge(out, key, written(node.value as Node, scope))
+    if (node.type !== "SpreadElement") continue
+    const argument = node.argument as Node
+    const spread =
+      argument.type === "CallExpression"
+        ? module.functions.get(identifier(argument.callee) ?? "")
+        : scope.get(identifier(argument) ?? "")
+    if (spread) getterAttributes(spread, module, out, seen)
+  }
+  return out
+}
+
+/**
+ * What each part's prop getter in a Zag machine's `connect` sets (KF-087), by part: the methods of
+ * the object `connect` returns, `getItemControlProps(props) { return normalize.element({ … }) }` for
+ * `ItemControl`, or a function it names there (`getItemProps,`). Zag's reference leaves some of them
+ * out: Radio Group's `Item` and `ItemText`, and all but `data-active` on its `ItemControl`. Read by
+ * the module's syntax tree, and throws if the shape is gone, so a Zag release that changes it fails
+ * here rather than generating less.
+ */
+function zagConnect(file: string): Map<string, Map<string, Written>> {
+  const name = path.basename(file)
+  if (!existsSync(file)) throw new Error(`${name} is missing`)
+  const { program, errors } = parseSync(name, readFileSync(file, "utf8"))
+  if (errors.length > 0) throw new Error(`${name}: ${errors[0]!.message}`)
+  const all = descendants(program)
+  const connect = all.find(
+    (node) =>
+      node.type === "FunctionDeclaration" && identifier(node.id) === "connect"
+  )
+  const statements = ((connect?.body as Node | undefined)?.body ?? []) as Node[]
+  const returned = statements.find(
+    (statement) =>
+      statement.type === "ReturnStatement" &&
+      (statement.argument as Node | null)?.type === "ObjectExpression"
+  )?.argument as Node | undefined
+  if (!returned)
+    throw new Error(`${name} no longer returns its getters from connect()`)
+  // The module's functions, `function getItemDataAttrs(props) { … }` or a const holding one.
+  const functions = new Map<string, Node>()
+  for (const node of all) {
+    const declared = identifier(node.id)
+    if (
+      node.type === "FunctionDeclaration" &&
+      declared &&
+      !functions.has(declared)
+    )
+      functions.set(declared, node)
+  }
+  for (const [declared, init] of declarations(all))
+    if (init.type.includes("Function") && !functions.has(declared))
+      functions.set(declared, init)
+  // The consts of `connect`'s body and of the module (`const dataAttrs = { … }`), not those of
+  // another getter's body.
+  const shared = declarations(
+    [...statements, ...(program.body as unknown as Node[])].flatMap(
+      (statement) =>
+        statement.type === "VariableDeclaration"
+          ? (statement.declarations as Node[])
+          : []
+    )
+  )
+  const byPart = new Map<string, Map<string, Written>>()
+  for (const property of returned.properties as Node[]) {
+    const key = identifier(property.key) ?? ""
+    if (
+      property.type !== "Property" ||
+      !key.startsWith("get") ||
+      !key.endsWith("Props") ||
+      key.length <= "getProps".length
+    )
+      continue
+    const value = property.value as Node
+    const named = identifier(value)
+    const getter = named ? functions.get(named) : value
+    if (!getter)
+      throw new Error(
+        `connect() returns ${key}, which ${name} no longer declares`
+      )
+    if (getter.type.includes("Function"))
+      byPart.set(
+        key.slice("get".length, -"Props".length),
+        getterAttributes(getter, { functions, shared })
+      )
+  }
+  if (byPart.size === 0) throw new Error(`${name} no longer has prop getters`)
+  return byPart
+}
+
+/**
+ * Attributes a getter writes that name no state a style keys on: `data-scope` and `data-part` name
+ * the part on every element of it, `data-ownedby` carries an id, `data-index` and `data-value` an
+ * item's index and value, and `data-ssr` marks the server's render until the client takes over.
+ * Any other attribute whose value is computed (`data-placement`) or constant (`data-lpignore`) is
+ * left out too.
+ */
+const ZAG_NOT_STATES = new Set([
+  "data-scope",
+  "data-part",
+  "data-ownedby",
+  "data-index",
+  "data-value",
+  "data-ssr",
+])
+
+/**
+ * A state from what a getter writes, or none: a presence, the string literals it writes (one key
+ * each), or the values of its `ZAG_TYPED` type when it writes a computed one (`prop("orientation")`).
+ */
+function connectState(
+  attribute: string,
+  wrote: Written,
+  typed: ReadonlyMap<string, string[]>
+): State | undefined {
+  if (ZAG_NOT_STATES.has(attribute)) return undefined
+  const name = camel(attribute.replace(/^data-/, ""))
+  if (wrote.computed)
+    return typed.has(attribute)
+      ? { name, attribute, doc: "", values: [...typed.get(attribute)!] }
+      : undefined
+  // A constant, or a presence and values on one attribute, which one key shape cannot hold.
+  if (!wrote.varies || (wrote.presence && wrote.values.length > 0))
+    return undefined
+  return { name, attribute, doc: "", values: wrote.values }
+}
+
+/**
+ * The description Zag's reference gives an attribute's presence ("Present when hovered"), for one
+ * only the machine's code sets: the one the machine uses most, or else the reference as a whole.
+ */
+function presenceDocs(
+  reference: Record<string, Record<string, Record<string, string>>>
+) {
+  const counts = (entries: Record<string, Record<string, string>>[]) => {
+    const out = new Map<string, Map<string, number>>()
+    for (const parts of entries)
+      for (const attributes of Object.values(parts))
+        for (const [attribute, described] of Object.entries(attributes)) {
+          if (!described.startsWith("Present when ")) continue
+          const seen = out.get(attribute) ?? new Map<string, number>()
+          seen.set(described, (seen.get(described) ?? 0) + 1)
+          out.set(attribute, seen)
+        }
+    return out
+  }
+  const most = (seen: Map<string, number> | undefined) =>
+    [...(seen ?? [])].reduce<[string, number] | undefined>(
+      (best, entry) => (best && best[1] >= entry[1] ? best : entry),
+      undefined
+    )?.[0]
+  const everywhere = counts(Object.values(reference))
+  return (machine: string, attribute: string) =>
+    most(counts([reference[machine] ?? {}]).get(attribute)) ??
+    most(everywhere.get(attribute)) ??
+    ""
+}
+
+/** An Ark UI component's hook: `dist/components/segment-group/use-segment-group.js`. */
+function arkHook(arkDirectory: string, name: string): string {
+  const kebab = name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
+  return path.join(arkDirectory, "dist/components", kebab, `use-${kebab}.js`)
+}
+
+/** The Zag machine a hook runs, by the `@zag-js/<machine>` it imports beside `@zag-js/react`. */
+function arkMachine(hook: string): string | undefined {
+  if (!existsSync(hook)) return undefined
+  return [...readFileSync(hook, "utf8").matchAll(/from "@zag-js\/([a-z-]+)"/g)]
+    .map(([, machine]) => machine!)
+    .find((machine) => machine !== "react")
+}
+
 async function arkUi(): Promise<{ vocabulary: Vocabulary; version: string }> {
   const { directory, version } = installed("@zag-js/docs")
   const reference = JSON.parse(
@@ -333,13 +632,24 @@ async function arkUi(): Promise<{ vocabulary: Vocabulary; version: string }> {
   >
   const { directory: arkDirectory } = installed("@ark-ui/react")
   const typed = zagTypes(arkDirectory)
+  const describe = presenceDocs(reference)
+  const zag = createRequire(path.join(arkDirectory, "package.json"))
+  const machines = new Map(
+    Object.keys(reference).map((machine) => [pascal(machine), machine])
+  )
+  // A component the reference names otherwise runs the machine its hook imports: Segment Group's
+  // imports `@zag-js/radio-group` (KF-087).
+  for (const name of Object.keys(ark)) {
+    if (machines.has(name)) continue
+    const machine = arkMachine(arkHook(arkDirectory, name))
+    if (machine && machine in reference) machines.set(name, machine)
+  }
   const out: Vocabulary = new Map()
-  for (const [component, parts] of Object.entries(reference)) {
-    const name = pascal(component)
+  for (const [name, machine] of machines) {
     const exported = ark[name]
     if (!exported || typeof exported !== "object") continue
     const byPart = new Map<string, State[]>()
-    for (const [part, attributes] of Object.entries(parts)) {
+    for (const [part, attributes] of Object.entries(reference[machine]!)) {
       if (!(part in exported)) continue
       byPart.set(
         part,
@@ -358,19 +668,39 @@ async function arkUi(): Promise<{ vocabulary: Vocabulary; version: string }> {
           })
       )
     }
-    if (byPart.size > 0) out.set(name, byPart)
+    if (byPart.size === 0) continue
+    // What the reference leaves out, after what it gives, which keeps its descriptions (KF-087).
+    const manifest = zag.resolve(`@zag-js/${machine}/package.json`)
+    const file = path.join(
+      path.dirname(manifest),
+      `dist/${machine}.connect.mjs`
+    )
+    for (const [part, attributes] of zagConnect(file)) {
+      if (!(part in exported)) continue
+      const list = byPart.get(part) ?? []
+      for (const [attribute, wrote] of attributes) {
+        const state = connectState(attribute, wrote, typed)
+        if (!state) continue
+        const known = list.find((other) => other.attribute === attribute)
+        if (!known)
+          list.push({
+            ...state,
+            doc: state.values.length ? "" : describe(machine, attribute),
+          })
+        // A value the reference's union leaves out; a presence it describes stays one.
+        else if (known.values.length)
+          for (const value of state.values)
+            if (!known.values.includes(value)) known.values.push(value)
+      }
+      if (list.length > 0 || byPart.has(part)) byPart.set(part, list)
+    }
+    out.set(name, byPart)
   }
   // Ark's own components, with no Zag machine (Field, Fieldset): each part's prop getter in
   // `use-<name>.js` sets its states.
   for (const [name, exported] of Object.entries(ark)) {
     if (out.has(name) || !exported || typeof exported !== "object") continue
-    const kebab = name.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
-    const hook = path.join(
-      arkDirectory,
-      "dist/components",
-      kebab,
-      `use-${kebab}.js`
-    )
+    const hook = arkHook(arkDirectory, name)
     if (!existsSync(hook)) continue
     const byPart = arkGetters(readFileSync(hook, "utf8"), exported)
     if (byPart.size > 0) out.set(name, byPart)
@@ -979,8 +1309,9 @@ const outputs = [
     "ark-ui.ts",
     "Ark UI",
     [
-      `// @generated by scripts/gen-states.ts from @zag-js/docs ${ark.version}, the machines Ark UI is`,
-      "// built on (MIT, Copyright (c) 2021 Chakra UI): the descriptions are Zag's. Do not edit.",
+      `// @generated by scripts/gen-states.ts from @zag-js/docs ${ark.version} and the prop getters of the`,
+      "// Zag machines Ark UI is built on (MIT, Copyright (c) 2021 Chakra UI): the descriptions are",
+      "// Zag's. Do not edit.",
     ],
     ark.vocabulary
   ),

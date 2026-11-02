@@ -2056,7 +2056,7 @@ there. CI regenerates them and checks every name against the library's exports.
 | Import                               | Library                                 | Generated from                                                                    |
 | ------------------------------------ | --------------------------------------- | --------------------------------------------------------------------------------- |
 | `@kirana-style/states/base-ui`       | Base UI                                 | each part's `*DataAttributes` declarations, and the open state its mapping writes |
-| `@kirana-style/states/ark-ui`        | Ark UI, on React, Vue, Solid and Svelte | `@zag-js/docs`, the reference of the Zag machines Ark UI runs on                  |
+| `@kirana-style/states/ark-ui`        | Ark UI, on React, Vue, Solid and Svelte | `@zag-js/docs`, the reference of the Zag machines Ark UI runs on, and their code  |
 | `@kirana-style/states/react-aria`    | React Aria Components                   | each component's render props, by their `@selector`                               |
 | `@kirana-style/states/reka-ui`       | Reka UI, for Vue                        | each part's template, as the package ships it                                     |
 | `@kirana-style/states/bits-ui`       | Bits UI, for Svelte                     | each part's state class, by the types of its `props`                              |
@@ -2069,6 +2069,10 @@ They differ where the libraries do:
   values (`data-state="checked"`), so `state` holds one key per value.
 - **Ark UI's orientation**, which Zag describes only in prose, takes its values
   from Zag's own type, as Base UI's does: `Tabs.Root.orientation.vertical`.
+- **Ark UI's parts** also have what their prop getter in Zag's code sets where
+  the reference leaves it out, as on Radio Group's items:
+  `RadioGroup.Item.state.checked`. Segment Group runs Radio Group's machine and
+  has the same parts.
 - **React Aria** names a component per part, with no namespace:
   `Button.focusVisible`, `ListBoxItem.selected`. A state a component inherits
   from another's render props is there too.

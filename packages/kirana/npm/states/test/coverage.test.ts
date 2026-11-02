@@ -64,14 +64,19 @@ describe("every component that writes a state has a vocabulary", () => {
         letter.toUpperCase()
       )
       if (internal.has(component)) continue
-      const machine = Object.values(zag[folder] ?? {}).some((attributes) =>
+      const hook = path.join(components, folder, `use-${folder}.js`)
+      const source = existsSync(hook) ? readFileSync(hook, "utf8") : ""
+      // The machine its hook imports: Segment Group runs Radio Group's (KF-087).
+      const runs =
+        [...source.matchAll(/from "@zag-js\/([a-z-]+)"/g)]
+          .map(([, name]) => name!)
+          .find((name) => name !== "react") ?? folder
+      const machine = Object.values(zag[runs] ?? {}).some((attributes) =>
         Object.keys(attributes).some(
           (name) => name !== "data-scope" && name !== "data-part"
         )
       )
-      const hook = path.join(components, folder, `use-${folder}.js`)
-      const own =
-        existsSync(hook) && readFileSync(hook, "utf8").includes("dataAttr(")
+      const own = source.includes("dataAttr(")
       if ((machine || own) && !(component in ark)) missing.push(component)
     }
     expect(missing).toEqual([])

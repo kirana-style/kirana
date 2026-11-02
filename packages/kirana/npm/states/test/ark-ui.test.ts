@@ -3,7 +3,15 @@ import { css } from "@kirana-style/core"
 import { describe, expect, it } from "vite-plus/test"
 
 import * as states from "../src/ark-ui.ts"
-import { Dialog, Switch, Tabs } from "../src/ark-ui.ts"
+import {
+  Dialog,
+  Menu,
+  Progress,
+  RadioGroup,
+  SegmentGroup,
+  Switch,
+  Tabs,
+} from "../src/ark-ui.ts"
 import { entries, SELECTOR } from "./entries.ts"
 
 // This suite runs under the Kirana Vite plugin, so the vocabulary is compiled exactly as an
@@ -39,6 +47,55 @@ describe("@kirana-style/states/ark-ui", () => {
       ([, , , selector]) => selector === "[data-orientation]"
     )
     expect(presence).toEqual([])
+  })
+
+  it("names what a part's getter spreads from a helper, which Zag's reference leaves out (KF-087)", () => {
+    // Radio Group spreads `getItemDataAttrs(props)` on the item, its text and its control; the
+    // reference has no `Item` or `ItemText`, and only `data-active` on `ItemControl`.
+    const item = {
+      focus: "[data-focus]",
+      focusVisible: "[data-focus-visible]",
+      disabled: "[data-disabled]",
+      readonly: "[data-readonly]",
+      state: {
+        checked: '[data-state="checked"]',
+        unchecked: '[data-state="unchecked"]',
+      },
+      hover: "[data-hover]",
+      invalid: "[data-invalid]",
+      orientation: {
+        horizontal: '[data-orientation="horizontal"]',
+        vertical: '[data-orientation="vertical"]',
+      },
+    }
+    expect(RadioGroup.Item).toEqual(item)
+    expect(RadioGroup.ItemText).toEqual(item)
+    expect(RadioGroup.ItemControl).toEqual({ active: "[data-active]", ...item })
+    // `data-ssr` marks the server's render, and the hidden input's `data-ownedby` an id: no state.
+    expect(RadioGroup).not.toHaveProperty("ItemHiddenInput")
+    expect(RadioGroup.Item).not.toHaveProperty("ssr")
+  })
+
+  it("follows a const a getter writes or spreads (KF-087)", () => {
+    // Menu's item indicator writes `dataState`, `checked ? "checked" : "unchecked"`; the reference
+    // gives `"checked"` alone.
+    expect(Menu.ItemIndicator.state).toEqual({
+      checked: '[data-state="checked"]',
+      unchecked: '[data-state="unchecked"]',
+    })
+    expect(Menu.ItemText.state).toEqual(Menu.ItemIndicator.state)
+    // Progress's track spreads `progressbarProps`, a const of `connect`: its orientation is typed,
+    // and its `data-state`, which a function computes, is left out.
+    expect(Progress.Track).toEqual({ orientation: Tabs.Root.orientation })
+  })
+
+  it("names a component that runs another's machine by its own name (KF-087)", () => {
+    // Ark UI's Segment Group runs Zag's Radio Group machine, which the reference names alone.
+    expect(Object.keys(SegmentGroup)).toEqual(Object.keys(RadioGroup))
+    expect(SegmentGroup.ItemControl).toEqual(RadioGroup.ItemControl)
+    expect(SegmentGroup.Root.orientation.vertical).toBe(
+      '[data-orientation="vertical"]'
+    )
   })
 
   it("compiles as condition keys", () => {
