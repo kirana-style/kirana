@@ -9,7 +9,7 @@
 use std::path::{Path, PathBuf};
 
 use kirana_diagnostics::{Code, Diagnostic, Span};
-use kirana_frontend::sfc::{Binding, Block, Framework, scan};
+use kirana_frontend::sfc::{Binding, Block, Framework, angular_bindings, angular_template, angular_template_url, scan};
 
 use crate::Project;
 
@@ -135,6 +135,39 @@ impl Project {
         module
     }
 
+    /// An Angular component (D-068): a `.ts` file with `[sx]` bindings in its inline template, or an
+    /// `.html` template named by a `.ts` file beside it (`read` gives that file's text), compiled with
+    /// the template's bindings appended to the script; its module and diagnostics. `None` for a file
+    /// that is neither.
+    pub fn compile_angular(
+        &self,
+        path: &Path,
+        text: &str,
+        read: &dyn Fn(&Path) -> Option<String>,
+    ) -> Option<(Module, Vec<Diagnostic>)> {
+        let file = self.display_name(path);
+        let mut diagnostics = Vec::new();
+        let module = match path.extension().and_then(|extension| extension.to_str()) {
+            Some("ts") => {
+                let (start, end) = angular_template(text)?;
+                let bindings = angular_bindings(&text[start..end], start);
+                if bindings.is_empty() {
+                    return None;
+                }
+                let block = Block { label: "", start: 0, end: text.len(), lang: "ts".to_owned() };
+                self.compile_block(path.to_path_buf(), block, text, &bindings, false, &file, &mut diagnostics)
+            }
+            Some("html") => {
+                let (owner, source) = template_owner(path, read)?;
+                let bindings = angular_bindings(text, 0);
+                let block = Block { label: "", start: usize::MAX, end: usize::MAX, lang: "ts".to_owned() };
+                self.compile_block(owner, block, &source, &bindings, true, &file, &mut diagnostics)
+            }
+            _ => return None,
+        };
+        Some((module, diagnostics))
+    }
+
     /// The project-wide diagnostics (`all`) that name one of a component's modules, in the
     /// component: a relation declared in a `<script setup>` and never read is reported where it is
     /// declared there.
@@ -154,6 +187,23 @@ impl Project {
         }
         out
     }
+}
+
+/// The `.ts` file beside an `.html` template whose `templateUrl` names it, and its text.
+fn template_owner(template: &Path, read: &dyn Fn(&Path) -> Option<String>) -> Option<(PathBuf, String)> {
+    // The template's folder (`with_file_name("")`: a path with a file name always has one).
+    let directory = template.with_file_name("");
+    let mut candidates: Vec<PathBuf> = std::fs::read_dir(&directory)
+        .ok()?
+        .filter_map(|entry| entry.ok().map(|entry| entry.path()))
+        .filter(|candidate| candidate.extension().is_some_and(|extension| extension == "ts"))
+        .collect();
+    candidates.sort();
+    candidates.into_iter().find_map(|candidate| {
+        let source = read(&candidate)?;
+        let url = angular_template_url(&source)?;
+        (crate::absolute(&directory.join(url)) == crate::absolute(template)).then_some((candidate, source))
+    })
 }
 
 /// The block text followed by one `<div sx={…} />` per binding, and where each landed.

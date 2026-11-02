@@ -6,7 +6,7 @@
 use std::path::{Path, PathBuf};
 
 use kirana_diagnostics::{Code, Diagnostic, Span};
-use kirana_frontend::sfc::{Binding, Block, Framework, angular_bindings, angular_template, angular_template_url};
+use kirana_frontend::sfc::{Binding, Block, Framework};
 use kirana_frontend::templates::{is_template, style_names};
 pub(crate) use kirana_project::component::Module;
 use kirana_project::{Project, Site};
@@ -23,35 +23,15 @@ pub(crate) fn compile(project: &Project, path: &Path, text: &str, framework: Fra
     (Compiled { modules }, diagnostics)
 }
 
-/// An Angular component (D-068): a `.ts` file with `[sx]` bindings in its inline template, or an
-/// `.html` template named by a `.ts` file beside it (`read` gives that file's text). `None` for a
-/// file that is neither.
+/// An Angular component (D-068), as `Project::compile_angular` compiles it. `None` for a file that is
+/// neither an Angular component with `[sx]` in its inline template nor a template one names.
 pub(crate) fn angular(
     project: &Project,
     path: &Path,
     text: &str,
     read: &dyn Fn(&Path) -> Option<String>,
 ) -> Option<(Compiled, Vec<Diagnostic>)> {
-    let file = project.display_name(path);
-    let mut diagnostics = Vec::new();
-    let module = match path.extension().and_then(|extension| extension.to_str()) {
-        Some("ts") => {
-            let (start, end) = angular_template(text)?;
-            let bindings = angular_bindings(&text[start..end], start);
-            if bindings.is_empty() {
-                return None;
-            }
-            let block = Block { label: "", start: 0, end: text.len(), lang: "ts".to_owned() };
-            project.compile_block(path.to_path_buf(), block, text, &bindings, false, &file, &mut diagnostics)
-        }
-        Some("html") => {
-            let (owner, source) = template_owner(path, read)?;
-            let bindings = angular_bindings(text, 0);
-            let block = Block { label: "", start: usize::MAX, end: usize::MAX, lang: "ts".to_owned() };
-            project.compile_block(owner, block, &source, &bindings, true, &file, &mut diagnostics)
-        }
-        _ => return None,
-    };
+    let (module, diagnostics) = project.compile_angular(path, text, read)?;
     Some((Compiled { modules: vec![module] }, diagnostics))
 }
 
@@ -113,24 +93,6 @@ pub(crate) fn template(project: &Project, path: &Path, text: &str) -> Option<(Co
     let id = PathBuf::from(format!("{}.kirana.ts", path.display()));
     let module = project.compile_block(id, block, &content, &bindings, true, &file, &mut diagnostics);
     Some((Compiled { modules: vec![module] }, diagnostics))
-}
-
-/// The `.ts` file beside an `.html` template whose `templateUrl` names it, and its text.
-fn template_owner(template: &Path, read: &dyn Fn(&Path) -> Option<String>) -> Option<(PathBuf, String)> {
-    // The template's folder (`with_file_name("")`: a path with a file name always has one).
-    let directory = template.with_file_name("");
-    let mut candidates: Vec<PathBuf> = std::fs::read_dir(&directory)
-        .ok()?
-        .filter_map(|entry| entry.ok().map(|entry| entry.path()))
-        .filter(|candidate| candidate.extension().is_some_and(|extension| extension == "ts"))
-        .collect();
-    candidates.sort();
-    candidates.into_iter().find_map(|candidate| {
-        let source = read(&candidate)?;
-        let url = angular_template_url(&source)?;
-        (kirana_project::absolute(&directory.join(url)) == kirana_project::absolute(template))
-            .then_some((candidate, source))
-    })
 }
 
 impl Compiled {

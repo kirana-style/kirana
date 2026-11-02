@@ -45,10 +45,10 @@ feature works unchanged; `kirana_project::component` maps spans back. Diagnostic
 appended JSX are dropped: an `{#each}` item or a slot prop is unresolved there by design, and the
 build reports nothing for templates either.
 
-`kirana-style check` compiles components the same way (`Project::compile_tree`), and the server
-indexes from that one pass: a relation anchored or read only in a component counts, and a
-project-wide diagnostic naming a block (`Card.vue.setup.ts`) is placed in the component, a
-relation's declaration found in the block's text.
+`kirana-style check` compiles components the same way (`Project::compile_tree`), Angular ones
+(D-068) included, and the server indexes from that one pass: a relation anchored or read only in a
+component counts, and a project-wide diagnostic naming a block (`Card.vue.setup.ts`) is placed in
+the component, a relation's declaration found in the block's text.
 
 ## Limits
 

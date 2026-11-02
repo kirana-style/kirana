@@ -296,7 +296,7 @@ A relation named `field` owns one marker class (`.kr…`), applied through `fiel
 In a bundler build, R1 covers the relations whose declaring module the build compiled; one declared in a
 module the build never compiled (a shared component reading an ancestor this application does not
 render) is left to `kirana-style check`, which compiles every module, the script blocks of Vue, Svelte and
-Astro components included (D-062).
+Astro components and Angular templates' `[sx]` included (D-062).
 
 An element whose own `sx` carries a relation's anchor and a `within` or `parent` read of it with a
 state (`form.within('[data-disabled="true"]')`) is accepted by R3, as an outer instance, but it never

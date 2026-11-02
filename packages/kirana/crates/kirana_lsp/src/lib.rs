@@ -212,7 +212,7 @@ impl Server {
         if serial {
             project.compile_serially();
         }
-        // Scripts and Vue, Svelte and Astro components, compiled once for the session.
+        // Scripts, and Vue, Svelte, Astro and Angular components, compiled once for the session.
         let indexed = project.compile_tree(std::slice::from_ref(&root));
         let mut module_diagnostics: BTreeMap<PathBuf, Vec<Diagnostic>> = BTreeMap::new();
         for diagnostic in indexed.diagnostics.into_iter().filter(|diagnostic| !diagnostic.file.is_empty()) {
@@ -223,19 +223,9 @@ impl Server {
             module_diagnostics.insert(path.clone(), diagnostics);
             components.insert(path, component::Compiled { modules });
         }
-        // Angular components (D-068): `.ts` files with `[sx]` in an inline template, and `.html`
-        // templates. Only files that mention `[sx]` are read twice.
-        let mut angular = Vec::new();
-        kirana_project::collect_sources(&root, &mut angular, &["ts", "html"]);
-        let disk = |file: &Path| std::fs::read_to_string(file).ok();
-        let marked = angular.into_iter().filter_map(|path| {
-            disk(&path).filter(|text| text.contains("sx]") || text.contains("bind-sx")).map(|text| (path, text))
-        });
-        for (path, text) in marked {
-            if let Some((compiled, diagnostics)) = component::angular(&project, &path, &text, &disk) {
-                module_diagnostics.insert(path.clone(), diagnostics);
-                components.insert(path, compiled);
-            }
+        for (path, module, diagnostics) in indexed.angular {
+            module_diagnostics.insert(path.clone(), diagnostics);
+            components.insert(path, component::Compiled { modules: vec![module] });
         }
         let option = |name: &str| params.pointer(&format!("/initializationOptions/{name}")).and_then(Value::as_bool);
         let options = Options {

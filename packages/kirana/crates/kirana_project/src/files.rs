@@ -60,6 +60,9 @@ pub struct Tree {
     pub sources: Vec<(String, String)>,
     /// Each Vue, Svelte or Astro component: its block modules and its own diagnostics.
     pub components: Vec<(PathBuf, Vec<Module>, Vec<Diagnostic>)>,
+    /// Each Angular component (D-068), its `.ts` file or its `.html` template: its module and the
+    /// diagnostics in it, which `diagnostics` already holds as the script's.
+    pub angular: Vec<(PathBuf, Module, Vec<Diagnostic>)>,
 }
 
 impl Project {
@@ -74,13 +77,16 @@ impl Project {
     /// [`Project::compile_paths`], with the components it compiled, as the language server indexes.
     /// A Vue, Svelte or Astro component compiles as the build compiles it: its script blocks, the one
     /// the template sees with the template's `sx` bindings, so a relation anchored or read in a
-    /// component counts, and its blocks' diagnostics are reported in it.
+    /// component counts, and its blocks' diagnostics are reported in it. An Angular component's
+    /// script compiles again with its template's `[sx]` bindings, inline or in its `.html` file.
     pub fn compile_tree(&self, paths: &[PathBuf]) -> Tree {
         let mut files = Vec::new();
         let mut components = Vec::new();
+        let mut angular = Vec::new();
         for path in paths {
             collect_sources(path, &mut files, SCRIPT_EXTENSIONS);
             collect_sources(path, &mut components, COMPONENT_EXTENSIONS);
+            collect_sources(path, &mut angular, &["ts", "html"]);
         }
         self.walked.store(true, std::sync::atomic::Ordering::Relaxed);
         let mut tree = Tree::default();
@@ -107,6 +113,19 @@ impl Project {
             let (modules, diagnostics) = self.compile_component(path, &text, framework);
             (path.clone(), text, modules, diagnostics)
         });
+        // Angular (D-068): only a file that mentions `[sx]` is compiled again. What the script reports
+        // is the `.ts` file's own, already reported, and what the template's bindings report is
+        // dropped, so only what they apply counts.
+        let read = |file: &Path| self.fs.read_to_string(file).ok();
+        tree.angular = self
+            .each(&angular, |path| {
+                let text = read(path).filter(|text| text.contains("sx]") || text.contains("bind-sx"))?;
+                let (module, diagnostics) = self.compile_angular(path, &text, &read)?;
+                Some((path.clone(), module, diagnostics))
+            })
+            .into_iter()
+            .flatten()
+            .collect();
         // A project-wide diagnostic that names a component's block is reported in the component.
         let all = self.diagnostics();
         let blocks: FxHashSet<String> = compiled
