@@ -906,6 +906,15 @@ function stylesheetStep(files: Files, project: Detected): Step {
         ]
       )
     }
+    case "vinext":
+      // The root layout wraps every App Router page; `_app` every Pages Router one.
+      return entry(
+        [
+          ...entries(["app/", "src/app/"], ["layout"]),
+          ...entries(["pages/", "src/pages/"], ["_app"]),
+        ],
+        `import "${STYLESHEET}" in app/layout.tsx, or pages/_app.tsx with the Pages Router`
+      )
     case "nuxt": {
       const config = files.find(CONFIG_NAMES("nuxt"))
       return config && files.read(config)!.includes(STYLESHEET)
@@ -1217,6 +1226,7 @@ export type Io = {
 
 const NAMES: Record<Detected["framework"], string> = {
   next: "Next.js",
+  vinext: "vinext",
   nuxt: "Nuxt",
   sveltekit: "SvelteKit",
   astro: "Astro",

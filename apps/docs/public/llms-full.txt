@@ -35,7 +35,7 @@ of Kirana is left at runtime.
 
 ## Works with your framework
 
-React, Next.js, React Router, TanStack Start, Gatsby, Remix, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no
+React, Next.js, vinext, React Router, TanStack Start, Gatsby, Remix, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no
 framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete
 install guide, and each is built and checked in a browser on every change:
 **[pick yours](/docs/frameworks/overview)**.
@@ -374,6 +374,7 @@ Frameworks:
 
 - [React](/docs/frameworks/react): The library for web and native user interfaces, on Vite.
 - [Next.js](/docs/frameworks/nextjs): The React framework, with server components, on Turbopack.
+- [vinext](/docs/frameworks/vinext): A Next.js app built by Vite: both routers and server components.
 - [React Router](/docs/frameworks/react-router): A standards-focused router and framework you can deploy anywhere.
 - [TanStack Start](/docs/frameworks/tanstack-start): Full-stack React powered by TanStack Router. This site runs on it.
 - [Gatsby](/docs/frameworks/gatsby): Static sites with React and GraphQL, built by webpack.
@@ -4030,6 +4031,7 @@ Each is complete on its own: install, configure, import the stylesheet, type
 
 - [React](/docs/frameworks/react): The library for web and native user interfaces, on Vite.
 - [Next.js](/docs/frameworks/nextjs): The React framework, with server components, on Turbopack.
+- [vinext](/docs/frameworks/vinext): A Next.js app built by Vite: both routers and server components.
 - [React Router](/docs/frameworks/react-router): A standards-focused router and framework you can deploy anywhere.
 - [TanStack Start](/docs/frameworks/tanstack-start): Full-stack React powered by TanStack Router. This site runs on it.
 - [Gatsby](/docs/frameworks/gatsby): Static sites with React and GraphQL, built by webpack.
@@ -4413,6 +4415,92 @@ sends it as a CSS hot update ([development servers](/docs/integrations/bundlers#
 
 - [Your first component](/docs/start/first-component): a button with a hover state
   and a variant, and the CSS it compiles to.
+---
+# vinext
+Source: https://site.kirana-style.workers.dev/docs/frameworks/vinext
+# vinext
+
+vinext runs a Next.js app on Vite: the same routes, layouts and Next.js modules,
+built by Vite instead of Next.js's own build. Kirana's Vite plugin compiles every
+route before vinext's plugin does, so server components and client components
+carry the same class names, in the server render and in the browser. Tested on
+every change by `examples/vinext`: built, served by `vinext start` and on its dev
+server, with the Pages Router checked the same way.
+
+
+
+## The fast way
+
+In the project's root:
+
+```bash
+npx kirana-style@latest init
+```
+
+It detects vinext ahead of the `next` package a migrated app still lists, shows
+every change below as a diff, writes them once you say yes, and prints the install
+command (`--install` runs it). Then `npx kirana-style doctor` checks the result.
+
+## 1. Install
+
+```bash
+npm install @kirana-style/core
+npm install -D @kirana-style/vite
+```
+
+## 2. Add the plugin
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import vinext from "vinext"
+import { defineConfig } from "vite"
+
+export default defineConfig({
+  plugins: [kirana(), vinext()],
+})
+```
+
+Kirana goes first, so `app/` and `pages/` reach vinext with `sx` already compiled.
+
+## 3. Import the stylesheet
+
+In the root layout, which wraps every page:
+
+```tsx file="app/layout.tsx"
+import "@kirana-style/core/stylesheet.css"
+```
+
+With the Pages Router, import it in `pages/_app.tsx` instead.
+
+## 4. Type `sx`
+
+```json file="tsconfig.json"
+{
+  "compilerOptions": { "types": ["vinext/types", "@kirana-style/core/react"] }
+}
+```
+
+## 5. Write a page
+
+A server component styles itself the way a client component does: the styles are
+compiled away, so there is no runtime to keep out of it.
+
+```tsx file="app/page.tsx"
+import { css } from "@kirana-style/core"
+
+const title = css({ fontSize: "2rem", fontWeight: 600 })
+
+export default function Home() {
+  return <h1 sx={title}>Hello</h1>
+}
+```
+
+## Next
+
+- [Next.js](/docs/frameworks/nextjs): the same app built by Turbopack or
+  webpack.
+- [React](/docs/frameworks/react): `sx` in React components.
+- [The Vite plugin](/docs/integrations/vite).
 ---
 # React Router
 Source: https://site.kirana-style.workers.dev/docs/frameworks/react-router
@@ -7944,7 +8032,7 @@ is Tailwind v4's scales as tokens, and [utility strings](/docs/styling/utilities
 leaves the vocabulary to you.
 
 **Hosts and frameworks.** Adapters for Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild; `sx` in
-React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember and every framework built on them (React, Next.js, React Router, TanStack Start, Gatsby, Remix, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor); and
+React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember and every framework built on them (React, Next.js, vinext, React Router, TanStack Start, Gatsby, Remix, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor); and
 templates in Laravel, Symfony, Rails, Phoenix and AdonisJS, each with an example CI builds and checks. See
 [frameworks](/docs/frameworks/overview).
 
@@ -9386,7 +9474,7 @@ Next.js · turbopack · npm · TypeScript
 ```
 
 
-It knows Next.js (Turbopack and webpack), Nuxt, SvelteKit, Astro, TanStack Start,
+It knows Next.js (Turbopack and webpack), vinext, Nuxt, SvelteKit, Astro, TanStack Start,
 Qwik, Angular (the CLI, whose `angular.json` builders it swaps, and Analog), React
 Router, Gatsby, Ember, Meteor and Parcel; React, Preact, Solid, Vue, Svelte or
 plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown; and the server frameworks
@@ -12102,15 +12190,15 @@ See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 Every framework has a guide and a tested example; the
 [frameworks page](/docs/frameworks/overview) picks yours.
 
-| Framework                                                        | How styles reach the markup                                     |
-| ---------------------------------------------------------------- | --------------------------------------------------------------- |
-| React 19, Next.js, TanStack Start, Remix, Waku, Vike, Docusaurus | `sx` compiles to `className`; this site is a TanStack Start app |
-| Preact, Solid, SolidStart, Qwik 2                                | `sx` compiles to `class`                                        |
-| Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro                   | `sx` in their templates                                         |
-| Angular (CLI and Analog)                                         | `[sx]` in templates, merged at runtime                          |
-| React Router, Gatsby, Ember, Meteor                              | as their component layer does                                   |
-| No framework                                                     | handles are class strings                                       |
-| Laravel, Symfony, Rails, Phoenix, AdonisJS                       | templates read a [class map](/docs/frameworks/server-templates) |
+| Framework                                                                | How styles reach the markup                                     |
+| ------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| React 19, Next.js, vinext, TanStack Start, Remix, Waku, Vike, Docusaurus | `sx` compiles to `className`; this site is a TanStack Start app |
+| Preact, Solid, SolidStart, Qwik 2                                        | `sx` compiles to `class`                                        |
+| Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro                           | `sx` in their templates                                         |
+| Angular (CLI and Analog)                                                 | `[sx]` in templates, merged at runtime                          |
+| React Router, Gatsby, Ember, Meteor                                      | as their component layer does                                   |
+| No framework                                                             | handles are class strings                                       |
+| Laravel, Symfony, Rails, Phoenix, AdonisJS                               | templates read a [class map](/docs/frameworks/server-templates) |
 
 ## Tooling
 

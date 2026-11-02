@@ -1,0 +1,37 @@
+{
+  "name": "kirana-example-vinext",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "start": "vinext start"
+  },
+  "kirana-example": {
+    "output": "dist/client",
+    "dev": [
+      "vite",
+      "--port",
+      "{port}",
+      "--strictPort",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "app/page.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-server-dom-webpack": "^19.3.1",
+    "vinext": "^1.4.1"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "@vitejs/plugin-rsc": "^0.5.38",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4"
+  }
+}

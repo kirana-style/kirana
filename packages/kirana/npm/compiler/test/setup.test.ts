@@ -1659,7 +1659,7 @@ describe("D-069 to D-072: the frameworks Tailwind has a guide for", () => {
     expect(steps(configured).adapter!.status).toBe("manual")
   })
 
-  it("detects Waku, VitePress and Docusaurus, and sets Waku and Vike up", () => {
+  it("detects Waku, vinext, VitePress and Docusaurus, and sets Waku, vinext and Vike up", () => {
     const of = (manifest: Record<string, string>) => detect(project(manifest))
     expect(
       of({ "package.json": pkg({ waku: "1", react: "19" }) })
@@ -1715,6 +1715,40 @@ describe("D-069 to D-072: the frameworks Tailwind has a guide for", () => {
       "waku.config.ts": "export default defineConfig({ vite: {} })\n",
     })
     expect(steps(vitePlain).adapter!.status).toBe("manual")
+
+    // vinext, ahead of the `next` a migrated app still lists: Kirana first in Vite's plugins, and the
+    // stylesheet in the root layout, or in `_app` with the Pages Router.
+    const vinext = of({
+      "package.json": pkg({ vinext: "1", next: "16", react: "19" }),
+    })
+    expect(vinext).toMatchObject({ framework: "vinext", bundler: "vite" })
+    expect(adapterOf(vinext)).toEqual(["@kirana-style/vite"])
+    expect(typesOf("vinext")).toBe("@kirana-style/core/react")
+    expect(describeProject(vinext)).toBe("vinext · vite · npm · JavaScript")
+    const appRouter = project({
+      "package.json": pkg({ vinext: "1", react: "19", vite: "8" }),
+      "tsconfig.json": "{}",
+      "vite.config.ts":
+        'import vinext from "vinext"\nimport { defineConfig } from "vite"\n\nexport default defineConfig({ plugins: [vinext()] })\n',
+      "app/layout.tsx": "export default 1\n",
+    })
+    expect(files(appRouter)["vite.config.ts"]).toContain(
+      "plugins: [kirana(), vinext()]"
+    )
+    expect(files(appRouter)["app/layout.tsx"]).toMatch(
+      /^import "@kirana-style\/core\/stylesheet.css"/
+    )
+    const pagesRouter = project({
+      "package.json": pkg({ vinext: "1", react: "19", vite: "8" }),
+      "pages/_app.tsx": "export default 1\n",
+    })
+    expect(files(pagesRouter)["pages/_app.tsx"]).toMatch(
+      /^import "@kirana-style\/core\/stylesheet.css"/
+    )
+    expect(
+      steps(project({ "package.json": pkg({ vinext: "1", react: "19" }) }))
+        .stylesheet!.status
+    ).toBe("manual")
 
     // Vike: the stylesheet in the page files every page shares.
     const vike = project({

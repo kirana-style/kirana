@@ -22,6 +22,8 @@ export type Logo = SvglIcon | Mark
 export const PAGE_LOGOS: Readonly<Record<string, Logo>> = {
   "/docs/frameworks/react": SVGL.react,
   "/docs/frameworks/nextjs": SVGL.nextjs,
+  // Neither logo source has vinext, and its website has no logo file of its own.
+  "/docs/frameworks/vinext": { title: "vinext", monogram: "V" },
   "/docs/frameworks/tanstack-start": SVGL.tanstack,
   "/docs/frameworks/react-router": SVGL.reactrouter,
   "/docs/frameworks/gatsby": SVGL.gatsby,

@@ -37,6 +37,14 @@ export const FRAMEWORK_GUIDES: readonly Guide[] = [
     runsOn: "Turbopack, webpack",
   },
   {
+    title: "vinext",
+    href: "/docs/frameworks/vinext",
+    group: "frameworks",
+    description:
+      "A Next.js app built by Vite: both routers and server components.",
+    runsOn: "Vite",
+  },
+  {
     title: "React Router",
     href: "/docs/frameworks/react-router",
     group: "frameworks",

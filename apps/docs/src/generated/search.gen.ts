@@ -39,7 +39,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Introduction",
     "section": "start",
     "heading": "Works with your framework",
-    "text": "React, Next.js, React Router, TanStack Start, Gatsby, Remix, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete install guide, and each is built and checked in a browser on every change: pick yours ."
+    "text": "React, Next.js, vinext, React Router, TanStack Start, Gatsby, Remix, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete install guide, and each is built and checked in a browser on every change: pick yours ."
   },
   {
     "id": "/docs#what-it-gives-you",
@@ -1848,6 +1848,61 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "frameworks",
     "heading": "Next",
     "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to."
+  },
+  {
+    "id": "/docs/frameworks/vinext",
+    "href": "/docs/frameworks/vinext",
+    "page": "vinext",
+    "section": "frameworks",
+    "text": "Install Kirana in a vinext app, a Next.js app built by Vite, where server and client components compile sx to className in the App Router and the Pages Router. "
+  },
+  {
+    "id": "/docs/frameworks/vinext#vinext",
+    "href": "/docs/frameworks/vinext#vinext",
+    "page": "vinext",
+    "section": "frameworks",
+    "heading": "vinext",
+    "text": "vinext runs a Next.js app on Vite: the same routes, layouts and Next.js modules, built by Vite instead of Next.js's own build. Kirana's Vite plugin compiles every route before vinext's plugin does, so server components and client components carry the same class names, in the server render and in the browser. Tested on every change by : built, served by and on its dev server, with the Pages Router checked the same way."
+  },
+  {
+    "id": "/docs/frameworks/vinext#the-fast-way",
+    "href": "/docs/frameworks/vinext#the-fast-way",
+    "page": "vinext",
+    "section": "frameworks",
+    "heading": "The fast way",
+    "text": "In the project's root: It detects vinext ahead of the package a migrated app still lists, shows every change below as a diff, writes them once you say yes, and prints the install command ( runs it). Then checks the result."
+  },
+  {
+    "id": "/docs/frameworks/vinext#2-add-the-plugin",
+    "href": "/docs/frameworks/vinext#2-add-the-plugin",
+    "page": "vinext",
+    "section": "frameworks",
+    "heading": "2. Add the plugin",
+    "text": "Kirana goes first, so and reach vinext with already compiled."
+  },
+  {
+    "id": "/docs/frameworks/vinext#3-import-the-stylesheet",
+    "href": "/docs/frameworks/vinext#3-import-the-stylesheet",
+    "page": "vinext",
+    "section": "frameworks",
+    "heading": "3. Import the stylesheet",
+    "text": "In the root layout, which wraps every page: With the Pages Router, import it in instead."
+  },
+  {
+    "id": "/docs/frameworks/vinext#5-write-a-page",
+    "href": "/docs/frameworks/vinext#5-write-a-page",
+    "page": "vinext",
+    "section": "frameworks",
+    "heading": "5. Write a page",
+    "text": "A server component styles itself the way a client component does: the styles are compiled away, so there is no runtime to keep out of it."
+  },
+  {
+    "id": "/docs/frameworks/vinext#next",
+    "href": "/docs/frameworks/vinext#next",
+    "page": "vinext",
+    "section": "frameworks",
+    "heading": "Next",
+    "text": "Next.js : the same app built by Turbopack or webpack. React : in React components. The Vite plugin ."
   },
   {
     "id": "/docs/frameworks/react-router",
@@ -4502,7 +4557,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style init",
-    "text": "Set a project up: the configuration file, the adapter in your bundler's configuration, the stylesheet, and the types for . It reads and the lockfile to find the framework, the bundler and the package manager (npm, pnpm, Yarn, Bun, or Deno from a ), then prints every change as a diff before it writes anything: It knows Next.js (Turbopack and webpack), Nuxt, SvelteKit, Astro, TanStack Start, Qwik, Angular (the CLI, whose builders it swaps, and Analog), React Router, Gatsby, Ember, Meteor and Parcel; React, Preact, Solid, Vue, Svelte or plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown; and the server frameworks Laravel, Symfony, Rails, Phoenix and AdonisJS, which get a class map and a starter style module. Edits follow the file's own quotes and semicolons. Where a configuration is not in a shape it can edit safely ( , a function, a plugin list built elsewhere), it prints the step to do by hand instead of guessing. The install command is your package manager's own (Deno's takes each package as ), printed, never run unless you pass , so your lockfile stays yours. Its last line names the next command the way your package manager runs it, such as . Its setups were checked the way "
+    "text": "Set a project up: the configuration file, the adapter in your bundler's configuration, the stylesheet, and the types for . It reads and the lockfile to find the framework, the bundler and the package manager (npm, pnpm, Yarn, Bun, or Deno from a ), then prints every change as a diff before it writes anything: It knows Next.js (Turbopack and webpack), vinext, Nuxt, SvelteKit, Astro, TanStack Start, Qwik, Angular (the CLI, whose builders it swaps, and Analog), React Router, Gatsby, Ember, Meteor and Parcel; React, Preact, Solid, Vue, Svelte or plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown; and the server frameworks Laravel, Symfony, Rails, Phoenix and AdonisJS, which get a class map and a starter style module. Edits follow the file's own quotes and semicolons. Where a configuration is not in a shape it can edit safely ( , a function, a plugin list built elsewhere), it prints the step to do by hand instead of guessing. The install command is your package manager's own (Deno's takes each package as ), printed, never run unless you pass , so your lockfile stays yours. Its last line names the next command the way your package manager runs it, such as . Its setups were checked "
   },
   {
     "id": "/docs/tooling/cli#kirana-style-doctor",
