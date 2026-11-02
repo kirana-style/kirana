@@ -294,6 +294,11 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         self.parsed
     }
 
+    /// How many diagnostics the evaluation has reported so far.
+    pub fn reported(&self) -> usize {
+        self.diagnostics.borrow().len()
+    }
+
     pub fn context(&self) -> Context<'c> {
         self.ctx
     }

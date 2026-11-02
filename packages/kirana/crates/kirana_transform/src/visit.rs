@@ -21,6 +21,13 @@ pub(crate) struct Rewriter<'e, 'p, 'a, 'c> {
     evaluator: &'e Evaluator<'p, 'a, 'c>,
     edits: Vec<Edit>,
     callee_identifiers: FxHashSet<u32>,
+    /// The spans of edits written without any of the source they replace, newest last: nothing
+    /// inside one is rendered, so a Kirana call there is not compiled again (`in_closed_edit`).
+    closed: Vec<(u32, u32)>,
+    /// The evaluator's report count when the current call or element was reached: an edit is
+    /// closed only when compiling it reported nothing, since a report can stop an evaluation
+    /// short of calls inside it that report on their own.
+    reported: usize,
     pub runtime_needed: bool,
     pub anchors: Vec<String>,
     pub diagnostics: Vec<Diagnostic>,
@@ -36,6 +43,8 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             evaluator,
             edits: Vec::new(),
             callee_identifiers: FxHashSet::default(),
+            closed: Vec::new(),
+            reported: 0,
             runtime_needed: false,
             anchors: Vec::new(),
             diagnostics: Vec::new(),
@@ -84,6 +93,11 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
 
     fn push(&mut self, span: (u32, u32), code: Code) {
         self.runtime_needed |= code.runtime;
+        if self.evaluator.reported() == self.reported
+            && !code.pieces.iter().any(|piece| matches!(piece, crate::Piece::Source(..)))
+        {
+            self.closed.push(span);
+        }
         let mut marker_deps = code.marker_deps;
         // Variable tokens that reach runtime values (a token object, a token passed to a bridged
         // value) must be declared even when no atom names them.
@@ -113,6 +127,15 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             diagnostic = diagnostic.with_help(help);
         }
         self.diagnostics.push(diagnostic);
+    }
+
+    /// Whether `span` lies inside an edit that renders none of its source: `props(css({…}))` and
+    /// `sx={[a, css({…})]}` compile the inner call as part of the outer one, whose edit replaces it.
+    /// Nodes are visited in source order, so an edit that ends before this one can enclose nothing
+    /// visited later.
+    fn in_closed_edit(&mut self, span: (u32, u32)) -> bool {
+        self.closed.retain(|closed| closed.1 > span.0);
+        self.closed.iter().any(|closed| closed.0 <= span.0 && span.1 <= closed.1)
     }
 
     /// The callee when it is Kirana's: any call's callee is asked, so quietly (KF-045).
@@ -505,6 +528,7 @@ fn is_host(name: &JSXElementName<'_>) -> bool {
 
 impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
     fn visit_call_expression(&mut self, call: &CallExpression<'a>) {
+        self.reported = self.evaluator.reported();
         match &call.callee {
             Expression::Identifier(identifier) => {
                 self.callee_identifiers.insert(identifier.span.start);
@@ -519,7 +543,9 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
         if self.is_jsx_factory(call) {
             self.compiled_element(call);
         }
-        if let Some(callee) = self.kirana_callee(&call.callee) {
+        if !self.in_closed_edit(sp(call.span))
+            && let Some(callee) = self.kirana_callee(&call.callee)
+        {
             if callee == Value::Api(Api::Props) {
                 self.props_call(call);
             } else {
@@ -534,6 +560,7 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
     }
 
     fn visit_jsx_opening_element(&mut self, element: &JSXOpeningElement<'a>) {
+        self.reported = self.evaluator.reported();
         let sx = element.attributes.iter().find_map(|item| match item {
             JSXAttributeItem::Attribute(attribute) if attribute_name(attribute) == Some("sx") => Some(&**attribute),
             _ => None,
