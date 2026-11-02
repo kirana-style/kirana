@@ -1,7 +1,7 @@
 
 import { breakpoint, DARK } from "./conditions"
 import { scrollFade } from "./handles"
-import { space } from "./scales"
+
 
 // A variant naming an export compiles to the atoms the export as a key compiles to (D-115).
 export function Exported() {

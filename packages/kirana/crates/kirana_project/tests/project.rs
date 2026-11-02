@@ -666,6 +666,38 @@ fn a_transform_that_missed_an_import_is_never_reused() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// An import the compiler folded away goes when compiling the module it names adds nothing to the
+/// build (D-118), so the build is the same whether the bundler would have compiled that module or never
+/// loaded it. Nothing is recorded for the answer, and an edit there asks again.
+#[test]
+fn a_folded_import_goes_when_its_module_adds_nothing() {
+    let sizes = |extra: &str| {
+        format!(
+            "import {{ css, defineTokens }} from \"@kirana-style/core\"\nexport const size = defineTokens(\"size\", {{ sm: \"2px\" }})\n{extra}"
+        )
+    };
+    let reader = "import { css } from \"@kirana-style/core\"\nimport { size } from \"./sizes\"\nexport const box = css({ gap: size.sm })\n";
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("sizes.ts", &sizes(""))]);
+    let (a, b, file) = (root.join("a.ts"), root.join("b.ts"), root.join("sizes.ts"));
+    let kept = |path: &Path| project.transform(path, reader).code.unwrap().contains("./sizes");
+    let first = project.transform(&a, reader);
+    assert!(!first.code.unwrap().contains("./sizes"));
+    // Its exports were read, so an edit there compiles the reader again; the module itself has no record.
+    assert!(first.dependencies.contains(&file));
+    assert_eq!(project.work().seen, 1);
+    assert!(!kept(&b));
+
+    // A rule there would be in the stylesheet only if the bundler compiled the module: the import stays.
+    fs::write(&file, sizes("export const ring = css({ outlineWidth: \"1px\" })\n")).unwrap();
+    project.invalidate(&file);
+    assert!(kept(&a));
+    // So does a diagnostic, which only the bundler's compile of it reports.
+    fs::write(&file, sizes("export const odd = css({ colour: \"red\" })\n")).unwrap();
+    project.invalidate(&file);
+    assert!(kept(&a));
+    fs::remove_dir_all(root).unwrap();
+}
+
 /// A host that writes no source maps asks for none, and gets the same code; a reused transform is
 /// one built the same way.
 #[test]

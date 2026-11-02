@@ -128,6 +128,9 @@ pub(crate) struct State {
     pub dense_stale: bool,
     /// The last transform of each module, when transforms are reused (`Project::reuse_transforms`).
     pub reused: FxHashMap<PathBuf, Reusable>,
+    /// Whether compiling each module adds nothing to the build (D-118): no rule, relation or
+    /// diagnostic. A module's compile reads others, so every change clears it.
+    pub inert: FxHashMap<PathBuf, bool>,
     /// Bumped whenever a module's record or a declaration changes. The stylesheet and the
     /// project's diagnostics hold from one bump to the next, so they are kept with the revision
     /// they were computed at.
@@ -356,6 +359,67 @@ impl Project {
         self.reuse.store(true, std::sync::atomic::Ordering::Relaxed);
     }
 
+    /// Whether compiling the module at `path` adds nothing to the build (D-118): it reports no
+    /// diagnostic and writes no rule, relation, anchor or class, so whether the bundler compiles it
+    /// or never loads it is the same build. Compiled for the answer and not recorded; `compiling` are
+    /// the transforms in progress on this thread.
+    pub(crate) fn compiles_to_nothing(&self, path: &Path, compiling: &[PathBuf]) -> bool {
+        if let Some(inert) = self.state.read().expect("not poisoned").inert.get(path) {
+            return *inert;
+        }
+        // Read when its exports were: a file gone since is not answered for.
+        let inert = self.fs.read_to_string(path).is_ok_and(|source| {
+            if !kirana_frontend::may_be_style_bearing(&source) {
+                return true;
+            }
+            let host = resolve::ModuleHost::new(self, vec![path.to_path_buf()])
+                .compiling(compiling.iter().cloned().chain([path.to_path_buf()]).collect());
+            let (file, package) = (self.display_name(path), self.package_name(path));
+            self.compile(
+                path,
+                &source,
+                kirana_frontend::source_type(path),
+                false,
+                (&file, &package),
+                &self.names,
+                &host,
+            )
+            .is_ok_and(|(output, diagnostics, definitions)| {
+                ModuleRecord::new(&self.names, &output, &definitions) == ModuleRecord::default()
+                    && diagnostics.into_iter().all(|diagnostic| {
+                        let level = self.config.level(diagnostic.code);
+                        apply_level(diagnostic, level).is_none()
+                    })
+            })
+        });
+        self.state.write().expect("not poisoned").inert.insert(path.to_path_buf(), inert);
+        inert
+    }
+
+    /// Parses, evaluates and rewrites `source` as the module at `path` (`file` in `package`) through
+    /// `host`: its output, its diagnostics before their levels apply, and what it defines.
+    #[allow(clippy::too_many_arguments)]
+    fn compile(
+        &self,
+        path: &Path,
+        source: &str,
+        source_type: kirana_frontend::SourceType,
+        maps: bool,
+        (file, package): (&str, &str),
+        names: &Names,
+        host: &resolve::ModuleHost<'_>,
+    ) -> Result<(kirana_transform::TransformOutput, Vec<Diagnostic>, kirana_evaluator::Definitions), Vec<Diagnostic>>
+    {
+        let context = Context { path, file, package, names, config: &self.config };
+        kirana_frontend::with_parsed_as(source_type, file, source, |parsed| {
+            let evaluator = Evaluator::new(parsed, context, host);
+            let output = kirana_transform::transform(&evaluator, maps);
+            let (mut diagnostics, definitions) = evaluator.finish();
+            diagnostics.extend(output.diagnostics.iter().cloned());
+            (output, diagnostics, definitions)
+        })
+    }
+
     fn transform_as(
         &self,
         path: &Path,
@@ -398,16 +462,9 @@ impl Project {
         self.state.write().expect("not poisoned").work.parsed += 1;
         let file = self.display_name(path);
         let package = self.package_name(path);
-        let host = resolve::ModuleHost::new(self, vec![path.to_path_buf()]);
+        let host = resolve::ModuleHost::new(self, vec![path.to_path_buf()]).compiling(vec![path.to_path_buf()]);
         let names = if self.dense.load(std::sync::atomic::Ordering::Relaxed) { &self.marked } else { &self.names };
-        let context = Context { path, file: &file, package: &package, names, config: &self.config };
-        let outcome = kirana_frontend::with_parsed_as(source_type, &file, source, |parsed| {
-            let evaluator = Evaluator::new(parsed, context, &host);
-            let output = kirana_transform::transform(&evaluator, maps);
-            let (mut diagnostics, definitions) = evaluator.finish();
-            diagnostics.extend(output.diagnostics.iter().cloned());
-            (output, diagnostics, definitions)
-        });
+        let outcome = self.compile(path, source, source_type, maps, (&file, &package), names, &host);
         let (output, diagnostics, definitions) = match outcome {
             Ok(result) => result,
             Err(diagnostics) => {
@@ -519,6 +576,7 @@ impl Project {
             state.exports.clear();
             state.reused.clear();
         }
+        state.inert.clear();
         state.revision += 1;
         // Its declarations are recorded again when it is next evaluated; a long-lived session (the
         // language server) must not keep a namespace or relation the file no longer declares.

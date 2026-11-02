@@ -4130,7 +4130,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The output",
     "section": "building",
     "heading": "What ships to the browser",
-    "text": "The stylesheet. Class strings in your JavaScript. The private runtime (under 1.1 kB, gzipped) only in modules that merge at runtime or bridge a value. There is no style engine, no CSS-in-JS injection, and no rule generation at runtime."
+    "text": "The stylesheet. Class strings in your JavaScript. The private runtime (under 1.1 kB, gzipped) only in modules that merge at runtime or bridge a value. There is no style engine, no CSS-in-JS injection, and no rule generation at runtime. A module your styles read only at build time is not imported by the compiled code. When every value a component imports from a module was folded into class strings, that module does nothing but declare values (tokens, objects, functions, types), and compiling it adds nothing to the build, the import goes, so the bundler never resolves or loads it. A module that acts when it loads (a top-level call, a class) keeps its import, as do one that declares variables, rules or relations, one with a diagnostic, and one whose value is still read at runtime. Vue, Svelte and Astro components keep every import, since their templates read the script's bindings."
   },
   {
     "id": "/docs/building/cloudflare-workers",

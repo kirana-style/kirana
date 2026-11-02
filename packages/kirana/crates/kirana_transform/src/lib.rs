@@ -5,6 +5,7 @@
 //! expression the evaluator cannot fold is left as JavaScript and merged by the private runtime.
 
 mod codegen;
+mod folded;
 mod relations;
 mod visit;
 
@@ -63,7 +64,9 @@ pub fn transform(evaluator: &Evaluator<'_, '_, '_>, maps: bool) -> TransformOutp
     let parsed = evaluator.parsed();
     let source = parsed.source;
     let mut diagnostics = std::mem::take(&mut visitor.diagnostics);
-    let edits = visitor.finish_edits();
+    let mut edits = visitor.finish_edits();
+    edits.extend(folded::folded_imports(evaluator, &edits));
+    edits.sort_by(|a, b| a.start.cmp(&b.start).then(b.end.cmp(&a.end)));
     let runtime_needed = visitor.runtime_needed;
     let anchors = std::mem::take(&mut visitor.anchors);
     diagnostics.extend(relations::check(evaluator));

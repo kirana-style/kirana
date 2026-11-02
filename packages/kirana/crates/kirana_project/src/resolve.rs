@@ -37,6 +37,9 @@ pub(crate) struct Exports {
     pub stars: Vec<String>,
     /// Exported components that spread `sx`, unread, into an installed package: name → package.
     pub sx_forwarding: FxHashMap<String, String>,
+    /// The modules loading this one loads, when that is all it does beyond declaring its values
+    /// (`Evaluator::top_level_loads`, D-118); `None` when its top level may act.
+    pub loads: Option<Vec<String>>,
 }
 
 /// One module's evaluated exports.
@@ -70,6 +73,9 @@ pub(crate) struct ModuleHost<'p> {
     /// a transform (KF-082). Exports a cycle cut short are not kept, as the project does not keep
     /// them either: each read evaluates them again (KF-038).
     exports: RefCell<FxHashMap<PathBuf, Arc<Exports>>>,
+    /// The modules being transformed on this thread, this one last: one of them is never dropped
+    /// from an import, so compiling what an import would load ends (D-118).
+    compiling: Vec<PathBuf>,
 }
 
 impl<'p> ModuleHost<'p> {
@@ -83,7 +89,51 @@ impl<'p> ModuleHost<'p> {
             cycles: RefCell::default(),
             missed: Cell::new(false),
             exports: RefCell::default(),
+            compiling: Vec::new(),
         }
+    }
+
+    /// The host of a transform run while `compiling` (this module last) are transformed.
+    pub fn compiling(self, compiling: Vec<PathBuf>) -> Self {
+        Self { compiling, ..self }
+    }
+
+    /// Whether the module at `path` is one the project evaluates. An installed package is evaluated
+    /// only when it is a Kirana package: a preset or design system from npm must fold to the same
+    /// values it does as a workspace package (KRN-TOK-008 rule 4), while evaluating every icon set
+    /// or utility library would multiply build time.
+    fn evaluates(&self, path: &Path) -> bool {
+        let installed = path.components().any(|component| component.as_os_str() == "node_modules");
+        let script = path
+            .extension()
+            .is_some_and(|extension| ["ts", "tsx", "js", "jsx", "mts", "mjs"].iter().any(|known| extension == *known));
+        script && (!installed || self.project.package(path).kirana)
+    }
+
+    /// Whether loading the module at `path` does nothing but declare values and load modules that do
+    /// the same (D-118), adding each to `closure`. `path` holds the modules the walk is in: reaching
+    /// one again closes a cycle, which counts as acting, as does a module that does not resolve, one
+    /// the project does not evaluate, and one being transformed on this thread. Reading each one's
+    /// exports makes it a dependency of this module, so an edit there compiles it again.
+    fn loads_only(&self, module: &Path, path: &mut Vec<PathBuf>, closure: &mut Vec<PathBuf>) -> bool {
+        if closure.iter().any(|seen| seen == module) {
+            return true;
+        }
+        if path.iter().chain(&self.stack).chain(&self.compiling).any(|entered| entered == module)
+            || !self.evaluates(module)
+        {
+            return false;
+        }
+        let Some(loads) = self.exports_of(module).and_then(|exports| exports.loads.clone()) else { return false };
+        path.push(module.to_path_buf());
+        let only = loads.iter().all(|load| {
+            self.project.resolved(module, load).is_some_and(|loaded| self.loads_only(&loaded, path, closure))
+        });
+        path.pop();
+        if only {
+            closure.push(module.to_path_buf());
+        }
+        only
     }
 
     /// Whether an import failed to resolve, here or in a module it imported: a file created later
@@ -208,6 +258,7 @@ impl<'p> ModuleHost<'p> {
                 sx_roots: evaluator.sx_root_exports().into_iter().collect(),
                 stars: evaluator.star_exports(),
                 sx_forwarding: evaluator.sx_forwarding_exports().into_iter().collect(),
+                loads: evaluator.top_level_loads(),
             };
             let (_, definitions) = evaluator.finish();
             (exports, definitions)
@@ -260,14 +311,7 @@ impl Host for ModuleHost<'_> {
         if let Some(chain) = self.closes_cycle(&path) {
             return Value::cycle(&chain);
         }
-        // An installed package is evaluated only when it is a Kirana package: a preset or design
-        // system from npm must fold to the same values it does as a workspace package (KRN-TOK-008
-        // rule 4), while evaluating every icon set or utility library would multiply build time.
-        let installed = path.components().any(|component| component.as_os_str() == "node_modules");
-        let script = path
-            .extension()
-            .is_some_and(|extension| ["ts", "tsx", "js", "jsx", "mts", "mjs"].iter().any(|known| extension == *known));
-        if !script || installed && !self.project.package(&path).kirana {
+        if !self.evaluates(&path) {
             return Value::unknown("external module");
         }
         let Some(exports) = self.exports_of(&path) else { return Value::unknown("module could not be evaluated") };
@@ -297,6 +341,23 @@ impl Host for ModuleHost<'_> {
                 Value::Object(Arc::new(entries))
             }
         }
+    }
+
+    fn droppable(&self, from: &Path, specifier: &str) -> bool {
+        // A component's script block (`Card.vue.setup.ts`) keeps every import: its template reads
+        // bindings the compiler never sees.
+        if kirana_frontend::sfc::is_block_id(from) {
+            return false;
+        }
+        let mut closure = Vec::new();
+        self.project.resolved(from, specifier).is_some_and(|path| self.loads_only(&path, &mut Vec::new(), &mut closure))
+            // Whether the bundler would have loaded and compiled each, or never loaded it (a TypeScript
+            // transform drops an import whose bindings the compiled code no longer reads), the build
+            // is the same: compiling it adds nothing. An installed package the application does not
+            // compile never does.
+            && closure.iter().all(|module| {
+                self.project.outside_application(module) || self.project.compiles_to_nothing(module, &self.compiling)
+            })
     }
 
     fn is_external(&self, from: &Path, specifier: &str) -> bool {
