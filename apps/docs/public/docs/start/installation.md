@@ -63,6 +63,7 @@ Frameworks:
 
 - [React](/docs/frameworks/react): The library for web and native user interfaces, on Vite.
 - [Next.js](/docs/frameworks/nextjs): The React framework, with server components, on Turbopack.
+- [vinext](/docs/frameworks/vinext): A Next.js app built by Vite: both routers and server components.
 - [React Router](/docs/frameworks/react-router): A standards-focused router and framework you can deploy anywhere.
 - [TanStack Start](/docs/frameworks/tanstack-start): Full-stack React powered by TanStack Router. This site runs on it.
 - [Gatsby](/docs/frameworks/gatsby): Static sites with React and GraphQL, built by webpack.

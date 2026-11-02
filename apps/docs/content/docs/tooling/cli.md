@@ -111,7 +111,7 @@ Next.js · turbopack · npm · TypeScript
 
 <!-- consistency: subset -->
 
-It knows Next.js (Turbopack and webpack), Nuxt, SvelteKit, Astro, TanStack Start,
+It knows Next.js (Turbopack and webpack), vinext, Nuxt, SvelteKit, Astro, TanStack Start,
 Qwik, Angular (the CLI, whose `angular.json` builders it swaps, and Analog), React
 Router, Gatsby, Ember, Meteor and Parcel; React, Preact, Solid, Vue, Svelte or
 plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown; and the server frameworks

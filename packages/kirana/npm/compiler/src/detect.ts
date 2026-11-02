@@ -8,6 +8,7 @@ import path from "node:path"
 
 export type Framework =
   | "next"
+  | "vinext"
   | "nuxt"
   | "sveltekit"
   | "astro"
@@ -157,6 +158,8 @@ export function packageManagerOf(
 
 /** Frameworks by the dependency that names them; a meta-framework before the library it uses. */
 const FRAMEWORKS: readonly [string, Framework][] = [
+  // vinext runs a Next.js app on Vite; an app migrated to it still lists `next` beside it.
+  ["vinext", "vinext"],
   ["next", "next"],
   ["nuxt", "nuxt"],
   ["@sveltejs/kit", "sveltekit"],
@@ -183,6 +186,7 @@ const FRAMEWORKS: readonly [string, Framework][] = [
 
 /** Frameworks that always build on Vite. */
 const ON_VITE: readonly Framework[] = [
+  "vinext",
   "nuxt",
   "sveltekit",
   "astro",
@@ -348,6 +352,7 @@ export function runtimeOf(project: Detected): string[] {
 export function typesOf(framework: Framework): string | undefined {
   const types: Record<Framework, string | undefined> = {
     next: "react",
+    vinext: "react",
     "tanstack-start": "react",
     react: "react",
     preact: "preact",

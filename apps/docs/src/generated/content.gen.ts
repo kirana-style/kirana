@@ -1528,6 +1528,61 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
+    "href": "/docs/frameworks/vinext",
+    "file": "content/docs/frameworks/vinext.md",
+    "title": "vinext",
+    "description": "Install Kirana in a vinext app, a Next.js app built by Vite, where server and client components compile sx to className in the App Router and the Pages Router.",
+    "section": "frameworks",
+    "order": 3.2,
+    "keywords": [
+      "vinext",
+      "next.js",
+      "vite",
+      "react server components",
+      "rsc",
+      "app router",
+      "pages router",
+      "install"
+    ],
+    "headings": [
+      {
+        "id": "the-fast-way",
+        "text": "The fast way",
+        "level": 2
+      },
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-import-the-stylesheet",
+        "text": "3. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "4-type-sx",
+        "text": "4. Type sx",
+        "level": 2
+      },
+      {
+        "id": "5-write-a-page",
+        "text": "5. Write a page",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/docs/frameworks/react-router",
     "file": "content/docs/frameworks/react-router.md",
     "title": "React Router",
@@ -5601,6 +5656,21 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
+        "title": "vinext",
+        "href": "/docs/frameworks/vinext",
+        "description": "Install Kirana in a vinext app, a Next.js app built by Vite, where server and client components compile sx to className in the App Router and the Pages Router.",
+        "keywords": [
+          "vinext",
+          "next.js",
+          "vite",
+          "react server components",
+          "rsc",
+          "app router",
+          "pages router",
+          "install"
+        ]
+      },
+      {
         "title": "React Router",
         "href": "/docs/frameworks/react-router",
         "description": "Install Kirana in a React Router app in framework mode on Vite, where sx compiles to className for server rendering and single-page mode alike.",
@@ -6586,6 +6656,7 @@ export const ORDER: readonly string[] = [
   "/docs/frameworks/overview",
   "/docs/frameworks/react",
   "/docs/frameworks/nextjs",
+  "/docs/frameworks/vinext",
   "/docs/frameworks/react-router",
   "/docs/frameworks/tanstack-start",
   "/docs/frameworks/gatsby",
