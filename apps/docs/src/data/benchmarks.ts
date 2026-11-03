@@ -292,7 +292,7 @@ export const CLAIMS = {
 }
 
 /**
- * Dense names (`names: "dense"`, D-084) against the default hashed names over all three apps, in
+ * Dense names (`names: "dense"`, D-084) against hashed names over all three apps, in
  * words: "11 % smaller", "8 % slower", "level". The lab builds Kirana both ways; the site's tables
  * leave the dense build out, and these are its only claims. "not measured" for a run without it.
  */

@@ -53,7 +53,8 @@ export type KiranaRolldownOptions = {
    * in every chunk and in the stylesheet become codes of one or two characters, assigned from the
    * whole build, and everything the runtime merge reads stays. A development server keeps the
    * hashed names. Not available with a class map (`classes`), whose server-side helpers read hashed
-   * names. Default `"hashed"`.
+   * names. Default `"dense"`, or `"hashed"` with a class map (KF-094); `"hashed"` keeps the
+   * structured names in production too.
    */
   names?: "hashed" | "dense"
   /** Injected Driver options (tests). */
@@ -105,7 +106,12 @@ export function createKirana(
   const watching = (context: { meta?: { watchMode?: boolean } }) =>
     development() || context.meta?.watchMode !== false
   const fileName = options.fileName ?? "kirana.css"
-  const dense = () => options.names === "dense" && !development()
+  /**
+   * The names a build writes, settled by `buildStart`: dense in production unless `names` asks for
+   * hashed ones or a class map needs them (D-084, KF-094).
+   */
+  let naming = options.names ?? "dense"
+  const dense = () => naming === "dense" && !development()
   /**
    * The variable tokens and keyframes each environment's bundle names, and (`pruned`) the ones the
    * last stylesheet left out, by identity (D-086). A stylesheet reads every environment's names, since
@@ -142,14 +148,14 @@ export function createKirana(
       // or a watch build sends unchanged ones again: each is answered from its first transform
       // while its source and what it read are unchanged (KF-063).
       compiler.reuseTransforms()
-      if (dense()) {
-        if (compiler.classModules.length > 0) {
-          throw new Error(
-            'kirana: `names: "dense"` cannot be used with a class map (`classes`): server templates read hashed names'
-          )
-        }
-        compiler.markDense()
+      const classMap = compiler.classModules.length > 0
+      if (options.names === "dense" && classMap) {
+        throw new Error(
+          'kirana: `names: "dense"` cannot be used with a class map (`classes`): server templates read hashed names'
+        )
       }
+      naming = options.names ?? (classMap ? "hashed" : "dense")
+      if (dense()) compiler.markDense()
     },
 
     async renderChunk(

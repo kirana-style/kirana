@@ -132,6 +132,10 @@ describe("KRN-INT-002 Rolldown on its own", () => {
     }
     const hashed = await build("hashed")
     const dense = await build("dense")
+    // Dense is what a production build writes unless told otherwise (KF-094).
+    const unset = await build(undefined)
+    expect(unset.css).toBe(dense.css)
+    expect(unset.js.code).toBe(dense.js.code)
     const hash =
       /\bk[0-9A-Za-z]+(?:-[0-9A-Za-z]{3})?-[0-9A-Za-z]{4}_|_[0-9A-Za-z]{4}\b/
     expect(hashed.css).toMatch(hash)
@@ -396,6 +400,29 @@ describe("KRN-INT-002 Rolldown on its own", () => {
     await expect(run("src/server.ts")).rejects.toThrow(
       /names keyframes the stylesheet left out: kf[0-9A-Za-z]{4}.*animationName/
     )
+  })
+
+  it("keeps hashed names for a class map unless dense ones are asked for (KF-094)", async () => {
+    const root = app()
+    const build = await rolldown({
+      input: path.join(root, "src/main.ts"),
+      cwd: root,
+      logLevel: "silent",
+      plugins: [
+        kirana({
+          root,
+          config: {
+            classes: { modules: ["src/tokens.ts"], out: "classes.json" },
+          },
+        }),
+      ],
+    })
+    const output = (await build.generate({ dir: "dist" })).output
+    const css = output.find(
+      (file) => file.fileName === "kirana.css"
+    ) as OutputAsset
+    // A hashed name keeps its 4-character value segment.
+    expect(String(css.source)).toMatch(/\.k[0-9A-Za-z]+_[0-9A-Za-z]{4}\{/)
   })
 
   it("refuses dense names with a class map", async () => {

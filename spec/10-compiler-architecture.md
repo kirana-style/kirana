@@ -261,7 +261,7 @@ prefix `k`, development and production use the same names:
   merge of its caller's `sx` applies (KF-089); a component that lets Vue fall the class through renders
   them on its root, where no rule matches them.
 - Readable names come from `kirana-style trace` and the language server, not from a second naming scheme.
-- **Dense names (D-084).** A production build with `names: "dense"` renames the condition and value
+- **Dense names (D-084).** A production build (`names: "dense"`, the default) renames the condition and value
   segments of every name the compiler wrote, and of the stylesheet. They become codes of 1–2
   characters, assigned from the whole build in order of use (ties in the order the stylesheet writes
   them) and kept for the session. The property
