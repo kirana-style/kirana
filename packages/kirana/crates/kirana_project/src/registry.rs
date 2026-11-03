@@ -478,28 +478,28 @@ impl Project {
         if !self.state.read().expect("not poisoned").dense_stale {
             return;
         }
-        let mut classes: Vec<String> = vec![self.stylesheet(true)];
+        let sheet = self.stylesheet(true);
+        let mut uses = Vec::new();
+        for name in dense::names(&self.names.prefix, &sheet, false) {
+            for (segment, range) in [(Segment::Condition, name.condition), (Segment::Value, name.value)] {
+                if let Some((start, end)) = range.filter(|(start, end)| end - start == 4) {
+                    uses.push((segment, &sheet[start..end], 1));
+                }
+            }
+        }
+        // The modules' hashes, counted from their ops without writing a class for each.
+        let mut hashes = Vec::new();
         {
             let state = self.state.read().expect("not poisoned");
             let mut records: Vec<_> = state.modules.iter().collect();
             records.sort_unstable_by(|a, b| a.0.cmp(b.0));
             for (_, record) in records {
-                for (_, handle) in &record.handles {
-                    classes.extend(handle.ops.iter().map(|op| self.names.class(op)));
+                for op in record.handles.iter().flat_map(|(_, handle)| &handle.ops) {
+                    Names::hashes(op, |segment, hash| hashes.push((segment, hash)));
                 }
             }
         }
-        let prefix = &self.names.prefix;
-        let mut uses = Vec::new();
-        for class in &classes {
-            for name in dense::names(prefix, class, false) {
-                for (segment, range) in [(Segment::Condition, name.condition), (Segment::Value, name.value)] {
-                    if let Some((start, end)) = range.filter(|(start, end)| end - start == 4) {
-                        uses.push((segment, &class[start..end], 1));
-                    }
-                }
-            }
-        }
+        uses.extend(hashes.iter().map(|(segment, hash)| (*segment, std::str::from_utf8(hash).expect("base-62"), 1)));
         let mut state = self.state.write().expect("not poisoned");
         state.dense.extend(uses);
         state.dense_stale = false;

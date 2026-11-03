@@ -4,10 +4,11 @@ use std::cmp::Ordering;
 use std::sync::Arc;
 
 use kirana_css_data::{PropertyRank, is_logical, property_index};
-use kirana_shared::{base62, hash_parts, push_base62, push_base62_compact};
+use kirana_shared::{base62, base62_bytes, hash_parts, push_base62, push_base62_compact};
 
 use crate::condition::{Condition, ConditionSet, compare_sets};
 use crate::defs::Dep;
+use crate::dense::Segment;
 use crate::value::{Key, TokenRef};
 
 /// What an atom styles.
@@ -189,8 +190,13 @@ fn push_target_segment(out: &mut String, target: &Target) {
 fn push_condition_segment(out: &mut String, conditions: &ConditionSet) {
     if !conditions.is_empty() {
         out.push('-');
-        push_base62(out, hash_parts(&[&conditions.canonical()]), 4);
+        push_base62(out, condition_hash(conditions), 4);
     }
+}
+
+/// The hash a condition segment writes.
+fn condition_hash(conditions: &ConditionSet) -> u64 {
+    hash_parts(&[&conditions.canonical()])
 }
 
 /// The CSS value of one entry.
@@ -416,17 +422,17 @@ impl Names {
         if !self.mark {
             return text.to_owned();
         }
-        let variable = format!("--{}", self.prefix);
-        text.split(' ')
-            .map(|token| {
-                if token.starts_with(&self.prefix) || token.starts_with(&variable) {
-                    format!("{}{token}", crate::dense::MARK)
-                } else {
-                    token.to_owned()
-                }
-            })
-            .collect::<Vec<_>>()
-            .join(" ")
+        let mut out = String::with_capacity(text.len() + text.len() / 4);
+        for (index, token) in text.split(' ').enumerate() {
+            if index > 0 {
+                out.push(' ');
+            }
+            if token.strip_prefix("--").unwrap_or(token).starts_with(&self.prefix) {
+                out.push_str(crate::dense::MARK);
+            }
+            out.push_str(token);
+        }
+        out
     }
 
     /// `{prefix}{key}_{value}` for a set entry; `{prefix}{key}_` (a tombstone) for a removal;
@@ -473,6 +479,25 @@ impl Names {
                 }
                 out.push('_');
             }
+        }
+    }
+
+    /// Calls `found` with each condition and value hash [`Names::class`] writes for `op`, in the
+    /// order it writes them: what a dense build counts (D-084), without writing the class.
+    pub fn hashes(op: &Op, mut found: impl FnMut(Segment, [u8; 4])) {
+        let mut condition = |conditions: &ConditionSet| {
+            if !conditions.is_empty() {
+                found(Segment::Condition, base62_bytes(condition_hash(conditions)));
+            }
+        };
+        match op {
+            Op::Set(key, value) => {
+                condition(&key.conditions);
+                found(Segment::Value, base62_bytes(value_hash(value)));
+            }
+            Op::Remove(key) => condition(&key.conditions),
+            Op::RemoveProperty(..) | Op::Unfold { conditions: None, .. } => {}
+            Op::Unfold { conditions: Some(conditions), .. } => condition(conditions),
         }
     }
 
@@ -539,12 +564,26 @@ pub fn value_segment(value: &AtomValue) -> String {
 }
 
 fn push_value_segment(out: &mut String, value: &AtomValue) {
-    let hash = if value.longhands <= 1 {
+    push_base62(out, value_hash(value), 4);
+}
+
+/// The hash a value segment writes.
+fn value_hash(value: &AtomValue) -> u64 {
+    if value.longhands <= 1 {
         hash_parts(&[&value.css])
     } else {
-        hash_parts(&[&value.css, &value.longhands.to_string()])
-    };
-    push_base62(out, hash, 4);
+        // The count's decimal digits, written on the stack: every class of a shorthand's value is
+        // named through here.
+        let mut digits = [0u8; 3];
+        let mut at = digits.len();
+        let mut count = value.longhands;
+        while count > 0 {
+            at -= 1;
+            digits[at] = b'0' + count % 10;
+            count /= 10;
+        }
+        hash_parts(&[&value.css, std::str::from_utf8(&digits[at..]).expect("ASCII digits")])
+    }
 }
 
 /// One rule-producing unit: a set entry with its class name.
