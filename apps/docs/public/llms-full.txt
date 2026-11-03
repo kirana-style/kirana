@@ -7038,8 +7038,8 @@ kirana({
   config: { names: { prefix: "app" } },
   // Surface info-level diagnostics (bridged values, lowered targets) in the terminal.
   reportInfo: true,
-  // Shorter class names in a production build (below).
-  names: "dense",
+  // Keep the structured class names in a production build too (below).
+  names: "hashed",
 })
 ```
 
@@ -7049,9 +7049,10 @@ Vite root is a folder of the package without one.
 
 ## Dense names
 
-With `names: "dense"`, a production build replaces the two hashes in every
-class name with codes of one or two characters, assigned from the whole build:
-`k50-KFHz_D9ur` becomes something like `k50-b_a`.
+A production build replaces the two hashes in every class name with codes of
+one or two characters, assigned from the whole build: `k50-KFHz_D9ur` becomes
+something like `k50-b_a`. This is `names: "dense"`, the default; `names: "hashed"`
+keeps the structured names.
 
 - **The development server keeps the hashed names.** So do the language
   server and `kirana-style trace`.
@@ -7060,11 +7061,12 @@ class name with codes of one or two characters, assigned from the whole build:
 - **The client and server bundles agree.** Both are renamed from one map, and
   the stylesheet with them.
 
-It is off by default: names can change between deploys in chunks whose source
-did not, so those chunks are downloaded again. See
-[dense names](/docs/building/output#dense-names) for what it saves and why. It cannot be
-combined with a [class map](/docs/frameworks/server-templates), whose server-side
-helpers read hashed names, and the build says so.
+Names can change between deploys in chunks whose source did not, so those
+chunks are downloaded again; `names: "hashed"` avoids that. See
+[dense names](/docs/building/output#dense-names) for what they save. A project
+with a [class map](/docs/frameworks/server-templates), whose server-side helpers
+read hashed names, keeps hashed names on its own; asking for `names: "dense"`
+there is an error.
 
 ## Which modules it compiles
 
@@ -8983,8 +8985,8 @@ tested on.
 
 ### Dense names
 
-A production build can go further with
-[`names: "dense"`](/docs/integrations/vite#dense-names). After every module has
+A production build goes further, unless told not to
+([`names: "hashed"`](/docs/integrations/vite#dense-names)). After every module has
 compiled, the compiler knows every condition set and every value in the
 application, so it can number them instead of hashing them:
 
@@ -9006,16 +9008,16 @@ change.
 
 Measured on the three applications of
 [the benchmarks](/docs/project/benchmarks), Kirana 0.3.7 with
-dense names makes the CSS 12 % smaller in gzip, and the CSS and
+dense names makes the CSS 12 % smaller in gzip than with hashed names, and the CSS and
 JavaScript a page downloads 2 % smaller, with cold builds
 2 % slower. On this site, the stylesheet is 12.7 % smaller in
 gzip and brotli.
 
-Dense names stay opt-in for one reason besides the build time: a code goes to the
-most used segments first, so when a new segment outranks an old one between two
-deploys, names change in chunks whose source did not, and those chunks get new
-content hashes and are downloaded again. A names manifest that keeps codes
-across deploys would remove that, and with it the reason to keep them off.
+They have one cost besides the build time: a code goes to the most used
+segments first, so when a new segment outranks an old one between two deploys,
+names change in chunks whose source did not, and those chunks get new content
+hashes and are downloaded again. A project that minds this more than the bytes
+sets `names: "hashed"`.
 
 ## Conditions in the selector
 

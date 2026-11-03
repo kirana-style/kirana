@@ -355,7 +355,7 @@ the implementation tracker names its evidence.
 
 ### D-037 — Fixed-width class names, identical in development
 
-- **Status:** Accepted; amended by D-084 (dense names in production, opt-in).
+- **Status:** Accepted; amended by D-084 (dense names in production, the default since KF-094).
 - **Decision:** A class name is
   `{prefix}{property code}[-{target 3}][-{conditions 4}]_{value 4}`. The property code is the base-62
   index of the longhand in the generated property table, or a 5-character hash for a custom property.
@@ -1087,10 +1087,12 @@ the implementation tracker names its evidence.
 
 ### D-084 — Dense names: production renames the hashes after the build
 
-- **Status:** Accepted (2026-10-19), opt-in. Amends D-037: development and production share the
+- **Status:** Accepted (2026-10-19); the default of a production build since 2026-11-03 (KF-094),
+  with `names: "hashed"` to keep the structured names. Amends D-037: development and production share the
   cascade order and the names' structure, and a dense build differs only in the two hash segments.
-- **Decision:** With `names: "dense"` on the Vite or Rolldown host, a production build renames every
-  class name the compiler wrote, and the stylesheet.
+- **Decision:** A production build on the Vite or Rolldown host renames every class name the compiler
+  wrote, and the stylesheet, unless the host is given `names: "hashed"` or the project has a class map
+  (which `names: "dense"` refuses).
   - Each 4-character condition hash becomes a code of 1–2 characters, never 3.
   - Each 4-character value hash becomes a code of 1–2 characters from one space shared by every key.
   - The property code and the target segment stay.
@@ -1121,7 +1123,11 @@ the implementation tracker names its evidence.
     chunks that did not change may get new content hashes. A names manifest that keeps codes across
     builds is the remedy if that shows up in practice.
   - **Runtime size.** 12 bytes of runtime (1,087 of 1,100).
-  - **Opt-in for now.** Until kirana-lab measures it across the corpora under the optimiser gate.
+  - **Opt-in at first, then the default.** kirana-lab's 0.3.7 run measured it across the corpora,
+    with conformance comparing both builds: CSS gzip 0.88× on the three apps, CSS and JavaScript 0.98×
+    (0.96× at 10,000 components), the HTML of the 1,000-row table 0.83× and its `class` attributes
+    0.64×, which turns them from 1.27× StyleX's into 0.80×; builds 1.00× at 100 components to 1.04× at
+    10,000. That made it the default (KF-094).
 - **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md#hashing-and-names),
   `design-notes/dense-names.md`, `research/compiler-algorithm.md` (P3).
 

@@ -26,8 +26,8 @@ kirana({
   config: { names: { prefix: "app" } },
   // Surface info-level diagnostics (bridged values, lowered targets) in the terminal.
   reportInfo: true,
-  // Shorter class names in a production build (below).
-  names: "dense",
+  // Keep the structured class names in a production build too (below).
+  names: "hashed",
 })
 ```
 
@@ -37,9 +37,10 @@ Vite root is a folder of the package without one.
 
 ## Dense names
 
-With `names: "dense"`, a production build replaces the two hashes in every
-class name with codes of one or two characters, assigned from the whole build:
-`k50-KFHz_D9ur` becomes something like `k50-b_a`.
+A production build replaces the two hashes in every class name with codes of
+one or two characters, assigned from the whole build: `k50-KFHz_D9ur` becomes
+something like `k50-b_a`. This is `names: "dense"`, the default; `names: "hashed"`
+keeps the structured names.
 
 - **The development server keeps the hashed names.** So do the language
   server and `kirana-style trace`.
@@ -48,11 +49,12 @@ class name with codes of one or two characters, assigned from the whole build:
 - **The client and server bundles agree.** Both are renamed from one map, and
   the stylesheet with them.
 
-It is off by default: names can change between deploys in chunks whose source
-did not, so those chunks are downloaded again. See
-[dense names](/docs/building/output#dense-names) for what it saves and why. It cannot be
-combined with a [class map](/docs/frameworks/server-templates), whose server-side
-helpers read hashed names, and the build says so.
+Names can change between deploys in chunks whose source did not, so those
+chunks are downloaded again; `names: "hashed"` avoids that. See
+[dense names](/docs/building/output#dense-names) for what they save. A project
+with a [class map](/docs/frameworks/server-templates), whose server-side helpers
+read hashed names, keeps hashed names on its own; asking for `names: "dense"`
+there is an error.
 
 ## Which modules it compiles
 
