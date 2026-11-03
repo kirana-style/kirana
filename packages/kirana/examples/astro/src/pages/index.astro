@@ -1,6 +1,6 @@
 ---
 import "@kirana-style/core/stylesheet.css"
-import { css } from "@kirana-style/core"
+import { css, props as styleProps } from "@kirana-style/core"
 import { space } from "@kirana-style/preset-scales"
 
 /**
@@ -19,6 +19,15 @@ const offset = css({ marginLeft: `${Astro.url.pathname.length % 3}px` })
 // Read at runtime, so the prerender imports the preset itself: Astro 7 prerenders in an environment
 // of its own, which left it external and uncompiled before the adapter bundled it there (KF-031).
 const steps = Object.keys(space).length
+/**
+ * Handed to an element with an `sx` of its own by a spread (KF-098): the spread's class and style
+ * reach the element beside its own.
+ */
+const given = {
+  class: styleProps(css({ paddingBottom: "4px" })).className,
+  style: "margin-right: 2px",
+}
+const own = css({ paddingTop: "3px" })
 ---
 
 <html lang="en">
@@ -28,5 +37,6 @@ const steps = Object.keys(space).length
   </head>
   <body>
     <p data-probe="" data-steps={steps} class="probe" sx={[styles.probe, offset]}>Styled by Kirana.</p>
+    <span data-probe-spread="" {...given} sx={own}></span>
   </body>
 </html>

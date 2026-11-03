@@ -16,7 +16,17 @@
   const offset = css({ marginLeft: gap })
   /** Handed to an element by `props()` called in the markup, not in the script (KF-096). */
   const handed = css({ paddingBottom: "8px" })
+  /**
+   * Handed to an element with an `sx` of its own by a spread, as Ark's `asChild` hands its child its
+   * props (KF-098): the spread's class and style reach the element beside its own.
+   */
+  const given = {
+    class: styleProps(css({ paddingBottom: "4px" })).className,
+    style: "margin-right: 2px",
+  }
+  const own = css({ paddingTop: "3px" })
 </script>
 
 <p data-probe="" class="probe" sx={[styles.probe, offset]}>Styled by Kirana.</p>
 <span data-probe-props="" class={styleProps(handed).className}></span>
+<span data-probe-spread="" {...given} sx={own}></span>

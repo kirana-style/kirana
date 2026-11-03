@@ -65,10 +65,33 @@ const full = css({ width: "100%" })
 </div>
 ```
 
+What `sx` produces merges, in this order:
+
+1. the element's own styles, from `sx`;
+2. the classes and styles it is given, in the order they are written: its own
+   `class` and `style` attributes, and those of a spread written before it
+   (`{...Astro.props}`), whose other attributes stay where it stands.
+
+A later one wins. A spread after the `sx` is left alone.
+
+A component that takes `sx` gets the caller's as its `class` prop. Pass it to the
+root beside its own `sx`, and the caller's class merges last, so its styles win,
+property by property:
+
+```astro file="src/components/Button.astro"
+---
+import { css } from "@kirana-style/core"
+
+const { class: className, ...rest } = Astro.props
+const button = css({ height: "2rem", backgroundColor: "black" })
+---
+
+<button {...rest} class={className} sx={button}><slot /></button>
+```
+
 <!-- consistency: subset -->
 
-The element's own `class` and `style` are merged into what `sx` produces. Islands
-written in React, Preact, Solid, Vue or Svelte go through the same integration and
+Islands written in React, Preact, Solid, Vue or Svelte go through the same integration and
 follow their own guides for `sx` (islands are not in the test matrix yet).
 
 ## How it compiles

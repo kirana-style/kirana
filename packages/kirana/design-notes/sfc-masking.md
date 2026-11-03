@@ -38,7 +38,7 @@ Rejected for now; recorded as the upgrade path if that merge ever shows in a pro
   Imports resolve from the component's directory, so tokens and relations work as in any module.
 - Each `sx` binding in the template becomes a spread of the private runtime's `sx()`, created with
   the `class` attribute: Vue `v-bind="__kirana_sfc.sx([…], [], [])"`; Svelte and Astro
-  `{...__kirana_attrs([…], [class], style)}`. The runtime merges the handles exactly as it does for
+  `{...__kirana_attrs([…], [class], [style])}`. The runtime merges the handles exactly as it does for
   dynamic `sx` in JSX (same function, same tombstones), so the output classes are the ones JSX
   would produce. On a component, as the parser marks one, the call takes a fourth argument, `true`:
   the class keeps the merge's tombstones, which the component's own merge of its caller's `sx`
@@ -60,13 +60,13 @@ parse template syntax itself, and a framework upgrade that changes its syntax ch
 
 ## Per framework
 
-|                            | Vue                                                                                | Svelte                                                                                           | Astro          |
-| -------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------- |
-| Binding                    | `:sx="expr"` (`v-bind:sx`)                                                         | `sx={expr}`                                                                                      | `sx={expr}`    |
-| Becomes                    | `v-bind="__kirana_sfc.sx([expr], [], [])"`; `, true` added on a component          | `{...__kirana_attrs([expr], [class], style)}`; `, true` added on a component                     | same as Svelte |
-| Existing `class` / `style` | left in place: Vue merges `class` and `style` from `v-bind` with the element's own | folded into the call and removed: a spread and an attribute would otherwise overwrite each other | as Svelte      |
-| `style` of dynamic values  | object (Vue accepts it)                                                            | string: Svelte's spread sets `style` as text                                                     | string         |
-| Runtime goes into          | `<script setup>`                                                                   | instance `<script>`                                                                              | frontmatter    |
+|                            | Vue                                                                                | Svelte                                                                                                                                                                                                              | Astro                                                                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Binding                    | `:sx="expr"` (`v-bind:sx`)                                                         | `sx={expr}`                                                                                                                                                                                                         | `sx={expr}`                                                                                                                  |
+| Becomes                    | `v-bind="__kirana_sfc.sx([expr], [], [])"`; `, true` added on a component          | `{...__kirana_attrs([expr], [class], [style])}`; `, true` added on a component                                                                                                                                      | same as Svelte                                                                                                               |
+| Existing `class` / `style` | left in place: Vue merges `class` and `style` from `v-bind` with the element's own | folded into the call and removed: a spread and an attribute would otherwise overwrite each other; a spread written before `sx` gives its `class` and `style` too, in the order written, and stays in place (KF-098) | as Svelte, and the spread before `sx` is given without its `class` and `style`: the browser keeps an attribute's first value |
+| `style` of dynamic values  | object (Vue accepts it)                                                            | string: Svelte's spread sets `style` as text                                                                                                                                                                        | string                                                                                                                       |
+| Runtime goes into          | `<script setup>`                                                                   | instance `<script>`                                                                                                                                                                                                 | frontmatter                                                                                                                  |
 
 The helper for Svelte and Astro turns the runtime's style object into a declaration string and joins
 it with the element's own `style` text.
