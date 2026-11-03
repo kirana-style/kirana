@@ -45,11 +45,10 @@ impl Code {
         self.record(handle);
     }
 
-    /// A host element's class literal (no tombstones), already written by the caller, recording the
-    /// handle it came from.
-    pub fn dom_classes(&mut self, names: &kirana_ir::Names, classes: &str, handle: Arc<Handle>) {
-        self.string(&names.written(classes));
-        self.record(handle);
+    /// A host element's class literal (no tombstones): its marked names as a string literal.
+    pub fn dom_literal(names: &kirana_ir::Names, handle: &Handle) -> Option<String> {
+        let classes = names.dom_class_string(handle);
+        (!classes.is_empty()).then(|| serde_json::to_string(&names.written(&classes)).expect("strings serialize"))
     }
 
     pub fn record(&mut self, handle: Arc<Handle>) {
