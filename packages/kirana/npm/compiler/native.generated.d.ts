@@ -40,8 +40,11 @@ export declare class Compiler {
    * map; `None` when it names no Kirana class.
    */
   denseChunk(code: string): string | null
-  /** `text` with dense names (D-084). */
-  denseRename(text: string): string
+  /**
+   * A finished stylesheet with dense names (D-084), its definitions included unless `named` (what
+   * the bundle's chunks and other assets name) holds them.
+   */
+  denseStylesheet(text: string, named: Array<string>): string
   /** The class map of `classes.modules`, compiling them first; `None` without `classes`. */
   classMap(): ClassMapResult | null
   /** Project-wide diagnostics as JSON. */

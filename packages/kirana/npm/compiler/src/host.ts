@@ -111,9 +111,10 @@ export function shouldCompile(
 }
 
 /**
- * The variable tokens (`--{prefix}v` and four characters) and keyframes (`{prefix}f` and four) a
- * text names: what a finished bundle's chunks and stylesheets still use, so its stylesheet keeps
- * them (D-086, D-094).
+ * The variable tokens (`--{prefix}v` and four characters), keyframes (`{prefix}f` and four),
+ * position-try fallbacks (`--{prefix}p`) and counter styles (`{prefix}c`) a text names: what a
+ * finished bundle's chunks and stylesheets still use, so its stylesheet keeps them (D-086, D-094)
+ * under the names they use (D-084).
  */
 export function definitionNames(text: string, prefix: string): string[] {
   const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
@@ -121,7 +122,7 @@ export function definitionNames(text: string, prefix: string): string[] {
     ...new Set(
       text.match(
         new RegExp(
-          `(?:--${escaped}v|(?<![0-9A-Za-z_-])${escaped}f)[0-9A-Za-z]{4}(?![0-9A-Za-z_-])`,
+          `(?:--${escaped}[vp]|(?<![0-9A-Za-z_-])${escaped}[fc])[0-9A-Za-z]{4}(?![0-9A-Za-z_-])`,
           "g"
         )
       ) ?? []

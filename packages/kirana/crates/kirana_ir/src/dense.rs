@@ -284,6 +284,111 @@ fn parse(bytes: &[u8], at: usize, bridged: bool) -> Option<(Name, usize)> {
     boundary(value_end).then_some((Name { mark: None, condition, value }, value_end))
 }
 
+/// Definitions a dense build names by code (D-084): variable tokens (`--{prefix}v`), position-try
+/// fallbacks (`--{prefix}p`), keyframes (`{prefix}f`) and counter styles (`{prefix}c`), each with
+/// its kind letter and [`crate::NAME_HASH`] characters. Relation markers, themes and view
+/// transitions are classes on elements and keep their names.
+const DEFINITIONS: [(&str, char); 4] = [("--", 'v'), ("--", 'p'), ("", 'f'), ("", 'c')];
+
+/// Codes for definition names (D-084): only names the stylesheet holds and no chunk or other asset
+/// of the bundle names get one, so code written before the stylesheet was finished needs no
+/// renaming. A chunk rendered later renames the names that have a code. Codes never change once
+/// assigned.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct DenseDefinitions {
+    /// A definition's name → its name with a code, as `--kvAbCd` → `--kv0`.
+    codes: kirana_shared::FxHashMap<String, String>,
+    /// How many codes each kind of [`DEFINITIONS`] has given.
+    given: [usize; DEFINITIONS.len()],
+}
+
+impl DenseDefinitions {
+    /// Gives codes to the definitions `stylesheet` names that have none and that `named` does not
+    /// hold: the most used first, ties in the order the stylesheet first names them.
+    pub fn extend(&mut self, prefix: &str, stylesheet: &str, named: &kirana_shared::FxHashSet<&str>) {
+        let mut counts: kirana_shared::FxHashMap<&str, (usize, usize, usize)> = Default::default();
+        for (seen, (start, end, kind)) in definitions(prefix, stylesheet).into_iter().enumerate() {
+            let name = &stylesheet[start..end];
+            if !self.codes.contains_key(name) && !named.contains(name) {
+                counts.entry(name).or_insert((0, seen, kind)).0 += 1;
+            }
+        }
+        let mut fresh: Vec<_> = counts.into_iter().collect();
+        fresh.sort_by(|(_, a), (_, b)| b.0.cmp(&a.0).then(a.1.cmp(&b.1)));
+        for (name, (_, _, kind)) in fresh {
+            let Some(code) = code(self.given[kind]) else { continue };
+            self.given[kind] += 1;
+            let (dashes, letter) = DEFINITIONS[kind];
+            self.codes.insert(name.to_owned(), format!("{dashes}{prefix}{letter}{code}"));
+        }
+    }
+
+    /// Whether no code has been assigned.
+    pub fn is_empty(&self) -> bool {
+        self.codes.is_empty()
+    }
+
+    /// The edits that rename every definition in `text` that has a code.
+    pub fn edits(&self, prefix: &str, text: &str) -> Vec<Edit> {
+        if self.is_empty() {
+            return Vec::new();
+        }
+        definitions(prefix, text)
+            .into_iter()
+            .filter_map(|(start, end, _)| {
+                self.codes.get(&text[start..end]).map(|code| Edit { start, end, text: code.clone() })
+            })
+            .collect()
+    }
+}
+
+/// Every definition name in `text` (see [`DEFINITIONS`]), as `(start, end, kind)`: the name and,
+/// for a custom property, its dashes, ending where a name cannot go on. A keyframes or counter style
+/// name also starts where a name cannot, as `definitionNames` in the compiler's hosts reads them.
+pub fn definitions(prefix: &str, text: &str) -> Vec<(usize, usize, usize)> {
+    let bytes = text.as_bytes();
+    let mut found = Vec::new();
+    let mut from = 0;
+    while let Some(offset) = text[from..].find(prefix) {
+        let at = from + offset;
+        from = at + 1;
+        let Some(&letter) = bytes.get(at + prefix.len()) else { break };
+        let Some(kind) = DEFINITIONS.iter().position(|&(dashes, kind)| {
+            kind as u8 == letter
+                && if dashes.is_empty() {
+                    at == 0 || !ident(bytes[at - 1])
+                } else {
+                    bytes[..at].ends_with(dashes.as_bytes())
+                }
+        }) else {
+            continue;
+        };
+        let hash = at + prefix.len() + 1;
+        let end = hash + crate::NAME_HASH;
+        if end <= bytes.len()
+            && bytes[hash..end].iter().all(|&byte| alnum(byte))
+            && bytes.get(end).is_none_or(|&byte| !ident(byte))
+        {
+            found.push((at - DEFINITIONS[kind].0.len(), end, kind));
+            from = end;
+        }
+    }
+    found
+}
+
+/// `text` with `edits`, which are in order and do not overlap, applied.
+pub fn apply(text: &str, edits: &[Edit]) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut last = 0;
+    for edit in edits {
+        out.push_str(&text[last..edit.start]);
+        out.push_str(&edit.text);
+        last = edit.end;
+    }
+    out.push_str(&text[last..]);
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -419,6 +524,53 @@ mod tests {
         assert_eq!(dense.renamed("k", r#"b(".k50-KFHz_D9ur{}"), d("^~x")"#, true), None);
         assert_eq!(dense.renamed("k", "k50_xxxx", false), None);
         assert_eq!(dense.rename("k", "k50_xxxx", false), "k50_xxxx");
+    }
+
+    #[test]
+    fn finds_definitions_where_a_name_cannot_go_on() {
+        let text = "--kvAbCd:1;var(--kpAbCd) kfAbCd kcAbCd;";
+        let found: Vec<_> = definitions("k", text).iter().map(|&(a, b, kind)| (&text[a..b], kind)).collect();
+        assert_eq!(found, [("--kvAbCd", 0), ("--kpAbCd", 1), ("kfAbCd", 2), ("kcAbCd", 3)]);
+        assert_eq!(definitions("k", "kfAbCd")[0], (0, 6, 2));
+        for text in [
+            "kvAbCd",     // a variable token without its dashes
+            "--kfAbCd2",  // a longer name
+            "xkfAbCd",    // inside a word
+            "--kvAb-d",   // not a hash
+            "--kvAbC",    // too short
+            "--kxAbCd",   // no such kind
+            "--kvAbCd-x", // a bridged variable's start
+            "k",          // the prefix and nothing after it
+        ] {
+            assert!(definitions("k", text).is_empty(), "{text}");
+        }
+    }
+
+    #[test]
+    fn definitions_named_elsewhere_keep_their_names() {
+        let sheet = "@keyframes kfBBBB{}@keyframes kfAAAA{}.a{animation:kfAAAA,kfBBBB}.b{animation:kfAAAA}.c{--kvAbCd:1;--kvHeld:2;gap:var(--kvAbCd)}";
+        let mut dense = DenseDefinitions::default();
+        assert!(dense.is_empty() && dense.edits("k", sheet).is_empty());
+        dense.extend("k", sheet, &["--kvHeld"].into_iter().collect());
+        // The most used first, then the first named; each kind counts on its own.
+        assert_eq!(
+            apply(sheet, &dense.edits("k", sheet)),
+            "@keyframes kf1{}@keyframes kf0{}.a{animation:kf0,kf1}.b{animation:kf0}.c{--kv0:1;--kvHeld:2;gap:var(--kv0)}"
+        );
+        // A name that has a code keeps it, even when something names it later.
+        let mut later = dense.clone();
+        later.extend("k", "kfCCCC kfAAAA", &["kfAAAA"].into_iter().collect());
+        assert_eq!(apply("kfCCCC kfAAAA", &later.edits("k", "kfCCCC kfAAAA")), "kf2 kf0");
+    }
+
+    #[test]
+    fn definition_codes_run_out_like_class_codes() {
+        let sheet: String = (0..CAPACITY + 1).map(|i| format!("kf{} ", base62(i as u64, 4))).collect();
+        let mut dense = DenseDefinitions::default();
+        dense.extend("k", &sheet, &Default::default());
+        let renamed = apply(&sheet, &dense.edits("k", &sheet));
+        assert!(renamed.starts_with("kf0 kf1 "));
+        assert!(renamed.ends_with(&format!("kf{} ", base62(CAPACITY as u64, 4))));
     }
 
     #[test]

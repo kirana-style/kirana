@@ -189,7 +189,7 @@ describe("KRN-INT-002 Rolldown on its own", () => {
       return { js: js.code, css }
     }
     const declared = (css: string) =>
-      [...css.matchAll(/(--kv[0-9A-Za-z]{4}):/g)].map(([, name]) => name)
+      [...css.matchAll(/(--kv[0-9A-Za-z]{1,4}):/g)].map(([, name]) => name)
 
     // Compiled code reads one token at build time; nothing reads the group at runtime.
     const compiled = await build(
@@ -349,7 +349,7 @@ describe("KRN-INT-002 Rolldown on its own", () => {
       )
     }
     const declared = (css: string) =>
-      css.match(/@keyframes kf[0-9A-Za-z]{4}/g) ?? []
+      css.match(/@keyframes kf[0-9A-Za-z]{1,4}/g) ?? []
 
     // A scale from the module, and none of its animations: no keyframes ship.
     const scaleOnly = await build(
@@ -654,6 +654,68 @@ describe("components and the stylesheet asset, hook by hook", () => {
     // The server builds again and names it no more.
     await (plugin.buildStart as Hook).call(ssr)
     expect(await stylesheet()).not.toContain(`${variable}:6px`)
+  })
+
+  it("gives a definition only the stylesheet names a code, which a chunk written later uses too (D-084)", async () => {
+    const root = app()
+    const motion = path.join(root, "src/motion.ts")
+    const source = [
+      'import { counterStyle, css, defineTokens, keyframes } from "@kirana-style/core"',
+      'export const size = defineTokens("size", { read: "2px", held: "3px" }, { variable: true })',
+      "export const fade = keyframes({ to: { opacity: 0 } })",
+      'export const ticks = counterStyle({ system: "cyclic", symbols: \'"*"\', suffix: \'" "\' })',
+      "export const box = css({ gap: size.read, paddingTop: size.held, animationName: fade, listStyleType: ticks })",
+      "",
+    ].join("\n")
+    writeFileSync(motion, source)
+    const { plugin } = createKirana({ root })
+    const emitted: string[] = []
+    const inside = (name: string) => ({
+      ...context,
+      environment: { name },
+      emitFile: (file: { source: string }) => emitted.push(file.source),
+    })
+    const [client, ssr] = [inside("client"), inside("ssr")]
+    await (plugin.buildStart as Hook).call(client)
+    const compiled = (await (plugin.transform.handler as Hook).call(
+      client,
+      source,
+      motion
+    )) as { code: string }
+    const [read, held] = [
+      ...new Set(compiled.code.match(/--kv[0-9A-Za-z]{4}/g)),
+    ].sort((a, b) => compiled.code.indexOf(a) - compiled.code.indexOf(b))
+    // A chunk written before the stylesheet names one token: it keeps its name everywhere.
+    const early = (await (plugin.renderChunk as Hook).call(
+      client,
+      `gap("${held}")`,
+      { fileName: "early.js" },
+      {}
+    )) as { code: string } | null
+    expect(early).toBeNull()
+    await (plugin.generateBundle.handler as Hook).call(client, {}, {})
+    const css = emitted.at(-1)!
+    expect(css).toContain(`padding-top:var(${held})`)
+    expect(css).toContain(`${held}:3px`)
+    // The others are named by the stylesheet alone, and get a code of their kind.
+    expect(css).toContain("gap:var(--kv0)")
+    expect(css).toContain("--kv0:2px")
+    expect(css).not.toContain(read!)
+    expect(css).toMatch(/@keyframes kf0\{/)
+    expect(css).toContain("animation-name:kf0")
+    expect(css).toMatch(/@counter-style kc0\{/)
+    expect(css).toContain("list-style-type:kc0")
+    // A chunk another environment writes later names a definition by the code it now has, with
+    // or without a source map.
+    for (const sourcemap of [false, true]) {
+      const late = (await (plugin.renderChunk as Hook).call(
+        ssr,
+        `gap("${read}", "${held}")`,
+        { fileName: "late.js" },
+        { sourcemap }
+      )) as { code: string }
+      expect(late.code).toBe(`gap("--kv0", "${held}")`)
+    }
   })
 
   it("fills the stylesheet in place when something else renames it", async () => {
