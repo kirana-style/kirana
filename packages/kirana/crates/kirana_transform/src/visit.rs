@@ -1,11 +1,13 @@
 //! The walk that finds style sites and records edits.
 
 use std::borrow::Cow;
+use std::sync::Arc;
 
 use kirana_diagnostics::{Code as DiagnosticCode, Diagnostic, Span};
 use kirana_evaluator::Evaluator;
+use kirana_ir::Handle;
 use kirana_ir::{Api, Value};
-use kirana_shared::FxHashSet;
+use kirana_shared::{FxHashMap, FxHashSet};
 use oxc_ast::ast::{
     Argument, BindingPattern, BindingProperty, CallExpression, Expression, IdentifierReference, JSXAttribute,
     JSXAttributeItem, JSXAttributeName, JSXAttributeValue, JSXElementName, JSXOpeningElement, ObjectExpression,
@@ -31,6 +33,10 @@ pub(crate) struct Rewriter<'e, 'p, 'a, 'c> {
     pub runtime_needed: bool,
     pub anchors: Vec<String>,
     pub diagnostics: Vec<Diagnostic>,
+    /// The class literal of each handle a host element received, by the handle's address. A style
+    /// written at many sites is one handle (KF-059), so its classes are written, and in a dense build
+    /// marked, once (KF-095). The handle is kept so that its address is not reused.
+    dom_literals: FxHashMap<usize, (Arc<Handle>, Option<String>)>,
 }
 
 fn sp(span: oxc_span::Span) -> (u32, u32) {
@@ -48,7 +54,18 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             runtime_needed: false,
             anchors: Vec::new(),
             diagnostics: Vec::new(),
+            dom_literals: FxHashMap::default(),
         }
+    }
+
+    /// The class literal a host element gets for `handle`, or `None` when it has no class.
+    fn dom_literal(&mut self, handle: &Arc<Handle>) -> Option<&str> {
+        let names = self.evaluator.context().names;
+        let (_, literal) = self
+            .dom_literals
+            .entry(Arc::as_ptr(handle) as usize)
+            .or_insert_with(|| (handle.clone(), Code::dom_literal(names, handle)));
+        literal.as_deref()
     }
 
     pub fn run(&mut self) {
@@ -201,13 +218,11 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             && style_sources.is_empty()
             && let Some(handle) = parts.static_handle()
         {
-            let classes = names.dom_class_string(&handle);
-            if !classes.is_empty() {
+            if let Some(literal) = self.dom_literal(&handle) {
                 code.text(format!("{class}="));
-                code.dom_classes(names, &classes, handle);
-            } else {
-                code.record(handle);
+                code.text(literal);
             }
+            code.record(handle);
             self.push(sx_span(sx), code);
             return;
         }
@@ -325,14 +340,9 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             && let Some(handle) = parts.static_handle()
         {
             code.text(format!("{class}: "));
-            let classes = names.dom_class_string(&handle);
-            if classes.is_empty() {
-                // The property stays, so the object keeps its commas; an element with no class.
-                code.text("undefined");
-                code.record(handle);
-            } else {
-                code.dom_classes(names, &classes, handle);
-            }
+            // The property stays, so the object keeps its commas; an element with no class.
+            code.text(self.dom_literal(&handle).unwrap_or("undefined"));
+            code.record(handle);
             self.push(sp(sx.span), code);
             return;
         }
@@ -392,13 +402,18 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
         let class = self.evaluator.context().config.jsx.class_attribute();
         let parts = self.evaluator.call_parts(call);
         let mut code = Code::default();
-        match parts.static_handle().map(|handle| (names.dom_class_string(&handle), handle)) {
-            Some((classes, handle)) if !classes.is_empty() => {
-                code.text(format!("{{{class:?}: "));
-                code.dom_classes(names, &classes, handle);
-                code.text("}");
+        match parts.static_handle() {
+            Some(handle) => {
+                match self.dom_literal(&handle) {
+                    Some(literal) => {
+                        code.text(format!("{{{class:?}: "));
+                        code.text(literal);
+                        code.text("}");
+                    }
+                    None => code.text("{}"),
+                }
+                code.record(handle);
             }
-            Some(_) => code.text("{}"),
             None => {
                 code.runtime = true;
                 code.text(crate::codegen::PURE);
