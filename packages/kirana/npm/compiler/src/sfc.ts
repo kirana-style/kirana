@@ -110,13 +110,24 @@ export function templateHelpers(
         .split(/\s+as\s+/)
         .map((name) => name.trim())
       if (imported !== "props" && imported !== "cx") continue
-      const called = new RegExp(
-        `(?<![\\w$.])${local!.replace(/\$/g, "\\$")}\\s*\\(`
-      )
-      if (called.test(template)) found.push({ local: local!, api: imported })
+      if (calls(template, local!)) found.push({ local: local!, api: imported })
     }
   }
   return found
+}
+
+/**
+ * Whether `text` calls `name`: the name, not part of a longer one or a member (`x.name`), then `(`.
+ * Found by search rather than a pattern built from the name, which would have to escape it.
+ */
+function calls(text: string, name: string): boolean {
+  for (let at = text.indexOf(name); at >= 0; at = text.indexOf(name, at + 1)) {
+    if (/[\w$.]/.test(text.charAt(at - 1))) continue
+    let next = at + name.length
+    while (/\s/.test(text.charAt(next))) next++
+    if (text.charAt(next) === "(") return true
+  }
+  return false
 }
 
 /**

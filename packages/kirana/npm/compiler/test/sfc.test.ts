@@ -452,7 +452,7 @@ describe("props() and cx() called in a template (KF-096)", () => {
   it("does the same in Svelte's markup and Astro's", async () => {
     const svelte = await compile(
       "Day.svelte",
-      `<script lang="ts">\n${helpers}\n</script>\n<span class={styleProps(booked).className}></span>\n`
+      `<script lang="ts">\n${helpers}\n</script>\n<span class={styleProps (booked).className}></span>\n`
     )
     expect(svelte.result.code).toContain(
       "const styleProps = (...handles) => __kirana_props.sx(handles, [], []);"
@@ -482,7 +482,7 @@ describe("props() and cx() called in a template (KF-096)", () => {
     // A name only read in the script, a member that shares it, and a template with no script.
     const quiet = await compile(
       "Quiet.vue",
-      `<script setup lang="ts">\n${helpers}\nconst c = styleProps(booked)\n</script>\n<template>\n  <i :class="c.className" :title="x.styleProps(1)" />\n</template>\n`
+      `<script setup lang="ts">\n${helpers}\nconst c = styleProps(booked)\n</script>\n<template>\n  <i :class="c.className" :title="x.styleProps(1)" :data-a="styleProps" :data-b="stylePropsX(1)" />\n</template>\n`
     )
     expect(quiet.result.code).not.toContain("__kirana_props")
     const bare = await compile(
