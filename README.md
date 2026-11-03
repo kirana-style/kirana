@@ -61,7 +61,7 @@ export function Badge(props: React.ComponentProps<"span">) {
 | ------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | Vite+ (`vp`)  | the toolchain: install, check, test, tasks, git hooks; brings Node.js 24 and Bun 1.4.3 | `curl -fsSL https://vite.plus \| bash`, then open a new terminal  |
 | Rust (rustup) | the Kirana engine is Rust, built before anything else                                  | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
-| A C linker    | Rust links the native engine with it                                                   | Linux/WSL: `build-essential` · macOS: `xcode-select --install`    |
+| A C compiler  | Rust links the native engine with it, and builds mimalloc, the engine's allocator      | Linux/WSL: `build-essential` · macOS: `xcode-select --install`    |
 | Cargo tools   | only for `vp run rust`, `vp run coverage`, the pre-push hook                           | `cargo install --locked cargo-nextest cargo-deny cargo-llvm-cov`  |
 | Chromium      | only for `kirana:example`                                                              | `cd packages/kirana && bunx playwright install chromium`          |
 

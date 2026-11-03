@@ -535,6 +535,20 @@ describe("components and the stylesheet asset, hook by hook", () => {
     }
   })
 
+  it("gives the engine's freed memory back when a build ends, and when a dev server stops (D-123)", async () => {
+    for (const development of [false, true]) {
+      const { plugin, session } = createKirana(
+        { root: app() },
+        { development: () => development }
+      )
+      const driver = await session()
+      let released = 0
+      driver.releaseMemory = () => void released++
+      await (plugin.buildEnd as Hook).call(context)
+      expect(released).toBe(1)
+    }
+  })
+
   it("compiles a component as it is read", async () => {
     const root = app()
     const changed: string[] = []

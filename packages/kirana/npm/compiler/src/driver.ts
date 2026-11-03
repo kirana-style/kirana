@@ -3,6 +3,7 @@
  * Host adapters only translate their host's API into these calls.
  */
 import path from "node:path"
+import { clearTimeout, setTimeout } from "node:timers"
 
 import MagicString from "magic-string"
 import type { SourceMap } from "magic-string"
@@ -60,6 +61,12 @@ export type TransformResult = {
   dependencies: string[]
 }
 
+/**
+ * How long after the last call into the engine the Driver gives its freed memory back (D-123): a
+ * dev server compiles a module per save, and the editor saves again within a second while typing.
+ */
+const RELEASE_AFTER_MS = 1000
+
 /** A transform result as the engine returns it. */
 type NativeResult = {
   code?: string | null
@@ -111,6 +118,8 @@ export class Driver {
   /** The class map's modules (`classes.modules`), absolute; empty without one (D-069). */
   readonly classModules: readonly string[]
   readonly #compiler: InstanceType<NativeBinding["Compiler"]>
+  /** The pending release, a second after the last call into the engine. */
+  #idle: ReturnType<typeof setTimeout> | undefined
   readonly #import: ImportFile
   /** Each component's block modules, by component file (Vue, Svelte, Astro). */
   readonly #components = new Map<string, string[]>()
@@ -310,6 +319,31 @@ export class Driver {
   /** The engine may have changed: no answer the Driver holds is current until asked again. */
   #changed(): void {
     this.#generation += 1
+    this.#used()
+  }
+
+  /**
+   * The engine compiled or wrote something: what it freed goes back to the system once the session
+   * has been idle for a second (D-123).
+   */
+  #used(): void {
+    clearTimeout(this.#idle)
+    this.#idle = setTimeout(
+      () => this.releaseMemory(),
+      RELEASE_AFTER_MS
+    ).unref()
+  }
+
+  /**
+   * Gives the memory the native engine freed back to the system (D-123). Its allocator keeps freed
+   * pages to reuse them, which is where its speed comes from, so a session that stays open would
+   * hold them. The Driver calls this a second after the last compile, invalidation, removal or
+   * stylesheet, on a timer that keeps no process alive; a host that knows its session went idle (a
+   * watch build's `buildEnd`) calls it at once. A no-op on the WASI engine.
+   */
+  releaseMemory(): void {
+    clearTimeout(this.#idle)
+    this.#compiler.releaseMemory()
   }
 
   /** Whether a module is this application's to compile (its own, or a listed library's). */
@@ -348,6 +382,7 @@ export class Driver {
 
   /** The stylesheet for every module compiled so far. A finished bundle uses `finishedStylesheet`. */
   stylesheet(minify: boolean): string {
+    this.#used()
     return this.#compiler.stylesheet(minify)
   }
 

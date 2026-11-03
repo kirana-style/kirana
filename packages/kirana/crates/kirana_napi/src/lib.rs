@@ -310,6 +310,17 @@ impl Compiler {
         })
         .to_string())
     }
+
+    /// Gives the memory the engine has freed back to the system (D-123), for every session in this
+    /// process. mimalloc keeps freed pages to reuse them, which is where its speed comes from, so a
+    /// session that stays open (a dev server, a watch build) calls this when it goes idle. It frees the
+    /// empty pages of the calling thread's heap and purges every arena; with the arenas committed on
+    /// demand (`MI_DEFAULT_ARENA_EAGER_COMMIT=0`, set by `scripts/build-native.ts` on Linux), that brings
+    /// even a build compiled on worker threads back to the system allocator's memory. A no-op on WASI.
+    #[napi]
+    pub fn release_memory(&self) {
+        release_memory();
+    }
 }
 
 fn to_json(value: &impl serde::Serialize) -> String {
@@ -405,10 +416,11 @@ fn json_value(text: &str) -> napi::Result<serde_json::Value> {
 }
 
 /// Runs the language server on this process's stdin and stdout until the client shuts it down;
-/// returns the exit code. It blocks: `kirana-style lsp` is a process of its own.
+/// returns the exit code. It blocks: `kirana-style lsp` is a process of its own. Each time the editor
+/// pauses, the memory the engine freed goes back to the system (D-123).
 #[napi]
 pub fn run_lsp(config_json: String) -> i32 {
-    kirana_lsp::serve_stdio(&config_json)
+    kirana_lsp::serve_stdio(&config_json, Some((kirana_lsp::IDLE_AFTER, &release_memory)))
 }
 
 /// Runs the `kirana-style` command line; returns `[exitCode, output]`. `colour` adds ANSI colours to
@@ -432,4 +444,21 @@ pub fn render_diagnostics(
     let diagnostics: Vec<Diagnostic> =
         serde_json::from_str(&diagnostics_json).map_err(|error| napi::Error::from_reason(error.to_string()))?;
     Ok(render_human(&diagnostics, &|file| sources.get(file).map(String::as_str), colour))
+}
+
+// PERF: mimalloc allocates for the native engine (D-123): a compile in the engine is 13 to 26 % faster
+// than with the system's allocator, since allocation and frees are about a quarter of one, and 5 to
+// 9 % through the Driver. The WASI engine keeps wasi-libc's, which emnapi's runtime allocates through
+// as well.
+#[cfg(not(target_family = "wasm"))]
+#[global_allocator]
+static ALLOCATOR: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
+/// What `Compiler::release_memory` does, and what the language server calls after a pause.
+fn release_memory() {
+    #[cfg(not(target_family = "wasm"))]
+    // SAFETY: `mi_collect` only walks mimalloc's own free lists and arenas; it takes no pointer.
+    unsafe {
+        libmimalloc_sys::mi_collect(true);
+    }
 }

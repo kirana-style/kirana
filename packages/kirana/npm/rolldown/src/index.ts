@@ -280,9 +280,13 @@ export function createKirana(
     },
 
     async buildEnd() {
-      if (development()) return
       const compiler = await session()
-      reporter.project(this, compiler.root, compiler.diagnostics())
+      if (!development())
+        reporter.project(this, compiler.root, compiler.diagnostics())
+      // A watch build keeps its session until the next change, and a dev server that restarts keeps
+      // the old one until it is collected: what the build freed goes back now (D-123). Between
+      // builds, the Driver gives it back a second after its last call into the engine.
+      compiler.releaseMemory()
     },
 
     // First, so every plugin that reads CSS assets reads the finished stylesheet: Astro inlines

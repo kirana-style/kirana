@@ -82,6 +82,15 @@ export declare class Compiler {
    * (KF-004), as JSON; throws without a utility grammar.
    */
   lowerTailwind(file: string, classes: string): string
+  /**
+   * Gives the memory the engine has freed back to the system (D-123), for every session in this
+   * process. mimalloc keeps freed pages to reuse them, which is where its speed comes from, so a
+   * session that stays open (a dev server, a watch build) calls this when it goes idle. It frees the
+   * empty pages of the calling thread's heap and purges every arena; with the arenas committed on
+   * demand (`MI_DEFAULT_ARENA_EAGER_COMMIT=0`, set by `scripts/build-native.ts` on Linux), that brings
+   * even a build compiled on worker threads back to the system allocator's memory. A no-op on WASI.
+   */
+  releaseMemory(): void
 }
 
 /**
@@ -160,7 +169,8 @@ export declare function runCli(args: Array<string>, colour?: boolean | undefined
 
 /**
  * Runs the language server on this process's stdin and stdout until the client shuts it down;
- * returns the exit code. It blocks: `kirana-style lsp` is a process of its own.
+ * returns the exit code. It blocks: `kirana-style lsp` is a process of its own. Each time the editor
+ * pauses, the memory the engine freed goes back to the system (D-123).
  */
 export declare function runLsp(configJson: string): number
 

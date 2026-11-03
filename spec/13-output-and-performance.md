@@ -130,3 +130,5 @@ These rules guide implementation; changing a default requires benchmark data rec
    require lowering ([10](./10-compiler-architecture.md#css-emission)).
 8. **Instrumentation:** `tracing` spans around every pipeline stage, exportable as a Chrome trace from
    `kirana-style build --trace`, and disabled at zero cost in release builds unless requested.
+9. **The native engine allocates with mimalloc** and gives the memory it freed back once a session goes
+   idle (D-123); the WASI engine keeps wasi-libc's allocator.

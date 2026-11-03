@@ -28,10 +28,37 @@ const args = [
   "native.generated.d.ts",
   ...process.argv.slice(2).filter((arg) => arg !== "--debug"),
 ]
+const env = rustEnvironment()
+
+// The engine allocates with mimalloc (D-123). On Linux it would commit each arena whole as it
+// reserves it, and an editor's session would then hold 7 to 10 MB more than with the system's
+// allocator even after `releaseMemory()`: arenas are committed on demand instead. The define reaches
+// mimalloc's C through `cc-rs`, by the target's own variable, which neither napi's cross toolchain
+// nor cargo-zigbuild sets. A build for the WASI engine compiles no C.
+const at = process.argv.findIndex((arg) => arg === "--target" || arg === "-t")
+const target =
+  (at >= 0
+    ? process.argv[at + 1]
+    : process.argv
+        .find((arg) => arg.startsWith("--target="))
+        ?.slice("--target=".length)) ?? hostTriple()
+if (target.includes("-linux-")) {
+  const name = `CFLAGS_${target.replaceAll("-", "_")}`
+  env[name] = [env[name], "-DMI_DEFAULT_ARENA_EAGER_COMMIT=0"]
+    .filter(Boolean)
+    .join(" ")
+}
+
 const result = spawnSync("napi", args, {
   stdio: "inherit",
   cwd: path.join(import.meta.dirname, ".."),
-  env: rustEnvironment(),
+  env,
   shell: process.platform === "win32",
 })
 process.exit(result.status ?? 1)
+
+/** The triple Rust builds for when no `--target` is given. */
+function hostTriple(): string {
+  const { stdout } = spawnSync("rustc", ["-vV"], { env, encoding: "utf8" })
+  return /^host: (\S+)$/m.exec(stdout)?.[1] ?? ""
+}
