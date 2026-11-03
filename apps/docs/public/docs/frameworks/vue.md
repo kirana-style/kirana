@@ -103,6 +103,10 @@ stylesheet gets the atoms. Each `:sx` becomes
 the component renders. Keep `css()` calls in the script: one written inside the
 template is not compiled, and says so when it runs.
 
+`props()` and `cx()` imported in the script can be called in the template: the
+build defines them there from the same runtime, so
+`:class="styleProps(booked).className"` works.
+
 An element takes one object binding, so an element's own `v-bind` object is
 merged into the compiled one with Vue's `mergeProps`.
 

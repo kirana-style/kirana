@@ -420,6 +420,79 @@ describe("components", () => {
   })
 })
 
+describe("props() and cx() called in a template (KF-096)", () => {
+  const helpers = [
+    'import { css, props as styleProps, cx, type Sx } from "@kirana-style/core"',
+    'import { props } from "@kirana-style/core"',
+    'const booked = css({ color: "red" })',
+  ].join("\n")
+
+  it("defines the names a Vue template calls from the runtime, in the class attribute props() returns", async () => {
+    const { result } = await compile(
+      "Calendar.vue",
+      `<script setup lang="ts">\n${helpers}\n</script>\n<template>\n  <Day :classes="{ booked: styleProps(booked).className, all: cx(booked) }" />\n</template>\n`
+    )
+    expect(result.code).toContain(
+      'const __kirana_props = __kirana_runtime_sfc("k", "className");'
+    )
+    expect(result.code).toContain(
+      "const styleProps = (...handles) => __kirana_props.sx(handles, [], []);"
+    )
+    expect(result.code).toContain("const cx = __kirana_props.cx;")
+    // Imported but never called in the template: nothing to define.
+    expect(result.code).not.toContain("const props =")
+    expect(result.code).not.toContain('from "@kirana-style/core"\n')
+
+    // The runtime's merge, run as the template runs it.
+    const { runtime } = await import("@kirana-style/core/internal")
+    const sx = runtime("k", "className").sx
+    expect(sx(["k3T_aaa", "k3T_bbb"], [], [])).toEqual({ className: "k3T_bbb" })
+  })
+
+  it("does the same in Svelte's markup and Astro's", async () => {
+    const svelte = await compile(
+      "Day.svelte",
+      `<script lang="ts">\n${helpers}\n</script>\n<span class={styleProps (booked).className}></span>\n`
+    )
+    expect(svelte.result.code).toContain(
+      "const styleProps = (...handles) => __kirana_props.sx(handles, [], []);"
+    )
+    const astro = await compile(
+      "Day.astro",
+      `---\n${helpers}\n---\n<span class={styleProps(booked).className} />\n`
+    )
+    expect(astro.result.code).toContain(
+      "const styleProps = (...handles) => __kirana_props.sx(handles, [], []);"
+    )
+  })
+
+  it("follows the project's class attribute, and leaves a template with nothing to call alone", async () => {
+    const root = project()
+    writeFileSync(
+      path.join(root, "kirana.config.mjs"),
+      'export default { jsx: "preact" }\n'
+    )
+    const { result } = await compile(
+      "Day.vue",
+      `<script setup lang="ts">\n${helpers}\n</script>\n<template>\n  <i :class="styleProps(booked).class" />\n</template>\n`,
+      root
+    )
+    expect(result.code).toContain('__kirana_runtime_sfc("k", "class");')
+
+    // A name only read in the script, a member that shares it, and a template with no script.
+    const quiet = await compile(
+      "Quiet.vue",
+      `<script setup lang="ts">\n${helpers}\nconst c = styleProps(booked)\n</script>\n<template>\n  <i :class="c.className" :title="x.styleProps(1)" :data-a="styleProps" :data-b="stylePropsX(1)" />\n</template>\n`
+    )
+    expect(quiet.result.code).not.toContain("__kirana_props")
+    const bare = await compile(
+      "Bare.vue",
+      `<template>\n  <i :class="styleProps(x)" />\n</template>\n`
+    )
+    expect(bare.result.code).toBeUndefined()
+  })
+})
+
 describe("templates outside the module (KF-090)", () => {
   /** A relation read in `styles`, the driver that compiled it, and what is left unanchored. */
   async function unanchored() {

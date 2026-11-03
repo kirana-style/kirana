@@ -99,6 +99,8 @@ export class Driver {
   readonly configFile: string | undefined
   /** The class-name prefix (`names.prefix`). */
   readonly prefix: string
+  /** The attribute `props()` returns classes under (`jsx`: `className`, or `class`, KF-047). */
+  readonly classAttribute: string
   /** Which engine compiles: the native addon, or the WASI fallback (KRN-INT-006). */
   readonly engine: Engine
   /**
@@ -126,6 +128,7 @@ export class Driver {
     configFile: string | undefined,
     compiler: InstanceType<NativeBinding["Compiler"]>,
     prefix: string,
+    classAttribute: string,
     load: ImportFile,
     engine: Engine,
     libraries: readonly string[],
@@ -134,6 +137,7 @@ export class Driver {
     this.root = root
     this.configFile = configFile
     this.prefix = prefix
+    this.classAttribute = classAttribute
     this.engine = engine
     this.libraries = compiledLibraries(libraries)
     this.classModules = classModules
@@ -179,6 +183,7 @@ export class Driver {
     const native = options.native ?? loadNative()
     const resolved = JSON.parse(json) as {
       names?: { prefix?: string }
+      jsx?: string
       libraries?: string[]
       classes?: { modules: string[] }
     }
@@ -187,6 +192,7 @@ export class Driver {
       file,
       new native.Compiler(json),
       resolved.names?.prefix ?? "k",
+      (resolved.jsx ?? "react") === "react" ? "className" : "class",
       options.importModule ?? importFile,
       engineOf(native),
       resolved.libraries ?? [],
@@ -324,6 +330,7 @@ export class Driver {
       source,
       root: this.root,
       prefix: this.prefix,
+      classAttribute: this.classAttribute,
       compile: (id, code) => this.transform(id, code),
       load: this.#import,
     })

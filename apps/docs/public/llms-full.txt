@@ -5526,6 +5526,10 @@ stylesheet gets the atoms. Each `:sx` becomes
 the component renders. Keep `css()` calls in the script: one written inside the
 template is not compiled, and says so when it runs.
 
+`props()` and `cx()` imported in the script can be called in the template: the
+build defines them there from the same runtime, so
+`:class="styleProps(booked).className"` works.
+
 An element takes one object binding, so an element's own `v-bind` object is
 merged into the compiled one with Vue's `mergeProps`.
 
@@ -5807,6 +5811,9 @@ runtime, which merges the styles as the component renders, so a condition like
 `wide && full` stays reactive. Keep `css()` calls in the script: one written
 inside the markup is not compiled, and says so when it runs.
 
+`props()` and `cx()` imported in the script can be called in the markup: the
+build defines them there from the same runtime.
+
 ## SvelteKit
 
 On SvelteKit, follow the [SvelteKit guide](/docs/frameworks/sveltekit): the
@@ -5971,7 +5978,9 @@ follow their own guides for `sx` (islands are not in the test matrix yet).
 The frontmatter compiles like any module, and each `sx` becomes a spread of a call
 to Kirana's small runtime, evaluated when the page renders, which is at build time
 for a static page. Keep `css()` calls in the frontmatter: one written inside the markup
-is not compiled, and says so when it runs.
+is not compiled, and says so when it runs. `props()` and `cx()` imported in the
+frontmatter can be called in the markup: the build defines them there from the
+same runtime.
 
 ## Next
 
