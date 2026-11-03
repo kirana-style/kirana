@@ -4,9 +4,7 @@
 //! longhand's name from a shorthand atom's value segment (D-045). In a chunk only names after a
 //! [`MARK`] are renamed; a stylesheet is renamed unmarked. Codes never change once assigned.
 
-use std::collections::BTreeMap;
-
-use kirana_shared::base62;
+use kirana_shared::{FxHashMap, base62};
 
 /// Written before every name the compiler puts into a chunk in a dense build. Printable ASCII, so no
 /// minifier escapes it, and never part of a class name, a string delimiter or a template.
@@ -25,7 +23,7 @@ fn code(rank: usize) -> Option<String> {
 }
 
 /// Which hash segment a use counts.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Segment {
     Condition,
     Value,
@@ -42,8 +40,8 @@ pub struct Edit {
 /// The codes of one build.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct DenseNames {
-    conditions: BTreeMap<String, String>,
-    values: BTreeMap<String, String>,
+    conditions: FxHashMap<String, String>,
+    values: FxHashMap<String, String>,
 }
 
 impl DenseNames {
@@ -54,7 +52,7 @@ impl DenseNames {
     /// which compresses better than codes in the order of their hashes.
     pub fn extend<'a>(&mut self, uses: impl IntoIterator<Item = (Segment, &'a str, usize)>) {
         // Each hash's count and where it was first named.
-        let mut counts: BTreeMap<(Segment, &str), (usize, usize)> = BTreeMap::new();
+        let mut counts: FxHashMap<(Segment, &str), (usize, usize)> = FxHashMap::default();
         for (seen, (segment, hash, count)) in uses.into_iter().enumerate() {
             counts.entry((segment, hash)).or_insert((0, seen)).0 += count;
         }

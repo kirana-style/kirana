@@ -56,6 +56,16 @@ pub fn push_base62(out: &mut String, value: u64, width: usize) {
     }
 }
 
+/// [`base62`] as bytes, for a name counted without being written.
+pub fn base62_bytes<const WIDTH: usize>(value: u64) -> [u8; WIDTH] {
+    let mut out = [0; WIDTH];
+    for (place, byte) in out.iter_mut().rev().enumerate() {
+        let digit = 62u64.checked_pow(place as u32).map_or(0, |power| value / power % 62);
+        *byte = ALPHABET[digit as usize];
+    }
+    out
+}
+
 /// Base-62 text of `value` with no padding (`0` is `"0"`).
 pub fn base62_compact(value: u64) -> String {
     let mut out = String::new();

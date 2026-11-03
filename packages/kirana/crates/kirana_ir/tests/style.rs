@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use kirana_css_data::PropertyRank;
+use kirana_ir::dense::Segment;
 use kirana_ir::*;
 
 fn key(property: &str, conditions: &[&str]) -> EntryKey {
@@ -173,6 +174,51 @@ fn class_names() {
     removed.apply(Op::Remove(key("opacity", &[])));
     assert_eq!(names.dom_class_string(&removed), format!("krA {class}"));
     assert!(names.class_string(&removed).ends_with('_'));
+}
+
+#[test]
+fn hashes_are_the_segments_a_class_writes() {
+    // What a dense build counts from an op is what it would find parsing the op's class (D-084).
+    let after = |entry: EntryKey| EntryKey { target: Target::PseudoElement("::after".into()), ..entry };
+    let wide = AtomValue { longhands: 4, ..value("1px") };
+    let ops = [
+        set_op("color", &[], "red"),
+        set_op("color", &[":hover", "@media (min-width: 40rem)"], "red"),
+        Op::Set(after(key("color", &[":hover"])), value("blue")),
+        Op::Set(key("margin", &[]), wide),
+        set_op("--gap", &[":focus"], "1rem"),
+        Op::Remove(key("color", &[])),
+        Op::Remove(after(key("color", &[":hover"]))),
+        Op::RemoveProperty(Target::Element, Property::longhand("color")),
+        Op::Unfold {
+            target: Target::Element,
+            shorthand: Property::shorthand("padding"),
+            keep: vec![Property::longhand("padding-top"), Property::longhand("padding-left")],
+            conditions: None,
+        },
+        Op::Unfold {
+            target: Target::PseudoElement("::after".into()),
+            shorthand: Property::shorthand("padding"),
+            keep: vec![Property::longhand("padding-top")],
+            conditions: Some(key("color", &[":hover"]).conditions),
+        },
+    ];
+    for names in [Names::default(), Names { prefix: "ds".into(), mark: false }] {
+        for op in &ops {
+            let class = names.class(op);
+            let parsed: Vec<_> = kirana_ir::dense::names(&names.prefix, &class, false)
+                .into_iter()
+                .flat_map(|name| {
+                    [(Segment::Condition, name.condition), (Segment::Value, name.value)].into_iter().filter_map(
+                        |(segment, range)| range.map(|(start, end)| (segment, class[start..end].to_owned())),
+                    )
+                })
+                .collect();
+            let mut counted = Vec::new();
+            Names::hashes(op, |segment, hash| counted.push((segment, String::from_utf8(hash.to_vec()).unwrap())));
+            assert_eq!(counted, parsed, "{class}");
+        }
+    }
 }
 
 #[test]

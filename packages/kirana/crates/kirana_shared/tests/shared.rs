@@ -1,7 +1,8 @@
 use std::path::Path;
 
 use kirana_shared::{
-    Fs, MemoryFs, OsFs, base62, base62_compact, hash_parts, hash64, kebab_case, push_base62, push_base62_compact,
+    Fs, MemoryFs, OsFs, base62, base62_bytes, base62_compact, hash_parts, hash64, kebab_case, push_base62,
+    push_base62_compact,
 };
 
 #[test]
@@ -27,6 +28,14 @@ fn base62_is_fixed_width_and_compact() {
     // A `u64` has eleven base-62 digits; wider is padded with zeros.
     assert_eq!(base62_compact(u64::MAX), "lYGhA16ahyf");
     assert_eq!(base62(u64::MAX, 13), "00lYGhA16ahyf");
+    for (value, width) in [(0, 3), (62 * 62 + 1, 2), (u64::MAX, 13)] {
+        let text = base62(value, width);
+        match width {
+            2 => assert_eq!(base62_bytes::<2>(value), text.as_bytes()),
+            3 => assert_eq!(base62_bytes::<3>(value), text.as_bytes()),
+            _ => assert_eq!(base62_bytes::<13>(value), text.as_bytes()),
+        }
+    }
     let mut name = String::from("k");
     push_base62(&mut name, 62, 3);
     push_base62_compact(&mut name, 0);
