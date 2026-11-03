@@ -25,8 +25,8 @@ export const FAQ: readonly {
         link: "Ecosystem and status",
       },
       {
-        q: "Can I move an existing Tailwind, StyleX or styled-components project?",
-        a: "kirana-style migrate tailwind rewrites class strings, cn and cva; kirana-style migrate stylex maps create, defineVars and markers; kirana-style migrate styled-components turns styled components, css and Emotion's css prop into handles and sx. Each prints a diff and a report, and writes nothing until you pass --write.",
+        q: "Can I move an existing Tailwind, StyleX, styled-components or CSS Modules project?",
+        a: "kirana-style migrate tailwind rewrites class strings, cn and cva; kirana-style migrate stylex maps create, defineVars and markers; kirana-style migrate styled-components turns styled components, css and Emotion's css prop into handles and sx; kirana-style migrate css-modules turns each module into a module of handles and className into sx. Each prints a diff and a report, and writes nothing until you pass --write.",
         href: "/docs/migration/from-tailwind",
         link: "Migrating from Tailwind",
       },

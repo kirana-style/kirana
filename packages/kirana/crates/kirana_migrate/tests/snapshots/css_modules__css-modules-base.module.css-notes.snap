@@ -1,0 +1,5 @@
+---
+source: crates/kirana_migrate/tests/css_modules.rs
+expression: migration.notes
+---
+[]

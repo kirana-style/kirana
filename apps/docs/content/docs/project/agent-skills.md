@@ -40,14 +40,14 @@ is merged, point the command at a checkout (`npx skills add ./kirana`).
 
 ## What each one teaches
 
-| Skill            | When the agent loads it                                                                           | What it carries                                                                                          |
-| ---------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `kirana`         | the project imports `@kirana-style/core`, or a style compiles and renders wrong                   | the rules that cause real bugs, the loop below, where each new thing goes, and the habits to unlearn     |
-| `kirana-migrate` | asked to port components or an app from Tailwind, shadcn/ui, StyleX, styled-components or Emotion | the codemods and their reports, the traps in both directions, and how to prove the port renders the same |
+| Skill            | When the agent loads it                                                                                        | What it carries                                                                                          |
+| ---------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `kirana`         | the project imports `@kirana-style/core`, or a style compiles and renders wrong                                | the rules that cause real bugs, the loop below, where each new thing goes, and the habits to unlearn     |
+| `kirana-migrate` | asked to port components or an app from Tailwind, shadcn/ui, StyleX, styled-components, Emotion or CSS Modules | the codemods and their reports, the traps in both directions, and how to prove the port renders the same |
 
 Each skill is short (the rules and the workflow), and keeps the detail in
 reference files the agent reads only when it needs them: the API, how `sx` is
-spelled in each framework, the Tailwind, StyleX and styled-components mappings, and two files
+spelled in each framework, the Tailwind, StyleX, styled-components and CSS Modules mappings, and two files
 generated from the compiler's source on every build: every
 [diagnostic](/docs/tooling/diagnostics) with what to do about it, and every
 [lint rule](/docs/tooling/lint) with the linters that run it. A diagnostic added

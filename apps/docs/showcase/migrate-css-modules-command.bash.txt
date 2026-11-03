@@ -1,0 +1,4 @@
+# print the diff and the report, then apply it
+kirana-style migrate css-modules src
+kirana-style migrate css-modules src --write
+kirana-style check src

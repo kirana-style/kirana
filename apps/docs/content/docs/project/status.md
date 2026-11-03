@@ -55,6 +55,8 @@ line coverage. The [changelog](/changelog) lists every release.
   ([the numbers](/docs/migration/from-tailwind#measured-the-tailwind-original-of-our-shadcn-ui-port))
 - `kirana-style migrate styled-components`: styled-components and Emotion to components that
   take `sx`; see [the guide](/docs/migration/from-styled-components)
+- `kirana-style migrate css-modules`: each CSS module to a module of handles, and `className` to `sx`;
+  see [the guide](/docs/migration/from-css-modules)
 
 - `kirana-style lsp`, the language server, with VS Code and Zed extensions, in
   TypeScript, Vue, Svelte and Astro files and Angular templates; see

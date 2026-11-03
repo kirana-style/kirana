@@ -1,6 +1,6 @@
 ---
 name: kirana-migrate
-description: Migrate a codebase from Tailwind CSS (including shadcn/ui, cn() and class-variance-authority), StyleX, styled-components or Emotion to Kirana (@kirana-style/core). Use when asked to port, convert or move components or a whole app to Kirana, to run kirana-style migrate tailwind, stylex or styled-components, or to fix styles that changed after such a port. Covers the codemods, their reports, the hand fixes they leave, and how to prove the port renders the same.
+description: Migrate a codebase from Tailwind CSS (including shadcn/ui, cn() and class-variance-authority), StyleX, styled-components, Emotion or CSS Modules to Kirana (@kirana-style/core). Use when asked to port, convert or move components or a whole app to Kirana, to run kirana-style migrate tailwind, stylex, styled-components or css-modules, or to fix styles that changed after such a port. Covers the codemods, their reports, the hand fixes they leave, and how to prove the port renders the same.
 ---
 
 # Migrating to Kirana
@@ -26,13 +26,14 @@ beside it, and port in small steps.
    npx kirana-style migrate tailwind src src/globals.css   # Tailwind: sources plus the CSS that declares variants and utilities
    npx kirana-style migrate stylex src                     # StyleX
    npx kirana-style migrate styled-components src          # styled-components and Emotion
+   npx kirana-style migrate css-modules src                # CSS Modules, with the scripts that import them
    ```
    Add `--report migration.md` to keep the report. Every report item is something the codemod
    refused to guess; for Tailwind it is also left as a `// tailwind:` comment beside the style, and
-   for styled-components and Emotion as a `/* not migrated: … */` comment.
+   for styled-components, Emotion and CSS Modules as a `/* not migrated: … */` comment.
 3. **Apply it:** the same command with `--write`.
-4. **Resolve the report by hand,** with `references/tailwind-map.md`, `references/stylex-map.md` or
-   `references/styled-map.md`.
+4. **Resolve the report by hand,** with `references/tailwind-map.md`, `references/stylex-map.md`,
+   `references/styled-map.md` or `references/css-modules-map.md`.
 5. **`npx kirana-style check src` until it is clean** (`--format json` to work through the list). `sx-on-external-component`, `unused-sx`,
    `relation-without-anchor` and `ambiguous-precedence` are the diagnostics a port produces; the
    `kirana` skill's diagnostics reference says what to do about each. After a StyleX port, expect
@@ -72,11 +73,15 @@ expressed, so a difference means something.
 - **A styled component is a component again.** The codemod writes one that takes `sx` and applies
   its handles; `as`, `ThemeProvider` and a function reading `p.theme` have no counterpart, and a
   mixin written after declarations now wins over them (`references/styled-map.md`).
+- **CSS Modules' file order is gone.** Two classes on one element were ordered by the file; `sx` orders
+  them by the list. The codemod reports each pair listed against the file
+  (`references/css-modules-map.md`).
 - **No preflight.** Tailwind gave every border a colour and reset margins; name what you need.
 - **Type sizes come with line heights.** `text-sm` set both; write both.
 
 ## More
 
 Full guides: https://kirana.style/docs/migration/from-tailwind.md,
-https://kirana.style/docs/migration/from-stylex.md and
-https://kirana.style/docs/migration/from-styled-components.md.
+https://kirana.style/docs/migration/from-stylex.md,
+https://kirana.style/docs/migration/from-styled-components.md and
+https://kirana.style/docs/migration/from-css-modules.md.

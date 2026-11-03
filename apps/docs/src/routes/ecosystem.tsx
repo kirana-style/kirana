@@ -126,7 +126,7 @@ const TOOLING: { name: string; status?: Status; note: string; href: string }[] =
       href: "/docs/tooling/cli",
     },
     {
-      name: "kirana-style migrate tailwind / stylex / styled-components",
+      name: "kirana-style migrate tailwind / stylex / styled-components / css-modules",
       note: "Codemods with a diff and a report",
       href: "/migrate",
     },

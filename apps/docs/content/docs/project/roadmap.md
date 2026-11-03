@@ -133,8 +133,8 @@ component declares which properties its `sx` accepts (`Sx<"color" | "margin">`),
 checked by TypeScript at the call site.
 
 Outside the milestones, `kirana-style migrate styled-components` moves a project
-off styled-components or Emotion; see
-[the guide](/docs/migration/from-styled-components).
+off styled-components or Emotion, and `kirana-style migrate css-modules` off CSS
+Modules; see [the guides](/docs/migration/from-styled-components).
 
 ## Beyond the compiler
 

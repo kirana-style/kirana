@@ -1,0 +1,10 @@
+---
+source: crates/kirana_migrate/tests/css_modules.rs
+expression: migration.notes
+---
+[
+    Note {
+        offset: 672,
+        message: "`.button .label { … }` styles another class of the module inside this one; give that class the style, reading this one through a relation: port it by hand",
+    },
+]

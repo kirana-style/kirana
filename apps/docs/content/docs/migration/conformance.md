@@ -2,7 +2,7 @@
 title: Verifying a migration
 description: How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.
 section: migration
-order: 4
+order: 5
 keywords:
   [conformance, testing, visual regression, computed styles, verification]
 ---

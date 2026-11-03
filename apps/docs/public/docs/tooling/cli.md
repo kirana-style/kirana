@@ -606,6 +606,7 @@ kirana-style migrate tailwind src --write            # apply it
 kirana-style migrate tailwind src --report todo.txt  # also save the report
 kirana-style migrate stylex src --write
 kirana-style migrate styled-components src --write   # also named `emotion`
+kirana-style migrate css-modules src --write
 ```
 
 Nothing is written without `--write`. The report is printed either way: each
@@ -620,6 +621,10 @@ file among its paths. See
 `migrate styled-components` reads every file that imports styled-components or
 Emotion, and renames a `.ts` file that gains a component to `.tsx`. See
 [migrating from styled-components](/docs/migration/from-styled-components#the-codemod).
+
+`migrate css-modules` converts every `*.module.css` among its paths into a module
+of handles beside it, then rewrites the scripts that import one. Pass both
+together. See [migrating from CSS Modules](/docs/migration/from-css-modules#the-codemod).
 
 ## The same answers from code
 

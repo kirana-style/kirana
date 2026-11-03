@@ -1,0 +1,10 @@
+---
+source: crates/kirana_migrate/tests/css_modules.rs
+expression: migration.source
+---
+import { css } from "@kirana-style/core"
+
+export const focusable = css({
+  outline: { ":focus-visible": "2px solid #2563eb" },
+  outlineOffset: { ":focus-visible": "2px" },
+})

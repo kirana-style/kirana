@@ -1,0 +1,18 @@
+---
+source: crates/kirana_migrate/tests/css_modules.rs
+expression: migration.source
+---
+import { props as styleProps } from "@kirana-style/core"
+import * as styles from "./Button.styles"
+import { Icon } from "./Icon"
+
+export function Button({ primary, busy, className }: { primary?: boolean; busy?: boolean; className?: string }) {
+  return (
+    <button className={className} sx={[styles.primary, styles.button]} data-busy={busy || undefined}>
+      <Icon {...styleProps(styles.iconOnly)} />
+      <span className="label" sx={primary ? styles.primary : null}>Save</span>
+    </button>
+  )
+}
+
+export const iconOnly = styleProps(styles.iconOnly).className

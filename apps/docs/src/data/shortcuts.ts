@@ -31,7 +31,7 @@ export const SHORTCUTS: readonly Shortcut[] = [
   },
   {
     tab: "guides",
-    text: "Moving from Tailwind, StyleX or styled-components, and building larger systems.",
+    text: "Moving from Tailwind, StyleX, styled-components or CSS Modules, and building larger systems.",
     links: [
       { title: "From Tailwind", href: "/docs/migration/from-tailwind" },
       { title: "From StyleX", href: "/docs/migration/from-stylex" },
@@ -39,6 +39,7 @@ export const SHORTCUTS: readonly Shortcut[] = [
         title: "From styled-components",
         href: "/docs/migration/from-styled-components",
       },
+      { title: "From CSS Modules", href: "/docs/migration/from-css-modules" },
       { title: "A design system", href: "/docs/building/design-system" },
     ],
   },
