@@ -44,7 +44,7 @@ pub enum DeclarationWarning {
 /// The longhands a declaration expands to.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Expanded {
-    pub declarations: Vec<(Property, String)>,
+    pub declarations: Vec<(Property, Arc<str>)>,
     pub warnings: Vec<DeclarationWarning>,
 }
 
@@ -147,8 +147,11 @@ pub fn is_single_component(value: &str) -> bool {
     true
 }
 
+/// An expansion, shared: one remembered is handed out as it is rather than copied.
+pub type Declared = Result<Arc<Expanded>, DeclarationError>;
+
 /// Validates, normalizes and expands one declaration written as `camelCaseName: value`.
-pub fn declare(name: &str, raw: RawValue<'_>) -> Result<Expanded, DeclarationError> {
+pub fn declare(name: &str, raw: RawValue<'_>) -> Declared {
     declare_with(name, raw, &|_| None)
 }
 
@@ -160,16 +163,11 @@ pub fn declare(name: &str, raw: RawValue<'_>) -> Result<Expanded, DeclarationErr
 /// remembers the ones it has expanded: an application writes the same declarations many times
 /// over (`display: "flex"` in most of its styles), and expanding one parses, checks and normalizes
 /// its value. A value with a `var()` is expanded each time, since the project's variables can change.
-pub fn declare_with(
-    name: &str,
-    raw: RawValue<'_>,
-    variable_value: &dyn Fn(&str) -> Option<Vec<String>>,
-) -> Result<Expanded, DeclarationError> {
+pub fn declare_with(name: &str, raw: RawValue<'_>, variable_value: &dyn Fn(&str) -> Option<Vec<String>>) -> Declared {
+    let expand = || expand(name, raw, variable_value).map(Arc::new);
     match raw {
-        RawValue::Str(text) if !text.contains("var(") => {
-            remembered(name, text, EXPANSIONS_KEPT, || expand(name, raw, variable_value))
-        }
-        _ => expand(name, raw, variable_value),
+        RawValue::Str(text) if !text.contains("var(") => remembered(name, text, EXPANSIONS_KEPT, expand),
+        _ => expand(),
     }
 }
 
@@ -181,7 +179,7 @@ thread_local! {
 }
 
 /// One property's expansions, by value.
-type ByValue = kirana_shared::FxHashMap<Box<str>, Result<Expanded, DeclarationError>>;
+type ByValue = kirana_shared::FxHashMap<Box<str>, Declared>;
 
 /// Expansions by property name, then value, so a lookup borrows both strings.
 #[derive(Default)]
@@ -190,12 +188,7 @@ struct Expansions {
     len: usize,
 }
 
-fn remembered(
-    name: &str,
-    text: &str,
-    limit: usize,
-    expand: impl FnOnce() -> Result<Expanded, DeclarationError>,
-) -> Result<Expanded, DeclarationError> {
+fn remembered(name: &str, text: &str, limit: usize, expand: impl FnOnce() -> Declared) -> Declared {
     let known = EXPANSIONS
         .with(|expansions| expansions.borrow().by_name.get(name).and_then(|values| values.get(text)).cloned());
     if let Some(expanded) = known {
@@ -267,7 +260,7 @@ fn expand(
     }
     if matches!(parsed, LProperty::Unparsed(_)) || parsed.property_id().longhands().is_none() {
         return Ok(Expanded {
-            declarations: vec![(Property::shorthand(property.clone()), text.clone())],
+            declarations: vec![(Property::shorthand(property.clone()), text.clone().into())],
             warnings: vec![DeclarationWarning::Unsplittable { property: property.clone() }],
         });
     }
@@ -277,10 +270,10 @@ fn expand(
 }
 
 fn single(property: Property, text: String) -> Expanded {
-    Expanded { declarations: vec![(property, text)], warnings: Vec::new() }
+    Expanded { declarations: vec![(property, text.into())], warnings: Vec::new() }
 }
 
-fn expand_into(property: &LProperty<'_>, out: &mut Vec<(Property, String)>) {
+fn expand_into(property: &LProperty<'_>, out: &mut Vec<(Property, Arc<str>)>) {
     let id = property.property_id();
     match id.longhands() {
         Some(longhands) => {
@@ -290,13 +283,13 @@ fn expand_into(property: &LProperty<'_>, out: &mut Vec<(Property, String)>) {
                     // A component the typed value does not carry (for example
                     // `text-decoration-thickness` in `text-decoration: underline`) is reset, as the
                     // shorthand itself would reset it.
-                    None => out.push((Property::longhand(longhand.name()), "initial".to_owned())),
+                    None => out.push((Property::longhand(longhand.name()), "initial".into())),
                 }
             }
         }
         None => out.push((
             Property::longhand(id.name()),
-            property.value_to_css_string(PrinterOptions::default()).expect("typed values print"),
+            property.value_to_css_string(PrinterOptions::default()).expect("typed values print").into(),
         )),
     }
 }
@@ -426,7 +419,7 @@ pub fn mixed_logical_physical(handle: &Handle) -> Vec<MixedAxes> {
         return Vec::new();
     }
     // A shorthand atom takes part through its longhands.
-    let covered: Vec<(&kirana_ir::Target, &kirana_ir::ConditionSet, String, usize, u8)> = handle
+    let covered: Vec<(&kirana_ir::Target, &kirana_ir::ConditionSet, Arc<str>, usize, u8)> = handle
         .entries()
         .enumerate()
         .flat_map(|(order, (key, value))| {
@@ -444,7 +437,7 @@ pub fn mixed_logical_physical(handle: &Handle) -> Vec<MixedAxes> {
         let Some(physical) = physical_counterpart(name) else { continue };
         for (_, _, _, other_order, other_longhands) in
             covered.iter().filter(|(other_target, other_conditions, other, ..)| {
-                other_target == target && other_conditions == conditions && other == physical
+                other_target == target && other_conditions == conditions && &**other == physical
             })
         {
             let physical_wins = other_longhands <= longhands;
@@ -454,9 +447,9 @@ pub fn mixed_logical_physical(handle: &Handle) -> Vec<MixedAxes> {
                 continue;
             }
             let pair = MixedAxes {
-                logical: name.clone(),
+                logical: name.to_string(),
                 physical: physical.to_owned(),
-                winner: if physical_wins { physical.to_owned() } else { name.clone() },
+                winner: if physical_wins { physical.to_owned() } else { name.to_string() },
                 equal,
             };
             if !pairs.contains(&pair) {
@@ -484,16 +477,15 @@ pub fn inset_beside_translate(handle: &Handle) -> Vec<(String, String)> {
             _ => inline(&key.property.name),
         };
         if covers {
-            let inset = key.property.name.clone();
+            let inset = key.property.name.to_string();
             let same_target = entries.iter().filter(|(other, _)| other.target == key.target);
-            let translates: Vec<_> = same_target
-                .filter(|(other, _)| matches!(other.property.name.as_str(), "translate" | "transform"))
-                .collect();
+            let translates: Vec<_> =
+                same_target.filter(|(other, _)| matches!(&*other.property.name, "translate" | "transform")).collect();
             if translates.iter().any(|(other, _)| other.conditions.conditions().iter().any(is_direction)) {
                 continue;
             }
             for (other, value) in translates {
-                let pair = (inset.clone(), other.property.name.clone());
+                let pair = (inset.clone(), other.property.name.to_string());
                 if moves_inline(&other.property.name, &value.css) && !pairs.contains(&pair) {
                     pairs.push(pair);
                 }
@@ -560,8 +552,8 @@ fn shorthand_table() -> &'static [(Property, Vec<Property>)] {
 }
 
 /// Every shorthand's [`breadth`], computed once. The table is static, so these never change.
-fn breadths() -> &'static kirana_shared::FxHashMap<String, u8> {
-    static BREADTHS: OnceLock<kirana_shared::FxHashMap<String, u8>> = OnceLock::new();
+fn breadths() -> &'static kirana_shared::FxHashMap<Arc<str>, u8> {
+    static BREADTHS: OnceLock<kirana_shared::FxHashMap<Arc<str>, u8>> = OnceLock::new();
     BREADTHS.get_or_init(|| {
         shorthand_table()
             .iter()
@@ -655,7 +647,7 @@ pub fn prepare_set(
         }
     }
     // The atom's own key is replaced by the set itself; a tombstone for it would only cost bytes.
-    for shorthand in plan.covered.iter().filter(|shorthand| Some(shorthand.name.as_str()) != atom) {
+    for shorthand in plan.covered.iter().filter(|shorthand| Some(&*shorthand.name) != atom) {
         handle.apply(remove(shorthand));
     }
     // A family atom removes its longhands by itself: its code locates them (D-045).
@@ -670,7 +662,7 @@ pub fn removal(plan: &WritePlan, target: &Target, conditions: &ConditionSet, eve
     // A whole property removed removes the box it covers in logical sides too: `"*": null` on
     // `padding` drops an earlier `paddingInline`, which would otherwise outrank a later `padding`
     // (KF-064). A removal under conditions keeps to the property it names.
-    let names: Vec<&str> = plan.longhands.iter().map(|property| property.name.as_str()).collect();
+    let names: Vec<&str> = plan.longhands.iter().map(|property| &*property.name).collect();
     let other = if every { kirana_css_data::logical_box(&names) } else { Vec::new() };
     let other = (!other.is_empty()).then(|| plan_of(other.into_iter().map(Property::longhand).collect()));
     for plan in std::iter::once(plan).chain(other.as_ref()) {
@@ -688,7 +680,7 @@ pub fn removal(plan: &WritePlan, target: &Target, conditions: &ConditionSet, eve
 /// One axis alone still keeps to what it names.
 pub fn joint_removal(removals: &[&WritePlan], target: &Target) -> Option<(usize, Handle)> {
     let names: Vec<Vec<&str>> =
-        removals.iter().map(|plan| plan.longhands.iter().map(|property| property.name.as_str()).collect()).collect();
+        removals.iter().map(|plan| plan.longhands.iter().map(|property| &*property.name).collect()).collect();
     let held = names.concat();
     // What each removes by itself: its longhands and, through `removal`, its own logical box.
     let alone: Vec<&str> =
@@ -769,12 +761,15 @@ mod tests {
         // A thread of its own, so the other tests' expansions are not counted.
         std::thread::spawn(|| {
             let none = |_: &str| None;
-            let fresh = |name: &str, text: &str| expand(name, RawValue::Str(text), &none);
+            let fresh = |name: &str, text: &str| expand(name, RawValue::Str(text), &none).map(Arc::new);
             let len = || EXPANSIONS.with(|expansions| expansions.borrow().len);
             let padding = || fresh("padding", "1px 2px");
-            assert_eq!(remembered("padding", "1px 2px", 2, padding), padding());
-            // The same pair again is answered from the table, which keeps one entry for it.
-            assert_eq!(remembered("padding", "1px 2px", 2, padding), padding());
+            let first = remembered("padding", "1px 2px", 2, padding);
+            assert_eq!(first, padding());
+            // The same pair again is answered from the table, which keeps one entry for it and hands
+            // out the expansion it holds rather than a copy.
+            let again = remembered("padding", "1px 2px", 2, padding);
+            assert!(Arc::ptr_eq(first.as_ref().unwrap(), again.as_ref().unwrap()));
             assert_eq!(len(), 1);
             // A rejection is remembered as well.
             assert_eq!(remembered("color", "nope(", 2, || fresh("color", "nope(")), fresh("color", "nope("));

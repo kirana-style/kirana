@@ -357,8 +357,8 @@ struct Describer<'d> {
 impl Describer<'_> {
     fn definition(&self, handle: &Handle) -> Definition {
         let entry = |property: &kirana_ir::Property, value: Option<String>, conditions, target| EntryExport {
-            assigns: property.name.strip_prefix("--").and_then(|_| self.identities.get(&property.name).cloned()),
-            property: property.name.clone(),
+            assigns: property.name.strip_prefix("--").and_then(|_| self.identities.get(&*property.name).cloned()),
+            property: property.name.to_string(),
             value,
             conditions,
             target,

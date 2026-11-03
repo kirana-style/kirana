@@ -165,10 +165,10 @@ impl Project {
         for (order, (handle, part)) in handles.into_iter().enumerate() {
             for atom in Atom::from_handle(&self.names, handle) {
                 // A shorthand atom takes part for each of its longhands (D-045).
-                let covers = atom.key.property.name == property
+                let covers = &*atom.key.property.name == property
                     || atom.key.property.rank == kirana_css_data::PropertyRank::Shorthand
                         && kirana_cascade::longhands_of(&atom.key.property.name)
-                            .is_ok_and(|longhands| longhands.iter().any(|longhand| longhand.name == property));
+                            .is_ok_and(|longhands| longhands.iter().any(|longhand| &*longhand.name == property));
                 // One class appears once, unless two parts of a recipe both declare it.
                 if covers && !atoms.iter().any(|(existing, other, _)| existing.class == atom.class && *other == part) {
                     atoms.push((atom, part.clone(), order));

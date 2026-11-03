@@ -85,7 +85,7 @@ fn winner<'a>(
             })
         })
         .max_by_key(|&i| order[i])
-        .map(|i| atoms[i].value.css.as_str())
+        .map(|i| atoms[i].value.css.as_ref())
 }
 
 proptest::proptest! {

@@ -36,13 +36,13 @@ fn shorthands_expand() {
 #[test]
 fn unsplittable_shorthands_warn() {
     let expanded = declare("padding", RawValue::Str("var(--x)")).unwrap();
-    assert_eq!(expanded.declarations, [(Property::shorthand("padding"), "var(--x)".to_owned())]);
+    assert_eq!(expanded.declarations, [(Property::shorthand("padding"), "var(--x)".into())]);
     assert_eq!(expanded.warnings, [DeclarationWarning::Unsplittable { property: "padding".into() }]);
 }
 
 #[test]
 fn longhand_names() {
-    let names = |name: &str| longhands_of(name).unwrap().into_iter().map(|p| p.name).collect::<Vec<_>>();
+    let names = |name: &str| longhands_of(name).unwrap().into_iter().map(|p| p.name.to_string()).collect::<Vec<_>>();
     assert_eq!(names("padding"), ["padding-bottom", "padding-left", "padding-right", "padding-top"]);
     assert_eq!(names("overscrollBehavior"), ["overscroll-behavior-x", "overscroll-behavior-y"]);
     assert_eq!(names("border").len(), 12);
@@ -69,7 +69,7 @@ fn a_longhand_parses_as_its_own_property() {
     let longhands = kirana_css_data::shorthands().iter().flat_map(|name| longhands_of(name).unwrap());
     let mut checked = 0;
     for longhand in longhands.chain([Property::longhand("--x")]) {
-        let id = PropertyId::from(longhand.name.as_str());
+        let id = PropertyId::from(longhand.name.as_ref());
         if id.longhands().is_some() || kirana_css_data::family_longhands(&longhand.name).is_some() {
             continue;
         }
@@ -136,9 +136,9 @@ fn an_unset_token_is_judged_by_its_fallback() {
 
 #[test]
 fn numbers() {
-    assert_eq!(declare("opacity", RawValue::Number(0.5)).unwrap().declarations[0].1, "0.5");
-    assert_eq!(declare("width", RawValue::Number(0.0)).unwrap().declarations[0].1, "0");
-    assert_eq!(declare("--n", RawValue::Number(2.0)).unwrap().declarations[0].1, "2");
+    assert_eq!(declare("opacity", RawValue::Number(0.5)).unwrap().declarations[0].1, "0.5".into());
+    assert_eq!(declare("width", RawValue::Number(0.0)).unwrap().declarations[0].1, "0".into());
+    assert_eq!(declare("--n", RawValue::Number(2.0)).unwrap().declarations[0].1, "2".into());
     assert_eq!(
         declare("width", RawValue::Number(5.0)),
         Err(DeclarationError::UnitlessLength { property: "width".into(), number: "5".into() })
@@ -254,7 +254,7 @@ fn jointly_removed(earlier: &Handle, names: &[&str]) -> (Option<usize>, Vec<Stri
     if let Some((_, handle)) = &joint {
         merged.merge(handle);
     }
-    (joint.map(|(first, _)| first), merged.entries().map(|(key, _)| key.property.name.clone()).collect())
+    (joint.map(|(first, _)| first), merged.entries().map(|(key, _)| key.property.name.to_string()).collect())
 }
 
 #[test]
@@ -358,9 +358,9 @@ fn compile(handle: &mut Handle, (name, value, hover, top): Write) {
                 .filter(|(property, _)| property.rank == kirana_css_data::PropertyRank::Shorthand)
                 .map(|(property, _)| property.name.clone());
             prepare_set(handle, &plan, &Target::Element, &conditions, atom.as_deref(), longhands);
-            for (property, css) in expanded.declarations {
-                let key = EntryKey::new(Target::Element, property, conditions.clone());
-                handle.apply(Op::Set(key, AtomValue { css, deps: vec![], longhands }));
+            for (property, css) in &expanded.declarations {
+                let key = EntryKey::new(Target::Element, property.clone(), conditions.clone());
+                handle.apply(Op::Set(key, AtomValue { css: css.clone(), deps: vec![], longhands }));
             }
         }
         None => handle.merge(&removal(&plan, &Target::Element, &conditions, top && !hover)),
@@ -375,12 +375,12 @@ fn resolve(handle: &Handle, longhand: &str, hover: bool) -> Option<String> {
         .entries()
         .filter(|(key, _)| !key.conditions.is_empty() == hover)
         .filter(|(key, _)| {
-            key.property.name == longhand
+            &*key.property.name == longhand
                 || key.property.rank == kirana_css_data::PropertyRank::Shorthand
-                    && longhands_of(&key.property.name).unwrap().iter().any(|member| member.name == longhand)
+                    && longhands_of(&key.property.name).unwrap().iter().any(|member| &*member.name == longhand)
         })
         .min_by_key(|(key, value)| (value.longhands, key.property.rank == kirana_css_data::PropertyRank::Shorthand))
-        .map(|(_, value)| value.css.clone())
+        .map(|(_, value)| value.css.to_string())
 }
 
 proptest::proptest! {
@@ -403,7 +403,7 @@ proptest::proptest! {
             compile(&mut handle, write);
             merged.merge(&handle);
             let (name, value, hover, top) = write;
-            let mut longhands: Vec<String> = longhands_of(FAMILY[name]).unwrap().into_iter().map(|p| p.name).collect();
+            let mut longhands: Vec<String> = longhands_of(FAMILY[name]).unwrap().into_iter().map(|p| p.name.to_string()).collect();
             if value.is_none() && top && !hover {
                 let names: Vec<&str> = longhands.iter().map(String::as_str).collect();
                 let logical: Vec<String> = kirana_css_data::logical_box(&names).into_iter().map(str::to_owned).collect();
@@ -412,14 +412,14 @@ proptest::proptest! {
             for longhand in longhands.iter().map(|name| Property::longhand(name.clone())) {
                 match value {
                     Some(value) => {
-                        intent.retain(|(existing, at, _)| !(*existing == longhand.name && *at == hover));
-                        intent.push((longhand.name.clone(), hover, value_for(name, value).to_owned()));
+                        intent.retain(|(existing, at, _)| !(**existing == *longhand.name && *at == hover));
+                        intent.push((longhand.name.to_string(), hover, value_for(name, value).to_owned()));
                     }
-                    None => intent.retain(|(existing, at, _)| !(*existing == longhand.name && (*at == hover || top && !hover))),
+                    None => intent.retain(|(existing, at, _)| !(**existing == *longhand.name && (*at == hover || top && !hover))),
                 }
             }
         }
-        let every: Vec<String> = FAMILY.iter().flat_map(|name| longhands_of(name).unwrap()).map(|p| p.name).collect();
+        let every: Vec<String> = FAMILY.iter().flat_map(|name| longhands_of(name).unwrap()).map(|p| p.name.to_string()).collect();
         for longhand in every {
             for hover in [false, true] {
                 let expected = intent.iter().find(|(name, at, _)| *name == longhand && *at == hover).map(|(_, _, value)| value.clone());
@@ -438,7 +438,8 @@ fn box_families_match_the_typed_longhands() {
         if let Some(members) = kirana_css_data::family_longhands(shorthand) {
             families += 1;
             let mut table: Vec<&str> = members.to_vec();
-            let mut typed: Vec<String> = longhands_of(shorthand).unwrap().into_iter().map(|p| p.name).collect();
+            let mut typed: Vec<String> =
+                longhands_of(shorthand).unwrap().into_iter().map(|p| p.name.to_string()).collect();
             table.sort_unstable();
             typed.sort_unstable();
             assert_eq!(table, typed, "{shorthand}");
