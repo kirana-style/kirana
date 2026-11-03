@@ -272,6 +272,30 @@ fn migrates_stylex_sources() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// `kirana-style migrate styled-components` (and its other name, `emotion`): a styled component in a
+/// `.ts` file becomes a component, and the file `.tsx`.
+#[test]
+fn migrates_styled_components_and_emotion() {
+    let source = b"import styled from \"styled-components\"\nexport const Box = styled.div`\n  padding: 4px;\n  &.on { color: red; }\n`\n";
+    let emotion = b"import { css } from \"@emotion/css\"\nexport const a = css({ margin: 0 })\n";
+    let root = temp(&[("src/box.ts", source), ("src/a.ts", emotion)]);
+    let src = root.join("src").to_string_lossy().into_owned();
+    let config = serde_json::json!({ "root": root.to_string_lossy() }).to_string();
+
+    let (code, output) = run(&["--config-json", &config, "migrate", "styled-components", &src]);
+    assert_eq!(code, 0, "{output}");
+    assert!(output.contains("+ export const Box = ({ sx, ...props }"), "{output}");
+    assert!(output.contains("rename to"), "{output}");
+    assert!(output.contains("2 file(s), 2 to rewrite, 1 report item(s)"), "{output}");
+
+    let (code, output) = run(&["--config-json", &config, "migrate", "emotion", &src, "--write"]);
+    assert_eq!(code, 0, "{output}");
+    assert!(!root.join("src/box.ts").exists());
+    assert!(fs::read_to_string(root.join("src/box.tsx")).unwrap().contains("const boxStyle = css({"));
+    assert!(fs::read_to_string(root.join("src/a.ts")).unwrap().contains("margin: 0"));
+    fs::remove_dir_all(root).unwrap();
+}
+
 /// `kirana-style migrate tailwind`: needs a grammar, reads the CSS's custom variants, rewrites.
 #[test]
 fn migrates_tailwind_sources() {

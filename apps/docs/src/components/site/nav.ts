@@ -96,7 +96,8 @@ export const MENUS: readonly Menu[] = [
         links: [
           {
             title: "Migrate",
-            description: "From Tailwind or StyleX, with a codemod",
+            description:
+              "From Tailwind, StyleX or styled-components, with a codemod",
             href: "/migrate",
             icon: ArrowDataTransferHorizontalIcon,
             scene: "heritage-street",
@@ -159,7 +160,7 @@ export const MENUS: readonly Menu[] = [
       {
         title: "Moving a project",
         description:
-          "From Tailwind or StyleX, and how to check nothing changed.",
+          "From Tailwind, StyleX or styled-components, and how to check nothing changed.",
         href: "/docs/migration/from-tailwind",
         icon: ArrowDataTransferHorizontalIcon,
         scene: "heritage-street",
@@ -306,6 +307,10 @@ export const FOOTER: readonly {
       { label: "How it works", href: "/docs/start/how-it-works" },
       { label: "From Tailwind", href: "/docs/migration/from-tailwind" },
       { label: "From StyleX", href: "/docs/migration/from-stylex" },
+      {
+        label: "From styled-components",
+        href: "/docs/migration/from-styled-components",
+      },
     ],
   },
   {

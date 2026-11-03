@@ -132,6 +132,10 @@ Before it, one change outside these milestones: restricted overrides, where a
 component declares which properties its `sx` accepts (`Sx<"color" | "margin">`),
 checked by TypeScript at the call site.
 
+Outside the milestones, `kirana-style migrate styled-components` moves a project
+off styled-components or Emotion; see
+[the guide](/docs/migration/from-styled-components).
+
 ## Beyond the compiler
 
 Products built on Kirana, each released on its own. Kirana UI is there to use

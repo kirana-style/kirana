@@ -61,7 +61,7 @@ of host-only dependencies.
 | 2    | `kirana_transform`   | Rewrite planning and printing with source maps; relation placement checks.                                                 |
 | 3    | `kirana_project`     | Façade: project state, cross-file resolution with provenance, atom registry, project-wide checks, trace, parallel build.   |
 | 4    | `kirana_napi`        | Node-API binding (NAPI-RS).                                                                                                |
-| 4    | `kirana_migrate`     | The codemods: `migrate stylex` and `migrate tailwind` (KRN-API-013).                                                       |
+| 4    | `kirana_migrate`     | The codemods: `migrate stylex`, `tailwind` and `styled-components` (KRN-API-013).                                          |
 | 4    | `kirana_cli`         | `kirana-style build`, `check`, `trace` and `migrate`; a library the binding also exposes as `runCli`.                      |
 
 Planned when their milestones need them: `kirana_wasm` (`wasm32-wasip1` and `wasm32-unknown-unknown`) and

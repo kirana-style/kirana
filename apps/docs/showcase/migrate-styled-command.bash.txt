@@ -1,0 +1,4 @@
+# print the diff and the report, then apply it
+kirana-style migrate styled-components src
+kirana-style migrate styled-components src --write
+kirana-style check src

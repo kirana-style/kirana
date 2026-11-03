@@ -605,6 +605,7 @@ kirana-style migrate tailwind src                    # print the diff and the re
 kirana-style migrate tailwind src --write            # apply it
 kirana-style migrate tailwind src --report todo.txt  # also save the report
 kirana-style migrate stylex src --write
+kirana-style migrate styled-components src --write   # also named `emotion`
 ```
 
 Nothing is written without `--write`. The report is printed either way: each
@@ -615,6 +616,10 @@ about is also left in a comment beside the style it belongs to.
 and your theme's scales), and reads `@custom-variant` and `@utility` from any CSS
 file among its paths. See
 [migrating from Tailwind](/docs/migration/from-tailwind#the-codemod).
+
+`migrate styled-components` reads every file that imports styled-components or
+Emotion, and renames a `.ts` file that gains a component to `.tsx`. See
+[migrating from styled-components](/docs/migration/from-styled-components#the-codemod).
 
 ## The same answers from code
 

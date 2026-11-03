@@ -129,6 +129,7 @@ change the API. Pages state what is built and what is planned.
 
 - [Migrating from Tailwind](https://site.kirana-style.workers.dev/docs/migration/from-tailwind.md): The mental shift, the utility mapping, and the pitfalls that actually cost time.
 - [Migrating from StyleX](https://site.kirana-style.workers.dev/docs/migration/from-stylex.md): The API maps almost directly; this page shows the mapping, and the one difference in how styles merge that will bite you.
+- [Migrating from styled-components](https://site.kirana-style.workers.dev/docs/migration/from-styled-components.md): From styled-components or Emotion. A styled component becomes a handle and a component that takes sx; the codemod rewrites the rest and reports what it will not guess.
 - [Verifying a migration](https://site.kirana-style.workers.dev/docs/migration/conformance.md): How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.
 
 ## Building

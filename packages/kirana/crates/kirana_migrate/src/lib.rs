@@ -7,6 +7,7 @@
 //! StyleX read them (KF-074).
 
 pub mod environment;
+pub mod styled;
 pub mod tailwind;
 
 use std::collections::BTreeSet;

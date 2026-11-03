@@ -131,7 +131,9 @@ on Linux, macOS and Windows, plus a WASI-fallback run (experiment E-08).
    against the StyleX port;
 2. `kirana-style migrate tailwind` on the Tailwind twin, then a Kirana build, then the conformance suite against
    the twin;
-3. fixture cases for every "reports" item in [06](./06-authoring-api.md#migration-codemods) (custom
+3. `kirana-style migrate styled-components` on a fixture project of styled-components and Emotion files, each
+   rewrite compiled with no error (there is no styled-components twin of the port);
+4. fixture cases for every "reports" item in [06](./06-authoring-api.md#migration-codemods) (custom
    variants, `cn` deletions, width-only borders, wrapper default props), asserting the report is produced
    and nothing is silently guessed.
 

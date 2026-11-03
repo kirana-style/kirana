@@ -19,7 +19,7 @@ existing project, look something up, or see where the project stands.
 
 - **Documentation**: The model, writing styles, tokens and configuration. [Quick start](/docs/start/quick-start), [How it works](/docs/start/how-it-works), [Mental model](/docs/start/mental-model)
 - **Frameworks**: An install guide for every framework and bundler, each built on every change. [Vue](/docs/frameworks/vue), [Next.js](/docs/frameworks/nextjs), [TanStack Start](/docs/frameworks/tanstack-start)
-- **Guides**: Moving from Tailwind or StyleX, and building larger systems. [From Tailwind](/docs/migration/from-tailwind), [From StyleX](/docs/migration/from-stylex), [A design system](/docs/building/design-system)
+- **Guides**: Moving from Tailwind, StyleX or styled-components, and building larger systems. [From Tailwind](/docs/migration/from-tailwind), [From StyleX](/docs/migration/from-stylex), [From styled-components](/docs/migration/from-styled-components), [A design system](/docs/building/design-system)
 - **Reference**: The API, the command line, and every diagnostic with its code. [API](/docs/reference/api), [CLI](/docs/tooling/cli), [Diagnostics](/docs/tooling/diagnostics)
 - **Project**: Where Kirana stands, what comes next, and how to help. [Status](/docs/project/status), [Roadmap](/docs/project/roadmap), [Contributing](/docs/project/contributing)
 
@@ -8179,6 +8179,156 @@ Work through the report, then let the compiler finish the job: `kirana-style che
 will find the relations without anchors, the components that swallow `sx`, and the
 ambiguous pairs. Fix those and the port is done.
 ---
+# Migrating from styled-components
+Source: https://site.kirana-style.workers.dev/docs/migration/from-styled-components
+# Migrating from styled-components
+
+styled-components and Emotion (this page covers both) build your CSS while the page renders: each style
+is serialised, hashed and injected on the server, then again in the browser, and
+the work grows with every component on the page. Kirana does that work in the
+build. What you write stays close: styles in JavaScript, next to the component,
+typed, with conditions inside them.
+
+## The shift, in four lines
+
+1. **A handle, not a component.** `styled.button` made a component with styles
+   inside it. In Kirana the styles are a `css()` handle, and the component applies
+   it with `sx`.
+2. **Conditions nest inside values.** `&:hover { color: red }` becomes
+   `color: { ":hover": "red" }`.
+3. **Props choose handles.** ``${(p) => p.$quiet && css`…`}`` becomes a second
+   handle, listed in `sx` when `$quiet` is set.
+4. **No theme at runtime.** A `ThemeProvider` theme becomes
+   [tokens](/docs/tokens/overview), read where they are used.
+
+## The mapping
+
+| styled-components / Emotion              | Kirana                                                                        |
+| ---------------------------------------- | ----------------------------------------------------------------------------- |
+| `` styled.button`…` ``                   | `const buttonStyle = css({ … })` and a component that takes `sx`              |
+| `` styled(Link)`…` ``                    | the same, rendering `<Link sx={…}>`                                           |
+| `` css`…` ``, `css({ … })`               | `css({ … })`                                                                  |
+| `` keyframes`…` ``                       | [`keyframes({ … })`](/docs/styling/animation)                                 |
+| `&:hover`, `&[aria-current]`, `@media …` | [conditions](/docs/styling/conditions) inside each property                   |
+| `&::before`                              | a `"::before"` block                                                          |
+| `& > svg`, `& svg`                       | [`select.child("svg")`, `select.descendant("svg")`](/docs/styling/contextual) |
+| `${mixin}`                               | an entry of `sx`: `sx={[mixin, style, sx]}`                                   |
+| `width: ${(p) => p.$w}px`                | ``css({ width: `${$w}px` })`` in the component's `sx`                         |
+| `.attrs({ rel: "noreferrer" })`          | `rel="noreferrer"` on the element                                             |
+| Emotion's `css` prop, `className={css…}` | `sx`                                                                          |
+| `cx(a, b)`, `css(a, b)`                  | `sx={[a, b]}`                                                                 |
+| `ThemeProvider`, `useTheme`              | tokens and themes, no provider                                                |
+| `createGlobalStyle`, `Global`            | a stylesheet                                                                  |
+
+## What a styled component becomes
+
+This styled component:
+
+```tsx
+export const Button = styled.button<{ $quiet?: boolean }>`
+  padding: 8px 16px;
+  &:hover {
+    background-color: #f4f4f5;
+  }
+  ${(p) =>
+    p.$quiet &&
+    css`
+      background-color: transparent;
+    `}
+`
+```
+
+becomes a handle per style and a component of the shape every Kirana component
+has: it takes `sx`, passes its other props on, and applies the caller's `sx` last.
+
+```tsx
+const buttonStyle = css({
+  padding: "8px 16px",
+  backgroundColor: { ":hover": "#f4f4f5" },
+})
+const buttonQuiet = css({
+  backgroundColor: "transparent",
+})
+
+export const Button = ({
+  sx,
+  ...props
+}: { $quiet?: boolean } & ComponentProps<"button"> & { sx?: Sx }) => {
+  const { $quiet, ...rest } = props
+  return <button {...rest} sx={[buttonStyle, $quiet && buttonQuiet, sx]} />
+}
+```
+
+Every place that renders `<Button $quiet>` keeps working, so you can migrate one
+file at a time. `$quiet && buttonQuiet` chooses between two classes the build
+already wrote; nothing is generated when it renders. A value only known at
+runtime (`width: ${(p) => p.$w}px`) goes through a
+[custom property](/docs/styling/dynamic) instead.
+
+## Order
+
+`sx` is merged in order, the later entry winning. A mixin or a block chosen by
+props that you wrote **before** the declarations goes before the style, as it
+did. One written **after** declarations now comes after the style and wins over
+them; in your CSS the declarations below it won. The codemod reports each such
+case.
+
+`!important` is dropped and reported: Kirana's
+[precedence ladder](/docs/styling/precedence) orders every rule, so it writes
+none. Check what it was overriding.
+
+## What does not carry over
+
+- **The theme.** A function reading `p.theme` and the `ThemeProvider` around
+  your app have no runtime counterpart. Declare the values as
+  [tokens](/docs/tokens/overview), and a dark or brand variant as a
+  [theme](/docs/tokens/themes-and-modes).
+- **Component selectors** (`${Icon}:hover &`), **a class on the element itself**
+  (`&.active`: Kirana's class names are hashes, so use a data attribute or a prop),
+  and **sibling combinators** (`& + &`). Each stays beside the style as a
+  comment.
+- **Global styles.** `createGlobalStyle` and Emotion's `Global` go in a
+  stylesheet. Kirana writes rules only for the elements that use a style.
+- **`as`.** The component always renders its own element. Give the other
+  element a component of its own with the same handles.
+- **Refs.** The component passes `ref` on with its props, which React 19 does.
+  On React 18, wrap it in `forwardRef`.
+- **Props reaching the element.** `$` props never do. A prop without `$` that a
+  style reads still does, as styled-components 6 passed it; Emotion dropped
+  those that are not HTML attributes, so take any such prop out of `rest`.
+
+## The codemod
+
+> [!TIP] Porting with a coding agent
+> The [`kirana-migrate` skill](/docs/project/agent-skills) gives an agent this
+> page's process: the codemod and its report, the traps, and how to prove the
+> port renders the same.
+
+```bash
+kirana-style migrate styled-components src          # print the diff and the report
+kirana-style migrate styled-components src --write  # apply it
+```
+
+The command is also named `kirana-style migrate emotion`. Both read every file
+that imports styled-components or one of Emotion's packages, and write nothing
+without `--write`. A `.ts` file that gains a component is renamed `.tsx`, since
+the component is JSX.
+
+It leaves these alone, with a report, and keeps `styled` imported for them:
+
+- `.withConfig()` and `styled()`'s options;
+- `.attrs()` with a function;
+- a style function with a body.
+
+The names Kirana has no counterpart for, such as `ThemeProvider` and
+`createGlobalStyle`, stay imported too. Everything else it would have to guess
+is in the report, with the file and line, and in a comment beside the style it
+belongs to.
+
+Then build, and compare the result with the build you came from:
+[verifying a migration](/docs/migration/conformance) compares computed styles,
+element by element.
+---
 # Verifying a migration
 Source: https://site.kirana-style.workers.dev/docs/migration/conformance
 # Verifying a migration
@@ -10016,6 +10166,7 @@ kirana-style migrate tailwind src                    # print the diff and the re
 kirana-style migrate tailwind src --write            # apply it
 kirana-style migrate tailwind src --report todo.txt  # also save the report
 kirana-style migrate stylex src --write
+kirana-style migrate styled-components src --write   # also named `emotion`
 ```
 
 Nothing is written without `--write`. The report is printed either way: each
@@ -10026,6 +10177,10 @@ about is also left in a comment beside the style it belongs to.
 and your theme's scales), and reads `@custom-variant` and `@utility` from any CSS
 file among its paths. See
 [migrating from Tailwind](/docs/migration/from-tailwind#the-codemod).
+
+`migrate styled-components` reads every file that imports styled-components or
+Emotion, and renames a `.ts` file that gains a component to `.tsx`. See
+[migrating from styled-components](/docs/migration/from-styled-components#the-codemod).
 
 ## The same answers from code
 
@@ -11598,7 +11753,7 @@ line coverage. The [changelog](/changelog) lists every release.
   AdonisJS; see [server templates](/docs/frameworks/server-templates)
 - The command line: setting a project up and checking it (with a bug report),
   compiling without a bundler, reports for CI with GitHub annotations, what the
-  stylesheet holds and why, the design system as JSON, tracing a property, and both
+  stylesheet holds and why, the design system as JSON, tracing a property, and the
   codemods; see [the CLI](/docs/tooling/cli)
 - `kirana-style ui` with `@kirana-style/registry`: components installed from a
   registry into your project, updated and diffed later; see
@@ -11613,6 +11768,8 @@ line coverage. The [changelog](/changelog) lists every release.
 - `kirana-style migrate tailwind`, proven on the Tailwind original of our shadcn/ui port: zero
   computed-style differences after the codemod and 38 hand fixes
   ([the numbers](/docs/migration/from-tailwind#measured-the-tailwind-original-of-our-shadcn-ui-port))
+- `kirana-style migrate styled-components`: styled-components and Emotion to components that
+  take `sx`; see [the guide](/docs/migration/from-styled-components)
 
 - `kirana-style lsp`, the language server, with VS Code and Zed extensions, in
   TypeScript, Vue, Svelte and Astro files and Angular templates; see
@@ -11784,6 +11941,10 @@ preset declares as data.
 Before it, one change outside these milestones: restricted overrides, where a
 component declares which properties its `sx` accepts (`Sx<"color" | "margin">`),
 checked by TypeScript at the call site.
+
+Outside the milestones, `kirana-style migrate styled-components` moves a project
+off styled-components or Emotion; see
+[the guide](/docs/migration/from-styled-components).
 
 ## Beyond the compiler
 
@@ -12263,17 +12424,18 @@ Every framework has a guide and a tested example; the
 
 ## Tooling
 
-| Tool                                                                                    | Where                                                                |
-| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `kirana-style build`, `check`, `analyze`, `export`, `trace`                             | [the CLI](/docs/tooling/cli)                                         |
-| `kirana-style init`, `doctor`, `doctor --report`, `dev`                                 | [the CLI](/docs/tooling/cli)                                         |
-| `kirana-style ui`, components installed from a registry                                 | [the CLI](/docs/tooling/cli#kirana-style-ui)                         |
-| `kirana-style migrate stylex`                                                           | [migration from StyleX](/docs/migration/from-stylex)                 |
-| `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod) |
-| Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                               |
-| `@kirana-style/eslint-plugin`, for Oxlint and ESLint                                    | [lint](/docs/tooling/lint)                                           |
-| `@kirana-style/biome-plugin`: the five rules that need no compiler | [lint](/docs/tooling/lint#biome)                                     |
-| Agent skills                                                                            | [agent skills](/docs/project/agent-skills)                           |
+| Tool                                                                                    | Where                                                                      |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `kirana-style build`, `check`, `analyze`, `export`, `trace`                             | [the CLI](/docs/tooling/cli)                                               |
+| `kirana-style init`, `doctor`, `doctor --report`, `dev`                                 | [the CLI](/docs/tooling/cli)                                               |
+| `kirana-style ui`, components installed from a registry                                 | [the CLI](/docs/tooling/cli#kirana-style-ui)                               |
+| `kirana-style migrate stylex`                                                           | [migration from StyleX](/docs/migration/from-stylex)                       |
+| `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod)       |
+| `kirana-style migrate styled-components`, for styled-components and Emotion             | [migration from styled-components](/docs/migration/from-styled-components) |
+| Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                                     |
+| `@kirana-style/eslint-plugin`, for Oxlint and ESLint                                    | [lint](/docs/tooling/lint)                                                 |
+| `@kirana-style/biome-plugin`: the five rules that need no compiler | [lint](/docs/tooling/lint#biome)                                           |
+| Agent skills                                                                            | [agent skills](/docs/project/agent-skills)                                 |
 
 ## Runtime and distribution
 
@@ -12524,14 +12686,14 @@ is merged, point the command at a checkout (`npx skills add ./kirana`).
 
 ## What each one teaches
 
-| Skill            | When the agent loads it                                                         | What it carries                                                                                          |
-| ---------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `kirana`         | the project imports `@kirana-style/core`, or a style compiles and renders wrong | the rules that cause real bugs, the loop below, where each new thing goes, and the habits to unlearn     |
-| `kirana-migrate` | asked to port components or an app from Tailwind, shadcn/ui or StyleX           | the codemods and their reports, the traps in both directions, and how to prove the port renders the same |
+| Skill            | When the agent loads it                                                                           | What it carries                                                                                          |
+| ---------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `kirana`         | the project imports `@kirana-style/core`, or a style compiles and renders wrong                   | the rules that cause real bugs, the loop below, where each new thing goes, and the habits to unlearn     |
+| `kirana-migrate` | asked to port components or an app from Tailwind, shadcn/ui, StyleX, styled-components or Emotion | the codemods and their reports, the traps in both directions, and how to prove the port renders the same |
 
 Each skill is short (the rules and the workflow), and keeps the detail in
 reference files the agent reads only when it needs them: the API, how `sx` is
-spelled in each framework, the Tailwind and StyleX mappings, and two files
+spelled in each framework, the Tailwind, StyleX and styled-components mappings, and two files
 generated from the compiler's source on every build: every
 [diagnostic](/docs/tooling/diagnostics) with what to do about it, and every
 [lint rule](/docs/tooling/lint) with the linters that run it. A diagnostic added

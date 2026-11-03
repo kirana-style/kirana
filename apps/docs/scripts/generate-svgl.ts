@@ -117,12 +117,14 @@ const LOGOFORGE: Record<
 }
 
 /**
- * A brand's own logo files, from its website, for a brand neither SVGL nor LogoForge has. Each file
- * is checked to hold no script before it is saved.
+ * A brand's own logo files, from its website or its GitHub organisation, for a brand neither SVGL
+ * nor LogoForge has a current logo of: an SVG
+ * for each scheme, or one PNG for both. Each SVG is checked to hold no script before it is saved,
+ * each PNG to be one.
  */
 const OFFICIAL: Record<
   string,
-  { title: string; url: string; light: string; dark: string; category: string }
+  { title: string; url: string; light: string; dark?: string; category: string }
 > = {
   vike: {
     title: "Vike",
@@ -130,6 +132,22 @@ const OFFICIAL: Record<
     light: "https://vike.dev/assets/static/vike.DekpsbvE.svg",
     dark: "https://vike.dev/assets/static/vike-dark.BNfTJN3o.svg",
     category: "Framework",
+  },
+  // The current mark, the avatar of the project's GitHub organisation (which names
+  // styled-components.com as its site): SVGL's file is the old framed sketch, and LogoForge's the
+  // old nail-polish glyph. The project publishes no SVG of it.
+  styledcomponents: {
+    title: "styled-components",
+    url: "https://styled-components.com/",
+    light: "https://avatars.githubusercontent.com/u/20658825?s=96",
+    category: "Library",
+  },
+  // Emotion's mark, the 48 px icon its site serves (it publishes no SVG).
+  emotion: {
+    title: "Emotion",
+    url: "https://emotion.sh/",
+    light: "https://emotion.sh/logo-48x48.png",
+    category: "Library",
   },
 }
 
@@ -196,11 +214,21 @@ async function fetchEntry(title: string): Promise<Entry> {
   }
 }
 
-/** Saves a remote SVG next to the others; returns its file name. */
+/** The eight bytes every PNG file starts with. */
+const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
+
+/** Saves a remote SVG, or PNG, next to the others; returns its file name. */
 async function save(url: string, as?: string): Promise<string> {
   const name = as ?? basename(new URL(url).pathname)
   const response = await fetch(url)
   if (!response.ok) throw new Error(`logos: ${url} answered ${response.status}`)
+  if (name.endsWith(".png")) {
+    const bytes = new Uint8Array(await response.arrayBuffer())
+    if (!PNG.every((byte, index) => bytes[index] === byte))
+      throw new Error(`logos: ${url} is not a PNG`)
+    await writeFile(join(brands, name), bytes)
+    return name
+  }
   const svg = await response.text()
   // A logo is drawn, never run: refuse a file that could carry code into the site.
   if (/<script|<foreignObject|\son[a-z]+\s*=|javascript:/i.test(svg))
@@ -240,10 +268,12 @@ if (check) {
       title: logo.title,
       category: logo.category,
       url: logo.url,
-      route: {
-        light: await save(logo.light, `official-${slug}-light.svg`),
-        dark: await save(logo.dark, `official-${slug}-dark.svg`),
-      },
+      route: logo.dark
+        ? {
+            light: await save(logo.light, `official-${slug}-light.svg`),
+            dark: await save(logo.dark, `official-${slug}-dark.svg`),
+          }
+        : await save(logo.light, `official-${slug}.png`),
       source: "official",
     }
     console.log(`official: ${slug} ← ${logo.url}`)
@@ -259,7 +289,7 @@ for (const entry of Object.values(manifest)) {
     files.add(file)
 }
 const identifier = (file: string) =>
-  `logo_${file.replace(/\.svg$/, "").replace(/[^A-Za-z0-9]/g, "_")}`
+  `logo_${file.replace(/\.(svg|png)$/, "").replace(/[^A-Za-z0-9]/g, "_")}`
 const route = (value: Route) =>
   typeof value === "string"
     ? identifier(value)
