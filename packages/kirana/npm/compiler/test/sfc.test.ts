@@ -488,15 +488,39 @@ describe("templates outside the module (KF-090)", () => {
     )
     expect(code).not.toContain("KF-088")
     expect(missing()).toEqual([])
-    // `@arg` is the caller's argument, not the module's relation.
+    // `@arg` is the caller's argument, not the module's relation; an unclosed mustache ends the
+    // search.
     writeFileSync(
       path.join(root, "args.gts"),
-      `${STYLES("arg")}<template><ul class={{sx @arg.anchor}}></ul></template>\n`
+      `${STYLES("arg")}<template><ul class={{sx @arg.anchor}}></ul>{{</template>\n`
     )
     driver.transform(
       path.join(root, "args.gts"),
       embroidered.replaceAll("folder", "arg")
     )
     expect(missing()).toEqual(["arg"])
+  })
+})
+
+describe("template scans on long input", () => {
+  it("stay linear on unclosed tags and runs of spaces", async () => {
+    const { moduleAnchors, templateAnchors } = await import("../src/sfc.ts")
+    const root = project()
+    const spaces = " ".repeat(200_000)
+    writeFileSync(
+      path.join(root, "long.gjs"),
+      `<template>{{sx a.anchor}}${"{{".repeat(50_000)}${"<template>".repeat(20_000)}`
+    )
+    const started = performance.now()
+    expect(
+      moduleAnchors(`${path.join(root, "long.gjs")}${"#".repeat(200_000)}`, "")
+    ).toBe("")
+    expect(
+      templateAnchors([
+        { expression: `.${spaces}` },
+        { expression: `a${spaces}?` },
+      ])
+    ).toBe("")
+    expect(performance.now() - started).toBeLessThan(1000)
   })
 })

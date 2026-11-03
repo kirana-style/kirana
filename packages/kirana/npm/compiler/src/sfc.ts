@@ -86,10 +86,11 @@ const runtime = (prefix: string) =>
  * whole binding would compile what it calls (a recipe, the runtime) into the block too. A chain
  * starts at a name's first character, after no `.`, `)` or `]`, which would make it a member of
  * something else, and after no `@`, an Ember argument; Ember's helpers take theirs after a space
- * (`{{sx folder.anchor}}`).
+ * (`{{sx folder.anchor}}`). The lookahead comes first, so the lookbehinds, which scan back over
+ * spaces, run only where a name starts and the search stays linear in V8.
  */
 const CHAINS =
-  /(?<![\w$])(?<![.)\]@]\s*)[A-Za-z_$][\w$]*(?:\s*\??\.\s*[A-Za-z_$][\w$]*)*/g
+  /(?=[A-Za-z_$])(?<![\w$])(?<![.)\]@]\s*)[A-Za-z_$][\w$]*(?:\s*\??\.\s*[A-Za-z_$][\w$]*)*/g
 
 /** Where the appended anchors start: a comment, which the engine leaves as it is. */
 const APPENDED = "\n/* kirana: the template's anchors (KF-088) */"
@@ -132,6 +133,22 @@ export function withoutAnchors<
 const TEMPLATE_TAG = /\.g[jt]s$/
 
 /**
+ * The texts between each `open` and the `close` after it. Found by index: a lazy pattern
+ * (`{{([\s\S]*?)}}`) backtracks over the rest of the text from every unclosed `open`.
+ */
+function between(text: string, open: string, close: string): string[] {
+  const found: string[] = []
+  let start = text.indexOf(open)
+  while (start >= 0) {
+    const end = text.indexOf(close, start + open.length)
+    if (end < 0) break
+    found.push(text.slice(start + open.length, end))
+    start = text.indexOf(open, end + close.length)
+  }
+  return found
+}
+
+/**
  * The anchors a module's own template names, for `Driver.transform` to append as a component's are
  * (KF-088, KF-090): an Angular component's `[sx]` bindings (D-068), from its inline template or the
  * `.html` file its `templateUrl` names, or the mustaches of an Ember template tag (D-072). The engine
@@ -141,7 +158,8 @@ const TEMPLATE_TAG = /\.g[jt]s$/
  * read in the module's scope: a component member holding a relation has the relation's name.
  */
 export function moduleAnchors(id: string, code: string): string {
-  const file = id.replace(/[?#].*$/, "")
+  const query = id.search(/[?#]/)
+  const file = query < 0 ? id : id.slice(0, query)
   const source = (marker: string) =>
     code.includes(marker)
       ? code
@@ -149,12 +167,12 @@ export function moduleAnchors(id: string, code: string): string {
         ? readFileSync(file, "utf8")
         : ""
   if (TEMPLATE_TAG.test(file)) {
-    const expressions = [
-      ...source("<template>").matchAll(/<template>([\s\S]*?)<\/template>/g),
-    ].flatMap(([, template]) =>
-      [...template!.matchAll(/\{\{([\s\S]*?)\}\}/g)].map(([, expression]) => ({
-        expression: expression!,
-      }))
+    const expressions = between(
+      source("<template>"),
+      "<template>",
+      "</template>"
+    ).flatMap((template) =>
+      between(template, "{{", "}}").map((expression) => ({ expression }))
     )
     return templateAnchors(expressions)
   }
