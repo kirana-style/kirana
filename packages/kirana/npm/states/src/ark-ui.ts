@@ -622,10 +622,14 @@ export const Combobox = {
     side: "[data-side]",
     /** Present when the content is empty */
     empty: "[data-empty]",
+    /** Present when loading */
+    loading: "[data-loading]",
   },
   List: {
     /** Present when the content is empty */
     empty: "[data-empty]",
+    /** Present when loading */
+    loading: "[data-loading]",
   },
   ClearTrigger: {
     /** Present when invalid */
@@ -2614,6 +2618,11 @@ export const Steps = {
       vertical: '[data-orientation="vertical"]',
     },
     skippable: "[data-skippable]",
+    /** Present when the trigger value is complete */
+    complete: "[data-complete]",
+    /** Present when current */
+    current: "[data-current]",
+    incomplete: "[data-incomplete]",
   },
   Trigger: {
     state: {
@@ -3037,6 +3046,7 @@ export const Tour = {
     },
     /** The type of the item */
     type: "[data-type]",
+    instant: "[data-instant]",
   },
   Positioner: {
     /** The type of the item */
@@ -3045,6 +3055,7 @@ export const Tour = {
     placement: "[data-placement]",
     /** The side of the trigger that the positioner is positioned on */
     side: "[data-side]",
+    instant: "[data-instant]",
   },
   Content: {
     state: {
@@ -3086,6 +3097,7 @@ export const Tour = {
     disabled: "[data-disabled]",
   },
   Spotlight: {
+    instant: "[data-instant]",
     state: {
       open: '[data-state="open"]',
       closed: '[data-state="closed"]',
