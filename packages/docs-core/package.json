@@ -8,7 +8,7 @@
     "test": "vp test run"
   },
   "dependencies": {
-    "@tanstack/highlight": "^1.1.0",
+    "@tanstack/highlight": "^1.2.0",
     "@tanstack/markdown": "^1.0.0"
   },
   "devDependencies": {

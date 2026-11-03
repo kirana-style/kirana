@@ -29,7 +29,7 @@
     "@hugeicons/core-free-icons": "catalog:",
     "@kirana-style/core": "workspace:*",
     "@tanstack/charts": "catalog:",
-    "@tanstack/highlight": "^1.1.0",
+    "@tanstack/highlight": "^1.2.0",
     "@tanstack/markdown": "^1.0.0",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
@@ -51,7 +51,7 @@
     "@workspace/vite-config": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "wrangler": "^4.151.3",
+    "wrangler": "^4.156.0",
     "vite-plus": "catalog:"
   }
 }
