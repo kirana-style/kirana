@@ -76,7 +76,9 @@ follow their own guides for `sx` (islands are not in the test matrix yet).
 The frontmatter compiles like any module, and each `sx` becomes a spread of a call
 to Kirana's small runtime, evaluated when the page renders, which is at build time
 for a static page. Keep `css()` calls in the frontmatter: one written inside the markup
-is not compiled, and says so when it runs.
+is not compiled, and says so when it runs. `props()` and `cx()` imported in the
+frontmatter can be called in the markup: the build defines them there from the
+same runtime.
 
 ## Next
 

@@ -96,6 +96,9 @@ runtime, which merges the styles as the component renders, so a condition like
 `wide && full` stays reactive. Keep `css()` calls in the script: one written
 inside the markup is not compiled, and says so when it runs.
 
+`props()` and `cx()` imported in the script can be called in the markup: the
+build defines them there from the same runtime.
+
 ## SvelteKit
 
 On SvelteKit, follow the [SvelteKit guide](/docs/frameworks/sveltekit): the

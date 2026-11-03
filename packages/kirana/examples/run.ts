@@ -767,6 +767,19 @@ async function checkPage(
         )
       console.log("✓ a component state from @kirana-style/states applies")
     }
+    // A Vue or Svelte example may carry an element whose class `props()` gives in the template
+    // (KF-096): the template's call runs, and its style applies.
+    const handed = page.locator("[data-probe-props]")
+    if ((await handed.count()) > 0) {
+      const padding = await handed.evaluate(
+        (element) => getComputedStyle(element).paddingBottom
+      )
+      if (padding !== "8px")
+        throw new Error(
+          `props() probe padding-bottom is ${padding}, expected 8px`
+        )
+      console.log("✓ props() called in a template applies")
+    }
     // A Vue example may carry a component its caller's `"*": null` overrides (KF-089).
     const reset = page.locator("[data-probe-reset]")
     if ((await reset.count()) > 0) {

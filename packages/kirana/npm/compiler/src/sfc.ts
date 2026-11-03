@@ -78,6 +78,67 @@ type Parsed = {
 const runtime = (prefix: string) =>
   `\nimport { runtime as __kirana_runtime_sfc } from "@kirana-style/core/internal";\nconst __kirana_sfc = __kirana_runtime_sfc(${JSON.stringify(prefix)}, "class");\n`
 
+/** Kirana's imports in a block: `import { props as styleProps, cx } from "@kirana-style/core"`. */
+const CORE_IMPORT = /import\s*\{([^}]*)\}\s*from\s*["']@kirana-style\/core["']/g
+
+/**
+ * Kirana's `props` and `cx` a template calls, by the names the block it sees imports them under
+ * (KF-096). The engine compiles the block's own calls and drops the import, but a template's call
+ * runs as written, so the build defines the name from the runtime the template's spreads use:
+ * `props` as its merge into the configured class attribute, `cx` as its merge into one handle.
+ */
+export function templateHelpers(
+  source: string,
+  blocks: readonly { start: number; end: number }[],
+  target: { start: number; end: number } | undefined
+): { local: string; api: "props" | "cx" }[] {
+  if (!target) return []
+  let template = ""
+  let at = 0
+  for (const block of [...blocks].sort((a, b) => a.start - b.start)) {
+    template += source.slice(at, block.start)
+    at = block.end
+  }
+  template += source.slice(at)
+  const found: { local: string; api: "props" | "cx" }[] = []
+  for (const [, names] of source
+    .slice(target.start, target.end)
+    .matchAll(CORE_IMPORT)) {
+    for (const specifier of names!.split(",")) {
+      const [imported, local = imported] = specifier
+        .trim()
+        .split(/\s+as\s+/)
+        .map((name) => name.trim())
+      if (imported !== "props" && imported !== "cx") continue
+      const called = new RegExp(
+        `(?<![\\w$.])${local!.replace(/\$/g, "\\$")}\\s*\\(`
+      )
+      if (called.test(template)) found.push({ local: local!, api: imported })
+    }
+  }
+  return found
+}
+
+/**
+ * The definitions of the helpers a template calls. The engine always drops Kirana's import from the
+ * block (a read it cannot compile is `props must be called where it is used`), so the names are free.
+ */
+function helperDefinitions(
+  helpers: readonly { local: string; api: "props" | "cx" }[],
+  prefix: string,
+  classAttribute: string
+): string {
+  if (helpers.length === 0) return ""
+  let text = `\nconst __kirana_props = __kirana_runtime_sfc(${JSON.stringify(prefix)}, ${JSON.stringify(classAttribute)});\n`
+  for (const { local, api } of helpers) {
+    text +=
+      api === "props"
+        ? `const ${local} = (...handles) => __kirana_props.sx(handles, [], []);\n`
+        : `const ${local} = __kirana_props.cx;\n`
+  }
+  return text
+}
+
 /**
  * A template's `sx` is compiled at runtime, so the engine never sees a relation's anchor named only
  * there (`:sx="[scope.anchor, sx]"`) and would report the relation's reads unanchored (KF-088). The
@@ -668,10 +729,13 @@ export async function compileComponent(options: {
   source: string
   root: string
   prefix: string
+  /** The attribute `props()` returns classes under: `className`, or `class` (KF-047). */
+  classAttribute?: string
   compile: (id: string, code: string) => BlockResult
   load: ImportFile
 }): Promise<ComponentResult> {
   const { file, source, root, prefix, compile, load } = options
+  const classAttribute = options.classAttribute ?? "className"
   const framework = frameworkOf(file)!
   const parsed = await parseComponent(file, source, root, load)
 
@@ -682,10 +746,10 @@ export async function compileComponent(options: {
     dependencies: [],
     modules: [],
   }
+  const helpers = templateHelpers(source, parsed.blocks, parsed.target)
   const injection =
-    parsed.bindings.length === 0
-      ? ""
-      : runtime(prefix) + (framework === "vue" ? MERGE : ATTRS)
+    (parsed.bindings.length > 0 || helpers.length > 0 ? runtime(prefix) : "") +
+    (parsed.bindings.length === 0 ? "" : framework === "vue" ? MERGE : ATTRS)
 
   for (const block of parsed.blocks) {
     const id = `${file}.${block.label}.${block.lang}`
@@ -716,7 +780,11 @@ export async function compileComponent(options: {
       })
     }
     const extra = block === parsed.target ? injection : ""
-    const text = extra + (code ?? content)
+    const defined =
+      block === parsed.target
+        ? helperDefinitions(helpers, prefix, classAttribute)
+        : ""
+    const text = extra + (code ?? content) + defined
     if (text === content) continue
     if (block.start === block.end) magic.appendLeft(block.start, text)
     else magic.overwrite(block.start, block.end, text)

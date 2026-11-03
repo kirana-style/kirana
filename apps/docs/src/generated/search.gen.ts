@@ -2475,7 +2475,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Vue",
     "section": "frameworks",
     "heading": "How it compiles",
-    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes with a call to Kirana's small runtime, which merges the styles when the component renders. Keep calls in the script: one written inside the template is not compiled, and says so when it runs. An element takes one object binding, so an element's own object is merged into the compiled one with Vue's . A relation's anchor written in the template, , counts as applied, as one in the script does, so the relation's reads are not reported unanchored: by the build, , the editor and the lint rules . A component imported from a workspace package, outside the app's root, compiles and hot-reloads like one inside it."
+    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes with a call to Kirana's small runtime, which merges the styles when the component renders. Keep calls in the script: one written inside the template is not compiled, and says so when it runs. and imported in the script can be called in the template: the build defines them there from the same runtime, so works. An element takes one object binding, so an element's own object is merged into the compiled one with Vue's . A relation's anchor written in the template, , counts as applied, as one in the script does, so the relation's reads are not reported unanchored: by the build, , the editor and the lint rules . A component imported from a workspace package, outside the app's root, compiles and hot-reloads like one inside it."
   },
   {
     "id": "/docs/frameworks/vue#nuxt",
@@ -2648,7 +2648,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Svelte",
     "section": "frameworks",
     "heading": "How it compiles",
-    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes a spread of a call to Kirana's small runtime, which merges the styles as the component renders, so a condition like stays reactive. Keep calls in the script: one written inside the markup is not compiled, and says so when it runs."
+    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes a spread of a call to Kirana's small runtime, which merges the styles as the component renders, so a condition like stays reactive. Keep calls in the script: one written inside the markup is not compiled, and says so when it runs. and imported in the script can be called in the markup: the build defines them there from the same runtime."
   },
   {
     "id": "/docs/frameworks/svelte#sveltekit",
@@ -2766,7 +2766,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Astro",
     "section": "frameworks",
     "heading": "How it compiles",
-    "text": "The frontmatter compiles like any module, and each becomes a spread of a call to Kirana's small runtime, evaluated when the page renders, which is at build time for a static page. Keep calls in the frontmatter: one written inside the markup is not compiled, and says so when it runs."
+    "text": "The frontmatter compiles like any module, and each becomes a spread of a call to Kirana's small runtime, evaluated when the page renders, which is at build time for a static page. Keep calls in the frontmatter: one written inside the markup is not compiled, and says so when it runs. and imported in the frontmatter can be called in the markup: the build defines them there from the same runtime."
   },
   {
     "id": "/docs/frameworks/astro#next",

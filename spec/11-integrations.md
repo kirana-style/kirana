@@ -212,7 +212,10 @@ as each parser marks one), the compiled binding keeps the caller's removals in t
 `"*": null` or `prop: null` reaches the component's merge as it does in JSX (D-100, KF-089). A
 template's `sx` compiles at runtime, so the adapter compiles the block the template sees with the
 `.anchor` chains its bindings name appended, in a function never called, and cuts them from the output:
-an anchor applied only in the template counts for R1 and R2 (KRN-CAS-005, KF-088). The adapter compiles components in `load`
+an anchor applied only in the template counts for R1 and R2 (KRN-CAS-005, KF-088). The engine
+compiles the block's own `props()` and `cx()` calls and drops their import, so when the template
+calls one under the name the block imports it as, the adapter defines that name in the block from
+the runtime: `props` as its merge into the configured class attribute, `cx` as its merge (KF-096). The adapter compiles components in `load`
 and names each one to the watcher, as Vite does for a file outside the root it reads itself, so a
 component from a workspace package hot-reloads (D-100).
 
