@@ -124,8 +124,8 @@ anything. On a host (lowercase) element it compiles to `className` and, when var
 
 **KRN-API-014** — When `sx` compiles on a host element that also receives `className` or `style` — as an
 explicit attribute or through a spread such as `{...props}` from a headless library's render prop — the
-output MUST merge them (class strings joined, style objects merged with Kirana's bridged variables last)
-instead of replacing them.
+output MUST merge them instead of replacing them: the given class per entry after the element's own `sx`,
+as a caller's `sx` (D-122), style objects merged with Kirana's bridged variables last.
 
 **KRN-API-005** — A component that declares an `sx` prop in its parameters and never applies it to an
 element or forwards it to another component MUST produce the `unused-sx` diagnostic.

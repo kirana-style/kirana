@@ -164,7 +164,9 @@ export function runtime(prefix: string, attribute: string) {
   const settled = new Map<string, Props>()
 
   /**
-   * The props for a host element: foreign classes first, then handles; bridged variables last. For
+   * The props for a host element: handles, then the classes it was given (`className`, `class`,
+   * from an attribute or a spread), which merge per entry after its own as a caller's `sx` does,
+   * the way Vue's `class` reaches `sx` (D-122); bridged variables last. For
    * a component's template binding (`component`), the class keeps the merge's removals, so the
    * component's own merge of its caller's `sx` applies them (KF-089); an element renders none.
    */
@@ -178,8 +180,8 @@ export function runtime(prefix: string, attribute: string) {
     let props = settled.get(key)
     if (!props) {
       const merged = merge([
-        classNames.filter((name) => typeof name === "string") as string[],
         handles,
+        classNames.filter((name) => typeof name === "string") as string[],
       ])
       const className = [...merged.c.values()]
         .filter((token) => component || !token.endsWith("_"))

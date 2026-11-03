@@ -42,6 +42,18 @@ describe("KRN-DYN-005 private runtime", () => {
     })
   })
 
+  it("merges the classes an element is given after its own sx, as a caller's (D-122)", () => {
+    // A render prop hands the outer part's classes to a styled element: they win where both set a
+    // key, and its own entries stay where they do not.
+    expect(k.sx(["k3T_own k4I_own"], ["k3T_caller"], [])).toStrictEqual({
+      className: "k4I_own k3T_caller",
+    })
+    // The element's own removal does not reach them.
+    expect(k.sx(["k3T*_"], ["k3T_caller"], [])).toStrictEqual({
+      className: "k3T_caller",
+    })
+  })
+
   it("builds host element props", () => {
     expect(
       k.sx(
@@ -50,7 +62,7 @@ describe("KRN-DYN-005 private runtime", () => {
         [{ color: "red" }, null]
       )
     ).toEqual({
-      className: "x k3T_aaa k60_4ko",
+      className: "k60_4ko x k3T_zzz",
       style: { color: "red", "--k60": "50%" },
     })
     // Nothing to set is no key at all: spread after an element's own `style`, an `undefined`
@@ -65,7 +77,7 @@ describe("KRN-DYN-005 private runtime", () => {
     })
     // Preact and Solid: the compiler asks for `class` (KRN-INT-004).
     expect(runtime("k", "class").sx(["k3T_aaa"], ["own"], [])).toStrictEqual({
-      class: "own k3T_aaa",
+      class: "k3T_aaa own",
     })
   })
 
@@ -89,7 +101,7 @@ describe("KRN-DYN-005 private runtime", () => {
       ["own"],
       []
     )
-    expect(first).toStrictEqual({ className: "own k4I_bbb k3T_ccc" })
+    expect(first).toStrictEqual({ className: "k4I_bbb k3T_ccc own" })
     first.className = "changed"
     // The same inputs again: the merged result, unchanged by what a caller did with its copy.
     const second = fresh.sx(
@@ -97,7 +109,7 @@ describe("KRN-DYN-005 private runtime", () => {
       ["own"],
       []
     )
-    expect(second).toStrictEqual({ className: "own k4I_bbb k3T_ccc" })
+    expect(second).toStrictEqual({ className: "k4I_bbb k3T_ccc own" })
     expect(second).not.toBe(first)
     // A style, inline or bridged, is copied too.
     const styled = fresh.sx(
