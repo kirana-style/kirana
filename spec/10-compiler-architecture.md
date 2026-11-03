@@ -423,7 +423,9 @@ properties typed one keystroke at a time would grow), start over past their boun
   changed; `map` false leaves the source map out, for a host that writes none),
   `stylesheet(minify)`, `diagnostics()`, `invalidate(id)` (the affected importers), `remove(id)`, and `runCli(argv)`; `inspect(id,
   span)` arrives with the language server. Each transform crosses the boundary once with compact results —
-  never serialized ASTs.
+  never serialized ASTs. The native engine allocates with mimalloc, and `releaseMemory()` gives what it
+  freed back to the system; the Driver calls it once a session goes idle, and the language server
+  after a pause (D-123).
 - **KRN-CMP-012 — WASM:** the same crates MUST build for `wasm32-wasip1` (a fallback package for
   environments where native addons cannot load, such as WebContainers). In a browser (the
   playground) the same build runs with an in-memory filesystem, as `@kirana-style/compiler-browser`

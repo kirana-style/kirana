@@ -2030,6 +2030,40 @@ the implementation tracker names its evidence.
   out of the props. Kirana's classes in the attribute come before the foreign ones.
 - **Elaborated in:** [06-authoring-api](./06-authoring-api.md).
 
+### D-123 — The native engine allocates with mimalloc and gives memory back when idle
+
+- **Status:** Accepted (2026-11-03). Option 3 of the allocator study.
+- **Decision:** every native engine (`kirana_napi`, which every host loads) allocates with mimalloc,
+  with local-dynamic TLS on musl, since the engine is loaded with `dlopen`. On Linux it is built
+  with arenas committed on demand (`MI_DEFAULT_ARENA_EAGER_COMMIT=0`, passed by
+  `scripts/build-native.ts` in `CFLAGS_<target>`). A `Compiler` session has `releaseMemory()`
+  (`mi_collect(true)`, for the whole process), and each long session calls it once it goes idle: the Driver a second after
+  its last compile, invalidation, removal or stylesheet, on a timer that keeps no process alive; the
+  Rolldown plugin (and Vite through it) in `buildEnd`; the language server about a second after its
+  workspace index or a message, once per pause. The WASI engine, and the browser engine built from
+  it, keep wasi-libc's allocator, and `releaseMemory()` is a no-op there. `kirana_cli`'s own binary
+  is unchanged.
+- **Rationale:** allocation and frees are about a quarter of a compile. In the study's harness and
+  through Node, mimalloc cut a compile by 13 to 26 % on one thread (zyzz `unique` 7.10 against
+  9.58 ms, an edit in a session 0.391 against 0.505 ms) and by 5 to 15 % on four threads. Alone it
+  held 16 to 65 MB more resident memory in a long session, since it keeps freed pages to reuse them.
+  A collect when the session goes idle, with eager commit off, gives that back: an editor's session
+  ended at 15.0 against 18.9 MB, a four-thread build at 139.7 against 138.7 MB, the Node process at
+  80.1 against 82.6 MB. The collect costs under a millisecond, and the edit after it stays faster
+  than the system allocator's. Through the Driver as built (median of 10 interleaved runs): zyzz
+  `unique` 8.82 against 9.71 ms (−9 %); kirana-ui's registry, 1,969 modules, loaded cold in 684
+  against 742 ms (−8 %), then edited 4,000 times at 4.23 against 4.47 ms an edit (−5 %), the Node
+  process ending at 324.8 against 320.6 MB resident (+1.3 %; 329.0 MB without the collect).
+- **Trade-off:** memory is at the system allocator's level only after an idle second: during a
+  burst of compiles a session holds more than it would. A session opened right after a collect
+  faults its memory in again, so a fresh build per second gains nothing. Worker threads keep their
+  own free pages, which no collect on the main thread reaches; eager commit off is what closes most
+  of that gap. Every native target now compiles C: each job in `packages.yml` needs a C toolchain
+  for its target (gcc through napi's glibc 2.17 cross toolchain, `zig cc` for musl, Apple's clang,
+  MSVC on both Windows targets), and the `.node` grows by about 146 KB (+1.1 %, 47 KB gzipped).
+- **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md#bindings),
+  [13-output-and-performance](./13-output-and-performance.md#engineering-rules), the allocator study.
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                                                                 |
@@ -2039,10 +2073,10 @@ the implementation tracker names its evidence.
 | [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099, D-115, D-117                                                                                                          |
 | [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114, D-117, D-119                                    |
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                                                           |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116, D-118                                                                                            |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116, D-118, D-123                                                                                     |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                                                |
 | [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116, D-120                                    |
-| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114                                                                                                                               |
+| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114, D-123                                                                                                                        |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                                                     |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                                                              |
 | the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                                                                                                  |

@@ -551,6 +551,45 @@ console.log(resolveConfigSync(${JSON.stringify(root)}).json)`,
     expect(ask().sort()).toEqual(["b.tsx", "b.tsx", "c.tsx", "c.tsx"])
   })
 
+  it("gives the engine's freed memory back a second after the last call into it, or when asked (D-123)", async () => {
+    const root = project({
+      "package.json": '{"name":"app"}',
+      "src/a.tsx": INPUT,
+    })
+    const file = path.join(root, "src/a.tsx")
+    const native = loadNative()
+    // The engine's own: it gives back what its allocator holds free.
+    expect(new native.Compiler("{}").releaseMemory()).toBeUndefined()
+    let released = 0
+    class Counting extends native.Compiler {
+      override releaseMemory() {
+        released += 1
+      }
+    }
+    const driver = await Driver.create({
+      root,
+      native: { ...native, Compiler: Counting },
+    })
+    const idle = () => new Promise((resolve) => setTimeout(resolve, 1200))
+    // Changes in a row: one release, a second after the last.
+    driver.transform(file, INPUT)
+    driver.transform(file, `${INPUT}// edit\n`)
+    driver.invalidate(file)
+    expect(released).toBe(0)
+    await idle()
+    expect(released).toBe(1)
+    // Asked at once, the pending release is the same one.
+    driver.transform(file, INPUT)
+    driver.releaseMemory()
+    expect(released).toBe(2)
+    await idle()
+    expect(released).toBe(2)
+    // A dev server writes the stylesheet after its compiles: what that freed goes back too.
+    driver.stylesheet(false)
+    await idle()
+    expect(released).toBe(3)
+  }, 10_000)
+
   it("defaults the root to the working directory", async () => {
     const driver = await Driver.create()
     expect(driver.root).toBe(process.cwd())

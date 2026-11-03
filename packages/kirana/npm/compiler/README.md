@@ -35,6 +35,9 @@ const css = driver.stylesheet(true)
 for (const report of formatDiagnostics(result.diagnostics, () => source))
   console.warn(report)
 const affected = driver.invalidate("/abs/path/tokens.ts") // importers to recompile
+// The memory the engine freed goes back a second after its last call; a host whose session just
+// went idle (a watch build's end) can give it back at once.
+driver.releaseMemory()
 
 // For tools, from the same session: each file compiled once.
 const answers = driver.trace([
@@ -58,5 +61,10 @@ bun run build:debug  # debug, faster to compile
 From the repository root, `vp run engine` does the same, and `vp run dev` / `vp run build` run it
 before the apps. The script finds cargo in `~/.cargo/bin` when `PATH` lacks it and prints
 the rustup install command when Rust is missing.
+
+The engine allocates with mimalloc (D-123), whose C the build compiles: it needs the target's C
+compiler (gcc or clang, MSVC on Windows). On Linux the script builds it with arenas committed on
+demand (`-DMI_DEFAULT_ARENA_EAGER_COMMIT=0` in `CFLAGS_<target>`), so a long session gives its
+memory back. The WASI engine keeps wasi-libc's allocator.
 
 `KIRANA_NATIVE_PATH` points the loader at another build.

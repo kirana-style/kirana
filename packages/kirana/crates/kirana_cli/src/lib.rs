@@ -206,7 +206,7 @@ pub fn run_coloured(args: &[String], out: &mut dyn Write, colour: bool) -> i32 {
     };
     match cli.command {
         // The server owns stdin and stdout, and opens its own session; `out` stays empty.
-        Command::Lsp => kirana_lsp::serve_stdio(&config.to_string()),
+        Command::Lsp => kirana_lsp::serve_stdio(&config.to_string(), None),
         Command::Build { paths, out: target, minify } => {
             let (mut diagnostics, mut sources) = project.compile_paths(&paths);
             // The class map compiles its modules first, so the stylesheet holds their atoms (D-069).

@@ -769,7 +769,7 @@ fn serves_a_session_over_a_connection() {
     .unwrap();
     let (server, client) = Connection::memory();
     let config = json!({ "root": root }).to_string();
-    let thread = std::thread::spawn(move || kirana_lsp::serve(&server, &config));
+    let thread = std::thread::spawn(move || kirana_lsp::serve(&server, &config, None));
     let send = |message: Message| client.sender.send(message).unwrap();
     send(Message::Request(Request::new(RequestId::from(1), "initialize".to_owned(), json!({ "capabilities": {} }))));
     let Message::Response(initialized) = client.receiver.recv().unwrap() else { panic!() };
@@ -798,9 +798,52 @@ fn serves_a_session_over_a_connection() {
 }
 
 #[test]
+fn tells_its_host_once_each_time_the_client_pauses() {
+    // D-123: the Node-API binding gives the engine's freed memory back while the editor is idle.
+    use std::time::Duration;
+    let root = std::env::temp_dir().join(format!("kirana-lsp-idle-{}", std::process::id()));
+    std::fs::create_dir_all(&root).unwrap();
+    let (server, client) = Connection::memory();
+    let config = json!({ "root": root }).to_string();
+    let (paused, pauses) = std::sync::mpsc::channel();
+    let thread = std::thread::spawn(move || {
+        let pause = || paused.send(()).unwrap();
+        kirana_lsp::serve(&server, &config, Some((Duration::from_millis(50), &pause)))
+    });
+    let send = |message: Message| client.sender.send(message).unwrap();
+    // One pause, then none while the client stays quiet, however long that lasts.
+    let once = || {
+        pauses.recv_timeout(Duration::from_secs(10)).unwrap();
+        assert!(pauses.recv_timeout(Duration::from_millis(300)).is_err());
+    };
+    send(Message::Request(Request::new(RequestId::from(1), "initialize".to_owned(), json!({ "capabilities": {} }))));
+    let _ = client.receiver.recv().unwrap();
+    send(Message::Notification(Notification::new("initialized".to_owned(), json!({}))));
+    // The workspace's index is the first work, before any message.
+    once();
+    // Two messages in a row: the second comes while the server waits for a pause, and the pause
+    // after it is still one.
+    let uri = path_to_uri(&root.join("a.tsx")).as_str().to_owned();
+    send(Message::Notification(Notification::new(
+        "textDocument/didOpen".to_owned(),
+        json!({ "textDocument": { "uri": uri, "languageId": "tsx", "version": 1, "text": "" } }),
+    )));
+    send(Message::Notification(Notification::new(
+        "textDocument/didChange".to_owned(),
+        json!({ "textDocument": { "uri": uri, "version": 2 }, "contentChanges": [{ "text": "// a\n" }] }),
+    )));
+    once();
+    send(Message::Request(Request::new(RequestId::from(2), "shutdown".to_owned(), json!(null))));
+    while !matches!(client.receiver.recv().unwrap(), Message::Response(_)) {}
+    send(Message::Notification(Notification::new("exit".to_owned(), json!(null))));
+    assert!(thread.join().unwrap().is_ok());
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
 fn serve_fails_without_initialize_and_on_a_closed_connection() {
     let (server, client) = Connection::memory();
-    let thread = std::thread::spawn(move || kirana_lsp::serve(&server, "{}"));
+    let thread = std::thread::spawn(move || kirana_lsp::serve(&server, "{}", None));
     client.sender.send(Message::Notification(Notification::new("exit".to_owned(), json!(null)))).unwrap();
     assert!(thread.join().unwrap().is_err());
     // A session whose client goes away without `shutdown` ends.
@@ -808,7 +851,7 @@ fn serve_fails_without_initialize_and_on_a_closed_connection() {
     std::fs::create_dir_all(&root).unwrap();
     let (server, client) = Connection::memory();
     let config = json!({ "root": root }).to_string();
-    let thread = std::thread::spawn(move || kirana_lsp::serve(&server, &config));
+    let thread = std::thread::spawn(move || kirana_lsp::serve(&server, &config, None));
     client
         .sender
         .send(Message::Request(Request::new(
@@ -823,7 +866,7 @@ fn serve_fails_without_initialize_and_on_a_closed_connection() {
     assert!(thread.join().unwrap().is_ok());
     // Bad configuration fails after initialize.
     let (server, client) = Connection::memory();
-    let thread = std::thread::spawn(move || kirana_lsp::serve(&server, "not json"));
+    let thread = std::thread::spawn(move || kirana_lsp::serve(&server, "not json", None));
     client
         .sender
         .send(Message::Request(Request::new(
@@ -1008,7 +1051,7 @@ fn serve_ends_when_the_client_stops_listening() {
     let config = json!({ "root": root }).to_string();
     let start = |config: String| {
         let (server, client) = Connection::memory();
-        let thread = std::thread::spawn(move || kirana_lsp::serve(&server, &config));
+        let thread = std::thread::spawn(move || kirana_lsp::serve(&server, &config, None));
         client
             .sender
             .send(Message::Request(Request::new(

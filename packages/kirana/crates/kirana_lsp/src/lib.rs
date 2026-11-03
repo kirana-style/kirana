@@ -24,6 +24,7 @@ pub mod text;
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::time::Duration;
 
 use kirana_diagnostics::{Diagnostic, Severity};
 use kirana_project::{Project, Site, TraceLine};
@@ -94,10 +95,19 @@ pub struct Server {
     published: BTreeSet<PathBuf>,
 }
 
+/// How long the server waits after its last work before it tells its host it is idle (D-123): an
+/// editor sends a change per keystroke, so a second without a message is a pause.
+pub const IDLE_AFTER: Duration = Duration::from_secs(1);
+
+/// What a host does once the server has been idle for the duration given, after indexing the
+/// workspace or handling a message (D-123): the Node-API binding gives back the memory the native
+/// engine's allocator holds free. The server itself knows nothing of the allocator.
+pub type Idle<'a> = Option<(Duration, &'a dyn Fn())>;
+
 /// Runs the server on stdin/stdout until the client shuts it down; returns the exit code.
-pub fn serve_stdio(config_json: &str) -> i32 {
+pub fn serve_stdio(config_json: &str, idle: Idle) -> i32 {
     let (connection, threads) = Connection::stdio();
-    let result = serve(&connection, config_json);
+    let result = serve(&connection, config_json, idle);
     drop(connection);
     let _ = threads.join();
     match result {
@@ -132,11 +142,30 @@ pub fn capabilities() -> Value {
     })
 }
 
-/// Runs the server over `connection` until the client shuts it down.
-pub fn serve(connection: &Connection, config_json: &str) -> Result<(), String> {
+/// Runs the server over `connection` until the client shuts it down, calling `idle` once each time
+/// the client pauses after the workspace's index or a message.
+pub fn serve(connection: &Connection, config_json: &str, idle: Idle) -> Result<(), String> {
     let params = connection.initialize(capabilities()).map_err(|error| error.to_string())?;
     let mut server = Server::start(config_json, &params)?;
-    for message in &connection.receiver {
+    // Whether the server worked since the host last heard it was idle: indexing the workspace, on
+    // every thread, is the most it ever frees at once.
+    let mut busy = true;
+    loop {
+        // With no hook, or nothing done since the last pause, the server waits as long as it takes.
+        let received = match idle.filter(|_| busy) {
+            Some((after, idle)) => match connection.receiver.recv_timeout(after) {
+                Err(error) if error.is_timeout() => {
+                    idle();
+                    busy = false;
+                    continue;
+                }
+                received => received.ok(),
+            },
+            None => connection.receiver.recv().ok(),
+        };
+        // The client went away without `shutdown`.
+        let Some(message) = received else { return Ok(()) };
+        busy = true;
         match message {
             Message::Request(request) => {
                 if connection.handle_shutdown(&request).map_err(|error| error.to_string())? {
@@ -154,7 +183,6 @@ pub fn serve(connection: &Connection, config_json: &str) -> Result<(), String> {
             Message::Response(_) => {}
         }
     }
-    Ok(())
 }
 
 /// One request's response: its handler's, or an internal error when the handler panics.
