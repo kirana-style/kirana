@@ -2632,7 +2632,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Svelte",
     "section": "frameworks",
     "heading": "5. Write a component",
-    "text": "The element's own class and style attributes are merged into what produces, in order, and and directives keep working beside it."
+    "text": "What produces merges, in this order: the element's own styles, from ; the classes and styles it is given, in the order they are written: its own and attributes, and those of a spread written before it ( , as Ark UI's hands its child its props). A later one wins, as it would without Kirana. A spread after the is left alone and overrides it, as written. Directives ( , ) keep working beside it."
   },
   {
     "id": "/docs/frameworks/svelte#a-component-that-takes-sx",
@@ -2640,7 +2640,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Svelte",
     "section": "frameworks",
     "heading": "A component that takes  sx",
-    "text": "On a component, a caller's arrives as its and props. Take them and put the class last in the root's own , so the caller's styles win, property by property: Svelte passes nothing through on its own, so there is no fallthrough to turn off. A caller's removals ( , ) arrive in the class too, and the root's merge applies them to the button's own entries."
+    "text": "On a component, a caller's arrives as its and props. Pass the class to the root beside its own styles: they merge first and the caller's class last, so the caller's styles win, property by property: keeps Svelte's own type, so an array or an object of conditions works there too, and the caller's reaches the button through the spread. Svelte passes nothing through on its own, so there is no fallthrough to turn off. A caller's removals ( , ) arrive in the class too, and the root's merge applies them to the button's own entries."
   },
   {
     "id": "/docs/frameworks/svelte#how-it-compiles",
@@ -2758,7 +2758,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Astro",
     "section": "frameworks",
     "heading": "5. Write a component",
-    "text": "The element's own and are merged into what produces. Islands written in React, Preact, Solid, Vue or Svelte go through the same integration and follow their own guides for (islands are not in the test matrix yet)."
+    "text": "What produces merges, in this order: the element's own styles, from ; the classes and styles it is given, in the order they are written: its own and attributes, and those of a spread written before it ( ), whose other attributes stay where it stands. A later one wins. A spread after the is left alone. A component that takes gets the caller's as its prop. Pass it to the root beside its own , and the caller's class merges last, so its styles win, property by property: Islands written in React, Preact, Solid, Vue or Svelte go through the same integration and follow their own guides for (islands are not in the test matrix yet)."
   },
   {
     "id": "/docs/frameworks/astro#how-it-compiles",

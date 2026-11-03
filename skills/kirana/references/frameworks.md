@@ -34,12 +34,12 @@ compile as the app does; import the stylesheet in `.storybook/preview`.
 The caller's styles go last in the root's own `sx`, so they win property by property. Each framework
 hands them over differently:
 
-| Framework      | The component                                                                                                                                     |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| JSX frameworks | `function Card({ sx, ...props }: { sx?: Sx })` and `sx={[styles.card, sx]}`: take `sx` out of the rest spread                                     |
-| Vue            | `defineOptions({ inheritAttrs: false })`, `const { sx, attrs } = useSx()` from `@kirana-style/core/vue`, then `v-bind="attrs" :sx="[button, sx]"` |
-| Svelte         | `let { class: sx, style, ...rest } = $props()`, then `{style} sx={[button, sx]}`: the caller's `sx` arrives as `class`                            |
-| Angular        | a part directive: `partSx(own, this.sx())` from `@kirana-style/angular` bound to the host's `class` and `style`, `SxInput`, and `provideSxPart()` |
+| Framework      | The component                                                                                                                                                                                                                                             |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JSX frameworks | `function Card({ sx, ...props }: { sx?: Sx })` and `sx={[styles.card, sx]}`: take `sx` out of the rest spread                                                                                                                                             |
+| Vue            | `defineOptions({ inheritAttrs: false })`, `const { sx, attrs } = useSx()` from `@kirana-style/core/vue`, then `v-bind="attrs" :sx="[button, sx]"`                                                                                                         |
+| Svelte, Astro  | `let { class: className, ...rest } = $props()` (`Astro.props`), then `{...rest} class={className} sx={button}`: the caller's `sx` arrives as `class`, which merges after the root's own `sx`; so do the `class` and `style` of a spread written before it |
+| Angular        | a part directive: `partSx(own, this.sx())` from `@kirana-style/angular` bound to the host's `class` and `style`, `SxInput`, and `provideSxPart()`                                                                                                         |
 
 Without that, Vue passes the caller's classes through to the root beside its own, and the
 stylesheet's order, not the caller, decides between them.

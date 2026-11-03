@@ -1467,10 +1467,16 @@ the implementation tracker names its evidence.
 
 ### D-100 — A component takes its caller's `sx`, and a workspace component hot-reloads
 
-- **Status:** Accepted (2026-10-24). Answers KF-019 and KF-020; amended 2026-11-03 for KF-089.
+- **Status:** Accepted (2026-10-24). Answers KF-019 and KF-020; amended 2026-11-03 for KF-089 and
+  2026-11-04 for KF-098.
 - **Decision:** `useSx()` in `@kirana-style/core/vue` (now a runtime entry, with `vue` an optional peer)
   gives a component the caller's `:sx` as a class string and its other fallthrough attributes; the
-  component turns `inheritAttrs` off and merges `[own, sx]` in its root's `:sx`. Svelte needs no helper.
+  component turns `inheritAttrs` off and merges `[own, sx]` in its root's `:sx`. Svelte and Astro need
+  no helper: the root writes `class={className} sx={own}`, and since D-122 the compiled binding merges
+  the classes an element is given after its own handles, so the caller's class merges last with no
+  cast to `Sx` (amended 2026-11-04, KF-098; the form was `sx={[own, className]}`, which Svelte's
+  `ClassValue` did not type). The `class` and `style` of a spread written before the `sx` are given
+  too, in the order written (KF-098).
   The adapters' component `load` calls `addWatchFile` on the component. A template's `sx` on a
   component (Vue, Svelte, Astro) keeps the caller's removals in that class string, as a handle carries
   them, so the component's merge applies them (KF-089).

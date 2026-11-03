@@ -206,8 +206,10 @@ On a Vue component, a caller's `:sx` compiles to the `class` Vue falls through t
 concatenates with the root's own. `useSx()` from `@kirana-style/core/vue` returns the caller's classes and
 the other fallthrough attributes, for a component that turns `inheritAttrs` off and writes
 `:sx="[own, sx]"` on its root, so Kirana's runtime merges the caller's styles last (the adapter folds the root's own
-`v-bind` object into the compiled binding with Vue's `mergeProps`, since an element takes one); a Svelte component
-takes its `class` prop the same way, with no helper (D-100). On a component (Vue's, Svelte's or Astro's,
+`v-bind` object into the compiled binding with Vue's `mergeProps`, since an element takes one); a Svelte or Astro
+component takes its `class` prop the same way, with no helper and no cast: its root writes
+`class={className} sx={own}`, and the compiled binding merges the root's own handles first and its
+given classes after them, so the caller's merges last (D-100, D-122, KF-098). On a component (Vue's, Svelte's or Astro's,
 as each parser marks one), the compiled binding keeps the caller's removals in that class, so
 `"*": null` or `prop: null` reaches the component's merge as it does in JSX (D-100, KF-089). A
 template's `sx` compiles at runtime, so the adapter compiles the block the template sees with the
@@ -259,7 +261,15 @@ compiled by the Vite adapter's `load` hook, before any framework plugin: each sc
 `<script setup>`, Svelte's instance and module scripts, Astro's frontmatter) compiles as its own module
 (`Card.vue.setup.ts`), and each `sx` binding becomes a spread of the runtime's `sx()` with the
 `class` attribute — Vue `:sx` → `v-bind`, Svelte and Astro `sx={…}` → `{...…}` with the element's own
-`class` and `style` folded in. The framework's parser (`vue/compiler-sfc`, `svelte/compiler`,
+`class` and `style` folded in, and the `class` and `style` of each spread written before the `sx`
+(`{...props()}`, as Ark UI's `asChild` hands them), in the order written, so a later one wins as it
+would without Kirana (KF-098). The spread stays where it is, so every other attribute keeps its
+precedence over it, and its `class` and `style` are read again at the `sx`, so its expression runs
+twice: Svelte evaluates each spread in a derived of its own, which a component's props read lazily,
+so a value kept from the first run could be stale. Astro writes a spread's attributes where it stands
+and the browser keeps an attribute's first value, so there the spread before the `sx` is given without
+its `class` and `style`. A spread after the `sx` is left alone and overrides it, as written. A class
+may be Svelte's `ClassValue` (an array or an object of conditions), joined as Svelte joins one. The framework's parser (`vue/compiler-sfc`, `svelte/compiler`,
 `@astrojs/compiler-rs` or `@astrojs/compiler`) is loaded from the application. `@kirana-style/astro` is the
 Astro integration: it adds the adapter, and after the build renames the stylesheet — which Astro
 inlines or links by a name recorded early — by its content. `@kirana-style/core/vue`, `/svelte` and `/astro`

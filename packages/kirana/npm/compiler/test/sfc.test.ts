@@ -76,6 +76,30 @@ async function compile(
 const SCRIPT =
   'import { css } from "@kirana-style/core"\nconst card = css({ padding: "1rem" })\n'
 
+/**
+ * The helpers a Svelte or Astro component's spreads call, taken from its compiled code and run on
+ * the private runtime, as the browser runs them.
+ */
+async function compiledHelpers(code: string) {
+  const { runtime } = await import("@kirana-style/core/internal")
+  const start = code.indexOf("const __kirana_class")
+  let end = code.indexOf("\n};\n", start) + 4
+  if (code.startsWith("const __kirana_rest", end))
+    end = code.indexOf("\n};\n", end) + 4
+  return new Function(
+    "__kirana_sfc",
+    `${code.slice(start, end)}return { attrs: __kirana_attrs, rest: typeof __kirana_rest === "function" ? __kirana_rest : undefined };`
+  )(runtime("k", "class")) as {
+    attrs: (
+      handles: unknown[],
+      classes: unknown[],
+      styles: unknown[],
+      component?: boolean
+    ) => { class?: string; style?: string }
+    rest?: (attributes: unknown) => unknown
+  }
+}
+
 describe("KRN-INT-004 Vue", () => {
   it("compiles <script setup> and turns :sx into a runtime spread", async () => {
     const { result } = await compile(
@@ -222,16 +246,18 @@ describe("KRN-INT-004 Svelte", () => {
     )
     expect(result.code).toContain('const card = "k0_HV2H"')
     expect(result.code).toContain(
-      `{...__kirana_attrs([[card]], ["own " + (on ? 'x' : '')], "opacity: 1")}`
+      `{...__kirana_attrs([[card]], ["own " + (on ? 'x' : '')], ["opacity: 1"])}`
     )
     expect(result.code).toContain(
-      "<p {...__kirana_attrs([card], [], undefined)} hidden>"
+      "<p {...__kirana_attrs([card], [], [])} hidden>"
     )
     expect(result.code).toContain('sx="text"')
     expect(result.code).toContain(
-      "<b class {...__kirana_attrs([card], [], undefined)} />"
+      "<b class {...__kirana_attrs([card], [], [])} />"
     )
-    expect(result.code).toContain("<u  {...__kirana_attrs([card], [], (s))} />")
+    expect(result.code).toContain(
+      "<u  {...__kirana_attrs([card], [], [(s)])} />"
+    )
     expect(result.code).toContain("const __kirana_attrs")
   })
 
@@ -253,11 +279,75 @@ describe("KRN-INT-004 Svelte", () => {
       `<script lang="ts">\n${SCRIPT}</script>\n<Label class="own" sx={card}><p sx={card} /></Label>\n`
     )
     expect(result.code).toContain(
-      '<Label  {...__kirana_attrs([card], ["own"], undefined, true)}><p {...__kirana_attrs([card], [], undefined)} /></Label>'
+      '<Label  {...__kirana_attrs([card], ["own"], [], true)}><p {...__kirana_attrs([card], [], [])} /></Label>'
     )
     expect(result.code).toContain(
-      "const props = __kirana_sfc.sx(handles, classes, [], component);"
+      "const props = __kirana_sfc.sx(handles, classes.map(__kirana_class), [], component);"
     )
+  })
+  it("puts a caller's class beside the sx last, so it wins (KF-098, D-122)", async () => {
+    const { result } = await compile(
+      "Label.svelte",
+      `<script lang="ts">\nlet { class: className, ...rest } = $props()\nconst own = "k3T_own k4I_own"\n</script>\n<label {...rest} class={className} sx={own}></label>\n`
+    )
+    expect(result.code).toContain(
+      "<label {...rest}  {...__kirana_attrs([own], [(rest)?.class, (className)], [(rest)?.style])}>"
+    )
+    const { attrs } = await compiledHelpers(result.code!)
+    // The part's own leading loses to its caller's where both set it, and stays where only it does.
+    expect(attrs(["k3T_own k4I_own"], [undefined, "k3T_caller"], [])).toEqual({
+      class: "k4I_own k3T_caller",
+      style: undefined,
+    })
+    // A caller's removal reaches the part's own entries.
+    expect(attrs(["k3T_own k4I_own"], [undefined, "k3T_"], [])).toEqual({
+      class: "k4I_own",
+      style: undefined,
+    })
+  })
+
+  it("folds the class and style of a spread written before the sx (KF-098)", async () => {
+    const { result } = await compile(
+      "Trigger.svelte",
+      `<script lang="ts">\n${SCRIPT}</script>\n<button {...props()} type="button" sx={card}>t</button>\n<Button {...a} class="own" {...b} style="opacity: 1" sx={card} {...after} />\n<i class="first" {...a} sx={card} />\n`
+    )
+    // The spread stays where it is, ahead of the attributes that override it, and its class and
+    // style are read again at the sx.
+    expect(result.code).toContain(
+      '<button {...props()} type="button" {...__kirana_attrs([card], [(props())?.class], [(props())?.style])}>'
+    )
+    // Several spreads give theirs in order, beside the element's own; one after the sx is left.
+    expect(result.code).toContain(
+      '<Button {...a}  {...b}  {...__kirana_attrs([card], [(a)?.class, "own", (b)?.class], [(a)?.style, (b)?.style, "opacity: 1"], true)} {...after} />'
+    )
+    expect(result.code).toContain(
+      '<i  {...a} {...__kirana_attrs([card], ["first", (a)?.class], [(a)?.style])} />'
+    )
+    expect(result.code).not.toContain("__kirana_rest")
+    const { attrs } = await compiledHelpers(result.code!)
+    const { runtime } = await import("@kirana-style/core/internal")
+    const bridged = runtime("k", "class").b
+    const part = { class: "k3T_part", style: "flex: 0 0 auto" }
+    // The spread's class merges before the element's own, the element's style after the spread's,
+    // and bridged declarations last.
+    expect(
+      attrs(
+        [["k3T_own k4I_own", bridged("k60_4ko", "--k60", 2)]],
+        [part.class, "k4I_mine"],
+        [part.style, "opacity: 1"]
+      )
+    ).toEqual({
+      class: "k60_4ko k3T_part k4I_mine",
+      style: "flex: 0 0 auto;opacity: 1;--k60:2",
+    })
+    // Svelte's ClassValue, as a caller or Ark hands one on.
+    expect(
+      attrs([], [["k3T_a", { k4I_b: true, k5X_c: false }, ["k6Y_d", null]]], [])
+    ).toEqual({ class: "k3T_a k4I_b k6Y_d", style: undefined })
+    expect(attrs([], [undefined], [undefined])).toEqual({
+      class: undefined,
+      style: undefined,
+    })
   })
 })
 
@@ -269,22 +359,24 @@ describe("KRN-INT-004 Astro", () => {
     )
     expect(result.code).toMatch(/^---\nimport \{ runtime/)
     expect(result.code).toContain('const card = "k0_HV2H"')
-    expect(result.code).toContain('{...__kirana_attrs([[card]], ["own"], (s))}')
     expect(result.code).toContain(
-      "<p {...__kirana_attrs([card], [], undefined)} hidden>"
+      '{...__kirana_attrs([[card]], ["own"], [(s)])}'
+    )
+    expect(result.code).toContain(
+      "<p {...__kirana_attrs([card], [], [])} hidden>"
     )
     expect(result.code).toContain("<i sx={} />")
     expect(result.code).toContain(
-      "<b class {...__kirana_attrs([card], [], undefined)} />"
+      "<b class {...__kirana_attrs([card], [], [])} />"
     )
   })
 
   it("passes a removal on to a component, not to an element (KF-089)", async () => {
     const source = `---\n${SCRIPT}---\n<Card sx={card} /><ui.Card sx={card} /><my-card sx={card} />\n`
-    const element = "<my-card {...__kirana_attrs([card], [], undefined)} />"
+    const element = "<my-card {...__kirana_attrs([card], [], [])} />"
     const { result } = await compile("Page.astro", source)
     expect(result.code).toContain(
-      "<Card {...__kirana_attrs([card], [], undefined, true)} /><ui.Card {...__kirana_attrs([card], [], undefined, true)} />"
+      "<Card {...__kirana_attrs([card], [], [], true)} /><ui.Card {...__kirana_attrs([card], [], [], true)} />"
     )
     expect(result.code).toContain(element)
     const legacy = isolated({
@@ -292,9 +384,39 @@ describe("KRN-INT-004 Astro", () => {
     })
     const old = await compile("Page.astro", source, legacy)
     expect(old.result.code).toContain(
-      "<Card {...__kirana_attrs([card], [], undefined, true)} />"
+      "<Card {...__kirana_attrs([card], [], [], true)} />"
     )
     expect(old.result.code).toContain(element)
+  })
+
+  it("folds a spread's class and style into the sx, and spreads the rest (KF-098)", async () => {
+    const source = `---\n${SCRIPT}---\n<button {...props} type="button" class="own" sx={card} {...after}>t</button><Card {...a} {...b} sx={card} />\n`
+    for (const root of [
+      project(),
+      isolated({
+        "@astrojs/compiler": workspacePackage("@astrojs/compiler"),
+      }),
+    ]) {
+      const { result } = await compile("Page.astro", source, root)
+      // Astro writes a spread's attributes where it stands and the browser keeps the first, so the
+      // spread before the sx gives its class and style there only.
+      expect(result.code).toContain(
+        '<button {...__kirana_rest(props)} type="button"  {...__kirana_attrs([card], [(props)?.class, "own"], [(props)?.style])} {...after}>'
+      )
+      expect(result.code).toContain(
+        "<Card {...__kirana_rest(a)} {...__kirana_rest(b)} {...__kirana_attrs([card], [(a)?.class, (b)?.class], [(a)?.style, (b)?.style], true)} />"
+      )
+      const { attrs, rest } = await compiledHelpers(result.code!)
+      expect(rest!({ class: "a", style: "b", id: "c" })).toEqual({ id: "c" })
+      expect(rest!(undefined)).toBeUndefined()
+      // Astro's style object is written as Astro writes it.
+      expect(
+        attrs([], [], [{ fontSize: "1px", "--gap": "2px" }, "opacity: 1"])
+      ).toEqual({
+        class: undefined,
+        style: "font-size:1px;--gap:2px;opacity: 1",
+      })
+    }
   })
 
   it("adds a frontmatter when there is none", async () => {
@@ -315,13 +437,11 @@ describe("KRN-INT-004 Astro", () => {
     )
     expect(result.code).toContain('const card = "k0_HV2H"')
     expect(result.code).toContain(
-      '{...__kirana_attrs([ [card] ], ["own"], (s))}'
+      '{...__kirana_attrs([ [card] ], ["own"], [(s)])}'
     )
+    expect(result.code).toContain("<p {...__kirana_attrs([card], [], [])}>")
     expect(result.code).toContain(
-      "<p {...__kirana_attrs([card], [], undefined)}>"
-    )
-    expect(result.code).toContain(
-      "<b class {...__kirana_attrs([card], [], undefined)} />"
+      "<b class {...__kirana_attrs([card], [], [])} />"
     )
     const bare = await compile("B.astro", "<p sx={x}>t</p>\n", legacy)
     expect(bare.result.code).toMatch(/^---\n\nimport \{ runtime/)

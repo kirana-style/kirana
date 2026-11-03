@@ -53,9 +53,8 @@ type Binding = {
   start: number
   end: number
   expression: string
-  /** Svelte and Astro: the element's own class and style, folded into the call and removed. */
-  class?: { start: number; end: number; expression: string }
-  style?: { start: number; end: number; expression: string }
+  /** Svelte and Astro: what gives the element its class and style, folded into the call. */
+  given?: Given[]
   /**
    * Vue: the element's own `v-bind="…"` object. An element takes one, so it is folded into the call
    * with Vue's `mergeProps` and removed (`v-bind="attrs" :sx="[own, sx]"`, `useSx()`).
@@ -66,6 +65,17 @@ type Binding = {
    * so its removals (`"*": null`) stay in the class (KF-089).
    */
   component?: boolean
+}
+/**
+ * Svelte and Astro: something that gives an element its class and style, in the order written. An
+ * own `class` or `style` attribute is folded into the call and removed. A spread written before the
+ * `sx` gives its object's `class` and `style` (KF-098); its span is its expression's.
+ */
+type Given = {
+  kind: "class" | "style" | "spread"
+  start: number
+  end: number
+  expression: string
 }
 type Parsed = {
   blocks: Block[]
@@ -260,12 +270,28 @@ const MERGE = `import { mergeProps as __kirana_merge } from "vue";\n`
 
 /**
  * Svelte and Astro set `style` from a spread as text, so the runtime's style object (bridged custom
- * properties) becomes a declaration list, after the element's own `style`.
+ * properties) becomes a declaration list, after the styles the element is given, in their order. An
+ * object (Astro's `style={{ … }}`) is written as Astro writes one: camel case to kebab case, custom
+ * properties as they are. A class may be Svelte's `ClassValue` (an array or an object of
+ * conditions, which a part's caller and Ark's props hand on), joined as Svelte joins one.
  */
-const ATTRS = `const __kirana_attrs = (handles, classes, style, component) => {
-  const props = __kirana_sfc.sx(handles, classes, [], component);
-  const own = props.style ? Object.entries(props.style).map(([name, value]) => name + ":" + value).join(";") : "";
-  return { class: props.class, style: [style, own].filter(Boolean).join(";") || undefined };
+const ATTRS = `const __kirana_class = (value) => Array.isArray(value) ? value.map(__kirana_class).filter(Boolean).join(" ") : value && typeof value === "object" ? Object.keys(value).filter((key) => value[key]).join(" ") : value;
+const __kirana_text = (style) => style && typeof style === "object" ? Object.entries(style).map(([name, value]) => (name.startsWith("--") ? name : name.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase())) + ":" + value).join(";") : style;
+const __kirana_attrs = (handles, classes, styles, component) => {
+  const props = __kirana_sfc.sx(handles, classes.map(__kirana_class), [], component);
+  return { class: props.class, style: [...styles, props.style].map(__kirana_text).filter(Boolean).join(";") || undefined };
+};
+`
+
+/**
+ * Astro writes each spread's attributes where it stands and the browser keeps an attribute's first
+ * value, so a spread folded into an element's `sx` gives its class and style there only: before the
+ * `sx`, it is spread without them.
+ */
+const REST = `const __kirana_rest = (attributes) => {
+  if (!attributes || typeof attributes !== "object") return attributes;
+  const { class: _class, style: _style, ...rest } = attributes;
+  return rest;
 };
 `
 
@@ -425,6 +451,8 @@ type SvelteAttribute = {
   start: number
   end: number
   value: SvelteValue
+  /** A spread's (`{...props()}`). */
+  expression?: { start: number; end: number }
 }
 
 async function parseSvelte(
@@ -491,15 +519,30 @@ async function parseSvelte(
       single[0] !== true &&
       single[0]!.type === "ExpressionTag"
     ) {
-      const own = (name: string) => {
-        const found = attributes!.find(
-          (candidate) =>
-            candidate.type === "Attribute" && candidate.name === name
-        )
-        const expression = found && expressionOf(found.value)
-        return expression === undefined
-          ? undefined
-          : { start: found!.start, end: found!.end, expression }
+      const given: Given[] = []
+      for (const attribute of attributes!) {
+        if (attribute.type === "SpreadAttribute") {
+          if (attribute.start > sx.start) continue
+          const { start, end } = attribute.expression!
+          given.push({
+            kind: "spread",
+            start,
+            end,
+            expression: source.slice(start, end),
+          })
+        } else if (
+          attribute.type === "Attribute" &&
+          (attribute.name === "class" || attribute.name === "style")
+        ) {
+          const expression = expressionOf(attribute.value)
+          if (expression === undefined) continue
+          given.push({
+            kind: attribute.name,
+            start: attribute.start,
+            end: attribute.end,
+            expression,
+          })
+        }
       }
       bindings.push({
         start: sx.start,
@@ -508,8 +551,7 @@ async function parseSvelte(
           (single[0] as { expression: { start: number } }).expression.start,
           (single[0] as { expression: { end: number } }).expression.end
         ),
-        class: own("class"),
-        style: own("style"),
+        given,
         component: SVELTE_COMPONENTS.has((node as { type: string }).type),
       })
     }
@@ -548,6 +590,8 @@ type EstreeNode = {
   name?: { type?: string; name?: unknown }
   value?: (EstreeNode & { value?: unknown; expression?: EstreeNode }) | null
   attributes?: EstreeNode[]
+  /** A spread attribute's (`{...props}`). */
+  argument?: EstreeNode
 }
 
 /** Astro 7: `@astrojs/compiler-rs` returns an Oxc (ESTree) tree whose offsets are UTF-16, like strings. */
@@ -590,20 +634,36 @@ function astroRs(
     const sx = named("sx")
     const expression = sx?.value?.expression
     if (sx && expression && expression.type !== "JSXEmptyExpression") {
-      const own = (name: string) => {
-        const found = named(name)
-        const text = found && expressionOf(found)
-        return text === undefined
-          ? undefined
-          : { start: found!.start, end: found!.end, expression: text }
+      const given: Given[] = []
+      for (const attribute of attributes!) {
+        if (attribute.type === "JSXSpreadAttribute") {
+          if (attribute.start > sx.start) continue
+          const { start, end } = attribute.argument!
+          given.push({
+            kind: "spread",
+            start,
+            end,
+            expression: source.slice(start, end),
+          })
+          continue
+        }
+        const kind = attribute.name?.name
+        if (kind !== "class" && kind !== "style") continue
+        const text = expressionOf(attribute)
+        if (text === undefined) continue
+        given.push({
+          kind,
+          start: attribute.start,
+          end: attribute.end,
+          expression: text,
+        })
       }
       const { name } = node as EstreeNode
       bindings.push({
         start: sx.start,
         end: sx.end,
         expression: source.slice(expression.start, expression.end),
-        class: own("class"),
-        style: own("style"),
+        given,
         // Astro's rule: a capitalised name or a member (`<Card>`, `<ui.Card>`) is a component.
         component:
           name!.type === "JSXMemberExpression" ||
@@ -645,6 +705,19 @@ async function parseAstro(
   let frontmatter: Block | undefined
   const bindings: Binding[] = []
 
+  /** Checks that the source holds `text` where an attribute is said to end. */
+  const located = (
+    found: AstroAttribute,
+    start: number,
+    end: number,
+    text: string | undefined
+  ) => {
+    if (text === undefined || source.slice(end - text.length, end) !== text) {
+      throw new Error(
+        `Kirana could not locate the \`${found.name}\` attribute at offset ${start}`
+      )
+    }
+  }
   /** Where an attribute ends, checked against the source; undefined for kinds that are not folded. */
   const span = (found: AstroAttribute) => {
     const value =
@@ -657,14 +730,7 @@ async function parseAstro(
     const start = found.position.start.offset
     const name = /^[^\s=]+\s*=\s*/.exec(source.slice(start))?.[0]
     const end = start + (name?.length ?? 0) + value.length
-    if (
-      !name?.startsWith(found.name) ||
-      source.slice(end - value.length, end) !== value
-    ) {
-      throw new Error(
-        `Kirana could not locate the \`${found.name}\` attribute at offset ${start}`
-      )
-    }
+    located(found, start, end, name?.startsWith(found.name) ? value : undefined)
     return {
       start,
       end,
@@ -688,17 +754,29 @@ async function parseAstro(
       (found) => found.name === "sx" && found.kind === "expression"
     )
     if (sx) {
-      const own = (name: string) => {
-        const found = node.attributes!.find(
-          (candidate) => candidate.name === name
-        )
-        return found && span(found)
+      const given: Given[] = []
+      for (const found of node.attributes!) {
+        if (found.kind === "spread") {
+          // The offset is the expression's, which the attribute's name holds.
+          const start = found.position.start.offset
+          if (start > sx.position.start.offset) continue
+          located(found, start, start + found.name.length, found.name)
+          given.push({
+            kind: "spread",
+            start,
+            end: start + found.name.length,
+            expression: found.name,
+          })
+          continue
+        }
+        if (found.name !== "class" && found.name !== "style") continue
+        const at = span(found)
+        if (at) given.push({ kind: found.name, ...at })
       }
       bindings.push({
         ...span(sx)!,
         expression: sx.value,
-        class: own("class"),
-        style: own("style"),
+        given,
         component: node.type === "component",
       })
     }
@@ -760,7 +838,13 @@ export async function compileComponent(options: {
   const helpers = templateHelpers(source, parsed.blocks, parsed.target)
   const injection =
     (parsed.bindings.length > 0 || helpers.length > 0 ? runtime(prefix) : "") +
-    (parsed.bindings.length === 0 ? "" : framework === "vue" ? MERGE : ATTRS)
+    (parsed.bindings.length === 0
+      ? ""
+      : framework === "vue"
+        ? MERGE
+        : framework === "astro"
+          ? ATTRS + REST
+          : ATTRS)
 
   for (const block of parsed.blocks) {
     const id = `${file}.${block.label}.${block.lang}`
@@ -831,15 +915,33 @@ export async function compileComponent(options: {
       )
       continue
     }
-    const classes = binding.class ? `[${binding.class.expression}]` : "[]"
-    const style = binding.style?.expression ?? "undefined"
-    for (const own of [binding.class, binding.style]) {
-      if (own) magic.remove(own.start, own.end)
+    // What gives the element its class and style merges in the order written, so a later one wins
+    // as it would without Kirana. A spread stays where it is, so every other attribute keeps its
+    // precedence over it, and its class and style are read again at the `sx` (KF-098): its
+    // expression runs twice. Svelte evaluates each spread in a derived of its own, which a
+    // component's props read lazily, so a value kept from the first run could be stale.
+    const classes: string[] = []
+    const styles: string[] = []
+    for (const given of binding.given!) {
+      if (given.kind === "spread") {
+        classes.push(`(${given.expression})?.class`)
+        styles.push(`(${given.expression})?.style`)
+        if (framework === "astro") {
+          magic.overwrite(
+            given.start,
+            given.end,
+            `__kirana_rest(${given.expression})`
+          )
+        }
+      } else {
+        ;(given.kind === "class" ? classes : styles).push(given.expression)
+        magic.remove(given.start, given.end)
+      }
     }
     magic.overwrite(
       binding.start,
       binding.end,
-      `{...__kirana_attrs([${binding.expression}], ${classes}, ${style}${binding.component ? ", true" : ""})}`
+      `{...__kirana_attrs([${binding.expression}], [${classes.join(", ")}], [${styles.join(", ")}]${binding.component ? ", true" : ""})}`
     )
   }
 

@@ -780,6 +780,26 @@ async function checkPage(
         )
       console.log("✓ props() called in a template applies")
     }
+    // A Svelte or Astro example may carry an element given a class and a style by a spread before its own
+    // `sx` (KF-098): all three apply.
+    const spread = page.locator("[data-probe-spread]")
+    if ((await spread.count()) > 0) {
+      const read = await spread.evaluate((element) => ({
+        paddingBottom: getComputedStyle(element).paddingBottom,
+        paddingTop: getComputedStyle(element).paddingTop,
+        marginRight: getComputedStyle(element).marginRight,
+      }))
+      const wanted = {
+        paddingBottom: "4px",
+        paddingTop: "3px",
+        marginRight: "2px",
+      }
+      if (JSON.stringify(read) !== JSON.stringify(wanted))
+        throw new Error(
+          `spread probe is ${JSON.stringify(read)}, expected ${JSON.stringify(wanted)}`
+        )
+      console.log("✓ a spread's class and style reach the sx beside it")
+    }
     // A Vue example may carry a component its caller's `"*": null` overrides (KF-089).
     const reset = page.locator("[data-probe-reset]")
     if ((await reset.count()) > 0) {
