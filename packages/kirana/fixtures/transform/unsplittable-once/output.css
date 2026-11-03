@@ -1,0 +1,22 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .k0_zgUg {
+    padding: 4px;
+  }
+  .kk_3vRN {
+    border-color: var(--card-border);
+  }
+  .kk_mkUv {
+    border-color: var(--shared);
+  }
+  .kk_v2ZK, .kk-KFHz_v2ZK:where(:hover) {
+    border-color: var(--divider);
+  }
+  .k50_D9ur {
+    color: red;
+  }
+  .ki_eK8R {
+    border-bottom-width: 1px;
+  }
+}

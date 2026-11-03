@@ -11325,7 +11325,8 @@ element carrying the style. For the link's own hover, write it into the target:
 
 **`unsplittable-shorthand`**: a shorthand whose value cannot be split into
 longhands exactly, usually `border: var(--something)`. It stays whole, which means
-a later style cannot remove just one of its longhands.
+a later style cannot remove just one of its longhands. It is reported once per
+property and value in a module, at the first declaration, with how many write it.
 
 **`dynamic-bridged`** (info): a value became a custom property because it is only
 known at runtime: [values known at runtime](/docs/styling/dynamic).

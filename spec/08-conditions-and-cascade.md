@@ -104,7 +104,8 @@ Rules:
 4. **Unsplittable values.** A shorthand the typed parsers cannot split — typically a `var()` that may hold
    several components — is one atom too, reported with `unsplittable-shorthand`: if a later style removes
    one of its longhands, the remaining longhands receive the whole value, which is only valid for a
-   single component.
+   single component. The warning comes once per property and value in a module, at the first
+   declaration, saying how many write it (KF-093).
 5. **Writing over atoms.** A write first unfolds every atom that shares only some of its longhands and is
    no broader than it (a removal: every such atom), narrowest first; then removes the shorthands it fully
    covers; then sets its atom or longhands. Unfolding replaces the atom, in its place in merge order, by the

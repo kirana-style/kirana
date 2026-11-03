@@ -124,6 +124,9 @@ pub(crate) struct PlainObject {
 }
 
 /// Key address → (the key, kept alive so the address stays its own; its span).
+/// A report made once per key in a module: its index among the diagnostics and every place it came up.
+type Repeated = FxHashMap<(Code, String), (usize, Vec<(u32, u32)>)>;
+
 type KeySpans = FxHashMap<usize, (Arc<str>, (u32, u32))>;
 
 /// String address → (the string, kept alive as in [`KeySpans`]; the template's parts).
@@ -158,6 +161,12 @@ pub struct Evaluator<'p, 'a, 'c> {
     /// runtime as a handle, which would apply nothing.
     pub(crate) runtime_objects: RefCell<FxHashMap<(u32, u32), Arc<str>>>,
     diagnostics: RefCell<Vec<Diagnostic>>,
+    /// Reports made, a repeat that only counts (`report_repeated`) included: a style that reported
+    /// anything is never answered from the session (KF-059).
+    reports: Cell<usize>,
+    /// A report made once per key in the module (KF-093): the diagnostic's index and the places of
+    /// every occurrence.
+    repeated: RefCell<Repeated>,
     pub(crate) definitions: RefCell<Definitions>,
     depth: Cell<u32>,
     /// Where each style-object key of this module was written, by the address of its `Arc<str>`.
@@ -230,6 +239,8 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             stopped: RefCell::default(),
             runtime_objects: RefCell::default(),
             diagnostics: RefCell::default(),
+            reports: Cell::new(0),
+            repeated: RefCell::default(),
             definitions: RefCell::default(),
             depth: Cell::new(0),
             key_spans: RefCell::default(),
@@ -273,9 +284,9 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         if let Some(value) = self.host.cached_style(&key) {
             return value;
         }
-        let (reported, held) = (self.diagnostics.borrow().len(), self.held.borrow().len());
+        let (reported, held) = (self.reports.get(), self.held.borrow().len());
         let value = compile();
-        if self.diagnostics.borrow().len() == reported && self.held.borrow().len() == held {
+        if self.reports.get() == reported && self.held.borrow().len() == held {
             self.host.keep_style(key, &value);
         }
         value
@@ -323,8 +334,34 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         self.ctx
     }
 
+    /// Reports a diagnostic once per `key` in the module, at its first place (KF-093): every later
+    /// place only raises the count `message` is written with.
+    pub(crate) fn report_repeated(
+        &self,
+        code: Code,
+        span: (u32, u32),
+        key: String,
+        message: impl Fn(usize) -> String,
+        help: Option<&str>,
+    ) {
+        self.reports.set(self.reports.get() + 1);
+        let mut repeated = self.repeated.borrow_mut();
+        let (index, places) =
+            repeated.entry((code, key)).or_insert_with(|| (self.diagnostics.borrow().len(), Vec::new()));
+        if places.contains(&span) {
+            return;
+        }
+        places.push(span);
+        if places.len() == 1 {
+            drop(repeated);
+            return self.report(code, span, message(1), help);
+        }
+        self.diagnostics.borrow_mut()[*index].message = message(places.len());
+    }
+
     /// Reports a diagnostic once per code and span.
     pub fn report(&self, code: Code, span: (u32, u32), message: impl Into<String>, help: Option<&str>) {
+        self.reports.set(self.reports.get() + 1);
         let mut diagnostic = Diagnostic::new(code, self.ctx.file, Span::new(span.0, span.1), message);
         if let Some(help) = help {
             diagnostic = diagnostic.with_help(help);
