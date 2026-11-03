@@ -80,7 +80,7 @@ A component that some file renders through a part's `render` prop (`<Trigger ren
 handed the part's class by Base UI, as a `className` in its props; the original merged it through
 `cn()`. So such a component (found by the survey) keeps `className` beside `sx` and passes it on:
 `{...styleProps(…, sx, typeof className === "string" && className)}` on an installed component,
-the same on a host element (beside `sx`, the compiler would merge it first, where `cn(own,
+the same on a host element (which the compiler now also merges after `sx`, D-122, as `cn(own,
 className)` put it last), and `className={className}` passed on to another of the project's components. `cn()` dropped a function of state the same way. A
 render target passing its class on to another of the project's components makes that one keep it too
 (the survey closes over these forwards), or the inner component would drop it the same way.

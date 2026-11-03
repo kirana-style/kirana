@@ -519,7 +519,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The sx prop",
     "section": "writing",
     "heading": "className  and  style  still work",
-    "text": "If an element has both and a , they are merged, not replaced: the class from is appended to whatever the element already had, including a arriving through a spread: The same is true of . When a style needs a value known only at render time, the compiler bridges it through a custom property and puts that in , after anything you passed."
+    "text": "If an element has both and a , they are merged, not replaced, including a arriving through a spread: The class an element is given merges after its own , as a caller's would: where both set the same property, the given class wins. A headless library's render prop hands the outer part's classes this way, and they win over the rendered component's own, as they do in shadcn/ui's components. The same is true of . When a style needs a value known only at render time, the compiler bridges it through a custom property and puts that in , after anything you passed."
   },
   {
     "id": "/docs/styling/sx#typing",

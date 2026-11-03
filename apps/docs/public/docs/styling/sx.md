@@ -61,13 +61,17 @@ cases.
 
 ## `className` and `style` still work
 
-If an element has both `sx` and a `className`, they are merged, not replaced:
-the class from `sx` is appended to whatever the element already had, including a
-`className` arriving through a spread:
+If an element has both `sx` and a `className`, they are merged, not replaced,
+including a `className` arriving through a spread:
 
 ```tsx
 <div {...props} className="legacy" sx={styles.root} />
 ```
+
+The class an element is given merges after its own `sx`, as a caller's `sx`
+would: where both set the same property, the given class wins. A headless
+library's render prop hands the outer part's classes this way, and they win over
+the rendered component's own, as they do in shadcn/ui's components.
 
 The same is true of `style`. When a style needs a value known only at render time,
 the compiler bridges it through a custom property and puts that in `style`, after
