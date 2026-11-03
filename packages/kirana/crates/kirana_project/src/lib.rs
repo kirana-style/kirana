@@ -235,6 +235,8 @@ pub struct Work {
     pub reused: u64,
     /// `css()` calls answered from one of the same source compiled earlier in the session (KF-059).
     pub styles: u64,
+    /// Imported modules compiled only to learn whether their import can go (D-118).
+    pub answered: u64,
 }
 
 impl Project {
@@ -365,14 +367,26 @@ impl Project {
     /// or never loads it is the same build. Compiled for the answer and not recorded; `compiling` are
     /// the transforms in progress on this thread.
     pub(crate) fn compiles_to_nothing(&self, path: &Path, compiling: &[PathBuf]) -> bool {
-        if let Some(inert) = self.state.read().expect("not poisoned").inert.get(path) {
-            return *inert;
+        {
+            let state = self.state.read().expect("not poisoned");
+            if let Some(inert) = state.inert.get(path) {
+                return *inert;
+            }
+            // Its exports were evaluated for the import, which registered what it defines: a variable
+            // token, keyframes or another definition is written into the build, and a relation is
+            // recorded, so such a module never compiles to nothing. Its first statement answers what
+            // compiling it again would (KF-092).
+            let file = self.display_name(path);
+            if state.definers.contains_key(&file) || state.relations.values().any(|(_, files)| files.contains(&file)) {
+                return false;
+            }
         }
         // Read when its exports were: a file gone since is not answered for.
         let inert = self.fs.read_to_string(path).is_ok_and(|source| {
             if !kirana_frontend::may_be_style_bearing(&source) {
                 return true;
             }
+            self.state.write().expect("not poisoned").work.answered += 1;
             let host = resolve::ModuleHost::new(self, vec![path.to_path_buf()])
                 .compiling(compiling.iter().cloned().chain([path.to_path_buf()]).collect());
             let (file, package) = (self.display_name(path), self.package_name(path));

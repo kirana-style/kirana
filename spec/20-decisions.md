@@ -1883,7 +1883,10 @@ the implementation tracker names its evidence.
     not resolve count as acting;
   - compiling each adds nothing to the build: no diagnostic, rule, variable declaration, relation,
     anchor or class. Kirana compiles it for the answer without recording it, once a session and again
-    after an edit. An installed package the application does not compile adds nothing.
+    after an edit. A module whose exports, evaluated for the import, defined a variable token,
+    keyframes, a position-try fallback, a view transition, a counter style or a relation acts without
+    that compile (KF-092): its definitions go into the build. An installed package the application
+    does not compile adds nothing.
 
   A component's script block (`Card.vue.setup.ts`) keeps every import: its template reads bindings
   the compiler never sees.

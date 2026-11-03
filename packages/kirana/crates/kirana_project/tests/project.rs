@@ -682,6 +682,7 @@ fn a_folded_import_goes_when_its_module_adds_nothing() {
     let kept = |path: &Path| project.transform(path, reader).code.unwrap().contains("./sizes");
     let first = project.transform(&a, reader);
     assert!(!first.code.unwrap().contains("./sizes"));
+    assert_eq!(project.work().answered, 1);
     // Its exports were read, so an edit there compiles the reader again; the module itself has no record.
     assert!(first.dependencies.contains(&file));
     assert_eq!(project.work().seen, 1);
@@ -695,6 +696,33 @@ fn a_folded_import_goes_when_its_module_adds_nothing() {
     fs::write(&file, sizes("export const odd = css({ colour: \"red\" })\n")).unwrap();
     project.invalidate(&file);
     assert!(kept(&a));
+    fs::remove_dir_all(root).unwrap();
+}
+
+/// A module whose exports, evaluated for the import, defined something that goes into the build
+/// keeps its import without being compiled again for the answer (KF-092): a theme over imported
+/// variable tokens is the common case. One that defines nothing is still compiled for the answer.
+#[test]
+fn an_import_of_a_module_that_defines_tokens_stays_without_a_compile() {
+    let colors = "import { defineTokens } from \"@kirana-style/core\"\nexport const colors = defineTokens(\"colors\", { fg: \"black\" }, { variable: true })\n";
+    let frames = "import { keyframes } from \"@kirana-style/core\"\nexport const spin = keyframes({ to: { rotate: \"1turn\" } })\n";
+    let marker = "import { relation } from \"@kirana-style/core\"\nexport const card = relation(\"card\")\n";
+    let theme = "import { css, defineTheme } from \"@kirana-style/core\"\nimport { colors } from \"./colors\"\nexport const dark = defineTheme(colors, { fg: \"white\" })\n";
+    let spinner = "import { css } from \"@kirana-style/core\"\nimport { spin } from \"./frames\"\nexport const s = css({ animationName: spin })\n";
+    let reader = "import { css } from \"@kirana-style/core\"\nimport { card } from \"./marker\"\nexport const t = css({ color: { [card.within(\":hover\")]: \"red\" } })\n";
+    let (root, project) = temp_project(&[
+        ("package.json", "{\"name\":\"app\"}"),
+        ("colors.ts", colors),
+        ("frames.ts", frames),
+        ("marker.ts", marker),
+    ]);
+    for (name, source, import) in
+        [("theme.ts", theme, "./colors"), ("spinner.ts", spinner, "./frames"), ("reader.ts", reader, "./marker")]
+    {
+        let out = project.transform(&root.join(name), source);
+        assert!(out.code.unwrap().contains(import), "{name}");
+    }
+    assert_eq!(project.work().answered, 0);
     fs::remove_dir_all(root).unwrap();
 }
 
