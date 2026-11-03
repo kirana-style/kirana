@@ -269,6 +269,12 @@ prefix `k`, development and production use the same names:
   only those are renamed; renaming runs in the host's `renderChunk`. A build that writes source maps
   renames from the engine's edits, so the map follows them; one that writes none has the engine
   rename the chunk in one pass.
+  - **Definitions.** The finished stylesheet's variable tokens, position-try fallbacks, keyframes
+    and counter styles get codes too (`--kv0`, `kf0`, one numbering per kind), unless one of the
+    bundle's chunks or other assets names them. Those keep their names, so code written before the
+    stylesheet never needs renaming. A chunk rendered afterwards (another environment's) renames
+    the definitions that have a code. Relation markers, themes and view transitions are classes on
+    elements and keep their names.
 
 ## Source rewrite
 

@@ -77,7 +77,8 @@ that no emitted atom references MUST NOT be emitted.
 Summary of [10](./10-compiler-architecture.md#hashing-and-names): classes look like `k50-KFHz_D9ur`
 (prefix, property code, condition hash, 4-character value hash); definition names — relation markers,
 theme classes, keyframes and variable tokens — are the prefix, a kind letter and 4 characters
-(`--kvD9ur`); bridged values use `--k` plus the conflict key. Development builds use the same names;
+(`--kvD9ur`), and in a dense build's stylesheet a code of 1–2 characters where nothing else names
+them (`--kv0`, D-084); bridged values use `--k` plus the conflict key. Development builds use the same names;
 `kirana-style trace` explains them.
 
 The value hash is four characters because three is not enough for the values one property carries in

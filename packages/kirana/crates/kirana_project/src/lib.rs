@@ -127,6 +127,8 @@ pub(crate) struct State {
     /// Dense-name codes assigned so far (D-084), and whether a module changed since they were.
     pub dense: kirana_ir::dense::DenseNames,
     pub dense_stale: bool,
+    /// Codes of the definitions finished stylesheets named alone (D-084).
+    pub dense_definitions: kirana_ir::dense::DenseDefinitions,
     /// The last transform of each module, when transforms are reused (`Project::reuse_transforms`).
     pub reused: FxHashMap<PathBuf, Reusable>,
     /// Whether compiling each module adds nothing to the build (D-118): no rule, relation or

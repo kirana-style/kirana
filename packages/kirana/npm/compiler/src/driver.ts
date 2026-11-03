@@ -375,14 +375,19 @@ export class Driver {
    * The stylesheet of a finished bundle (D-086): a variable token that only code names, and no rule
    * reads, is written when `named` holds it (every token the bundle's chunks and other stylesheets
    * still name) or it is declared `runtime: true`. Also returns the tokens left out, which a later
-   * chunk must not name. With `dense`, in dense names (D-084).
+   * chunk must not name. With `dense`, in dense names (D-084), definitions `named` does not hold
+   * included.
    */
   finishedStylesheet(
     named: Iterable<string>,
     dense = false
   ): { css: string; pruned: { variable: string; identity: string }[] } {
-    const { css, pruned } = this.#compiler.finishedStylesheet(true, [...named])
-    return { css: dense ? this.#compiler.denseRename(css) : css, pruned }
+    const list = [...named]
+    const { css, pruned } = this.#compiler.finishedStylesheet(true, list)
+    return {
+      css: dense ? this.#compiler.denseStylesheet(css, list) : css,
+      pruned,
+    }
   }
 
   /**

@@ -461,20 +461,48 @@ impl Project {
     /// modules compile.
     pub fn dense_edits(&self, text: &str) -> Vec<Edit> {
         self.assign_dense();
-        self.state.read().expect("not poisoned").dense.edits(&self.names.prefix, text, true)
+        let state = self.state.read().expect("not poisoned");
+        let mut edits = state.dense.edits(&self.names.prefix, text, true);
+        let definitions = state.dense_definitions.edits(&self.names.prefix, text);
+        if !definitions.is_empty() {
+            edits.extend(definitions);
+            edits.sort_by_key(|edit| edit.start);
+        }
+        edits
     }
 
     /// A chunk `text` with dense names, as [`Project::dense_edits`] applied, written in one pass for a
     /// build that writes no source map (KF-061); `None` when it names no Kirana class.
     pub fn dense_chunk(&self, text: &str) -> Option<String> {
         self.assign_dense();
-        self.state.read().expect("not poisoned").dense.renamed(&self.names.prefix, text, true)
+        let state = self.state.read().expect("not poisoned");
+        let renamed = state.dense.renamed(&self.names.prefix, text, true);
+        let definitions = state.dense_definitions.edits(&self.names.prefix, renamed.as_deref().unwrap_or(text));
+        if definitions.is_empty() {
+            return renamed;
+        }
+        Some(dense::apply(renamed.as_deref().unwrap_or(text), &definitions))
     }
 
-    /// A stylesheet `text` with dense names (D-084): every name in it is the compiler's.
+    /// A stylesheet `text` with dense names (D-084): every name in it is the compiler's. Definitions
+    /// keep their names unless [`Project::dense_stylesheet`] gave them a code.
     pub fn dense_rename(&self, text: &str) -> String {
         self.assign_dense();
-        self.state.read().expect("not poisoned").dense.rename(&self.names.prefix, text, false)
+        let state = self.state.read().expect("not poisoned");
+        let renamed = state.dense.rename(&self.names.prefix, text, false);
+        dense::apply(&renamed, &state.dense_definitions.edits(&self.names.prefix, &renamed))
+    }
+
+    /// A finished stylesheet `text` with dense names, its definitions included (D-084): a variable
+    /// token, keyframes, position-try fallback or counter style that nothing in `named` (the
+    /// definitions the bundle's chunks and other assets hold) names gets a code, since only the
+    /// stylesheet needs to change with it.
+    pub fn dense_stylesheet(&self, text: &str, named: &[String]) -> String {
+        {
+            let named = named.iter().map(String::as_str).collect();
+            self.state.write().expect("not poisoned").dense_definitions.extend(&self.names.prefix, text, &named);
+        }
+        self.dense_rename(text)
     }
 
     /// Codes for the hashes of every name the modules write and the stylesheet holds, counted once

@@ -9019,6 +9019,13 @@ for the rest of the build, so a chunk renamed early stays valid while later modu
 compile. The stylesheet keeps its rules in the same order; only the names in it
 change.
 
+Variable tokens, keyframes, position-try fallbacks and counter styles that only
+the stylesheet names are numbered the same way when it is finished: `--kvD9ur`
+becomes `--kv0` and `kfA2b9` becomes `kf0`. A definition the bundle's
+JavaScript or another stylesheet in it names, such as a token read at runtime,
+keeps its name everywhere. Relation markers and theme classes, which elements
+carry, keep theirs too.
+
 Measured on the three applications of
 [the benchmarks](/docs/project/benchmarks), Kirana 0.3.7 with
 dense names makes the CSS 12 % smaller in gzip than with hashed names, and the CSS and

@@ -539,6 +539,51 @@ fn dense_names_cover_the_build_and_keep_their_codes() {
 }
 
 #[test]
+fn dense_definitions_are_the_stylesheets_unless_code_names_them() {
+    // A variable token and keyframes only rules read get codes; one the bundle's code names keeps
+    // its name in the stylesheet and in every chunk (D-084).
+    let motion = "import { css, defineTokens, keyframes } from \"@kirana-style/core\"\nconst size = defineTokens(\"size\", { read: \"2px\", held: \"3px\" }, { variable: true })\nconst fade = keyframes({ to: { opacity: 0 } })\nexport const box = css({ gap: size.read, paddingTop: size.held, animationName: fade })\n";
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("motion.ts", motion)]);
+    project.mark_dense();
+    project.transform(&root.join("motion.ts"), motion);
+    let css = project.stylesheet(true);
+    let declared = |value: &str| {
+        let at = css.find(&format!(":{value}")).unwrap();
+        &css[at - 8..at]
+    };
+    let (read, held) = (declared("2px"), declared("3px"));
+    let chunk = format!("gap(\"{read}\", \"{held}\")");
+    // Before the stylesheet is finished, no definition has a code.
+    assert_eq!(project.dense_chunk(&chunk), None);
+    let dense = project.dense_stylesheet(&css, &[held.to_owned()]);
+    assert!(dense.contains("var(--kv0)") && dense.contains(&format!("var({held})")), "{dense}");
+    assert!(dense.contains("@keyframes kf0") && !dense.contains(read), "{dense}");
+    // Renaming again, or finishing again, keeps every code.
+    assert_eq!(project.dense_rename(&css), dense);
+    assert_eq!(project.dense_stylesheet(&css, &[held.to_owned()]), dense);
+    // A chunk written afterwards uses the codes, in one pass or as edits for a source map.
+    let late = format!("gap(\"--kv0\", \"{held}\")");
+    assert_eq!(project.dense_chunk(&chunk), Some(late.clone()));
+    let marked = format!(
+        "x(\"{}\"), {chunk}",
+        project
+            .transform(&root.join("motion.ts"), motion)
+            .code
+            .unwrap()
+            .split('"')
+            .find(|part| part.starts_with(kirana_ir::dense::MARK))
+            .unwrap()
+    );
+    let edits = project.dense_edits(&marked);
+    assert!(edits.windows(2).all(|pair| pair[0].end <= pair[1].start));
+    assert_eq!(kirana_ir::dense::apply(&marked, &edits), project.dense_chunk(&marked).unwrap());
+    assert!(project.dense_chunk(&marked).unwrap().ends_with(&late));
+    // A rebuild whose code no longer names the token gives it the next code.
+    assert!(project.dense_stylesheet(&css, &[]).contains("--kv1:3px"));
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
 fn dense_codes_used_as_often_follow_the_stylesheet() {
     // Three values of one property, each used once: the stylesheet writes them by value, and their
     // codes go out in that order, so the rules read `_0`, `_1`, `_2` (D-084).

@@ -200,10 +200,11 @@ impl Compiler {
         self.project.dense_chunk(&code)
     }
 
-    /// `text` with dense names (D-084).
+    /// A finished stylesheet with dense names (D-084), its definitions included unless `named` (what
+    /// the bundle's chunks and other assets name) holds them.
     #[napi]
-    pub fn dense_rename(&self, text: String) -> String {
-        self.project.dense_rename(&text)
+    pub fn dense_stylesheet(&self, text: String, named: Vec<String>) -> String {
+        self.project.dense_stylesheet(&text, &named)
     }
 
     /// The class map of `classes.modules`, compiling them first; `None` without `classes`.

@@ -1108,6 +1108,13 @@ the implementation tracker names its evidence.
   - A segment past the 3,906 codes keeps its hash.
   - The runtime's condition test accepts any condition segment but a 3-character one.
   - Not available with a class map (D-069).
+  - **Definitions (amended 2026-11-03).** When the stylesheet is finished, its variable tokens
+    (`--kv`), position-try fallbacks (`--kp`), keyframes (`kf`) and counter styles (`kc`) get
+    codes of 1–2 characters after the kind letter, one numbering per kind, in the same order of use.
+    A definition the bundle's chunks or other assets name (what D-086 already collects) keeps its
+    name, so nothing written before the stylesheet changes. A chunk rendered later renames the
+    definitions that have a code, and codes never change in the session. Relation markers, theme
+    classes and view-transition classes keep their names.
 - **Rationale:**
   - **Size.** The hash segments are most of what a structured name costs; class-names.md measured
     sequential names at about a quarter off the CSS gzip. Renaming after the build avoids what ruled
