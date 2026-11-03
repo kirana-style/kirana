@@ -130,7 +130,7 @@ const GROUPS: {
     title: "Agent skills",
     icon: SparklesIcon,
     accent: "tea",
-    text: "Installed with npx skills add: one for writing Kirana, one for moving to it from Tailwind, StyleX, styled-components or Emotion. Their diagnostics and lint references are generated from the compiler.",
+    text: "Installed with npx skills add: one for writing Kirana, one for moving to it from Tailwind, StyleX, styled-components, Emotion or CSS Modules. Their diagnostics and lint references are generated from the compiler.",
     packages: [],
     tools: { names: SKILLS, kind: "skill" },
     href: "/docs/project/agent-skills",

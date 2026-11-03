@@ -1,0 +1,44 @@
+---
+source: crates/kirana_migrate/tests/css_modules.rs
+expression: migration.source
+---
+import { css, keyframes, select } from "@kirana-style/core"
+import { focusable } from "./base.styles"
+
+export const spin = keyframes({
+  from: {
+    rotate: "0deg",
+  },
+  to: {
+    rotate: "360deg",
+  },
+})
+
+export const button = css(focusable, {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "8px",
+  padding: { base: "8px 16px", "@media (min-width: 768px)": "12px 24px" },
+  borderRadius: "6px",
+  fontWeight: 600,
+  backgroundColor: { base: "#f4f4f5", ":hover": "#e4e4e7" },
+  animation: { "[data-busy]": `${spin} 1s linear infinite` },
+  [select.child("svg")]: {
+    width: "16px",
+    height: "16px",
+  },
+  "::after": {
+    content: "\"\"",
+  },
+})
+
+export const primary = css({
+  backgroundColor: "#18181b",
+  color: "white",
+})
+
+export const iconOnly = css(button, {
+  padding: "8px",
+})
+
+/* not migrated: .button .label { … } */

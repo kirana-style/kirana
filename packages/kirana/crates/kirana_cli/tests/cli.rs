@@ -272,6 +272,37 @@ fn migrates_stylex_sources() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// `kirana-style migrate css-modules`: a module becomes a module of handles beside it, the script
+/// importing it reads them, and a plain stylesheet is left alone.
+#[test]
+fn migrates_css_modules() {
+    let css = b".root { padding: 4px; }\n.root:hover { color: red; }\n";
+    let script =
+        b"import styles from \"./card.module.css\"\nexport const Card = () => <div className={styles.root} />\n";
+    let root = temp(&[
+        ("tsconfig.json", b"{}"),
+        ("src/card.module.css", css),
+        ("src/card.tsx", script),
+        ("src/global.css", b"body { margin: 0; }"),
+    ]);
+    let src = root.join("src").to_string_lossy().into_owned();
+    let config = serde_json::json!({ "root": root.to_string_lossy() }).to_string();
+
+    let (code, output) = run(&["--config-json", &config, "migrate", "css-modules", &src]);
+    assert_eq!(code, 0, "{output}");
+    assert!(output.contains("+ export const root = css({"), "{output}");
+    assert!(output.contains("rename to"), "{output}");
+    assert!(output.contains("+ export const Card = () => <div sx={styles.root} />"), "{output}");
+
+    let (code, output) = run(&["--config-json", &config, "migrate", "css-modules", &src, "--write"]);
+    assert_eq!(code, 0, "{output}");
+    assert!(!root.join("src/card.module.css").exists());
+    assert!(fs::read_to_string(root.join("src/card.styles.ts")).unwrap().contains("color: { \":hover\": \"red\" }"));
+    assert!(fs::read_to_string(root.join("src/card.tsx")).unwrap().contains("from \"./card.styles\""));
+    assert_eq!(fs::read_to_string(root.join("src/global.css")).unwrap(), "body { margin: 0; }");
+    fs::remove_dir_all(root).unwrap();
+}
+
 /// `kirana-style migrate styled-components` (and its other name, `emotion`): a styled component in a
 /// `.ts` file becomes a component, and the file `.tsx`.
 #[test]

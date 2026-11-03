@@ -5,7 +5,7 @@
 mod analyze;
 mod report;
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -136,6 +136,19 @@ enum From {
     /// Prints a diff and a report; `--write` applies it.
     Tailwind {
         /// Sources, and the CSS files whose `@custom-variant`s and `@utility`s they use.
+        paths: Vec<PathBuf>,
+        /// Apply the rewrite instead of only showing it.
+        #[arg(long)]
+        write: bool,
+        /// Also write the report to this file.
+        #[arg(long)]
+        report: Option<PathBuf>,
+    },
+    /// Rewrite CSS Modules: each `*.module.css` among the paths becomes a module of handles beside it,
+    /// and the scripts importing it read the handles. Prints a diff and a report; `--write` applies it.
+    #[command(name = "css-modules")]
+    CssModules {
+        /// Sources and the CSS modules they import.
         paths: Vec<PathBuf>,
         /// Apply the rewrite instead of only showing it.
         #[arg(long)]
@@ -343,10 +356,36 @@ pub fn run_coloured(args: &[String], out: &mut dyn Write, colour: bool) -> i32 {
             code
         }
         Command::Migrate { from: From::Stylex { paths, write, report } } => {
-            migrate_files(out, &paths, write, report.as_deref(), kirana_migrate::migrate)
+            migrate_files(out, &paths, &[], write, report.as_deref(), kirana_migrate::migrate)
+        }
+        Command::Migrate { from: From::CssModules { paths, write, report } } => {
+            // First the modules, so each script knows the classes of those it imports.
+            let mut files = Vec::new();
+            for path in &paths {
+                kirana_project::collect_sources(path, &mut files, &["css"]);
+            }
+            let mut modules = kirana_migrate::css_modules::Modules::new();
+            let mut converted = BTreeMap::new();
+            for file in files.into_iter().filter(|file| kirana_migrate::css_modules::is_module(file)) {
+                let source = fs::read_to_string(&file).unwrap_or_default();
+                let typescript = file.ancestors().any(|directory| directory.join("tsconfig.json").is_file());
+                let (migration, module) = kirana_migrate::css_modules::convert(&file, &source, typescript);
+                modules.insert(file.clone(), module);
+                converted.insert(file, migration);
+            }
+            migrate_files(out, &paths, &["css"], write, report.as_deref(), |file, source| match converted.get(file) {
+                Some(migration) => migration.clone(),
+                None if file.extension().is_some_and(|extension| extension == "css") => {
+                    kirana_migrate::Migration { source: source.to_owned(), notes: Vec::new(), rename: None }
+                }
+                None => {
+                    let environment = kirana_migrate::environment::ProjectEnvironment { project: &project, file };
+                    kirana_migrate::css_modules::migrate(file, source, &modules, &environment)
+                }
+            })
         }
         Command::Migrate { from: From::StyledComponents { paths, write, report } } => {
-            migrate_files(out, &paths, write, report.as_deref(), |file, source| {
+            migrate_files(out, &paths, &[], write, report.as_deref(), |file, source| {
                 let environment = kirana_migrate::environment::ProjectEnvironment { project: &project, file };
                 kirana_migrate::styled::migrate(file, source, &environment)
             })
@@ -376,7 +415,7 @@ pub fn run_coloured(args: &[String], out: &mut dyn Write, colour: bool) -> i32 {
                 relations.add(file, &kirana_migrate::tailwind::survey(file, &source, &options, &environment));
             }
             options.project = &relations;
-            migrate_files(out, &paths, write, report.as_deref(), |file, source| {
+            migrate_files(out, &paths, &[], write, report.as_deref(), |file, source| {
                 let environment = kirana_migrate::environment::ProjectEnvironment { project: &project, file };
                 kirana_migrate::tailwind::migrate(file, source, &options, &environment)
             })
@@ -434,20 +473,23 @@ fn custom_declarations(paths: &[PathBuf]) -> (BTreeSet<String>, BTreeSet<String>
     (variants, utilities)
 }
 
-/// `kirana-style migrate stylex`, `styled-components` and `tailwind`: rewrite, or show what the rewrite would be.
+/// `kirana-style migrate stylex`, `styled-components`, `css-modules` and `tailwind`: rewrite, or show what
+/// the rewrite would be. `also` names extensions read beside scripts (`css` for CSS modules).
 ///
 /// Nothing is written without `--write`, so a codemod is read before it runs. The report is printed
 /// either way: it is the part a person still has to do.
 fn migrate_files(
     out: &mut dyn Write,
     paths: &[PathBuf],
+    also: &[&str],
     write: bool,
     report: Option<&Path>,
     migrate: impl Fn(&Path, &str) -> kirana_migrate::Migration,
 ) -> i32 {
     let mut files = Vec::new();
+    let extensions: Vec<&str> = kirana_project::SCRIPT_EXTENSIONS.iter().chain(also).copied().collect();
     for path in paths {
-        kirana_project::collect_sources(path, &mut files, kirana_project::SCRIPT_EXTENSIONS);
+        kirana_project::collect_sources(path, &mut files, &extensions);
     }
     files.sort();
     let mut notes = Vec::new();

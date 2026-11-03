@@ -3630,12 +3630,61 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
+    "href": "/docs/migration/from-css-modules",
+    "file": "content/docs/migration/from-css-modules.md",
+    "title": "Migrating from CSS Modules",
+    "description": "Each module becomes a module of handles beside it, and the scripts that import it read the handles; the codemod reports what CSS decided by file order.",
+    "section": "migration",
+    "order": 4,
+    "keywords": [
+      "css modules",
+      "module.css",
+      "migration",
+      "codemod",
+      "composes",
+      "clsx",
+      "className"
+    ],
+    "headings": [
+      {
+        "id": "the-shift-in-four-lines",
+        "text": "The shift, in four lines",
+        "level": 2
+      },
+      {
+        "id": "the-mapping",
+        "text": "The mapping",
+        "level": 2
+      },
+      {
+        "id": "what-a-module-becomes",
+        "text": "What a module becomes",
+        "level": 2
+      },
+      {
+        "id": "order",
+        "text": "Order",
+        "level": 2
+      },
+      {
+        "id": "what-does-not-carry-over",
+        "text": "What does not carry over",
+        "level": 2
+      },
+      {
+        "id": "the-codemod",
+        "text": "The codemod",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/docs/migration/conformance",
     "file": "content/docs/migration/conformance.md",
     "title": "Verifying a migration",
     "description": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.",
     "section": "migration",
-    "order": 4,
+    "order": 5,
     "keywords": [
       "conformance",
       "testing",
@@ -6302,6 +6351,20 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
+        "title": "Migrating from CSS Modules",
+        "href": "/docs/migration/from-css-modules",
+        "description": "Each module becomes a module of handles beside it, and the scripts that import it read the handles; the codemod reports what CSS decided by file order.",
+        "keywords": [
+          "css modules",
+          "module.css",
+          "migration",
+          "codemod",
+          "composes",
+          "clsx",
+          "className"
+        ]
+      },
+      {
         "title": "Verifying a migration",
         "href": "/docs/migration/conformance",
         "description": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.",
@@ -6763,6 +6826,7 @@ export const ORDER: readonly string[] = [
   "/docs/migration/from-tailwind",
   "/docs/migration/from-stylex",
   "/docs/migration/from-styled-components",
+  "/docs/migration/from-css-modules",
   "/docs/migration/conformance",
   "/docs/building/tips",
   "/docs/building/design-system",

@@ -541,7 +541,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "Codemods",
         tone: "good",
-        text: "kirana-style migrate tailwind, stylex and styled-components (Emotion too), measured on our shadcn/ui port: zero computed-style differences after the Tailwind codemod and its hand fixes",
+        text: "kirana-style migrate tailwind, stylex, styled-components (Emotion too) and css-modules, measured on our shadcn/ui port: zero computed-style differences after the Tailwind codemod and its hand fixes",
         source: "/docs/migration/from-tailwind",
       },
     },
@@ -584,7 +584,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "Two skills",
         tone: "good",
-        text: "kirana and kirana-migrate (from Tailwind, StyleX, styled-components or Emotion), installed with npx skills add; the diagnostics and lint references in them are generated from the compiler on every build",
+        text: "kirana and kirana-migrate (from Tailwind, StyleX, styled-components, Emotion or CSS Modules), installed with npx skills add; the diagnostics and lint references in them are generated from the compiler on every build",
         source: "/docs/project/agent-skills",
       },
     },

@@ -1,0 +1,10 @@
+---
+source: crates/kirana_migrate/tests/css_modules.rs
+expression: migration.notes
+---
+[
+    Note {
+        offset: 244,
+        message: "`.primary` comes after `.button` in Button.module.css, so it won where both set backgroundColor; `sx` lists it first, so `.button` wins now: swap them if `.primary` should",
+    },
+]

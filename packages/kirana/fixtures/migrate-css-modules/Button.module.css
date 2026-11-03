@@ -1,0 +1,56 @@
+@keyframes spin {
+  from {
+    rotate: 0deg;
+  }
+  to {
+    rotate: 360deg;
+  }
+}
+
+.button {
+  composes: focusable from "./base.module.css";
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  background-color: #f4f4f5;
+}
+
+.button:hover {
+  background-color: #e4e4e7;
+}
+
+.button[data-busy] {
+  animation: spin 1s linear infinite;
+}
+
+.button > svg {
+  width: 16px;
+  height: 16px;
+}
+
+.button::after {
+  content: "";
+}
+
+@media (min-width: 768px) {
+  .button {
+    padding: 12px 24px;
+  }
+}
+
+.primary {
+  background-color: #18181b;
+  color: white;
+}
+
+.icon-only {
+  composes: button;
+  padding: 8px;
+}
+
+.button .label {
+  color: inherit;
+}

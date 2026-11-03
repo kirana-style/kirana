@@ -19,6 +19,7 @@ import {
 import { DocsLink } from "@/components/docs-link"
 import { More } from "@/components/page-section"
 import { NextStep } from "@/components/site/accents"
+import { LogoIcon } from "@/components/site/brands"
 import { Figures, Steps } from "@/components/site/cards"
 import { CodeTokens } from "@/components/site/code-tokens"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/migrate")({
       {
         name: "description",
         content:
-          "kirana-style migrate rewrites Tailwind, StyleX, styled-components and Emotion styles, prints a diff and a report of what it would not decide, and writes nothing until you say so.",
+          "kirana-style migrate rewrites Tailwind, StyleX, styled-components, Emotion and CSS Modules styles, prints a diff and a report of what it would not decide, and writes nothing until you say so.",
       },
     ],
   }),
@@ -93,6 +94,12 @@ const PROCESS = [
   },
 ]
 
+/**
+ * CSS Modules' only mark is its GitHub avatar, black lines on nothing, which disappears on the dark
+ * scheme's background.
+ */
+const CSS_MODULES = { title: "CSS Modules", monogram: "CM" } as const
+
 const styles = {
   codemods: css({
     display: "grid",
@@ -115,8 +122,6 @@ const styles = {
     backgroundColor: theme.card,
     padding: spacing[6],
   }),
-  // The third of two columns takes the row to itself rather than leave half of it empty.
-  wide: css({ gridColumn: { [breakpoint.md]: "1 / -1" } }),
   codemodHead: css({ display: "flex", alignItems: "center", gap: spacing[3] }),
   codemodTitle: css({
     fontSize: fontSize.xl,
@@ -181,7 +186,7 @@ function MigratePage() {
             Bring the styles <Accent>you already have.</Accent>
           </>
         }
-        lede="Codemods rewrite Tailwind, StyleX, styled-components and Emotion sources. Each prints a diff and a report of what it would not decide, and writes nothing until you say so."
+        lede="Codemods rewrite Tailwind, StyleX, styled-components, Emotion and CSS Modules sources. Each prints a diff and a report of what it would not decide, and writes nothing until you say so."
         actions={
           <>
             <Button
@@ -210,6 +215,16 @@ function MigratePage() {
               render={
                 <DocsLink href="/docs/migration/from-styled-components">
                   From styled-components
+                </DocsLink>
+              }
+            />
+            <Button
+              size="lg"
+              variant="outline"
+              nativeButton={false}
+              render={
+                <DocsLink href="/docs/migration/from-css-modules">
+                  From CSS Modules
                 </DocsLink>
               }
             />
@@ -302,7 +317,7 @@ function MigratePage() {
               <More>Migrating from StyleX</More>
             </DocsLink>
           </div>
-          <div sx={[styles.codemod, styles.wide]}>
+          <div sx={styles.codemod}>
             <div sx={styles.codemodHead}>
               <BrandIcon icon={SVGL.styledcomponents} size="1.5rem" />
               <BrandIcon icon={SVGL.emotion} size="1.5rem" />
@@ -322,6 +337,27 @@ function MigratePage() {
             />
             <DocsLink href="/docs/migration/from-styled-components">
               <More>Migrating from styled-components</More>
+            </DocsLink>
+          </div>
+          <div sx={styles.codemod}>
+            <div sx={styles.codemodHead}>
+              <LogoIcon logo={CSS_MODULES} size="1.5rem" />
+              <span sx={styles.codemodTitle}>From CSS Modules</span>
+            </div>
+            <p sx={styles.text}>
+              Each module becomes a module of handles beside it, composes
+              included, and className becomes sx in the scripts that import it.
+              Two classes whose order in the file chose the winner go to the
+              report.
+            </p>
+            <CodeBlock
+              html={SHOWCASE["migrate-css-modules-command"]!.html}
+              source={SHOWCASE["migrate-css-modules-command"]!.source}
+              variant="terminal"
+              lang="bash"
+            />
+            <DocsLink href="/docs/migration/from-css-modules">
+              <More>Migrating from CSS Modules</More>
             </DocsLink>
           </div>
         </div>

@@ -51,6 +51,14 @@ export const SHOWCASE: Readonly<Record<string, ShowcaseSnippet>> = {
     "diagnostics": [],
     "report": ""
   },
+  "migrate-css-modules-command": {
+    "name": "migrate-css-modules-command",
+    "lang": "bash",
+    "source": "# print the diff and the report, then apply it\nkirana-style migrate css-modules src\nkirana-style migrate css-modules src --write\nkirana-style check src\n",
+    "html": "<span class=\"th-token th-comment\"># print the diff and the report, then apply it</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> migrate css-modules src\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> migrate css-modules src <span class=\"th-token th-attr\">--write</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">kirana-style</span> check src",
+    "diagnostics": [],
+    "report": ""
+  },
   "migrate-styled-command": {
     "name": "migrate-styled-command",
     "lang": "bash",
