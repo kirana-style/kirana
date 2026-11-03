@@ -2069,6 +2069,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "simd-utf16-len"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c5bd2186ecc8a43c3e9d0114a554beeb5708cc3b7969a8a5866b0d3ec56e5347"
+
+[[package]]
 name = "simdutf8"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2121,15 +2127,16 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "string_wizard"
-version = "1.2.15"
+version = "1.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39c07f213b06d431c6ec31d63ad4d6a37e9fd340e4be5a647db544623824f74c"
+checksum = "95129e8671764d0bc2a6da8627c76dd201b96773bbee0d0ea1930c3b48e23ae8"
 dependencies = [
  "memchr",
  "oxc_index",
  "oxc_sourcemap",
  "regex",
  "rustc-hash",
+ "simd-utf16-len",
 ]
 
 [[package]]
