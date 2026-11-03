@@ -47,17 +47,18 @@ Every framework has a guide and a tested example; the
 
 ## Tooling
 
-| Tool                                                                                    | Where                                                                |
-| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `kirana-style build`, `check`, `analyze`, `export`, `trace`                             | [the CLI](/docs/tooling/cli)                                         |
-| `kirana-style init`, `doctor`, `doctor --report`, `dev`                                 | [the CLI](/docs/tooling/cli)                                         |
-| `kirana-style ui`, components installed from a registry                                 | [the CLI](/docs/tooling/cli#kirana-style-ui)                         |
-| `kirana-style migrate stylex`                                                           | [migration from StyleX](/docs/migration/from-stylex)                 |
-| `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod) |
-| Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                               |
-| `@kirana-style/eslint-plugin`, for Oxlint and ESLint                                    | [lint](/docs/tooling/lint)                                           |
-| `@kirana-style/biome-plugin`: the five rules that need no compiler | [lint](/docs/tooling/lint#biome)                                     |
-| Agent skills                                                                            | [agent skills](/docs/project/agent-skills)                           |
+| Tool                                                                                    | Where                                                                      |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `kirana-style build`, `check`, `analyze`, `export`, `trace`                             | [the CLI](/docs/tooling/cli)                                               |
+| `kirana-style init`, `doctor`, `doctor --report`, `dev`                                 | [the CLI](/docs/tooling/cli)                                               |
+| `kirana-style ui`, components installed from a registry                                 | [the CLI](/docs/tooling/cli#kirana-style-ui)                               |
+| `kirana-style migrate stylex`                                                           | [migration from StyleX](/docs/migration/from-stylex)                       |
+| `kirana-style migrate tailwind`, with a report of what it leaves                        | [migration from Tailwind](/docs/migration/from-tailwind#the-codemod)       |
+| `kirana-style migrate styled-components`, for styled-components and Emotion             | [migration from styled-components](/docs/migration/from-styled-components) |
+| Language server, VS Code and Zed extensions                                             | [editor support](/docs/tooling/editor)                                     |
+| `@kirana-style/eslint-plugin`, for Oxlint and ESLint                                    | [lint](/docs/tooling/lint)                                                 |
+| `@kirana-style/biome-plugin`: the five rules that need no compiler | [lint](/docs/tooling/lint#biome)                                           |
+| Agent skills                                                                            | [agent skills](/docs/project/agent-skills)                                 |
 
 ## Runtime and distribution
 

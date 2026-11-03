@@ -41,6 +41,8 @@ import logo_nextjs_icon_dark from "@workspace/docs-ui/brands/nextjs_icon_dark.sv
 import logo_nodejs from "@workspace/docs-ui/brands/nodejs.svg?url"
 import logo_npm from "@workspace/docs-ui/brands/npm.svg?url"
 import logo_nuxt from "@workspace/docs-ui/brands/nuxt.svg?url"
+import logo_official_emotion from "@workspace/docs-ui/brands/official-emotion.png?url"
+import logo_official_styledcomponents from "@workspace/docs-ui/brands/official-styledcomponents.png?url"
 import logo_official_vike_dark from "@workspace/docs-ui/brands/official-vike-dark.svg?url"
 import logo_official_vike_light from "@workspace/docs-ui/brands/official-vike-light.svg?url"
 import logo_openai from "@workspace/docs-ui/brands/openai.svg?url"
@@ -144,4 +146,6 @@ export const SVGL = {
   stylex: { title: "StyleX", url: "https://stylexjs.com", route: logo_logoforge_stylex_icon },
   helix: { title: "Helix", url: "https://helix-editor.com/", route: { light: logo_logoforge_helix_icon, dark: logo_logoforge_helix_icon_dark } },
   vike: { title: "Vike", url: "https://vike.dev/", route: { light: logo_official_vike_light, dark: logo_official_vike_dark } },
+  styledcomponents: { title: "styled-components", url: "https://styled-components.com/", route: logo_official_styledcomponents },
+  emotion: { title: "Emotion", url: "https://emotion.sh/", route: logo_official_emotion },
 } satisfies Record<string, SvglIcon>

@@ -3865,6 +3865,61 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Work through the report, then let the compiler finish the job: will find the relations without anchors, the components that swallow , and the ambiguous pairs. Fix those and the port is done."
   },
   {
+    "id": "/docs/migration/from-styled-components",
+    "href": "/docs/migration/from-styled-components",
+    "page": "Migrating from styled-components",
+    "section": "migration",
+    "text": "From styled-components or Emotion. A styled component becomes a handle and a component that takes sx; the codemod rewrites the rest and reports what it will not guess. "
+  },
+  {
+    "id": "/docs/migration/from-styled-components#migrating-from-styled-components",
+    "href": "/docs/migration/from-styled-components#migrating-from-styled-components",
+    "page": "Migrating from styled-components",
+    "section": "migration",
+    "heading": "Migrating from styled-components",
+    "text": "styled-components and Emotion (this page covers both) build your CSS while the page renders: each style is serialised, hashed and injected on the server, then again in the browser, and the work grows with every component on the page. Kirana does that work in the build. What you write stays close: styles in JavaScript, next to the component, typed, with conditions inside them."
+  },
+  {
+    "id": "/docs/migration/from-styled-components#the-shift-in-four-lines",
+    "href": "/docs/migration/from-styled-components#the-shift-in-four-lines",
+    "page": "Migrating from styled-components",
+    "section": "migration",
+    "heading": "The shift, in four lines",
+    "text": "A handle, not a component. made a component with styles inside it. In Kirana the styles are a handle, and the component applies it with . Conditions nest inside values. becomes . Props choose handles. becomes a second handle, listed in when is set. No theme at runtime. A theme becomes tokens , read where they are used."
+  },
+  {
+    "id": "/docs/migration/from-styled-components#what-a-styled-component-becomes",
+    "href": "/docs/migration/from-styled-components#what-a-styled-component-becomes",
+    "page": "Migrating from styled-components",
+    "section": "migration",
+    "heading": "What a styled component becomes",
+    "text": "This styled component: becomes a handle per style and a component of the shape every Kirana component has: it takes , passes its other props on, and applies the caller's last. Every place that renders keeps working, so you can migrate one file at a time. chooses between two classes the build already wrote; nothing is generated when it renders. A value only known at runtime ( ) goes through a custom property instead."
+  },
+  {
+    "id": "/docs/migration/from-styled-components#order",
+    "href": "/docs/migration/from-styled-components#order",
+    "page": "Migrating from styled-components",
+    "section": "migration",
+    "heading": "Order",
+    "text": "is merged in order, the later entry winning. A mixin or a block chosen by props that you wrote before the declarations goes before the style, as it did. One written after declarations now comes after the style and wins over them; in your CSS the declarations below it won. The codemod reports each such case. is dropped and reported: Kirana's precedence ladder orders every rule, so it writes none. Check what it was overriding."
+  },
+  {
+    "id": "/docs/migration/from-styled-components#what-does-not-carry-over",
+    "href": "/docs/migration/from-styled-components#what-does-not-carry-over",
+    "page": "Migrating from styled-components",
+    "section": "migration",
+    "heading": "What does not carry over",
+    "text": "The theme. A function reading and the around your app have no runtime counterpart. Declare the values as tokens , and a dark or brand variant as a theme . Component selectors ( ), a class on the element itself ( : Kirana's class names are hashes, so use a data attribute or a prop), and sibling combinators ( ). Each stays beside the style as a comment. Global styles. and Emotion's go in a stylesheet. Kirana writes rules only for the elements that use a style. . The component always renders its own element. Give the other element a component of its own with the same handles. Refs. The component passes on with its props, which React 19 does. On React 18, wrap it in . Props reaching the element. props never do. A prop without that a style reads still does, as styled-components 6 passed it; Emotion dropped those that are not HTML attributes, so take any such prop out of ."
+  },
+  {
+    "id": "/docs/migration/from-styled-components#the-codemod",
+    "href": "/docs/migration/from-styled-components#the-codemod",
+    "page": "Migrating from styled-components",
+    "section": "migration",
+    "heading": "The codemod",
+    "text": "The command is also named . Both read every file that imports styled-components or one of Emotion's packages, and write nothing without . A file that gains a component is renamed , since the component is JSX. It leaves these alone, with a report, and keeps imported for them: and 's options; with a function; a style function with a body. The names Kirana has no counterpart for, such as and , stay imported too. Everything else it would have to guess is in the report, with the file and line, and in a comment beside the style it belongs to. Then build, and compare the result with the build you came from: verifying a migration compares computed styles, element by element."
+  },
+  {
     "id": "/docs/migration/conformance",
     "href": "/docs/migration/conformance",
     "page": "Verifying a migration",
@@ -4661,7 +4716,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style migrate",
-    "text": "Rewrite another styling system's sources into Kirana, and report what it will not decide for you. Nothing is written without . The report is printed either way: each line is a file position and something a person has to do, and the utility it is about is also left in a comment beside the style it belongs to. needs a utility grammar (the preset and your theme's scales), and reads and from any CSS file among its paths. See migrating from Tailwind ."
+    "text": "Rewrite another styling system's sources into Kirana, and report what it will not decide for you. Nothing is written without . The report is printed either way: each line is a file position and something a person has to do, and the utility it is about is also left in a comment beside the style it belongs to. needs a utility grammar (the preset and your theme's scales), and reads and from any CSS file among its paths. See migrating from Tailwind . reads every file that imports styled-components or Emotion, and renames a file that gains a component to . See migrating from styled-components ."
   },
   {
     "id": "/docs/tooling/cli#the-same-answers-from-code",
@@ -5421,7 +5476,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Roadmap",
     "section": "project",
     "heading": "M6: 1.0",
-    "text": "Next. What 1.0 promises, and what it takes to promise it: an API freeze, after which a breaking change waits for 2.0; the full conformance suite; a public benchmark report under the claims policy; trademark clearance for the name; a security review of the evaluator. Before it, one change outside these milestones: restricted overrides, where a component declares which properties its accepts ( ), checked by TypeScript at the call site."
+    "text": "Next. What 1.0 promises, and what it takes to promise it: an API freeze, after which a breaking change waits for 2.0; the full conformance suite; a public benchmark report under the claims policy; trademark clearance for the name; a security review of the evaluator. Before it, one change outside these milestones: restricted overrides, where a component declares which properties its accepts ( ), checked by TypeScript at the call site. Outside the milestones, moves a project off styled-components or Emotion; see the guide ."
   },
   {
     "id": "/docs/project/roadmap#beyond-the-compiler",
@@ -5759,7 +5814,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Agent skills",
     "section": "project",
     "heading": "What each one teaches",
-    "text": "Each skill is short (the rules and the workflow), and keeps the detail in reference files the agent reads only when it needs them: the API, how is spelled in each framework, the Tailwind and StyleX mappings, and two files generated from the compiler's source on every build: every diagnostic with what to do about it, and every lint rule with the linters that run it. A diagnostic added to the compiler without a line saying what to do about it fails the build."
+    "text": "Each skill is short (the rules and the workflow), and keeps the detail in reference files the agent reads only when it needs them: the API, how is spelled in each framework, the Tailwind, StyleX and styled-components mappings, and two files generated from the compiler's source on every build: every diagnostic with what to do about it, and every lint rule with the linters that run it. A diagnostic added to the compiler without a line saying what to do about it fails the build."
   },
   {
     "id": "/docs/project/agent-skills#the-loop-it-follows",

@@ -428,5 +428,19 @@
       "dark": "official-vike-dark.svg"
     },
     "source": "official"
+  },
+  "styledcomponents": {
+    "title": "styled-components",
+    "category": "Library",
+    "url": "https://styled-components.com/",
+    "route": "official-styledcomponents.png",
+    "source": "official"
+  },
+  "emotion": {
+    "title": "Emotion",
+    "category": "Library",
+    "url": "https://emotion.sh/",
+    "route": "official-emotion.png",
+    "source": "official"
   }
 }

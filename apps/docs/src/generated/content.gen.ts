@@ -3580,12 +3580,62 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
+    "href": "/docs/migration/from-styled-components",
+    "file": "content/docs/migration/from-styled-components.md",
+    "title": "Migrating from styled-components",
+    "description": "From styled-components or Emotion. A styled component becomes a handle and a component that takes sx; the codemod rewrites the rest and reports what it will not guess.",
+    "section": "migration",
+    "order": 3,
+    "keywords": [
+      "styled-components",
+      "emotion",
+      "css-in-js",
+      "migration",
+      "codemod",
+      "styled",
+      "css prop",
+      "keyframes"
+    ],
+    "headings": [
+      {
+        "id": "the-shift-in-four-lines",
+        "text": "The shift, in four lines",
+        "level": 2
+      },
+      {
+        "id": "the-mapping",
+        "text": "The mapping",
+        "level": 2
+      },
+      {
+        "id": "what-a-styled-component-becomes",
+        "text": "What a styled component becomes",
+        "level": 2
+      },
+      {
+        "id": "order",
+        "text": "Order",
+        "level": 2
+      },
+      {
+        "id": "what-does-not-carry-over",
+        "text": "What does not carry over",
+        "level": 2
+      },
+      {
+        "id": "the-codemod",
+        "text": "The codemod",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/docs/migration/conformance",
     "file": "content/docs/migration/conformance.md",
     "title": "Verifying a migration",
     "description": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.",
     "section": "migration",
-    "order": 3,
+    "order": 4,
     "keywords": [
       "conformance",
       "testing",
@@ -6237,6 +6287,21 @@ export const NAV: readonly NavGroup[] = [
         ]
       },
       {
+        "title": "Migrating from styled-components",
+        "href": "/docs/migration/from-styled-components",
+        "description": "From styled-components or Emotion. A styled component becomes a handle and a component that takes sx; the codemod rewrites the rest and reports what it will not guess.",
+        "keywords": [
+          "styled-components",
+          "emotion",
+          "css-in-js",
+          "migration",
+          "codemod",
+          "styled",
+          "css prop",
+          "keyframes"
+        ]
+      },
+      {
         "title": "Verifying a migration",
         "href": "/docs/migration/conformance",
         "description": "How to check a rewrite against the build you came from, by comparing computed styles instead of pixels.",
@@ -6697,6 +6762,7 @@ export const ORDER: readonly string[] = [
   "/docs/integrations/storybook",
   "/docs/migration/from-tailwind",
   "/docs/migration/from-stylex",
+  "/docs/migration/from-styled-components",
   "/docs/migration/conformance",
   "/docs/building/tips",
   "/docs/building/design-system",

@@ -163,4 +163,4 @@ The pointer cursor on buttons and right to left are attributes on `<html>`, `dat
 Kirana's documentation is written for agents too: `https://kirana.style/llms.txt` is the index (one
 line per page), and every page has a markdown twin at `https://kirana.style/docs/<path>.md`. Start
 with `start/mental-model.md`, `styling/merging.md`, `styling/precedence.md` and
-`reference/api.md`. For moving a codebase from Tailwind or StyleX, use the `kirana-migrate` skill.
+`reference/api.md`. For moving a codebase from Tailwind, StyleX, styled-components or Emotion, use the `kirana-migrate` skill.

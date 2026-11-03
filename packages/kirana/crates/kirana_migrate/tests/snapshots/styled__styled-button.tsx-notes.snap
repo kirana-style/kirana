@@ -1,0 +1,10 @@
+---
+source: crates/kirana_migrate/tests/styled.rs
+expression: migration.notes
+---
+[
+    Note {
+        offset: 715,
+        message: "`& + &` is a selector Kirana takes no condition for: port it by hand",
+    },
+]

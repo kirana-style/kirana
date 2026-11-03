@@ -1,0 +1,68 @@
+---
+source: crates/kirana_migrate/tests/styled.rs
+expression: migration.source
+---
+import { css, keyframes, select, type Sx } from "@kirana-style/core"
+import type { ComponentProps } from "react"
+import { Link } from "./link"
+
+const fadeIn = keyframes({
+  from: {
+    opacity: 0,
+  },
+  to: {
+    opacity: 1,
+  },
+})
+
+const center = css({
+  display: "flex",
+  alignItems: "center",
+})
+
+const buttonStyle = css({
+  gap: "8px",
+  padding: { base: "8px 16px", "@media (min-width: 768px)": "12px 24px" },
+  borderRadius: "6px",
+  fontWeight: 600,
+  animation: `${fadeIn} 150ms ease-out`,
+  backgroundColor: { ":hover": "#f4f4f5" },
+  opacity: { ":disabled": 0.5 },
+  "::after": {
+    content: "\"\"",
+  },
+  [select.child("svg")]: {
+    width: "16px",
+    height: "16px",
+  },
+  /* not migrated: & + & { margin-inline-start: 4px; } */
+})
+const buttonTone = css({
+  backgroundColor: "transparent",
+})
+const buttonTone2 = css({
+  backgroundColor: "#18181b",
+  color: "white",
+})
+
+export const Button = ({ sx, ...props }: { $tone?: "solid" | "quiet"; $wide?: boolean } & ComponentProps<"button"> & { sx?: Sx }) => {
+  const { $tone, $wide, ...rest } = props
+  return <button {...rest} sx={[center, buttonStyle, css({ width: ($wide ? "100%" : "auto") }), $tone === "quiet" ? buttonTone : buttonTone2, sx]} />
+}
+
+const navLinkStyle = css({
+  color: "inherit",
+  textDecoration: "none",
+  fontWeight: { "[aria-current=\"page\"]": 600 },
+})
+
+export const NavLink = ({ sx, ...props }: ComponentProps<typeof Link> & { sx?: Sx }) => <Link {...props} rel="noreferrer" sx={[navLinkStyle, sx]} />
+
+export function Toolbar() {
+  return (
+    <nav>
+      <Button $tone="quiet">Save</Button>
+      <NavLink href="/">Home</NavLink>
+    </nav>
+  )
+}

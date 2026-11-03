@@ -33,7 +33,7 @@ export const Route = createFileRoute("/migrate")({
       {
         name: "description",
         content:
-          "kirana-style migrate tailwind and kirana-style migrate stylex rewrite your styles, print a diff and a report of what they would not decide, and write nothing until you say so.",
+          "kirana-style migrate rewrites Tailwind, StyleX, styled-components and Emotion styles, prints a diff and a report of what it would not decide, and writes nothing until you say so.",
       },
     ],
   }),
@@ -115,6 +115,8 @@ const styles = {
     backgroundColor: theme.card,
     padding: spacing[6],
   }),
+  // The third of two columns takes the row to itself rather than leave half of it empty.
+  wide: css({ gridColumn: { [breakpoint.md]: "1 / -1" } }),
   codemodHead: css({ display: "flex", alignItems: "center", gap: spacing[3] }),
   codemodTitle: css({
     fontSize: fontSize.xl,
@@ -179,7 +181,7 @@ function MigratePage() {
             Bring the styles <Accent>you already have.</Accent>
           </>
         }
-        lede="Two codemods rewrite Tailwind and StyleX sources. Each prints a diff and a report of what it would not decide, and writes nothing until you say so."
+        lede="Codemods rewrite Tailwind, StyleX, styled-components and Emotion sources. Each prints a diff and a report of what it would not decide, and writes nothing until you say so."
         actions={
           <>
             <Button
@@ -198,6 +200,16 @@ function MigratePage() {
               render={
                 <DocsLink href="/docs/migration/from-stylex">
                   From StyleX
+                </DocsLink>
+              }
+            />
+            <Button
+              size="lg"
+              variant="outline"
+              nativeButton={false}
+              render={
+                <DocsLink href="/docs/migration/from-styled-components">
+                  From styled-components
                 </DocsLink>
               }
             />
@@ -246,7 +258,7 @@ function MigratePage() {
         </p>
       </PageSection>
 
-      <PageSection number="03" label="The tools" title="Two codemods">
+      <PageSection number="03" label="The tools" title="A codemod per source">
         <div sx={styles.codemods}>
           <div sx={styles.codemod}>
             <div sx={styles.codemodHead}>
@@ -288,6 +300,28 @@ function MigratePage() {
             />
             <DocsLink href="/docs/migration/from-stylex">
               <More>Migrating from StyleX</More>
+            </DocsLink>
+          </div>
+          <div sx={[styles.codemod, styles.wide]}>
+            <div sx={styles.codemodHead}>
+              <BrandIcon icon={SVGL.styledcomponents} size="1.5rem" />
+              <BrandIcon icon={SVGL.emotion} size="1.5rem" />
+              <span sx={styles.codemodTitle}>From styled-components</span>
+            </div>
+            <p sx={styles.text}>
+              A styled component becomes a css() handle and a component that
+              takes sx; a block chosen by props becomes a handle of its own.
+              Emotion's styled, css prop and cx come along. The theme and
+              component selectors go to the report.
+            </p>
+            <CodeBlock
+              html={SHOWCASE["migrate-styled-command"]!.html}
+              source={SHOWCASE["migrate-styled-command"]!.source}
+              variant="terminal"
+              lang="bash"
+            />
+            <DocsLink href="/docs/migration/from-styled-components">
+              <More>Migrating from styled-components</More>
             </DocsLink>
           </div>
         </div>

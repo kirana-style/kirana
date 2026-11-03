@@ -144,6 +144,18 @@ enum From {
         #[arg(long)]
         report: Option<PathBuf>,
     },
+    /// Rewrite styled-components and Emotion sources: styled components, css, keyframes and the css
+    /// prop. Prints a diff and a report; `--write` applies it.
+    #[command(name = "styled-components", visible_alias = "emotion")]
+    StyledComponents {
+        paths: Vec<PathBuf>,
+        /// Apply the rewrite instead of only showing it.
+        #[arg(long)]
+        write: bool,
+        /// Also write the report to this file.
+        #[arg(long)]
+        report: Option<PathBuf>,
+    },
 }
 
 /// Runs the command line; returns the exit code. Output goes to `out`, without colours.
@@ -333,6 +345,12 @@ pub fn run_coloured(args: &[String], out: &mut dyn Write, colour: bool) -> i32 {
         Command::Migrate { from: From::Stylex { paths, write, report } } => {
             migrate_files(out, &paths, write, report.as_deref(), kirana_migrate::migrate)
         }
+        Command::Migrate { from: From::StyledComponents { paths, write, report } } => {
+            migrate_files(out, &paths, write, report.as_deref(), |file, source| {
+                let environment = kirana_migrate::environment::ProjectEnvironment { project: &project, file };
+                kirana_migrate::styled::migrate(file, source, &environment)
+            })
+        }
         Command::Migrate { from: From::Tailwind { paths, write, report } } => {
             let Some(grammar) = project.config().utilities.clone() else {
                 let _ = writeln!(out, "kirana-style migrate tailwind {NO_GRAMMAR}");
@@ -416,7 +434,7 @@ fn custom_declarations(paths: &[PathBuf]) -> (BTreeSet<String>, BTreeSet<String>
     (variants, utilities)
 }
 
-/// `kirana-style migrate stylex` and `kirana-style migrate tailwind`: rewrite, or show what the rewrite would be.
+/// `kirana-style migrate stylex`, `styled-components` and `tailwind`: rewrite, or show what the rewrite would be.
 ///
 /// Nothing is written without `--write`, so a codemod is read before it runs. The report is printed
 /// either way: it is the part a person still has to do.
