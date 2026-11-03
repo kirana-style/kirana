@@ -106,6 +106,13 @@ export declare class LanguageServer {
   notify(method: string, paramsJson: string): string
 }
 
+/**
+ * The expressions of an Angular component's `[sx]` bindings (D-068), from its inline template or
+ * from the `.html` file its `templateUrl` names beside `file`, as a JSON array; empty for any other
+ * file. A host appends the anchors they name to the component's module (KF-090).
+ */
+export declare function angularBindings(file: string, source: string): string
+
 /** The class map for server templates (D-069). */
 export interface ClassMapResult {
   /** Where to write it. */

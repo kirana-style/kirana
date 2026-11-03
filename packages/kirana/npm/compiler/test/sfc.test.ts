@@ -149,6 +149,20 @@ describe("KRN-INT-004 Vue", () => {
     expect(diagnostic!.span.start).toBeGreaterThan(40)
   })
 
+  it("places diagnostics by byte after non-ASCII text", async () => {
+    // Spans count UTF-8 bytes, the parser's offsets characters: text before the block or in it
+    // moved a diagnostic, and one near the block's end was taken for the template's and dropped.
+    const source = `<template><p>Café — ${"é".repeat(40)}</p></template>\n<script setup>\nimport { css } from "@kirana-style/core"\n// ${"é".repeat(40)}\nconst a = css({ width: 5 })\n</script>\n`
+    const { result } = await compile("G.vue", source)
+    const [diagnostic] = result.diagnostics
+    expect(diagnostic?.name).toBe("unitless-length")
+    expect(
+      Buffer.from(source)
+        .subarray(diagnostic!.span.start, diagnostic!.span.end)
+        .toString()
+    ).toBe("width: 5")
+  })
+
   it("passes a removal on to a component, not to an element (KF-089)", async () => {
     const { result } = await compile(
       "Field.vue",
@@ -403,5 +417,86 @@ describe("components", () => {
     })
     expect(result.code).toBeUndefined()
     expect(result.modules).toHaveLength(1)
+  })
+})
+
+describe("templates outside the module (KF-090)", () => {
+  /** A relation read in `styles`, the driver that compiled it, and what is left unanchored. */
+  async function unanchored() {
+    const root = project()
+    writeFileSync(
+      path.join(root, "kirana.config.json"),
+      '{"externals":["@angular/","@ember/"]}'
+    )
+    const driver = await Driver.create({ root, importModule: load })
+    const missing = () =>
+      driver
+        .diagnostics()
+        .filter((diagnostic) => diagnostic.name === "relation-without-anchor")
+        .map((diagnostic) => diagnostic.message.split('"')[1])
+    return { root, driver, missing }
+  }
+  const STYLES = (name: string) =>
+    `import { css, relation } from "@kirana-style/core"\nconst ${name} = relation("${name}")\nconst item = css({ color: { base: "black", [${name}.within("[data-open]")]: "red" } })\n`
+
+  it("compiles an Angular component with its template's anchors, inline or in its file", async () => {
+    const { root, driver, missing } = await unanchored()
+    const inline = `${STYLES("menu")}@Component({\n  selector: "app-menu",\n  template: \`<ul [sx]="[menu.anchor, item]"><li [sx]="item">é</li></ul>\`,\n})\nexport class Menu {\n  protected readonly menu = menu\n  protected readonly item = item\n}\n`
+    const result = driver.transform(
+      path.join(root, "menu.component.ts"),
+      inline
+    )
+    expect(result.code).toContain("export class Menu")
+    expect(result.code).not.toContain("KF-088")
+    writeFileSync(
+      path.join(root, "panel.component.html"),
+      '<section [sx]="panel.anchor"><p [sx]="item">x</p></section>\n'
+    )
+    const external = `${STYLES("panel")}@Component({ selector: "app-panel", templateUrl: "./panel.component.html" })\nexport class Panel {\n  protected readonly panel = panel\n}\n`
+    await driver.transformAsync(path.join(root, "panel.component.ts"), external)
+    expect(missing()).toEqual([])
+    // Analog compiles after Angular: the compiled module has no decorator, and the source on disk
+    // has the template. Without the source, nothing is appended.
+    const compiled = `${STYLES("tabs")}export class Tabs {\n  static ɵcmp = i0.ɵɵdefineComponent({ template: (rf, ctx) => ctx.tabs.anchor })\n}\n`
+    writeFileSync(
+      path.join(root, "tabs.component.ts"),
+      `${STYLES("tabs")}@Component({ template: '<div [sx]="tabs.anchor"></div>' })\nexport class Tabs {}\n`
+    )
+    driver.transform(path.join(root, "tabs.component.ts"), compiled)
+    driver.transform(
+      path.join(root, "gone.component.ts"),
+      compiled.replaceAll("tabs", "gone")
+    )
+    expect(missing()).toEqual(["gone"])
+    // A component whose template names no anchor is compiled as it is.
+    const plain = `${STYLES("plain")}@Component({ template: '<p [sx]="item"></p>' })\nexport class Plain {}\n`
+    expect(
+      driver.transform(path.join(root, "plain.component.ts"), plain).diagnostics
+    ).toEqual([])
+    expect(missing()).toEqual(["gone", "plain"])
+  })
+
+  it("compiles an Ember template tag with its template's anchors", async () => {
+    const { root, driver, missing } = await unanchored()
+    // Embroider has turned the template into data, so the template tag is read from the source.
+    const source = `${STYLES("folder")}<template>\n  <li data-open class={{sx folder.anchor @other.anchor}}><span class={{sx item}}>x</span></li>\n</template>\n`
+    writeFileSync(path.join(root, "tree.gjs"), source)
+    const embroidered = `${STYLES("folder")}export default setComponentTemplate(createTemplateFactory({ "block": "[[[10,\\"li\\"]]]", "scope": () => [sx, folder, item] }), templateOnly())\n`
+    const { code } = driver.transform(
+      path.join(root, "tree.gjs?v=1"),
+      embroidered
+    )
+    expect(code).not.toContain("KF-088")
+    expect(missing()).toEqual([])
+    // `@arg` is the caller's argument, not the module's relation.
+    writeFileSync(
+      path.join(root, "args.gts"),
+      `${STYLES("arg")}<template><ul class={{sx @arg.anchor}}></ul></template>\n`
+    )
+    driver.transform(
+      path.join(root, "args.gts"),
+      embroidered.replaceAll("folder", "arg")
+    )
+    expect(missing()).toEqual(["arg"])
   })
 })

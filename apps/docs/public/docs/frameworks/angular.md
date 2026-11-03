@@ -142,6 +142,12 @@ Angular type-checks it against `Sx`. The element's own class and style attribute
 the directive adds and removes only what it set. Templates in a `templateUrl`
 file work the same way.
 
+A relation's anchor written in a template, `[sx]="[menu.anchor, styles.item]"`,
+counts as applied, as one in the component's code does: the build, `kirana-style
+check`, the editor and the [lint rules](/docs/tooling/lint) read it there. They
+read the template's names in the component's module, so expose a relation under
+its own name, as the handles are.
+
 A value known only at runtime, such as `css({ marginLeft: offset })`, is bridged
 through a custom property, as in [dynamic styles](/docs/styling/dynamic).
 

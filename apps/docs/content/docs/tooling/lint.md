@@ -148,7 +148,9 @@ neither preset is turned on by name, and under Biome by listing its file:
 ### `diagnostics`
 
 Every [compiler diagnostic](/docs/tooling/diagnostics), at the property it is
-about, so a CI that only lints still fails on what the build would report.
+about, so a CI that only lints still fails on what the build would report. A Vue,
+Svelte, Astro or Angular component's script is compiled as the build compiles it,
+so a relation's anchor applied only in its template counts.
 Warnings and errors by default; `{ "minimum": "info" }` adds the informational ones
 and `{ "ignore": ["unresolved-import"] }` drops names.
 

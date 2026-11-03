@@ -1,6 +1,6 @@
 import { Component } from "@angular/core"
 import { SxDirective } from "@kirana-style/angular"
-import { css } from "@kirana-style/core"
+import { css, relation } from "@kirana-style/core"
 
 /**
  * The probe the example runner reads back from the browser. A template reaches only its
@@ -16,15 +16,26 @@ const styles = {
   }),
 }
 
+/** Anchored only in the template (KF-090): the build fails if the compiler does not see it there. */
+const scope = relation("probe-scope")
+const inScope = css({
+  paddingBottom: { base: "0px", [scope.within("[data-scope]")]: "6px" },
+})
+
 @Component({
   selector: "app-home",
   imports: [SxDirective],
   template: `<p data-probe="" [sx]="[styles.probe, margin]">
-    Styled by Kirana.
-  </p>`,
+      Styled by Kirana.
+    </p>
+    <div data-scope="" [sx]="scope.anchor">
+      <span data-probe-anchor="" [sx]="inScope">Anchored</span>
+    </div>`,
 })
 export default class Home {
   protected readonly styles = styles
+  protected readonly scope = scope
+  protected readonly inScope = inScope
   protected readonly margin = css({
     marginLeft: `${document.title.length % 3}px`,
   })

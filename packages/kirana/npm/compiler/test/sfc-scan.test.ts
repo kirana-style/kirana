@@ -91,4 +91,18 @@ describe("the language server's component scanner", () => {
       (native.scanComponent as (...args: unknown[]) => string)()
     ).toThrow()
   })
+  it("reads an Angular component's bindings, and nothing from any other file", () => {
+    expect(
+      native.angularBindings(
+        "a.ts",
+        '@Component({ template: `<p [sx]="[a.anchor, b]"></p>` })'
+      )
+    ).toBe('["[a.anchor, b]"]')
+    expect(native.angularBindings("a.ts", "export const a = 1")).toBe("[]")
+    expect(() => native.angularBindings(1 as never, "")).toThrow()
+    expect(() => native.angularBindings("a.ts", 1 as never)).toThrow()
+    expect(() =>
+      (native.angularBindings as (...args: unknown[]) => string)()
+    ).toThrow()
+  })
 })

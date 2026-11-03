@@ -67,4 +67,9 @@ export {
   type TraceQuery,
   type WrittenValue,
 } from "./inspect.ts"
-export { COMPONENT, frameworkOf, type Framework } from "./sfc.ts"
+export {
+  COMPONENT,
+  frameworkOf,
+  templateAnchors,
+  type Framework,
+} from "./sfc.ts"

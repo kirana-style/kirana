@@ -30,7 +30,7 @@ import { parseDiagnostics } from "./diagnostics.ts"
 import type { Engine, NativeBinding } from "./native.ts"
 import { engineOf, loadNative } from "./native.ts"
 import { compiledLibraries, compilesModule } from "./host.ts"
-import { compileComponent } from "./sfc.ts"
+import { compileComponent, moduleAnchors, withoutAnchors } from "./sfc.ts"
 
 export type DriverOptions = {
   /** Project root; defaults to the current working directory. */
@@ -199,7 +199,8 @@ export class Driver {
   /**
    * Compiles one module (KRN-CMP-007). `map: false` leaves its source map out: a host that writes
    * none (a build without source maps, a linter, a stylesheet-only host) asks for none, since the
-   * map copies the whole module and is about a tenth of a compile.
+   * map copies the whole module and is about a tenth of a compile. An Angular component or an Ember
+   * template tag is compiled with the anchors its template names (`moduleAnchors`).
    */
   transform(
     id: string,
@@ -208,15 +209,19 @@ export class Driver {
   ): TransformResult {
     const map = options.map ?? true
     const generation = this.#generation
-    return (
-      this.#answered(id, code, map) ??
-      this.#settle(
-        id,
-        code,
-        map,
-        generation,
-        this.#compiler.transform(id, code, options.map)
-      )
+    const appended = moduleAnchors(id, code)
+    const text = code + appended
+    return withoutAnchors(
+      this.#answered(id, text, map) ??
+        this.#settle(
+          id,
+          text,
+          map,
+          generation,
+          this.#compiler.transform(id, text, options.map)
+        ),
+      code,
+      appended
     )
   }
 
@@ -232,15 +237,19 @@ export class Driver {
     if (this.engine !== "native") return this.transform(id, code, options)
     const map = options.map ?? true
     const generation = this.#generation
-    return (
-      this.#answered(id, code, map) ??
-      this.#settle(
-        id,
-        code,
-        map,
-        generation,
-        await this.#compiler.transformAsync(id, code, options.map)
-      )
+    const appended = moduleAnchors(id, code)
+    const text = code + appended
+    return withoutAnchors(
+      this.#answered(id, text, map) ??
+        this.#settle(
+          id,
+          text,
+          map,
+          generation,
+          await this.#compiler.transformAsync(id, text, options.map)
+        ),
+      code,
+      appended
     )
   }
 

@@ -47,7 +47,9 @@ Rejected for now; recorded as the upgrade path if that merge ever shows in a pro
   (`:sx="[toggle.anchor, root]"`) are appended to the script the template sees, in an arrow
   function never called, and cut from the compiled text: a relation anchored only in the template is
   applied for the project-wide relation checks (KF-088). Only the chains, so nothing a binding calls
-  is compiled into the block.
+  is compiled into the block. The lint rules compile a linted block with the same text
+  (`templateAnchors`, KF-090), and `Driver.transform` does the same for an Angular component and an
+  Ember template tag (`moduleAnchors`), whose templates are not in their modules either.
 - The runtime import (and, for Svelte and Astro, a four-line helper) is added to the script the
   template can see: Vue's `<script setup>`, Svelte's instance script, Astro's frontmatter — created
   when the component has none.

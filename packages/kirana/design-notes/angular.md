@@ -40,6 +40,13 @@ framework Kirana already supported:
   makes Angular type-check `[sx]` against `Sx`.
 - **Analog**: `kiranaAngular()` (`@kirana-style/angular/vite`) takes `@kirana-style/vite`'s two plugins and sets
   `enforce: "post"` on the first, so it transforms the JavaScript Angular emitted.
+- **A template's anchors** (KF-090). The engine compiles a component's module without its template, a
+  string or a `templateUrl` file, so an anchor written only there was reported missing.
+  `Driver.transform` asks the engine's own scanner for the template's `[sx]` bindings
+  (`angularBindings`, the one the language server uses), appends the `.anchor` chains they name in an
+  arrow function never called, and cuts them from the output, as for a Vue template (KF-088). On
+  Analog the module is Angular's output, so the template comes from the source on disk. Every host
+  compiles through `Driver.transform`, so the mirror, Analog and the lint rules all see the anchors.
 - **The CLI** (`src/mirror.ts`, `src/builders.ts`): `@kirana-style/angular:application` and
   `:dev-server`.
   - `createMirror` walks the source root and writes `.kirana/<sourceRoot>/…`: a style-bearing script

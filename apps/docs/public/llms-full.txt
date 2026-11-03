@@ -5527,7 +5527,8 @@ merged into the compiled one with Vue's `mergeProps`.
 
 A relation's anchor written in the template, `:sx="[toggle.anchor, root]"`,
 counts as applied, as one in the script does, so the relation's reads are not
-reported unanchored.
+reported unanchored: by the build, `kirana-style check`, the editor and the
+[lint rules](/docs/tooling/lint).
 
 A component imported from a workspace package, outside the app's root, compiles
 and hot-reloads like one inside it.
@@ -6226,6 +6227,12 @@ Angular type-checks it against `Sx`. The element's own class and style attribute
 the directive adds and removes only what it set. Templates in a `templateUrl`
 file work the same way.
 
+A relation's anchor written in a template, `[sx]="[menu.anchor, styles.item]"`,
+counts as applied, as one in the component's code does: the build, `kirana-style
+check`, the editor and the [lint rules](/docs/tooling/lint) read it there. They
+read the template's names in the component's module, so expose a relation under
+its own name, as the handles are.
+
 A value known only at runtime, such as `css({ marginLeft: offset })`, is bridged
 through a custom property, as in [dynamic styles](/docs/styling/dynamic).
 
@@ -6376,6 +6383,10 @@ const styles = {
 with Kirana's runtime, the way an `sx` list does at build time elsewhere. A
 value known only at runtime carries custom properties a class cannot hold; set it
 from the component's code.
+
+A relation's anchor in a template, `class={{sx folder.anchor}}`, counts as
+applied in the build, which reads the template tag of the module it compiles.
+`kirana-style check` and the editor do not read `.gjs` and `.gts` files.
 
 ## Next
 
@@ -10777,7 +10788,9 @@ neither preset is turned on by name, and under Biome by listing its file:
 ### `diagnostics`
 
 Every [compiler diagnostic](/docs/tooling/diagnostics), at the property it is
-about, so a CI that only lints still fails on what the build would report.
+about, so a CI that only lints still fails on what the build would report. A Vue,
+Svelte, Astro or Angular component's script is compiled as the build compiles it,
+so a relation's anchor applied only in its template counts.
 Warnings and errors by default; `{ "minimum": "info" }` adds the informational ones
 and `{ "ignore": ["unresolved-import"] }` drops names.
 

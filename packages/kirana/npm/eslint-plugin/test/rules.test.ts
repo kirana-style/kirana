@@ -555,7 +555,9 @@ describe("project root", () => {
   })
 
   // KF-026: a linter hands a rule a component's script block; the template, which applies `sx`, is
-  // not in it. The block is compiled as the build compiles it, so `useSx()`'s `sx` is not unused.
+  // not in it. The block is compiled as the build compiles it, so `useSx()`'s `sx` is not unused,
+  // and a relation anchored only in the template has its anchor (KF-090), as in an Angular
+  // component's template file.
   it("lints a component's script block clean under oxlint (KF-034)", async () => {
     const { expect } = await import("vite-plus/test")
     const { spawnSync } = await import("node:child_process")
@@ -585,10 +587,20 @@ describe("project root", () => {
     )
     const run = spawnSync(
       process.execPath,
-      [oxlint, "-c", config, "Button.vue"],
+      [
+        oxlint,
+        "-c",
+        config,
+        "Button.vue",
+        "Tree.vue",
+        "Tree.svelte",
+        "Tree.astro",
+        "tree.component.ts",
+      ],
       { cwd: project, encoding: "utf8" }
     )
     expect(run.stdout + run.stderr).not.toContain("unused-sx")
+    expect(run.stdout + run.stderr).not.toContain("relation-without-anchor")
     expect(run.status).toBe(0)
   })
 
@@ -617,6 +629,17 @@ describe("project root", () => {
     expect(names(path.join(project, "Missing.vue"), script)).toEqual([
       "unused-sx",
     ])
+    // KF-090: the block the template sees is compiled with the anchors its bindings name, as the
+    // build compiles it; the template's own say nothing, and the other block gets none.
+    const tree = path.join(project, "Tree.vue")
+    const blocks = readFileSync(tree, "utf8")
+      .split("</script>")
+      .slice(0, 2)
+      .map((block) => block.slice(block.indexOf(">") + 1))
+    expect(blocks.map((block) => names(tree, block))).toEqual([[], []])
+    expect(
+      inspect(context(tree, blocks[1]!)).sites.map((site) => site.span.start)
+    ).toEqual([blocks[1]!.indexOf("css({")])
   })
 })
 
