@@ -2475,7 +2475,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Vue",
     "section": "frameworks",
     "heading": "How it compiles",
-    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes with a call to Kirana's small runtime, which merges the styles when the component renders. Keep calls in the script: one written inside the template is not compiled, and says so when it runs. An element takes one object binding, so an element's own object is merged into the compiled one with Vue's . A relation's anchor written in the template, , counts as applied, as one in the script does, so the relation's reads are not reported unanchored. A component imported from a workspace package, outside the app's root, compiles and hot-reloads like one inside it."
+    "text": "The script compiles like any module: becomes class strings, and the stylesheet gets the atoms. Each becomes with a call to Kirana's small runtime, which merges the styles when the component renders. Keep calls in the script: one written inside the template is not compiled, and says so when it runs. An element takes one object binding, so an element's own object is merged into the compiled one with Vue's . A relation's anchor written in the template, , counts as applied, as one in the script does, so the relation's reads are not reported unanchored: by the build, , the editor and the lint rules . A component imported from a workspace package, outside the app's root, compiles and hot-reloads like one inside it."
   },
   {
     "id": "/docs/frameworks/vue#nuxt",
@@ -2900,7 +2900,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Angular",
     "section": "frameworks",
     "heading": "Write a component",
-    "text": "Import , and expose the handles as a member with the same name, so the template can reach them: takes what takes anywhere: one handle, or an array with falsy guards. Angular type-checks it against . The element's own class and style attributes stay; the directive adds and removes only what it set. Templates in a file work the same way. A value known only at runtime, such as , is bridged through a custom property, as in dynamic styles ."
+    "text": "Import , and expose the handles as a member with the same name, so the template can reach them: takes what takes anywhere: one handle, or an array with falsy guards. Angular type-checks it against . The element's own class and style attributes stay; the directive adds and removes only what it set. Templates in a file work the same way. A relation's anchor written in a template, , counts as applied, as one in the component's code does: the build, , the editor and the lint rules read it there. They read the template's names in the component's module, so expose a relation under its own name, as the handles are. A value known only at runtime, such as , is bridged through a custom property, as in dynamic styles ."
   },
   {
     "id": "/docs/frameworks/angular#a-part-that-takes-sx",
@@ -2971,7 +2971,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Ember.js",
     "section": "frameworks",
     "heading": "4. Write a component",
-    "text": "is a plain function, which Ember calls as a helper. It merges the handles with Kirana's runtime, the way an list does at build time elsewhere. A value known only at runtime carries custom properties a class cannot hold; set it from the component's code."
+    "text": "is a plain function, which Ember calls as a helper. It merges the handles with Kirana's runtime, the way an list does at build time elsewhere. A value known only at runtime carries custom properties a class cannot hold; set it from the component's code. A relation's anchor in a template, , counts as applied in the build, which reads the template tag of the module it compiles. and the editor do not read and files."
   },
   {
     "id": "/docs/frameworks/ember#next",
@@ -4955,7 +4955,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Lint",
     "section": "tooling",
     "heading": "diagnostics",
-    "text": "Every compiler diagnostic , at the property it is about, so a CI that only lints still fails on what the build would report. Warnings and errors by default; adds the informational ones and drops names."
+    "text": "Every compiler diagnostic , at the property it is about, so a CI that only lints still fails on what the build would report. A Vue, Svelte, Astro or Angular component's script is compiled as the build compiles it, so a relation's anchor applied only in its template counts. Warnings and errors by default; adds the informational ones and drops names."
   },
   {
     "id": "/docs/tooling/lint#sx-last",

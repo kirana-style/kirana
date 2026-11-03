@@ -1,4 +1,4 @@
-import { css } from '@kirana-style/core';
+import { css, relation } from '@kirana-style/core';
 import { sx } from '@kirana-style/ember';
 
 /**
@@ -15,6 +15,15 @@ const styles = {
   quiet: css({ marginLeft: '1px' }),
 };
 
+/** Anchored only in the template (KF-090): the build fails if the compiler does not see it there. */
+const scope = relation('probe-scope');
+const inScope = css({
+  paddingBottom: { base: '0px', [scope.within('[data-scope]')]: '6px' },
+});
+
 <template>
   <p data-probe="" class={{sx styles.probe styles.quiet}}>Styled by Kirana.</p>
+  <div data-scope="" class={{sx scope.anchor}}>
+    <span data-probe-anchor="" class={{sx inScope}}>Anchored</span>
+  </div>
 </template>

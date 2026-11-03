@@ -306,9 +306,10 @@ own kind writes, and an `after` or `before` read, where a repeated part reads th
 not reported.
 
 Any reference to `field.anchor` counts as applying it for R1 and R2 — in an `sx` array, a component prop,
-`props()` or a render prop, or a Vue, Svelte or Astro template's `sx`, which compiles at runtime and whose
-`.anchor` chains the build reads with the block the template sees (KF-088), as `kirana-style check` and the
-language server read its bindings — because anchors routinely
+`props()` or a render prop, or a template's `sx` (Vue's, Svelte's or Astro's, Angular's `[sx]`, Ember's
+`{{sx}}`), which compiles at runtime and whose `.anchor` chains the build and the lint rules read with the
+module the template sees (KF-088, KF-090), as `kirana-style check` and the language server read its
+bindings (except Ember's: neither reads a `.gjs` or `.gts` file) — because anchors routinely
 travel through components. Placement that crosses
 component boundaries cannot always be proven statically. Such reads produce no
 diagnostic, and `kirana-style analyze` lists them as "unproven relation reads" so they can be covered by the

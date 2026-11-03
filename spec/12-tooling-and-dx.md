@@ -317,7 +317,7 @@ loads through `jsPlugins` and ESLint loads through flat config (D-031):
 
 | Rule                               | Config      | What it does                                                                                                                                                                        |
 | ---------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kirana/diagnostics`               | recommended | Reports every compiler diagnostic at its span (warnings and errors by default), so a lint-only CI still sees them.                                                                  |
+| `kirana/diagnostics`               | recommended | Reports every compiler diagnostic at its span (warnings and errors by default), so a lint-only CI still sees them; a template's anchors count (KF-090).                             |
 | `kirana/sx-last`                   | recommended | A forwarded `sx` should be the last entry of an `sx` array or `props()` call so callers can override; other handed-down values may follow. Autofix.                                 |
 | `kirana/no-conflicting-props`      | recommended | `className` or `style` next to a `{...props()}` spread on one element: JSX keeps one of them.                                                                                       |
 | `kirana/override-keeps-conditions` | recommended | A plain `sx` value for a property the component sets under a structural condition, which keeps winning there. Suggestions: the same condition, or `{ "*": null, base }`.            |

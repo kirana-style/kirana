@@ -316,6 +316,22 @@ fn to_json(value: &impl serde::Serialize) -> String {
     serde_json::to_string(value).expect("inspection values serialize")
 }
 
+/// The expressions of an Angular component's `[sx]` bindings (D-068), from its inline template or
+/// from the `.html` file its `templateUrl` names beside `file`, as a JSON array; empty for any other
+/// file. A host appends the anchors they name to the component's module (KF-090).
+#[napi]
+pub fn angular_bindings(file: String, source: String) -> String {
+    let template = match sfc::angular_template(&source) {
+        Some((start, end)) => Some(source[start..end].to_owned()),
+        None => sfc::angular_template_url(&source)
+            .and_then(|url| std::fs::read_to_string(Path::new(&file).with_file_name("").join(url)).ok()),
+    };
+    let expressions: Vec<String> = template
+        .map(|template| sfc::angular_bindings(&template, 0).into_iter().map(|binding| binding.expression).collect())
+        .unwrap_or_default();
+    to_json(&expressions)
+}
+
 /// Where a Vue, Svelte or Astro component's script blocks and `sx` bindings are, as the language
 /// server's scanner finds them (`kirana_frontend::sfc`), as JSON with UTF-16 offsets like
 /// JavaScript strings; `null` for any other file. The test holding it to the frameworks' own parsers

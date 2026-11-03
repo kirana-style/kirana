@@ -108,7 +108,8 @@ merged into the compiled one with Vue's `mergeProps`.
 
 A relation's anchor written in the template, `:sx="[toggle.anchor, root]"`,
 counts as applied, as one in the script does, so the relation's reads are not
-reported unanchored.
+reported unanchored: by the build, `kirana-style check`, the editor and the
+[lint rules](/docs/tooling/lint).
 
 A component imported from a workspace package, outside the app's root, compiles
 and hot-reloads like one inside it.

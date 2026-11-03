@@ -767,25 +767,30 @@ async function checkPage(
         )
       console.log("✓ a component state from @kirana-style/states applies")
     }
-    // A Vue example may carry a component its caller's `"*": null` overrides (KF-089), and an
-    // element reading a relation anchored only in the template (KF-088).
+    // A Vue example may carry a component its caller's `"*": null` overrides (KF-089).
     const reset = page.locator("[data-probe-reset]")
     if ((await reset.count()) > 0) {
-      const read = {
-        reset: await reset.evaluate(
-          (element) => getComputedStyle(element).paddingTop
-        ),
-        anchored: await page
-          .locator("[data-probe-anchor]")
-          .evaluate((element) => getComputedStyle(element).paddingBottom),
-      }
-      if (read.reset !== "5px" || read.anchored !== "6px")
-        throw new Error(
-          `component probes are ${JSON.stringify(read)}, expected the caller's 5px and the anchored 6px`
-        )
-      console.log(
-        "✓ a caller's removal reaches the component, and a template's anchor applies"
+      const padding = await reset.evaluate(
+        (element) => getComputedStyle(element).paddingTop
       )
+      if (padding !== "5px")
+        throw new Error(
+          `component probe padding-top is ${padding}, expected the caller's 5px`
+        )
+      console.log("✓ a caller's removal reaches the component")
+    }
+    // An example with a template may carry an element reading a relation anchored only there
+    // (KF-088, KF-090): Vue, Angular and Ember.
+    const anchored = page.locator("[data-probe-anchor]")
+    if ((await anchored.count()) > 0) {
+      const padding = await anchored.evaluate(
+        (element) => getComputedStyle(element).paddingBottom
+      )
+      if (padding !== "6px")
+        throw new Error(
+          `anchor probe padding-bottom is ${padding}, expected the anchored 6px`
+        )
+      console.log("✓ a relation anchored only in the template applies")
     }
     // An Angular example may carry a part beside `SxDirective` (KF-049): its own padding, and the
     // colour its caller's `sx` gives it, which wins.

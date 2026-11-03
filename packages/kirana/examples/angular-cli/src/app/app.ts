@@ -1,7 +1,7 @@
 import { Component, Directive, computed, input } from "@angular/core"
 import { SxDirective, partSx, provideSxPart } from "@kirana-style/angular"
 import type { SxInput } from "@kirana-style/angular"
-import { css } from "@kirana-style/core"
+import { css, relation } from "@kirana-style/core"
 
 /**
  * The probe the example runner reads back from the browser. A template reaches only its
@@ -19,6 +19,12 @@ const styles = {
   tag: css({ paddingBottom: "11px", color: "rgb(9, 9, 9)" }),
   tagColor: css({ color: "rgb(1, 2, 3)" }),
 }
+
+/** Anchored only in the template (KF-090): the build fails if the compiler does not see it there. */
+const scope = relation("probe-scope")
+const inScope = css({
+  paddingBottom: { base: "0px", [scope.within("[data-scope]")]: "6px" },
+})
 
 /**
  * A part, as a design system writes one: it takes `sx` and merges it with its own styles, the
@@ -41,10 +47,15 @@ export class Tag {
   template: `<p data-probe="" [sx]="[styles.probe, margin]">
       Styled by Kirana.
     </p>
-    <span data-probe-part="" appTag [sx]="styles.tagColor">A part</span>`,
+    <span data-probe-part="" appTag [sx]="styles.tagColor">A part</span>
+    <div data-scope="" [sx]="scope.anchor">
+      <span data-probe-anchor="" [sx]="inScope">Anchored</span>
+    </div>`,
 })
 export class App {
   protected readonly styles = styles
+  protected readonly scope = scope
+  protected readonly inScope = inScope
   protected readonly margin = css({
     marginLeft: `${document.title.length % 3}px`,
   })

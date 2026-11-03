@@ -4,6 +4,7 @@
  * private runtime's `sx()`, created with the `class` attribute. The framework's own parser finds the
  * blocks and bindings; Kirana never parses template syntax.
  */
+import { existsSync, readFileSync } from "node:fs"
 import { createRequire } from "node:module"
 import path from "node:path"
 import { pathToFileURL } from "node:url"
@@ -12,6 +13,7 @@ import MagicString from "magic-string"
 
 import type { ImportFile } from "./config.ts"
 import type { Diagnostic } from "./diagnostics.ts"
+import { loadNative } from "./native.ts"
 
 export type Framework = "vue" | "svelte" | "astro"
 
@@ -82,13 +84,104 @@ const runtime = (prefix: string) =>
  * chains a binding names that end in `.anchor` are appended to the block the template sees, in a
  * function never called, and cut from what the engine returns: only the chains, since compiling the
  * whole binding would compile what it calls (a recipe, the runtime) into the block too. A chain
- * starts after no `.`, `)` or `]`, which would make it a member of something else.
+ * starts at a name's first character, after no `.`, `)` or `]`, which would make it a member of
+ * something else, and after no `@`, an Ember argument; Ember's helpers take theirs after a space
+ * (`{{sx folder.anchor}}`). The lookahead comes first, so the lookbehinds, which scan back over
+ * spaces, run only where a name starts and the search stays linear in V8.
  */
 const CHAINS =
-  /(?<![\w$.)\]]\s*)[A-Za-z_$][\w$]*(?:\s*\??\.\s*[A-Za-z_$][\w$]*)*/g
+  /(?=[A-Za-z_$])(?<![\w$])(?<![.)\]@]\s*)[A-Za-z_$][\w$]*(?:\s*\??\.\s*[A-Za-z_$][\w$]*)*/g
 
 /** Where the appended anchors start: a comment, which the engine leaves as it is. */
 const APPENDED = "\n/* kirana: the template's anchors (KF-088) */"
+
+/**
+ * What the build appends to the block a template sees: the anchors its bindings name, or nothing.
+ * The lint rules compile a linted block with the same text (KF-090).
+ */
+export function templateAnchors(
+  bindings: readonly { expression: string }[]
+): string {
+  const anchors = bindings.flatMap(({ expression }) =>
+    [...expression.matchAll(CHAINS)]
+      .map(([chain]) => chain)
+      .filter((chain) => /\.\s*anchor$/.test(chain))
+  )
+  return anchors.length ? `${APPENDED}\n;() => [${anchors.join(", ")}];\n` : ""
+}
+
+/**
+ * A compile of `code` with `appended` anchors, as if they had not been appended: the code cut where
+ * they start, and what the engine said of them, the template's, which the build does not check,
+ * dropped. Spans count UTF-8 bytes.
+ */
+export function withoutAnchors<
+  T extends { code?: string; diagnostics: Diagnostic[] },
+>(result: T, code: string, appended: string): T {
+  if (!appended) return result
+  const length = Buffer.byteLength(code)
+  return {
+    ...result,
+    code: result.code?.slice(0, result.code.lastIndexOf(APPENDED)),
+    diagnostics: result.diagnostics.filter(
+      (diagnostic) => diagnostic.span.start < length
+    ),
+  }
+}
+
+/** Ember's template-tag modules (D-072). */
+const TEMPLATE_TAG = /\.g[jt]s$/
+
+/**
+ * The texts between each `open` and the `close` after it. Found by index: a lazy pattern
+ * (`{{([\s\S]*?)}}`) backtracks over the rest of the text from every unclosed `open`.
+ */
+function between(text: string, open: string, close: string): string[] {
+  const found: string[] = []
+  let start = text.indexOf(open)
+  while (start >= 0) {
+    const end = text.indexOf(close, start + open.length)
+    if (end < 0) break
+    found.push(text.slice(start + open.length, end))
+    start = text.indexOf(open, end + close.length)
+  }
+  return found
+}
+
+/**
+ * The anchors a module's own template names, for `Driver.transform` to append as a component's are
+ * (KF-088, KF-090): an Angular component's `[sx]` bindings (D-068), from its inline template or the
+ * `.html` file its `templateUrl` names, or the mustaches of an Ember template tag (D-072). The engine
+ * compiles such a module without its template, which is a string, another file, or data once
+ * Embroider has compiled it, so an anchor written only there was reported missing. A host compiling
+ * Angular's or Embroider's output finds the template in the source on disk. The template's names are
+ * read in the module's scope: a component member holding a relation has the relation's name.
+ */
+export function moduleAnchors(id: string, code: string): string {
+  const query = id.search(/[?#]/)
+  const file = query < 0 ? id : id.slice(0, query)
+  const source = (marker: string) =>
+    code.includes(marker)
+      ? code
+      : existsSync(file)
+        ? readFileSync(file, "utf8")
+        : ""
+  if (TEMPLATE_TAG.test(file)) {
+    const expressions = between(
+      source("<template>"),
+      "<template>",
+      "</template>"
+    ).flatMap((template) =>
+      between(template, "{{", "}}").map((expression) => ({ expression }))
+    )
+    return templateAnchors(expressions)
+  }
+  if (!code.includes("@Component(") && !code.includes("ɵcmp")) return ""
+  const expressions = JSON.parse(
+    loadNative().angularBindings(file, source("@Component("))
+  ) as string[]
+  return templateAnchors(expressions.map((expression) => ({ expression })))
+}
 
 /** Vue's own merge of attribute objects, for an element whose `v-bind="…"` is folded into `:sx`. */
 const MERGE = `import { mergeProps as __kirana_merge } from "vue";\n`
@@ -597,36 +690,28 @@ export async function compileComponent(options: {
   for (const block of parsed.blocks) {
     const id = `${file}.${block.label}.${block.lang}`
     const content = source.slice(block.start, block.end)
-    const anchors =
-      block === parsed.target
-        ? parsed.bindings.flatMap(({ expression }) =>
-            [...expression.matchAll(CHAINS)]
-              .map(([chain]) => chain)
-              .filter((chain) => /\.\s*anchor$/.test(chain))
-          )
-        : []
-    const appended = anchors.length
-      ? `${APPENDED}\n;() => [${anchors.join(", ")}];\n`
-      : ""
-    const compiled = compile(id, content + appended)
-    const code =
-      appended && compiled.code
-        ? compiled.code.slice(0, compiled.code.lastIndexOf(APPENDED))
-        : compiled.code
+    const appended =
+      block === parsed.target ? templateAnchors(parsed.bindings) : ""
+    const compiled = withoutAnchors(
+      compile(id, content + appended),
+      content,
+      appended
+    )
+    const code = compiled.code
     result.modules.push(id)
     result.cssChanged ||= compiled.cssChanged
     result.dependencies.push(...compiled.dependencies)
-    // Diagnostics point into the component, not into the block's module; the appended anchors are
-    // the template's, which the build does not check.
+    // Diagnostics point into the component, not into the block's module. Spans count UTF-8 bytes,
+    // the parser's offsets characters.
     const suffix = `.${block.label}.${block.lang}`
+    const start = Buffer.byteLength(source.slice(0, block.start))
     for (const diagnostic of compiled.diagnostics) {
-      if (diagnostic.span.start >= content.length) continue
       result.diagnostics.push({
         ...diagnostic,
         file: diagnostic.file.slice(0, -suffix.length),
         span: {
-          start: diagnostic.span.start + block.start,
-          end: diagnostic.span.end + block.start,
+          start: diagnostic.span.start + start,
+          end: diagnostic.span.end + start,
         },
       })
     }

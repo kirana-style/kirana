@@ -83,6 +83,10 @@ with Kirana's runtime, the way an `sx` list does at build time elsewhere. A
 value known only at runtime carries custom properties a class cannot hold; set it
 from the component's code.
 
+A relation's anchor in a template, `class={{sx folder.anchor}}`, counts as
+applied in the build, which reads the template tag of the module it compiles.
+`kirana-style check` and the editor do not read `.gjs` and `.gts` files.
+
 ## Next
 
 - [Your first component](/docs/start/first-component): a button with a hover state

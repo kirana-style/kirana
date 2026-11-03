@@ -10,6 +10,7 @@ import {
   Driver,
   frameworkOf,
   loadNative,
+  templateAnchors,
   utf16Offset,
 } from "@kirana-style/compiler"
 import type { Diagnostic, Site } from "@kirana-style/compiler"
@@ -64,16 +65,25 @@ export type Inspection = {
 const inspections = new Map<string, Inspection>()
 
 /**
- * The module a file's linted text is compiled as. A Vue, Svelte or Astro component's linter hands
- * a rule one script block, which the build compiles as `Card.vue.setup.ts`: under that id the
- * compiler knows that the template, outside the module, reads the block's bindings (`const { sx } =
- * useSx()`, KF-026). Any other file is its own module.
+ * The module a file's linted text is compiled as, and what the build appends to it. A Vue, Svelte
+ * or Astro component's linter hands a rule one script block, which the build compiles as
+ * `Card.vue.setup.ts`: under that id the compiler knows that the template, outside the module, reads
+ * the block's bindings (`const { sx } = useSx()`, KF-026). The block the template sees also gets the
+ * anchors its bindings name, as in the build, so an anchor applied only there counts (KF-090). Any
+ * other file is its own module.
  */
-function moduleOf(file: string, text: string): string {
-  if (!frameworkOf(file) || !existsSync(file)) return file
+function moduleOf(
+  file: string,
+  text: string
+): { id: string; appended: string } {
+  if (!frameworkOf(file) || !existsSync(file)) return { id: file, appended: "" }
   const source = readFileSync(file, "utf8")
-  const { blocks } = JSON.parse(loadNative().scanComponent(file, source)) as {
+  const { blocks, bindings, target } = JSON.parse(
+    loadNative().scanComponent(file, source)
+  ) as {
     blocks: { label: string; start: number; end: number; lang: string }[]
+    bindings: { expression: string }[]
+    target: string | null
   }
   // Linters differ at the block's edges: ESLint's Vue parser hands over the block as written, and
   // oxlint drops its leading line break (KF-034), so the line breaks around it do not count.
@@ -81,7 +91,11 @@ function moduleOf(file: string, text: string): string {
     (candidate) =>
       edges(source.slice(candidate.start, candidate.end)) === edges(text)
   )
-  return block ? `${file}.${block.label}.${block.lang}` : file
+  if (!block) return { id: file, appended: "" }
+  return {
+    id: `${file}.${block.label}.${block.lang}`,
+    appended: block.label === target ? templateAnchors(bindings) : "",
+  }
 }
 
 /** Text without the line breaks that open and close it. */
@@ -103,14 +117,17 @@ export function inspect(context: Context): Inspection {
     ? path.resolve(context.cwd, configured)
     : rootOf(file, context.cwd)
   const driver = driverFor(root)
-  const module = moduleOf(file, text)
-  const result = driver.transform(module, text, { map: false })
+  const { id: module, appended } = moduleOf(file, text)
+  const result = driver.transform(module, text + appended, { map: false })
   const relative = path.relative(driver.root, module).split(path.sep).join("/")
+  const length = Buffer.byteLength(text)
   // ASCII text has the same byte and string offsets.
-  const ascii = Buffer.byteLength(text) === text.length
+  const ascii = length === text.length
   const index = ascii
     ? (byte: number) => byte
     : (byte: number) => utf16Offset(text, byte)
+  // What the engine says of the appended anchors is the template's, which the build does not check.
+  const linted = ({ span }: { span: { start: number } }) => span.start < length
   const inspection: Inspection = {
     driver,
     file,
@@ -120,11 +137,14 @@ export function inspect(context: Context): Inspection {
       ...driver
         .diagnostics()
         .filter((diagnostic) => diagnostic.file === relative),
-    ],
-    sites: driver.sites(module).map((site) => ({
-      ...site,
-      span: { start: index(site.span.start), end: index(site.span.end) },
-    })),
+    ].filter(linted),
+    sites: driver
+      .sites(module)
+      .filter(linted)
+      .map((site) => ({
+        ...site,
+        span: { start: index(site.span.start), end: index(site.span.end) },
+      })),
     index,
   }
   inspections.set(file, inspection)
