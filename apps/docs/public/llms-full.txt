@@ -12046,7 +12046,7 @@ on every change.
   which CI cannot test against tarballs, was checked by hand with 0.2.0.
 - **Bundlers:** Vite, Rolldown, webpack, Rspack and Rsbuild, Parcel, Bun,
   esbuild, PostCSS and Jest, each with an example, and a check that every one
-  compiles the same source to the same classes as Vite.
+  compiles the same source to the same atoms as Vite.
 - **Frameworks:** a guide and a tested example for each, from React, Vue, Svelte,
   Solid, Qwik, Angular and Ember to Next.js, Nuxt, SvelteKit, Astro and
   Analog.

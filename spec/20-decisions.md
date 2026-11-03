@@ -659,8 +659,10 @@ the implementation tracker names its evidence.
 - **Decision:** Conformance is measured on Vite, where the three applications are built and compared
   with the StyleX port and the Tailwind original. Every other host must compile the same source to
   the same Kirana atoms: CI builds one React example on Vite, Rolldown, webpack, Rsbuild, Next.js,
-  Bun and esbuild and requires identical class-name sets (`examples/compare-atoms.ts`). The three
-  applications are not rebuilt with every bundler.
+  Bun and esbuild and requires identical class-name sets (`examples/compare-atoms.ts`); since dense
+  names became the default on the Vite and Rolldown hosts (KF-094), identical among the examples of
+  each kind of name, and of the same shape across the two. The three applications are not rebuilt
+  with every bundler.
 - **Rationale:** An adapter only passes a module's source to the one engine and places its output
   (D-028); what styles a page is the engine's output, whose byte-for-byte determinism across
   platforms and thread counts is already checked on the full corpus. What an adapter can still get
