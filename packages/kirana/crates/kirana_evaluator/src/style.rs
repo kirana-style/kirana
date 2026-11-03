@@ -714,13 +714,15 @@ impl<'a> Evaluator<'_, 'a, '_> {
             .filter(|(property, _)| property.rank == Shorthand)
             .map(|(property, _)| property.name.as_str());
         prepare_set(&mut handle, &plan, target, conditions, atom, longhands);
+        // An unsplittable declaration is its one shorthand atom, whose text the report names.
+        let value_text = expanded.declarations.first().map(|(_, css)| css.clone()).unwrap_or_default();
         for (property, css) in expanded.declarations {
             let key = EntryKey::new(target.clone(), property, conditions.clone());
             handle.apply(Op::Set(key, self.atom_value(css, longhands)));
         }
         for warning in expanded.warnings {
             let DeclarationWarning::Unsplittable { property } = warning;
-            self.report_unsplittable(&property, span);
+            self.report_unsplittable(&property, &value_text, span);
         }
         handle.stamp(&self.written(Some(value)));
         parts.push_static(handle);
@@ -797,14 +799,25 @@ impl<'a> Evaluator<'_, 'a, '_> {
         parts.push(StylePart::Bridge { handle, variable, value });
     }
 
-    fn report_unsplittable(&self, property: &str, span: (u32, u32)) {
-        self.report(
+    /// Once per property and value in the module, with how many declarations write it (KF-093): a
+    /// codebase that writes `borderColor: "var(--divider)"` everywhere needs to read it once.
+    fn report_unsplittable(&self, property: &str, value: &str, span: (u32, u32)) {
+        self.report_repeated(
             Code::UnsplittableShorthand,
             span,
-            format!(
-                "{property} cannot be split, so it stays one shorthand atom; if a later style removes one of its \
-                 longhands, the remaining longhands receive this whole value, which is only valid for a single component"
-            ),
+            format!("{property}: {value}"),
+            |count| {
+                let more = if count > 1 {
+                    format!(" ({count} declarations in this module write {property}: {value})")
+                } else {
+                    String::new()
+                };
+                format!(
+                    "{property} cannot be split, so it stays one shorthand atom; if a later style removes one of its \
+                     longhands, the remaining longhands receive this whole value, which is only valid for a single \
+                     component{more}"
+                )
+            },
             Some("write the longhands instead when a later style removes some of them"),
         );
     }

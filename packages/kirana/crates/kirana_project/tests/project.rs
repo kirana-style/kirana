@@ -1242,3 +1242,29 @@ fn styles_written_out_in_full_are_kept_up_to_a_bound() {
     assert_eq!(again(0), 1);
     fs::remove_dir_all(root).unwrap();
 }
+
+/// `unsplittable-shorthand` is reported once per property and value in a module, with a count
+/// (KF-093). A repeat that only counts is still a report: the style is not answered from the
+/// session, so another module writing the same `css()` gets its own warning.
+#[test]
+fn a_repeated_unsplittable_value_is_reported_once_in_each_module() {
+    let style = "css({ borderColor: \"var(--divider)\" })";
+    let a =
+        format!("import {{ css }} from \"@kirana-style/core\"\nexport const x = {style}\nexport const y = {style}\n");
+    let b = format!("import {{ css }} from \"@kirana-style/core\"\nexport const z = {style}\n");
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}")]);
+    let warnings = |name: &str, source: &str| -> Vec<String> {
+        project
+            .transform(&root.join(name), source)
+            .diagnostics
+            .into_iter()
+            .filter(|diagnostic| diagnostic.code == kirana_diagnostics::Code::UnsplittableShorthand)
+            .map(|diagnostic| diagnostic.message)
+            .collect()
+    };
+    let first = warnings("a.ts", &a);
+    assert_eq!(first.len(), 1, "{first:?}");
+    assert!(first[0].ends_with("(2 declarations in this module write border-color: var(--divider))"), "{first:?}");
+    assert_eq!(warnings("b.ts", &b).len(), 1);
+    fs::remove_dir_all(root).unwrap();
+}

@@ -1213,6 +1213,18 @@
           "brotli": 438
         }
       },
+      "unsplittable-once": {
+        "css": {
+          "raw": 410,
+          "gzip": 231,
+          "brotli": 185
+        },
+        "js": {
+          "raw": 473,
+          "gzip": 296,
+          "brotli": 237
+        }
+      },
       "utility-surface": {
         "css": {
           "raw": 1612,
