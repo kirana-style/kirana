@@ -32,21 +32,22 @@ impl Target {
 /// A longhand property (or a flagged unsplittable shorthand).
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Property {
-    /// Kebab-case name, or `--custom`.
-    pub name: String,
+    /// Kebab-case name, or `--custom`. Shared: every entry, removal and plan that names the property
+    /// holds it, and a copy only counts a reference.
+    pub name: Arc<str>,
     pub rank: PropertyRank,
 }
 
 impl Property {
     /// A longhand or custom property.
-    pub fn longhand(name: impl Into<String>) -> Self {
+    pub fn longhand(name: impl Into<Arc<str>>) -> Self {
         let name = name.into();
         let rank = if is_logical(&name) { PropertyRank::Logical } else { PropertyRank::Physical };
         Self { name, rank }
     }
 
     /// A shorthand atom, which covers every longhand of the shorthand (D-045).
-    pub fn shorthand(name: impl Into<String>) -> Self {
+    pub fn shorthand(name: impl Into<Arc<str>>) -> Self {
         Self { name: name.into(), rank: PropertyRank::Shorthand }
     }
 
@@ -202,8 +203,9 @@ fn condition_hash(conditions: &ConditionSet) -> u64 {
 /// The CSS value of one entry.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct AtomValue {
-    /// Normalized CSS text.
-    pub css: String,
+    /// Normalized CSS text, shared by every copy of the entry (a handle, the atom it names, the
+    /// expansion it came from).
+    pub css: Arc<str>,
     /// Tokens, keyframes and themes this value needs in the stylesheet.
     pub deps: Vec<Dep>,
     /// How many longhands the authored declaration set (1 for a longhand, 4 for `padding`).
@@ -213,7 +215,7 @@ pub struct AtomValue {
 
 impl AtomValue {
     /// A value written as a longhand.
-    pub fn longhand(css: impl Into<String>) -> Self {
+    pub fn longhand(css: impl Into<Arc<str>>) -> Self {
         Self { css: css.into(), deps: Vec::new(), longhands: 1 }
     }
 }
@@ -331,7 +333,7 @@ impl Handle {
                         other != key
                             && !(other.target == key.target
                                 && other.conditions == key.conditions
-                                && family.contains(&other.property.name.as_str()))
+                                && family.contains(&other.property.name.as_ref()))
                     }
                     _ => true,
                 });
@@ -392,6 +394,21 @@ impl Handle {
                 key.written = written.clone();
             }
         }
+    }
+
+    /// Gives back the room the handle's lists grew while it was built. Its strings and the lists
+    /// inside an entry key are copies, already as long as their content, so the handle then holds
+    /// what a copy of it would.
+    pub fn shrink_to_fit(&mut self) {
+        self.ops.shrink_to_fit();
+        for op in &mut self.ops {
+            if let Op::Set(_, value) = op {
+                value.deps.shrink_to_fit();
+            }
+        }
+        self.markers.shrink_to_fit();
+        self.marker_deps.shrink_to_fit();
+        self.own.shrink_to_fit();
     }
 
     /// Whether the handle has no operations and no markers.
@@ -703,7 +720,11 @@ pub fn ambiguous_pairs(handle: &Handle, declared: crate::condition::Declared<'_>
                             .all(|condition| other.conditions.conditions().contains(condition))
                 })
             {
-                pairs.push((first.property.name.clone(), first.conditions.canonical(), second.conditions.canonical()));
+                pairs.push((
+                    first.property.name.to_string(),
+                    first.conditions.canonical(),
+                    second.conditions.canonical(),
+                ));
             }
         }
     }

@@ -208,7 +208,7 @@ pub(crate) fn site_atom(atom: &Atom, rank: u32, relations: &BTreeMap<&str, &str>
     rule.push_str(&format!("{} {{ {} }}", kirana_emit::selector(atom), declarations.join("; ")));
     rule.push_str(&" }".repeat(preludes.len()));
     SiteAtom {
-        property: atom.key.property.name.clone(),
+        property: atom.key.property.name.to_string(),
         value: kirana_ir::readable_value(&atom.value.css),
         conditions: readable(&atom.key.conditions, relations),
         target: match &atom.key.target {

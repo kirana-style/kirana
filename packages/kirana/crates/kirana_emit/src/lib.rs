@@ -312,7 +312,7 @@ struct Decided<'a> {
 impl<'a> Decided<'a> {
     /// Records that rule `index` decides `atom`'s property, or every longhand of its shorthand.
     fn record(&mut self, atom: &'a Atom, index: usize) {
-        let name = atom.key.property.name.as_str();
+        let name = atom.key.property.name.as_ref();
         self.any = Some(index);
         self.property.insert(name, index);
         match covered(atom) {
@@ -334,7 +334,7 @@ impl<'a> Decided<'a> {
     fn free(&self, atom: &Atom, index: usize) -> bool {
         let after = |at: Option<&usize>| at.is_some_and(|at| *at > index);
         covered(atom).is_some_and(|covered| {
-            !after(self.property.get(atom.key.property.name.as_str()))
+            !after(self.property.get(atom.key.property.name.as_ref()))
                 && covered.longhands().iter().all(|longhand| self.free_since(longhand, index))
         })
     }
@@ -359,7 +359,7 @@ fn is_vendor(name: &str) -> bool {
 /// The longhands an atom decides ([`sets`]); `None` for a shorthand whose longhands are not all
 /// known, which competes with everything, and for a shorthand atom the property data does not know.
 fn covered(atom: &Atom) -> Option<Covered<'_>> {
-    let name = atom.key.property.name.as_str();
+    let name = atom.key.property.name.as_ref();
     match sets(name) {
         Sets::Itself if atom.key.property.rank == PropertyRank::Shorthand => None,
         Sets::Itself => Some(Covered::Itself([name])),
@@ -409,10 +409,10 @@ fn arrange(block: &mut [&Atom]) {
     let mut decided = Decided::default();
     for (index, run) in runs.iter().enumerate() {
         let atoms = &block[run.clone()];
-        let name = atoms[0].key.property.name.as_str();
+        let name = atoms[0].key.property.name.as_ref();
         let before =
             decided.property.get(name).copied().filter(|before| {
-                block[runs[*before].start].key.property.name == name && decided.free(atoms[0], *before)
+                &*block[runs[*before].start].key.property.name == name && decided.free(atoms[0], *before)
             });
         if let Some(before) = before {
             let left = &block[runs[before].clone()];
@@ -420,8 +420,8 @@ fn arrange(block: &mut [&Atom]) {
             let taken = first[before].filter(|_| left.len() > 1);
             let shared = atoms
                 .iter()
-                .map(|atom| atom.value.css.as_str())
-                .filter(|css| Some(*css) != taken && left.iter().any(|atom| atom.value.css == *css))
+                .map(|atom| atom.value.css.as_ref())
+                .filter(|css| Some(*css) != taken && left.iter().any(|atom| &*atom.value.css == *css))
                 .max_by(|a, b| a.len().cmp(&b.len()).then_with(|| b.cmp(a)));
             if let Some(css) = shared {
                 last[before] = Some(css);
@@ -434,7 +434,7 @@ fn arrange(block: &mut [&Atom]) {
     for ((run, first), last) in runs.into_iter().zip(first).zip(last) {
         let mut atoms = block[run].to_vec();
         let place = |atom: &&Atom| {
-            let css = Some(atom.value.css.as_str());
+            let css = Some(atom.value.css.as_ref());
             if css == first {
                 0
             } else if css == last {
@@ -463,8 +463,8 @@ fn write_block(writer: &mut Writer, block: &mut Vec<&Atom>, own: bool) {
     let mut merge_into: FxHashMap<(&str, &str), usize> = FxHashMap::default();
     let mut decided = Decided::default();
     for atom in block.drain(..) {
-        let property = atom.key.property.name.as_str();
-        let value = atom.value.css.as_str();
+        let property = atom.key.property.name.as_ref();
+        let value = atom.value.css.as_ref();
         match merge_into.get(&(property, value)) {
             Some(&index) if decided.free(atom, index) => {
                 let selectors = &mut rules[index].0;

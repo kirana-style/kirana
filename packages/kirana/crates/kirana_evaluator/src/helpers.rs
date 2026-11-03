@@ -450,7 +450,7 @@ impl Evaluator<'_, '_, '_> {
                 None
             }
         }?;
-        Some(expanded.declarations.into_iter().map(|(property, css)| (property.name, css)).collect())
+        Some(expanded.declarations.iter().map(|(property, css)| (property.name.to_string(), css.to_string())).collect())
     }
 
     /// Reports `code` and returns a value that is already explained.

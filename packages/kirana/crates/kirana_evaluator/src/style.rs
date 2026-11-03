@@ -4,8 +4,8 @@
 use std::sync::Arc;
 
 use kirana_cascade::{
-    DeclarationError, DeclarationWarning, Expanded, RawValue, WritePlan, breadth, declare_with, inset_beside_translate,
-    joint_removal, longhands_of, mixed_logical_physical, prepare_set, removal, write_plan,
+    DeclarationError, DeclarationWarning, Declared, Expanded, RawValue, WritePlan, breadth, declare_with,
+    inset_beside_translate, joint_removal, longhands_of, mixed_logical_physical, prepare_set, removal, write_plan,
 };
 use kirana_css_data::PropertyRank::Shorthand;
 use kirana_diagnostics::Code;
@@ -76,12 +76,15 @@ impl Parts {
     /// A handle value, or a dynamic style value.
     pub fn into_value(self) -> Value {
         match <[StylePart; 1]>::try_from(self.0) {
-            // A handle built here is copied once, into the value: the copy holds exactly what it
-            // needs, where the handle built in place keeps the room each of its lists and strings
-            // grew. A session keeps values (up to 16,384 literal styles), so that room is memory held:
-            // 6 MB across a 40,000-edit session. Another value's handle, untouched, is shared as it is.
+            // A handle built here gives back the room each of its lists grew, as a copy would have,
+            // without copying its operations. A session keeps values (up to 16,384 literal styles),
+            // so that room is memory held: 6 MB across a 40,000-edit session. Another value's handle,
+            // untouched, is shared as it is.
             Ok([StylePart::Static(handle)]) => Value::Handle(match Arc::try_unwrap(handle) {
-                Ok(built) => Arc::new(built.clone()),
+                Ok(mut built) => {
+                    built.shrink_to_fit();
+                    Arc::new(built)
+                }
                 Err(shared) => shared,
             }),
             Ok([part]) => Value::Dynamic(Arc::new(Dynamic::Style(vec![part]))),
@@ -460,7 +463,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
             .rev()
             .find(|(key, _)| {
                 matches!(key, Key::Str(name) if kirana_shared::kebab_case(name) == property
-                    || longhands_of(name).is_ok_and(|longhands| longhands.iter().any(|longhand| longhand.name == property)))
+                    || longhands_of(name).is_ok_and(|longhands| longhands.iter().any(|longhand| &*longhand.name == property)))
             })
             .map_or(fallback, |(key, _)| self.entry_span(key, fallback))
     }
@@ -644,12 +647,12 @@ impl<'a> Evaluator<'_, 'a, '_> {
             | Value::Keyframes(_)
             | Value::PositionTry(_)
             | Value::CounterStyle(_) => match self.declare_value(name, value) {
-                Ok(expanded) => self.set_expanded(name, value, expanded, target, conditions, span, parts),
+                Ok(expanded) => self.set_expanded(name, value, &expanded, target, conditions, span, parts),
                 Err(error) => self.report_declaration(error, span),
             },
             Value::Fallbacks(members) => {
                 if let Some(expanded) = self.fallbacks(name, members, span) {
-                    self.set_expanded(name, value, expanded, target, conditions, span, parts);
+                    self.set_expanded(name, value, &expanded, target, conditions, span, parts);
                 }
             }
             Value::Dynamic(dynamic) => match &**dynamic {
@@ -677,13 +680,16 @@ impl<'a> Evaluator<'_, 'a, '_> {
     }
 
     /// Expands one CSS-bearing value of a property into its declarations.
-    pub(crate) fn declare_value(&self, name: &str, value: &Value) -> Result<Expanded, DeclarationError> {
-        let text = crate::ops::to_string(value).expect("css-bearing values print");
-        let raw = match value {
-            Value::Number(number) => RawValue::Number(*number),
-            _ => RawValue::Str(&text),
-        };
-        declare_with(name, raw, &|variable| self.variable_values(variable))
+    pub(crate) fn declare_value(&self, name: &str, value: &Value) -> Declared {
+        let variables = |variable: &str| self.variable_values(variable);
+        match value {
+            Value::Number(number) => declare_with(name, RawValue::Number(*number), &variables),
+            Value::Str(text) => declare_with(name, RawValue::Str(text), &variables),
+            _ => {
+                let text = crate::ops::to_string(value).expect("css-bearing values print");
+                declare_with(name, RawValue::Str(&text), &variables)
+            }
+        }
     }
 
     /// A removal, recorded as written at the current path.
@@ -699,7 +705,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
         &self,
         name: &str,
         value: &Value,
-        expanded: Expanded,
+        expanded: &Expanded,
         target: &Target,
         conditions: &ConditionSet,
         span: (u32, u32),
@@ -712,17 +718,16 @@ impl<'a> Evaluator<'_, 'a, '_> {
             .declarations
             .first()
             .filter(|(property, _)| property.rank == Shorthand)
-            .map(|(property, _)| property.name.as_str());
+            .map(|(property, _)| property.name.as_ref());
         prepare_set(&mut handle, &plan, target, conditions, atom, longhands);
-        // An unsplittable declaration is its one shorthand atom, whose text the report names.
-        let value_text = expanded.declarations.first().map(|(_, css)| css.clone()).unwrap_or_default();
-        for (property, css) in expanded.declarations {
-            let key = EntryKey::new(target.clone(), property, conditions.clone());
-            handle.apply(Op::Set(key, self.atom_value(css, longhands)));
+        for (property, css) in &expanded.declarations {
+            let key = EntryKey::new(target.clone(), property.clone(), conditions.clone());
+            handle.apply(Op::Set(key, self.atom_value(css.clone(), longhands)));
         }
-        for warning in expanded.warnings {
-            let DeclarationWarning::Unsplittable { property } = warning;
-            self.report_unsplittable(&property, &value_text, span);
+        for DeclarationWarning::Unsplittable { property } in &expanded.warnings {
+            // An unsplittable declaration is its one shorthand atom, whose text the report names.
+            let value_text = expanded.declarations.first().map_or("", |(_, css)| css);
+            self.report_unsplittable(property, value_text, span);
         }
         handle.stamp(&self.written(Some(value)));
         parts.push_static(handle);
@@ -731,7 +736,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
     /// A `firstThatWorks` run (KRN-API-017): every member expands on its own, and each longhand
     /// carries all its members' values, preferred first. Members must expand to the same longhands,
     /// or the browser would keep a fallback for one longhand and the preferred value for another.
-    pub(crate) fn fallbacks(&self, name: &str, members: &[Value], span: (u32, u32)) -> Option<Expanded> {
+    pub(crate) fn fallbacks(&self, name: &str, members: &[Value], span: (u32, u32)) -> Option<Arc<Expanded>> {
         if name.starts_with("--") {
             self.report(
                 Code::FallbackOnVariable,
@@ -740,7 +745,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
                 Some("put the fallback where the variable is read: var(--name, fallback)"),
             );
         }
-        let mut runs: Vec<Expanded> = Vec::new();
+        let mut runs: Vec<Arc<Expanded>> = Vec::new();
         for member in members {
             match self.declare_value(name, member) {
                 Ok(expanded) => runs.push(expanded),
@@ -751,7 +756,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
             }
         }
         let properties = |expanded: &Expanded| -> Vec<String> {
-            expanded.declarations.iter().map(|(property, _)| property.name.clone()).collect()
+            expanded.declarations.iter().map(|(property, _)| property.name.to_string()).collect()
         };
         let first = properties(&runs[0]);
         if runs.iter().any(|run| properties(run) != first) {
@@ -763,15 +768,17 @@ impl<'a> Evaluator<'_, 'a, '_> {
             );
             return None;
         }
-        let mut combined = runs.remove(0);
+        let mut combined = Arc::unwrap_or_clone(runs.remove(0));
         for (index, (_, css)) in combined.declarations.iter_mut().enumerate() {
+            let mut joined = css.to_string();
             for run in &runs {
-                css.push(kirana_ir::FALLBACK_SEPARATOR);
-                css.push_str(&run.declarations[index].1);
+                joined.push(kirana_ir::FALLBACK_SEPARATOR);
+                joined.push_str(&run.declarations[index].1);
             }
+            *css = joined.into();
         }
         // Runs of the same longhands carry the same warnings, so the first run's stand for all.
-        Some(combined)
+        Some(Arc::new(combined))
     }
 
     fn plan(&self, name: &str, span: (u32, u32)) -> Option<Arc<WritePlan>> {
@@ -790,10 +797,10 @@ impl<'a> Evaluator<'_, 'a, '_> {
         let key = EntryKey::new(target.clone(), property, conditions.clone());
         let variable = self.ctx.names.bridge_variable(&key);
         let mut handle = Handle::default();
-        let atom = (key.property.rank == Shorthand).then_some(key.property.name.as_str());
+        let atom = (key.property.rank == Shorthand).then_some(key.property.name.as_ref());
         let longhands = atom.map_or(1, breadth);
         prepare_set(&mut handle, &plan, target, conditions, atom, longhands);
-        handle.apply(Op::Set(key, AtomValue { css: format!("var({variable})"), deps: Vec::new(), longhands }));
+        handle.apply(Op::Set(key, AtomValue { css: format!("var({variable})").into(), deps: Vec::new(), longhands }));
         handle.stamp(&self.written(None));
         self.report(Code::DynamicBridged, value, format!("{name} is set at runtime through {variable}"), None);
         parts.push(StylePart::Bridge { handle, variable, value });
@@ -840,7 +847,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
     }
 
     /// An atom value with the tokens and keyframes its text refers to.
-    pub(crate) fn atom_value(&self, css: String, longhands: u8) -> AtomValue {
+    pub(crate) fn atom_value(&self, css: Arc<str>, longhands: u8) -> AtomValue {
         AtomValue { deps: self.deps_in(&css), css, longhands }
     }
 
@@ -860,8 +867,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
         for (marker, kind) in &self.markers {
             let kind = *kind;
             let mut from = 0;
-            while let Some(offset) = text[from..].find(marker.as_str()) {
-                let start = from + offset;
+            while let Some(start) = find_from(text, marker, from) {
                 let end = start + marker.len() + kirana_ir::NAME_HASH;
                 from = start + marker.len();
                 let boundary = start == 0 || !text.as_bytes()[start - 1].is_ascii_alphanumeric();
@@ -908,15 +914,31 @@ impl<'a> Evaluator<'_, 'a, '_> {
     }
 }
 
+/// Where `needle` (never empty) first occurs in `text` at or after `from`. A scan for its first
+/// character, which most CSS text lacks, then a comparison: `str::find` prepares a substring searcher
+/// on every call, which costs more than the scan on text as short as a value or a `css()` call, and
+/// [`Evaluator::deps_in`] searches each of them for every marker.
+fn find_from(text: &str, needle: &str, mut from: usize) -> Option<usize> {
+    let first = needle.chars().next().expect("a marker is never empty");
+    while let Some(offset) = text[from..].find(first) {
+        let at = from + offset;
+        if text.as_bytes()[at..].starts_with(needle.as_bytes()) {
+            return Some(at);
+        }
+        from = at + first.len_utf8();
+    }
+    None
+}
+
 /// The longhands a handle's entries set, shorthands through theirs.
 fn covered(handle: &Handle) -> Vec<String> {
     let mut names = Vec::new();
     for (key, _) in handle.entries() {
         match kirana_cascade::known_longhands(&key.property.name) {
             Some(longhands) if key.property.rank == Shorthand => {
-                names.extend(longhands.iter().map(|longhand| longhand.name.clone()));
+                names.extend(longhands.iter().map(|longhand| longhand.name.to_string()));
             }
-            _ => names.push(key.property.name.clone()),
+            _ => names.push(key.property.name.to_string()),
         }
     }
     names

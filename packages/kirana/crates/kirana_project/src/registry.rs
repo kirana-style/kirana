@@ -46,7 +46,14 @@ impl ModuleRecord {
             ..ModuleRecord::default()
         };
         let mut seen = kirana_shared::FxHashSet::default();
+        // A handle written at several sites (a style written out in full, which the session answers
+        // with one handle wherever it is written, KF-059, or one binding read again) is recorded at
+        // its first: its classes, unfolds and reads are the same at every other.
+        let mut recorded = kirana_shared::FxHashSet::default();
         for (_, handle) in &output.handles {
+            if !recorded.insert(Arc::as_ptr(handle)) {
+                continue;
+            }
             for op in &handle.ops {
                 // A class seen already (handles of one module share their entries) is not built again.
                 let Op::Set(key, value) = op else { continue };
@@ -99,11 +106,11 @@ pub(crate) struct AtomIndex {
     /// Shorthand → the classes of its atoms, so the shorthands a runtime merge unfolds (every one a
     /// shorthand of the property table) are found without walking every class. A class names its
     /// property, whichever module's atom is written.
-    by_property: BTreeMap<String, BTreeSet<Arc<str>>>,
+    by_property: BTreeMap<Arc<str>, BTreeSet<Arc<str>>>,
     /// The marker dependencies of each module that has any, in path order.
     marker_deps: BTreeMap<ModuleKey, Vec<Dep>>,
     /// Shorthand → target → how many unfold tokens name it, across modules.
-    unfolds: BTreeMap<String, BTreeMap<Target, usize>>,
+    unfolds: BTreeMap<Arc<str>, BTreeMap<Target, usize>>,
 }
 
 /// The modules writing one class, and the rank of the atom the stylesheet takes from them.
@@ -726,7 +733,7 @@ impl Project {
         state.revision += 1;
         let atom = state.modules.get(path).and_then(|record| record.atoms.first().cloned()).expect("an atom");
         let mut different_value = (*atom).clone();
-        different_value.value.css = "a different value".to_owned();
+        different_value.value.css = "a different value".into();
         // Ranked otherwise too, so the index moves the class when this module writes it first.
         different_value.value.longhands = 7;
         let mut different_key = (*atom).clone();

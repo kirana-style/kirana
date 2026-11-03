@@ -39,7 +39,7 @@ fn table(handle: &Handle) -> Vec<String> {
             Op::Unfold { shorthand, keep, .. } => format!(
                 "{} unfolded to {}",
                 shorthand.name,
-                keep.iter().map(|longhand| longhand.name.as_str()).collect::<Vec<_>>().join(",")
+                keep.iter().map(|longhand| longhand.name.as_ref()).collect::<Vec<_>>().join(",")
             ),
         })
         .collect()
@@ -255,7 +255,7 @@ fn atoms_and_ordering() {
     let mut atoms = Atom::from_handle(&names, &handle);
     assert_eq!(atoms.len(), 5);
     atoms.sort_by(ladder_order);
-    let order: Vec<_> = atoms.iter().map(|atom| atom.key.property.name.as_str()).collect();
+    let order: Vec<_> = atoms.iter().map(|atom| atom.key.property.name.as_ref()).collect();
     // `color` and `padding-top` tie up to the class name, whose property codes put box families first.
     assert_eq!(order, ["padding", "padding-inline-start", "padding-top", "color", "color"]);
     assert_eq!(atoms[4].key.conditions.canonical(), ":hover");
@@ -311,6 +311,38 @@ fn ambiguity() {
     assert_eq!(ambiguous_pairs(&declared, Declared { groups: &[], across: &unnamed, own: &[] }).len(), 1);
 }
 
+/// A handle built up holds no more room than a copy of it would, and stays the same handle.
+#[test]
+fn a_shrunk_handle_holds_what_a_copy_would() {
+    let theme = Dep::Theme(Arc::new(ThemeDef { class: "ktA".into(), declarations: vec![], deps: vec![] }));
+    let mut built = Handle::default();
+    for (index, property) in ["color", "margin-top", "padding-top", "width", "height"].into_iter().enumerate() {
+        let mut value = value(&format!("{index}px"));
+        push_dep(&mut value.deps, theme.clone());
+        built.apply(Op::Set(key(property, &[]), value));
+    }
+    built.apply(Op::Remove(key("color", &[":hover"])));
+    built.merge(&Handle {
+        markers: vec!["krA".into()],
+        marker_deps: vec![theme.clone()],
+        own: vec!["data-open".into()],
+        ..Handle::default()
+    });
+    let copy = built.clone();
+    built.shrink_to_fit();
+    assert_eq!(built, copy);
+    assert_eq!(built.ops.capacity(), copy.ops.capacity());
+    for (op, copied) in built.ops.iter().zip(&copy.ops) {
+        if let (Op::Set(_, value), Op::Set(_, copied)) = (op, copied) {
+            assert_eq!(value.deps.capacity(), copied.deps.capacity());
+        }
+    }
+    assert_eq!(
+        (built.markers.capacity(), built.marker_deps.capacity(), built.own.capacity()),
+        (copy.markers.capacity(), copy.marker_deps.capacity(), copy.own.capacity())
+    );
+}
+
 #[test]
 fn deps() {
     let token = Dep::Token(Arc::new(TokenDef {
@@ -343,6 +375,20 @@ fn the_value_segment_is_wide_enough_for_real_values() {
     let (first, second) = ("oklch(21% 0.12 250)", "oklch(27% 0.21 250)");
     assert_eq!(base62(hash_parts(&[first]), 3), base62(hash_parts(&[second]), 3), "the pair collides at three");
     assert_ne!(value_segment(&value(first)), value_segment(&value(second)), "and not at four");
+}
+
+/// A value a shorthand produced hashes its longhand count with it, as decimal text, so atoms that
+/// rank differently never share a name.
+#[test]
+fn the_value_segment_hashes_the_longhand_count_in_decimal() {
+    use kirana_shared::{base62, hash_parts};
+
+    for longhands in [2u8, 12, 255] {
+        let shorthand = AtomValue { css: "1px".into(), deps: vec![], longhands };
+        let expected = base62(hash_parts(&["1px", &longhands.to_string()]), 4);
+        assert_eq!(value_segment(&shorthand), expected);
+    }
+    assert_eq!(value_segment(&value("1px")), base62(hash_parts(&["1px"]), 4));
 }
 
 /// How an entry was written is no part of its identity (KF-027): two keys that differ only there

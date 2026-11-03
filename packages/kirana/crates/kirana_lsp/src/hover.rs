@@ -133,9 +133,9 @@ pub(crate) fn atoms_of(sites: &[Site], span: (u32, u32)) -> Vec<SiteAtom> {
 pub(crate) fn covers(atom: &SiteAtom, property: &str) -> bool {
     atom.property == property
         || kirana_cascade::longhands_of(&atom.property)
-            .is_ok_and(|longhands| longhands.len() > 1 && longhands.iter().any(|longhand| longhand.name == property))
+            .is_ok_and(|longhands| longhands.len() > 1 && longhands.iter().any(|longhand| &*longhand.name == property))
         || kirana_cascade::longhands_of(property).is_ok_and(|longhands| {
-            longhands.len() > 1 && longhands.iter().any(|longhand| longhand.name == atom.property)
+            longhands.len() > 1 && longhands.iter().any(|longhand| *longhand.name == *atom.property)
         })
 }
 

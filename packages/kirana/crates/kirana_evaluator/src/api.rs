@@ -218,7 +218,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
                 };
                 if let Value::Fallbacks(members) = value {
                     if let Some(expanded) = self.fallbacks(property, members, span) {
-                        out.extend(expanded.declarations.into_iter().map(|(p, css)| (p.name, css)));
+                        out.extend(expanded.declarations.iter().map(|(p, css)| (p.name.to_string(), css.to_string())));
                     }
                     continue;
                 }
@@ -230,7 +230,9 @@ impl<'a> Evaluator<'_, 'a, '_> {
                     _ => RawValue::Str(&text),
                 };
                 match declare(property, raw) {
-                    Ok(expanded) => out.extend(expanded.declarations.into_iter().map(|(p, css)| (p.name, css))),
+                    Ok(expanded) => {
+                        out.extend(expanded.declarations.iter().map(|(p, css)| (p.name.to_string(), css.to_string())))
+                    }
                     Err(_) => {
                         self.report(
                             Code::InvalidValue,
