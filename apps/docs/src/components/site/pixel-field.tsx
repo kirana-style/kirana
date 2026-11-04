@@ -279,6 +279,9 @@ export function PixelField({
     draw()
 
     const onScreen = new IntersectionObserver(([entry]) => {
+      // A `let` of this effect, set by its own closure: a false positive of oxlint 1.91's
+      // react/immutability (oxc-project/oxc issue 28401, fixed after that release).
+      // oxlint-disable-next-line react/immutability
       visible = entry?.isIntersecting ?? false
       run()
     })
