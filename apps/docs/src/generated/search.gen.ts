@@ -39,7 +39,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Introduction",
     "section": "start",
     "heading": "Works with your framework",
-    "text": "React, Next.js, vinext, React Router, TanStack Start, Gatsby, Remix, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete install guide, and each is built and checked in a browser on every change: pick yours ."
+    "text": "React, Next.js, vinext, React Router, TanStack Start, Gatsby, Remix, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; desktop and mobile apps on Electron, Tauri, Electrobun and Capacitor; or no framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete install guide, and each is built and checked in a browser on every change: pick yours ."
   },
   {
     "id": "/docs#what-it-gives-you",
@@ -3302,6 +3302,217 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. Server templates : merging and the limits."
   },
   {
+    "id": "/docs/frameworks/desktop",
+    "href": "/docs/frameworks/desktop",
+    "page": "Desktop and mobile apps",
+    "section": "desktop",
+    "text": "Style a desktop or mobile app whose pages run in a webview, on Electron, Tauri, Electrobun or Capacitor, with the same Kirana you use on the web. "
+  },
+  {
+    "id": "/docs/frameworks/desktop#desktop-and-mobile-apps",
+    "href": "/docs/frameworks/desktop#desktop-and-mobile-apps",
+    "page": "Desktop and mobile apps",
+    "section": "desktop",
+    "heading": "Desktop and mobile apps",
+    "text": "Electron, Tauri, Electrobun and Capacitor show your pages in a browser engine, so Kirana works in them as it does on the web. The bundler that builds the app's frontend runs Kirana, and the stylesheet ships inside the app. Each guide below is tested by an example whose frontend is built and checked in Chromium on every change."
+  },
+  {
+    "id": "/docs/frameworks/desktop#set-targets-to-the-oldest-engine-you-support",
+    "href": "/docs/frameworks/desktop#set-targets-to-the-oldest-engine-you-support",
+    "page": "Desktop and mobile apps",
+    "section": "desktop",
+    "heading": "Set  targets  to the oldest engine you support",
+    "text": "Kirana compiles for Chrome 123, Safari 17.5, Firefox 120 unless told otherwise. Electron ships its own Chromium, far above that floor, so it needs nothing. The system webviews update with the operating system: an app that supports older macOS, iOS or Linux releases runs on an older WebKit. Set to the oldest one, and Kirana lowers what that engine lacks: The build then reports , so you see what was lowered."
+  },
+  {
+    "id": "/docs/frameworks/desktop#what-stays-the-same",
+    "href": "/docs/frameworks/desktop#what-stays-the-same",
+    "page": "Desktop and mobile apps",
+    "section": "desktop",
+    "heading": "What stays the same",
+    "text": "One stylesheet , imported once in the frontend's entry. There is no server, so nothing is rendered twice. Development runs the shell against the bundler's dev server: styles update as you save, as in the browser. The editor, the linter and work on the frontend's files as on any web project."
+  },
+  {
+    "id": "/docs/frameworks/electron",
+    "href": "/docs/frameworks/electron",
+    "page": "Electron",
+    "section": "desktop",
+    "text": "Install Kirana in an Electron app built by electron-vite, where only the renderer compiles styles. "
+  },
+  {
+    "id": "/docs/frameworks/electron#electron",
+    "href": "/docs/frameworks/electron#electron",
+    "page": "Electron",
+    "section": "desktop",
+    "heading": "Electron",
+    "text": "An Electron app has a main process with no page and a renderer that shows one. electron-vite builds the renderer with Vite, so Kirana's Vite plugin goes in the renderer's config. Tested by , whose renderer is built and checked in Chromium."
+  },
+  {
+    "id": "/docs/frameworks/electron#2-add-the-plugin-to-the-renderer",
+    "href": "/docs/frameworks/electron#2-add-the-plugin-to-the-renderer",
+    "page": "Electron",
+    "section": "desktop",
+    "heading": "2. Add the plugin to the renderer",
+    "text": "Kirana goes before the React plugin, so React only ever sees compiled JSX. The main process renders nothing, so it gets no plugin:"
+  },
+  {
+    "id": "/docs/frameworks/electron#3-type-sx",
+    "href": "/docs/frameworks/electron#3-type-sx",
+    "page": "Electron",
+    "section": "desktop",
+    "heading": "3. Type  sx",
+    "text": "electron-vite's templates split the TypeScript config: the renderer's is ."
+  },
+  {
+    "id": "/docs/frameworks/electron#5-write-a-component",
+    "href": "/docs/frameworks/electron#5-write-a-component",
+    "page": "Electron",
+    "section": "desktop",
+    "heading": "5. Write a component",
+    "text": "serves the renderer from Vite's dev server, so styles update as you save. writes the stylesheet into , which the app loads from disk. Electron ships its own Chromium, far above Kirana's default floor, so there is no target to set."
+  },
+  {
+    "id": "/docs/frameworks/electron#next",
+    "href": "/docs/frameworks/electron#next",
+    "page": "Electron",
+    "section": "desktop",
+    "heading": "Next",
+    "text": "Your first component : a button with a hover state and a variant, and the CSS it compiles to. React , for and in components. The Vite plugin ."
+  },
+  {
+    "id": "/docs/frameworks/tauri",
+    "href": "/docs/frameworks/tauri",
+    "page": "Tauri",
+    "section": "desktop",
+    "text": "Install Kirana in a Tauri app, whose frontend Vite builds and the system's webview shows on desktop and mobile. "
+  },
+  {
+    "id": "/docs/frameworks/tauri#tauri",
+    "href": "/docs/frameworks/tauri#tauri",
+    "page": "Tauri",
+    "section": "desktop",
+    "heading": "Tauri",
+    "text": "A Tauri app is a Rust core and a web frontend. builds the frontend with Vite, so Kirana's Vite plugin goes there, and nothing changes in . Tested by , whose frontend is built and checked in Chromium."
+  },
+  {
+    "id": "/docs/frameworks/tauri#2-add-the-plugin",
+    "href": "/docs/frameworks/tauri#2-add-the-plugin",
+    "page": "Tauri",
+    "section": "desktop",
+    "heading": "2. Add the plugin",
+    "text": "Kirana goes first in the plugins of the config wrote. Keep its options: Tauri waits for that port."
+  },
+  {
+    "id": "/docs/frameworks/tauri#5-write-a-component",
+    "href": "/docs/frameworks/tauri#5-write-a-component",
+    "page": "Tauri",
+    "section": "desktop",
+    "heading": "5. Write a component",
+    "text": "runs Vite's dev server and opens the app on it, so styles update as you save. runs first and bundles , stylesheet included."
+  },
+  {
+    "id": "/docs/frameworks/tauri#set-the-oldest-webview",
+    "href": "/docs/frameworks/tauri#set-the-oldest-webview",
+    "page": "Tauri",
+    "section": "desktop",
+    "heading": "Set the oldest webview",
+    "text": "Tauri shows your pages in the system's webview: WebView2 on Windows, WKWebView on macOS and iOS, WebKitGTK on Linux and Android's WebView. When the app supports older macOS, iOS or Linux releases, set to the oldest WebKit among them."
+  },
+  {
+    "id": "/docs/frameworks/tauri#next",
+    "href": "/docs/frameworks/tauri#next",
+    "page": "Tauri",
+    "section": "desktop",
+    "heading": "Next",
+    "text": "Desktop and mobile apps , for the engines and their targets. React , or the guide for the frontend framework you picked in . The Vite plugin ."
+  },
+  {
+    "id": "/docs/frameworks/electrobun",
+    "href": "/docs/frameworks/electrobun",
+    "page": "Electrobun",
+    "section": "desktop",
+    "text": "Install Kirana in an Electrobun app, where Vite builds the view its Vite templates copy into the app. "
+  },
+  {
+    "id": "/docs/frameworks/electrobun#electrobun",
+    "href": "/docs/frameworks/electrobun#electrobun",
+    "page": "Electrobun",
+    "section": "desktop",
+    "heading": "Electrobun",
+    "text": "An Electrobun app runs its main process on Bun and shows its views in a webview. Its Vite templates build each view with Vite, and its config copies the output into the app, so Kirana's Vite plugin goes in that build. Tested by , whose view is built and checked in Chromium."
+  },
+  {
+    "id": "/docs/frameworks/electrobun#2-add-the-plugin",
+    "href": "/docs/frameworks/electrobun#2-add-the-plugin",
+    "page": "Electrobun",
+    "section": "desktop",
+    "heading": "2. Add the plugin",
+    "text": "Add Kirana first in the template's , and keep the rest of it: the view's root, the output Electrobun copies, the port its HMR mode loads and the alias to Electrobun's view API: The template also adds Tailwind's plugin; Kirana replaces it."
+  },
+  {
+    "id": "/docs/frameworks/electrobun#5-write-a-component",
+    "href": "/docs/frameworks/electrobun#5-write-a-component",
+    "page": "Electrobun",
+    "section": "desktop",
+    "heading": "5. Write a component",
+    "text": "The template's runs Vite's dev server beside the app, so styles update as you save; runs before Electrobun bundles the app. Electrobun uses the system's webview unless the app bundles Chromium ( ). With the system's, set to the oldest WebKit the app supports on macOS and Linux."
+  },
+  {
+    "id": "/docs/frameworks/electrobun#next",
+    "href": "/docs/frameworks/electrobun#next",
+    "page": "Electrobun",
+    "section": "desktop",
+    "heading": "Next",
+    "text": "Desktop and mobile apps , for the engines and their targets. React , for and in components. The Vite plugin ."
+  },
+  {
+    "id": "/docs/frameworks/capacitor",
+    "href": "/docs/frameworks/capacitor",
+    "page": "Capacitor",
+    "section": "desktop",
+    "text": "Install Kirana in a Capacitor app, whose Vite-built web app runs as a native iOS and Android app. "
+  },
+  {
+    "id": "/docs/frameworks/capacitor#capacitor",
+    "href": "/docs/frameworks/capacitor#capacitor",
+    "page": "Capacitor",
+    "section": "desktop",
+    "heading": "Capacitor",
+    "text": "Capacitor runs a web app as a native iOS and Android app: Vite builds it into , and copies that into the native projects. Kirana's Vite plugin goes in that build. Tested by , whose web app is built and checked in Chromium."
+  },
+  {
+    "id": "/docs/frameworks/capacitor#2-add-the-plugin",
+    "href": "/docs/frameworks/capacitor#2-add-the-plugin",
+    "page": "Capacitor",
+    "section": "desktop",
+    "heading": "2. Add the plugin",
+    "text": "points at the build's output:"
+  },
+  {
+    "id": "/docs/frameworks/capacitor#5-write-a-component",
+    "href": "/docs/frameworks/capacitor#5-write-a-component",
+    "page": "Capacitor",
+    "section": "desktop",
+    "heading": "5. Write a component",
+    "text": "Run , then , and open the native project. Develop in the browser with Vite's dev server, or point the app at it with in to see changes on a device."
+  },
+  {
+    "id": "/docs/frameworks/capacitor#set-the-oldest-webview",
+    "href": "/docs/frameworks/capacitor#set-the-oldest-webview",
+    "page": "Capacitor",
+    "section": "desktop",
+    "heading": "Set the oldest webview",
+    "text": "iOS shows the app in WKWebView, which updates with iOS. Set to the Safari of the oldest iOS the app supports. Android's WebView updates through the Play Store, so a Chrome target is rarely needed."
+  },
+  {
+    "id": "/docs/frameworks/capacitor#next",
+    "href": "/docs/frameworks/capacitor#next",
+    "page": "Capacitor",
+    "section": "desktop",
+    "heading": "Next",
+    "text": "Desktop and mobile apps , for the engines and their targets. React , or the guide for the framework your web app uses. The Vite plugin ."
+  },
+  {
     "id": "/docs/integrations/bundlers",
     "href": "/docs/integrations/bundlers",
     "page": "Choose a bundler",
@@ -5436,7 +5647,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Built",
-    "text": ", , , , , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 51 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates The command line: setting a project up and checking it (with a bug report), compiling without a bundler, reports for CI with GitHub annotations, what the stylesheet holds and why, the design"
+    "text": ", , , , , , , , , , , , , , , , , and The prop in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (as in Angular templates and the helper in Ember's); see supported frameworks Conditions: pseudo-classes, attributes, compounds, at-rules, nesting The precedence ladder, layers, and the ambiguity diagnostic Tokens: inlined, variable, per-mode, registered ( ) Themes and colour modes Dynamic values: class expressions, the custom-property bridge, the runtime of under 1.1 kB 51 diagnostics with stable codes for Vite 8, with hot updates An adapter package for every other bundler, and one for Jest; see bundlers and : Next.js on Turbopack and on webpack; see Next.js : the directive, builders for the Angular CLI, and a Vite plugin for Analog; see Angular React Router, Gatsby ( ), Ember ( ), Meteor and Parcel ( ), each with a tested example Server templates: the class map and write, and helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and AdonisJS; see server templates Desktop and mobile apps on Electron, Tauri, Electrobun and Capacitor: their frontends build with the Vite plugin, each with a tested example; see desktop and mobile apps The command line: se"
   },
   {
     "id": "/docs/project/status#partial",

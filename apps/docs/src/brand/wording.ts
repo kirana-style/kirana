@@ -182,7 +182,7 @@ export const IMPROVED_DESCRIPTIONS: Line[] = [
     href: "/docs/tokens/overview",
   },
   {
-    text: "One engine for the whole ecosystem: component frameworks and server templates, every major bundler, and any editor that speaks the Language Server Protocol.",
+    text: "One engine for the whole ecosystem: component frameworks, server templates, desktop and mobile apps, every major bundler, and any editor that speaks the Language Server Protocol.",
     tone: "Ecosystem",
     proof:
       "A guide per framework, each tested on every change; the language server in any LSP editor.",

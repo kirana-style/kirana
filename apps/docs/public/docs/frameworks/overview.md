@@ -47,6 +47,11 @@ Each is complete on its own: install, configure, import the stylesheet, type
 - [Phoenix](/docs/frameworks/phoenix): Rich, interactive Elixir apps: kirana/1 in HEEx templates.
 - [AdonisJS](/docs/frameworks/adonisjs): The fully featured Node.js framework: kirana() in Edge.
 
+- [Electron](/docs/frameworks/electron): Desktop apps on Chromium and Node.js, the renderer built by electron-vite.
+- [Tauri](/docs/frameworks/tauri): Small desktop and mobile apps: a Rust core and the system's webview.
+- [Electrobun](/docs/frameworks/electrobun): Desktop apps on Bun, with views its templates build by Vite.
+- [Capacitor](/docs/frameworks/capacitor): One web app, run as a native iOS and Android app.
+
 > [!NOTE] Don't see your framework?
 > Most frameworks build with Vite: use [the Vite plugin](/docs/integrations/vite).
 > Otherwise, pick [your bundler](/docs/integrations/bundlers), or let

@@ -108,6 +108,14 @@ change the API. Pages state what is built and what is planned.
 - [Phoenix](https://site.kirana-style.workers.dev/docs/frameworks/phoenix.md): Install Kirana in a Phoenix app, with styles in TypeScript modules, the Kirana CLI as a watcher, and kirana/1 in HEEx.
 - [AdonisJS](https://site.kirana-style.workers.dev/docs/frameworks/adonisjs.md): Install Kirana in an AdonisJS app, with styles in TypeScript modules, the Kirana CLI, and kirana() in Edge templates.
 
+## Desktop and mobile
+
+- [Desktop and mobile apps](https://site.kirana-style.workers.dev/docs/frameworks/desktop.md): Style a desktop or mobile app whose pages run in a webview, on Electron, Tauri, Electrobun or Capacitor, with the same Kirana you use on the web.
+- [Electron](https://site.kirana-style.workers.dev/docs/frameworks/electron.md): Install Kirana in an Electron app built by electron-vite, where only the renderer compiles styles.
+- [Tauri](https://site.kirana-style.workers.dev/docs/frameworks/tauri.md): Install Kirana in a Tauri app, whose frontend Vite builds and the system's webview shows on desktop and mobile.
+- [Electrobun](https://site.kirana-style.workers.dev/docs/frameworks/electrobun.md): Install Kirana in an Electrobun app, where Vite builds the view its Vite templates copy into the app.
+- [Capacitor](https://site.kirana-style.workers.dev/docs/frameworks/capacitor.md): Install Kirana in a Capacitor app, whose Vite-built web app runs as a native iOS and Android app.
+
 ## Bundlers
 
 - [Choose a bundler](https://site.kirana-style.workers.dev/docs/integrations/bundlers.md): Kirana on every bundler (Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun, esbuild, PostCSS and Jest), each with its own guide and tested example.

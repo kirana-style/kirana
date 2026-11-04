@@ -1,0 +1,25 @@
+{
+  "name": "kirana-example-electron",
+  "private": true,
+  "type": "module",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview"
+  },
+  "kirana-example": {
+    "output": "out/renderer"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "electron": "^45.2.0",
+    "electron-vite": "^6.0.0",
+    "vite": "^8.3.0"
+  }
+}

@@ -52,6 +52,8 @@ const NEEDED: Record<string, string> = {
   tanstack: "TanStack",
   docusaurus: "Docusaurus",
   storybook: "Storybook",
+  electron: "Electron",
+  tauri: "Tauri",
   remix: "Remix",
   vite: "Vite",
   rolldown: "Rolldown",
@@ -141,6 +143,20 @@ const OFFICIAL: Record<
     url: "https://styled-components.com/",
     light: "https://avatars.githubusercontent.com/u/20658825?s=96",
     category: "Library",
+  },
+  // Capacitor's mark, the touch icon its site serves (it publishes no SVG).
+  capacitor: {
+    title: "Capacitor",
+    url: "https://capacitorjs.com/",
+    light: "https://capacitorjs.com/apple-icon-180x180.png",
+    category: "Framework",
+  },
+  // Electrobun's mark, the icon its site shows: a tile of its own, so it reads in both schemes.
+  electrobun: {
+    title: "Electrobun",
+    url: "https://electrobun.dev/",
+    light: "https://electrobun.dev/assets/logos/electrobun.png",
+    category: "Framework",
   },
   // Emotion's mark, the 48 px icon its site serves (it publishes no SVG).
   emotion: {

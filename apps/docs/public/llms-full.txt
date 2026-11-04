@@ -35,8 +35,8 @@ of Kirana is left at runtime.
 
 ## Works with your framework
 
-React, Next.js, vinext, React Router, TanStack Start, Gatsby, Remix, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; or no
-framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete
+React, Next.js, vinext, React Router, TanStack Start, Gatsby, Remix, Waku, Vike, Docusaurus, Preact, Solid, SolidStart, Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro, Qwik, Angular, Ember and Meteor; server templates in Laravel, Symfony, Rails, Phoenix and AdonisJS; desktop and
+mobile apps on Electron, Tauri, Electrobun and Capacitor; or no framework at all, on Vite, Rolldown, webpack, Rspack, Rsbuild, Parcel, Bun and esbuild, or Angular's CLI. Each has a complete
 install guide, and each is built and checked in a browser on every change:
 **[pick yours](/docs/frameworks/overview)**.
 
@@ -404,6 +404,13 @@ Server frameworks:
 - [Ruby on Rails](/docs/frameworks/rails): The full-stack Ruby framework: a kirana helper in ERB views.
 - [Phoenix](/docs/frameworks/phoenix): Rich, interactive Elixir apps: kirana/1 in HEEx templates.
 - [AdonisJS](/docs/frameworks/adonisjs): The fully featured Node.js framework: kirana() in Edge.
+
+Desktop and mobile apps:
+
+- [Electron](/docs/frameworks/electron): Desktop apps on Chromium and Node.js, the renderer built by electron-vite.
+- [Tauri](/docs/frameworks/tauri): Small desktop and mobile apps: a Rust core and the system's webview.
+- [Electrobun](/docs/frameworks/electrobun): Desktop apps on Bun, with views its templates build by Vite.
+- [Capacitor](/docs/frameworks/capacitor): One web app, run as a native iOS and Android app.
 
 Bundlers:
 
@@ -4084,6 +4091,11 @@ Each is complete on its own: install, configure, import the stylesheet, type
 - [Phoenix](/docs/frameworks/phoenix): Rich, interactive Elixir apps: kirana/1 in HEEx templates.
 - [AdonisJS](/docs/frameworks/adonisjs): The fully featured Node.js framework: kirana() in Edge.
 
+- [Electron](/docs/frameworks/electron): Desktop apps on Chromium and Node.js, the renderer built by electron-vite.
+- [Tauri](/docs/frameworks/tauri): Small desktop and mobile apps: a Rust core and the system's webview.
+- [Electrobun](/docs/frameworks/electrobun): Desktop apps on Bun, with views its templates build by Vite.
+- [Capacitor](/docs/frameworks/capacitor): One web app, run as a native iOS and Android app.
+
 > [!NOTE] Don't see your framework?
 > Most frameworks build with Vite: use [the Vite plugin](/docs/integrations/vite).
 > Otherwise, pick [your bundler](/docs/integrations/bundlers), or let
@@ -7022,6 +7034,401 @@ The global reads the class map again whenever `kirana-style dev` rewrites it.
 - [Your first component](/docs/start/first-component): a button with a hover state
   and a variant, and the CSS it compiles to.
 - [Server templates](/docs/frameworks/server-templates): merging and the limits.
+---
+# Desktop and mobile apps
+Source: https://site.kirana-style.workers.dev/docs/frameworks/desktop
+# Desktop and mobile apps
+
+Electron, Tauri, Electrobun and Capacitor show your pages in a browser engine, so Kirana works in
+them as it does on the web. The bundler that builds the app's frontend runs Kirana,
+and the stylesheet ships inside the app. Each guide below is tested by an example
+whose frontend is built and checked in Chromium on every change.
+
+- [Electron](/docs/frameworks/electron): Desktop apps on Chromium and Node.js, the renderer built by electron-vite.
+- [Tauri](/docs/frameworks/tauri): Small desktop and mobile apps: a Rust core and the system's webview.
+- [Electrobun](/docs/frameworks/electrobun): Desktop apps on Bun, with views its templates build by Vite.
+- [Capacitor](/docs/frameworks/capacitor): One web app, run as a native iOS and Android app.
+
+## Which engine renders your pages
+
+| Shell      | Engine                                                                                          |
+| ---------- | ----------------------------------------------------------------------------------------------- |
+| Electron   | Its own Chromium, the same version on every platform                                            |
+| Tauri      | WebView2 (Chromium) on Windows, WKWebView on macOS and iOS, WebKitGTK on Linux, Android WebView |
+| Electrobun | The system's webview (WebView2, WKWebView, WebKitGTK), or a bundled Chromium (CEF)              |
+| Capacitor  | WKWebView on iOS, Android WebView                                                               |
+
+## Set `targets` to the oldest engine you support
+
+Kirana compiles for **Chrome 123, Safari 17.5, Firefox 120** unless told otherwise. Electron
+ships its own Chromium, far above that floor, so it needs nothing.
+
+The system webviews update with the operating system: an app that supports older
+macOS, iOS or Linux releases runs on an older WebKit. Set
+[`targets`](/docs/reference/config#targets) to the oldest one, and Kirana lowers
+what that engine lacks:
+
+```ts file="kirana.config.ts"
+import { defineConfig } from "@kirana-style/core/config"
+
+export default defineConfig({
+  // macOS 13 and iOS 16 ship Safari 16.
+  targets: { safari: 16 },
+})
+```
+
+The build then reports `target-lowering`, so you see what was lowered.
+
+## What stays the same
+
+- **One stylesheet**, imported once in the frontend's entry. There is no server, so
+  nothing is rendered twice.
+- **Development** runs the shell against the bundler's dev server: styles update as
+  you save, as in the browser.
+- **The editor, the linter and `kirana-style check`** work on the frontend's files
+  as on any web project.
+---
+# Electron
+Source: https://site.kirana-style.workers.dev/docs/frameworks/electron
+# Electron
+
+An Electron app has a main process with no page and a renderer that shows one.
+electron-vite builds the renderer with Vite, so Kirana's Vite plugin goes in the
+renderer's config. Tested by `examples/electron`, whose renderer is built and
+checked in Chromium.
+
+
+
+## 1. Install
+
+```bash
+npm install @kirana-style/core
+npm install -D @kirana-style/vite
+```
+
+## 2. Add the plugin to the renderer
+
+Kirana goes before the React plugin, so React only ever sees compiled JSX. The
+main process renders nothing, so it gets no plugin:
+
+```ts file="electron.vite.config.ts"
+import kirana from "@kirana-style/vite"
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "electron-vite"
+
+export default defineConfig({
+  main: {},
+  preload: {},
+  renderer: { plugins: [kirana(), react()] },
+})
+```
+
+## 3. Type `sx`
+
+```json file="tsconfig.web.json"
+{
+  "compilerOptions": {
+    "types": ["@kirana-style/core/react"]
+  }
+}
+```
+
+electron-vite's templates split the TypeScript config: the renderer's is
+`tsconfig.web.json`.
+
+## 4. Import the stylesheet
+
+```ts file="src/renderer/src/main.tsx"
+import "@kirana-style/core/stylesheet.css"
+```
+
+## 5. Write a component
+
+```tsx file="src/renderer/src/card.tsx"
+import { css } from "@kirana-style/core"
+
+const card = css({ padding: "1rem", borderRadius: "0.5rem" })
+
+export const Card = () => <div sx={card} />
+```
+
+`electron-vite dev` serves the renderer from Vite's dev server, so styles update as
+you save. `electron-vite build` writes the stylesheet into `out/renderer`, which
+the app loads from disk.
+
+Electron ships its own Chromium, far above Kirana's default floor, so there is no
+[target](/docs/frameworks/desktop#set-targets-to-the-oldest-engine-you-support) to
+set.
+
+## Next
+
+- [Your first component](/docs/start/first-component): a button with a hover state
+  and a variant, and the CSS it compiles to.
+- [React](/docs/frameworks/react), for `sx` and `className` in components.
+- [The Vite plugin](/docs/integrations/vite).
+---
+# Tauri
+Source: https://site.kirana-style.workers.dev/docs/frameworks/tauri
+# Tauri
+
+A Tauri app is a Rust core and a web frontend. `create-tauri-app` builds the
+frontend with Vite, so Kirana's Vite plugin goes there, and nothing changes in
+`src-tauri`. Tested by `examples/tauri`, whose frontend is built and checked in
+Chromium.
+
+
+
+## 1. Install
+
+```bash
+npm install @kirana-style/core
+npm install -D @kirana-style/vite
+```
+
+## 2. Add the plugin
+
+Kirana goes first in the plugins of the config `create-tauri-app` wrote. Keep its
+`server` options: Tauri waits for that port.
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
+
+const host = process.env.TAURI_DEV_HOST
+
+export default defineConfig({
+  plugins: [kirana(), react()],
+  clearScreen: false,
+  server: {
+    port: 1420,
+    strictPort: true,
+    host: host || false,
+    hmr: host ? { protocol: "ws", host, port: 1421 } : undefined,
+    watch: { ignored: ["**/src-tauri/**"] },
+  },
+})
+```
+
+## 3. Type `sx`
+
+```json file="tsconfig.json"
+{
+  "compilerOptions": {
+    "types": ["@kirana-style/core/react", "vite/client"]
+  }
+}
+```
+
+## 4. Import the stylesheet
+
+```ts file="src/main.tsx"
+import "@kirana-style/core/stylesheet.css"
+```
+
+## 5. Write a component
+
+```tsx file="src/card.tsx"
+import { css } from "@kirana-style/core"
+
+const card = css({ padding: "1rem", borderRadius: "0.5rem" })
+
+export const Card = () => <div sx={card} />
+```
+
+`tauri dev` runs Vite's dev server and opens the app on it, so styles update as you
+save. `tauri build` runs `vite build` first and bundles `dist`, stylesheet
+included.
+
+## Set the oldest webview
+
+Tauri shows your pages in the system's webview: WebView2 on Windows, WKWebView on
+macOS and iOS, WebKitGTK on Linux and Android's WebView. When the app supports
+older macOS, iOS or Linux releases, set
+[`targets.safari`](/docs/frameworks/desktop#set-targets-to-the-oldest-engine-you-support)
+to the oldest WebKit among them.
+
+## Next
+
+- [Desktop and mobile apps](/docs/frameworks/desktop), for the engines and their
+  targets.
+- [React](/docs/frameworks/react), or the guide for the frontend framework you
+  picked in `create-tauri-app`.
+- [The Vite plugin](/docs/integrations/vite).
+---
+# Electrobun
+Source: https://site.kirana-style.workers.dev/docs/frameworks/electrobun
+# Electrobun
+
+An Electrobun app runs its main process on Bun and shows its views in a webview.
+Its Vite templates build each view with Vite, and its config copies the output
+into the app, so Kirana's Vite plugin goes in that build. Tested by
+`examples/electrobun`, whose view is built and checked in Chromium.
+
+
+
+## 1. Install
+
+```bash
+npm install @kirana-style/core
+npm install -D @kirana-style/vite
+```
+
+## 2. Add the plugin
+
+Add Kirana first in the template's `vite.config.ts`, and keep the rest of it: the
+view's root, the output Electrobun copies, the port its HMR mode loads and the
+alias to Electrobun's view API:
+
+```ts file="vite.config.ts"
+import { resolve } from "node:path"
+
+import kirana from "@kirana-style/vite"
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
+
+import { electrobunViteAliases } from "./.hutch/devkit/api/config/electrobun-vite"
+
+export default defineConfig({
+  plugins: [kirana(), react()],
+  resolve: {
+    alias: electrobunViteAliases(resolve(__dirname, ".hutch/devkit")),
+  },
+  root: "src/mainview",
+  build: { outDir: "../../dist", emptyOutDir: true },
+  server: { port: 5173, strictPort: true },
+})
+```
+
+The `react-tailwind-vite` template also adds Tailwind's plugin; Kirana replaces it.
+
+## 3. Type `sx`
+
+```json file="tsconfig.json"
+{
+  "compilerOptions": {
+    "types": ["@kirana-style/core/react"]
+  }
+}
+```
+
+## 4. Import the stylesheet
+
+```ts file="src/mainview/main.tsx"
+import "@kirana-style/core/stylesheet.css"
+```
+
+## 5. Write a component
+
+```tsx file="src/mainview/card.tsx"
+import { css } from "@kirana-style/core"
+
+const card = css({ padding: "1rem", borderRadius: "0.5rem" })
+
+export const Card = () => <div sx={card} />
+```
+
+The template's `hutch run dev:hmr` runs Vite's dev server beside the app, so styles
+update as you save; `hutch run build` runs `vite build` before Electrobun bundles
+the app.
+
+Electrobun uses the system's webview unless the app bundles Chromium (`bundleCEF`).
+With the system's, set
+[`targets.safari`](/docs/frameworks/desktop#set-targets-to-the-oldest-engine-you-support)
+to the oldest WebKit the app supports on macOS and Linux.
+
+## Next
+
+- [Desktop and mobile apps](/docs/frameworks/desktop), for the engines and their
+  targets.
+- [React](/docs/frameworks/react), for `sx` and `className` in components.
+- [The Vite plugin](/docs/integrations/vite).
+---
+# Capacitor
+Source: https://site.kirana-style.workers.dev/docs/frameworks/capacitor
+# Capacitor
+
+Capacitor runs a web app as a native iOS and Android app: Vite builds it into
+`dist`, and `npx cap sync` copies that into the native projects. Kirana's Vite
+plugin goes in that build. Tested by `examples/capacitor`, whose web app is built
+and checked in Chromium.
+
+
+
+## 1. Install
+
+```bash
+npm install @kirana-style/core
+npm install -D @kirana-style/vite
+```
+
+## 2. Add the plugin
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import react from "@vitejs/plugin-react"
+import { defineConfig } from "vite"
+
+export default defineConfig({ plugins: [kirana(), react()] })
+```
+
+`capacitor.config.ts` points at the build's output:
+
+```ts file="capacitor.config.ts"
+import type { CapacitorConfig } from "@capacitor/cli"
+
+const config: CapacitorConfig = {
+  appId: "com.example.app",
+  appName: "Example",
+  webDir: "dist",
+}
+
+export default config
+```
+
+## 3. Type `sx`
+
+```json file="tsconfig.json"
+{
+  "compilerOptions": {
+    "types": ["@kirana-style/core/react"]
+  }
+}
+```
+
+## 4. Import the stylesheet
+
+```ts file="src/main.tsx"
+import "@kirana-style/core/stylesheet.css"
+```
+
+## 5. Write a component
+
+```tsx file="src/card.tsx"
+import { css } from "@kirana-style/core"
+
+const card = css({ padding: "1rem", borderRadius: "0.5rem" })
+
+export const Card = () => <div sx={card} />
+```
+
+Run `vite build`, then `npx cap sync`, and open the native project. Develop in the
+browser with Vite's dev server, or point the app at it with `server.url` in
+`capacitor.config.ts` to see changes on a device.
+
+## Set the oldest webview
+
+iOS shows the app in WKWebView, which updates with iOS. Set
+[`targets.safari`](/docs/frameworks/desktop#set-targets-to-the-oldest-engine-you-support)
+to the Safari of the oldest iOS the app supports. Android's WebView updates
+through the Play Store, so a Chrome target is rarely needed.
+
+## Next
+
+- [Desktop and mobile apps](/docs/frameworks/desktop), for the engines and their
+  targets.
+- [React](/docs/frameworks/react), or the guide for the framework your web app uses.
+- [The Vite plugin](/docs/integrations/vite).
 ---
 # Choose a bundler
 Source: https://site.kirana-style.workers.dev/docs/integrations/bundlers
@@ -11946,6 +12353,9 @@ line coverage. The [changelog](/changelog) lists every release.
 - Server templates: the class map `kirana-style build` and `kirana-style dev` write, and
   helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and
   AdonisJS; see [server templates](/docs/frameworks/server-templates)
+- Desktop and mobile apps on Electron, Tauri, Electrobun and Capacitor: their
+  frontends build with the Vite plugin, each with a tested example; see
+  [desktop and mobile apps](/docs/frameworks/desktop)
 - The command line: setting a project up and checking it (with a bug report),
   compiling without a bundler, reports for CI with GitHub annotations, what the
   stylesheet holds and why, the design system as JSON, tracing a property, and the
@@ -12156,7 +12566,6 @@ with the compiler; the rest are planned, with no dates for the same reason.
 | Kirana Email | Planned | Styles inlined and checked against what email clients support |
 | Kirana PDF | Planned | Pages, margins and breaks written as typed styles |
 | Kirana Native | Planned | The same `css()` handles, compiled to style objects for mobile apps |
-| Kirana Desktop | Planned | Templates and checked examples for desktop shells |
 
 ## The gates
 
@@ -12609,15 +13018,16 @@ See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 Every framework has a guide and a tested example; the
 [frameworks page](/docs/frameworks/overview) picks yours.
 
-| Framework                                                                | How styles reach the markup                                     |
-| ------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| React 19, Next.js, vinext, TanStack Start, Remix, Waku, Vike, Docusaurus | `sx` compiles to `className`; this site is a TanStack Start app |
-| Preact, Solid, SolidStart, Qwik 2                                        | `sx` compiles to `class`                                        |
-| Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro                           | `sx` in their templates                                         |
-| Angular (CLI and Analog)                                                 | `[sx]` in templates, merged at runtime                          |
-| React Router, Gatsby, Ember, Meteor                                      | as their component layer does                                   |
-| No framework                                                             | handles are class strings                                       |
-| Laravel, Symfony, Rails, Phoenix, AdonisJS                               | templates read a [class map](/docs/frameworks/server-templates) |
+| Framework                                                                | How styles reach the markup                                          |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| React 19, Next.js, vinext, TanStack Start, Remix, Waku, Vike, Docusaurus | `sx` compiles to `className`; this site is a TanStack Start app      |
+| Preact, Solid, SolidStart, Qwik 2                                        | `sx` compiles to `class`                                             |
+| Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro                           | `sx` in their templates                                              |
+| Angular (CLI and Analog)                                                 | `[sx]` in templates, merged at runtime                               |
+| React Router, Gatsby, Ember, Meteor                                      | as their component layer does                                        |
+| No framework                                                             | handles are class strings                                            |
+| Laravel, Symfony, Rails, Phoenix, AdonisJS                               | templates read a [class map](/docs/frameworks/server-templates)      |
+| Electron, Tauri, Electrobun, Capacitor                                   | the frontend's build, shown in a [webview](/docs/frameworks/desktop) |
 
 ## Tooling
 

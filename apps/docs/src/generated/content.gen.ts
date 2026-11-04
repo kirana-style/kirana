@@ -3021,6 +3021,249 @@ export const PAGES: readonly PageMeta[] = [
     ]
   },
   {
+    "href": "/docs/frameworks/desktop",
+    "file": "content/docs/frameworks/desktop.md",
+    "title": "Desktop and mobile apps",
+    "description": "Style a desktop or mobile app whose pages run in a webview, on Electron, Tauri, Electrobun or Capacitor, with the same Kirana you use on the web.",
+    "section": "desktop",
+    "order": 1,
+    "keywords": [
+      "desktop",
+      "mobile",
+      "webview",
+      "electron",
+      "tauri",
+      "electrobun",
+      "capacitor",
+      "ios",
+      "android",
+      "targets"
+    ],
+    "headings": [
+      {
+        "id": "which-engine-renders-your-pages",
+        "text": "Which engine renders your pages",
+        "level": 2
+      },
+      {
+        "id": "set-targets-to-the-oldest-engine-you-support",
+        "text": "Set targets to the oldest engine you support",
+        "level": 2
+      },
+      {
+        "id": "what-stays-the-same",
+        "text": "What stays the same",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/frameworks/electron",
+    "file": "content/docs/frameworks/electron.md",
+    "title": "Electron",
+    "description": "Install Kirana in an Electron app built by electron-vite, where only the renderer compiles styles.",
+    "section": "desktop",
+    "order": 2,
+    "keywords": [
+      "electron",
+      "electron-vite",
+      "desktop",
+      "renderer",
+      "chromium",
+      "install"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin-to-the-renderer",
+        "text": "2. Add the plugin to the renderer",
+        "level": 2
+      },
+      {
+        "id": "3-type-sx",
+        "text": "3. Type sx",
+        "level": 2
+      },
+      {
+        "id": "4-import-the-stylesheet",
+        "text": "4. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "5-write-a-component",
+        "text": "5. Write a component",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/frameworks/tauri",
+    "file": "content/docs/frameworks/tauri.md",
+    "title": "Tauri",
+    "description": "Install Kirana in a Tauri app, whose frontend Vite builds and the system's webview shows on desktop and mobile.",
+    "section": "desktop",
+    "order": 3,
+    "keywords": [
+      "tauri",
+      "rust",
+      "desktop",
+      "mobile",
+      "webview",
+      "vite",
+      "install"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-type-sx",
+        "text": "3. Type sx",
+        "level": 2
+      },
+      {
+        "id": "4-import-the-stylesheet",
+        "text": "4. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "5-write-a-component",
+        "text": "5. Write a component",
+        "level": 2
+      },
+      {
+        "id": "set-the-oldest-webview",
+        "text": "Set the oldest webview",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/frameworks/electrobun",
+    "file": "content/docs/frameworks/electrobun.md",
+    "title": "Electrobun",
+    "description": "Install Kirana in an Electrobun app, where Vite builds the view its Vite templates copy into the app.",
+    "section": "desktop",
+    "order": 4,
+    "keywords": [
+      "electrobun",
+      "bun",
+      "desktop",
+      "webview",
+      "vite",
+      "hutch",
+      "install"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-type-sx",
+        "text": "3. Type sx",
+        "level": 2
+      },
+      {
+        "id": "4-import-the-stylesheet",
+        "text": "4. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "5-write-a-component",
+        "text": "5. Write a component",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/frameworks/capacitor",
+    "file": "content/docs/frameworks/capacitor.md",
+    "title": "Capacitor",
+    "description": "Install Kirana in a Capacitor app, whose Vite-built web app runs as a native iOS and Android app.",
+    "section": "desktop",
+    "order": 5,
+    "keywords": [
+      "capacitor",
+      "ionic",
+      "ios",
+      "android",
+      "mobile",
+      "webview",
+      "vite",
+      "install"
+    ],
+    "headings": [
+      {
+        "id": "1-install",
+        "text": "1. Install",
+        "level": 2
+      },
+      {
+        "id": "2-add-the-plugin",
+        "text": "2. Add the plugin",
+        "level": 2
+      },
+      {
+        "id": "3-type-sx",
+        "text": "3. Type sx",
+        "level": 2
+      },
+      {
+        "id": "4-import-the-stylesheet",
+        "text": "4. Import the stylesheet",
+        "level": 2
+      },
+      {
+        "id": "5-write-a-component",
+        "text": "5. Write a component",
+        "level": 2
+      },
+      {
+        "id": "set-the-oldest-webview",
+        "text": "Set the oldest webview",
+        "level": 2
+      },
+      {
+        "id": "next",
+        "text": "Next",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/docs/integrations/bundlers",
     "file": "content/docs/integrations/bundlers.md",
     "title": "Choose a bundler",
@@ -6151,6 +6394,85 @@ export const NAV: readonly NavGroup[] = [
     ]
   },
   {
+    "slug": "desktop",
+    "label": "Desktop and mobile",
+    "items": [
+      {
+        "title": "Desktop and mobile apps",
+        "href": "/docs/frameworks/desktop",
+        "description": "Style a desktop or mobile app whose pages run in a webview, on Electron, Tauri, Electrobun or Capacitor, with the same Kirana you use on the web.",
+        "keywords": [
+          "desktop",
+          "mobile",
+          "webview",
+          "electron",
+          "tauri",
+          "electrobun",
+          "capacitor",
+          "ios",
+          "android",
+          "targets"
+        ]
+      },
+      {
+        "title": "Electron",
+        "href": "/docs/frameworks/electron",
+        "description": "Install Kirana in an Electron app built by electron-vite, where only the renderer compiles styles.",
+        "keywords": [
+          "electron",
+          "electron-vite",
+          "desktop",
+          "renderer",
+          "chromium",
+          "install"
+        ]
+      },
+      {
+        "title": "Tauri",
+        "href": "/docs/frameworks/tauri",
+        "description": "Install Kirana in a Tauri app, whose frontend Vite builds and the system's webview shows on desktop and mobile.",
+        "keywords": [
+          "tauri",
+          "rust",
+          "desktop",
+          "mobile",
+          "webview",
+          "vite",
+          "install"
+        ]
+      },
+      {
+        "title": "Electrobun",
+        "href": "/docs/frameworks/electrobun",
+        "description": "Install Kirana in an Electrobun app, where Vite builds the view its Vite templates copy into the app.",
+        "keywords": [
+          "electrobun",
+          "bun",
+          "desktop",
+          "webview",
+          "vite",
+          "hutch",
+          "install"
+        ]
+      },
+      {
+        "title": "Capacitor",
+        "href": "/docs/frameworks/capacitor",
+        "description": "Install Kirana in a Capacitor app, whose Vite-built web app runs as a native iOS and Android app.",
+        "keywords": [
+          "capacitor",
+          "ionic",
+          "ios",
+          "android",
+          "mobile",
+          "webview",
+          "vite",
+          "install"
+        ]
+      }
+    ]
+  },
+  {
     "slug": "bundlers",
     "label": "Bundlers",
     "items": [
@@ -6812,6 +7134,11 @@ export const ORDER: readonly string[] = [
   "/docs/frameworks/rails",
   "/docs/frameworks/phoenix",
   "/docs/frameworks/adonisjs",
+  "/docs/frameworks/desktop",
+  "/docs/frameworks/electron",
+  "/docs/frameworks/tauri",
+  "/docs/frameworks/electrobun",
+  "/docs/frameworks/capacitor",
   "/docs/integrations/bundlers",
   "/docs/integrations/vite",
   "/docs/integrations/rolldown",

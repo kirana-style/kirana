@@ -43,6 +43,8 @@ Each is complete on its own: install, configure, import the stylesheet, type
 
 <!-- ::guides group="server" title="Server frameworks" -->
 
+<!-- ::guides group="desktop" title="Desktop and mobile apps" -->
+
 > [!NOTE] Don't see your framework?
 > Most frameworks build with Vite: use [the Vite plugin](/docs/integrations/vite).
 > Otherwise, pick [your bundler](/docs/integrations/bundlers), or let

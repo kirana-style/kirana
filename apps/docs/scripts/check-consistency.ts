@@ -352,6 +352,7 @@ function checkProse(path: string, text: string) {
       ["frameworks", "frameworks", LISTS.frameworks],
       ["component layers", "libraries", LISTS.libraries],
       ["server frameworks", "server-frameworks", LISTS.serverFrameworks],
+      ["desktop and mobile shells", "desktop-shells", LISTS.desktopShells],
       ["bundlers", "bundlers", LISTS.bundlers],
       ["exports of @kirana-style/core", "api", LISTS.api],
     ] as const) {

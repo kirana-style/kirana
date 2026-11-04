@@ -385,6 +385,11 @@ jobs:
             build: meteor
             dev: meteor
             meteor: true
+          # Desktop and mobile shells: the frontend each one shows in a webview, built and checked in
+          # Chromium. Electron's dev server opens Electron itself, so only its build runs here.
+          - shard: desktop and mobile apps
+            build: electron tauri electrobun capacitor
+            dev: tauri electrobun capacitor
           # Server frameworks' own toolchains (D-069).
           - shard: server frameworks
             build: laravel symfony rails phoenix

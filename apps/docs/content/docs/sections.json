@@ -36,6 +36,10 @@
     "label": "Server frameworks"
   },
   {
+    "slug": "desktop",
+    "label": "Desktop and mobile"
+  },
+  {
     "slug": "bundlers",
     "label": "Bundlers"
   },

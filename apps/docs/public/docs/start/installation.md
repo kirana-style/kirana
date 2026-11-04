@@ -94,6 +94,13 @@ Server frameworks:
 - [Phoenix](/docs/frameworks/phoenix): Rich, interactive Elixir apps: kirana/1 in HEEx templates.
 - [AdonisJS](/docs/frameworks/adonisjs): The fully featured Node.js framework: kirana() in Edge.
 
+Desktop and mobile apps:
+
+- [Electron](/docs/frameworks/electron): Desktop apps on Chromium and Node.js, the renderer built by electron-vite.
+- [Tauri](/docs/frameworks/tauri): Small desktop and mobile apps: a Rust core and the system's webview.
+- [Electrobun](/docs/frameworks/electrobun): Desktop apps on Bun, with views its templates build by Vite.
+- [Capacitor](/docs/frameworks/capacitor): One web app, run as a native iOS and Android app.
+
 Bundlers:
 
 - [Vite](/docs/integrations/vite): The build tool most frameworks run on, with hot style updates.
