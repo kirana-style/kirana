@@ -71,6 +71,9 @@ pub struct Project {
     pub(crate) walked: std::sync::atomic::AtomicBool,
     /// Whether `build` compiles one file after another on the calling thread (`Project::compile_serially`).
     pub(crate) serial: std::sync::atomic::AtomicBool,
+    /// Whether every entry records how it was written (KF-027): on for `export --definitions`, which
+    /// alone reads the record, and off in a build, which would pay for a record per declaration.
+    pub(crate) record_written: std::sync::atomic::AtomicBool,
     pub(crate) root: PathBuf,
     pub(crate) fs: Arc<dyn Fs>,
     pub(crate) resolver: oxc_resolver::Resolver,
@@ -257,6 +260,7 @@ impl Project {
             reuse: std::sync::atomic::AtomicBool::new(false),
             walked: std::sync::atomic::AtomicBool::new(false),
             serial: std::sync::atomic::AtomicBool::new(false),
+            record_written: std::sync::atomic::AtomicBool::new(false),
             root,
             fs,
             config,
@@ -264,6 +268,26 @@ impl Project {
             styles: RwLock::default(),
             styles_reused: std::sync::atomic::AtomicU64::new(0),
         })
+    }
+
+    /// Whether entries record how they were written (KF-027).
+    pub(crate) fn records_written(&self) -> bool {
+        self.record_written.load(std::sync::atomic::Ordering::Relaxed)
+    }
+
+    /// From now on every entry records how it was written (KF-027), for `export --definitions`. What
+    /// the session evaluated without the record (module exports, reused transforms, the literal-style
+    /// cache, the import answers) is dropped, so the next compile builds it with the record.
+    pub fn record_written(&self) {
+        if self.record_written.swap(true, std::sync::atomic::Ordering::Relaxed) {
+            return;
+        }
+        self.styles.write().expect("not poisoned").clear();
+        let mut state = self.state.write().expect("not poisoned");
+        state.exports.clear();
+        state.reused.clear();
+        state.inert.clear();
+        state.revision += 1;
     }
 
     /// What this session has done so far (E-02).
@@ -427,7 +451,7 @@ impl Project {
         host: &resolve::ModuleHost<'_>,
     ) -> Result<(kirana_transform::TransformOutput, Vec<Diagnostic>, kirana_evaluator::Definitions), Vec<Diagnostic>>
     {
-        let context = Context { path, file, package, names, config: &self.config };
+        let context = Context { path, file, package, names, config: &self.config, written: self.records_written() };
         kirana_frontend::with_parsed_as(source_type, file, source, |parsed| {
             let evaluator = Evaluator::new(parsed, context, host);
             let output = kirana_transform::transform(&evaluator, maps);

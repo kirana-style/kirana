@@ -67,6 +67,14 @@ export type TransformResult = {
  */
 const RELEASE_AFTER_MS = 1000
 
+/**
+ * The pending release, a second after the last call into the engine by any Driver: the release is
+ * the process's (every session's allocator at once), so one timer serves every Driver, re-armed by
+ * each call. A Driver per build, as a benchmark opens them, would otherwise leave a timer per
+ * Driver, each releasing the whole allocator while later builds run.
+ */
+let idle: ReturnType<typeof setTimeout> | undefined
+
 /** A transform result as the engine returns it. */
 type NativeResult = {
   code?: string | null
@@ -118,8 +126,6 @@ export class Driver {
   /** The class map's modules (`classes.modules`), absolute; empty without one (D-069). */
   readonly classModules: readonly string[]
   readonly #compiler: InstanceType<NativeBinding["Compiler"]>
-  /** The pending release, a second after the last call into the engine. */
-  #idle: ReturnType<typeof setTimeout> | undefined
   readonly #import: ImportFile
   /** Each component's block modules, by component file (Vue, Svelte, Astro). */
   readonly #components = new Map<string, string[]>()
@@ -327,11 +333,8 @@ export class Driver {
    * has been idle for a second (D-123).
    */
   #used(): void {
-    clearTimeout(this.#idle)
-    this.#idle = setTimeout(
-      () => this.releaseMemory(),
-      RELEASE_AFTER_MS
-    ).unref()
+    clearTimeout(idle)
+    idle = setTimeout(() => this.releaseMemory(), RELEASE_AFTER_MS).unref()
   }
 
   /**
@@ -342,7 +345,8 @@ export class Driver {
    * watch build's `buildEnd`) calls it at once. A no-op on the WASI engine.
    */
   releaseMemory(): void {
-    clearTimeout(this.#idle)
+    clearTimeout(idle)
+    idle = undefined
     this.#compiler.releaseMemory()
   }
 

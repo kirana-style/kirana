@@ -1313,3 +1313,31 @@ fn a_repeated_unsplittable_value_is_reported_once_in_each_module() {
     assert_eq!(warnings("b.ts", &b).len(), 1);
     fs::remove_dir_all(root).unwrap();
 }
+
+/// How an entry was written (KF-027) is recorded only for `export --definitions`, which alone reads
+/// it: a build pays nothing for a record per declaration. The export turns the record on, compiles
+/// again what the session evaluated without it, and asking again changes nothing.
+#[test]
+fn written_records_are_kept_only_for_the_export_that_reads_them() {
+    let (root, project) = temp_project(&[(
+        "src/a.ts",
+        "import { css } from \"@kirana-style/core\"\nexport const a = css({ color: \"red\", padding: { \":hover\": \"1px\" } })\n",
+    )]);
+    let path = root.join("src/a.ts");
+    // A build: compiled before any export, without the record.
+    project.transform(&path, &fs::read_to_string(&path).unwrap());
+    let without = project.design_system_with(std::slice::from_ref(&root), false);
+    assert!(without.styles.is_none());
+    // Asked straight for the definitions: compiled again, with the record.
+    let design = project.design_system_with(std::slice::from_ref(&root), true);
+    let styles = design.styles.as_ref().expect("definitions asked for");
+    let entries: Vec<_> = styles.iter().flat_map(|style| style.definition.entries.iter()).collect();
+    assert!(!entries.is_empty());
+    assert!(entries.iter().all(|entry| entry.path.is_some()), "{entries:#?}");
+    // The whole export, and again: the record is on already and stays.
+    let (first, _) = project.export(std::slice::from_ref(&root), true);
+    let (second, _) = project.export(std::slice::from_ref(&root), true);
+    assert_eq!(first, second);
+    assert_eq!(first["styles"][0]["entries"][0]["path"], serde_json::json!(["color"]));
+    fs::remove_dir_all(root).unwrap();
+}

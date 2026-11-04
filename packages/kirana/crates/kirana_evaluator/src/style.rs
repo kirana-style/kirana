@@ -863,51 +863,65 @@ impl<'a> Evaluator<'_, 'a, '_> {
     /// The variable tokens, keyframes, position-try fallbacks, view transitions and counter styles a
     /// piece of CSS text refers to.
     pub fn deps_in(&self, text: &str) -> Vec<Dep> {
+        // One scan for the prefix; the kind letter after it says which marker, if any. Most values
+        // name no definition, and a style module asks this for every value and every call it holds.
+        let prefix = self.ctx.names.prefix.as_str();
+        let bytes = text.as_bytes();
+        let mut found: Vec<(usize, &str)> = Vec::new();
+        let mut from = 0;
+        while let Some(at) = find_from(text, prefix, from) {
+            from = at + 1;
+            let Some(&letter) = bytes.get(at + prefix.len()) else { break };
+            let bridged = at >= 2 && &bytes[at - 2..at] == b"--";
+            let Some(rank) = self
+                .markers
+                .iter()
+                .position(|(marker, kind)| *kind as u8 == letter && marker.starts_with("--") == bridged)
+            else {
+                continue;
+            };
+            let start = if bridged { at - 2 } else { at };
+            let hash = at + prefix.len() + 1;
+            let end = hash + kirana_ir::NAME_HASH;
+            let boundary = start == 0 || !bytes[start - 1].is_ascii_alphanumeric();
+            if !boundary || end > text.len() || !bytes[hash..end].iter().all(u8::is_ascii_alphanumeric) {
+                continue;
+            }
+            found.push((rank, &text[start..end]));
+            from = end;
+        }
+        // In the order the markers are listed, then the text's: what the kind-by-kind scan gave.
+        found.sort_by_key(|(rank, _)| *rank);
         let mut deps = Vec::new();
-        for (marker, kind) in &self.markers {
-            let kind = *kind;
-            let mut from = 0;
-            while let Some(start) = find_from(text, marker, from) {
-                let end = start + marker.len() + kirana_ir::NAME_HASH;
-                from = start + marker.len();
-                let boundary = start == 0 || !text.as_bytes()[start - 1].is_ascii_alphanumeric();
-                if !boundary
-                    || end > text.len()
-                    || !text[start + marker.len()..end].bytes().all(|b| b.is_ascii_alphanumeric())
-                {
-                    continue;
+        for (rank, name) in found {
+            let kind = self.markers[rank].1;
+            let local = {
+                let definitions = self.definitions.borrow();
+                match kind {
+                    'v' => definitions.tokens.iter().find(|token| token.variable == name).cloned().map(Dep::Token),
+                    'f' => definitions.keyframes.iter().find(|frames| frames.name == name).cloned().map(Dep::Keyframes),
+                    'p' => definitions
+                        .position_tries
+                        .iter()
+                        .find(|fallback| fallback.name == name)
+                        .cloned()
+                        .map(Dep::PositionTry),
+                    'c' => definitions
+                        .counter_styles
+                        .iter()
+                        .find(|style| style.name == name)
+                        .cloned()
+                        .map(Dep::CounterStyle),
+                    _ => definitions
+                        .view_transitions
+                        .iter()
+                        .find(|transition| transition.class == name)
+                        .cloned()
+                        .map(Dep::ViewTransition),
                 }
-                let name = &text[start..end];
-                let local = {
-                    let definitions = self.definitions.borrow();
-                    match kind {
-                        'v' => definitions.tokens.iter().find(|token| token.variable == name).cloned().map(Dep::Token),
-                        'f' => {
-                            definitions.keyframes.iter().find(|frames| frames.name == name).cloned().map(Dep::Keyframes)
-                        }
-                        'p' => definitions
-                            .position_tries
-                            .iter()
-                            .find(|fallback| fallback.name == name)
-                            .cloned()
-                            .map(Dep::PositionTry),
-                        'c' => definitions
-                            .counter_styles
-                            .iter()
-                            .find(|style| style.name == name)
-                            .cloned()
-                            .map(Dep::CounterStyle),
-                        _ => definitions
-                            .view_transitions
-                            .iter()
-                            .find(|transition| transition.class == name)
-                            .cloned()
-                            .map(Dep::ViewTransition),
-                    }
-                };
-                if let Some(dep) = local.or_else(|| self.host.lookup_dep(name)) {
-                    push_dep(&mut deps, dep);
-                }
+            };
+            if let Some(dep) = local.or_else(|| self.host.lookup_dep(name)) {
+                push_dep(&mut deps, dep);
             }
         }
         deps

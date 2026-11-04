@@ -389,6 +389,9 @@ impl Handle {
 
     /// Records how every entry the handle sets or removes was written.
     pub fn stamp(&mut self, written: &Written) {
+        if written.0.is_none() {
+            return;
+        }
         for op in &mut self.ops {
             if let Op::Set(key, _) | Op::Remove(key) = op {
                 key.written = written.clone();

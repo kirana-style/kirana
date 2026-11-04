@@ -182,6 +182,9 @@ impl Project {
         definitions: bool,
     ) -> (serde_json::Value, Vec<kirana_diagnostics::Diagnostic>) {
         let paths = if paths.is_empty() { vec![self.root.clone()] } else { paths.to_vec() };
+        if definitions {
+            self.record_written();
+        }
         let (diagnostics, _) = self.compile_paths(&paths);
         let mut description = serde_json::json!({
             "schema": 1,
@@ -196,6 +199,11 @@ impl Project {
     /// [`Project::design_system`], with each exported style's and recipe's evaluated definition when
     /// `definitions` is set (`kirana-style export --definitions`).
     pub fn design_system_with(&self, paths: &[PathBuf], definitions: bool) -> DesignSystem {
+        if definitions && !self.records_written() {
+            // The modules were compiled without the record: once more, with it.
+            self.record_written();
+            self.compile_paths(paths);
+        }
         let mut files = Vec::new();
         for path in paths {
             crate::collect_sources(path, &mut files, crate::SCRIPT_EXTENSIONS);

@@ -206,12 +206,14 @@ enum Memo {
     Call((u32, u32)),
 }
 
-/// Takes a key off the path when the value under it is done.
-pub(crate) struct PathKey<'e>(&'e RefCell<Vec<Key>>);
+/// Takes a key off the path when the value under it is done; `None` when no path is kept.
+pub(crate) struct PathKey<'e>(Option<&'e RefCell<Vec<Key>>>);
 
 impl Drop for PathKey<'_> {
     fn drop(&mut self) {
-        self.0.borrow_mut().pop();
+        if let Some(path) = self.0 {
+            path.borrow_mut().pop();
+        }
     }
 }
 
@@ -386,10 +388,14 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         self.key_spans.borrow().get(&(Arc::as_ptr(name).cast::<u8>() as usize)).map_or(fallback, |(_, span)| *span)
     }
 
-    /// Puts `key` on the path of the style object being built until the guard is dropped.
+    /// Puts `key` on the path of the style object being built until the guard is dropped. The path
+    /// is only read by [`Evaluator::written`], so a compile that records nothing keeps none.
     pub(crate) fn enter(&self, key: &Key) -> PathKey<'_> {
+        if !self.ctx.written {
+            return PathKey(None);
+        }
         self.path.borrow_mut().push(key.clone());
-        PathKey(&self.path)
+        PathKey(Some(&self.path))
     }
 
     /// Starts a style object of its own (a `css()` argument met while building another), with an
@@ -404,6 +410,9 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
 
     /// How the entry at the current path was written, with `value` as the source spells it.
     pub(crate) fn written(&self, value: Option<&Value>) -> Written {
+        if !self.ctx.written {
+            return Written::default();
+        }
         let value = value.and_then(|value| self.written_value(value));
         Written(Some(Arc::new(WrittenEntry { path: self.path.borrow().clone(), value })))
     }
