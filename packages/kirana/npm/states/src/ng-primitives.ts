@@ -17,7 +17,10 @@ export const exclusive: string[][] = [
 export const Accordion = {
   Root: {
     disabled: "[data-disabled]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
 } as const
 
@@ -50,7 +53,12 @@ export const Autofill = {
 
 export const Avatar = {
   Root: {
-    status: "[data-status]",
+    status: {
+      idle: '[data-status="idle"]',
+      loading: '[data-status="loading"]',
+      loaded: '[data-status="loaded"]',
+      error: '[data-status="error"]',
+    },
   },
 } as const
 
@@ -87,13 +95,19 @@ export const Collapsible = {
     closed: "[data-closed]",
     disabled: "[data-disabled]",
     open: "[data-open]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Trigger: {
     closed: "[data-closed]",
     disabled: "[data-disabled]",
     open: "[data-open]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Content: {
     closed: "[data-closed]",
@@ -101,7 +115,10 @@ export const Collapsible = {
     enter: "[data-enter]",
     exit: "[data-exit]",
     open: "[data-open]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
 } as const
 
@@ -126,7 +143,10 @@ export const Color = {
   },
   SwatchPicker: {
     disabled: "[data-disabled]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   SwatchPickerItem: {
     disabled: "[data-disabled]",
@@ -246,7 +266,10 @@ export const FormField = {
     pristine: "[data-pristine]",
     touched: "[data-touched]",
     valid: "[data-valid]",
-    validator: "[data-validator]",
+    validator: {
+      fail: '[data-validator="fail"]',
+      pass: '[data-validator="pass"]',
+    },
   },
   Label: {
     dirty: "[data-dirty]",
@@ -294,7 +317,20 @@ export const Listbox = {
 export const Menu = {
   Trigger: {
     open: "[data-open]",
-    placement: "[data-placement]",
+    placement: {
+      top: '[data-placement="top"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      right: '[data-placement="right"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottom: '[data-placement="bottom"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      left: '[data-placement="left"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
   },
   SubmenuTrigger: {
     open: "[data-open]",
@@ -309,7 +345,10 @@ export const Menu = {
 
 export const NavigationMenu = {
   Root: {
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Item: {
     active: "[data-active]",
@@ -321,8 +360,24 @@ export const NavigationMenu = {
   Content: {
     instant: "[data-instant]",
     open: "[data-open]",
-    orientation: "[data-orientation]",
-    placement: "[data-placement]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
+    placement: {
+      top: '[data-placement="top"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      right: '[data-placement="right"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottom: '[data-placement="bottom"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      left: '[data-placement="left"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
   },
   ContentItem: {
     disabled: "[data-disabled]",
@@ -332,7 +387,10 @@ export const NavigationMenu = {
     disabled: "[data-disabled]",
   },
   List: {
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
 } as const
 
@@ -402,11 +460,37 @@ export const Popover = {
   Trigger: {
     disabled: "[data-disabled]",
     open: "[data-open]",
-    placement: "[data-placement]",
+    placement: {
+      top: '[data-placement="top"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      right: '[data-placement="right"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottom: '[data-placement="bottom"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      left: '[data-placement="left"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
   },
   Root: {
     overlay: "[data-overlay]",
-    placement: "[data-placement]",
+    placement: {
+      top: '[data-placement="top"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      right: '[data-placement="right"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottom: '[data-placement="bottom"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      left: '[data-placement="left"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
   },
 } as const
 
@@ -414,11 +498,37 @@ export const PreviewCard = {
   Trigger: {
     disabled: "[data-disabled]",
     open: "[data-open]",
-    placement: "[data-placement]",
+    placement: {
+      top: '[data-placement="top"]',
+      right: '[data-placement="right"]',
+      bottom: '[data-placement="bottom"]',
+      left: '[data-placement="left"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
   },
   Root: {
     overlay: "[data-overlay]",
-    placement: "[data-placement]",
+    placement: {
+      top: '[data-placement="top"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      right: '[data-placement="right"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottom: '[data-placement="bottom"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      left: '[data-placement="left"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
   },
 } as const
 
@@ -448,7 +558,10 @@ export const Progress = {
 export const Radio = {
   Group: {
     disabled: "[data-disabled]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Item: {
     checked: "[data-checked]",
@@ -520,42 +633,69 @@ export const Select = {
 export const Slider = {
   Root: {
     disabled: "[data-disabled]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Range: {
     disabled: "[data-disabled]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Thumb: {
     disabled: "[data-disabled]",
     focusVisible: "[data-focus-visible]",
     hover: "[data-hover]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     press: "[data-press]",
   },
   Track: {
     disabled: "[data-disabled]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   RangeSlider: {
     disabled: "[data-disabled]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   RangeSliderRange: {
     disabled: "[data-disabled]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   RangeSliderThumb: {
     disabled: "[data-disabled]",
     focusVisible: "[data-focus-visible]",
     hover: "[data-hover]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     press: "[data-press]",
-    thumb: "[data-thumb]",
+    thumb: {
+      low: '[data-thumb="low"]',
+      high: '[data-thumb="high"]',
+    },
   },
   RangeSliderTrack: {
     disabled: "[data-disabled]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
 } as const
 
@@ -578,22 +718,34 @@ export const Switch = {
 
 export const Tabs = {
   Tabset: {
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   TabButton: {
     active: "[data-active]",
     disabled: "[data-disabled]",
     focusVisible: "[data-focus-visible]",
     hover: "[data-hover]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     press: "[data-press]",
   },
   TabList: {
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   TabPanel: {
     active: "[data-active]",
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
 } as const
 
@@ -655,8 +807,14 @@ export const Toggle = {
 export const ToggleGroup = {
   Root: {
     disabled: "[data-disabled]",
-    orientation: "[data-orientation]",
-    type: "[data-type]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
+    type: {
+      single: '[data-type="single"]',
+      multiple: '[data-type="multiple"]',
+    },
   },
   Item: {
     disabled: "[data-disabled]",
@@ -666,14 +824,30 @@ export const ToggleGroup = {
 
 export const Toolbar = {
   Root: {
-    orientation: "[data-orientation]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
 } as const
 
 export const Tooltip = {
   Root: {
     overlay: "[data-overlay]",
-    placement: "[data-placement]",
+    placement: {
+      top: '[data-placement="top"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      right: '[data-placement="right"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottom: '[data-placement="bottom"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      left: '[data-placement="left"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
   },
   Trigger: {
     open: "[data-open]",

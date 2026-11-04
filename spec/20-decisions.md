@@ -1521,7 +1521,8 @@ the implementation tracker names its evidence.
 
 ### D-102 — Vocabularies read from code a library ships
 
-- **Status:** Accepted (2026-10-24). Amended 2026-11-04 for KF-099: Angular Primitives' host bindings.
+- **Status:** Accepted (2026-10-24). Amended 2026-11-04 for KF-099: Angular Primitives' host bindings;
+  2026-11-05 for KF-100: a binding's values from the type it reads.
 - **Decision:** `@kirana-style/states` adds Reka UI, Bits UI and Angular Primitives, generated like the
   others by `gen-states.ts` from the pinned packages, but read from their code: Reka UI's shipped
   templates, Bits UI's state classes' `props` types, Angular Primitives' `dataBinding` calls and the
@@ -1530,7 +1531,10 @@ the implementation tracker names its evidence.
   descriptions. A host binding is read by its expression: a presence (`? "" : undefined`); a boolean,
   which Angular writes as text, as its two values (`Toast.Root.visible.true`); a declared union of
   literals as its values. Toast's position is computed from its placement, so the generator lists
-  those values itself, and it stops on a binding it cannot read.
+  those values itself, and it stops on a binding it cannot read. A `dataBinding` that returns no
+  literal takes the values of the type it reads, through aliases and string enums in any entry point
+  (`orientation?: Signal<NgpOrientation>`, `signal(NgpAvatarStatus.Idle)`): one key per value, as
+  Ark UI's and Base UI's `orientation` have. A boolean, a number or free text stays a presence.
 - **Rationale:** the three document their states only in prose on their sites, so there is no
   declaration to read as there is for Base UI, Zag and React Aria; the code is what sets the attributes,
   pinned and regenerated in CI like the rest.

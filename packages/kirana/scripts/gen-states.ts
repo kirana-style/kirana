@@ -1320,6 +1320,13 @@ const NG_MACHINERY = new Set([
 function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
   const { directory, version } = installed("ng-primitives")
   const modules = path.join(directory, "fesm2022")
+  const typings = path.join(directory, "types")
+  // Every entry point's declarations: a type is declared in one and used in another
+  // (`NgpOrientation` in `ng-primitives/common`).
+  const everyEntry = readdirSync(typings)
+    .filter((entry) => entry.endsWith(".d.ts"))
+    .map((entry) => readFileSync(path.join(typings, entry), "utf8"))
+    .join("\n")
   const out: Vocabulary = new Map()
   for (const file of readdirSync(modules).filter((entry) =>
     /^ng-primitives-[\w-]+\.mjs$/.test(entry)
@@ -1330,6 +1337,13 @@ function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
     const text = readFileSync(path.join(modules, file), "utf8")
     const blocks = text.split(/(?=createPrimitive\('Ngp)/).slice(1)
     const byPart = new Map<string, State[]>()
+    const types = {
+      own: readFileSync(
+        path.join(typings, `ng-primitives-${entry}.d.ts`),
+        "utf8"
+      ),
+      all: everyEntry,
+    }
     for (const block of blocks) {
       const name = /^createPrimitive\('Ngp(\w+)'/.exec(block)![1]!
       // The block's own directive: a primitive another one only uses has no class of its own.
@@ -1339,7 +1353,7 @@ function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
       for (const [, attribute, expression] of block.matchAll(
         /dataBinding\(\w+, '(data-[a-z][a-z0-9-]*)', ([^\n]*)\);/g
       ))
-        addState(list, attribute!, valuesIn(expression!))
+        addState(list, attribute!, boundValues(name, expression!, block, types))
       const interactions =
         /ngpInteractions\(\{([^}]*)\}\)/.exec(block)?.[1] ?? ""
       for (const [key, attribute] of Object.entries(INTERACTIONS))
@@ -1349,10 +1363,6 @@ function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
     }
     // Directives written without `createPrimitive` (Combobox, Toast, Radio's indicator) bind their
     // states in their declaration's `host.properties` (KF-099).
-    const typings = readFileSync(
-      path.join(directory, "types", `ng-primitives-${entry}.d.ts`),
-      "utf8"
-    )
     for (const [, call] of text.matchAll(
       /ɵɵngDeclareDirective\((\{[^\n]*\})\); \}/g
     )) {
@@ -1370,7 +1380,7 @@ function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
             name,
             attribute!,
             JSON.parse(`"${raw}"`) as string,
-            typings
+            types
           )
         )
       if (list.length) byPart.set(part, byName(list))
@@ -1389,33 +1399,115 @@ const NG_COMPUTED: Readonly<Record<string, readonly string[]>> = {
   "Toast data-position-y": ["top", "bottom"],
 }
 
+/** An entry point's declarations, and every entry point's, where its types are declared. */
+interface NgTypes {
+  own: string
+  all: string
+}
+
+/**
+ * The values a `dataBinding` writes: the literals its expression returns
+ * (`() => (open() ? 'open' : 'closed')`), or else those of the type it reads, which a boolean
+ * gives none of, since `dataBinding` writes `true` as a presence (KF-100): a signal of the block
+ * (`const status = signal(NgpAvatarStatus.Idle)`) is first looked up by its own definition, then
+ * as a member declared on the directive's class or anywhere in its entry point
+ * (`orientation?: Signal<NgpOrientation>`). A number, a string or anything unresolved stays a
+ * presence.
+ */
+function boundValues(
+  directive: string,
+  expression: string,
+  block: string,
+  types: NgTypes
+): string[] {
+  const values = valuesIn(expression)
+  if (values.length || /\?\s*''\s*:\s*null\)$/.test(expression)) return values
+  const member = memberOf(expression)
+  const local = new RegExp(`const ${member} = computed\\(([^\\n]*)`).exec(
+    block
+  )?.[1]
+  // Its development build's `debugName: "status"` is no value.
+  if (local) return valuesIn(local.split(", ...(ngDevMode")[0]!)
+  return enumerated(declaredType(directive, member, types), types.all)
+}
+
+/** The member an expression reads last: `() => overlay.finalPlacement()?.toString() ?? null`. */
+function memberOf(expression: string): string {
+  return (
+    /(\w+)(?:\(\))?$/.exec(
+      expression
+        .replace(/\s*\?\?\s*null$/, "")
+        .replace(/\??\.toString\(\)$/, "")
+    )?.[1] ?? ""
+  )
+}
+
+/**
+ * A member's declared type, on the directive's class in its entry point's declarations, then
+ * anywhere in them (`options.expanded()`), then in another entry point's (an overlay's
+ * `finalPlacement`), with a signal unwrapped.
+ */
+function declaredType(directive: string, member: string, types: NgTypes) {
+  const start = types.own.indexOf(`declare class Ngp${directive} `)
+  const own =
+    start < 0
+      ? ""
+      : types.own.slice(start, types.own.indexOf("\ndeclare ", start + 1))
+  // A member, not a parameter (`setStatus(status: NgpAvatarStatus)`).
+  const typeOf = (text: string) =>
+    new RegExp(`(?<!\\(|, )\\b${member}\\??: ([^;]+);`).exec(text)?.[1]
+  return (typeOf(own) ?? typeOf(types.own) ?? typeOf(types.all) ?? "").replace(
+    /^(?:\w+\.)?(?:Writable|Input)?Signal<(.*)>$/,
+    "$1"
+  )
+}
+
+/**
+ * The string values a type fixes: its literals, through aliases and string enums declared in any
+ * entry point (`NgpOrientation`, `NgpAvatarStatus`), `null` and `undefined` left out. None when
+ * any member is something else.
+ */
+function enumerated(type: string, source: string): string[] {
+  const out: string[] = []
+  for (const member of type.split("|").map((part) => part.trim())) {
+    if (member === "null" || member === "undefined") continue
+    const literal = /^(['"])([^'"]+)\1$/.exec(member)?.[2]
+    if (literal) {
+      out.push(literal)
+      continue
+    }
+    if (!/^\w+$/.test(member)) return []
+    const alias = new RegExp(`\\btype ${member} = ([^;]+);`).exec(source)?.[1]
+    const members = new RegExp(`\\benum ${member} \\{([^}]*)\\}`).exec(
+      source
+    )?.[1]
+    const values = alias
+      ? enumerated(alias, source)
+      : [...(members ?? "").matchAll(/= "([^"]+)"/g)].map((match) => match[1]!)
+    if (!values.length) return []
+    out.push(...values)
+  }
+  return [...new Set(out)]
+}
+
 /**
  * The values a host binding writes (`"attr.data-open": "open() ? \"\" : undefined"`): none for a
- * presence; `true` and `false` for a boolean, which Angular writes as text; the literals of a
- * declared union, looked up on the directive's class in its declarations and then anywhere in them
- * (`options.expanded()`); `NG_COMPUTED` for the rest. Anything else is an error, so a release that
- * binds a state some new way is caught here.
+ * presence; `true` and `false` for a boolean, which Angular writes as text; the values of a
+ * declared type (`declaredType`, `enumerated`); `NG_COMPUTED` for the rest. Anything else is an
+ * error, so a release that binds a state some new way is caught here.
  */
 function hostValues(
   component: string,
   directive: string,
   attribute: string,
   expression: string,
-  typings: string
+  types: NgTypes
 ): string[] {
   if (/\?\s*""\s*:\s*(?:undefined|null)$/.test(expression)) return []
   if (/[=!]==/.test(expression)) return ["false", "true"]
-  const member = /(\w+)(?:\(\))?$/.exec(expression)?.[1] ?? ""
-  const start = typings.indexOf(`declare class Ngp${directive} `)
-  const own = typings.slice(start, typings.indexOf("\ndeclare ", start + 1))
-  const typeOf = (text: string) =>
-    new RegExp(`\\b${member}\\??: ([^;]+);`).exec(text)?.[1]
-  const declared = (typeOf(own) ?? typeOf(typings) ?? "").replace(
-    /^(?:\w+\.)?(?:Writable)?Signal<(.*)>$/,
-    "$1"
-  )
+  const declared = declaredType(directive, memberOf(expression), types)
   if (declared === "boolean") return ["false", "true"]
-  const union = literals(`@type {${declared.replaceAll('"', "'")}}`)
+  const union = enumerated(declared, types.all)
   if (union.length) return union
   const computed = NG_COMPUTED[`${component} ${attribute}`]
   if (computed) return [...computed]
