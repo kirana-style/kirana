@@ -34,7 +34,7 @@ behind.
 | `./react-aria`    | [React Aria Components](https://react-spectrum.adobe.com/react-aria/) | each component's render props, by their `@selector`                                   |
 | `./reka-ui`       | [Reka UI](https://reka-ui.com), for Vue                               | each part's template, as the package ships it                                         |
 | `./bits-ui`       | [Bits UI](https://bits-ui.com), for Svelte                            | each part's state class, by the types of its `props`                                  |
-| `./ng-primitives` | [Angular Primitives](https://angularprimitives.com) (`ng-primitives`) | each primitive's data bindings and interactions                                       |
+| `./ng-primitives` | [Angular Primitives](https://angularprimitives.com) (`ng-primitives`) | each primitive's data and host bindings, and its interactions                         |
 
 Each subpath also exports `exclusive`: the states its library sets one at a time (`checked` and
 `unchecked`, `open` and `closed`), for `conditions.exclusive` in `kirana.config`, so a property set

@@ -81,7 +81,7 @@ there. CI regenerates them and checks every name against the library's exports.
 | `@kirana-style/states/react-aria`    | React Aria Components                   | each component's render props, by their `@selector`                               |
 | `@kirana-style/states/reka-ui`       | Reka UI, for Vue                        | each part's template, as the package ships it                                     |
 | `@kirana-style/states/bits-ui`       | Bits UI, for Svelte                     | each part's state class, by the types of its `props`                              |
-| `@kirana-style/states/ng-primitives` | Angular Primitives                      | each primitive's data bindings, and the interactions it turns on                  |
+| `@kirana-style/states/ng-primitives` | Angular Primitives                      | each primitive's data and host bindings, and the interactions it turns on         |
 
 They differ where the libraries do:
 
@@ -107,7 +107,12 @@ They differ where the libraries do:
   UI's `side`, is its attribute's presence.
 - **Angular Primitives** keys the primitive named for its component
   (`ngpPopover`) as `Root`, and lists the interactions a primitive turns on
-  (hover, press, focus) as its states.
+  (hover, press, focus) as its states. Two directives, Combobox and Toast, bind
+  their attributes in their `host` instead, which is read too:
+  - a state set or left off is a presence, as elsewhere;
+  - a boolean is written as text, so it has two keys:
+    `Toast.Root.visible.true` is `[data-visible="true"]`, since a hidden toast
+    still carries the attribute.
 
 | State                     | Example                       | Selector                     |
 | ------------------------- | ----------------------------- | ---------------------------- |

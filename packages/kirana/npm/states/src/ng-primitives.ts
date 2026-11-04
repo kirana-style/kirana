@@ -11,6 +11,7 @@
 export const exclusive: string[][] = [
   ["[data-open]", "[data-closed]"],
   ["[data-valid]", "[data-invalid]"],
+  ["[data-pristine]", "[data-dirty]"],
 ]
 
 export const Accordion = {
@@ -133,6 +134,35 @@ export const Color = {
     hover: "[data-hover]",
     press: "[data-press]",
     selected: "[data-selected]",
+  },
+} as const
+
+export const Combobox = {
+  Button: {
+    disabled: "[data-disabled]",
+    multiple: "[data-multiple]",
+    open: "[data-open]",
+  },
+  Input: {
+    disabled: "[data-disabled]",
+    multiple: "[data-multiple]",
+    open: "[data-open]",
+  },
+  Option: {
+    active: "[data-active]",
+    disabled: "[data-disabled]",
+    selected: "[data-selected]",
+  },
+  Root: {
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
+    multiple: "[data-multiple]",
+    open: "[data-open]",
+    pending: "[data-pending]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
 } as const
 
@@ -427,6 +457,10 @@ export const Radio = {
     hover: "[data-hover]",
     press: "[data-press]",
   },
+  Indicator: {
+    checked: "[data-checked]",
+    disabled: "[data-disabled]",
+  },
 } as const
 
 export const Rating = {
@@ -568,6 +602,43 @@ export const Textarea = {
     focus: "[data-focus]",
     hover: "[data-hover]",
     press: "[data-press]",
+  },
+} as const
+
+export const Toast = {
+  Root: {
+    expanded: {
+      false: '[data-expanded="false"]',
+      true: '[data-expanded="true"]',
+    },
+    front: {
+      false: '[data-front="false"]',
+      true: '[data-front="true"]',
+    },
+    paused: "[data-paused]",
+    positionX: {
+      start: '[data-position-x="start"]',
+      center: '[data-position-x="center"]',
+      end: '[data-position-x="end"]',
+    },
+    positionY: {
+      top: '[data-position-y="top"]',
+      bottom: '[data-position-y="bottom"]',
+    },
+    swipeDirection: {
+      top: '[data-swipe-direction="top"]',
+      right: '[data-swipe-direction="right"]',
+      bottom: '[data-swipe-direction="bottom"]',
+      left: '[data-swipe-direction="left"]',
+    },
+    swiping: {
+      false: '[data-swiping="false"]',
+      true: '[data-swiping="true"]',
+    },
+    visible: {
+      false: '[data-visible="false"]',
+      true: '[data-visible="true"]',
+    },
   },
 } as const
 
