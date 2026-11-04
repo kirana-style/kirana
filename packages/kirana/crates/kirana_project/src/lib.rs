@@ -9,6 +9,7 @@ mod describe;
 mod export;
 mod files;
 mod inspect;
+mod path;
 mod registry;
 mod resolve;
 mod trace;
@@ -22,6 +23,8 @@ use kirana_evaluator::{Context, Evaluator, Host, ImportName};
 use kirana_ir::{Names, Value};
 use kirana_shared::{Fs, FxHashMap, FxHashSet, hash64};
 use rayon::prelude::*;
+
+use path::{ModulePath, key};
 
 pub use analyze::{
     Analysis, AtomUse, Finding, LayerSize, ModuleSize, ReuseBucket, ThemeUse, UnprovenRead, UnusedToken, layer_sizes,
@@ -74,18 +77,19 @@ pub struct Project {
     /// Whether every entry records how it was written (KF-027): on for `export --definitions`, which
     /// alone reads the record, and off in a build, which would pay for a record per declaration.
     pub(crate) record_written: std::sync::atomic::AtomicBool,
+    /// What the session did (`Project::work`), counted without a lock: a count takes no turn at
+    /// `state`, where a transform on another thread may be writing.
+    pub(crate) work: Counters,
     pub(crate) root: PathBuf,
     pub(crate) fs: Arc<dyn Fs>,
     pub(crate) resolver: oxc_resolver::Resolver,
     /// What each specifier resolved to from each importing file (`Project::resolved`), cleared
     /// with the resolver's own cache.
-    pub(crate) resolutions: RwLock<FxHashMap<PathBuf, FxHashMap<String, Option<PathBuf>>>>,
+    pub(crate) resolutions: RwLock<FxHashMap<ModulePath, FxHashMap<String, Option<PathBuf>>>>,
     pub(crate) state: RwLock<State>,
     /// `css()` values compiled from source written out in full, by that source (KF-059). Such a
     /// value depends on nothing a later change in the session can touch, so it is never cleared.
     pub(crate) styles: RwLock<FxHashMap<String, Value>>,
-    /// `css()` calls answered from `styles`, kept apart from `state` so a hit takes no write lock on it.
-    pub(crate) styles_reused: std::sync::atomic::AtomicU64,
 }
 
 /// What the project knows about one `package.json`.
@@ -97,20 +101,25 @@ pub(crate) struct PackageInfo {
 
 #[derive(Default)]
 pub(crate) struct State {
-    pub modules: FxHashMap<PathBuf, ModuleRecord>,
-    pub exports: FxHashMap<PathBuf, resolve::ExportsEntry>,
-    pub hashes: FxHashMap<PathBuf, u64>,
-    pub packages: FxHashMap<PathBuf, PackageInfo>,
+    pub modules: FxHashMap<ModulePath, ModuleRecord>,
+    pub exports: FxHashMap<ModulePath, Arc<resolve::ExportsEntry>>,
+    pub hashes: FxHashMap<ModulePath, u64>,
+    /// Moves on whenever a hash in `hashes` changes or is forgotten (a module transformed with
+    /// other source, a file invalidated); a new entry moves nothing. A cached result verified
+    /// against every file it read at one epoch (`Reusable::verified`, `ExportsEntry::verified`) is
+    /// still current while the epoch holds, and is not verified file by file again.
+    pub hash_epoch: u64,
+    pub packages: FxHashMap<ModulePath, PackageInfo>,
     pub tokens: FxHashMap<String, Arc<kirana_ir::TokenDef>>,
     pub keyframes: FxHashMap<String, Arc<kirana_ir::KeyframesDef>>,
     pub position_tries: FxHashMap<String, Arc<kirana_ir::PositionTryDef>>,
     pub view_transitions: FxHashMap<String, Arc<kirana_ir::ViewTransitionDef>>,
     pub counter_styles: FxHashMap<String, Arc<kirana_ir::CounterStyleDef>>,
     /// dependency → modules whose output used its exports.
-    pub importers: FxHashMap<PathBuf, FxHashSet<PathBuf>>,
+    pub importers: FxHashMap<ModulePath, FxHashSet<ModulePath>>,
     /// module → the files its last compile read: what it stops importing leaves `importers`, so an
     /// edit there no longer compiles it again.
-    pub imports: FxHashMap<PathBuf, Vec<PathBuf>>,
+    pub imports: FxHashMap<ModulePath, Vec<PathBuf>>,
     /// file → the names its last evaluation defined (variable tokens, keyframes, position-try
     /// fallbacks, view transitions, counter styles), and name → the files defining it. A name no
     /// file defines any more leaves the registries: a content-hashed name changes with every edit.
@@ -118,7 +127,7 @@ pub(crate) struct State {
     pub defined_by: FxHashMap<String, FxHashSet<String>>,
     /// Modules whose last compile had an import that did not resolve: a file created since may be
     /// the one it names.
-    pub unresolved: FxHashSet<PathBuf>,
+    pub unresolved: FxHashSet<ModulePath>,
     /// `(package, namespace)` → files declaring that token namespace, from every evaluation.
     pub namespaces: std::collections::BTreeMap<(String, String), std::collections::BTreeSet<String>>,
     /// Relation marker → `(name, files declaring it)`. A relation is identified by package and name,
@@ -126,17 +135,16 @@ pub(crate) struct State {
     pub relations: std::collections::BTreeMap<String, (String, std::collections::BTreeSet<String>)>,
     /// File → `(package, tokens it declares)`, for tooling.
     pub catalogue: std::collections::BTreeMap<String, (String, Vec<kirana_evaluator::TokenEntry>)>,
-    pub work: Work,
     /// Dense-name codes assigned so far (D-084), and whether a module changed since they were.
     pub dense: kirana_ir::dense::DenseNames,
     pub dense_stale: bool,
     /// Codes of the definitions finished stylesheets named alone (D-084).
     pub dense_definitions: kirana_ir::dense::DenseDefinitions,
     /// The last transform of each module, when transforms are reused (`Project::reuse_transforms`).
-    pub reused: FxHashMap<PathBuf, Reusable>,
+    pub reused: FxHashMap<ModulePath, Arc<Reusable>>,
     /// Whether compiling each module adds nothing to the build (D-118): no rule, relation or
     /// diagnostic. A module's compile reads others, so every change clears it.
-    pub inert: FxHashMap<PathBuf, bool>,
+    pub inert: FxHashMap<ModulePath, bool>,
     /// Bumped whenever a module's record or a declaration changes. The stylesheet and the
     /// project's diagnostics hold from one bump to the next, so they are kept with the revision
     /// they were computed at.
@@ -147,38 +155,46 @@ pub(crate) struct State {
 }
 
 impl State {
+    /// Records the content hash of `path`. A hash that changes moves `hash_epoch` on, so what was
+    /// verified against the old one is verified again; a new one moves nothing.
+    pub(crate) fn set_hash(&mut self, path: &Path, hash: u64) {
+        if self.hashes.insert(ModulePath::new(path), hash).is_some_and(|previous| previous != hash) {
+            self.hash_epoch += 1;
+        }
+    }
+
     /// Records `record` for `path`, keeping the atom index in step; returns the record it replaced.
     pub(crate) fn put_module(&mut self, path: &Path, record: ModuleRecord) -> Option<ModuleRecord> {
-        let previous = self.modules.remove(path);
+        let previous = self.modules.remove(&*key(path));
         self.index.replace(path, previous.as_ref(), &record);
-        self.modules.insert(path.to_path_buf(), record);
+        self.modules.insert(ModulePath::new(path), record);
         previous
     }
 
     /// Forgets the record for `path`, keeping the atom index in step.
     pub(crate) fn take_module(&mut self, path: &Path) -> Option<ModuleRecord> {
-        let previous = self.modules.remove(path)?;
+        let previous = self.modules.remove(&*key(path))?;
         self.index.replace(path, Some(&previous), &ModuleRecord::default());
         Some(previous)
     }
 
     /// Records what `path`'s compile read, taking back the edges of what it no longer imports.
     pub(crate) fn set_imports(&mut self, path: &Path, dependencies: &[PathBuf]) {
-        for old in self.imports.remove(path).unwrap_or_default() {
+        for old in self.imports.remove(&*key(path)).unwrap_or_default() {
             if dependencies.contains(&old) {
                 continue;
             }
-            let importers = self.importers.get_mut(&old).expect("recorded with the import");
-            importers.remove(path);
+            let importers = self.importers.get_mut(&*key(&old)).expect("recorded with the import");
+            importers.remove(&*key(path));
             if importers.is_empty() {
-                self.importers.remove(&old);
+                self.importers.remove(&*key(&old));
             }
         }
         for dependency in dependencies {
-            self.importers.entry(dependency.clone()).or_default().insert(path.to_path_buf());
+            self.importers.entry(ModulePath::new(dependency)).or_default().insert(ModulePath::new(path));
         }
         if !dependencies.is_empty() {
-            self.imports.insert(path.to_path_buf(), dependencies.to_vec());
+            self.imports.insert(ModulePath::new(path), dependencies.to_vec());
         }
     }
 
@@ -211,7 +227,6 @@ impl State {
 
 /// A module's last transform, and what it depended on: the source, how it was parsed and written,
 /// and every file its evaluation read, each with the hash it had.
-#[derive(Clone)]
 pub(crate) struct Reusable {
     hash: u64,
     jsx: bool,
@@ -219,6 +234,8 @@ pub(crate) struct Reusable {
     maps: bool,
     provenance: Vec<(PathBuf, u64)>,
     output: Transformed,
+    /// The `hash_epoch` the provenance was last verified at (`State::hash_epoch`).
+    verified: std::sync::atomic::AtomicU64,
 }
 
 /// What the session did, for KRN-PERF-002 and E-02.
@@ -244,6 +261,25 @@ pub struct Work {
     pub answered: u64,
 }
 
+/// The counters behind [`Work`]: atomics, so a transform counts without taking the state's lock.
+#[derive(Default)]
+pub(crate) struct Counters {
+    pub seen: std::sync::atomic::AtomicU64,
+    pub prefiltered: std::sync::atomic::AtomicU64,
+    pub parsed: std::sync::atomic::AtomicU64,
+    pub resolved: std::sync::atomic::AtomicU64,
+    pub reused: std::sync::atomic::AtomicU64,
+    pub styles: std::sync::atomic::AtomicU64,
+    pub answered: std::sync::atomic::AtomicU64,
+}
+
+impl Counters {
+    /// Adds one to `counter`.
+    pub fn count(counter: &std::sync::atomic::AtomicU64) {
+        counter.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    }
+}
+
 impl Project {
     /// Creates a session from resolved configuration JSON.
     pub fn new(config_json: &str, fs: Arc<dyn Fs>) -> Result<Project, Vec<Diagnostic>> {
@@ -266,7 +302,7 @@ impl Project {
             config,
             state: RwLock::default(),
             styles: RwLock::default(),
-            styles_reused: std::sync::atomic::AtomicU64::new(0),
+            work: Counters::default(),
         })
     }
 
@@ -292,8 +328,16 @@ impl Project {
 
     /// What this session has done so far (E-02).
     pub fn work(&self) -> Work {
-        let styles = self.styles_reused.load(std::sync::atomic::Ordering::Relaxed);
-        Work { styles, ..self.state.read().expect("not poisoned").work }
+        let load = |counter: &std::sync::atomic::AtomicU64| counter.load(std::sync::atomic::Ordering::Relaxed);
+        Work {
+            seen: load(&self.work.seen),
+            prefiltered: load(&self.work.prefiltered),
+            parsed: load(&self.work.parsed),
+            resolved: load(&self.work.resolved),
+            reused: load(&self.work.reused),
+            styles: load(&self.work.styles),
+            answered: load(&self.work.answered),
+        }
     }
 
     /// The configuration in use.
@@ -328,7 +372,8 @@ impl Project {
     /// tsconfig that applies can depend on the file. Cleared with the resolver's own cache, when a
     /// file appears or disappears.
     pub(crate) fn resolved(&self, from: &Path, specifier: &str) -> Option<PathBuf> {
-        let known = self.resolutions.read().expect("not poisoned").get(from).and_then(|by| by.get(specifier).cloned());
+        let known =
+            self.resolutions.read().expect("not poisoned").get(&*key(from)).and_then(|by| by.get(specifier).cloned());
         if let Some(resolved) = known {
             return resolved;
         }
@@ -336,7 +381,7 @@ impl Project {
         self.resolutions
             .write()
             .expect("not poisoned")
-            .entry(from.to_path_buf())
+            .entry(ModulePath::new(from))
             .or_default()
             .insert(specifier.to_owned(), resolved.clone());
         resolved
@@ -395,7 +440,7 @@ impl Project {
     pub(crate) fn compiles_to_nothing(&self, path: &Path, compiling: &[PathBuf]) -> bool {
         {
             let state = self.state.read().expect("not poisoned");
-            if let Some(inert) = state.inert.get(path) {
+            if let Some(inert) = state.inert.get(&*key(path)) {
                 return *inert;
             }
             // Its exports were evaluated for the import, which registered what it defines: a variable
@@ -412,11 +457,11 @@ impl Project {
             if !kirana_frontend::may_be_style_bearing(&source) {
                 return true;
             }
-            self.state.write().expect("not poisoned").work.answered += 1;
+            Counters::count(&self.work.answered);
             let host = resolve::ModuleHost::new(self, vec![path.to_path_buf()])
                 .compiling(compiling.iter().cloned().chain([path.to_path_buf()]).collect());
             let (file, package) = (self.display_name(path), self.package_name(path));
-            self.compile(
+            let outcome = self.compile(
                 path,
                 &source,
                 kirana_frontend::source_type(path),
@@ -424,8 +469,9 @@ impl Project {
                 (&file, &package),
                 &self.names,
                 &host,
-            )
-            .is_ok_and(|(output, diagnostics, definitions)| {
+            );
+            host.keep_styles();
+            outcome.is_ok_and(|(output, diagnostics, definitions)| {
                 ModuleRecord::new(&self.names, &output, &definitions) == ModuleRecord::default()
                     && diagnostics.into_iter().all(|diagnostic| {
                         let level = self.config.level(diagnostic.code);
@@ -433,7 +479,7 @@ impl Project {
                     })
             })
         });
-        self.state.write().expect("not poisoned").inert.insert(path.to_path_buf(), inert);
+        self.state.write().expect("not poisoned").inert.insert(ModulePath::new(path), inert);
         inert
     }
 
@@ -468,72 +514,53 @@ impl Project {
         source_type: kirana_frontend::SourceType,
         maps: bool,
     ) -> Transformed {
+        // A transform takes two turns at the state's write lock: the hash as it starts, and
+        // everything it learnt as it ends. A parallel build has a transform on every thread, and
+        // each turn a thread waits for is a context switch (KRN-CMP-009).
         let hash = hash64(source.as_bytes());
-        {
+        Counters::count(&self.work.seen);
+        let epoch = {
             let mut state = self.state.write().expect("not poisoned");
-            state.hashes.insert(path.to_path_buf(), hash);
-            state.work.seen += 1;
-        }
+            state.set_hash(path, hash);
+            state.hash_epoch
+        };
         let reuse = self.reuse.load(std::sync::atomic::Ordering::Relaxed);
         let marked = self.dense.load(std::sync::atomic::Ordering::Relaxed);
         let jsx = source_type.is_jsx();
         if reuse && let Some(previous) = self.reusable(path, hash, jsx, marked, maps) {
-            self.state.write().expect("not poisoned").work.reused += 1;
+            Counters::count(&self.work.reused);
             // The module's record is the one this transform wrote: the stylesheet is unchanged.
             return Transformed { css_changed: false, reused: true, ..previous };
         }
-        self.state.write().expect("not poisoned").unresolved.remove(path);
+        let nothing = |css_changed: bool, diagnostics: Vec<Diagnostic>| Transformed {
+            code: None,
+            map: None,
+            diagnostics,
+            css_changed,
+            dependencies: Vec::new(),
+            reused: false,
+            reusable: false,
+        };
         if !kirana_frontend::may_be_style_bearing(source) {
-            {
-                let mut state = self.state.write().expect("not poisoned");
-                state.work.prefiltered += 1;
-                state.set_imports(path, &[]);
-            }
-            let css_changed = self.set_record(path, ModuleRecord::default());
-            return Transformed {
-                code: None,
-                map: None,
-                diagnostics: Vec::new(),
-                css_changed,
-                dependencies: Vec::new(),
-                reused: false,
-                reusable: false,
-            };
+            Counters::count(&self.work.prefiltered);
+            let css_changed = self.finish(path, ModuleRecord::default(), &[], false, None);
+            return nothing(css_changed, Vec::new());
         }
-        self.state.write().expect("not poisoned").work.parsed += 1;
+        Counters::count(&self.work.parsed);
         let file = self.display_name(path);
         let package = self.package_name(path);
         let host = resolve::ModuleHost::new(self, vec![path.to_path_buf()]).compiling(vec![path.to_path_buf()]);
-        let names = if self.dense.load(std::sync::atomic::Ordering::Relaxed) { &self.marked } else { &self.names };
+        let names = if marked { &self.marked } else { &self.names };
         let outcome = self.compile(path, source, source_type, maps, (&file, &package), names, &host);
+        host.keep_styles();
         let (output, diagnostics, definitions) = match outcome {
             Ok(result) => result,
             Err(diagnostics) => {
-                self.state.write().expect("not poisoned").set_imports(path, &[]);
-                let css_changed = self.set_record(path, ModuleRecord::default());
-                return Transformed {
-                    code: None,
-                    map: None,
-                    diagnostics,
-                    css_changed,
-                    dependencies: Vec::new(),
-                    reused: false,
-                    reusable: false,
-                };
+                let css_changed = self.finish(path, ModuleRecord::default(), &[], false, None);
+                return nothing(css_changed, diagnostics);
             }
         };
-        self.register_definitions(&definitions, &package, &file);
         let dependencies = host.dependencies();
-        let provenance = if reuse { host.provenance() } else { Vec::new() };
-        {
-            let mut state = self.state.write().expect("not poisoned");
-            state.set_imports(path, &dependencies);
-            if host.missed() {
-                state.unresolved.insert(path.to_path_buf());
-            }
-        }
-        let record = ModuleRecord::new(&self.names, &output, &definitions);
-        let css_changed = self.set_record(path, record);
         let mut diagnostics: Vec<Diagnostic> = diagnostics
             .into_iter()
             .filter_map(|diagnostic| {
@@ -543,20 +570,47 @@ impl Project {
             .collect();
         diagnostics.sort_by(|a, b| a.span.start.cmp(&b.span.start).then(a.code.code().cmp(b.code.code())));
         let missed = host.missed();
-        let transformed = Transformed {
+        let record = ModuleRecord::new(&self.names, &output, &definitions);
+        let mut transformed = Transformed {
             code: output.code,
             map: output.map,
             diagnostics,
-            css_changed,
+            // Whether the stylesheet changed is known once the record is in; a reused answer says
+            // it did not (`reusable`), so the kept copy need not know.
+            css_changed: false,
             dependencies,
             reused: false,
             reusable: reuse && !missed,
         };
-        if reuse {
-            let entry = Reusable { hash, jsx, marked, maps, provenance, output: transformed.clone() };
-            self.state.write().expect("not poisoned").reused.insert(path.to_path_buf(), entry);
-        }
+        // Verified as of the epoch the transform began at: the hashes it read are those, unless a
+        // known file changed meanwhile, which moved the epoch on.
+        let entry = reuse.then(|| Reusable {
+            hash,
+            jsx,
+            marked,
+            maps,
+            provenance: host.provenance(),
+            output: transformed.clone(),
+            verified: std::sync::atomic::AtomicU64::new(epoch),
+        });
+        let mut state = self.state.write().expect("not poisoned");
+        register_definitions_in(&mut state, &definitions, &package, &file);
+        transformed.css_changed = finish_in(&mut state, path, record, &transformed.dependencies, missed, entry);
         transformed
+    }
+
+    /// Records what a transform of `path` learnt, in one turn at the lock: the files it read, whether
+    /// an import did not resolve, its record, and the transform itself when transforms are reused.
+    /// Returns whether the stylesheet changed.
+    fn finish(
+        &self,
+        path: &Path,
+        record: ModuleRecord,
+        dependencies: &[PathBuf],
+        missed: bool,
+        reusable: Option<Reusable>,
+    ) -> bool {
+        finish_in(&mut self.state.write().expect("not poisoned"), path, record, dependencies, missed, reusable)
     }
 
     /// The previous transform of `path`, when it was of this source, parsed and written the same
@@ -564,40 +618,41 @@ impl Project {
     /// never reused: it compiles each time, as without reuse, so the file it names is found once it
     /// exists and the session has been told (KF-063).
     fn reusable(&self, path: &Path, hash: u64, jsx: bool, marked: bool, maps: bool) -> Option<Transformed> {
-        let entry = {
+        // The output is copied while the lock is held: measured, a copy made after it is let go
+        // made a reused pass through the host's per-module tasks four times slower.
+        let (entry, output, unverified) = {
             let state = self.state.read().expect("not poisoned");
-            if state.unresolved.contains(path) {
+            if state.unresolved.contains(&*key(path)) {
                 return None;
             }
-            state.reused.get(path).cloned()?
+            let entry = state.reused.get(&*key(path))?;
+            if entry.hash != hash || entry.jsx != jsx || entry.marked != marked || entry.maps != maps {
+                return None;
+            }
+            // Verified at this epoch already: every file it read still has the hash it had.
+            let epoch = state.hash_epoch;
+            let verified = entry.verified.load(std::sync::atomic::Ordering::Relaxed) == epoch;
+            (Arc::clone(entry), entry.output.clone(), (!verified).then_some(epoch))
         };
-        let current = entry.hash == hash
-            && entry.jsx == jsx
-            && entry.marked == marked
-            && entry.maps == maps
-            && entry.provenance.iter().all(|(file, seen)| self.current_hash(file) == Some(*seen));
-        current.then_some(entry.output)
+        // Otherwise verified file by file and stamped. The stamp lands on this entry, never on one
+        // another thread put in its place meanwhile, which was verified at its own epoch.
+        if let Some(epoch) = unverified {
+            if !entry.provenance.iter().all(|(file, seen)| self.current_hash(file) == Some(*seen)) {
+                return None;
+            }
+            entry.verified.store(epoch, std::sync::atomic::Ordering::Relaxed);
+        }
+        Some(output)
     }
 
     /// The content hash of a file as the project last saw it, reading it when unknown.
     pub(crate) fn current_hash(&self, path: &Path) -> Option<u64> {
-        if let Some(hash) = self.state.read().expect("not poisoned").hashes.get(path) {
+        if let Some(hash) = self.state.read().expect("not poisoned").hashes.get(&*key(path)) {
             return Some(*hash);
         }
         let hash = hash64(self.fs.read_to_string(path).ok()?.as_bytes());
-        self.state.write().expect("not poisoned").hashes.insert(path.to_path_buf(), hash);
+        self.state.write().expect("not poisoned").set_hash(path, hash);
         Some(hash)
-    }
-
-    fn set_record(&self, path: &Path, record: ModuleRecord) -> bool {
-        let mut state = self.state.write().expect("not poisoned");
-        let previous = state.put_module(path, record);
-        state.dense_stale = true;
-        if previous.as_ref() != state.modules.get(path) {
-            state.revision += 1;
-        }
-        let current = state.modules.get(path).expect("just inserted");
-        previous.as_ref().map_or(!current.is_empty(), |previous| previous.css_key() != current.css_key())
     }
 
     /// Records that a file changed on disk or was deleted; returns the modules whose output may
@@ -610,7 +665,7 @@ impl Project {
         // what an import resolves to, which the resolver caches. Every resolution is made again, and
         // the modules that failed one compile again. Hosts invalidate between transforms, never
         // during one, as clearing the resolver's cache requires.
-        let reshaped = !exists || !state.hashes.contains_key(path);
+        let reshaped = !exists || !state.hashes.contains_key(&*key(path));
         if reshaped {
             self.resolver.clear_cache();
             self.resolutions.write().expect("not poisoned").clear();
@@ -628,32 +683,33 @@ impl Project {
             // Package names are in class names and definitions: nothing compiled before is current.
             state.reused.clear();
         }
-        state.reused.remove(path);
-        state.hashes.remove(path);
-        state.exports.remove(path);
-        let mut affected = Vec::new();
-        let mut queue = vec![path.to_path_buf()];
-        let mut seen = FxHashSet::default();
+        state.reused.remove(&*key(path));
+        state.hashes.remove(&*key(path));
+        state.hash_epoch += 1;
+        state.exports.remove(&*key(path));
+        let mut affected: Vec<PathBuf> = Vec::new();
+        let mut queue = vec![ModulePath::new(path)];
+        let mut seen: FxHashSet<ModulePath> = FxHashSet::default();
         if reshaped {
             // Kept until each compiles again: a host that does not recompile what is returned asks
             // again at the next change.
-            let unresolved: Vec<PathBuf> = state.unresolved.iter().cloned().collect();
+            let unresolved: Vec<ModulePath> = state.unresolved.iter().cloned().collect();
             for module in unresolved {
                 seen.insert(module.clone());
-                affected.push(module.clone());
+                affected.push(module.as_path().to_path_buf());
                 queue.push(module);
             }
         }
         while let Some(current) = queue.pop() {
             for importer in state.importers.get(&current).into_iter().flatten() {
                 if seen.insert(importer.clone()) {
-                    affected.push(importer.clone());
+                    affected.push(importer.as_path().to_path_buf());
                     queue.push(importer.clone());
                 }
             }
         }
         for module in &affected {
-            state.exports.remove(module);
+            state.exports.remove(&*key(module));
         }
         affected.sort();
         affected
@@ -667,8 +723,8 @@ impl Project {
         forget_declarations(&mut state, &file);
         state.set_definitions(&file, Vec::new());
         state.set_imports(path, &[]);
-        state.reused.remove(path);
-        state.unresolved.remove(path);
+        state.reused.remove(&*key(path));
+        state.unresolved.remove(&*key(path));
         state.take_module(path).is_some_and(|record| !record.is_empty())
     }
 
@@ -718,7 +774,7 @@ impl Project {
         let mut directory = path.parent();
         let found = loop {
             let Some(current) = directory else { break PackageInfo::default() };
-            if let Some(info) = self.state.read().expect("not poisoned").packages.get(current) {
+            if let Some(info) = self.state.read().expect("not poisoned").packages.get(&*key(current)) {
                 break info.clone();
             }
             walked.push(current);
@@ -735,14 +791,48 @@ impl Project {
         if !walked.is_empty() {
             let mut state = self.state.write().expect("not poisoned");
             for current in walked {
-                state.packages.insert(current.to_path_buf(), found.clone());
+                state.packages.insert(ModulePath::new(current), found.clone());
             }
         }
         found
     }
 
     fn register_definitions(&self, definitions: &kirana_evaluator::Definitions, package: &str, file: &str) {
-        let mut state = self.state.write().expect("not poisoned");
+        register_definitions_in(&mut self.state.write().expect("not poisoned"), definitions, package, file);
+    }
+}
+
+/// [`Project::finish`] on a state already locked.
+fn finish_in(
+    state: &mut State,
+    path: &Path,
+    record: ModuleRecord,
+    dependencies: &[PathBuf],
+    missed: bool,
+    reusable: Option<Reusable>,
+) -> bool {
+    state.set_imports(path, dependencies);
+    if missed {
+        state.unresolved.insert(ModulePath::new(path));
+    } else {
+        state.unresolved.remove(&*key(path));
+    }
+    let previous = state.put_module(path, record);
+    state.dense_stale = true;
+    if previous.as_ref() != state.modules.get(&*key(path)) {
+        state.revision += 1;
+    }
+    let current = state.modules.get(&*key(path)).expect("just inserted");
+    let css_changed = previous.as_ref().map_or(!current.is_empty(), |previous| previous.css_key() != current.css_key());
+    if let Some(entry) = reusable {
+        state.reused.insert(ModulePath::new(path), Arc::new(entry));
+    }
+    css_changed
+}
+
+/// Records what `file` (in `package`) defines, on a state already locked.
+fn register_definitions_in(state: &mut State, definitions: &kirana_evaluator::Definitions, package: &str, file: &str) {
+    {
         state.revision += 1;
         for (namespace, _) in &definitions.namespaces {
             state.namespaces.entry((package.to_owned(), namespace.clone())).or_default().insert(file.to_owned());

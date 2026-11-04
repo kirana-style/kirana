@@ -83,7 +83,7 @@ impl Project {
     /// module it has not transformed or that has no styles.
     pub fn sites(&self, path: &Path) -> Vec<Site> {
         let state = self.state.read().expect("not poisoned");
-        let Some(record) = state.modules.get(path) else { return Vec::new() };
+        let Some(record) = state.modules.get(&*crate::path::key(path)) else { return Vec::new() };
         let names: BTreeMap<&str, &str> =
             state.relations.iter().map(|(marker, (name, _))| (marker.as_str(), name.as_str())).collect();
         let mut sites: Vec<Site> = record
@@ -117,7 +117,11 @@ impl Project {
             for (span, handle) in &record.handles {
                 for atom in Atom::from_handle(&self.names, handle) {
                     if classes.contains(atom.class.as_str()) {
-                        out.push(Origin { path: path.clone(), span: Span::new(span.0, span.1), class: atom.class });
+                        out.push(Origin {
+                            path: path.to_path_buf(),
+                            span: Span::new(span.0, span.1),
+                            class: atom.class,
+                        });
                     }
                 }
             }
