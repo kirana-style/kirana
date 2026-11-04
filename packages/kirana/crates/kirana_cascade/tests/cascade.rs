@@ -463,3 +463,31 @@ fn write_plans_are_kept_up_to_a_bound() {
     }
     assert_eq!(write_plan("padding").unwrap().longhands.len(), 4);
 }
+
+#[test]
+fn value_families_follow_the_unfold_table() {
+    // A runtime unfold copies a value segment from a shorthand atom to its longhands (D-045), so
+    // every property an unfold can reach from another shares its dense value-code family (D-084).
+    use kirana_cascade::{value_family, value_family_of_code};
+    use kirana_ir::Property;
+    for name in kirana_css_data::shorthands() {
+        let Ok(longhands) = longhands_of(name) else { continue };
+        let shorthand = Property::shorthand(*name);
+        for longhand in &longhands {
+            assert_eq!(value_family(&shorthand), value_family(longhand), "{name} and {}", longhand.name);
+        }
+    }
+    // The family is numbered from its lowest member's code: `padding` (code `0`) and its sides.
+    use kirana_ir::dense::family_of_code;
+    assert_eq!(value_family(&Property::longhand("padding-left")), family_of_code("0"));
+    assert_eq!(value_family(&Property::shorthand("padding")), family_of_code("0"));
+    // Properties no shorthand reaches are families of their own; a custom property too.
+    assert_ne!(value_family(&Property::longhand("color")), value_family(&Property::longhand("display")));
+    let custom = Property::longhand("--gap");
+    assert_eq!(value_family(&custom), family_of_code(&custom.code()));
+    // From a class name's property code: a known index, or a custom property's hash as it stands.
+    assert_eq!(value_family_of_code("2"), family_of_code("0"));
+    assert_eq!(value_family_of_code(&custom.code()), family_of_code(&custom.code()));
+    // A dense value code is never a property code: no leading zero in a compact index.
+    assert_eq!(value_family_of_code("00"), family_of_code("00"));
+}

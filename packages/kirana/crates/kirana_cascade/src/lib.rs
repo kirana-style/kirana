@@ -752,6 +752,73 @@ fn compute_breadth(name: &str) -> u8 {
     u8::try_from(longhands.len().max(overlapped)).unwrap_or(u8::MAX)
 }
 
+/// The family a property's dense value codes are shared in (D-084 as amended): the properties a
+/// runtime unfold can carry a value segment between. An unfold moves a shorthand atom's value
+/// segment onto its longhands (D-045), so a shorthand, its longhands and every shorthand that
+/// reaches one of them share one space; a property no shorthand reaches is a family of its own. The
+/// family is numbered from the code of its lowest member, as class names spell it
+/// (`kirana_ir::dense::family_of_code`).
+///
+/// Computed once from the same table the unfolds come from ([`shorthand_table`]).
+fn value_families() -> &'static [kirana_ir::dense::Family] {
+    static FAMILIES: OnceLock<Vec<kirana_ir::dense::Family>> = OnceLock::new();
+    FAMILIES.get_or_init(|| {
+        let properties = kirana_css_data::properties();
+        let mut root: Vec<usize> = (0..properties.len()).collect();
+        fn find(root: &mut [usize], mut at: usize) -> usize {
+            while root[at] != at {
+                root[at] = root[root[at]];
+                at = root[at];
+            }
+            at
+        }
+        // Every shorthand of the table and every longhand it splits into is a property of the table.
+        let index = |property: &Property| {
+            kirana_css_data::property_index(&property.name).expect("the unfold table names known properties")
+        };
+        for (shorthand, members) in shorthand_table() {
+            let shorthand = index(shorthand);
+            for member in members {
+                let member = index(member);
+                let (a, b) = (find(&mut root, shorthand), find(&mut root, member));
+                // The lowest index names the family, so the name does not depend on the walk.
+                root[a.max(b)] = a.min(b);
+            }
+        }
+        (0..properties.len())
+            .map(|index| {
+                let family = find(&mut root, index);
+                kirana_ir::dense::family_of_code(&kirana_shared::base62_compact(family as u64))
+            })
+            .collect()
+    })
+}
+
+/// The dense value-code family of `property` (D-084): its family's number for a known property, the
+/// number of its own code for a custom one, which no shorthand reaches.
+pub fn value_family(property: &Property) -> kirana_ir::dense::Family {
+    match kirana_css_data::property_index(&property.name) {
+        Some(index) if !property.name.starts_with("--") => value_families()[index],
+        _ => kirana_ir::dense::family_of_code(&property.code()),
+    }
+}
+
+/// [`value_family`] from a property code as a class name spells it: a known property's index in
+/// base 62, or the five-character hash of a custom property. Compact codes carry no leading zero,
+/// so a code of a dense value (`00`) never reads as one here.
+pub fn value_family_of_code(code: &str) -> kirana_ir::dense::Family {
+    // A compact code: no leading zero but `0` itself. Every name a chunk holds asks this, so no text
+    // is built to compare.
+    let compact = code.len() == 1 || !code.starts_with('0');
+    let known = kirana_shared::parse_base62(code)
+        .map(|index| index as usize)
+        .filter(|index| compact && *index < kirana_css_data::properties().len());
+    match known {
+        Some(index) => value_families()[index],
+        None => kirana_ir::dense::family_of_code(code),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

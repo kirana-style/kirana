@@ -9447,9 +9447,11 @@ application, so it can number them instead of hashing them:
 - **Each condition hash becomes a code of one or two characters**, never three, so
   it is never mistaken for a target.
 - **Each value hash becomes a code of one or two characters** from one numbering
-  shared by every property. A runtime merge that unfolds a shorthand builds a
-  longhand's name from the shorthand's value, so a value has to mean the same
-  thing under every key.
+  per property family: a shorthand and the longhands it can unfold into. A
+  runtime merge that unfolds a shorthand builds a longhand's name from the
+  shorthand's value, so a value has to mean the same thing under both keys; a
+  property no shorthand reaches numbers its own values, so most codes are one
+  character.
 - **The property code and the target stay.** They are what the runtime reads to
   merge, so merging works exactly as before and no lookup table ships.
 

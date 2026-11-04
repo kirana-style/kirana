@@ -215,7 +215,7 @@ fn hashes_are_the_segments_a_class_writes() {
                 })
                 .collect();
             let mut counted = Vec::new();
-            Names::hashes(op, |segment, hash| counted.push((segment, String::from_utf8(hash.to_vec()).unwrap())));
+            Names::hashes(op, |hash| counted.push((hash.segment(), hash.text().to_owned())));
             assert_eq!(counted, parsed, "{class}");
         }
     }

@@ -1096,7 +1096,12 @@ the implementation tracker names its evidence.
   wrote, and the stylesheet, unless the host is given `names: "hashed"` or the project has a class map
   (which `names: "dense"` refuses).
   - Each 4-character condition hash becomes a code of 1–2 characters, never 3.
-  - Each 4-character value hash becomes a code of 1–2 characters from one space shared by every key.
+  - Each 4-character value hash becomes a code of 1–2 characters from the space of its property's
+    family: a shorthand, the longhands it unfolds into (D-045) and every shorthand that reaches one
+    of them share one space, since an unfold copies a value segment between exactly those. A
+    property no shorthand reaches, and a custom property, has a space of its own (amended
+    2026-11-04; before, one space served the whole build, so most codes in a large application took
+    two characters where one would do).
   - The property code and the target segment stay.
   - Codes go to the most used segments first and never change within a session, so the client and the
     SSR build agree. Segments used as often go in the order the stylesheet writes them (amended

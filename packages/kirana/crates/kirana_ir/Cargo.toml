@@ -14,6 +14,8 @@ kirana_shared = { workspace = true }
 [dev-dependencies]
 proptest = { workspace = true }
 serde_json = { workspace = true }
+# The merge vectors in dense names need the cascade's unfold table for the value-code families.
+kirana_cascade = { workspace = true }
 
 [lints]
 workspace = true

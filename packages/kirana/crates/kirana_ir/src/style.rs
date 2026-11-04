@@ -417,6 +417,30 @@ impl Handle {
     }
 }
 
+/// One hash segment a class name carries, as [`Names::hashes`] reports it: the four base-62
+/// characters, and for a value the property it belongs to, which names its dense family (D-084).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Hash<'a> {
+    Condition([u8; 4]),
+    Value(&'a Property, [u8; 4]),
+}
+
+impl Hash<'_> {
+    /// The segment this hash fills.
+    pub fn segment(&self) -> Segment {
+        match self {
+            Hash::Condition(_) => Segment::Condition,
+            Hash::Value(..) => Segment::Value,
+        }
+    }
+
+    /// The four characters.
+    pub fn text(&self) -> &str {
+        let (Hash::Condition(bytes) | Hash::Value(_, bytes)) = self;
+        std::str::from_utf8(bytes).expect("base-62 is ASCII")
+    }
+}
+
 /// Class-name rules for one build.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Names {
@@ -501,21 +525,27 @@ impl Names {
 
     /// Calls `found` with each condition and value hash [`Names::class`] writes for `op`, in the
     /// order it writes them: what a dense build counts (D-084), without writing the class.
-    pub fn hashes(op: &Op, mut found: impl FnMut(Segment, [u8; 4])) {
+    pub fn hashes(op: &Op, mut found: impl FnMut(Hash<'_>)) {
         let mut condition = |conditions: &ConditionSet| {
             if !conditions.is_empty() {
-                found(Segment::Condition, base62_bytes(condition_hash(conditions)));
+                found(Hash::Condition(base62_bytes(condition_hash(conditions))));
             }
         };
         match op {
-            Op::Set(key, value) => {
-                condition(&key.conditions);
-                found(Segment::Value, base62_bytes(value_hash(value)));
-            }
+            Op::Set(key, value) => Self::hashes_of(key, value, found),
             Op::Remove(key) => condition(&key.conditions),
             Op::RemoveProperty(..) | Op::Unfold { conditions: None, .. } => {}
             Op::Unfold { conditions: Some(conditions), .. } => condition(conditions),
         }
+    }
+
+    /// [`Names::hashes`] of a set entry, which an atom is: its condition hash when it has
+    /// conditions, then its value hash with the property whose family the value is counted in.
+    pub fn hashes_of(key: &EntryKey, value: &AtomValue, mut found: impl FnMut(Hash<'_>)) {
+        if !key.conditions.is_empty() {
+            found(Hash::Condition(base62_bytes(condition_hash(&key.conditions))));
+        }
+        found(Hash::Value(&key.property, base62_bytes(value_hash(value))));
     }
 
     /// The class attribute text of a handle: markers, then one class per op.

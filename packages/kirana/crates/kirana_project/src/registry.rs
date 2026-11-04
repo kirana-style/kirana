@@ -6,15 +6,17 @@ use std::path::Path;
 use std::sync::{Arc, OnceLock};
 
 use kirana_diagnostics::{Code, Diagnostic, Span, apply_level};
-use kirana_emit::{EmitOptions, EmitOutput, emit_ranked};
+use kirana_emit::{Body, EmitOptions, EmitOutput, emit_body, emit_with_body};
 use kirana_evaluator::{Definitions, relation_reads};
-use kirana_ir::dense::{self, Edit, Segment};
-use kirana_ir::{Atom, Dep, EntryKey, Handle, LadderRank, Names, Op, Property, Recipe, Target, ladder_rank, same_rank};
+use kirana_ir::dense::{self, Edit, Use};
+use kirana_ir::{
+    Atom, Dep, EntryKey, Handle, Hash, LadderRank, Names, Op, Property, Recipe, Target, ladder_rank, same_rank,
+};
 use kirana_shared::{FxHashMap, FxHashSet};
 use kirana_transform::TransformOutput;
 use lightningcss::targets::{Browsers, Targets};
 
-use crate::Project;
+use crate::{Project, State};
 
 /// One module's contribution.
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -337,6 +339,9 @@ impl AtomIndex {
 pub(crate) struct Cached {
     /// `(revision, minify, named, output)`.
     stylesheet: Option<(u64, bool, Option<BTreeSet<String>>, EmitOutput)>,
+    /// `(revision, minify, body)`: the rules, which the bundle's names do not change. A dense build
+    /// asks for them to assign its codes, then the finished stylesheet heads them (`named`).
+    body: Option<(u64, bool, Body)>,
     diagnostics: Option<(u64, Vec<Diagnostic>)>,
 }
 
@@ -423,30 +428,52 @@ impl Project {
     }
 
     fn write_stylesheet(&self, minify: bool, named: Option<std::collections::BTreeSet<String>>) -> EmitOutput {
-        let (revision, output) = {
+        let (revision, body, output) = {
             let state = self.state.read().expect("not poisoned");
-            if let Some((at, cached_minify, cached_named, output)) = &state.cached.stylesheet
-                && *at == state.revision
-                && *cached_minify == minify
-                && *cached_named == named
-            {
-                return output.clone();
+            if let Some(output) = self.cached_stylesheet(&state, minify, &named) {
+                return output;
             }
-            let options = EmitOptions {
-                layers_before: self.config.layers.before.clone(),
-                layers_after: self.config.layers.after.clone(),
-                tiers: self.config.layers.tiers,
-                minify,
-                prefix: self.names.prefix.clone(),
-                lower_for: self.lowering_targets(),
-                named: named.clone(),
-            };
             // Written from the index as it stands, borrowed rather than copied out of it.
             let atoms = state.index.ranked(&self.names);
-            (state.revision, emit_ranked(&atoms, &state.index.marker_deps(), &options))
+            let options = self.emit_options(minify, named.clone());
+            let (body, fresh) = match &state.cached.body {
+                Some((at, cached_minify, body)) if *at == state.revision && *cached_minify == minify => {
+                    (body.clone(), false)
+                }
+                _ => (emit_body(&atoms, &options), true),
+            };
+            let output = emit_with_body(&atoms, &state.index.marker_deps(), &options, &body);
+            (state.revision, fresh.then_some(body), output)
         };
-        self.state.write().expect("not poisoned").cached.stylesheet = Some((revision, minify, named, output.clone()));
+        let mut state = self.state.write().expect("not poisoned");
+        if let Some(body) = body {
+            state.cached.body = Some((revision, minify, body));
+        }
+        state.cached.stylesheet = Some((revision, minify, named, output.clone()));
         output
+    }
+
+    /// The last stylesheet written, when it was written at this revision with these options.
+    fn cached_stylesheet(
+        &self,
+        state: &State,
+        minify: bool,
+        named: &Option<std::collections::BTreeSet<String>>,
+    ) -> Option<EmitOutput> {
+        let (at, cached_minify, cached_named, output) = state.cached.stylesheet.as_ref()?;
+        (*at == state.revision && *cached_minify == minify && cached_named == named).then(|| output.clone())
+    }
+
+    fn emit_options(&self, minify: bool, named: Option<std::collections::BTreeSet<String>>) -> EmitOptions {
+        EmitOptions {
+            layers_before: self.config.layers.before.clone(),
+            layers_after: self.config.layers.after.clone(),
+            tiers: self.config.layers.tiers,
+            minify,
+            prefix: self.names.prefix.clone(),
+            lower_for: self.lowering_targets(),
+            named,
+        }
     }
 
     /// From now on, transforms mark every name they write (D-084), so that [`Project::dense_edits`]
@@ -462,7 +489,7 @@ impl Project {
     pub fn dense_edits(&self, text: &str) -> Vec<Edit> {
         self.assign_dense();
         let state = self.state.read().expect("not poisoned");
-        let mut edits = state.dense.edits(&self.names.prefix, text, true);
+        let mut edits = state.dense.edits(&self.names.prefix, text, true, &family_of_code);
         let definitions = state.dense_definitions.edits(&self.names.prefix, text);
         if !definitions.is_empty() {
             edits.extend(definitions);
@@ -476,7 +503,7 @@ impl Project {
     pub fn dense_chunk(&self, text: &str) -> Option<String> {
         self.assign_dense();
         let state = self.state.read().expect("not poisoned");
-        let renamed = state.dense.renamed(&self.names.prefix, text, true);
+        let renamed = state.dense.renamed(&self.names.prefix, text, true, &family_of_code);
         let definitions = state.dense_definitions.edits(&self.names.prefix, renamed.as_deref().unwrap_or(text));
         if definitions.is_empty() {
             return renamed;
@@ -489,7 +516,7 @@ impl Project {
     pub fn dense_rename(&self, text: &str) -> String {
         self.assign_dense();
         let state = self.state.read().expect("not poisoned");
-        let renamed = state.dense.rename(&self.names.prefix, text, false);
+        let renamed = state.dense.rename(&self.names.prefix, text, false, &family_of_code);
         dense::apply(&renamed, &state.dense_definitions.edits(&self.names.prefix, &renamed))
     }
 
@@ -508,35 +535,86 @@ impl Project {
     /// Codes for the hashes of every name the modules write and the stylesheet holds, counted once
     /// per site that writes them. The stylesheet's names come first, in the order it writes them, so
     /// codes used as often go out in that order (D-084); the modules follow by path, so a build
-    /// gives the same codes however its modules compiled.
+    /// gives the same codes however its modules compiled. A value hash is counted in its property's
+    /// family (`kirana_cascade::value_family`).
+    ///
+    /// The stylesheet's names are counted from the atoms the writer wrote, in its order
+    /// (`Body::written`), not read back out of the text: the rules are written once, kept for the
+    /// finished stylesheet, and never parsed. A bridged variable inside a value (`var(--k50-KFHz)`)
+    /// is the one name the atoms do not list, so a value that reads one is scanned for it.
     fn assign_dense(&self) {
-        if !self.state.read().expect("not poisoned").dense_stale {
+        let mut state = self.state.write().expect("not poisoned");
+        if !state.dense_stale {
             return;
         }
-        let sheet = self.stylesheet(true);
-        let mut uses = Vec::new();
-        for name in dense::names(&self.names.prefix, &sheet, false) {
-            for (segment, range) in [(Segment::Condition, name.condition), (Segment::Value, name.value)] {
-                if let Some((start, end)) = range.filter(|(start, end)| end - start == 4) {
-                    uses.push((segment, &sheet[start..end], 1));
+        let prefix = &self.names.prefix;
+        // `(family, hash, count)`, the family `None` for a condition.
+        let mut hashes: Vec<(Option<dense::Family>, [u8; 4], usize)> = Vec::new();
+        // How many times the hashes found next count: once each for the stylesheet's atoms, and for
+        // a module's handle as many times as the module writes it.
+        let count = std::cell::Cell::new(1);
+        let mut found = |hash: Hash<'_>| match hash {
+            Hash::Condition(text) => hashes.push((None, text, count.get())),
+            Hash::Value(property, text) => {
+                hashes.push((Some(kirana_cascade::value_family(property)), text, count.get()));
+            }
+        };
+        let written = {
+            let atoms = state.index.ranked(&self.names);
+            let body = match &state.cached.body {
+                Some((at, true, body)) if *at == state.revision => body.clone(),
+                _ => emit_body(&atoms, &self.emit_options(true, None)),
+            };
+            for &index in &body.written {
+                let (_, atom) = atoms[index];
+                Names::hashes_of(&atom.key, &atom.value, &mut found);
+                if atom.value.css.contains("--") {
+                    for name in dense::names(prefix, &atom.value.css, false) {
+                        if let Some((start, end)) = name.condition.filter(|(start, end)| end - start == 4) {
+                            let mut text = [0u8; 4];
+                            text.copy_from_slice(&atom.value.css.as_bytes()[start..end]);
+                            found(Hash::Condition(text));
+                        }
+                    }
+                }
+            }
+            (state.revision, body)
+        };
+        // The modules' hashes, counted from their ops without writing a class for each. A handle
+        // written at many sites is one handle (KF-059): its hashes are counted once, as many times
+        // as it is written.
+        let mut records: Vec<_> = state.modules.iter().collect();
+        records.sort_unstable_by(|a, b| a.0.cmp(b.0));
+        for (_, record) in records {
+            // By the handle's address, in the order the module first writes each.
+            let mut sites: Vec<(&Arc<Handle>, usize)> = Vec::new();
+            let mut at: FxHashMap<*const Handle, usize> = FxHashMap::default();
+            for (_, handle) in &record.handles {
+                match at.get(&Arc::as_ptr(handle)) {
+                    Some(&index) => sites[index].1 += 1,
+                    None => {
+                        at.insert(Arc::as_ptr(handle), sites.len());
+                        sites.push((handle, 1));
+                    }
+                }
+            }
+            for (handle, times) in sites {
+                count.set(times);
+                for op in &handle.ops {
+                    Names::hashes(op, &mut found);
                 }
             }
         }
-        // The modules' hashes, counted from their ops without writing a class for each.
-        let mut hashes = Vec::new();
-        {
-            let state = self.state.read().expect("not poisoned");
-            let mut records: Vec<_> = state.modules.iter().collect();
-            records.sort_unstable_by(|a, b| a.0.cmp(b.0));
-            for (_, record) in records {
-                for op in record.handles.iter().flat_map(|(_, handle)| &handle.ops) {
-                    Names::hashes(op, |segment, hash| hashes.push((segment, hash)));
-                }
-            }
-        }
-        uses.extend(hashes.iter().map(|(segment, hash)| (*segment, std::str::from_utf8(hash).expect("base-62"), 1)));
-        let mut state = self.state.write().expect("not poisoned");
+        let uses = hashes.iter().map(|(family, text, count)| {
+            let hash = std::str::from_utf8(text).expect("base-62 is ASCII");
+            let use_ = match family {
+                None => Use::Condition(hash),
+                Some(family) => Use::Value { family: *family, hash },
+            };
+            (use_, *count)
+        });
         state.dense.extend(uses);
+        state.cached.body = Some((written.0, true, written.1));
         state.dense_stale = false;
     }
 
@@ -807,6 +885,12 @@ fn check_named(dep: &Dep, file: &str, names: &mut BTreeMap<String, (String, Stri
     for dep in inner {
         check_named(dep, file, names, out);
     }
+}
+
+/// The dense value-code family of a property code in a class name (D-084), from the cascade's
+/// unfold table.
+fn family_of_code(code: &str) -> dense::Family {
+    kirana_cascade::value_family_of_code(code)
 }
 
 fn collision(file: &str, class: &str, first: &str) -> Diagnostic {

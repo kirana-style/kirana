@@ -24,6 +24,11 @@ pub fn shorthands() -> &'static [&'static str] {
     SHORTHANDS
 }
 
+/// Every known property, in the order of the table: a property's position is its code (D-037).
+pub fn properties() -> &'static [&'static str] {
+    PROPERTIES
+}
+
 /// The position of a property in [`PROPERTIES`]: its code in class names (D-037). Every class name
 /// and every atom the stylesheet writes asks it, so the table is read once into a map rather than
 /// searched each time.

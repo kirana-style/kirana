@@ -484,10 +484,11 @@ fn a_group_name_two_packages_share_is_pointed_out() {
 
 #[test]
 fn dense_names_cover_the_build_and_keep_their_codes() {
-    // A shorthand that a later override unfolds (D-045), conditions, a bridged value, and a string
-    // that only looks like a class name.
+    // A shorthand that a later override unfolds (D-045), conditions, a bridged value (one under a
+    // condition too, whose variable names the condition's hash inside the rule's value), and a
+    // string that only looks like a class name.
     let card = "import { css } from \"@kirana-style/core\"\nexport const card = css({ padding: \"1rem\", color: { base: \"red\", \":hover\": \"blue\" } })\n";
-    let page = "import { css, cx } from \"@kirana-style/core\"\nimport { card } from \"./card\"\nexport const quoted = \"k50_D9ur\"\nexport const page = (wide: boolean, size: number) => cx(card, wide && css({ paddingTop: 0, color: { \":hover\": null } }), css({ width: size }))\n";
+    let page = "import { css, cx } from \"@kirana-style/core\"\nimport { card } from \"./card\"\nexport const quoted = \"k50_D9ur\"\nexport const page = (wide: boolean, size: number, tone: string) => cx(card, wide && css({ paddingTop: 0, color: { \":hover\": null } }), css({ width: size, outlineColor: { \":focus-visible\": tone } }))\nexport const twice = [css({ margin: \"2px\" }), css({ margin: \"2px\" })]\n";
     let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("card.ts", card), ("page.ts", page)]);
     project.mark_dense();
     let card_out = project.transform(&root.join("card.ts"), card).code.unwrap();
@@ -499,6 +500,16 @@ fn dense_names_cover_the_build_and_keep_their_codes() {
     assert!(dense_css.len() < css.len());
     // Rules and their order are untouched; only the hashes changed.
     assert_eq!(dense_css.split('{').count(), css.split('{').count());
+    // The bridged variable inside a value carries the same condition code as the rule's class.
+    let rules: Vec<&str> = dense_css.split('}').collect();
+    let focus = rules.iter().find(|rule| rule.contains(":focus-visible") && rule.contains("var(--k")).unwrap();
+    let class = focus.trim_start_matches('.').split(':').next().unwrap();
+    let condition = class.split('_').next().unwrap().rsplit('-').next().unwrap();
+    assert!(
+        condition.len() < 4
+            && focus.contains(&format!("var(--k{}-{condition})", class[1..].split('-').next().unwrap())),
+        "{focus}"
+    );
     let apply = |code: &str| {
         let mut out = String::new();
         let mut last = 0;

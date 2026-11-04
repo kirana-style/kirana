@@ -36,9 +36,17 @@ Dense names avoid both:
 - **Condition codes** skip length 3, so the runtime can still tell a target from a condition.
   `scoped()` in `npm/core/src/internal.ts` now accepts a condition segment of any length but 3. The
   runtime is 1,087 of its 1,100 bytes.
-- **Value codes are one space shared by every key, not one per key.** An unfold builds a longhand's
-  name at runtime from the shorthand atom's value segment (D-045). Per-key codes would let the same
-  code mean two values under one longhand key.
+- **Value codes are one space per property family, not one per key and not one for the build.** An
+  unfold builds a longhand's name at runtime from the shorthand atom's value segment (D-045), so a
+  code must mean the same value under the shorthand's key and under its longhands', and nowhere
+  else. Per-key codes would let the same code mean two values under one longhand key; one space for
+  the build (the first version, until 2026-11-04) gave most values in an application two-character
+  codes where their property carried fewer than 62 values. The family is the connected component of
+  "shorthand → the longhands it unfolds into" over the property table, the same table the unfolds
+  come from (`kirana_cascade::value_family`, from `shorthand_table`): `padding` and its four sides are
+  one family, every `border-*` property one, and a property no shorthand reaches (`color`, `display`,
+  a custom property) is a family of its own. `dense::names` reports the property segment of each
+  name so a rename knows the family; the runtime does not change.
 - **Codes are assigned in order of use.** `Project::assign_dense` counts every op of every handle
   across modules, plus the unfold siblings the stylesheet adds. Ties go in hash order. A code, once
   given, never changes for the session; later segments are appended. This is why the client build
@@ -89,7 +97,10 @@ Dense names avoid both:
 
 ## Tests
 
-- `kirana_ir::dense` unit tests: every form, what is not a name, code order, marks, capacity.
+- `kirana_ir::dense` unit tests: every form, what is not a name, code order, marks, capacity, one
+  space per family (`value_codes_are_one_space_per_family`).
+- `kirana_cascade` `value_families_follow_the_unfold_table`: every shorthand the cascade can unfold
+  shares its family with each of its longhands.
 - **Merge vectors.** `fixtures/merge/dense-vectors.json` holds the 400 merge vectors renamed by the
   Rust map, and `npm/core/test/merge-vectors.test.ts` replays them through the runtime. With the old
   `scoped()`, 97 fail.
