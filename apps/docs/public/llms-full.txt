@@ -2104,6 +2104,10 @@ They differ where the libraries do:
     `Toast.Root.visible.true` is `[data-visible="true"]`, since a hidden toast
     still carries the attribute.
 
+  A state whose type fixes its values has one key per value, from the
+  library's own types: `Tabs.Tabset.orientation.vertical`,
+  `Menu.Trigger.placement.bottomStart`, `Avatar.Root.status.loaded`.
+
 | State                     | Example                       | Selector                     |
 | ------------------------- | ----------------------------- | ---------------------------- |
 | Present or absent         | `Switch.Root.checked`         | `[data-checked]`             |

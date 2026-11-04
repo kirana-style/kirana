@@ -193,4 +193,49 @@ describe("every component that writes a state has a vocabulary", () => {
     }
     expect(missing).toEqual([])
   })
+
+  it("Angular Primitives, with the values of every state its types enumerate (KF-100)", () => {
+    const types = path.join(packageOf("ng-primitives"), "types")
+    const declarations = readdirSync(types)
+      .filter((file) => file.endsWith(".d.ts"))
+      .map((file) => readFileSync(path.join(types, file), "utf8"))
+      .join("\n")
+    // Types with a fixed set of string values: unions of literals, and string enums.
+    const enumerated = new Set([
+      ...[
+        ...declarations.matchAll(
+          /\btype (\w+) = ('[^';]+'(?: \| '[^';]+')+);/g
+        ),
+      ].map((match) => match[1]!),
+      ...[...declarations.matchAll(/\benum (\w+) \{\s*\w+ = "/g)].map(
+        (match) => match[1]!
+      ),
+    ])
+    for (const [, alias, target] of declarations.matchAll(
+      /\btype (\w+) = (\w+);/g
+    ))
+      if (enumerated.has(target!)) enumerated.add(alias!)
+    // The members declared as a signal of one: `orientation?: Signal<NgpOrientation>`.
+    const members = new Set(
+      [
+        ...declarations.matchAll(
+          /\b(\w+)\??: (?:\w+\.)?(?:Writable|Input)?Signal<(\w+)(?: \| undefined)?>;/g
+        ),
+      ]
+        .filter((match) => enumerated.has(match[2]!))
+        .map((match) => match[1]!)
+    )
+    const vocabulary = ng as unknown as Record<
+      string,
+      Record<string, Record<string, unknown>>
+    >
+    const presences: string[] = []
+    for (const [component, parts] of Object.entries(vocabulary))
+      for (const [part, states] of Object.entries(parts ?? {}))
+        for (const [name, selector] of Object.entries(states ?? {}))
+          if (members.has(name) && typeof selector === "string")
+            presences.push(`${component}.${part}.${name}`)
+    expect(members.size).toBeGreaterThan(0)
+    expect(presences).toEqual([])
+  })
 })

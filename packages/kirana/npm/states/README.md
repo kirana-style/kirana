@@ -66,7 +66,9 @@ export default defineConfig({
 
 A state that takes values (`side`, `align`, `orientation`) has one key per value, in camel case
 (`Select.Popup.side.inlineEnd` is `'[data-side="inline-end"]'`). A state whose value is free text or
-a number (`index`) is its attribute's presence. Ark UI's `orientation` takes its values from Zag's
+a number (`index`) is its attribute's presence. Angular Primitives' states take their values from
+the type of what they bind (`NgpOrientation`, `NgpPlacement`, `NgpAvatarStatus`), so
+`Tabs.Tabset.orientation.vertical` is `'[data-orientation="vertical"]'`. Ark UI's `orientation` takes its values from Zag's
 `Orientation` type (`@zag-js/types`), since Zag's reference describes it in prose. Ark UI's parts
 also have what their prop getter in Zag's code sets and the reference leaves out, through the helpers
 it spreads: Radio Group's `Item`, `ItemText` and the item states of its `ItemControl`. Segment Group,

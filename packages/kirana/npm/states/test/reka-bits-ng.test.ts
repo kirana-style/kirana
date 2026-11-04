@@ -84,6 +84,22 @@ describe("@kirana-style/states for Vue, Svelte and Angular libraries", () => {
     expect(ng.Toast.Root.positionX.end).toBe('[data-position-x="end"]')
     expect(ng.Combobox.Root.pristine).toBe("[data-pristine]")
     expect(ng.exclusive).toContainEqual(["[data-pristine]", "[data-dirty]"])
+    // A binding's values from the type it reads (KF-100): an alias in another entry point, an
+    // overlay's placement, a string enum, a signal of the block computed from literals.
+    expect(ng.Tabs.Tabset.orientation.vertical).toBe(
+      '[data-orientation="vertical"]'
+    )
+    expect(ng.Menu.Trigger.placement.bottomStart).toBe(
+      '[data-placement="bottom-start"]'
+    )
+    expect(ng.Tooltip.Root.placement.top).toBe('[data-placement="top"]')
+    expect(ng.Avatar.Root.status.loaded).toBe('[data-status="loaded"]')
+    expect(ng.FormField.Error.validator).toEqual({
+      fail: '[data-validator="fail"]',
+      pass: '[data-validator="pass"]',
+    })
+    // A boolean stays a presence: `dataBinding` writes `true` as an empty attribute.
+    expect(ng.Tabs.TabButton.active).toBe("[data-active]")
   })
 
   it("compiles as condition keys", () => {
