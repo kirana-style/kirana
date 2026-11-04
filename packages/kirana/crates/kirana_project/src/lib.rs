@@ -685,6 +685,19 @@ impl Project {
         })
     }
 
+    /// [`Project::transform_with`] for every `(path, source)` of `modules` at once, in parallel
+    /// unless the project compiles serially; the results in the modules' order. A bundler hands a
+    /// host hundreds of modules in one turn of its event loop, and the host crosses into the engine
+    /// once for all of them instead of once per module (KRN-CMP-009).
+    pub fn transform_many(&self, modules: &[(&Path, &str)], maps: bool) -> Vec<Transformed> {
+        let compile = |&(path, source): &(&Path, &str)| self.transform_with(path, source, maps);
+        if self.serial.load(std::sync::atomic::Ordering::Relaxed) {
+            modules.iter().map(compile).collect()
+        } else {
+            modules.par_iter().map(compile).collect()
+        }
+    }
+
     /// `compile` for each of `paths`, sorted and without repeats, in parallel unless the project
     /// compiles serially; the results in path order.
     pub(crate) fn each<T: Send>(&self, paths: &[PathBuf], compile: impl Fn(&PathBuf) -> T + Sync + Send) -> Vec<T> {

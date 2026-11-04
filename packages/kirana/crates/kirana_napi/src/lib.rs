@@ -26,6 +26,13 @@ pub struct TransformResult {
     pub reusable: bool,
 }
 
+/// One module for `Compiler.transformManyAsync`.
+#[napi(object)]
+pub struct ModuleSource {
+    pub id: String,
+    pub code: String,
+}
+
 /// One question for `Compiler.trace`: which value wins for `property` at `file:line` (1-based).
 #[napi(object)]
 pub struct TraceQuery {
@@ -106,24 +113,26 @@ fn transform_result(result: kirana_project::Transformed) -> TransformResult {
     }
 }
 
-/// One module's transform, run on the Node.js worker pool (`Compiler::transform_async`).
-pub struct TransformTask {
+/// A batch of module transforms, run on one worker of the Node.js pool
+/// (`Compiler::transform_many_async`).
+pub struct TransformManyTask {
     project: Arc<Project>,
-    id: String,
-    code: String,
+    modules: Vec<ModuleSource>,
     maps: bool,
 }
 
-impl napi::Task for TransformTask {
-    type Output = kirana_project::Transformed;
-    type JsValue = TransformResult;
+impl napi::Task for TransformManyTask {
+    type Output = Vec<kirana_project::Transformed>;
+    type JsValue = Vec<TransformResult>;
 
     fn compute(&mut self) -> napi::Result<Self::Output> {
-        Ok(self.project.transform_with(Path::new(&self.id), &self.code, self.maps))
+        let modules: Vec<(&Path, &str)> =
+            self.modules.iter().map(|module| (Path::new(&module.id), module.code.as_str())).collect();
+        Ok(self.project.transform_many(&modules, self.maps))
     }
 
     fn resolve(&mut self, _env: napi::Env, output: Self::Output) -> napi::Result<Self::JsValue> {
-        Ok(transform_result(output))
+        Ok(output.into_iter().map(transform_result).collect())
     }
 }
 
@@ -144,20 +153,22 @@ impl Compiler {
         transform_result(self.project.transform_with(Path::new(&id), &code, map.unwrap_or(true)))
     }
 
-    /// `transform` on a worker thread: a bundler that runs module hooks concurrently compiles
-    /// modules in parallel, and its own thread stays free. The registry is shared and the
-    /// stylesheet is written in path order, so the order transforms finish in changes nothing.
-    #[napi(ts_return_type = "Promise<TransformResult>")]
-    pub fn transform_async(
+    /// `transform` for many modules on a worker thread: a bundler that runs module hooks
+    /// concurrently compiles modules in parallel, and its own thread stays free. The batch takes
+    /// one worker, which compiles its modules on the engine's own threads, and resolves with the
+    /// results in the modules' order; a host collects the modules a bundler hands it in one turn of
+    /// the event loop, so a build of ten thousand modules crosses the boundary a few times instead
+    /// of ten thousand. The registry is shared and the stylesheet is written in path order, so the
+    /// order transforms finish in changes nothing.
+    #[napi(ts_return_type = "Promise<Array<TransformResult>>")]
+    pub fn transform_many_async(
         &self,
-        id: String,
-        code: String,
+        modules: Vec<ModuleSource>,
         map: Option<bool>,
-    ) -> napi::bindgen_prelude::AsyncTask<TransformTask> {
-        napi::bindgen_prelude::AsyncTask::new(TransformTask {
+    ) -> napi::bindgen_prelude::AsyncTask<TransformManyTask> {
+        napi::bindgen_prelude::AsyncTask::new(TransformManyTask {
             project: Arc::clone(&self.project),
-            id,
-            code,
+            modules,
             maps: map.unwrap_or(true),
         })
     }

@@ -286,6 +286,42 @@ fn parallel_builds_are_deterministic() {
 }
 
 #[test]
+fn a_batch_of_transforms_matches_the_transforms_one_at_a_time() {
+    let files: Vec<(String, String)> = (0..12)
+        .map(|index| {
+            (format!("src/b{index}.tsx"), format!("import {{ css }} from \"@kirana-style/core\"\nexport const s = css({{ height: \"{index}px\", color: {{ \":focus\": \"blue\" }} }})\n"))
+        })
+        .collect();
+    let borrowed: Vec<(&str, &str)> = files.iter().map(|(a, b)| (a.as_str(), b.as_str())).collect();
+    let (root, project) = temp_project(&borrowed);
+    let paths: Vec<PathBuf> = files.iter().map(|(name, _)| root.join(name)).collect();
+    let modules: Vec<(&Path, &str)> =
+        paths.iter().zip(&files).map(|(path, (_, source))| (path.as_path(), source.as_str())).collect();
+    // In parallel, and serially: the results come back in the modules' order either way.
+    let (_, serial) = temp_project(&borrowed);
+    serial.compile_serially();
+    let parallel = project.transform_many(&modules, false);
+    let one_by_one = serial.transform_many(&modules, false);
+    assert_eq!(parallel.len(), 12);
+    for (index, (result, expected)) in parallel.iter().zip(&one_by_one).enumerate() {
+        assert_eq!(result.code, expected.code, "module {index}");
+        assert_eq!(result.map, None);
+    }
+    let distinct: std::collections::HashSet<_> = parallel.iter().map(|result| result.code.clone().unwrap()).collect();
+    assert_eq!(distinct.len(), 12);
+    assert_eq!(project.stylesheet(true), serial.stylesheet(true));
+    // The same as asking for each module alone, source maps included.
+    let (_, alone) = temp_project(&borrowed);
+    let (_, together) = temp_project(&borrowed);
+    let expected: Vec<_> = modules.iter().map(|(path, source)| alone.transform(path, source)).collect();
+    let results = together.transform_many(&modules, true);
+    for (result, expected) in results.iter().zip(&expected) {
+        assert_eq!((&result.code, &result.map), (&expected.code, &expected.map));
+    }
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
 fn packages_without_manifest_and_memory_file_systems() {
     let memory = MemoryFs::new();
     memory.write("/app/input.ts", "import { css, relation } from \"@kirana-style/core\"\nexport const r = relation(\"x\")\nexport const s = css({ color: \"red\" })\n");

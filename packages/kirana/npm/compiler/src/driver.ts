@@ -68,6 +68,13 @@ export type TransformResult = {
 const RELEASE_AFTER_MS = 1000
 
 /**
+ * How many modules one call into the engine takes (`transformAsync`). A bundler hands over about a
+ * thousand in a turn of the event loop; in batches of this size the engine compiles one while the
+ * Driver hands on the results of the one before, instead of waiting for the whole turn's.
+ */
+const BATCH = 256
+
+/**
  * The pending release, a second after the last call into the engine by any Driver: the release is
  * the process's (every session's allocator at once), so one timer serves every Driver, re-armed by
  * each call. A Driver per build, as a benchmark opens them, would otherwise leave a timer per
@@ -84,6 +91,15 @@ type NativeResult = {
   dependencies: string[]
   reused: boolean
   reusable: boolean
+}
+
+/** One `transformAsync`, waiting for the engine's answer with the others of its event-loop turn. */
+type Pending = {
+  id: string
+  text: string
+  map: boolean
+  resolve: (result: NativeResult) => void
+  reject: (error: unknown) => void
 }
 
 /** A transform the Driver answers again itself, for the source and session it was made in. */
@@ -137,6 +153,10 @@ export class Driver {
   readonly #answers = new Map<string, Answer>()
   /** Moves on whenever the engine may have changed what an answer depends on. */
   #generation = 0
+  /** The transforms of this turn of the event loop, asked of the engine together (`#flush`). */
+  #pending: Pending[] = []
+  /** Whether `markDense` has started the dense build. */
+  #dense = false
 
   private constructor(
     root: string,
@@ -248,7 +268,11 @@ export class Driver {
 
   /**
    * `transform` on a worker thread, so a bundler that runs module hooks concurrently compiles
-   * modules in parallel. The WASI engine compiles on the calling thread, as `transform` does.
+   * modules in parallel. The modules asked for in one turn of the event loop go to the engine
+   * together: a bundler hands over hundreds in a turn, and each crossing into the engine costs a
+   * worker's wake and a context switch, so a build of ten thousand modules crosses a few times
+   * instead of ten thousand (KRN-CMP-009). The WASI engine compiles on the calling thread, as
+   * `transform` does.
    */
   async transformAsync(
     id: string,
@@ -267,11 +291,47 @@ export class Driver {
           text,
           map,
           generation,
-          await this.#compiler.transformAsync(id, text, options.map)
+          await this.#queued(id, text, map)
         ),
       code,
       appended
     )
+  }
+
+  /** The engine's transform of a module, asked with the others of this turn of the event loop. */
+  #queued(id: string, text: string, map: boolean): Promise<NativeResult> {
+    return new Promise((resolve, reject) => {
+      if (this.#pending.length === 0) setImmediate(() => this.#flush())
+      this.#pending.push({ id, text, map, resolve, reject })
+    })
+  }
+
+  /**
+   * Asks the engine for the pending transforms, one call per source map setting; each promise
+   * settles in order, so an answer is kept or dropped as it is when the engine is asked one at a
+   * time.
+   */
+  #flush(): void {
+    const pending = this.#pending.splice(0)
+    for (const map of [true, false]) {
+      const alike = pending.filter((entry) => entry.map === map)
+      for (let start = 0; start < alike.length; start += BATCH) {
+        const batch = alike.slice(start, start + BATCH)
+        this.#compiler
+          .transformManyAsync(
+            batch.map(({ id, text }) => ({ id, code: text })),
+            map
+          )
+          .then(
+            (results) => {
+              batch.forEach((entry, index) => entry.resolve(results[index]!))
+            },
+            (error: unknown) => {
+              for (const entry of batch) entry.reject(error)
+            }
+          )
+      }
+    }
   }
 
   /**
@@ -403,9 +463,13 @@ export class Driver {
 
   /**
    * Starts a dense build (D-084): from now on every module marks the names the compiler writes into
-   * it, and `dense` renames those and nothing else. Call it before the first transform.
+   * it, and `dense` renames those and nothing else. Call it before the first transform. A build
+   * that calls it once per environment starts the dense build once: the answers the Driver keeps
+   * from the first environment stay current for the next.
    */
   markDense(): void {
+    if (this.#dense) return
+    this.#dense = true
     this.#changed()
     this.#compiler.markDense()
   }
