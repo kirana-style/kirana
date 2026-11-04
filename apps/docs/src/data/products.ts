@@ -6,7 +6,6 @@
 import {
   Book02Icon,
   ComponentIcon,
-  ComputerIcon,
   Layout01Icon,
   Mail01Icon,
   Pdf01Icon,
@@ -90,14 +89,6 @@ export const PRODUCTS: readonly Product[] = [
     note: "The same `css()` handles, compiled to style objects for mobile apps",
     icon: SmartPhone01Icon,
     scene: "forest-falls",
-    target: "beyond",
-  },
-  {
-    name: "Kirana Desktop",
-    description: "Desktop apps on Electron and Electrobun",
-    note: "Templates and checked examples for desktop shells",
-    icon: ComputerIcon,
-    scene: "crater-lake",
     target: "beyond",
   },
 ]

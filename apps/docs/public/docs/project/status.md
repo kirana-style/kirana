@@ -31,6 +31,9 @@ line coverage. The [changelog](/changelog) lists every release.
 - Server templates: the class map `kirana-style build` and `kirana-style dev` write, and
   helpers for Laravel and Symfony (PHP), Rails (Ruby), Phoenix (Elixir) and
   AdonisJS; see [server templates](/docs/frameworks/server-templates)
+- Desktop and mobile apps on Electron, Tauri, Electrobun and Capacitor: their
+  frontends build with the Vite plugin, each with a tested example; see
+  [desktop and mobile apps](/docs/frameworks/desktop)
 - The command line: setting a project up and checking it (with a bug report),
   compiling without a bundler, reports for CI with GitHub annotations, what the
   stylesheet holds and why, the design system as JSON, tracing a property, and the

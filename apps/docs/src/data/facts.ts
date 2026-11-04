@@ -63,6 +63,7 @@ export const COUNTS = {
   packages: PACKAGES.length,
   frameworks: guides("frameworks").length,
   serverFrameworks: guides("server").length,
+  desktopShells: guides("desktop").length,
   bundlers: guides("bundlers").length,
   commands: COMMANDS.length,
   nativeTargets: NATIVE_TARGETS.length,
@@ -76,6 +77,8 @@ export const LISTS = {
   frameworks: guides("frameworks"),
   libraries: LIBRARIES.filter((name) => guides("frameworks").includes(name)),
   serverFrameworks: guides("server"),
+  /** The desktop and mobile shells whose pages run in a webview. */
+  desktopShells: guides("desktop"),
   /** The bundlers proper; PostCSS, Jest and Storybook have guides in the group but are not bundlers. */
   bundlers: guides("bundlers").filter(
     (name) => !["PostCSS", "Jest", "Storybook"].includes(name)
@@ -134,6 +137,7 @@ export const FACTS: Readonly<Record<string, string>> = {
   libraries: sentence(LISTS.libraries),
   "frameworks-count": String(COUNTS.frameworks),
   "server-frameworks": sentence(LISTS.serverFrameworks),
+  "desktop-shells": sentence(LISTS.desktopShells),
   bundlers: sentence(LISTS.bundlers),
   linters: sentence(LISTS.linters),
   "linters-or": sentence(LISTS.linters, "or"),

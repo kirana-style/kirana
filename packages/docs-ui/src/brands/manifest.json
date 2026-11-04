@@ -158,6 +158,18 @@
     "url": "https://storybook.js.org/",
     "route": "storybook.svg"
   },
+  "electron": {
+    "title": "Electron",
+    "category": "Library",
+    "url": "https://www.electronjs.org",
+    "route": "electron.svg"
+  },
+  "tauri": {
+    "title": "Tauri",
+    "category": "Library",
+    "url": "https://tauri.app/",
+    "route": "tauri.svg"
+  },
   "remix": {
     "title": "Remix",
     "category": "Framework",
@@ -434,6 +446,20 @@
     "category": "Library",
     "url": "https://styled-components.com/",
     "route": "official-styledcomponents.png",
+    "source": "official"
+  },
+  "capacitor": {
+    "title": "Capacitor",
+    "category": "Framework",
+    "url": "https://capacitorjs.com/",
+    "route": "official-capacitor.png",
+    "source": "official"
+  },
+  "electrobun": {
+    "title": "Electrobun",
+    "category": "Framework",
+    "url": "https://electrobun.dev/",
+    "route": "official-electrobun.png",
     "source": "official"
   },
   "emotion": {

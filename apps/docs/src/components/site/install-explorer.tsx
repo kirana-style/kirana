@@ -13,7 +13,9 @@ import { InstallTabs } from "@workspace/docs-ui/markdown/install-tabs.tsx"
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
 } from "@workspace/ui/components/select"
 import { Skeleton } from "@workspace/ui/components/skeleton"
@@ -24,6 +26,7 @@ import {
   fontFamily,
   fontSize,
   fontWeight,
+  letterSpacing,
   lineHeight,
 } from "@workspace/ui/tokens/typography"
 
@@ -32,7 +35,7 @@ import { LogoIcon, PAGE_LOGOS } from "@/components/site/brands"
 import { More } from "@/components/page-section"
 import { loadDocument } from "@/lib/pages"
 
-import { FRAMEWORKS } from "@/data/claims"
+import { FRAMEWORK_GROUPS, FRAMEWORKS } from "@/data/claims"
 
 type Node = {
   type: string
@@ -106,6 +109,18 @@ const styles = {
     gap: spacing[1],
   }),
   dropdown: css({ display: { base: "block", [WIDE]: "none" } }),
+  // A group's name above its frameworks in the list, in the docs sidebar's label voice.
+  group: css({
+    paddingInline: spacing[3],
+    paddingBlockStart: spacing[4],
+    paddingBlockEnd: spacing[1],
+    fontFamily: fontFamily.mono,
+    fontSize: "0.6875rem",
+    fontWeight: fontWeight.medium,
+    letterSpacing: letterSpacing.wide,
+    textTransform: "uppercase",
+    color: theme.mutedForeground,
+  }),
   trigger: css({ width: "100%", height: "2.75rem" }),
   pick: css({
     display: "flex",
@@ -249,29 +264,39 @@ export function InstallExplorer() {
               <Framework href={href} title={framework.title} />
             </SelectTrigger>
             <SelectContent>
-              {FRAMEWORKS.map((item) => (
-                <SelectItem key={item.href} value={item.href}>
-                  <Framework href={item.href} title={item.title} />
-                </SelectItem>
+              {FRAMEWORK_GROUPS.map((group) => (
+                <SelectGroup key={group.label}>
+                  <SelectLabel>{group.label}</SelectLabel>
+                  {group.items.map((item) => (
+                    <SelectItem key={item.href} value={item.href}>
+                      <Framework href={item.href} title={item.title} />
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div sx={styles.list} role="tablist" aria-label="Framework">
-          {FRAMEWORKS.map((item) => (
-            <button
-              key={item.href}
-              type="button"
-              role="tab"
-              aria-selected={item.href === href}
-              data-active={item.href === href ? "" : undefined}
-              sx={styles.pick}
-              onClick={() => setHref(item.href)}
-            >
-              <Framework href={item.href} title={item.title} />
-              <span sx={styles.pickText}>{item.text}</span>
-            </button>
-          ))}
+          {FRAMEWORK_GROUPS.map((group) => [
+            <span key={group.label} sx={styles.group} aria-hidden="true">
+              {group.label}
+            </span>,
+            ...group.items.map((item) => (
+              <button
+                key={item.href}
+                type="button"
+                role="tab"
+                aria-selected={item.href === href}
+                data-active={item.href === href ? "" : undefined}
+                sx={styles.pick}
+                onClick={() => setHref(item.href)}
+              >
+                <Framework href={item.href} title={item.title} />
+                <span sx={styles.pickText}>{item.text}</span>
+              </button>
+            )),
+          ])}
         </div>
         <div sx={styles.steps} role="tabpanel" aria-label={framework.title}>
           {setup ? (

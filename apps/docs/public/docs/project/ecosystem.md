@@ -35,15 +35,16 @@ See [other bundlers](/docs/integrations/bundlers) for each one's setup.
 Every framework has a guide and a tested example; the
 [frameworks page](/docs/frameworks/overview) picks yours.
 
-| Framework                                                                | How styles reach the markup                                     |
-| ------------------------------------------------------------------------ | --------------------------------------------------------------- |
-| React 19, Next.js, vinext, TanStack Start, Remix, Waku, Vike, Docusaurus | `sx` compiles to `className`; this site is a TanStack Start app |
-| Preact, Solid, SolidStart, Qwik 2                                        | `sx` compiles to `class`                                        |
-| Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro                           | `sx` in their templates                                         |
-| Angular (CLI and Analog)                                                 | `[sx]` in templates, merged at runtime                          |
-| React Router, Gatsby, Ember, Meteor                                      | as their component layer does                                   |
-| No framework                                                             | handles are class strings                                       |
-| Laravel, Symfony, Rails, Phoenix, AdonisJS                               | templates read a [class map](/docs/frameworks/server-templates) |
+| Framework                                                                | How styles reach the markup                                          |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| React 19, Next.js, vinext, TanStack Start, Remix, Waku, Vike, Docusaurus | `sx` compiles to `className`; this site is a TanStack Start app      |
+| Preact, Solid, SolidStart, Qwik 2                                        | `sx` compiles to `class`                                             |
+| Vue, Nuxt, VitePress, Svelte, SvelteKit, Astro                           | `sx` in their templates                                              |
+| Angular (CLI and Analog)                                                 | `[sx]` in templates, merged at runtime                               |
+| React Router, Gatsby, Ember, Meteor                                      | as their component layer does                                        |
+| No framework                                                             | handles are class strings                                            |
+| Laravel, Symfony, Rails, Phoenix, AdonisJS                               | templates read a [class map](/docs/frameworks/server-templates)      |
+| Electron, Tauri, Electrobun, Capacitor                                   | the frontend's build, shown in a [webview](/docs/frameworks/desktop) |
 
 ## Tooling
 

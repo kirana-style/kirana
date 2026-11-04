@@ -32,8 +32,8 @@ of Kirana is left at runtime.
 
 ## Works with your framework
 
-{{fact:frameworks}}; server templates in {{fact:server-frameworks}}; or no
-framework at all, on {{fact:bundlers}}, or Angular's CLI. Each has a complete
+{{fact:frameworks}}; server templates in {{fact:server-frameworks}}; desktop and
+mobile apps on {{fact:desktop-shells}}; or no framework at all, on {{fact:bundlers}}, or Angular's CLI. Each has a complete
 install guide, and each is built and checked in a browser on every change:
 **[pick yours](/docs/frameworks/overview)**.
 

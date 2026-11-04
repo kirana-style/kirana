@@ -47,7 +47,7 @@ export const TABS: readonly DocsTab[] = [
     id: "frameworks",
     label: "Frameworks",
     href: "/docs/frameworks/overview",
-    sections: ["frameworks", "server", "bundlers", "testing"],
+    sections: ["frameworks", "server", "desktop", "bundlers", "testing"],
     accent: "tea",
     icon: Layers01Icon,
   },

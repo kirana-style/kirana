@@ -1,11 +1,11 @@
 /**
  * Every install guide, as the "Choose a framework" page and the installation page list
- * them: a framework, a server framework whose templates read a class map, or a
- * bundler. `runsOn` is what the overview's table states; `description` is the
+ * them: a framework, a server framework whose templates read a class map, a desktop or
+ * mobile shell whose pages run in a webview, or a bundler. `runsOn` is what the overview's table states; `description` is the
  * tile's line. The logos live in `PAGE_LOGOS` (a React module; this file is read
  * at build time too, for the markdown twins).
  */
-export type GuideGroup = "frameworks" | "server" | "bundlers"
+export type GuideGroup = "frameworks" | "server" | "desktop" | "bundlers"
 
 export type Guide = {
   readonly title: string
@@ -18,6 +18,7 @@ export type Guide = {
 export const GUIDE_GROUPS: Readonly<Record<GuideGroup, string>> = {
   frameworks: "Frameworks",
   server: "Server frameworks",
+  desktop: "Desktop and mobile apps",
   bundlers: "Bundlers",
 }
 
@@ -236,6 +237,36 @@ export const FRAMEWORK_GUIDES: readonly Guide[] = [
     group: "server",
     description: "The fully featured Node.js framework: kirana() in Edge.",
     runsOn: "Kirana CLI, Vite",
+  },
+  {
+    title: "Electron",
+    href: "/docs/frameworks/electron",
+    group: "desktop",
+    description:
+      "Desktop apps on Chromium and Node.js, the renderer built by electron-vite.",
+    runsOn: "electron-vite",
+  },
+  {
+    title: "Tauri",
+    href: "/docs/frameworks/tauri",
+    group: "desktop",
+    description:
+      "Small desktop and mobile apps: a Rust core and the system's webview.",
+    runsOn: "Vite",
+  },
+  {
+    title: "Electrobun",
+    href: "/docs/frameworks/electrobun",
+    group: "desktop",
+    description: "Desktop apps on Bun, with views its templates build by Vite.",
+    runsOn: "Vite",
+  },
+  {
+    title: "Capacitor",
+    href: "/docs/frameworks/capacitor",
+    group: "desktop",
+    description: "One web app, run as a native iOS and Android app.",
+    runsOn: "Vite",
   },
   {
     title: "Vite",

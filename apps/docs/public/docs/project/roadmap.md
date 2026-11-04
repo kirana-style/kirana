@@ -151,7 +151,6 @@ with the compiler; the rest are planned, with no dates for the same reason.
 | Kirana Email | Planned | Styles inlined and checked against what email clients support |
 | Kirana PDF | Planned | Pages, margins and breaks written as typed styles |
 | Kirana Native | Planned | The same `css()` handles, compiled to style objects for mobile apps |
-| Kirana Desktop | Planned | Templates and checked examples for desktop shells |
 
 ## The gates
 

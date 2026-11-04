@@ -17,7 +17,8 @@ import {
   TextIcon,
 } from "@hugeicons/core-free-icons"
 
-import { FRAMEWORK_GUIDES } from "@/data/frameworks"
+import { FRAMEWORK_GUIDES, GUIDE_GROUPS } from "@/data/frameworks"
+import type { GuideGroup } from "@/data/frameworks"
 import { DIAGNOSTICS } from "@/generated/diagnostics.gen"
 
 type IconData = typeof Target02Icon
@@ -117,11 +118,22 @@ export const FEATURES: WithIcon[] = [
   },
 ]
 
-/** The frameworks with an install guide, each built and checked on every change. */
-export const FRAMEWORKS: Linked[] = FRAMEWORK_GUIDES.filter(
-  (guide) => guide.group !== "bundlers"
-).map((guide) => ({
-  title: guide.title,
-  text: guide.runsOn,
-  href: guide.href,
-}))
+/**
+ * The frameworks with an install guide, each built and checked on every change, by the group the
+ * docs sidebar shows them in: frameworks, server frameworks, desktop and mobile apps.
+ */
+export const FRAMEWORK_GROUPS: { label: string; items: Linked[] }[] = (
+  Object.keys(GUIDE_GROUPS) as GuideGroup[]
+)
+  .filter((group) => group !== "bundlers")
+  .map((group) => ({
+    label: GUIDE_GROUPS[group],
+    items: FRAMEWORK_GUIDES.filter((guide) => guide.group === group).map(
+      (guide) => ({ title: guide.title, text: guide.runsOn, href: guide.href })
+    ),
+  }))
+
+/** Every framework of [`FRAMEWORK_GROUPS`], in their order. */
+export const FRAMEWORKS: Linked[] = FRAMEWORK_GROUPS.flatMap(
+  (group) => group.items
+)
