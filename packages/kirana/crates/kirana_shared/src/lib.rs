@@ -82,6 +82,18 @@ pub fn push_base62_compact(out: &mut String, value: u64) {
     push_base62(out, value, width);
 }
 
+/// The value `text` spells in base 62, or `None` for an empty text, a character outside the alphabet
+/// or a value a `u64` cannot hold: what [`base62_compact`] and [`base62`] wrote, read back.
+pub fn parse_base62(text: &str) -> Option<u64> {
+    if text.is_empty() {
+        return None;
+    }
+    text.bytes().try_fold(0u64, |value, byte| {
+        let digit = ALPHABET.iter().position(|&letter| letter == byte)?;
+        value.checked_mul(62)?.checked_add(digit as u64)
+    })
+}
+
 /// `camelCase` or `WebkitLineClamp` → `kebab-case` / `-webkit-line-clamp`. Custom properties
 /// (`--name`) are returned unchanged.
 pub fn kebab_case(name: &str) -> String {

@@ -48,12 +48,18 @@ pub struct EmitOutput {
     /// them, as `(name, identity)` in order (D-086, D-094); a keyframes rule's identity is
     /// `@keyframes {name}`. A host fails a later chunk that names one.
     pub pruned: Vec<(String, String)>,
+    /// The atoms whose rules the stylesheet holds, as positions in the list [`emit_ranked`] (or
+    /// [`emit`]) was given, in the order their classes are written: rule by rule, and within a rule
+    /// in the order its selectors were merged. A dense build gives codes in this order (D-084).
+    pub written: Vec<usize>,
 }
 
 struct Writer {
     out: String,
     minify: bool,
     depth: usize,
+    /// The address of each atom whose selector was written, in order ([`EmitOutput::written`]).
+    written: Vec<usize>,
 }
 
 impl Writer {
@@ -286,7 +292,7 @@ fn write_atoms(writer: &mut Writer, atoms: &[&Atom], own: bool) {
 /// One atom's rule as the stylesheet writes it when nothing shares it, at-rules included: what the
 /// atom costs before rules carrying the same declaration are merged (`kirana-style analyze`).
 pub fn atom_rule(atom: &Atom, minify: bool) -> String {
-    let mut writer = Writer { out: String::new(), minify, depth: 0 };
+    let mut writer = Writer { out: String::new(), minify, depth: 0, written: Vec::new() };
     write_atoms(&mut writer, &[atom], true);
     writer.finish()
 }
@@ -459,32 +465,35 @@ fn write_block(writer: &mut Writer, block: &mut Vec<&Atom>, own: bool) {
     if own {
         arrange(block);
     }
-    let mut rules: Vec<(String, &str, &str)> = Vec::new();
+    let mut rules: Vec<(String, &str, &str, Vec<usize>)> = Vec::new();
     let mut merge_into: FxHashMap<(&str, &str), usize> = FxHashMap::default();
     let mut decided = Decided::default();
     for atom in block.drain(..) {
         let property = atom.key.property.name.as_ref();
         let value = atom.value.css.as_ref();
+        let address = std::ptr::from_ref(atom) as usize;
         match merge_into.get(&(property, value)) {
             Some(&index) if decided.free(atom, index) => {
-                let selectors = &mut rules[index].0;
+                let (selectors, _, _, atoms) = &mut rules[index];
                 selectors.push_str(", ");
                 push_selector(selectors, atom);
+                atoms.push(address);
             }
             _ => {
                 let index = rules.len();
                 let mut selectors = String::new();
                 push_selector(&mut selectors, atom);
-                rules.push((selectors, property, value));
+                rules.push((selectors, property, value, vec![address]));
                 merge_into.insert((property, value), index);
                 decided.record(atom, index);
             }
         }
     }
-    for (selectors, property, value) in rules {
+    for (selectors, property, value, atoms) in rules {
         writer.open(&selectors);
         writer.declaration(property, value);
         writer.close();
+        writer.written.extend(atoms);
     }
 }
 
@@ -566,12 +575,71 @@ pub fn emit(atoms: &[Atom], marker_deps: &[Dep], options: &EmitOptions) -> EmitO
     let mut ranked: Vec<(LadderRank, &Atom)> = atoms.iter().map(|atom| (ladder_rank(atom), atom)).collect();
     ranked.sort_by(|a, b| a.0.cmp(&b.0).then_with(|| a.1.class.cmp(&b.1.class)));
     ranked.dedup_by(|later, earlier| later.1.class == earlier.1.class);
-    emit_ranked(&ranked.iter().map(|(rank, atom)| (rank, *atom)).collect::<Vec<_>>(), marker_deps, options)
+    let mut output =
+        emit_ranked(&ranked.iter().map(|(rank, atom)| (rank, *atom)).collect::<Vec<_>>(), marker_deps, options);
+    // Positions in `atoms`, as given, rather than in the ladder order built here.
+    let positions: FxHashMap<usize, usize> =
+        atoms.iter().enumerate().map(|(index, atom)| (std::ptr::from_ref(atom) as usize, index)).collect();
+    for written in &mut output.written {
+        *written = positions[&(std::ptr::from_ref(ranked[*written].1) as usize)];
+    }
+    output
+}
+
+/// The rules of a stylesheet: the `kirana.contextual` and `kirana.atoms` layers, written from the
+/// atoms alone. What precedes them (the layer statements, tokens, themes and the other definitions)
+/// depends on what a finished bundle still names (`EmitOptions::named`); the rules do not, so a
+/// registry writes them once per revision and heads them as often as it is asked.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Body {
+    /// The two layers' text, minified or not as asked; empty when there are no atoms.
+    pub css: String,
+    /// [`EmitOutput::written`].
+    pub written: Vec<usize>,
+}
+
+/// The rules of `atoms` (ladder-ordered, with their ranks), as [`emit_ranked`] writes them.
+pub fn emit_body(atoms: &[(&LadderRank, &Atom)], options: &EmitOptions) -> Body {
+    let mut writer = Writer { out: String::new(), minify: options.minify, depth: 0, written: Vec::new() };
+    // Each layer keeps the ladder order the atoms came in.
+    let (contextual, own): (Vec<_>, Vec<_>) =
+        atoms.iter().copied().partition(|(_, atom)| atom.key.target.is_contextual());
+    let contextual: Vec<&Atom> = contextual.into_iter().map(|(_, atom)| atom).collect();
+    if !contextual.is_empty() {
+        writer.open("@layer kirana.contextual");
+        write_atoms(&mut writer, &contextual, false);
+        writer.close();
+    }
+    if !own.is_empty() {
+        writer.open("@layer kirana.atoms");
+        if options.tiers {
+            write_tiers(&mut writer, &own);
+        } else {
+            write_atoms(&mut writer, &own.into_iter().map(|(_, atom)| atom).collect::<Vec<_>>(), true);
+        }
+        writer.close();
+    }
+    // Each written atom's position in `atoms`, from the address the writer recorded.
+    let positions: FxHashMap<usize, usize> =
+        atoms.iter().enumerate().map(|(index, (_, atom))| (std::ptr::from_ref(*atom) as usize, index)).collect();
+    let written = writer.written.iter().map(|address| positions[address]).collect();
+    Body { css: writer.finish(), written }
 }
 
 /// [`emit`] for atoms already in ladder order, one per class, each with its [`ladder_rank`]: the
 /// registry keeps its atoms that way as modules change, so writing a stylesheet sorts nothing.
 pub fn emit_ranked(atoms: &[(&LadderRank, &Atom)], marker_deps: &[Dep], options: &EmitOptions) -> EmitOutput {
+    emit_with_body(atoms, marker_deps, options, &emit_body(atoms, options))
+}
+
+/// [`emit_ranked`] with the rules already written ([`emit_body`] of the same atoms and options):
+/// only what precedes them is written here.
+pub fn emit_with_body(
+    atoms: &[(&LadderRank, &Atom)],
+    marker_deps: &[Dep],
+    options: &EmitOptions,
+    body: &Body,
+) -> EmitOutput {
     let mut deps = Deps::default();
     for (_, atom) in atoms {
         atom.value.deps.iter().for_each(|dep| deps.add(dep));
@@ -604,7 +672,7 @@ pub fn emit_ranked(atoms: &[(&LadderRank, &Atom)], marker_deps: &[Dep], options:
     pruned.sort();
     pruned.dedup();
 
-    let mut writer = Writer { out: String::new(), minify: options.minify, depth: 0 };
+    let mut writer = Writer { out: String::new(), minify: options.minify, depth: 0, written: Vec::new() };
     let separator = writer.separator();
     let order: Vec<&str> = options
         .layers_before
@@ -704,31 +772,15 @@ pub fn emit_ranked(atoms: &[(&LadderRank, &Atom)], marker_deps: &[Dep], options:
         writer.close();
     }
 
-    // Each layer keeps the ladder order the atoms came in.
-    let (contextual, own): (Vec<_>, Vec<_>) =
-        atoms.iter().copied().partition(|(_, atom)| atom.key.target.is_contextual());
-    let contextual: Vec<&Atom> = contextual.into_iter().map(|(_, atom)| atom).collect();
-    if !contextual.is_empty() {
-        writer.open("@layer kirana.contextual");
-        write_atoms(&mut writer, &contextual, false);
-        writer.close();
-    }
-    if !own.is_empty() {
-        writer.open("@layer kirana.atoms");
-        if options.tiers {
-            write_tiers(&mut writer, &own);
-        } else {
-            write_atoms(&mut writer, &own.into_iter().map(|(_, atom)| atom).collect::<Vec<_>>(), true);
-        }
-        writer.close();
-    }
-
-    let css = writer.finish();
+    // The rules, written once for every head they get.
+    let mut css = writer.finish();
+    css.push_str(&body.css);
+    let written = body.written.clone();
     let output = match &options.lower_for {
-        None => EmitOutput { css, lowered: false, pruned: Vec::new() },
+        None => EmitOutput { css, lowered: false, pruned: Vec::new(), written: Vec::new() },
         Some(targets) => lower(css, *targets, options.minify),
     };
-    EmitOutput { pruned, ..output }
+    EmitOutput { pruned, written, ..output }
 }
 
 /// Ladder-ordered atoms of `kirana.atoms`, one sub-layer per tier (D-114): the order statement names
@@ -768,7 +820,7 @@ pub fn lower(css: String, targets: Targets, minify: bool) -> EmitOutput {
             .and_then(|()| sheet.to_css(PrinterOptions { minify, targets, ..PrinterOptions::default() }).ok())
     });
     match printed {
-        Some(printed) => EmitOutput { css: printed.code, lowered: true, pruned: Vec::new() },
-        None => EmitOutput { css, lowered: false, pruned: Vec::new() },
+        Some(printed) => EmitOutput { css: printed.code, lowered: true, pruned: Vec::new(), written: Vec::new() },
+        None => EmitOutput { css, lowered: false, pruned: Vec::new(), written: Vec::new() },
     }
 }

@@ -956,6 +956,7 @@ dependencies = [
 name = "kirana_ir"
 version = "0.3.7"
 dependencies = [
+ "kirana_cascade",
  "kirana_css_data",
  "kirana_shared",
  "proptest",

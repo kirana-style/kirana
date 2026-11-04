@@ -210,7 +210,7 @@ fn lowering_that_fails_leaves_the_stylesheet_alone() {
     let targets =
         Targets { browsers: Some(Browsers { safari: Some(15 << 16), ..Browsers::default() }), ..Targets::default() };
     let output = lower("!!!".to_owned(), targets, true);
-    assert_eq!(output, EmitOutput { css: "!!!".to_owned(), lowered: false, pruned: vec![] });
+    assert_eq!(output, EmitOutput { css: "!!!".to_owned(), lowered: false, pruned: vec![], written: vec![] });
 }
 
 #[test]

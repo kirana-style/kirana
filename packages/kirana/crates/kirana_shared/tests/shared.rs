@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use kirana_shared::{
-    Fs, MemoryFs, OsFs, base62, base62_bytes, base62_compact, hash_parts, hash64, kebab_case, push_base62,
-    push_base62_compact,
+    Fs, MemoryFs, OsFs, base62, base62_bytes, base62_compact, hash_parts, hash64, kebab_case, parse_base62,
+    push_base62, push_base62_compact,
 };
 
 #[test]
@@ -61,4 +61,16 @@ fn memory_and_os_file_systems_read_files() {
 
     let own = OsFs.read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml").as_path());
     assert!(own.unwrap().contains("kirana_shared"));
+}
+
+#[test]
+fn base62_reads_back_what_it_wrote() {
+    for value in [0u64, 1, 61, 62, 3843, 3844, 1 << 40, u64::MAX] {
+        assert_eq!(parse_base62(&base62_compact(value)), Some(value));
+        assert_eq!(parse_base62(&base62(value, 13)), Some(value));
+    }
+    // Nothing, a character outside the alphabet, and a value a `u64` cannot hold.
+    assert_eq!(parse_base62(""), None);
+    assert_eq!(parse_base62("k5-0"), None);
+    assert_eq!(parse_base62("ZZZZZZZZZZZZZZ"), None);
 }

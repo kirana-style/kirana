@@ -174,14 +174,25 @@ fn merge_vectors_are_current() {
 
     // The same vectors in dense names (D-084): the runtime must merge renamed classes into the
     // renamed result. Every hash in the file gets a code, as a build would give them.
+    // Value codes are one space per property family (D-084), the cascade's unfold table deciding
+    // the families, so a padding longhand's code is the shorthand's where the runtime copies it.
+    let family = kirana_cascade::value_family_of_code;
     let mut dense = dense::DenseNames::default();
-    let uses: Vec<(dense::Segment, &str, usize)> = dense::names("k", &text, false)
+    let uses: Vec<(dense::Use<'_>, usize)> = dense::names("k", &text, false)
         .into_iter()
-        .flat_map(|name| [(dense::Segment::Condition, name.condition), (dense::Segment::Value, name.value)])
-        .filter_map(|(segment, range)| range.map(|(start, end)| (segment, &text[start..end], 1)))
+        .flat_map(|name| {
+            let condition = name.condition.map(|(start, end)| dense::Use::Condition(&text[start..end]));
+            let (from, to) = name.property;
+            let value = name
+                .value
+                .map(|(start, end)| dense::Use::Value { family: family(&text[from..to]), hash: &text[start..end] });
+            [condition, value]
+        })
+        .flatten()
+        .map(|use_| (use_, 1))
         .collect();
     dense.extend(uses);
-    let renamed = dense.rename("k", &text, false);
+    let renamed = dense.rename("k", &text, false, &family);
     assert!(renamed.len() < text.len());
     let path = path.with_file_name("dense-vectors.json");
     if std::env::var_os("KIRANA_UPDATE_FIXTURES").is_some() {
