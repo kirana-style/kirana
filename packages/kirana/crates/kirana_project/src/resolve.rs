@@ -11,6 +11,7 @@ use kirana_shared::{FxHashMap, FxHashSet, hash64};
 use oxc_resolver::{ResolveOptions, Resolver, TsconfigDiscovery};
 
 use crate::Project;
+use crate::path::{ModulePath, key};
 
 /// How many styles written out in full a session keeps (KF-059): a large application's distinct
 /// literal styles fit, a long editing session's every keystroke does not.
@@ -43,7 +44,6 @@ pub(crate) struct Exports {
 }
 
 /// One module's evaluated exports.
-#[derive(Clone)]
 pub(crate) struct ExportsEntry {
     pub hash: u64,
     pub exports: Arc<Exports>,
@@ -51,6 +51,8 @@ pub(crate) struct ExportsEntry {
     pub provenance: Vec<(PathBuf, u64)>,
     /// Whether an import failed to resolve while evaluating ([`ModuleHost::missed`]).
     pub missed: bool,
+    /// The `hash_epoch` the provenance was last verified at (`State::hash_epoch`).
+    pub verified: std::sync::atomic::AtomicU64,
 }
 
 /// The evaluator host for one module: resolves imports through the project and records which
@@ -72,7 +74,10 @@ pub(crate) struct ModuleHost<'p> {
     /// same module needs neither its checks nor its provenance again, since no file changes during
     /// a transform (KF-082). Exports a cycle cut short are not kept, as the project does not keep
     /// them either: each read evaluates them again (KF-038).
-    exports: RefCell<FxHashMap<PathBuf, Arc<Exports>>>,
+    exports: RefCell<FxHashMap<ModulePath, Arc<Exports>>>,
+    /// The `css()` values this evaluation kept (KF-059), put in the project's cache together when
+    /// it ends (`keep_styles`): one turn at the cache's write lock per module, not one per style.
+    styles: RefCell<Vec<(String, Value)>>,
     /// The modules being transformed on this thread, this one last: one of them is never dropped
     /// from an import, so compiling what an import would load ends (D-118).
     compiling: Vec<PathBuf>,
@@ -89,7 +94,25 @@ impl<'p> ModuleHost<'p> {
             cycles: RefCell::default(),
             missed: Cell::new(false),
             exports: RefCell::default(),
+            styles: RefCell::default(),
             compiling: Vec::new(),
+        }
+    }
+
+    /// Puts the `css()` values this evaluation kept in the project's cache, in one turn at its lock.
+    pub fn keep_styles(&self) {
+        let kept = self.styles.take();
+        if kept.is_empty() {
+            return;
+        }
+        let mut styles = self.project.styles.write().expect("not poisoned");
+        for (key, value) in kept {
+            // An editor session compiles every keystroke of a style it types: past the bound the
+            // cache starts over, as the runtime's merge cache does, rather than holding every one.
+            if styles.len() >= STYLES {
+                styles.clear();
+            }
+            styles.insert(key, value);
         }
     }
 
@@ -162,7 +185,7 @@ impl<'p> ModuleHost<'p> {
         // a preset brings every file the preset reads (KF-060).
         let mut seen = FxHashSet::default();
         let mut read: Vec<(PathBuf, u64)> =
-            self.read.borrow().iter().filter(|entry| seen.insert(*entry)).cloned().collect();
+            self.read.borrow().iter().filter(|(path, hash)| seen.insert((path.as_os_str(), *hash))).cloned().collect();
         read.sort();
         read
     }
@@ -170,8 +193,13 @@ impl<'p> ModuleHost<'p> {
     /// Files read directly or through re-exports, deduplicated and sorted.
     pub fn dependencies(&self) -> Vec<PathBuf> {
         let mut seen = FxHashSet::default();
-        let mut paths: Vec<PathBuf> =
-            self.read.borrow().iter().filter(|(path, _)| seen.insert(path)).map(|(path, _)| path.clone()).collect();
+        let mut paths: Vec<PathBuf> = self
+            .read
+            .borrow()
+            .iter()
+            .filter(|(path, _)| seen.insert(path.as_os_str()))
+            .map(|(path, _)| path.clone())
+            .collect();
         paths.sort();
         paths
     }
@@ -198,12 +226,12 @@ impl<'p> ModuleHost<'p> {
     }
 
     pub(crate) fn exports_of(&self, path: &Path) -> Option<Arc<Exports>> {
-        if let Some(exports) = self.exports.borrow().get(path) {
+        if let Some(exports) = self.exports.borrow().get(&*key(path)) {
             return Some(exports.clone());
         }
         let (exports, whole) = self.evaluated_exports(path)?;
         if whole {
-            self.exports.borrow_mut().insert(path.to_path_buf(), exports.clone());
+            self.exports.borrow_mut().insert(ModulePath::new(path), exports.clone());
         }
         Some(exports)
     }
@@ -215,20 +243,35 @@ impl<'p> ModuleHost<'p> {
             return None;
         }
         // A cache hit is answered from the project's hash cache, without touching the file; the
-        // source is read once, and only when the cached exports turn out to be stale.
-        let cached = self.project.state.read().expect("not poisoned").exports.get(path).cloned();
+        // source is read once, and only when the cached exports turn out to be stale. An entry
+        // verified at the current epoch is current (`State::hash_epoch`); the hit records what the
+        // entry read as this module's own reads.
+        let hit = |entry: &ExportsEntry| {
+            self.read.borrow_mut().push((path.to_path_buf(), entry.hash));
+            self.read.borrow_mut().extend(entry.provenance.iter().cloned());
+            self.missed.set(self.missed.get() || entry.missed);
+            Some((entry.exports.clone(), true))
+        };
+        let (cached, epoch) = {
+            let state = self.project.state.read().expect("not poisoned");
+            let epoch = state.hash_epoch;
+            match state.exports.get(&*key(path)) {
+                Some(entry) if entry.verified.load(std::sync::atomic::Ordering::Relaxed) == epoch => return hit(entry),
+                entry => (entry.map(Arc::clone), epoch),
+            }
+        };
+        // Verified file by file and stamped; the stamp lands on this entry, never on one another
+        // thread put in its place meanwhile.
         if let Some(entry) = cached
             && self.project.current_hash(path) == Some(entry.hash)
             && entry.provenance.iter().all(|(dependency, seen)| self.project.current_hash(dependency) == Some(*seen))
         {
-            self.read.borrow_mut().push((path.to_path_buf(), entry.hash));
-            self.read.borrow_mut().extend(entry.provenance.iter().cloned());
-            self.missed.set(self.missed.get() || entry.missed);
-            return Some((entry.exports.clone(), true));
+            entry.verified.store(epoch, std::sync::atomic::Ordering::Relaxed);
+            return hit(&entry);
         }
         let source = self.project.fs.read_to_string(path).ok()?;
         let hash = hash64(source.as_bytes());
-        self.project.state.write().expect("not poisoned").work.resolved += 1;
+        crate::Counters::count(&self.project.work.resolved);
         let mut stack = self.stack.clone();
         stack.push(path.to_path_buf());
         let nested = ModuleHost::new(self.project, stack);
@@ -270,6 +313,7 @@ impl<'p> ModuleHost<'p> {
             (exports, definitions)
         })
         .ok()?;
+        nested.keep_styles();
         self.project.register_definitions(&definitions, &package, &file);
         let exports = Arc::new(exports);
         // Kept deduplicated: every importer's cache hit checks and copies it.
@@ -287,10 +331,18 @@ impl<'p> ModuleHost<'p> {
             self.cut.set(self.cut.get().min(cut));
         } else {
             let mut state = self.project.state.write().expect("not poisoned");
-            state.hashes.insert(path.to_path_buf(), hash);
+            state.set_hash(path, hash);
+            // Verified as of the epoch the evaluation began at: what it read had these hashes then,
+            // unless a known file changed meanwhile, which moved the epoch on.
             state.exports.insert(
-                path.to_path_buf(),
-                ExportsEntry { hash, exports: exports.clone(), provenance: provenance.clone(), missed },
+                ModulePath::new(path),
+                Arc::new(ExportsEntry {
+                    hash,
+                    exports: exports.clone(),
+                    provenance: provenance.clone(),
+                    missed,
+                    verified: std::sync::atomic::AtomicU64::new(epoch),
+                }),
             );
         }
         self.read.borrow_mut().push((path.to_path_buf(), hash));
@@ -382,19 +434,19 @@ impl Host for ModuleHost<'_> {
     }
 
     fn cached_style(&self, key: &str) -> Option<Value> {
-        let value = self.project.styles.read().expect("not poisoned").get(key).cloned()?;
-        self.project.styles_reused.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        // Kept by this evaluation, or by one before it.
+        let value = self
+            .styles
+            .borrow()
+            .iter()
+            .find_map(|(kept, value)| (kept == key).then(|| value.clone()))
+            .or_else(|| self.project.styles.read().expect("not poisoned").get(key).cloned())?;
+        crate::Counters::count(&self.project.work.styles);
         Some(value)
     }
 
     fn keep_style(&self, key: String, value: &Value) {
-        let mut styles = self.project.styles.write().expect("not poisoned");
-        // An editor session compiles every keystroke of a style it types: past the bound the cache
-        // starts over, as the runtime's merge cache does, rather than holding every one.
-        if styles.len() >= STYLES {
-            styles.clear();
-        }
-        styles.insert(key, value.clone());
+        self.styles.borrow_mut().push((key, value.clone()));
     }
 
     fn lookup_dep(&self, name: &str) -> Option<Dep> {

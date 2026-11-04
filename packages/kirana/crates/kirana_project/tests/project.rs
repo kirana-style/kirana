@@ -695,6 +695,46 @@ fn a_build_reuses_a_transform_whose_inputs_are_unchanged() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// A cached transform, and a cached evaluation, are verified against the files they read once per
+/// epoch of the session's hashes: a file invalidated with its content unchanged moves the epoch on,
+/// the next transform verifies again and finds everything as it was, and the one after that is
+/// answered without a check per file.
+#[test]
+fn a_file_invalidated_unchanged_is_verified_once_more_and_the_transform_reused() {
+    let tokens = "import { defineTokens } from \"@kirana-style/core\"\nexport const space = defineTokens(\"space\", { 1: \"1px\" })\n";
+    let input = "import { css } from \"@kirana-style/core\"\nimport { space } from \"./tokens\"\nexport const box = css({ gap: space[1] })\n";
+    let other = "import { css } from \"@kirana-style/core\"\nimport { space } from \"./tokens\"\nexport const row = css({ padding: space[1] })\n";
+    let (root, project) = temp_project(&[
+        ("package.json", "{\"name\":\"app\"}"),
+        ("tokens.ts", tokens),
+        ("input.ts", input),
+        ("other.ts", other),
+    ]);
+    project.reuse_transforms();
+    // The tokens module transformed from an editor's buffer, then read from disk for the import: the
+    // hash the session holds for it changes, and what was verified before is verified again.
+    project.transform(&root.join("tokens.ts"), &format!("{tokens}// typing\n"));
+    let first = project.transform(&root.join("input.ts"), input);
+    project.transform(&root.join("other.ts"), other);
+    assert_eq!(project.work().resolved, 1, "tokens evaluated once, answered to the second module from the cache");
+    // Touched, not changed: the importer is told, verifies what it read, and is reused.
+    assert_eq!(project.invalidate(&root.join("tokens.ts")), vec![root.join("input.ts"), root.join("other.ts")]);
+    let again = project.transform(&root.join("input.ts"), input);
+    assert_eq!((project.work().reused, again.reused), (1, true));
+    assert_eq!(again.code, first.code);
+    // The tokens module's exports were verified too, not evaluated again.
+    project.transform(&root.join("other.ts"), other);
+    assert_eq!((project.work().reused, project.work().resolved), (2, 1));
+    // Changed: compiled again, and its tokens evaluated again.
+    fs::write(root.join("tokens.ts"), tokens.replace("1px", "2px")).unwrap();
+    project.invalidate(&root.join("tokens.ts"));
+    let changed = project.transform(&root.join("input.ts"), input);
+    assert!(!changed.reused);
+    assert_ne!(changed.code, first.code);
+    assert_eq!(project.work().resolved, 2);
+    fs::remove_dir_all(root).unwrap();
+}
+
 /// A watch session reuses transforms too (KF-063), but never one that missed an import: it compiles
 /// each time, as without reuse, until the file it names exists.
 #[test]

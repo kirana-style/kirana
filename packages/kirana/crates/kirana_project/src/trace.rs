@@ -148,7 +148,7 @@ impl Project {
 
     fn trace_lines(&self, path: &Path, lines: &LineIndex, line: usize, property: &str) -> Vec<TraceLine> {
         let state = self.state.read().expect("not poisoned");
-        let Some(record) = state.modules.get(path) else { return Vec::new() };
+        let Some(record) = state.modules.get(&*crate::path::key(path)) else { return Vec::new() };
         let covers_line = |span: &(u32, u32)| lines.line(span.0) <= line && line <= lines.line(span.1);
         // A recipe's handles are read part by part, so each entry says which part it comes from.
         let mut handles: Vec<(&Handle, Option<RecipePart>)> = Vec::new();

@@ -837,7 +837,11 @@ impl Project {
     pub fn debug_force_collision(&self, path: &std::path::Path) {
         let mut state = self.state.write().expect("not poisoned");
         state.revision += 1;
-        let atom = state.modules.get(path).and_then(|record| record.atoms.first().cloned()).expect("an atom");
+        let atom = state
+            .modules
+            .get(&*crate::path::key(path))
+            .and_then(|record| record.atoms.first().cloned())
+            .expect("an atom");
         let mut different_value = (*atom).clone();
         different_value.value.css = "a different value".into();
         // Ranked otherwise too, so the index moves the class when this module writes it first.

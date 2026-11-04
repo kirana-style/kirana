@@ -6,13 +6,14 @@
 //! the stylesheet the build writes.
 
 use std::collections::{BTreeMap, BTreeSet};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use kirana_diagnostics::{Code, Diagnostic, LineIndex};
 use kirana_ir::{Atom, Dep};
 use serde::Serialize;
 
 use crate::Project;
+use crate::path::ModulePath;
 
 /// What a compiled project puts in its stylesheet, and why.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -122,12 +123,13 @@ impl Project {
         let state = self.state.read().expect("not poisoned");
         let names: BTreeMap<&str, &str> =
             state.relations.iter().map(|(marker, (name, _))| (marker.as_str(), name.as_str())).collect();
-        let mut paths: Vec<&PathBuf> = state.modules.keys().filter(|path| !state.modules[*path].is_empty()).collect();
+        let mut paths: Vec<&ModulePath> =
+            state.modules.keys().filter(|path| !state.modules[*path].is_empty()).collect();
         paths.sort();
 
         // Every site's atoms, counted by class: how many sites apply it, from how many modules.
         let mut atoms: BTreeMap<String, Atom> = BTreeMap::new();
-        let mut uses: BTreeMap<String, (usize, BTreeSet<&PathBuf>)> = BTreeMap::new();
+        let mut uses: BTreeMap<String, (usize, BTreeSet<&ModulePath>)> = BTreeMap::new();
         let mut sites = 0;
         let mut read = BTreeSet::new();
         let mut themes: BTreeMap<String, (Vec<String>, BTreeSet<String>)> = BTreeMap::new();
