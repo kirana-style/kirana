@@ -11,11 +11,15 @@ export declare class Compiler {
   /** `map` false leaves the source map out, for a host that writes none. */
   transform(id: string, code: string, map?: boolean | undefined | null): TransformResult
   /**
-   * `transform` on a worker thread: a bundler that runs module hooks concurrently compiles
-   * modules in parallel, and its own thread stays free. The registry is shared and the
-   * stylesheet is written in path order, so the order transforms finish in changes nothing.
+   * `transform` for many modules on a worker thread: a bundler that runs module hooks
+   * concurrently compiles modules in parallel, and its own thread stays free. The batch takes
+   * one worker, which compiles its modules on the engine's own threads, and resolves with the
+   * results in the modules' order; a host collects the modules a bundler hands it in one turn of
+   * the event loop, so a build of ten thousand modules crosses the boundary a few times instead
+   * of ten thousand. The registry is shared and the stylesheet is written in path order, so the
+   * order transforms finish in changes nothing.
    */
-  transformAsync(id: string, code: string, map?: boolean | undefined | null): Promise<TransformResult>
+  transformManyAsync(modules: Array<ModuleSource>, map?: boolean | undefined | null): Promise<Array<TransformResult>>
   stylesheet(minify: boolean): string
   /**
    * The stylesheet of a finished bundle (D-086): `named` is every variable token its chunks and
@@ -148,6 +152,12 @@ export interface DenseEdits {
 export interface FinishedStylesheet {
   css: string
   pruned: Array<PrunedToken>
+}
+
+/** One module for `Compiler.transformManyAsync`. */
+export interface ModuleSource {
+  id: string
+  code: string
 }
 
 /** A variable token a finished stylesheet left out (D-086). */

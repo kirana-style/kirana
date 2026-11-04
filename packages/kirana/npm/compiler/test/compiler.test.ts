@@ -92,7 +92,7 @@ describe("KRN-INT-001 Driver", () => {
       ...native,
       __napiBindingTarget: "wasm32-wasi",
       Compiler: class extends native.Compiler {
-        override transformAsync(): never {
+        override transformManyAsync(): never {
           throw new Error("not under WASI")
         }
       },
@@ -491,13 +491,12 @@ console.log(resolveConfigSync(${JSON.stringify(root)}).json)`,
           asked.push(path.basename(id))
           return super.transform(id, code, map)
         }
-        override transformAsync(
-          id: string,
-          code: string,
+        override transformManyAsync(
+          modules: { id: string; code: string }[],
           map?: boolean | null
         ) {
-          asked.push(path.basename(id))
-          return super.transformAsync(id, code, map)
+          for (const module of modules) asked.push(path.basename(module.id))
+          return super.transformManyAsync(modules, map)
         }
       },
     } as unknown as typeof native
@@ -549,6 +548,104 @@ console.log(resolveConfigSync(${JSON.stringify(root)}).json)`,
       await driver.transformAsync(at("src/c.tsx"), source("src/c.tsx"))
     }
     expect(ask().sort()).toEqual(["b.tsx", "b.tsx", "c.tsx", "c.tsx"])
+  })
+
+  it("asks the engine once for the modules one turn of the event loop hands it (KRN-CMP-009)", async () => {
+    const files = Object.fromEntries(
+      Array.from({ length: 16 }, (_, index) => [
+        `src/t${index}.tsx`,
+        INPUT.replace("black", `#${String(index + 100).padStart(6, "0")}`),
+      ])
+    )
+    const root = project({ "package.json": '{"name":"app"}', ...files })
+    const ids = Object.keys(files).map((name) => path.join(root, name))
+    const source = (id: string) => files[path.relative(root, id)]!
+    const native = loadNative()
+    const batches: { count: number; map: boolean | null | undefined }[] = []
+    const counting = {
+      ...native,
+      Compiler: class extends native.Compiler {
+        override transformManyAsync(
+          modules: { id: string; code: string }[],
+          map?: boolean | null
+        ) {
+          batches.push({ count: modules.length, map })
+          return super.transformManyAsync(modules, map)
+        }
+      },
+    } as unknown as typeof native
+    const driver = await Driver.create({ root, native: counting })
+    const sync = await Driver.create({ root })
+    // Half with source maps and half without, all in one turn: the engine is asked twice, once per
+    // source map setting, and each module gets its own transform.
+    const results = await Promise.all(
+      ids.map((id, index) =>
+        driver.transformAsync(id, source(id), { map: index % 2 === 0 })
+      )
+    )
+    expect(batches).toEqual([
+      { count: 8, map: true },
+      { count: 8, map: false },
+    ])
+    ids.forEach((id, index) => {
+      expect(results[index]).toEqual(
+        sync.transform(id, source(id), { map: index % 2 === 0 })
+      )
+    })
+    expect(driver.stylesheet(true)).toBe(sync.stylesheet(true))
+    // The next turn asks again; a module alone is a batch of one.
+    await driver.transformAsync(ids[0]!, source(ids[0]!))
+    expect(batches.slice(2)).toEqual([{ count: 1, map: true }])
+    // An engine that fails a batch fails each of its transforms.
+    const failing = {
+      ...native,
+      Compiler: class extends native.Compiler {
+        override transformManyAsync(): Promise<never> {
+          return Promise.reject(new Error("engine down"))
+        }
+      },
+    } as unknown as typeof native
+    const broken = await Driver.create({ root, native: failing })
+    const attempts = ids
+      .slice(0, 2)
+      .map((id) => broken.transformAsync(id, source(id)))
+    await expect(Promise.all(attempts)).rejects.toThrow("engine down")
+    await expect(attempts[1]).rejects.toThrow("engine down")
+  })
+
+  it("starts a dense build once, however many environments ask (D-084)", async () => {
+    const root = project({
+      "package.json": '{"name":"app"}',
+      "src/a.tsx": INPUT,
+    })
+    const file = path.join(root, "src/a.tsx")
+    const native = loadNative()
+    let marked = 0
+    let compiled = 0
+    const counting = {
+      ...native,
+      Compiler: class extends native.Compiler {
+        override markDense() {
+          marked += 1
+          super.markDense()
+        }
+        override transform(id: string, code: string, map?: boolean | null) {
+          compiled += 1
+          return super.transform(id, code, map)
+        }
+      },
+    } as unknown as typeof native
+    const driver = await Driver.create({ root, native: counting })
+    driver.reuseTransforms()
+    driver.markDense()
+    const first = driver.transform(file, INPUT)
+    // The second environment's start changes nothing, so the answer kept from the first stands.
+    driver.markDense()
+    expect(driver.transform(file, INPUT)).toEqual({
+      ...first,
+      cssChanged: false,
+    })
+    expect([marked, compiled]).toEqual([1, 1])
   })
 
   it("gives the engine's freed memory back a second after the last call into it, or when asked (D-123)", async () => {
