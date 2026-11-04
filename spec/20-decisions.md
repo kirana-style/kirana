@@ -1521,12 +1521,16 @@ the implementation tracker names its evidence.
 
 ### D-102 — Vocabularies read from code a library ships
 
-- **Status:** Accepted (2026-10-24).
+- **Status:** Accepted (2026-10-24). Amended 2026-11-04 for KF-099: Angular Primitives' host bindings.
 - **Decision:** `@kirana-style/states` adds Reka UI, Bits UI and Angular Primitives, generated like the
   others by `gen-states.ts` from the pinned packages, but read from their code: Reka UI's shipped
-  templates, Bits UI's state classes' `props` types, Angular Primitives' `dataBinding` calls. A value
+  templates, Bits UI's state classes' `props` types, Angular Primitives' `dataBinding` calls and the
+  `host` bindings of the directives written without them (Combobox, Toast, Radio's indicator). A value
   the code computes rather than writes is its attribute's presence, and the entries carry no
-  descriptions.
+  descriptions. A host binding is read by its expression: a presence (`? "" : undefined`); a boolean,
+  which Angular writes as text, as its two values (`Toast.Root.visible.true`); a declared union of
+  literals as its values. Toast's position is computed from its placement, so the generator lists
+  those values itself, and it stops on a binding it cannot read.
 - **Rationale:** the three document their states only in prose on their sites, so there is no
   declaration to read as there is for Base UI, Zag and React Aria; the code is what sets the attributes,
   pinned and regenerated in CI like the rest.

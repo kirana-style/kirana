@@ -5,6 +5,7 @@ import { describe, expect, it } from "vite-plus/test"
 
 import * as ark from "../src/ark-ui.ts"
 import * as bits from "../src/bits-ui.ts"
+import * as ng from "../src/ng-primitives.ts"
 import * as reka from "../src/reka-ui.ts"
 
 /** A package's directory: Bits UI's `exports` hide its `package.json` from the resolver. */
@@ -143,6 +144,52 @@ describe("every component that writes a state has a vocabulary", () => {
           )
         )
       if (writes && !(component in reka)) missing.push(component)
+    }
+    expect(missing).toEqual([])
+  })
+
+  it("Angular Primitives, by the directives that bind a state (KF-099)", () => {
+    const modules = path.join(packageOf("ng-primitives"), "fesm2022")
+    // The entry points that hold the library's machinery rather than components.
+    const machinery = new Set([
+      "state",
+      "internal",
+      "utils",
+      "interactions",
+      "a11y",
+      "common",
+      "portal",
+    ])
+    const vocabulary = ng as unknown as Record<string, Record<string, unknown>>
+    const missing: string[] = []
+    for (const file of readdirSync(modules)) {
+      const entry = /^ng-primitives-([\w-]+)\.mjs$/.exec(file)?.[1]
+      if (!entry || machinery.has(entry)) continue
+      const component = entry.replace(/(^|-)(\w)/g, (_, __, letter: string) =>
+        letter.toUpperCase()
+      )
+      const text = readFileSync(path.join(modules, file), "utf8")
+      // A state written through `createPrimitive`'s bindings, or the interactions it turns on.
+      if (
+        /dataBinding\(\w+, 'data-|ngpInteractions\(\{/.test(text) &&
+        !(component in vocabulary)
+      )
+        missing.push(component)
+      // A state a directive binds in its declaration's host properties, part by part.
+      for (const [, call] of text.matchAll(
+        /ngDeclareDirective\((\{[^\n]*\})\)/g
+      )) {
+        if (!call!.includes('"attr.data-')) continue
+        const name = /type: Ngp(\w+),/.exec(call!)![1]!
+        const part =
+          name === component
+            ? "Root"
+            : name.startsWith(component)
+              ? name.slice(component.length)
+              : name
+        if (!(part in (vocabulary[component] ?? {})))
+          missing.push(`${component}.${part}`)
+      }
     }
     expect(missing).toEqual([])
   })

@@ -1347,9 +1347,81 @@ function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
           addState(list, attribute, [])
       if (list.length) byPart.set(part, byName(list))
     }
+    // Directives written without `createPrimitive` (Combobox, Toast, Radio's indicator) bind their
+    // states in their declaration's `host.properties` (KF-099).
+    const typings = readFileSync(
+      path.join(directory, "types", `ng-primitives-${entry}.d.ts`),
+      "utf8"
+    )
+    for (const [, call] of text.matchAll(
+      /ɵɵngDeclareDirective\((\{[^\n]*\})\); \}/g
+    )) {
+      const name = /type: Ngp(\w+),/.exec(call!)![1]!
+      const part = partName(name, component) ?? name
+      const list = byPart.get(part) ?? []
+      for (const [, attribute, raw] of call!.matchAll(
+        /"attr\.(data-[a-z][a-z0-9-]*)": "((?:[^"\\]|\\.)*)"/g
+      ))
+        addState(
+          list,
+          attribute!,
+          hostValues(
+            component,
+            name,
+            attribute!,
+            JSON.parse(`"${raw}"`) as string,
+            typings
+          )
+        )
+      if (list.length) byPart.set(part, byName(list))
+    }
     if (byPart.size) out.set(component, byPart)
   }
   return { vocabulary: sorted(out), version }
+}
+
+/**
+ * Values Angular Primitives computes rather than declares, by component and attribute: Toast splits
+ * its placement (`'top-start' | … | 'bottom-center'`) at the hyphen, `|| 'end'` and `|| 'top'`.
+ */
+const NG_COMPUTED: Readonly<Record<string, readonly string[]>> = {
+  "Toast data-position-x": ["start", "center", "end"],
+  "Toast data-position-y": ["top", "bottom"],
+}
+
+/**
+ * The values a host binding writes (`"attr.data-open": "open() ? \"\" : undefined"`): none for a
+ * presence; `true` and `false` for a boolean, which Angular writes as text; the literals of a
+ * declared union, looked up on the directive's class in its declarations and then anywhere in them
+ * (`options.expanded()`); `NG_COMPUTED` for the rest. Anything else is an error, so a release that
+ * binds a state some new way is caught here.
+ */
+function hostValues(
+  component: string,
+  directive: string,
+  attribute: string,
+  expression: string,
+  typings: string
+): string[] {
+  if (/\?\s*""\s*:\s*(?:undefined|null)$/.test(expression)) return []
+  if (/[=!]==/.test(expression)) return ["false", "true"]
+  const member = /(\w+)(?:\(\))?$/.exec(expression)?.[1] ?? ""
+  const start = typings.indexOf(`declare class Ngp${directive} `)
+  const own = typings.slice(start, typings.indexOf("\ndeclare ", start + 1))
+  const typeOf = (text: string) =>
+    new RegExp(`\\b${member}\\??: ([^;]+);`).exec(text)?.[1]
+  const declared = (typeOf(own) ?? typeOf(typings) ?? "").replace(
+    /^(?:\w+\.)?(?:Writable)?Signal<(.*)>$/,
+    "$1"
+  )
+  if (declared === "boolean") return ["false", "true"]
+  const union = literals(`@type {${declared.replaceAll('"', "'")}}`)
+  if (union.length) return union
+  const computed = NG_COMPUTED[`${component} ${attribute}`]
+  if (computed) return [...computed]
+  throw new Error(
+    `ng-primitives: the values of ${component}'s ${attribute} (${expression}) are unknown`
+  )
 }
 
 // Writing ---------------------------------------------------------------------------------------
@@ -1364,6 +1436,7 @@ const OPPOSITES: readonly (readonly [string, string])[] = [
   ["open", "closed"],
   ["startingStyle", "endingStyle"],
   ["valid", "invalid"],
+  ["pristine", "dirty"],
 ]
 
 const selectorOf = (state: State) => state.selector ?? `[${state.attribute}]`

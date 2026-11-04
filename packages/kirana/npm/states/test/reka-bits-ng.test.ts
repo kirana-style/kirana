@@ -79,6 +79,11 @@ describe("@kirana-style/states for Vue, Svelte and Angular libraries", () => {
     // Angular Primitives' interactions, which `ngpInteractions()` turns on.
     expect(ng.Checkbox.Root.hover).toBe("[data-hover]")
     expect(ng.Checkbox.Root.checked).toBe("[data-checked]")
+    // A host binding (KF-099): a boolean Angular writes as text, and a value the code computes.
+    expect(ng.Toast.Root.visible.true).toBe('[data-visible="true"]')
+    expect(ng.Toast.Root.positionX.end).toBe('[data-position-x="end"]')
+    expect(ng.Combobox.Root.pristine).toBe("[data-pristine]")
+    expect(ng.exclusive).toContainEqual(["[data-pristine]", "[data-dirty]"])
   })
 
   it("compiles as condition keys", () => {
