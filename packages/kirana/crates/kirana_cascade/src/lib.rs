@@ -6,7 +6,7 @@
 //! rewritten; only values produced by splitting a shorthand use Lightning CSS's serialization.
 
 use std::borrow::Cow;
-use std::sync::{Arc, OnceLock, RwLock};
+use std::sync::{Arc, OnceLock};
 
 use kirana_css_data::{accepts_number, is_known_property, physical_counterpart};
 use kirana_ir::{ConditionSet, EntryKey, Handle, Op, Property, Target, number_to_string};
@@ -576,28 +576,34 @@ pub struct WritePlan {
     pub overlapping: Vec<(Property, Vec<Property>, u8)>,
 }
 
-/// How many write plans the process keeps (`write_plan`).
+/// How many write plans a thread keeps (`write_plan`).
 pub const PLANS_KEPT: usize = 1 << 12;
+
+thread_local! {
+    static PLANS: std::cell::RefCell<kirana_shared::FxHashMap<Box<str>, Arc<WritePlan>>> = Default::default();
+}
 
 /// The plan for writing `name` (camelCase or kebab-case).
 ///
 /// Memoised: the plan depends on nothing but the name and the static shorthand table, and building
 /// one walks every shorthand. A declaration asks for it on every transform of every module, so the
-/// cache hands out a shared plan rather than a copy of its lists.
+/// cache hands out a shared plan rather than a copy of its lists. Each thread keeps its own, as it
+/// keeps its expansions: a lock shared by every compiling thread was taken and released per
+/// declaration.
 pub fn write_plan(name: &str) -> Result<Arc<WritePlan>, DeclarationError> {
-    static PLANS: OnceLock<RwLock<kirana_shared::FxHashMap<String, Arc<WritePlan>>>> = OnceLock::new();
-    let plans = PLANS.get_or_init(RwLock::default);
-    if let Some(plan) = plans.read().expect("not poisoned").get(name) {
-        return Ok(plan.clone());
+    if let Some(plan) = PLANS.with(|plans| plans.borrow().get(name).cloned()) {
+        return Ok(plan);
     }
     let plan = Arc::new(build_plan(name)?);
-    let mut plans = plans.write().expect("not poisoned");
-    // Every known property fits; custom properties do not, since an editor compiles each name as it
-    // is typed (`--w`, `--wi` …): past the bound the cache starts over.
-    if plans.len() >= PLANS_KEPT {
-        plans.clear();
-    }
-    plans.insert(name.to_owned(), plan.clone());
+    PLANS.with(|plans| {
+        let mut plans = plans.borrow_mut();
+        // Every known property fits; custom properties do not, since an editor compiles each name as
+        // it is typed (`--w`, `--wi` …): past the bound the cache starts over.
+        if plans.len() >= PLANS_KEPT {
+            plans.clear();
+        }
+        plans.insert(name.into(), plan.clone());
+    });
     Ok(plan)
 }
 

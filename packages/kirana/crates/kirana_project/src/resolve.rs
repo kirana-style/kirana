@@ -234,8 +234,14 @@ impl<'p> ModuleHost<'p> {
         let nested = ModuleHost::new(self.project, stack);
         let file = self.project.display_name(path);
         let package = self.project.package_name(path);
-        let context =
-            Context { path, file: &file, package: &package, names: &self.project.names, config: &self.project.config };
+        let context = Context {
+            path,
+            file: &file,
+            package: &package,
+            names: &self.project.names,
+            config: &self.project.config,
+            written: self.project.records_written(),
+        };
         let (exports, definitions) = kirana_frontend::with_parsed(path, &file, &source, |parsed| {
             let evaluator = Evaluator::new(parsed, context, &nested);
             let values = evaluator

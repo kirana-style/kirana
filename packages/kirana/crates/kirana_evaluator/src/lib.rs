@@ -67,6 +67,10 @@ pub struct Context<'c> {
     pub package: &'c str,
     pub names: &'c Names,
     pub config: &'c Config,
+    /// Whether every entry records how it was written (`Written`, KF-027). Only
+    /// `kirana-style export --definitions` reads the record, so a build does not pay for it: a
+    /// record per declaration, cloned into each of its entry keys.
+    pub written: bool,
 }
 
 /// Definitions a module contributes to the project.

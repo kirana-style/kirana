@@ -71,7 +71,27 @@ pub struct FinishedStylesheet {
 /// A compilation session. The project is shared with transforms running on worker threads.
 #[napi]
 pub struct Compiler {
-    project: Arc<Project>,
+    /// Taken out once, by `Drop`, which frees it off the main thread.
+    project: std::mem::ManuallyDrop<Arc<Project>>,
+}
+
+impl Drop for Compiler {
+    /// A session's project is freed on a thread of its own when this was its last holder. Node
+    /// collects a session when it chooses, on the main thread, inside whatever is running then; a
+    /// session that compiled a thousand styles holds a thousand values and their atoms, a millisecond
+    /// or more of frees, which a benchmark that opens a session per sample otherwise pays inside a
+    /// later sample. A worker still holding the project (`transformAsync`) frees it when it is done,
+    /// whichever of the two lets go last. With no thread to be had, it is freed here, as before. The
+    /// WASI engine's threads are Workers, far dearer to start than the frees they would take off the
+    /// main thread, so it frees in place.
+    fn drop(&mut self) {
+        // SAFETY: the project is taken here once, and nothing reads the field after `drop`.
+        let project = unsafe { std::mem::ManuallyDrop::take(&mut self.project) };
+        #[cfg(not(target_family = "wasm"))]
+        let _ = std::thread::Builder::new().name("kirana-teardown".to_owned()).spawn(move || drop(project));
+        #[cfg(target_family = "wasm")]
+        drop(project);
+    }
 }
 
 fn transform_result(result: kirana_project::Transformed) -> TransformResult {
@@ -114,7 +134,7 @@ impl Compiler {
     #[napi(constructor)]
     pub fn new(config_json: String) -> napi::Result<Self> {
         Project::new(&config_json, Arc::new(OsFs))
-            .map(|project| Compiler { project: Arc::new(project) })
+            .map(|project| Compiler { project: std::mem::ManuallyDrop::new(Arc::new(project)) })
             .map_err(|diagnostics| napi::Error::from_reason(render_json(&diagnostics)))
     }
 
@@ -135,7 +155,7 @@ impl Compiler {
         map: Option<bool>,
     ) -> napi::bindgen_prelude::AsyncTask<TransformTask> {
         napi::bindgen_prelude::AsyncTask::new(TransformTask {
-            project: self.project.clone(),
+            project: Arc::clone(&self.project),
             id,
             code,
             maps: map.unwrap_or(true),
