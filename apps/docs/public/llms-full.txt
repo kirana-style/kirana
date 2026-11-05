@@ -11179,6 +11179,10 @@ the way you read a style:
   pseudo-element, or a guard in the `sx`, shown as `if on`.
 - **Compiled CSS**: the rules the stylesheet carries, with their size.
 
+A large recipe can run to hundreds of conditional values and rules: the card shows
+the first 32 of each and counts the rest, with a link to the Style Inspector, which
+lists them all.
+
 Hover a **property** instead and you get its entries in precedence order, with the
 ladder step that put each one where it is: the answer
 [`kirana-style trace`](/docs/tooling/cli) gives on the command line. Hover a **token** for

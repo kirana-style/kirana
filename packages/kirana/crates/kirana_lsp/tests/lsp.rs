@@ -811,6 +811,113 @@ fn serves_a_session_over_a_connection() {
     std::fs::remove_dir_all(root).unwrap();
 }
 
+/// A recipe's card would run to hundreds of rules and conditional rows: a hover shows the first of
+/// each and counts the rest, which the inspector shows whole.
+#[test]
+fn a_large_style_hover_shows_the_first_rules_and_conditions() {
+    let mut f = fixture(json!({ "commandLinks": true }));
+    const LENGTHS: [&str; 40] = [
+        "marginTop",
+        "marginRight",
+        "marginBottom",
+        "marginLeft",
+        "paddingTop",
+        "paddingRight",
+        "paddingBottom",
+        "paddingLeft",
+        "top",
+        "right",
+        "bottom",
+        "left",
+        "width",
+        "height",
+        "minWidth",
+        "minHeight",
+        "maxWidth",
+        "maxHeight",
+        "fontSize",
+        "lineHeight",
+        "letterSpacing",
+        "wordSpacing",
+        "textIndent",
+        "borderTopWidth",
+        "borderRightWidth",
+        "borderBottomWidth",
+        "borderLeftWidth",
+        "outlineWidth",
+        "outlineOffset",
+        "columnGap",
+        "rowGap",
+        "flexBasis",
+        "borderTopLeftRadius",
+        "borderTopRightRadius",
+        "borderBottomLeftRadius",
+        "borderBottomRightRadius",
+        "scrollMarginTop",
+        "scrollPaddingTop",
+        "insetInlineStart",
+        "insetBlockStart",
+    ];
+    // Each property set on the element and under `:hover`: 80 rules, 40 conditional values.
+    let declarations: Vec<String> = LENGTHS
+        .iter()
+        .enumerate()
+        .map(|(index, property)| {
+            format!("{property}: {{ base: \"{}px\", \":hover\": \"{}px\" }}", index + 1, index + 2)
+        })
+        .collect();
+    let text = format!(
+        "import {{ css }} from \"@kirana-style/core\"\nexport const big = css({{ {} }})\nexport const small = css({{ width: {{ base: \"1px\", \":hover\": \"2px\" }} }})\n",
+        declarations.join(", ")
+    );
+    f.open(&text);
+    let hover = |f: &mut Fixture, needle: &str| {
+        let offset = text.find(needle).unwrap() + 1;
+        let position = LineIndex::new(&text).position(offset);
+        let params = json!({ "textDocument": { "uri": f.uri() }, "position": position });
+        hover_text(&f.ok("textDocument/hover", params))
+    };
+    let big = hover(&mut f, "css({ marginTop");
+    assert!(big.contains("**Compiled CSS** · 80 rules · "), "{big}");
+    let css = &big[big.find("```css\n").unwrap()..];
+    let shown = css[..css.find("\n```").unwrap()].matches(" { ").count();
+    assert_eq!(shown, 32, "{css}");
+    assert!(big.contains("*48 more rules — [open the inspector](command:kirana.inspect?"), "{big}");
+    let when = &big[big.find("**When**").unwrap()..big.find("**Compiled CSS**").unwrap()];
+    assert_eq!(when.matches("\n| ").count(), 32 + 1, "{when}");
+    assert!(when.contains("*8 more conditional values — [open the inspector]("), "{when}");
+    // A small style shows everything, and counts nothing.
+    let small = hover(&mut f, "css({ width");
+    assert!(small.contains("**Compiled CSS** · 2 rules · ") && !small.contains("more"), "{small}");
+    // A client without command links gets the counts alone; one past the cut is counted singly.
+    let mut plain = fixture(json!({}));
+    let one_rule: Vec<String> =
+        LENGTHS[..33].iter().enumerate().map(|(i, p)| format!("{p}: \"{}px\"", i + 1)).collect();
+    let one_value: Vec<String> = LENGTHS[1..34]
+        .iter()
+        .enumerate()
+        .map(|(i, p)| format!("{p}: {{ base: \"{}px\", \":hover\": \"{}px\" }}", i + 1, i + 2))
+        .collect();
+    let text = format!(
+        "{text}export const oneRule = css({{ {} }})\nexport const oneValue = css({{ {} }})\n",
+        one_rule.join(", "),
+        one_value.join(", ")
+    );
+    plain.open(&text);
+    let hover = |f: &mut Fixture, needle: &str| {
+        let offset = text.find(needle).unwrap() + 1;
+        let position = LineIndex::new(&text).position(offset);
+        let params = json!({ "textDocument": { "uri": f.uri() }, "position": position });
+        hover_text(&f.ok("textDocument/hover", params))
+    };
+    let big = hover(&mut plain, "css({ marginTop");
+    assert!(big.contains("*48 more rules*\n\n") && !big.contains("open the inspector"), "{big}");
+    let one = hover(&mut plain, "css({ marginTop: \"1px\"");
+    assert!(one.contains("*1 more rule*\n\n") && !one.contains("conditional"), "{one}");
+    let one = hover(&mut plain, "css({ marginRight: {");
+    assert!(one.contains("*1 more conditional value*\n\n") && one.contains("*34 more rules*"), "{one}");
+}
+
 /// A keystroke's burst, handled as one: the changes collapse to the last text, a request the burst
 /// cancels is answered as cancelled without being computed, the others are answered in order, and
 /// the documents' diagnostics come once, after.

@@ -43,7 +43,8 @@ kind: layout, box, size, colour, type, border. Conditions lead their values (`md
 
 Hover an element's `sx`, a `css()` or a recipe: the handles it merges, the box model as DevTools
 draws it, every property with pixel equivalents and the token it reads, the values under
-breakpoints, states and guards, what is overridden, and the compiled CSS. Hover a single property
+breakpoints, states and guards, what is overridden, and the compiled CSS (the first 32 values and
+rules of each, the rest in the Style Inspector). Hover a single property
 for which entry wins and why; hover a token for its value in light and dark.
 
 ![Style card](https://raw.githubusercontent.com/kirana-style/kirana/main/packages/kirana/editors/vscode/images/style-card.webp)
