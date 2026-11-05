@@ -224,10 +224,11 @@ pub fn code_lenses(server: &Server, params: &Value) -> Result<Value, String> {
                 .is_some_and(|site| site.starts_with("css(") || site.starts_with("recipe("))
         })
         .collect();
-    // One lookup of every class the definitions produce serves every "used by" count.
+    // One lookup of every class the definitions produce serves every "used by" count, and every
+    // file a count reads is read once.
     let produced =
         model::produced(server, definitions.iter().flat_map(|span| atoms_of(&sites, *span)).collect::<Vec<_>>().iter());
-    let mut files = crate::outline::Files::default();
+    let mut files = crate::outline::Files::new(server);
     let mut out = Vec::new();
     for span in definitions {
         let site = &text[span.0 as usize..span.1 as usize];
@@ -250,8 +251,7 @@ pub fn code_lenses(server: &Server, params: &Value) -> Result<Value, String> {
                 "arguments": [uri, span.0],
             },
         }));
-        let uses =
-            crate::outline::uses_with(server, &path, (span.0 as usize, span.1 as usize), &produced, &mut files).len();
+        let uses = crate::outline::uses_with(&path, (span.0 as usize, span.1 as usize), &produced, &mut files).len();
         if uses > 0 {
             out.push(json!({
                 "range": { "start": start, "end": start },

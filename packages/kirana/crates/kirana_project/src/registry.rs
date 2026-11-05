@@ -861,7 +861,7 @@ impl Project {
             marker_deps: vec![theme("black"), theme("white")],
             ..ModuleRecord::default()
         };
-        state.put_module(&path.with_extension("ghost"), ghost);
+        state.put_module(&self.names, &path.with_extension("ghost"), ghost);
     }
 }
 

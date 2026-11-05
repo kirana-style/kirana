@@ -3,10 +3,12 @@
 //! each came from, what overrides what, and which values hold under a chosen set of conditions.
 //! Hover, the inline summary and the inspector all read this one model.
 
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet};
+use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 use kirana_project::SiteAtom;
+use kirana_shared::FxHashMap;
 use serde::Serialize;
 
 use crate::Server;
@@ -258,12 +260,20 @@ pub(crate) fn resolve_with(
     let kind = crate::hover::site_kind(site).trim_matches('`');
     let origins = origins(server, path, span, atoms, produced);
     let tokens = server.project.tokens();
+    // Each identity's first token, as the sorted list has them: a value's tokens are looked up by
+    // identity, not searched for.
+    let mut by_identity: BTreeMap<&str, &kirana_project::TokenInfo> = BTreeMap::new();
+    for token in &tokens {
+        by_identity.entry(token.identity.as_str()).or_insert(token);
+    }
+    // A handle's guard is read from the site once, however many declarations the handle has.
+    let mut whens: BTreeMap<&str, Option<String>> = BTreeMap::new();
     let entries: Vec<Entry> = atoms
         .iter()
         .map(|atom| {
             let source = origins.get(atom.class.as_str()).map(|(label, location)| Source {
                 label: label.clone(),
-                when: when(site, label),
+                when: whens.entry(label.as_str()).or_insert_with(|| when(site, label)).clone(),
                 uri: location.0.clone(),
                 line: location.1,
                 character: location.2,
@@ -279,7 +289,7 @@ pub(crate) fn resolve_with(
                     .tokens
                     .iter()
                     .map(|identity| {
-                        let found = tokens.iter().find(|token| &token.identity == identity);
+                        let found = by_identity.get(identity.as_str()).copied();
                         Token {
                             identity: identity.clone(),
                             // Every token an atom reads is one the session evaluated.
@@ -319,61 +329,81 @@ fn origins(
     atoms: &[SiteAtom],
     produced: &Produced,
 ) -> BTreeMap<String, (String, Location)> {
-    let classes: BTreeSet<&str> = atoms.iter().map(|atom| atom.class.as_str()).collect();
+    // Each class's property, from the first atom carrying it, as the key is looked for in each of
+    // the class's producing sites.
+    let mut properties: FxHashMap<&str, &str> = FxHashMap::default();
+    for atom in atoms {
+        properties.entry(atom.class.as_str()).or_insert(atom.property.as_str());
+    }
+    let classes: BTreeSet<&str> = properties.keys().copied().collect();
     let this = server.source(path).unwrap_or_default();
     let site_text = this.get(span.0..span.1).unwrap_or_default();
-    let wanted: Vec<(&PathBuf, (usize, usize), &String)> = produced
-        .iter()
-        .filter(|(file, site_span, class)| classes.contains(class.as_str()) && !(file == path && *site_span == span))
-        .map(|(file, site_span, class)| (file, *site_span, class))
-        .collect();
-    // Each file read once, and its lines and each site's name found once, however many of the
-    // definition's classes it produces: per origin, they took a hover hundreds of milliseconds.
-    let mut sources: HashMap<&Path, Option<String>> = HashMap::new();
-    for (file, _, _) in &wanted {
-        sources.entry(file.as_path()).or_insert_with(|| server.source(file));
+    // The words this site holds, read once: a handle is named when one of them is its last segment.
+    let site_words: BTreeSet<&str> = words(site_text).collect();
+    // Each file read once, for every origin it holds. Files are keyed by their bytes: the session's
+    // paths are normalized, and a path's own hash walks its components.
+    let mut sources: FxHashMap<&OsStr, Option<String>> = FxHashMap::default();
+    for (file, _, class) in produced {
+        if classes.contains(class.as_str()) {
+            sources.entry(file.as_os_str()).or_insert_with(|| server.source(file));
+        }
     }
-    let mut lines: HashMap<&Path, LineIndex<'_>> = HashMap::new();
-    let mut labels: HashMap<(&Path, usize), String> = HashMap::new();
+    // A site's binding name is read when the site is first met: a definition appears once per class
+    // it produces.
+    let mut labels: FxHashMap<(&OsStr, usize), String> = FxHashMap::default();
     // Every definition producing each class. Equal declarations share a class, so the one this site
     // names wins, in this file before any other (two files may both call a handle `styles.card`).
-    let mut candidates: BTreeMap<String, Vec<(String, Location, u8)>> = BTreeMap::new();
-    for (file, site_span, class) in wanted {
-        let Some(source) = sources[file.as_path()].as_deref() else { continue };
+    let mut winners: BTreeMap<String, (String, &Path, usize, u8)> = BTreeMap::new();
+    for (file, site_span, class) in produced {
+        let site_span = *site_span;
+        if !classes.contains(class.as_str()) || file.as_os_str() == path.as_os_str() && site_span == span {
+            continue;
+        }
+        let Some(Some(source)) = sources.get(file.as_os_str()) else { continue };
         let Some(site) = source.get(site_span.0..site_span.1) else { continue };
         if !(site.starts_with("css(") || site.starts_with("recipe(")) {
             continue;
         }
-        let property = atoms.iter().find(|atom| &atom.class == class).map(|atom| atom.property.as_str()).unwrap_or("");
+        let property = properties.get(class.as_str()).copied().unwrap_or_default();
         let at = site_span.0 + key_offset(site, property).unwrap_or(0);
         let label = labels
-            .entry((file.as_path(), site_span.0))
+            .entry((file.as_os_str(), site_span.0))
             .or_insert_with(|| binding_name(source, site_span.0).unwrap_or_else(|| "css()".to_owned()))
             .clone();
         let last = label.rsplit('.').next().unwrap_or(&label);
-        let named = words(site_text).any(|word| word == last);
-        let preference = match (named, file == path) {
+        let named = site_words.contains(last);
+        let preference = match (named, file.as_os_str() == path.as_os_str()) {
             (true, true) => 0,
             (true, false) => 1,
             (false, true) => 2,
             (false, false) => 3,
         };
-        let position = lines.entry(file.as_path()).or_insert_with(|| LineIndex::new(source)).position(at);
-        let place = format!(
-            "{}:{}",
-            file.file_name().map(|name| name.to_string_lossy().into_owned()).unwrap_or_default(),
-            position.line + 1
-        );
-        let location = (path_to_uri(file).as_str().to_owned(), position.line, position.character, place);
-        candidates.entry(class.clone()).or_default().push((label, location, preference));
+        // The first site with the best preference wins, as the walk meets them.
+        match winners.entry(class.clone()) {
+            std::collections::btree_map::Entry::Occupied(mut best) if preference < best.get().3 => {
+                best.insert((label, file.as_path(), at, preference));
+            }
+            std::collections::btree_map::Entry::Occupied(_) => {}
+            std::collections::btree_map::Entry::Vacant(slot) => {
+                slot.insert((label, file.as_path(), at, preference));
+            }
+        }
     }
-    candidates
+    // Only the winner per class is placed: a file's lines are indexed, and its URI written, once.
+    let mut indexes: FxHashMap<&OsStr, LineIndex<'_>> = FxHashMap::default();
+    let mut uris: FxHashMap<&OsStr, String> = FxHashMap::default();
+    winners
         .into_iter()
-        .filter_map(|(class, found)| {
-            found
-                .into_iter()
-                .min_by_key(|(_, _, preference)| *preference)
-                .map(|(label, location, _)| (class, (label, location)))
+        .map(|(class, (label, file, at, _))| {
+            let source = sources[file.as_os_str()].as_deref().expect("a candidate's file was read");
+            let position = indexes.entry(file.as_os_str()).or_insert_with(|| LineIndex::new(source)).position(at);
+            let place = format!(
+                "{}:{}",
+                file.file_name().map(|name| name.to_string_lossy().into_owned()).unwrap_or_default(),
+                position.line + 1
+            );
+            let uri = uris.entry(file.as_os_str()).or_insert_with(|| path_to_uri(file).as_str().to_owned()).clone();
+            (class, (label, (uri, position.line, position.character, place)))
         })
         .collect()
 }
