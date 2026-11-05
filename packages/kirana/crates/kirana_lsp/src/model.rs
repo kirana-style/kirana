@@ -3,7 +3,7 @@
 //! each came from, what overrides what, and which values hold under a chosen set of conditions.
 //! Hover, the inline summary and the inspector all read this one model.
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::path::{Path, PathBuf};
 
 use kirana_project::SiteAtom;
@@ -322,24 +322,34 @@ fn origins(
     let classes: BTreeSet<&str> = atoms.iter().map(|atom| atom.class.as_str()).collect();
     let this = server.source(path).unwrap_or_default();
     let site_text = this.get(span.0..span.1).unwrap_or_default();
-    let mut sources: BTreeMap<&Path, Option<String>> = BTreeMap::new();
+    let wanted: Vec<(&PathBuf, (usize, usize), &String)> = produced
+        .iter()
+        .filter(|(file, site_span, class)| classes.contains(class.as_str()) && !(file == path && *site_span == span))
+        .map(|(file, site_span, class)| (file, *site_span, class))
+        .collect();
+    // Each file read once, and its lines and each site's name found once, however many of the
+    // definition's classes it produces: per origin, they took a hover hundreds of milliseconds.
+    let mut sources: HashMap<&Path, Option<String>> = HashMap::new();
+    for (file, _, _) in &wanted {
+        sources.entry(file.as_path()).or_insert_with(|| server.source(file));
+    }
+    let mut lines: HashMap<&Path, LineIndex<'_>> = HashMap::new();
+    let mut labels: HashMap<(&Path, usize), String> = HashMap::new();
     // Every definition producing each class. Equal declarations share a class, so the one this site
     // names wins, in this file before any other (two files may both call a handle `styles.card`).
     let mut candidates: BTreeMap<String, Vec<(String, Location, u8)>> = BTreeMap::new();
-    for (file, site_span, class) in produced {
-        let site_span = *site_span;
-        if !classes.contains(class.as_str()) || file == path && site_span == span {
-            continue;
-        }
-        let source = sources.entry(file.as_path()).or_insert_with(|| server.source(file));
-        let Some(source) = source.as_deref() else { continue };
+    for (file, site_span, class) in wanted {
+        let Some(source) = sources[file.as_path()].as_deref() else { continue };
         let Some(site) = source.get(site_span.0..site_span.1) else { continue };
         if !(site.starts_with("css(") || site.starts_with("recipe(")) {
             continue;
         }
         let property = atoms.iter().find(|atom| &atom.class == class).map(|atom| atom.property.as_str()).unwrap_or("");
         let at = site_span.0 + key_offset(site, property).unwrap_or(0);
-        let label = binding_name(source, site_span.0).unwrap_or_else(|| "css()".to_owned());
+        let label = labels
+            .entry((file.as_path(), site_span.0))
+            .or_insert_with(|| binding_name(source, site_span.0).unwrap_or_else(|| "css()".to_owned()))
+            .clone();
         let last = label.rsplit('.').next().unwrap_or(&label);
         let named = words(site_text).any(|word| word == last);
         let preference = match (named, file == path) {
@@ -348,7 +358,7 @@ fn origins(
             (false, true) => 2,
             (false, false) => 3,
         };
-        let position = LineIndex::new(source).position(at);
+        let position = lines.entry(file.as_path()).or_insert_with(|| LineIndex::new(source)).position(at);
         let place = format!(
             "{}:{}",
             file.file_name().map(|name| name.to_string_lossy().into_owned()).unwrap_or_default(),

@@ -119,15 +119,6 @@ impl Compiled {
         project.component_diagnostics(&self.modules, file, all)
     }
 
-    /// A span of one of the component's modules, in the component; the component's start for a
-    /// module it does not have.
-    pub fn map(&self, module: &Path, span: Span) -> (usize, usize) {
-        self.modules.iter().find(|candidate| candidate.id == module).map_or((0, 0), |module| {
-            let span = module.span_to_component(span);
-            (span.start as usize, span.end as usize)
-        })
-    }
-
     /// The module whose block holds a component offset, with the offset in its text.
     pub fn module_at(&self, offset: usize) -> Option<(&Module, usize)> {
         self.modules
@@ -151,8 +142,6 @@ mod tests {
             content: 10,
             external: false,
         };
-        let compiled = Compiled { modules: vec![module] };
-        assert_eq!(compiled.map(Path::new("/a/C.vue.setup.ts"), Span::new(1, 2)), (11, 12));
-        assert_eq!(compiled.map(Path::new("/a/other.ts"), Span::new(1, 2)), (0, 0));
+        assert_eq!(module.span_to_component(Span::new(1, 2)), Span::new(11, 12));
     }
 }

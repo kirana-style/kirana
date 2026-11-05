@@ -21,7 +21,7 @@ mod outline;
 mod summary;
 pub mod text;
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
@@ -441,12 +441,17 @@ impl Server {
         self.module_diagnostics.insert(path.to_path_buf(), result.diagnostics);
     }
 
-    /// The component a block module belongs to; the path itself for any other module.
-    fn owner(&self, path: &Path) -> PathBuf {
-        self.components
-            .iter()
-            .find(|(_, compiled)| compiled.modules.iter().any(|module| module.id == path))
-            .map_or_else(|| path.to_path_buf(), |(component, _)| component.clone())
+    /// Each block module's component, with the module, the first component in path order holding
+    /// it. Built in one pass where a request asks for many: looking each module up by scanning every
+    /// component took seconds on a hover in a project of 2,300 components and 45,000 origins.
+    fn owners(&self) -> HashMap<&Path, (&Path, &component::Module)> {
+        let mut out = HashMap::new();
+        for (component, compiled) in &self.components {
+            for module in &compiled.modules {
+                out.entry(module.id.as_path()).or_insert((component.as_path(), module));
+            }
+        }
+        out
     }
 
     /// The style sites of a file, spans in its text: a module's from the session, a component's
@@ -461,12 +466,15 @@ impl Server {
     /// Where each of `classes` is produced, as `(file, span in its text, class)`: a block module's
     /// sites are reported in its component.
     pub(crate) fn origins(&self, classes: &BTreeSet<&str>) -> Vec<(PathBuf, (usize, usize), String)> {
+        let owners = self.owners();
         let mut out = Vec::new();
         for origin in self.project.origins(classes) {
-            let owner = self.owner(&origin.path);
-            let span = match self.components.get(&owner) {
-                Some(compiled) => compiled.map(&origin.path, origin.span),
-                None => (origin.span.start as usize, origin.span.end as usize),
+            let (owner, span) = match owners.get(origin.path.as_path()) {
+                Some((component, module)) => {
+                    let span = module.span_to_component(origin.span);
+                    (component.to_path_buf(), (span.start as usize, span.end as usize))
+                }
+                None => (origin.path, (origin.span.start as usize, origin.span.end as usize)),
             };
             out.push((owner, span, origin.class));
         }
@@ -519,7 +527,13 @@ impl Server {
                 affected.insert(path);
             }
         }
-        let affected: BTreeSet<PathBuf> = affected.iter().map(|path| self.owner(path)).collect();
+        let owners = self.owners();
+        let affected: BTreeSet<PathBuf> = affected
+            .iter()
+            .map(|path| {
+                owners.get(path.as_path()).map_or_else(|| path.clone(), |(component, _)| component.to_path_buf())
+            })
+            .collect();
         for path in affected {
             if let Some(text) = self.source(&path) {
                 self.transform(&path, &text);

@@ -364,3 +364,58 @@ fn angular_html_templates_read_their_component() {
     let hints = f.ok("textDocument/inlayHint", json!({ "textDocument": { "uri": f.uri("missing/view.html") } }));
     assert_eq!(hints, json!([]));
 }
+
+/// A shared definition that many components' templates use: "used by" counts each element once,
+/// however many of the definition's classes reach it, and every use lands in its component.
+#[test]
+fn a_definition_many_components_use_counts_each_element_once() {
+    const STYLES: &str = r#"import { css } from "@kirana-style/core"
+export const styles = {
+  card: css({ display: "grid", padding: "1rem", gap: "2px" }),
+  badge: css({ display: "grid", color: "red" }),
+}
+"#;
+    let vue = |n: usize| {
+        format!(
+            "<script setup lang=\"ts\">\nimport {{ styles }} from \"./styles\"\nconst n = {n}\n</script>\n\n<template>\n  <div :sx=\"[styles.card, styles.badge]\">{{{{ n }}}}</div>\n</template>\n"
+        )
+    };
+    let svelte = |n: usize| {
+        format!(
+            "<script>\n  import {{ styles }} from \"./styles\"\n  const n = {n}\n</script>\n\n<p sx={{styles.card}}>{{n}}</p>\n"
+        )
+    };
+    let mut files: Vec<(String, String)> = vec![("styles.ts".to_owned(), STYLES.to_owned())];
+    for n in 0..40 {
+        files.push((format!("Card{n:02}.vue"), vue(n)));
+        files.push((format!("Item{n:02}.svelte"), svelte(n)));
+    }
+    let borrowed: Vec<(&str, &str)> = files.iter().map(|(name, text)| (name.as_str(), text.as_str())).collect();
+    let mut f = fixture(&borrowed);
+    f.open("styles.ts", STYLES);
+    let lenses = f.ok("textDocument/codeLens", json!({ "textDocument": { "uri": f.uri("styles.ts") } }));
+    let titles: Vec<&str> =
+        lenses.as_array().unwrap().iter().map(|lens| lens["command"]["title"].as_str().unwrap()).collect();
+    // `card` reaches all 80 elements; `badge`, sharing `display: grid` with it, the 40 Vue ones.
+    assert!(titles.contains(&"used by 80 elements"), "{titles:?}");
+    assert!(titles.contains(&"used by 40 elements"), "{titles:?}");
+    let offset = STYLES.find("css({ display: \"grid\", padding").unwrap();
+    let uses = f.ok(
+        "workspace/executeCommand",
+        json!({ "command": "kirana.showUses", "arguments": [f.uri("styles.ts"), offset] }),
+    );
+    let uses = uses.as_array().unwrap();
+    assert_eq!(uses.len(), 80, "{uses:?}");
+    // Each one in its component, on the element's line: line 6 of a Vue file, 5 of a Svelte one.
+    for location in uses {
+        let uri = location["uri"].as_str().unwrap();
+        let line = if uri.ends_with(".vue") { 6 } else { 5 };
+        assert_eq!(location["range"]["start"]["line"], line, "{location}");
+    }
+    let mut seen: Vec<&str> = uses.iter().map(|location| location["uri"].as_str().unwrap()).collect();
+    seen.dedup();
+    assert_eq!(seen.len(), 80);
+    // An element's hover names the definition each declaration comes from.
+    let hover = f.hover("Card07.vue", &vue(7), "styles.card", 0, 8);
+    assert!(hover.contains("styles.card"), "{hover}");
+}
