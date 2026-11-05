@@ -15,21 +15,20 @@ source <(cargo llvm-cov show-env --sh)
 cargo llvm-cov clean --workspace
 cargo nextest run --workspace
 # The instrumented addon comes from cargo directly: the coverage wrapper only applies to cargo's
-# own builds. It replaces the development addon for the duration of the JavaScript suite.
+# own builds. The JavaScript suite loads it through `KIRANA_NATIVE_PATH`, and so does every process
+# a test starts, which inherits the variable. It stays in `target/`: copied over the workspace's
+# addon, it reached every other process that loaded the engine meanwhile (an editor's language
+# server, `budgets` running beside this task), which wrote its profile where it ran, outside
+# `target/`, and ran a debug build.
 cargo build -p kirana_napi
-native="npm/compiler/kirana.$(node -p 'const r = process.report.getReport(); `${process.platform}-${process.arch}${process.platform === "linux" ? (r.header.glibcVersionRuntime ? "-gnu" : "-musl") : process.platform === "win32" ? "-msvc" : ""}`').node"
 case "$(uname -s)" in
   Darwin) library=target/debug/libkirana_napi.dylib ;;
   MINGW*|MSYS*|CYGWIN*) library=target/debug/kirana_napi.dll ;;
   *) library=target/debug/libkirana_napi.so ;;
 esac
-if [ -f "$native" ]; then
-  cp "$native" "$native.bak"
-  trap 'mv "$native.bak" "$native"' EXIT
-else
-  trap 'rm -f "$native"' EXIT
-fi
-cp "$library" "$native"
+# Node loads an addon by its `.node` extension.
+cp "$library" target/debug/kirana-coverage.node
+export KIRANA_NATIVE_PATH="$PWD/target/debug/kirana-coverage.node"
 # Worker threads, not forks: forked workers exit before the profile runtime writes its data.
 vp test run --coverage --pool=threads
 cargo llvm-cov report --summary-only --fail-under-lines 100 --fail-under-functions 100 --fail-under-regions 100

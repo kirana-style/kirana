@@ -817,11 +817,12 @@ describe("native loading", () => {
     const { createRequire } = await import("node:module")
     const require = createRequire(import.meta.url)
     const binding = loadNative()
-    expect(
-      loadNative({
-        KIRANA_NATIVE_PATH: require.resolve("../kirana.linux-x64-gnu.node"),
-      })
-    ).toBe(binding)
+    // The engine this process loaded: the instrumented build under coverage, which sets the
+    // variable, else the workspace's. A second engine cannot load beside it (glibc's static TLS).
+    const loaded =
+      process.env.KIRANA_NATIVE_PATH ??
+      require.resolve("../kirana.linux-x64-gnu.node")
+    expect(loadNative({ KIRANA_NATIVE_PATH: loaded })).toBe(binding)
   })
 })
 

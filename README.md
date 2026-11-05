@@ -127,17 +127,17 @@ it.
 
 ## Troubleshooting
 
-| Symptom                                                         | Fix                                                               |
-| --------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `Kirana needs Rust, and cargo was not found`                    | install rustup (above), then open a new terminal                  |
-| `Internal Error: cargo metadata failed to run`                  | cargo is not reachable: install rustup, or `. "$HOME/.cargo/env"` |
-| `Cannot find module '…/kirana.<platform>.node'`                 | `vp run engine`                                                   |
-| `This command needs cargo-nextest …`                            | run the `cargo install` line it prints                            |
-| `vp run dev` starts on :3001 or later                           | another server holds :3000; stop it (`lsof -i :3000` shows which) |
-| `lockfile had changes, but lockfile is frozen` / missing module | `vp install`                                                      |
-| A task replays a stale result                                   | `vp cache clean`, then run it again                               |
-| A `default_*.profraw` file appears                              | coverage output from an instrumented binary; ignored, delete it   |
-| `Kirana has no engine` from `vp check`                          | `vp run engine`                                                   |
+| Symptom                                                         | Fix                                                                                                         |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `Kirana needs Rust, and cargo was not found`                    | install rustup (above), then open a new terminal                                                            |
+| `Internal Error: cargo metadata failed to run`                  | cargo is not reachable: install rustup, or `. "$HOME/.cargo/env"`                                           |
+| `Cannot find module '…/kirana.<platform>.node'`                 | `vp run engine`                                                                                             |
+| `This command needs cargo-nextest …`                            | run the `cargo install` line it prints                                                                      |
+| `vp run dev` starts on :3001 or later                           | another server holds :3000; stop it (`lsof -i :3000` shows which)                                           |
+| `lockfile had changes, but lockfile is frozen` / missing module | `vp install`                                                                                                |
+| A task replays a stale result                                   | `vp cache clean`, then run it again                                                                         |
+| `default_*.profraw` files outside `target/`                     | left by an instrumented engine; ignored: `find . -name 'default_*.profraw' -not -path '*/target/*' -delete` |
+| `Kirana has no engine` from `vp check`                          | `vp run engine`                                                                                             |
 
 ## Editor, lint and brand-logo tooling
 

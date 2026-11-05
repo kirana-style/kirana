@@ -29,6 +29,6 @@ coverage
 # Tarballs from `bun run kirana:pack`; install tests read them, nothing commits them.
 packages/kirana/dist-packages/
 
-# LLVM coverage output: an instrumented engine run outside `kirana:coverage` writes it to its working directory.
+# LLVM coverage output: an instrumented engine run without `LLVM_PROFILE_FILE` writes it to its working directory.
 *.profraw
 .dev.vars*
