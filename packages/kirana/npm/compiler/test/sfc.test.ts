@@ -669,6 +669,31 @@ describe("templates outside the module (KF-090)", () => {
     expect(missing()).toEqual(["gone", "plain"])
   })
 
+  it("counts a template's anchor for a relation imported from another module (KF-101)", async () => {
+    const { root, driver, missing } = await unanchored()
+    // The relation, and a condition on it, live in a styles module the component imports, as
+    // kirana-ui's `collapsible.styles.ts` does; the component holds the relation as a member.
+    const styles = `import { relation } from "@kirana-style/core"\nexport const collapsibleScope = relation("collapsible")\nexport const OPEN = collapsibleScope.within("[data-open]")\n`
+    writeFileSync(path.join(root, "collapsible.styles.ts"), styles)
+    // A build reports a relation unanchored once it compiled the module declaring it (D-062).
+    driver.transform(path.join(root, "collapsible.styles.ts"), styles)
+    const imports = `import { css } from "@kirana-style/core"\nimport { collapsibleScope, OPEN } from "./collapsible.styles"\nconst chevron = css({ rotate: { base: "0deg", [OPEN]: "90deg" } })\n`
+    writeFileSync(
+      path.join(root, "nav.component.ts"),
+      `${imports}@Component({ template: '<div [sx]="collapsibleScope.anchor"><svg [sx]="chevron"></svg></div>' })\nexport class Nav {\n  protected readonly collapsibleScope = collapsibleScope\n  protected readonly chevron = chevron\n}\n`
+    )
+    // What Analog hands Kirana: Angular's output, where the template reads the member off `ctx`.
+    const compiled = `${imports}export class Nav {\n  constructor() { this.collapsibleScope = collapsibleScope; this.chevron = chevron }\n  static ɵcmp = i0.ɵɵdefineComponent({ template: (rf, ctx) => [ctx.collapsibleScope.anchor, ctx.chevron] })\n}\n`
+    // Without the template, the member's anchor is nowhere in the module.
+    driver.transform(
+      path.join(root, "bare.component.ts"),
+      compiled.replaceAll("Nav", "Bare")
+    )
+    expect(missing()).toEqual(["collapsible"])
+    await driver.transformAsync(path.join(root, "nav.component.ts"), compiled)
+    expect(missing()).toEqual([])
+  })
+
   it("compiles an Ember template tag with its template's anchors", async () => {
     const { root, driver, missing } = await unanchored()
     // Embroider has turned the template into data, so the template tag is read from the source.
