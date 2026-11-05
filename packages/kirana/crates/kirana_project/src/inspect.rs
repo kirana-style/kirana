@@ -6,7 +6,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 
 use kirana_diagnostics::Span;
-use kirana_ir::{Atom, Condition, ConditionSet, Dep, RelationKind, Target, TokenValue};
+use kirana_ir::{Atom, Condition, ConditionSet, Dep, Op, RelationKind, Target, TokenValue};
 use serde::Serialize;
 
 use crate::Project;
@@ -115,13 +115,12 @@ impl Project {
         let mut out = Vec::new();
         for (path, record) in &state.modules {
             for (span, handle) in &record.handles {
-                for atom in Atom::from_handle(&self.names, handle) {
-                    if classes.contains(atom.class.as_str()) {
-                        out.push(Origin {
-                            path: path.to_path_buf(),
-                            span: Span::new(span.0, span.1),
-                            class: atom.class,
-                        });
+                // A handle's atoms are its `Set`s, in order (`Atom::from_handle`); only the class is
+                // read, so the key and value are not copied for every handle in the project.
+                for op in handle.ops.iter().filter(|op| matches!(op, Op::Set(..))) {
+                    let class = self.names.class(op);
+                    if classes.contains(class.as_str()) {
+                        out.push(Origin { path: path.to_path_buf(), span: Span::new(span.0, span.1), class });
                     }
                 }
             }

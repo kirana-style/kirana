@@ -2,10 +2,12 @@
 //! relations in the outline; folding for style objects with their summary as the folded text;
 //! highlights between a key and the elements that receive it; and the "used by" count.
 
-use std::collections::BTreeSet;
-use std::path::Path;
+use std::collections::{BTreeSet, HashMap, HashSet};
+use std::path::{Path, PathBuf};
 
 use serde_json::{Value, json};
+
+use kirana_project::Site;
 
 use crate::hover::{atoms_of, site_at};
 use crate::model;
@@ -187,7 +189,25 @@ fn key_length(text: &str, at: usize) -> usize {
 pub(crate) fn uses(server: &Server, path: &Path, span: (usize, usize)) -> Vec<(std::path::PathBuf, (usize, usize))> {
     let sites = server.sites(path);
     let atoms = atoms_of(&sites, (span.0 as u32, span.1 as u32));
-    uses_with(server, path, span, &model::produced(server, atoms.iter()))
+    uses_with(server, path, span, &model::produced(server, atoms.iter()), &mut Files::default())
+}
+
+/// The files one request reads, each once: a definition's classes name an element thousands of
+/// times across a project, and reading its file and its sites again for each took seconds.
+#[derive(Default)]
+pub(crate) struct Files {
+    sources: HashMap<PathBuf, Option<String>>,
+    sites: HashMap<PathBuf, Vec<Site>>,
+}
+
+impl Files {
+    fn source<'a>(&'a mut self, server: &Server, path: &Path) -> Option<&'a str> {
+        self.sources.entry(path.to_path_buf()).or_insert_with(|| server.source(path)).as_deref()
+    }
+
+    fn sites<'a>(&'a mut self, server: &Server, path: &Path) -> &'a [Site] {
+        self.sites.entry(path.to_path_buf()).or_insert_with(|| server.sites(path))
+    }
 }
 
 /// [`uses`] with the origins of the definition's classes already looked up.
@@ -196,25 +216,25 @@ pub(crate) fn uses_with(
     path: &Path,
     span: (usize, usize),
     produced: &model::Produced,
+    files: &mut Files,
 ) -> Vec<(std::path::PathBuf, (usize, usize))> {
-    let sites = server.sites(path);
-    let atoms = atoms_of(&sites, (span.0 as u32, span.1 as u32));
-    let classes: BTreeSet<&str> = atoms.iter().map(|atom| atom.class.as_str()).collect();
+    let atoms = atoms_of(files.sites(server, path), (span.0 as u32, span.1 as u32));
+    let classes: BTreeSet<String> = atoms.iter().map(|atom| atom.class.clone()).collect();
     // The name the definition is bound to (`title` for `styles.title`): an element uses it when its
     // `sx` names it. Every `font-weight: 600` in a project shares one class, so classes alone
     // would count elements that never mention the handle.
-    let name = server.source(path).and_then(|source| model::binding_name(&source, span.0));
+    let name = files.source(server, path).and_then(|source| model::binding_name(source, span.0));
     let name = name.as_deref().map(|name| name.rsplit('.').next().unwrap_or(name).to_owned());
     let mut out: Vec<(std::path::PathBuf, (usize, usize))> = Vec::new();
+    // An element is judged once: whether it counts depends on it alone, not on which of the
+    // definition's classes found it.
+    let mut judged: HashSet<(&Path, (usize, usize))> = HashSet::new();
     for (file, site, class) in produced {
-        let (file, site) = (file.clone(), *site);
-        if !classes.contains(class.as_str())
-            || file == path && site == span
-            || out.iter().any(|(seen, seen_span)| *seen == file && *seen_span == site)
-        {
+        let site = *site;
+        if !classes.contains(class.as_str()) || file == path && site == span || !judged.insert((file, site)) {
             continue;
         }
-        let source = server.source(&file).unwrap_or_default();
+        let source = files.source(server, file).unwrap_or_default();
         let Some(element) = source.get(site.0..site.1).filter(|element| is_binding(element)) else { continue };
         let names_it = name.as_deref().is_none_or(|name| {
             element.split(|c: char| !(c.is_ascii_alphanumeric() || c == '_' || c == '$')).any(|word| word == name)
@@ -224,8 +244,8 @@ pub(crate) fn uses_with(
         }
         // Equal declarations share a class: an element counts when it receives most of what the
         // definition produces, not one declaration it happens to share.
-        let received = server
-            .sites(&file)
+        let received = files
+            .sites(server, file)
             .iter()
             .filter(|other| (other.span.start as usize, other.span.end as usize) == site)
             .flat_map(|other| other.atoms.iter().map(|atom| atom.class.clone()))
@@ -233,7 +253,7 @@ pub(crate) fn uses_with(
             .collect::<BTreeSet<String>>()
             .len();
         if received * 2 >= classes.len().max(1) {
-            out.push((file, site));
+            out.push((file.clone(), site));
         }
     }
     out
