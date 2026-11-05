@@ -22,6 +22,12 @@ const ROWS: usize = 8;
 /// Properties listed beside the box model, where they cost no height of their own.
 const BESIDE: usize = 10;
 
+/// Conditional values the When table shows, and rules the compiled CSS shows, before each counts
+/// the rest: a recipe's card otherwise runs to hundreds of rows and a hundred kilobytes, which an
+/// editor renders slowly and nobody reads in a hover; the inspector shows them all.
+const WHEN: usize = 32;
+const RULES: usize = 32;
+
 /// A property name in its group's colour (`editors/brand/palette.json`). Plain text for clients
 /// without HTML in hovers.
 fn paint(property: &str, group: model::Group, html: bool) -> String {
@@ -122,26 +128,45 @@ pub(crate) fn render(
             conditional.entry(when.join(" ")).or_default().push(entry);
         }
     }
+    let inspector = |what: String| {
+        let link = if server.options.commands {
+            format!(" — [open the inspector]({})", inspect_link(path, span))
+        } else {
+            String::new()
+        };
+        format!("*{what}{link}*\n\n")
+    };
     if !conditional.is_empty() {
         out.push_str("**When**\n\n| Condition | Property | Value |\n|:--|:--|:--|\n");
-        for (when, entries) in &conditional {
-            for (index, entry) in entries.iter().enumerate() {
-                let label = if index == 0 { format!("`{}`", escape(when)) } else { String::new() };
-                let property = paint(&entry.property, entry.group, html);
-                let _ = writeln!(out, "| {label} | {property} | {} |", value_cell(entry, images, theme));
-            }
+        let rows = conditional.iter().flat_map(|(when, entries)| {
+            entries.iter().enumerate().map(move |(index, entry)| (if index == 0 { Some(when) } else { None }, entry))
+        });
+        let mut shown = 0;
+        for (when, entry) in rows.clone().take(WHEN) {
+            let label = when.map(|when| format!("`{}`", escape(when))).unwrap_or_default();
+            let property = paint(&entry.property, entry.group, html);
+            let _ = writeln!(out, "| {label} | {property} | {} |", value_cell(entry, images, theme));
+            shown += 1;
         }
         out.push('\n');
+        let rest = rows.count() - shown;
+        if rest > 0 {
+            out.push_str(&inspector(plural(rest, "more conditional value")));
+        }
     }
     let rules: Vec<&str> = atoms.iter().map(|atom| atom.rule.as_str()).collect();
     let bytes: usize = rules.iter().map(|rule| rule.len() + 1).sum();
     let _ =
         write!(out, "**Compiled CSS** · {} · {:.2} kB\n\n```css\n", plural(rules.len(), "rule"), bytes as f64 / 1024.0);
-    for atom in atoms {
+    for atom in atoms.iter().take(RULES) {
         out.push_str(&crate::hover::pretty_rule(atom));
         out.push('\n');
     }
     out.push_str("```\n");
+    if atoms.len() > RULES {
+        out.push('\n');
+        out.push_str(&inspector(plural(atoms.len() - RULES, "more rule")));
+    }
     if server.options.commands {
         let uri = path_to_uri(path);
         let _ = write!(

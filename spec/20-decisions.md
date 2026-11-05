@@ -2112,6 +2112,24 @@ the implementation tracker names its evidence.
   bursts, not during a request.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#language-server).
 
+### D-125 — A hover shows the first rules and conditional values and counts the rest
+
+- **Status:** Accepted (2026-11-05). From the editor sweep on kirana-ui.
+- **Decision:** the style card (KRN-DX-013) lists at most 32 rows of its When table and 32 rules of
+  its compiled CSS, in the order it listed them all, and ends each with how many more there are and,
+  when the client takes command links, a link to the Inspector (`kirana.inspect`), which shows every
+  entry. A style with 32 or fewer of either shows all of them, as before. Nothing else in the card
+  changes.
+- **Rationale:** the recipe in kirana-ui's `button.styles.ts` hovered as 136 kB: 380 conditional
+  values and 444 rules, for a window that shows about thirty lines, with 21 `data:` images. With the
+  cut the same hover is 16 kB, 32 of each and 4 images, and every other answer of an editor's session
+  is the same bytes. The Inspector (KRN-DX-015) is the view made for every entry, and the card
+  already linked to it.
+- **Trade-off:** the one answer the sweep changes: a hover on a style with more than 32 rules or
+  conditional values no longer carries them all. The cut is a constant, not an option, so two
+  clients see the same card.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#features).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                                                                 |
@@ -2123,7 +2141,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                                                           |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116, D-118, D-123                                                                                     |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                                                |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116, D-120, D-124                             |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116, D-120, D-124, D-125                      |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114, D-123                                                                                                                        |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                                                     |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                                                              |
