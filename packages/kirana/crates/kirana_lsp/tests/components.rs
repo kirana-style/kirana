@@ -228,7 +228,12 @@ fn a_block_that_is_not_tsx_still_compiles_without_its_template() {
 fn edits_removed_blocks_token_changes_and_deletion() {
     let mut f = fixture(&[("Card.vue", VUE)]);
     let uri = f.uri("Card.vue");
-    // Removing the script drops its module: the template has nothing left to resolve.
+    // The script block's module belongs to the component; a module of its own, to itself.
+    let setup = f.root.join("Card.vue.setup.ts");
+    assert_eq!(kirana_lsp::owner_of(&f.server, &setup), f.root.join("Card.vue"));
+    assert_eq!(kirana_lsp::owner_of(&f.server, &f.root.join("tokens.ts")), f.root.join("tokens.ts"));
+    // Removing the script drops its module: the template has nothing left to resolve, and the
+    // module belongs to no component any more.
     let bare = "<template><p :sx=\"card\"></p></template>\n";
     f.notify(
         "textDocument/didChange",
@@ -236,6 +241,17 @@ fn edits_removed_blocks_token_changes_and_deletion() {
     );
     let hints = f.ok("textDocument/inlayHint", json!({ "textDocument": { "uri": f.uri("Card.vue") } }));
     assert_eq!(hints, json!([]));
+    assert_eq!(kirana_lsp::owner_of(&f.server, &setup), setup);
+    // A script block written back belongs to the component again.
+    f.notify(
+        "textDocument/didChange",
+        json!({ "textDocument": { "uri": uri, "version": 3 }, "contentChanges": [{ "text": VUE }] }),
+    );
+    assert_eq!(kirana_lsp::owner_of(&f.server, &setup), f.root.join("Card.vue"));
+    f.notify(
+        "textDocument/didChange",
+        json!({ "textDocument": { "uri": uri, "version": 4 }, "contentChanges": [{ "text": bare }] }),
+    );
     f.notify("textDocument/didClose", json!({ "textDocument": { "uri": uri } }));
     // A token file changing re-compiles the component that reads it, from disk.
     std::fs::write(f.root.join("tokens.ts"), TOKENS.replace("#0af", "#f00")).unwrap();
@@ -248,6 +264,7 @@ fn edits_removed_blocks_token_changes_and_deletion() {
     f.notify("workspace/didChangeWatchedFiles", json!({ "changes": [{ "uri": uri, "type": 3 }] }));
     let symbols = f.ok("workspace/symbol", json!({ "query": "" }));
     assert!(symbols.to_string().contains("color.brand"));
+    assert_eq!(kirana_lsp::owner_of(&f.server, &setup), setup);
 }
 
 #[test]
@@ -340,6 +357,13 @@ fn angular_html_templates_read_their_component() {
     assert!(hover.contains("display: flex"), "{hover}");
     let published = f.open("list.component.html", ANGULAR_TEMPLATE);
     assert_eq!(diagnostics_for(&published, &f.uri("list.component.html")), &json!([]));
+    // The component's `css()` is used by the template's element: the count reads the template's
+    // sites through the block the component's own file is (its own `css()` site is not one). The
+    // component's file is read from disk, as indexed.
+    let lenses = f.ok("textDocument/codeLens", json!({ "textDocument": { "uri": f.uri("list.component.ts") } }));
+    let titles: Vec<&str> =
+        lenses.as_array().unwrap().iter().filter_map(|lens| lens["command"]["title"].as_str()).collect();
+    assert!(titles.contains(&"used by 1 element"), "{lenses}");
     // Only the template's binding: the component's own `css()` is in the `.ts` file.
     let hints = f.ok("textDocument/inlayHint", json!({ "textDocument": { "uri": f.uri("list.component.html") } }));
     assert_eq!(hints.as_array().unwrap().len(), 1, "{hints}");

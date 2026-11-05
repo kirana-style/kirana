@@ -90,13 +90,24 @@ impl Project {
         }
         self.walked.store(true, std::sync::atomic::Ordering::Relaxed);
         let mut tree = Tree::default();
-        for (path, result) in self.build(&files) {
+        // Only each module's diagnostics are kept: its code and source map, which a check never
+        // reads, would otherwise be held for every module until the last compiles, and the map is
+        // not written at all.
+        let compiled = self.each(&files, |path| {
+            let result = self
+                .fs
+                .read_to_string(path)
+                .map(|source| self.transform_with(path, &source, false).diagnostics)
+                .map_err(|error| error.to_string());
+            (path.clone(), result)
+        });
+        for (path, result) in compiled {
             match result {
-                Ok(transformed) => {
-                    if !transformed.diagnostics.is_empty() {
+                Ok(diagnostics) => {
+                    if !diagnostics.is_empty() {
                         tree.sources.push((self.display_name(&path), fs::read_to_string(&path).unwrap_or_default()));
                     }
-                    tree.diagnostics.extend(transformed.diagnostics);
+                    tree.diagnostics.extend(diagnostics);
                 }
                 Err(error) => tree.diagnostics.push(Diagnostic::new(
                     kirana_diagnostics::Code::ParseError,

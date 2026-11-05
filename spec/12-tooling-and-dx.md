@@ -48,6 +48,10 @@ Driver's masking, which it does not run yet.
 Server behaviour: discovers `kirana.config.*` per workspace folder, keeps an in-memory project updated
 from open-document changes plus file-watch events, and publishes the same diagnostics as `kirana-style check`
 ([10](./10-compiler-architecture.md#diagnostics)).
+It handles the messages a client sent in one burst as one (D-124): a request the burst also cancels is
+answered as cancelled without being computed, only the last of a document's changes is applied, and the
+diagnostics are published once the client has paused. The workspace is indexed before `initialize` is
+answered, so a "used by" count and an origin are right from the first answer.
 
 ### Features
 
@@ -68,6 +72,9 @@ from open-document changes plus file-watch events, and publishes the same diagno
 diagnostics refreshed ≤ 200 ms after an edit, and server memory ≤ 300 MB after indexing all three apps.
 Measured by `bench/lsp.ts` in the benchmark repository (2026-10-02): hover p95 1.2 ms, diagnostics p95 7.1 ms,
 65 MB.
+Measured again on kirana-ui (5,900 files, 12 threads, 2026-11-05, medians of three rounds): an `sx`
+hover 1 to 41 ms, a 444-declaration recipe's hover 57 ms and the Inspector on it 59 ms, a keystroke to
+its hover, hints and lenses 137 ms, and the first answers 0.8 to 1 s after the workspace is indexed.
 
 ## CLI
 

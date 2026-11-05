@@ -164,4 +164,23 @@ fn origins_find_every_site_producing_a_class() {
     assert!(spans.contains(&"sx={box}"), "{spans:?}");
     assert!(origins.iter().all(|origin| origin.class == class && origin.path == root.join("input.tsx")));
     assert!(project.origins(&["nothing"].into_iter().collect()).is_empty());
+    // A site's classes, as `sites` lists them; a file the session has no record for has none.
+    let span = applied.span;
+    let classes = project.classes_at(&root.join("input.tsx"), &|site| site == span);
+    assert_eq!(classes, applied.atoms.iter().map(|atom| atom.class.clone()).collect::<Vec<_>>());
+    assert!(project.classes_at(&root.join("missing.tsx"), &|_| true).is_empty());
+    // A module that only applies a handle another module defines carries the handle's atoms in its
+    // record too, so its site is an origin of the class: `origins` skips the modules whose records
+    // carry none of the classes asked for, and must not skip this one.
+    let uses = "import { box } from \"./input\"\nexport const U = () => <span sx={box} />\n";
+    std::fs::write(root.join("uses.tsx"), uses).unwrap();
+    project.transform(&root.join("uses.tsx"), uses);
+    let origins = project.origins(&[class].into_iter().collect());
+    let elsewhere: Vec<&str> = origins
+        .iter()
+        .filter(|origin| origin.path == root.join("uses.tsx"))
+        .map(|origin| &uses[origin.span.start as usize..origin.span.end as usize])
+        .collect();
+    assert_eq!(elsewhere, ["sx={box}"]);
+    std::fs::remove_dir_all(root).unwrap();
 }

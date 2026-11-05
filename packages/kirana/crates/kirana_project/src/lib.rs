@@ -152,6 +152,8 @@ pub(crate) struct State {
     pub cached: registry::Cached,
     /// The atoms, marker dependencies and unfolds of every record, kept with `modules` (KF-062).
     pub index: registry::AtomIndex,
+    /// Where each class is produced, kept with `modules` once a tool has asked (`Project::origins`).
+    pub origins: inspect::OriginIndex,
 }
 
 impl State {
@@ -163,18 +165,21 @@ impl State {
         }
     }
 
-    /// Records `record` for `path`, keeping the atom index in step; returns the record it replaced.
-    pub(crate) fn put_module(&mut self, path: &Path, record: ModuleRecord) -> Option<ModuleRecord> {
+    /// Records `record` for `path`, keeping the atom and origin indexes in step; returns the record
+    /// it replaced.
+    pub(crate) fn put_module(&mut self, names: &Names, path: &Path, record: ModuleRecord) -> Option<ModuleRecord> {
         let previous = self.modules.remove(&*key(path));
         self.index.replace(path, previous.as_ref(), &record);
+        self.origins.replace(names, path, previous.as_ref(), Some(&record));
         self.modules.insert(ModulePath::new(path), record);
         previous
     }
 
-    /// Forgets the record for `path`, keeping the atom index in step.
-    pub(crate) fn take_module(&mut self, path: &Path) -> Option<ModuleRecord> {
+    /// Forgets the record for `path`, keeping the atom and origin indexes in step.
+    pub(crate) fn take_module(&mut self, names: &Names, path: &Path) -> Option<ModuleRecord> {
         let previous = self.modules.remove(&*key(path))?;
         self.index.replace(path, Some(&previous), &ModuleRecord::default());
+        self.origins.replace(names, path, Some(&previous), None);
         Some(previous)
     }
 
@@ -338,6 +343,12 @@ impl Project {
             styles: load(&self.work.styles),
             answered: load(&self.work.answered),
         }
+    }
+
+    /// Moves on whenever a module's record or a declaration changes: what a tool computed from the
+    /// session's records holds while it stands.
+    pub fn revision(&self) -> u64 {
+        self.state.read().expect("not poisoned").revision
     }
 
     /// The configuration in use.
@@ -595,7 +606,8 @@ impl Project {
         });
         let mut state = self.state.write().expect("not poisoned");
         register_definitions_in(&mut state, &definitions, &package, &file);
-        transformed.css_changed = finish_in(&mut state, path, record, &transformed.dependencies, missed, entry);
+        transformed.css_changed =
+            finish_in(&mut state, &self.names, path, record, &transformed.dependencies, missed, entry);
         transformed
     }
 
@@ -610,7 +622,15 @@ impl Project {
         missed: bool,
         reusable: Option<Reusable>,
     ) -> bool {
-        finish_in(&mut self.state.write().expect("not poisoned"), path, record, dependencies, missed, reusable)
+        finish_in(
+            &mut self.state.write().expect("not poisoned"),
+            &self.names,
+            path,
+            record,
+            dependencies,
+            missed,
+            reusable,
+        )
     }
 
     /// The previous transform of `path`, when it was of this source, parsed and written the same
@@ -725,7 +745,7 @@ impl Project {
         state.set_imports(path, &[]);
         state.reused.remove(&*key(path));
         state.unresolved.remove(&*key(path));
-        state.take_module(path).is_some_and(|record| !record.is_empty())
+        state.take_module(&self.names, path).is_some_and(|record| !record.is_empty())
     }
 
     /// Transforms many files in parallel (KRN-CMP-009). Registry updates are ordered by path, so
@@ -818,6 +838,7 @@ impl Project {
 /// [`Project::finish`] on a state already locked.
 fn finish_in(
     state: &mut State,
+    names: &Names,
     path: &Path,
     record: ModuleRecord,
     dependencies: &[PathBuf],
@@ -830,7 +851,7 @@ fn finish_in(
     } else {
         state.unresolved.remove(&*key(path));
     }
-    let previous = state.put_module(path, record);
+    let previous = state.put_module(names, path, record);
     state.dense_stale = true;
     if previous.as_ref() != state.modules.get(&*key(path)) {
         state.revision += 1;

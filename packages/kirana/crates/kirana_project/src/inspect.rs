@@ -9,7 +9,7 @@ use kirana_diagnostics::Span;
 use kirana_ir::{Atom, Condition, ConditionSet, Dep, Op, RelationKind, Target, TokenValue};
 use serde::Serialize;
 
-use crate::Project;
+use crate::{Project, State};
 
 /// One atom a site applies, with the rule the stylesheet carries for it.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -107,25 +107,51 @@ impl Project {
         sites
     }
 
+    /// The classes of the atoms at the sites of `path` whose span `matches`, as `sites` would list
+    /// them, without the rest a `Site` carries: a "used by" count asks this of thousands of sites.
+    pub fn classes_at(&self, path: &Path, matches: &dyn Fn(Span) -> bool) -> Vec<String> {
+        let state = self.state.read().expect("not poisoned");
+        let Some(record) = state.modules.get(&*crate::path::key(path)) else { return Vec::new() };
+        record
+            .handles
+            .iter()
+            .filter(|(span, _)| matches(Span::new(span.0, span.1)))
+            .flat_map(|(_, handle)| classes(&self.names, handle))
+            .collect()
+    }
+
     /// Where each of `classes` is produced: every site, in every module, whose atoms carry it — the
     /// `css()` an `sx` value took a declaration from, and the `sx` values that apply it. By module,
-    /// then span.
+    /// then span. Answered from an index built the first time it is asked and kept in step with the
+    /// modules after (`OriginIndex`): an editor asks for a hover's origins at every hover, and a
+    /// common declaration's are in most of a project's modules.
     pub fn origins(&self, classes: &BTreeSet<&str>) -> Vec<Origin> {
-        let state = self.state.read().expect("not poisoned");
-        let mut out = Vec::new();
-        for (path, record) in &state.modules {
-            for (span, handle) in &record.handles {
-                // A handle's atoms are its `Set`s, in order (`Atom::from_handle`); only the class is
-                // read, so the key and value are not copied for every handle in the project.
-                for op in handle.ops.iter().filter(|op| matches!(op, Op::Set(..))) {
-                    let class = self.names.class(op);
-                    if classes.contains(class.as_str()) {
-                        out.push(Origin { path: path.to_path_buf(), span: Span::new(span.0, span.1), class });
-                    }
-                }
+        // Built under the write lock the first time; the lookup after holds the same lock, which
+        // a transform's turn at the session waits for as it would for any write.
+        let mut state = self.state.write().expect("not poisoned");
+        if !state.origins.built {
+            let State { origins, modules, .. } = &mut *state;
+            origins.build(&self.names, modules.iter());
+        }
+        // By module in path order, each module's by span then class: the modules are kept in path
+        // order, so only each module's few entries are sorted.
+        let mut per_module: kirana_shared::FxHashMap<u32, Vec<Found<'_>>> = kirana_shared::FxHashMap::default();
+        for class in classes {
+            for (module, span) in state.origins.by_class.get(*class).into_iter().flatten() {
+                per_module.entry(*module).or_default().push((span.0, class, *span));
             }
         }
-        out.sort_by(|a, b| (&a.path, a.span.start, &a.class).cmp(&(&b.path, b.span.start, &b.class)));
+        let mut out = Vec::new();
+        for module in &state.origins.order {
+            let Some(mut entries) = per_module.remove(module) else { continue };
+            entries.sort_by(|a, b| (a.0, a.1).cmp(&(b.0, b.1)));
+            let path = state.origins.modules[*module as usize].as_path();
+            out.extend(entries.into_iter().map(|(_, class, span)| Origin {
+                path: path.to_path_buf(),
+                span: Span::new(span.0, span.1),
+                class: class.to_owned(),
+            }));
+        }
         out
     }
 
@@ -196,6 +222,101 @@ impl Project {
         relations.sort_by(|a, b| (&a.name, &a.marker).cmp(&(&b.name, &b.marker)));
         relations
     }
+}
+
+/// Where every class is produced: for each class, the `(module, site span)` of every atom carrying
+/// it in a handle written there, one entry per atom as `Atom::from_handle` lists them. Empty until
+/// `Project::origins` first asks (`built`); kept in step with the records after, so an edit costs its
+/// own module's entries, not a walk over every module.
+#[derive(Default)]
+pub struct OriginIndex {
+    pub(crate) built: bool,
+    /// Each module that ever had an entry, once; an entry names its module by index here.
+    pub(crate) modules: Vec<crate::path::ModulePath>,
+    /// The indexes of `modules` in path order, as `Project::origins` lists them.
+    pub(crate) order: Vec<u32>,
+    slot: kirana_shared::FxHashMap<crate::path::ModulePath, u32>,
+    pub(crate) by_class: kirana_shared::FxHashMap<String, Vec<Entry>>,
+}
+
+/// An origin found for a request: the span's start, the class and the span, in sort order.
+type Found<'c> = (u32, &'c str, (u32, u32));
+
+/// One origin in the index: the module (an index into `OriginIndex::modules`) and the site's span.
+type Entry = (u32, (u32, u32));
+
+impl OriginIndex {
+    /// Builds the index from every record, once.
+    pub(crate) fn build<'r>(
+        &mut self,
+        names: &kirana_ir::Names,
+        records: impl Iterator<Item = (&'r crate::path::ModulePath, &'r crate::registry::ModuleRecord)>,
+    ) {
+        for (path, record) in records {
+            self.add(names, path.as_path(), record);
+        }
+        self.built = true;
+    }
+
+    /// Puts `current`'s entries in place of `previous`'s for the module at `path`; nothing until the
+    /// index is built, since the build reads every record then.
+    pub(crate) fn replace(
+        &mut self,
+        names: &kirana_ir::Names,
+        path: &Path,
+        previous: Option<&crate::registry::ModuleRecord>,
+        current: Option<&crate::registry::ModuleRecord>,
+    ) {
+        if !self.built {
+            return;
+        }
+        if let Some(previous) = previous {
+            self.remove(names, path, previous);
+        }
+        if let Some(current) = current {
+            self.add(names, path, current);
+        }
+    }
+
+    fn module(&mut self, path: &Path) -> u32 {
+        let key = crate::path::key(path);
+        match self.slot.get(&*key) {
+            Some(slot) => *slot,
+            None => {
+                let slot = self.modules.len() as u32;
+                let module = crate::path::ModulePath::new(path);
+                let at = self.order.partition_point(|other| self.modules[*other as usize].as_path() < module.as_path());
+                self.order.insert(at, slot);
+                self.modules.push(module.clone());
+                self.slot.insert(module, slot);
+                slot
+            }
+        }
+    }
+
+    fn add(&mut self, names: &kirana_ir::Names, path: &Path, record: &crate::registry::ModuleRecord) {
+        let module = self.module(path);
+        for (span, handle) in &record.handles {
+            for class in classes(names, handle) {
+                self.by_class.entry(class).or_default().push((module, *span));
+            }
+        }
+    }
+
+    fn remove(&mut self, names: &kirana_ir::Names, path: &Path, record: &crate::registry::ModuleRecord) {
+        let module = self.module(path);
+        for (span, handle) in &record.handles {
+            for class in classes(names, handle) {
+                self.by_class.entry(class).or_default().retain(|entry| *entry != (module, *span));
+            }
+        }
+    }
+}
+
+/// A handle's classes, one per atom in `Atom::from_handle`'s order (its `Set`s): only the class is
+/// read, so the key and value are not copied for every declaration in the project.
+fn classes<'h>(names: &'h kirana_ir::Names, handle: &'h kirana_ir::Handle) -> impl Iterator<Item = String> + 'h {
+    handle.ops.iter().filter(|op| matches!(op, Op::Set(..))).map(|op| names.class(op))
 }
 
 pub(crate) fn site_atom(atom: &Atom, rank: u32, relations: &BTreeMap<&str, &str>) -> SiteAtom {

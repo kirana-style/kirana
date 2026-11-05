@@ -21,23 +21,23 @@ mod outline;
 mod summary;
 pub mod text;
 
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 
 use kirana_diagnostics::{Diagnostic, Severity};
 use kirana_project::{Project, Site, TraceLine};
-use kirana_shared::OsFs;
+use kirana_shared::{FxHashMap, OsFs};
 use lsp_server::{Connection, ErrorCode, Message, Notification, Request, Response};
 use lsp_types::notification::{
-    DidChangeTextDocument, DidChangeWatchedFiles, DidCloseTextDocument, DidOpenTextDocument, Notification as _,
+    DidChangeTextDocument, DidChangeWatchedFiles, DidCloseTextDocument, DidOpenTextDocument, Exit, Notification as _,
     PublishDiagnostics,
 };
 use lsp_types::request::{
     CodeActionRequest, CodeLensRequest, ColorPresentationRequest, Completion, DocumentColor, DocumentHighlightRequest,
     DocumentSymbolRequest, ExecuteCommand, FoldingRangeRequest, GotoDefinition, HoverRequest, InlayHintRequest,
-    InlayHintResolveRequest, References, Request as _, WorkspaceSymbolRequest,
+    InlayHintResolveRequest, References, Request as _, Shutdown, WorkspaceSymbolRequest,
 };
 use lsp_types::{
     DiagnosticSeverity, DidChangeTextDocumentParams, DidChangeWatchedFilesParams, DidCloseTextDocumentParams,
@@ -90,10 +90,36 @@ pub struct Server {
     /// Each module's own diagnostics from its last transform; a component's are under its own path.
     module_diagnostics: BTreeMap<PathBuf, Vec<Diagnostic>>,
     /// Vue, Svelte and Astro components, by path.
-    components: BTreeMap<PathBuf, component::Compiled>,
+    components: FxHashMap<PathBuf, component::Compiled>,
+    /// The component each block module belongs to, by module id: kept in step with `components`,
+    /// so an origin's owner is one lookup, not a walk over every component (a hover on a shared
+    /// declaration asks for thousands of origins).
+    owners: FxHashMap<PathBuf, PathBuf>,
     /// Documents diagnostics were published for, to clear them when they close.
     published: BTreeSet<PathBuf>,
+    /// Each file's sites as last asked for, with the project revision and the components'
+    /// generation they were built at: a request asks for a document's sites several times, and a
+    /// "used by" count for thousands of files', while nothing changed.
+    sites: std::cell::RefCell<FxHashMap<PathBuf, CachedSites>>,
+    /// Moves on whenever `components` changes, which changes a component's sites.
+    generation: u64,
+    /// Whether a message since the last publish may have changed the documents' diagnostics.
+    publish_needed: bool,
 }
+
+/// What a notification sends back around the diagnostics it may have changed: the notifications
+/// before that publish (a restart), and after it (a closed document's cleared diagnostics).
+#[derive(Default)]
+struct Handled {
+    before: Vec<Notification>,
+    after: Vec<Notification>,
+}
+
+/// A file's sites, with the project revision and the components' generation they were built at.
+type CachedSites = (u64, u64, Arc<Vec<Site>>);
+
+/// How many files' sites the server keeps before the cache starts over.
+const SITES_KEPT: usize = 4096;
 
 /// How long the server waits after its last work before it tells its host it is idle (D-123): an
 /// editor sends a change per keystroke, so a second without a message is a pause.
@@ -166,23 +192,152 @@ pub fn serve(connection: &Connection, config_json: &str, idle: Idle) -> Result<(
         // The client went away without `shutdown`.
         let Some(message) = received else { return Ok(()) };
         busy = true;
+        // Everything the client has sent since is taken with it: the burst an editor sends per
+        // keystroke is handled as one.
+        let mut batch = vec![message];
+        while let Ok(message) = connection.receiver.try_recv() {
+            batch.push(message);
+        }
+        if handle_burst(&mut server, connection, batch)? || publish_when_paused(&mut server, connection)? {
+            return Ok(());
+        }
+    }
+}
+
+/// How long the server waits for more of a burst before it publishes the diagnostics a change
+/// left to publish: the hover, the hints and the lenses an editor sends a few milliseconds behind
+/// a keystroke are answered first.
+const PUBLISH_AFTER: Duration = Duration::from_millis(50);
+
+/// The longest a client that never pauses keeps the diagnostics waiting.
+const PUBLISH_WITHIN: Duration = Duration::from_millis(250);
+
+/// Publishes the diagnostics the last burst left pending once the client has paused, handling
+/// whatever arrives in the meantime first; `true` when the client asked the server to shut down or
+/// went away.
+pub fn publish_when_paused(server: &mut Server, connection: &Connection) -> Result<bool, String> {
+    publish_when_paused_within(server, connection, PUBLISH_WITHIN)
+}
+
+/// [`publish_when_paused`], publishing after `within` at the latest, paused or not.
+pub fn publish_when_paused_within(
+    server: &mut Server,
+    connection: &Connection,
+    within: Duration,
+) -> Result<bool, String> {
+    let since = std::time::Instant::now();
+    while server.publish_needed {
+        let wait = PUBLISH_AFTER.min(within.saturating_sub(since.elapsed()));
+        match connection.receiver.recv_timeout(wait) {
+            Ok(message) => {
+                let mut batch = vec![message];
+                while let Ok(message) = connection.receiver.try_recv() {
+                    batch.push(message);
+                }
+                if handle_burst(server, connection, batch)? {
+                    return Ok(true);
+                }
+                if since.elapsed() < within {
+                    continue;
+                }
+            }
+            Err(error) if !error.is_timeout() => return Ok(true),
+            Err(_) => {}
+        }
+        for out in server.publish_pending() {
+            connection.sender.send(Message::Notification(out)).map_err(|error| error.to_string())?;
+        }
+    }
+    Ok(false)
+}
+
+/// The method of a client's cancellation of a request it no longer wants answered.
+const CANCEL: &str = "$/cancelRequest";
+
+/// Handles the messages a client sent in one burst and publishes the diagnostics they left to
+/// publish; `true` when the client asked the server to shut down.
+pub fn handle_messages(server: &mut Server, connection: &Connection, batch: Vec<Message>) -> Result<bool, String> {
+    if handle_burst(server, connection, batch)? {
+        return Ok(true);
+    }
+    for out in server.publish_pending() {
+        connection.sender.send(Message::Notification(out)).map_err(|error| error.to_string())?;
+    }
+    Ok(false)
+}
+
+/// Handles the messages a client sent in one burst, in their order, and sends what they get back;
+/// `true` when the client asked the server to shut down. A request the burst also cancels is
+/// answered as cancelled, without being computed: an editor cancels the hover and the lenses of a
+/// line it has left. Of a document's changes only the last is applied, each carrying the whole
+/// text; and the documents' diagnostics are left for [`publish_when_paused`], so the hover and the
+/// hints a keystroke is followed by are answered before the project is checked again.
+pub fn handle_burst(server: &mut Server, connection: &Connection, batch: Vec<Message>) -> Result<bool, String> {
+    let send = |message: Message| connection.sender.send(message).map_err(|error| error.to_string());
+    let cancelled: BTreeSet<lsp_server::RequestId> = batch
+        .iter()
+        .filter_map(|message| match message {
+            Message::Notification(notification) if notification.method == CANCEL => {
+                serde_json::from_value(notification.params.get("id")?.clone()).ok()
+            }
+            _ => None,
+        })
+        .collect();
+    let mut last_change: BTreeMap<String, usize> = BTreeMap::new();
+    for (index, message) in batch.iter().enumerate() {
+        if let Message::Notification(notification) = message
+            && notification.method == DidChangeTextDocument::METHOD
+            && let Some(uri) = notification.params.pointer("/textDocument/uri").and_then(Value::as_str)
+        {
+            last_change.insert(uri.to_owned(), index);
+        }
+    }
+    // The exit a client sends after its shutdown may already be in the burst; it is awaited on the
+    // connection otherwise.
+    let exit = batch.iter().position(
+        |message| matches!(message, Message::Notification(notification) if notification.method == Exit::METHOD),
+    );
+    for (index, message) in batch.into_iter().enumerate() {
         match message {
             Message::Request(request) => {
-                if connection.handle_shutdown(&request).map_err(|error| error.to_string())? {
-                    return Ok(());
+                if request.method == Shutdown::METHOD && exit.is_some_and(|exit| exit > index) {
+                    send(Message::Response(Response::new_ok(request.id, Value::Null)))?;
+                    return Ok(true);
                 }
-                let response = respond(request.id.clone(), &request.method, || server.request(&request));
-                connection.sender.send(Message::Response(response)).map_err(|error| error.to_string())?;
+                if connection.handle_shutdown(&request).map_err(|error| error.to_string())? {
+                    return Ok(true);
+                }
+                let response = if cancelled.contains(&request.id) {
+                    Response::new_err(
+                        request.id,
+                        ErrorCode::RequestCanceled as i32,
+                        "cancelled by the client".to_owned(),
+                    )
+                } else {
+                    respond(request.id.clone(), &request.method, || server.request(&request))
+                };
+                send(Message::Response(response))?;
             }
             Message::Notification(notification) => {
+                let superseded = notification.method == DidChangeTextDocument::METHOD
+                    && notification
+                        .params
+                        .pointer("/textDocument/uri")
+                        .and_then(Value::as_str)
+                        .is_some_and(|uri| last_change.get(uri).is_some_and(|last| *last != index));
+                if notification.method == CANCEL || superseded {
+                    continue;
+                }
                 let method = notification.method.clone();
-                for out in guarded(&method, || server.notification(notification)).unwrap_or_default() {
-                    connection.sender.send(Message::Notification(out)).map_err(|error| error.to_string())?;
+                let Handled { before, after } = guarded(&method, || server.handle(notification)).unwrap_or_default();
+                for out in before.into_iter().chain(after) {
+                    send(Message::Notification(out))?;
                 }
             }
             Message::Response(_) => {}
         }
     }
+    Ok(false)
 }
 
 /// One request's response: its handler's, or an internal error when the handler panics.
@@ -246,13 +401,16 @@ impl Server {
         for diagnostic in indexed.diagnostics.into_iter().filter(|diagnostic| !diagnostic.file.is_empty()) {
             module_diagnostics.entry(root.join(&diagnostic.file)).or_default().push(diagnostic);
         }
-        let mut components = BTreeMap::new();
+        let mut components = FxHashMap::default();
+        let mut owners = FxHashMap::default();
         for (path, modules, diagnostics) in indexed.components {
             module_diagnostics.insert(path.clone(), diagnostics);
+            owners.extend(modules.iter().map(|module| (module.id.clone(), path.clone())));
             components.insert(path, component::Compiled { modules });
         }
         for (path, module, diagnostics) in indexed.angular {
             module_diagnostics.insert(path.clone(), diagnostics);
+            owners.insert(module.id.clone(), path.clone());
             components.insert(path, component::Compiled { modules: vec![module] });
         }
         let option = |name: &str| params.pointer(&format!("/initializationOptions/{name}")).and_then(Value::as_bool);
@@ -281,7 +439,11 @@ impl Server {
             documents: BTreeMap::new(),
             module_diagnostics,
             components,
+            owners,
             published: BTreeSet::new(),
+            sites: std::cell::RefCell::default(),
+            generation: 0,
+            publish_needed: false,
         })
     }
 
@@ -343,65 +505,83 @@ impl Server {
         }
     }
 
-    /// Handles one notification; returns the notifications to send back.
+    /// Handles one notification; returns the notifications to send back, the documents' diagnostics
+    /// among them when the notification changed what they may say.
     pub fn notification(&mut self, notification: Notification) -> Vec<Notification> {
+        let Handled { before, after } = self.handle(notification);
+        let mut out = before;
+        out.extend(self.publish_pending());
+        out.extend(after);
+        out
+    }
+
+    /// The documents' diagnostics, when a message since the last publish may have changed them:
+    /// project-wide diagnostics (relations, collisions) can change for every open document, and
+    /// computing them walks every module, so a burst of changes publishes once, after the burst.
+    pub fn publish_pending(&mut self) -> Vec<Notification> {
+        if !std::mem::take(&mut self.publish_needed) {
+            return Vec::new();
+        }
+        self.publish_all()
+    }
+
+    /// Handles one notification without publishing diagnostics; what it changed is published by
+    /// `publish_pending`, between the notifications it sends before and after that publish.
+    fn handle(&mut self, notification: Notification) -> Handled {
         match notification.method.as_str() {
             DidOpenTextDocument::METHOD => {
-                let Ok(params) = notification.extract::<DidOpenTextDocumentParams>(DidOpenTextDocument::METHOD) else {
-                    return Vec::new();
-                };
-                self.edit(&params.text_document.uri, params.text_document.text)
+                if let Ok(params) = notification.extract::<DidOpenTextDocumentParams>(DidOpenTextDocument::METHOD) {
+                    self.edit(&params.text_document.uri, params.text_document.text);
+                }
+                Handled::default()
             }
             DidChangeTextDocument::METHOD => {
-                let Ok(params) = notification.extract::<DidChangeTextDocumentParams>(DidChangeTextDocument::METHOD)
-                else {
-                    return Vec::new();
-                };
                 // Full synchronisation: the last change carries the whole text.
-                match params.content_changes.into_iter().last() {
-                    Some(change) => self.edit(&params.text_document.uri, change.text),
-                    None => Vec::new(),
+                if let Ok(params) = notification.extract::<DidChangeTextDocumentParams>(DidChangeTextDocument::METHOD)
+                    && let Some(change) = params.content_changes.into_iter().last()
+                {
+                    self.edit(&params.text_document.uri, change.text);
                 }
+                Handled::default()
             }
             DidCloseTextDocument::METHOD => {
                 let Ok(params) = notification.extract::<DidCloseTextDocumentParams>(DidCloseTextDocument::METHOD)
                 else {
-                    return Vec::new();
+                    return Handled::default();
                 };
-                let Some(path) = uri_to_path(&params.text_document.uri) else { return Vec::new() };
+                let Some(path) = uri_to_path(&params.text_document.uri) else { return Handled::default() };
                 self.documents.remove(&path);
                 // The module goes back to what is on disk.
                 if let Ok(text) = std::fs::read_to_string(&path) {
                     self.transform(&path, &text);
                 }
-                let mut out = self.publish_all();
-                if self.published.remove(&path) {
-                    out.push(publish(&path, Vec::new()));
-                }
-                out
+                self.publish_needed = true;
+                // Its own diagnostics are cleared once the others are published.
+                let after = if self.published.remove(&path) { vec![publish(&path, Vec::new())] } else { Vec::new() };
+                Handled { before: Vec::new(), after }
             }
             DidChangeWatchedFiles::METHOD => {
                 let Ok(params) = notification.extract::<DidChangeWatchedFilesParams>(DidChangeWatchedFiles::METHOD)
                 else {
-                    return Vec::new();
+                    return Handled::default();
                 };
-                self.files_changed(params)
+                Handled { before: self.files_changed(params), after: Vec::new() }
             }
             THEME => {
                 self.options.theme =
                     diagram::Theme::from_name(notification.params.get("theme").and_then(Value::as_str));
-                Vec::new()
+                Handled::default()
             }
-            _ => Vec::new(),
+            _ => Handled::default(),
         }
     }
 
-    fn edit(&mut self, uri: &lsp_types::Uri, text: String) -> Vec<Notification> {
-        let Some(path) = uri_to_path(uri) else { return Vec::new() };
+    fn edit(&mut self, uri: &lsp_types::Uri, text: String) {
+        let Some(path) = uri_to_path(uri) else { return };
         self.transform(&path, &text);
         self.documents.insert(path, text);
         // Project-wide diagnostics (relations, collisions) can change for every open document.
-        self.publish_all()
+        self.publish_needed = true;
     }
 
     fn transform(&mut self, path: &Path, text: &str) {
@@ -418,15 +598,18 @@ impl Server {
                 for module in &previous.modules {
                     if !compiled.modules.iter().any(|current| current.id == module.id) {
                         self.project.remove(&module.id);
+                        self.owners.remove(&module.id);
                     }
                 }
             }
+            self.owners.extend(compiled.modules.iter().map(|module| (module.id.clone(), path.to_path_buf())));
             self.components.insert(path.to_path_buf(), compiled);
+            self.generation += 1;
             self.module_diagnostics.insert(path.to_path_buf(), diagnostics);
             return;
         }
         // An Angular `.ts` file whose template lost its last `[sx]` is a module again.
-        self.components.remove(path);
+        self.forget_component(path);
         // An `.html` file that is no Angular component's template, or a server template that names
         // no style, has nothing to compile.
         // Only scripts are modules: a `.php` file opened as PHP is not one.
@@ -441,42 +624,88 @@ impl Server {
         self.module_diagnostics.insert(path.to_path_buf(), result.diagnostics);
     }
 
-    /// Each block module's component, with the module, the first component in path order holding
-    /// it. Built in one pass where a request asks for many: looking each module up by scanning every
-    /// component took seconds on a hover in a project of 2,300 components and 45,000 origins.
-    fn owners(&self) -> HashMap<&Path, (&Path, &component::Module)> {
-        let mut out = HashMap::new();
-        for (component, compiled) in &self.components {
-            for module in &compiled.modules {
-                out.entry(module.id.as_path()).or_insert((component.as_path(), module));
-            }
+    /// The component a block module belongs to; the path itself for any other module.
+    fn owner(&self, path: &Path) -> PathBuf {
+        self.owners.get(path).cloned().unwrap_or_else(|| path.to_path_buf())
+    }
+
+    /// Drops a component from the session's own records, its block modules' owners with it; the
+    /// modules themselves are the caller's to remove from the project.
+    fn forget_component(&mut self, path: &Path) -> Option<component::Compiled> {
+        let compiled = self.components.remove(path)?;
+        self.generation += 1;
+        for module in &compiled.modules {
+            self.owners.remove(&module.id);
         }
-        out
+        Some(compiled)
     }
 
     /// The style sites of a file, spans in its text: a module's from the session, a component's
-    /// mapped from its blocks.
-    pub(crate) fn sites(&self, path: &Path) -> Vec<Site> {
-        match self.components.get(path) {
+    /// mapped from its blocks. Built once per file while the project and the components stand.
+    pub(crate) fn sites(&self, path: &Path) -> Arc<Vec<Site>> {
+        self.sites_kept(path, SITES_KEPT)
+    }
+
+    /// [`Server::sites`], keeping at most `kept` files' sites.
+    fn sites_kept(&self, path: &Path, kept: usize) -> Arc<Vec<Site>> {
+        let revision = self.project.revision();
+        if let Some((at, generation, sites)) = self.sites.borrow().get(path)
+            && (*at, *generation) == (revision, self.generation)
+        {
+            return sites.clone();
+        }
+        let sites = Arc::new(match self.components.get(path) {
             Some(compiled) => compiled.sites(&self.project),
             None => self.project.sites(path),
+        });
+        let mut cache = self.sites.borrow_mut();
+        // A session asks about a few files at a time: past the bound the cache starts over.
+        if cache.len() >= kept {
+            cache.clear();
+        }
+        cache.insert(path.to_path_buf(), (revision, self.generation, sites.clone()));
+        sites
+    }
+
+    /// The classes the site spanning `span` in `file` carries, as its atoms list them: a module's from
+    /// the session, a component's from the block module whose site maps there.
+    pub(crate) fn site_classes(&self, file: &Path, span: (usize, usize)) -> Vec<String> {
+        match self.components.get(file) {
+            Some(compiled) => compiled
+                .modules
+                .iter()
+                .flat_map(|module| {
+                    self.project.classes_at(&module.id, &|site| {
+                        // An external block's own sites are in its file, not this document.
+                        !(module.external && module.in_block(site)) && {
+                            let mapped = module.span_to_component(site);
+                            (mapped.start as usize, mapped.end as usize) == span
+                        }
+                    })
+                })
+                .collect(),
+            None => self.project.classes_at(file, &|site| (site.start as usize, site.end as usize) == span),
         }
     }
 
     /// Where each of `classes` is produced, as `(file, span in its text, class)`: a block module's
     /// sites are reported in its component.
     pub(crate) fn origins(&self, classes: &BTreeSet<&str>) -> Vec<(PathBuf, (usize, usize), String)> {
-        let owners = self.owners();
         let mut out = Vec::new();
+        // Origins come by module: one module's owner and block, found once, serve its run of origins.
+        let mut current: Option<(PathBuf, PathBuf, Option<&component::Module>)> = None;
         for origin in self.project.origins(classes) {
-            let (owner, span) = match owners.get(origin.path.as_path()) {
-                Some((component, module)) => {
-                    let span = module.span_to_component(origin.span);
-                    (component.to_path_buf(), (span.start as usize, span.end as usize))
-                }
-                None => (origin.path, (origin.span.start as usize, origin.span.end as usize)),
-            };
-            out.push((owner, span, origin.class));
+            if current.as_ref().is_none_or(|(module, _, _)| module.as_os_str() != origin.path.as_os_str()) {
+                let owner = self.owners.get(&origin.path);
+                let block = owner
+                    .and_then(|owner| self.components.get(owner))
+                    .and_then(|compiled| compiled.modules.iter().find(|module| module.id == origin.path));
+                current = Some((origin.path.clone(), owner.cloned().unwrap_or_else(|| origin.path.clone()), block));
+            }
+            let (_, owner, block) = current.as_ref().expect("set for this module");
+            let span = block.map_or(origin.span, |block| block.span_to_component(origin.span));
+            let span = (span.start as usize, span.end as usize);
+            out.push((owner.clone(), span, origin.class));
         }
         out
     }
@@ -518,7 +747,7 @@ impl Server {
             if change.typ == FileChangeType::DELETED {
                 self.project.remove(&path);
                 self.module_diagnostics.remove(&path);
-                if let Some(compiled) = self.components.remove(&path) {
+                if let Some(compiled) = self.forget_component(&path) {
                     for module in &compiled.modules {
                         self.project.remove(&module.id);
                     }
@@ -527,19 +756,13 @@ impl Server {
                 affected.insert(path);
             }
         }
-        let owners = self.owners();
-        let affected: BTreeSet<PathBuf> = affected
-            .iter()
-            .map(|path| {
-                owners.get(path.as_path()).map_or_else(|| path.clone(), |(component, _)| component.to_path_buf())
-            })
-            .collect();
+        let affected: BTreeSet<PathBuf> = affected.iter().map(|path| self.owner(path)).collect();
         for path in affected {
             if let Some(text) = self.source(&path) {
                 self.transform(&path, &text);
             }
         }
-        out.extend(self.publish_all());
+        self.publish_needed = true;
         out
     }
 
@@ -623,6 +846,19 @@ pub(crate) fn document(server: &Server, params: &Value) -> Result<(PathBuf, Stri
     let path = uri_to_path(&uri).ok_or("not a file URI")?;
     let text = server.source(&path).ok_or_else(|| format!("cannot read {}", path.display()))?;
     Ok((path, text))
+}
+
+/// Test support: a file's sites with the cache bounded at `kept` files.
+#[doc(hidden)]
+pub fn sites_kept(server: &Server, path: &Path, kept: usize) -> Arc<Vec<Site>> {
+    server.sites_kept(path, kept)
+}
+
+/// Test support: the component a module belongs to, as `origins` reports it; the path itself for
+/// a module that is no component's block.
+#[doc(hidden)]
+pub fn owner_of(server: &Server, path: &Path) -> PathBuf {
+    server.owner(path)
 }
 
 /// Test support: the untruncated summary of the site starting at byte `start` of `path`.

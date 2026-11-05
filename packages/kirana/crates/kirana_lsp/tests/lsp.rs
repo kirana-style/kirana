@@ -162,6 +162,20 @@ fn hover_text(value: &Value) -> String {
 }
 
 #[test]
+fn a_file_s_sites_are_kept_up_to_a_bound() {
+    let f = fixture(json!({}));
+    let card = f.root.join("card.tsx");
+    let tokens = f.root.join("tokens.ts");
+    let first = kirana_lsp::sites_kept(&f.server, &card, 1);
+    assert!(!first.is_empty());
+    // A second file past the bound starts the cache over; both still answer the same.
+    let _ = kirana_lsp::sites_kept(&f.server, &tokens, 1);
+    let again = kirana_lsp::sites_kept(&f.server, &card, 1);
+    assert_eq!(first.len(), again.len());
+    assert_eq!(first.len(), kirana_lsp::sites_kept(&f.server, &card, 4096).len());
+}
+
+#[test]
 fn diagnostics_follow_open_change_and_close() {
     let mut f = fixture(json!({}));
     let published = f.open(CARD);
@@ -797,6 +811,238 @@ fn serves_a_session_over_a_connection() {
     std::fs::remove_dir_all(root).unwrap();
 }
 
+/// A keystroke's burst, handled as one: the changes collapse to the last text, a request the burst
+/// cancels is answered as cancelled without being computed, the others are answered in order, and
+/// the documents' diagnostics come once, after.
+#[test]
+fn a_burst_of_messages_is_handled_as_one() {
+    let root = std::env::temp_dir().join(format!("kirana-lsp-burst-{}", std::process::id()));
+    std::fs::create_dir_all(&root).unwrap();
+    let source = "import { css } from \"@kirana-style/core\"\nexport const a = css({ width: \"5px\" })\n";
+    std::fs::write(root.join("a.tsx"), source).unwrap();
+    let mut server = Server::start(&json!({ "root": root }).to_string(), &json!({})).unwrap();
+    let (connection, client) = Connection::memory();
+    let uri = path_to_uri(&root.join("a.tsx")).as_str().to_owned();
+    let change = |version: u32, text: &str| {
+        Message::Notification(Notification::new(
+            "textDocument/didChange".to_owned(),
+            json!({ "textDocument": { "uri": uri, "version": version }, "contentChanges": [{ "text": text }] }),
+        ))
+    };
+    let hover = |id: i32| {
+        Message::Request(Request::new(
+            RequestId::from(id),
+            "textDocument/hover".to_owned(),
+            json!({ "textDocument": { "uri": uri }, "position": { "line": 1, "character": 24 } }),
+        ))
+    };
+    let open = Message::Notification(Notification::new(
+        "textDocument/didOpen".to_owned(),
+        json!({ "textDocument": { "uri": uri, "languageId": "tsx", "version": 1, "text": source } }),
+    ));
+    let cancel = Message::Notification(Notification::new("$/cancelRequest".to_owned(), json!({ "id": 2 })));
+    // A cancellation naming no request cancels nothing.
+    let cancel_nothing = Message::Notification(Notification::new("$/cancelRequest".to_owned(), json!({})));
+    // The first change's text is never compiled: the second supersedes it. The hover on `width`
+    // sees the last text, where the key moved.
+    let edited = source.replace("width:", "height:");
+    let batch =
+        vec![open, change(2, "export const a = 1\n"), hover(2), change(3, &edited), cancel, cancel_nothing, hover(3)];
+    assert!(!kirana_lsp::handle_messages(&mut server, &connection, batch).unwrap());
+    let mut received = Vec::new();
+    while let Ok(message) = client.receiver.try_recv() {
+        received.push(message);
+    }
+    let [Message::Response(cancelled), Message::Response(answered), Message::Notification(published)] =
+        received.as_slice()
+    else {
+        panic!("{received:?}");
+    };
+    assert_eq!(cancelled.id, RequestId::from(2));
+    let code = cancelled.response_result.as_ref().err().map(|error| error.code);
+    assert_eq!(code, Some(lsp_server::ErrorCode::RequestCanceled as i32));
+    let text = answered.response_result.as_ref().unwrap().pointer("/contents/value").unwrap().as_str().unwrap();
+    assert!(text.contains("height"), "{text}");
+    assert_eq!(published.method, "textDocument/publishDiagnostics");
+    assert_eq!(published.params["uri"], uri);
+    // Nothing changed since: nothing to publish. The client's shutdown ends the batch.
+    assert!(!kirana_lsp::handle_messages(&mut server, &connection, vec![hover(4)]).unwrap());
+    let mut received = Vec::new();
+    while let Ok(message) = client.receiver.try_recv() {
+        received.push(message);
+    }
+    assert!(matches!(received.as_slice(), [Message::Response(_)]), "{received:?}");
+    // A close in a burst clears the document's diagnostics from the burst's handler; with no
+    // document left, nothing follows.
+    let close = Message::Notification(Notification::new(
+        "textDocument/didClose".to_owned(),
+        json!({ "textDocument": { "uri": uri } }),
+    ));
+    assert!(!kirana_lsp::handle_messages(&mut server, &connection, vec![close]).unwrap());
+    let mut received = Vec::new();
+    while let Ok(message) = client.receiver.try_recv() {
+        received.push(message);
+    }
+    let [Message::Notification(cleared)] = received.as_slice() else {
+        panic!("{received:?}");
+    };
+    assert_eq!(
+        (cleared.method.as_str(), cleared.params["uri"].as_str()),
+        ("textDocument/publishDiagnostics", Some(uri.as_str()))
+    );
+    assert_eq!(cleared.params["diagnostics"], json!([]));
+    let shutdown = Message::Request(Request::new(RequestId::from(5), "shutdown".to_owned(), json!(null)));
+    // The exit the client sends after its shutdown is awaited on the connection.
+    client.sender.send(Message::Notification(Notification::new("exit".to_owned(), json!(null)))).unwrap();
+    assert!(kirana_lsp::handle_messages(&mut server, &connection, vec![shutdown]).unwrap());
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn a_change_s_diagnostics_are_published_once_the_client_pauses() {
+    let root = std::env::temp_dir().join(format!("kirana-lsp-pause-{}", std::process::id()));
+    std::fs::create_dir_all(&root).unwrap();
+    let source = "import { css } from \"@kirana-style/core\"\nexport const a = css({ width: \"5px\" })\n";
+    std::fs::write(root.join("a.tsx"), source).unwrap();
+    let mut server = Server::start(&json!({ "root": root }).to_string(), &json!({})).unwrap();
+    let (connection, client) = Connection::memory();
+    let uri = path_to_uri(&root.join("a.tsx")).as_str().to_owned();
+    let change = |version: u32, text: &str| {
+        Message::Notification(Notification::new(
+            "textDocument/didChange".to_owned(),
+            json!({ "textDocument": { "uri": uri, "version": version }, "contentChanges": [{ "text": text }] }),
+        ))
+    };
+    let hover = |id: i32| {
+        Message::Request(Request::new(
+            RequestId::from(id),
+            "textDocument/hover".to_owned(),
+            json!({ "textDocument": { "uri": uri }, "position": { "line": 1, "character": 24 } }),
+        ))
+    };
+    let open = Message::Notification(Notification::new(
+        "textDocument/didOpen".to_owned(),
+        json!({ "textDocument": { "uri": uri, "languageId": "tsx", "version": 1, "text": source } }),
+    ));
+    let received = |client: &Connection| {
+        let mut received = Vec::new();
+        while let Ok(message) = client.receiver.try_recv() {
+            received.push(message);
+        }
+        received
+    };
+    // A burst with a change publishes nothing by itself.
+    let edited = source.replace("width:", "height:");
+    assert!(!kirana_lsp::handle_burst(&mut server, &connection, vec![open, change(2, &edited)]).unwrap());
+    assert!(received(&client).is_empty());
+    // The hover that follows the keystroke is answered before the diagnostics are published.
+    client.sender.send(hover(2)).unwrap();
+    assert!(!kirana_lsp::publish_when_paused(&mut server, &connection).unwrap());
+    let after_hover = received(&client);
+    let [Message::Response(answered), Message::Notification(published)] = after_hover.as_slice() else {
+        panic!("not a response then the diagnostics: {after_hover:?}");
+    };
+    assert_eq!(answered.id, RequestId::from(2));
+    assert_eq!(published.method, "textDocument/publishDiagnostics");
+    // Nothing pending: nothing waited for.
+    assert!(!kirana_lsp::publish_when_paused(&mut server, &connection).unwrap());
+    assert!(received(&client).is_empty());
+    // A shutdown during the pause ends the server; the client's exit is awaited.
+    assert!(!kirana_lsp::handle_burst(&mut server, &connection, vec![change(3, source)]).unwrap());
+    client.sender.send(Message::Request(Request::new(RequestId::from(3), "shutdown".to_owned(), json!(null)))).unwrap();
+    client.sender.send(Message::Notification(Notification::new("exit".to_owned(), json!(null)))).unwrap();
+    assert!(kirana_lsp::publish_when_paused(&mut server, &connection).unwrap());
+    // A client that never pauses still gets the diagnostics, after the bound: a request every
+    // few milliseconds for longer than it, with the bound at nothing, is answered first and then the
+    // diagnostics come, before the flood ends.
+    let (connection, client) = Connection::memory();
+    assert!(!kirana_lsp::handle_burst(&mut server, &connection, vec![change(4, &edited)]).unwrap());
+    let flood = {
+        let sender = client.sender.clone();
+        let hover = hover(5);
+        std::thread::spawn(move || {
+            for _ in 0..40 {
+                if sender.send(hover.clone()).is_err() {
+                    break;
+                }
+                std::thread::sleep(std::time::Duration::from_millis(5));
+            }
+        })
+    };
+    client.sender.send(hover(5)).unwrap();
+    assert!(!kirana_lsp::publish_when_paused_within(&mut server, &connection, std::time::Duration::ZERO).unwrap());
+    let during_flood = received(&client);
+    assert!(matches!(during_flood.first(), Some(Message::Response(_))), "{during_flood:?}");
+    assert!(
+        during_flood.iter().any(
+            |message| matches!(message, Message::Notification(n) if n.method == "textDocument/publishDiagnostics")
+        ),
+        "{during_flood:?}"
+    );
+    flood.join().unwrap();
+    // A client that goes away during the pause ends it too.
+    let (connection, client) = Connection::memory();
+    assert!(!kirana_lsp::handle_burst(&mut server, &connection, vec![change(6, source)]).unwrap());
+    drop(client);
+    assert!(kirana_lsp::publish_when_paused(&mut server, &connection).unwrap());
+    // A client gone before a burst's diagnostics are sent fails the burst; so does one gone before
+    // a request's answer, a shutdown's answer, the diagnostics a pause ends with, or a close's
+    // clearing of the diagnostics it had.
+    let (connection, client) = Connection::memory();
+    drop(client);
+    let failed = kirana_lsp::handle_messages(&mut server, &connection, vec![change(7, &edited)]);
+    assert!(failed.is_err(), "{failed:?}");
+    let failed = kirana_lsp::handle_messages(&mut server, &connection, vec![hover(8)]);
+    assert!(failed.is_err(), "{failed:?}");
+    let shutdown = Message::Request(Request::new(RequestId::from(9), "shutdown".to_owned(), json!(null)));
+    let exit = Message::Notification(Notification::new("exit".to_owned(), json!(null)));
+    let failed = kirana_lsp::handle_burst(&mut server, &connection, vec![shutdown, exit]);
+    assert!(failed.is_err(), "{failed:?}");
+    let (connection, client) = Connection::memory();
+    assert!(!kirana_lsp::handle_burst(&mut server, &connection, vec![change(10, source)]).unwrap());
+    client.sender.send(hover(11)).unwrap();
+    drop(client);
+    let failed = kirana_lsp::publish_when_paused(&mut server, &connection);
+    assert!(failed.is_err(), "{failed:?}");
+    let (connection, client) = Connection::memory();
+    assert!(!kirana_lsp::handle_messages(&mut server, &connection, vec![change(12, &edited)]).unwrap());
+    drop(client);
+    let close = Message::Notification(Notification::new(
+        "textDocument/didClose".to_owned(),
+        json!({ "textDocument": { "uri": uri } }),
+    ));
+    let failed = kirana_lsp::handle_burst(&mut server, &connection, vec![close]);
+    assert!(failed.is_err(), "{failed:?}");
+    std::fs::remove_dir_all(root).unwrap();
+}
+
+/// A message that arrives before the client has paused is handled as it comes: the host hears of no
+/// pause it did not have.
+#[test]
+fn a_message_before_the_pause_does_not_tell_its_host() {
+    use std::time::Duration;
+    let root = std::env::temp_dir().join(format!("kirana-lsp-busy-{}", std::process::id()));
+    std::fs::create_dir_all(&root).unwrap();
+    let (server, client) = Connection::memory();
+    let config = json!({ "root": root }).to_string();
+    let (paused, pauses) = std::sync::mpsc::channel();
+    let thread = std::thread::spawn(move || {
+        let pause = || paused.send(()).unwrap();
+        kirana_lsp::serve(&server, &config, Some((Duration::from_secs(60), &pause)))
+    });
+    let send = |message: Message| client.sender.send(message).unwrap();
+    send(Message::Request(Request::new(RequestId::from(1), "initialize".to_owned(), json!({ "capabilities": {} }))));
+    let _ = client.receiver.recv().unwrap();
+    send(Message::Notification(Notification::new("initialized".to_owned(), json!({}))));
+    // Sent while the server indexes the workspace, so it is waiting when the index is done.
+    send(Message::Request(Request::new(RequestId::from(2), "shutdown".to_owned(), json!(null))));
+    while !matches!(client.receiver.recv().unwrap(), Message::Response(_)) {}
+    send(Message::Notification(Notification::new("exit".to_owned(), json!(null))));
+    assert!(thread.join().unwrap().is_ok());
+    assert!(pauses.try_recv().is_err());
+    std::fs::remove_dir_all(root).unwrap();
+}
+
 #[test]
 fn tells_its_host_once_each_time_the_client_pauses() {
     // D-123: the Node-API binding gives the engine's freed memory back while the editor is idle.
@@ -821,8 +1067,8 @@ fn tells_its_host_once_each_time_the_client_pauses() {
     send(Message::Notification(Notification::new("initialized".to_owned(), json!({}))));
     // The workspace's index is the first work, before any message.
     once();
-    // Two messages in a row: the second comes while the server waits for a pause, and the pause
-    // after it is still one.
+    // Two messages in a row: the second comes while the server waits to publish the first's
+    // diagnostics (D-124), and the pause after both is still one.
     let uri = path_to_uri(&root.join("a.tsx")).as_str().to_owned();
     send(Message::Notification(Notification::new(
         "textDocument/didOpen".to_owned(),

@@ -2083,6 +2083,35 @@ the implementation tracker names its evidence.
 - **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md#bindings),
   [13-output-and-performance](./13-output-and-performance.md#engineering-rules), the allocator study.
 
+### D-124 — The language server handles a burst of messages as one
+
+- **Status:** Accepted (2026-11-05). From the editor sweep on kirana-ui.
+- **Decision:** `serve` takes every message the client has sent since the last one it handled and
+  `handle_messages` handles them in order as one burst: a request the burst also cancels
+  (`$/cancelRequest`) is answered `RequestCanceled` without being computed; of a document's changes
+  only the last is applied, each carrying the whole text (`textDocumentSync.change: 1`); and the
+  documents' diagnostics are published once the client has paused: after a burst that left
+  diagnostics to publish, the server waits up to 50 ms for more of it and handles what arrives
+  first, so the hover and the hints a keystroke is followed by are answered before the project is
+  checked again, whether they arrived with the change or a few milliseconds behind it; a client
+  that never pauses gets them after 250 ms at the latest. A request is never dropped or reordered.
+  The in-process path (`Server::notification`, which the browser's serial server uses, KF-065)
+  publishes after each notification, as before. The server stays single-threaded.
+- **Rationale:** an editor sends a change, a hover, the hints and the lenses in one burst per
+  keystroke, and the server took them one at a time, checking the whole project and publishing its
+  diagnostics after the change before it looked at the hover. On kirana-ui (5,900 files), a keystroke
+  in `button.styles.ts` with the hover, the hints and the lenses behind it had the hover answered in
+  56 ms rather than 376 and its last answer in 137 ms rather than 539 (with the sweep's other changes;
+  medians of three rounds), and an open with three keystrokes published twice rather than four times.
+  A worker thread per request would not run in the browser and would need the project's lock around
+  every answer.
+- **Trade-off:** a change's diagnostics arrive after the burst's last answer and a 50 ms pause
+  rather than before its first answer, and several changes in quick succession get one
+  publication; an editor paints them a few hundred milliseconds later. A client that sends a cancel
+  after the server has started the request still waits for it: the server reads its queue between
+  bursts, not during a request.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#language-server).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                                                                 |
@@ -2094,7 +2123,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                                                           |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116, D-118, D-123                                                                                     |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                                                |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116, D-120                                    |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116, D-120, D-124                             |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114, D-123                                                                                                                        |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                                                     |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                                                              |
