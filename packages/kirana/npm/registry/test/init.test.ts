@@ -243,6 +243,23 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     expect(Object.keys(readLockfile(cwd).items)).toEqual(["@acme/kit"])
   })
 
+  it("sets <html>'s classes from the props Solid gives, its class", async () => {
+    const cwd = vite({
+      "package.json": JSON.stringify({
+        type: "module",
+        dependencies: { "solid-js": "^1.9.0" },
+        devDependencies: { vite: "^8.0.0", "vite-plugin-solid": "^2.11.0" },
+      }),
+      "src/main.tsx":
+        "import { render } from 'solid-js/web'\n\nrender(() => <p />, document.getElementById('root')!)\n",
+    })
+    const { code } = await init(cwd, "--registry", ACME)
+    expect(code).toBe(0)
+    expect(read(cwd, "src/main.tsx")).toContain(
+      "\n\ndocument.documentElement.className = props(htmlStyles).class ?? ''\n"
+    )
+  })
+
   it("puts the styles on <html> where a layout renders it, and follows the aliases the project has", async () => {
     const cwd = next()
     const { code, text } = await init(cwd, "--registry", ACME)
@@ -644,11 +661,21 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     expect((await init(withUi)).text).toContain(
       'by hand: kirana.config.ts has ui already: set {"framework":"react"} in it'
     )
+    // Into the config's own `resolve` (Analog's sets `mainFields` there).
     const resolved = vite({
       "vite.config.ts":
         "import { defineConfig } from 'vite'\n\nexport default defineConfig({ resolve: { alias: {} } })\n",
     })
     expect((await init(resolved, "--registry", ACME)).text).toContain(
+      "setup: vite.config.ts: resolve: { tsconfigPaths: true }"
+    )
+    expect(read(resolved, "vite.config.ts")).toContain(
+      "resolve: { tsconfigPaths: true, alias: {} }"
+    )
+    const plain = vite({
+      "vite.config.ts": "export default { plugins: [] }\n",
+    })
+    expect((await init(plain, "--registry", ACME)).text).toContain(
       "by hand: vite.config.ts: add resolve: { tsconfigPaths: true }, so Vite reads the aliases"
     )
     // Kirana's own setup cannot edit a Vite configuration without defineConfig.

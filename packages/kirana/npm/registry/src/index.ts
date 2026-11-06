@@ -8,7 +8,9 @@ import { readFile } from "node:fs/promises"
 import path from "node:path"
 
 import { runAdd } from "./add.ts"
+import { runBuild } from "./build.ts"
 import { runInit } from "./init.ts"
+import { runMcp } from "./mcp.ts"
 import { runDiff, runOutdated } from "./status.ts"
 import { runPreset } from "./preset.ts"
 import { runRemove, runUpdate } from "./update.ts"
@@ -44,7 +46,23 @@ export {
   writePlaced,
 } from "./add.ts"
 export type { Placed, Planned } from "./add.ts"
-export { resolveIcons } from "./icons.ts"
+export {
+  buildRegistry,
+  importsOf,
+  packageOf,
+  sourcePlace,
+  versionsFrom,
+} from "./build.ts"
+export type {
+  Built,
+  SourceBase,
+  SourceFile,
+  SourceItem,
+  SourceRegistry,
+} from "./build.ts"
+export { inlineNames, resolveIcons } from "./icons.ts"
+export { fetchInlineIcons } from "./inline-icons.ts"
+export type { InlineIcon } from "./inline-icons.ts"
 export { LOCKFILE, readLockfile, writeLockfile } from "./lockfile.ts"
 export {
   attributesOf,
@@ -130,14 +148,15 @@ Commands in this release:
   validate <document…>   check registry items, indexes and lockfiles: their schema, and every file's
                          hash; a document is a file, a URL, or an item of the project's registries
                          (@acme/card, button for @kirana's, @acme/index for an index)
+  build [registry.json]  build a registry from its source: each item's files read, their imports
+                         between the registry's files written as an installed project names them,
+                         their packages and the items they need found, hashed and checked, into
+                         --out <dir> (public/r): one document per item and index.json
+  mcp                    a Model Context Protocol server over stdio for AI assistants: the project's
+                         registries, searching and viewing items, their files and the add command
 
 --no-check skips the kirana-style check a command runs on the scripts it wrote.
-
-Coming in later releases: build, mcp.
 `
-
-/** The commands the registry will have (its plan), so that one asked for early says so. */
-const PLANNED = new Set(["build", "mcp"])
 
 /**
  * A document to validate and its JSON: a URL is fetched as it is; a file is read; a registry
@@ -237,10 +256,8 @@ export async function main(
   if (command === "remove") return runRemove(rest, cwd, write, options)
   if (command === "preset") return runPreset(rest, cwd, write, options)
   if (command === "search") return runSearch(rest, cwd, write, options)
-  if (PLANNED.has(command)) {
-    write(`kirana-style ui ${command} is not in this release yet\n`)
-    return 1
-  }
+  if (command === "build") return runBuild(rest, cwd, write)
+  if (command === "mcp") return runMcp(rest, cwd, write, options)
   write(`kirana-style ui: unknown command ${command}\n\n${USAGE}`)
   return 2
 }

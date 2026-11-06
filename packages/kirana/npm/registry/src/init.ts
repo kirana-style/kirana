@@ -315,20 +315,23 @@ function prepareAliases(
   ].find((file) => files.read(file) !== undefined)
   if (vite !== undefined && !files.read(vite)!.includes("tsconfigPaths")) {
     const text = files.read(vite)!
-    if (/\bresolve\s*:/.test(text) || !/defineConfig\(\s*\{/.test(text))
+    // Into the config's own `resolve` (Analog's sets `mainFields` there), else a new one.
+    const resolve = /\bresolve\s*:\s*\{/
+    if (resolve.test(text) || /defineConfig\(\s*\{/.test(text)) {
+      files.write(
+        vite,
+        resolve.test(text)
+          ? text.replace(resolve, (open) => `${open} tsconfigPaths: true,`)
+          : text.replace(
+              /defineConfig\(\s*\{/,
+              (open) => `${open}\n  resolve: { tsconfigPaths: true },`
+            )
+      )
+      report.push(`${vite}: resolve: { tsconfigPaths: true }`)
+    } else
       manual.push(
         `${vite}: add resolve: { tsconfigPaths: true }, so Vite reads the aliases`
       )
-    else {
-      files.write(
-        vite,
-        text.replace(
-          /defineConfig\(\s*\{/,
-          (open) => `${open}\n  resolve: { tsconfigPaths: true },`
-        )
-      )
-      report.push(`${vite}: resolve: { tsconfigPaths: true }`)
-    }
   }
   return settings
 }
@@ -598,9 +601,11 @@ function setUp(
         ...imported.matchAll(/^import\b[^;]*?["'][^"'\n]+["'];?[ \t]*$/gm),
       ]
       const end = imports.at(-1)!.index + imports.at(-1)![0].length
+      // `props()` gives Solid `class`, as its JSX spells it, and every other framework `className`.
+      const field = settings.framework === "solid" ? "class" : "className"
       files.write(
         entry,
-        `${imported.slice(0, end)}\n\ndocument.documentElement.className = props(${name}).className ?? ${quotes(imported)}${imported.slice(end)}`
+        `${imported.slice(0, end)}\n\ndocument.documentElement.className = props(${name}).${field} ?? ${quotes(imported)}${imported.slice(end)}`
       )
       report.push(`${entry}: sets <html>'s classes from ${name}`)
     } else

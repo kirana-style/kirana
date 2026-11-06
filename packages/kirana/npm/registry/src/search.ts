@@ -50,6 +50,43 @@ export function table(results: readonly Result[]): string {
 }
 
 /**
+ * The entries of each registry's index that hold every word (lower case), the registries searched
+ * and the indexes that could not be read. Shared by `search` and `ui mcp`.
+ */
+export async function searchRegistries(
+  namespaces: readonly string[],
+  words: readonly string[],
+  settings: Settings,
+  options: Options
+): Promise<{ results: Result[]; failures: Failure[]; searched: string[] }> {
+  const outcomes = await Promise.allSettled(
+    namespaces.map((namespace) => read(`${namespace}/index`, settings, options))
+  )
+  const results: Result[] = []
+  const failures: Failure[] = []
+  const searched: string[] = []
+  outcomes.forEach((outcome, index) => {
+    const namespace = namespaces[index]!
+    if (outcome.status === "rejected") {
+      failures.push({
+        document: `${namespace}/index`,
+        message: (outcome.reason as Error).message,
+      })
+      return
+    }
+    searched.push(namespace)
+    for (const entry of (outcome.value.document as Index).items)
+      if (matches(entry, words))
+        results.push({
+          ...entry,
+          reference: `${namespace}/${entry.name}`,
+          namespace,
+        })
+  })
+  return { results, failures, searched }
+}
+
+/**
  * Reads the indexes and prints what matches, or with `--json` `{ results, failures }`. Exit 1 when an
  * index cannot be read, 2 for an unknown option or registry, or settings it cannot use.
  */
@@ -78,30 +115,12 @@ export async function runSearch(
     return 2
   }
   const words = parsed.rest.join(" ").toLowerCase().split(/\s+/).filter(Boolean)
-  const outcomes = await Promise.allSettled(
-    namespaces.map((namespace) => read(`${namespace}/index`, settings, options))
+  const { results, failures, searched } = await searchRegistries(
+    namespaces,
+    words,
+    settings,
+    options
   )
-  const results: Result[] = []
-  const failures: Failure[] = []
-  const searched: string[] = []
-  outcomes.forEach((outcome, index) => {
-    const namespace = namespaces[index]!
-    if (outcome.status === "rejected") {
-      failures.push({
-        document: `${namespace}/index`,
-        message: (outcome.reason as Error).message,
-      })
-      return
-    }
-    searched.push(namespace)
-    for (const entry of (outcome.value.document as Index).items)
-      if (matches(entry, words))
-        results.push({
-          ...entry,
-          reference: `${namespace}/${entry.name}`,
-          namespace,
-        })
-  })
   if (parsed.flags.has("--json"))
     write(`${JSON.stringify({ results, failures }, null, 2)}\n`)
   else {

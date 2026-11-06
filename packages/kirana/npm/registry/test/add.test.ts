@@ -373,6 +373,60 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     )
   })
 
+  it("draws an icon inline from its library's data where the framework has no package (KRN-DX-033)", async () => {
+    const close: Item = {
+      name: "close",
+      type: "component",
+      version: "1.0.0",
+      frameworks: {
+        solid: {
+          ark: {
+            files: [
+              file(
+                "close.tsx",
+                "ui",
+                'import { IconPlaceholder } from "./icon-placeholder"\nexport const C = () => <IconPlaceholder lucide="XIcon" remixicon="RiCloseLine" />\nexport const D = () => <IconPlaceholder lucide="XIcon" remixicon="RiCloseLine" />\n'
+              ),
+            ],
+          },
+        },
+        react: { base: { files: [file("close.tsx", "ui", "export {}\n")] } },
+      },
+    }
+    const solid = project(
+      { framework: "solid", iconLibrary: "remixicon" },
+      [close],
+      {
+        "package.json": JSON.stringify({ dependencies: { "solid-js": "1" } }),
+      }
+    )
+    const seen: string[] = []
+    let text = ""
+    const code = await main(
+      ["add", "@acme/close"],
+      solid,
+      (chunk) => void (text += chunk),
+      {
+        run: () => 0,
+        fetch: (async (input: string | URL | Request) => {
+          seen.push(String(input))
+          return new Response(
+            '<symbol viewBox="0 0 24 24" id="ri-close-line"><path d="M1 1"/></symbol>'
+          )
+        }) as typeof fetch,
+      }
+    )
+    expect(code, text).toBe(0)
+    // One read for the file's two placeholders, and no package to add.
+    expect(seen).toHaveLength(1)
+    const written = read(solid, "src/components/ui/close.tsx")
+    expect(written).toMatch(/^\/\* Icons drawn from Remix Icon, /)
+    expect(written).toContain(
+      'export const C = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M1 1"/></svg>'
+    )
+    expect(written).not.toContain("icon-placeholder")
+  })
+
   it("checks what it wrote with Kirana, unless told not to", async () => {
     const wrong: Item = {
       name: "wrong",

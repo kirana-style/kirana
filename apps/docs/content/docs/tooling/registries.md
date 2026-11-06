@@ -216,6 +216,68 @@ The index is the item named `index`, valid against
 name and each item's name, type, version and bases. `kirana-style ui search`
 reads it.
 
+## Building it
+
+Write your registry's source as items whose files name where they are read
+from, in a `registry.json`, and `kirana-style ui build` writes the documents:
+
+```json
+{
+  "name": "Acme",
+  "homepage": "https://acme.dev",
+  "items": [
+    {
+      "name": "button",
+      "type": "component",
+      "version": "1.0.0",
+      "styles": ["src/ui/button.styles.ts"],
+      "frameworks": {
+        "react": { "base": { "files": ["src/ui/button.tsx"] } }
+      }
+    },
+    {
+      "name": "utils",
+      "type": "lib",
+      "version": "1.0.0",
+      "files": ["src/lib/utils.ts"]
+    }
+  ]
+}
+```
+
+```bash
+npx kirana-style ui build                       # registry.json into public/r
+npx kirana-style ui build registry.json --out dist/r
+```
+
+A file's type comes from the deepest folder in its source's path that names one,
+and its path in the project from what follows that folder:
+
+| Folder                   | Type        |
+| ------------------------ | ----------- |
+| `ui/`                    | `ui`        |
+| `lib/`                   | `lib`       |
+| `hooks/`                 | `hook`      |
+| `components/`, `blocks/` | `component` |
+| `pages/`                 | `page`      |
+
+Where the folders do not say, give the file as an object:
+`{ "source": …, "type": …, "path": …, "target": … }`.
+
+Each file is read and hashed, and its imports are written for an installed
+project:
+
+- an import of another of the registry's files (`../lib/utils`) becomes
+  `@/registry/lib/utils`, or `./name` beside it, and the item holding that file
+  becomes a registry dependency;
+- a package it imports becomes a dependency, at the range your `package.json`
+  gives it (a workspace's `catalog:` included), unless the item names one. The
+  framework's own packages and Kirana's are left out: every project has them.
+
+Every item is checked as `validate` checks it, and nothing is written when a
+problem is found: an import of no file of the registry, a package with no range,
+a file that is not there.
+
 ## Checking
 
 ```bash
@@ -223,4 +285,5 @@ npx kirana-style ui validate public/r/button.json public/r/index.json
 ```
 
 `validate` checks each document against its schema and each file's hash. Run it
-in your registry's CI before you publish.
+in your registry's CI before you publish, on what `build` wrote or on documents
+you write yourself.

@@ -303,10 +303,11 @@ jobs:
         working-directory: packages/kirana
         run: bun scripts/browser-engine.ts
 
-  # The component registry's installer end to end (KRN-DX-028, KRN-DX-029): on a Vite, a TanStack
-  # Start and a Next.js app, `kirana-style ui init` and `ui add` from the fixture registry
-  # (examples/registry), then the build, and the installed button, its icon and the design system on
-  # <html> read back in Chromium beside the probe.
+  # The component registry's installer end to end (KRN-DX-028, KRN-DX-029, KRN-DX-033): on a Vite,
+  # a TanStack Start and a Next.js app, and on Vue, Svelte, Solid and Angular (its icon drawn
+  # inline), `kirana-style ui init` and `ui add` from the fixture registry (examples/registry), then
+  # the build, and the installed button, its icon and the design system on <html> read back in
+  # Chromium beside the probe.
   install-registry:
     name: install (registry · ${{ matrix.example }})
     runs-on: ubuntu-26.04
@@ -315,7 +316,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        example: [vite-react, tanstack-start, next-turbopack]
+        example:
+          [
+            vite-react,
+            tanstack-start,
+            next-turbopack,
+            vite-vue,
+            vite-svelte,
+            vite-solid,
+            analog-angular,
+          ]
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

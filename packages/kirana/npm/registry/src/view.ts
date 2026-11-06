@@ -7,6 +7,7 @@ import type { Failure, Options } from "./command.ts"
 import { read, RegistryError } from "./read.ts"
 import { REFERENCE_PATTERN } from "./schema.ts"
 import { loadSettings } from "./settings.ts"
+import type { Settings } from "./settings.ts"
 import type { Item, Packages, RegistryFile } from "./types.ts"
 
 /** Where a file installs: under the alias for its type, or at its own `target`. */
@@ -55,6 +56,25 @@ export function describe(reference: string, url: URL, item: Item): string {
   return `${lines.join("\n")}\n`
 }
 
+/** An item as a reference names it, read and checked; an index is not one. Shared with `ui mcp`. */
+export async function readItem(
+  reference: string,
+  settings: Settings,
+  options: Options
+): Promise<{ url: URL; item: Item }> {
+  if (!REFERENCE_PATTERN.test(reference))
+    throw new RegistryError(
+      "is not an item: @namespace/name, or a name for @kirana's"
+    )
+  const found = await read(reference, settings, options)
+  // `read` gives an index only for `index`, and never a lockfile.
+  if (found.kind === "index")
+    throw new RegistryError(
+      "is an index: kirana-style ui search lists its items"
+    )
+  return { url: found.url, item: found.document as Item }
+}
+
 /**
  * Reads each item and prints it, or with `--json` `{ items, failures }`. Exit 1 when one cannot be
  * read, 2 without an item, with an unknown option, or with settings it cannot use.
@@ -81,20 +101,9 @@ export async function runView(
     write(`${(error as Error).message}\n`)
     return 2
   }
-  const readItem = async (reference: string) => {
-    if (!REFERENCE_PATTERN.test(reference))
-      throw new RegistryError(
-        "is not an item: @namespace/name, or a name for @kirana's"
-      )
-    const found = await read(reference, settings, options)
-    // `read` gives an index only for `index`, and never a lockfile.
-    if (found.kind === "index")
-      throw new RegistryError(
-        "is an index: kirana-style ui search lists its items"
-      )
-    return { url: found.url, item: found.document as Item }
-  }
-  const outcomes = await Promise.allSettled(parsed.rest.map(readItem))
+  const outcomes = await Promise.allSettled(
+    parsed.rest.map((reference) => readItem(reference, settings, options))
+  )
   const items: { reference: string; url: URL; item: Item }[] = []
   const failures: Failure[] = []
   outcomes.forEach((outcome, index) => {

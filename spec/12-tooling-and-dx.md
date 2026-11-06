@@ -92,7 +92,7 @@ its hover, hints and lenses 137 ms, and the first answers 0.8 to 1 s after the w
 | `kirana-style doctor [--json] [--report [file]] [--trace]`                                     | Engine in use (native or WASI), installed versions, configuration resolution, detected host and whether the adapter, stylesheet and types are wired, cache state (none, D-049). Exit 1 on a failure. `--report` writes a redacted bug report: versions, checks, diagnostics by code, stylesheet size, configuration, optional `kirana-style trace` output; no source text (D-077). Built. |
 | `kirana-style migrate stylex\|tailwind\|styled-components\|css-modules`                        | The codemods of [06](./06-authoring-api.md#migration-codemods), with a dry-run diff and a report file.                                                                                                                                                                                                                                                                                    |
 | `kirana-style lsp`                                                                             | Start the language server.                                                                                                                                                                                                                                                                                                                                                                |
-| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view`, `search`, `add`, `init`, `outdated`, `diff`, `update`, `remove` and `preset` are built; `add`, `diff`, `update`, `outdated`, `remove`, `preset`, `build` and `mcp`.                                  |
+| `kirana-style ui <command>…`                                                                   | The component registry's commands, run from the project's `@kirana-style/registry` (KRN-DX-020, D-103; the format in [Component registry](#component-registry)). `validate`, `view`, `search`, `add`, `init`, `outdated`, `diff`, `update`, `remove`, `preset`, `build` and `mcp`.                                                                                                        |
 
 There is no `kirana cache clean`: Kirana keeps no persistent cache (D-049), so there is nothing to
 clear, and `kirana-style doctor` says so.
@@ -217,9 +217,9 @@ value without a build keeps the files as written (KF-080). With `ui.allDesigns`,
 project's `tsconfig.json` (its `extends` and `references` followed) maps its type's alias to, or at
 its `target` for a `file`; its `@/registry/<type>/<path>` imports become the alias (D-108). A file
 the project already has with other content MUST stop the command before anything is written, unless
-`--overwrite`; `--dry-run` writes and installs nothing. Each `<IconPlaceholder>` in React or Vue
-markup MUST become the icon library's own component, every other attribute kept, its import added
-and the placeholder's dropped; a placeholder that names no icon for the library stops the command.
+`--overwrite`; `--dry-run` writes and installs nothing. Each icon placeholder MUST be drawn with
+the project's icon library (KRN-DX-033); a placeholder that names no icon for the library stops the
+command.
 The npm packages the items and their icons need and the project does not list are installed with
 its package manager, and each item is recorded in the
 lockfile (KRN-DX-025) with both hashes of every file. A font item's `import` MUST be imported once
@@ -301,6 +301,48 @@ replaced in place (bare, quoted or a JSX expression), never doubled; without the
 what it has (KF-077). What was written is checked as `add` checks it, unless `--no-check`.
 `--dry-run` writes nothing. Exit 1 for a code no layout reads or a project without a design system
 installed, 2 for an unknown option or settings it cannot use.
+
+**KRN-DX-033** — `ui add` and every command that places an item MUST draw each icon placeholder
+in React, Vue, Svelte, Solid and Angular markup with the project's icon library (D-126). In React,
+Vue and Solid markup (`<IconPlaceholder … />`) and Svelte's, it becomes the library's own component
+where the library has a package for the framework, every other attribute kept, its import added and
+the placeholder's dropped. Where it has none, and for every library in Angular markup (the
+`iconPlaceholder` directive on an `<svg>` in a component's template), the element MUST become an
+inline `<svg>` drawn as the library's package draws it, its other attributes kept, from the
+library's own published data at the version the release pins, read once per install over the
+network; the directive and its entry in the component's `imports` are dropped where no bound
+placeholder (`[lucide]="…"`) is left, and the file MUST carry the library's notice (its name, home,
+licence and copyright) in a comment. A placeholder in a comment is left as it is. An icon the pinned
+data does not have stops the command before anything is written.
+
+**KRN-DX-034** — `kirana-style ui build [registry.json] [--out <dir>]` MUST build a registry from its
+source (D-127): the item schema's items, each file named by the path it is read from (a string, or
+`{ source, type?, path?, target? }`), its type from its deepest folder that names one (`ui/`, `lib/`,
+`hooks/`, `components/`, `blocks/`, `pages/`) unless given, and its path what follows that folder.
+Each file MUST be read, each relative import of another of the registry's files written as
+`@/registry/<type>/<path>` (or `./<name>` for a file of the same type and folder), the item holding
+that file added to the importing item's (or base's) `registryDependencies`, each package it imports
+added to its `dependencies` at the range the item names, else the registry's `package.json` gives
+(a workspace `catalog:` read from the nearest manifest above with a catalog), the framework's own
+packages and Kirana's left out; its line endings made `\n` and its hash taken. Every item MUST be
+checked as `validate` checks it, and `<out>/<name>.json` and `<out>/index.json` written (`public/r`
+by default), nothing at all when a problem is found (an import of no file of the registry or of no
+item, a package without a range, a missing file, an item named `index`): exit 1. Exit 2 for a
+malformed command.
+
+**KRN-DX-035** — `kirana-style ui mcp` MUST be a Model Context Protocol server over stdio (D-128):
+each line of stdin a JSON-RPC 2.0 message, each answer one line of stdout, nothing else written
+there, with no dependency beyond the package. It answers `initialize` (the revision the client asks
+for when it speaks it, else its newest; the `tools` capability), `ping`, `tools/list` and
+`tools/call`; a notification is not answered; malformed JSON is `-32700`, a message that is not a
+request `-32600`, an unknown method `-32601`, an unknown tool or arguments that are not an object
+`-32602`. Its tools, each reading the project's settings afresh: `list_registries` (each namespace
+and URL template, never its headers, and the project's framework, base and icon library),
+`search_items` (as `ui search`), `view_items` (as `ui view`), `get_item_files` (an item's files with
+their content, for the framework asked for or the project's and the base asked for or every base)
+and `get_add_command` (the `ui add` command with the project's package manager). A tool that fails
+answers with its message and `isError`. It writes nothing to the project. Exit 0 when stdin ends, 2
+when given an argument.
 
 **KRN-DX-025** — The lockfile MUST be `kirana-style.lock.json`, at the project's root:
 `{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came
