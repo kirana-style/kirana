@@ -75,8 +75,12 @@ const FOLDERS: [string, FileType][] = [
   ["pages", "page"],
 ]
 
+/**
+ * A module specifier after `from`, `import` or `import(`: each part matches what the next cannot, so
+ * the pattern stays linear on any source (no run that can stretch over the next statement).
+ */
 const IMPORT =
-  /(?:import|export)\s[^'"]*?from\s*["']([^"']+)["']|import\s*\(\s*["']([^"']+)["']\s*\)|import\s+["']([^"']+)["']/g
+  /\bfrom\s*(["'])([^"'\n]+)\1|\bimport\s*(?:\(\s*)?(["'])([^"'\n]+)\3/g
 
 /**
  * The code without its comments: block comments (an unclosed one to the end), and line comments
@@ -114,7 +118,7 @@ export function withoutComments(code: string): string {
 /** Every module a file's source imports; comments first, so one's apostrophe hides no statement. */
 export function importsOf(code: string): string[] {
   return [...withoutComments(code).matchAll(IMPORT)].map(
-    (match) => match[1] ?? match[2] ?? match[3]!
+    (match) => match[2] ?? match[4]!
   )
 }
 

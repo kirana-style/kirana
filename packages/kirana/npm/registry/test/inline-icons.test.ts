@@ -125,6 +125,37 @@ describe("KRN-DX-033 icons drawn inline from their library's data", () => {
     expect(aliases.get("Search01FreeIcons")).toBe("Search01Icon")
   })
 
+  it("reads an icon's data in linear time, whatever it holds", () => {
+    const timed = (run: () => unknown) => {
+      const started = performance.now()
+      run()
+      expect(performance.now() - started).toBeLessThan(500)
+    }
+    timed(() => parseSvg(`<svg ${"a".repeat(200_000)}>`))
+    timed(() => parseSvg(`<svg>${"\n ".repeat(100_000)}</svg>`))
+    timed(() => {
+      try {
+        parseHugeicon(`["path", {${"a".repeat(200_000)}`.repeat(1))
+      } catch {
+        // No shapes: what matters is how long it took to say so.
+      }
+    })
+    timed(() => {
+      try {
+        parseHugeicon('["path", {'.repeat(50_000))
+      } catch {
+        // As above.
+      }
+    })
+    timed(() => hugeiconAliases("export { default as A".repeat(50_000)))
+    timed(() =>
+      remixSymbol(`<symbol ${'id="ri-x"'.repeat(50_000)}`, "RiCloseLine")
+    )
+    expect(
+      remixSymbol('<symbol id="ri-close-line">', "RiCloseLine")
+    ).toBeUndefined()
+  })
+
   it("fetches each icon once, nothing when none is asked for", async () => {
     const seen: string[] = []
     expect(

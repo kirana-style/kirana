@@ -52,7 +52,7 @@ const PHOSPHOR_ALIASES: Record<string, string> = {
 
 /** The attributes in a tag's text (`name="value"`), in order. */
 function attributesOf(text: string): [string, string][] {
-  return [...text.matchAll(/([a-zA-Z:-]+)="([^"]*)"/g)].map(
+  return [...text.matchAll(/(?<![a-zA-Z:-])([a-zA-Z:-]+)="([^"]*)"/g)].map(
     ([, name, value]) => [name!, value!]
   )
 }
@@ -77,12 +77,12 @@ export function parseSvg(svg: string): InlineIcon {
  * icon, drawn as its packages draw it with `strokeWidth={2}`.
  */
 export function parseHugeicon(module: string): InlineIcon {
-  const shapes = [...module.matchAll(/\[\s*"([a-z]+)",\s*\{([^}]*)\}\s*\]/g)]
+  const shapes = [...module.matchAll(/\[\s*"([a-z]+)",\s*\{([^{}]*)\}\s*\]/g)]
   if (shapes.length === 0)
     throw new RegistryError("an icon's data holds no shapes")
   const inner = shapes
     .map(([, tag, body]) => {
-      const attributes = [...body!.matchAll(/(\w+):\s*"([^"]*)"/g)]
+      const attributes = [...body!.matchAll(/(?<!\w)(\w+):\s*"([^"]*)"/g)]
         .filter(([, name]) => name !== "key")
         .map(([, name, value]) => {
           const attribute = kebab(name!)
@@ -109,9 +109,19 @@ export function remixSymbol(
   name: string
 ): InlineIcon | undefined {
   const id = `ri-${kebab(name.replace(/^Ri/, ""))}`
-  const symbol = new RegExp(
-    `<symbol\\b([^>]*\\bid="${id}"[^>]*)>([\\s\\S]*?)</symbol>`
-  ).exec(sprite)
+  // Found by the id, then the tag around it: a scan, linear in the sprite.
+  const at = sprite.indexOf(`id="${id}"`)
+  const open = sprite.lastIndexOf("<symbol", at)
+  const tagEnd = sprite.indexOf(">", at)
+  const close = sprite.indexOf("</symbol>", tagEnd)
+  const symbol =
+    at === -1 || open === -1 || close === -1
+      ? undefined
+      : [
+          "",
+          sprite.slice(open + "<symbol".length, tagEnd),
+          sprite.slice(tagEnd + 1, close),
+        ]
   if (!symbol) return undefined
   const viewBox =
     attributesOf(symbol[1]!).find(
@@ -183,7 +193,7 @@ async function text(url: string, io: Io, missing?: "optional") {
 export function hugeiconAliases(index: string): Map<string, string> {
   const aliases = new Map<string, string>()
   for (const [, names, module] of index.matchAll(
-    /export \{([^}]*)\} from '\.\/([A-Za-z0-9]+)\.js'/g
+    /export \{([^{}]*)\} from '\.\/([A-Za-z0-9]+)\.js'/g
   ))
     for (const [, name] of names!.matchAll(/default as (\w+)/g))
       aliases.set(name!, module!)

@@ -389,7 +389,7 @@ function resolveAngular(
         }
       )
       // Its entry in a component's `imports`.
-      .replace(/\bimports:\s*\[([^\]]*)\]/g, (_, entries: string) => {
+      .replace(/\bimports:\s*\[([^[\]]*)\]/g, (_, entries: string) => {
         const kept = entries
           .split(",")
           .map((entry) => entry.trim())

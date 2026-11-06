@@ -130,6 +130,22 @@ describe("KRN-DX-034 a source registry's imports", () => {
     }
   })
 
+  it("reads imports in linear time, whatever the source holds", () => {
+    expect(importsOf('const a = Array.from("x")\nimport("./b")')).toEqual([
+      "./b",
+    ])
+    for (const hostile of [
+      "export ".repeat(100_000),
+      "import ".repeat(100_000),
+      `from ${"from ".repeat(100_000)}`,
+      `import (${" ".repeat(200_000)}`,
+    ]) {
+      const started = performance.now()
+      importsOf(hostile)
+      expect(performance.now() - started).toBeLessThan(500)
+    }
+  })
+
   it("names a specifier's package", () => {
     expect(packageOf("@base-ui/react/button")).toBe("@base-ui/react")
     expect(packageOf("clsx")).toBe("clsx")
