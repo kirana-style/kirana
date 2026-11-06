@@ -5,12 +5,12 @@
 
 ### Bug fixes
 
-* ui add reads an angular icon's closing tag split across lines ([#268](https://github.com/kirana-style/kirana/issues/268)) ([3bc9d2e](https://github.com/kirana-style/kirana/commit/3bc9d2ec6664abafc45750f807a0ca3a0906c213))
+* ui add reads an angular icon's closing tag split across lines ([#268](https://github.com/kirana-style/kirana/pull/268)) ([3bc9d2e](https://github.com/kirana-style/kirana/commit/3bc9d2ec6664abafc45750f807a0ca3a0906c213))
 
 
 ### Documentation
 
-* take the benchmarks of kirana 0.4.0 from kirana-lab ([#270](https://github.com/kirana-style/kirana/issues/270)) ([a5612f6](https://github.com/kirana-style/kirana/commit/a5612f643649f01e5f160b0e7445ef9915f9a38e))
+* take the benchmarks of kirana 0.4.0 from kirana-lab ([#270](https://github.com/kirana-style/kirana/pull/270)) ([a5612f6](https://github.com/kirana-style/kirana/commit/a5612f643649f01e5f160b0e7445ef9915f9a38e))
 
 ## [0.4.0](https://github.com/kirana-style/kirana/compare/v0.3.7...v0.4.0) (2026-11-06)
 

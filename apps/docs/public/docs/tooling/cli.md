@@ -140,7 +140,7 @@ kirana-style doctor --report bug.md --trace src/card.tsx:12 minHeight
 ```console
 $ kirana-style doctor
 ✓ engine       native (linux-x64)
-✓ packages     @kirana-style/core@0.4.0, @kirana-style/next@0.4.0, kirana-style@0.4.0
+✓ packages     @kirana-style/core@0.4.1, @kirana-style/next@0.4.1, kirana-style@0.4.1
 ✓ config       kirana.config.mts, prefix "k"
 ✓ project      Next.js · turbopack · npm · TypeScript
 ✓ adapter      next.config.ts, postcss.config.mjs
@@ -367,7 +367,7 @@ kirana-style export src --out design-system.json
 ```json file="design-system.json"
 {
   "schema": 1,
-  "engine": "0.4.0",
+  "engine": "0.4.1",
   "prefix": "k",
   "tokens": [
     {
