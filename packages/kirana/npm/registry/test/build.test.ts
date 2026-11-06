@@ -20,6 +20,7 @@ import {
   runBuild,
   sourcePlace,
   versionsFrom,
+  withoutComments,
 } from "../src/build.ts"
 import type { SourceRegistry } from "../src/build.ts"
 import { hashOf } from "../src/check.ts"
@@ -107,6 +108,26 @@ describe("KRN-DX-034 a source registry's imports", () => {
         ].join("\n")
       )
     ).toEqual(["a", "b", "./side.css", "c", "t"])
+  })
+
+  it("drops comments in one pass, whatever the source holds", () => {
+    expect(withoutComments('a /* x */ b // y\nc "https://x" // z')).toBe(
+      'a  b \nc "https://x" '
+    )
+    expect(withoutComments("a // b /* c */\nd /* e // f */ g")).toBe("a \nd  g")
+    expect(withoutComments("a /* open")).toBe("a ")
+    expect(withoutComments("plain")).toBe("plain")
+    // Inputs a backtracking pattern takes quadratic time on.
+    for (const hostile of [
+      `/*${"a/*".repeat(100_000)}`,
+      `//${"9//".repeat(100_000)}`,
+      "a://".repeat(100_000),
+      `${"/**/".repeat(100_000)}//`,
+    ]) {
+      const started = performance.now()
+      withoutComments(hostile)
+      expect(performance.now() - started).toBeLessThan(500)
+    }
   })
 
   it("names a specifier's package", () => {

@@ -66,8 +66,9 @@ export function parseSvg(svg: string): InlineIcon {
     attributes: attributesOf(open[1]!).filter(([name]) => name !== "class"),
     inner: svg
       .slice(open.index + open[0].length, close)
-      .replace(/\s*\n\s*/g, "")
-      .trim(),
+      .split("\n")
+      .map((line) => line.trim())
+      .join(""),
   }
 }
 

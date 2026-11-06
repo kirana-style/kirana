@@ -601,9 +601,11 @@ function setUp(
         ...imported.matchAll(/^import\b[^;]*?["'][^"'\n]+["'];?[ \t]*$/gm),
       ]
       const end = imports.at(-1)!.index + imports.at(-1)![0].length
+      // `props()` gives Solid `class`, as its JSX spells it, and every other framework `className`.
+      const field = settings.framework === "solid" ? "class" : "className"
       files.write(
         entry,
-        `${imported.slice(0, end)}\n\ndocument.documentElement.className = props(${name}).className ?? ${quotes(imported)}${imported.slice(end)}`
+        `${imported.slice(0, end)}\n\ndocument.documentElement.className = props(${name}).${field} ?? ${quotes(imported)}${imported.slice(end)}`
       )
       report.push(`${entry}: sets <html>'s classes from ${name}`)
     } else

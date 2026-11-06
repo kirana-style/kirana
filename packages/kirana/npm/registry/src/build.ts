@@ -78,12 +78,42 @@ const FOLDERS: [string, FileType][] = [
 const IMPORT =
   /(?:import|export)\s[^'"]*?from\s*["']([^"']+)["']|import\s*\(\s*["']([^"']+)["']\s*\)|import\s+["']([^"']+)["']/g
 
-/** Block comments, and line comments that are not a URL's `://`. */
-const COMMENTS = /\/\*[\s\S]*?\*\/|(^|[^:])\/\/.*$/gm
+/**
+ * The code without its comments: block comments (an unclosed one to the end), and line comments
+ * that are not a URL's `://`. A scan, not a pattern: it is linear in the source, whatever it holds.
+ */
+export function withoutComments(code: string): string {
+  let out = ""
+  let at = 0
+  // The next `/*` and the next `//` that is no URL's, each found again only once passed.
+  let block = -1
+  let line = -1
+  const next = (from: number) => {
+    if (block < from && block !== Infinity)
+      block =
+        code.indexOf("/*", from) === -1 ? Infinity : code.indexOf("/*", from)
+    if (line < from && line !== Infinity) {
+      let found = code.indexOf("//", from)
+      while (found > 0 && code[found - 1] === ":")
+        found = code.indexOf("//", found + 2)
+      line = found === -1 ? Infinity : found
+    }
+  }
+  for (next(0); block !== Infinity || line !== Infinity; next(at)) {
+    const start = Math.min(block, line)
+    out += code.slice(at, start)
+    const end =
+      start === block
+        ? code.indexOf("*/", start + 2)
+        : code.indexOf("\n", start + 2)
+    at = end === -1 ? code.length : start === block ? end + 2 : end
+  }
+  return out + code.slice(at)
+}
 
 /** Every module a file's source imports; comments first, so one's apostrophe hides no statement. */
 export function importsOf(code: string): string[] {
-  return [...code.replace(COMMENTS, "$1").matchAll(IMPORT)].map(
+  return [...withoutComments(code).matchAll(IMPORT)].map(
     (match) => match[1] ?? match[2] ?? match[3]!
   )
 }

@@ -67,7 +67,8 @@ const dev = args.includes("--dev")
  */
 const runtime = option("runtime") ?? "node"
 /**
- * The component registry's installer on a React example (KRN-DX-028, KRN-DX-029, KRN-DX-032):
+ * The component registry's installer on an example of any framework it installs (KRN-DX-028,
+ * KRN-DX-029, KRN-DX-032, KRN-DX-033):
  * `kirana-style ui init`, `ui add` and `ui preset` from the fixture registry (`registry/`), with the
  * installed button mounted beside the probe and checked too. npm only. A JavaScript Next.js example
  * has no tsconfig, so `ui init` must give it one (KF-046).
@@ -372,17 +373,11 @@ try {
     run("npx", ["kirana-style", "ui", "add", "@fixture/button"], directory)
     // The bold tone: its flattened button, and data-tone on <html>.
     run("npx", ["kirana-style", "ui", "preset", "k1"], directory)
-    // The button beside the probe, imported through the project's alias.
+    // The button beside the probe, imported through the project's alias, as the framework writes it.
     const edit = path.join(directory, settings.edit)
-    const text = readFileSync(edit, "utf8").replace(
-      "Styled by Kirana.",
-      "Styled by Kirana. <Button>Installed</Button>"
-    )
-    const imports = [...text.matchAll(/^import\b[^\n]*\n/gm)]
-    const end = imports.at(-1)!.index + imports.at(-1)![0].length
     writeFileSync(
       edit,
-      `${text.slice(0, end)}import { Button } from "@/components/ui/button"\n${text.slice(end)}`
+      withInstalledButton(readFileSync(edit, "utf8"), settings.edit)
     )
   }
 
@@ -872,6 +867,36 @@ async function checkPage(
   } finally {
     await chrome.close()
   }
+}
+
+/**
+ * The probe's file with the installed button beside the probe's text, imported through the
+ * project's alias: a Vue or Svelte component in its script, an Angular component in its `imports`,
+ * a React or Solid one after the module's imports.
+ */
+function withInstalledButton(text: string, file: string): string {
+  const place = (tag: string) =>
+    text.replace("Styled by Kirana.", `Styled by Kirana. ${tag}`)
+  if (file.endsWith(".vue"))
+    return place("<Button>Installed</Button>").replace(
+      '<script setup lang="ts">\n',
+      '<script setup lang="ts">\nimport Button from "@/components/ui/Button.vue"\n'
+    )
+  if (file.endsWith(".svelte"))
+    return place("<Button>Installed</Button>").replace(
+      '<script lang="ts">\n',
+      '<script lang="ts">\n  import Button from "@/components/ui/Button.svelte"\n'
+    )
+  const angular = file.endsWith(".page.ts") || file.endsWith(".component.ts")
+  const placed = angular
+    ? place("<kit-button>Installed</kit-button>").replace(
+        "imports: [SxDirective]",
+        "imports: [SxDirective, Button]"
+      )
+    : place("<Button>Installed</Button>")
+  const imports = [...placed.matchAll(/^import\b[^\n]*\n/gm)]
+  const end = imports.at(-1)!.index + imports.at(-1)![0].length
+  return `${placed.slice(0, end)}import { Button } from "@/components/ui/button"\n${placed.slice(end)}`
 }
 
 /** The probe's atoms are in a stylesheet, in either spelling of the colour: a host's CSS minifier may

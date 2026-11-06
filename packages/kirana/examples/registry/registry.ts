@@ -1,7 +1,7 @@
 /**
  * The registry the examples runner installs from with `--registry` (KRN-DX-028, KRN-DX-029,
- * KRN-DX-032): a design system with its wiring and one axis, `tone`, and a button that draws an icon,
- * flattened for each tone (D-110), in Kirana's format, written from the sources beside this file
+ * KRN-DX-032, KRN-DX-033): a design system with its wiring and one axis, `tone`, and a button that
+ * draws an icon, on every framework `ui` installs, flattened for each tone (D-110), in Kirana's format, written from the sources beside this file
  * with their hashes. Its values are ones no default produces, so the runner can tell, in the
  * browser, that `ui init`, `ui add` and `ui preset` put everything in place.
  */
@@ -54,9 +54,22 @@ export function writeRegistry(directory: string): void {
         },
       },
     },
+    // One base on every framework, named alike, so the flattened builds above serve each.
     frameworks: {
       react: {
         base: { files: [file("button/button.tsx", "ui", "button.tsx")] },
+      },
+      vue: {
+        base: { files: [file("button/Button.vue", "ui", "Button.vue")] },
+      },
+      svelte: {
+        base: { files: [file("button/Button.svelte", "ui", "Button.svelte")] },
+      },
+      solid: {
+        base: { files: [file("button/button.solid.tsx", "ui", "button.tsx")] },
+      },
+      angular: {
+        base: { files: [file("button/button.angular.ts", "ui", "button.ts")] },
       },
     },
   }

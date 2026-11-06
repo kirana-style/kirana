@@ -229,6 +229,13 @@ function openingTag(
 }
 
 const PLACEHOLDER_DIRECTIVE = /(^|\s)iconPlaceholder(?=[\s=>]|$)/
+/** The tag's text without the directive and the whitespace before it (a scan, not a pattern). */
+function withoutDirective(text: string): string {
+  // Called on a tag `angularPlaceholders` found by the directive.
+  const found = PLACEHOLDER_DIRECTIVE.exec(text)!
+  const at = found.index + found[1]!.length
+  return text.slice(0, at).trimEnd() + text.slice(at + "iconPlaceholder".length)
+}
 const BOUND = new RegExp(`\\[(${ICON_LIBRARIES.join("|")})\\]=`)
 
 /**
@@ -354,7 +361,7 @@ function resolveAngular(
       inlineSvg(
         inlineIcon(where, inline, library, icon),
         // The directive, with the space before it, as `split` takes the library's names.
-        rest.replace(/\s*\biconPlaceholder(?=[\s=>]|$)/, "")
+        withoutDirective(rest)
       )
     from = found.end
     drawn = true
