@@ -1,5 +1,65 @@
 # Changelog
 
+## [0.4.0](https://github.com/kirana-style/kirana/compare/v0.3.7...v0.4.0) (2026-11-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* a given className wins over an element's own sx per entry ([#243](https://github.com/kirana-style/kirana/issues/243))
+* dense class names by default in production builds ([#242](https://github.com/kirana-style/kirana/issues/242))
+
+### Features
+
+* a hover shows the first rules and conditional values and counts the rest ([#265](https://github.com/kirana-style/kirana/issues/265)) ([bb25806](https://github.com/kirana-style/kirana/commit/bb258069413ab11a402d831e5b9dc24fe287184e))
+* combobox, toast and radio indicator states for angular primitives ([#257](https://github.com/kirana-style/kirana/issues/257)) ([c82385f](https://github.com/kirana-style/kirana/commit/c82385f7b5b69cba605569106e0e30852654c1bd))
+* dense class names by default in production builds ([#242](https://github.com/kirana-style/kirana/issues/242)) ([686601f](https://github.com/kirana-style/kirana/commit/686601fc040bd13c450087dfa4a51b4ae6afa6b4))
+* dense names for variable tokens and keyframes ([#248](https://github.com/kirana-style/kirana/issues/248)) ([1dfa4cb](https://github.com/kirana-style/kirana/commit/1dfa4cb52c58191b429b7cd147fd8332dfa3dd47))
+* dense value codes per property family ([#254](https://github.com/kirana-style/kirana/issues/254)) ([01fecce](https://github.com/kirana-style/kirana/commit/01fecce5556c8895aedb1c43133008c0b6fa82e4))
+* kirana-style migrate css-modules ([#233](https://github.com/kirana-style/kirana/issues/233)) ([be4b798](https://github.com/kirana-style/kirana/commit/be4b7989039d44c7901d0ff6fbe058ed3b2f0a2b))
+* kirana-style migrate styled-components ([#232](https://github.com/kirana-style/kirana/issues/232)) ([ae9e53f](https://github.com/kirana-style/kirana/commit/ae9e53fa1ae9f2a2e32093bb055bc8dad801ce69))
+* ui installs on svelte, solid and angular, ui build and ui mcp ([#267](https://github.com/kirana-style/kirana/issues/267)) ([e8fc509](https://github.com/kirana-style/kirana/commit/e8fc509501ee056014a23d74431423ac6847e876))
+
+
+### Bug fixes
+
+* a given className wins over an element's own sx per entry ([#243](https://github.com/kirana-style/kirana/issues/243)) ([46f5947](https://github.com/kirana-style/kirana/commit/46f5947c97c52e7e84b66bc38f35bc9773dec615))
+* a spread's class and style reach the sx beside it on svelte and astro ([#251](https://github.com/kirana-style/kirana/issues/251)) ([c5d9392](https://github.com/kirana-style/kirana/commit/c5d9392c9bf88c55fa45fe0334b560d7e72d4011))
+* an anchor in a template counts in the linter and every build ([#229](https://github.com/kirana-style/kirana/issues/229)) ([ac54cd2](https://github.com/kirana-style/kirana/commit/ac54cd2d7a03c5d5578223a18f7ce9e48c4a9691))
+* angular primitives' enumerated states name their values ([#261](https://github.com/kirana-style/kirana/issues/261)) ([49bcff6](https://github.com/kirana-style/kirana/commit/49bcff61c299fb66975a0e1fb1dda4bd92c05d1c))
+* props() and cx() called in a template run ([#245](https://github.com/kirana-style/kirana/issues/245)) ([a326f73](https://github.com/kirana-style/kirana/commit/a326f73dc1d563374841cc100c94071b65e06a96))
+* the node binding frees a session without unsafe code ([#258](https://github.com/kirana-style/kirana/issues/258)) ([a2b8301](https://github.com/kirana-style/kirana/commit/a2b830120efca11acc05b96ba474ef69947c0e00))
+* unsplittable-shorthand warns once per value in a file ([#241](https://github.com/kirana-style/kirana/issues/241)) ([5d5065a](https://github.com/kirana-style/kirana/commit/5d5065a4d614aff9f61052f289f19ed81e0be27d))
+
+
+### Performance
+
+* a build asks the engine for a turn's modules in one call ([#256](https://github.com/kirana-style/kirana/issues/256)) ([c64beef](https://github.com/kirana-style/kirana/commit/c64beef5374cf5ac6793e4550be88c0bf7c76bcd))
+* allocate with mimalloc in the native engine ([#249](https://github.com/kirana-style/kirana/issues/249)) ([c130e3e](https://github.com/kirana-style/kirana/commit/c130e3e026c6a1d400aedc53aec96bfc8ce42efd))
+* cheaper fresh sessions, freed off the main thread ([#253](https://github.com/kirana-style/kirana/issues/253)) ([c39b538](https://github.com/kirana-style/kirana/commit/c39b53882e2a0059f95fe37e7581342cf4a253e8))
+* compile each style with fewer allocations ([#247](https://github.com/kirana-style/kirana/issues/247)) ([8f8e07f](https://github.com/kirana-style/kirana/commit/8f8e07fcd541a897f5bcd4e650f2baa5fdf5f986))
+* faster dense class names in production builds ([#246](https://github.com/kirana-style/kirana/issues/246)) ([0301af6](https://github.com/kirana-style/kirana/commit/0301af68531cabfc52732f55481b15e876ece0bb))
+* hover, inspector and code lens find a style's uses in one pass ([#262](https://github.com/kirana-style/kirana/issues/262)) ([0db076b](https://github.com/kirana-style/kirana/commit/0db076ba7bf342be16160800aab9e43ffbde86b2))
+* keep a token module's import without compiling it again ([#240](https://github.com/kirana-style/kirana/issues/240)) ([84dc25b](https://github.com/kirana-style/kirana/commit/84dc25b56e9e3e5412f5e76ac309d50e32823366))
+* the language server indexes origins and handles a burst at once ([#264](https://github.com/kirana-style/kirana/issues/264)) ([731d67d](https://github.com/kirana-style/kirana/commit/731d67dade1ba730975adc32922d5ee6e5b65867))
+* the session locks less and keys its maps by a path's bytes ([#255](https://github.com/kirana-style/kirana/issues/255)) ([765150c](https://github.com/kirana-style/kirana/commit/765150c8825ac6d3384933110d2543163aacd79c))
+* write a shared style's class string once per module ([#250](https://github.com/kirana-style/kirana/issues/250)) ([36d2e47](https://github.com/kirana-style/kirana/commit/36d2e470f442357f0b78ecefeb697b97ba28b16d))
+
+
+### Documentation
+
+* desktop and mobile apps on electron, tauri, electrobun and capacitor ([#252](https://github.com/kirana-style/kirana/issues/252)) ([5d3aac8](https://github.com/kirana-style/kirana/commit/5d3aac87d915e54b9cc2c54b1f95a880e9bc0395))
+* take the benchmarks of kirana 0.3.7 from kirana-lab ([#231](https://github.com/kirana-style/kirana/issues/231)) ([817e80a](https://github.com/kirana-style/kirana/commit/817e80a28eadea2c776599c6e3d769c14a021cbe))
+
+
+### Dependencies
+
+* bump oxc_diagnostics from 0.155.0 to 0.156.0 in /packages/kirana ([#238](https://github.com/kirana-style/kirana/issues/238)) ([6a08d07](https://github.com/kirana-style/kirana/commit/6a08d074fae3ca583b9caa5b7db76148b8e8a606))
+* bump the minor-and-patch group across 1 directory with 3 updates ([#244](https://github.com/kirana-style/kirana/issues/244)) ([b7bd15d](https://github.com/kirana-style/kirana/commit/b7bd15d21d4e7d8a49a4d3d5101321fe938ed333))
+* bump the minor-and-patch group with 26 updates ([#239](https://github.com/kirana-style/kirana/issues/239)) ([f6d5da1](https://github.com/kirana-style/kirana/commit/f6d5da11b187a83f88debfb6454d26a1a4c424e0))
+* bump the oxc group in /packages/kirana with 7 updates ([#234](https://github.com/kirana-style/kirana/issues/234)) ([4d41b1b](https://github.com/kirana-style/kirana/commit/4d41b1ba252f64522e31205733e9dde0748e9511))
+* vite-plus 1.5.0, with vitest 5.1 and oxlint 1.91 ([#260](https://github.com/kirana-style/kirana/issues/260)) ([d9364e8](https://github.com/kirana-style/kirana/commit/d9364e80a264a7bbfe5a26fbb30f9b67e772a272))
+* zag docs 1.47.0 and bits-ui 2.20.4 for the state vocabularies ([#259](https://github.com/kirana-style/kirana/issues/259)) ([aea9309](https://github.com/kirana-style/kirana/commit/aea9309318a046413771e3a2954dfc2e5af63f8d))
+
 ## [0.3.7](https://github.com/kirana-style/kirana/compare/v0.3.6...v0.3.7) (2026-11-02)
 
 
