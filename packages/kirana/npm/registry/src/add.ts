@@ -22,7 +22,9 @@ import { hashOf } from "./check.ts"
 import { parseArgs } from "./command.ts"
 import type { Options, Run } from "./command.ts"
 import { importFonts } from "./font.ts"
-import { resolveIcons } from "./icons.ts"
+import { inlineNames, resolveIcons } from "./icons.ts"
+import { fetchInlineIcons } from "./inline-icons.ts"
+import type { InlineIcon } from "./inline-icons.ts"
 import { readLockfile, writeLockfile } from "./lockfile.ts"
 import { aliasDirectory, frameworkOf, readProject } from "./project.ts"
 import type { Project, ReadFile } from "./project.ts"
@@ -55,6 +57,8 @@ export type Planned = {
    * when every file is as written.
    */
   design?: string
+  /** The icons its files draw inline, read from their library's data (`readIcons`). */
+  icons?: ReadonlyMap<string, InlineIcon>
 }
 
 /** A file about to be written, and how it stands against the project's. */
@@ -200,7 +204,40 @@ export async function plan(
     planned.push(planItem(key, item, settings, chosen))
   }
   for (const reference of references) await visit(reference)
+  await readIcons(planned, settings, framework, options)
   return planned
+}
+
+/**
+ * Reads the icons the planned files draw inline in the project's icon library, once each, and gives
+ * every planned item the ones it draws.
+ */
+export async function readIcons(
+  planned: readonly Planned[],
+  settings: Settings,
+  framework: Framework | undefined,
+  options: Options = {}
+): Promise<void> {
+  const names = new Map<Planned, string[]>()
+  for (const entry of planned)
+    names.set(
+      entry,
+      entry.files.flatMap((file) =>
+        inlineNames(
+          file.content,
+          entry.framework ?? framework,
+          settings.iconLibrary
+        )
+      )
+    )
+  const icons = await fetchInlineIcons(
+    settings.iconLibrary,
+    [...new Set([...names.values()].flat())].sort(),
+    options
+  )
+  for (const [entry, wanted] of names)
+    if (wanted.length > 0)
+      entry.icons = new Map(wanted.map((name) => [name, icons.get(name)!]))
 }
 
 /** The place a file names: `ui/button.tsx` as `ui/button`, an `index` by its folder too. */
@@ -244,13 +281,14 @@ export function place(
   const placed: Placed[] = []
   const taken = new Map<string, string>()
   const projectFramework = settings.framework ?? frameworkOf(project)
-  for (const { key, files, framework } of planned)
+  for (const { key, files, framework, icons: inline } of planned)
     for (const file of files) {
       const icons = resolveIcons(
         `${key}: ${file.path}`,
         file.content,
         framework ?? projectFramework,
-        settings.iconLibrary
+        settings.iconLibrary,
+        inline
       )
       const content = icons.content.replace(
         IMPORT,

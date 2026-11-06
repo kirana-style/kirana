@@ -2130,6 +2130,66 @@ the implementation tracker names its evidence.
   clients see the same card.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#features).
 
+### D-126 — An icon with no package for the framework is written inline from its library's data
+
+- **Status:** Accepted (2026-11-06). The maintainer's choice, for kirana-ui on Svelte, Solid and
+  Angular (KRN-DX-033).
+- **Decision:** an icon placeholder becomes the icon library's own component where the library
+  publishes a maintained package for the framework (Lucide and Tabler everywhere but Angular,
+  Hugeicons and Phosphor on React, Vue and Svelte, Remix Icon on React and Vue). Elsewhere, and for
+  every library on Angular, it becomes an inline `<svg>`, drawn as the library's package draws it
+  (its root's attributes and its shapes; Hugeicons with its packages' stroke of 2, Phosphor at
+  `1em`), read at install from the library's own published data at a version the release pins
+  (`lucide-static`, `@tabler/icons`, `@hugeicons/core-free-icons`, `@phosphor-icons/core`,
+  `remixicon`) over jsDelivr, with the library's notice in a comment of the file. On Angular the
+  placeholder is a directive on the `<svg>` itself, which is filled in place.
+- **Rationale:** a project's icon library is a design axis, and every library must work on every
+  framework the registry installs; three of the five have no package for Solid, Remix Icon none for
+  Svelte, and Angular's packages each wrap the icons in their own component API. Filling the `<svg>`
+  the placeholder already is keeps it the flex item and the target of `[sx]`, with no `imports`
+  array to edit. Pinning the data's version makes an install reproducible; the notice keeps the
+  licences' terms.
+- **Trade-off:** installing an inline icon needs the network, and a pinned icon set changes only
+  with a Kirana release. An icon bound at runtime (`[lucide]="name()"`) cannot be resolved at
+  install and is left to the placeholder directive, which the item then keeps. Inline icons are
+  bytes in the project's source, not a shared package.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#component-registry).
+
+### D-127 — `ui build` builds a registry from a source that names its files
+
+- **Status:** Accepted (2026-11-06). The maintainer's choice: grown from Kirana UI's own builder
+  (KRN-DX-034).
+- **Decision:** a registry's source is `registry.json`, the item schema's items with each file named
+  by where it is read from in place of its content. `ui build` reads each file, writes its imports
+  of the registry's files as `@/registry/<type>/<path>`, takes its packages and the items it needs
+  from its imports, hashes it, checks every item and writes the documents and the index, or nothing
+  when a problem is found. Its API (`buildRegistry`) is exported, so a registry with its own needs
+  (Kirana UI's flattened designs, its shadcn/ui export) calls it and adds its own parts.
+- **Rationale:** a registry author writes components, not JSON with their source escaped into it,
+  and the imports between files, the dependencies and the hashes are exactly what goes stale when
+  written by hand. Kirana UI had grown this in its builder; the generic part belongs with the
+  format.
+- **Trade-off:** a dependency is found only through a static import; one loaded otherwise is named in
+  the item's `dependencies`. A file's type from its folder is a convention a source can override,
+  not a rule.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#component-registry).
+
+### D-128 — `ui mcp` is a read-only MCP server over stdio with no dependency
+
+- **Status:** Accepted (2026-11-06) (KRN-DX-035).
+- **Decision:** `kirana-style ui mcp` speaks the Model Context Protocol's JSON-RPC over stdio itself
+  (`initialize`, `ping`, `tools/list`, `tools/call`), with five tools that read: the project's
+  registries, search, view, an item's files and the `ui add` command. It installs nothing: the
+  assistant runs the command it is given, which writes as `ui add` always does.
+- **Rationale:** the protocol's stdio transport is newline-delimited JSON-RPC, a few dozen lines to
+  answer, where its SDK would add a dependency and its validation library to every project that has
+  the registry package. Installing through the command keeps one path that writes files, with its
+  checks, the lockfile and its refusals, and leaves the assistant's own approval of commands in
+  charge.
+- **Trade-off:** only tools, no resources or prompts, and only stdio: a remote server is not part of
+  it. A new revision of the protocol is followed by hand.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#component-registry).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                                                                 |
@@ -2141,7 +2201,7 @@ the implementation tracker names its evidence.
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                                                           |
 | [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116, D-118, D-123                                                                                     |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                                                |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116, D-120, D-124, D-125                      |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116, D-120, D-124, D-125, D-126, D-127, D-128 |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114, D-123                                                                                                                        |
 | [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                                                     |
 | [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                                                              |

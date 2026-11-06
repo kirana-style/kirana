@@ -44,8 +44,9 @@ line coverage. The [changelog](/changelog) lists every release.
   stylesheet holds and why, the design system as JSON, tracing a property, and the
   codemods; see [the CLI](/docs/tooling/cli)
 - `kirana-style ui` with `@kirana-style/registry`: components installed from a
-  registry into your project, updated and diffed later; see
-  [the CLI](/docs/tooling/cli#kirana-style-ui)
+  registry into your project on every framework it supports, updated and diffed
+  later; a registry built from its sources (`ui build`); and an MCP server for AI
+  assistants (`ui mcp`); see [the CLI](/docs/tooling/cli#kirana-style-ui)
 - CSS helpers, each checked at build time:
   - `firstThatWorks()`: [fallback values](/docs/styling/fallbacks)
   - `positionTry()`: [anchor positioning](/docs/styling/anchor-positioning)

@@ -5049,8 +5049,38 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "building-it",
+        "text": "Building it",
+        "level": 2
+      },
+      {
         "id": "checking",
         "text": "Checking",
+        "level": 2
+      }
+    ]
+  },
+  {
+    "href": "/docs/tooling/mcp",
+    "file": "content/docs/tooling/mcp.md",
+    "title": "Registries for AI assistants",
+    "description": "kirana-style ui mcp serves your project's component registries to an AI assistant over the Model Context Protocol, to search, view and install components.",
+    "section": "tooling",
+    "order": 8,
+    "keywords": [
+      "mcp",
+      "model context protocol",
+      "ai",
+      "assistant",
+      "agent",
+      "registry",
+      "claude code",
+      "cursor"
+    ],
+    "headings": [
+      {
+        "id": "its-tools",
+        "text": "Its tools",
         "level": 2
       }
     ]
@@ -6947,6 +6977,21 @@ export const NAV: readonly NavGroup[] = [
           "design system",
           "hash"
         ]
+      },
+      {
+        "title": "Registries for AI assistants",
+        "href": "/docs/tooling/mcp",
+        "description": "kirana-style ui mcp serves your project's component registries to an AI assistant over the Model Context Protocol, to search, view and install components.",
+        "keywords": [
+          "mcp",
+          "model context protocol",
+          "ai",
+          "assistant",
+          "agent",
+          "registry",
+          "claude code",
+          "cursor"
+        ]
       }
     ]
   },
@@ -7169,6 +7214,7 @@ export const ORDER: readonly string[] = [
   "/docs/tooling/debugging",
   "/docs/tooling/components",
   "/docs/tooling/registries",
+  "/docs/tooling/mcp",
   "/docs/project/status",
   "/docs/project/roadmap",
   "/docs/project/releases",

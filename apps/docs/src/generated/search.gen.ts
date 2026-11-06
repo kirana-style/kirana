@@ -5006,7 +5006,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style ui",
-    "text": "The component registry's commands. They live in their own package, , so the compiler every project installs carries no registry client: runs the project's copy of that package with the arguments after . Without it, the command says so and exits 1: Where no project exists yet, run the package itself: takes the same commands as . Building a registry and an MCP server come next. A command asked for before its release says it is not in this one yet. A registry is static JSON: one document per item at a URL template holding , and an index, the item named . An item carries its style modules as written, one source for every framework, and its markup per framework and base, and every file carries a SHA-256 hash of its content. What a project installed is recorded in . The schemas are exported by , and served at their ids for editors and other tools; a document names its schema with : an item an index the lockfile the settings Your registries are named in under , which the compiler accepts and never reads. An item of one is named with its namespace, and a name alone is Kirana UI's: Each document is fetched afresh, over (or from your own machine), or read from disk for a path; a request give"
+    "text": "The component registry's commands. They live in their own package, , so the compiler every project installs carries no registry client: runs the project's copy of that package with the arguments after . Without it, the command says so and exits 1: Where no project exists yet, run the package itself: takes the same commands as . A registry is static JSON: one document per item at a URL template holding , and an index, the item named . An item carries its style modules as written, one source for every framework, and its markup per framework and base, and every file carries a SHA-256 hash of its content. What a project installed is recorded in . The schemas are exported by , and served at their ids for editors and other tools; a document names its schema with : an item an index the lockfile the settings Your registries are named in under , which the compiler accepts and never reads. An item of one is named with its namespace, and a name alone is Kirana UI's: Each document is fetched afresh, over (or from your own machine), or read from disk for a path; a request gives up after 30 seconds. starts a project. In a fresh Vite app: The design system says what a project needs from it, and p"
   },
   {
     "id": "/docs/tooling/editor",
@@ -5521,7 +5521,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installing components",
     "section": "tooling",
     "heading": "Adding components",
-    "text": "Each component comes with the components it needs, in order. Its files land under your alias for their type, for components by default, and its icons are drawn with your icon library. The packages it needs are installed with your package manager, and Kirana checks what was written before your next build. never changes a file you already have unless you pass . shows what it would do. Each command that writes components ends by checking the scripts it wrote with Kirana. skips that, for a project whose configuration cannot load until its packages are installed. A font ( ) is a package and the stylesheet that loads it, which imports after Kirana's stylesheet."
+    "text": "Each component comes with the components it needs, in order. Its files land under your alias for their type, for components by default, and its icons are drawn with your icon library. The packages it needs are installed with your package manager, and Kirana checks what was written before your next build. It installs on React, Vue, Svelte, Solid and Angular, each component's markup for your framework and base. An icon is your library's own component where the library has a package for your framework: Elsewhere it is written into the file as an inline , read at install from the library's own published data at the version your Kirana release names, and the file keeps the library's licence notice in a comment. An Angular component gets the in its template in place of the placeholder directive, which is dropped from its imports. never changes a file you already have unless you pass . shows what it would do. Each command that writes components ends by checking the scripts it wrote with Kirana. skips that, for a project whose configuration cannot load until its packages are installed. A font ( ) is a package and the stylesheet that loads it, which imports after Kirana's stylesheet."
   },
   {
     "id": "/docs/tooling/components#the-lockfile",
@@ -5553,7 +5553,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installing components",
     "section": "tooling",
     "heading": "Your registries",
-    "text": "Kirana UI's registry is known as . Name others in , under , and install from them by namespace: Publishing a registry describes the format, for your own."
+    "text": "Kirana UI's registry is known as . Name others in , under , and install from them by namespace: Publishing a registry describes the format, for your own, and , which writes it from your sources. An AI assistant can search and install from your registries through ."
   },
   {
     "id": "/docs/tooling/registries",
@@ -5619,12 +5619,43 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "The index is the item named , valid against its schema : your registry's name and each item's name, type, version and bases. reads it."
   },
   {
+    "id": "/docs/tooling/registries#building-it",
+    "href": "/docs/tooling/registries#building-it",
+    "page": "Publishing a registry",
+    "section": "tooling",
+    "heading": "Building it",
+    "text": "Write your registry's source as items whose files name where they are read from, in a , and writes the documents: A file's type comes from the deepest folder in its source's path that names one, and its path in the project from what follows that folder: Where the folders do not say, give the file as an object: . Each file is read and hashed, and its imports are written for an installed project: an import of another of the registry's files ( ) becomes , or beside it, and the item holding that file becomes a registry dependency; a package it imports becomes a dependency, at the range your gives it (a workspace's included), unless the item names one. The framework's own packages and Kirana's are left out: every project has them. Every item is checked as checks it, and nothing is written when a problem is found: an import of no file of the registry, a package with no range, a file that is not there."
+  },
+  {
     "id": "/docs/tooling/registries#checking",
     "href": "/docs/tooling/registries#checking",
     "page": "Publishing a registry",
     "section": "tooling",
     "heading": "Checking",
-    "text": "checks each document against its schema and each file's hash. Run it in your registry's CI before you publish."
+    "text": "checks each document against its schema and each file's hash. Run it in your registry's CI before you publish, on what wrote or on documents you write yourself."
+  },
+  {
+    "id": "/docs/tooling/mcp",
+    "href": "/docs/tooling/mcp",
+    "page": "Registries for AI assistants",
+    "section": "tooling",
+    "text": "kirana-style ui mcp serves your project's component registries to an AI assistant over the Model Context Protocol, to search, view and install components. "
+  },
+  {
+    "id": "/docs/tooling/mcp#registries-for-ai-assistants",
+    "href": "/docs/tooling/mcp#registries-for-ai-assistants",
+    "page": "Registries for AI assistants",
+    "section": "tooling",
+    "heading": "Registries for AI assistants",
+    "text": "is a Model Context Protocol server for your project. An assistant that speaks the protocol can search your registries, read what an item is and what its files hold, and get the command that installs it, without you pasting any of it in. It runs over stdio from your project's directory, with the package your project already has for . Tell your assistant the command: Clients that read a JSON file of servers, such as or Cursor's , take the same command:"
+  },
+  {
+    "id": "/docs/tooling/mcp#its-tools",
+    "href": "/docs/tooling/mcp#its-tools",
+    "page": "Registries for AI assistants",
+    "section": "tooling",
+    "heading": "Its tools",
+    "text": "The server reads; it never writes to your project. To install, the assistant runs the command gives, which writes files as always does: your aliases, your icon library, the lockfile and the check after. Your is read again for every call, so a registry you add is seen at once. It needs no package beyond , and speaks the protocol's revisions from 2024-11-05 on."
   },
   {
     "id": "/docs/project/status",

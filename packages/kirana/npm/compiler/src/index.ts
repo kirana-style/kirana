@@ -17,6 +17,7 @@ export {
   installCommand,
   packageManagerOf,
   readPackage,
+  runCommand,
   type PackageJson,
   type PackageManager,
 } from "./detect.ts"

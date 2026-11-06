@@ -107,6 +107,28 @@ your alias for their type, `@/components/ui` for components by default, and its
 icons are drawn with your icon library. The packages it needs are installed with
 your package manager, and Kirana checks what was written before your next build.
 
+<!-- consistency: subset -->
+
+It installs on React, Vue, Svelte, Solid and Angular, each component's markup for
+your framework and base. An icon is your library's own component where the
+library has a package for your framework:
+
+<!-- consistency: subset -->
+
+| Icon library | React, Vue | Svelte  | Solid   | Angular |
+| ------------ | ---------- | ------- | ------- | ------- |
+| Lucide       | package    | package | package | inline  |
+| Tabler       | package    | package | package | inline  |
+| Hugeicons    | package    | package | inline  | inline  |
+| Phosphor     | package    | package | inline  | inline  |
+| Remix Icon   | package    | inline  | inline  | inline  |
+
+Elsewhere it is written into the file as an inline `<svg>`, read at install from
+the library's own published data at the version your Kirana release names, and
+the file keeps the library's licence notice in a comment. An Angular component
+gets the `<svg>` in its template in place of the placeholder directive, which is
+dropped from its imports.
+
 `add` never changes a file you already have unless you pass `--overwrite`.
 `--dry-run` shows what it would do.
 
@@ -189,4 +211,6 @@ npx kirana-style ui add @acme/card
 ```
 
 [Publishing a registry](/docs/tooling/registries) describes the format, for
-your own.
+your own, and `ui build`, which writes it from your sources. An AI assistant can
+search and install from your registries through
+[`kirana-style ui mcp`](/docs/tooling/mcp).

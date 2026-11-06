@@ -163,6 +163,7 @@ change the API. Pages state what is built and what is planned.
 - [Debugging styles](https://site.kirana-style.workers.dev/docs/tooling/debugging.md): Why doesn't my style apply? A short list, in the order worth checking.
 - [Installing components](https://site.kirana-style.workers.dev/docs/tooling/components.md): Set a project up for a component registry, add components, and keep them up to date with kirana-style ui.
 - [Publishing a registry](https://site.kirana-style.workers.dev/docs/tooling/registries.md): The component registry format kirana-style ui reads, and how to host, check and wire a design system for it.
+- [Registries for AI assistants](https://site.kirana-style.workers.dev/docs/tooling/mcp.md): kirana-style ui mcp serves your project's component registries to an AI assistant over the Model Context Protocol, to search, view and install components.
 
 ## Project
 

@@ -70,11 +70,7 @@ describe("KRN-DX-020 the commands kirana-style ui runs", () => {
       })
   })
 
-  it("says a command of a later release is not in this one, and refuses an unknown one", async () => {
-    expect(await run("mcp")).toEqual({
-      code: 1,
-      text: "kirana-style ui mcp is not in this release yet\n",
-    })
+  it("refuses an unknown command", async () => {
     const unknown = await run("install")
     expect(unknown.code).toBe(2)
     expect(unknown.text).toMatch(

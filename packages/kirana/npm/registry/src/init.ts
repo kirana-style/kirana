@@ -315,20 +315,23 @@ function prepareAliases(
   ].find((file) => files.read(file) !== undefined)
   if (vite !== undefined && !files.read(vite)!.includes("tsconfigPaths")) {
     const text = files.read(vite)!
-    if (/\bresolve\s*:/.test(text) || !/defineConfig\(\s*\{/.test(text))
+    // Into the config's own `resolve` (Analog's sets `mainFields` there), else a new one.
+    const resolve = /\bresolve\s*:\s*\{/
+    if (resolve.test(text) || /defineConfig\(\s*\{/.test(text)) {
+      files.write(
+        vite,
+        resolve.test(text)
+          ? text.replace(resolve, (open) => `${open} tsconfigPaths: true,`)
+          : text.replace(
+              /defineConfig\(\s*\{/,
+              (open) => `${open}\n  resolve: { tsconfigPaths: true },`
+            )
+      )
+      report.push(`${vite}: resolve: { tsconfigPaths: true }`)
+    } else
       manual.push(
         `${vite}: add resolve: { tsconfigPaths: true }, so Vite reads the aliases`
       )
-    else {
-      files.write(
-        vite,
-        text.replace(
-          /defineConfig\(\s*\{/,
-          (open) => `${open}\n  resolve: { tsconfigPaths: true },`
-        )
-      )
-      report.push(`${vite}: resolve: { tsconfigPaths: true }`)
-    }
   }
   return settings
 }
