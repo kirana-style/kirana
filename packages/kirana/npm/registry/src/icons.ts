@@ -257,7 +257,8 @@ function* angularPlaceholders(text: string) {
     if (inComment(text, start)) continue
     const { attributes, end } = openingTag(text, start)
     if (!PLACEHOLDER_DIRECTIVE.test(attributes)) continue
-    const closing = /^\s*<\/svg>/.exec(text.slice(end))
+    // `</svg >` and `</svg\n>` close it too, as a formatter writes an `<svg>` its parent hugs.
+    const closing = /^\s*<\/svg\s*>/.exec(text.slice(end))
     yield {
       start,
       end: closing ? end + closing[0].length : -1,

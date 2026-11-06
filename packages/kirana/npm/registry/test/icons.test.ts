@@ -267,6 +267,14 @@ describe("KRN-DX-033 icons on Svelte, Solid and Angular", () => {
     ).toBe("const a = 1\n")
   })
 
+  it("takes an Angular closing tag with whitespace before its >, as a formatter writes it", () => {
+    const hugged =
+      '`<span>{{ label }}<svg iconPlaceholder lucide="XIcon" [sx]="s"></svg\n  ></span>`'
+    const { content } = resolveIcons("x", hugged, "angular", "lucide", DRAWN)
+    expect(content).not.toContain("iconPlaceholder")
+    expect(content).toMatch(/<svg [^>]*\[sx\]="s"[^>]*>.*<\/svg><\/span>`$/s)
+  })
+
   it("stops where an Angular placeholder cannot be drawn", () => {
     expect(() =>
       resolveIcons(
