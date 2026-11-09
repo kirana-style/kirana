@@ -119,9 +119,16 @@ describe("KRN-INT-009 several dev servers", () => {
       (plugin.load as { handler: Hook }).handler.call({}, stylesheet)
     const httpServer = new EventEmitter()
     const environments = { client: { hot: { on() {} } } }
-    ;(plugin.configureServer as Hook)({ httpServer, environments })
+    const close = async () => {}
+    ;(plugin.configureServer as Hook)({ httpServer, environments, close })
     expect(await load()).toContain("@layer kirana")
     httpServer.emit("close")
+    expect(await load()).toBe(PLACEHOLDER)
+    // In middleware mode there is no `httpServer`: closing the server forgets it.
+    const middleware = { httpServer: null, environments, close }
+    ;(plugin.configureServer as Hook)(middleware)
+    expect(await load()).toContain("@layer kirana")
+    await middleware.close()
     expect(await load()).toBe(PLACEHOLDER)
   })
 })
@@ -266,6 +273,47 @@ describe("KRN-INT-002 production build", () => {
     expect(String(html.source)).toContain(css.fileName)
     expect(js.code).toContain("k5O_")
     expect(js.code).not.toContain('@kirana-style/core"')
+  })
+
+  it("builds as a build after a dev server in middleware mode closed (Astro's types)", async () => {
+    const root = app()
+    const options = {
+      root,
+      logLevel: "silent" as const,
+      configFile: false as const,
+      build: { write: false, minify: false, assetsInlineLimit: 0 },
+    }
+    const output = async (plugins: ReturnType<typeof kirana>) => {
+      const built = (await build({
+        ...options,
+        plugins,
+      })) as Rolldown.RolldownOutput
+      return {
+        css: String(
+          (
+            built.output.find((file) =>
+              file.fileName.endsWith(".css")
+            ) as Rolldown.OutputAsset
+          ).source
+        ),
+        js: (
+          built.output.find(
+            (file) => file.type === "chunk"
+          ) as Rolldown.OutputChunk
+        ).code,
+      }
+    }
+    const fresh = await output(kirana())
+    const plugins = kirana()
+    const server = await createServer({
+      root,
+      configFile: false,
+      logLevel: "silent",
+      plugins,
+      server: { middlewareMode: true, ws: false, watch: null },
+    })
+    await server.close()
+    expect(await output(plugins)).toEqual(fresh)
   })
 
   it("gives the client and the server bundle the same dense names (D-084)", async () => {
