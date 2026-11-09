@@ -16,13 +16,26 @@ import type { PackageJson, PackageManager } from "@kirana-style/compiler"
 import { RegistryError } from "./read.ts"
 import type { Framework } from "./types.ts"
 
-/** The package each framework is known by, in the order they are looked for. */
+/**
+ * The packages each framework is known by, in the order they are looked for: its own, then the
+ * adapters that install it as a peer, which a project may list without it (KF-109): Astro's islands,
+ * Inertia's client and TanStack Start's builds.
+ */
 const FRAMEWORK_PACKAGES: readonly [string, Framework][] = [
   ["react", "react"],
   ["vue", "vue"],
   ["svelte", "svelte"],
   ["solid-js", "solid"],
   ["@angular/core", "angular"],
+  ["@astrojs/react", "react"],
+  ["@astrojs/vue", "vue"],
+  ["@astrojs/svelte", "svelte"],
+  ["@astrojs/solid-js", "solid"],
+  ["@inertiajs/react", "react"],
+  ["@inertiajs/vue3", "vue"],
+  ["@inertiajs/svelte", "svelte"],
+  ["@tanstack/react-start", "react"],
+  ["@tanstack/solid-start", "solid"],
 ]
 
 export type Project = {
@@ -45,8 +58,12 @@ export function readProject(root: string): Project {
 
 /** The framework the project depends on, when it is exactly one. */
 export function frameworkOf(project: Project): Framework | undefined {
-  const found = FRAMEWORK_PACKAGES.filter(([name]) => name in project.listed)
-  return found.length === 1 ? found[0]![1] : undefined
+  const found = new Set(
+    FRAMEWORK_PACKAGES.filter(([name]) => name in project.listed).map(
+      ([, framework]) => framework
+    )
+  )
+  return found.size === 1 ? [...found][0] : undefined
 }
 
 /** Reads a project file: from disk, or as planned changes leave it. Undefined when there is none. */

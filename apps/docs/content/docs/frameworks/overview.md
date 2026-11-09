@@ -146,29 +146,29 @@ and checks that a style edit reaches the page in place, without a reload, where
 the framework updates components that way. A row in this table is a test that
 passes, not a claim.
 
-| Guide                                             | Runs on                    | `sx` becomes                     | Tested example                   |
-| ------------------------------------------------- | -------------------------- | -------------------------------- | -------------------------------- |
-| [React](/docs/frameworks/react)                   | Vite                       | `className` and `style`          | `vite-react`                     |
-| [Next.js](/docs/frameworks/nextjs)                | Turbopack, webpack         | `className` and `style`          | `next-turbopack`, `next-webpack` |
-| [React Router](/docs/frameworks/react-router)     | Vite                       | `className` and `style`          | `react-router`                   |
-| [TanStack Start](/docs/frameworks/tanstack-start) | Vite                       | `className` and `style`          | this site                        |
-| [Gatsby](/docs/frameworks/gatsby)                 | webpack                    | `className` and `style`          | `gatsby`                         |
-| [Preact](/docs/frameworks/preact)                 | Vite                       | `class` and `style`              | `vite-preact`                    |
-| [Solid](/docs/frameworks/solid)                   | Vite                       | `class` and `style`              | `vite-solid`                     |
-| [Vue](/docs/frameworks/vue)                       | Vite                       | `:sx` → `class` and `style`      | `vite-vue`                       |
-| [Nuxt](/docs/frameworks/nuxt)                     | Nuxt (Vite)                | `:sx` → `class` and `style`      | `nuxt`                           |
-| [Svelte](/docs/frameworks/svelte)                 | Vite                       | `sx` → `class` and `style`       | `vite-svelte`                    |
-| [SvelteKit](/docs/frameworks/sveltekit)           | Vite                       | `sx` → `class` and `style`       | `sveltekit`                      |
-| [Astro](/docs/frameworks/astro)                   | Astro (Vite)               | `sx` → `class` and `style`       | `astro`                          |
-| [Qwik](/docs/frameworks/qwik)                     | Qwik Router (Vite)         | `class` and `style`              | `qwik`                           |
-| [Angular](/docs/frameworks/angular)               | Angular CLI, Analog (Vite) | `[sx]` directive (runtime merge) | `angular-cli`, `analog-angular`  |
-| [Ember.js](/docs/frameworks/ember)                | Embroider (Vite)           | `cx` in templates                | `ember`                          |
-| [Meteor](/docs/frameworks/meteor)                 | Meteor (Rspack)            | `className` and `style`          | `meteor`                         |
-| [No framework](/docs/frameworks/vanilla)          | Vite                       | a class string you assign        | `vite-vanilla`                   |
-| [Laravel](/docs/frameworks/laravel)               | Kirana CLI, Vite           | `@kirana(…)` in Blade            | `laravel`                        |
-| [Symfony](/docs/frameworks/symfony)               | Kirana CLI, AssetMapper    | `kirana(…)` in Twig              | `symfony`                        |
-| [Ruby on Rails](/docs/frameworks/rails)           | Kirana CLI, Propshaft      | `kirana` in ERB                  | `rails`                          |
-| [Phoenix](/docs/frameworks/phoenix)               | Kirana CLI                 | `kirana/1` in HEEx               | `phoenix`                        |
-| [AdonisJS](/docs/frameworks/adonisjs)             | Kirana CLI, Vite           | `kirana(…)` in Edge              | `adonisjs`                       |
+| Guide                                             | Runs on                    | `sx` becomes                                    | Tested example                           |
+| ------------------------------------------------- | -------------------------- | ----------------------------------------------- | ---------------------------------------- |
+| [React](/docs/frameworks/react)                   | Vite                       | `className` and `style`                         | `vite-react`                             |
+| [Next.js](/docs/frameworks/nextjs)                | Turbopack, webpack         | `className` and `style`                         | `next-turbopack`, `next-webpack`         |
+| [React Router](/docs/frameworks/react-router)     | Vite                       | `className` and `style`                         | `react-router`                           |
+| [TanStack Start](/docs/frameworks/tanstack-start) | Vite                       | `className` and `style`, `class` on Solid       | `tanstack-start`, `tanstack-start-solid` |
+| [Gatsby](/docs/frameworks/gatsby)                 | webpack                    | `className` and `style`                         | `gatsby`                                 |
+| [Preact](/docs/frameworks/preact)                 | Vite                       | `class` and `style`                             | `vite-preact`                            |
+| [Solid](/docs/frameworks/solid)                   | Vite                       | `class` and `style`                             | `vite-solid`                             |
+| [Vue](/docs/frameworks/vue)                       | Vite                       | `:sx` → `class` and `style`                     | `vite-vue`                               |
+| [Nuxt](/docs/frameworks/nuxt)                     | Nuxt (Vite)                | `:sx` → `class` and `style`                     | `nuxt`                                   |
+| [Svelte](/docs/frameworks/svelte)                 | Vite                       | `sx` → `class` and `style`                      | `vite-svelte`                            |
+| [SvelteKit](/docs/frameworks/sveltekit)           | Vite                       | `sx` → `class` and `style`                      | `sveltekit`                              |
+| [Astro](/docs/frameworks/astro)                   | Astro (Vite)               | `sx` → `class` and `style`                      | `astro`, `astro-react`                   |
+| [Qwik](/docs/frameworks/qwik)                     | Qwik Router (Vite)         | `class` and `style`                             | `qwik`                                   |
+| [Angular](/docs/frameworks/angular)               | Angular CLI, Analog (Vite) | `[sx]` directive (runtime merge)                | `angular-cli`, `analog-angular`          |
+| [Ember.js](/docs/frameworks/ember)                | Embroider (Vite)           | `cx` in templates                               | `ember`                                  |
+| [Meteor](/docs/frameworks/meteor)                 | Meteor (Rspack)            | `className` and `style`                         | `meteor`                                 |
+| [No framework](/docs/frameworks/vanilla)          | Vite                       | a class string you assign                       | `vite-vanilla`                           |
+| [Laravel](/docs/frameworks/laravel)               | Kirana CLI, Vite           | `@kirana(…)` in Blade, `className` with Inertia | `laravel`, `laravel-inertia`             |
+| [Symfony](/docs/frameworks/symfony)               | Kirana CLI, AssetMapper    | `kirana(…)` in Twig                             | `symfony`                                |
+| [Ruby on Rails](/docs/frameworks/rails)           | Kirana CLI, Propshaft      | `kirana` in ERB                                 | `rails`                                  |
+| [Phoenix](/docs/frameworks/phoenix)               | Kirana CLI                 | `kirana/1` in HEEx                              | `phoenix`                                |
+| [AdonisJS](/docs/frameworks/adonisjs)             | Kirana CLI, Vite           | `kirana(…)` in Edge                             | `adonisjs`                               |
 
 The bundlers have their own examples, listed on [each page](/docs/integrations/bundlers).

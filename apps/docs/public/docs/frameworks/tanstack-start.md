@@ -5,7 +5,8 @@ Source: https://site.kirana-style.workers.dev/docs/frameworks/tanstack-start
 
 This site, and the three applications of our shadcn/ui port, are TanStack
 Start apps; this page is the setup they use. Tested on every change by
-`examples/tanstack-start`, prerendered and on its dev server.
+`examples/tanstack-start`, prerendered and on its dev server, and on Solid by
+`examples/tanstack-start-solid`.
 
 
 
@@ -26,6 +27,20 @@ export default defineConfig({
   // Kirana ahead of the framework plugins, so modules reach them compiled; route
   // splitting re-emits modules under a query, and those are compiled too.
   plugins: [kirana(), tanstackStart(), viteReact()],
+})
+```
+
+On Solid, the same setup takes `@tanstack/solid-start` and `vite-plugin-solid`,
+and `sx` becomes `class`, as in [Solid](/docs/frameworks/solid):
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import { tanstackStart } from "@tanstack/solid-start/plugin/vite"
+import { defineConfig } from "vite"
+import viteSolid from "vite-plugin-solid"
+
+export default defineConfig({
+  plugins: [kirana(), tanstackStart(), viteSolid({ ssr: true })],
 })
 ```
 

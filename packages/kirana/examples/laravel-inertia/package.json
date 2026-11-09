@@ -1,0 +1,63 @@
+{
+  "name": "kirana-example-laravel-inertia",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "start": "php artisan serve --host 127.0.0.1 --port $PORT"
+  },
+  "kirana-example": {
+    "output": "public/build",
+    "prepare": [
+      [
+        "cp",
+        ".env.example",
+        ".env"
+      ],
+      [
+        "composer",
+        "install",
+        "--no-interaction",
+        "--quiet"
+      ],
+      [
+        "php",
+        "artisan",
+        "key:generate",
+        "--no-interaction"
+      ]
+    ],
+    "dev": [
+      "php",
+      "artisan",
+      "serve",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "{port}"
+    ],
+    "devAlso": [
+      "vite"
+    ],
+    "devEnv": {
+      "LARAVEL_BYPASS_ENV_CHECK": "1"
+    },
+    "edit": "resources/js/pages/Home.tsx",
+    "reloads": true
+  },
+  "dependencies": {
+    "@inertiajs/react": "^3.11.0",
+    "@kirana-style/core": "0.1.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "laravel-vite-plugin": "^3.2.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.6"
+  }
+}

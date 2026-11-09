@@ -793,6 +793,12 @@ describe("D-108 where an alias points", () => {
     expect(of({ "solid-js": "1" })).toBe("solid")
     expect(of({ "@angular/core": "20", svelte: "5" })).toBeUndefined()
     expect(of({})).toBeUndefined()
+    // An adapter that installs the framework as its peer names it, beside the framework or not
+    // (KF-109): Astro's islands, Inertia's client, TanStack Start on Solid.
+    expect(of({ astro: "7", "@astrojs/react": "7", react: "19" })).toBe("react")
+    expect(of({ "@inertiajs/react": "3" })).toBe("react")
+    expect(of({ "@tanstack/solid-start": "1" })).toBe("solid")
+    expect(of({ "@astrojs/vue": "6", "@astrojs/svelte": "8" })).toBeUndefined()
   })
 })
 

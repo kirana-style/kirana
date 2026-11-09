@@ -1,0 +1,20 @@
+{
+  "name": "kirana/example-laravel-inertia",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "^8.3",
+    "inertiajs/inertia-laravel": "^3.7",
+    "laravel/framework": "^13.40"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

@@ -43,6 +43,8 @@ Where the alias points, and what `init` writes for it, follows the framework:
 | -------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Vite, TanStack Start, SolidStart | `src/`          | `paths` in the tsconfig, `resolve.tsconfigPaths` in Vite's configuration                                                |
 | React Router                     | `app/`          | the same: its tsconfig compiles `app`, not the project's root                                                           |
+| Astro                            | `src/`          | `paths` in the tsconfig, which Astro resolves itself                                                                    |
+| Laravel with Inertia             | `resources/js/` | nothing: its starter's tsconfig maps `@/*` there, as `laravel-vite-plugin` does                                         |
 | JavaScript Next.js               | the root        | the `tsconfig.json` Next.js would write, and TypeScript, since the components are TypeScript                            |
 | Nuxt                             | `app/`          | Nuxt's own alias: the `tsconfig.json` Nuxt's starter has, and its `postinstall`, `nuxt prepare`, which writes the rest  |
 | SvelteKit                        | `src/`          | the `tsconfig.json` SvelteKit's starter has, with `paths` and its `.svelte` files, and its `prepare`, `svelte-kit sync` |
@@ -114,13 +116,14 @@ Base UI and React Aria do; `init` prints that as a step by hand.
 
 Both go in the project's root document, found in this order:
 
-| Where `<html>` is              | Templates                                         | `init` does         |
-| ------------------------------ | ------------------------------------------------- | ------------------- |
-| the one layout that renders it | Next.js, React Router, TanStack Start, SolidStart | sets the attributes |
-| `index.html`                   | Vite, Parcel, Bun, Ember, Analog                  | sets the attributes |
-| `src/index.html`               | Angular CLI                                       | sets the attributes |
-| `src/app.html`                 | SvelteKit                                         | sets the attributes |
-| elsewhere, or in two layouts   | Nuxt, Astro, Laravel, Rails                       | prints them to set  |
+| Where `<html>` is               | Templates                                                | `init` does         |
+| ------------------------------- | -------------------------------------------------------- | ------------------- |
+| the one layout that renders it  | Next.js, React Router, TanStack Start, SolidStart, Astro | sets the attributes |
+| `index.html`                    | Vite, Parcel, Bun, Ember, Analog                         | sets the attributes |
+| `src/index.html`                | Angular CLI                                              | sets the attributes |
+| `src/app.html`                  | SvelteKit                                                | sets the attributes |
+| `resources/views/app.blade.php` | Laravel with Inertia                                     | sets the attributes |
+| elsewhere, or in two layouts    | Nuxt, Rails, Laravel's own Blade views                   | prints them to set  |
 
 Neither is kept in the `ui` settings: the components need no rewriting for
 them, so `<html>` is the one place that says what the project has. On a project

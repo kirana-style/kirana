@@ -20,7 +20,6 @@ import {
   installCommand,
   planInit,
   REGISTRY,
-  sources,
 } from "@kirana-style/compiler"
 import type { PackageManager } from "@kirana-style/compiler"
 
@@ -63,10 +62,12 @@ import {
   attributesOf,
   decodePreset,
   DIRECTION,
+  documentSources,
   findDocument,
   optionAttributes,
   rendersHtml,
   settingsOf,
+  TEMPLATE_FILE,
   withAttributes,
 } from "./preset.ts"
 import { startTemplate } from "./template.ts"
@@ -137,15 +138,19 @@ class Files {
     return [...found].sort()
   }
 
-  /** The project's scripts, those only planned included, relative and with forward slashes. */
+  /**
+   * The project's scripts and Astro components, those only planned included, relative and with
+   * forward slashes: an Astro layout renders `<html>` and imports in its frontmatter (KF-109).
+   */
   scripts(): string[] {
     const found = new Set(
-      sources(this.root).map((file) =>
+      documentSources(this.root).map((file) =>
         path.relative(this.root, file).split(path.sep).join("/")
       )
     )
     for (const file of this.changed.keys())
-      if (/\.[cm]?[jt]sx?$/.test(file)) found.add(file)
+      if (/\.[cm]?[jt]sx?$/.test(file) || TEMPLATE_FILE.test(file))
+        found.add(file)
     return [...found].sort()
   }
 }

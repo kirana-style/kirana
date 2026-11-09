@@ -304,8 +304,9 @@ jobs:
         run: bun scripts/browser-engine.ts
 
   # The component registry's installer end to end (KRN-DX-028, KRN-DX-029, KRN-DX-033): on a Vite,
-  # a TanStack Start and a Next.js app, and on Vue, Svelte, Solid and Angular (its icon drawn
-  # inline), `kirana-style ui init` and `ui add` from the fixture registry (examples/registry), then
+  # a TanStack Start, a React Router and a Next.js app, on Vue, Svelte, Solid and Angular (its icon
+  # drawn inline), and on Astro's React islands, Laravel's Inertia pages and TanStack Start on Solid
+  # (KF-109), `kirana-style ui init` and `ui add` from the fixture registry (examples/registry), then
   # the build, and the installed button, its icon and the design system on <html> read back in
   # Chromium beside the probe.
   install-registry:
@@ -320,11 +321,15 @@ jobs:
           [
             vite-react,
             tanstack-start,
+            react-router,
             next-turbopack,
             vite-vue,
             vite-svelte,
             vite-solid,
             analog-angular,
+            astro-react,
+            laravel-inertia,
+            tanstack-start-solid,
           ]
 
     steps:
@@ -342,6 +347,13 @@ jobs:
       - name: Install Chromium
         working-directory: packages/kirana
         run: bunx playwright install --with-deps chromium
+
+      # Laravel's own dependencies, which the example's prepare step installs with Composer.
+      - if: matrix.example == 'laravel-inertia'
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: "8.4"
+          tools: composer
 
       - name: ${{ matrix.example }} with kirana-style ui
         run: bun run kirana:example ${{ matrix.example }} --pm npm --registry
@@ -376,8 +388,8 @@ jobs:
             build: vite-preact vite-solid vite-vanilla vite-vue vite-svelte vite-library vite-utilities jest-react
             dev: vite-preact vite-solid vite-vue vite-svelte vite-utilities
           - shard: meta-frameworks
-            build: sveltekit nuxt astro qwik solid-start
-            dev: sveltekit nuxt astro qwik solid-start
+            build: sveltekit nuxt astro astro-react qwik solid-start tanstack-start-solid
+            dev: sveltekit nuxt astro astro-react qwik solid-start tanstack-start-solid
           - shard: react frameworks
             build: tanstack-start tanstack-start-cloudflare vike waku vinext
             dev: tanstack-start tanstack-start-cloudflare vike waku vinext
@@ -402,8 +414,8 @@ jobs:
             dev: tauri electrobun capacitor
           # Server frameworks' own toolchains (D-069).
           - shard: server frameworks
-            build: laravel symfony rails phoenix
-            dev: laravel symfony rails phoenix
+            build: laravel laravel-inertia symfony rails phoenix
+            dev: laravel laravel-inertia symfony rails phoenix
             servers: true
 
     steps:
@@ -507,7 +519,7 @@ jobs:
         run: >-
           bun packages/kirana/examples/compare-atoms.ts atoms vite-react rolldown-react
           webpack-react rsbuild-react next-webpack next-turbopack bun-react esbuild-react
-          tanstack-start vike waku vinext docusaurus
+          tanstack-start vike waku vinext docusaurus astro-react laravel-inertia
 
   # Deno as the runtime (KRN-INT-006): installed with npm, built with Deno, native engine through
   # Node-API. (`deno install` links local tarballs as directories, so Deno as the installer waits for

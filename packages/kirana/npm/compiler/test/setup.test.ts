@@ -181,6 +181,21 @@ describe("KRN-DX-008 kirana-style init's edits", () => {
     expect(addImport("x()\n", `import k from "k"`)).toBe(
       `import k from "k"\n\nx()\n`
     )
+    // An Astro component's imports are in its frontmatter: after its last, else first there.
+    expect(
+      addImport(
+        `---\nimport "a.css"\nconst a = 1\n---\n\n<html></html>\n`,
+        `import k from "k"`
+      )
+    ).toBe(
+      `---\nimport "a.css"\nimport k from "k"\nconst a = 1\n---\n\n<html></html>\n`
+    )
+    expect(
+      addImport(`---\nconst a = 1\n---\n<html />`, `import k from "k"`)
+    ).toBe(`---\nimport k from "k"\n\nconst a = 1\n---\n<html />`)
+    expect(addImport(`---\n---\n<html />`, `import k from "k"`)).toBe(
+      `---\nimport k from "k"\n---\n<html />`
+    )
     expect(addImport("\nx()\n", `import k from "k"`)).toBe(
       `import k from "k"\n\nx()\n`
     )
@@ -579,6 +594,39 @@ describe("KRN-DX-008 kirana-style init's plan", () => {
         project({ "package.json": pkg({ "@tanstack/react-start": "1" }) })
       ).stylesheet
     ).toBe("manual")
+    // TanStack Start on Solid links it from its root route, as on React (KF-109).
+    const solidStart = (route: string) =>
+      plan(
+        project({
+          "package.json": pkg({
+            "@tanstack/solid-start": "1",
+            "solid-js": "1",
+            vite: "8",
+          }),
+          "src/routes/__root.tsx": route,
+        })
+      ).steps.find((step) => step.name === "stylesheet")!
+    expect(
+      solidStart(
+        `import kiranaCss from "@kirana-style/core/stylesheet.css?url"\n`
+      )
+    ).toMatchObject({ status: "done", detail: "src/routes/__root.tsx" })
+    expect(solidStart("export const Route = {}\n")).toMatchObject({
+      status: "manual",
+    })
+    // An Inertia app's entry is in Laravel's resources/js (KF-109).
+    const inertia = project({
+      "composer.json": '{"require":{"laravel/framework":"^13"}}',
+      "package.json": pkg({ "@inertiajs/react": "3", react: "19", vite: "8" }),
+      "resources/js/app.tsx":
+        'import { createInertiaApp } from "@inertiajs/react"\n',
+    })
+    const sheet2 = plan(inertia).steps.find(
+      (step) => step.name === "stylesheet"
+    )!
+    expect(sheet2.status === "change" && sheet2.changes[0]!.file).toBe(
+      "resources/js/app.tsx"
+    )
   })
 
   it("finds the setup an app of a workspace takes from its shared packages and its root", () => {
@@ -1428,6 +1476,17 @@ describe("D-069 to D-072: the frameworks Tailwind has a guide for", () => {
 
   it("detects the JavaScript frameworks and Parcel", () => {
     const of = (manifest: Record<string, string>) => detect(project(manifest))
+    // A Laravel app whose pages Inertia renders is its front end's (KF-109).
+    expect(
+      of({
+        "composer.json": '{"require":{"laravel/framework":"^13"}}',
+        "package.json": pkg({
+          "@inertiajs/react": "3",
+          react: "19",
+          vite: "8",
+        }),
+      })
+    ).toMatchObject({ framework: "react", bundler: "vite" })
     expect(
       of({ "package.json": pkg({ "@react-router/dev": "8", react: "19" }) })
     ).toMatchObject({ framework: "react-router", bundler: "vite" })

@@ -1,0 +1,32 @@
+{
+  "name": "kirana-example-tanstack-start-solid",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "kirana-example": {
+    "output": "dist/client",
+    "dev": [
+      "vite",
+      "--port",
+      "{port}",
+      "--strictPort",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "src/routes/index.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "@tanstack/solid-router": "^1.170.43",
+    "@tanstack/solid-start": "^1.169.5",
+    "solid-js": "^1.9.18"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.6",
+    "vite-plugin-solid": "^2.11.15"
+  }
+}
