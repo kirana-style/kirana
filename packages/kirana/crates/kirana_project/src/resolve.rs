@@ -77,7 +77,9 @@ pub(crate) struct ModuleHost<'p> {
     exports: RefCell<FxHashMap<ModulePath, Arc<Exports>>>,
     /// The `css()` values this evaluation kept (KF-059), put in the project's cache together when
     /// it ends (`keep_styles`): one turn at the cache's write lock per module, not one per style.
-    styles: RefCell<Vec<(String, Value)>>,
+    /// By key, with the order each was kept in: every style of the module asks it, and a list
+    /// searched for each made a module of twenty thousand styles quadratic (KF-105).
+    styles: RefCell<FxHashMap<String, (usize, Value)>>,
     /// The modules being transformed on this thread, this one last: one of them is never dropped
     /// from an import, so compiling what an import would load ends (D-118).
     compiling: Vec<PathBuf>,
@@ -101,12 +103,14 @@ impl<'p> ModuleHost<'p> {
 
     /// Puts the `css()` values this evaluation kept in the project's cache, in one turn at its lock.
     pub fn keep_styles(&self) {
-        let kept = self.styles.take();
+        let mut kept: Vec<_> = self.styles.take().into_iter().collect();
         if kept.is_empty() {
             return;
         }
+        // In the order they were kept, so the bound below starts over at the same style it did.
+        kept.sort_unstable_by_key(|(_, (order, _))| *order);
         let mut styles = self.project.styles.write().expect("not poisoned");
-        for (key, value) in kept {
+        for (key, (_, value)) in kept {
             // An editor session compiles every keystroke of a style it types: past the bound the
             // cache starts over, as the runtime's merge cache does, rather than holding every one.
             if styles.len() >= STYLES {
@@ -438,15 +442,17 @@ impl Host for ModuleHost<'_> {
         let value = self
             .styles
             .borrow()
-            .iter()
-            .find_map(|(kept, value)| (kept == key).then(|| value.clone()))
+            .get(key)
+            .map(|(_, value)| value.clone())
             .or_else(|| self.project.styles.read().expect("not poisoned").get(key).cloned())?;
         crate::Counters::count(&self.project.work.styles);
         Some(value)
     }
 
     fn keep_style(&self, key: String, value: &Value) {
-        self.styles.borrow_mut().push((key, value.clone()));
+        let mut styles = self.styles.borrow_mut();
+        let order = styles.len();
+        styles.entry(key).or_insert_with(|| (order, value.clone()));
     }
 
     fn lookup_dep(&self, name: &str) -> Option<Dep> {
