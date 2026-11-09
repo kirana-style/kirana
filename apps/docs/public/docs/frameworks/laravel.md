@@ -7,8 +7,16 @@ Blade templates name styles with `@kirana(…)`; the Kirana CLI writes the
 stylesheet and the class map into `public/kirana`. How it fits together:
 [server templates](/docs/frameworks/server-templates). Tested on every change by
 `examples/laravel`, served by `php artisan serve`, with a style edit checked on
-reload. A React, Vue or Svelte front end (Inertia) uses [the Vite
-plugin](/docs/integrations/vite) as usual.
+reload.
+
+A React, Vue or Svelte front end (Inertia) uses [the Vite
+plugin](/docs/integrations/vite) instead, ahead of Laravel's plugin and the
+framework's:
+
+- `examples/laravel-inertia` tests Inertia's React pages, built into
+  `public/build` and served by `php artisan serve`;
+- `kirana-style ui init` sets them up, with the design system's attributes on
+  `<html>` in `resources/views/app.blade.php`.
 
 
 

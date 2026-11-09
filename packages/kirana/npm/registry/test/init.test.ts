@@ -315,6 +315,81 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     )
   })
 
+  it("sets <html> up in an Astro layout, in its markup and its frontmatter (KF-109)", async () => {
+    const cwd = project({
+      "package.json": JSON.stringify({
+        type: "module",
+        dependencies: {
+          astro: "^7.0.0",
+          "@astrojs/react": "^7.0.0",
+          react: "^19.0.0",
+        },
+        devDependencies: { "@kirana-style/astro": "0.4.0" },
+      }),
+      "astro.config.mjs":
+        'import react from "@astrojs/react"\nimport kirana from "@kirana-style/astro"\nimport { defineConfig } from "astro/config"\n\nexport default defineConfig({ integrations: [kirana(), react()] })\n',
+      "tsconfig.json":
+        '{\n  "extends": "astro/tsconfigs/strict",\n  "include": [".astro/types.d.ts", "**/*"],\n  "compilerOptions": {\n    "jsx": "react-jsx"\n  }\n}\n',
+      "src/layouts/Layout.astro":
+        '---\nimport "@kirana-style/core/stylesheet.css"\n\nconst { title } = Astro.props\n---\n\n<html lang="en">\n  <head><title>{title}</title></head>\n  <body><slot /></body>\n</html>\n',
+      "src/pages/index.astro":
+        '---\nimport Layout from "../layouts/Layout.astro"\n---\n\n<Layout title="Home" />\n',
+      "acme/kit.json": JSON.stringify(kit()),
+      "acme/index.json": JSON.stringify(INDEX),
+    })
+    const { code, text } = await init(cwd, "--registry", ACME, "--pointer")
+    expect(code).toBe(0)
+    expect(text).toContain('"framework":"react"')
+    expect(text).toContain(
+      "setup: src/layouts/Layout.astro: imports @/components/ui/reset.css"
+    )
+    expect(text).toContain(
+      "setup: src/layouts/Layout.astro: <html sx={htmlStyles}>"
+    )
+    expect(text).toContain(
+      "setup: src/layouts/Layout.astro: <html data-pointer>"
+    )
+    expect(text).not.toContain("by hand")
+    expect(read(cwd, "src/layouts/Layout.astro")).toBe(
+      '---\nimport "@kirana-style/core/stylesheet.css"\nimport "@/components/ui/reset.css"\nimport { htmlStyles } from "@/lib/kit/document"\n\nconst { title } = Astro.props\n---\n\n<html data-pointer sx={htmlStyles} lang="en">\n  <head><title>{title}</title></head>\n  <body><slot /></body>\n</html>\n'
+    )
+    // A page that renders no <html> is left alone.
+    expect(read(cwd, "src/pages/index.astro")).not.toContain("htmlStyles")
+  })
+
+  it("sets <html>'s attributes in the Blade view Inertia renders into, and its classes from the entry (KF-109)", async () => {
+    const cwd = project({
+      "package.json": JSON.stringify({
+        type: "module",
+        dependencies: { "@inertiajs/react": "^3.0.0", react: "^19.0.0" },
+        devDependencies: { vite: "^8.0.0", "laravel-vite-plugin": "^3.0.0" },
+      }),
+      "composer.json": '{"require":{"laravel/framework":"^13"}}',
+      "vite.config.ts":
+        "import laravel from 'laravel-vite-plugin'\nimport { defineConfig } from 'vite'\n\nexport default defineConfig({\n  plugins: [laravel({ input: 'resources/js/app.tsx' })],\n})\n",
+      "tsconfig.json":
+        '{ "compilerOptions": { "paths": { "@/*": ["./resources/js/*"] } } }',
+      "resources/views/app.blade.php":
+        "<!DOCTYPE html>\n<html lang=\"{{ str_replace('_', '-', app()->getLocale()) }}\">\n  <head>@vite('resources/js/app.tsx')</head>\n  <body>@inertia</body>\n</html>\n",
+      "resources/js/app.tsx":
+        'import "@kirana-style/core/stylesheet.css"\nimport { createInertiaApp } from "@inertiajs/react"\n\ncreateInertiaApp({})\n',
+      "acme/kit.json": JSON.stringify(kit()),
+      "acme/index.json": JSON.stringify(INDEX),
+    })
+    const { code, text } = await init(cwd, "--registry", ACME, "--rtl")
+    expect(code).toBe(0)
+    expect(text).toContain('"framework":"react"')
+    expect(text).toContain(
+      "setup: resources/js/app.tsx: sets <html>'s classes from htmlStyles"
+    )
+    expect(text).toContain(
+      'setup: resources/views/app.blade.php: <html dir="rtl">'
+    )
+    expect(read(cwd, "resources/views/app.blade.php")).toContain(
+      "<html dir=\"rtl\" lang=\"{{ str_replace('_', '-', app()->getLocale()) }}\">"
+    )
+  })
+
   it("puts the styles on <html> where a layout renders it, and follows the aliases the project has", async () => {
     const cwd = next()
     const { code, text } = await init(cwd, "--registry", ACME)
@@ -600,7 +675,8 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     expect(read(set, "app/layout.tsx")).toContain(
       '<html sx={htmlStyles} dir="rtl"><body>'
     )
-    // No root document the CLI can write (Nuxt, Astro, Laravel, Rails), or two layouts: said.
+    // No root document the CLI can write (Nuxt, Rails, a Blade view of Laravel's own), or two
+    // layouts: said.
     const none = next({
       "app/other/layout.tsx": "export default () => <html><body /></html>\n",
     })

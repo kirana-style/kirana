@@ -1964,7 +1964,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "TanStack Start",
     "section": "frameworks",
     "heading": "TanStack Start",
-    "text": "This site, and the three applications of our shadcn/ui port, are TanStack Start apps; this page is the setup they use. Tested on every change by , prerendered and on its dev server."
+    "text": "This site, and the three applications of our shadcn/ui port, are TanStack Start apps; this page is the setup they use. Tested on every change by , prerendered and on its dev server, and on Solid by ."
+  },
+  {
+    "id": "/docs/frameworks/tanstack-start#install-and-add-the-plugin",
+    "href": "/docs/frameworks/tanstack-start#install-and-add-the-plugin",
+    "page": "TanStack Start",
+    "section": "frameworks",
+    "heading": "Install and add the plugin",
+    "text": "On Solid, the same setup takes and , and becomes , as in Solid :"
   },
   {
     "id": "/docs/frameworks/tanstack-start#the-root-document",
@@ -2726,7 +2734,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Astro",
     "section": "frameworks",
     "heading": "Astro",
-    "text": "Declare styles in the frontmatter and apply them with . Kirana compiles the component as it is read, before Astro does. Tested by ."
+    "text": "Declare styles in the frontmatter and apply them with . Kirana compiles the component as it is read, before Astro does. Tested by , and with React islands by ."
   },
   {
     "id": "/docs/frameworks/astro#2-add-the-integration",
@@ -2758,7 +2766,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Astro",
     "section": "frameworks",
     "heading": "5. Write a component",
-    "text": "What produces merges, in this order: the element's own styles, from ; the classes and styles it is given, in the order they are written: its own and attributes, and those of a spread written before it ( ), whose other attributes stay where it stands. A later one wins. A spread after the is left alone. A component that takes gets the caller's as its prop. Pass it to the root beside its own , and the caller's class merges last, so its styles win, property by property: Islands written in React, Preact, Solid, Vue or Svelte go through the same integration and follow their own guides for (islands are not in the test matrix yet)."
+    "text": "What produces merges, in this order: the element's own styles, from ; the classes and styles it is given, in the order they are written: its own and attributes, and those of a spread written before it ( ), whose other attributes stay where it stands. A later one wins. A spread after the is left alone. A component that takes gets the caller's as its prop. Pass it to the root beside its own , and the caller's class merges last, so its styles win, property by property: Islands written in React, Preact, Solid, Vue or Svelte go through the same integration and follow their own guides for . Put before the framework's integration, so an island reaches it compiled: React islands are tested by , rendered on the server and hydrated with . sets up the layout that renders the page: the design system's styles and attributes on its root element, imported in its frontmatter."
   },
   {
     "id": "/docs/frameworks/astro#how-it-compiles",
@@ -3119,7 +3127,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Laravel",
     "section": "server",
     "heading": "Laravel",
-    "text": "Blade templates name styles with ; the Kirana CLI writes the stylesheet and the class map into . How it fits together: server templates . Tested on every change by , served by , with a style edit checked on reload. A React, Vue or Svelte front end (Inertia) uses the Vite plugin as usual."
+    "text": "Blade templates name styles with ; the Kirana CLI writes the stylesheet and the class map into . How it fits together: server templates . Tested on every change by , served by , with a style edit checked on reload. A React, Vue or Svelte front end (Inertia) uses the Vite plugin instead, ahead of Laravel's plugin and the framework's: tests Inertia's React pages, built into and served by ; sets them up, with the design system's attributes on in ."
   },
   {
     "id": "/docs/frameworks/laravel#1-install",
@@ -4878,7 +4886,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style init",
-    "text": "Set a project up: the configuration file, the adapter in your bundler's configuration, the stylesheet, and the types for . It reads and the lockfile to find the framework, the bundler and the package manager (npm, pnpm, Yarn, Bun, or Deno from a ), then prints every change as a diff before it writes anything: It knows Next.js (Turbopack and webpack), vinext, Nuxt, SvelteKit, Astro, TanStack Start, Qwik, Angular (the CLI, whose builders it swaps, and Analog), React Router, Gatsby, Ember, Meteor and Parcel; React, Preact, Solid, Vue, Svelte or plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown; and the server frameworks Laravel, Symfony, Rails, Phoenix and AdonisJS, which get a class map and a starter style module. Edits follow the file's own quotes and semicolons. Where a configuration is not in a shape it can edit safely ( , a function, a plugin list built elsewhere), it prints the step to do by hand instead of guessing. The install command is your package manager's own (Deno's takes each package as ), printed, never run unless you pass , so your lockfile stays yours. Its last line names the next command the way your package manager runs it, such as . Its setups were checked "
+    "text": "Set a project up: the configuration file, the adapter in your bundler's configuration, the stylesheet, and the types for . It reads and the lockfile to find the framework, the bundler and the package manager (npm, pnpm, Yarn, Bun, or Deno from a ), then prints every change as a diff before it writes anything: It knows Next.js (Turbopack and webpack), vinext, Nuxt, SvelteKit, Astro, TanStack Start, Qwik, Angular (the CLI, whose builders it swaps, and Analog), React Router, Gatsby, Ember, Meteor and Parcel; React, Preact, Solid, Vue, Svelte or plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown; and the server frameworks Laravel, Symfony, Rails, Phoenix and AdonisJS, which get a class map and a starter style module. A server framework whose pages Inertia renders is set up as its front end on Vite, and TanStack Start on Solid as on React. Edits follow the file's own quotes and semicolons. Where a configuration is not in a shape it can edit safely ( , a function, a plugin list built elsewhere), it prints the step to do by hand instead of guessing. The install command is your package manager's own (Deno's takes each package as ), printed, never run unless you pass , so your lockfil"
   },
   {
     "id": "/docs/tooling/cli#kirana-style-doctor",

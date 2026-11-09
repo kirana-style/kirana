@@ -5,10 +5,17 @@
  * it. The font items the new values name are installed; one no value names any more is left for
  * `remove` (KF-050).
  */
-import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs"
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs"
 import path from "node:path"
 
 import { installCommand, sources } from "@kirana-style/compiler"
+import { SKIPPED } from "@kirana-style/compiler/host"
 
 import {
   checkWritten,
@@ -224,13 +231,44 @@ export const attributeList = (
 
 /**
  * The static pages that hold `<html>` where no script renders it: a Vite app's, then the Angular
- * CLI's, then SvelteKit's template.
+ * CLI's, then SvelteKit's template, then the Blade view Inertia renders every page into on Laravel
+ * (KF-109).
  */
-const PAGES = ["index.html", "src/index.html", "src/app.html"]
+const PAGES = [
+  "index.html",
+  "src/index.html",
+  "src/app.html",
+  "resources/views/app.blade.php",
+]
 
 /**
- * The root document, relative to the project: the one script that renders `<html>` (a layout), else
- * the first of `PAGES` the project has; undefined when there is neither, or several layouts.
+ * A component whose markup can render `<html>` beside the script that imports what it uses, its
+ * frontmatter: an Astro layout (KF-109).
+ */
+export const TEMPLATE_FILE = /\.astro$/
+
+/**
+ * The files a root document can be among: the project's scripts, and its `TEMPLATE_FILE`s, outside
+ * installed packages, build output and hidden folders.
+ */
+export function documentSources(root: string): string[] {
+  const found = sources(root)
+  const walk = (directory: string) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (entry.name.startsWith(".") || SKIPPED.has(entry.name)) continue
+      const file = path.join(directory, entry.name)
+      if (entry.isDirectory()) walk(file)
+      else if (TEMPLATE_FILE.test(entry.name)) found.push(file)
+    }
+  }
+  walk(root)
+  return found
+}
+
+/**
+ * The root document, relative to the project: the one script or Astro component that renders
+ * `<html>` (a layout), else the first of `PAGES` the project has; undefined when there is neither,
+ * or several layouts.
  */
 export function findDocument(
   scripts: readonly string[],
@@ -244,7 +282,7 @@ export function findDocument(
 /** `findDocument` on the files on disk, as an absolute path. */
 export function documentOf(root: string): string | undefined {
   const found = findDocument(
-    sources(root).map((file) =>
+    documentSources(root).map((file) =>
       path.relative(root, file).split(path.sep).join("/")
     ),
     (file) => {

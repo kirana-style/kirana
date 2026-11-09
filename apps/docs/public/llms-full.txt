@@ -4248,30 +4248,30 @@ and checks that a style edit reaches the page in place, without a reload, where
 the framework updates components that way. A row in this table is a test that
 passes, not a claim.
 
-| Guide                                             | Runs on                    | `sx` becomes                     | Tested example                   |
-| ------------------------------------------------- | -------------------------- | -------------------------------- | -------------------------------- |
-| [React](/docs/frameworks/react)                   | Vite                       | `className` and `style`          | `vite-react`                     |
-| [Next.js](/docs/frameworks/nextjs)                | Turbopack, webpack         | `className` and `style`          | `next-turbopack`, `next-webpack` |
-| [React Router](/docs/frameworks/react-router)     | Vite                       | `className` and `style`          | `react-router`                   |
-| [TanStack Start](/docs/frameworks/tanstack-start) | Vite                       | `className` and `style`          | this site                        |
-| [Gatsby](/docs/frameworks/gatsby)                 | webpack                    | `className` and `style`          | `gatsby`                         |
-| [Preact](/docs/frameworks/preact)                 | Vite                       | `class` and `style`              | `vite-preact`                    |
-| [Solid](/docs/frameworks/solid)                   | Vite                       | `class` and `style`              | `vite-solid`                     |
-| [Vue](/docs/frameworks/vue)                       | Vite                       | `:sx` → `class` and `style`      | `vite-vue`                       |
-| [Nuxt](/docs/frameworks/nuxt)                     | Nuxt (Vite)                | `:sx` → `class` and `style`      | `nuxt`                           |
-| [Svelte](/docs/frameworks/svelte)                 | Vite                       | `sx` → `class` and `style`       | `vite-svelte`                    |
-| [SvelteKit](/docs/frameworks/sveltekit)           | Vite                       | `sx` → `class` and `style`       | `sveltekit`                      |
-| [Astro](/docs/frameworks/astro)                   | Astro (Vite)               | `sx` → `class` and `style`       | `astro`                          |
-| [Qwik](/docs/frameworks/qwik)                     | Qwik Router (Vite)         | `class` and `style`              | `qwik`                           |
-| [Angular](/docs/frameworks/angular)               | Angular CLI, Analog (Vite) | `[sx]` directive (runtime merge) | `angular-cli`, `analog-angular`  |
-| [Ember.js](/docs/frameworks/ember)                | Embroider (Vite)           | `cx` in templates                | `ember`                          |
-| [Meteor](/docs/frameworks/meteor)                 | Meteor (Rspack)            | `className` and `style`          | `meteor`                         |
-| [No framework](/docs/frameworks/vanilla)          | Vite                       | a class string you assign        | `vite-vanilla`                   |
-| [Laravel](/docs/frameworks/laravel)               | Kirana CLI, Vite           | `@kirana(…)` in Blade            | `laravel`                        |
-| [Symfony](/docs/frameworks/symfony)               | Kirana CLI, AssetMapper    | `kirana(…)` in Twig              | `symfony`                        |
-| [Ruby on Rails](/docs/frameworks/rails)           | Kirana CLI, Propshaft      | `kirana` in ERB                  | `rails`                          |
-| [Phoenix](/docs/frameworks/phoenix)               | Kirana CLI                 | `kirana/1` in HEEx               | `phoenix`                        |
-| [AdonisJS](/docs/frameworks/adonisjs)             | Kirana CLI, Vite           | `kirana(…)` in Edge              | `adonisjs`                       |
+| Guide                                             | Runs on                    | `sx` becomes                                    | Tested example                           |
+| ------------------------------------------------- | -------------------------- | ----------------------------------------------- | ---------------------------------------- |
+| [React](/docs/frameworks/react)                   | Vite                       | `className` and `style`                         | `vite-react`                             |
+| [Next.js](/docs/frameworks/nextjs)                | Turbopack, webpack         | `className` and `style`                         | `next-turbopack`, `next-webpack`         |
+| [React Router](/docs/frameworks/react-router)     | Vite                       | `className` and `style`                         | `react-router`                           |
+| [TanStack Start](/docs/frameworks/tanstack-start) | Vite                       | `className` and `style`, `class` on Solid       | `tanstack-start`, `tanstack-start-solid` |
+| [Gatsby](/docs/frameworks/gatsby)                 | webpack                    | `className` and `style`                         | `gatsby`                                 |
+| [Preact](/docs/frameworks/preact)                 | Vite                       | `class` and `style`                             | `vite-preact`                            |
+| [Solid](/docs/frameworks/solid)                   | Vite                       | `class` and `style`                             | `vite-solid`                             |
+| [Vue](/docs/frameworks/vue)                       | Vite                       | `:sx` → `class` and `style`                     | `vite-vue`                               |
+| [Nuxt](/docs/frameworks/nuxt)                     | Nuxt (Vite)                | `:sx` → `class` and `style`                     | `nuxt`                                   |
+| [Svelte](/docs/frameworks/svelte)                 | Vite                       | `sx` → `class` and `style`                      | `vite-svelte`                            |
+| [SvelteKit](/docs/frameworks/sveltekit)           | Vite                       | `sx` → `class` and `style`                      | `sveltekit`                              |
+| [Astro](/docs/frameworks/astro)                   | Astro (Vite)               | `sx` → `class` and `style`                      | `astro`, `astro-react`                   |
+| [Qwik](/docs/frameworks/qwik)                     | Qwik Router (Vite)         | `class` and `style`                             | `qwik`                                   |
+| [Angular](/docs/frameworks/angular)               | Angular CLI, Analog (Vite) | `[sx]` directive (runtime merge)                | `angular-cli`, `analog-angular`          |
+| [Ember.js](/docs/frameworks/ember)                | Embroider (Vite)           | `cx` in templates                               | `ember`                                  |
+| [Meteor](/docs/frameworks/meteor)                 | Meteor (Rspack)            | `className` and `style`                         | `meteor`                                 |
+| [No framework](/docs/frameworks/vanilla)          | Vite                       | a class string you assign                       | `vite-vanilla`                           |
+| [Laravel](/docs/frameworks/laravel)               | Kirana CLI, Vite           | `@kirana(…)` in Blade, `className` with Inertia | `laravel`, `laravel-inertia`             |
+| [Symfony](/docs/frameworks/symfony)               | Kirana CLI, AssetMapper    | `kirana(…)` in Twig                             | `symfony`                                |
+| [Ruby on Rails](/docs/frameworks/rails)           | Kirana CLI, Propshaft      | `kirana` in ERB                                 | `rails`                                  |
+| [Phoenix](/docs/frameworks/phoenix)               | Kirana CLI                 | `kirana/1` in HEEx                              | `phoenix`                                |
+| [AdonisJS](/docs/frameworks/adonisjs)             | Kirana CLI, Vite           | `kirana(…)` in Edge                             | `adonisjs`                               |
 
 The bundlers have their own examples, listed on [each page](/docs/integrations/bundlers).
 ---
@@ -4661,7 +4661,8 @@ Source: https://site.kirana-style.workers.dev/docs/frameworks/tanstack-start
 
 This site, and the three applications of our shadcn/ui port, are TanStack
 Start apps; this page is the setup they use. Tested on every change by
-`examples/tanstack-start`, prerendered and on its dev server.
+`examples/tanstack-start`, prerendered and on its dev server, and on Solid by
+`examples/tanstack-start-solid`.
 
 
 
@@ -4682,6 +4683,20 @@ export default defineConfig({
   // Kirana ahead of the framework plugins, so modules reach them compiled; route
   // splitting re-emits modules under a query, and those are compiled too.
   plugins: [kirana(), tanstackStart(), viteReact()],
+})
+```
+
+On Solid, the same setup takes `@tanstack/solid-start` and `vite-plugin-solid`,
+and `sx` becomes `class`, as in [Solid](/docs/frameworks/solid):
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import { tanstackStart } from "@tanstack/solid-start/plugin/vite"
+import { defineConfig } from "vite"
+import viteSolid from "vite-plugin-solid"
+
+export default defineConfig({
+  plugins: [kirana(), tanstackStart(), viteSolid({ ssr: true })],
 })
 ```
 
@@ -5969,7 +5984,8 @@ Source: https://site.kirana-style.workers.dev/docs/frameworks/astro
 # Astro
 
 Declare styles in the frontmatter and apply them with `sx`. Kirana compiles the
-component as it is read, before Astro does. Tested by `examples/astro`.
+component as it is read, before Astro does. Tested by `examples/astro`, and with
+React islands by `examples/astro-react`.
 
 
 
@@ -6054,7 +6070,21 @@ const button = css({ height: "2rem", backgroundColor: "black" })
 
 
 Islands written in React, Preact, Solid, Vue or Svelte go through the same integration and
-follow their own guides for `sx` (islands are not in the test matrix yet).
+follow their own guides for `sx`. Put `kirana()` before the framework's integration,
+so an island reaches it compiled:
+
+```js file="astro.config.mjs"
+import react from "@astrojs/react"
+import kirana from "@kirana-style/astro"
+import { defineConfig } from "astro/config"
+
+export default defineConfig({ integrations: [kirana(), react()] })
+```
+
+React islands are tested by `examples/astro-react`, rendered on the server and
+hydrated with `client:load`. `kirana-style ui init` sets up the layout that
+renders the page: the design system's styles and attributes on its root element,
+imported in its frontmatter.
 
 ## How it compiles
 
@@ -6711,8 +6741,16 @@ Blade templates name styles with `@kirana(…)`; the Kirana CLI writes the
 stylesheet and the class map into `public/kirana`. How it fits together:
 [server templates](/docs/frameworks/server-templates). Tested on every change by
 `examples/laravel`, served by `php artisan serve`, with a style edit checked on
-reload. A React, Vue or Svelte front end (Inertia) uses [the Vite
-plugin](/docs/integrations/vite) as usual.
+reload.
+
+A React, Vue or Svelte front end (Inertia) uses [the Vite
+plugin](/docs/integrations/vite) instead, ahead of Laravel's plugin and the
+framework's:
+
+- `examples/laravel-inertia` tests Inertia's React pages, built into
+  `public/build` and served by `php artisan serve`;
+- `kirana-style ui init` sets them up, with the design system's attributes on
+  `<html>` in `resources/views/app.blade.php`.
 
 
 
@@ -10320,7 +10358,9 @@ Qwik, Angular (the CLI, whose `angular.json` builders it swaps, and Analog), Rea
 Router, Gatsby, Ember, Meteor and Parcel; React, Preact, Solid, Vue, Svelte or
 plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown; and the server frameworks
 Laravel, Symfony, Rails, Phoenix and AdonisJS, which get a class map and a starter
-style module. Edits follow the file's own quotes and semicolons. Where a
+style module. A server framework whose pages Inertia renders is set up as its
+front end on Vite, and TanStack Start on Solid as on React. Edits follow the
+file's own quotes and semicolons. Where a
 configuration is not in a shape it can edit safely (`module.exports`, a function,
 a plugin list built elsewhere), it prints the step to do by hand instead of
 guessing. The install command is your package manager's own (Deno's takes each
@@ -12010,6 +12050,8 @@ Where the alias points, and what `init` writes for it, follows the framework:
 | -------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Vite, TanStack Start, SolidStart | `src/`          | `paths` in the tsconfig, `resolve.tsconfigPaths` in Vite's configuration                                                |
 | React Router                     | `app/`          | the same: its tsconfig compiles `app`, not the project's root                                                           |
+| Astro                            | `src/`          | `paths` in the tsconfig, which Astro resolves itself                                                                    |
+| Laravel with Inertia             | `resources/js/` | nothing: its starter's tsconfig maps `@/*` there, as `laravel-vite-plugin` does                                         |
 | JavaScript Next.js               | the root        | the `tsconfig.json` Next.js would write, and TypeScript, since the components are TypeScript                            |
 | Nuxt                             | `app/`          | Nuxt's own alias: the `tsconfig.json` Nuxt's starter has, and its `postinstall`, `nuxt prepare`, which writes the rest  |
 | SvelteKit                        | `src/`          | the `tsconfig.json` SvelteKit's starter has, with `paths` and its `.svelte` files, and its `prepare`, `svelte-kit sync` |
@@ -12081,13 +12123,14 @@ Base UI and React Aria do; `init` prints that as a step by hand.
 
 Both go in the project's root document, found in this order:
 
-| Where `<html>` is              | Templates                                         | `init` does         |
-| ------------------------------ | ------------------------------------------------- | ------------------- |
-| the one layout that renders it | Next.js, React Router, TanStack Start, SolidStart | sets the attributes |
-| `index.html`                   | Vite, Parcel, Bun, Ember, Analog                  | sets the attributes |
-| `src/index.html`               | Angular CLI                                       | sets the attributes |
-| `src/app.html`                 | SvelteKit                                         | sets the attributes |
-| elsewhere, or in two layouts   | Nuxt, Astro, Laravel, Rails                       | prints them to set  |
+| Where `<html>` is               | Templates                                                | `init` does         |
+| ------------------------------- | -------------------------------------------------------- | ------------------- |
+| the one layout that renders it  | Next.js, React Router, TanStack Start, SolidStart, Astro | sets the attributes |
+| `index.html`                    | Vite, Parcel, Bun, Ember, Analog                         | sets the attributes |
+| `src/index.html`                | Angular CLI                                              | sets the attributes |
+| `src/app.html`                  | SvelteKit                                                | sets the attributes |
+| `resources/views/app.blade.php` | Laravel with Inertia                                     | sets the attributes |
+| elsewhere, or in two layouts    | Nuxt, Rails, Laravel's own Blade views                   | prints them to set  |
 
 Neither is kept in the `ui` settings: the components need no rewriting for
 them, so `<html>` is the one place that says what the project has. On a project

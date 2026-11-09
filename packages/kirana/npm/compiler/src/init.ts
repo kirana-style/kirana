@@ -144,11 +144,22 @@ export function styled(text: string, statement: string): string {
   return `${single ? statement.replaceAll('"', "'") : statement}${semicolon}`
 }
 
+/** An Astro component's frontmatter: the script between its `---` fences, which holds its imports. */
+const FRONTMATTER = /^(---[ \t]*\r?\n)((?:.*\r?\n)*?)(---[ \t]*(?:\r?\n|$))/
+
 /**
  * Adds an import after the module's last import, in the module's style. Names imported from a
- * module the file already imports names from join that import instead (KF-035), on its lines.
+ * module the file already imports names from join that import instead (KF-035), on its lines. In an
+ * Astro component, the import goes into its frontmatter.
  */
 export function addImport(text: string, statement: string): string {
+  const frontmatter = FRONTMATTER.exec(text)
+  if (frontmatter) {
+    const [whole, open, body, close] = frontmatter
+    const script =
+      body!.trim() === "" ? `${statement}\n` : addImport(body!, statement)
+    return `${open}${script}${close}${text.slice(whole.length)}`
+  }
   const merged = mergeImport(text, statement)
   if (merged !== undefined) return merged
   const line = styled(text, statement)
@@ -868,6 +879,18 @@ function stylesheetStep(files: Files, project: Detected): Step {
     return file ? prepend(file) : manual("stylesheet", help)
   }
   const importHelp = `import "${STYLESHEET}" once, in the module that renders your document`
+  // TanStack Start's root route renders the document and links the stylesheet from its head.
+  const rootRoute = (): Step => {
+    const route = files.find(
+      entries(["src/routes/", "app/routes/"], ["__root"])
+    )
+    return route && files.read(route)!.includes(STYLESHEET)
+      ? done("stylesheet", route)
+      : manual(
+          "stylesheet",
+          `in the root route, import kiranaCss from "${STYLESHEET}?url" and add { rel: "stylesheet", href: kiranaCss } to head().links`
+        )
+  }
   switch (project.framework) {
     case "next": {
       const layouts = entries(["app/", "src/app/"], ["layout"])
@@ -1043,18 +1066,11 @@ function stylesheetStep(files: Files, project: Detected): Step {
         `${helper ? `${helper}; ` : ""}run kirana-style dev resources/styles --out ${out} beside your server (kirana-style build --minify for production), and link /kirana/kirana.css from your layout`
       )
     }
-    case "tanstack-start": {
-      const route = files.find(
-        entries(["src/routes/", "app/routes/"], ["__root"])
-      )
-      return route && files.read(route)!.includes(STYLESHEET)
-        ? done("stylesheet", route)
-        : manual(
-            "stylesheet",
-            `in the root route, import kiranaCss from "${STYLESHEET}?url" and add { rel: "stylesheet", href: kiranaCss } to head().links`
-          )
-    }
+    case "tanstack-start":
+      return rootRoute()
   }
+  // TanStack Start on Solid is a Solid app whose root route renders the document, as on React (KF-109).
+  if ("@tanstack/solid-start" in project.dependencies) return rootRoute()
   if (project.bundler === "none")
     return done(
       "stylesheet",
@@ -1073,8 +1089,12 @@ function stylesheetStep(files: Files, project: Detected): Step {
   // Vike renders the document from the page files' `+Layout` or `+Head`, which every page shares.
   if ("vike" in project.dependencies)
     return entry(entries(["pages/"], ["+Layout", "+Head"]), importHelp)
+  // Laravel keeps its front end's entry in `resources/js` (an Inertia app's, KF-109).
   return entry(
-    entries(["src/"], ["main", "index", "app", "entry-client"]),
+    entries(
+      ["src/", "resources/js/"],
+      ["main", "index", "app", "entry-client"]
+    ),
     importHelp
   )
 }

@@ -4,7 +4,8 @@ Source: https://site.kirana-style.workers.dev/docs/frameworks/astro
 # Astro
 
 Declare styles in the frontmatter and apply them with `sx`. Kirana compiles the
-component as it is read, before Astro does. Tested by `examples/astro`.
+component as it is read, before Astro does. Tested by `examples/astro`, and with
+React islands by `examples/astro-react`.
 
 
 
@@ -89,7 +90,21 @@ const button = css({ height: "2rem", backgroundColor: "black" })
 
 
 Islands written in React, Preact, Solid, Vue or Svelte go through the same integration and
-follow their own guides for `sx` (islands are not in the test matrix yet).
+follow their own guides for `sx`. Put `kirana()` before the framework's integration,
+so an island reaches it compiled:
+
+```js file="astro.config.mjs"
+import react from "@astrojs/react"
+import kirana from "@kirana-style/astro"
+import { defineConfig } from "astro/config"
+
+export default defineConfig({ integrations: [kirana(), react()] })
+```
+
+React islands are tested by `examples/astro-react`, rendered on the server and
+hydrated with `client:load`. `kirana-style ui init` sets up the layout that
+renders the page: the design system's styles and attributes on its root element,
+imported in its frontmatter.
 
 ## How it compiles
 

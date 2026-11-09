@@ -264,8 +264,15 @@ export function detect(root: string): Detected {
     existsSync(path.join(root, file))
       ? readFileSync(path.join(root, file), "utf8")
       : ""
+  // Inertia renders a server framework's pages with the front end's components (KF-109): the app is
+  // that framework's, built by its bundler, and no template reads the class map.
+  const inertia = Object.keys(dependencies).some((name) =>
+    name.startsWith("@inertiajs/")
+  )
   const framework =
-    SERVER.find(([file, line]) => line.test(manifest(file)))?.[2] ??
+    (inertia
+      ? undefined
+      : SERVER.find(([file, line]) => line.test(manifest(file)))?.[2]) ??
     (existsSync(path.join(root, ".meteor", "release"))
       ? "meteor"
       : undefined) ??

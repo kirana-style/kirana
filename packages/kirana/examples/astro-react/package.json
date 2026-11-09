@@ -1,0 +1,31 @@
+{
+  "name": "kirana-example-astro-react",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "astro build"
+  },
+  "kirana-example": {
+    "dev": [
+      "astro",
+      "dev",
+      "--port",
+      "{port}",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "src/components/Probe.tsx"
+  },
+  "dependencies": {
+    "@astrojs/react": "^7.1.4",
+    "@kirana-style/core": "0.1.0",
+    "astro": "^7.4.7",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@kirana-style/astro": "0.1.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0"
+  }
+}

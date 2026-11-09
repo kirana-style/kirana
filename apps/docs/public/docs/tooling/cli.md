@@ -112,7 +112,9 @@ Qwik, Angular (the CLI, whose `angular.json` builders it swaps, and Analog), Rea
 Router, Gatsby, Ember, Meteor and Parcel; React, Preact, Solid, Vue, Svelte or
 plain DOM on Vite, Rsbuild, Rspack, webpack and Rolldown; and the server frameworks
 Laravel, Symfony, Rails, Phoenix and AdonisJS, which get a class map and a starter
-style module. Edits follow the file's own quotes and semicolons. Where a
+style module. A server framework whose pages Inertia renders is set up as its
+front end on Vite, and TanStack Start on Solid as on React. Edits follow the
+file's own quotes and semicolons. Where a
 configuration is not in a shape it can edit safely (`module.exports`, a function,
 a plugin list built elsewhere), it prints the step to do by hand instead of
 guessing. The install command is your package manager's own (Deno's takes each

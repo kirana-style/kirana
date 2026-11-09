@@ -204,15 +204,15 @@ settings it cannot use, exits 2.
 needs: its `registryDependencies` and its base's, a bare name read from the same registry, each item
 read once (KRN-DX-026). The project's settings under `ui`:
 
-| Key         | Holds                                                                                                                                                  |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| framework   | the framework whose markup is installed; else the one of `react`, `vue`, `svelte`, `solid-js` and `@angular/core` the project depends on               |
-| base        | the base whose markup is installed; else the framework's only base in the item                                                                         |
-| aliases     | the import specifier for each file type: `ui`, `lib`, `component`, `hook`, `page`; `@/components/ui`, `@/lib`, `@/components` and `@/hooks` by default |
-| iconLibrary | the library each `<IconPlaceholder>` is drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                           |
-| design      | the design system's axis values the project uses (`{ style: "vega", baseColor: "stone" }`), which `ui preset` writes                                   |
-| allDesigns  | `true` to install style modules and design files as written, every design kept, not the registry's builds for `design` (KF-080)                        |
-| workspace   | in an app, the package of its workspace that `ui` installs into, from the configuration's directory, and the only key of the app's `ui` (D-129)        |
+| Key         | Holds                                                                                                                                                                                                                                                      |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| framework   | the framework whose markup is installed; else the one of `react`, `vue`, `svelte`, `solid-js` and `@angular/core` the project depends on, directly or through an adapter that has it as a peer (Astro's islands, Inertia's client, TanStack Start; KF-109) |
+| base        | the base whose markup is installed; else the framework's only base in the item                                                                                                                                                                             |
+| aliases     | the import specifier for each file type: `ui`, `lib`, `component`, `hook`, `page`; `@/components/ui`, `@/lib`, `@/components` and `@/hooks` by default                                                                                                     |
+| iconLibrary | the library each `<IconPlaceholder>` is drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                                                                                                                               |
+| design      | the design system's axis values the project uses (`{ style: "vega", baseColor: "stone" }`), which `ui preset` writes                                                                                                                                       |
+| allDesigns  | `true` to install style modules and design files as written, every design kept, not the registry's builds for `design` (KF-080)                                                                                                                            |
+| workspace   | in an app, the package of its workspace that `ui` installs into, from the configuration's directory, and the only key of the app's `ui` (D-129)                                                                                                            |
 
 An item with `frameworks` and none for the project's framework, or several bases and no `ui.base`,
 MUST stop the command, naming what the item supports. An item's style modules MUST be its
@@ -265,7 +265,8 @@ project, its `--preset`, `--pointer`, `--rtl` and `--registry` included (KF-108)
 cannot start from a template (exit 2). It then checks what it wrote, as `add` does. Kirana's packages it installs, `@kirana-style/registry` among them when the project
 lacks it, MUST be at the release's version (unless the design system names one) and recorded
 exactly, with the package manager's exact flag, so the project can run `kirana-style ui` alone
-(D-111). A named import it adds joins the module's existing named import of the same module.
+(D-111). A named import it adds joins the module's existing named import of the same module; in
+an Astro component it goes into the frontmatter (KF-109).
 `--all-designs` MUST write `allDesigns: true` to the `ui` settings, so this and every later command
 keeps every design installed (KF-080). The
 check after writing (for `init`, `add`, `update` and `preset`) MUST leave out `relation-unused` for a
@@ -275,8 +276,9 @@ only on its first run) MUST get one: the options Next.js requires, `noEmit` and 
 with `typescript`, `@types/react` and `@types/node` installed, since the items are TypeScript
 (KF-046). `--pointer` and `--rtl`, spelled as shadcn/ui's, MUST set `data-pointer` (the attribute a
 design system's reset reads for `cursor: pointer` on buttons) and `dir="rtl"` on `<html>` in the
-root document: the one script that renders `<html>`, else the first of `index.html`,
-`src/index.html` and `src/app.html` the project has; with none, or several layouts, the attributes
+root document: the one script or Astro component that renders `<html>`, else the first of
+`index.html`, `src/index.html`, `src/app.html` and `resources/views/app.blade.php` (the view Inertia
+renders into on Laravel) the project has (KF-109); with none, or several layouts, the attributes
 are printed as a step by hand, and `--rtl` also prints that a component library reading the
 direction from a provider needs it. `--no-pointer` and `--no-rtl` take them off; a flag given with
 its `--no-` exits 2. Neither is written to the `ui` settings: no later command rewrites an item for

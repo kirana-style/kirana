@@ -322,6 +322,23 @@ describe("D-110 the settings and the document a preset writes", () => {
     expect(at({ "index.html": "<html>", "src/app.html": "<html>" })).toBe(
       "index.html"
     )
+    // An Astro layout, among its components; the Blade view Inertia renders every page into
+    // (KF-109).
+    expect(
+      at({
+        "src/layouts/Layout.astro":
+          '---\nconst a = 1\n---\n<html lang="en"></html>',
+        "src/pages/index.astro": "---\n---\n<Layout />",
+        "src/components/Probe.tsx": "export const Probe = () => <p />",
+        "node_modules/x/Layout.astro": "<html></html>",
+      })
+    ).toBe(path.join("src", "layouts", "Layout.astro"))
+    expect(
+      at({
+        "resources/views/app.blade.php": "<html>@inertia</html>",
+        "resources/js/app.tsx": "createInertiaApp({})",
+      })
+    ).toBe(path.join("resources", "views", "app.blade.php"))
   })
 })
 
