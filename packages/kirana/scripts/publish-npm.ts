@@ -8,7 +8,10 @@
  *
  * Levels exist because npm's CDN caches metadata for `max-age` (300 s): a level is published only
  * once every edge must serve the one before it, so no install sees a package without its
- * dependencies. The final tag is used directly because `npm dist-tag` fails with E401 under trusted
+ * dependencies. The last level is waited for the same way before the script ends, its tarballs
+ * fetched once by then: kirana-lab installs the release as soon as this job ends, and 0.4.1's
+ * `@kirana-style/vite`, the last published, answered its tarball with 404 four minutes after it was
+ * published. The final tag is used directly because `npm dist-tag` fails with E401 under trusted
  * publishing (OIDC) although `npm publish` works.
  *
  * A version already published is skipped (or its tag moved forward), so a failed release can run
@@ -128,8 +131,11 @@ async function published_({ name, version }: Tarball): Promise<boolean> {
 /** How long an edge may serve metadata it cached, read from the registry's own responses. */
 let maxAge = 300
 
-/** What an installer reads (the abbreviated metadata), from the edge this runner reaches. */
-async function versions(name: string): Promise<Set<string>> {
+/**
+ * What an installer reads (the abbreviated metadata), from the edge this runner reaches: each
+ * version's tarball.
+ */
+async function versions(name: string): Promise<Map<string, string>> {
   const response = await fetch(url(name), {
     headers: { Accept: "application/vnd.npm.install-v1+json" },
     signal: AbortSignal.timeout(15_000),
@@ -137,8 +143,27 @@ async function versions(name: string): Promise<Set<string>> {
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
   const age = /max-age=(\d+)/.exec(response.headers.get("cache-control") ?? "")
   if (age) maxAge = Math.max(maxAge, Number(age[1]))
-  const json = (await response.json()) as { versions: Record<string, unknown> }
-  return new Set(Object.keys(json.versions))
+  const json = (await response.json()) as {
+    versions: Record<string, { dist: { tarball: string } }>
+  }
+  return new Map(
+    Object.entries(json.versions).map(([version, { dist }]) => [
+      version,
+      dist.tarball,
+    ])
+  )
+}
+
+/**
+ * Whether this edge serves a tarball. Asked only once the metadata has settled, when it should be
+ * there: an edge that cached a 404 from an earlier ask would hand it to the next installer.
+ */
+async function servesTarball(tarball: string): Promise<boolean> {
+  const response = await fetch(tarball, {
+    method: "HEAD",
+    signal: AbortSignal.timeout(15_000),
+  })
+  return response.ok
 }
 
 /** The tag a version ends on. */
@@ -189,23 +214,38 @@ async function tags(name: string): Promise<Record<string, string>> {
 
 /**
  * Wait until this edge serves every version of `published`, and until every edge must: none has
- * kept the old metadata longer than `max-age` past `lastPublish`. Every package is asked at once.
+ * kept the old metadata longer than `max-age` past `lastPublish`; then until this edge serves
+ * every tarball. Every package is asked at once.
  */
 async function settle(published: readonly Tarball[], lastPublish: number) {
   const deadline = Date.now() + 20 * 60_000
   let pause = 5_000
   for (;;) {
     const missing: string[] = []
+    const served: { name: string; tarball: string }[] = []
     await Promise.all(
       published.map(async ({ name, version }) => {
         try {
-          if (!(await versions(name)).has(version)) missing.push(name)
+          const tarball = (await versions(name)).get(version)
+          if (tarball === undefined) missing.push(name)
+          else served.push({ name, tarball })
         } catch (error) {
           missing.push(`${name} (${(error as Error).message})`)
         }
       })
     )
     const settles = lastPublish + maxAge * 1000
+    if (missing.length === 0 && Date.now() >= settles)
+      await Promise.all(
+        served.map(async ({ name, tarball }) => {
+          try {
+            if (!(await servesTarball(tarball)))
+              missing.push(`${name} (its tarball)`)
+          } catch (error) {
+            missing.push(`${name}'s tarball (${(error as Error).message})`)
+          }
+        })
+      )
     if (missing.length === 0 && Date.now() >= settles) return
     if (Date.now() > deadline) {
       console.error(
@@ -302,6 +342,9 @@ for (const [index, members] of levels.entries()) {
   }
   previous = { published, lastPublish }
 }
+// The last level too: the job ends, and kirana-lab starts installing, only once it is served.
+if (previous && previous.published.length > 0 && !dryRun)
+  await settle(previous.published, previous.lastPublish)
 if (unmoved.length > 0) {
   console.error(
     `failed   these versions are published, but their tags did not move. Run them signed in as kirana-maintainer:\n${unmoved.join("\n")}`
