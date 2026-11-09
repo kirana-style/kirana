@@ -421,8 +421,10 @@ export async function runPreset(
     for (const file of fonts.filter((entry) => entry.item === key))
       write(`  ${marks[file.state]} ${file.relative}\n`)
   }
-  const imports = importFonts(added, scriptsOf(project.root), (file) =>
-    readFileSync(path.join(project.root, file), "utf8")
+  // The fonts and the document are the app's: in a workspace, not the package's (D-129).
+  const app = settings.app?.root ?? project.root
+  const imports = importFonts(added, scriptsOf(app), (file) =>
+    readFileSync(path.join(app, file), "utf8")
   )
   for (const line of imports.report) write(`font: ${line}\n`)
   for (const line of imports.manual) write(`by hand: ${line}\n`)
@@ -469,11 +471,11 @@ export async function runPreset(
   write(
     `settings: ${path.relative(project.root, configFile)}: ui ${JSON.stringify(ui)}\n`
   )
-  const document = documentOf(project.root)
+  const document = documentOf(app)
   const attributes = { ...attributesOf(design, chosen.design), ...asked }
   if (document)
     write(
-      `document: ${path.relative(project.root, document)}: <html> ${attributeList(attributes)}\n`
+      `document: ${path.relative(app, document)}: <html> ${attributeList(attributes)}\n`
     )
   else
     write(
@@ -502,7 +504,7 @@ export async function runPreset(
     )
   writePlaced(writes)
   writePlaced(fonts)
-  writeEdits(project.root, imports.edits)
+  writeEdits(app, imports.edits)
   for (const file of deletes) unlinkSync(file)
   if (!installPackages(commands, project, write, options)) return 1
   recordStatuses(lockfile, statuses, writes)

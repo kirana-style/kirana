@@ -1747,21 +1747,36 @@ the implementation tracker names its evidence.
 
 ### D-111 — The registry runs on its own, and init leaves a project that can run it
 
-- **Status:** Accepted (2026-10-26). Answers KF-035; keeps D-103.
+- **Status:** Accepted (2026-10-26). Answers KF-035; keeps D-103. Amended 2026-11-09 for KF-108:
+  `--template` also takes a registry's template or an archive's URL.
 - **Decision:** `@kirana-style/registry` has one bin, `kirana-style-ui`, which runs its own `main`, so
   `npx @kirana-style/registry init --template vite-react my-app` starts from an empty folder. The
   `kirana-style` CLI still runs the project's copy (D-103). `ui init` installs Kirana's packages,
   the registry among them, at its own release with the package manager's exact flag; a named import
   it adds joins an existing import of the module; the check after writing leaves out
-  `relation-unused` for a design system's own relations; the help lists every option.
+  `relation-unused` for a design system's own relations; the help lists every option. Since KF-108,
+  `--template @acme/<name>` starts from a registry's template, listed in its `templates/index.json`
+  beside its index, and any other value that is not an example's name from a template's archive by
+  URL or path. The archive says what `init` fills in: `"packageManager": "{packageManager}"` in its
+  root `package.json` becomes the package manager running `init` at its version, and
+  `kirana-template.project` names the folder `init` goes on in (`apps/web` in a workspace). The
+  index may give an archive per package manager (`files`), and `init` takes the running one's.
 - **Rationale:** kirana-ui's install test found that the documented `npx kirana-style ui init
   --template …` could not run in an empty folder (the CLI needs the project's registry), that the
   project it made could not run `kirana-style ui` by itself, that `kirana-style` was added as
   `^0.3.3` beside exact `@kirana-style/*` packages, and that every new project printed a
-  `relation-unused` warning no build reports.
+  `relation-unused` warning no build reports. KF-108: kirana-ui composes project skeletons (an app,
+  its tooling, a Turborepo or Vite+ workspace) and its Get Code wrote three commands (`giget`, the
+  install, `init` in `apps/web`) where shadcn/ui's `init --template` is one. The placeholder, not a
+  field left out for `init` to add, because `init` cannot tell a project that needs the field (a
+  Turborepo) from one that does not, and an archive by URL has no index to say so; and because the
+  version written is the one the reader runs, so a skeleton is packed once instead of once per
+  package manager, with no table of package manager releases to keep current.
 - **Trade-off:** two ways in: `npx @kirana-style/registry` before a project exists, `kirana-style ui`
   inside one. Bundling the registry into the CLI would give one, at the cost D-103 refused: a
-  registry client in every project's compiler install.
+  registry client in every project's compiler install. A template's archive opened with `giget`
+  keeps `{packageManager}` as written; a registry that serves `giget` too packs one per package
+  manager under `files`.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
 ### D-112 — A relation may be read where its anchor is not installed
@@ -2215,21 +2230,49 @@ the implementation tracker names its evidence.
   it. A new revision of the protocol is followed by hand.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#component-registry).
 
+### D-129 — In a workspace, `ui` installs into a package the app names
+
+- **Status:** Accepted (2026-11-09) (KF-108, KRN-DX-026, KRN-DX-029).
+- **Decision:** an app's `kirana.config` may say `ui: { workspace: "../../packages/ui" }`, a package
+  of its workspace from the configuration's directory; `ui init --workspace packages/ui`, run in the
+  app with the folder from the workspace's root, writes it. Every `ui` command run in the app then
+  works on that package: its own `kirana.config` holds the other `ui` settings, its aliases start
+  with its `package.json` name (`@workspace/ui/components`, `@workspace/ui/lib`,
+  `@workspace/ui/hooks`), and the items' files, packages, lockfile and check are its. The app keeps
+  what only it can have: Kirana's own setup, the stylesheets and fonts its entry loads, the `<html>`
+  styles and attributes, and `paths` from the package's name to its source in its tsconfig. Both
+  configurations spread the design system's.
+- **Rationale:** shadcn/ui's monorepo template is the layout users bring: `apps/web` imports
+  `@workspace/ui/components/button` from a `packages/ui` that holds the components. Making the
+  package a Kirana project of its own is what the compiler, `kirana-style check` and the lint plugin
+  already expect of a folder with styles: each reads the nearest `kirana.config`, so the package's
+  files check alike from the package, from the workspace's root and in the editor, with no root
+  setting to keep. The app names the package, not the other way round, because the commands run
+  there and one package can serve several apps. The app's build still compiles the package's files
+  with the app's configuration, one per build; spreading the same design-system configuration in
+  both keeps the two readings equal without a configuration per file.
+- **Trade-off:** the package must exist with a name before `init`; the app's `ui` holds `workspace`
+  alone, and a package never names another. A configuration option the app sets beyond the design
+  system's (a class prefix, `libraries`) applies to the package's files in the app's build and not in
+  the package's own check. A path template in `ui.registries` is read from the package's folder,
+  where its configuration is. A `file` item's `target` lands in the package, as every file does.
+- **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#component-registry).
+
 ## Index by document
 
-| Document                                                      | Decisions                                                                                                                                                                                                 |
-| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| the brand notes                                               | D-001                                                                                                                                                                                                     |
-| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101, D-112, D-115, D-117, D-120, D-121, D-122 |
-| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099, D-115, D-117                                                                                                          |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114, D-117, D-119                                    |
-| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                                                           |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116, D-118, D-123                                                                                     |
-| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                                                |
-| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116, D-120, D-124, D-125, D-126, D-127, D-128 |
-| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114, D-123                                                                                                                        |
-| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                                                     |
-| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                                                              |
-| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                                                                                                  |
-| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                                                                                                |
-| the roadmap                                                   | D-033, D-051, D-056                                                                                                                                                                                       |
+| Document                                                      | Decisions                                                                                                                                                                                                        |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| the brand notes                                               | D-001                                                                                                                                                                                                            |
+| [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101, D-112, D-115, D-117, D-120, D-121, D-122        |
+| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099, D-115, D-117                                                                                                                 |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114, D-117, D-119                                           |
+| [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                                                                  |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116, D-118, D-123                                                                                            |
+| [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113                                                                       |
+| [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116, D-120, D-124, D-125, D-126, D-127, D-128, D-129 |
+| [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114, D-123                                                                                                                               |
+| [14-benchmark-methodology](./14-benchmark-methodology.md)     | D-032                                                                                                                                                                                                            |
+| [15-testing-and-conformance](./15-testing-and-conformance.md) | D-032, D-046                                                                                                                                                                                                     |
+| the repository notes                                          | D-029, D-033, D-034, D-040, D-050, D-064                                                                                                                                                                         |
+| the licensing notes                                           | D-002, D-010, D-025, D-044                                                                                                                                                                                       |
+| the roadmap                                                   | D-033, D-051, D-056                                                                                                                                                                                              |

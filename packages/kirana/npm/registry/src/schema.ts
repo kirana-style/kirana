@@ -462,6 +462,60 @@ export const LOCKFILE_SCHEMA: Schema = {
   $defs: definitions,
 }
 
+/** A template's name: an item's, with the double hyphens that join its parts (`vite-react--turbo`). */
+const TEMPLATE_NAME = "[a-z0-9]+(-{1,2}[a-z0-9]+)*"
+
+/** The package managers a `package.json`'s `packageManager` names, a template's archive is for. */
+export const TEMPLATE_MANAGERS = ["npm", "pnpm", "yarn", "bun"] as const
+
+/** A registry's project templates: `templates/index.json`, beside its index (KRN-DX-029). */
+export const TEMPLATES_SCHEMA: Schema = {
+  $schema: DIALECT,
+  $id: `${BASE}/registry-templates.json`,
+  title: "Kirana registry templates",
+  description:
+    "The projects `kirana-style ui init --template @namespace/name` starts from: each a gzipped tar archive, its files under one top folder.",
+  type: "object",
+  required: ["templates"],
+  properties: {
+    $schema: { type: "string" },
+    templates: {
+      type: "array",
+      items: {
+        type: "object",
+        required: ["name"],
+        properties: {
+          name: { type: "string", pattern: `^${TEMPLATE_NAME}$` },
+          title: { type: "string" },
+          description: { type: "string" },
+          file: {
+            type: "string",
+            description:
+              "The archive, relative to this document: for every package manager, or for those `files` does not name.",
+            minLength: 1,
+          },
+          files: {
+            type: "object",
+            description:
+              "An archive for each package manager, relative to this document; `init` takes the one it runs under.",
+            minProperties: 1,
+            properties: Object.fromEntries(
+              TEMPLATE_MANAGERS.map((manager) => [
+                manager,
+                { type: "string", minLength: 1 },
+              ])
+            ),
+            additionalProperties: false,
+          },
+          meta: { type: "object" },
+        },
+        additionalProperties: false,
+      },
+    },
+  },
+  additionalProperties: false,
+}
+
 /** The icon libraries an `<IconPlaceholder>` names an icon for, as shadcn/ui's are. */
 export const ICON_LIBRARIES = [
   "lucide",
@@ -523,6 +577,12 @@ export const SETTINGS_SCHEMA: Schema = {
       ),
       additionalProperties: false,
     },
+    workspace: {
+      type: "string",
+      description:
+        "The workspace package `ui` installs into, from this configuration's directory (`../../packages/ui`): its own configuration holds the other `ui` settings (D-129).",
+      minLength: 1,
+    },
     registries: {
       type: "object",
       description:
@@ -567,3 +627,7 @@ export const SETTINGS_SCHEMA: Schema = {
 export const NAMESPACE_PATTERN = new RegExp(`^@${NAME}$`)
 /** An item as a command names it: `button`, or `@acme/card`. */
 export const REFERENCE_PATTERN = new RegExp(`^(@${NAME}/)?${NAME}$`)
+/** A registry's template as `ui init --template` names it: `@acme/vite-react--turbo`. */
+export const TEMPLATE_REFERENCE_PATTERN = new RegExp(
+  `^@${NAME}/${TEMPLATE_NAME}$`
+)

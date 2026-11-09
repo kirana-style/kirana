@@ -173,7 +173,12 @@ as KRN-DX-026 resolves it (`@acme/card`, or `@acme/index` for an index).
 
 **KRN-DX-026** — Reading a registry: `ui` MUST be read from the nearest `kirana.config.*` at or
 above the working directory, with the compiler's own loader, and `ui.registries` checked before
-anything is fetched (each key a namespace, each template holding `{name}`). `@namespace/name`
+anything is fetched (each key a namespace, each template holding `{name}`). A `ui.workspace` there
+(D-129) MUST be followed: the settings are then the `ui` of the `kirana.config.*` in that folder,
+from the configuration's directory, a package whose `package.json` has a name, and that package is
+the project every `ui` command works on; a `ui` holding other keys beside `workspace`, a package
+without a configuration or a name, or a package whose `ui` names a workspace too, stops the command
+with exit 2. `@namespace/name`
 reads that namespace's registry; a name alone reads `@kirana`'s. A document MUST be fetched over
 `https:`, or `http:` only from the machine itself (`localhost`, `127.0.0.1`, `[::1]`), including
 after redirects; a path or `file:` URL is read from disk. Each document is read afresh, never
@@ -207,6 +212,7 @@ read once (KRN-DX-026). The project's settings under `ui`:
 | iconLibrary | the library each `<IconPlaceholder>` is drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                           |
 | design      | the design system's axis values the project uses (`{ style: "vega", baseColor: "stone" }`), which `ui preset` writes                                   |
 | allDesigns  | `true` to install style modules and design files as written, every design kept, not the registry's builds for `design` (KF-080)                        |
+| workspace   | in an app, the package of its workspace that `ui` installs into, from the configuration's directory, and the only key of the app's `ui` (D-129)        |
 
 An item with `frameworks` and none for the project's framework, or several bases and no `ui.base`,
 MUST stop the command, naming what the item supports. An item's style modules MUST be its
@@ -243,8 +249,20 @@ read or the setup cannot be written, 2 for an unknown option or settings it cann
 `--template <example> [directory]` it MUST first write one of Kirana's examples, as the release
 being run has it, into a new or empty directory (the example's name by default): the release's
 source archive read once, the example's `package.json` named after the directory with every
-`@kirana-style/*` package and `kirana-style` at the release's version. It then checks what it wrote,
-as `add` does. Kirana's packages it installs, `@kirana-style/registry` among them when the project
+`@kirana-style/*` package and `kirana-style` at the release's version. `--template @namespace/name`
+MUST instead read that registry's `templates/index.json` (the document its URL template gives for
+`templates/index`, valid against `registry-templates.json`) and take the entry's archive for the
+package manager running it (`files.<manager>`, the manager read from `npm_config_user_agent`, npm
+when it names none), else its `file`, each relative to the index; a name the index does not list
+exits 1 saying so. Any other value is a template's archive by URL or path. An archive is a gzipped
+tar whose files sit under one top folder, which is left out, as `giget` leaves it; a path that would
+leave the directory stops it. Its root `package.json` is named after the directory; a
+`packageManager` of `{packageManager}` becomes the running package manager at its version (exit 1
+when nothing says which runs); `kirana-template.project` names the folder `init` goes on in (the
+root by default) and is dropped. The template is installed at its root with the package manager its
+`packageManager` names, else the running one, and `init` then goes on in that folder as in any
+project, its `--preset`, `--pointer`, `--rtl` and `--registry` included (KF-108). `--dry-run`
+cannot start from a template (exit 2). It then checks what it wrote, as `add` does. Kirana's packages it installs, `@kirana-style/registry` among them when the project
 lacks it, MUST be at the release's version (unless the design system names one) and recorded
 exactly, with the package manager's exact flag, so the project can run `kirana-style ui` alone
 (D-111). A named import it adds joins the module's existing named import of the same module.
@@ -262,7 +280,20 @@ root document: the one script that renders `<html>`, else the first of `index.ht
 are printed as a step by hand, and `--rtl` also prints that a component library reading the
 direction from a provider needs it. `--no-pointer` and `--no-rtl` take them off; a flag given with
 its `--no-` exits 2. Neither is written to the `ui` settings: no later command rewrites an item for
-them, so `<html>` stays the one place that holds them (KF-077).
+them, so `<html>` stays the one place that holds them (KF-077). `--workspace <folder>`, a package
+of the workspace from its root (the folder whose `package.json` has `workspaces`, or that holds
+`pnpm-workspace.yaml`), MUST make that package the project, for an app that is not the root (D-129):
+the package gets Kirana's configuration, the `ui` settings with aliases from its `package.json`
+name (`<name>/components` for `ui` and `component`, `<name>/lib`, `<name>/hooks`), `paths` from
+`<name>/*` to `./src/*` in its tsconfig (one with the app's `jsx` and `jsxImportSource` when it
+has none), the design system's files, packages and lockfile, the core its files import, and the
+check; the app gets Kirana's own setup and its packages, `ui.workspace` and the configuration
+spread in its `kirana.config.*`, the same `paths` to the package's source in its tsconfig with Vite
+told to read them, and the stylesheets, fonts and `<html>` styles and attributes. What the app gets
+is reported with `app: ` before it. In an app whose `ui.workspace` names a package already, `init`
+works on that package, and a `--workspace` naming another stops it (exit 2). `add`, `update` and
+`preset` run in such an app work on the package as well; the fonts `add` and `preset` install are
+imported in the app, and `preset` sets the app's `<html>`.
 
 **KRN-DX-030** — `kirana-style ui outdated [item…]` and `ui diff [item…]` MUST read each installed
 item (every one in the lockfile by default) again from its registry, place it as installing it now

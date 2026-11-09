@@ -211,6 +211,66 @@ The index is the item named `index`, valid against
 name and each item's name, type, version and bases. `kirana-style ui search`
 reads it.
 
+## Templates
+
+A registry can offer whole projects to start from: an app in the layout you
+support, its tooling, a workspace around it. List them in `templates/index.json`,
+beside the index (the document your URL template gives for `templates/index`),
+valid against
+[its schema](https://kirana.style/schema/registry-templates.json):
+
+```json
+{
+  "$schema": "https://kirana.style/schema/registry-templates.json",
+  "templates": [
+    { "name": "vite-react", "file": "vite-react.tgz" },
+    {
+      "name": "vite-react--turbo",
+      "title": "Vite in a Turborepo",
+      "file": "vite-react--turbo.tgz"
+    }
+  ]
+}
+```
+
+Each archive:
+
+- is a gzipped tar with the project's files under one top folder, as `giget`
+  and `npm pack` read one, at a path relative to `templates/index.json`;
+- can be one per package manager: `files` in place of `file`, keyed by the
+  package manager's name, and `init` takes the one it runs under;
+- is enough alone when its root `package.json` asks for the package manager with
+  `"packageManager": "{packageManager}"`, which `init` fills with the one
+  running it, at its version (a Turborepo needs the field).
+
+In a workspace, the root `package.json` names the app `init` sets up:
+
+```json
+{
+  "name": "my-app",
+  "private": true,
+  "packageManager": "{packageManager}",
+  "workspaces": ["apps/*", "packages/*"],
+  "kirana-template": { "project": "apps/web" }
+}
+```
+
+```bash
+npx @kirana-style/registry init --template @acme/vite-react--turbo my-app --registry @acme=https://acme.dev/r/{name}.json --preset k2bS6
+```
+
+From there `init`:
+
+1. unpacks the archive into `my-app` and names the root package after the folder;
+2. installs the workspace with the package manager its root names, else the one
+   running `init`;
+3. sets `apps/web` up as it sets up any project, with the design system from your
+   registry, a preset, and the pointer and right-to-left flags.
+
+An archive's URL works the same without an index:
+`--template https://acme.dev/r/templates/vite-react.tgz`. `kirana-style ui build`
+writes no template: pack each with your own build, beside what `build` writes.
+
 ## Building it
 
 Write your registry's source as items whose files name where they are read

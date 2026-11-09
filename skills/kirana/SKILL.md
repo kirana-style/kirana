@@ -136,7 +136,11 @@ npx kirana-style ui add dialog --dry-run   # what it would write; then without -
 runs `kirana-style check` on what it wrote. The installed files are the project's own, so edit them:
 `ui diff` shows what changed since, and `ui update` brings the registry's changes in while keeping
 yours. The commands come from `@kirana-style/registry`, a development dependency; a project
-started from nothing uses `npx @kirana-style/registry init --template <example> <directory>`.
+started from nothing uses `npx @kirana-style/registry init --template <name> <directory>`, the name
+one of Kirana's examples, a registry's template (`@acme/vite-react--turbo`) or an archive's URL.
+In a monorepo whose app's `kirana.config` has `ui: { workspace: "../../packages/ui" }`, run the
+commands in the app: they install into that package, which the app imports by its package name
+(`@workspace/ui/components/button`), never into the app's own `@/components`.
 The pointer cursor on buttons and right to left are attributes on `<html>`, `data-pointer` and
 `dir="rtl"`, which `ui init --pointer --rtl` (or `ui preset <code> --pointer`) writes: never a
 `cursor: "pointer"` in a component's styles, and never a physical property for right to left.
