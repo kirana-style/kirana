@@ -27,14 +27,14 @@ condition does: nested in another, beside `media()`, in a relation (`field.withi
 and in recipes. The package has no runtime: the compiler reads the strings and they leave nothing
 behind.
 
-| Subpath           | Library                                                               | Generated from                                                                        |
-| ----------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `./base-ui`       | [Base UI](https://base-ui.com) (`@base-ui/react`)                     | each part's published `*DataAttributes` module, and the open state its mapping writes |
-| `./ark-ui`        | [Ark UI](https://ark-ui.com), on React, Vue, Solid and Svelte         | `@zag-js/docs`, the data attributes of Zag's machines, and their code                 |
-| `./react-aria`    | [React Aria Components](https://react-spectrum.adobe.com/react-aria/) | each component's render props, by their `@selector`                                   |
-| `./reka-ui`       | [Reka UI](https://reka-ui.com), for Vue                               | each part's template, as the package ships it                                         |
-| `./bits-ui`       | [Bits UI](https://bits-ui.com), for Svelte                            | each part's state class, by the types of its `props`                                  |
-| `./ng-primitives` | [Angular Primitives](https://angularprimitives.com) (`ng-primitives`) | each part's data and host bindings, its interactions, and those of what it composes   |
+| Subpath           | Library                                                               | Generated from                                                                                              |
+| ----------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `./base-ui`       | [Base UI](https://base-ui.com) (`@base-ui/react`)                     | each part's published `*DataAttributes` module, and the open state its mapping writes                       |
+| `./ark-ui`        | [Ark UI](https://ark-ui.com), on React, Vue, Solid and Svelte         | `@zag-js/docs`, the data attributes of Zag's machines, and their code                                       |
+| `./react-aria`    | [React Aria Components](https://react-spectrum.adobe.com/react-aria/) | each component's render props, by their `@selector`                                                         |
+| `./reka-ui`       | [Reka UI](https://reka-ui.com), for Vue                               | each part's template, as the package ships it                                                               |
+| `./bits-ui`       | [Bits UI](https://bits-ui.com), for Svelte                            | each part's state class, by the types of its `props`                                                        |
+| `./ng-primitives` | [Angular Primitives](https://angularprimitives.com) (`ng-primitives`) | each part's data and host bindings, its interactions, those of what it composes, and what its portal writes |
 
 Each subpath also exports `exclusive`: the states its library sets one at a time (`checked` and
 `unchecked`, `open` and `closed`), for `conditions.exclusive` in `kirana.config`, so a property set
@@ -70,7 +70,13 @@ a number (`index`) is its attribute's presence. Angular Primitives' states take 
 the type of what they bind (`NgpOrientation`, `NgpPlacement`, `NgpAvatarStatus`), so
 `Tabs.Tabset.orientation.vertical` is `'[data-orientation="vertical"]'`, and a part built on another
 primitive has its states too (`Accordion.Item.open` from the collapsible it calls, `Menu.Item.hover`
-from the button). Ark UI's `orientation` takes its values from Zag's
+from the button). A state written both empty and with a value has a key per value and `any`, the
+attribute's presence whatever its value: Button writes `data-disabled="soft"`, or an empty
+`data-disabled` when it is fully disabled, so `Button.Root.disabled.any` is `"[data-disabled]"` and
+`Button.Root.disabled.soft` `'[data-disabled="soft"]'`, as on every part built on the button
+(`Menu.Item.disabled.any`). The elements Angular Primitives' portal renders have the `enter` and
+`exit` it marks them with as they come and go: an overlay's content (`Popover.Root.enter`,
+`Select.Dropdown.exit`, with the overlay's `instant`), a toast, and a dialog and its overlay. Ark UI's `orientation` takes its values from Zag's
 `Orientation` type (`@zag-js/types`), since Zag's reference describes it in prose. Ark UI's parts
 also have what their prop getter in Zag's code sets and the reference leaves out, through the helpers
 it spreads: Radio Group's `Item`, `ItemText` and the item states of its `ItemControl`. Segment Group,

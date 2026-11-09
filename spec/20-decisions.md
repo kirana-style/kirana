@@ -1528,7 +1528,8 @@ the implementation tracker names its evidence.
 
 - **Status:** Accepted (2026-10-24). Amended 2026-11-04 for KF-099: Angular Primitives' host bindings;
   2026-11-05 for KF-100: a binding's values from the type it reads; 2026-11-09 for KF-102: a part
-  has the states of what it composes.
+  has the states of what it composes; 2026-11-09 for KF-100 and KF-102: a state written both empty
+  and with a value has `any`, and what the portal writes with `setAttribute` is read.
 - **Decision:** `@kirana-style/states` adds Reka UI, Bits UI and Angular Primitives, generated like the
   others by `gen-states.ts` from the pinned packages, but read from their code: Reka UI's shipped
   templates, Bits UI's state classes' `props` types, Angular Primitives' `dataBinding` calls and the
@@ -1547,7 +1548,18 @@ the implementation tracker names its evidence.
   `ngpFocusVisible`) and a directive in its `hostDirectives` (Dialog's `NgpFocusTrap`), each state
   with the values the composed code gives it. `attrBinding` of a `data-*` attribute is read like
   `dataBinding` (Menu's placement, Separator's orientation), except the hints Password writes for
-  password managers.
+  password managers. A `dataBinding` that returns a literal on one branch and anything else on the
+  other (Button's `softDisabled() ? 'soft' : hardDisabled()`) writes the attribute empty too, so the
+  state has `any`, the attribute's presence whatever its value, beside one key per value
+  (`Button.Root.disabled.any` and `.soft`); a part composing it keeps both, and a value named `any`
+  stops the generator. What the library sets with `setAttribute` rather than a binding
+  is read from its code too: a function that sets a presence on the element it is given
+  (`setupExitAnimation`'s `data-enter` and `data-exit`) gives it to the unit that calls it (Dialog
+  hosts `NgpExitAnimation`); what the functions the portal's `NgpPortal` classes call as they attach
+  an element set, and what the overlay sets on its portal's elements (`data-instant`), go to the parts
+  a portal renders: an overlay's content, the part that places itself where the overlay positions it
+  (`overlay.position()`), and a toast, which registers itself through the hook its portal is created
+  with. The generator stops when the portal no longer writes them.
 - **Rationale:** the three document their states only in prose on their sites, so there is no
   declaration to read as there is for Base UI, Zag and React Aria; the code is what sets the attributes,
   pinned and regenerated in CI like the rest.

@@ -125,6 +125,40 @@ describe("@kirana-style/states for Vue, Svelte and Angular libraries", () => {
     expect(ng.exclusive).toContainEqual(["[data-open]", "[data-closed]"])
   })
 
+  it("names a state written bare and with a value, and what a portal writes (KF-100, KF-102)", () => {
+    // Button writes `data-disabled="soft"`, or an empty one when hard-disabled: `any` is the
+    // attribute's presence, whatever its value. A menu item composes the button.
+    expect(ng.Button.Root.disabled).toEqual({
+      any: "[data-disabled]",
+      soft: '[data-disabled="soft"]',
+    })
+    expect(ng.Menu.Item.disabled.any).toBe("[data-disabled]")
+    expect(ng.Menu.ItemCheckbox.disabled.any).toBe("[data-disabled]")
+    expect(ng.Menu.Item.disabled.soft).toBe('[data-disabled="soft"]')
+    // The portal marks the elements it renders as they enter and leave: an overlay's content, which
+    // places itself where the overlay positions it, a toast, and a dialog through `NgpExitAnimation`.
+    for (const part of [
+      ng.Popover.Root,
+      ng.Tooltip.Root,
+      ng.Menu.Root,
+      ng.ContextMenu.Root,
+      ng.PreviewCard.Root,
+      ng.NavigationMenu.Content,
+      ng.Select.Dropdown,
+      ng.Combobox.Dropdown,
+      ng.Toast.Root,
+      ng.Dialog.Root,
+      ng.Dialog.Overlay,
+    ])
+      expect(part).toMatchObject({ enter: "[data-enter]", exit: "[data-exit]" })
+    // The overlay also marks an instant transition on its content.
+    expect(ng.Popover.Root.instant).toBe("[data-instant]")
+    expect(ng.Dialog.Root).not.toHaveProperty("instant")
+    // The trigger and the arrow are not what the portal renders.
+    expect(ng.Popover.Trigger).not.toHaveProperty("enter")
+    expect(ng.Popover.Arrow).not.toHaveProperty("enter")
+  })
+
   it("compiles as condition keys", () => {
     const thumb = css({
       opacity: { [reka.Switch.Root.state.checked]: 1 },

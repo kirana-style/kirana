@@ -63,6 +63,7 @@ export const Ai = {
     dictating: "[data-dictating]",
     dictationSupported: "[data-dictation-supported]",
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -74,6 +75,7 @@ export const Ai = {
     dictating: "[data-dictating]",
     dictationSupported: "[data-dictation-supported]",
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -114,6 +116,7 @@ export const Breadcrumbs = {
 export const Button = {
   Root: {
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -269,6 +272,11 @@ export const Combobox = {
     open: "[data-open]",
     press: "[data-press]",
   },
+  Dropdown: {
+    enter: "[data-enter]",
+    exit: "[data-exit]",
+    instant: "[data-instant]",
+  },
   Input: {
     dirty: "[data-dirty]",
     disabled: "[data-disabled]",
@@ -308,7 +316,10 @@ export const Combobox = {
 
 export const ContextMenu = {
   Root: {
+    enter: "[data-enter]",
+    exit: "[data-exit]",
     focusTrap: "[data-focus-trap]",
+    instant: "[data-instant]",
     overlay: "[data-overlay]",
     placement: {
       top: '[data-placement="top"]',
@@ -327,6 +338,7 @@ export const ContextMenu = {
   },
   Item: {
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -336,6 +348,7 @@ export const ContextMenu = {
   ItemCheckbox: {
     checked: "[data-checked]",
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -348,6 +361,7 @@ export const ContextMenu = {
   ItemRadio: {
     checked: "[data-checked]",
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -375,6 +389,7 @@ export const DatePicker = {
   },
   DateButton: {
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -395,6 +410,7 @@ export const DatePicker = {
   },
   NextMonth: {
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -403,6 +419,7 @@ export const DatePicker = {
   },
   PreviousMonth: {
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -413,7 +430,13 @@ export const DatePicker = {
 
 export const Dialog = {
   Root: {
+    enter: "[data-enter]",
+    exit: "[data-exit]",
     focusTrap: "[data-focus-trap]",
+  },
+  Overlay: {
+    enter: "[data-enter]",
+    exit: "[data-exit]",
   },
 } as const
 
@@ -553,7 +576,10 @@ export const Menu = {
     },
   },
   Root: {
+    enter: "[data-enter]",
+    exit: "[data-exit]",
     focusTrap: "[data-focus-trap]",
+    instant: "[data-instant]",
     overlay: "[data-overlay]",
     placement: {
       top: '[data-placement="top"]',
@@ -575,6 +601,7 @@ export const Menu = {
   },
   Item: {
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -584,6 +611,7 @@ export const Menu = {
   ItemCheckbox: {
     checked: "[data-checked]",
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -593,6 +621,7 @@ export const Menu = {
   ItemRadio: {
     checked: "[data-checked]",
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -619,6 +648,8 @@ export const NavigationMenu = {
     open: "[data-open]",
   },
   Content: {
+    enter: "[data-enter]",
+    exit: "[data-exit]",
     instant: "[data-instant]",
     open: "[data-open]",
     orientation: {
@@ -696,6 +727,7 @@ export const Pagination = {
   },
   Button: {
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -706,6 +738,7 @@ export const Pagination = {
   },
   First: {
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     firstPage: "[data-first-page]",
@@ -715,6 +748,7 @@ export const Pagination = {
   },
   Last: {
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -724,6 +758,7 @@ export const Pagination = {
   },
   Next: {
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     focusVisible: "[data-focus-visible]",
@@ -733,6 +768,7 @@ export const Pagination = {
   },
   Previous: {
     disabled: {
+      any: "[data-disabled]",
       soft: '[data-disabled="soft"]',
     },
     firstPage: "[data-first-page]",
@@ -801,7 +837,10 @@ export const Popover = {
     },
   },
   Root: {
+    enter: "[data-enter]",
+    exit: "[data-exit]",
     focusTrap: "[data-focus-trap]",
+    instant: "[data-instant]",
     overlay: "[data-overlay]",
     placement: {
       top: '[data-placement="top"]',
@@ -840,6 +879,9 @@ export const PreviewCard = {
     },
   },
   Root: {
+    enter: "[data-enter]",
+    exit: "[data-exit]",
+    instant: "[data-instant]",
     overlay: "[data-overlay]",
     placement: {
       top: '[data-placement="top"]',
@@ -980,6 +1022,11 @@ export const Select = {
     pristine: "[data-pristine]",
     touched: "[data-touched]",
     valid: "[data-valid]",
+  },
+  Dropdown: {
+    enter: "[data-enter]",
+    exit: "[data-exit]",
+    instant: "[data-instant]",
   },
   Input: {
     disabled: "[data-disabled]",
@@ -1161,6 +1208,8 @@ export const Textarea = {
 
 export const Toast = {
   Root: {
+    enter: "[data-enter]",
+    exit: "[data-exit]",
     expanded: {
       false: '[data-expanded="false"]',
       true: '[data-expanded="true"]',
@@ -1251,7 +1300,10 @@ export const Tooltip = {
     },
   },
   Root: {
+    enter: "[data-enter]",
+    exit: "[data-exit]",
     hover: "[data-hover]",
+    instant: "[data-instant]",
     overlay: "[data-overlay]",
     placement: {
       top: '[data-placement="top"]',
