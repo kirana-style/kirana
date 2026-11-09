@@ -15,8 +15,37 @@ export const exclusive: string[][] = [
 ]
 
 export const Accordion = {
+  Content: {
+    closed: "[data-closed]",
+    disabled: "[data-disabled]",
+    enter: "[data-enter]",
+    exit: "[data-exit]",
+    open: "[data-open]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
+  },
   Root: {
     disabled: "[data-disabled]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
+  },
+  Item: {
+    closed: "[data-closed]",
+    disabled: "[data-disabled]",
+    open: "[data-open]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
+  },
+  Trigger: {
+    closed: "[data-closed]",
+    disabled: "[data-disabled]",
+    open: "[data-open]",
     orientation: {
       horizontal: '[data-orientation="horizontal"]',
       vertical: '[data-orientation="vertical"]',
@@ -33,11 +62,23 @@ export const Ai = {
   PromptComposerSubmit: {
     dictating: "[data-dictating]",
     dictationSupported: "[data-dictation-supported]",
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
     prompt: "[data-prompt]",
   },
   PromptComposerDictation: {
     dictating: "[data-dictating]",
     dictationSupported: "[data-dictation-supported]",
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
     prompt: "[data-prompt]",
   },
   ThreadViewport: {
@@ -75,6 +116,7 @@ export const Button = {
     disabled: {
       soft: '[data-disabled="soft"]',
     },
+    focusVisible: "[data-focus-visible]",
     hover: "[data-hover]",
     press: "[data-press]",
   },
@@ -83,10 +125,17 @@ export const Button = {
 export const Checkbox = {
   Root: {
     checked: "[data-checked]",
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
     focusVisible: "[data-focus-visible]",
     hover: "[data-hover]",
     indeterminate: "[data-indeterminate]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
     press: "[data-press]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
 } as const
 
@@ -123,8 +172,44 @@ export const Collapsible = {
 } as const
 
 export const Color = {
-  Area: {
+  Slider: {
+    dirty: "[data-dirty]",
     disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
+    pending: "[data-pending]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
+  },
+  SliderTrack: {
+    disabled: "[data-disabled]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
+  },
+  SliderThumb: {
+    disabled: "[data-disabled]",
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
+    press: "[data-press]",
+  },
+  Area: {
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
   AreaThumb: {
     disabled: "[data-disabled]",
@@ -132,8 +217,27 @@ export const Color = {
     hover: "[data-hover]",
     press: "[data-press]",
   },
-  Wheel: {
+  Field: {
+    autofill: "[data-autofill]",
+    dirty: "[data-dirty]",
     disabled: "[data-disabled]",
+    focus: "[data-focus]",
+    hover: "[data-hover]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
+    press: "[data-press]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
+  },
+  Wheel: {
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
   WheelThumb: {
     disabled: "[data-disabled]",
@@ -160,26 +264,42 @@ export const Color = {
 export const Combobox = {
   Button: {
     disabled: "[data-disabled]",
+    hover: "[data-hover]",
     multiple: "[data-multiple]",
     open: "[data-open]",
+    press: "[data-press]",
   },
   Input: {
+    dirty: "[data-dirty]",
     disabled: "[data-disabled]",
+    focus: "[data-focus]",
+    hover: "[data-hover]",
+    invalid: "[data-invalid]",
     multiple: "[data-multiple]",
     open: "[data-open]",
+    pending: "[data-pending]",
+    press: "[data-press]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
   Option: {
     active: "[data-active]",
     disabled: "[data-disabled]",
+    hover: "[data-hover]",
+    press: "[data-press]",
     selected: "[data-selected]",
   },
   Root: {
     dirty: "[data-dirty]",
     disabled: "[data-disabled]",
+    focus: "[data-focus]",
+    hover: "[data-hover]",
     invalid: "[data-invalid]",
     multiple: "[data-multiple]",
     open: "[data-open]",
     pending: "[data-pending]",
+    press: "[data-press]",
     pristine: "[data-pristine]",
     touched: "[data-touched]",
     valid: "[data-valid]",
@@ -187,6 +307,56 @@ export const Combobox = {
 } as const
 
 export const ContextMenu = {
+  Root: {
+    focusTrap: "[data-focus-trap]",
+    overlay: "[data-overlay]",
+    placement: {
+      top: '[data-placement="top"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      right: '[data-placement="right"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottom: '[data-placement="bottom"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      left: '[data-placement="left"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
+  },
+  Item: {
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
+  },
+  ItemCheckbox: {
+    checked: "[data-checked]",
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
+  },
+  ItemIndicator: {
+    checked: "[data-checked]",
+  },
+  ItemRadio: {
+    checked: "[data-checked]",
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
+  },
+  SubmenuTrigger: {
+    open: "[data-open]",
+  },
   Trigger: {
     open: "[data-open]",
   },
@@ -204,7 +374,13 @@ export const DatePicker = {
     disabled: "[data-disabled]",
   },
   DateButton: {
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
     outsideMonth: "[data-outside-month]",
+    press: "[data-press]",
     rangeBetween: "[data-range-between]",
     rangeEnd: "[data-range-end]",
     rangeStart: "[data-range-start]",
@@ -217,12 +393,35 @@ export const DatePicker = {
   Label: {
     disabled: "[data-disabled]",
   },
+  NextMonth: {
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
+  },
+  PreviousMonth: {
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
+  },
+} as const
+
+export const Dialog = {
+  Root: {
+    focusTrap: "[data-focus-trap]",
+  },
 } as const
 
 export const FileUpload = {
   FileDropzone: {
     disabled: "[data-disabled]",
     dragover: "[data-dragover]",
+    hover: "[data-hover]",
   },
   Root: {
     disabled: "[data-disabled]",
@@ -271,6 +470,15 @@ export const FormField = {
       pass: '[data-validator="pass"]',
     },
   },
+  FormControl: {
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
+  },
   Label: {
     dirty: "[data-dirty]",
     disabled: "[data-disabled]",
@@ -284,9 +492,17 @@ export const FormField = {
 
 export const Input = {
   Root: {
+    autofill: "[data-autofill]",
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
     focus: "[data-focus]",
     hover: "[data-hover]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
     press: "[data-press]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
 } as const
 
@@ -301,10 +517,14 @@ export const InputOtp = {
     caret: "[data-caret]",
     filled: "[data-filled]",
     placeholder: "[data-placeholder]",
+    slotIndex: "[data-slot-index]",
   },
 } as const
 
 export const Listbox = {
+  Root: {
+    focusVisible: "[data-focus-visible]",
+  },
   Option: {
     active: "[data-active]",
     disabled: "[data-disabled]",
@@ -332,13 +552,54 @@ export const Menu = {
       leftEnd: '[data-placement="left-end"]',
     },
   },
+  Root: {
+    focusTrap: "[data-focus-trap]",
+    overlay: "[data-overlay]",
+    placement: {
+      top: '[data-placement="top"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      right: '[data-placement="right"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottom: '[data-placement="bottom"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      left: '[data-placement="left"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
+  },
   SubmenuTrigger: {
     open: "[data-open]",
   },
+  Item: {
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
+  },
   ItemCheckbox: {
     checked: "[data-checked]",
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
   },
   ItemRadio: {
+    checked: "[data-checked]",
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
+  },
+  ItemIndicator: {
     checked: "[data-checked]",
   },
 } as const
@@ -400,9 +661,16 @@ export const NumberField = {
     readonly: "[data-readonly]",
   },
   Input: {
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
     focusVisible: "[data-focus-visible]",
     hover: "[data-hover]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
+    pristine: "[data-pristine]",
     readonly: "[data-readonly]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
   Increment: {
     disabled: "[data-disabled]",
@@ -427,20 +695,50 @@ export const Pagination = {
     pageCount: "[data-page-count]",
   },
   Button: {
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
     page: "[data-page]",
+    press: "[data-press]",
     selected: "[data-selected]",
   },
   First: {
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
     firstPage: "[data-first-page]",
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
   },
   Last: {
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
     lastPage: "[data-last-page]",
+    press: "[data-press]",
   },
   Next: {
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
     lastPage: "[data-last-page]",
+    press: "[data-press]",
   },
   Previous: {
+    disabled: {
+      soft: '[data-disabled="soft"]',
+    },
     firstPage: "[data-first-page]",
+    focusVisible: "[data-focus-visible]",
+    hover: "[data-hover]",
+    press: "[data-press]",
   },
 } as const
 
@@ -449,6 +747,17 @@ export const Password = {
     visible: "[data-visible]",
   },
   Input: {
+    autofill: "[data-autofill]",
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
+    focus: "[data-focus]",
+    hover: "[data-hover]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
+    press: "[data-press]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
     visible: "[data-visible]",
   },
   Toggle: {
@@ -457,6 +766,22 @@ export const Password = {
 } as const
 
 export const Popover = {
+  Arrow: {
+    placement: {
+      top: '[data-placement="top"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      right: '[data-placement="right"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottom: '[data-placement="bottom"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      left: '[data-placement="left"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
+  },
   Trigger: {
     disabled: "[data-disabled]",
     open: "[data-open]",
@@ -476,6 +801,7 @@ export const Popover = {
     },
   },
   Root: {
+    focusTrap: "[data-focus-trap]",
     overlay: "[data-overlay]",
     placement: {
       top: '[data-placement="top"]',
@@ -530,6 +856,22 @@ export const PreviewCard = {
       leftEnd: '[data-placement="left-end"]',
     },
   },
+  Arrow: {
+    placement: {
+      top: '[data-placement="top"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      right: '[data-placement="right"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottom: '[data-placement="bottom"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      left: '[data-placement="left"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
+  },
 } as const
 
 export const Progress = {
@@ -557,11 +899,17 @@ export const Progress = {
 
 export const Radio = {
   Group: {
+    dirty: "[data-dirty]",
     disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
     orientation: {
       horizontal: '[data-orientation="horizontal"]',
       vertical: '[data-orientation="vertical"]',
     },
+    pending: "[data-pending]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
   Item: {
     checked: "[data-checked]",
@@ -578,8 +926,15 @@ export const Radio = {
 
 export const Rating = {
   Root: {
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
     hovered: "[data-hovered]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
+    pristine: "[data-pristine]",
     readonly: "[data-readonly]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
   Item: {
     checked: "[data-checked]",
@@ -600,18 +955,31 @@ export const Search = {
 
 export const Select = {
   NativeSelect: {
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
     focus: "[data-focus]",
     focusVisible: "[data-focus-visible]",
     hover: "[data-hover]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
     press: "[data-press]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
   Root: {
+    dirty: "[data-dirty]",
     disabled: "[data-disabled]",
     focus: "[data-focus]",
     hover: "[data-hover]",
+    invalid: "[data-invalid]",
     multiple: "[data-multiple]",
     open: "[data-open]",
+    pending: "[data-pending]",
     press: "[data-press]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
   Input: {
     disabled: "[data-disabled]",
@@ -630,13 +998,28 @@ export const Select = {
   },
 } as const
 
-export const Slider = {
+export const Separator = {
   Root: {
-    disabled: "[data-disabled]",
     orientation: {
       horizontal: '[data-orientation="horizontal"]',
       vertical: '[data-orientation="vertical"]',
     },
+  },
+} as const
+
+export const Slider = {
+  Root: {
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
+    pending: "[data-pending]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
   Range: {
     disabled: "[data-disabled]",
@@ -663,11 +1046,17 @@ export const Slider = {
     },
   },
   RangeSlider: {
+    dirty: "[data-dirty]",
     disabled: "[data-disabled]",
+    invalid: "[data-invalid]",
     orientation: {
       horizontal: '[data-orientation="horizontal"]',
       vertical: '[data-orientation="vertical"]',
     },
+    pending: "[data-pending]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
   RangeSliderRange: {
     disabled: "[data-disabled]",
@@ -702,10 +1091,16 @@ export const Slider = {
 export const Switch = {
   Root: {
     checked: "[data-checked]",
+    dirty: "[data-dirty]",
     disabled: "[data-disabled]",
     focusVisible: "[data-focus-visible]",
     hover: "[data-hover]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
     press: "[data-press]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
   Thumb: {
     checked: "[data-checked]",
@@ -751,9 +1146,16 @@ export const Tabs = {
 
 export const Textarea = {
   Root: {
+    dirty: "[data-dirty]",
+    disabled: "[data-disabled]",
     focus: "[data-focus]",
     hover: "[data-hover]",
+    invalid: "[data-invalid]",
+    pending: "[data-pending]",
     press: "[data-press]",
+    pristine: "[data-pristine]",
+    touched: "[data-touched]",
+    valid: "[data-valid]",
   },
 } as const
 
@@ -832,7 +1234,24 @@ export const Toolbar = {
 } as const
 
 export const Tooltip = {
+  Arrow: {
+    placement: {
+      top: '[data-placement="top"]',
+      topStart: '[data-placement="top-start"]',
+      topEnd: '[data-placement="top-end"]',
+      right: '[data-placement="right"]',
+      rightStart: '[data-placement="right-start"]',
+      rightEnd: '[data-placement="right-end"]',
+      bottom: '[data-placement="bottom"]',
+      bottomStart: '[data-placement="bottom-start"]',
+      bottomEnd: '[data-placement="bottom-end"]',
+      left: '[data-placement="left"]',
+      leftStart: '[data-placement="left-start"]',
+      leftEnd: '[data-placement="left-end"]',
+    },
+  },
   Root: {
+    hover: "[data-hover]",
     overlay: "[data-overlay]",
     placement: {
       top: '[data-placement="top"]',

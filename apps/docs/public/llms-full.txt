@@ -2071,7 +2071,7 @@ there. CI regenerates them and checks every name against the library's exports.
 | `@kirana-style/states/react-aria`    | React Aria Components                   | each component's render props, by their `@selector`                               |
 | `@kirana-style/states/reka-ui`       | Reka UI, for Vue                        | each part's template, as the package ships it                                     |
 | `@kirana-style/states/bits-ui`       | Bits UI, for Svelte                     | each part's state class, by the types of its `props`                              |
-| `@kirana-style/states/ng-primitives` | Angular Primitives                      | each primitive's data and host bindings, and the interactions it turns on         |
+| `@kirana-style/states/ng-primitives` | Angular Primitives                      | each part's data and host bindings, its interactions, and what it composes        |
 
 They differ where the libraries do:
 
@@ -2107,6 +2107,15 @@ They differ where the libraries do:
   A state whose type fixes its values has one key per value, from the
   library's own types: `Tabs.Tabset.orientation.vertical`,
   `Menu.Trigger.placement.bottomStart`, `Avatar.Root.status.loaded`.
+
+  A part built on another primitive has that primitive's states too, at any
+  depth:
+  - the accordion's item, trigger and content call the collapsible's, so
+    `Accordion.Trigger.disabled` is `[data-disabled]`;
+  - a menu item calls the button's (`Menu.Item.hover`), and a checkbox the
+    form control's (`Checkbox.Root.invalid`);
+  - a directive has its host directives' states, as the dialog has its focus
+    trap's (`Dialog.Root.focusTrap`).
 
 | State                     | Example                       | Selector                     |
 | ------------------------- | ----------------------------- | ---------------------------- |

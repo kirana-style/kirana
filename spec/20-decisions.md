@@ -1522,7 +1522,8 @@ the implementation tracker names its evidence.
 ### D-102 — Vocabularies read from code a library ships
 
 - **Status:** Accepted (2026-10-24). Amended 2026-11-04 for KF-099: Angular Primitives' host bindings;
-  2026-11-05 for KF-100: a binding's values from the type it reads.
+  2026-11-05 for KF-100: a binding's values from the type it reads; 2026-11-09 for KF-102: a part
+  has the states of what it composes.
 - **Decision:** `@kirana-style/states` adds Reka UI, Bits UI and Angular Primitives, generated like the
   others by `gen-states.ts` from the pinned packages, but read from their code: Reka UI's shipped
   templates, Bits UI's state classes' `props` types, Angular Primitives' `dataBinding` calls and the
@@ -1534,7 +1535,14 @@ the implementation tracker names its evidence.
   those values itself, and it stops on a binding it cannot read. A `dataBinding` that returns no
   literal takes the values of the type it reads, through aliases and string enums in any entry point
   (`orientation?: Signal<NgpOrientation>`, `signal(NgpAvatarStatus.Idle)`): one key per value, as
-  Ark UI's and Base UI's `orientation` have. A boolean, a number or free text stays a presence.
+  Ark UI's and Base UI's `orientation` have. A boolean, a number or free text stays a presence. A part
+  is an exported directive, and its states are those its class binds and those of everything it
+  composes, followed to any depth: a primitive's function it calls (`ngpAccordionItem` calls
+  `ngpCollapsible`, which binds `data-open` on the item), an `ngp…` function (`ngpFormControl`,
+  `ngpFocusVisible`) and a directive in its `hostDirectives` (Dialog's `NgpFocusTrap`), each state
+  with the values the composed code gives it. `attrBinding` of a `data-*` attribute is read like
+  `dataBinding` (Menu's placement, Separator's orientation), except the hints Password writes for
+  password managers.
 - **Rationale:** the three document their states only in prose on their sites, so there is no
   declaration to read as there is for Base UI, Zag and React Aria; the code is what sets the attributes,
   pinned and regenerated in CI like the rest.
