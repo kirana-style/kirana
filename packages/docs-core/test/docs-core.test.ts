@@ -189,13 +189,15 @@ describe("plainInstall", () => {
         "yarn dlx tool@latest init",
         "# bun",
         "bunx --bun tool@latest init",
+        "# vp",
+        "vpx tool@latest init",
         "# deno",
         "deno run -A npm:tool@latest init",
         "```",
       ].join("\n")
     )
     expect(plainInstall('<!-- ::install exec="tool check" -->')).toContain(
-      "# pnpm\npnpm exec tool check\n# yarn\nyarn tool check\n# bun\nbunx tool check"
+      "# pnpm\npnpm exec tool check\n# yarn\nyarn tool check\n# bun\nbunx tool check\n# vp\nvp exec tool check"
     )
   })
 })
@@ -207,6 +209,17 @@ describe("installLines", () => {
       "deno add -D npm:z",
     ])
     expect(installLines("bun", { dev: "z" })).toEqual(["bun add -d z"])
+  })
+
+  it("installs with Vite+'s own commands, which drive the project's package manager", () => {
+    expect(
+      installLines("vp", {
+        packages: "x",
+        dev: "z",
+        run: "t init",
+        exec: "t check",
+      })
+    ).toEqual(["vp add x", "vp add -D z", "vpx t init", "vp exec t check"])
   })
 })
 
