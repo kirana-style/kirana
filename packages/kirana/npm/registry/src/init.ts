@@ -37,9 +37,22 @@ import {
 import type { Placed } from "./add.ts"
 import { parseArgs } from "./command.ts"
 import type { Options } from "./command.ts"
-import { axisItems, importFonts, STYLESHEET } from "./font.ts"
+import {
+  axisItems,
+  importFonts,
+  loadsLine,
+  stylesheetEntry,
+  withStylesheet,
+} from "./font.ts"
 import { readLockfile, writeLockfile } from "./lockfile.ts"
-import { aliasDirectory, frameworkOf, pathsOf, readProject } from "./project.ts"
+import {
+  aliasDirectory,
+  frameworkOf,
+  generatorOf,
+  pathsOf,
+  readProject,
+} from "./project.ts"
+import type { Generator } from "./project.ts"
 import { read, RegistryError } from "./read.ts"
 import { FRAMEWORKS, NAMESPACE_PATTERN, REFERENCE_PATTERN } from "./schema.ts"
 import { loadSettings } from "./settings.ts"
@@ -73,16 +86,21 @@ const CONFIGS = [
 class Files {
   readonly changed = new Map<string, string>()
   readonly root: string
+  /** Files a framework generates on its first run, as it will write them, until it has (KF-107). */
+  readonly generated: Readonly<Record<string, string>>
 
-  constructor(root: string) {
+  constructor(root: string, generated: Readonly<Record<string, string>> = {}) {
     this.root = root
+    this.generated = generated
   }
 
   read(file: string): string | undefined {
     const absolute = path.join(this.root, file)
     return (
       this.changed.get(file) ??
-      (existsSync(absolute) ? readFileSync(absolute, "utf8") : undefined)
+      (existsSync(absolute)
+        ? readFileSync(absolute, "utf8")
+        : this.generated[file])
     )
   }
 
@@ -233,15 +251,135 @@ const NEXT_TSCONFIG = `${JSON.stringify(
 /** The packages Next.js needs to compile TypeScript, which it installs itself only outside CI. */
 const NEXT_TYPESCRIPT = ["typescript", "@types/react", "@types/node"]
 
-/** A Next.js app without a `tsconfig.json`, which `init` gives one (KF-046). */
-const untypedNext = (root: string, listed: Readonly<Record<string, string>>) =>
-  "next" in listed && !existsSync(path.join(root, "tsconfig.json"))
+/** The `tsconfig.json` a project without one is given, and what the report says of it. */
+type Starter = Pick<Generator, "tsconfig" | "about">
+
+/** Next.js's, for a JavaScript app, which has none until `next` writes one (KF-046). */
+const NEXT_STARTER: Starter = {
+  tsconfig: NEXT_TSCONFIG,
+  about: "Next.js's compiler options, as `next` would write them",
+}
+
+/** The starter `tsconfig.json` for a project without one whose framework has one. */
+function starterOf(
+  root: string,
+  listed: Readonly<Record<string, string>>,
+  generator: Generator | undefined
+): Starter | undefined {
+  if (existsSync(path.join(root, "tsconfig.json"))) return undefined
+  return "next" in listed ? NEXT_STARTER : generator
+}
+
+/**
+ * The generator's script in package.json, as the framework's starter has it, so that an install
+ * writes the tsconfig the aliases are in (KF-107); `installPackages` runs it once the packages are in.
+ */
+function generatorScript(
+  files: Files,
+  generator: Generator,
+  report: string[],
+  manual: string[]
+): void {
+  const { name, command, runs } = generator.script
+  const text = files.read("package.json")!
+  const json = JSON.parse(text) as { scripts?: Record<string, string> }
+  const existing = json.scripts?.[name]
+  if (existing === undefined) {
+    json.scripts = { ...json.scripts, [name]: command }
+    const indent = /\n([ \t]+)"/.exec(text)?.[1] ?? "  "
+    files.write("package.json", `${JSON.stringify(json, null, indent)}\n`)
+    report.push(
+      `package.json: scripts.${name} ${command}, as the starter has it`
+    )
+  } else if (!existing.includes(runs))
+    manual.push(
+      `package.json: scripts.${name} does not run ${runs}: add it and run it, for the tsconfig the aliases are in`
+    )
+}
+
+/**
+ * Whether a tsconfig's `include` takes `file`, relative and with forward slashes, as TypeScript
+ * reads it: `*` within a folder, `**` across folders, a last segment without a wildcard or an
+ * extension as everything in that folder, and a pattern without an extension as scripts only.
+ */
+function compiles(include: readonly string[], file: string): boolean {
+  return include.some((entry) => {
+    const pattern = entry.replace(/^\.\//, "").replace(/\/$/, "")
+    const last = pattern.split("/").at(-1)!
+    const extension = /\.\w+$/.test(last)
+    const glob = extension || last.includes("*") ? pattern : `${pattern}/**/*`
+    const source = glob
+      .split("/")
+      .map((segment) =>
+        segment === "**"
+          ? "(?:[^/]+/)*"
+          : `${segment.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replaceAll("*", "[^/]*")}/`
+      )
+      .join("")
+    return (
+      new RegExp(`^${source.slice(0, -1)}$`).test(file) &&
+      (extension || /\.[cm]?[jt]sx?$/.test(file))
+    )
+  })
+}
+
+/** The files a framework's components are in, which no `include` pattern without their extension takes. */
+const COMPONENTS: Partial<Record<Framework, string>> = {
+  vue: "vue",
+  svelte: "svelte",
+}
+
+/**
+ * The folder `@/*` maps to, and what to add to the tsconfig's `include` so that it compiles what
+ * goes there (KF-107): `src` when the project has one, else its root; but `app` where `include`
+ * names it without either (React Router's, the folder its template's `~/*` maps). A folder `include`
+ * leaves out is added to it, and so are the framework's component files where its patterns take
+ * scripts only (every `.svelte` file under SvelteKit's `src`): Vite resolves no alias in a file
+ * the tsconfig does not compile.
+ */
+function sourceOf(
+  root: string,
+  text: string,
+  settings: Settings
+): { folder: string; inside: boolean; include: string[] } {
+  const base = existsSync(path.join(root, "src")) ? "src" : "."
+  const { include } = readJsonc(text) as { include?: string[] }
+  if (include === undefined) return { folder: base, inside: false, include: [] }
+  const directories = (folder: string) =>
+    Object.values(settings.aliases)
+      .filter((alias) => alias!.startsWith("@/"))
+      .map((alias) => path.posix.join(folder, alias!.slice(2)))
+  const left = (patterns: readonly string[], folder: string, file: string) =>
+    directories(folder).filter(
+      (directory) => !compiles(patterns, `${directory}/${file}`)
+    )
+  const inside =
+    left(include, base, "index.ts").length > 0 &&
+    include.some((entry) => /^(\.\/)?app\/?$/.test(entry)) &&
+    existsSync(path.join(root, "app"))
+  const folder = inside ? "app" : base
+  const added = [
+    ...new Set(
+      left(include, folder, "index.ts").map((directory) =>
+        folder === "." ? directory.split("/")[0]! : folder
+      )
+    ),
+  ]
+  const component = COMPONENTS[settings.framework!]
+  if (
+    component !== undefined &&
+    left([...include, ...added], folder, `index.${component}`).length > 0
+  )
+    added.push(`${folder === "." ? "" : `${folder}/`}**/*.${component}`)
+  return { folder, inside, include: added }
+}
 
 /**
  * Aliases the project can resolve (D-108): `ui.aliases` as they are when its tsconfig maps them;
  * else following the prefix its `paths` already use (`~/*`, as TanStack Start's template has); else
- * `"@/*"` added to the tsconfig that holds its compiler options, with Vite told to read it; a
- * Next.js app without one gets one first.
+ * `"@/*"` added to the tsconfig that holds its compiler options, inside what it compiles, with Vite
+ * told to read it. A project without a tsconfig whose framework's starter has one gets that first
+ * (Next.js's, KF-046; Nuxt's and SvelteKit's, KF-107).
  */
 function prepareAliases(
   files: Files,
@@ -249,22 +387,20 @@ function prepareAliases(
   chosen: Chosen,
   report: string[],
   manual: string[],
-  next: boolean
+  starter: Starter | undefined
 ): Settings {
   const root = files.root
   const planned = files.absolute
+  if (starter) {
+    files.write("tsconfig.json", starter.tsconfig)
+    report.push(`tsconfig.json: ${starter.about}`)
+  }
   try {
     // Every type but `page` has a default alias.
     aliasDirectory(root, settings.aliases.ui!, planned)
     return settings
   } catch {
     // Not mapped: below.
-  }
-  if (next) {
-    files.write("tsconfig.json", NEXT_TSCONFIG)
-    report.push(
-      "tsconfig.json: Next.js's compiler options, as `next` would write them"
-    )
   }
   const found = pathsOf(path.join(root, "tsconfig.json"), planned)
   if (found) {
@@ -296,7 +432,12 @@ function prepareAliases(
   )
   // None to edit: placing the files then stops, saying what to add.
   if (tsconfig === undefined) return settings
-  const source = existsSync(path.join(root, "src")) ? "./src/*" : "./*"
+  const { folder, inside, include } = sourceOf(
+    root,
+    files.read(tsconfig)!,
+    settings
+  )
+  const source = folder === "." ? "./*" : `./${folder}/*`
   files.write(
     tsconfig,
     files
@@ -306,7 +447,29 @@ function prepareAliases(
         (open) => `${open}\n    "paths": { "@/*": ["${source}"] },`
       )
   )
-  report.push(`${tsconfig}: paths "@/*": ["${source}"]`)
+  report.push(
+    `${tsconfig}: paths "@/*": ["${source}"]${inside ? ", inside its include" : ""}`
+  )
+  if (include.length > 0) {
+    const listed = include.join(", ")
+    // After the last entry, spaced as the entries are.
+    const last = /("include"\s*:\s*\[[^\]]*?)(\s*)("[^"]*")(\s*\])/
+    const before = files.read(tsconfig)!
+    if (last.test(before)) {
+      files.write(
+        tsconfig,
+        before.replace(
+          last,
+          (_, open: string, space: string, entry: string, close: string) =>
+            `${open}${space}${[entry, ...include.map((added) => `"${added}"`)].join(`,${space || " "}`)}${close}`
+        )
+      )
+      report.push(`${tsconfig}: include takes ${listed}, where ui installs`)
+    } else
+      manual.push(
+        `${tsconfig}: add ${listed} to its include, so TypeScript, Vite and Kirana compile what ui installs`
+      )
+  }
   const vite = [
     "vite.config.ts",
     "vite.config.mts",
@@ -527,23 +690,23 @@ function setUp(
     return `${settings.aliases[type as keyof Settings["aliases"]]}/${rest}`
   }
   const scripts = files.scripts()
-  const entry = scripts.find((file) => files.read(file)!.includes(STYLESHEET))
+  const loader = stylesheetEntry(scripts, (file) => files.read(file))
+  // A configuration that lists the stylesheet (Nuxt's) runs in Node: `<html>` is not its to set.
+  const entry = loader?.listed ? undefined : loader?.file
   // Where Kirana's stylesheet is a PostCSS directive (`@kirana;`, as in Next.js's globals.css).
   const cssEntry =
-    entry === undefined
+    loader === undefined
       ? files
           .stylesheets()
           .find((file) => /^[ \t]*@kirana\b/m.test(files.read(file)!))
       : undefined
   for (const stylesheet of setup.stylesheets ?? []) {
     const specifier = aliased(stylesheet)
-    if (entry !== undefined) {
-      if (!files.read(entry)!.includes(specifier)) {
-        files.write(
-          entry,
-          addImport(files.read(entry)!, `import "${specifier}"`)
-        )
-        report.push(`${entry}: imports ${specifier}`)
+    if (loader !== undefined) {
+      const { file, listed } = loader
+      if (!files.read(file)!.includes(specifier)) {
+        files.write(file, withStylesheet(files.read(file)!, specifier, listed))
+        report.push(loadsLine(file, specifier, listed))
       }
     } else if (cssEntry !== undefined) {
       const target = installedOf(stylesheet, placed)
@@ -711,9 +874,11 @@ export async function runInit(
   }
 
   // Kirana's own setup, as `kirana-style init` plans it.
-  const next = untypedNext(root, project.listed)
-  const kirana = planInit(root, { typescript: next })
-  const files = new Files(root)
+  const generator = generatorOf(root, project.listed)
+  const starter = starterOf(root, project.listed, generator)
+  const next = starter === NEXT_STARTER
+  const kirana = planInit(root, { typescript: starter !== undefined })
+  const files = new Files(root, generator?.generated)
   const report: string[] = []
   const manual: string[] = []
   for (const step of kirana.steps) {
@@ -755,7 +920,8 @@ export async function runInit(
       settings = { ...settings, ...given }
       fonts.push(...axisItems(item.design!, given.design, design))
     }
-    settings = prepareAliases(files, settings, chosen, report, manual, next)
+    settings = prepareAliases(files, settings, chosen, report, manual, starter)
+    if (generator) generatorScript(files, generator, report, manual)
     planned = await plan([design, ...fonts], settings, project, options)
     placed = place(planned, settings, project, files.absolute)
     const system = planned.find((entry) => entry.key === design)!.item

@@ -1,7 +1,7 @@
 /**
  * What `ui add` reads from the project it installs into (KRN-DX-028, D-108): its framework, the
  * packages it lists and its package manager, and the directory each import alias stands for, from
- * `tsconfig.json`'s `paths`.
+ * `tsconfig.json`'s `paths`, which Nuxt and SvelteKit generate (KF-107).
  */
 import { existsSync, readFileSync, statSync } from "node:fs"
 import path from "node:path"
@@ -133,4 +133,127 @@ export function aliasDirectory(
   throw new RegistryError(
     `${alias}: no compilerOptions.paths entry in tsconfig.json maps it to a directory (for example "@/*": ["./src/*"])`
   )
+}
+
+/**
+ * A framework that writes, on its first run, the tsconfig a project's own extends or references
+ * (KF-107): the `tsconfig.json` its starter has, the package.json script its starter runs the
+ * generator from, and the generated tsconfigs that hold its aliases, as it will write them, for the
+ * files to be placed before it has run.
+ */
+export type Generator = {
+  tsconfig: string
+  /** What `init`'s report says of the starter's tsconfig. */
+  about: string
+  script: { name: string; command: string; runs: string }
+  /** A file the generator writes: there once it has run. */
+  marker: string
+  generated: Record<string, string>
+}
+
+/** Nuxt 4's starter, which references what `nuxt prepare` writes. */
+const NUXT_TSCONFIG = `${JSON.stringify(
+  {
+    files: [],
+    references: [
+      { path: "./.nuxt/tsconfig.app.json" },
+      { path: "./.nuxt/tsconfig.server.json" },
+      { path: "./.nuxt/tsconfig.shared.json" },
+      { path: "./.nuxt/tsconfig.node.json" },
+    ],
+  },
+  null,
+  2
+)}\n`
+
+/** SvelteKit 3's starter (`sv create`), which extends what `svelte-kit sync` writes. */
+const SVELTEKIT_TSCONFIG = `${JSON.stringify(
+  {
+    extends: "$app/tsconfig",
+    compilerOptions: { strict: true },
+    include: ["src", "vite.config.ts"],
+  },
+  null,
+  2
+)}\n`
+
+/**
+ * Nuxt or SvelteKit 3, from the packages the project lists. Nuxt maps `@/*` and `~/*` to its source
+ * folder, `app/` from Nuxt 4 on, in the tsconfigs it generates, and resolves them in Vite itself;
+ * SvelteKit 3 maps none (`$lib` became `#lib`, a package.json import), so `@/*` goes into the root
+ * tsconfig.
+ */
+export function generatorOf(
+  root: string,
+  listed: Readonly<Record<string, string>>
+): Generator | undefined {
+  if ("nuxt" in listed) {
+    const source = existsSync(path.join(root, "app")) ? "../app" : ".."
+    const paths = JSON.stringify({
+      compilerOptions: {
+        paths: {
+          "~": [source],
+          "~/*": [`${source}/*`],
+          "@": [source],
+          "@/*": [`${source}/*`],
+        },
+      },
+    })
+    return {
+      tsconfig: NUXT_TSCONFIG,
+      about: "Nuxt's, referencing the tsconfigs nuxt prepare writes in .nuxt",
+      script: {
+        name: "postinstall",
+        command: "nuxt prepare",
+        runs: "nuxt prepare",
+      },
+      marker: ".nuxt/tsconfig.app.json",
+      // Nuxt 3's starter extends `.nuxt/tsconfig.json`, which Nuxt 4 still writes.
+      generated: {
+        ".nuxt/tsconfig.app.json": paths,
+        ".nuxt/tsconfig.json": paths,
+      },
+    }
+  }
+  const kit = listed["@sveltejs/kit"]
+  // SvelteKit 2's is `.svelte-kit/tsconfig.json`, whose `$lib` a root `paths` would hide.
+  if (kit === undefined || Number(/\d+/.exec(kit)?.[0] ?? 3) < 3)
+    return undefined
+  return {
+    tsconfig: SVELTEKIT_TSCONFIG,
+    about: "SvelteKit's, extending the $app/tsconfig svelte-kit sync writes",
+    script: {
+      name: "prepare",
+      command: "svelte-kit sync || echo ''",
+      runs: "svelte-kit sync",
+    },
+    marker: "node_modules/$app/tsconfig.json",
+    generated: {},
+  }
+}
+
+/**
+ * The command that runs the framework's generator, when the tsconfig it writes is not there: by the
+ * script its starter runs it from, which `init` writes. The aliases are in that tsconfig, and an
+ * install of a package can remove it (npm prunes SvelteKit's `node_modules/$app`), so every command
+ * that installs packages runs this after them, before its check (KF-107).
+ */
+export function generateCommand(
+  root: string,
+  manager: PackageManager
+): string | undefined {
+  const packageJson = readPackage(root)
+  const generator = generatorOf(root, {
+    ...packageJson.dependencies,
+    ...packageJson.devDependencies,
+  })
+  if (
+    generator === undefined ||
+    existsSync(path.join(root, generator.marker)) ||
+    !packageJson.scripts?.[generator.script.name]?.includes(
+      generator.script.runs
+    )
+  )
+    return undefined
+  return `${manager === "deno" ? "deno task" : `${manager} run`} ${generator.script.name}`
 }

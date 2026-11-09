@@ -127,9 +127,11 @@ function withCore(directory: string): string {
   return directory
 }
 
-function project(files: Record<string, string>): string {
+/** A project with these files; one given as undefined is left out of a fixture that has it. */
+function project(files: Record<string, string | undefined>): string {
   const directory = mkdtempSync(path.join(root, "project-"))
   for (const [name, text] of Object.entries(files)) {
+    if (text === undefined) continue
     mkdirSync(path.dirname(path.join(directory, name)), { recursive: true })
     writeFileSync(path.join(directory, name), text)
   }
@@ -891,4 +893,355 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     expect(existsSync(path.join(cwd, "kirana.config.ts"))).toBe(true)
     expect(existsSync(path.join(cwd, "kirana-style.lock.json"))).toBe(false)
   })
+})
+
+/** React Router's example: its tsconfig compiles `app` and the root's scripts, not the root's folders. */
+function reactRouter(extra: Record<string, string | undefined> = {}) {
+  return project({
+    "package.json": JSON.stringify({
+      type: "module",
+      dependencies: { react: "^19.0.0", "react-router": "^8.0.0" },
+      devDependencies: { "@react-router/dev": "^8.0.0", vite: "^8.0.0" },
+    }),
+    "vite.config.ts":
+      'import { reactRouter } from "@react-router/dev/vite"\nimport { defineConfig } from "vite"\n\nexport default defineConfig({\n  plugins: [reactRouter()],\n})\n',
+    "tsconfig.json":
+      '{\n  "include": ["app", "*.ts", ".react-router/types/**/*"],\n  "compilerOptions": { "noEmit": true }\n}\n',
+    "app/root.tsx":
+      'import "@kirana-style/core/stylesheet.css"\n\nexport function Layout({ children }: { children: React.ReactNode }) {\n  return (\n    <html lang="en">\n      <body>{children}</body>\n    </html>\n  )\n}\n',
+    "acme/kit.json": JSON.stringify(kit()),
+    "acme/index.json": JSON.stringify(INDEX),
+    ...extra,
+  })
+}
+
+/** Nuxt's example: no tsconfig until `nuxt prepare` writes `.nuxt`'s, and the stylesheet in `css`. */
+function nuxt(extra: Record<string, string> = {}, source = "app/") {
+  return project({
+    "package.json": `${JSON.stringify(
+      {
+        type: "module",
+        scripts: { build: "nuxt generate" },
+        dependencies: { nuxt: "^4.5.0", vue: "^3.5.0" },
+        devDependencies: { "@kirana-style/vite": "0.4.0" },
+      },
+      null,
+      2
+    )}\n`,
+    "nuxt.config.ts":
+      'import kirana from "@kirana-style/vite"\n\nexport default defineNuxtConfig({\n  css: ["@kirana-style/core/stylesheet.css"],\n  vite: { plugins: [kirana()] },\n})\n',
+    [`${source}app.vue`]: "<template><p>Styled by Kirana.</p></template>\n",
+    "acme/kit.json": JSON.stringify(kit()),
+    "acme/index.json": JSON.stringify(INDEX),
+    ...extra,
+  })
+}
+
+/** SvelteKit 3's example: no tsconfig until `svelte-kit sync` writes `$app/tsconfig`. */
+function svelteKit(extra: Record<string, string> = {}, kitVersion = "^3.1.0") {
+  return project({
+    "package.json": `${JSON.stringify(
+      {
+        type: "module",
+        scripts: { build: "vite build" },
+        devDependencies: {
+          "@sveltejs/kit": kitVersion,
+          svelte: "^5.0.0",
+          vite: "^8.0.0",
+        },
+      },
+      null,
+      "\t"
+    )}\n`,
+    "vite.config.ts":
+      'import { sveltekit } from "@sveltejs/kit/vite"\nimport { defineConfig } from "vite"\n\nexport default defineConfig({\n  plugins: [sveltekit()],\n})\n',
+    "src/routes/+layout.svelte":
+      '<script lang="ts">\n  import "@kirana-style/core/stylesheet.css"\n</script>\n',
+    "acme/kit.json": JSON.stringify(kit()),
+    "acme/index.json": JSON.stringify(INDEX),
+    ...extra,
+  })
+}
+
+describe("KF-107 ui init where the tsconfig compiles one folder, or the framework generates it", () => {
+  it("maps @/* inside the include of React Router's tsconfig, to app/", async () => {
+    const cwd = reactRouter()
+    const { code, text } = await init(cwd, "--registry", ACME)
+    expect(code).toBe(0)
+    expect(text).toContain("  + app/lib/kit/config.ts\n")
+    expect(text).toContain(
+      'setup: tsconfig.json: paths "@/*": ["./app/*"], inside its include\n'
+    )
+    expect(text).toContain("setup: app/root.tsx: <html sx={htmlStyles}>\n")
+    expect(text).not.toContain("by hand:")
+    expect(read(cwd, "tsconfig.json")).toContain(
+      '"paths": { "@/*": ["./app/*"] },'
+    )
+    expect(read(cwd, "kirana.config.ts")).toContain(
+      'import { kitConfig } from "./app/lib/kit/config.ts"'
+    )
+    // An `app` include names that is not there, and a `src` it leaves out: `src` is added to it.
+    const left = reactRouter({
+      "tsconfig.json":
+        '{ "include": ["./app/", "src/*.ts"], "compilerOptions": {} }',
+      "app/root.tsx": undefined,
+      "src/main.ts": "",
+    })
+    const added = await init(left, "--registry", ACME)
+    expect(added.text).toContain(
+      'setup: tsconfig.json: paths "@/*": ["./src/*"]\nsetup: tsconfig.json: include takes src, where ui installs\n'
+    )
+    expect(read(left, "tsconfig.json")).toContain(
+      '"include": ["./app/", "src/*.ts", "src"]'
+    )
+    // The root's folders, each once; an include with no entry to follow is said, not edited.
+    const rootFolders = reactRouter({
+      "tsconfig.json": '{ "include": ["*.ts"], "compilerOptions": {} }',
+    })
+    expect((await init(rootFolders, "--registry", ACME)).text).toContain(
+      "setup: tsconfig.json: include takes components, lib, hooks, where ui installs\n"
+    )
+    const empty = reactRouter({
+      "tsconfig.json": '{ "include": [], "compilerOptions": {} }',
+    })
+    expect((await init(empty, "--registry", ACME)).text).toContain(
+      "by hand: tsconfig.json: add components, lib, hooks to its include, so TypeScript, Vite and Kirana compile what ui installs\n"
+    )
+  })
+
+  it("adds the framework's component files to an include whose patterns take scripts only", async () => {
+    // A folder in include takes only scripts, as TypeScript reads it: Vite would resolve no alias
+    // in a .vue file there.
+    const vue = vite({
+      "package.json": JSON.stringify({
+        dependencies: { vue: "^3.5.0" },
+        devDependencies: { vite: "^8.0.0" },
+      }),
+      "tsconfig.json": '{ "compilerOptions": {}, "include": ["src"] }',
+    })
+    const { text } = await init(vue, "--registry", ACME)
+    expect(text).toContain(
+      "setup: tsconfig.json: include takes src/**/*.vue, where ui installs\n"
+    )
+    expect(read(vue, "tsconfig.json")).toContain(
+      '"include": ["src", "src/**/*.vue"]'
+    )
+    // At the root, after the last of several entries.
+    const atRoot = project({
+      "package.json": JSON.stringify({ dependencies: { vue: "3" } }),
+      "tsconfig.json":
+        '{ "compilerOptions": {}, "include": ["**/*.ts", "./types/"] }',
+      "acme/kit.json": JSON.stringify(kit({})),
+      "acme/index.json": JSON.stringify(INDEX),
+    })
+    expect((await init(atRoot, "--registry", ACME)).text).toContain(
+      'setup: tsconfig.json: paths "@/*": ["./*"]\nsetup: tsconfig.json: include takes **/*.vue, where ui installs\n'
+    )
+    expect(read(atRoot, "tsconfig.json")).toContain(
+      '"include": ["**/*.ts", "./types/", "**/*.vue"]'
+    )
+    // An include that names them already.
+    const named = vite({
+      "package.json": JSON.stringify({ dependencies: { svelte: "^5.0.0" } }),
+      "tsconfig.json":
+        '{ "compilerOptions": {}, "include": ["src/**/*.ts", "src/**/*.svelte"] }',
+    })
+    expect((await init(named, "--registry", ACME)).text).not.toContain(
+      "include takes"
+    )
+  })
+
+  it("gives Nuxt its starter's tsconfig, the script that writes .nuxt's, and its own @/*", async () => {
+    const cwd = nuxt()
+    const { code, text, commands } = await init(cwd, "--registry", ACME)
+    expect(code).toBe(0)
+    expect(text.split("\n")).toEqual([
+      "kirana: config: create kirana.config.ts",
+      "kirana: types: create kirana.d.ts",
+      "@acme/kit 1.0.0",
+      "  + app/lib/kit/config.ts",
+      "  + app/lib/kit/document.ts",
+      "  + app/components/ui/reset.css",
+      "setup: tsconfig.json: Nuxt's, referencing the tsconfigs nuxt prepare writes in .nuxt",
+      "setup: package.json: scripts.postinstall nuxt prepare, as the starter has it",
+      'setup: kirana.config.ts: ui {"framework":"vue","registries":{"@acme":"acme/{name}.json"}}',
+      "setup: kirana.config.ts: spreads kitConfig (./app/lib/kit/config.ts)",
+      "setup: nuxt.config.ts: css lists @/components/ui/reset.css",
+      'by hand: give <html> the design system\'s styles: <html sx={htmlStyles}>, with import { htmlStyles } from "@/lib/kit/document"',
+      "packages: npm install --save-exact @kirana-style/core@0.3.2",
+      `packages: npm install --save-exact -D kirana-style@${await version()} @kirana-style/registry@${await version()}`,
+      "packages: npm run postinstall",
+      "kirana-style.lock.json: 1 item(s) recorded",
+      "",
+    ])
+    // `npm install <package>` runs none of the project's scripts: init runs it after them.
+    expect(commands.at(-1)).toBe("npm run postinstall")
+    expect(JSON.parse(read(cwd, "tsconfig.json"))).toEqual({
+      files: [],
+      references: [
+        { path: "./.nuxt/tsconfig.app.json" },
+        { path: "./.nuxt/tsconfig.server.json" },
+        { path: "./.nuxt/tsconfig.shared.json" },
+        { path: "./.nuxt/tsconfig.node.json" },
+      ],
+    })
+    expect(JSON.parse(read(cwd, "package.json"))).toMatchObject({
+      scripts: { build: "nuxt generate", postinstall: "nuxt prepare" },
+    })
+    // The configuration runs in Node: the reset beside Kirana's stylesheet in `css`, nothing imported.
+    expect(read(cwd, "nuxt.config.ts")).toBe(
+      'import kirana from "@kirana-style/vite"\n\nexport default defineNuxtConfig({\n  css: ["@kirana-style/core/stylesheet.css", "@/components/ui/reset.css"],\n  vite: { plugins: [kirana()] },\n})\n'
+    )
+    expect(existsSync(path.join(cwd, ".nuxt"))).toBe(false)
+  })
+
+  it("follows Nuxt's source folder, what .nuxt holds once written, and a postinstall of the project's own", async () => {
+    // Nuxt 3's layout, at the root, and the configuration's quotes.
+    const flat = nuxt(
+      {
+        "nuxt.config.ts":
+          "export default defineNuxtConfig({ css: ['@kirana-style/core/stylesheet.css'] })\n",
+      },
+      ""
+    )
+    const atRoot = await init(flat, "--registry", ACME)
+    expect(atRoot.text).toContain("  + lib/kit/config.ts\n")
+    expect(read(flat, "nuxt.config.ts")).toContain(
+      "css: ['@kirana-style/core/stylesheet.css', '@/components/ui/reset.css']"
+    )
+    // Generated already, mapping `@/*` elsewhere: that is what counts, and nothing runs again.
+    const prepared = nuxt({
+      "tsconfig.json": NUXT_REFERENCES,
+      ".nuxt/tsconfig.app.json":
+        '{ "compilerOptions": { "paths": { "@/*": ["../app/source/*"] } } }',
+      "package.json": JSON.stringify({
+        scripts: { postinstall: "nuxt prepare && husky" },
+        dependencies: { nuxt: "^4.5.0" },
+      }),
+    })
+    const ready = await init(prepared, "--registry", ACME)
+    expect(ready.text).toContain("  + app/source/lib/kit/config.ts\n")
+    expect(ready.text).not.toContain("tsconfig.json: Nuxt's")
+    expect(ready.text).not.toContain("package.json:")
+    expect(ready.commands.some((command) => command.includes(" run "))).toBe(
+      false
+    )
+    // A postinstall that does not prepare: said, and not run.
+    const other = nuxt({
+      "package.json": JSON.stringify({
+        scripts: { postinstall: "husky" },
+        dependencies: { nuxt: "^4.5.0" },
+      }),
+    })
+    const mine = await init(other, "--registry", ACME)
+    expect(mine.text).toContain(
+      "by hand: package.json: scripts.postinstall does not run nuxt prepare: add it and run it, for the tsconfig the aliases are in\n"
+    )
+    expect(mine.commands.some((command) => command.includes(" run "))).toBe(
+      false
+    )
+  })
+
+  it("gives SvelteKit 3 its starter's tsconfig with @/*, the script that syncs, and Vite the paths", async () => {
+    const cwd = svelteKit()
+    const { code, text, commands } = await init(cwd, "--registry", ACME)
+    expect(code).toBe(0)
+    expect(text).toContain("  + src/lib/kit/config.ts\n")
+    expect(text).toContain(
+      [
+        "setup: tsconfig.json: SvelteKit's, extending the $app/tsconfig svelte-kit sync writes",
+        'setup: tsconfig.json: paths "@/*": ["./src/*"]',
+        "setup: tsconfig.json: include takes src/**/*.svelte, where ui installs",
+        "setup: vite.config.ts: resolve: { tsconfigPaths: true }",
+        "setup: package.json: scripts.prepare svelte-kit sync || echo '', as the starter has it",
+      ].join("\n")
+    )
+    expect(commands.at(-1)).toBe("npm run prepare")
+    expect(JSON.parse(read(cwd, "tsconfig.json"))).toEqual({
+      extends: "$app/tsconfig",
+      compilerOptions: { paths: { "@/*": ["./src/*"] }, strict: true },
+      include: ["src", "vite.config.ts", "src/**/*.svelte"],
+    })
+    // The project's own indentation, a tab.
+    expect(read(cwd, "package.json")).toContain(
+      '\n\t"scripts": {\n\t\t"build": "vite build",\n\t\t"prepare": "svelte-kit sync || echo \'\'"\n\t},'
+    )
+    // Any version without a major is the current one; Deno runs the script as a task; a package.json
+    // on one line is written as npm writes one.
+    const latest = svelteKit({
+      "deno.lock": "{}",
+      "package.json": JSON.stringify({
+        devDependencies: { "@sveltejs/kit": "latest" },
+      }),
+    })
+    const deno = await init(latest, "--registry", ACME)
+    expect(deno.text).toContain("SvelteKit's, extending the $app/tsconfig")
+    expect(deno.commands.at(-1)).toBe("deno task prepare")
+    expect(read(latest, "package.json")).toBe(
+      '{\n  "devDependencies": {\n    "@sveltejs/kit": "latest"\n  },\n  "scripts": {\n    "prepare": "svelte-kit sync || echo \'\'"\n  }\n}\n'
+    )
+    // SvelteKit 2 generates `.svelte-kit/tsconfig.json`, whose `$lib` a root `paths` would hide.
+    const two = await init(svelteKit({}, "^2.20.0"), "--registry", ACME)
+    expect(two).toMatchObject({
+      code: 1,
+      text: '@/lib: no compilerOptions.paths entry in tsconfig.json maps it to a directory (for example "@/*": ["./src/*"])\n',
+    })
+  })
+
+  it("runs the generator after every install, which can remove what it wrote, and stops when it fails", async () => {
+    const cwd = svelteKit()
+    await init(cwd, "--registry", ACME)
+    // The configuration as Node.js loads it: vitest's own loader would follow the tsconfig's
+    // `extends`, which is not there yet.
+    const configured = async () => ({
+      default: {
+        ui: {
+          framework: "svelte",
+          registries: { "@acme": "acme/{name}.json" },
+        },
+      },
+    })
+    // `ui add` installs what the stub left out, then writes `$app/tsconfig`, before its check.
+    let text = ""
+    const commands: string[] = []
+    const add = () =>
+      main(
+        ["add", "@acme/kit", "--no-check", "--overwrite"],
+        cwd,
+        (chunk) => void (text += chunk),
+        { run: (command) => (commands.push(command), 0), load: configured }
+      )
+    expect(await add()).toBe(0)
+    expect(commands).toEqual([
+      "npm install @kirana-style/core@0.3.2",
+      "npm run prepare",
+    ])
+    expect(text).toContain("packages: npm run prepare\n")
+    // Once it is there, nothing runs.
+    mkdirSync(path.join(cwd, "node_modules/$app"), { recursive: true })
+    writeFileSync(path.join(cwd, "node_modules/$app/tsconfig.json"), "{}")
+    commands.length = 0
+    expect(await add()).toBe(0)
+    expect(commands).toEqual(["npm install @kirana-style/core@0.3.2"])
+    let failed = ""
+    expect(
+      await main(
+        ["init", "--registry", ACME],
+        svelteKit(),
+        (chunk) => void (failed += chunk),
+        {
+          run: (command) => (command === "npm run prepare" ? 1 : 0),
+          load,
+        }
+      )
+    ).toBe(1)
+    expect(failed).toMatch(
+      /npm run prepare failed: the files are written, the lockfile is not\n$/
+    )
+  })
+})
+
+const NUXT_REFERENCES = JSON.stringify({
+  files: [],
+  references: [{ path: "./.nuxt/tsconfig.app.json" }],
 })

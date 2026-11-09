@@ -26,7 +26,12 @@ import { inlineNames, resolveIcons } from "./icons.ts"
 import { fetchInlineIcons } from "./inline-icons.ts"
 import type { InlineIcon } from "./inline-icons.ts"
 import { readLockfile, writeLockfile } from "./lockfile.ts"
-import { aliasDirectory, frameworkOf, readProject } from "./project.ts"
+import {
+  aliasDirectory,
+  frameworkOf,
+  generateCommand,
+  readProject,
+} from "./project.ts"
 import type { Project, ReadFile } from "./project.ts"
 import { parseReference, read, RegistryError, registryOf } from "./read.ts"
 import { REFERENCE_PATTERN } from "./schema.ts"
@@ -540,7 +545,10 @@ export function writePlaced(placed: readonly Placed[]): void {
     }
 }
 
-/** Runs each install command; false, said, when one fails, since the lockfile is then not written. */
+/**
+ * Runs each install command, then the framework's generator where the tsconfig it writes is missing
+ * (KF-107); false, said, when one fails, since the lockfile is then not written.
+ */
 export function installPackages(
   commands: readonly string[],
   project: Project,
@@ -548,12 +556,17 @@ export function installPackages(
   options: Options
 ): boolean {
   const run = options.run ?? runInShell
-  for (const command of commands)
-    if (run(command, project.root) !== 0) {
-      write(`${command} failed: the files are written, the lockfile is not\n`)
-      return false
-    }
-  return true
+  const ran = (command: string) => {
+    if (run(command, project.root) === 0) return true
+    write(`${command} failed: the files are written, the lockfile is not\n`)
+    return false
+  }
+  if (!commands.every(ran)) return false
+  // Once the packages are in, which may have removed the tsconfig the generator writes (KF-107).
+  const generate = generateCommand(project.root, project.manager)
+  if (generate === undefined) return true
+  write(`packages: ${generate}\n`)
+  return ran(generate)
 }
 
 /** Each planned item in the lockfile, with both hashes of every file it wrote. */

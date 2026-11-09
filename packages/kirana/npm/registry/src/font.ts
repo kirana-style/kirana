@@ -13,6 +13,41 @@ import type { Design } from "./types.ts"
 /** Kirana's stylesheet, as the app's entry imports it. */
 export const STYLESHEET = "@kirana-style/core/stylesheet.css"
 
+/**
+ * The script that loads Kirana's stylesheet, where the design system's and the fonts' stylesheets
+ * go after it: one that imports it, or a configuration that lists it in `css` (Nuxt's
+ * `nuxt.config.ts`, KF-107), which runs in Node and takes them in the same list instead.
+ */
+export function stylesheetEntry(
+  scripts: readonly string[],
+  read: (file: string) => string | undefined
+): { file: string; listed: boolean } | undefined {
+  const file = scripts.find((entry) => read(entry)!.includes(STYLESHEET))
+  if (file === undefined) return undefined
+  return { file, listed: LISTED.test(read(file)!) }
+}
+
+/** Kirana's stylesheet as an entry of a configuration's `css` list. */
+const LISTED =
+  /\bcss\s*:\s*\[[^\]]*(["'])@kirana-style\/core\/stylesheet\.css\1/
+
+/** `text` loading `specifier` after Kirana's stylesheet: imported, or listed beside it in `css`. */
+export function withStylesheet(
+  text: string,
+  specifier: string,
+  listed: boolean
+): string {
+  if (!listed) return addImport(text, `import "${specifier}"`)
+  return text.replace(
+    LISTED,
+    (entry, quote: string) => `${entry}, ${quote}${specifier}${quote}`
+  )
+}
+
+/** The line reporting `withStylesheet`'s edit. */
+export const loadsLine = (file: string, specifier: string, listed: boolean) =>
+  `${file}: ${listed ? "css lists" : "imports"} ${specifier}`
+
 /** The full reference of an item a design system names: a bare name is the design system's registry's. */
 const qualified = (reference: string, namespace: string) =>
   reference.startsWith("@") ? reference : `${namespace}/${reference}`
@@ -62,7 +97,7 @@ export function importFonts(
   const edits = new Map<string, string>()
   const report: string[] = []
   const manual: string[] = []
-  const entry = scripts.find((file) => read(file)!.includes(STYLESHEET))
+  const entry = stylesheetEntry(scripts, read)
   for (const { item } of planned) {
     if (item.font === undefined) continue
     const specifier = item.font.import
@@ -70,11 +105,12 @@ export function importFonts(
       manual.push(`import "${specifier}" after Kirana's stylesheet`)
       continue
     }
-    const text = edits.get(entry) ?? read(entry)!
+    const { file, listed } = entry
+    const text = edits.get(file) ?? read(file)!
     if (text.includes(`"${specifier}"`) || text.includes(`'${specifier}'`))
       continue
-    edits.set(entry, addImport(text, `import "${specifier}"`))
-    report.push(`${entry}: imports ${specifier}`)
+    edits.set(file, withStylesheet(text, specifier, listed))
+    report.push(loadsLine(file, specifier, listed))
   }
   return { edits, report, manual }
 }
