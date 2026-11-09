@@ -1187,6 +1187,43 @@ fn trace_questions_cost_their_line_not_the_file() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// A module's compile grows with its styles, not with their square (KF-105): the styles a module
+/// keeps for the session were a list searched for each style, and StyleX's 6.8 MB module of 21,598
+/// objects took 29 times its 0.45 MB slice instead of 15. Ten times the styles must take about ten
+/// times as long (9 to 12 measured, in a debug build beside the workspace's other tests): the bound
+/// leaves room for a loaded machine and coverage, while the list searched per style took 28 to 37.
+#[test]
+fn a_module_compiles_in_time_linear_in_its_styles() {
+    const PROPERTIES: [&str; 6] = ["padding", "marginTop", "width", "height", "gap", "fontSize"];
+    let module = |count: usize| {
+        let mut source = String::from("import { css } from \"@kirana-style/core\"\nexport const styles = [\n");
+        for index in 0..count {
+            let property = PROPERTIES[index % PROPERTIES.len()];
+            source.push_str(&format!("  css({{ {property}: \"{index:05}px\", color: \"red\" }}),\n"));
+        }
+        source + "]\n"
+    };
+    let (small, large) = (module(2_000), module(20_000));
+    // A fresh session each time, so no style is answered from the one before.
+    let compile = |source: &str| {
+        let project = Project::new(r#"{"root":"/app"}"#, Arc::new(MemoryFs::new())).unwrap();
+        let started = std::time::Instant::now();
+        let result = project.transform_with(Path::new("/app/styles.ts"), source, false);
+        let took = started.elapsed();
+        assert!(result.diagnostics.is_empty(), "{:?}", result.diagnostics);
+        took
+    };
+    // The fastest of three runs of each, taken in turn: a busy machine only ever adds time, and
+    // the other tests running beside this one slow both sizes alike.
+    let (mut fastest_small, mut fastest_large) = (std::time::Duration::MAX, std::time::Duration::MAX);
+    for _ in 0..3 {
+        fastest_small = fastest_small.min(compile(&small));
+        fastest_large = fastest_large.min(compile(&large));
+    }
+    let ratio = fastest_large.as_secs_f64() / fastest_small.as_secs_f64();
+    assert!(ratio < 20.0, "20,000 styles took {ratio:.1} times as long as 2,000");
+}
+
 /// The stylesheet is written from an atom index kept as records change (KF-062), not from a walk of
 /// every module. After edits and removals it is the stylesheet a fresh session writes for the
 /// modules left, byte for byte: shared atoms, the first module's copy of a class, unfolds two
