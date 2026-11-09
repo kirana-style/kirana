@@ -14,18 +14,20 @@ import {
 } from "node:fs"
 import path from "node:path"
 
-import { installCommand, sources } from "@kirana-style/compiler"
+import { sources } from "@kirana-style/compiler"
 import { SKIPPED } from "@kirana-style/compiler/host"
 
 import {
+  appOf,
   checkWritten,
   chooseBase,
-  installPackages,
-  missingPackages,
+  installBoth,
+  packageCommands,
   place,
   plan,
   record,
   scriptsOf,
+  writeCommands,
   writeEdits,
   writePlaced,
 } from "./add.ts"
@@ -459,8 +461,10 @@ export async function runPreset(
     for (const file of fonts.filter((entry) => entry.item === key))
       write(`  ${marks[file.state]} ${file.relative}\n`)
   }
-  // The fonts and the document are the app's: in a workspace, not the package's (D-129).
-  const app = settings.app?.root ?? project.root
+  // The fonts, their packages and the document are the app's: in a workspace, not the package's
+  // (D-129, KF-111).
+  const appProject = appOf(settings, project)
+  const app = appProject.root
   const imports = importFonts(added, scriptsOf(app), (file) =>
     readFileSync(path.join(app, file), "utf8")
   )
@@ -521,9 +525,13 @@ export async function runPreset(
     )
   if (asked.dir === "rtl") write(`by hand: ${DIRECTION}\n`)
 
-  const packages = missingPackages(added, project, [...writes, ...fonts])
-  const commands = installCommand(project.manager, packages, [])
-  for (const command of commands) write(`packages: ${command}\n`)
+  const commands = packageCommands(
+    added,
+    project,
+    [...writes, ...fonts],
+    appProject
+  )
+  writeCommands(commands, write)
   if (conflicts.length > 0) {
     write(
       `${conflicts.length} file(s) you changed would change: nothing written; --overwrite replaces them\n`
@@ -544,7 +552,7 @@ export async function runPreset(
   writePlaced(fonts)
   writeEdits(app, imports.edits)
   for (const file of deletes) unlinkSync(file)
-  if (!installPackages(commands, project, write, options)) return 1
+  if (!installBoth(commands, project, appProject, write, options)) return 1
   recordStatuses(lockfile, statuses, writes)
   record(lockfile, added, fonts)
   writeLockfile(project.root, lockfile)

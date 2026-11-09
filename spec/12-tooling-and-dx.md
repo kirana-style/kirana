@@ -291,11 +291,12 @@ name (`<name>/components` for `ui` and `component`, `<name>/lib`, `<name>/hooks`
 has none), the design system's files, packages and lockfile, the core its files import, and the
 check; the app gets Kirana's own setup and its packages, `ui.workspace` and the configuration
 spread in its `kirana.config.*`, the same `paths` to the package's source in its tsconfig with Vite
-told to read them, and the stylesheets, fonts and `<html>` styles and attributes. What the app gets
-is reported with `app: ` before it. In an app whose `ui.workspace` names a package already, `init`
-works on that package, and a `--workspace` naming another stops it (exit 2). `add`, `update` and
-`preset` run in such an app work on the package as well; the fonts `add` and `preset` install are
-imported in the app, and `preset` sets the app's `<html>`.
+told to read them, and the stylesheets, the fonts with their packages, and the `<html>` styles and
+attributes. What the app gets is reported with `app: ` before it. In an app whose `ui.workspace`
+names a package already, `init` works on that package, and a `--workspace` naming another stops it
+(exit 2). `add`, `update` and `preset` run in such an app work on the package as well; the fonts
+`add` and `preset` install are imported in the app, their packages (and `update`'s) are installed
+there with the app's package manager, and `preset` sets the app's `<html>`.
 
 **KRN-DX-030** — `kirana-style ui outdated [item…]` and `ui diff [item…]` MUST read each installed
 item (every one in the lockfile by default) again from its registry, place it as installing it now

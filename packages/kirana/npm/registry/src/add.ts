@@ -363,6 +363,75 @@ export function missingPackages(
   return [...needed.values()].sort()
 }
 
+/** The app a workspace's package is installed from (D-129), else the project itself. */
+export const appOf = (settings: Settings, project: Project): Project =>
+  settings.app === undefined ? project : readProject(settings.app.root)
+
+/**
+ * `missingPackages`, the project's and the app's: in a workspace (D-129) a font item's packages are
+ * the app's, which imports its stylesheet, so that an isolated linker (Bun's, pnpm's) resolves them
+ * from there, and are missing when the app does not list them (KF-111); every other item's are the
+ * package's. Outside a workspace the app is the project, and all are its own.
+ */
+export function splitPackages(
+  planned: readonly Pick<Planned, "item" | "packages">[],
+  project: Project,
+  placed: readonly Placed[],
+  app: Project
+): { own: string[]; app: string[] } {
+  const apps = (entry: Pick<Planned, "item">) =>
+    app.root !== project.root && entry.item.font !== undefined
+  return {
+    own: missingPackages(
+      planned.filter((entry) => !apps(entry)),
+      project,
+      placed
+    ),
+    app: missingPackages(planned.filter(apps), app, []),
+  }
+}
+
+/** Install commands: the project's, and the app's in a workspace. */
+export type Commands = { own: string[]; app: string[] }
+
+/** The install commands of `splitPackages`' two lists, each with its project's package manager. */
+export function packageCommands(
+  planned: readonly Pick<Planned, "item" | "packages">[],
+  project: Project,
+  placed: readonly Placed[],
+  app: Project
+): Commands {
+  const packages = splitPackages(planned, project, placed, app)
+  return {
+    own: installCommand(project.manager, packages.own, []),
+    app: installCommand(app.manager, packages.app, []),
+  }
+}
+
+/** A line for each command, the app's with `app: ` before it, as `init` reports them. */
+export function writeCommands(
+  commands: Commands,
+  write: (text: string) => void
+): void {
+  for (const command of commands.own) write(`packages: ${command}\n`)
+  for (const command of commands.app) write(`packages: app: ${command}\n`)
+}
+
+/** `installPackages` in the project with its commands, then in the app with the app's, if any. */
+export function installBoth(
+  commands: Commands,
+  project: Project,
+  app: Project,
+  write: (text: string) => void,
+  options: Options
+): boolean {
+  return (
+    installPackages(commands.own, project, write, options) &&
+    (commands.app.length === 0 ||
+      installPackages(commands.app, app, write, options))
+  )
+}
+
 /** The package manager's command in a shell, its output shown; a signal counts as a failure. */
 export const runInShell: Run = (command, cwd) =>
   spawnSync(command, { cwd, shell: true, stdio: "inherit" }).status ?? 1
@@ -422,16 +491,16 @@ export async function runAdd(
     for (const file of placed.filter((entry) => entry.item === key))
       write(`  ${marks[file.state]} ${file.relative}\n`)
   }
-  // A font is imported where Kirana's stylesheet is: in a workspace, in the app (D-129).
-  const app = settings.app?.root ?? project.root
-  const fonts = importFonts(planned, scriptsOf(app), (file) =>
-    readFileSync(path.join(app, file), "utf8")
+  // A font is imported where Kirana's stylesheet is, and its package installed there: in a
+  // workspace, in the app (D-129, KF-111).
+  const app = appOf(settings, project)
+  const fonts = importFonts(planned, scriptsOf(app.root), (file) =>
+    readFileSync(path.join(app.root, file), "utf8")
   )
   for (const line of fonts.report) write(`font: ${line}\n`)
   for (const line of fonts.manual) write(`by hand: ${line}\n`)
-  const packages = missingPackages(planned, project, placed)
-  const commands = installCommand(project.manager, packages, [])
-  for (const command of commands) write(`packages: ${command}\n`)
+  const commands = packageCommands(planned, project, placed, app)
+  writeCommands(commands, write)
   const conflicts = placed.filter((file) => file.state === "differs")
   if (conflicts.length > 0 && !parsed.flags.has("--overwrite")) {
     write(
@@ -444,8 +513,8 @@ export async function runAdd(
     return 0
   }
   writePlaced(placed)
-  writeEdits(app, fonts.edits)
-  if (!installPackages(commands, project, write, options)) return 1
+  writeEdits(app.root, fonts.edits)
+  if (!installBoth(commands, project, app, write, options)) return 1
   record(lockfile, planned, placed)
   writeLockfile(project.root, lockfile)
   write(`kirana-style.lock.json: ${planned.length} item(s) recorded\n`)

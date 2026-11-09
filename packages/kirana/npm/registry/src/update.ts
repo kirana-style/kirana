@@ -8,14 +8,14 @@
 import { existsSync, readFileSync, unlinkSync } from "node:fs"
 import path from "node:path"
 
-import { installCommand } from "@kirana-style/compiler"
-
 import {
+  appOf,
   checkWritten,
-  installPackages,
-  missingPackages,
+  installBoth,
+  packageCommands,
   place,
   plan,
+  writeCommands,
   writePlaced,
 } from "./add.ts"
 import type { Placed, Planned } from "./add.ts"
@@ -113,18 +113,21 @@ export async function runUpdate(
       write(`  + ${file.relative}\n`)
   }
 
-  const packages = missingPackages(
+  // A font's packages are the app's in a workspace, where its stylesheet is imported (KF-111).
+  const app = appOf(settings, project)
+  const commands = packageCommands(
     [
       ...outdated.map((status) => ({
+        item: status.item,
         packages: packagesOf(status.item, status.locked),
       })),
       ...newcomers,
     ],
     project,
-    writes
+    writes,
+    app
   )
-  const commands = installCommand(project.manager, packages, [])
-  for (const command of commands) write(`packages: ${command}\n`)
+  writeCommands(commands, write)
   if (conflicts.length > 0) {
     write(
       `${conflicts.length} file(s) changed on both sides: nothing written; kirana-style ui diff shows them, --overwrite takes the registry's\n`
@@ -138,7 +141,7 @@ export async function runUpdate(
   writePlaced(writes)
   // Each was found as installed, so it is there.
   for (const file of deletes) unlinkSync(file)
-  if (!installPackages(commands, project, write, options)) return 1
+  if (!installBoth(commands, project, app, write, options)) return 1
   recordStatuses(lockfile, outdated, writes)
   for (const newcomer of newcomers) {
     const files: Locked["files"] = {}
