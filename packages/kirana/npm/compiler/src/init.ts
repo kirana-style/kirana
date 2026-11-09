@@ -46,7 +46,10 @@ export type Plan = {
 
 export type InitOptions = {
   preset?: boolean
-  /** The caller writes the project's `tsconfig.json` with this setup (`ui init` on Next.js, KF-046). */
+  /**
+   * The caller writes the project's `tsconfig.json` with this setup (`ui init` on Next.js, KF-046;
+   * on Nuxt and SvelteKit, KF-107).
+   */
   typescript?: boolean
 }
 

@@ -98,11 +98,11 @@ An item of type `design-system` carries its wiring in `setup`, which
 
 What each entry is for:
 
-| Entry         | What `init` does with it                                                   |
-| ------------- | -------------------------------------------------------------------------- |
-| `config`      | spreads it into the project's `kirana.config.ts`                           |
-| `stylesheets` | imports each where the project imports Kirana's stylesheet                 |
-| `document`    | puts it on `<html>` as `sx`, or sets the classes from a static app's entry |
+| Entry         | What `init` does with it                                                                            |
+| ------------- | --------------------------------------------------------------------------------------------------- |
+| `config`      | spreads it into the project's `kirana.config.ts`                                                    |
+| `stylesheets` | imports each where the project imports Kirana's stylesheet, or lists each beside it in Nuxt's `css` |
+| `document`    | puts it on `<html>` as `sx`, or sets the classes from a static app's entry                          |
 
 ## Its design, and flattened builds
 

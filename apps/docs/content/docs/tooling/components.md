@@ -31,12 +31,33 @@ npx kirana-style ui init
 `init` works on a new app or one you already have:
 
 - it sets Kirana up where the project lacks it, as `kirana-style init` does;
-- it maps the `@/*` alias in `tsconfig.json` when the project has none, and tells
-  Vite to read it; a JavaScript Next.js app gets the `tsconfig.json` Next.js
-  would write, and TypeScript, since the components are TypeScript;
+- it maps the `@/*` alias in `tsconfig.json` when the project has none, inside
+  what that tsconfig compiles, and tells Vite to read it;
 - it installs the registry's design system and wires it in: its configuration in
   `kirana.config.ts`, its reset beside Kirana's stylesheet, its styles on
   `<html>`.
+
+Where the alias points, and what `init` writes for it, follows the framework:
+
+| Project                          | `@/*` points to | `init` writes                                                                                                           |
+| -------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Vite, TanStack Start, SolidStart | `src/`          | `paths` in the tsconfig, `resolve.tsconfigPaths` in Vite's configuration                                                |
+| React Router                     | `app/`          | the same: its tsconfig compiles `app`, not the project's root                                                           |
+| JavaScript Next.js               | the root        | the `tsconfig.json` Next.js would write, and TypeScript, since the components are TypeScript                            |
+| Nuxt                             | `app/`          | Nuxt's own alias: the `tsconfig.json` Nuxt's starter has, and its `postinstall`, `nuxt prepare`, which writes the rest  |
+| SvelteKit                        | `src/`          | the `tsconfig.json` SvelteKit's starter has, with `paths` and its `.svelte` files, and its `prepare`, `svelte-kit sync` |
+
+Around the alias, `init` also:
+
+- adds to the tsconfig's `include` the folders it leaves out, and Vue or Svelte
+  files where its patterns take scripts only: Vite resolves no alias in a file
+  its tsconfig does not compile;
+- runs Nuxt's or SvelteKit's script once the packages are in, since each writes
+  the tsconfig the project's extends on its first run; every later `ui` command
+  that installs packages runs it again, since an install can remove what it
+  wrote;
+- lists the reset beside Kirana's stylesheet in the `css` of `nuxt.config.ts`,
+  where Nuxt has it.
 
 To start from nothing, take one of Kirana's examples, as the release you run has
 it:
