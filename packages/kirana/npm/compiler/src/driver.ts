@@ -249,20 +249,18 @@ export class Driver {
     options: TransformOptions = {}
   ): TransformResult {
     const map = options.map ?? true
+    const kept = this.#answered(id, code, map)
+    if (kept) return kept
     const generation = this.#generation
     const appended = moduleAnchors(id, code)
     const text = code + appended
-    return withoutAnchors(
-      this.#answered(id, text, map) ??
-        this.#settle(
-          id,
-          text,
-          map,
-          generation,
-          this.#compiler.transform(id, text, options.map)
-        ),
+    return this.#settle(
+      id,
       code,
-      appended
+      appended,
+      map,
+      generation,
+      this.#compiler.transform(id, text, options.map)
     )
   }
 
@@ -281,20 +279,18 @@ export class Driver {
   ): Promise<TransformResult> {
     if (this.engine !== "native") return this.transform(id, code, options)
     const map = options.map ?? true
+    const kept = this.#answered(id, code, map)
+    if (kept) return kept
     const generation = this.#generation
     const appended = moduleAnchors(id, code)
     const text = code + appended
-    return withoutAnchors(
-      this.#answered(id, text, map) ??
-        this.#settle(
-          id,
-          text,
-          map,
-          generation,
-          await this.#queued(id, text, map)
-        ),
+    return this.#settle(
+      id,
       code,
-      appended
+      appended,
+      map,
+      generation,
+      await this.#queued(id, text, map)
     )
   }
 
@@ -337,7 +333,10 @@ export class Driver {
   /**
    * The engine's answer to this module, when the Driver holds it: the same source and source map
    * setting, and nothing compiled, invalidated or removed since. It is the engine's own reused
-   * transform, with the stylesheet unchanged.
+   * transform, with the stylesheet unchanged. It is looked up by the source as the host gave it,
+   * before the template's anchors are looked for: that scan reads the whole module, and an
+   * unchanged module's answer cost time in proportion to its size (KF-106). A template in another
+   * file changes the answer only through `invalidate`, which moves the generation on.
    */
   #answered(
     id: string,
@@ -362,18 +361,20 @@ export class Driver {
   }
 
   /**
-   * Hands an engine transform on, keeping it to answer again when the engine would reuse it and
-   * nothing else compiled while it ran (`transformAsync` runs several at once). A compile may
-   * change what any kept answer read, so it moves the generation on; a reused transform does not.
+   * Hands an engine transform on, the template's anchors cut from it (`appended`), keeping it to
+   * answer again when the engine would reuse it and nothing else compiled while it ran
+   * (`transformAsync` runs several at once). A compile may change what any kept answer read, so it
+   * moves the generation on; a reused transform does not.
    */
   #settle(
     id: string,
     code: string,
+    appended: string,
     map: boolean,
     generation: number,
     native: NativeResult
   ): TransformResult {
-    const result = toResult(native)
+    const result = withoutAnchors(toResult(native), code, appended)
     if (!native.reused) this.#changed()
     const settled = generation + (native.reused ? 0 : 1)
     if (native.reusable && this.#generation === settled)
