@@ -16,7 +16,9 @@
  *   Johnston) and `ng-primitives.ts` (Apache-2.0), read from each part's code.
  *
  * Each state becomes a condition key: an attribute's presence (`checked: "[data-checked]"`), or,
- * for a union of string literals, one key per value (`side.inlineEnd: '[data-side="inline-end"]'`).
+ * for a union of string literals, one key per value (`side.inlineEnd: '[data-side="inline-end"]'`),
+ * with `any` for the presence beside them when the attribute is also written empty
+ * (`disabled.any: "[data-disabled]"`, KF-100).
  */
 import { spawnSync } from "node:child_process"
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
@@ -34,6 +36,12 @@ type State = {
   values: string[]
   /** A selector that is not an attribute's presence (`:not([aria-valuenow])`). */
   selector?: string
+  /**
+   * Also written with no value, beside its values (Angular Primitives' Button writes
+   * `data-disabled="soft"`, or an empty one when hard-disabled): its `any` key is the attribute's
+   * presence, whatever its value (KF-100).
+   */
+  presence?: boolean
 }
 /** Components, each with its parts' states, or its own states when it has no parts. */
 type Vocabulary = Map<string, Map<string, State[]> | State[]>
@@ -1023,12 +1031,21 @@ function valuesIn(expression: string): string[] {
   return [...new Set(found)]
 }
 
-/** Adds a state to a part's list, merging the values of one attribute set in several places. */
-function addState(list: State[], attribute: string, values: readonly string[]) {
+/**
+ * Adds a state to a part's list, merging the values of one attribute set in several places, and
+ * whether one of them writes it with no value (`presence`, KF-100).
+ */
+function addState(
+  list: State[],
+  attribute: string,
+  values: readonly string[],
+  presence = false
+) {
   const existing = list.find((state) => state.attribute === attribute)
   if (existing) {
     for (const value of values)
       if (!existing.values.includes(value)) existing.values.push(value)
+    if (presence) existing.presence = true
     return
   }
   list.push({
@@ -1036,6 +1053,7 @@ function addState(list: State[], attribute: string, values: readonly string[]) {
     attribute,
     doc: "",
     values: [...values],
+    ...(presence ? { presence } : {}),
   })
 }
 
@@ -1359,12 +1377,31 @@ function ngUnits(modules: string, typings: string, everyEntry: string) {
     NgUnit & { index: number; entry: string; exported: boolean }
   >()
   const order = new Map<string, number>()
+  // The functions that set a state's attribute with `setAttribute` rather than a binding, on the
+  // element they are given (`setupExitAnimation`'s `data-enter` and `data-exit`, KF-102).
+  const writers = new Map<string, string[]>()
+  // The hooks a portal is created with that its content registers itself through
+  // (`provideToastOptions({ register })`, which `NgpToast` injects), as the call that injects one.
+  const registers = new Set<string>()
   for (const file of readdirSync(modules).filter((entry) =>
     /^ng-primitives-[\w-]+\.mjs$/.test(entry)
   )) {
     const entry = file.slice("ng-primitives-".length, -".mjs".length)
     const component = pascal(entry)
     const text = readFileSync(path.join(modules, file), "utf8")
+    for (const match of text.matchAll(/^function (\w+)\(/gm)) {
+      const set = [
+        ...until(text, match.index, "\n}\n").matchAll(
+          /\.setAttribute\('(data-[a-z][a-z0-9-]*)', ''\)/g
+        ),
+      ].map(([, attribute]) => attribute!)
+      if (set.length) writers.set(match[1]!, [...new Set(set)])
+    }
+    for (const match of text.matchAll(/\bcreatePortal\(/g))
+      for (const [, hook] of until(text, match.index, ".attach(").matchAll(
+        /\bprovide(\w+)\(\{[^}]*\bregister:/g
+      ))
+        registers.add(`inject${hook}()`)
     // What the entry point exports: a component it renders itself (`NgpTooltipTextContentComponent`)
     // is no part.
     const exports = new Set(
@@ -1407,8 +1444,45 @@ function ngUnits(modules: string, typings: string, everyEntry: string) {
       })
     }
   }
-  return { functions, classes }
+  return { functions, classes, writers, registers }
 }
+
+/**
+ * What ng-primitives' portal writes with `setAttribute` on the elements it renders, which no
+ * directive binds (KF-102): `rendered`, what the functions its `NgpPortal` classes call as they
+ * attach an element set (`setupExitAnimation`'s `data-enter` and `data-exit`), on every portal's
+ * elements; `overlaid`, what the overlay sets on its portal's elements (`data-instant`). Throws if
+ * either is gone, so a release that moves them fails here rather than generating less.
+ */
+function ngPortal(modules: string, writers: ReadonlyMap<string, string[]>) {
+  const text = readFileSync(
+    path.join(modules, "ng-primitives-portal.mjs"),
+    "utf8"
+  )
+  const rendered = new Set<string>()
+  for (const match of text.matchAll(/^class \w+ extends NgpPortal \{/gm))
+    for (const [, call] of until(text, match.index, "\n}\n").matchAll(
+      /\b(\w+)\(/g
+    ))
+      for (const attribute of writers.get(call!) ?? []) rendered.add(attribute)
+  const overlaid = [
+    ...text.matchAll(
+      /\bof portal\.getElements\(\)\) \{\s*\w+\.setAttribute\('(data-[a-z][a-z0-9-]*)', ''\)/g
+    ),
+  ].map(([, attribute]) => attribute!)
+  if (rendered.size === 0 || overlaid.length === 0)
+    throw new Error(
+      "ng-primitives: the portal no longer marks the elements it renders"
+    )
+  return { rendered: [...rendered], overlaid }
+}
+
+/**
+ * Code that places its element where an overlay positions it (`overlay.position().x`,
+ * `state().overlay()?.position()?.x`): the content the overlay's portal renders, whose element the
+ * overlay finds among the portal's (KF-102).
+ */
+const NG_OVERLAY_CONTENT = /\boverlay\b[^\n;]*?\.position\(\)/
 
 function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
   const { directory, version } = installed("ng-primitives")
@@ -1420,7 +1494,12 @@ function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
     .filter((entry) => entry.endsWith(".d.ts"))
     .map((entry) => readFileSync(path.join(typings, entry), "utf8"))
     .join("\n")
-  const { functions, classes } = ngUnits(modules, typings, everyEntry)
+  const { functions, classes, writers, registers } = ngUnits(
+    modules,
+    typings,
+    everyEntry
+  )
+  const portal = ngPortal(modules, writers)
   const known = new Map<NgUnit, State[]>()
 
   /**
@@ -1431,8 +1510,14 @@ function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
    * calls `ngpMenuItem`, which calls `ngpButton`), each composed state with the values its own
    * code gives it, merged with the composer's binding of the same attribute. The arguments a
    * composer passes change no composed primitive's attributes, only `ngpInteractions`', read here
-   * by its options; a value they rule out is not read (a menu item passes a boolean `disabled`, so
-   * never Button's `'soft'`).
+   * by its options; the values a composed binding writes are kept whatever the composer passes (a
+   * menu item's `disabled` is a boolean, and it keeps Button's `soft` beside `any`, KF-100).
+   *
+   * What the library writes with `setAttribute` rather than a binding is read too (KF-102): a
+   * function the unit calls on its element sets its attributes (Dialog hosts `NgpExitAnimation`,
+   * which calls `setupExitAnimation`), and a portal marks the element it renders (`ngPortal`): an
+   * overlay's content (`NG_OVERLAY_CONTENT`), and a toast, which registers itself through the hook
+   * its portal is created with.
    */
   function statesOf(unit: NgUnit, trail: readonly NgUnit[] = []): State[] {
     const done = known.get(unit)
@@ -1442,39 +1527,60 @@ function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
       /(data|attr)Binding\(\w+, '(data-[a-z][a-z0-9-]*)', ([^\n]*)\);/g
     ))
       // `attrBinding` writes a value as text: Menu's placement, Separator's orientation.
-      if (kind === "data" || !NG_HINTS.has(attribute!))
+      if (kind === "data" || !NG_HINTS.has(attribute!)) {
+        const values = boundValues(
+          unit.name,
+          expression!,
+          unit.body,
+          unit.types
+        )
         addState(
           list,
           attribute!,
-          boundValues(unit.name, expression!, unit.body, unit.types)
+          values,
+          values.length === 0 ||
+            (kind === "data" &&
+              NG_BARE_BRANCH.some((bare) => bare.test(expression!)))
         )
+      }
     for (const [, options] of unit.body.matchAll(
       /ngpInteractions\(\{([^}]*)\}\)/g
     ))
       for (const [key, attribute] of Object.entries(INTERACTIONS))
         if (new RegExp(`\\b${key}\\s*:\\s*(?!false)`).test(options!))
-          addState(list, attribute, [])
+          addState(list, attribute, [], true)
     // Directives written without `createPrimitive` (Combobox, Toast, Radio's indicator) bind their
     // states in their declaration's `host.properties` (KF-099).
     const host = /ɵɵngDeclareDirective\((\{[^\n]*\})\); \}/.exec(unit.body)?.[1]
     for (const [, attribute, raw] of (host ?? "").matchAll(
       /"attr\.(data-[a-z][a-z0-9-]*)": "((?:[^"\\]|\\.)*)"/g
-    ))
-      addState(
-        list,
+    )) {
+      const values = hostValues(
+        unit.component,
+        unit.name,
         attribute!,
-        hostValues(
-          unit.component,
-          unit.name,
-          attribute!,
-          JSON.parse(`"${raw}"`) as string,
-          unit.types
-        )
+        JSON.parse(`"${raw}"`) as string,
+        unit.types
       )
+      addState(list, attribute!, values, values.length === 0)
+    }
+    for (const [, call] of unit.body.matchAll(/\b(\w+)\(/g))
+      for (const attribute of writers.get(call!) ?? [])
+        addState(list, attribute, [], true)
+    const rendered = [
+      ...(NG_OVERLAY_CONTENT.test(unit.body)
+        ? [...portal.rendered, ...portal.overlaid]
+        : []),
+      ...([...registers].some((hook) => unit.body.includes(hook)) &&
+      unit.body.includes(".register(this)")
+        ? portal.rendered
+        : []),
+    ]
+    for (const attribute of rendered) addState(list, attribute, [], true)
     const composed = [
       ...[...unit.body.matchAll(/\b(ngp[A-Z]\w*)\(/g)].map(([, call]) => {
         const attribute = INTERACTION_CALLS[call!]
-        if (attribute) addState(list, attribute, [])
+        if (attribute) addState(list, attribute, [], true)
         return call === "ngpInteractions" || attribute
           ? undefined
           : functions.get(call!)
@@ -1488,7 +1594,12 @@ function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
     for (const other of new Set(composed))
       if (other && other !== unit && !trail.includes(other))
         for (const state of statesOf(other, [...trail, unit]))
-          addState(list, state.attribute, state.values)
+          addState(
+            list,
+            state.attribute,
+            state.values,
+            state.presence || state.values.length === 0
+          )
     known.set(unit, list)
     return list
   }
@@ -1558,6 +1669,16 @@ function boundValues(
   }
   return enumerated(declaredType(directive, member, types), types.all)
 }
+
+/**
+ * A `dataBinding` that returns a literal and, on its other branch, something no literal, `null` or
+ * `undefined` (`softDisabled() ? 'soft' : hardDisabled()`): `dataBinding` writes that `true` as an
+ * empty attribute, so the state is a presence beside its values (KF-100).
+ */
+const NG_BARE_BRANCH = [
+  /\?\s*(['"])[a-z0-9-]+\1\s*:\s*(?!['"`]|null\b|undefined\b|false\b)[\w!(]/,
+  /\?\s*(?!['"`]|null\b|undefined\b|false\b)[\w!(][^?:]*:\s*(['"])[a-z0-9-]+\1/,
+]
 
 /** The member an expression reads last: `() => overlay.finalPlacement()?.toString() ?? null`. */
 function memberOf(expression: string): string {
@@ -1689,6 +1810,12 @@ function stateLines(list: State[], indent: string): string[] {
       continue
     }
     lines.push(`${indent}${state.name}: {`)
+    // The attribute's presence beside its values (KF-100), under a key no value takes.
+    if (state.presence) {
+      if (state.values.some((value) => camel(value) === "any"))
+        throw new Error(`${state.attribute} has a value named any`)
+      lines.push(`${indent}  any: ${quote(`[${state.attribute}]`)},`)
+    }
     for (const value of state.values) {
       const key = /^[A-Za-z_]\w*$/.test(camel(value))
         ? camel(value)

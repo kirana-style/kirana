@@ -74,14 +74,14 @@ Each one is generated from what its library publishes about its parts, so the
 names are the library's own and a state the library does not document is not
 there. CI regenerates them and checks every name against the library's exports.
 
-| Import                               | Library                                 | Generated from                                                                    |
-| ------------------------------------ | --------------------------------------- | --------------------------------------------------------------------------------- |
-| `@kirana-style/states/base-ui`       | Base UI                                 | each part's `*DataAttributes` declarations, and the open state its mapping writes |
-| `@kirana-style/states/ark-ui`        | Ark UI, on React, Vue, Solid and Svelte | `@zag-js/docs`, the reference of the Zag machines Ark UI runs on, and their code  |
-| `@kirana-style/states/react-aria`    | React Aria Components                   | each component's render props, by their `@selector`                               |
-| `@kirana-style/states/reka-ui`       | Reka UI, for Vue                        | each part's template, as the package ships it                                     |
-| `@kirana-style/states/bits-ui`       | Bits UI, for Svelte                     | each part's state class, by the types of its `props`                              |
-| `@kirana-style/states/ng-primitives` | Angular Primitives                      | each part's data and host bindings, its interactions, and what it composes        |
+| Import                               | Library                                 | Generated from                                                                                     |
+| ------------------------------------ | --------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `@kirana-style/states/base-ui`       | Base UI                                 | each part's `*DataAttributes` declarations, and the open state its mapping writes                  |
+| `@kirana-style/states/ark-ui`        | Ark UI, on React, Vue, Solid and Svelte | `@zag-js/docs`, the reference of the Zag machines Ark UI runs on, and their code                   |
+| `@kirana-style/states/react-aria`    | React Aria Components                   | each component's render props, by their `@selector`                                                |
+| `@kirana-style/states/reka-ui`       | Reka UI, for Vue                        | each part's template, as the package ships it                                                      |
+| `@kirana-style/states/bits-ui`       | Bits UI, for Svelte                     | each part's state class, by the types of its `props`                                               |
+| `@kirana-style/states/ng-primitives` | Angular Primitives                      | each part's data and host bindings, its interactions, what it composes, and what its portal writes |
 
 They differ where the libraries do:
 
@@ -127,10 +127,29 @@ They differ where the libraries do:
   - a directive has its host directives' states, as the dialog has its focus
     trap's (`Dialog.Root.focusTrap`).
 
+  A state written both empty and with a value has a key per value, and `any`
+  for the attribute's presence, whatever its value:
+  - the button writes `data-disabled="soft"` when it is disabled but
+    focusable, and an empty one when it is fully disabled;
+  - so `Button.Root.disabled.soft` is `[data-disabled="soft"]`, and
+    `Button.Root.disabled.any` is `[data-disabled]`;
+  - every part built on the button has both, as `Menu.Item.disabled.any` for a
+    disabled menu item.
+
+  The portal marks the elements it renders as they come and go, with
+  `data-enter` and `data-exit`, which no directive binds; the parts it renders
+  have them too:
+  - an overlay's content, the part placed where the overlay positions it
+    (`Popover.Root.enter`, `Select.Dropdown.exit`), with the overlay's
+    `instant` as well;
+  - a toast (`Toast.Root.exit`), and a dialog and its overlay, through the
+    exit animation they host (`Dialog.Overlay.enter`).
+
 | State                     | Example                       | Selector                     |
 | ------------------------- | ----------------------------- | ---------------------------- |
 | Present or absent         | `Switch.Root.checked`         | `[data-checked]`             |
 | One of a set of values    | `Select.Popup.side.inlineEnd` | `[data-side="inline-end"]`   |
+| Present with any value    | `Button.Root.disabled.any`    | `[data-disabled]`            |
 | Free text or a number     | `Accordion.Item.index`        | `[data-index]`, its presence |
 | A component without parts | `Toggle.pressed`              | `[data-pressed]`             |
 

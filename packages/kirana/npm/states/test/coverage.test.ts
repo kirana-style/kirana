@@ -40,6 +40,76 @@ function arkHook(components: string, folder: string) {
 }
 
 /**
+ * Angular Primitives' code by `NgpName`, the directives and components it exports, what each one's
+ * code reaches and a part's name within its component (KF-102).
+ */
+function angularCode() {
+  const modules = path.join(packageOf("ng-primitives"), "fesm2022")
+  const machinery = new Set([
+    "state",
+    "internal",
+    "utils",
+    "interactions",
+    "a11y",
+    "common",
+    "portal",
+  ])
+  const pascal = (entry: string) =>
+    entry.replace(/(^|-)(\w)/g, (_, __, letter: string) => letter.toUpperCase())
+  // Every `NgpName`'s code, in any entry point: a directive's class, a `createPrimitive` body,
+  // a function (`ngpFormControl`), each up to the line that closes it.
+  const code = new Map<string, { component: string; text: string }>()
+  const exported: { component: string; name: string }[] = []
+  for (const file of readdirSync(modules)) {
+    const entry = /^ng-primitives-([\w-]+)\.mjs$/.exec(file)?.[1]
+    if (!entry) continue
+    const component = pascal(entry)
+    const text = readFileSync(path.join(modules, file), "utf8")
+    for (const match of text.matchAll(
+      /^(?:class Ngp(\w+) \{|function ngp([A-Z]\w*)\(|.*createPrimitive\('Ngp(\w+)')/gm
+    )) {
+      const name = match[1] ?? match[2] ?? match[3]!
+      const end = match[3] ? "\n});" : "\n}\n"
+      const body = text.slice(match.index, text.indexOf(end, match.index))
+      code.set(name, { component, text: (code.get(name)?.text ?? "") + body })
+    }
+    const names = [...text.matchAll(/^export \{([^}]*)\}/gm)].flatMap(
+      ([, list]) => list!.split(",").map((name) => name.trim())
+    )
+    // The directives and components it exports, not its services (`NgpToastManager`).
+    if (!machinery.has(entry))
+      for (const [, name] of text.matchAll(/^class Ngp(\w+) \{/gm))
+        if (
+          names.includes(`Ngp${name}`) &&
+          /\.ɵ(?:dir|cmp) = /.test(code.get(name!)!.text)
+        )
+          exported.push({ component, name: name! })
+  }
+  // What a name's code reaches: the functions it calls and the directives it hosts, at any depth.
+  const reach = (name: string, seen = new Set<string>()): Set<string> => {
+    seen.add(name)
+    const text = code.get(name)?.text ?? ""
+    const hosted = [...text.matchAll(/hostDirectives: \[([^\]]*)\]/g)]
+      .map(([, list]) => list)
+      .join()
+    for (const [, called] of [
+      ...text.matchAll(/\bngp([A-Z]\w*)\(/g),
+      ...hosted.matchAll(/\bNgp(\w+)/g),
+    ])
+      if (!seen.has(called!)) reach(called!, seen)
+    return seen
+  }
+  const partOf = (component: string, name: string) =>
+    name === component
+      ? "Root"
+      : name.startsWith(component) &&
+          /^[A-Z]/.test(name.slice(component.length))
+        ? name.slice(component.length)
+        : name
+  return { modules, code, exported, reach, partOf }
+}
+
+/**
  * Each library's components that write a state, read more simply than the generator does (any
  * `data-*` attribute their files set that is not a part's name on its element), against the
  * vocabulary (KF-032): a component a library adds is not missed.
@@ -196,63 +266,7 @@ describe("every component that writes a state has a vocabulary", () => {
   })
 
   it("Angular Primitives, every part it exports with what the code it composes binds (KF-102)", () => {
-    const modules = path.join(packageOf("ng-primitives"), "fesm2022")
-    const machinery = new Set([
-      "state",
-      "internal",
-      "utils",
-      "interactions",
-      "a11y",
-      "common",
-      "portal",
-    ])
-    const pascal = (entry: string) =>
-      entry.replace(/(^|-)(\w)/g, (_, __, letter: string) =>
-        letter.toUpperCase()
-      )
-    // Every `NgpName`'s code, in any entry point: a directive's class, a `createPrimitive` body,
-    // a function (`ngpFormControl`), each up to the line that closes it.
-    const code = new Map<string, { component: string; text: string }>()
-    const exported: { component: string; name: string }[] = []
-    for (const file of readdirSync(modules)) {
-      const entry = /^ng-primitives-([\w-]+)\.mjs$/.exec(file)?.[1]
-      if (!entry) continue
-      const component = pascal(entry)
-      const text = readFileSync(path.join(modules, file), "utf8")
-      for (const match of text.matchAll(
-        /^(?:class Ngp(\w+) \{|function ngp([A-Z]\w*)\(|.*createPrimitive\('Ngp(\w+)')/gm
-      )) {
-        const name = match[1] ?? match[2] ?? match[3]!
-        const end = match[3] ? "\n});" : "\n}\n"
-        const body = text.slice(match.index, text.indexOf(end, match.index))
-        code.set(name, { component, text: (code.get(name)?.text ?? "") + body })
-      }
-      const names = [...text.matchAll(/^export \{([^}]*)\}/gm)].flatMap(
-        ([, list]) => list!.split(",").map((name) => name.trim())
-      )
-      // The directives and components it exports, not its services (`NgpToastManager`).
-      if (!machinery.has(entry))
-        for (const [, name] of text.matchAll(/^class Ngp(\w+) \{/gm))
-          if (
-            names.includes(`Ngp${name}`) &&
-            /\.ɵ(?:dir|cmp) = /.test(code.get(name!)!.text)
-          )
-            exported.push({ component, name: name! })
-    }
-    // What a name's code reaches: the functions it calls and the directives it hosts, at any depth.
-    const reach = (name: string, seen = new Set<string>()): Set<string> => {
-      seen.add(name)
-      const text = code.get(name)?.text ?? ""
-      const hosted = [...text.matchAll(/hostDirectives: \[([^\]]*)\]/g)]
-        .map(([, list]) => list)
-        .join()
-      for (const [, called] of [
-        ...text.matchAll(/\bngp([A-Z]\w*)\(/g),
-        ...hosted.matchAll(/\bNgp(\w+)/g),
-      ])
-        if (!seen.has(called!)) reach(called!, seen)
-      return seen
-    }
+    const { code, exported, reach, partOf } = angularCode()
     const binds = (name: string) =>
       [...reach(name)].some((reached) =>
         // A binding, a host property, the renderer (`ngpFocusVisible`), or interactions turned on;
@@ -262,13 +276,6 @@ describe("every component that writes a state has a vocabulary", () => {
         )
       )
     const vocabulary = ng as unknown as Record<string, Record<string, object>>
-    const partOf = (component: string, name: string) =>
-      name === component
-        ? "Root"
-        : name.startsWith(component) &&
-            /^[A-Z]/.test(name.slice(component.length))
-          ? name.slice(component.length)
-          : name
     const keys = (states: object | undefined) =>
       entries({ X: { P: states ?? {} } }).map(([, , state]) => state)
     const missing: string[] = []
@@ -335,5 +342,112 @@ describe("every component that writes a state has a vocabulary", () => {
             presences.push(`${component}.${part}.${name}`)
     expect(members.size).toBeGreaterThan(0)
     expect(presences).toEqual([])
+  })
+
+  it("Angular Primitives, with the presence of a state also written with a value (KF-100)", () => {
+    const { modules } = angularCode()
+    // A `dataBinding` that returns a literal on one branch and something else on the other
+    // (`softDisabled() ? 'soft' : hardDisabled()`), which `dataBinding` writes empty when `true`.
+    const both: string[] = []
+    for (const file of readdirSync(modules).filter((name) =>
+      name.endsWith(".mjs")
+    ))
+      for (const [, attribute, expression] of readFileSync(
+        path.join(modules, file),
+        "utf8"
+      ).matchAll(/dataBinding\(\w+, '(data-[a-z-]+)', ([^\n]*)\);/g)) {
+        const [, value] =
+          /\? '([a-z-]+)' : (?!'|null|undefined)\w/.exec(expression!) ?? []
+        if (value) both.push(`[${attribute}="${value}"]`)
+      }
+    const lacking: string[] = []
+    for (const [component, parts] of Object.entries(
+      ng as unknown as Record<string, Record<string, Record<string, unknown>>>
+    ))
+      for (const [part, states] of Object.entries(parts ?? {}))
+        for (const [name, state] of Object.entries(states ?? {})) {
+          if (typeof state !== "object" || state === null) continue
+          const values = Object.values(state) as string[]
+          const attribute = /^\[([\w-]+)=/.exec(values.at(-1)!)?.[1]
+          if (
+            values.some((selector) => both.includes(selector)) &&
+            (state as Record<string, string>).any !== `[${attribute}]`
+          )
+            lacking.push(`${component}.${part}.${name}`)
+        }
+    expect(both).toContain('[data-disabled="soft"]')
+    expect(lacking).toEqual([])
+  })
+
+  it("Angular Primitives, every part a portal renders with what the portal writes (KF-102)", () => {
+    const { modules, code, exported, reach, partOf } = angularCode()
+    const read = (entry: string) =>
+      readFileSync(path.join(modules, `ng-primitives-${entry}.mjs`), "utf8")
+    // The functions that write an attribute with `setAttribute` rather than a binding
+    // (`setupExitAnimation`'s `data-enter` and `data-exit`), in any entry point.
+    const writers = new Map<string, string[]>()
+    for (const file of readdirSync(modules).filter((name) =>
+      name.endsWith(".mjs")
+    )) {
+      const text = readFileSync(path.join(modules, file), "utf8")
+      for (const match of text.matchAll(/^function (\w+)\(/gm)) {
+        const body = text.slice(match.index, text.indexOf("\n}\n", match.index))
+        const set = [
+          ...body.matchAll(/\.setAttribute\('(data-[a-z-]+)', ''\)/g),
+        ].map(([, attribute]) => attribute!)
+        if (set.length) writers.set(match[1]!, set)
+      }
+    }
+    const calls = (text: string) =>
+      [...text.matchAll(/\b(\w+)\(/g)].flatMap(
+        ([, call]) => writers.get(call!) ?? []
+      )
+    // What the portal's classes write as they attach an element, and what the overlay marks on
+    // its portal's elements.
+    const portal = read("portal")
+    const rendered = [
+      ...portal.matchAll(/^class \w+ extends NgpPortal \{[\s\S]*?\n\}\n/gm),
+    ].flatMap(([body]) => calls(body))
+    const overlaid = [
+      ...portal.matchAll(
+        /of portal\.getElements\(\)\) \{\s*\w+\.setAttribute\('(data-[a-z-]+)', ''\)/g
+      ),
+    ].map(([, attribute]) => attribute!)
+    // A toast's portal is created with the hook its `NgpToast` registers itself through.
+    const registered = [
+      ...read("toast").matchAll(/provide(\w+)\(\{[^}]*\bregister:/g),
+    ].map(([, name]) => `inject${name}()`)
+    expect(new Set(rendered)).toEqual(new Set(["data-enter", "data-exit"]))
+    expect(overlaid).toEqual(["data-instant"])
+    expect(registered).toEqual(["injectToastOptions()"])
+    const vocabulary = ng as unknown as Record<string, Record<string, object>>
+    const short: string[] = []
+    for (const { component, name } of exported) {
+      const text = [...reach(name)]
+        .map((reached) => code.get(reached)?.text ?? "")
+        .join("\n")
+      const expected = new Set(calls(text))
+      if (/\boverlay\b[^\n;]*?\.position\(\)/.test(text))
+        for (const attribute of [...rendered, ...overlaid])
+          expected.add(attribute)
+      if (
+        registered.some((call) => text.includes(call)) &&
+        text.includes(".register(this)")
+      )
+        for (const attribute of rendered) expected.add(attribute)
+      const own = vocabulary[component]?.[partOf(component, name)] ?? {}
+      const lacking = [...expected].filter(
+        (attribute) =>
+          !(
+            attribute
+              .slice("data-".length)
+              .replace(/-(\w)/g, (_, letter: string) => letter.toUpperCase()) in
+            own
+          )
+      )
+      if (lacking.length)
+        short.push(`${component}.${name}: ${lacking.join(", ")}`)
+    }
+    expect(short).toEqual([])
   })
 })
