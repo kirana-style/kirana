@@ -100,6 +100,29 @@ describe("@kirana-style/states for Vue, Svelte and Angular libraries", () => {
     })
     // A boolean stays a presence: `dataBinding` writes `true` as an empty attribute.
     expect(ng.Tabs.TabButton.active).toBe("[data-active]")
+    // A part that composes another primitive has its states (KF-102): the accordion's item, trigger
+    // and content the collapsible's, a menu item its button's at two levels, a checkbox its form
+    // control's, Dialog its host directive's, an arrow its overlay's placement.
+    expect(ng.Accordion.Item.open).toBe("[data-open]")
+    expect(ng.Accordion.Trigger.disabled).toBe("[data-disabled]")
+    expect(ng.Accordion.Content.closed).toBe("[data-closed]")
+    expect(ng.Accordion.Item.orientation.vertical).toBe(
+      '[data-orientation="vertical"]'
+    )
+    expect(ng.Menu.Item.hover).toBe("[data-hover]")
+    expect(ng.Menu.ItemCheckbox.focusVisible).toBe("[data-focus-visible]")
+    expect(ng.ContextMenu.Item.press).toBe("[data-press]")
+    expect(ng.Checkbox.Root.invalid).toBe("[data-invalid]")
+    expect(ng.Dialog.Root.focusTrap).toBe("[data-focus-trap]")
+    expect(ng.Popover.Arrow.placement.top).toBe('[data-placement="top"]')
+    // A state bound with `attrBinding`, which writes its value as text.
+    expect(ng.Menu.Root.placement.bottomStart).toBe(
+      '[data-placement="bottom-start"]'
+    )
+    expect(ng.Separator.Root.orientation.horizontal).toBe(
+      '[data-orientation="horizontal"]'
+    )
+    expect(ng.exclusive).toContainEqual(["[data-open]", "[data-closed]"])
   })
 
   it("compiles as condition keys", () => {

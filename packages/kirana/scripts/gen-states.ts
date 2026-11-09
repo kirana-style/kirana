@@ -1306,6 +1306,17 @@ const INTERACTIONS: Readonly<Record<string, string>> = {
   focusVisible: "data-focus-visible",
 }
 
+/**
+ * The interactions a part calls one by one (`ngpFocusVisible({ … })`, `ngpHover({ … })`), by
+ * function: `ngpFocus` and `ngpFocusVisible` set theirs through the renderer, not a binding.
+ */
+const INTERACTION_CALLS: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(INTERACTIONS).map(([key, attribute]) => [
+    `ngp${pascal(key)}`,
+    attribute,
+  ])
+)
+
 /** Entry points that hold the library's machinery rather than components. */
 const NG_MACHINERY = new Set([
   "state",
@@ -1317,6 +1328,88 @@ const NG_MACHINERY = new Set([
   "portal",
 ])
 
+/** `data-*` attributes Password binds for password managers to read: hints, not states. */
+const NG_HINTS = new Set(["data-1p-ignore", "data-lpignore", "data-bwignore"])
+
+/**
+ * Code of Angular Primitives that binds states on its host element: a `createPrimitive` body, an
+ * `ngp…` function (`ngpFormControl`), or a directive's class, with where its types are declared.
+ */
+interface NgUnit {
+  /** `AccordionItem` for `createPrimitive('NgpAccordionItem', …)` and `class NgpAccordionItem`. */
+  name: string
+  component: string
+  body: string
+  types: NgTypes
+}
+
+/** The text from `start` to the first `end` after it: the library's bundles close a block at column 0. */
+const until = (text: string, start: number, end: string) =>
+  text.slice(start, text.indexOf(end, start))
+
+/**
+ * Every unit of every entry point, machinery included, for a part that composes one in another
+ * entry point (`ngpOverlayArrow` in `ng-primitives/portal`): the functions by the name they are
+ * called by, the directives by their class.
+ */
+function ngUnits(modules: string, typings: string, everyEntry: string) {
+  const functions = new Map<string, NgUnit>()
+  const classes = new Map<
+    string,
+    NgUnit & { index: number; entry: string; exported: boolean }
+  >()
+  const order = new Map<string, number>()
+  for (const file of readdirSync(modules).filter((entry) =>
+    /^ng-primitives-[\w-]+\.mjs$/.test(entry)
+  )) {
+    const entry = file.slice("ng-primitives-".length, -".mjs".length)
+    const component = pascal(entry)
+    const text = readFileSync(path.join(modules, file), "utf8")
+    // What the entry point exports: a component it renders itself (`NgpTooltipTextContentComponent`)
+    // is no part.
+    const exports = new Set(
+      [...text.matchAll(/^export \{([^}]*)\}/gm)].flatMap(([, names]) =>
+        names!.split(",").map((name) => name.trim())
+      )
+    )
+    const own = path.join(typings, `ng-primitives-${entry}.d.ts`)
+    const types = {
+      own: existsSync(own) ? readFileSync(own, "utf8") : "",
+      all: everyEntry,
+    }
+    for (const match of text.matchAll(
+      /^const \[\w+, (\w+)[^\]]*\] = createPrimitive\('Ngp(\w+)'/gm
+    )) {
+      const body = until(text, match.index, "\n});")
+      functions.set(match[1]!, { name: match[2]!, component, body, types })
+      order.set(match[2]!, match.index)
+    }
+    for (const match of text.matchAll(/^function (ngp([A-Z]\w*))\(/gm))
+      functions.set(match[1]!, {
+        name: match[2]!,
+        component,
+        body: until(text, match.index, "\n}\n"),
+        types,
+      })
+    for (const match of text.matchAll(/^class Ngp(\w+) \{/gm)) {
+      const body = until(text, match.index, "\n}\n")
+      // A directive or a component, not a service (`NgpToastManager`).
+      if (!/\.ɵ(?:dir|cmp) = /.test(body)) continue
+      classes.set(match[1]!, {
+        name: match[1]!,
+        component,
+        body,
+        types,
+        entry,
+        exported: exports.has(`Ngp${match[1]}`),
+        // A part sits where its primitive does, so a class written after it keeps its place.
+        index: order.get(match[1]!) ?? match.index,
+      })
+    }
+  }
+  return { functions, classes }
+}
+
 function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
   const { directory, version } = installed("ng-primitives")
   const modules = path.join(directory, "fesm2022")
@@ -1327,65 +1420,90 @@ function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
     .filter((entry) => entry.endsWith(".d.ts"))
     .map((entry) => readFileSync(path.join(typings, entry), "utf8"))
     .join("\n")
-  const out: Vocabulary = new Map()
-  for (const file of readdirSync(modules).filter((entry) =>
-    /^ng-primitives-[\w-]+\.mjs$/.test(entry)
-  )) {
-    const entry = file.slice("ng-primitives-".length, -".mjs".length)
-    if (NG_MACHINERY.has(entry)) continue
-    const component = pascal(entry)
-    const text = readFileSync(path.join(modules, file), "utf8")
-    const blocks = text.split(/(?=createPrimitive\('Ngp)/).slice(1)
-    const byPart = new Map<string, State[]>()
-    const types = {
-      own: readFileSync(
-        path.join(typings, `ng-primitives-${entry}.d.ts`),
-        "utf8"
-      ),
-      all: everyEntry,
-    }
-    for (const block of blocks) {
-      const name = /^createPrimitive\('Ngp(\w+)'/.exec(block)![1]!
-      // The block's own directive: a primitive another one only uses has no class of its own.
-      if (!text.includes(`class Ngp${name} {`)) continue
-      const part = partName(name, component) ?? name
-      const list: State[] = []
-      for (const [, attribute, expression] of block.matchAll(
-        /dataBinding\(\w+, '(data-[a-z][a-z0-9-]*)', ([^\n]*)\);/g
-      ))
-        addState(list, attribute!, boundValues(name, expression!, block, types))
-      const interactions =
-        /ngpInteractions\(\{([^}]*)\}\)/.exec(block)?.[1] ?? ""
-      for (const [key, attribute] of Object.entries(INTERACTIONS))
-        if (new RegExp(`\\b${key}\\s*:\\s*(?!false)`).test(interactions))
-          addState(list, attribute, [])
-      if (list.length) byPart.set(part, byName(list))
-    }
-    // Directives written without `createPrimitive` (Combobox, Toast, Radio's indicator) bind their
-    // states in their declaration's `host.properties` (KF-099).
-    for (const [, call] of text.matchAll(
-      /ɵɵngDeclareDirective\((\{[^\n]*\})\); \}/g
-    )) {
-      const name = /type: Ngp(\w+),/.exec(call!)![1]!
-      const part = partName(name, component) ?? name
-      const list = byPart.get(part) ?? []
-      for (const [, attribute, raw] of call!.matchAll(
-        /"attr\.(data-[a-z][a-z0-9-]*)": "((?:[^"\\]|\\.)*)"/g
-      ))
+  const { functions, classes } = ngUnits(modules, typings, everyEntry)
+  const known = new Map<NgUnit, State[]>()
+
+  /**
+   * A unit's states: what it binds itself, and what every unit it composes binds (KF-102). An
+   * accordion item calls `ngpCollapsible(…)`, which binds `data-open` on the item's element; a
+   * menu item calls `ngpButton(…)`, a checkbox `ngpFormControl(…)`, and Dialog names
+   * `NgpFocusTrap` in its `hostDirectives`. Followed through every level (a menu's checkbox item
+   * calls `ngpMenuItem`, which calls `ngpButton`), each composed state with the values its own
+   * code gives it, merged with the composer's binding of the same attribute. The arguments a
+   * composer passes change no composed primitive's attributes, only `ngpInteractions`', read here
+   * by its options; a value they rule out is not read (a menu item passes a boolean `disabled`, so
+   * never Button's `'soft'`).
+   */
+  function statesOf(unit: NgUnit, trail: readonly NgUnit[] = []): State[] {
+    const done = known.get(unit)
+    if (done) return done
+    const list: State[] = []
+    for (const [, kind, attribute, expression] of unit.body.matchAll(
+      /(data|attr)Binding\(\w+, '(data-[a-z][a-z0-9-]*)', ([^\n]*)\);/g
+    ))
+      // `attrBinding` writes a value as text: Menu's placement, Separator's orientation.
+      if (kind === "data" || !NG_HINTS.has(attribute!))
         addState(
           list,
           attribute!,
-          hostValues(
-            component,
-            name,
-            attribute!,
-            JSON.parse(`"${raw}"`) as string,
-            types
-          )
+          boundValues(unit.name, expression!, unit.body, unit.types)
         )
-      if (list.length) byPart.set(part, byName(list))
-    }
-    if (byPart.size) out.set(component, byPart)
+    for (const [, options] of unit.body.matchAll(
+      /ngpInteractions\(\{([^}]*)\}\)/g
+    ))
+      for (const [key, attribute] of Object.entries(INTERACTIONS))
+        if (new RegExp(`\\b${key}\\s*:\\s*(?!false)`).test(options!))
+          addState(list, attribute, [])
+    // Directives written without `createPrimitive` (Combobox, Toast, Radio's indicator) bind their
+    // states in their declaration's `host.properties` (KF-099).
+    const host = /ɵɵngDeclareDirective\((\{[^\n]*\})\); \}/.exec(unit.body)?.[1]
+    for (const [, attribute, raw] of (host ?? "").matchAll(
+      /"attr\.(data-[a-z][a-z0-9-]*)": "((?:[^"\\]|\\.)*)"/g
+    ))
+      addState(
+        list,
+        attribute!,
+        hostValues(
+          unit.component,
+          unit.name,
+          attribute!,
+          JSON.parse(`"${raw}"`) as string,
+          unit.types
+        )
+      )
+    const composed = [
+      ...[...unit.body.matchAll(/\b(ngp[A-Z]\w*)\(/g)].map(([, call]) => {
+        const attribute = INTERACTION_CALLS[call!]
+        if (attribute) addState(list, attribute, [])
+        return call === "ngpInteractions" || attribute
+          ? undefined
+          : functions.get(call!)
+      }),
+      ...[
+        ...(/hostDirectives: \[([^\]]*)\]/.exec(unit.body)?.[1] ?? "").matchAll(
+          /\bNgp(\w+)/g
+        ),
+      ].map(([, name]) => classes.get(name!)),
+    ]
+    for (const other of new Set(composed))
+      if (other && other !== unit && !trail.includes(other))
+        for (const state of statesOf(other, [...trail, unit]))
+          addState(list, state.attribute, state.values)
+    known.set(unit, list)
+    return list
+  }
+
+  const out: Vocabulary = new Map()
+  for (const unit of [...classes.values()].sort((a, b) => a.index - b.index)) {
+    if (NG_MACHINERY.has(unit.entry) || !unit.exported) continue
+    const list = statesOf(unit)
+    if (!list.length) continue
+    const byPart = (out.get(unit.component) ?? new Map()) as Map<
+      string,
+      State[]
+    >
+    byPart.set(partName(unit.name, unit.component) ?? unit.name, byName(list))
+    out.set(unit.component, byPart)
   }
   return { vocabulary: sorted(out), version }
 }
@@ -1423,11 +1541,21 @@ function boundValues(
   const values = valuesIn(expression)
   if (values.length || /\?\s*''\s*:\s*null\)$/.test(expression)) return values
   const member = memberOf(expression)
+  // A literal reads no member (`attrBinding(element, 'data-overlay', '')`).
+  if (!member) return []
   const local = new RegExp(`const ${member} = computed\\(([^\\n]*)`).exec(
     block
   )?.[1]
-  // Its development build's `debugName: "status"` is no value.
-  if (local) return valuesIn(local.split(", ...(ngDevMode")[0]!)
+  if (local) {
+    // Its development build's `debugName: "status"` is no value.
+    const computed = local.split(", ...(ngDevMode")[0]!
+    const returned = valuesIn(computed)
+    // Or the type of what it reads (`computed(() => overlay.finalPlacement())`, the overlay arrow's).
+    const read = memberOf(computed)
+    return returned.length || !read || read === member
+      ? returned
+      : enumerated(declaredType(directive, read, types), types.all)
+  }
   return enumerated(declaredType(directive, member, types), types.all)
 }
 

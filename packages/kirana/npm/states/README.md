@@ -34,7 +34,7 @@ behind.
 | `./react-aria`    | [React Aria Components](https://react-spectrum.adobe.com/react-aria/) | each component's render props, by their `@selector`                                   |
 | `./reka-ui`       | [Reka UI](https://reka-ui.com), for Vue                               | each part's template, as the package ships it                                         |
 | `./bits-ui`       | [Bits UI](https://bits-ui.com), for Svelte                            | each part's state class, by the types of its `props`                                  |
-| `./ng-primitives` | [Angular Primitives](https://angularprimitives.com) (`ng-primitives`) | each primitive's data and host bindings, and its interactions                         |
+| `./ng-primitives` | [Angular Primitives](https://angularprimitives.com) (`ng-primitives`) | each part's data and host bindings, its interactions, and those of what it composes   |
 
 Each subpath also exports `exclusive`: the states its library sets one at a time (`checked` and
 `unchecked`, `open` and `closed`), for `conditions.exclusive` in `kirana.config`, so a property set
@@ -68,7 +68,9 @@ A state that takes values (`side`, `align`, `orientation`) has one key per value
 (`Select.Popup.side.inlineEnd` is `'[data-side="inline-end"]'`). A state whose value is free text or
 a number (`index`) is its attribute's presence. Angular Primitives' states take their values from
 the type of what they bind (`NgpOrientation`, `NgpPlacement`, `NgpAvatarStatus`), so
-`Tabs.Tabset.orientation.vertical` is `'[data-orientation="vertical"]'`. Ark UI's `orientation` takes its values from Zag's
+`Tabs.Tabset.orientation.vertical` is `'[data-orientation="vertical"]'`, and a part built on another
+primitive has its states too (`Accordion.Item.open` from the collapsible it calls, `Menu.Item.hover`
+from the button). Ark UI's `orientation` takes its values from Zag's
 `Orientation` type (`@zag-js/types`), since Zag's reference describes it in prose. Ark UI's parts
 also have what their prop getter in Zag's code sets and the reference leaves out, through the helpers
 it spreads: Radio Group's `Item`, `ItemText` and the item states of its `ItemControl`. Segment Group,

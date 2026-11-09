@@ -7,6 +7,7 @@ import * as ark from "../src/ark-ui.ts"
 import * as bits from "../src/bits-ui.ts"
 import * as ng from "../src/ng-primitives.ts"
 import * as reka from "../src/reka-ui.ts"
+import { entries } from "./entries.ts"
 
 /** A package's directory: Bits UI's `exports` hide its `package.json` from the resolver. */
 const packageOf = (name: string) =>
@@ -192,6 +193,103 @@ describe("every component that writes a state has a vocabulary", () => {
       }
     }
     expect(missing).toEqual([])
+  })
+
+  it("Angular Primitives, every part it exports with what the code it composes binds (KF-102)", () => {
+    const modules = path.join(packageOf("ng-primitives"), "fesm2022")
+    const machinery = new Set([
+      "state",
+      "internal",
+      "utils",
+      "interactions",
+      "a11y",
+      "common",
+      "portal",
+    ])
+    const pascal = (entry: string) =>
+      entry.replace(/(^|-)(\w)/g, (_, __, letter: string) =>
+        letter.toUpperCase()
+      )
+    // Every `NgpName`'s code, in any entry point: a directive's class, a `createPrimitive` body,
+    // a function (`ngpFormControl`), each up to the line that closes it.
+    const code = new Map<string, { component: string; text: string }>()
+    const exported: { component: string; name: string }[] = []
+    for (const file of readdirSync(modules)) {
+      const entry = /^ng-primitives-([\w-]+)\.mjs$/.exec(file)?.[1]
+      if (!entry) continue
+      const component = pascal(entry)
+      const text = readFileSync(path.join(modules, file), "utf8")
+      for (const match of text.matchAll(
+        /^(?:class Ngp(\w+) \{|function ngp([A-Z]\w*)\(|.*createPrimitive\('Ngp(\w+)')/gm
+      )) {
+        const name = match[1] ?? match[2] ?? match[3]!
+        const end = match[3] ? "\n});" : "\n}\n"
+        const body = text.slice(match.index, text.indexOf(end, match.index))
+        code.set(name, { component, text: (code.get(name)?.text ?? "") + body })
+      }
+      const names = [...text.matchAll(/^export \{([^}]*)\}/gm)].flatMap(
+        ([, list]) => list!.split(",").map((name) => name.trim())
+      )
+      // The directives and components it exports, not its services (`NgpToastManager`).
+      if (!machinery.has(entry))
+        for (const [, name] of text.matchAll(/^class Ngp(\w+) \{/gm))
+          if (
+            names.includes(`Ngp${name}`) &&
+            /\.ɵ(?:dir|cmp) = /.test(code.get(name!)!.text)
+          )
+            exported.push({ component, name: name! })
+    }
+    // What a name's code reaches: the functions it calls and the directives it hosts, at any depth.
+    const reach = (name: string, seen = new Set<string>()): Set<string> => {
+      seen.add(name)
+      const text = code.get(name)?.text ?? ""
+      const hosted = [...text.matchAll(/hostDirectives: \[([^\]]*)\]/g)]
+        .map(([, list]) => list)
+        .join()
+      for (const [, called] of [
+        ...text.matchAll(/\bngp([A-Z]\w*)\(/g),
+        ...hosted.matchAll(/\bNgp(\w+)/g),
+      ])
+        if (!seen.has(called!)) reach(called!, seen)
+      return seen
+    }
+    const binds = (name: string) =>
+      [...reach(name)].some((reached) =>
+        // A binding, a host property, the renderer (`ngpFocusVisible`), or interactions turned on;
+        // not the hints Password writes for password managers.
+        /(?:data|attr)Binding\(\w+, 'data-(?!1p-ignore|lpignore|bwignore)|"attr\.data-|setAttribute\([^)]*'data-|ngpInteractions\(\{\s*\w/.test(
+          code.get(reached)?.text ?? ""
+        )
+      )
+    const vocabulary = ng as unknown as Record<string, Record<string, object>>
+    const partOf = (component: string, name: string) =>
+      name === component
+        ? "Root"
+        : name.startsWith(component) &&
+            /^[A-Z]/.test(name.slice(component.length))
+          ? name.slice(component.length)
+          : name
+    const keys = (states: object | undefined) =>
+      entries({ X: { P: states ?? {} } }).map(([, , state]) => state)
+    const missing: string[] = []
+    const short: string[] = []
+    for (const { component, name } of exported) {
+      const part = partOf(component, name)
+      const own = vocabulary[component]?.[part]
+      if (!own && binds(name)) missing.push(`${component}.${part}`)
+      // An accordion item takes its collapsible's states, a menu item its button's.
+      for (const reached of reach(name)) {
+        const other = code.get(reached)
+        if (!other || reached === name) continue
+        const composed =
+          vocabulary[other.component]?.[partOf(other.component, reached)]
+        const lacking = keys(composed).filter((key) => !keys(own).includes(key))
+        if (lacking.length)
+          short.push(`${component}.${part} (${reached}): ${lacking.join(", ")}`)
+      }
+    }
+    expect(exported.length).toBeGreaterThan(150)
+    expect({ missing, short }).toEqual({ missing: [], short: [] })
   })
 
   it("Angular Primitives, with the values of every state its types enumerate (KF-100)", () => {
