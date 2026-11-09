@@ -249,6 +249,50 @@ describe("KRN-DX-008 kirana-style init's edits", () => {
     ).toBe(
       `<script context="module">\n\timport a from 'a'\n\timport k from 'k'\n</script>\n`
     )
+    // A block opens a line and closes on a line of its own, in any case; a script inside markup,
+    // another tag and a closing tag in the middle of a line are none.
+    expect(
+      addImport(
+        `<p><script>x</script></p>\n<scripts>\n</scripts>\n<script>\n  import a from "a"\n</script>\n`,
+        `import k from "k"`
+      )
+    ).toBe(
+      `<p><script>x</script></p>\n<scripts>\n</scripts>\n<script>\n  import a from "a"\n  import k from "k"\n</script>\n`
+    )
+    expect(
+      addImport(
+        `<script>\n  // ends at </scripts> or </script> in a comment\n  import a from "a"\n</script>\n`,
+        `import k from "k"`
+      )
+    ).toBe(
+      `<script>\n  // ends at </scripts> or </script> in a comment\n  import a from "a"\n  import k from "k"\n</script>\n`
+    )
+    expect(
+      addImport(
+        `<SCRIPT setup>\nimport a from "a"\n</SCRIPT >\n`,
+        `import k from "k"`
+      )
+    ).toBe(`<SCRIPT setup>\nimport a from "a"\nimport k from "k"\n</SCRIPT >\n`)
+    // Spaces and a Windows line end after the opening tag, and a script on its line.
+    expect(
+      addImport(
+        `<script> \t\r\nlet a = 1\r\n</script>\r\n`,
+        `import k from "k"`
+      )
+    ).toBe(`<script> \t\r\nimport k from "k"\n\nlet a = 1\r\n</script>\r\n`)
+    expect(
+      addImport(`<script setup>let a = 1\n</script>\n`, `import k from "k"`)
+    ).toBe(`<script setup>import k from "k"\n\nlet a = 1\n</script>\n`)
+    // A script never opened or closed is no block: the import goes first, as in a script.
+    expect(addImport(`<p />\n<script`, `import k from "k"`)).toBe(
+      `import k from "k"\n\n<p />\n<script`
+    )
+    expect(addImport(`<script>\nlet a\n</script`, `import k from "k"`)).toBe(
+      `import k from "k"\n\n<script>\nlet a\n</script`
+    )
+    expect(
+      addImport(`<script>\n  import a from "a"\n`, `import k from "k"`)
+    ).toBe(`import k from "k"\n\n<script>\n  import a from "a"\n`)
   })
 
   it("joins names to the module's existing import of them (KF-035)", () => {

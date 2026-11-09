@@ -108,6 +108,8 @@ export function htmlAt(text: string, file = "", tag = "<html"): number {
   let at = TEMPLATE_FILE.test(file)
     ? (FRONTMATTER.exec(text)?.[0].length ?? 0)
     : 0
+  // Tags are matched in any case: `<SCRIPT>` is a script too.
+  const lower = text.toLowerCase()
   for (; at < text.length; at++) {
     const char = text[at]!
     if (!markup && text.startsWith("//", at)) {
@@ -119,8 +121,8 @@ export function htmlAt(text: string, file = "", tag = "<html"): number {
     } else if (markup && text.startsWith("<!--", at)) {
       const end = text.indexOf("-->", at + 4)
       at = end < 0 ? text.length : end + 2
-    } else if (markup && /^<script[\s>]/.test(text.slice(at, at + 8))) {
-      const end = text.indexOf("</script", at)
+    } else if (markup && /^<script[\s>]/.test(lower.slice(at, at + 8))) {
+      const end = lower.indexOf("</script", at)
       at = end < 0 ? text.length : end
     } else if (!markup && (char === '"' || char === "'" || char === "`")) {
       // A quote ends at its closing quote or, unless a template's, at the end of its line.

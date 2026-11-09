@@ -900,7 +900,7 @@ function wire(
       const withSx = `${text.slice(0, at)} ${sx}${text.slice(at)}`
       // A Vue component without a script gets one for the import.
       const scripted =
-        html.endsWith(".vue") && !/<script\b/.test(withSx)
+        html.endsWith(".vue") && !/<script\b/i.test(withSx)
           ? `<script setup>\n</script>\n\n${withSx}`
           : withSx
       files.write(
