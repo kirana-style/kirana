@@ -14,7 +14,6 @@ import {
   installCommand,
   main as kirana,
   parseDiagnostics,
-  sources,
 } from "@kirana-style/compiler"
 import type { Diagnostic } from "@kirana-style/compiler"
 
@@ -28,6 +27,7 @@ import type { InlineIcon } from "./inline-icons.ts"
 import { readLockfile, writeLockfile } from "./lockfile.ts"
 import {
   aliasDirectory,
+  documentSources,
   frameworkOf,
   generateCommand,
   readProject,
@@ -598,9 +598,12 @@ export const designSystemsOf = (planned: readonly Planned[]): string[] =>
     .filter((entry) => entry.item.type === "design-system")
     .map((entry) => entry.key)
 
-/** The project's scripts, relative to its root, with forward slashes. */
+/**
+ * The project's scripts and its Astro, Svelte and Vue components, relative to its root, with
+ * forward slashes: where the stylesheet's entry and the root document are looked for (KF-113).
+ */
 export const scriptsOf = (root: string): string[] =>
-  sources(root).map((file) =>
+  documentSources(root).map((file) =>
     path.relative(root, file).split(path.sep).join("/")
   )
 

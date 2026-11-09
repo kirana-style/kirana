@@ -111,7 +111,8 @@ build defines them there from the same runtime.
 ## SvelteKit
 
 On SvelteKit, follow the [SvelteKit guide](/docs/frameworks/sveltekit): the
-plugin goes before `sveltekit()`, and the stylesheet in the root layout.
+plugin goes before `sveltekit()`, the stylesheet in the root layout, and the
+classes `<html>` takes in a server hook, since `src/app.html` is static.
 
 ## Next
 

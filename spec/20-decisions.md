@@ -1706,7 +1706,10 @@ the implementation tracker names its evidence.
   compiler's own element prop, which every React framework's document already renders.
 - **Trade-off:** an app whose document is static HTML (a Vite SPA) gets its `<html>` classes set at
   run time in its entry, one line, since HTML cannot take `sx`. A layout the installer cannot edit
-  safely is printed as a step to do by hand.
+  safely is printed as a step to do by hand. Nuxt writes the document itself, from the `<Html>` a
+  Vue component renders, so that component takes the attributes and `:sx` (one added to `app.vue`
+  where none renders it, KF-112); SvelteKit's `app.html` is static and Svelte has no
+  `<svelte:html>`, so a server hook `init` writes adds the classes to every rendered page (KF-113).
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
 ### D-110 — Registries ship their flattenings, a design system describes its axes

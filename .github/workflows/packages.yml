@@ -305,8 +305,9 @@ jobs:
 
   # The component registry's installer end to end (KRN-DX-028, KRN-DX-029, KRN-DX-033): on a Vite,
   # a TanStack Start, a React Router and a Next.js app, on Vue, Svelte, Solid and Angular (its icon
-  # drawn inline), and on Astro's React islands, Laravel's Inertia pages and TanStack Start on Solid
-  # (KF-109), `kirana-style ui init` and `ui add` from the fixture registry (examples/registry), then
+  # drawn inline), on Astro's React islands, Laravel's Inertia pages and TanStack Start on Solid
+  # (KF-109), and on Nuxt (its <Html>, KF-112) and SvelteKit (its layout and server hook, KF-113),
+  # `kirana-style ui init` and `ui add` from the fixture registry (examples/registry), then
   # the build, and the installed button, its icon and the design system on <html> read back in
   # Chromium beside the probe.
   install-registry:
@@ -330,6 +331,8 @@ jobs:
             astro-react,
             laravel-inertia,
             tanstack-start-solid,
+            nuxt,
+            sveltekit,
           ]
 
     steps:

@@ -56,6 +56,30 @@ const full = css({ width: "100%" })
 
 In `nuxt dev`, editing a style updates the page in place, without a reload.
 
+## The document
+
+Nuxt writes `<html>` itself, from the `<Html>` a page, a layout or `app.vue`
+renders. It takes `:sx` like any element, so a design system's styles and
+attributes go there:
+
+```vue file="app/app.vue"
+<script setup lang="ts">
+import { htmlStyles } from "@/lib/kirana/document"
+</script>
+
+<template>
+  <Html data-pointer :sx="htmlStyles" />
+  <NuxtPage />
+</template>
+```
+
+`kirana-style ui init` writes this:
+
+- on the component that renders `<Html>`;
+- where none does, on a `<Html />` it adds first in `app.vue`'s template, beside
+  the page, since `<Html>` renders nothing;
+- the reset and the fonts in `nuxt.config.ts`'s `css`, after Kirana's stylesheet.
+
 ## Next
 
 - [Your first component](/docs/start/first-component): a button with a hover state

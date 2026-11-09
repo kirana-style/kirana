@@ -2208,6 +2208,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "the-document",
+        "text": "The document",
+        "level": 2
+      },
+      {
         "id": "next",
         "text": "Next",
         "level": 2
@@ -2370,6 +2375,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "5-write-a-component",
         "text": "5. Write a component",
+        "level": 2
+      },
+      {
+        "id": "the-document",
+        "text": "The document",
         "level": 2
       },
       {

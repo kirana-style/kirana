@@ -3,15 +3,17 @@
  * packages it lists and its package manager, and the directory each import alias stands for, from
  * `tsconfig.json`'s `paths`, which Nuxt and SvelteKit generate (KF-107).
  */
-import { existsSync, readFileSync, statSync } from "node:fs"
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs"
 import path from "node:path"
 
 import {
   packageManagerOf,
   readJsonc,
   readPackage,
+  sources,
 } from "@kirana-style/compiler"
 import type { PackageJson, PackageManager } from "@kirana-style/compiler"
+import { SKIPPED } from "@kirana-style/compiler/host"
 
 import { RegistryError } from "./read.ts"
 import type { Framework } from "./types.ts"
@@ -55,6 +57,36 @@ export function readProject(root: string): Project {
     listed: { ...packageJson.dependencies, ...packageJson.devDependencies },
   }
 }
+
+/**
+ * A component whose markup can render `<html>` beside the script that imports what it uses: an
+ * Astro layout and its frontmatter (KF-109); a Svelte or Vue component and its `<script>`, which can
+ * import Kirana's stylesheet (SvelteKit's `+layout.svelte`, KF-113) or render Nuxt's `<Html>`
+ * (KF-112).
+ */
+export const TEMPLATE_FILE = /\.(?:astro|svelte|vue)$/
+
+/**
+ * The files a root document or the stylesheet's entry can be among: the project's scripts, and its
+ * `TEMPLATE_FILE`s, outside installed packages, build output and hidden folders.
+ */
+export function documentSources(root: string): string[] {
+  const found = sources(root)
+  const walk = (directory: string) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (entry.name.startsWith(".") || SKIPPED.has(entry.name)) continue
+      const file = path.join(directory, entry.name)
+      if (entry.isDirectory()) walk(file)
+      else if (TEMPLATE_FILE.test(entry.name)) found.push(file)
+    }
+  }
+  walk(root)
+  return found
+}
+
+/** The major version of SvelteKit a project lists, 3 for one without a number (`latest`). */
+export const svelteKitMajor = (kit: string): number =>
+  Number(/\d+/.exec(kit)?.[0] ?? 3)
 
 /** The framework the project depends on, when it is exactly one. */
 export function frameworkOf(project: Project): Framework | undefined {
@@ -234,8 +266,7 @@ export function generatorOf(
   }
   const kit = listed["@sveltejs/kit"]
   // SvelteKit 2's is `.svelte-kit/tsconfig.json`, whose `$lib` a root `paths` would hide.
-  if (kit === undefined || Number(/\d+/.exec(kit)?.[0] ?? 3) < 3)
-    return undefined
+  if (kit === undefined || svelteKitMajor(kit) < 3) return undefined
   return {
     tsconfig: SVELTEKIT_TSCONFIG,
     about: "SvelteKit's, extending the $app/tsconfig svelte-kit sync writes",

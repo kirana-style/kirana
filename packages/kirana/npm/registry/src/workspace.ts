@@ -75,7 +75,7 @@ const relative = (from: string, to: string) =>
  * The tsconfig that takes a new `paths` entry: the one holding the project's `paths`, else the first
  * of `tsconfig.json` and the files it references that has compiler options.
  */
-function tsconfigOf(files: PlannedFiles): string | undefined {
+export function tsconfigOf(files: PlannedFiles): string | undefined {
   const found = pathsOf(path.join(files.root, "tsconfig.json"), files.absolute)
   if (found) return relative(files.root, found.file)
   const references = [

@@ -47,10 +47,13 @@ import {
 import { readLockfile, writeLockfile } from "./lockfile.ts"
 import {
   aliasDirectory,
+  documentSources,
   frameworkOf,
   generatorOf,
   pathsOf,
   readProject,
+  svelteKitMajor,
+  TEMPLATE_FILE,
 } from "./project.ts"
 import type { Generator } from "./project.ts"
 import { read, RegistryError } from "./read.ts"
@@ -62,12 +65,12 @@ import {
   attributesOf,
   decodePreset,
   DIRECTION,
-  documentSources,
   findDocument,
+  htmlAt,
+  htmlTag,
   optionAttributes,
   rendersHtml,
   settingsOf,
-  TEMPLATE_FILE,
   withAttributes,
 } from "./preset.ts"
 import { startTemplate } from "./template.ts"
@@ -75,6 +78,7 @@ import type { Framework, IconLibrary, Index, Item } from "./types.ts"
 import { version } from "./version.ts"
 import {
   prepareWorkspace,
+  tsconfigOf,
   vitePaths,
   workspaceLine,
   workspaceSettings,
@@ -139,8 +143,10 @@ class Files {
   }
 
   /**
-   * The project's scripts and Astro components, those only planned included, relative and with
-   * forward slashes: an Astro layout renders `<html>` and imports in its frontmatter (KF-109).
+   * The project's scripts and its Astro, Svelte and Vue components, those only planned included,
+   * relative and with forward slashes: an Astro layout renders `<html>` and imports in its
+   * frontmatter (KF-109), SvelteKit's `+layout.svelte` imports Kirana's stylesheet (KF-113), and a
+   * Nuxt app's Vue component renders `<Html>` (KF-112).
    */
   scripts(): string[] {
     const found = new Set(
@@ -152,6 +158,24 @@ class Files {
       if (/\.[cm]?[jt]sx?$/.test(file) || TEMPLATE_FILE.test(file))
         found.add(file)
     return [...found].sort()
+  }
+
+  /** Every package the project lists, development ones included. */
+  get listed(): Readonly<Record<string, string>> {
+    return readProject(this.root).listed
+  }
+
+  /** Whether the project is a Nuxt app, whose Vue components render `<Html>` for `<html>` (KF-112). */
+  get nuxt(): boolean {
+    return "nuxt" in this.listed
+  }
+
+  /** The components that render the document's `<html>`, Nuxt's `<Html>` in a Nuxt app. */
+  layouts(): string[] {
+    const nuxt = this.nuxt
+    return this.scripts().filter((file) =>
+      rendersHtml(this.read(file)!, file, htmlTag(file, nuxt))
+    )
   }
 }
 
@@ -462,28 +486,83 @@ function prepareAliases(
   report.push(
     `${tsconfig}: paths "@/*": ["${source}"]${inside ? ", inside its include" : ""}`
   )
-  if (include.length > 0) {
-    const listed = include.join(", ")
-    // After the last entry, spaced as the entries are.
-    const last = /("include"\s*:\s*\[[^\]]*?)(\s*)("[^"]*")(\s*\])/
-    const before = files.read(tsconfig)!
-    if (last.test(before)) {
-      files.write(
-        tsconfig,
-        before.replace(
-          last,
-          (_, open: string, space: string, entry: string, close: string) =>
-            `${open}${space}${[entry, ...include.map((added) => `"${added}"`)].join(`,${space || " "}`)}${close}`
-        )
-      )
-      report.push(`${tsconfig}: include takes ${listed}, where ui installs`)
-    } else
-      manual.push(
-        `${tsconfig}: add ${listed} to its include, so TypeScript, Vite and Kirana compile what ui installs`
-      )
-  }
+  extendInclude(files, tsconfig, include, UI_INSTALLS, report, manual)
   vitePaths(files, report, manual)
   return settings
+}
+
+/** Why a tsconfig's `include` takes more: the line reporting it, and the step by hand. */
+type Why = { readonly where: string; readonly what: string }
+const UI_INSTALLS: Why = {
+  where: "where ui installs",
+  what: "what ui installs",
+}
+
+/**
+ * `include` added to a tsconfig's `include`, after its last entry, spaced as the entries are; a
+ * step by hand where there is no entry to follow.
+ */
+function extendInclude(
+  files: Files,
+  tsconfig: string,
+  include: readonly string[],
+  why: Why,
+  report: string[],
+  manual: string[]
+): void {
+  if (include.length === 0) return
+  const listed = include.join(", ")
+  const last = /("include"\s*:\s*\[[^\]]*?)(\s*)("[^"]*")(\s*\])/
+  const before = files.read(tsconfig)!
+  if (last.test(before)) {
+    files.write(
+      tsconfig,
+      before.replace(
+        last,
+        (_, open: string, space: string, entry: string, close: string) =>
+          `${open}${space}${[entry, ...include.map((added) => `"${added}"`)].join(`,${space || " "}`)}${close}`
+      )
+    )
+    report.push(`${tsconfig}: include takes ${listed}, ${why.where}`)
+  } else
+    manual.push(
+      `${tsconfig}: add ${listed} to its include, so TypeScript, Vite and Kirana compile ${why.what}`
+    )
+}
+
+/**
+ * The framework's component files in the `include` of the tsconfigs a workspace's aliases are
+ * mapped in, the package's (`src`, where ui installs) and the app's, as a single app's get them
+ * (KF-107): Vite resolves the package's aliases in no `.svelte` or `.vue` file a tsconfig leaves out
+ * (KF-113).
+ */
+function workspaceComponents(
+  framework: Framework | undefined,
+  entries: readonly [Files, string, Why, Lines][]
+): void {
+  const component = COMPONENTS[framework!]
+  if (component === undefined) return
+  for (const [files, folder, why, { report, manual }] of entries) {
+    const tsconfig = tsconfigOf(files)
+    const { include } =
+      tsconfig === undefined
+        ? {}
+        : (readJsonc(files.read(tsconfig)!) as { include?: string[] })
+    const prefix = folder === "." ? "" : `${folder}/`
+    if (
+      include === undefined ||
+      compiles(include, `${prefix}index.${component}`)
+    )
+      continue
+    extendInclude(
+      files,
+      tsconfig!,
+      [`${prefix}**/*.${component}`],
+      why,
+      report,
+      manual
+    )
+  }
 }
 
 /**
@@ -530,7 +609,7 @@ function allowTsImports(
 
 /**
  * The design's axes and the project options as attributes on `<html>`, in the root document
- * `findDocument` names; a step by hand when there is none.
+ * `findDocument` names (Nuxt's `<Html>`, KF-112); a step by hand when there is none.
  */
 function setAttributes(
   files: Files,
@@ -538,14 +617,42 @@ function setAttributes(
   report: string[],
   manual: string[]
 ): void {
-  const document = findDocument(files.scripts(), (file) => files.read(file))
+  nuxtDocument(files, report)
+  const document = findDocument(
+    files.scripts(),
+    (file) => files.read(file),
+    files.nuxt
+  )
   const listed = attributeList(attributes)
   if (document === undefined) {
     manual.push(`set <html>'s attributes: ${listed}`)
     return
   }
-  files.write(document, withAttributes(files.read(document)!, attributes))
-  report.push(`${document}: <html ${listed}>`)
+  const tag = htmlTag(document, files.nuxt)
+  files.write(
+    document,
+    withAttributes(files.read(document)!, attributes, document, tag)
+  )
+  report.push(`${document}: ${tag} ${listed}>`)
+}
+
+/**
+ * Nuxt's `<Html>` where no component of a Nuxt app renders one (KF-112): Nuxt writes the document
+ * itself, taking `<html>`'s attributes and classes from the `<Html>` a component renders, which
+ * renders nothing and may sit anywhere in a template. A self-closing one goes first in `app.vue`'s
+ * template, at Nuxt 4's `app/` or Nuxt 3's root; nothing where there is no such template.
+ */
+function nuxtDocument(files: Files, report: string[]): void {
+  if (!files.nuxt || files.layouts().length > 0) return
+  const app = ["app/app.vue", "app.vue"].find(
+    (file) => files.read(file) !== undefined
+  )
+  const text = app === undefined ? "" : files.read(app)!
+  const open = /<template\b[^>]*>(\s*)/.exec(text)
+  if (!open) return
+  const at = open.index + open[0].length
+  files.write(app!, `${text.slice(0, at)}<Html />${open[1]}${text.slice(at)}`)
+  report.push(`${app}: <Html />, which Nuxt renders <html> from`)
 }
 
 /** What a setup entry names, among the files being installed. */
@@ -567,11 +674,32 @@ const quotes = (text: string) =>
     ? "''"
     : '""'
 
-/** Whether the `<html>` element's own tag already has an `sx`. */
-function htmlTakesSx(text: string): boolean {
-  const start = text.indexOf("<html")
+/** Whether the `<html>` element's own tag, opening at `start`, already has an `sx`. */
+function htmlTakesSx(text: string, start: number): boolean {
   return /\bsx=/.test(text.slice(start, text.indexOf(">", start)))
 }
+
+/** SvelteKit's server hooks, where a project has them: the one `init` writes first. */
+const HOOKS = ["src/hooks.server.ts", "src/hooks.server.js"] as const
+
+/**
+ * SvelteKit's server hook giving `<html>` the design system's classes (KF-113): `handle` rewrites
+ * `<html` in every page it renders, prerendered ones included. `Handle` is `@sveltejs/kit/hooks`'
+ * from SvelteKit 3, `@sveltejs/kit`'s before.
+ */
+const hookOf = (name: string, specifier: string, major: number) =>
+  `import { props } from "@kirana-style/core"
+import type { Handle } from "${major < 3 ? "@sveltejs/kit" : "@sveltejs/kit/hooks"}"
+
+import { ${name} } from "${specifier}"
+
+/** \`<html>\`'s classes from the design system's styles: \`src/app.html\` is static. */
+export const handle: Handle = ({ event, resolve }) =>
+  resolve(event, {
+    transformPageChunk: ({ html }) =>
+      html.replace("<html", \`<html class="\${props(${name}).className ?? ""}"\`),
+  })
+`
 
 /** A JavaScript literal for the `ui` settings, indented as a property of the configuration. */
 const literal = (value: unknown, indent = "") =>
@@ -753,25 +881,49 @@ function wire(
   if (setup.document) {
     const { export: name } = setup.document
     const specifier = aliased(setup.document.module)
-    const documents = scripts.filter((file) => rendersHtml(files.read(file)!))
+    nuxtDocument(files, report)
+    const documents = files.layouts()
     const html = documents.length === 1 ? documents[0]! : undefined
-    if (html !== undefined && !htmlTakesSx(files.read(html)!)) {
-      const withSx = files
-        .read(html)!
-        .replace(/<html(?=[\s>])/, `<html sx={${name}}`)
+    const tag = html === undefined ? "<html" : htmlTag(html, files.nuxt)
+    const start = html === undefined ? -1 : htmlAt(files.read(html)!, html, tag)
+    // A server hook sets SvelteKit's classes: its `app.html` is static, and Svelte has no
+    // `<svelte:html>` (KF-113).
+    const kit = files.listed["@sveltejs/kit"]
+    const hook = HOOKS.find((file) => files.read(file) !== undefined)
+    // A script entry sets them before the app renders; a component runs on the server too.
+    const script = entry !== undefined && !TEMPLATE_FILE.test(entry)
+    if (html !== undefined && !htmlTakesSx(files.read(html)!, start)) {
+      // A Vue template binds it (Nuxt's `<Html>`), where JSX and Astro take an expression.
+      const sx = html.endsWith(".vue") ? `:sx="${name}"` : `sx={${name}}`
+      const text = files.read(html)!
+      const at = start + tag.length
+      const withSx = `${text.slice(0, at)} ${sx}${text.slice(at)}`
+      // A Vue component without a script gets one for the import.
+      const scripted =
+        html.endsWith(".vue") && !/<script\b/.test(withSx)
+          ? `<script setup>\n</script>\n\n${withSx}`
+          : withSx
       files.write(
         html,
-        addImport(withSx, `import { ${name} } from "${specifier}"`)
+        addImport(scripted, `import { ${name} } from "${specifier}"`)
       )
-      report.push(`${html}: <html sx={${name}}>`)
+      report.push(`${html}: ${tag} ${sx}>`)
+    } else if (html === undefined && documents.length === 0 && kit) {
+      if (hook === undefined) {
+        files.write(HOOKS[0], hookOf(name, specifier, svelteKitMajor(kit)))
+        report.push(`${HOOKS[0]}: sets <html>'s classes from ${name}`)
+      } else if (!files.read(hook)!.includes(`props(${name})`))
+        manual.push(
+          `${hook}: give <html> the design system's styles in handle's transformPageChunk: html.replace("<html", \`<html class="\${props(${name}).className ?? ""}"\`), with import { props } from "@kirana-style/core" and import { ${name} } from "${specifier}"`
+        )
     } else if (
       html === undefined &&
       documents.length === 0 &&
-      entry &&
+      script &&
       files.read(entry)!.includes(`props(${name})`)
     ) {
       // Set up already.
-    } else if (html === undefined && documents.length === 0 && entry) {
+    } else if (html === undefined && documents.length === 0 && script) {
       // A static index.html cannot take sx: the entry sets the classes before the app renders.
       const imported = addImport(
         addImport(
@@ -997,6 +1149,18 @@ export async function runInit(
         appLines.report,
         appLines.manual
       )
+      workspaceComponents(settings.framework, [
+        [files, "src", UI_INSTALLS, { report, manual }],
+        [
+          appFiles,
+          existsSync(path.join(app, "src")) ? "src" : ".",
+          {
+            where: "whose components import the package's",
+            what: "the components that import the package's",
+          },
+          appLines,
+        ],
+      ])
     }
     if (generator)
       generatorScript(appFiles, generator, appLines.report, appLines.manual)

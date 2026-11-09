@@ -1045,7 +1045,7 @@ function reactRouter(extra: Record<string, string | undefined> = {}) {
 }
 
 /** Nuxt's example: no tsconfig until `nuxt prepare` writes `.nuxt`'s, and the stylesheet in `css`. */
-function nuxt(extra: Record<string, string> = {}, source = "app/") {
+function nuxt(extra: Record<string, string | undefined> = {}, source = "app/") {
   return project({
     "package.json": `${JSON.stringify(
       {
@@ -1067,7 +1067,10 @@ function nuxt(extra: Record<string, string> = {}, source = "app/") {
 }
 
 /** SvelteKit 3's example: no tsconfig until `svelte-kit sync` writes `$app/tsconfig`. */
-function svelteKit(extra: Record<string, string> = {}, kitVersion = "^3.1.0") {
+function svelteKit(
+  extra: Record<string, string | undefined> = {},
+  kitVersion = "^3.1.0"
+) {
   return project({
     "package.json": `${JSON.stringify(
       {
@@ -1196,7 +1199,8 @@ describe("KF-107 ui init where the tsconfig compiles one folder, or the framewor
       'setup: kirana.config.ts: ui {"framework":"vue","registries":{"@acme":"acme/{name}.json"}}',
       "setup: kirana.config.ts: spreads kitConfig (./app/lib/kit/config.ts)",
       "setup: nuxt.config.ts: css lists @/components/ui/reset.css",
-      'by hand: give <html> the design system\'s styles: <html sx={htmlStyles}>, with import { htmlStyles } from "@/lib/kit/document"',
+      "setup: app/app.vue: <Html />, which Nuxt renders <html> from",
+      'setup: app/app.vue: <Html :sx="htmlStyles">',
       "packages: npm install --save-exact @kirana-style/core@0.3.2",
       `packages: npm install --save-exact -D kirana-style@${await version()} @kirana-style/registry@${await version()}`,
       "packages: npm run postinstall",
@@ -1367,6 +1371,314 @@ describe("KF-107 ui init where the tsconfig compiles one folder, or the framewor
     expect(failed).toMatch(
       /npm run prepare failed: the files are written, the lockfile is not\n$/
     )
+  })
+})
+
+/** SvelteKit's `src/app.html`: static, `<html>`'s attributes and nothing else. */
+const APP_HTML =
+  '<!doctype html>\n<html lang="en">\n  <head>%sveltekit.head%</head>\n  <body>%sveltekit.body%</body>\n</html>\n'
+
+/** The server hook `init` writes into SvelteKit 3's `src/hooks.server.ts`. */
+const HOOK = (specifier: string, handle = "@sveltejs/kit/hooks") =>
+  [
+    'import { props } from "@kirana-style/core"',
+    `import type { Handle } from "${handle}"`,
+    "",
+    `import { htmlStyles } from "${specifier}"`,
+    "",
+    "/** `<html>`'s classes from the design system's styles: `src/app.html` is static. */",
+    "export const handle: Handle = ({ event, resolve }) =>",
+    "  resolve(event, {",
+    "    transformPageChunk: ({ html }) =>",
+    '      html.replace("<html", `<html class="${props(htmlStyles).className ?? ""}"`),',
+    "  })",
+    "",
+  ].join("\n")
+
+describe("KF-112 KF-113 ui init sets the document up on Nuxt and SvelteKit", () => {
+  it("adds Nuxt's <Html> to app.vue where no component renders one, with the styles and the attributes (KF-112)", async () => {
+    const cwd = nuxt()
+    const { code, text } = await init(cwd, "--registry", ACME, "--pointer")
+    expect(code).toBe(0)
+    expect(text).toContain(
+      [
+        "setup: nuxt.config.ts: css lists @/components/ui/reset.css",
+        "setup: app/app.vue: <Html />, which Nuxt renders <html> from",
+        'setup: app/app.vue: <Html :sx="htmlStyles">',
+        "setup: app/app.vue: <Html data-pointer>",
+      ].join("\n")
+    )
+    expect(text).not.toContain("by hand")
+    // A script for the import, as the template had none.
+    expect(read(cwd, "app/app.vue")).toBe(
+      '<script setup>\nimport { htmlStyles } from "@/lib/kit/document"\n</script>\n\n<template><Html data-pointer :sx="htmlStyles" /><p>Styled by Kirana.</p></template>\n'
+    )
+    // Nuxt 3's app.vue at the root, its script and its template's lines as they are.
+    const flat = nuxt(
+      {
+        "app.vue":
+          '<script setup lang="ts">\nimport { css } from "@kirana-style/core"\n\nconst a = css({})\n</script>\n\n<template>\n  <p :sx="a">x</p>\n</template>\n',
+        "nuxt.config.ts":
+          "export default defineNuxtConfig({ css: ['@kirana-style/core/stylesheet.css'] })\n",
+      },
+      "none/"
+    )
+    expect((await init(flat, "--registry", ACME)).text).toContain(
+      'setup: app.vue: <Html :sx="htmlStyles">\n'
+    )
+    expect(read(flat, "app.vue")).toBe(
+      '<script setup lang="ts">\nimport { css } from "@kirana-style/core"\nimport { htmlStyles } from "@/lib/kit/document"\n\nconst a = css({})\n</script>\n\n<template>\n  <Html :sx="htmlStyles" />\n  <p :sx="a">x</p>\n</template>\n'
+    )
+  })
+
+  it("sets Nuxt's <Html> up where a component renders it, and says so where there is no app.vue to add it to (KF-112)", async () => {
+    const layout =
+      '<script setup lang="ts">\n// Renders <Html> for the document.\n</script>\n\n<template>\n  <Html lang="en">\n    <Body><slot /></Body>\n  </Html>\n</template>\n'
+    const cwd = nuxt({ "app/layouts/default.vue": layout })
+    const { code, text } = await init(cwd, "--registry", ACME, "--rtl")
+    expect(code).toBe(0)
+    expect(text).toContain(
+      'setup: app/layouts/default.vue: <Html :sx="htmlStyles">\n'
+    )
+    expect(text).toContain('setup: app/layouts/default.vue: <Html dir="rtl">\n')
+    expect(text).not.toContain("<Html />")
+    expect(read(cwd, "app/layouts/default.vue")).toContain(
+      '<script setup lang="ts">\nimport { htmlStyles } from "@/lib/kit/document"\n\n// Renders <Html> for the document.\n</script>\n\n<template>\n  <Html dir="rtl" :sx="htmlStyles" lang="en">'
+    )
+    expect(read(cwd, "app/app.vue")).toBe(
+      "<template><p>Styled by Kirana.</p></template>\n"
+    )
+    // No app.vue (Nuxt's own, around pages), or one without a template: the two steps by hand.
+    for (const app of [undefined, "<script setup>\n</script>\n"]) {
+      const bare = nuxt({ "app/app.vue": app })
+      const manual = await init(bare, "--registry", ACME, "--pointer")
+      expect(manual.text).toContain(
+        "by hand: give <html> the design system's styles"
+      )
+      expect(manual.text).toContain(
+        "by hand: set <html>'s attributes: data-pointer\n"
+      )
+    }
+    // Outside Nuxt, a component called Html is no document: index.html is.
+    const vue = vite({
+      "package.json": JSON.stringify({
+        dependencies: { vue: "^3.5.0" },
+        devDependencies: { vite: "^8.0.0" },
+      }),
+      "src/App.vue": '<template><Html lang="en" /></template>\n',
+    })
+    expect((await init(vue, "--registry", ACME, "--pointer")).text).toContain(
+      "setup: index.html: <html data-pointer>\n"
+    )
+    expect(read(vue, "src/App.vue")).toBe(
+      '<template><Html lang="en" /></template>\n'
+    )
+  })
+
+  it("imports the reset and the fonts in SvelteKit's +layout.svelte, and writes the hook that sets <html>'s classes (KF-113)", async () => {
+    const font: Item = {
+      name: "font-inter",
+      type: "font",
+      version: "1.0.0",
+      dependencies: { "@fontsource-variable/inter": "^5.2.0" },
+      font: {
+        family: "'Inter Variable'",
+        import: "@fontsource-variable/inter",
+      },
+    }
+    const design = {
+      axes: {
+        font: {
+          attribute: "data-font",
+          values: ["inter"],
+          items: { inter: "font-inter" },
+        },
+      },
+      presets: { k: [{ axis: "font", values: ["inter"], bits: 1 }] },
+    }
+    const cwd = svelteKit({
+      "src/app.html": APP_HTML,
+      "acme/kit.json": JSON.stringify({ ...kit(), design }),
+      "acme/font-inter.json": JSON.stringify(font),
+    })
+    const { code, text } = await init(
+      cwd,
+      "--registry",
+      ACME,
+      "--preset",
+      "k0",
+      "--pointer"
+    )
+    expect(code).toBe(0)
+    expect(text).toContain(
+      [
+        "setup: src/routes/+layout.svelte: imports @/components/ui/reset.css",
+        "setup: src/hooks.server.ts: sets <html>'s classes from htmlStyles",
+        "setup: src/routes/+layout.svelte: imports @fontsource-variable/inter",
+        'setup: src/app.html: <html data-font="inter" data-pointer>',
+      ].join("\n")
+    )
+    expect(text).not.toContain("by hand")
+    expect(read(cwd, "src/routes/+layout.svelte")).toBe(
+      '<script lang="ts">\n  import "@kirana-style/core/stylesheet.css"\n  import "@/components/ui/reset.css"\n  import "@fontsource-variable/inter"\n</script>\n'
+    )
+    expect(read(cwd, "src/hooks.server.ts")).toBe(HOOK("@/lib/kit/document"))
+    expect(read(cwd, "src/app.html")).toContain(
+      '<html data-pointer data-font="inter" lang="en">'
+    )
+    // The hook there already: left as it is, and no root document, though it writes `<html `.
+    const hooked = svelteKit({
+      "src/app.html": APP_HTML,
+      "src/hooks.server.ts": HOOK("@/lib/kit/document"),
+    })
+    const again = await init(hooked, "--registry", ACME, "--pointer")
+    expect(again.text).not.toContain("by hand")
+    expect(again.text).not.toContain("hooks.server.ts")
+    expect(again.text).toContain("setup: src/app.html: <html data-pointer>")
+  })
+
+  it("leaves a SvelteKit hook of the project's own to edit by hand, and imports SvelteKit 2's Handle from the kit (KF-113)", async () => {
+    const own =
+      'export const handle = ({ event, resolve }) =>\n  resolve(event, { transformPageChunk: ({ html }) => html.replace("<html", `<html data-own="${1}"`) })\n'
+    const cwd = svelteKit({
+      "src/app.html": APP_HTML,
+      "src/hooks.server.js": own,
+    })
+    const { code, text } = await init(cwd, "--registry", ACME, "--pointer")
+    expect(code).toBe(0)
+    expect(text).toContain(
+      'by hand: src/hooks.server.js: give <html> the design system\'s styles in handle\'s transformPageChunk: html.replace("<html", `<html class="${props(htmlStyles).className ?? ""}"`), with import { props } from "@kirana-style/core" and import { htmlStyles } from "@/lib/kit/document"\n'
+    )
+    expect(text).toContain("setup: src/app.html: <html data-pointer>\n")
+    expect(read(cwd, "src/hooks.server.js")).toBe(own)
+    expect(existsSync(path.join(cwd, "src/hooks.server.ts"))).toBe(false)
+    // SvelteKit 2, its tsconfig mapping the alias.
+    const two = svelteKit(
+      {
+        "tsconfig.json":
+          '{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }',
+      },
+      "^2.20.0"
+    )
+    expect((await init(two, "--registry", ACME)).code).toBe(0)
+    expect(read(two, "src/hooks.server.ts")).toBe(
+      HOOK("@/lib/kit/document", "@sveltejs/kit")
+    )
+    // A Svelte component that imports the stylesheet outside SvelteKit sets no classes on the server.
+    const svelte = svelteKit({
+      "package.json": JSON.stringify({
+        dependencies: { svelte: "^5.0.0" },
+        devDependencies: { vite: "^8.0.0" },
+      }),
+      "tsconfig.json":
+        '{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }',
+    })
+    const plain = await init(svelte, "--registry", ACME)
+    expect(plain.text).toContain(
+      "setup: src/routes/+layout.svelte: imports @/components/ui/reset.css\n"
+    )
+    expect(plain.text).toContain(
+      "by hand: give <html> the design system's styles"
+    )
+  })
+
+  it("adds the component files to a workspace's tsconfigs, the package's and the app's (KF-113)", async () => {
+    const svelte = { svelte: "^5.0.0" }
+    const top = project({
+      "package.json": JSON.stringify({
+        private: true,
+        workspaces: ["apps/*", "packages/*"],
+      }),
+      "apps/web/package.json": JSON.stringify({
+        type: "module",
+        devDependencies: {
+          "@sveltejs/kit": "^3.1.0",
+          ...svelte,
+          vite: "^8.0.0",
+        },
+      }),
+      "apps/web/vite.config.ts":
+        'import { sveltekit } from "@sveltejs/kit/vite"\nimport { defineConfig } from "vite"\n\nexport default defineConfig({\n  plugins: [sveltekit()],\n})\n',
+      "apps/web/src/app.html": APP_HTML,
+      "apps/web/src/routes/+layout.svelte":
+        '<script lang="ts">\n  import "@kirana-style/core/stylesheet.css"\n</script>\n',
+      "packages/ui/package.json": JSON.stringify({
+        name: "@workspace/ui",
+        type: "module",
+        dependencies: svelte,
+      }),
+      "packages/ui/acme/kit.json": JSON.stringify(kit()),
+      "packages/ui/acme/index.json": JSON.stringify(INDEX),
+    })
+    const app = path.join(top, "apps/web")
+    const ui = path.join(top, "packages/ui")
+    const { code, text } = await init(
+      app,
+      "--workspace",
+      "packages/ui",
+      "--registry",
+      ACME
+    )
+    expect(code).toBe(0)
+    expect(text).toContain(
+      "setup: tsconfig.json: include takes src/**/*.svelte, where ui installs\n"
+    )
+    expect(text).toContain(
+      "setup: app: tsconfig.json: include takes src/**/*.svelte, whose components import the package's\n"
+    )
+    expect(text).toContain(
+      "setup: app: src/routes/+layout.svelte: imports @workspace/ui/components/reset.css\n"
+    )
+    expect(text).toContain(
+      "setup: app: src/hooks.server.ts: sets <html>'s classes from htmlStyles\n"
+    )
+    expect(text).not.toContain("by hand")
+    expect(JSON.parse(read(ui, "tsconfig.json")).include).toEqual([
+      "src",
+      "src/**/*.svelte",
+    ])
+    expect(JSON.parse(read(app, "tsconfig.json")).include).toEqual([
+      "src",
+      "vite.config.ts",
+      "src/**/*.svelte",
+    ])
+    expect(read(app, "src/hooks.server.ts")).toBe(
+      HOOK("@workspace/ui/lib/kit/document")
+    )
+    // A Vue app at its folder's root without a tsconfig, which is said, and a package whose
+    // include takes its components already.
+    const vue = project({
+      "package.json": JSON.stringify({
+        private: true,
+        workspaces: ["apps/*", "packages/*"],
+      }),
+      "apps/web/package.json": JSON.stringify({
+        type: "module",
+        dependencies: { vue: "^3.5.0" },
+        devDependencies: { vite: "^8.0.0" },
+      }),
+      "apps/web/index.html": '<html lang="en"></html>\n',
+      "packages/ui/package.json": JSON.stringify({
+        name: "@workspace/ui",
+        type: "module",
+        dependencies: { vue: "^3.5.0" },
+      }),
+      "packages/ui/tsconfig.json":
+        '{ "compilerOptions": {}, "include": ["src/**/*.ts", "src/**/*.vue"] }',
+      "packages/ui/acme/kit.json": JSON.stringify(kit()),
+      "packages/ui/acme/index.json": JSON.stringify(INDEX),
+    })
+    const plain = await init(
+      path.join(vue, "apps/web"),
+      "--workspace",
+      "packages/ui",
+      "--registry",
+      ACME
+    )
+    expect(plain.text).toContain(
+      'by hand: app: tsconfig.json: add "@workspace/ui/*": ["../../packages/ui/src/*"] to compilerOptions.paths'
+    )
+    expect(plain.text).not.toContain("include takes")
   })
 })
 

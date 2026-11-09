@@ -2533,6 +2533,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "In , editing a style updates the page in place, without a reload."
   },
   {
+    "id": "/docs/frameworks/nuxt#the-document",
+    "href": "/docs/frameworks/nuxt#the-document",
+    "page": "Nuxt",
+    "section": "frameworks",
+    "heading": "The document",
+    "text": "Nuxt writes itself, from the a page, a layout or renders. It takes like any element, so a design system's styles and attributes go there: writes this: on the component that renders ; where none does, on a it adds first in 's template, beside the page, since renders nothing; the reset and the fonts in 's , after Kirana's stylesheet."
+  },
+  {
     "id": "/docs/frameworks/nuxt#next",
     "href": "/docs/frameworks/nuxt#next",
     "page": "Nuxt",
@@ -2664,7 +2672,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Svelte",
     "section": "frameworks",
     "heading": "SvelteKit",
-    "text": "On SvelteKit, follow the SvelteKit guide : the plugin goes before , and the stylesheet in the root layout."
+    "text": "On SvelteKit, follow the SvelteKit guide : the plugin goes before , the stylesheet in the root layout, and the classes takes in a server hook, since is static."
   },
   {
     "id": "/docs/frameworks/svelte#next",
@@ -2712,6 +2720,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "frameworks",
     "heading": "5. Write a component",
     "text": "In , editing a style updates the page in place, without a reload."
+  },
+  {
+    "id": "/docs/frameworks/sveltekit#the-document",
+    "href": "/docs/frameworks/sveltekit#the-document",
+    "page": "SvelteKit",
+    "section": "frameworks",
+    "heading": "The document",
+    "text": "is static, and Svelte has no element for , so its classes come from a server hook, which rewrites every page SvelteKit renders, prerendered ones included: writes this hook where the project has none, and tells you what to add to one it has. A design system's attributes go on in , and its reset and fonts are imported in the root layout's , after Kirana's stylesheet."
   },
   {
     "id": "/docs/frameworks/sveltekit#next",
@@ -5521,7 +5537,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installing components",
     "section": "tooling",
     "heading": "Setting a project up",
-    "text": "works on a new app or one you already have: it sets Kirana up where the project lacks it, as does; it maps the alias in when the project has none, inside what that tsconfig compiles, and tells Vite to read it; it installs the registry's design system and wires it in: its configuration in , its reset beside Kirana's stylesheet, its styles on . Where the alias points, and what writes for it, follows the framework: Around the alias, also: adds to the tsconfig's the folders it leaves out, and Vue or Svelte files where its patterns take scripts only: Vite resolves no alias in a file its tsconfig does not compile; runs Nuxt's or SvelteKit's script once the packages are in, since each writes the tsconfig the project's extends on its first run; every later command that installs packages runs it again, since an install can remove what it wrote; lists the reset beside Kirana's stylesheet in the of , where Nuxt has it. To start from nothing, take one of Kirana's examples, as the release you run has it: The project it makes runs by itself: adds beside Kirana's other packages, each at the release you ran, written as that exact version. A registry can offer its own templates, an app with its too"
+    "text": "works on a new app or one you already have: it sets Kirana up where the project lacks it, as does; it maps the alias in when the project has none, inside what that tsconfig compiles, and tells Vite to read it; it installs the registry's design system and wires it in: its configuration in , its reset beside Kirana's stylesheet, its styles on . Where the alias points, and what writes for it, follows the framework: Around the alias, also: adds to the tsconfig's the folders it leaves out, and Vue or Svelte files where its patterns take scripts only: Vite resolves no alias in a file its tsconfig does not compile; runs Nuxt's or SvelteKit's script once the packages are in, since each writes the tsconfig the project's extends on its first run; every later command that installs packages runs it again, since an install can remove what it wrote; lists the reset beside Kirana's stylesheet in the of , where Nuxt has it, and imports it in the of SvelteKit's , where SvelteKit imports Kirana's stylesheet; a font a design names goes in the same place. To start from nothing, take one of Kirana's examples, as the release you run has it: The project it makes runs by itself: adds beside Kirana's other"
   },
   {
     "id": "/docs/tooling/components#adding-components",
