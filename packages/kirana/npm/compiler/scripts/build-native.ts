@@ -9,8 +9,11 @@
  * Rust it stops with the install steps instead of napi's "cargo metadata failed to run".
  */
 import { spawnSync } from "node:child_process"
+import { createRequire } from "node:module"
+import { homedir } from "node:os"
 import path from "node:path"
 
+import { GLIBC_FLOOR, glibcGaps } from "../../../scripts/glibc.ts"
 import { rustEnvironment } from "../../../scripts/rust.ts"
 
 const args = [
@@ -49,12 +52,59 @@ if (target.includes("-linux-")) {
     .join(" ")
 }
 
+// `--use-napi-cross` links the engine against napi-rs's glibc 2.17 toolchain. Its C compiler reaches
+// cc-rs only through `TARGET_CC`, which cc-rs reads when the target is not the host, and both Linux
+// gnu engines build on a runner of their own architecture; the toolchain's gcc (4.8) is too old for
+// mimalloc anyway. So mimalloc's C was compiled by the runner's gcc against the runner's glibc: on
+// Ubuntu 26.04, whose gcc writes C23, `strtol` became `__isoc23_strtol`, which glibc defines from
+// 2.38, and 0.4.0 did not load on Debian 12, Ubuntu 22.04, RHEL 9 or Amazon Linux 2023 (KF-104). The
+// runner's gcc now reads the toolchain's glibc headers, through the target's own flags, so no symbol
+// newer than 2.17 can come from them.
+const cross =
+  target.endsWith("-linux-gnu") && process.argv.includes("--use-napi-cross")
+if (cross) {
+  const here = createRequire(import.meta.url)
+  const napi = createRequire(here.resolve("@napi-rs/cli/package.json"))
+  const { version } = napi("@napi-rs/cross-toolchain/package.json") as {
+    version: string
+  }
+  // Where napi unpacks the toolchain, before cargo runs.
+  const sysroot = path.join(
+    homedir(),
+    ".napi-rs",
+    "cross-toolchain",
+    version,
+    target,
+    target,
+    "sysroot"
+  )
+  const name = `CFLAGS_${target.replaceAll("-", "_")}`
+  env[name] = [`--sysroot=${sysroot}`, env[name]].filter(Boolean).join(" ")
+}
+
 const result = spawnSync("napi", args, {
   stdio: "inherit",
   cwd: path.join(import.meta.dirname, ".."),
   env,
   shell: process.platform === "win32",
 })
+if (result.status === 0 && cross) {
+  // A symbol the toolchain's glibc lacks still links and fails only when the engine loads: the
+  // build fails instead (KF-104).
+  const triple = target.startsWith("aarch64")
+    ? "linux-arm64-gnu"
+    : "linux-x64-gnu"
+  const engine = path.join(import.meta.dirname, "..", `kirana.${triple}.node`)
+  const dump = spawnSync("objdump", ["-T", engine], { encoding: "utf8" })
+  const gaps =
+    dump.status === 0 ? glibcGaps(dump.stdout) : [`objdump -T ${engine} failed`]
+  if (gaps.length) {
+    console.error(
+      `kirana.${triple}.node needs what glibc ${GLIBC_FLOOR} does not provide:\n  ${gaps.join("\n  ")}`
+    )
+    process.exit(1)
+  }
+}
 process.exit(result.status ?? 1)
 
 /** The triple Rust builds for when no `--target` is given. */
