@@ -45,6 +45,7 @@ import type {
   Packages,
   RegistryFile,
 } from "./types.ts"
+import { workspaceLine } from "./workspace.ts"
 
 /** An item to install: where it came from, the markup chosen, and what it needs. */
 export type Planned = {
@@ -366,6 +367,9 @@ export function missingPackages(
 export const runInShell: Run = (command, cwd) =>
   spawnSync(command, { cwd, shell: true, stdio: "inherit" }).status ?? 1
 
+/** How the commands run package managers: the tests' `run`, else a shell. */
+export const runOf = (options: Options): Run => options.run ?? runInShell
+
 /**
  * `add <item…>`: plans, refuses or writes, installs packages, records the lockfile. Exit 1 when an
  * item cannot be read or installed, 2 without an item, for an unknown option, or with settings it
@@ -409,6 +413,7 @@ export async function runAdd(
     write(`${(error as Error).message}\n`)
     return 1
   }
+  if (settings.app) write(workspaceLine(settings, cwd))
   const marks = { new: "+", same: "=", differs: "!" } as const
   for (const { key, item, framework, base } of planned) {
     write(
@@ -417,8 +422,10 @@ export async function runAdd(
     for (const file of placed.filter((entry) => entry.item === key))
       write(`  ${marks[file.state]} ${file.relative}\n`)
   }
-  const fonts = importFonts(planned, scriptsOf(project.root), (file) =>
-    readFileSync(path.join(project.root, file), "utf8")
+  // A font is imported where Kirana's stylesheet is: in a workspace, in the app (D-129).
+  const app = settings.app?.root ?? project.root
+  const fonts = importFonts(planned, scriptsOf(app), (file) =>
+    readFileSync(path.join(app, file), "utf8")
   )
   for (const line of fonts.report) write(`font: ${line}\n`)
   for (const line of fonts.manual) write(`by hand: ${line}\n`)
@@ -437,7 +444,7 @@ export async function runAdd(
     return 0
   }
   writePlaced(placed)
-  writeEdits(project.root, fonts.edits)
+  writeEdits(app, fonts.edits)
   if (!installPackages(commands, project, write, options)) return 1
   record(lockfile, planned, placed)
   writeLockfile(project.root, lockfile)
@@ -555,7 +562,7 @@ export function installPackages(
   write: (text: string) => void,
   options: Options
 ): boolean {
-  const run = options.run ?? runInShell
+  const run = runOf(options)
   const ran = (command: string) => {
     if (run(command, project.root) === 0) return true
     write(`${command} failed: the files are written, the lockfile is not\n`)

@@ -110,6 +110,22 @@ export type Index = {
   items: IndexEntry[]
 }
 
+/** A registry's template: a project's archive, one for every package manager or one for each. */
+export type TemplateEntry = {
+  name: string
+  title?: string
+  description?: string
+  file?: string
+  files?: Partial<Record<"npm" | "pnpm" | "yarn" | "bun", string>>
+  meta?: Record<string, unknown>
+}
+
+/** A registry's `templates/index.json` (KRN-DX-029). */
+export type Templates = {
+  $schema?: string
+  templates: TemplateEntry[]
+}
+
 /** An installed item in the lockfile (KRN-DX-025). */
 export type Locked = {
   registry: string

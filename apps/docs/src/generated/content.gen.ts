@@ -4980,6 +4980,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "in-a-monorepo",
+        "text": "In a monorepo",
+        "level": 2
+      },
+      {
         "id": "the-lockfile",
         "text": "The lockfile",
         "level": 2
@@ -5046,6 +5051,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "the-index",
         "text": "The index",
+        "level": 2
+      },
+      {
+        "id": "templates",
+        "text": "Templates",
         "level": 2
       },
       {

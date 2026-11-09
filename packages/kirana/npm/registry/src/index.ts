@@ -86,6 +86,8 @@ export {
   ICON_LIBRARIES,
   REFERENCE_PATTERN,
   SETTINGS_SCHEMA,
+  TEMPLATE_MANAGERS,
+  TEMPLATES_SCHEMA,
 } from "./schema.ts"
 export type { Schema } from "./schema.ts"
 export { matches } from "./search.ts"
@@ -93,6 +95,7 @@ export type { Result } from "./search.ts"
 export {
   DEFAULT_TIMEOUT,
   expandHeaders,
+  fetchBytes,
   fetchJson,
   fetchReference,
   locate,
@@ -119,15 +122,20 @@ const USAGE = `Usage: kirana-style ui <command>
 Commands in this release:
   init                   set a project up for a registry: Kirana where it is missing, the ui settings
                          (--framework, --base, --registry @namespace=<template>), and the registry's
-                         design system (--design <item>) installed and wired in; --template <example>
-                         [directory] starts a new project from one of Kirana's examples, --preset
-                         <code> sets its design, --all-designs (ui.allDesigns) keeps every other
+                         design system (--design <item>) installed and wired in; --template <name>
+                         [directory] starts a new project from one of Kirana's examples, a
+                         registry's template (@namespace/name) or a template's archive (a URL),
+                         installed with the package manager running it; --preset <code> sets its
+                         design, --all-designs (ui.allDesigns) keeps every other
                          design installed too; --pointer (data-pointer on <html>: buttons get the
                          pointer cursor) and --rtl (dir="rtl" on <html>), --no-pointer and --no-rtl
-                         take them off; --dry-run, --overwrite, --no-check
+                         take them off; --workspace <package> (from the workspace's root, as
+                         packages/ui) makes that package the project ui installs into, named in
+                         the app's ui.workspace; --dry-run, --overwrite, --no-check
   add <item…>            install items and every item they need: files at the project's aliases
                          (ui.aliases, through tsconfig.json's paths), packages with its package
-                         manager, each recorded in kirana-style.lock.json; --dry-run, --overwrite,
+                         manager, each recorded in kirana-style.lock.json; in an app whose
+                         ui.workspace names a package, into that package; --dry-run, --overwrite,
                          --no-check
   outdated [item…]       the installed items behind their registries: a new version, or files changed
   diff [item…]           each installed file the registry or the project changed, as lines between

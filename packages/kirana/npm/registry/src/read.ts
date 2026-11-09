@@ -86,23 +86,12 @@ function parse(text: string, where: string): unknown {
   }
 }
 
-/** A document's JSON, from disk or over the network, with these headers. */
-export async function fetchJson(
+/** A document's response over the network, with these headers: an error unless it answered 2xx. */
+async function request(
   url: URL,
   headers: Readonly<Record<string, string>>,
-  io: Io = {}
-): Promise<unknown> {
-  if (!allowed(url)) throw new RegistryError(refusal(url))
-  if (url.protocol === "file:") {
-    const file = fileURLToPath(url)
-    let text: string
-    try {
-      text = await readFile(file, "utf8")
-    } catch (error) {
-      throw new RegistryError(`${file}: ${(error as Error).message}`)
-    }
-    return parse(text, file)
-  }
+  io: Io
+): Promise<Response> {
   const timeout = io.timeout ?? DEFAULT_TIMEOUT
   let response: Response
   try {
@@ -128,7 +117,40 @@ export async function fetchJson(
     throw new RegistryError(
       `${url.href}: answered ${response.status}${response.statusText ? ` ${response.statusText}` : ""}`
     )
-  return parse(await response.text(), url.href)
+  return response
+}
+
+/** A file's content, or a `RegistryError` naming it. */
+async function readLocal(url: URL): Promise<Buffer> {
+  const file = fileURLToPath(url)
+  try {
+    return await readFile(file)
+  } catch (error) {
+    throw new RegistryError(`${file}: ${(error as Error).message}`)
+  }
+}
+
+/** A document's JSON, from disk or over the network, with these headers. */
+export async function fetchJson(
+  url: URL,
+  headers: Readonly<Record<string, string>>,
+  io: Io = {}
+): Promise<unknown> {
+  if (!allowed(url)) throw new RegistryError(refusal(url))
+  if (url.protocol === "file:")
+    return parse((await readLocal(url)).toString("utf8"), fileURLToPath(url))
+  return parse(await (await request(url, headers, io)).text(), url.href)
+}
+
+/** A document's bytes, as `fetchJson` reads its JSON: a template's archive. */
+export async function fetchBytes(
+  url: URL,
+  headers: Readonly<Record<string, string>>,
+  io: Io = {}
+): Promise<Uint8Array> {
+  if (!allowed(url)) throw new RegistryError(refusal(url))
+  if (url.protocol === "file:") return new Uint8Array(await readLocal(url))
+  return new Uint8Array(await (await request(url, headers, io)).arrayBuffer())
 }
 
 /** A reference's registry, or the namespaces the project knows when it names none of them. */

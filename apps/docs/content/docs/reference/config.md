@@ -322,6 +322,7 @@ What `kirana-style ui add` installs, and where:
 | `iconLibrary` | the library icons are drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                        |
 | `design`      | the design system's values your project uses, such as `{ style: "vega" }`, which `kirana-style ui preset` writes                  |
 | `allDesigns`  | `true` to install every design, not only the one `design` names, for a project that switches designs itself                       |
+| `workspace`   | in an app, the package of its workspace the components install into, such as `"../../packages/ui"`, and then the app's only key   |
 
 The aliases default to shadcn/ui's:
 
@@ -331,6 +332,17 @@ aliases: { ui: "@/components/ui", lib: "@/lib", component: "@/components", hook:
 
 A file is written in the directory your `tsconfig.json`'s paths map its alias to:
 with `"@/*": ["./src/*"]`, the ui files go to `src/components/ui`.
+
+In a monorepo, an app's `ui` can name the package the components live in, from
+the configuration's folder. Every `kirana-style ui` command run in the app then
+reads that package's own `ui`, whose aliases default to its package name:
+
+```ts
+ui: { workspace: "../../packages/ui" } // in apps/web/kirana.config.ts
+aliases: { ui: "@workspace/ui/components", lib: "@workspace/ui/lib", component: "@workspace/ui/components", hook: "@workspace/ui/hooks" } // the package's defaults
+```
+
+See [Installing components](/docs/tooling/components#in-a-monorepo).
 
 The settings are checked before anything is fetched.
 

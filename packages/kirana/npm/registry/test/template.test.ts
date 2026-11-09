@@ -8,6 +8,7 @@ import {
 } from "node:fs"
 import { tmpdir } from "node:os"
 import path from "node:path"
+import { pathToFileURL } from "node:url"
 import { gzipSync } from "node:zlib"
 
 import { afterAll, describe, expect, it } from "vite-plus/test"
@@ -271,5 +272,396 @@ describe("KRN-DX-029 a project from one of Kirana's examples", () => {
     const failed = await run("--template", "vite-react")
     expect(failed.code).toBe(1)
     expect(failed.text).toMatch(/answered 500\n$/)
+  })
+})
+
+/** A template's archive, gzipped: its files under one top folder, as kirana-ui packs them. */
+const packed = (files: Record<string, string>, top = "shop") =>
+  gzipSync(tarball(files, top))
+
+/** A Turborepo around `apps/web`, which asks for the package manager and names its app. */
+const TURBO = {
+  "package.json": JSON.stringify({
+    name: "my-app",
+    private: true,
+    packageManager: "{packageManager}",
+    workspaces: ["apps/*"],
+    "kirana-template": { project: "apps/web" },
+    devDependencies: { turbo: "^2.11.10" },
+  }),
+  "turbo.json": "{}\n",
+  "apps/web/package.json": JSON.stringify({
+    name: "web",
+    type: "module",
+    dependencies: { react: "^19.3.0", "@kirana-style/core": "0.4.0" },
+    devDependencies: { vite: "^8.3.0" },
+  }),
+  "apps/web/tsconfig.json":
+    '{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }',
+  "apps/web/index.html": '<html lang="en"><body></body></html>\n',
+  "apps/web/src/main.tsx": "createRoot(document.body)\n",
+}
+/** One app, which names no package manager. */
+const SINGLE = {
+  "package.json": JSON.stringify({ name: "single", private: true }),
+  "tsconfig.json": '{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }',
+  "src/main.tsx": "export {}\n",
+}
+
+const PNPM = {
+  npm_config_user_agent: "pnpm/9.12.0 npm/? node/v24.0.0 linux x64",
+}
+const BUN = { npm_config_user_agent: "bun/1.3.1 npm/? node/v24.3.0 linux x64" }
+
+/**
+ * A registry on disk with a design system (`kit`) and `templates/index.json` beside its items: the
+ * Turborepo packed once per package manager, the single app once.
+ */
+function templateRegistry(): string {
+  const registry = mkdtempSync(path.join(root, "registry-"))
+  const content = "export const kit = {}\n"
+  writeFileSync(
+    path.join(registry, "kit.json"),
+    JSON.stringify({
+      name: "kit",
+      type: "design-system",
+      version: "1.0.0",
+      files: [
+        { path: "kit/kit.ts", type: "lib", content, hash: hashOf(content) },
+      ],
+    })
+  )
+  mkdirSync(path.join(registry, "templates"))
+  const write = (name: string, body: Uint8Array | string) =>
+    writeFileSync(path.join(registry, "templates", name), body)
+  write(
+    "index.json",
+    JSON.stringify({
+      $schema: "https://kirana.style/schema/registry-templates.json",
+      templates: [
+        {
+          name: "vite-react--turbo--oxlint",
+          title: "Vite in a Turborepo",
+          files: {
+            npm: "vite-react--turbo--oxlint.npm.tgz",
+            pnpm: "vite-react--turbo--oxlint.pnpm.tgz",
+          },
+          meta: { monorepo: "turbo" },
+        },
+        { name: "single", file: "single.tgz" },
+        { name: "bare", files: { bun: "bare.tgz" } },
+      ],
+    })
+  )
+  write("vite-react--turbo--oxlint.npm.tgz", packed(TURBO))
+  write("vite-react--turbo--oxlint.pnpm.tgz", packed(TURBO))
+  write("single.tgz", packed(SINGLE))
+  return registry
+}
+
+/** `init` in a new folder of `root`, with what it printed and every command it ran. */
+async function initIn(
+  argv: string[],
+  options: { env?: Record<string, string>; fetch?: typeof fetch; fails?: true }
+) {
+  const cwd = mkdtempSync(path.join(root, "projects-"))
+  const ran: [string, string][] = []
+  let text = ""
+  const code = await main(
+    ["init", ...argv],
+    cwd,
+    (chunk) => void (text += chunk),
+    {
+      env: options.env ?? {},
+      ...(options.fetch ? { fetch: options.fetch } : {}),
+      load: (url) => import(url),
+      run: (command, where) => {
+        ran.push([command, path.relative(cwd, where)])
+        // The install writes the lockfile the package manager is then read from.
+        if (command === "pnpm install")
+          writeFileSync(path.join(where, "pnpm-lock.yaml"), "")
+        return options.fails ? 1 : 0
+      },
+    }
+  )
+  return { code, text, ran, cwd }
+}
+
+describe("KRN-DX-029 a project from a registry's template, or an archive's URL (KF-108)", () => {
+  it("finds @namespace/name in templates/index.json beside the registry's index, and starts init in the app it names", async () => {
+    const registry = templateRegistry()
+    const { code, text, ran, cwd } = await initIn(
+      [
+        "--template",
+        "@acme/vite-react--turbo--oxlint",
+        "my-app",
+        "--registry",
+        `@acme=${registry}/{name}.json`,
+        "--design",
+        "@acme/kit",
+        "--pointer",
+        "--rtl",
+        "--no-check",
+      ],
+      { env: PNPM }
+    )
+    expect(code).toBe(0)
+    const app = path.join(cwd, "my-app")
+    expect(text.split("\n").slice(0, 4)).toEqual([
+      `template: @acme/vite-react--turbo--oxlint from ${pathToFileURL(registry).href}/templates/vite-react--turbo--oxlint.pnpm.tgz in ${app}`,
+      "packages: pnpm install",
+      "template: init goes on in apps/web",
+      expect.stringMatching(/^kirana: /),
+    ])
+    // The workspace installs first, at its root; init's packages go into the app, with pnpm.
+    expect(ran[0]).toEqual(["pnpm install", "my-app"])
+    expect(ran.slice(1).length).toBeGreaterThan(0)
+    for (const [command, where] of ran.slice(1)) {
+      expect(command).toMatch(/^pnpm /)
+      expect(where).toBe(path.join("my-app", "apps/web"))
+    }
+    expect(
+      JSON.parse(readFileSync(path.join(app, "package.json"), "utf8"))
+    ).toEqual({
+      name: "my-app",
+      private: true,
+      packageManager: "pnpm@9.12.0",
+      workspaces: ["apps/*"],
+      devDependencies: { turbo: "^2.11.10" },
+    })
+    expect(existsSync(path.join(app, "turbo.json"))).toBe(true)
+    expect(existsSync(path.join(app, "apps/web/src/lib/kit/kit.ts"))).toBe(true)
+    expect(existsSync(path.join(app, "apps/web/kirana-style.lock.json"))).toBe(
+      true
+    )
+    expect(existsSync(path.join(app, "kirana-style.lock.json"))).toBe(false)
+    expect(readFileSync(path.join(app, "apps/web/index.html"), "utf8")).toBe(
+      '<html dir="rtl" data-pointer lang="en"><body></body></html>\n'
+    )
+  })
+
+  it("reads @kirana's templates beside its index on the web, and names the directory after the template", async () => {
+    const asked: [string, string | undefined][] = []
+    const fetch = (async (url: URL, init: RequestInit) => {
+      asked.push([
+        String(url),
+        (init.headers as Record<string, string>).authorization,
+      ])
+      return String(url).endsWith("/templates/index.json")
+        ? Response.json({
+            templates: [{ name: "single", file: "../files/single.tgz" }],
+          })
+        : new Response(packed(SINGLE))
+    }) as unknown as typeof globalThis.fetch
+    const { code, text, ran, cwd } = await initIn(
+      ["--template", "@kirana/single"],
+      { env: BUN, fetch, fails: true }
+    )
+    expect(asked).toEqual([
+      ["https://ui.kirana.style/r/templates/index.json", undefined],
+      ["https://ui.kirana.style/r/files/single.tgz", undefined],
+    ])
+    expect(code).toBe(1)
+    // No packageManager asked for: the one running init installs it.
+    expect(ran).toEqual([["bun install", "single"]])
+    expect(text).toBe(
+      `template: @kirana/single from https://ui.kirana.style/r/files/single.tgz in ${path.join(cwd, "single")}\n` +
+        "packages: bun install\n" +
+        `bun install failed: the template is in ${path.join(cwd, "single")}, Kirana is not set up in it\n`
+    )
+    expect(
+      JSON.parse(readFileSync(path.join(cwd, "single/package.json"), "utf8"))
+    ).toEqual({ name: "single", private: true })
+  })
+
+  it("unpacks a template's archive by URL or path, named after its file", async () => {
+    const fetch = (async () =>
+      new Response(
+        packed({
+          ...SINGLE,
+          "package.json": JSON.stringify({
+            name: "x",
+            packageManager: "yarn@4.18.1",
+          }),
+        })
+      )) as unknown as typeof globalThis.fetch
+    const url = "https://templates.acme.dev/shop.tar.gz"
+    const byUrl = await initIn(["--template", url], {
+      env: PNPM,
+      fetch,
+      fails: true,
+    })
+    expect(byUrl.text.split("\n").slice(0, 2)).toEqual([
+      `template: ${url} in ${path.join(byUrl.cwd, "shop")}`,
+      // The package manager the template names over the one running init.
+      "packages: yarn install",
+    ])
+    const archive = path.join(root, "local.tgz")
+    writeFileSync(archive, packed(SINGLE))
+    const byPath = await initIn(["--template", archive, "here"], {
+      fails: true,
+    })
+    expect(byPath.text.split("\n").slice(0, 2)).toEqual([
+      `template: ${archive} from ${pathToFileURL(archive).href} in ${path.join(byPath.cwd, "here")}`,
+      // Nothing says which package manager: npm, as for any project without a lockfile.
+      "packages: npm install",
+    ])
+  })
+
+  it("takes the archive for the package manager running init, else the template's one archive", async () => {
+    const registry = templateRegistry()
+    const flags = ["--registry", `@acme=${registry}/{name}.json`]
+    const npm = await initIn(
+      ["--template", "@acme/vite-react--turbo--oxlint", ...flags],
+      { env: { npm_config_user_agent: "npm/12.2.2 node/v24.0.0" }, fails: true }
+    )
+    expect(npm.text.split("\n")[0]).toMatch(/oxlint\.npm\.tgz in /)
+    expect(
+      JSON.parse(
+        readFileSync(
+          path.join(npm.cwd, "vite-react--turbo--oxlint/package.json"),
+          "utf8"
+        )
+      ).packageManager
+    ).toBe("npm@12.2.2")
+    const yarn = await initIn(
+      ["--template", "@acme/vite-react--turbo--oxlint", ...flags],
+      { env: { npm_config_user_agent: "yarn/4.18.1 npm/? node/v24.0.0" } }
+    )
+    expect(yarn).toMatchObject({
+      code: 1,
+      text: `@acme/vite-react--turbo--oxlint has no archive for yarn: ${pathToFileURL(registry).href}/templates/index.json has one for npm, pnpm\n`,
+    })
+    // Installed, init goes on in the template's root.
+    const single = await initIn(
+      ["--template", "@acme/single", ...flags, "--design", "@acme/kit"],
+      { env: PNPM }
+    )
+    expect(single.text.split("\n")[0]).toMatch(/single\.tgz in /)
+    expect(single.ran[0]).toEqual(["pnpm install", "single"])
+    expect(
+      existsSync(path.join(single.cwd, "single/kirana-style.lock.json"))
+    ).toBe(true)
+    // Run by something that does not say what it is, a template asking for its package manager stops.
+    const unknown = await initIn(
+      ["--template", "@acme/vite-react--turbo--oxlint", ...flags],
+      {}
+    )
+    expect(unknown.code).toBe(1)
+    expect(unknown.text).toBe(
+      `${pathToFileURL(registry).href}/templates/vite-react--turbo--oxlint.npm.tgz: names the package manager running kirana-style ({packageManager}), which says nothing of itself: run it with npx, pnpm dlx, yarn dlx or bunx\n`
+    )
+    expect(
+      existsSync(path.join(unknown.cwd, "vite-react--turbo--oxlint"))
+    ).toBe(false)
+  })
+
+  it("says when a template is not in the index, the index is not one, or the name is not a template's", async () => {
+    const registry = templateRegistry()
+    const flags = ["--registry", `@acme=${registry}/{name}.json`]
+    const index = `${pathToFileURL(registry).href}/templates/index.json`
+    expect(
+      await initIn(["--template", "@acme/astro", ...flags], { env: PNPM })
+    ).toMatchObject({
+      code: 1,
+      text: `@acme/astro is not one of the 3 templates ${index} lists\n`,
+    })
+    expect(
+      await initIn(["--template", "@acme/bare", ...flags], { env: PNPM })
+    ).toMatchObject({
+      code: 1,
+      text: `@acme/bare has no archive for pnpm: ${index} has one for bun\n`,
+    })
+    expect(
+      await initIn(["--template", "@nobody/shop"], { env: PNPM })
+    ).toMatchObject({
+      code: 1,
+      text: "@nobody is not a registry this project knows: @kirana (ui.registries in kirana.config)\n",
+    })
+    expect(await initIn(["--template", "@acme"], {})).toMatchObject({
+      code: 1,
+      text: "@acme: a registry's template is @namespace/name\n",
+    })
+    writeFileSync(
+      path.join(registry, "templates/index.json"),
+      JSON.stringify({ templates: [{ name: "Shop", file: "" }], extra: true })
+    )
+    expect(
+      (await initIn(["--template", "@acme/shop", ...flags], {})).text
+    ).toBe(
+      [
+        `${index}: /templates/0/name must match ^[a-z0-9]+(-{1,2}[a-z0-9]+)*$`,
+        `${index}: /templates/0/file must have at least 1 character`,
+        `${index}: /extra is not allowed here`,
+        "",
+      ].join("\n")
+    )
+    writeFileSync(path.join(registry, "templates/index.json"), "[]")
+    expect(
+      (await initIn(["--template", "@acme/shop", ...flags], {})).text
+    ).toBe(`${index}: / must be an object\n`)
+  })
+
+  it("refuses an archive that is not one, writes outside the project, or lacks the project it names", async () => {
+    const answering = (body: Uint8Array) =>
+      (async () =>
+        new Response(Buffer.from(body))) as unknown as typeof globalThis.fetch
+    const url = "https://templates.acme.dev/shop.tgz"
+    const tried = async (body: Uint8Array) =>
+      (await initIn(["--template", url], { env: PNPM, fetch: answering(body) }))
+        .text
+    expect(
+      (await initIn(["--template", "http://acme.dev/shop.tgz"], {})).text
+    ).toBe(
+      "http://acme.dev/shop.tgz: only https, or http from this machine, can be fetched\n"
+    )
+    // The environment's user agent when none is given.
+    let text = ""
+    expect(
+      await main(
+        ["init", "--template", url],
+        root,
+        (chunk) => void (text += chunk),
+        {
+          fetch: (async () =>
+            new Response("", { status: 500 })) as unknown as typeof fetch,
+        }
+      )
+    ).toBe(1)
+    expect(text).toBe(`${url}: answered 500\n`)
+    expect(await tried(new TextEncoder().encode("<html>"))).toBe(
+      `${url}: is not a gzipped tar archive\n`
+    )
+    expect(await tried(packed({ ...SINGLE, "../escape.txt": "x" }))).toBe(
+      `${url}: holds ../escape.txt, a path outside the project\n`
+    )
+    // Files beside the top folder are left out, as giget leaves them.
+    const body = new Uint8Array(512)
+    body.set(new TextEncoder().encode("{}"))
+    const loose = gzipSync(
+      Buffer.concat([header("package.json", 2, "0"), body, tarball({})])
+    )
+    expect(await tried(loose)).toBe(
+      `${url}: holds no file under a top folder\n`
+    )
+    expect(await tried(packed({ "src/main.tsx": "" }))).toBe(
+      `${url}: has no package.json at its root\n`
+    )
+    expect(await tried(packed({ "package.json": "{" }))).toMatch(
+      new RegExp(
+        `^${url.replaceAll(".", "\\.")}: its package\\.json is not JSON: `
+      )
+    )
+    for (const project of ["apps/api", 7])
+      expect(
+        await tried(
+          packed({
+            ...TURBO,
+            "package.json": JSON.stringify({ "kirana-template": { project } }),
+          })
+        )
+      ).toBe(
+        `${url}: kirana-template.project in its package.json is ${JSON.stringify(project)}, not a folder of it with a package.json\n`
+      )
   })
 })

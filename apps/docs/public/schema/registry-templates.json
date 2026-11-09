@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kirana.style/schema/registry-templates.json",
+  "title": "Kirana registry templates",
+  "description": "The projects `kirana-style ui init --template @namespace/name` starts from: each a gzipped tar archive, its files under one top folder.",
+  "type": "object",
+  "required": [
+    "templates"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-{1,2}[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string",
+            "description": "The archive, relative to this document: for every package manager, or for those `files` does not name.",
+            "minLength": 1
+          },
+          "files": {
+            "type": "object",
+            "description": "An archive for each package manager, relative to this document; `init` takes the one it runs under.",
+            "minProperties": 1,
+            "properties": {
+              "npm": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pnpm": {
+                "type": "string",
+                "minLength": 1
+              },
+              "yarn": {
+                "type": "string",
+                "minLength": 1
+              },
+              "bun": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          },
+          "meta": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

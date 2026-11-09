@@ -10159,6 +10159,7 @@ What `kirana-style ui add` installs, and where:
 | `iconLibrary` | the library icons are drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                        |
 | `design`      | the design system's values your project uses, such as `{ style: "vega" }`, which `kirana-style ui preset` writes                  |
 | `allDesigns`  | `true` to install every design, not only the one `design` names, for a project that switches designs itself                       |
+| `workspace`   | in an app, the package of its workspace the components install into, such as `"../../packages/ui"`, and then the app's only key   |
 
 The aliases default to shadcn/ui's:
 
@@ -10168,6 +10169,17 @@ aliases: { ui: "@/components/ui", lib: "@/lib", component: "@/components", hook:
 
 A file is written in the directory your `tsconfig.json`'s paths map its alias to:
 with `"@/*": ["./src/*"]`, the ui files go to `src/components/ui`.
+
+In a monorepo, an app's `ui` can name the package the components live in, from
+the configuration's folder. Every `kirana-style ui` command run in the app then
+reads that package's own `ui`, whose aliases default to its package name:
+
+```ts
+ui: { workspace: "../../packages/ui" } // in apps/web/kirana.config.ts
+aliases: { ui: "@workspace/ui/components", lib: "@workspace/ui/lib", component: "@workspace/ui/components", hook: "@workspace/ui/hooks" } // the package's defaults
+```
+
+See [Installing components](/docs/tooling/components#in-a-monorepo).
 
 The settings are checked before anything is fetched.
 
@@ -10869,20 +10881,20 @@ kirana-style ui needs @kirana-style/registry, which this project does not have: 
 Where no project exists yet, run the package itself: `npx @kirana-style/registry`
 takes the same commands as `kirana-style ui`.
 
-| Command                                 | Does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `kirana-style ui init`                  | Set a project up for a registry: Kirana where it is missing, the `ui` settings, the aliases in `tsconfig.json` (and Vite's `resolve.tsconfigPaths`) when there are none, inside what it compiles (Nuxt's and SvelteKit's starter `tsconfig.json` and the script that generates theirs, run once installed), and the registry's design system installed and wired in. `--framework`, `--base`, `--registry @acme=<template>`, `--design <item>`, `--template <example> [directory]` to start from one of Kirana's examples, `--preset <code>` to start with a design, `--all-designs` to keep every design installed (`ui.allDesigns`), `--pointer` (`data-pointer` on `<html>`, the pointer cursor on buttons) and `--rtl` (`dir="rtl"` on `<html>`), `--dry-run`, `--overwrite`, `--no-check` (skips the `kirana-style check` it runs on what it wrote). Kirana's packages, the registry among them, are installed at the release's version, written exactly. |
-| `kirana-style ui add <item…>`           | Install items and every item they need: each file under your alias for its type, its imports pointed at your aliases, the npm packages added with your package manager, each item recorded in `kirana-style.lock.json`. `--dry-run` writes nothing; `--overwrite` replaces files you changed. It then checks what it wrote with `kirana-style check` (`--no-check` skips that).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `kirana-style ui outdated [item…]`      | List your installed items whose registry has a new version or changed files, from `kirana-style.lock.json`. Exit 1 when one does.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `kirana-style ui diff [item…]`          | For each installed file the registry or you changed since it was installed, the lines between your file and what installing it now would write.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `kirana-style ui update [item…]`        | Write what the registry changed since an item was installed and keep what you changed; a file both changed stops it until you look (`ui diff`) or pass `--overwrite`. Items an update newly needs are installed with it. `--dry-run`; `--no-check` skips the `kirana-style check` it runs on what it wrote.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| `kirana-style ui remove <item…>`        | Delete the files of an item you left as installed and drop it from the lockfile, unless another installed item needs it. `--dry-run`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `kirana-style ui preset <code>`         | Change your project's design: the code read with the design system's own layouts, `ui.design` and `<html>`'s attributes set, and every installed component placed again for it, its style modules the registry's flattening for the new design. A file you changed stops it until you pass `--overwrite`. `--pointer` and `--rtl` set `init`'s attributes on `<html>`, `--no-pointer` and `--no-rtl` take them off. `--dry-run`; `--no-check` skips the `kirana-style check` it runs on what it wrote.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `kirana-style ui view <item…>`          | Show what an item is: its version, type and description, the Kirana versions it was checked with, its dependencies, its style modules, each framework's bases with their files, and the files every framework installs. `--json` prints the items as read.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `kirana-style ui search [query]`        | List the items of your registries' indexes whose name, title or description holds every word of the query; without one, every item. `--registry <namespace>` searches only that registry (repeatable), `--json` prints the results.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `kirana-style ui validate <document…>`  | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `kirana-style ui build [registry.json]` | Build a registry from its source: each item's files read, imports between the registry's files written as an installed project names them, packages and the items each needs found, hashed and checked, into `--out <dir>` (`public/r`). Nothing is written on a problem; exit 1. See [building a registry](/docs/tooling/registries#building-it).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `kirana-style ui mcp`                   | A Model Context Protocol server over stdio, for AI assistants: your registries, searching and viewing items, their files and the `add` command. See [registries for AI assistants](/docs/tooling/mcp).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Command                                 | Does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kirana-style ui init`                  | Set a project up for a registry: Kirana where it is missing, the `ui` settings, the aliases in `tsconfig.json` (and Vite's `resolve.tsconfigPaths`) when there are none, inside what it compiles (Nuxt's and SvelteKit's starter `tsconfig.json` and the script that generates theirs, run once installed), and the registry's design system installed and wired in. `--framework`, `--base`, `--registry @acme=<template>`, `--design <item>`, `--template <name> [directory]` to start from one of Kirana's examples, a registry's template (`@acme/vite-react--turbo`) or a template's archive by URL, `--preset <code>` to start with a design, `--all-designs` to keep every design installed (`ui.allDesigns`), `--pointer` (`data-pointer` on `<html>`, the pointer cursor on buttons) and `--rtl` (`dir="rtl"` on `<html>`), `--workspace <package>` (from the workspace's root, `packages/ui`) to install into a package of the workspace, named in the app's `ui.workspace`, `--dry-run`, `--overwrite`, `--no-check` (skips the `kirana-style check` it runs on what it wrote). Kirana's packages, the registry among them, are installed at the release's version, written exactly. |
+| `kirana-style ui add <item…>`           | Install items and every item they need: each file under your alias for its type, its imports pointed at your aliases, the npm packages added with your package manager, each item recorded in `kirana-style.lock.json`; in an app whose `ui.workspace` names a package, all of it in that package. `--dry-run` writes nothing; `--overwrite` replaces files you changed. It then checks what it wrote with `kirana-style check` (`--no-check` skips that).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `kirana-style ui outdated [item…]`      | List your installed items whose registry has a new version or changed files, from `kirana-style.lock.json`. Exit 1 when one does.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `kirana-style ui diff [item…]`          | For each installed file the registry or you changed since it was installed, the lines between your file and what installing it now would write.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `kirana-style ui update [item…]`        | Write what the registry changed since an item was installed and keep what you changed; a file both changed stops it until you look (`ui diff`) or pass `--overwrite`. Items an update newly needs are installed with it. `--dry-run`; `--no-check` skips the `kirana-style check` it runs on what it wrote.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `kirana-style ui remove <item…>`        | Delete the files of an item you left as installed and drop it from the lockfile, unless another installed item needs it. `--dry-run`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `kirana-style ui preset <code>`         | Change your project's design: the code read with the design system's own layouts, `ui.design` and `<html>`'s attributes set, and every installed component placed again for it, its style modules the registry's flattening for the new design. A file you changed stops it until you pass `--overwrite`. `--pointer` and `--rtl` set `init`'s attributes on `<html>`, `--no-pointer` and `--no-rtl` take them off. `--dry-run`; `--no-check` skips the `kirana-style check` it runs on what it wrote.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| `kirana-style ui view <item…>`          | Show what an item is: its version, type and description, the Kirana versions it was checked with, its dependencies, its style modules, each framework's bases with their files, and the files every framework installs. `--json` prints the items as read.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `kirana-style ui search [query]`        | List the items of your registries' indexes whose name, title or description holds every word of the query; without one, every item. `--registry <namespace>` searches only that registry (repeatable), `--json` prints the results.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `kirana-style ui validate <document…>`  | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `kirana-style ui build [registry.json]` | Build a registry from its source: each item's files read, imports between the registry's files written as an installed project names them, packages and the items each needs found, hashed and checked, into `--out <dir>` (`public/r`). Nothing is written on a problem; exit 1. See [building a registry](/docs/tooling/registries#building-it).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `kirana-style ui mcp`                   | A Model Context Protocol server over stdio, for AI assistants: your registries, searching and viewing items, their files and the `add` command. See [registries for AI assistants](/docs/tooling/mcp).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
 A registry is static JSON: one document per item at a URL template holding
 `{name}`, and an index, the item named `index`. An item carries its style modules
@@ -10896,6 +10908,7 @@ ids for editors and other tools; a document names its schema with `$schema`:
 - [an item](https://kirana.style/schema/registry-item.json)
 - [an index](https://kirana.style/schema/registry-index.json)
 - [the lockfile](https://kirana.style/schema/lockfile.json)
+- [a registry's templates](https://kirana.style/schema/registry-templates.json)
 - [the `ui` settings](https://kirana.style/schema/settings.json)
 
 ```console
@@ -12005,6 +12018,20 @@ The project it makes runs `kirana-style ui` by itself: `init` adds
 `@kirana-style/registry` beside Kirana's other packages, each at the release you
 ran, written as that exact version.
 
+A registry can offer its own templates, an app with its tooling or a workspace
+around it, by name or by an archive's URL:
+
+```bash
+npx @kirana-style/registry init --template @acme/vite-react--turbo my-app --registry @acme=https://acme.dev/r/{name}.json
+npx @kirana-style/registry init --template https://acme.dev/r/templates/shop.tgz
+```
+
+`init` unpacks the template, installs it with the package manager you ran it
+with, written as the root's `packageManager` where the template asks, and goes on
+in the app the template names (`apps/web` in a workspace) as in any project.
+`--dry-run` cannot start from a template. How a registry lists them is in
+[publishing a registry](/docs/tooling/registries#templates).
+
 Start with a design by its preset code, which a design system's site gives you:
 
 ```bash
@@ -12092,6 +12119,56 @@ until its packages are installed.
 
 A font (`ui add font-lora`) is a package and the stylesheet that loads it, which
 `add` imports after Kirana's stylesheet.
+
+## In a monorepo
+
+In a Turborepo or any other workspace, the components can live in a package that
+every app imports, as shadcn/ui's monorepo template has them. Run `init` in the
+app, with the package's folder from the workspace's root:
+
+```bash
+cd apps/web
+npx kirana-style ui init --workspace packages/ui
+```
+
+The package needs a `package.json` with its name. Its aliases start with that
+name, so the app imports `@workspace/ui/components/button`. `init` makes the
+package a Kirana project and wires the app to it:
+
+| Folder        | What `init` writes there                                                                                                                                                                                                     |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/ui` | `kirana.config.ts` with the `ui` settings and the design system's configuration; `"@workspace/ui/*": ["./src/*"]` in its tsconfig, or a tsconfig with the app's JSX options; the components, their packages and the lockfile |
+| `apps/web`    | Kirana's own setup; `ui.workspace` and the same configuration in its `kirana.config.ts`; `"@workspace/ui/*": ["../../packages/ui/src/*"]` in its tsconfig, read by Vite; the reset and the `<html>` styles in its entry      |
+
+```ts file="apps/web/kirana.config.ts"
+import { defineConfig } from "@kirana-style/core/config"
+import { installConfig } from "../../packages/ui/src/lib/kirana/kirana.ts"
+
+export default defineConfig({
+  ...installConfig,
+  ui: { workspace: "../../packages/ui" },
+})
+```
+
+Every later command run in the app reads `ui.workspace` and works on the package:
+
+```bash
+npx kirana-style ui add button
+```
+
+- the button lands in `packages/ui/src/components`, and its packages are
+  installed in the package;
+- the package's lockfile records it, and the package's configuration checks it;
+- a font, and the attributes `preset` sets, still go into the app, which loads
+  the stylesheets and renders `<html>`.
+
+The app's `ui` holds `workspace` alone. The other settings are the package's, a
+registry given as a path among them.
+
+The app's build compiles the package's files with the app's configuration,
+which is why both spread the design system's. Run from the workspace's root,
+`kirana-style check apps/web/src packages/ui/src` reads each folder's own, as
+the lint plugin does when `settings.kirana.root` is left unset.
 
 ## The lockfile
 
@@ -12380,6 +12457,66 @@ The index is the item named `index`, valid against
 [its schema](https://kirana.style/schema/registry-index.json): your registry's
 name and each item's name, type, version and bases. `kirana-style ui search`
 reads it.
+
+## Templates
+
+A registry can offer whole projects to start from: an app in the layout you
+support, its tooling, a workspace around it. List them in `templates/index.json`,
+beside the index (the document your URL template gives for `templates/index`),
+valid against
+[its schema](https://kirana.style/schema/registry-templates.json):
+
+```json
+{
+  "$schema": "https://kirana.style/schema/registry-templates.json",
+  "templates": [
+    { "name": "vite-react", "file": "vite-react.tgz" },
+    {
+      "name": "vite-react--turbo",
+      "title": "Vite in a Turborepo",
+      "file": "vite-react--turbo.tgz"
+    }
+  ]
+}
+```
+
+Each archive:
+
+- is a gzipped tar with the project's files under one top folder, as `giget`
+  and `npm pack` read one, at a path relative to `templates/index.json`;
+- can be one per package manager: `files` in place of `file`, keyed by the
+  package manager's name, and `init` takes the one it runs under;
+- is enough alone when its root `package.json` asks for the package manager with
+  `"packageManager": "{packageManager}"`, which `init` fills with the one
+  running it, at its version (a Turborepo needs the field).
+
+In a workspace, the root `package.json` names the app `init` sets up:
+
+```json
+{
+  "name": "my-app",
+  "private": true,
+  "packageManager": "{packageManager}",
+  "workspaces": ["apps/*", "packages/*"],
+  "kirana-template": { "project": "apps/web" }
+}
+```
+
+```bash
+npx @kirana-style/registry init --template @acme/vite-react--turbo my-app --registry @acme=https://acme.dev/r/{name}.json --preset k2bS6
+```
+
+From there `init`:
+
+1. unpacks the archive into `my-app` and names the root package after the folder;
+2. installs the workspace with the package manager its root names, else the one
+   running `init`;
+3. sets `apps/web` up as it sets up any project, with the design system from your
+   registry, a preset, and the pointer and right-to-left flags.
+
+An archive's URL works the same without an index:
+`--template https://acme.dev/r/templates/vite-react.tgz`. `kirana-style ui build`
+writes no template: pack each with your own build, beside what `build` writes.
 
 ## Building it
 

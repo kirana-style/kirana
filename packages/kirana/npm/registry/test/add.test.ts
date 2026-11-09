@@ -569,6 +569,146 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     )
   })
 
+  it("installs from the app into the package its ui.workspace names, imported by the package's name (KF-108, D-129)", async () => {
+    const LORA: Item = {
+      name: "font-lora",
+      type: "font",
+      version: "1.0.0",
+      dependencies: { "@fontsource-variable/lora": "^5.2.0" },
+      font: {
+        family: "'Lora Variable', serif",
+        import: "@fontsource-variable/lora",
+      },
+    }
+    // A Turborepo as shadcn/ui's monorepo template lays it out: the app imports `@workspace/ui`.
+    const top = mkdtempSync(path.join(root, "workspace-"))
+    const files: Record<string, string> = {
+      "package.json": JSON.stringify({
+        private: true,
+        workspaces: ["apps/*", "packages/*"],
+      }),
+      "apps/web/package.json": JSON.stringify({
+        dependencies: { react: "^19.0.0" },
+      }),
+      "apps/web/kirana.config.json": JSON.stringify({
+        ui: { workspace: "../../packages/ui" },
+      }),
+      "apps/web/src/main.tsx":
+        'import "@kirana-style/core/stylesheet.css"\nimport { App } from "./app"\n\nApp()\n',
+      "packages/ui/package.json": JSON.stringify({
+        name: "@workspace/ui",
+        dependencies: { react: "^19.0.0", "@kirana-style/core": "0.3.2" },
+      }),
+      "packages/ui/tsconfig.json":
+        '{ "compilerOptions": { "paths": { "@workspace/ui/*": ["./src/*"] } } }',
+      "packages/ui/kirana.config.json": JSON.stringify({
+        ui: { registries: { "@acme": "acme/{name}.json" }, base: "base" },
+      }),
+      ...Object.fromEntries(
+        [KIT, SX, BUTTON, LORA].map((item) => [
+          `packages/ui/acme/${item.name}.json`,
+          JSON.stringify(item),
+        ])
+      ),
+    }
+    for (const [name, text] of Object.entries(files)) {
+      mkdirSync(path.dirname(path.join(top, name)), { recursive: true })
+      writeFileSync(path.join(top, name), text)
+    }
+    const app = path.join(top, "apps/web")
+    const ui = path.join(top, "packages/ui")
+    const { code, text, commands } = await add(
+      app,
+      "@acme/button",
+      "@acme/font-lora"
+    )
+    expect(code).toBe(0)
+    expect(text.split("\n")).toEqual([
+      "workspace: ui installs into ../../packages/ui (@workspace/ui), as ui.workspace names it",
+      "@acme/kit 1.0.0",
+      "  + src/lib/kit/axes.ts",
+      "  + app/globals.css",
+      "@acme/sx 1.0.0 · react/base",
+      "  + src/lib/sx.ts",
+      "@acme/button 1.2.0 · react/base",
+      "  + src/components/button.styles.ts",
+      "  + src/components/button.tsx",
+      "@acme/font-lora 1.0.0",
+      "font: src/main.tsx: imports @fontsource-variable/lora",
+      "packages: npm install @base-ui/react@^1.9.0 @fontsource-variable/lora@^5.2.0",
+      "kirana-style.lock.json: 4 item(s) recorded",
+      "check: kirana-style check on 4 file(s)",
+      "0 diagnostic(s), 0 error(s)",
+      "",
+    ])
+    // In the package, as `@workspace/ui/…`; its packages and lockfile there, the font in the app.
+    expect(commands).toEqual([
+      "npm install @base-ui/react@^1.9.0 @fontsource-variable/lora@^5.2.0",
+    ])
+    expect(read(ui, "src/components/button.tsx")).toBe(
+      "import { button } from \"@workspace/ui/components/button.styles\"\nimport type { Sx } from '@workspace/ui/lib/sx'\nexport const Button = () => button\n"
+    )
+    expect(read(ui, "src/components/button.styles.ts")).toContain(
+      'from "@workspace/ui/lib/kit/axes"'
+    )
+    expect(Object.keys(readLockfile(ui).items)).toHaveLength(4)
+    expect(readLockfile(app).items).toEqual({})
+    expect(read(app, "src/main.tsx")).toContain(
+      'import "@fontsource-variable/lora"\n'
+    )
+  })
+
+  it("stops on a ui.workspace it cannot follow (D-129)", async () => {
+    const top = mkdtempSync(path.join(root, "workspace-"))
+    const at = (directory: string, files: Record<string, string>) => {
+      for (const [name, text] of Object.entries(files)) {
+        mkdirSync(path.dirname(path.join(top, directory, name)), {
+          recursive: true,
+        })
+        writeFileSync(path.join(top, directory, name), text)
+      }
+      return path.join(top, directory)
+    }
+    const config = (ui: Record<string, unknown>) =>
+      JSON.stringify({ ui: { workspace: "../ui", ...ui } })
+    const without = at("bare", { "kirana.config.json": config({}) })
+    at("ui", { "package.json": JSON.stringify({ name: "@workspace/ui" }) })
+    const bare = await add(without, "@acme/button")
+    expect(bare.code).toBe(2)
+    expect(bare.text).toContain(
+      "ui.workspace names ../ui, which has no kirana.config: kirana-style ui init --workspace sets it up"
+    )
+    const both = await add(
+      at("both", { "kirana.config.json": config({ base: "base" }) }),
+      "@acme/button"
+    )
+    expect(both.text).toContain(
+      "ui.workspace names the package ui installs into: set base in its configuration instead"
+    )
+    at("ui", {
+      "kirana.config.json": JSON.stringify({ ui: { workspace: "../x" } }),
+    })
+    const chained = await add(
+      at("chained", { "kirana.config.json": config({}) }),
+      "@acme/button"
+    )
+    expect(chained.text).toContain(
+      "ui.workspace in the package ui installs into: only the app names it"
+    )
+    at("unnamed", { "package.json": "{}" })
+    const unnamed = await add(
+      at("app", {
+        "kirana.config.json": JSON.stringify({
+          ui: { workspace: "../unnamed" },
+        }),
+      }),
+      "@acme/button"
+    )
+    expect(unnamed.text).toContain(
+      "a workspace package needs its name, which its aliases start with"
+    )
+  })
+
   it("runs the package manager in a shell, a signal as a failure", () => {
     expect(runInShell("exit 3", root)).toBe(3)
     expect(runInShell("kill -9 $$", root)).toBe(1)

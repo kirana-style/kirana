@@ -73,6 +73,11 @@
       },
       "additionalProperties": false
     },
+    "workspace": {
+      "type": "string",
+      "description": "The workspace package `ui` installs into, from this configuration's directory (`../../packages/ui`): its own configuration holds the other `ui` settings (D-129).",
+      "minLength": 1
+    },
     "registries": {
       "type": "object",
       "description": "Registries by namespace: a URL template holding {name}, or { url, headers }.",

@@ -65,6 +65,20 @@ The project it makes runs `kirana-style ui` by itself: `init` adds
 `@kirana-style/registry` beside Kirana's other packages, each at the release you
 ran, written as that exact version.
 
+A registry can offer its own templates, an app with its tooling or a workspace
+around it, by name or by an archive's URL:
+
+```bash
+npx @kirana-style/registry init --template @acme/vite-react--turbo my-app --registry @acme=https://acme.dev/r/{name}.json
+npx @kirana-style/registry init --template https://acme.dev/r/templates/shop.tgz
+```
+
+`init` unpacks the template, installs it with the package manager you ran it
+with, written as the root's `packageManager` where the template asks, and goes on
+in the app the template names (`apps/web` in a workspace) as in any project.
+`--dry-run` cannot start from a template. How a registry lists them is in
+[publishing a registry](/docs/tooling/registries#templates).
+
 Start with a design by its preset code, which a design system's site gives you:
 
 ```bash
@@ -152,6 +166,56 @@ until its packages are installed.
 
 A font (`ui add font-lora`) is a package and the stylesheet that loads it, which
 `add` imports after Kirana's stylesheet.
+
+## In a monorepo
+
+In a Turborepo or any other workspace, the components can live in a package that
+every app imports, as shadcn/ui's monorepo template has them. Run `init` in the
+app, with the package's folder from the workspace's root:
+
+```bash
+cd apps/web
+npx kirana-style ui init --workspace packages/ui
+```
+
+The package needs a `package.json` with its name. Its aliases start with that
+name, so the app imports `@workspace/ui/components/button`. `init` makes the
+package a Kirana project and wires the app to it:
+
+| Folder        | What `init` writes there                                                                                                                                                                                                     |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/ui` | `kirana.config.ts` with the `ui` settings and the design system's configuration; `"@workspace/ui/*": ["./src/*"]` in its tsconfig, or a tsconfig with the app's JSX options; the components, their packages and the lockfile |
+| `apps/web`    | Kirana's own setup; `ui.workspace` and the same configuration in its `kirana.config.ts`; `"@workspace/ui/*": ["../../packages/ui/src/*"]` in its tsconfig, read by Vite; the reset and the `<html>` styles in its entry      |
+
+```ts file="apps/web/kirana.config.ts"
+import { defineConfig } from "@kirana-style/core/config"
+import { installConfig } from "../../packages/ui/src/lib/kirana/kirana.ts"
+
+export default defineConfig({
+  ...installConfig,
+  ui: { workspace: "../../packages/ui" },
+})
+```
+
+Every later command run in the app reads `ui.workspace` and works on the package:
+
+```bash
+npx kirana-style ui add button
+```
+
+- the button lands in `packages/ui/src/components`, and its packages are
+  installed in the package;
+- the package's lockfile records it, and the package's configuration checks it;
+- a font, and the attributes `preset` sets, still go into the app, which loads
+  the stylesheets and renders `<html>`.
+
+The app's `ui` holds `workspace` alone. The other settings are the package's, a
+registry given as a path among them.
+
+The app's build compiles the package's files with the app's configuration,
+which is why both spread the design system's. Run from the workspace's root,
+`kirana-style check apps/web/src packages/ui/src` reads each folder's own, as
+the lint plugin does when `settings.kirana.root` is left unset.
 
 ## The lockfile
 

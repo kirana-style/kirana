@@ -71,7 +71,15 @@ const APP_TSCONFIG = `{
 
 /** A Vite + React app as its template writes it, with a registry `@acme` on disk. */
 function vite(extra: Record<string, string> = {}, design: Item = kit()) {
-  return project({
+  return project(viteFiles(extra, design))
+}
+
+/** The files of `vite`'s app. */
+function viteFiles(
+  extra: Record<string, string> = {},
+  design: Item = kit()
+): Record<string, string> {
+  return {
     "package.json": JSON.stringify({
       type: "module",
       dependencies: { react: "^19.0.0", "react-dom": "^19.0.0" },
@@ -91,7 +99,52 @@ function vite(extra: Record<string, string> = {}, design: Item = kit()) {
     "acme/kit.json": JSON.stringify(design),
     "acme/index.json": JSON.stringify(INDEX),
     ...extra,
+  }
+}
+
+/**
+ * A Turborepo as shadcn/ui's monorepo template lays it out: `vite`'s app in `apps/web`, a
+ * `packages/ui` package named `@workspace/ui` holding the registry `@acme`, the workspaces listed at
+ * the root. `app` and `ui` add or leave out files of each.
+ */
+function turborepo(
+  app: Record<string, string | undefined> = {},
+  ui: Record<string, string | undefined> = {}
+): { top: string; app: string; ui: string } {
+  const {
+    "acme/kit.json": design,
+    "acme/index.json": index,
+    ...web
+  } = viteFiles()
+  const top = project({
+    "package.json": JSON.stringify({
+      private: true,
+      workspaces: ["apps/*", "packages/*"],
+    }),
+    ...Object.fromEntries(
+      Object.entries({ ...web, ...app }).map(([name, text]) => [
+        `apps/web/${name}`,
+        text,
+      ])
+    ),
+    ...Object.fromEntries(
+      Object.entries({
+        "package.json": JSON.stringify({
+          name: "@workspace/ui",
+          type: "module",
+          dependencies: { react: "^19.0.0" },
+        }),
+        "acme/kit.json": design,
+        "acme/index.json": index,
+        ...ui,
+      }).map(([name, text]) => [`packages/ui/${name}`, text])
+    ),
   })
+  return {
+    top,
+    app: path.join(top, "apps/web"),
+    ui: path.join(top, "packages/ui"),
+  }
 }
 
 /** A Next.js app: its layout renders `<html>`, and its tsconfig maps `@/*`. */
@@ -1244,4 +1297,339 @@ describe("KF-107 ui init where the tsconfig compiles one folder, or the framewor
 const NUXT_REFERENCES = JSON.stringify({
   files: [],
   references: [{ path: "./.nuxt/tsconfig.app.json" }],
+})
+
+describe("KF-108 ui init in a workspace (D-129)", () => {
+  it("makes the workspace's package the project with --workspace, the app wired to it (KF-108, D-129)", async () => {
+    const release = await version()
+    const { app, ui } = turborepo()
+    const { code, text, commands } = await init(
+      app,
+      "--workspace",
+      "packages/ui",
+      "--registry",
+      ACME
+    )
+    expect(code).toBe(0)
+    expect(text.split("\n")).toEqual([
+      "workspace: ui installs into ../../packages/ui (@workspace/ui), as ui.workspace names it",
+      "kirana: config: create kirana.config.ts",
+      "app: kirana: config: create kirana.config.ts",
+      "app: kirana: adapter: add @kirana-style/vite to vite.config.ts",
+      "app: kirana: stylesheet: import the stylesheet in src/main.tsx",
+      "app: kirana: types: create src/kirana.d.ts",
+      "@acme/kit 1.0.0",
+      "  + src/lib/kit/config.ts",
+      "  + src/lib/kit/document.ts",
+      "  + src/components/reset.css",
+      'setup: tsconfig.json: paths "@workspace/ui/*": ["./src/*"], its JSX as the app\'s',
+      'setup: kirana.config.ts: ui {"framework":"react","aliases":{"ui":"@workspace/ui/components","lib":"@workspace/ui/lib","component":"@workspace/ui/components","hook":"@workspace/ui/hooks"},"registries":{"@acme":"acme/{name}.json"}}',
+      "setup: kirana.config.ts: spreads kitConfig (./src/lib/kit/config.ts)",
+      'setup: app: tsconfig.app.json: paths "@workspace/ui/*": ["../../packages/ui/src/*"]',
+      "setup: app: vite.config.ts: resolve: { tsconfigPaths: true }",
+      'setup: app: kirana.config.ts: ui {"workspace":"../../packages/ui"}',
+      "setup: app: kirana.config.ts: spreads kitConfig (../../packages/ui/src/lib/kit/config.ts)",
+      "setup: app: src/main.tsx: imports @workspace/ui/components/reset.css",
+      "setup: app: src/main.tsx: sets <html>'s classes from htmlStyles",
+      "packages: npm install --save-exact @kirana-style/core@0.3.2",
+      "packages: app: npm install --save-exact @kirana-style/core@0.3.2",
+      `packages: app: npm install --save-exact -D kirana-style@${release} @kirana-style/vite@${release} @kirana-style/registry@${release}`,
+      "kirana-style.lock.json: 1 item(s) recorded",
+      "",
+    ])
+    // The package's packages in the package, the app's in the app, at one core.
+    expect(commands).toEqual([
+      "npm install --save-exact @kirana-style/core@0.3.2",
+      "npm install --save-exact @kirana-style/core@0.3.2",
+      `npm install --save-exact -D kirana-style@${release} @kirana-style/vite@${release} @kirana-style/registry@${release}`,
+    ])
+    expect(read(ui, "kirana.config.ts")).toBe(
+      [
+        'import { defineConfig } from "@kirana-style/core/config"',
+        'import { kitConfig } from "./src/lib/kit/config.ts"',
+        "",
+        "export default defineConfig({",
+        "  ...kitConfig,",
+        "  ui: {",
+        '    "framework": "react",',
+        '    "aliases": {',
+        '      "ui": "@workspace/ui/components",',
+        '      "lib": "@workspace/ui/lib",',
+        '      "component": "@workspace/ui/components",',
+        '      "hook": "@workspace/ui/hooks"',
+        "    },",
+        '    "registries": {',
+        '      "@acme": "acme/{name}.json"',
+        "    }",
+        "  },",
+        "})",
+        "",
+      ].join("\n")
+    )
+    expect(JSON.parse(read(ui, "tsconfig.json"))).toEqual({
+      compilerOptions: {
+        jsx: "react-jsx",
+        paths: { "@workspace/ui/*": ["./src/*"] },
+      },
+      include: ["src"],
+    })
+    expect(read(app, "kirana.config.ts")).toBe(
+      [
+        'import { defineConfig } from "@kirana-style/core/config"',
+        'import { kitConfig } from "../../packages/ui/src/lib/kit/config.ts"',
+        "",
+        "export default defineConfig({",
+        "  ...kitConfig,",
+        "  ui: {",
+        '    "workspace": "../../packages/ui"',
+        "  },",
+        "})",
+        "",
+      ].join("\n")
+    )
+    expect(read(app, "tsconfig.app.json")).toContain(
+      '"compilerOptions": {\n    "paths": { "@workspace/ui/*": ["../../packages/ui/src/*"] },'
+    )
+    const entry = read(app, "src/main.tsx")
+    expect(entry).toContain("import '@workspace/ui/components/reset.css'")
+    expect(entry).toContain(
+      "import { htmlStyles } from '@workspace/ui/lib/kit/document'"
+    )
+    expect(Object.keys(readLockfile(ui).items)).toEqual(["@acme/kit"])
+    expect(existsSync(path.join(app, "kirana-style.lock.json"))).toBe(false)
+
+    // Run again, the app's ui.workspace names the package: nothing new for the app's configuration.
+    const again = await init(app, "--registry", ACME, "--dry-run")
+    expect(again.code).toBe(0)
+    expect(again.text).toContain(
+      "workspace: ui installs into ../../packages/ui (@workspace/ui)"
+    )
+    expect(again.text).not.toContain('app: kirana.config.ts: ui {"workspace"')
+    expect(
+      (await init(app, "--workspace", "packages/ui", "--dry-run")).code
+    ).toBe(0)
+  })
+
+  it("maps the package's aliases where each tsconfig has its paths, and makes the package's config a module's (D-129)", async () => {
+    // A package with a tsconfig and paths of its own, an app whose tsconfig has paths, and Vite
+    // reading them already.
+    const { app, ui } = turborepo(
+      {
+        "tsconfig.json":
+          '{ "compilerOptions": { "jsx": "react-jsx", "paths": { "@/*": ["./src/*"] } }, "include": ["src"] }',
+        "tsconfig.app.json": undefined,
+        "vite.config.ts":
+          "import { defineConfig } from 'vite'\n\nexport default defineConfig({ resolve: { tsconfigPaths: true } })\n",
+      },
+      {
+        "package.json": JSON.stringify({ name: "@acme/ui" }),
+        "tsconfig.json":
+          '{ "compilerOptions": { "strict": true, "paths": {} }, "include": ["."] }',
+      }
+    )
+    const { code, text } = await init(
+      app,
+      "--workspace",
+      "packages/ui",
+      "--registry",
+      ACME,
+      "--dry-run"
+    )
+    expect(code).toBe(0)
+    expect(text).toContain("kirana: config: create kirana.config.mts\n")
+    expect(text).toContain(
+      'setup: tsconfig.json: paths "@acme/ui/*": ["./src/*"]\n'
+    )
+    expect(text).toContain(
+      'setup: app: tsconfig.json: paths "@acme/ui/*": ["../../packages/ui/src/*"]\n'
+    )
+    expect(text).not.toContain("tsconfigPaths")
+    expect(existsSync(path.join(ui, "kirana.config.mts"))).toBe(false)
+
+    // A package that maps its aliases already, and an app without a tsconfig, which is told.
+    const mapped = turborepo(
+      { "tsconfig.json": undefined, "tsconfig.app.json": undefined },
+      {
+        "package.json": JSON.stringify({
+          name: "@workspace/ui",
+          dependencies: { "@kirana-style/core": "0.3.2" },
+        }),
+        "tsconfig.json":
+          '{ "compilerOptions": { "paths": { "@workspace/ui/*": ["./lib/*"] } } }',
+      }
+    )
+    const told = await init(
+      mapped.app,
+      "--workspace",
+      "packages/ui",
+      "--registry",
+      ACME,
+      "--dry-run"
+    )
+    expect(told.code).toBe(0)
+    expect(told.text).toContain("  + lib/components/reset.css\n")
+    // The package lists the core already: nothing to install there.
+    expect(told.text).not.toMatch(/^packages: npm/m)
+    expect(told.text).not.toContain("setup: tsconfig.json")
+    expect(told.text).toContain(
+      'by hand: app: tsconfig.json: add "@workspace/ui/*": ["../../packages/ui/src/*"] to compilerOptions.paths, so the app resolves the package\'s files\n'
+    )
+
+    // A package with no tsconfig, beside an app with none either: no JSX options to take.
+    const bare = turborepo({
+      "tsconfig.json": undefined,
+      "tsconfig.app.json": undefined,
+    })
+    const created = await init(
+      bare.app,
+      "--workspace",
+      "packages/ui",
+      "--registry",
+      ACME
+    )
+    expect(created.code).toBe(0)
+    expect(JSON.parse(read(bare.ui, "tsconfig.json"))).toEqual({
+      compilerOptions: { paths: { "@workspace/ui/*": ["./src/*"] } },
+      include: ["src"],
+    })
+
+    // A Solid app whose tsconfig references a folder's: the package takes its JSX import source.
+    const solid = turborepo({
+      "package.json": JSON.stringify({
+        type: "module",
+        dependencies: { "solid-js": "^1.9.0" },
+        devDependencies: { vite: "^8.0.0" },
+      }),
+      "tsconfig.json": '{ "files": [], "references": [{ "path": "./web" }] }',
+      "tsconfig.app.json": undefined,
+      "web/tsconfig.json":
+        '{ "compilerOptions": { "jsx": "preserve", "jsxImportSource": "solid-js" } }',
+    })
+    const sourced = await init(
+      solid.app,
+      "--workspace",
+      "packages/ui",
+      "--registry",
+      ACME,
+      "--dry-run"
+    )
+    expect(sourced.code).toBe(0)
+    expect(sourced.text).toContain(
+      'setup: app: web/tsconfig.json: paths "@workspace/ui/*": ["../../packages/ui/src/*"]\n'
+    )
+  })
+
+  it("gives a JavaScript Next.js app in a workspace Next.js's tsconfig with the package's aliases (KF-046)", async () => {
+    const { app } = turborepo({
+      "package.json": JSON.stringify({
+        dependencies: { next: "^16.0.0", react: "19", "react-dom": "19" },
+      }),
+      "vite.config.ts": undefined,
+      "tsconfig.json": undefined,
+      "tsconfig.app.json": undefined,
+      "tsconfig.node.json": undefined,
+      "index.html": undefined,
+      "src/main.tsx": undefined,
+      "src/App.tsx": undefined,
+      "app/layout.jsx":
+        'export default function RootLayout({ children }) {\n  return (\n    <html lang="en">\n      <body>{children}</body>\n    </html>\n  )\n}\n',
+    })
+    const { code, text } = await init(
+      app,
+      "--workspace",
+      "packages/ui",
+      "--registry",
+      ACME,
+      "--dry-run"
+    )
+    expect(code).toBe(0)
+    expect(text).toContain(
+      "setup: app: tsconfig.json: Next.js's compiler options, as `next` would write them\n"
+    )
+    expect(text).toContain(
+      'setup: app: tsconfig.json: paths "@workspace/ui/*": ["../../packages/ui/src/*"]\n'
+    )
+    expect(text).toContain(
+      "setup: app: app/layout.jsx: <html sx={htmlStyles}>\n"
+    )
+  })
+
+  it("keeps what it wrote when the app's packages fail to install (D-129)", async () => {
+    const { app, ui } = turborepo()
+    let text = ""
+    const code = await main(
+      ["init", "--workspace", "packages/ui", "--registry", ACME],
+      app,
+      (chunk) => void (text += chunk),
+      { run: (_, cwd) => (cwd === app ? 1 : 0), load }
+    )
+    expect(code).toBe(1)
+    expect(text).toContain(
+      "failed: the files are written, the lockfile is not\n"
+    )
+    expect(existsSync(path.join(ui, "src/lib/kit/config.ts"))).toBe(true)
+    expect(existsSync(path.join(ui, "kirana-style.lock.json"))).toBe(false)
+  })
+
+  it("stops on a --workspace it cannot take (D-129)", async () => {
+    const lone = vite()
+    const outside = await init(lone, "--workspace", "packages/ui")
+    expect(outside.code).toBe(2)
+    expect(outside.text).toContain(
+      "--workspace packages/ui needs a workspace: no package.json with workspaces, nor a pnpm-workspace.yaml"
+    )
+    const { top, app } = turborepo()
+    const atTop = await init(top, "--workspace", "packages/ui")
+    expect(atTop.code).toBe(2)
+    expect(atTop.text).toContain(
+      "--workspace runs in the app that imports the package (apps/web), not at the workspace's root"
+    )
+    const missing = await init(app, "--workspace", "packages/none")
+    expect(missing.code).toBe(2)
+    expect(missing.text).toContain(
+      "packages/none/package.json: a workspace package needs its name"
+    )
+    expect(
+      (await init(app, "--workspace", "packages/ui", "--registry", ACME)).code
+    ).toBe(0)
+    const other = await init(app, "--workspace", "packages/other")
+    expect(other.code).toBe(2)
+    expect(other.text).toContain(
+      "kirana.config.ts: ui.workspace names packages/ui, not packages/other"
+    )
+    // pnpm's workspace file marks the root as well.
+    const pnpm = turborepo({}, {})
+    writeFileSync(path.join(pnpm.top, "package.json"), "{}")
+    writeFileSync(
+      path.join(pnpm.top, "pnpm-workspace.yaml"),
+      "packages:\n  - apps/*\n  - packages/*\n"
+    )
+    expect(
+      (
+        await init(
+          pnpm.app,
+          "--workspace",
+          "packages/ui",
+          "--registry",
+          ACME,
+          "--dry-run"
+        )
+      ).code
+    ).toBe(0)
+  })
+
+  it("checks what it wrote in the package with the package's configuration (D-129)", async () => {
+    const { app, ui } = turborepo()
+    withCore(ui)
+    let text = ""
+    const code = await main(
+      ["init", "--workspace", "packages/ui", "--registry", ACME],
+      app,
+      (chunk) => void (text += chunk),
+      { run: () => 0, load }
+    )
+    expect(text).toContain("check: kirana-style check on 2 file(s)\n")
+    expect(text).toContain("0 diagnostic(s), 0 error(s)\n")
+    expect(code).toBe(0)
+  })
 })

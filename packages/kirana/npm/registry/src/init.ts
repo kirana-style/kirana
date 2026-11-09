@@ -22,6 +22,7 @@ import {
   REGISTRY,
   sources,
 } from "@kirana-style/compiler"
+import type { PackageManager } from "@kirana-style/compiler"
 
 import {
   checkWritten,
@@ -68,9 +69,15 @@ import {
   settingsOf,
   withAttributes,
 } from "./preset.ts"
-import { fetchExample, writeExample } from "./template.ts"
+import { startTemplate } from "./template.ts"
 import type { Framework, IconLibrary, Index, Item } from "./types.ts"
 import { version } from "./version.ts"
+import {
+  prepareWorkspace,
+  vitePaths,
+  workspaceLine,
+  workspaceSettings,
+} from "./workspace.ts"
 
 /** Folders never searched for the project's own stylesheet. */
 const SKIPPED = new Set(["node_modules", "dist", "build", "out", "coverage"])
@@ -470,32 +477,7 @@ function prepareAliases(
         `${tsconfig}: add ${listed} to its include, so TypeScript, Vite and Kirana compile what ui installs`
       )
   }
-  const vite = [
-    "vite.config.ts",
-    "vite.config.mts",
-    "vite.config.js",
-    "vite.config.mjs",
-  ].find((file) => files.read(file) !== undefined)
-  if (vite !== undefined && !files.read(vite)!.includes("tsconfigPaths")) {
-    const text = files.read(vite)!
-    // Into the config's own `resolve` (Analog's sets `mainFields` there), else a new one.
-    const resolve = /\bresolve\s*:\s*\{/
-    if (resolve.test(text) || /defineConfig\(\s*\{/.test(text)) {
-      files.write(
-        vite,
-        resolve.test(text)
-          ? text.replace(resolve, (open) => `${open} tsconfigPaths: true,`)
-          : text.replace(
-              /defineConfig\(\s*\{/,
-              (open) => `${open}\n  resolve: { tsconfigPaths: true },`
-            )
-      )
-      report.push(`${vite}: resolve: { tsconfigPaths: true }`)
-    } else
-      manual.push(
-        `${vite}: add resolve: { tsconfigPaths: true }, so Vite reads the aliases`
-      )
-  }
+  vitePaths(files, report, manual)
   return settings
 }
 
@@ -590,9 +572,13 @@ function htmlTakesSx(text: string): boolean {
 const literal = (value: unknown, indent = "") =>
   JSON.stringify(value, null, 2).replaceAll("\n", `\n${indent}`)
 
+/** Where `init` reports what it plans, and what is left to do by hand. */
+type Lines = { report: string[]; manual: string[] }
+
 /**
  * The planned edits for the `ui` settings and the design system's `setup`, each a line to report;
- * what cannot be done safely goes to `manual`.
+ * what cannot be done safely goes to `manual`. In a workspace (D-129) the stylesheets and the
+ * `<html>` styles go into the app, `app`.
  */
 function setUp(
   files: Files,
@@ -601,10 +587,9 @@ function setUp(
   placed: readonly Placed[],
   settings: Settings,
   report: string[],
-  manual: string[]
+  manual: string[],
+  app: { files: Files } & Lines = { files, report, manual }
 ): void {
-  // Kirana's own setup creates one when the project has none.
-  const config = CONFIGS.find((name) => files.read(name) !== undefined)!
   const ui = {
     ...(chosen.framework === undefined ? {} : { framework: chosen.framework }),
     ...(chosen.base === undefined ? {} : { base: chosen.base }),
@@ -618,6 +603,21 @@ function setUp(
       ? { registries: chosen.registries }
       : {}),
   }
+  configure(files, ui, item, placed, report, manual)
+  wire(app.files, item, placed, settings, app.report, app.manual)
+}
+
+/** The planned edits to the configuration: the `ui` settings and the spread of the design system's. */
+function configure(
+  files: Files,
+  ui: Record<string, unknown>,
+  item: Item,
+  placed: readonly Placed[],
+  report: string[],
+  manual: string[]
+): void {
+  // Kirana's own setup creates one when the project has none.
+  const config = CONFIGS.find((name) => files.read(name) !== undefined)!
   const setup = item.setup ?? {}
   let text = files.read(config)!
   const opener = /defineConfig\(\s*\{|export default \{/
@@ -678,13 +678,28 @@ function setUp(
         `import { ${setup.config.export} } from "${specifier}"`
       )
       report.push(`${config}: spreads ${setup.config.export} (${specifier})`)
-      if (/\.[cm]?ts$/.test(config))
+      // A workspace's app may have no tsconfig: its aliases are the package's (D-129).
+      if (
+        /\.[cm]?ts$/.test(config) &&
+        files.read("tsconfig.json") !== undefined
+      )
         allowTsImports(files, config, report, manual)
     }
     // An empty `defineConfig({})` keeps its closing brace on a line of its own.
     files.write(config, text.replace(/,\}\)/, ",\n})"))
   }
+}
 
+/** The planned edits that load the design system's stylesheets and give `<html>` its styles. */
+function wire(
+  files: Files,
+  item: Item,
+  placed: readonly Placed[],
+  settings: Settings,
+  report: string[],
+  manual: string[]
+): void {
+  const setup = item.setup ?? {}
   const aliased = (module: string) => {
     const [, type, rest] = /^@\/registry\/([a-z]+)\/(.+)$/.exec(module)!
     return `${settings.aliases[type as keyof Settings["aliases"]]}/${rest}`
@@ -809,6 +824,7 @@ export async function runInit(
       "--design",
       "--template",
       "--preset",
+      "--workspace",
     ]
   )
   const chosen =
@@ -840,20 +856,19 @@ export async function runInit(
       write("kirana-style ui init: --dry-run cannot start from a template\n")
       return 2
     }
-    const release = await version()
-    const directory = path.resolve(cwd, parsed.rest[0] ?? template)
     try {
-      writeExample(
-        await fetchExample(template, release, options),
-        directory,
-        release
+      cwd = await startTemplate(
+        template,
+        parsed.rest[0],
+        cwd,
+        chosen.registries,
+        write,
+        options
       )
     } catch (error) {
       write(`${(error as Error).message}\n`)
       return 1
     }
-    write(`template: Kirana ${release}'s ${template} in ${directory}\n`)
-    cwd = directory
   }
   let settings: Settings
   try {
@@ -863,30 +878,62 @@ export async function runInit(
     return 2
   }
   const configFile = findConfigAbove(cwd)
-  const root = configFile === undefined ? cwd : path.dirname(configFile)
+  const app = configFile === undefined ? cwd : path.dirname(configFile)
+  // `--workspace`, or the app's `ui.workspace`, makes a package of the workspace the project (D-129).
+  const named = settings.app !== undefined
+  try {
+    settings = withChosen(
+      await workspaceSettings(
+        app,
+        settings,
+        parsed.values.get("--workspace")?.at(-1),
+        options.load
+      ),
+      chosen
+    )
+  } catch (error) {
+    write(`${(error as Error).message}\n`)
+    return 2
+  }
+  const root = settings.app === undefined ? app : settings.root
   const project = readProject(root)
+  const appProject = root === app ? project : readProject(app)
   if (settings.framework === undefined) {
-    const detected = frameworkOf(project)
+    const detected = frameworkOf(appProject)
     if (detected !== undefined) {
       settings = { ...settings, framework: detected }
       chosen.framework = detected
     }
   }
 
-  // Kirana's own setup, as `kirana-style init` plans it.
-  const generator = generatorOf(root, project.listed)
-  const starter = starterOf(root, project.listed, generator)
+  // Kirana's own setup, as `kirana-style init` plans it: the app's, which builds the package's files.
+  const generator = generatorOf(app, appProject.listed)
+  const starter = starterOf(app, appProject.listed, generator)
   const next = starter === NEXT_STARTER
-  const kirana = planInit(root, { typescript: starter !== undefined })
-  const files = new Files(root, generator?.generated)
+  const kirana = planInit(app, { typescript: starter !== undefined })
+  const appFiles = new Files(app, generator?.generated)
+  const files = root === app ? appFiles : new Files(root)
   const report: string[] = []
   const manual: string[] = []
-  for (const step of kirana.steps) {
+  // In a workspace, what the app gets is reported apart, as the app's.
+  const appLines: Lines =
+    root === app ? { report, manual } : { report: [], manual: [] }
+  // A workspace's package takes Kirana's configuration alone: the app builds its files (D-129).
+  const packageSteps =
+    root === app
+      ? []
+      : planInit(root, { typescript: true }).steps.filter(
+          (entry) => entry.name === "config"
+        )
+  for (const [step, into, lines] of [
+    ...kirana.steps.map((entry) => [entry, appFiles, appLines] as const),
+    ...packageSteps.map((entry) => [entry, files, { report, manual }] as const),
+  ]) {
     if (step.status === "change") {
-      for (const change of step.changes) files.write(change.file, change.after)
-      report.push(`kirana: ${step.name}: ${step.detail}`)
+      for (const change of step.changes) into.write(change.file, change.after)
+      lines.report.push(`kirana: ${step.name}: ${step.detail}`)
     } else if (step.status === "manual")
-      manual.push(`kirana: ${step.name}: ${step.detail}`)
+      lines.manual.push(`kirana: ${step.name}: ${step.detail}`)
   }
 
   let placed: Placed[]
@@ -920,18 +967,58 @@ export async function runInit(
       settings = { ...settings, ...given }
       fonts.push(...axisItems(item.design!, given.design, design))
     }
-    settings = prepareAliases(files, settings, chosen, report, manual, starter)
-    if (generator) generatorScript(files, generator, report, manual)
+    if (root === app)
+      settings = prepareAliases(
+        files,
+        settings,
+        chosen,
+        report,
+        manual,
+        starter
+      )
+    else {
+      // The package's aliases, which start with its name, written to its `ui` (D-129).
+      chosen.aliases ??= { ...settings.aliases }
+      if (starter) {
+        appFiles.write("tsconfig.json", starter.tsconfig)
+        appLines.report.push(`tsconfig.json: ${starter.about}`)
+      }
+      prepareWorkspace(
+        files,
+        appFiles,
+        settings,
+        report,
+        manual,
+        appLines.report,
+        appLines.manual
+      )
+    }
+    if (generator)
+      generatorScript(appFiles, generator, appLines.report, appLines.manual)
     planned = await plan([design, ...fonts], settings, project, options)
     placed = place(planned, settings, project, files.absolute)
     const system = planned.find((entry) => entry.key === design)!.item
-    setUp(files, chosen, system, placed, settings, report, manual)
-    const imports = importFonts(planned, files.scripts(), (file) =>
-      files.read(file)
+    if (root !== app && !named) {
+      const workspace = path.relative(app, root).split(path.sep).join("/")
+      configure(
+        appFiles,
+        { workspace },
+        system,
+        placed,
+        appLines.report,
+        appLines.manual
+      )
+    }
+    setUp(files, chosen, system, placed, settings, report, manual, {
+      files: appFiles,
+      ...appLines,
+    })
+    const imports = importFonts(planned, appFiles.scripts(), (file) =>
+      appFiles.read(file)
     )
-    for (const [file, text] of imports.edits) files.write(file, text)
-    report.push(...imports.report)
-    manual.push(...imports.manual)
+    for (const [file, text] of imports.edits) appFiles.write(file, text)
+    appLines.report.push(...imports.report)
+    appLines.manual.push(...imports.manual)
     const attributes = {
       ...(chosen.design && system.design
         ? attributesOf(system.design, chosen.design)
@@ -939,16 +1026,21 @@ export async function runInit(
       ...asked,
     }
     if (Object.keys(attributes).length > 0)
-      setAttributes(files, attributes, report, manual)
+      setAttributes(appFiles, attributes, appLines.report, appLines.manual)
     if (asked.dir === "rtl") manual.push(DIRECTION)
     lockfile = readLockfile(root)
   } catch (error) {
     write(`${(error as Error).message}\n`)
     return 1
   }
+  if (root !== app) {
+    report.push(...appLines.report.map((line) => `app: ${line}`))
+    manual.push(...appLines.manual.map((line) => `app: ${line}`))
+    write(workspaceLine(settings, cwd))
+  }
 
   const marks = { new: "+", same: "=", differs: "!" } as const
-  const own = (line: string) => line.startsWith("kirana: ")
+  const own = (line: string) => /^(app: )?kirana: /.test(line)
   for (const line of report.filter(own)) write(`${line}\n`)
   for (const { key, item, framework, base } of planned) {
     write(
@@ -962,42 +1054,47 @@ export async function runInit(
   for (const line of manual) write(`by hand: ${line}\n`)
   // Kirana's own packages, this one among them so that `kirana-style ui` runs in the project
   // (KF-035), recorded exactly as a template's are: at this release, unless the design system names
-  // a version of one. Other packages (Next.js's PostCSS, the design system's) as they are named.
+  // a version of one. Other packages (Next.js's PostCSS, the design system's) as they are named. In a
+  // workspace the items' packages are the package's, with the core its files import, and Kirana's
+  // own setup the app's.
   const release = await version()
   const versioned = missingPackages(planned, project, placed)
-  const named = (entry: string) => entry.replace(/(?<=.)@.*$/, "")
-  const ours = (entry: string) =>
-    named(entry) === "kirana-style" || named(entry).startsWith("@kirana-style/")
-  const unnamed = (names: readonly string[]) =>
-    names.filter((name) => !versioned.some((entry) => named(entry) === name))
-  const pinned = (names: readonly string[]) =>
-    unnamed(names.filter(ours)).map((name) => `${name}@${release}`)
-  const others = (names: readonly string[]) =>
-    unnamed(names.filter((name) => !ours(name)))
   const development = [
     ...kirana.development,
-    ...(REGISTRY in project.listed ? [] : [REGISTRY]),
+    ...(REGISTRY in appProject.listed ? [] : [REGISTRY]),
     ...(next
-      ? NEXT_TYPESCRIPT.filter((name) => !(name in project.listed))
+      ? NEXT_TYPESCRIPT.filter((name) => !(name in appProject.listed))
       : []),
   ]
-  const commands = [
-    ...installCommand(
-      project.manager,
-      [...pinned(kirana.dependencies), ...versioned.filter(ours)],
-      pinned(development),
-      { exact: true }
-    ),
-    ...installCommand(
-      project.manager,
-      [
-        ...others(kirana.dependencies),
-        ...versioned.filter((entry) => !ours(entry)),
-      ],
-      others(development)
-    ),
-  ]
+  const commands =
+    root === app
+      ? installCommands(
+          project.manager,
+          release,
+          kirana.dependencies,
+          development,
+          versioned
+        )
+      : installCommands(
+          project.manager,
+          release,
+          CORE in project.listed ? [] : [CORE],
+          [],
+          versioned
+        )
+  const appCommands =
+    root === app
+      ? []
+      : installCommands(
+          appProject.manager,
+          release,
+          kirana.dependencies,
+          development,
+          [],
+          versioned
+        )
   for (const command of commands) write(`packages: ${command}\n`)
+  for (const command of appCommands) write(`packages: app: ${command}\n`)
   const conflicts = placed.filter((file) => file.state === "differs")
   if (conflicts.length > 0 && !parsed.flags.has("--overwrite")) {
     write(
@@ -1009,12 +1106,15 @@ export async function runInit(
     write("dry run: nothing written\n")
     return 0
   }
-  for (const [file, text] of files.changed) {
-    mkdirSync(path.dirname(path.join(root, file)), { recursive: true })
-    writeFileSync(path.join(root, file), text)
-  }
+  for (const into of new Set([files, appFiles]))
+    for (const [file, text] of into.changed) {
+      mkdirSync(path.dirname(path.join(into.root, file)), { recursive: true })
+      writeFileSync(path.join(into.root, file), text)
+    }
   writePlaced(placed)
   if (!installPackages(commands, project, write, options)) return 1
+  if (root !== app && !installPackages(appCommands, appProject, write, options))
+    return 1
   record(lockfile, planned, placed)
   writeLockfile(root, lockfile)
   write(`kirana-style.lock.json: ${planned.length} item(s) recorded\n`)
@@ -1022,4 +1122,46 @@ export async function runInit(
   return (await checkWritten(placed, root, write, designSystemsOf(planned)))
     ? 0
     : 1
+}
+
+/** The core a workspace package's files import (D-129). */
+const CORE = "@kirana-style/core"
+
+/**
+ * The install commands: Kirana's packages at `release` unless `versions` names one (the design
+ * system's), recorded exactly, then the others as named. `versioned` are the items' packages
+ * installed here; `versions` defaults to them, and in a workspace's app is the package's.
+ */
+function installCommands(
+  manager: PackageManager,
+  release: string,
+  dependencies: readonly string[],
+  development: readonly string[],
+  versioned: readonly string[],
+  versions: readonly string[] = versioned
+): string[] {
+  const named = (entry: string) => entry.replace(/(?<=.)@.*$/, "")
+  const ours = (entry: string) =>
+    named(entry) === "kirana-style" || named(entry).startsWith("@kirana-style/")
+  const at = (name: string) =>
+    versions.find((entry) => named(entry) === name) ?? `${name}@${release}`
+  const unnamed = (names: readonly string[]) =>
+    names.filter((name) => !versioned.some((entry) => named(entry) === name))
+  const pinned = (names: readonly string[]) =>
+    unnamed(names.filter(ours)).map(at)
+  const others = (names: readonly string[]) =>
+    unnamed(names.filter((name) => !ours(name)))
+  return [
+    ...installCommand(
+      manager,
+      [...pinned(dependencies), ...versioned.filter(ours)],
+      pinned(development),
+      { exact: true }
+    ),
+    ...installCommand(
+      manager,
+      [...others(dependencies), ...versioned.filter((entry) => !ours(entry))],
+      others(development)
+    ),
+  ]
 }

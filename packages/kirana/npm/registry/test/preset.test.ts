@@ -572,6 +572,78 @@ describe("KRN-DX-032 kirana-style ui preset", () => {
     )
   })
 
+  it("sets the design in the workspace's package, the font and <html> in the app (KF-108, D-129)", async () => {
+    const fonted: Item = {
+      ...KIT,
+      design: {
+        ...DESIGN,
+        axes: {
+          ...DESIGN.axes,
+          font: {
+            attribute: "data-font",
+            values: ["inter"],
+            items: { inter: "font-inter" },
+          },
+        },
+        presets: {
+          f: [
+            { axis: "style", values: ["nova", "vega"], bits: 1 },
+            { axis: "font", values: ["inter"], bits: 1 },
+          ],
+        },
+      },
+    }
+    const inter: Item = {
+      name: "font-inter",
+      type: "font",
+      version: "1.0.0",
+      dependencies: { "@fontsource/inter": "^5.0.0" },
+      font: { family: "inter", import: "@fontsource/inter" },
+    }
+    const top = mkdtempSync(path.join(root, "workspace-"))
+    const files: Record<string, string> = {
+      "package.json": '{ "workspaces": ["apps/*", "packages/*"] }',
+      "apps/web/package.json": '{ "dependencies": { "react": "19" } }',
+      "apps/web/kirana.config.json":
+        '{ "ui": { "workspace": "../../packages/ui" } }',
+      "apps/web/index.html":
+        '<!doctype html>\n<html lang="en"><body></body></html>\n',
+      "apps/web/src/main.ts": 'import "@kirana-style/core/stylesheet.css"\n',
+      "packages/ui/package.json":
+        '{ "name": "@workspace/ui", "dependencies": { "react": "19", "lucide-react": "1" } }',
+      "packages/ui/tsconfig.json":
+        '{ "compilerOptions": { "paths": { "@workspace/ui/*": ["./src/*"] } } }',
+      "packages/ui/kirana.config.json": JSON.stringify({
+        ui: { registries: { "@acme": "acme/{name}.json" }, base: "base" },
+      }),
+      "packages/ui/acme/kit.json": JSON.stringify(fonted),
+      "packages/ui/acme/button.json": JSON.stringify(BUTTON),
+      "packages/ui/acme/shared.json": JSON.stringify(SHARED),
+      "packages/ui/acme/font-inter.json": JSON.stringify(inter),
+    }
+    for (const [name, text] of Object.entries(files)) {
+      mkdirSync(path.dirname(path.join(top, name)), { recursive: true })
+      writeFileSync(path.join(top, name), text)
+    }
+    const app = path.join(top, "apps/web")
+    const ui = path.join(top, "packages/ui")
+    expect((await run(app, "add", "@acme/button", "--no-check")).code).toBe(0)
+    const { code: exit, text } = await run(app, "preset", "f1", "--no-check")
+    expect(exit).toBe(0)
+    expect(text).toContain("font: src/main.ts: imports @fontsource/inter\n")
+    expect(text).toContain(
+      'document: index.html: <html> data-style="vega" data-font="inter"\n'
+    )
+    expect(read(app, "src/main.ts")).toContain('import "@fontsource/inter"')
+    expect(read(app, "index.html")).toContain('data-style="vega"')
+    expect(JSON.parse(read(ui, "kirana.config.json")).ui.design).toEqual({
+      style: "vega",
+      font: "inter",
+    })
+    expect(read(app, "kirana.config.json")).not.toContain("design")
+    expect(readLockfile(ui).items["@acme/font-inter"]).toBeDefined()
+  })
+
   it("redraws icons with the library a code names, adding its packages", async () => {
     const cwd = await installed()
     const { commands } = await run(
