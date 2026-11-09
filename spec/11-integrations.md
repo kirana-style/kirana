@@ -315,7 +315,9 @@ Plug'n'Play) and Bun (D-029):
 - The Driver loads `@kirana-style/compiler-<triple>` first. Only when that package is not installed does it
   look for `kirana.<triple>.node` beside itself (the workspace, where the engine is built in place);
   a package that is installed but fails to load is an error, never a reason to try another binary.
-  `KIRANA_NATIVE_PATH` names a binary explicitly. Linux gnu binaries link against glibc 2.17 (D-050).
+  `KIRANA_NATIVE_PATH` names a binary explicitly. Linux gnu binaries link against glibc 2.17 and
+  compile their C against its headers; the build checks their symbols and `packages.yml` installs
+  them on Debian 12 (D-050, KF-104).
 - Packages are compiled at pack time, one ESM file and declaration per source file (D-050).
 
 **Installation is tested, not assumed** (E-08, D-051). `bun run kirana:pack` writes every package and

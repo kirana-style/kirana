@@ -579,6 +579,35 @@ jobs:
           npm install --global bun;
           node packages/kirana/examples/run.ts vite-react --pm ${{ matrix.pm }} --no-browser"
 
+  # Debian 12 (glibc 2.36): the gnu platform packages on a glibc older than the runner's. The engines
+  # link against glibc 2.17 and the build checks their symbols; this installs the packed packages
+  # where 0.4.0's engine did not load (KF-104), as an install, not a symbol table, finds it.
+  install-glibc:
+    name: install (debian 12 ${{ matrix.arch }})
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-26.04-arm' || 'ubuntu-26.04' }}
+    needs: [pack]
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ${{ fromJSON(github.event_name == 'pull_request' && '["x64"]' || '["x64", "arm64"]') }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: kirana-packages
+          path: packages/kirana/dist-packages
+
+      - name: vite-react with npm
+        run: >-
+          docker run --rm -v "$PWD:/repo" -w /repo node:24-bookworm-slim bash -euc "
+          npm install --global bun;
+          node packages/kirana/examples/run.ts vite-react --pm npm --no-browser"
+
   # The one check branch protection requires from this workflow. A skipped matrix job reports a
   # single check under its unexpanded name (`install (${{ matrix.os }} · ${{ matrix.pm }})`), so a
   # required check named after one matrix cell would wait forever whenever `changes` skips its job.
@@ -599,6 +628,7 @@ jobs:
         compat-atoms,
         runtime-deno,
         install-musl,
+        install-glibc,
       ]
     runs-on: ubuntu-26.04
     timeout-minutes: 5

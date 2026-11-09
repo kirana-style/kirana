@@ -548,7 +548,9 @@ the implementation tracker names its evidence.
   engine ships as `@kirana-style/compiler-<triple>`, one per KRN-INT-007 target, listed in
   `@kirana-style/compiler`'s `optionalDependencies`; the Driver loads that package first, falls back to a
   `kirana.<triple>.node` next to itself only when the package is not installed (the workspace case),
-  and rethrows when it is installed but fails to load. Linux gnu builds link against glibc 2.17.
+  and rethrows when it is installed but fails to load. Linux gnu builds link against glibc 2.17,
+  their C (mimalloc, D-123) is compiled against that glibc's headers, and the build fails when an
+  engine needs a symbol glibc 2.17 lacks (KF-104).
 - **Rationale:** A one-to-one compile needs no bundler, so `tsdown` (doc 11's original choice) would
   add a dependency to do what the TypeScript compiler already does — and a package that is compiled
   file by file keeps its module graph, which is what a consumer's own bundler tree-shakes. Keeping
@@ -556,7 +558,10 @@ the implementation tracker names its evidence.
   the install tests (E-08) prove the built form. A broken installed engine is reported instead of
   masked, because falling back to a different binary would hide the one fault a user can act on.
   Building on the runner's glibc (2.39 on `ubuntu-24.04`) would refuse to load on Debian 12,
-  Ubuntu 22.04 and RHEL 9.
+  Ubuntu 22.04 and RHEL 9. 0.4.0 did, through its C alone: napi's cross toolchain reaches cc-rs
+  through `TARGET_CC`, which cc-rs reads only when the target is not the host, so mimalloc was
+  compiled by the runner's gcc, whose C23 headers turned `strtol` into glibc 2.38's
+  `__isoc23_strtol`. The link succeeded and the engine failed to load (KF-104).
 - **Elaborated in:** [11-integrations](./11-integrations.md#package-managers-and-distribution),
   the repository notes.
 
@@ -2078,8 +2083,8 @@ the implementation tracker names its evidence.
   faults its memory in again, so a fresh build per second gains nothing. Worker threads keep their
   own free pages, which no collect on the main thread reaches; eager commit off is what closes most
   of that gap. Every native target now compiles C: each job in `packages.yml` needs a C toolchain
-  for its target (gcc through napi's glibc 2.17 cross toolchain, `zig cc` for musl, Apple's clang,
-  MSVC on both Windows targets), and the `.node` grows by about 146 KB (+1.1 %, 47 KB gzipped).
+  for its target (the runner's gcc against napi's glibc 2.17 sysroot for gnu, `zig cc` for musl,
+  Apple's clang, MSVC on both Windows targets), and the `.node` grows by about 146 KB (+1.1 %, 47 KB gzipped).
 - **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md#bindings),
   [13-output-and-performance](./13-output-and-performance.md#engineering-rules), the allocator study.
 
