@@ -128,6 +128,14 @@ describe("@kirana-style/biome-plugin", () => {
     const strict = JSON.parse(
       readFileSync(path.join(plugin, "strict.json"), "utf8")
     ) as { plugins: string[] }
+    // Biome checks the `$schema` of every configuration it loads, the extended ones too, against
+    // its own release: a preset that named one failed on every other release (KF-110). The
+    // project's own `biome.json` names its release.
+    for (const preset of ["recommended.json", "strict.json"])
+      expect(
+        JSON.parse(readFileSync(path.join(plugin, preset), "utf8")),
+        preset
+      ).not.toHaveProperty("$schema")
     expect(
       strict.plugins.map((file) => path.basename(file, ".grit")).sort()
     ).toEqual(rules.filter((rule) => !optIn.includes(rule)).sort())
