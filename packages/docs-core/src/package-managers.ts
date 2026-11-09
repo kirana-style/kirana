@@ -2,10 +2,19 @@
  * How each package manager installs and runs a package, from one table: the page draws an install
  * block as tabs (`InstallTabs` in docs-ui) and the markdown twin writes it out (`plainInstall`).
  * `packages` and `dev` are installed; `run` fetches a package for one command
- * (`npx kirana-style@latest init`); `exec` runs one the project has installed. Deno takes `npm:`
- * specifiers and runs with every permission (`-A`), since the commands read and write the project.
+ * (`npx kirana-style@latest init`); `exec` runs one the project has installed. Vite+ (`vp`) drives
+ * the project's own package manager: `vp add` installs, `vpx` fetches a package for one command and
+ * `vp exec` runs one from `node_modules/.bin`. Deno takes `npm:` specifiers and runs with every
+ * permission (`-A`), since the commands read and write the project.
  */
-export const PACKAGE_MANAGERS = ["npm", "pnpm", "yarn", "bun", "deno"] as const
+export const PACKAGE_MANAGERS = [
+  "npm",
+  "pnpm",
+  "yarn",
+  "bun",
+  "vp",
+  "deno",
+] as const
 
 export type PackageManager = (typeof PACKAGE_MANAGERS)[number]
 
@@ -35,6 +44,7 @@ const COMMANDS: Record<PackageManager, Commands> = {
   },
   // `--bun` runs the command under Bun even when its file asks for Node.
   bun: { add: "bun add", dev: "bun add -d", run: "bunx --bun ", exec: "bunx " },
+  vp: { add: "vp add", dev: "vp add -D", run: "vpx ", exec: "vp exec " },
   deno: {
     add: "deno add",
     dev: "deno add -D",

@@ -18,6 +18,8 @@ pnpm dlx kirana-style@latest init
 yarn dlx kirana-style@latest init
 # bun
 bunx --bun kirana-style@latest init
+# vp
+vpx kirana-style@latest init
 # deno
 deno run -A npm:kirana-style@latest init
 ```
@@ -43,6 +45,8 @@ pnpm exec kirana-style doctor
 yarn kirana-style doctor
 # bun
 bunx kirana-style doctor
+# vp
+vp exec kirana-style doctor
 # deno
 deno run -A npm:kirana-style doctor
 ```

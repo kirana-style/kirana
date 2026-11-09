@@ -6,6 +6,7 @@
  * than `prefers-color-scheme`, which would show the OS's variant on a site switched to the other.
  */
 import { css } from "@kirana-style/core"
+import type { PackageManager } from "@workspace/docs-core/package-managers.ts"
 
 import type { Sx } from "@workspace/ui/lib/sx"
 
@@ -15,6 +16,7 @@ import logoDenoLight from "./brands/deno.svg?url"
 import logoNpm from "./brands/npm.svg?url"
 import logoPnpmDark from "./brands/pnpm_dark.svg?url"
 import logoPnpmLight from "./brands/pnpm.svg?url"
+import logoVite from "./brands/vite.svg?url"
 import logoYarn from "./brands/yarn.svg?url"
 import { schemeMarker } from "./scheme.ts"
 
@@ -86,8 +88,12 @@ export function BrandIcon({
   )
 }
 
-/** The package managers the install tabs offer, with their logos. */
-export const PACKAGE_MANAGER_ICONS: Record<string, SvglIcon> = {
+/**
+ * The package managers the install tabs offer, with their logos: one for every manager in
+ * docs-core's `PACKAGE_MANAGERS`, so a manager added there without one is a type error, not a page
+ * that throws when it hydrates.
+ */
+export const PACKAGE_MANAGER_ICONS: Record<PackageManager, SvglIcon> = {
   npm: { title: "npm", url: "https://www.npmjs.com/", route: logoNpm },
   pnpm: {
     title: "pnpm",
@@ -96,6 +102,8 @@ export const PACKAGE_MANAGER_ICONS: Record<string, SvglIcon> = {
   },
   yarn: { title: "Yarn", url: "https://yarnpkg.com/", route: logoYarn },
   bun: { title: "Bun", url: "https://bun.sh", route: logoBun },
+  // Vite's mark until Vite+ has one of its own in brands/.
+  vp: { title: "Vite+", url: "https://viteplus.dev", route: logoVite },
   deno: {
     title: "Deno",
     url: "https://deno.com/",

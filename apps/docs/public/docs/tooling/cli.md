@@ -26,6 +26,8 @@ pnpm dlx kirana-style@latest init
 yarn dlx kirana-style@latest init
 # bun
 bunx --bun kirana-style@latest init
+# vp
+vpx kirana-style@latest init
 # deno
 deno run -A npm:kirana-style@latest init
 ```
@@ -41,6 +43,8 @@ pnpm exec kirana-style check
 yarn kirana-style check
 # bun
 bunx kirana-style check
+# vp
+vp exec kirana-style check
 # deno
 deno run -A npm:kirana-style check
 ```
