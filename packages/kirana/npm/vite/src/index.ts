@@ -239,6 +239,15 @@ export default function kirana(
     configureServer(devServer) {
       servers.add(devServer)
       devServer.httpServer?.once("close", () => servers.delete(devServer))
+      // A server in middleware mode has no `httpServer` to say it closed. `astro build` opens one
+      // with these plugins for its types and closes it before bundling; kept here, it made the
+      // build a development one: hashed names, and the stylesheet as far as it had compiled when
+      // Vite read it, so a style module the bundle compiled later was missing (KF-109).
+      const close = devServer.close.bind(devServer)
+      devServer.close = () => {
+        servers.delete(devServer)
+        return close()
+      }
       // A page that ran a stylesheet older than the current one missed an update: Vite's client
       // drops one for a module that has not run yet, and on a cold start every update can arrive
       // while the page is still loading its modules (KF-071).
