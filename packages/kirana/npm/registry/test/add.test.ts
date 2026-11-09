@@ -114,16 +114,24 @@ function project(
   return directory
 }
 
+/** `ui add` in `cwd`: the exit code, the output, and the commands run, alone and with where they ran. */
 async function add(cwd: string, ...argv: string[]) {
   let text = ""
   const commands: string[] = []
+  const ran: [string, string][] = []
   const code = await main(
     ["add", ...argv],
     cwd,
     (chunk) => void (text += chunk),
-    { run: (command) => (commands.push(command), 0) }
+    {
+      run: (command, where) => (
+        commands.push(command),
+        ran.push([command, where]),
+        0
+      ),
+    }
   )
-  return { code, text, commands }
+  return { code, text, commands, ran }
 }
 
 const read = (cwd: string, name: string) =>
@@ -617,7 +625,7 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     }
     const app = path.join(top, "apps/web")
     const ui = path.join(top, "packages/ui")
-    const { code, text, commands } = await add(
+    const { code, text, ran } = await add(
       app,
       "@acme/button",
       "@acme/font-lora"
@@ -635,15 +643,18 @@ describe("KRN-DX-028 kirana-style ui add", () => {
       "  + src/components/button.tsx",
       "@acme/font-lora 1.0.0",
       "font: src/main.tsx: imports @fontsource-variable/lora",
-      "packages: npm install @base-ui/react@^1.9.0 @fontsource-variable/lora@^5.2.0",
+      "packages: npm install @base-ui/react@^1.9.0",
+      "packages: app: npm install @fontsource-variable/lora@^5.2.0",
       "kirana-style.lock.json: 4 item(s) recorded",
       "check: kirana-style check on 4 file(s)",
       "0 diagnostic(s), 0 error(s)",
       "",
     ])
-    // In the package, as `@workspace/ui/…`; its packages and lockfile there, the font in the app.
-    expect(commands).toEqual([
-      "npm install @base-ui/react@^1.9.0 @fontsource-variable/lora@^5.2.0",
+    // In the package, as `@workspace/ui/…`; its packages and lockfile there, the font and its
+    // package in the app, which imports it (KF-111).
+    expect(ran).toEqual([
+      ["npm install @base-ui/react@^1.9.0", ui],
+      ["npm install @fontsource-variable/lora@^5.2.0", app],
     ])
     expect(read(ui, "src/components/button.tsx")).toBe(
       "import { button } from \"@workspace/ui/components/button.styles\"\nimport type { Sx } from '@workspace/ui/lib/sx'\nexport const Button = () => button\n"
@@ -656,6 +667,30 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     expect(read(app, "src/main.tsx")).toContain(
       'import "@fontsource-variable/lora"\n'
     )
+
+    // The app's install failing stops it before the lockfile, as the package's does.
+    let failed = ""
+    const exit = await main(
+      ["add", "@acme/font-lora", "--no-check"],
+      app,
+      (chunk) => void (failed += chunk),
+      { run: (_, where) => (where === app ? 1 : 0) }
+    )
+    expect(exit).toBe(1)
+    expect(failed).toContain(
+      "npm install @fontsource-variable/lora@^5.2.0 failed: the files are written, the lockfile is not\n"
+    )
+    // What the app lists is what counts, whatever the package lists: nothing left to install.
+    writeFileSync(
+      path.join(app, "package.json"),
+      JSON.stringify({
+        dependencies: {
+          react: "^19.0.0",
+          "@fontsource-variable/lora": "^5.2.0",
+        },
+      })
+    )
+    expect((await add(app, "@acme/font-lora", "--no-check")).ran).toEqual([])
   })
 
   it("stops on a ui.workspace it cannot follow (D-129)", async () => {

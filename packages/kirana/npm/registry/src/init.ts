@@ -27,11 +27,11 @@ import {
   checkWritten,
   designSystemsOf,
   installPackages,
-  missingPackages,
   place,
   placeOf,
   plan,
   record,
+  splitPackages,
   writePlaced,
 } from "./add.ts"
 import type { Placed } from "./add.ts"
@@ -1061,9 +1061,14 @@ export async function runInit(
   // (KF-035), recorded exactly as a template's are: at this release, unless the design system names
   // a version of one. Other packages (Next.js's PostCSS, the design system's) as they are named. In a
   // workspace the items' packages are the package's, with the core its files import, and Kirana's
-  // own setup the app's.
+  // own setup the app's, with the fonts' packages, since the app imports their stylesheets (KF-111).
   const release = await version()
-  const versioned = missingPackages(planned, project, placed)
+  const { own: versioned, app: fontPackages } = splitPackages(
+    planned,
+    project,
+    placed,
+    appProject
+  )
   const development = [
     ...kirana.development,
     ...(REGISTRY in appProject.listed ? [] : [REGISTRY]),
@@ -1095,7 +1100,7 @@ export async function runInit(
           release,
           kirana.dependencies,
           development,
-          [],
+          fontPackages,
           versioned
         )
   for (const command of commands) write(`packages: ${command}\n`)

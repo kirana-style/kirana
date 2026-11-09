@@ -203,6 +203,73 @@ describe("KRN-DX-031 kirana-style ui update", () => {
     ).toEqual(["npm install left-pad@^1.3.0"])
   })
 
+  it("takes a font's packages as the app's, in a workspace (KF-111, D-129)", async () => {
+    const lora = (version: string, range: string): Item => ({
+      name: "font-lora",
+      type: "font",
+      version,
+      dependencies: { "@fontsource-variable/lora": range },
+      font: { family: "'Lora Variable'", import: "@fontsource-variable/lora" },
+    })
+    const top = mkdtempSync(path.join(root, "workspace-"))
+    const write = (name: string, text: string) => {
+      mkdirSync(path.dirname(path.join(top, name)), { recursive: true })
+      writeFileSync(path.join(top, name), text)
+    }
+    write("package.json", '{ "workspaces": ["apps/*", "packages/*"] }')
+    write("apps/web/package.json", '{ "dependencies": { "react": "19" } }')
+    write(
+      "apps/web/kirana.config.json",
+      '{ "ui": { "workspace": "../../packages/ui" } }'
+    )
+    write(
+      "apps/web/src/main.ts",
+      'import "@kirana-style/core/stylesheet.css"\n'
+    )
+    write(
+      "packages/ui/package.json",
+      '{ "name": "@workspace/ui", "dependencies": { "react": "19" } }'
+    )
+    write(
+      "packages/ui/kirana.config.json",
+      '{ "ui": { "base": "base", "registries": { "@acme": "acme/{name}.json" } } }'
+    )
+    write(
+      "packages/ui/acme/font-lora.json",
+      JSON.stringify(lora("1.0.0", "^5.2.0"))
+    )
+    const app = path.join(top, "apps/web")
+    const ui = path.join(top, "packages/ui")
+    expect((await run(app, "add", "@acme/font-lora", "--no-check")).code).toBe(
+      0
+    )
+    write(
+      "packages/ui/acme/font-lora.json",
+      JSON.stringify(lora("1.1.0", "^5.3.0"))
+    )
+    // Missing from the app: installed there, not in the package.
+    let ran: [string, string][] = []
+    const options = {
+      run: (command: string, where: string) => (ran.push([command, where]), 0),
+    }
+    const update = () => main(["update", "--no-check"], app, () => {}, options)
+    expect(await update()).toBe(0)
+    expect(ran).toEqual([["npm install @fontsource-variable/lora@^5.3.0", app]])
+    expect(readLockfile(ui).items["@acme/font-lora"]!.version).toBe("1.1.0")
+    // Listed in the app: nothing to install, in the package or the app.
+    write(
+      "apps/web/package.json",
+      '{ "dependencies": { "react": "19", "@fontsource-variable/lora": "^5.2.0" } }'
+    )
+    write(
+      "packages/ui/acme/font-lora.json",
+      JSON.stringify(lora("1.2.0", "^5.3.0"))
+    )
+    ran = []
+    expect(await update()).toBe(0)
+    expect(ran).toEqual([])
+  })
+
   it("leaves a file the registry removed that the project had removed already", async () => {
     const { cwd, publish } = await installed()
     unlinkSync(path.join(cwd, "src/lib/util/b.ts"))

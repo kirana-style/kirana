@@ -1486,6 +1486,101 @@ describe("KF-108 ui init in a workspace (D-129)", () => {
     ).toBe(0)
   })
 
+  it("installs a preset's fonts' packages in the app, which imports their stylesheets (KF-111, D-129)", async () => {
+    const release = await version()
+    const font = (name: string): Item => ({
+      name: `font-${name}`,
+      type: "font",
+      version: "1.0.0",
+      dependencies: { [`@fontsource-variable/${name}`]: "^5.2.0" },
+      font: {
+        family: `'${name} Variable'`,
+        import: `@fontsource-variable/${name}`,
+      },
+    })
+    const design = {
+      axes: {
+        font: {
+          attribute: "data-font",
+          values: ["inter", "lora"],
+          items: { inter: "font-inter", lora: "font-lora" },
+        },
+        fontHeading: {
+          attribute: "data-font-heading",
+          values: ["inherit", "lora"],
+          items: { lora: "font-lora" },
+        },
+      },
+      presets: {
+        k: [
+          { axis: "font", values: ["inter", "lora"], bits: 1 },
+          { axis: "fontHeading", values: ["inherit", "lora"], bits: 1 },
+        ],
+      },
+    }
+    // The app lists Lora already, the package neither: only Inter is missing, and from the app.
+    const { app, ui } = turborepo(
+      {
+        "package.json": JSON.stringify({
+          type: "module",
+          dependencies: {
+            react: "^19.0.0",
+            "react-dom": "^19.0.0",
+            "@fontsource-variable/lora": "^5.2.0",
+          },
+          devDependencies: { vite: "^8.0.0", "@vitejs/plugin-react": "^6.0.0" },
+        }),
+      },
+      {
+        "acme/kit.json": JSON.stringify({ ...kit(), design }),
+        "acme/font-inter.json": JSON.stringify(font("inter")),
+        "acme/font-lora.json": JSON.stringify(font("lora")),
+      }
+    )
+    let text = ""
+    const ran: [string, string][] = []
+    const code = await main(
+      [
+        "init",
+        "--no-check",
+        "--workspace",
+        "packages/ui",
+        "--registry",
+        ACME,
+        "--preset",
+        "k2",
+      ],
+      app,
+      (chunk) => void (text += chunk),
+      { run: (command, cwd) => (ran.push([command, cwd]), 0), load }
+    )
+    expect(code).toBe(0)
+    expect(text).toContain(
+      "setup: app: src/main.tsx: imports @fontsource-variable/inter\n"
+    )
+    expect(text).toContain(
+      "packages: app: npm install @fontsource-variable/inter@^5.2.0\n"
+    )
+    expect(ran).toEqual([
+      ["npm install --save-exact @kirana-style/core@0.3.2", ui],
+      ["npm install --save-exact @kirana-style/core@0.3.2", app],
+      [
+        `npm install --save-exact -D kirana-style@${release} @kirana-style/vite@${release} @kirana-style/registry@${release}`,
+        app,
+      ],
+      ["npm install @fontsource-variable/inter@^5.2.0", app],
+    ])
+    const entry = read(app, "src/main.tsx")
+    expect(entry).toContain("import '@fontsource-variable/inter'")
+    expect(entry).toContain("import '@fontsource-variable/lora'")
+    // The items stay the package's, the fonts among them.
+    expect(Object.keys(readLockfile(ui).items)).toEqual([
+      "@acme/font-inter",
+      "@acme/font-lora",
+      "@acme/kit",
+    ])
+  })
+
   it("maps the package's aliases where each tsconfig has its paths, and makes the package's config a module's (D-129)", async () => {
     // A package with a tsconfig and paths of its own, an app whose tsconfig has paths, and Vite
     // reading them already.

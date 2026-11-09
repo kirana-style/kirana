@@ -2232,7 +2232,7 @@ the implementation tracker names its evidence.
 
 ### D-129 — In a workspace, `ui` installs into a package the app names
 
-- **Status:** Accepted (2026-11-09) (KF-108, KRN-DX-026, KRN-DX-029).
+- **Status:** Accepted (2026-11-09) (KF-108, KF-111, KRN-DX-026, KRN-DX-029).
 - **Decision:** an app's `kirana.config` may say `ui: { workspace: "../../packages/ui" }`, a package
   of its workspace from the configuration's directory; `ui init --workspace packages/ui`, run in the
   app with the folder from the workspace's root, writes it. Every `ui` command run in the app then
@@ -2240,7 +2240,10 @@ the implementation tracker names its evidence.
   with its `package.json` name (`@workspace/ui/components`, `@workspace/ui/lib`,
   `@workspace/ui/hooks`), and the items' files, packages, lockfile and check are its. The app keeps
   what only it can have: Kirana's own setup, the stylesheets and fonts its entry loads, the `<html>`
-  styles and attributes, and `paths` from the package's name to its source in its tsconfig. Both
+  styles and attributes, and `paths` from the package's name to its source in its tsconfig. A font
+  item's packages are the app's as well, installed with the app's package manager where they are
+  missing from its `package.json`, because the app's entry imports the font's stylesheet and an
+  isolated linker (pnpm's, Bun's) resolves an import only from the packages its importer lists. Both
   configurations spread the design system's.
 - **Rationale:** shadcn/ui's monorepo template is the layout users bring: `apps/web` imports
   `@workspace/ui/components/button` from a `packages/ui` that holds the components. Making the

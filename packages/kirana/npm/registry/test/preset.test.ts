@@ -150,13 +150,19 @@ async function installed(
   return cwd
 }
 
+/** `ui <argv…>` in `cwd`: the exit code, the output, and the commands run, alone and with where. */
 async function run(cwd: string, ...argv: string[]) {
   let text = ""
   const commands: string[] = []
+  const ran: [string, string][] = []
   const exit = await main(argv, cwd, (chunk) => void (text += chunk), {
-    run: (command) => (commands.push(command), 0),
+    run: (command, where) => (
+      commands.push(command),
+      ran.push([command, where]),
+      0
+    ),
   })
-  return { code: exit, text, commands }
+  return { code: exit, text, commands, ran }
 }
 
 const read = (cwd: string, name: string) =>
@@ -589,7 +595,7 @@ describe("KRN-DX-032 kirana-style ui preset", () => {
     )
   })
 
-  it("sets the design in the workspace's package, the font and <html> in the app (KF-108, D-129)", async () => {
+  it("sets the design in the workspace's package, the font, its package and <html> in the app (KF-108, KF-111, D-129)", async () => {
     const fonted: Item = {
       ...KIT,
       design: {
@@ -645,9 +651,18 @@ describe("KRN-DX-032 kirana-style ui preset", () => {
     const app = path.join(top, "apps/web")
     const ui = path.join(top, "packages/ui")
     expect((await run(app, "add", "@acme/button", "--no-check")).code).toBe(0)
-    const { code: exit, text } = await run(app, "preset", "f1", "--no-check")
+    const {
+      code: exit,
+      text,
+      ran,
+    } = await run(app, "preset", "f1", "--no-check")
     expect(exit).toBe(0)
     expect(text).toContain("font: src/main.ts: imports @fontsource/inter\n")
+    // The font's package in the app, which imports it, not in the package (KF-111).
+    expect(text).toContain(
+      "packages: app: npm install @fontsource/inter@^5.0.0\n"
+    )
+    expect(ran).toEqual([["npm install @fontsource/inter@^5.0.0", app]])
     expect(text).toContain(
       'document: index.html: <html> data-style="vega" data-font="inter"\n'
     )
