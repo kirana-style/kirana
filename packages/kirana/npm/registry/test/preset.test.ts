@@ -371,6 +371,9 @@ describe("D-110 the settings and the document a preset writes", () => {
     expect(rendersHtml("<script>\n<html>", "a.svelte")).toBe(false)
     // A script in capitals is a script too.
     expect(rendersHtml("<SCRIPT>\n<html>\n</SCRIPT>", "a.svelte")).toBe(false)
+    // `<scripts>` is another tag, and a page may end in the middle of one.
+    expect(rendersHtml("<scripts>\n<html>", "a.svelte")).toBe(true)
+    expect(rendersHtml("<p />\n<script", "a.svelte")).toBe(false)
     expect(rendersHtml("<!-- <html>", "index.html")).toBe(false)
     expect(rendersHtml("{/* <html> */}<p />", "a.astro")).toBe(false)
     // Nuxt's <Html>, self-closing, in a Vue component of a Nuxt app only.

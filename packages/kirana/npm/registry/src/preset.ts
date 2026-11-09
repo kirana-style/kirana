@@ -121,7 +121,11 @@ export function htmlAt(text: string, file = "", tag = "<html"): number {
     } else if (markup && text.startsWith("<!--", at)) {
       const end = text.indexOf("-->", at + 4)
       at = end < 0 ? text.length : end + 2
-    } else if (markup && /^<script[\s>]/.test(lower.slice(at, at + 8))) {
+    } else if (
+      markup &&
+      lower.startsWith("<script", at) &&
+      /[\s>]/.test(text[at + "<script".length] ?? "")
+    ) {
       const end = lower.indexOf("</script", at)
       at = end < 0 ? text.length : end
     } else if (!markup && (char === '"' || char === "'" || char === "`")) {
