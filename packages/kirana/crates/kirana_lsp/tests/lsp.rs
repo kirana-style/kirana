@@ -1042,9 +1042,14 @@ fn a_change_s_diagnostics_are_published_once_the_client_pauses() {
     let edited = source.replace("width:", "height:");
     assert!(!kirana_lsp::handle_burst(&mut server, &connection, vec![open, change(2, &edited)]).unwrap());
     assert!(received(&client).is_empty());
-    // The hover that follows the keystroke is answered before the diagnostics are published.
+    // The hover that follows the keystroke is answered before the diagnostics are published. The
+    // bound is out of reach: with the default 250 ms, a hover slower than that under load (an
+    // instrumented build beside the other suites) skipped the wait after it, and with it a branch
+    // the coverage gate counts. The bound itself is reached below, with none at all.
     client.sender.send(hover(2)).unwrap();
-    assert!(!kirana_lsp::publish_when_paused(&mut server, &connection).unwrap());
+    assert!(
+        !kirana_lsp::publish_when_paused_within(&mut server, &connection, std::time::Duration::from_secs(60)).unwrap()
+    );
     let after_hover = received(&client);
     let [Message::Response(answered), Message::Notification(published)] = after_hover.as_slice() else {
         panic!("not a response then the diagnostics: {after_hover:?}");
