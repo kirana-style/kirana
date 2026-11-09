@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.4.1](https://github.com/kirana-style/kirana/compare/v0.4.0...v0.4.1) (2026-11-09)
+
+
+### Features
+
+* astro react, laravel inertia and solid tanstack start examples ([#280](https://github.com/kirana-style/kirana/pull/280)) ([d581b92](https://github.com/kirana-style/kirana/commit/d581b92714b5e7ef265fef95d90f2c34758929b8))
+* ui init from a registry's template, and ui in a monorepo ([#279](https://github.com/kirana-style/kirana/pull/279)) ([1ca6a58](https://github.com/kirana-style/kirana/commit/1ca6a58a93afc979e467df0d228865354383135e))
+
+
+### Bug fixes
+
+* an astro build runs as a build after its types server closes ([#281](https://github.com/kirana-style/kirana/pull/281)) ([05c386a](https://github.com/kirana-style/kirana/commit/05c386a7727f97952d997ab20e58264e96e69053))
+* angular primitives name plain disabled and overlay enter and exit ([#278](https://github.com/kirana-style/kirana/pull/278)) ([0589646](https://github.com/kirana-style/kirana/commit/05896469ed39285b7e22d69994968afbc110963b))
+* angular primitives' parts have the states of what they compose ([#275](https://github.com/kirana-style/kirana/pull/275)) ([ec08ebe](https://github.com/kirana-style/kirana/commit/ec08ebecd5344a4d7294bd5b3b4bd87eb6b28f72))
+* the biome plugin's presets name no biome release ([#274](https://github.com/kirana-style/kirana/pull/274)) ([85f7a84](https://github.com/kirana-style/kirana/commit/85f7a847236f5b870c11e7f3b6696da5c6739458))
+* the linux gnu engines compile their c against glibc 2.17 ([#271](https://github.com/kirana-style/kirana/pull/271)) ([b8a9b8c](https://github.com/kirana-style/kirana/commit/b8a9b8c24ed68ba8066d416cddc64c177060aa99))
+* ui add reads an angular icon's closing tag split across lines ([#268](https://github.com/kirana-style/kirana/pull/268)) ([3bc9d2e](https://github.com/kirana-style/kirana/commit/3bc9d2ec6664abafc45750f807a0ca3a0906c213))
+* ui init sets up react router, nuxt and sveltekit ([#276](https://github.com/kirana-style/kirana/pull/276)) ([4bb4345](https://github.com/kirana-style/kirana/commit/4bb434580fa28549717142b7beb40644c73bf1e4))
+
+
+### Performance
+
+* a large module compiles in time linear in its styles ([#273](https://github.com/kirana-style/kirana/pull/273)) ([0a564c2](https://github.com/kirana-style/kirana/commit/0a564c2205afd78f0835408c3fe5bb8ebb25a2fc))
+* an unchanged module is answered before its template is read ([#272](https://github.com/kirana-style/kirana/pull/272)) ([5d5bc0f](https://github.com/kirana-style/kirana/commit/5d5bc0fe5c48053c39f072732d27e370562158ca))
+
+
+### Documentation
+
+* take the benchmarks of kirana 0.4.0 from kirana-lab ([#270](https://github.com/kirana-style/kirana/pull/270)) ([a5612f6](https://github.com/kirana-style/kirana/commit/a5612f643649f01e5f160b0e7445ef9915f9a38e))
+* vite+ in every install block ([#282](https://github.com/kirana-style/kirana/pull/282)) ([5c2e2c6](https://github.com/kirana-style/kirana/commit/5c2e2c6eeaf43fbeaaad22bc6f1e0f2b0e958f2c))
+
 ## [0.4.0](https://github.com/kirana-style/kirana/compare/v0.3.7...v0.4.0) (2026-11-06)
 
 
