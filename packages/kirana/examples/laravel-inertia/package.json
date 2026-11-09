@@ -39,6 +39,9 @@
     "devAlso": [
       "vite"
     ],
+    "devEnv": {
+      "LARAVEL_BYPASS_ENV_CHECK": "1"
+    },
     "edit": "resources/js/pages/Home.tsx",
     "reloads": true
   },

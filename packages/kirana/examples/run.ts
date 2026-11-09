@@ -192,6 +192,12 @@ try {
     /** A command started beside the dev server for its duration (`kirana-style dev` for a server app). */
     devAlso?: string[]
     /**
+     * Variables the dev server and `devAlso` run with: `laravel-vite-plugin` refuses to start Vite's
+     * dev server where `CI` is set unless `LARAVEL_BYPASS_ENV_CHECK` is, and the example runs it there
+     * on purpose.
+     */
+    devEnv?: Record<string, string>
+    /**
      * The page has no live-reload client (a server-rendered app): after the edit the check reloads
      * it until the new colour shows, which proves the watcher rewrote the stylesheet and class map.
      */
@@ -402,7 +408,7 @@ try {
           stdio: "inherit",
           shell: process.platform === "win32",
           detached: process.platform !== "win32",
-          env: inherited,
+          env: { ...inherited, ...settings.devEnv },
         })
       : undefined
     // Give the watcher its first pass, so the page has a stylesheet and a class map to read.
@@ -412,7 +418,7 @@ try {
         directory,
         direct ? first! : "npx",
         direct ? rest : settings.dev,
-        {},
+        settings.devEnv ?? {},
         async (url, output) => {
           await checkPage(at(url), { development: true })
           checkServerOutput(output())
