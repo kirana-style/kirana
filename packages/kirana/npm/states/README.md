@@ -33,7 +33,7 @@ behind.
 | `./ark-ui`        | [Ark UI](https://ark-ui.com), on React, Vue, Solid and Svelte         | `@zag-js/docs`, the data attributes of Zag's machines, and their code                                       |
 | `./react-aria`    | [React Aria Components](https://react-spectrum.adobe.com/react-aria/) | each component's render props, by their `@selector`                                                         |
 | `./reka-ui`       | [Reka UI](https://reka-ui.com), for Vue                               | each part's template, as the package ships it                                                               |
-| `./bits-ui`       | [Bits UI](https://bits-ui.com), for Svelte                            | each part's state class, by the types of its `props`                                                        |
+| `./bits-ui`       | [Bits UI](https://bits-ui.com), for Svelte                            | the state classes of each part and of what it renders, by the types of their `props`                        |
 | `./ng-primitives` | [Angular Primitives](https://angularprimitives.com) (`ng-primitives`) | each part's data and host bindings, its interactions, those of what it composes, and what its portal writes |
 
 Each subpath also exports `exclusive`: the states its library sets one at a time (`checked` and

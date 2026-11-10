@@ -2074,7 +2074,7 @@ there. CI regenerates them and checks every name against the library's exports.
 | `@kirana-style/states/ark-ui`        | Ark UI, on React, Vue, Solid and Svelte | `@zag-js/docs`, the reference of the Zag machines Ark UI runs on, and their code                   |
 | `@kirana-style/states/react-aria`    | React Aria Components                   | each component's render props, by their `@selector`                                                |
 | `@kirana-style/states/reka-ui`       | Reka UI, for Vue                        | each part's template, as the package ships it                                                      |
-| `@kirana-style/states/bits-ui`       | Bits UI, for Svelte                     | each part's state class, by the types of its `props`                                               |
+| `@kirana-style/states/bits-ui`       | Bits UI, for Svelte                     | the state classes of each part and of what it renders, by the types of their `props`               |
 | `@kirana-style/states/ng-primitives` | Angular Primitives                      | each part's data and host bindings, its interactions, what it composes, and what its portal writes |
 
 They differ where the libraries do:
@@ -2107,6 +2107,11 @@ They differ where the libraries do:
     `RadioGroup.Item.state.checked` from the radio inside it;
   - the tooltip's content and trigger write `delayed-open` or `instant-open`
     as they open, and share `open`, `[data-state$="open"]`, matching either.
+- **Bits UI's parts** have the states of the components they render, however
+  deep. Every floating content has the side and alignment its floating layer
+  places it at, as its arrow has the side: `Popover.Content.side.bottom`,
+  `Select.Content.align.start`, `DropdownMenu.SubContent.side.right`. A
+  `ContentStatic` part, which nothing positions, has neither.
 - **Angular Primitives** keys the primitive named for its component
   (`ngpPopover`) as `Root`, and lists the interactions a primitive turns on
   (hover, press, focus) as its states. Two directives, Combobox and Toast, bind
