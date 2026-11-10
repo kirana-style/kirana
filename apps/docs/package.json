@@ -29,16 +29,16 @@
     "@hugeicons/core-free-icons": "catalog:",
     "@kirana-style/core": "workspace:*",
     "@tanstack/charts": "catalog:",
-    "@tanstack/highlight": "^1.2.0",
-    "@tanstack/markdown": "^1.0.0",
+    "@tanstack/highlight": "^1.2.11",
+    "@tanstack/markdown": "^1.2.0",
     "@tanstack/react-router": "catalog:",
     "@tanstack/react-start": "catalog:",
     "@workspace/docs-core": "workspace:*",
     "@workspace/docs-ui": "workspace:*",
     "@workspace/shell": "workspace:*",
     "@workspace/ui": "workspace:*",
-    "d3-scale": "4.0.2",
-    "d3-shape": "3.2.0",
+    "d3-scale": "4.0.3",
+    "d3-shape": "3.2.1",
     "react": "catalog:",
     "react-dom": "catalog:"
   },
@@ -51,7 +51,7 @@
     "@workspace/vite-config": "workspace:*",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "wrangler": "^4.156.0",
+    "wrangler": "^4.158.0",
     "vite-plus": "catalog:"
   }
 }

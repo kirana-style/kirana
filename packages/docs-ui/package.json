@@ -7,7 +7,7 @@
   "dependencies": {
     "@hugeicons/core-free-icons": "catalog:",
     "@kirana-style/core": "workspace:*",
-    "@tanstack/markdown": "^1.0.0",
+    "@tanstack/markdown": "^1.2.0",
     "@tanstack/react-router": "catalog:",
     "@workspace/docs-core": "workspace:*",
     "@workspace/ui": "workspace:*",
