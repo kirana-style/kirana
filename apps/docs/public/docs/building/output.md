@@ -97,7 +97,7 @@ keeps its name everywhere. Relation markers and theme classes, which elements
 carry, keep theirs too.
 
 Measured on the three applications of
-[the benchmarks](/docs/project/benchmarks), Kirana 0.4.0 with
+[the benchmarks](/docs/project/benchmarks), Kirana 0.4.1 with
 dense names makes the CSS level in gzip than with hashed names, and the CSS and
 JavaScript a page downloads level, with cold builds
 level. On this site, the stylesheet is 12.7 % smaller in
