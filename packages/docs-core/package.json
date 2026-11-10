@@ -8,8 +8,8 @@
     "test": "vp test run"
   },
   "dependencies": {
-    "@tanstack/highlight": "^1.2.0",
-    "@tanstack/markdown": "^1.0.0"
+    "@tanstack/highlight": "^1.2.11",
+    "@tanstack/markdown": "^1.2.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",

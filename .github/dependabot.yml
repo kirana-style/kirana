@@ -31,18 +31,23 @@ updates:
       - dependency-name: "@vitest/coverage-v8"
       # The parity test runs Oxlint itself; it stays at the version Vite+ bundles.
       - dependency-name: "oxlint"
+      # The WASI engine (KRN-INT-006) is linked against emnapi and loaded by @napi-rs/wasm-runtime,
+      # whose peer range on emnapi 2 names one prerelease: its 1.2.6 moved that from the alpha to
+      # 2.0.0-beta.2, and an install that mixed the two could not load the engine
+      # ("this.bridge.setLastError is not a function"). All five move together, by hand, with the
+      # CLI that writes the loaders, and the install (wasi · npm) job proves each move. A group did
+      # not hold them: Dependabot opened one pull request per emnapi package, each failing the WASI
+      # build ("emnapi version mismatch"), and put the CLI in minor-and-patch.
+      - dependency-name: "emnapi"
+      - dependency-name: "@emnapi/*"
+      - dependency-name: "@napi-rs/wasm-runtime"
+      # 3.10.12 compiles C with its cross toolchain's gcc 4.8 on a native linux-x64-gnu build, which
+      # rejects mimalloc's `-Wno-error=date-time`; 3.10.9 left C to the system compiler.
+      - dependency-name: "@napi-rs/cli"
       # The Ark UI states vocabulary is generated from it, at the Zag version Ark UI depends on
       # (npm/states/README.md): it moves by hand with `@ark-ui/react`, and `gen:states` with it.
       - dependency-name: "@zag-js/docs"
     groups:
-      # The WASI engine (KRN-INT-006) is linked against emnapi and loaded by @napi-rs/wasm-runtime,
-      # whose peer range on emnapi 2 names one prerelease: its 1.2.6 moved that from the alpha to
-      # 2.0.0-beta.2, and an install that mixed the two could not load the engine
-      # ("this.bridge.setLastError is not a function"). Both are pinned exactly and move together,
-      # with the CLI that writes the loaders; the install (wasi · npm) job proves each move. Listed
-      # before minor-and-patch, which would otherwise take them.
-      napi:
-        patterns: ["emnapi", "@emnapi/*", "@napi-rs/*"]
       minor-and-patch:
         update-types: [minor, patch]
 
