@@ -34,11 +34,12 @@ export const VIRTUAL = /^(?:\0|virtual:)/
 /** Installed packages are compiled by their own build, or consumed through a manifest (KRN-INT-008). */
 export const NODE_MODULES = /[\\/]node_modules[\\/]/
 /**
- * Source that can hold a style: imports Kirana, passes `sx`, or reads a relation it imports
- * (`scope.within(…)`, KF-051). The engine's prefilter is exact.
+ * Source that can hold a style: imports Kirana, passes `sx`, reads a relation it imports
+ * (`scope.within(…)`, KF-051), or applies one's anchor (`scope.anchor`, KF-114). The engine's
+ * prefilter is exact.
  */
 export const STYLE_BEARING =
-  /@kirana-style\/|\bsx\s*[=:]|\.(?:within|parent|after|before)\s*\(/
+  /@kirana-style\/|\bsx\s*[=:]|\.(?:within|parent|after|before)\s*\(|\.anchor(?![\w$])/
 
 /** A script a project's styles are written in, by file name. */
 export const SCRIPT_FILE = /\.[cm]?[jt]sx?$/

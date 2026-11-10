@@ -42,6 +42,14 @@ describe("host helpers", () => {
     expect(STYLE_BEARING.test("scope.within; node.parentNode")).toBe(false)
   })
 
+  it("passes a module that applies a relation's anchor to the engine (KF-114)", () => {
+    expect(STYLE_BEARING.test(";() => [toggleScope.anchor];")).toBe(true)
+    expect(STYLE_BEARING.test("[item?.anchor, x]")).toBe(true)
+    expect(
+      STYLE_BEARING.test("selection.anchorNode; a.anchor_; a.anchor$")
+    ).toBe(false)
+  })
+
   it("selects modules for hosts without filters", () => {
     expect(
       shouldCompile("/a/b.tsx", 'import { css } from "@kirana-style/core"')

@@ -14,6 +14,10 @@ fn prefilter_accepts_style_bearing_modules() {
     assert!(may_be_style_bearing("scope.parent()"));
     assert!(may_be_style_bearing("scope.after ()"));
     assert!(may_be_style_bearing("scope\n  .before(\":hover\")"));
+    // A relation's anchor, applied: what the build appends to a component's block (KF-114).
+    assert!(may_be_style_bearing(";() => [toggleScope.anchor];"));
+    assert!(may_be_style_bearing("[item?.anchor, x]"));
+    assert!(may_be_style_bearing("scope.anchor"));
 }
 
 #[test]
@@ -24,6 +28,7 @@ fn prefilter_rejects_everything_else() {
     assert!(!may_be_style_bearing("sx"));
     assert!(!may_be_style_bearing("const box = sx"));
     assert!(!may_be_style_bearing("scope.within; scope.afterwards(); node.parentNode"));
+    assert!(!may_be_style_bearing("selection.anchorNode; a.anchor_; a.anchor$; const anchor = 1"));
 }
 
 #[test]

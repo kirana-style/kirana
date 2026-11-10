@@ -97,6 +97,10 @@ Svelte passes nothing through on its own, so there is no fallthrough to turn off
 A caller's removals (`"*": null`, `padding: null`) arrive in the class too, and
 the root's merge applies them to the button's own entries.
 
+The root can be another component, such as a headless library's part, written the
+same way. A relation's anchor in its `sx` counts even when the script imports
+nothing from Kirana.
+
 ## How it compiles
 
 The script compiles like any module: `css()` becomes class strings, and the

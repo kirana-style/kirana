@@ -14,8 +14,8 @@ export default defineConfig({
 })
 ```
 
-- **Transform.** Modules that mention `@kirana-style/` or an `sx` attribute are compiled; errors fail the
-  build with the source line, warnings are printed. A watch rebuild re-runs the importers of changed
+- **Transform.** Modules that mention `@kirana-style/`, an `sx` attribute, or a relation's read or
+  `.anchor` are compiled; errors fail the build with the source line, warnings are printed. A watch rebuild re-runs the importers of changed
   tokens and relations.
 - **Stylesheet.** Rolldown does not bundle CSS, so the plugin emits the finished stylesheet as
   `kirana.css` (`kirana({ fileName })` to change it) and importing `@kirana-style/core/stylesheet.css`

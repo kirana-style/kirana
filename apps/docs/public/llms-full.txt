@@ -805,9 +805,9 @@ classes instead of style objects.
 
 **1 · Prefilter.** Most files in an application have nothing to do with styling.
 Before parsing anything, the adapter skips any module whose text contains neither
-`@kirana-style/`, an `sx` attribute, nor a call of a relation's read such as
-`.within(`, so the compiler's work scales with the number of styled modules, not
-with the size of the dependency graph.
+`@kirana-style/`, an `sx` attribute, a call of a relation's read such as
+`.within(`, nor a relation's `.anchor`, so the compiler's work scales with the
+number of styled modules, not with the size of the dependency graph.
 
 **2 · Evaluate.** The modules that survive are parsed, and the parts that feed a
 style are evaluated by a restricted evaluator: constants, imported token values,
@@ -5906,6 +5906,10 @@ Svelte passes nothing through on its own, so there is no fallthrough to turn off
 A caller's removals (`"*": null`, `padding: null`) arrive in the class too, and
 the root's merge applies them to the button's own entries.
 
+The root can be another component, such as a headless library's part, written the
+same way. A relation's anchor in its `sx` counts even when the script imports
+nothing from Kirana.
+
 ## How it compiles
 
 The script compiles like any module: `css()` becomes class strings, and the
@@ -7661,7 +7665,9 @@ included) outside `node_modules`, and only when the text contains one of:
 - `@kirana-style/`;
 - an `sx` attribute;
 - a call of a relation's read (`.within(`, `.parent(`, `.after(` or `.before(`),
-  which a module that imports a relation from another may hold alone.
+  which a module that imports a relation from another may hold alone;
+- a relation's `.anchor`, which a component's script may hold alone when only its
+  markup applies the anchor.
 
 That prefilter is why adding Kirana to a large application does not slow the build
 down in proportion to its size.

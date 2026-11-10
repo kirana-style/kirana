@@ -69,7 +69,9 @@ included) outside `node_modules`, and only when the text contains one of:
 - `@kirana-style/`;
 - an `sx` attribute;
 - a call of a relation's read (`.within(`, `.parent(`, `.after(` or `.before(`),
-  which a module that imports a relation from another may hold alone.
+  which a module that imports a relation from another may hold alone;
+- a relation's `.anchor`, which a component's script may hold alone when only its
+  markup applies the anchor.
 
 That prefilter is why adding Kirana to a large application does not slow the build
 down in proportion to its size.
