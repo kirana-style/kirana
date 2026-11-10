@@ -1442,8 +1442,14 @@ function sharedEndings(values: readonly string[]): string[] {
 
 // Bits UI ---------------------------------------------------------------------------------------
 
-/** The `data-*` entries of a Bits UI state class's `props`: `"data-state": "open" | "closed"`. */
-function bitsProps(module: string, className: string): [string, string[]][] {
+/**
+ * The `data-*` entries of a Bits UI state class's `props`: `"data-state": "open" | "closed"`, and
+ * whether the attribute is declared as exactly `""`, a marker an element always carries.
+ */
+function bitsProps(
+  module: string,
+  className: string
+): [string, string[], boolean][] {
   const text = readFileSync(module, "utf8")
   // `export declare class X {`, or `… implements Y {`.
   const start = text.search(
@@ -1451,37 +1457,52 @@ function bitsProps(module: string, className: string): [string, string[]][] {
   )
   if (start < 0) return []
   const body = text.slice(start, text.indexOf("\n}\n", start))
-  const props = /readonly props: \{([\s\S]*?)\n {4}\};/.exec(body)?.[1] ?? ""
+  // `readonly props`, or a `$derived` one the declarations leave writable (the floating layer's).
+  const props =
+    /\n {4}(?:readonly )?props: \{([\s\S]*?)\n {4}\};/.exec(body)?.[1] ?? ""
   return [
     ...props.matchAll(/readonly "(data-[a-z][a-z0-9-]*)"\??: ([^;]+);/g),
   ].map(([, attribute, type]) => [
     attribute!,
     [...type!.matchAll(/"([a-z0-9][a-z0-9-]*)"/g)].map((match) => match[1]!),
+    type!.trim() === '""',
   ])
 }
 
 /**
  * The state classes a Bits UI part creates, as `[declaration module, class]`, and those of the
- * library's own components it renders (`ScrollArea.Scrollbar` renders a scrollbar per mode, whose
- * classes set `data-state`).
+ * library's own components it renders, however deep (`ScrollArea.Scrollbar` renders a scrollbar
+ * per mode, whose classes set `data-state`; a floating content renders the popper layer, which
+ * renders the floating layer's content four files down, whose state sets `data-side` and
+ * `data-align`, KF-117). Each file is read once per part. A static content hands the popper layer
+ * `isStatic`, which renders the static content instead: nothing positions it, so below such a file
+ * the floating layer's state is left out (`Menubar.ContentStatic` renders Menu's static content,
+ * which passes it).
  */
-function bitsStates(file: string, depth = 0): [string, string][] {
-  const text = readFileSync(file, "utf8")
+function bitsStates(
+  file: string,
+  seen = new Set<string>(),
+  isStatic = false
+): [string, string][] {
   const out: [string, string][] = []
+  if (seen.has(file)) return out
+  seen.add(file)
+  const text = readFileSync(file, "utf8")
+  isStatic ||= /^\s+isStatic$/m.test(text)
   for (const [, className] of text.matchAll(/(\w+State)\.create\(/g)) {
+    if (isStatic && className === "FloatingContentState") continue
     const module = new RegExp(
       `import \\{[^}]*\\b${className}\\b[^}]*\\} from "([^"]+)\\.js"`
     ).exec(text)?.[1]
     if (module)
       out.push([path.join(path.dirname(file), `${module}.d.ts`), className!])
   }
-  if (depth < 3)
-    for (const [, inner] of text.matchAll(
-      /import \w+ from "(\.[^"]+\.svelte)"/g
-    )) {
-      const target = path.join(path.dirname(file), inner!)
-      if (existsSync(target)) out.push(...bitsStates(target, depth + 1))
-    }
+  for (const [, inner] of text.matchAll(
+    /import \w+ from "(\.[^"]+\.svelte)"/g
+  )) {
+    const target = path.join(path.dirname(file), inner!)
+    if (existsSync(target)) out.push(...bitsStates(target, seen, isStatic))
+  }
   return out
 }
 
@@ -1502,6 +1523,7 @@ function bitsUi(): { vocabulary: Vocabulary; version: string } {
       .filter((name) => /^[A-Z]/.test(name))
       .map((name) => [name, folder!] as const)
   )
+  const folders = readdirSync(bits)
   for (const [component, folder] of components) {
     const exports = path.join(bits, folder!, "exports.d.ts")
     if (!existsSync(exports)) continue
@@ -1513,16 +1535,22 @@ function bitsUi(): { vocabulary: Vocabulary; version: string } {
       if (!existsSync(file)) continue
       const list: State[] = []
       for (const [module, className] of bitsStates(file)) {
-        for (const [attribute, values] of bitsProps(module, className)) {
-          // `data-popover-trigger`, `data-menu-item`: the part's name on its element, not a state.
+        for (const [attribute, values, marker] of bitsProps(
+          module,
+          className
+        )) {
+          // `data-popover-trigger`, `data-menu-item`: the part's name on its element, not a state;
+          // and a marker naming another component (Menubar's content is Menu's, and always writes
+          // `data-menu-content=""`), but not a value that does (`data-menu-value`, the menu's).
           const own = attribute.replace(/^data-/, "")
           const names = [
             folder!,
             path.basename(path.dirname(path.dirname(file))),
           ]
           if (
-            values.length === 0 &&
-            names.some((name) => own.startsWith(`${name}-`))
+            (values.length === 0 &&
+              names.some((name) => own.startsWith(`${name}-`))) ||
+            (marker && folders.some((name) => own.startsWith(`${name}-`)))
           )
             continue
           addState(list, attribute, values)

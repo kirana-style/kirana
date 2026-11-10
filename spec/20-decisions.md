@@ -1535,7 +1535,9 @@ the implementation tracker names its evidence.
   2026-11-05 for KF-100: a binding's values from the type it reads; 2026-11-09 for KF-102: a part
   has the states of what it composes; 2026-11-09 for KF-100 and KF-102: a state written both empty
   and with a value has `any`, and what the portal writes with `setAttribute` is read; 2026-11-10 for
-  KF-115: Reka UI's `data-state` followed to its values, and a key for values that end alike.
+  KF-115: Reka UI's `data-state` followed to its values, and a key for values that end alike;
+  2026-11-10 for KF-117: a Bits UI part has the states of every library component it renders, at any
+  depth, so a floating content has its floating layer's `side` and `align`.
 - **Decision:** `@kirana-style/states` adds Reka UI, Bits UI and Angular Primitives, generated like the
   others by `gen-states.ts` from the pinned packages, but read from their code: Reka UI's shipped
   templates, Bits UI's state classes' `props` types, Angular Primitives' `dataBinding` calls and the

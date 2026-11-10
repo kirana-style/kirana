@@ -103,6 +103,9 @@ export const AlertDialog = {
 } as const
 
 export const Avatar = {
+  Root: {
+    status: "[data-status]",
+  },
   Image: {
     status: "[data-status]",
   },
@@ -245,7 +248,18 @@ export const Combobox = {
     },
   },
   Content: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -301,7 +315,18 @@ export const ContextMenu = {
     },
   },
   Content: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -333,7 +358,18 @@ export const ContextMenu = {
     },
   },
   SubContent: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -381,7 +417,18 @@ export const DatePicker = {
     readonly: "[data-readonly]",
   },
   Content: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -509,7 +556,18 @@ export const DateRangePicker = {
     },
   },
   Content: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -666,7 +724,18 @@ export const DropdownMenu = {
     },
   },
   Content: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -698,7 +767,18 @@ export const DropdownMenu = {
     },
   },
   SubContent: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -738,7 +818,18 @@ export const LinkPreview = {
     },
   },
   Content: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -763,7 +854,18 @@ export const LinkPreview = {
 
 export const Menubar = {
   Content: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -809,7 +911,18 @@ export const Menubar = {
     },
   },
   SubContent: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -920,7 +1033,18 @@ export const Popover = {
     },
   },
   Content: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -1102,7 +1226,18 @@ export const ScrollArea = {
 
 export const Select = {
   Content: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       open: '[data-state="open"]',
@@ -1233,6 +1368,9 @@ export const TimeField = {
 } as const
 
 export const TimeRangeField = {
+  Root: {
+    invalid: "[data-invalid]",
+  },
   Label: {
     disabled: "[data-disabled]",
     invalid: "[data-invalid]",
@@ -1285,8 +1423,19 @@ export const Toolbar = {
 
 export const Tooltip = {
   Content: {
+    align: {
+      center: '[data-align="center"]',
+      start: '[data-align="start"]',
+      end: '[data-align="end"]',
+    },
     disabled: "[data-disabled]",
     endingStyle: "[data-ending-style]",
+    side: {
+      left: '[data-side="left"]',
+      right: '[data-side="right"]',
+      top: '[data-side="top"]',
+      bottom: '[data-side="bottom"]',
+    },
     startingStyle: "[data-starting-style]",
     state: {
       closed: '[data-state="closed"]',

@@ -197,6 +197,76 @@ describe("@kirana-style/states for Vue, Svelte and Angular libraries", () => {
     expect(ng.Popover.Arrow).not.toHaveProperty("enter")
   })
 
+  it("names what Bits UI's floating layer writes on each content it positions (KF-117)", () => {
+    // The popper layer renders the floating layer's content four files below the part, and its
+    // state's `props` (`$derived`, not `readonly` in the declarations) write the placed side and
+    // alignment.
+    const floating = [
+      bits.Popover.Content,
+      bits.Tooltip.Content,
+      bits.DropdownMenu.Content,
+      bits.DropdownMenu.SubContent,
+      bits.ContextMenu.Content,
+      bits.ContextMenu.SubContent,
+      bits.Menubar.Content,
+      bits.Menubar.SubContent,
+      bits.LinkPreview.Content,
+      bits.Select.Content,
+      bits.Combobox.Content,
+      bits.DatePicker.Content,
+      bits.DateRangePicker.Content,
+    ]
+    for (const part of floating)
+      expect(part).toMatchObject({
+        side: {
+          top: '[data-side="top"]',
+          right: '[data-side="right"]',
+          bottom: '[data-side="bottom"]',
+          left: '[data-side="left"]',
+        },
+        align: {
+          start: '[data-align="start"]',
+          center: '[data-align="center"]',
+          end: '[data-align="end"]',
+        },
+      })
+    // A static content is not positioned: the popper layer renders the static one, which writes
+    // neither, also through another component's static content (Menubar's is Menu's).
+    for (const part of [
+      bits.Popover.ContentStatic,
+      bits.DropdownMenu.ContentStatic,
+      bits.Menubar.ContentStatic,
+      bits.DatePicker.ContentStatic,
+      bits.Select.ContentStatic,
+    ]) {
+      expect(part).not.toHaveProperty("side")
+      expect(part).not.toHaveProperty("align")
+    }
+    expect(bits.Popover.Arrow.side.top).toBe('[data-side="top"]')
+    // A marker naming another component is not a state; a value naming one is.
+    expect(bits.Menubar.Content).not.toHaveProperty("menuContent")
+    expect(bits.Menubar.Trigger.menuValue).toBe("[data-menu-value]")
+    // Other writable `props` the same reading finds.
+    expect(bits.Avatar.Root.status).toBe("[data-status]")
+    expect(bits.TimeRangeField.Root.invalid).toBe("[data-invalid]")
+  })
+
+  it("names a floating content's side and alignment wherever its arrow has a side (KF-117)", () => {
+    // Read more simply than the generator: an arrow follows the floating content's side, so a
+    // component with one positions its content.
+    const missing = Object.entries(bits).flatMap(([component, parts]) => {
+      const { Arrow, Content } = parts as Record<
+        string,
+        Record<string, unknown>
+      >
+      if (!Arrow || !("side" in Arrow)) return []
+      return Content && "side" in Content && "align" in Content
+        ? []
+        : [component]
+    })
+    expect(missing).toEqual([])
+  })
+
   it("compiles as condition keys", () => {
     const thumb = css({
       opacity: {

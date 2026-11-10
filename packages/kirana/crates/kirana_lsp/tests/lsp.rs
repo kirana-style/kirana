@@ -1198,6 +1198,50 @@ fn tells_its_host_once_each_time_the_client_pauses() {
     std::fs::remove_dir_all(root).unwrap();
 }
 
+/// Everything the client sent while the server was busy is one burst: a request it cancels in the
+/// same burst is answered as cancelled, and a shutdown followed by its exit ends the session. The
+/// whole session is queued before the server starts, so the burst does not depend on timing (sent one
+/// by one, whether a second message waited when the first was taken was up to the threads, and the
+/// coverage gate missed the loop that takes it now and then).
+#[test]
+fn serve_takes_what_the_client_sent_meanwhile_as_one_burst() {
+    let root = std::env::temp_dir().join(format!("kirana-lsp-burst-{}", std::process::id()));
+    std::fs::create_dir_all(&root).unwrap();
+    let (server, client) = Connection::memory();
+    for message in [
+        Message::Request(Request::new(RequestId::from(1), "initialize".to_owned(), json!({ "capabilities": {} }))),
+        Message::Notification(Notification::new("initialized".to_owned(), json!({}))),
+        Message::Request(Request::new(RequestId::from(2), "workspace/symbol".to_owned(), json!({ "query": "" }))),
+        Message::Notification(Notification::new("$/cancelRequest".to_owned(), json!({ "id": 2 }))),
+        Message::Request(Request::new(RequestId::from(3), "shutdown".to_owned(), json!(null))),
+        Message::Notification(Notification::new("exit".to_owned(), json!(null))),
+    ] {
+        client.sender.send(message).unwrap();
+    }
+    let config = json!({ "root": root }).to_string();
+    assert!(kirana_lsp::serve(&server, &config, None).is_ok());
+    let responses: Vec<Response> = client
+        .receiver
+        .try_iter()
+        .filter_map(|message| match message {
+            Message::Response(response) => Some(response),
+            _ => None,
+        })
+        .collect();
+    let [initialized, cancelled, shut_down] = responses.as_slice() else {
+        panic!("not three responses: {responses:?}");
+    };
+    assert_eq!(initialized.id, RequestId::from(1));
+    assert_eq!(cancelled.id, RequestId::from(2));
+    assert_eq!(
+        cancelled.response_result.as_ref().map_err(|error| error.message.as_str()),
+        Err("cancelled by the client")
+    );
+    assert_eq!(shut_down.id, RequestId::from(3));
+    assert_eq!(shut_down.response_result.as_ref().ok(), Some(&Value::Null));
+    std::fs::remove_dir_all(root).unwrap();
+}
+
 #[test]
 fn serve_fails_without_initialize_and_on_a_closed_connection() {
     let (server, client) = Connection::memory();
