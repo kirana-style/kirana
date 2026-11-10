@@ -5,17 +5,8 @@
  * it. The font items the new values name are installed; one no value names any more is left for
  * `remove` (KF-050).
  */
-import {
-  existsSync,
-  readdirSync,
-  readFileSync,
-  unlinkSync,
-  writeFileSync,
-} from "node:fs"
+import { existsSync, readFileSync, unlinkSync, writeFileSync } from "node:fs"
 import path from "node:path"
-
-import { sources } from "@kirana-style/compiler"
-import { SKIPPED } from "@kirana-style/compiler/host"
 
 import {
   appOf,
@@ -36,6 +27,7 @@ import { failureLine, parseArgs } from "./command.ts"
 import type { Options } from "./command.ts"
 import { allAxisItems, axisItems, importFonts } from "./font.ts"
 import { writeLockfile } from "./lockfile.ts"
+import { readProject, TEMPLATE_FILE } from "./project.ts"
 import { read } from "./read.ts"
 import { FRAMEWORKS, ICON_LIBRARIES } from "./schema.ts"
 import type { Settings } from "./settings.ts"
@@ -91,23 +83,68 @@ export function settingsOf(
   }
 }
 
+/** Nuxt's `<Html>`, which a Vue component of a Nuxt app renders for the document's `<html>` (KF-112). */
+const NUXT_HTML = "<Html"
+
+/** The tag that opens the root document in `file`: Nuxt's `<Html>` in a Nuxt app's Vue component, else `<html`. */
+export const htmlTag = (file: string, nuxt: boolean): string =>
+  nuxt && file.endsWith(".vue") ? NUXT_HTML : "<html"
+
+/** An Astro component's frontmatter. */
+const FRONTMATTER = /^---[ \t]*\r?\n(?:.*\r?\n)*?---[ \t]*(?:\r?\n|$)/
+
+/** A static page: Vite's `index.html`, SvelteKit's `app.html`, a Blade view. */
+const PAGE_FILE = /\.(?:html|php)$/
+
 /**
- * Whether a script renders `<html>`: an element in its code, not a mention in a comment (a design
- * system's own module may describe what `<html>` takes).
+ * Where `file` opens `tag`, `<html>` unless it is Nuxt's `<Html>`; -1 where it renders none. The
+ * element, not a mention: in a script, outside comments (a design system's own module may describe
+ * what `<html>` takes) and strings (a SvelteKit server hook rewrites `<html` in the rendered page,
+ * KF-113); in a page or a `TEMPLATE_FILE`, in its markup, outside its scripts, its frontmatter and
+ * its comments.
  */
-export function rendersHtml(text: string): boolean {
-  let code = ""
-  for (let at = 0; at < text.length; at++) {
-    if (text.startsWith("//", at)) {
+export function htmlAt(text: string, file = "", tag = "<html"): number {
+  const markup = TEMPLATE_FILE.test(file) || PAGE_FILE.test(file)
+  let at = TEMPLATE_FILE.test(file)
+    ? (FRONTMATTER.exec(text)?.[0].length ?? 0)
+    : 0
+  // Tags are matched in any case: `<SCRIPT>` is a script too.
+  const lower = text.toLowerCase()
+  for (; at < text.length; at++) {
+    const char = text[at]!
+    if (!markup && text.startsWith("//", at)) {
       const end = text.indexOf("\n", at)
       at = end < 0 ? text.length : end
     } else if (text.startsWith("/*", at)) {
       const end = text.indexOf("*/", at + 2)
       at = end < 0 ? text.length : end + 1
-    } else code += text[at]
+    } else if (markup && text.startsWith("<!--", at)) {
+      const end = text.indexOf("-->", at + 4)
+      at = end < 0 ? text.length : end + 2
+    } else if (
+      markup &&
+      lower.startsWith("<script", at) &&
+      /[\s>]/.test(text[at + "<script".length] ?? "")
+    ) {
+      const end = lower.indexOf("</script", at)
+      at = end < 0 ? text.length : end
+    } else if (!markup && (char === '"' || char === "'" || char === "`")) {
+      // A quote ends at its closing quote or, unless a template's, at the end of its line.
+      for (at++; at < text.length && text[at] !== char; at++)
+        if (text[at] === "\\") at++
+        else if (text[at] === "\n" && char !== "`") break
+    } else if (
+      text.startsWith(tag, at) &&
+      /[\s/>]/.test(text[at + tag.length] ?? "")
+    )
+      return at
   }
-  return /<html[\s>]/.test(code)
+  return -1
 }
+
+/** Whether `file` renders `tag`: `htmlAt` finds it. */
+export const rendersHtml = (text: string, file = "", tag = "<html"): boolean =>
+  htmlAt(text, file, tag) >= 0
 
 /** The index of the first character from `at` that is neither space nor a comment. */
 function skipTrivia(text: string, at: number): number {
@@ -196,25 +233,28 @@ export function setUi(
 /**
  * `<html …>` with these attributes set, each replaced where the tag has it (bare, quoted or as a JSX
  * expression) and added where it does not; an empty value is written bare, an undefined one removed.
+ * The element is where `htmlAt` finds it in `file`, opened by `tag`: Nuxt's `<Html` (KF-112).
  */
 export function withAttributes(
   text: string,
-  attributes: Readonly<Record<string, string | undefined>>
+  attributes: Readonly<Record<string, string | undefined>>,
+  file = "",
+  tag = "<html"
 ): string {
-  const start = text.indexOf("<html")
+  const start = htmlAt(text, file, tag)
   const end = text.indexOf(">", start)
-  let tag = text.slice(start, end)
+  let opening = text.slice(start, end)
   for (const [name, value] of Object.entries(attributes)) {
     const written = value === "" ? name : `${name}="${value}"`
     const found = new RegExp(
       `\\s${name}(?:=(?:"[^"]*"|'[^']*'|\\{[^}]*\\}))?(?=[\\s/]|$)`
-    ).exec(tag)
+    ).exec(opening)
     if (found)
-      tag = `${tag.slice(0, found.index)}${value === undefined ? "" : ` ${written}`}${tag.slice(found.index + found[0].length)}`
+      opening = `${opening.slice(0, found.index)}${value === undefined ? "" : ` ${written}`}${opening.slice(found.index + found[0].length)}`
     else if (value !== undefined)
-      tag = `<html ${written}${tag.slice("<html".length)}`
+      opening = `${tag} ${written}${opening.slice(tag.length)}`
   }
-  return `${text.slice(0, start)}${tag}${text.slice(end)}`
+  return `${text.slice(0, start)}${opening}${text.slice(end)}`
 }
 
 /** Attributes as a command prints them: as `withAttributes` writes them, and `without` the removed. */
@@ -244,55 +284,38 @@ const PAGES = [
 ]
 
 /**
- * A component whose markup can render `<html>` beside the script that imports what it uses, its
- * frontmatter: an Astro layout (KF-109).
- */
-export const TEMPLATE_FILE = /\.astro$/
-
-/**
- * The files a root document can be among: the project's scripts, and its `TEMPLATE_FILE`s, outside
- * installed packages, build output and hidden folders.
- */
-export function documentSources(root: string): string[] {
-  const found = sources(root)
-  const walk = (directory: string) => {
-    for (const entry of readdirSync(directory, { withFileTypes: true })) {
-      if (entry.name.startsWith(".") || SKIPPED.has(entry.name)) continue
-      const file = path.join(directory, entry.name)
-      if (entry.isDirectory()) walk(file)
-      else if (TEMPLATE_FILE.test(entry.name)) found.push(file)
-    }
-  }
-  walk(root)
-  return found
-}
-
-/**
- * The root document, relative to the project: the one script or Astro component that renders
- * `<html>` (a layout), else the first of `PAGES` the project has; undefined when there is neither,
- * or several layouts.
+ * The root document, relative to the project: the one script or component that renders `<html>` (a
+ * layout; in a Nuxt app, the Vue component that renders `<Html>`, KF-112), else the first of
+ * `PAGES` the project has; undefined when there is neither, or several layouts.
  */
 export function findDocument(
   scripts: readonly string[],
-  textOf: (file: string) => string | undefined
+  textOf: (file: string) => string | undefined,
+  nuxt = false
 ): string | undefined {
-  const layouts = scripts.filter((file) => rendersHtml(textOf(file)!))
+  const layouts = scripts.filter((file) =>
+    rendersHtml(textOf(file)!, file, htmlTag(file, nuxt))
+  )
   if (layouts.length > 0) return layouts.length === 1 ? layouts[0] : undefined
   return PAGES.find((page) => textOf(page) !== undefined)
 }
 
-/** `findDocument` on the files on disk, as an absolute path. */
-export function documentOf(root: string): string | undefined {
+/** `findDocument` on the files on disk, as an absolute path, and the tag that opens it there. */
+export function documentOf(
+  root: string
+): { file: string; tag: string } | undefined {
+  const nuxt = "nuxt" in readProject(root).listed
   const found = findDocument(
-    documentSources(root).map((file) =>
-      path.relative(root, file).split(path.sep).join("/")
-    ),
+    scriptsOf(root),
     (file) => {
       const absolute = path.join(root, file)
       return existsSync(absolute) ? readFileSync(absolute, "utf8") : undefined
-    }
+    },
+    nuxt
   )
-  return found && path.join(root, found)
+  return found === undefined
+    ? undefined
+    : { file: path.join(root, found), tag: htmlTag(found, nuxt) }
 }
 
 /** The attribute the registry's reset reads to give enabled buttons `cursor: pointer` (KF-077). */
@@ -517,7 +540,7 @@ export async function runPreset(
   const attributes = { ...attributesOf(design, chosen.design), ...asked }
   if (document)
     write(
-      `document: ${path.relative(app, document)}: <html> ${attributeList(attributes)}\n`
+      `document: ${path.relative(app, document.file)}: ${document.tag}> ${attributeList(attributes)}\n`
     )
   else
     write(
@@ -545,8 +568,13 @@ export async function runPreset(
   writeFileSync(configFile, config)
   if (document)
     writeFileSync(
-      document,
-      withAttributes(readFileSync(document, "utf8"), attributes)
+      document.file,
+      withAttributes(
+        readFileSync(document.file, "utf8"),
+        attributes,
+        document.file,
+        document.tag
+      )
     )
   writePlaced(writes)
   writePlaced(fonts)

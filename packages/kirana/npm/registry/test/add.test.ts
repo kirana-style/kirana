@@ -577,6 +577,32 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     )
   })
 
+  it("imports a font item's stylesheet in SvelteKit's +layout.svelte, its script (KF-113)", async () => {
+    const LORA: Item = {
+      name: "font-lora",
+      type: "font",
+      version: "1.0.0",
+      dependencies: { "@fontsource-variable/lora": "^5.2.0" },
+      font: {
+        family: "'Lora Variable', serif",
+        import: "@fontsource-variable/lora",
+      },
+    }
+    const cwd = project({}, [LORA], {
+      "src/routes/+layout.svelte":
+        '<script lang="ts">\n  import "@kirana-style/core/stylesheet.css"\n\n  let { children } = $props()\n</script>\n\n{@render children()}\n',
+    })
+    const { code, text } = await add(cwd, "@acme/font-lora")
+    expect(code).toBe(0)
+    expect(text).toContain(
+      "font: src/routes/+layout.svelte: imports @fontsource-variable/lora\n"
+    )
+    expect(text).not.toContain("by hand")
+    expect(read(cwd, "src/routes/+layout.svelte")).toBe(
+      '<script lang="ts">\n  import "@kirana-style/core/stylesheet.css"\n  import "@fontsource-variable/lora"\n\n  let { children } = $props()\n</script>\n\n{@render children()}\n'
+    )
+  })
+
   it("installs from the app into the package its ui.workspace names, imported by the package's name (KF-108, D-129)", async () => {
     const LORA: Item = {
       name: "font-lora",

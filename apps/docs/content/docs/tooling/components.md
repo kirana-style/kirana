@@ -59,7 +59,9 @@ Around the alias, `init` also:
   that installs packages runs it again, since an install can remove what it
   wrote;
 - lists the reset beside Kirana's stylesheet in the `css` of `nuxt.config.ts`,
-  where Nuxt has it.
+  where Nuxt has it, and imports it in the `<script>` of SvelteKit's
+  `src/routes/+layout.svelte`, where SvelteKit imports Kirana's stylesheet; a
+  font a design names goes in the same place.
 
 To start from nothing, take one of Kirana's examples, as the release you run has
 it:
@@ -116,14 +118,25 @@ Base UI and React Aria do; `init` prints that as a step by hand.
 
 Both go in the project's root document, found in this order:
 
-| Where `<html>` is               | Templates                                                | `init` does         |
-| ------------------------------- | -------------------------------------------------------- | ------------------- |
-| the one layout that renders it  | Next.js, React Router, TanStack Start, SolidStart, Astro | sets the attributes |
-| `index.html`                    | Vite, Parcel, Bun, Ember, Analog                         | sets the attributes |
-| `src/index.html`                | Angular CLI                                              | sets the attributes |
-| `src/app.html`                  | SvelteKit                                                | sets the attributes |
-| `resources/views/app.blade.php` | Laravel with Inertia                                     | sets the attributes |
-| elsewhere, or in two layouts    | Nuxt, Rails, Laravel's own Blade views                   | prints them to set  |
+| Where `<html>` is                       | Templates                                                | `init` does         |
+| --------------------------------------- | -------------------------------------------------------- | ------------------- |
+| the one layout that renders it          | Next.js, React Router, TanStack Start, SolidStart, Astro | sets the attributes |
+| the one component that renders `<Html>` | Nuxt, `app.vue` given a `<Html />` where none has one    | sets the attributes |
+| `index.html`                            | Vite, Parcel, Bun, Ember, Analog                         | sets the attributes |
+| `src/index.html`                        | Angular CLI                                              | sets the attributes |
+| `src/app.html`                          | SvelteKit                                                | sets the attributes |
+| `resources/views/app.blade.php`         | Laravel with Inertia                                     | sets the attributes |
+| elsewhere, or in two layouts            | Rails, Laravel's own Blade views                         | prints them to set  |
+
+The design system's styles for `<html>` go:
+
+- on the same element as `sx`, or as `:sx` on Nuxt's `<Html>`, imported in the
+  component's script;
+- on Vite, from the entry, before the app renders, since a static page cannot
+  take `sx`;
+- on SvelteKit, whose `src/app.html` is static, from the server hook `init`
+  writes, `src/hooks.server.ts`, which adds the classes to every page it renders.
+  A project with a hook of its own is told what to add to it.
 
 Neither is kept in the `ui` settings: the components need no rewriting for
 them, so `<html>` is the one place that says what the project has. On a project

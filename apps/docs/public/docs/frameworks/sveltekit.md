@@ -71,6 +71,33 @@ In the root layout:
 
 In `vite dev`, editing a style updates the page in place, without a reload.
 
+## The document
+
+`src/app.html` is static, and Svelte has no element for `<html>`, so its classes
+come from a server hook, which rewrites every page SvelteKit renders,
+prerendered ones included:
+
+```ts file="src/hooks.server.ts"
+import { props } from "@kirana-style/core"
+import type { Handle } from "@sveltejs/kit/hooks"
+
+import { htmlStyles } from "@/lib/kirana/document"
+
+export const handle: Handle = ({ event, resolve }) =>
+  resolve(event, {
+    transformPageChunk: ({ html }) =>
+      html.replace(
+        "<html",
+        `<html class="${props(htmlStyles).className ?? ""}"`
+      ),
+  })
+```
+
+`kirana-style ui init` writes this hook where the project has none, and tells you
+what to add to one it has. A design system's attributes go on `<html>` in
+`src/app.html`, and its reset and fonts are imported in the root layout's
+`<script>`, after Kirana's stylesheet.
+
 ## Next
 
 - [Your first component](/docs/start/first-component): a button with a hover state

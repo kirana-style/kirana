@@ -17,6 +17,7 @@ import {
   attributeList,
   decodePreset,
   documentOf,
+  htmlAt,
   optionAttributes,
   rendersHtml,
   setUi,
@@ -302,7 +303,7 @@ describe("D-110 the settings and the document a preset writes", () => {
         writeFileSync(path.join(cwd, name), text)
       }
       const found = documentOf(cwd)
-      return found && path.relative(cwd, found)
+      return found && path.relative(cwd, found.file)
     }
     expect(at({ "app/layout.tsx": "<html>", "index.html": "<html>" })).toBe(
       path.join("app", "layout.tsx")
@@ -345,6 +346,74 @@ describe("D-110 the settings and the document a preset writes", () => {
         "resources/js/app.tsx": "createInertiaApp({})",
       })
     ).toBe(path.join("resources", "views", "app.blade.php"))
+  })
+
+  it("find the element, not a mention in a string, a script or a comment (KF-112, KF-113)", () => {
+    // SvelteKit's server hook writes `<html ` in its strings: no document.
+    expect(
+      rendersHtml(
+        'html.replace("<html", `<html class="${c}"`)\nconst a = \'it\\\'s <html >\''
+      )
+    ).toBe(false)
+    expect(rendersHtml("const a = `\n<html >\n`\n<html")).toBe(false)
+    // A quote that is not closed on its line ends there; JSX's element after it is found.
+    expect(htmlAt("const a = \"don't\n<html lang='en'>")).toBe(17)
+    // In a component's markup, past its frontmatter, its scripts and its comments.
+    expect(
+      rendersHtml(
+        '---\nconst a = "<html >"\n---\n<p>Don\'t</p>',
+        "Layout.astro"
+      )
+    ).toBe(false)
+    const svelte =
+      '<script>\n  const a = "<html >"\n</script>\n<!-- <html> -->\n<html lang="en">'
+    expect(htmlAt(svelte, "+layout.svelte")).toBe(svelte.indexOf("<html lang"))
+    expect(rendersHtml("<script>\n<html>", "a.svelte")).toBe(false)
+    // A script in capitals is a script too.
+    expect(rendersHtml("<SCRIPT>\n<html>\n</SCRIPT>", "a.svelte")).toBe(false)
+    // `<scripts>` is another tag, and a page may end in the middle of one.
+    expect(rendersHtml("<scripts>\n<html>", "a.svelte")).toBe(true)
+    expect(rendersHtml("<p />\n<script", "a.svelte")).toBe(false)
+    expect(rendersHtml("<!-- <html>", "index.html")).toBe(false)
+    expect(rendersHtml("{/* <html> */}<p />", "a.astro")).toBe(false)
+    // Nuxt's <Html>, self-closing, in a Vue component of a Nuxt app only.
+    expect(
+      rendersHtml("<template><Html/></template>", "app.vue", "<Html")
+    ).toBe(true)
+    expect(rendersHtml("<template><Html/></template>", "app.vue")).toBe(false)
+    expect(
+      withAttributes(
+        '<script setup>\n// <Html> for the document\n</script>\n<template>\n  <Html lang="en" />\n</template>',
+        { "data-pointer": "" },
+        "app.vue",
+        "<Html"
+      )
+    ).toBe(
+      '<script setup>\n// <Html> for the document\n</script>\n<template>\n  <Html data-pointer lang="en" />\n</template>'
+    )
+    const at = (files: Record<string, string>) => {
+      const cwd = mkdtempSync(path.join(root, "document-"))
+      for (const [name, text] of Object.entries(files)) {
+        mkdirSync(path.dirname(path.join(cwd, name)), { recursive: true })
+        writeFileSync(path.join(cwd, name), text)
+      }
+      const found = documentOf(cwd)
+      return found && { ...found, file: path.relative(cwd, found.file) }
+    }
+    const nuxt = '{ "dependencies": { "nuxt": "^4.5.0" } }'
+    expect(
+      at({
+        "package.json": nuxt,
+        "app/app.vue": '<template>\n  <Html lang="en" />\n</template>\n',
+        "app/components/Probe.vue": "<template><p /></template>\n",
+      })
+    ).toEqual({ file: path.join("app", "app.vue"), tag: "<Html" })
+    expect(
+      at({
+        "app/app.vue": "<template><Html /></template>\n",
+        "index.html": "<html>",
+      })
+    ).toEqual({ file: "index.html", tag: "<html" })
   })
 })
 
@@ -906,6 +975,32 @@ describe("KRN-DX-032 kirana-style ui preset", () => {
     expect((await run(cwd, "preset", "k0")).code).toBe(1)
     writeFileSync(path.join(cwd, "kirana-style.lock.json"), "{")
     expect((await run(cwd, "preset", "k0")).code).toBe(2)
+  })
+
+  it("sets the attributes on Nuxt's <Html>, where a component renders it (KF-112)", async () => {
+    const cwd = await installed(
+      { base: "base" },
+      {
+        "package.json":
+          '{ "dependencies": { "react": "19", "lucide-react": "1", "nuxt": "4" } }',
+        "app.vue":
+          '<script setup>\n// <Html> is the document.\n</script>\n\n<template>\n  <Html :sx="htmlStyles" lang="en" />\n</template>\n',
+      }
+    )
+    const { code: exit, text } = await run(
+      cwd,
+      "preset",
+      code(1, 0),
+      "--no-check"
+    )
+    expect(exit).toBe(0)
+    expect(text).toContain(
+      'document: app.vue: <Html> data-style="vega" data-color="neutral"\n'
+    )
+    expect(read(cwd, "app.vue")).toContain(
+      '// <Html> is the document.\n</script>\n\n<template>\n  <Html data-color="neutral" data-style="vega" :sx="htmlStyles" lang="en" />'
+    )
+    expect(read(cwd, "index.html")).toContain('<html lang="en">')
   })
 
   it("says what is left to do by hand, and stops where the settings cannot be written or packages installed", async () => {

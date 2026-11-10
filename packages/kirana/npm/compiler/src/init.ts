@@ -147,25 +147,118 @@ export function styled(text: string, statement: string): string {
 /** An Astro component's frontmatter: the script between its `---` fences, which holds its imports. */
 const FRONTMATTER = /^(---[ \t]*\r?\n)((?:.*\r?\n)*?)(---[ \t]*(?:\r?\n|$))/
 
+/** A component's script block: where it starts and ends, its opening tag's attributes, the parts. */
+type ScriptBlock = {
+  index: number
+  end: number
+  attributes: string
+  open: string
+  body: string
+  close: string
+}
+
+/**
+ * A Svelte or Vue component's script blocks, each opening and closing on a line of its own: the
+ * opening tag with the rest of its line, the script, and the closing tag's line. Read by scanning,
+ * not by a pattern, which backtracks over the text a component holds.
+ */
+function scriptBlocks(text: string): ScriptBlock[] {
+  const lower = text.toLowerCase()
+  const blocks: ScriptBlock[] = []
+  for (let from = 0; ;) {
+    const index = lower.indexOf("<script", from)
+    if (index < 0) return blocks
+    from = index + "<script".length
+    const after = text[from] ?? ""
+    const tagEnd = text.indexOf(">", from)
+    if (
+      (index > 0 && text[index - 1] !== "\n") ||
+      /\w/.test(after) ||
+      tagEnd < 0
+    )
+      continue
+    let start = tagEnd + 1
+    while (text[start] === " " || text[start] === "\t") start++
+    if (text[start] === "\r") start++
+    if (text[start] === "\n") start++
+    const closing = closingLine(text, lower, start)
+    if (closing === undefined) return blocks
+    const [line, end] = closing
+    blocks.push({
+      index,
+      end,
+      attributes: text.slice(from, tagEnd),
+      open: text.slice(index, start),
+      body: text.slice(start, line),
+      close: text.slice(line, end),
+    })
+    from = end
+  }
+}
+
+/** Where the first line from `from` holding only `</script>` (and spaces) starts, and where its tag ends. */
+function closingLine(
+  text: string,
+  lower: string,
+  from: number
+): [number, number] | undefined {
+  for (let at = lower.indexOf("</script", from); at >= 0;) {
+    const line = text.lastIndexOf("\n", at - 1) + 1
+    let end = at + "</script".length
+    while (/\s/.test(text[end] ?? "")) end++
+    if (
+      line >= from &&
+      /^[ \t]*$/.test(text.slice(line, at)) &&
+      text[end] === ">"
+    )
+      return [line, end + 1]
+    at = lower.indexOf("</script", at + 1)
+  }
+  return undefined
+}
+
 /**
  * Adds an import after the module's last import, in the module's style. Names imported from a
  * module the file already imports names from join that import instead (KF-035), on its lines. In an
- * Astro component, the import goes into its frontmatter.
+ * Astro component, the import goes into its frontmatter; in a Svelte or Vue component, into its
+ * script, indented as its imports are (KF-113): Vue's `<script setup>`, else the first that is not
+ * Svelte's `<script module>`. A component without a script is the caller's to give one.
  */
 export function addImport(text: string, statement: string): string {
   const frontmatter = FRONTMATTER.exec(text)
   if (frontmatter) {
     const [whole, open, body, close] = frontmatter
     const script =
-      body!.trim() === "" ? `${statement}\n` : addImport(body!, statement)
+      body!.trim() === "" ? `${statement}\n` : importInto(body!, statement)
     return `${open}${script}${close}${text.slice(whole.length)}`
   }
-  const merged = mergeImport(text, statement)
+  const blocks = scriptBlocks(text)
+  const block =
+    blocks.find((found) => /\bsetup\b/.test(found.attributes)) ??
+    blocks.find((found) => !/\bmodule\b/.test(found.attributes)) ??
+    blocks[0]
+  if (block) {
+    const { body, close } = block
+    const indent = /^([ \t]*)\S/m.exec(body)?.[1] ?? ""
+    const script =
+      body.trim() === ""
+        ? `${statement}\n`
+        : importInto(body, statement, indent)
+    const at = block.index + block.open.length
+    return `${text.slice(0, at)}${script}${close}${text.slice(block.end)}`
+  }
+  return importInto(text, statement)
+}
+
+/** `addImport` into a script whose top-level lines start with `indent`. */
+function importInto(text: string, statement: string, indent = ""): string {
+  const merged = mergeImport(text, statement, indent)
   if (merged !== undefined) return merged
-  const line = styled(text, statement)
+  const line = `${indent}${styled(text, statement)}`
+  // The script's own imports: those indented as its top-level lines.
   const imports = [
-    ...text.matchAll(/^import\b[^;]*?["'][^"'\n]+["'];?[ \t]*$/gm),
-  ]
+    ...text.matchAll(/^([ \t]*)import\b[^;]*?["'][^"'\n]+["'];?[ \t]*$/gm),
+  ].filter((found) => found[1] === indent)
   const last = imports.at(-1)
   if (!last) return `${line}\n${text.startsWith("\n") ? "" : "\n"}${text}`
   const end = last.index + last[0].length
@@ -173,34 +266,42 @@ export function addImport(text: string, statement: string): string {
 }
 
 /** `addImport` into an existing `import { … } from` the same module, or undefined when there is none. */
-function mergeImport(text: string, statement: string): string | undefined {
+function mergeImport(
+  text: string,
+  statement: string,
+  indent: string
+): string | undefined {
   const wanted = /^import\s*\{([^}]*)\}\s*from\s*["']([^"']+)["']/.exec(
     statement
   )
   if (!wanted) return undefined
   const module = wanted[2]!.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")
-  const existing = new RegExp(
-    `^import\\s*\\{([^}]*)\\}(\\s*from\\s*["']${module}["'])`,
-    "m"
-  ).exec(text)
+  const existing = [
+    ...text.matchAll(
+      new RegExp(
+        `^([ \\t]*)import\\s*\\{([^}]*)\\}(\\s*from\\s*["']${module}["'])`,
+        "gm"
+      )
+    ),
+  ].find((found) => found[1] === indent)
   if (!existing) return undefined
   const list = (body: string) =>
     body
       .split(",")
       .map((name) => name.trim())
       .filter(Boolean)
-  const names = list(existing[1]!)
+  const names = list(existing[2]!)
   const added = list(wanted[1]!).filter((name) => !names.includes(name))
   if (added.length === 0) return text
   const all = [...names, ...added]
   // One name a line when the import is written so, indented as its first name.
-  const indent = /\n([ \t]*)\S/.exec(existing[1]!)?.[1]
+  const inner = /\n([ \t]*)\S/.exec(existing[2]!)?.[1]
   const body =
-    indent === undefined
+    inner === undefined
       ? ` ${all.join(", ")} `
-      : `\n${all.map((name) => `${indent}${name},`).join("\n")}\n`
+      : `\n${all.map((name) => `${inner}${name},`).join("\n")}\n`
   const at = existing.index
-  return `${text.slice(0, at)}import {${body}}${existing[2]}${text.slice(at + existing[0].length)}`
+  return `${text.slice(0, at)}${indent}import {${body}}${existing[3]}${text.slice(at + existing[0].length)}`
 }
 
 /**

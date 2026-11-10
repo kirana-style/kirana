@@ -242,7 +242,11 @@ installs it. Its `setup` is then wired in (D-109): the configuration spread firs
 `defineConfig`, imported by relative path with its extension (a tsconfig that type-checks the
 configuration and emits nothing then allows `.ts` imports); each stylesheet imported after
 Kirana's stylesheet; the `<html>` styles on the `<html>` element as `sx`, or, in an app whose
-document is static HTML, set on `document.documentElement` beside Kirana's stylesheet import. A
+document is static HTML, set on `document.documentElement` beside Kirana's stylesheet import. In a
+Nuxt app they go on Nuxt's `<Html>` as `:sx`, and where no Vue component renders one a
+self-closing `<Html />` goes first in `app.vue`'s template (KF-112); in a SvelteKit app, whose
+`app.html` is static, a `src/hooks.server.ts` it writes sets them in `handle`'s
+`transformPageChunk`, and a server hook the project has already is a step by hand (KF-113). A
 change it cannot make safely MUST be printed as a step to do by hand. Every change is planned before
 anything is written, and `--dry-run` writes and installs nothing. Exit 1 when a document cannot be
 read or the setup cannot be written, 2 for an unknown option or settings it cannot use. With
@@ -266,7 +270,10 @@ cannot start from a template (exit 2). It then checks what it wrote, as `add` do
 lacks it, MUST be at the release's version (unless the design system names one) and recorded
 exactly, with the package manager's exact flag, so the project can run `kirana-style ui` alone
 (D-111). A named import it adds joins the module's existing named import of the same module; in
-an Astro component it goes into the frontmatter (KF-109).
+an Astro component it goes into the frontmatter (KF-109), and in a Svelte or Vue component into
+its script, indented as its imports (Vue's `<script setup>`, else the first that is not Svelte's
+`<script module>`); the module that imports Kirana's stylesheet may be such a component, as
+SvelteKit's `+layout.svelte` is (KF-113).
 `--all-designs` MUST write `allDesigns: true` to the `ui` settings, so this and every later command
 keeps every design installed (KF-080). The
 check after writing (for `init`, `add`, `update` and `preset`) MUST leave out `relation-unused` for a
@@ -276,7 +283,9 @@ only on its first run) MUST get one: the options Next.js requires, `noEmit` and 
 with `typescript`, `@types/react` and `@types/node` installed, since the items are TypeScript
 (KF-046). `--pointer` and `--rtl`, spelled as shadcn/ui's, MUST set `data-pointer` (the attribute a
 design system's reset reads for `cursor: pointer` on buttons) and `dir="rtl"` on `<html>` in the
-root document: the one script or Astro component that renders `<html>`, else the first of
+root document: the one script, or Astro, Svelte or Vue component, that renders `<html>` in its code
+(a mention in a comment or a string, as a SvelteKit server hook's, is none; KF-113), or in a Nuxt
+app the Vue component that renders Nuxt's `<Html>` (KF-112), else the first of
 `index.html`, `src/index.html`, `src/app.html` and `resources/views/app.blade.php` (the view Inertia
 renders into on Laravel) the project has (KF-109); with none, or several layouts, the attributes
 are printed as a step by hand, and `--rtl` also prints that a component library reading the
@@ -292,11 +301,13 @@ has none), the design system's files, packages and lockfile, the core its files 
 check; the app gets Kirana's own setup and its packages, `ui.workspace` and the configuration
 spread in its `kirana.config.*`, the same `paths` to the package's source in its tsconfig with Vite
 told to read them, and the stylesheets, the fonts with their packages, and the `<html>` styles and
-attributes. What the app gets is reported with `app: ` before it. In an app whose `ui.workspace`
-names a package already, `init` works on that package, and a `--workspace` naming another stops it
-(exit 2). `add`, `update` and `preset` run in such an app work on the package as well; the fonts
-`add` and `preset` install are imported in the app, their packages (and `update`'s) are installed
-there with the app's package manager, and `preset` sets the app's `<html>`.
+attributes. Where either tsconfig's `include` takes scripts only, the framework's `.svelte` or
+`.vue` files are added to it, as a single app's are, since Vite resolves the aliases in no file it
+leaves out (KF-113). What the app gets is reported with `app: ` before it. In an app whose
+`ui.workspace` names a package already, `init` works on that package, and a `--workspace` naming
+another stops it (exit 2). `add`, `update` and `preset` run in such an app work on the package as
+well; the fonts `add` and `preset` install are imported in the app, their packages (and `update`'s)
+are installed there with the app's package manager, and `preset` sets the app's `<html>`.
 
 **KRN-DX-030** — `kirana-style ui outdated [item…]` and `ui diff [item…]` MUST read each installed
 item (every one in the lockfile by default) again from its registry, place it as installing it now
