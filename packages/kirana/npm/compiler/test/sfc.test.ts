@@ -306,6 +306,32 @@ describe("KRN-INT-004 Svelte", () => {
     })
   })
 
+  it("applies an anchor on a component beside its class, the block importing no Kirana (KF-114)", async () => {
+    const root = project()
+    const styles = path.join(root, "toggle.styles.ts")
+    const text =
+      'import { css, relation } from "@kirana-style/core"\nexport const toggleScope = relation("toggle")\nexport const toggle = css({ padding: "1rem" })\nexport const icon = css({ fill: { base: "none", [toggleScope.within("[aria-pressed=true]")]: "red" } })\n'
+    writeFileSync(styles, text)
+    const driver = await Driver.create({ root, importModule: load })
+    driver.transform(styles, text)
+    const unanchored = () =>
+      driver
+        .diagnostics()
+        .filter((diagnostic) => diagnostic.name === "relation-without-anchor")
+    expect(unanchored()).toHaveLength(1)
+    // The part's script names Kirana nowhere: the casts it no longer needs took `Sx` with them.
+    const { code, diagnostics } = await driver.transformComponent(
+      path.join(root, "Toggle.svelte"),
+      `<script lang="ts">\nimport { ToggleRoot } from "@ark-ui/svelte"\nimport { toggle, toggleScope } from "./toggle.styles.ts"\nlet { class: className, ...rest } = $props()\n</script>\n<ToggleRoot {...rest} class={className}\n  sx={[toggleScope.anchor, toggle]} />\n`
+    )
+    expect(unanchored()).toEqual([])
+    expect(diagnostics).toEqual([])
+    expect(code).not.toContain("KF-088")
+    expect(code).toContain(
+      "{...__kirana_attrs([[toggleScope.anchor, toggle]], [(rest)?.class, (className)], [(rest)?.style], true)}"
+    )
+  })
+
   it("folds the class and style of a spread written before the sx (KF-098)", async () => {
     const { result } = await compile(
       "Trigger.svelte",

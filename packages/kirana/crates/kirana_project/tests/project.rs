@@ -437,6 +437,25 @@ fn shared_importers_atoms_and_themes_are_counted_once() {
     fs::remove_dir_all(root).unwrap();
 }
 
+/// A module that names Kirana only through a relation's anchor applies it: a Svelte part's script
+/// whose template writes `<ToggleRoot class={className} sx={[toggleScope.anchor, …]}>` is compiled
+/// with the anchor appended and nothing else that names Kirana, and the prefilter passed it by
+/// (KF-114).
+#[test]
+fn a_module_that_names_only_a_relations_anchor_applies_it() {
+    let scope = "import { css, relation } from \"@kirana-style/core\"\nexport const toggleScope = relation(\"toggle\")\nexport const icon = css({ fill: { base: \"none\", [toggleScope.within(\"[aria-pressed]\")]: \"red\" } })\n";
+    let part = "import { toggleScope } from \"./scope\"\nlet { class: className } = $props()\n/* kirana: the template's anchors (KF-088) */\n;() => [toggleScope.anchor];\n";
+    let (root, project) = temp_project(&[("scope.ts", scope), ("Toggle.svelte.instance.ts", part)]);
+    let unanchored = |project: &Project| {
+        project.diagnostics().iter().filter(|diagnostic| diagnostic.code == Code::RelationWithoutAnchor).count()
+    };
+    project.transform(&root.join("scope.ts"), scope);
+    assert_eq!(unanchored(&project), 1);
+    project.transform(&root.join("Toggle.svelte.instance.ts"), part);
+    assert_eq!(unanchored(&project), 0);
+    fs::remove_dir_all(root).unwrap();
+}
+
 #[test]
 fn unreadable_and_missing_components_forward_nothing() {
     let input = "import { css } from \"@kirana-style/core\"\nimport Logo from \"./logo.png\"\nimport { Missing } from \"./missing\"\nconst s = css({ color: \"red\" })\nexport const a = <Logo sx={s} />\nexport const b = <Missing sx={s} />\n";

@@ -20,9 +20,11 @@ pub use oxc_span::SourceType;
 /// style value at runtime needs nothing: compiled style values are ordinary strings and objects, so
 /// leaving it untouched is correct (D-023, simplified in D-039). A relation is the exception: it
 /// compiles to its name and anchor, without the methods, so a read left as written throws when the
-/// module loads (KF-051).
+/// module loads (KF-051). A module that names a relation's anchor applies it, which the project's
+/// relation checks count, so it is compiled too: a component's block that names Kirana only in its
+/// template is compiled with the template's anchors appended and nothing else (KF-088, KF-114).
 pub fn may_be_style_bearing(source: &str) -> bool {
-    if source.contains("@kirana-style/") || reads_a_relation(source) {
+    if source.contains("@kirana-style/") || reads_a_relation(source) || names_an_anchor(source) {
         return true;
     }
     let bytes = source.as_bytes();
@@ -50,6 +52,17 @@ fn reads_a_relation(source: &str) -> bool {
         source.match_indices(method).any(|(start, _)| {
             source[start + method.len()..].trim_start_matches([' ', '\t', '\r', '\n']).starts_with('(')
         })
+    })
+}
+
+/// Whether `source` names a member `anchor` (`scope.anchor`, `item?.anchor`), and not a longer name
+/// (`selection.anchorNode`).
+fn names_an_anchor(source: &str) -> bool {
+    source.match_indices(".anchor").any(|(start, found)| {
+        source
+            .as_bytes()
+            .get(start + found.len())
+            .is_none_or(|&next| !next.is_ascii_alphanumeric() && !matches!(next, b'_' | b'$'))
     })
 }
 

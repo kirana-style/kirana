@@ -386,16 +386,21 @@ the implementation tracker names its evidence.
 
 ### D-039 — One-stage prefilter
 
-- **Status:** Accepted; amended 2026-10-28 (KF-051): the scan also passes a relation's read.
-- **Decision:** The prefilter is one byte scan for `@kirana-style/`, an `sx` attribute, or a call of a
-  method named as a relation's read (`.within(`, `.parent(`, `.after(`, `.before(`). Modules that only
-  use imported style values are left untouched; imported modules are parsed on demand when an
-  importer needs their values evaluated.
+- **Status:** Accepted; amended 2026-10-28 (KF-051): the scan also passes a relation's read; amended
+  2026-11-10 (KF-114): and a relation's anchor.
+- **Decision:** The prefilter is one byte scan for `@kirana-style/`, an `sx` attribute, a call of a
+  method named as a relation's read (`.within(`, `.parent(`, `.after(`, `.before(`), or a member named
+  `anchor`. Modules that only use imported style values are left untouched; imported modules are parsed
+  on demand when an importer needs their values evaluated.
 - **Rationale:** Compiled style values are ordinary runtime strings and objects, so static inlining
   across modules is an optimization, never a correctness requirement. A relation's reads are the
   exception: the relation compiles to its name and anchor, without methods, so a module that imports
   one from another style module and reads it must be compiled, or the read throws when the module
-  loads. A DOM `node.after(…)` passes the scan too; it costs one parse and rewrites nothing.
+  loads. A DOM `node.after(…)` passes the scan too; it costs one parse and rewrites nothing. An anchor
+  named in a module applies it, which the relation checks count project-wide: a Svelte part whose script
+  imports nothing from Kirana (`class={className} sx={[scope.anchor, own]}` needs no `Sx` cast since
+  D-122) is compiled with only its template's anchors appended, and a scan without `.anchor` skipped it,
+  so the relation's reads were reported unanchored (KF-114).
 - **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md), [13-output-and-performance](./13-output-and-performance.md).
 
 ### D-040 — TypeScript source packages during feasibility

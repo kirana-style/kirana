@@ -19,8 +19,8 @@ import kiranaCss from "@kirana-style/core/stylesheet.css?url"
 
 What it does:
 
-- **Transform.** Modules that mention `@kirana-style/` or an `sx` attribute are compiled; everything else
-  is left untouched. Compiler errors fail the build with the source line; warnings are printed.
+- **Transform.** Modules that mention `@kirana-style/`, an `sx` attribute, or a relation's read or
+  `.anchor` are compiled; everything else is left untouched. Compiler errors fail the build with the source line; warnings are printed.
 - **Development.** `@kirana-style/core/stylesheet.css` serves the live stylesheet. Editing a style sends a
   CSS hot update without a reload; editing tokens or relations re-runs the importers that read them.
 - **Build.** The stylesheet asset first holds a placeholder rule; once every environment (client and
