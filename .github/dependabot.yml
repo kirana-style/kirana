@@ -54,12 +54,14 @@ updates:
       prefix: deps
     groups:
       # oxc's crates share one version and are pinned exactly (=0.x.y): one alone does not compile,
-      # so they always move together. Listed before minor-and-patch, which would otherwise take them.
+      # or builds a second copy of oxc, so they always move together. Listed before minor-and-patch,
+      # which would otherwise take them.
       oxc:
         patterns:
           - "oxc_allocator"
           - "oxc_ast"
           - "oxc_ast_visit"
+          - "oxc_diagnostics"
           - "oxc_parser"
           - "oxc_semantic"
           - "oxc_span"
