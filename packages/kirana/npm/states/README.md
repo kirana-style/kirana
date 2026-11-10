@@ -76,7 +76,11 @@ attribute's presence whatever its value: Button writes `data-disabled="soft"`, o
 `Button.Root.disabled.soft` `'[data-disabled="soft"]'`, as on every part built on the button
 (`Menu.Item.disabled.any`). The elements Angular Primitives' portal renders have the `enter` and
 `exit` it marks them with as they come and go: an overlay's content (`Popover.Root.enter`,
-`Select.Dropdown.exit`, with the overlay's `instant`), a toast, and a dialog and its overlay. Ark UI's `orientation` takes its values from Zag's
+`Select.Dropdown.exit`, with the overlay's `instant`), a toast, and a dialog and its overlay. Reka
+UI's `state` always has its values, read through the helper or the context a part reads
+(`Progress.Indicator.state.loading`) and the component it renders its element with
+(`RadioGroup.Item.state.checked`); the tooltip's `delayed-open` and `instant-open` share `open`,
+`'[data-state$="open"]'`. Ark UI's `orientation` takes its values from Zag's
 `Orientation` type (`@zag-js/types`), since Zag's reference describes it in prose. Ark UI's parts
 also have what their prop getter in Zag's code sets and the reference leaves out, through the helpers
 it spreads: Radio Group's `Item`, `ItemText` and the item states of its `ItemControl`. Segment Group,

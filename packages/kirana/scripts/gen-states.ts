@@ -18,7 +18,8 @@
  * Each state becomes a condition key: an attribute's presence (`checked: "[data-checked]"`), or,
  * for a union of string literals, one key per value (`side.inlineEnd: '[data-side="inline-end"]'`),
  * with `any` for the presence beside them when the attribute is also written empty
- * (`disabled.any: "[data-disabled]"`, KF-100).
+ * (`disabled.any: "[data-disabled]"`, KF-100), and a key for an ending several values share
+ * (`state.open: '[data-state$="open"]'` for `delayed-open` and `instant-open`, KF-115).
  */
 import { spawnSync } from "node:child_process"
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
@@ -42,6 +43,11 @@ type State = {
    * presence, whatever its value (KF-100).
    */
   presence?: boolean
+  /**
+   * Endings several values share where none is the ending itself (Reka UI's tooltip writes
+   * `delayed-open` and `instant-open`): a key each, matching every value that ends so (KF-115).
+   */
+  endings?: string[]
 }
 /** Components, each with its parts' states, or its own states when it has no parts. */
 type Vocabulary = Map<string, Map<string, State[]> | State[]>
@@ -1115,10 +1121,188 @@ function withoutComments(template: string): string {
   return text
 }
 
+/** A Reka UI module: its path and its text (a component's whole file). */
+type RekaModule = { file: string; text: string }
+
+/** Whether a module declares a name: a function, variable, type, enum, or a destructured context. */
+const declares = (text: string, name: string) =>
+  new RegExp(
+    `\\b(?:function|const|let|type|interface|enum)\\s+${name}\\b|\\[[^\\]=]*\\b${name}\\b[^\\]=]*\\]\\s*=`
+  ).test(text)
+
+/**
+ * The module that declares a name a module uses: the module itself, or the one it imports the name
+ * from, in its folder or under `src` (`@/Menu/utils`), through the indexes that re-export it. None
+ * for a name from outside Reka's code (`vue`).
+ */
+function rekaDeclaration(
+  name: string,
+  module: RekaModule,
+  source: string,
+  depth = 0
+): RekaModule | undefined {
+  if (declares(module.text, name)) return module
+  if (depth >= 4) return undefined
+  const directory = path.dirname(module.file)
+  for (const [, names, specifier] of module.text.matchAll(
+    /(?:import|export)\s+(?:type\s+)?(\*|[\w$]+|\{[^}]*\})\s+from\s+["']([^"']+)["']/g
+  )) {
+    const listed =
+      names === "*" ||
+      names!
+        .replace(/[{}]/g, "")
+        .split(",")
+        .some((entry) => entry.trim().replace(/^type\s+/, "") === name)
+    if (!listed) continue
+    const base = specifier!.startsWith("@/")
+      ? path.join(source, specifier!.slice(2))
+      : specifier!.startsWith(".")
+        ? path.join(directory, specifier!)
+        : undefined
+    const file = base
+      ? ([`${base}.ts`, `${base}.vue`, path.join(base, "index.ts")].find(
+          existsSync
+        ) ??
+        (/\.(?:ts|vue)$/.test(base) && existsSync(base) ? base : undefined))
+      : undefined
+    if (!file) continue
+    const found = rekaDeclaration(
+      name,
+      { file, text: readFileSync(file, "utf8") },
+      source,
+      depth + 1
+    )
+    if (found) return found
+  }
+  return undefined
+}
+
+/** A helper's or a variable's declaration, up to the blank line after it. */
+const declaredBody = (text: string, name: string) =>
+  new RegExp(
+    `(?:function\\s+${name}\\b|(?:const|let)\\s+${name}\\s*=)[\\s\\S]*?(?:\\n\\s*\\n|$)`
+  ).exec(text)?.[0]
+
+/**
+ * The string values a type fixes: its literals, through `Ref<…>` and the aliases and string enums
+ * it names, wherever they are declared (`ComputedRef<AccordionItemState>`, `Ref<StepperState>`),
+ * `null` and `undefined` left out. None when any member is something else.
+ */
+function rekaTypeValues(
+  type: string,
+  module: RekaModule,
+  source: string,
+  depth = 0
+): string[] {
+  let inner = type.trim()
+  for (
+    let unwrapped: string | undefined;
+    (unwrapped = /^(?:Readonly|Ref|ComputedRef|ShallowRef)<(.*)>$/.exec(
+      inner
+    )?.[1]);
+  )
+    inner = unwrapped.trim()
+  const out: string[] = []
+  for (const member of inner.split("|").map((part) => part.trim())) {
+    if (!member || member === "null" || member === "undefined") continue
+    const literal = /^(['"])([a-z0-9][a-z0-9-]*)\1$/.exec(member)?.[2]
+    if (literal) {
+      out.push(literal)
+      continue
+    }
+    const home =
+      /^\w+$/.test(member) && depth < 4
+        ? rekaDeclaration(member, module, source)
+        : undefined
+    if (!home) return []
+    // `type X = 'a' | 'b'`, on one line or one member a line; or `enum X { A = 'a' }`.
+    const alias = new RegExp(
+      `\\btype\\s+${member}\\s*=\\s*((?:\\|\\s*)?(?:'[^'\\n]*'|"[^"\\n]*"|\\w+)(?:\\s*\\|\\s*(?:'[^'\\n]*'|"[^"\\n]*"|\\w+))*)`
+    ).exec(home.text)?.[1]
+    const members = new RegExp(`\\benum\\s+${member}\\s*\\{([^}]*)\\}`).exec(
+      home.text
+    )?.[1]
+    const values = alias
+      ? rekaTypeValues(alias, home, source, depth + 1)
+      : [...(members ?? "").matchAll(/=\s*(["'])([^"']+)\1/g)].map(
+          (match) => match[2]!
+        )
+    if (!values.length) return []
+    out.push(...values)
+  }
+  return [...new Set(out)]
+}
+
+/**
+ * The values of a bound `data-state` whose expression returns no literal (KF-115), followed through
+ * what it reads: a context's member (`itemContext.dataState.value`) by the type its context's
+ * interface declares (`dataState: ComputedRef<AccordionItemState>`); a helper or a variable
+ * (`getOpenState(…)`, `state`), wherever it is declared (`@/Menu/utils`), by the type it is created
+ * with (`ref<ResizeHandlerState>(…)`), or else the literals and string enum members it returns.
+ * None when it reads something else.
+ */
+function followedValues(
+  expression: string,
+  file: string,
+  source: string
+): string[] {
+  const module = { file, text: readFileSync(file, "utf8") }
+  const member = /^\s*(\w+)\??\.(\w+)(?:\??\.value)?\s*$/.exec(expression)
+  if (member) {
+    const [, context, key] = member
+    const inject = new RegExp(`\\b${context}\\s*=\\s*(inject\\w+)\\(`).exec(
+      module.text
+    )?.[1]
+    const home = inject ? rekaDeclaration(inject, module, source) : undefined
+    const name =
+      home &&
+      new RegExp(
+        `\\b${inject}\\b[^\\]]*\\]\\s*=\\s*createContext<(\\w+)>`
+      ).exec(home.text)?.[1]
+    const body =
+      name &&
+      new RegExp(`\\binterface\\s+${name}\\b[^{]*\\{([\\s\\S]*?)\\n\\}`).exec(
+        home.text
+      )?.[1]
+    const type =
+      body && new RegExp(`^\\s*${key}\\??:\\s*(.+)$`, "m").exec(body)?.[1]
+    return type ? rekaTypeValues(type, home, source) : []
+  }
+  const name = /^\s*([A-Za-z_]\w*)\s*(?:\(|$|\.value\s*$)/.exec(expression)?.[1]
+  const home = name ? rekaDeclaration(name, module, source) : undefined
+  const body = home && declaredBody(home.text, name!)
+  if (!body) return []
+  const typed = /^[^\n]*?\b(?:ref|shallowRef|computed)<(.+)>\(/.exec(body)?.[1]
+  if (typed) return rekaTypeValues(typed, home, source)
+  const enumMembers = [...body.matchAll(/\b([A-Z]\w*)\.([A-Z]\w*)\b/g)].map(
+    ([, enumName, key]) => {
+      const where = rekaDeclaration(enumName!, home, source)
+      const members = where
+        ? new RegExp(`\\benum\\s+${enumName}\\s*\\{([^}]*)\\}`).exec(
+            where.text
+          )?.[1]
+        : undefined
+      return new RegExp(`\\b${key}\\s*=\\s*(["'])([^"']+)\\1`).exec(
+        members ?? ""
+      )?.[2]
+    }
+  )
+  return [
+    ...new Set([
+      ...valuesIn(body),
+      ...enumMembers.filter((value) => value !== undefined),
+    ]),
+  ]
+}
+
 /**
  * The `data-*` attributes a Reka UI component's template sets, and those of the library's own
- * components it renders the element through: the root (`Presence`), or one an attribute is set on
- * (`<PopperContent :data-state>`, which sets `side` and `align` on the same element).
+ * components it renders the element through: the root (`Presence`), one an attribute is set on
+ * (`<PopperContent :data-state>`, which sets `side` and `align` on the same element), or the one a
+ * component that carries the element renders as its child with `as-child` (`RadioGroupItem`'s
+ * `<RovingFocusItem as-child>` renders `Radio`, KF-115), less what the tag sets on it, which wins.
+ * A bound `data-state` whose values cannot be read stops the generator: Reka always writes it with
+ * a value.
  */
 function rekaAttributes(
   file: string,
@@ -1130,17 +1314,20 @@ function rekaAttributes(
   const out: [string, string[]][] = []
   const tags = [
     ...withoutComments(template).matchAll(
-      /<([A-Za-z][\w-]*)((?:\s+[^\s=>"'/]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*\/?>/g
+      /<([A-Za-z][\w-]*)((?:\s+[^\s=>"'/]+(?:=(?:"[^"]*"|'[^']*'))?)*)\s*(\/?)>/g
     ),
   ]
-  for (const [index, [, tag, attributes]] of tags.entries()) {
-    let carries = index === 0
+  let passed = false
+  for (const [index, [, tag, attributes, closed]] of tags.entries()) {
+    let carries: boolean = index === 0 || passed
+    const set = new Set<string>()
     for (const match of attributes!.matchAll(
       /(?:^|\s)(:|v-bind:)?(data-[a-z][a-z0-9-]*)(?:=(?:"([^"]*)"|'([^']*)'))?/g
     )) {
       const [, bound, attribute, double, single] = match
       if (attribute!.startsWith("data-reka-")) continue
       carries = true
+      set.add(attribute!)
       const value = double ?? single ?? ""
       if (!bound) {
         out.push([attribute!, value ? [value] : []])
@@ -1152,8 +1339,17 @@ function rekaAttributes(
       )?.[1]
       if (values.length === 0 && reference)
         values = valuesIn(helperBody(reference, script, directory))
+      if (values.length === 0 && attribute === "data-state") {
+        values = followedValues(value, file, source)
+        if (values.length === 0)
+          throw new Error(
+            `reka-ui: the values of ${path.relative(source, file)}'s data-state (${value}) are unknown`
+          )
+      }
       out.push([attribute!, values])
     }
+    // An element rendered `as-child` is this one: the first tag inside it carries it too.
+    passed = carries && !closed && /(?:^|\s)as-child(?=\s|$)/.test(attributes!)
     if (!carries || !/^[A-Z]/.test(tag!) || depth >= 3) continue
     const imported = new RegExp(
       `import\\s+(?:${tag}|\\{[^}]*\\b${tag}\\b[^}]*\\})\\s+from\\s+["']([^"']+)["']`
@@ -1174,8 +1370,14 @@ function rekaAttributes(
       : target.endsWith(".vue")
         ? target
         : `${target}.vue`
+    // What a tag sets reaches the component as an attribute, which wins over its own: Rating's
+    // indicator writes `data-state="active"` over the radio item's `checked`.
     if (existsSync(candidate))
-      out.push(...rekaAttributes(candidate, source, depth + 1))
+      out.push(
+        ...rekaAttributes(candidate, source, depth + 1).filter(
+          ([attribute]) => !set.has(attribute)
+        )
+      )
   }
   return out
 }
@@ -1212,11 +1414,30 @@ function rekaUi(): { vocabulary: Vocabulary; version: string } {
           source
         ))
           addState(list, attribute, values)
+      for (const state of list) {
+        const endings = sharedEndings(state.values)
+        if (endings.length) state.endings = endings
+      }
       if (list.length) byPart.set(part, byName(list))
     }
     if (byPart.size) out.set(component, byPart)
   }
   return { vocabulary: sorted(out), version }
+}
+
+/**
+ * The last words two or more values end with when no value is that word alone: `open` for
+ * `delayed-open` and `instant-open`, so a style reads the tooltip open whichever delay opened it.
+ */
+function sharedEndings(values: readonly string[]): string[] {
+  const count = new Map<string, number>()
+  for (const value of values) {
+    const ending = /-([a-z0-9]+)$/.exec(value)?.[1]
+    if (ending) count.set(ending, (count.get(ending) ?? 0) + 1)
+  }
+  return [...count]
+    .filter(([ending, times]) => times > 1 && !values.includes(ending))
+    .map(([ending]) => ending)
 }
 
 // Bits UI ---------------------------------------------------------------------------------------
@@ -1810,20 +2031,23 @@ function stateLines(list: State[], indent: string): string[] {
       continue
     }
     lines.push(`${indent}${state.name}: {`)
+    const keys = new Set<string>()
+    const key = (name: string, selector: string) => {
+      const keyName = /^[A-Za-z_]\w*$/.test(camel(name))
+        ? camel(name)
+        : JSON.stringify(name)
+      if (keys.has(keyName))
+        throw new Error(`${state.attribute} has two keys named ${keyName}`)
+      keys.add(keyName)
+      lines.push(`${indent}  ${keyName}: ${quote(selector)},`)
+    }
     // The attribute's presence beside its values (KF-100), under a key no value takes.
-    if (state.presence) {
-      if (state.values.some((value) => camel(value) === "any"))
-        throw new Error(`${state.attribute} has a value named any`)
-      lines.push(`${indent}  any: ${quote(`[${state.attribute}]`)},`)
-    }
-    for (const value of state.values) {
-      const key = /^[A-Za-z_]\w*$/.test(camel(value))
-        ? camel(value)
-        : JSON.stringify(value)
-      lines.push(
-        `${indent}  ${key}: ${quote(`[${state.attribute}="${value}"]`)},`
-      )
-    }
+    if (state.presence) key("any", `[${state.attribute}]`)
+    // A shared ending, matching each value that ends with it (KF-115).
+    for (const ending of state.endings ?? [])
+      key(ending, `[${state.attribute}$="${ending}"]`)
+    for (const value of state.values)
+      key(value, `[${state.attribute}="${value}"]`)
     lines.push(`${indent}},`)
   }
   return lines

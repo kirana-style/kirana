@@ -22,7 +22,10 @@ export const Accordion = {
   Header: {
     disabled: "[data-disabled]",
     orientation: "[data-orientation]",
-    state: "[data-state]",
+    state: {
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    },
   },
   Item: {
     disabled: "[data-disabled]",
@@ -200,11 +203,13 @@ export const ColorSwatchPicker = {
   },
   Root: {
     disabled: "[data-disabled]",
+    orientation: "[data-orientation]",
   },
 } as const
 
 export const Combobox = {
   Content: {
+    dismissableLayer: "[data-dismissable-layer]",
     empty: "[data-empty]",
     orientation: "[data-orientation]",
     state: {
@@ -312,7 +317,10 @@ export const DateRangeField = {
 export const Dialog = {
   Content: {
     dismissableLayer: "[data-dismissable-layer]",
-    state: "[data-state]",
+    state: {
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    },
   },
   Overlay: {
     state: {
@@ -335,6 +343,12 @@ export const DismissableLayer = {
 } as const
 
 export const Drawer = {
+  Content: {
+    dismissableLayer: "[data-dismissable-layer]",
+  },
+  Popup: {
+    dismissableLayer: "[data-dismissable-layer]",
+  },
   Handle: {
     state: {
       open: '[data-state="open"]',
@@ -519,6 +533,8 @@ export const Menu = {
   },
   Content: {
     align: "[data-align]",
+    dismissableLayer: "[data-dismissable-layer]",
+    orientation: "[data-orientation]",
     side: "[data-side]",
     state: {
       open: '[data-state="open"]',
@@ -547,6 +563,8 @@ export const Menu = {
   },
   Root: {
     align: "[data-align]",
+    dismissableLayer: "[data-dismissable-layer]",
+    orientation: "[data-orientation]",
     side: "[data-side]",
     state: {
       open: '[data-state="open"]',
@@ -785,6 +803,7 @@ export const PinInput = {
 export const Popover = {
   Content: {
     align: "[data-align]",
+    dismissableLayer: "[data-dismissable-layer]",
     side: "[data-side]",
     state: {
       open: '[data-state="open"]',
@@ -809,7 +828,11 @@ export const Popper = {
 export const Progress = {
   Indicator: {
     max: "[data-max]",
-    state: "[data-state]",
+    state: {
+      indeterminate: '[data-state="indeterminate"]',
+      loading: '[data-state="loading"]',
+      complete: '[data-state="complete"]',
+    },
     value: "[data-value]",
   },
   Root: {
@@ -835,6 +858,10 @@ export const RadioGroup = {
     active: "[data-active]",
     disabled: "[data-disabled]",
     orientation: "[data-orientation]",
+    state: {
+      checked: '[data-state="checked"]',
+      unchecked: '[data-state="unchecked"]',
+    },
   },
   Root: {
     disabled: "[data-disabled]",
@@ -1025,7 +1052,11 @@ export const Splitter = {
       keyboard: '[data-resize-handle-active="keyboard"]',
     },
     resizeHandleState: "[data-resize-handle-state]",
-    state: "[data-state]",
+    state: {
+      drag: '[data-state="drag"]',
+      hover: '[data-state="hover"]',
+      inactive: '[data-state="inactive"]',
+    },
   },
 } as const
 
@@ -1047,12 +1078,20 @@ export const Stepper = {
     orientation: {
       horizontal: '[data-orientation="horizontal"]',
     },
-    state: "[data-state]",
+    state: {
+      completed: '[data-state="completed"]',
+      active: '[data-state="active"]',
+      inactive: '[data-state="inactive"]',
+    },
   },
   Trigger: {
     disabled: "[data-disabled]",
     orientation: "[data-orientation]",
-    state: "[data-state]",
+    state: {
+      completed: '[data-state="completed"]',
+      active: '[data-state="active"]',
+      inactive: '[data-state="inactive"]',
+    },
   },
 } as const
 
@@ -1197,6 +1236,16 @@ export const Toggle = {
   },
 } as const
 
+export const ToggleGroup = {
+  Item: {
+    disabled: "[data-disabled]",
+    state: {
+      on: '[data-state="on"]',
+      off: '[data-state="off"]',
+    },
+  },
+} as const
+
 export const Toolbar = {
   Button: {
     active: "[data-active]",
@@ -1223,6 +1272,10 @@ export const Toolbar = {
     active: "[data-active]",
     disabled: "[data-disabled]",
     orientation: "[data-orientation]",
+    state: {
+      on: '[data-state="on"]',
+      off: '[data-state="off"]',
+    },
   },
 } as const
 
@@ -1231,11 +1284,21 @@ export const Tooltip = {
     align: "[data-align]",
     dismissableLayer: "[data-dismissable-layer]",
     side: "[data-side]",
-    state: "[data-state]",
+    state: {
+      open: '[data-state$="open"]',
+      closed: '[data-state="closed"]',
+      delayedOpen: '[data-state="delayed-open"]',
+      instantOpen: '[data-state="instant-open"]',
+    },
   },
   Trigger: {
     graceAreaTrigger: "[data-grace-area-trigger]",
-    state: "[data-state]",
+    state: {
+      open: '[data-state$="open"]',
+      closed: '[data-state="closed"]',
+      delayedOpen: '[data-state="delayed-open"]',
+      instantOpen: '[data-state="instant-open"]',
+    },
   },
 } as const
 

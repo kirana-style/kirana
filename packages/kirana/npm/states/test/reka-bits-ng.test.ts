@@ -74,6 +74,44 @@ describe("@kirana-style/states for Vue, Svelte and Angular libraries", () => {
     )
     // An attribute set by the component the part renders through (`PopperContent`).
     expect(reka.Popover.Content.side).toBe("[data-side]")
+    // Values the code computes, followed through what the template reads (KF-115): the component
+    // a part renders inside `as-child` (`Radio`), a context's member by its declared type, a helper
+    // imported from another component (`getOpenState`), an enum, a `ref<…>`'s type.
+    expect(reka.RadioGroup.Item.state).toEqual({
+      checked: '[data-state="checked"]',
+      unchecked: '[data-state="unchecked"]',
+    })
+    for (const part of [reka.Tooltip.Content, reka.Tooltip.Trigger])
+      expect(part.state).toEqual({
+        open: '[data-state$="open"]',
+        closed: '[data-state="closed"]',
+        delayedOpen: '[data-state="delayed-open"]',
+        instantOpen: '[data-state="instant-open"]',
+      })
+    expect(reka.Dialog.Content.state).toEqual({
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    })
+    expect(reka.Accordion.Header.state).toEqual({
+      open: '[data-state="open"]',
+      closed: '[data-state="closed"]',
+    })
+    expect(reka.Progress.Indicator.state).toEqual({
+      indeterminate: '[data-state="indeterminate"]',
+      loading: '[data-state="loading"]',
+      complete: '[data-state="complete"]',
+    })
+    expect(reka.Splitter.ResizeHandle.state).toEqual({
+      drag: '[data-state="drag"]',
+      hover: '[data-state="hover"]',
+      inactive: '[data-state="inactive"]',
+    })
+    for (const part of [reka.Stepper.Separator, reka.Stepper.Trigger])
+      expect(part.state).toEqual({
+        completed: '[data-state="completed"]',
+        active: '[data-state="active"]',
+        inactive: '[data-state="inactive"]',
+      })
     expect(bits.Popover.Content.state.open).toBe('[data-state="open"]')
     expect(bits.Popover.Content.startingStyle).toBe("[data-starting-style]")
     // Angular Primitives' interactions, which `ngpInteractions()` turns on.
@@ -161,10 +199,13 @@ describe("@kirana-style/states for Vue, Svelte and Angular libraries", () => {
 
   it("compiles as condition keys", () => {
     const thumb = css({
-      opacity: { [reka.Switch.Root.state.checked]: 1 },
+      opacity: {
+        [reka.Switch.Root.state.checked]: 1,
+        [reka.Tooltip.Content.state.open]: 1,
+      },
       color: { [bits.Switch.Root.state.checked]: "red" },
       translate: { [ng.Switch.Root.checked]: "1rem" },
     })
-    expect(String(thumb)).toMatch(/^k\S+( k\S+){2}$/)
+    expect(String(thumb)).toMatch(/^k\S+( k\S+){3}$/)
   })
 })
