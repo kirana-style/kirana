@@ -730,6 +730,75 @@ describe("configs under ESLint", () => {
       "kirana/sx-last",
     ])
   })
+
+  // KF-116: ESLint's component parser hands a rule the whole file, markup and all, where oxlint
+  // hands it one script block (KF-034). Each block is compiled as its module, and what the compiler
+  // reports sits at its place in the file.
+  it("reads a Vue file's script blocks through vue-eslint-parser", async () => {
+    const { expect } = await import("vite-plus/test")
+    const { readFileSync } = await import("node:fs")
+    const { Linter } = await import("eslint")
+    const parser = await import("vue-eslint-parser")
+    const linter = new Linter({ configType: "flat" })
+    const config = [
+      {
+        files: ["**/*.vue"],
+        ...plugin.configs.strict,
+        languageOptions: { parser },
+      },
+    ]
+    const lint = (name: string, code?: string) =>
+      linter
+        .verify(
+          code ?? readFileSync(path.join(project, name), "utf8"),
+          config as never,
+          path.join(project, name)
+        )
+        .map(({ ruleId, line, column, message }) => ({
+          ruleId,
+          line,
+          column,
+          message,
+        }))
+    // `defineOptions({ inheritAttrs: false })` is no parse error, `useSx()`'s `sx` is applied in the
+    // template, and the relation is anchored there (KF-090).
+    expect(lint("Button.vue")).toEqual([])
+    expect(lint("Tree.vue")).toEqual([])
+    expect(
+      lint("Template.vue", "<template>\n  <p>t</p>\n</template>\n")
+    ).toEqual([])
+    const probe = [
+      "<template>",
+      '  <p title="✓" :sx="[é, other]" @click="(a, b)">é</p>',
+      "</template>",
+      "",
+      '<script lang="ts">',
+      'export const ü = "✓"',
+      "</script>",
+      "",
+      '<script setup lang="ts">',
+      'import { css } from "@kirana-style/core"',
+      "",
+      'const é = css({ display: "grid", colour: "red" })',
+      'const other = css({ wat: "x" })',
+      "</script>",
+      "",
+    ].join("\n")
+    expect(lint("Probe.vue", probe)).toEqual([
+      {
+        ruleId: "kirana/diagnostics",
+        line: 12,
+        column: 34,
+        message: "colour is not a CSS property (unknown-property).",
+      },
+      {
+        ruleId: "kirana/diagnostics",
+        line: 13,
+        column: 21,
+        message: "wat is not a CSS property (unknown-property).",
+      },
+    ])
+  })
 })
 
 const RULES = {

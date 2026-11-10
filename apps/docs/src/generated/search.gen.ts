@@ -5300,7 +5300,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Lint",
     "section": "tooling",
     "heading": "diagnostics",
-    "text": "Every compiler diagnostic , at the property it is about, so a CI that only lints still fails on what the build would report. A Vue, Svelte, Astro or Angular component's script is compiled as the build compiles it, so a relation's anchor applied only in its template counts. Warnings and errors by default; adds the informational ones and drops names."
+    "text": "Every compiler diagnostic , at the property it is about, so a CI that only lints still fails on what the build would report. A Vue, Svelte, Astro or Angular component's script is compiled as the build compiles it, so a relation's anchor applied only in its template counts. Warnings and errors by default; adds the informational ones and drops names. Oxlint hands the rule a component's script blocks one at a time, and the frameworks' ESLint parsers ( and its Svelte and Astro counterparts) hand it the whole file. Either way each script block is compiled as its own module, and a diagnostic is reported at its line in the file."
   },
   {
     "id": "/docs/tooling/lint#sx-last",

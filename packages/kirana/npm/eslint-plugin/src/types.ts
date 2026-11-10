@@ -39,6 +39,8 @@ export type Context = {
     ast: Node
     getText: (node?: Node) => string
     getLocFromIndex: (index: number) => Location
+    /** What the parser adds (ESLint's component parsers: `vue-eslint-parser` and the like). */
+    parserServices?: Record<string, unknown>
   }
   report: (report: Report) => void
 }

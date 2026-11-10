@@ -53,5 +53,11 @@ marked `off` are a project's own policy, in neither config; turn them on by name
 }
 ```
 
+<!-- consistency: subset -->
+
+In a Vue, Svelte or Astro file, Oxlint hands a rule one script block at a time and the frameworks'
+ESLint parsers (`vue-eslint-parser` and the like) the whole file; either way each script block is
+compiled as the build compiles it, and a diagnostic is reported at its line in the file.
+
 Biome cannot run JavaScript rules; [`@kirana-style/biome-plugin`](../biome-plugin) carries the rules
 that need no compiler as GritQL plugins.

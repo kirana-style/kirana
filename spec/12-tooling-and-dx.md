@@ -429,7 +429,10 @@ The candidate rules were decided at M3 (D-063): unused handles and variants are 
 `className` reaching an `sx` component is `no-classname-on-sx`; restricted overrides are a type-level
 feature, not a rule, and the contextual-rule report stays in the codemod. The project root is the
 nearest `kirana.config.*` above the linted file, or `settings.kirana.root`. Results are identical under
-Oxlint and ESLint, reports and fixes alike (`npm/eslint-plugin/test/parity.test.ts`). The two rules
+Oxlint and ESLint, reports and fixes alike (`npm/eslint-plugin/test/parity.test.ts`). In a Vue, Svelte
+or Astro component, Oxlint hands a rule one script block and ESLint's component parsers
+(`vue-eslint-parser`, `svelte-eslint-parser`, `astro-eslint-parser`) the whole file; each script block
+is compiled as its own module either way and reported at its place in the file (KF-116). The two rules
 marked `off` encode a project's own policy and are in neither preset (D-093).
 
 **Biome.** `@kirana-style/biome-plugin` MUST carry, as Biome GritQL plugins, the rules that need no compiler:

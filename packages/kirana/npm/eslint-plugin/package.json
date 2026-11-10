@@ -34,6 +34,7 @@
     "@kirana-style/compiler": "workspace:*"
   },
   "devDependencies": {
-    "eslint": "catalog:"
+    "eslint": "catalog:",
+    "vue-eslint-parser": "catalog:"
   }
 }
