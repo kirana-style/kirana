@@ -154,6 +154,13 @@ so a relation's anchor applied only in its template counts.
 Warnings and errors by default; `{ "minimum": "info" }` adds the informational ones
 and `{ "ignore": ["unresolved-import"] }` drops names.
 
+<!-- consistency: subset -->
+
+Oxlint hands the rule a component's script blocks one at a time, and the
+frameworks' ESLint parsers (`vue-eslint-parser` and its Svelte and Astro
+counterparts) hand it the whole file. Either way each script block is compiled as
+its own module, and a diagnostic is reported at its line in the file.
+
 ### `sx-last`
 
 A component that forwards its caller's `sx` must put it last, or the styles after
