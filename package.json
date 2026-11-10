@@ -76,7 +76,7 @@
       "vue-eslint-parser": "^10.4.2",
       "@biomejs/biome": "2.6.6",
       "@vitest/coverage-v8": "5.1.0",
-      "@napi-rs/cli": "^3.10.9",
+      "@napi-rs/cli": "^3.10.12",
       "motion": "^14.12.0",
       "playwright": "1.65.0",
       "input-otp": "^1.5.0",
