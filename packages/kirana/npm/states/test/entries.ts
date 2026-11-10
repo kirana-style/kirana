@@ -26,6 +26,9 @@ export function entries(vocabulary: Record<string, unknown>) {
   return out
 }
 
-/** An attribute's presence or value, or React Aria's `:not([aria-valuenow])`. */
+/**
+ * An attribute's presence, value or value's ending (Reka UI's `[data-state$="open"]`, KF-115), or
+ * React Aria's `:not([aria-valuenow])`.
+ */
 export const SELECTOR =
-  /^(?:\[(?:data|aria)-[a-z]+(?:-[a-z]+)*(?:="[^"]+")?\]|:not\(\[aria-[a-z]+\]\))$/
+  /^(?:\[(?:data|aria)-[a-z]+(?:-[a-z]+)*(?:\$?="[^"]+")?\]|:not\(\[aria-[a-z]+\]\))$/

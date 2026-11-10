@@ -219,6 +219,66 @@ describe("every component that writes a state has a vocabulary", () => {
     expect(missing).toEqual([])
   })
 
+  it("Reka UI, with every value its parts write in data-state (KF-115)", () => {
+    const source = path.join(packageOf("reka-ui"), "src")
+    const vocabulary = reka as unknown as Record<
+      string,
+      Record<string, Record<string, unknown>>
+    >
+    // The values a file's template writes in `data-state`: a static one, and the literals of a
+    // bound expression (`checked ? 'checked' : 'unchecked'`) but those it compares with.
+    const written = (file: string) =>
+      [
+        ...readFileSync(file, "utf8").matchAll(/\s(:?)data-state="([^"]*)"/g),
+      ].flatMap(([, bound, value]) =>
+        bound
+          ? [...value!.matchAll(/(?<![=!]=\s*)'([a-z][a-z-]*)'/g)].map(
+              ([, literal]) => literal!
+            )
+          : [value!]
+      )
+    const bare: string[] = []
+    const lacking: string[] = []
+    for (const component of readdirSync(source)) {
+      const folder = path.join(source, component)
+      const index = path.join(folder, "index.ts")
+      if (!existsSync(index)) continue
+      const exported = [
+        ...readFileSync(index, "utf8").matchAll(
+          /default as (\w+)[^}]*\}\s*from\s*["']\.\/(\w+)\.vue["']/g
+        ),
+      ].map(([, name, file]) => ({ name: name!, file: file! }))
+      const vue = readdirSync(folder).filter((entry) => entry.endsWith(".vue"))
+      for (const { name, file } of exported) {
+        if (!name.startsWith(component)) continue
+        const part = name === component ? "Root" : name.slice(component.length)
+        const text = readFileSync(path.join(folder, `${file}.vue`), "utf8")
+        // The part's file, its internal variants (`TooltipContentImpl`) and the components beside
+        // it that it imports (`RadioGroupItem` renders `Radio`).
+        const rendered = vue.filter(
+          (entry) =>
+            entry === `${file}.vue` ||
+            (entry.startsWith(file) &&
+              !exported.some((other) => `${other.file}.vue` === entry)) ||
+            new RegExp(`import \\w+ from '\\./${entry}'`).test(text)
+        )
+        const values = new Set(
+          rendered.flatMap((entry) => written(path.join(folder, entry)))
+        )
+        const state = vocabulary[component]?.[part]?.state
+        if (typeof state === "string") bare.push(`${component}.${part}`)
+        const selectors = Object.values(
+          typeof state === "object" && state !== null ? state : {}
+        )
+        for (const value of values)
+          if (!selectors.includes(`[data-state="${value}"]`))
+            lacking.push(`${component}.${part}: ${value}`)
+      }
+    }
+    // Reka never writes `data-state` empty: a part with the state has its values.
+    expect({ bare, lacking }).toEqual({ bare: [], lacking: [] })
+  })
+
   it("Angular Primitives, by the directives that bind a state (KF-099)", () => {
     const modules = path.join(packageOf("ng-primitives"), "fesm2022")
     // The entry points that hold the library's machinery rather than components.

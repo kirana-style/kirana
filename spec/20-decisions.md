@@ -1529,7 +1529,8 @@ the implementation tracker names its evidence.
 - **Status:** Accepted (2026-10-24). Amended 2026-11-04 for KF-099: Angular Primitives' host bindings;
   2026-11-05 for KF-100: a binding's values from the type it reads; 2026-11-09 for KF-102: a part
   has the states of what it composes; 2026-11-09 for KF-100 and KF-102: a state written both empty
-  and with a value has `any`, and what the portal writes with `setAttribute` is read.
+  and with a value has `any`, and what the portal writes with `setAttribute` is read; 2026-11-10 for
+  KF-115: Reka UI's `data-state` followed to its values, and a key for values that end alike.
 - **Decision:** `@kirana-style/states` adds Reka UI, Bits UI and Angular Primitives, generated like the
   others by `gen-states.ts` from the pinned packages, but read from their code: Reka UI's shipped
   templates, Bits UI's state classes' `props` types, Angular Primitives' `dataBinding` calls and the
@@ -1559,7 +1560,20 @@ the implementation tracker names its evidence.
   an element set, and what the overlay sets on its portal's elements (`data-instant`), go to the parts
   a portal renders: an overlay's content, the part that places itself where the overlay positions it
   (`overlay.position()`), and a toast, which registers itself through the hook its portal is created
-  with. The generator stops when the portal no longer writes them.
+  with. The generator stops when the portal no longer writes them. Reka UI writes `data-state`
+  always with a value, so a binding that returns no literal is followed to what it reads: a helper or
+  a variable wherever it is declared (`getOpenState` from `@/Menu/utils`), by the type it is created
+  with (`ref<ResizeHandlerState>(…)`) or the literals and string enum members it returns, and a
+  context's member (`itemContext.dataState.value`) by the type its context's interface declares,
+  through aliases and enums (`Ref<StepperState>`); a `data-state` none of these reads stops the
+  generator. A part's element is also the one a component it renders as itself passes on with
+  `as-child` (`RadioGroupItem`'s `<RovingFocusItem as-child>` renders `Radio`), and an attribute a
+  tag sets on a component wins over the component's own, as Vue's fallthrough does (Rating's
+  indicator writes `data-state="active"` over the radio item's `checked`). Values that end in the
+  same word, two or more where none is the word itself, add a key for that word matching each by its
+  ending: the tooltip writes `delayed-open` or `instant-open`, so `Tooltip.Content.state.open` is
+  `[data-state$="open"]`, the one key Reka does not write literally. Other attributes keep a value
+  only from a literal (`orientation` from a context stays a presence).
 - **Rationale:** the three document their states only in prose on their sites, so there is no
   declaration to read as there is for Base UI, Zag and React Aria; the code is what sets the attributes,
   pinned and regenerated in CI like the rest.

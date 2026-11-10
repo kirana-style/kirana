@@ -105,6 +105,14 @@ They differ where the libraries do:
   prose, so their vocabularies are read from the code the packages ship, with
   no descriptions. A value the code computes rather than writes, such as Reka
   UI's `side`, is its attribute's presence.
+- **Reka UI's `state`** is never a bare presence: Reka always writes it with a
+  value, so each part has a key per value, also where the code computes it:
+  - through the helper or the context the part reads, as
+    `Progress.Indicator.state.loading` and `Dialog.Content.state.open`;
+  - through the component a part renders its element with, as
+    `RadioGroup.Item.state.checked` from the radio inside it;
+  - the tooltip's content and trigger write `delayed-open` or `instant-open`
+    as they open, and share `open`, `[data-state$="open"]`, matching either.
 - **Angular Primitives** keys the primitive named for its component
   (`ngpPopover`) as `Root`, and lists the interactions a primitive turns on
   (hover, press, focus) as its states. Two directives, Combobox and Toast, bind
@@ -150,6 +158,7 @@ They differ where the libraries do:
 | Present or absent         | `Switch.Root.checked`         | `[data-checked]`             |
 | One of a set of values    | `Select.Popup.side.inlineEnd` | `[data-side="inline-end"]`   |
 | Present with any value    | `Button.Root.disabled.any`    | `[data-disabled]`            |
+| Values that end alike     | `Tooltip.Content.state.open`  | `[data-state$="open"]`       |
 | Free text or a number     | `Accordion.Item.index`        | `[data-index]`, its presence |
 | A component without parts | `Toggle.pressed`              | `[data-pressed]`             |
 
