@@ -112,6 +112,7 @@ export function QuickStart({
   href = "/docs/start/quick-start",
   children = "Quick start",
   hideOnPhone = false,
+  hue = "scene",
   sx,
   chipSx,
 }: {
@@ -120,6 +121,11 @@ export function QuickStart({
   children?: ReactNode
   /** Hidden below `sm`, as in the header. */
   hideOnPhone?: boolean
+  /**
+   * The chip's hue: the page's scene's, or the accent already around the pill (`"around"`), as in
+   * the docs bar, where each tab wears its own.
+   */
+  hue?: "scene" | "around"
   sx?: Sx
   /** The chip's colours, where the ground needs others (the closing section's night). */
   chipSx?: Sx
@@ -142,7 +148,7 @@ export function QuickStart({
       {children}
       <span
         sx={[
-          accents[SCENES[scene].hue],
+          hue === "scene" && accents[SCENES[scene].hue],
           styles.chip,
           size === "sm" ? styles.chipSm : styles.chipLg,
           chipSx,
