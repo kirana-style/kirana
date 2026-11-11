@@ -19,11 +19,11 @@ use crate::style::{Parts, Strings};
 impl<'a> Evaluator<'_, 'a, '_> {
     pub(crate) fn api_call(&self, api: Api, call: &CallExpression<'a>) -> Value {
         let span = sp(call.span);
-        // `css()` evaluates its arguments only when the session has not compiled the same call:
-        // a style written out in full is answered before any of them is needed (KF-059).
-        let arguments = if api == Api::Css { Vec::new() } else { self.arguments(call) };
+        // `css()` and `recipe()` evaluate their arguments only when the session has not compiled the
+        // same call: a style written out in full is answered before any of them is needed (KF-059).
+        let arguments = if matches!(api, Api::Css | Api::Recipe) { Vec::new() } else { self.arguments(call) };
         match api {
-            Api::Css => self.literal_style(call, || {
+            Api::Css => self.literal_style(api, call, &|| {
                 let arguments = self.arguments(call);
                 // A handle an argument passes claims its attributes for every style object of the
                 // call (KF-044); the call's own handle carries them on.
@@ -49,7 +49,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
             }
             Api::Props => Value::Dynamic(Arc::new(Dynamic::Open(span))),
             Api::Own => self.own(&arguments, span),
-            Api::Recipe => self.recipe(&arguments, span),
+            Api::Recipe => self.literal_style(api, call, &|| self.recipe(&self.arguments(call), span)),
             Api::Relation => match arguments.as_slice() {
                 [(Value::Str(name), _), rest @ ..] => {
                     // `{ optional: true }`: a reader may be installed without the anchor's component,

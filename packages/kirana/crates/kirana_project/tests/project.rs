@@ -1326,8 +1326,9 @@ fn a_style_written_out_in_full_compiles_once_a_session() {
         a_class.lines().next().unwrap().replace("const a", ""),
         b_class.lines().next().unwrap().replace("const b", "")
     );
-    // Each of these compiles where it is written: a report keeps its place, a name is read, a
-    // spread or a computed key is evaluated, a variable's emitted name is looked up.
+    // Each of these compiles where it is written: a report keeps its place, a spread, an operator
+    // or a global is evaluated, a variable's emitted name is looked up. A binding read and a
+    // computed key are kept too, each written once here (KF-082).
     let others = format!(
         "import {{ css }} from \"@kirana-style/core\"\nconst hover = \":hover\"\nconst more = {{ color: \"blue\" }}\nexport const d = css({{ colr: \"red\" }})\nexport const e = css({{ colr: \"red\" }})\nexport const f = css({{ color: hover }})\nexport const g = css({{ ...more }})\nexport const h = css({{ color: {{ [hover]: \"red\" }} }})\nexport const i = css({{ gap: \"var({variable})\" }})\nexport const j = css({{ gap: \"var({variable})\" }})\nexport const k = css(...[more])\nexport const l = css({{ m() {{ return 1 }} }})\nexport const m = css({{ get n() {{ return 1 }} }})\nexport const n = css({{ color }})\nexport const o = css({{ margin: -hover }})\nexport const p = css({{ [\"color\"]: \"red\" }})\n"
     );
@@ -1343,6 +1344,57 @@ fn a_style_written_out_in_full_compiles_once_a_session() {
     assert_eq!(styles(&project), 2);
     compile("e.ts", &a);
     assert_eq!(styles(&project), 3);
+    fs::remove_dir_all(root).unwrap();
+}
+
+/// A style that reads tokens from another module compiles once a session while they hold the
+/// values it compiled with (KF-082), and so does a recipe: an edit of the module's comment answers
+/// both from the session. The module still depends on the tokens' module, which an edit there
+/// compiles again with the new value. The same source reading other values compiles on its own.
+#[test]
+fn a_style_reading_tokens_compiles_once_while_they_hold() {
+    let tokens = |red: &str| {
+        format!(
+            "import {{ defineTokens }} from \"@kirana-style/core\"\nexport const color = defineTokens(\"color\", {{ red: {{ 500: \"{red}\" }}, blue: {{ 500: \"#00f\" }} }})\n"
+        )
+    };
+    let reads = |dark: &str, edit: &str| {
+        format!(
+            "import {{ css, recipe }} from \"@kirana-style/core\"\nimport {{ color }} from \"./tokens\"\nconst dark = \"{dark}\"\nexport const a = css({{ color: color.red[500], borderColor: color.blue[\"500\"], backgroundColor: {{ base: color.red[500], [dark]: color.blue[500] }} }})\nexport const r = recipe({{ base: {{ color: color.red[500] }}, variants: {{ tone: {{ blue: {{ color: color.blue[500] }} }} }} }})\n// {edit}\n"
+        )
+    };
+    let (root, project) = temp_project(&[("package.json", "{\"name\":\"app\"}"), ("tokens.ts", &tokens("#f00"))]);
+    let (a, b) = (root.join("a.ts"), root.join("b.ts"));
+    let styles = |project: &Project| project.work().styles;
+    let print = "@media print";
+    let first = project.transform(&a, &reads(print, "1"));
+    assert_eq!(first.diagnostics, []);
+    assert_eq!(styles(&project), 0);
+    // An edit elsewhere in the module: the style and the recipe answered, the output the same.
+    let second = project.transform(&a, &reads(print, "2"));
+    assert_eq!(styles(&project), 2);
+    assert_eq!(first.code.unwrap().replace("// 1", ""), second.code.unwrap().replace("// 2", ""));
+    // Answered, the module still read the tokens: an edit there compiles it again.
+    fs::write(root.join("tokens.ts"), tokens("#0f0")).unwrap();
+    assert_eq!(project.invalidate(&root.join("tokens.ts")), std::slice::from_ref(&a));
+    project.transform(&a, &reads(print, "3"));
+    assert_eq!(styles(&project), 2);
+    let sheet = project.stylesheet(false);
+    assert!(sheet.contains("#0f0") && !sheet.contains("#f00"), "{sheet}");
+    // The same source, with its own `dark`: the style compiled, under its own condition, and kept
+    // in place of the other's; the recipe, which reads only the tokens, answered.
+    project.transform(&b, &reads("@media screen", "3"));
+    assert_eq!(styles(&project), 3);
+    assert!(project.stylesheet(false).contains("@media screen"));
+    project.transform(&b, &reads("@media screen", "4"));
+    assert_eq!(styles(&project), 5);
+    // A binding known only at runtime, a member of a literal and a key computed by an operator
+    // compile where they are written.
+    let others = "import { css } from \"@kirana-style/core\"\nimport { color } from \"./tokens\"\nconst pick = Math.random() > 0.5 ? \"red\" : \"blue\"\nexport const c = css({ color: pick })\nexport const d = css({ opacity: [1][0] })\nexport const e = css({ color: color.red[400 + 100] })\nexport const f = css({ [\"col\" + \"or\"]: \"red\" })\n";
+    for _ in 0..2 {
+        project.transform(&root.join("c.ts"), others);
+    }
+    assert_eq!(styles(&project), 5);
     fs::remove_dir_all(root).unwrap();
 }
 

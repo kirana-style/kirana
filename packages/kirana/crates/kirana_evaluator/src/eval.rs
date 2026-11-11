@@ -26,32 +26,58 @@ use crate::{Context, Definitions, Host, ImportName, ops};
 
 const MAX_DEPTH: u32 = 64;
 
-/// Whether an expression is written out in full: strings, numbers, `null`, and objects of them
-/// under plain keys, with no name, call, spread or computed key to evaluate.
-fn literal(expression: &Expression<'_>) -> bool {
+/// Whether an expression is written out in full but for the bindings it reads: strings, numbers,
+/// `null`, and objects of them, under plain keys or computed ones written out the same way. A
+/// binding (`dark`), or a member of one read with written-out keys (`color.red[500]`, `space[4]`),
+/// adds the binding to `roots`, whose values the style cache compares (KF-082). No call, spread,
+/// operator or template expression: what those evaluate to depends on more than the bindings.
+fn written_out<'e, 'a>(expression: &'e Expression<'a>, roots: &mut Vec<&'e IdentifierReference<'a>>) -> bool {
     match expression {
         Expression::StringLiteral(_) | Expression::NumericLiteral(_) | Expression::NullLiteral(_) => true,
         Expression::TemplateLiteral(template) => template.expressions.is_empty(),
         Expression::UnaryExpression(unary) => {
             unary.operator == UnaryOperator::UnaryNegation && matches!(unary.argument, Expression::NumericLiteral(_))
         }
+        Expression::Identifier(identifier) => {
+            roots.push(identifier);
+            true
+        }
+        Expression::StaticMemberExpression(member) => bound_read(&member.object, roots),
+        Expression::ComputedMemberExpression(member) => {
+            bound_read(&member.object, roots) && written_out(&member.expression, roots)
+        }
         Expression::ObjectExpression(object) => object.properties.iter().all(|property| match property {
             ObjectPropertyKind::ObjectProperty(property) => {
                 property.kind == PropertyKind::Init
                     && !property.method
-                    && !property.shorthand
-                    && matches!(
-                        property.key,
+                    && match &property.key {
                         PropertyKey::StaticIdentifier(_)
-                            | PropertyKey::StringLiteral(_)
-                            | PropertyKey::NumericLiteral(_)
-                    )
-                    && literal(&property.value)
+                        | PropertyKey::StringLiteral(_)
+                        | PropertyKey::NumericLiteral(_) => true,
+                        key => key.as_expression().is_some_and(|key| written_out(key, roots)),
+                    }
+                    && written_out(&property.value, roots)
             }
             ObjectPropertyKind::SpreadProperty(_) => false,
         }),
         _ => false,
     }
+}
+
+/// Whether the object of a member read is a binding, or a member of one, read with written-out keys.
+fn bound_read<'e, 'a>(object: &'e Expression<'a>, roots: &mut Vec<&'e IdentifierReference<'a>>) -> bool {
+    matches!(
+        object,
+        Expression::Identifier(_) | Expression::StaticMemberExpression(_) | Expression::ComputedMemberExpression(_)
+    ) && written_out(object, roots)
+}
+
+/// Whether a binding holds the value a cached style was compiled with: the same allocation (a
+/// module's export is one value for as long as its exports stay cached, so a preset's token group
+/// is compared without walking it), or equal contents (a binding of the module itself is
+/// evaluated again by each transform).
+fn same(bound: &Value, kept: &Value) -> bool {
+    matches!((bound, kept), (Value::Object(a), Value::Object(b)) if Arc::ptr_eq(a, b)) || bound == kept
 }
 
 /// Why a string is not evaluated: oxc keeps a lone surrogate (`"\uD800"`) as written, and no CSS
@@ -164,6 +190,10 @@ pub struct Evaluator<'p, 'a, 'c> {
     /// Reports made, a repeat that only counts (`report_repeated`) included: a style that reported
     /// anything is never answered from the session (KF-059).
     reports: Cell<usize>,
+    /// Texts found naming a definition by its emitted name (`var(--kv…)`, a keyframes name):
+    /// compiled through one, a style depends on what that definition declares now, so it is never
+    /// answered from the session either (KF-082).
+    pub(crate) named: Cell<usize>,
     /// A report made once per key in the module (KF-093): the diagnostic's index and the places of
     /// every occurrence.
     repeated: RefCell<Repeated>,
@@ -242,6 +272,7 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             runtime_objects: RefCell::default(),
             diagnostics: RefCell::default(),
             reports: Cell::new(0),
+            named: Cell::new(0),
             repeated: RefCell::default(),
             definitions: RefCell::default(),
             depth: Cell::new(0),
@@ -267,29 +298,77 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
         value
     }
 
-    /// The value of a `css()` call whose arguments are written out in full, from the session when
-    /// the same source compiled before (KF-059): such a style compiles the same wherever it is
-    /// written. A call that reports anything, or names a token or rule by its emitted name, is
-    /// compiled each time, so its diagnostics keep their place and its rules stay current.
+    /// The value of a `css()` or `recipe()` call whose arguments are written out in full, from the
+    /// session when the same source compiled before (KF-059): such a style compiles the same
+    /// wherever it is written. Arguments may read bindings (`color.red[500]`, KF-082): the cache
+    /// keeps the values they held and compiles again when one differs. Each binding is read here
+    /// either way, so an import still makes its module a dependency of this one. A call that
+    /// reports anything, or names a token or rule by its emitted name in its source or in a value
+    /// it reads (a variable token's `var(--kv…)`), is compiled each time, so its diagnostics keep
+    /// their place and it reads what the definition declares now.
     pub(crate) fn literal_style(
         &self,
+        api: Api,
         call: &oxc_ast::ast::CallExpression<'a>,
-        compile: impl FnOnce() -> Value,
+        compile: &dyn Fn() -> Value,
     ) -> Value {
         let (Some(first), Some(last)) = (call.arguments.first(), call.arguments.last()) else { return compile() };
         let source = &self.parsed.source[first.span().start as usize..last.span().end as usize];
-        let written_out = call.arguments.iter().all(|argument| argument.as_expression().is_some_and(literal));
-        if !written_out || !self.deps_in(source).is_empty() {
+        let mut roots = Vec::new();
+        let written = call
+            .arguments
+            .iter()
+            .all(|argument| argument.as_expression().is_some_and(|argument| written_out(argument, &mut roots)));
+        if !written || !self.deps_in(source).is_empty() {
             return compile();
         }
-        let key = format!("{}{}\0{source}", self.ctx.names.prefix, u8::from(self.ctx.names.mark));
-        if let Some(value) = self.host.cached_style(&key) {
-            return value;
+        let mut names: Vec<&str> = Vec::new();
+        let mut bound: Vec<Value> = Vec::new();
+        for root in roots {
+            if names.contains(&root.name.as_str()) {
+                continue;
+            }
+            // Static, or `Dynamic` with whatever it reports reported: a binding's static check is
+            // made once per module, not again over a preset's whole token group.
+            let value = self.identifier(root);
+            if matches!(value, Value::Dynamic(_)) {
+                return compile();
+            }
+            names.push(root.name.as_str());
+            bound.push(value);
         }
-        let (reported, held) = (self.reports.get(), self.held.borrow().len());
+        let mut key = String::with_capacity(self.ctx.names.prefix.len() + source.len() + 3);
+        key.push_str(&self.ctx.names.prefix);
+        key.push(if self.ctx.names.mark { '1' } else { '0' });
+        key.push(if api == Api::Recipe { 'r' } else { 'c' });
+        key.push('\0');
+        key.push_str(source);
+        // Kept as the compiled value when the arguments read no binding, else as an array of it and
+        // the bindings' values in the order the source reads them: the source, which is the key,
+        // decides which.
+        if let Some(kept) = self.host.cached_style(&key) {
+            let answer = match &kept {
+                Value::Array(entry) if entry[1..].iter().zip(&bound).all(|(kept, bound)| same(bound, kept)) => {
+                    Some(entry[0].clone())
+                }
+                Value::Array(_) => None,
+                _ => Some(kept),
+            };
+            if let Some(answer) = answer {
+                self.host.answered_style();
+                return answer;
+            }
+        }
+        let (reported, held, named) = (self.reports.get(), self.held.borrow().len(), self.named.get());
         let value = compile();
-        if self.reports.get() == reported && self.held.borrow().len() == held {
-            self.host.keep_style(key, &value);
+        if self.reports.get() == reported && self.held.borrow().len() == held && self.named.get() == named {
+            let entry = if bound.is_empty() {
+                value.clone()
+            } else {
+                bound.insert(0, value.clone());
+                Value::Array(Arc::new(bound))
+            };
+            self.host.keep_style(key, &entry);
         }
         value
     }

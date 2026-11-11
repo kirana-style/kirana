@@ -404,13 +404,19 @@ the Node.js `Driver` answers a module sent again with the same source from its o
 transform, until a compile, an invalidation, a removal or a dense mark may have changed what it read:
 asking the engine copies the module across Node-API and back for an answer it already holds.
 
-**A style written out in full (KF-059).** A `css()` call whose arguments are only strings, numbers,
-`null` and objects of them under plain keys compiles once a session: a later call of the same source is
-answered by that source and the names it is compiled with, in any module. Nothing such a value holds
-depends on another file; the cache starts over past 16,384 styles, since an editor compiles every
-keystroke of one it types. A call that reports a diagnostic, or names a token or rule by its emitted
-name, compiles where it is written, so its diagnostics keep their place and the rule it names stays
-current.
+**A style written out in full (KF-059, KF-082).** A `css()` or `recipe()` call whose arguments are
+only strings, numbers, `null` and objects of them, under plain keys or computed keys written the same
+way, compiles once a session: a later call of the same source is answered by that source and the names
+it is compiled with, in any module. The arguments may read bindings, and members of them with keys
+written out (`color.red[500]`, `space[4]`, `[dark]`): the cache keeps the values those bindings held
+and answers only while they hold the same ones, compared by identity for a module's export (one value
+for as long as that module's exports are cached) and by contents otherwise. Each binding is read either
+way, so a module answered from the cache still depends on the module it imports from. What a style
+compiles to holds no source position, so it is the same in any module that reads the same values; the
+cache starts over past 16,384 styles, since an editor compiles every keystroke of one it types. A call
+that reports a diagnostic, reads a binding known only at runtime, or names a token or rule by its
+emitted name, in its source or in a value it reads (a variable token's `var(--kv…)`), compiles where
+it is written, so its diagnostics keep their place and it reads what the definition declares now.
 
 **A long session.** The language server, a dev server and a watch build keep one session for hours,
 so what it remembers MUST stay bounded by the project, not by its edits: a definition name (a token
