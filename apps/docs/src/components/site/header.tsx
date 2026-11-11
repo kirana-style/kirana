@@ -1,6 +1,7 @@
 /**
  * The site header: logo, the three menus, the repository with its stars, the sponsor heart and
- * "Quick start" (`cta.tsx`). The theme is chosen in the footer.
+ * "Quick start" (`cta.tsx`). The theme is chosen in the footer. The docs bar shows the same
+ * repository and heart (`HeaderLinks`), with its theme menu before them and "Kirana UI" after.
  *
  * The menu is packages/ui's NavigationMenu (Base UI), which morphs its popup between panels and
  * slides content in from the pointer's side. One pill, measured from the DOM, glides to the
@@ -602,6 +603,26 @@ function GitHubLink() {
   )
 }
 
+/** The repository with its stars and the sponsor heart: the site header's, and the docs bar's. */
+export function HeaderLinks() {
+  return (
+    <>
+      <GitHubLink />
+      <Button
+        variant="ghost"
+        size="icon"
+        nativeButton={false}
+        aria-label="Sponsor Kirana"
+        title="Sponsor Kirana"
+        sx={styles.sponsor}
+        render={<DocsLink href={SPONSOR.href} />}
+      >
+        <Icon icon={FavouriteIcon} />
+      </Button>
+    </>
+  )
+}
+
 export function SiteHeader() {
   return (
     <header sx={styles.header}>
@@ -617,18 +638,7 @@ export function SiteHeader() {
         </Link>
         <DesktopNav />
         <div sx={styles.actions}>
-          <GitHubLink />
-          <Button
-            variant="ghost"
-            size="icon"
-            nativeButton={false}
-            aria-label="Sponsor Kirana"
-            title="Sponsor Kirana"
-            sx={styles.sponsor}
-            render={<DocsLink href={SPONSOR.href} />}
-          >
-            <Icon icon={FavouriteIcon} />
-          </Button>
+          <HeaderLinks />
           <QuickStart size="sm" hideOnPhone />
           <MobileNav />
         </div>
