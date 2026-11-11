@@ -205,21 +205,12 @@
 
   /* Was `[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary`:
      direct children only, and a wider offset. */
-  :is(
-      [data-slot="field-description"],
-      [data-slot="empty-description"],
-      [data-slot="item-description"]
-    )
-    > a {
+  :is([data-slot="empty-description"], [data-slot="item-description"]) > a {
     text-decoration-line: underline;
     text-underline-offset: 4px;
   }
 
-  :is(
-      [data-slot="field-description"],
-      [data-slot="empty-description"],
-      [data-slot="item-description"]
-    )
+  :is([data-slot="empty-description"], [data-slot="item-description"])
     > a:hover {
     color: var(--inline-link-hover);
   }
@@ -227,22 +218,6 @@
   :is([data-slot="alert-description"], [data-slot="accordion-content"])
     p:not(:last-child) {
     margin-bottom: 1rem;
-  }
-}
-
-/*
- * Extra lines inside a calendar day.
- *
- * A custom DayButton can render a price or a note beneath the date as a span.
- * The Tailwind version shrank and faded it with
- * `[&>span:not([data-slot=button-label])]`; the date itself is the Button's own
- * label span and is left alone.
- */
-@layer base {
-  [data-slot="calendar"] [data-day] > span:not([data-slot="button-label"]) {
-    font-size: 0.75rem;
-    line-height: 1rem;
-    opacity: 0.7;
   }
 }
 
@@ -261,65 +236,4 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-}
-
-/*
- * Field layout.
- *
- * A Field lays out whatever it is given — a label, a select, a switch, a
- * component from outside this package — so it cannot hand each child a style.
- * The Tailwind version reached into its children with `*:` variants, and those
- * beat the child's own width. These rules do the same, keyed on the attributes
- * Field and FieldLabel already render.
- *
- * Unlayered on purpose: a layered rule would lose to the child's own Kirana
- * width (a FieldLabel is `fit-content`), which is exactly what `*:w-full`
- * overrode.
- */
-[data-slot="field"]:is(
-    [data-orientation="vertical"],
-    [data-orientation="responsive"]
-  )
-  > :not(.sr-only) {
-  width: 100%;
-}
-
-[data-slot="field"][data-orientation="horizontal"] > [data-slot="field-label"] {
-  flex: auto;
-}
-
-/* A checkbox or radio beside a FieldContent block drops to the title's baseline. */
-[data-slot="field"][data-orientation="horizontal"]:has(
-    > [data-slot="field-content"]
-  )
-  > :is([role="checkbox"], [role="radio"]) {
-  margin-top: 1px;
-}
-
-@container field-group (min-width: 28rem) {
-  [data-slot="field"][data-orientation="responsive"] > * {
-    width: auto;
-  }
-
-  [data-slot="field"][data-orientation="responsive"]
-    > [data-slot="field-label"] {
-    flex: auto;
-  }
-
-  [data-slot="field"][data-orientation="responsive"]:has(
-      > [data-slot="field-content"]
-    )
-    > :is([role="checkbox"], [role="radio"]) {
-    margin-top: 1px;
-  }
-}
-
-/* A FieldGroup directly inside another is tighter: `*:data-[slot=field-group]:gap-4`. */
-[data-slot="field-group"] > [data-slot="field-group"] {
-  gap: 1rem;
-}
-
-/* The Field inside a card-form FieldLabel is padded away from the card's edge. */
-[data-slot="field-label"] > [data-slot="field"] {
-  padding: 0.625rem;
 }

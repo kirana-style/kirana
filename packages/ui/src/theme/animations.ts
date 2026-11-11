@@ -15,14 +15,4 @@ const pulse = keyframes({
   "50%": { opacity: 0.5 },
 })
 
-const caretBlink = keyframes({
-  "0%, 70%, 100%": { opacity: 1 },
-  "20%, 50%": { opacity: 0 },
-})
-
-const shimmer = keyframes({
-  from: { backgroundPositionX: "100%" },
-  to: { backgroundPositionX: "0%" },
-})
-
-export const animation = { spin, pulse, caretBlink, shimmer } as const
+export const animation = { spin, pulse } as const

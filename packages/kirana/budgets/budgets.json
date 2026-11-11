@@ -1289,14 +1289,14 @@
     "libraries": {
       "ui": {
         "css": {
-          "raw": 78733,
-          "gzip": 19204,
-          "brotli": 16323
+          "raw": 48652,
+          "gzip": 12476,
+          "brotli": 10885
         },
         "js": {
-          "raw": 325502,
-          "gzip": 68827,
-          "brotli": 53855
+          "raw": 193397,
+          "gzip": 43907,
+          "brotli": 35597
         }
       },
       "docs-ui": {

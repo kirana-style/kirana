@@ -91,43 +91,6 @@ export const menuCtx = defineTokens(
 )
 
 /**
- * The Drawer's transforms, composed from Base UI's live gesture variables
- * (`--drawer-swipe-progress`, `--nested-drawers`, ...).
- *
- * The defaults are inert placeholders on purpose: a default is substituted on
- * `:root`, where Base UI's variables do not exist, and an invalid custom
- * property poisons every value composed from it. The real formulas are
- * assigned in `drawer.tsx`, on the drawer itself.
- */
-export const drawerCtx = defineTokens(
-  "drawerCtx",
-  {
-    /** Solid extension past the drawer's edge, so an over-drag shows no gap. */
-    bleed: "3rem",
-    peek: "1rem",
-
-    /** Height the stack animates against: the frontmost drawer's height. */
-    stackHeight: "0px",
-    stackScale: "1",
-    /** How much the scaling shrank the drawer, used to keep its edge anchored. */
-    stackShrink: "0",
-    /** Offset that reveals the drawers stacked behind this one. */
-    stackPeekOffset: "0px",
-
-    /** Resolved translation, composed per swipe direction. */
-    translateX: "0px",
-    translateY: "0px",
-    /** Where the drawer sits when closed, per swipe direction. */
-    closedTransform: "none",
-
-    contentHeight: "var(--drawer-height, auto)",
-    contentMaxHeight: "none",
-    contentWidth: "auto",
-  },
-  { variable: true }
-)
-
-/**
  * Sidebar geometry. Variables, so a caller can override them through the
  * provider's `sx` and the collapsed width can animate.
  */
@@ -137,16 +100,6 @@ export const sidebarCtx = defineTokens(
     width: "16rem",
     widthIcon: "3rem",
     widthMobile: "18rem",
-  },
-  { variable: true }
-)
-
-/** Calendar cell geometry, shared by every part of the grid. */
-export const calendarCtx = defineTokens(
-  "calendarCtx",
-  {
-    cellSize: "1.75rem",
-    cellRadius: "calc(0.625rem * 0.8)",
   },
   { variable: true }
 )
