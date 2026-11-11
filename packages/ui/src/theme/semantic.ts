@@ -143,8 +143,6 @@ export const surface = defineTokens(
   {
     /** Resting fill of an input, textarea, select or checkbox. */
     control: `light-dark(transparent, ${alpha.input30})`,
-    /** Resting fill of a selectable choice card, which is tinted more lightly. */
-    choice: `light-dark(transparent, ${alpha.input20})`,
     /** Fill of that control once disabled. */
     controlDisabled: `light-dark(${alpha.input50}, ${alpha.input80})`,
     /** Fill of a control-like trigger on hover. */
@@ -152,8 +150,6 @@ export const surface = defineTokens(
 
     /** Border and ring of anything failing validation. */
     borderInvalid: `light-dark(${theme.destructive}, ${alpha.destructive50})`,
-    /** A checked choice that is also invalid: the checked colour wins in light, the invalid one in dark. */
-    borderInvalidChecked: `light-dark(${theme.primary}, ${alpha.destructive50})`,
     ringInvalid: `light-dark(${alpha.destructive20}, ${alpha.destructive40})`,
 
     /**
@@ -175,31 +171,6 @@ export const surface = defineTokens(
     /** Destructive controls, which are tinted rather than filled. */
     destructiveSoft: `light-dark(${alpha.destructive10}, ${alpha.destructive20})`,
     destructiveSoftHover: `light-dark(${alpha.destructive20}, ${alpha.destructive30})`,
-
-    /** A checked choice tinting its surrounding label. */
-    checkedSoft: `light-dark(${alpha.primary5}, ${alpha.primary10})`,
-    checkedSoftBorder: `light-dark(${alpha.primary30}, ${alpha.primary20})`,
-
-    /** Switch track when off, and the thumb in each state. */
-    switchTrack: `light-dark(${theme.input}, ${alpha.input80})`,
-    switchThumb: `light-dark(${theme.background}, ${theme.foreground})`,
-    switchThumbChecked: `light-dark(${theme.background}, ${theme.primaryForeground})`,
-
-    /** Blend mode for the hairline ring an Avatar draws over its image: darkens on light, lightens on dark. */
-    imageRingBlend: { light: "darken", dark: "lighten" },
-
-    /** Brightness factor for a decorative photo, dimmed in dark mode so it recedes. */
-    imageBrightness: { light: "1", dark: "0.2" },
-
-    /** Filter for a decorative cover photo: none in light mode, dimmed and desaturated in dark. */
-    imageDim: { light: "none", dark: "brightness(0.2) grayscale(1)" },
-
-    /**
-     * A tinted chat bubble. Derived from `primary` with a relative colour so it
-     * keeps the brand hue while dropping to a readable lightness and chroma.
-     */
-    bubbleTinted: `light-dark(oklch(from ${theme.primary} 0.93 calc(c * 0.4) h), oklch(from ${theme.primary} 0.3 calc(c * 0.4) h))`,
-    bubbleTintedHover: `light-dark(oklch(from ${theme.primary} 0.88 calc(c * 0.5) h), oklch(from ${theme.primary} 0.35 calc(c * 0.5) h))`,
 
     /**
      * The selected tab, or any segmented control's active segment. The border is

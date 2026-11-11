@@ -19,14 +19,9 @@ export const container = {
   "2xl": "@container (min-width: 42rem)",
 } as const
 
-/** Named containers declared by `Field`/`FieldGroup` and `CardHeader`. */
+/** Named containers declared by `CardHeader`. */
 export const containerName = {
-  fieldGroup: "field-group",
   cardHeader: "card-header",
-} as const
-
-export const fieldGroupQuery = {
-  md: "@container field-group (min-width: 28rem)",
 } as const
 
 export const cardHeaderQuery = {
