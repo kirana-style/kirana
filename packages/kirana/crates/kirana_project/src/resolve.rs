@@ -151,7 +151,8 @@ impl<'p> ModuleHost<'p> {
         {
             return false;
         }
-        let Some(loads) = self.exports_of(module).and_then(|exports| exports.loads.clone()) else { return false };
+        let exports = self.exports_of(module);
+        let Some(loads) = exports.as_ref().and_then(|exports| exports.loads.as_ref()) else { return false };
         path.push(module.to_path_buf());
         let only = loads.iter().all(|load| {
             self.project.resolved(module, load).is_some_and(|loaded| self.loads_only(&loaded, path, closure))
@@ -439,14 +440,15 @@ impl Host for ModuleHost<'_> {
 
     fn cached_style(&self, key: &str) -> Option<Value> {
         // Kept by this evaluation, or by one before it.
-        let value = self
-            .styles
+        self.styles
             .borrow()
             .get(key)
             .map(|(_, value)| value.clone())
-            .or_else(|| self.project.styles.read().expect("not poisoned").get(key).cloned())?;
+            .or_else(|| self.project.styles.read().expect("not poisoned").get(key).cloned())
+    }
+
+    fn answered_style(&self) {
         crate::Counters::count(&self.project.work.styles);
-        Some(value)
     }
 
     fn keep_style(&self, key: String, value: &Value) {

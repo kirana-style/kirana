@@ -87,8 +87,10 @@ pub struct Project {
     /// with the resolver's own cache.
     pub(crate) resolutions: RwLock<FxHashMap<ModulePath, FxHashMap<String, Option<PathBuf>>>>,
     pub(crate) state: RwLock<State>,
-    /// `css()` values compiled from source written out in full, by that source (KF-059). Such a
-    /// value depends on nothing a later change in the session can touch, so it is never cleared.
+    /// `css()` and `recipe()` values compiled from source written out in full, by that source
+    /// (KF-059), with the values of the bindings it reads (KF-082). Such a value depends on nothing
+    /// else a later change in the session can touch, so it is never cleared: the evaluator compares
+    /// the bindings before it answers from one.
     pub(crate) styles: RwLock<FxHashMap<String, Value>>,
 }
 
@@ -260,7 +262,8 @@ pub struct Work {
     pub resolved: u64,
     /// Transforms answered from the module's previous transform (`Project::reuse_transforms`).
     pub reused: u64,
-    /// `css()` calls answered from one of the same source compiled earlier in the session (KF-059).
+    /// `css()` and `recipe()` calls answered from one of the same source compiled earlier in the
+    /// session, reading the same values (KF-059, KF-082).
     pub styles: u64,
     /// Imported modules compiled only to learn whether their import can go (D-118).
     pub answered: u64,

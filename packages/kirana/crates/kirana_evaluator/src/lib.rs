@@ -45,10 +45,13 @@ pub trait Host {
     /// The handle a project module's exported component gives the element it applies its own `sx`
     /// to, before that `sx` (`sx={[styles.root, sx]}`), when the build knows it (KF-083).
     fn sx_root(&self, from: &Path, specifier: &str, name: &str) -> Option<Handle>;
-    /// A `css()` call's value compiled earlier in the session from the same source, keyed by that
-    /// source and the names it was compiled with (KF-059).
+    /// What a `css()` or `recipe()` call compiled earlier in the session from the same source kept,
+    /// keyed by that source and the names it was compiled with (KF-059): the evaluator decides
+    /// whether it still answers (KF-082).
     fn cached_style(&self, key: &str) -> Option<Value>;
-    /// Keeps a `css()` call's value for later calls of the same source.
+    /// Counts a call answered from what `cached_style` returned.
+    fn answered_style(&self);
+    /// Keeps what a `css()` or `recipe()` call compiled, for later calls of the same source.
     fn keep_style(&self, key: String, value: &Value);
     /// Whether the module `specifier` names from `from` can go unloaded once nothing reads it at
     /// runtime (D-118): loading it and what it loads does nothing but declare values

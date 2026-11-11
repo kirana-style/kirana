@@ -890,6 +890,9 @@ impl<'a> Evaluator<'_, 'a, '_> {
             found.push((rank, &text[start..end]));
             from = end;
         }
+        if !found.is_empty() {
+            self.named.set(self.named.get() + 1);
+        }
         // In the order the markers are listed, then the text's: what the kind-by-kind scan gave.
         found.sort_by_key(|(rank, _)| *rank);
         let mut deps = Vec::new();
