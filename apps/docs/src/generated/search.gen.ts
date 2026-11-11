@@ -191,6 +191,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "text": "The engine is native code for eight platforms. Anywhere else (a WebContainer, an unusual CPU), install its WebAssembly build as well; Kirana uses it when no native engine loads, and it writes exactly the same CSS, about twice as slowly: uses it even where the native engine works."
   },
   {
+    "id": "/docs/start/installation#two-versions-in-one-process",
+    "href": "/docs/start/installation#two-versions-in-one-process",
+    "page": "Installation",
+    "section": "start",
+    "heading": "Two versions in one process",
+    "text": "On Linux with glibc, the engines of 0.4.0 and 0.4.1 cannot load beside another Kirana engine in the same process: a monorepo whose packages resolve two versions into one Vite, Vitest or editor process, say. Whichever loads second fails with . Engines released after 0.4.1 load side by side. Until every package is on one of them, give the workspace one version, or raise glibc's reserve for the run:"
+  },
+  {
     "id": "/docs/start/installation#what-every-setup-has",
     "href": "/docs/start/installation#what-every-setup-has",
     "page": "Installation",

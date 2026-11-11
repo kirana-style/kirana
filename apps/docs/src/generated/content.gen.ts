@@ -171,6 +171,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "two-versions-in-one-process",
+        "text": "Two versions in one process",
+        "level": 2
+      },
+      {
         "id": "what-every-setup-has",
         "text": "What every setup has",
         "level": 2

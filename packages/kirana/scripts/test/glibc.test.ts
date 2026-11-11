@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vite-plus/test"
 
-import { glibcGaps } from "../glibc.ts"
+import { glibcGaps, staticTls } from "../glibc.ts"
 
 /** Lines as `objdump -T` prints a Linux gnu engine's dynamic symbols. */
 const LINES = [
@@ -34,5 +34,19 @@ describe("glibc", () => {
       "__cxa_thread_atexit_impl (GLIBC_2.18)",
       "__isoc23_strtol (unversioned)",
     ])
+  })
+
+  it("finds an engine marked STATIC_TLS, as 0.4.0's and 0.4.1's were (KF-118)", () => {
+    const dynamic = (flags: string) =>
+      [
+        "Dynamic section at offset 0xd66e60 contains 29 entries:",
+        "  Tag        Type                         Name/Value",
+        " 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]",
+        ` 0x000000000000001e (FLAGS)              ${flags}`,
+        " 0x000000006ffffffb (FLAGS_1)            Flags: NOW NODELETE",
+      ].join("\n")
+    expect(staticTls(dynamic("BIND_NOW STATIC_TLS"))).toBe(true)
+    expect(staticTls(dynamic("BIND_NOW"))).toBe(false)
+    expect(staticTls("")).toBe(false)
   })
 })
