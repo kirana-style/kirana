@@ -1,9 +1,11 @@
 /**
- * What a Linux gnu engine needs from glibc, read from `objdump -T` (KF-104). The engines link
- * against napi-rs's glibc 2.17 toolchain so they load on any distribution from the last decade; a
- * symbol that toolchain's glibc lacks still links, since a shared object may leave symbols
- * undefined, and fails only when the engine loads. 0.4.0 shipped one: mimalloc's C, compiled
- * against the runner's headers, asked for `__isoc23_strtol`, which glibc defines from 2.38.
+ * What a Linux engine needs from the C library that loads it. The gnu engines link against napi-rs's
+ * glibc 2.17 toolchain so they load on any distribution from the last decade; a symbol that
+ * toolchain's glibc lacks still links, since a shared object may leave symbols undefined, and fails
+ * only when the engine loads. 0.4.0 shipped one: mimalloc's C, compiled against the runner's headers,
+ * asked for `__isoc23_strtol`, which glibc defines from 2.38 (KF-104, read from `objdump -T`). Every
+ * Linux engine is loaded with `dlopen`, which limits how it may keep thread-locals (KF-118, read from
+ * `readelf -d`).
  */
 
 /** The newest glibc the engines may need. */
@@ -46,4 +48,17 @@ function newer(a: string, b: string): boolean {
     if (difference) return difference > 0
   }
   return false
+}
+
+/**
+ * Whether `readelf -d` output marks a shared object `STATIC_TLS` (KF-118): something in it reads a
+ * thread-local with the initial-exec model, so the loader must place its whole TLS block at a fixed
+ * offset. An engine is loaded with `dlopen`, after the process has started: musl cannot give a
+ * library loaded then such an offset, and glibc fits its block in the reserve it keeps for them,
+ * 1,664 bytes by default. 0.4.0's and 0.4.1's engines took 952 of them (mimalloc's initial-exec
+ * thread-locals placing Rust's with them), and two engines in one process failed with "cannot
+ * allocate memory in static TLS block".
+ */
+export function staticTls(dynamic: string): boolean {
+  return /\(FLAGS\)\s.*\bSTATIC_TLS\b/.test(dynamic)
 }

@@ -83,6 +83,19 @@ npm install -D @kirana-style/compiler-wasm32-wasi --force
 
 `KIRANA_FORCE_WASI=1` uses it even where the native engine works.
 
+## Two versions in one process
+
+On Linux with glibc, the engines of 0.4.0 and 0.4.1 cannot load beside another
+Kirana engine in the same process: a monorepo whose packages resolve two versions
+into one Vite, Vitest or editor process, say. Whichever loads second fails with
+`cannot allocate memory in static TLS block`. Engines released after 0.4.1 load side
+by side. Until every package is on one of them, give the workspace one version, or
+raise glibc's reserve for the run:
+
+```bash
+GLIBC_TUNABLES=glibc.rtld.optional_static_tls=4096 npx vite
+```
+
 ## What every setup has
 
 The guides differ in names, not in shape. Whatever the framework, a project needs

@@ -23,12 +23,16 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 
 # mimalloc for every native engine (D-123); the WASI one keeps wasi-libc's allocator. The engine is
-# loaded with `dlopen`, and on musl a library loaded that way cannot rely on initial-exec TLS.
+# loaded with `dlopen`, so on Linux mimalloc's thread-locals are local-dynamic (KF-118). Initial-exec
+# ones mark the engine `STATIC_TLS`: musl cannot honour that in a library loaded late, and glibc fits
+# the whole TLS block, 952 bytes of Rust's thread-locals and mimalloc's, in the 1,664 bytes it keeps
+# for such libraries, so a second Kirana version, or another addon like it, failed to load beside it.
+# It costs a compile 1 to 3 %. `scripts/build-native.ts` fails a Linux engine marked `STATIC_TLS`.
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 mimalloc = { workspace = true }
 libmimalloc-sys = { workspace = true }
 
-[target.'cfg(target_env = "musl")'.dependencies]
+[target.'cfg(target_os = "linux")'.dependencies]
 mimalloc = { workspace = true, features = ["local_dynamic_tls"] }
 
 [build-dependencies]

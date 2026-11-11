@@ -317,7 +317,8 @@ Plug'n'Play) and Bun (D-029):
   a package that is installed but fails to load is an error, never a reason to try another binary.
   `KIRANA_NATIVE_PATH` names a binary explicitly. Linux gnu binaries link against glibc 2.17 and
   compile their C against its headers; the build checks their symbols and `packages.yml` installs
-  them on Debian 12 (D-050, KF-104).
+  them on Debian 12 (D-050, KF-104). Every Linux binary keeps its thread-locals out of static TLS,
+  so two engines load in one process, and the build fails one marked `STATIC_TLS` (D-123, KF-118).
 - Packages are compiled at pack time, one ESM file and declaration per source file (D-050).
 
 **Installation is tested, not assumed** (E-08, D-051). `bun run kirana:pack` writes every package and

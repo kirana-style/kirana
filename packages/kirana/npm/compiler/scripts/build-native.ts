@@ -13,7 +13,7 @@ import { createRequire } from "node:module"
 import { homedir } from "node:os"
 import path from "node:path"
 
-import { GLIBC_FLOOR, glibcGaps } from "../../../scripts/glibc.ts"
+import { GLIBC_FLOOR, glibcGaps, staticTls } from "../../../scripts/glibc.ts"
 import { rustEnvironment } from "../../../scripts/rust.ts"
 
 const args = [
@@ -88,21 +88,35 @@ const result = spawnSync("napi", args, {
   env,
   shell: process.platform === "win32",
 })
-if (result.status === 0 && cross) {
-  // A symbol the toolchain's glibc lacks still links and fails only when the engine loads: the
-  // build fails instead (KF-104).
-  const triple = target.startsWith("aarch64")
-    ? "linux-arm64-gnu"
-    : "linux-x64-gnu"
+if (result.status === 0 && target.includes("-linux-")) {
+  const triple = `linux-${target.startsWith("aarch64") ? "arm64" : "x64"}-${target.endsWith("-musl") ? "musl" : "gnu"}`
   const engine = path.join(import.meta.dirname, "..", `kirana.${triple}.node`)
-  const dump = spawnSync("objdump", ["-T", engine], { encoding: "utf8" })
-  const gaps =
-    dump.status === 0 ? glibcGaps(dump.stdout) : [`objdump -T ${engine} failed`]
-  if (gaps.length) {
+  // A Linux engine is loaded with `dlopen`, so its thread-locals must not need static TLS: one that
+  // does fails to load beside a second Kirana version (KF-118). `readelf` comes with the linker
+  // every Linux build already uses.
+  const dynamic = spawnSync("readelf", ["-d", engine], { encoding: "utf8" })
+  if (dynamic.status !== 0 || staticTls(dynamic.stdout)) {
     console.error(
-      `kirana.${triple}.node needs what glibc ${GLIBC_FLOOR} does not provide:\n  ${gaps.join("\n  ")}`
+      dynamic.status === 0
+        ? `kirana.${triple}.node is marked STATIC_TLS: something in it reads a thread-local with the initial-exec model (KF-118)`
+        : `readelf -d ${engine} failed`
     )
     process.exit(1)
+  }
+  // A symbol the toolchain's glibc lacks still links and fails only when the engine loads: the
+  // build fails instead (KF-104).
+  if (cross) {
+    const dump = spawnSync("objdump", ["-T", engine], { encoding: "utf8" })
+    const gaps =
+      dump.status === 0
+        ? glibcGaps(dump.stdout)
+        : [`objdump -T ${engine} failed`]
+    if (gaps.length) {
+      console.error(
+        `kirana.${triple}.node needs what glibc ${GLIBC_FLOOR} does not provide:\n  ${gaps.join("\n  ")}`
+      )
+      process.exit(1)
+    }
   }
 }
 process.exit(result.status ?? 1)

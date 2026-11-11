@@ -2117,7 +2117,8 @@ the implementation tracker names its evidence.
 
 - **Status:** Accepted (2026-11-03). Option 3 of the allocator study.
 - **Decision:** every native engine (`kirana_napi`, which every host loads) allocates with mimalloc,
-  with local-dynamic TLS on musl, since the engine is loaded with `dlopen`. On Linux it is built
+  with local-dynamic TLS on Linux, since the engine is loaded with `dlopen` (on musl from the start,
+  on glibc since KF-118). On Linux it is built
   with arenas committed on demand (`MI_DEFAULT_ARENA_EAGER_COMMIT=0`, passed by
   `scripts/build-native.ts` in `CFLAGS_<target>`). A `Compiler` session has `releaseMemory()`
   (`mi_collect(true)`, for the whole process), and each long session calls it once it goes idle: the Driver a second after
@@ -2144,6 +2145,10 @@ the implementation tracker names its evidence.
   of that gap. Every native target now compiles C: each job in `packages.yml` needs a C toolchain
   for its target (the runner's gcc against napi's glibc 2.17 sysroot for gnu, `zig cc` for musl,
   Apple's clang, MSVC on both Windows targets), and the `.node` grows by about 146 KB (+1.1 %, 47 KB gzipped).
+  Local-dynamic TLS costs a compile 1 to 3 % against initial-exec, which glibc engines used until
+  KF-118: initial-exec marked the engine `STATIC_TLS`, its 952-byte TLS block took most of the
+  1,664 bytes glibc keeps for libraries loaded late, and a second engine in the process failed to
+  load. `scripts/build-native.ts` fails a Linux engine marked `STATIC_TLS`.
 - **Elaborated in:** [10-compiler-architecture](./10-compiler-architecture.md#bindings),
   [13-output-and-performance](./13-output-and-performance.md#engineering-rules), the allocator study.
 
