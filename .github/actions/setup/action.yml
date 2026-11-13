@@ -24,10 +24,16 @@ runs:
           - args: ["--frozen-lockfile"]
 
     # The `vp run` task cache (vite.config.ts → run.tasks): a task whose inputs did not change
-    # replays its output and restores its files, the native engine above all. Each run on `main`
-    # saves a new entry, and every run restores the newest one for its job and platform; other
-    # branches only restore, so their entries never evict main's (setup-rust does the same). Vite
-    # Task fingerprints the inputs itself, so none belong in the key.
+    # replays its output and restores its files, the native engine above all. A task's inputs are
+    # what it reads (`sourcesIn` there), so a change to the docs leaves the Kirana tests standing.
+    # Each run on `main` saves a new entry, and every run restores the newest one for its job and
+    # platform; other branches only restore, so their entries never evict main's (setup-rust does
+    # the same). Vite Task fingerprints the inputs itself, so none belong in the key.
+    #
+    # Experimental, in Vite+'s own words (viteplus.dev/guide/github-actions-cache): it evicts no
+    # single entry, and asks to measure before relying on it. A miss costs only the restore. If a run
+    # ever replays a result it should not have, delete the caches named `vite-task-` in the
+    # repository's Actions settings, and name the file the task read in its `cache.input`.
     - name: Cache vp tasks
       if: github.ref == 'refs/heads/main'
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0

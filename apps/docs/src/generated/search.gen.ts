@@ -6049,7 +6049,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Contributing",
     "section": "project",
     "heading": "Set up",
-    "text": "Vite+ ( ) and Rust (through rustup) are the two installs. The README's Scripts table lists what each command needs. The pre-push hook ( ) runs the checks, the Rust lints, the tests with 100 % coverage, the Zed extension's own Rust checks and the budgets, from the cache when nothing changed."
+    "text": "Vite+ ( ) and Rust (through rustup) are the two installs. The README's Scripts table lists what each command needs. The pre-push hook ( ) runs the checks, the Rust lints, the tests with 100 % coverage, the Zed extension's own Rust checks and the budgets, each from the cache when nothing it reads changed."
   },
   {
     "id": "/docs/project/contributing#try-it-on-this-repository",
