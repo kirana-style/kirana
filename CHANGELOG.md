@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.4.2](https://github.com/kirana-style/kirana/compare/v0.4.1...v0.4.2) (2026-11-13)
+
+
+### Bug fixes
+
+* a template's anchor counts in a block that imports no kirana ([#289](https://github.com/kirana-style/kirana/issues/289)) ([64aff61](https://github.com/kirana-style/kirana/commit/64aff61ae7761016c1078454e9d0774b4ea912d7))
+* bits ui states name the side and alignment of every floating content ([#304](https://github.com/kirana-style/kirana/issues/304)) ([60332db](https://github.com/kirana-style/kirana/commit/60332dbdc742db5a86474245bf864e3c13a7388b))
+* linux engines load beside another kirana engine ([#306](https://github.com/kirana-style/kirana/issues/306)) ([25fc9fe](https://github.com/kirana-style/kirana/commit/25fc9fe2096281819fb5c5d26fb99599a878d599))
+* reka ui states name every data-state value reka writes ([#290](https://github.com/kirana-style/kirana/issues/290)) ([7d136c0](https://github.com/kirana-style/kirana/commit/7d136c01f773ca17feb8c712b98ec1fc37c2ea0c))
+* the eslint rule reads a vue, svelte or astro file's script blocks ([#291](https://github.com/kirana-style/kirana/issues/291)) ([d964543](https://github.com/kirana-style/kirana/commit/d9645439f55d467b907d955a7e32856ac1f1cacf))
+* the npm release ends once its last package is served ([#283](https://github.com/kirana-style/kirana/issues/283)) ([5a87594](https://github.com/kirana-style/kirana/commit/5a87594c04cf40f017e08285bbacc28898061115))
+* ui init sets up the document on nuxt and sveltekit ([#288](https://github.com/kirana-style/kirana/issues/288)) ([7a486db](https://github.com/kirana-style/kirana/commit/7a486db1f49c3024e6c72157f769fdafcb38fe2f))
+* ui installs a workspace font's package in the app that imports it ([#287](https://github.com/kirana-style/kirana/issues/287)) ([e646c1b](https://github.com/kirana-style/kirana/commit/e646c1b9ced12f14f3e187c607e07b9cc1ecd0bb))
+
+
+### Performance
+
+* styles that read tokens compile once a session ([#305](https://github.com/kirana-style/kirana/issues/305)) ([f765b9e](https://github.com/kirana-style/kirana/commit/f765b9e5d0af6c56c8e63b3c517817be702c5b90))
+
+
+### Documentation
+
+* package managers as pills in every install block ([#286](https://github.com/kirana-style/kirana/issues/286)) ([9134ac3](https://github.com/kirana-style/kirana/commit/9134ac3d78d813aeb952b266214b217891e370b3))
+* take the benchmarks of kirana 0.4.1 from kirana-lab ([#292](https://github.com/kirana-style/kirana/issues/292)) ([b286d37](https://github.com/kirana-style/kirana/commit/b286d377d8182beeaa66ebbbe7d2a4ce0f60c4e0))
+
+
+### Dependencies
+
+* bump string_wizard from 1.2.16 to 1.3.0 in /packages/kirana in the minor-and-patch group ([#296](https://github.com/kirana-style/kirana/issues/296)) ([219f589](https://github.com/kirana-style/kirana/commit/219f5897e7b0cc9ee47eb833af53e164f8a3e879))
+* emnapi 2.0.0-beta.3, vite+ 1.5.1 and 24 minor updates ([#302](https://github.com/kirana-style/kirana/issues/302)) ([88076a3](https://github.com/kirana-style/kirana/commit/88076a361fca333a0f0e9690129d2ca68c2dbf41))
+* oxc 0.158.0 ([#301](https://github.com/kirana-style/kirana/issues/301)) ([da376c6](https://github.com/kirana-style/kirana/commit/da376c6d94df5517bec85727e1e8cdbdb598dc1d))
+* vite+ 1.6.0, napi 3.16.2 and minor updates ([#309](https://github.com/kirana-style/kirana/issues/309)) ([9179801](https://github.com/kirana-style/kirana/commit/9179801ccdf657735959aeccbcbd4a738dd84689))
+
 ## [0.4.1](https://github.com/kirana-style/kirana/compare/v0.4.0...v0.4.1) (2026-11-09)
 
 
