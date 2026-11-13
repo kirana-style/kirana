@@ -43,8 +43,8 @@ string_wizard = { version = "=1.3.0", default-features = false, features = [
   "sourcemap",
 ] }
 lightningcss = { version = "=1.0.0-alpha.72", default-features = false }
-napi = { version = "=3.16.1", default-features = false, features = ["napi6"] }
-napi-derive = "=3.7.0"
+napi = { version = "=3.16.2", default-features = false, features = ["napi6"] }
+napi-derive = "=3.7.1"
 napi-build = "=2.6.0"
 rustc-hash = "=2.1.3"
 xxhash-rust = { version = "=0.8.19", features = ["xxh3"] }

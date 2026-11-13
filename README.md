@@ -89,25 +89,27 @@ Every command runs from the repository root. `vp <command>` is a Vite+ built-in;
 a task whose inputs did not change replays its output in a second. **Needs** is
 what must be installed.
 
-| Command                  | What it does                                                                                                                                   | Needs                           |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| `vp install`             | installs every workspace (Bun) and the git hooks                                                                                               | Vite+                           |
-| `vp run dev`             | builds the native engine, then serves the docs with hot reload (not cached)                                                                    | Rust                            |
-| `vp run build`           | builds the native engine, then the docs into `apps/docs/dist`                                                                                  | Rust                            |
-| `vp run engine`          | builds only the native engine (release)                                                                                                        | Rust                            |
-| `vp check`               | Oxfmt check, Oxlint with the Kirana rules, TypeScript type check, in one pass                                                                  | `vp run engine`                 |
-| `vp check --fix`         | the same, rewriting what the formatter and the fixable rules can                                                                               | `vp run engine`                 |
-| `vp run check`           | `vp check --deny-warnings` plus the docs' consistency check, after building the engine                                                         | Rust                            |
-| `vp run verify`          | the docs' generated files match their sources                                                                                                  | Rust                            |
-| `vp run rust`            | `cargo fmt`, Clippy, `cargo deny` (`vp run rust:lint` alone), then the Rust tests                                                              | cargo-nextest, cargo-deny       |
-| `vp run test`            | Vitest: the Kirana packages against the engine, and docs-core                                                                                  | Rust                            |
-| `vp run coverage`        | Rust and TypeScript tests with coverage; fails below 100 % (Rust regions too)                                                                  | cargo-nextest, cargo-llvm-cov   |
-| `vp run licenses`        | every installed JavaScript dependency's licence against `scripts/check-licenses.ts`                                                            | `vp install`                    |
-| `vp run budgets`         | output size and type cost against `packages/kirana/budgets/budgets.json` (`bun run budgets --update` there rewrites it)                        | `vp run engine`                 |
-| `vp run prepush`         | `check`, `verify`, `rust:lint`, `coverage`, docs-core tests, the Zed extension, `licenses`, `budgets`: the pre-push hook                       | the cargo tools                 |
-| `bun run kirana:pack`    | compiles every npm package with `vite-plus/pack`, packs it and the engine into `dist-packages/`                                                | `vp run engine`                 |
-| `bun run kirana:example` | installs the packed tarballs into an example, builds it and checks it in Chromium; `--registry` runs `kirana-style ui init` and `ui add` first | `bun run kirana:pack`, Chromium |
-| `vp cache clean`         | empties the task cache                                                                                                                         | Vite+                           |
+| Command                   | What it does                                                                                                                                   | Needs                           |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `vp install`              | installs every workspace (Bun) and the git hooks                                                                                               | Vite+                           |
+| `vp run dev`              | builds the native engine, then serves the docs with hot reload (not cached)                                                                    | Rust                            |
+| `vp run build`            | builds the native engine, then the docs into `apps/docs/dist`                                                                                  | Rust                            |
+| `vp run engine`           | builds only the native engine (release)                                                                                                        | Rust                            |
+| `vp check`                | Oxfmt check, Oxlint with the Kirana rules, TypeScript type check, in one pass                                                                  | `vp run engine`                 |
+| `vp check --fix`          | the same, rewriting what the formatter and the fixable rules can                                                                               | `vp run engine`                 |
+| `vp run check`            | `vp check --deny-warnings` plus the docs' consistency check, after building the engine; reports every failed check, not the first              | Rust                            |
+| `vp run verify`           | the docs' generated files match their sources                                                                                                  | Rust                            |
+| `vp run rust`             | `cargo fmt`, Clippy, `cargo deny` (`vp run rust:lint` alone), then the Rust tests                                                              | cargo-nextest, cargo-deny       |
+| `vp run test`             | Vitest: the Kirana packages against the engine, and docs-core                                                                                  | Rust                            |
+| `vp run coverage`         | Rust and TypeScript tests with coverage; fails below 100 % (Rust regions too)                                                                  | cargo-nextest, cargo-llvm-cov   |
+| `vp run licenses`         | every installed JavaScript dependency's licence against `scripts/check-licenses.ts`                                                            | `vp install`                    |
+| `vp run budgets`          | output size and type cost against `packages/kirana/budgets/budgets.json` (`bun run budgets --update` there rewrites it)                        | `vp run engine`                 |
+| `vp run prepush`          | `check`, `verify`, `rust:lint`, `coverage`, docs-core tests, the Zed extension, `licenses`, `budgets`: the pre-push hook                       | the cargo tools                 |
+| `bun run kirana:pack`     | compiles every npm package with `vite-plus/pack`, packs it and the engine into `dist-packages/`                                                | `vp run engine`                 |
+| `bun run kirana:example`  | installs the packed tarballs into an example, builds it and checks it in Chromium; `--registry` runs `kirana-style ui init` and `ui add` first | `bun run kirana:pack`, Chromium |
+| `vp run --dry-run <task>` | prints each command the task would start and whether it would replay from the cache, running nothing (`--json` for the plan as JSON)           | Vite+                           |
+| `vp run -v <task>`        | runs it and names every changed input behind a cache miss (`-vv` also lists the unchanged ones)                                                | Vite+                           |
+| `vp cache clean`          | empties the task cache                                                                                                                         | Vite+                           |
 
 `KIRANA_UPDATE_FIXTURES=1 bun run --cwd packages/kirana test:rust` rewrites the
 golden fixtures.
@@ -135,6 +137,7 @@ it.
 | `This command needs cargo-nextest …`                            | run the `cargo install` line it prints                                                                      |
 | `vp run dev` starts on :3001 or later                           | another server holds :3000; stop it (`lsof -i :3000` shows which)                                           |
 | `lockfile had changes, but lockfile is frozen` / missing module | `vp install`                                                                                                |
+| A task reruns though nothing it reads changed                   | `vp run -v <task>` names the input that changed; a file it does not read belongs out of its `cache.input`   |
 | A task replays a stale result                                   | `vp cache clean`, then run it again                                                                         |
 | `default_*.profraw` files outside `target/`                     | left by an instrumented engine; ignored: `find . -name 'default_*.profraw' -not -path '*/target/*' -delete` |
 | `Kirana has no engine` from `vp check`                          | `vp run engine`                                                                                             |
