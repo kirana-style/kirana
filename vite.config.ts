@@ -29,6 +29,25 @@ const SOURCES = [
   "packages/kirana/npm/compiler/*.node",
 ]
 
+/**
+ * The sources under some folders only, for a task that reads nothing else: with all of `SOURCES` as
+ * its input, a line of docs reran the Kirana tests and the whole coverage run, and the task cache CI
+ * restores never hit for them. What every task depends on is always in: the lockfile and the root's
+ * own configuration. A task that starts reading another folder gets it added here, or it replays a
+ * stale result; `vp run -v <task>` names the files behind a miss.
+ */
+const sourcesIn = (...folders: string[]) => [
+  ...folders.map(
+    (folder) =>
+      `${folder}/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs,json,jsonc,md,mdx,css,yml,yaml,toml,vue,svelte,astro,html}`
+  ),
+  ...SOURCES.filter((pattern) => pattern.startsWith("!")),
+  "bun.lock",
+  "package.json",
+  "tsconfig.json",
+  "vite.config.ts",
+]
+
 export default defineConfig({
   // The workspace's tasks: `vp run <name>`. Each is cached (node_modules/.vite/task-cache) unless
   // it says otherwise; a hit replays its output and restores its files. `vp run prepush` is what
@@ -120,12 +139,18 @@ export default defineConfig({
         command: "vp test run",
         cwd: "packages/kirana",
         dependsOn: ["engine"],
-        cache: { input: SOURCES, output: [] },
+        cache: {
+          input: [
+            ...sourcesIn("packages/kirana"),
+            "packages/kirana/npm/compiler/*.node",
+          ],
+          output: [],
+        },
       },
       "test:docs": {
         command: "vp test run",
         cwd: "packages/docs-core",
-        cache: { input: SOURCES, output: [] },
+        cache: { input: sourcesIn("packages/docs-core"), output: [] },
       },
       test: {
         command: "echo Tests passed.",
@@ -140,7 +165,11 @@ export default defineConfig({
         cwd: "packages/kirana",
         dependsOn: ["check", "verify", "rust:lint"],
         cache: {
-          input: [...SOURCES, ...RUST, "packages/kirana/fixtures/**"],
+          input: [
+            ...sourcesIn("packages/kirana"),
+            ...RUST,
+            "packages/kirana/fixtures/**",
+          ],
           output: [],
         },
       },
@@ -150,7 +179,21 @@ export default defineConfig({
         command: "bun run budgets --check",
         cwd: "packages/kirana",
         dependsOn: ["engine"],
-        cache: { input: SOURCES, output: [] },
+        // The fixtures and the two libraries it measures, what they import, and the engine. The
+        // docs site's stylesheets it prints are not recorded, so `apps/docs` is not an input.
+        cache: {
+          input: [
+            ...sourcesIn(
+              "packages/kirana",
+              "packages/ui",
+              "packages/docs-ui",
+              // What docs-ui imports, which compiling it reads.
+              "packages/docs-core"
+            ),
+            "packages/kirana/npm/compiler/*.node",
+          ],
+          output: [],
+        },
       },
       // Every installed JavaScript dependency's licence against the policy in the script, as
       // cargo-deny holds the Rust ones; it changes only with the lockfile.

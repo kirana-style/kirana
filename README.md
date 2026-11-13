@@ -119,7 +119,10 @@ lints the staged files (`vp staged`, the `staged` block of `vite.config.ts`),
 and **pre-push** runs `vp run prepush`, the checks CI requires, 100 % coverage
 included (coverage runs every Rust and Kirana test, so the plain test runs are
 not repeated). Pushing again
-without changes replays them from the cache. `VP_GIT_HOOKS=0 git push` skips
+without changes replays them from the cache, and so does a change outside what a
+task reads: each task's inputs are the folders it reads (`sourcesIn` in
+`vite.config.ts`), so a change to the docs alone leaves the Kirana tests,
+coverage and the budgets standing. `VP_GIT_HOOKS=0 git push` skips
 them once; `vp hooks status` shows their state.
 
 When a Rust tool is missing, the command stops and prints the line that installs
