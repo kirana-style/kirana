@@ -70,10 +70,11 @@ export default defineConfig({
         cache: false,
       },
       // Format, lint (the Kirana rules load the engine) and types, then the site's consistency. A
-      // lint warning fails it, as in CI, so warnings cannot pile up.
+      // lint warning fails it, as in CI, so warnings cannot pile up. All three checks run whichever
+      // fails first, so one run reports every problem.
       check: {
         command:
-          "vp check --deny-warnings && bun run --cwd apps/docs check:consistency",
+          "vp check --deny-warnings --continue-on-error && bun run --cwd apps/docs check:consistency",
         dependsOn: ["engine"],
         cache: { input: SOURCES, output: [] },
       },
