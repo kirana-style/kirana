@@ -3,7 +3,7 @@
  * compiled once per lint run, and each linted file transformed once however many rules ask.
  * Rules never re-implement what the compiler knows; they look its answers up here.
  */
-import { existsSync, readFileSync } from "node:fs"
+import { existsSync, readFileSync, statSync } from "node:fs"
 import path from "node:path"
 
 import {
@@ -37,16 +37,67 @@ export function rootOf(file: string, fallback: string): string {
 }
 
 const drivers = new Map<string, Driver>()
+/** When each session compiled its project: a file changed since is no longer the checked one. */
+const checked = new Map<Driver, number>()
 
-/** The session for a root, opened and compiled once (`kirana-style check` over the root). */
+/**
+ * The session for a root, opened and compiled once (`kirana-style check` over the root). A module
+ * linted as it was checked is the engine's to reuse, so linting it changes nothing in the session.
+ */
 export function driverFor(root: string): Driver {
   let driver = drivers.get(root)
   if (!driver) {
     driver = Driver.createSync({ root })
+    driver.reuseTransforms()
+    checked.set(driver, Date.now())
     driver.check(["."])
     drivers.set(root, driver)
   }
   return driver
+}
+
+/**
+ * The project-wide diagnostics by file, read once per session while every file linted is the one
+ * on disk that the session checked (KF-123): the engine computes them over the whole project and
+ * hands them across as JSON, about 40 ms in a large project, which once per file was most of a lint
+ * run. A file linted with other text (an editor's unsaved buffer) asks the engine again, as the
+ * edit may change what other files report.
+ */
+const held = new Map<Driver, Map<string, Diagnostic[]>>()
+
+function projectDiagnostics(
+  driver: Driver,
+  current: boolean
+): Map<string, Diagnostic[]> {
+  if (current) {
+    const kept = held.get(driver)
+    if (kept) return kept
+  }
+  const byFile = new Map<string, Diagnostic[]>()
+  for (const diagnostic of driver.diagnostics()) {
+    const list = byFile.get(diagnostic.file)
+    if (list) list.push(diagnostic)
+    else byFile.set(diagnostic.file, [diagnostic])
+  }
+  if (current) held.set(driver, byFile)
+  else held.delete(driver)
+  return byFile
+}
+
+/**
+ * Whether the linted text is `file` as the session checked it: unchanged on disk since the check,
+ * and the whole file (`text`) or, for a block found in it (`undefined`), one of its blocks.
+ */
+function asChecked(
+  driver: Driver,
+  file: string,
+  text: string | undefined
+): boolean {
+  return (
+    existsSync(file) &&
+    Math.floor(statSync(file).mtimeMs) <= checked.get(driver)! &&
+    (text === undefined || readFileSync(file, "utf8") === text)
+  )
 }
 
 /** What the compiler says about one file. */
@@ -75,10 +126,17 @@ const scan = (file: string, source: string) =>
   JSON.parse(loadNative().scanComponent(file, source)) as Component
 
 /**
- * One module of the linted text: its id, its text, what the build appends to it, and the UTF-8
- * byte offset its text starts at in the linted text.
+ * One module of the linted text: its id, its text, what the build appends to it, the UTF-8 byte
+ * offset its text starts at in the linted text, and how many bytes the module the session checked
+ * has before that text (the line breaks Oxlint drops from a block, KF-034).
  */
-type Part = { id: string; text: string; appended: string; offset: number }
+type Part = {
+  id: string
+  text: string
+  appended: string
+  offset: number
+  shift: number
+}
 
 /**
  * A script block compiled as the build compiles it, as `Card.vue.setup.ts`: under that id the
@@ -91,7 +149,8 @@ function blockPart(
   component: Component,
   block: Component["blocks"][number],
   text: string,
-  offset: number
+  offset: number,
+  shift = 0
 ): Part {
   return {
     id: `${file}.${block.label}.${block.lang}`,
@@ -101,6 +160,7 @@ function blockPart(
         ? templateAnchors(component.bindings)
         : "",
     offset,
+    shift,
   }
 }
 
@@ -116,20 +176,26 @@ function modulesOf(
   file: string,
   text: string,
   componentParser: boolean
-): Part[] {
-  const own = [{ id: file, text, appended: "", offset: 0 }]
+): { parts: Part[]; block: boolean } {
+  const own = {
+    parts: [{ id: file, text, appended: "", offset: 0, shift: 0 }],
+    block: false,
+  }
   if (!frameworkOf(file)) return own
   const linted = scan(file, text)
   if (linted.blocks.length > 0 || componentParser)
-    return linted.blocks.map((block) =>
-      blockPart(
-        file,
-        linted,
-        block,
-        text.slice(block.start, block.end),
-        Buffer.byteLength(text.slice(0, block.start))
-      )
-    )
+    return {
+      parts: linted.blocks.map((block) =>
+        blockPart(
+          file,
+          linted,
+          block,
+          text.slice(block.start, block.end),
+          Buffer.byteLength(text.slice(0, block.start))
+        )
+      ),
+      block: false,
+    }
   if (!existsSync(file)) return own
   const source = readFileSync(file, "utf8")
   const component = scan(file, source)
@@ -138,11 +204,20 @@ function modulesOf(
     (candidate) =>
       edges(source.slice(candidate.start, candidate.end)) === edges(text)
   )
-  return block ? [blockPart(file, component, block, text, 0)] : own
+  if (!block) return own
+  const shift = leading(source.slice(block.start, block.end)) - leading(text)
+  return {
+    parts: [blockPart(file, component, block, text, 0, shift)],
+    block: true,
+  }
 }
 
 /** Text without the line breaks that open and close it. */
 const edges = (text: string) => text.replace(/^[\r\n]+|[\r\n]+$/g, "")
+
+/** How many line-break characters (one byte each) open `text`. */
+const leading = (text: string) =>
+  text.length - text.replace(/^[\r\n]+/, "").length
 
 /**
  * The compiler's view of the file being linted. `settings.kirana.root` (relative to the working
@@ -160,11 +235,14 @@ export function inspect(context: Context): Inspection {
     ? path.resolve(context.cwd, configured)
     : rootOf(file, context.cwd)
   const driver = driverFor(root)
-  const parts = modulesOf(
+  const { parts, block } = modulesOf(
     file,
     text,
     Object.keys(context.sourceCode.parserServices ?? {}).length > 0
   )
+  // The text the session checked: the project-wide diagnostics it holds are this file's.
+  const current = asChecked(driver, file, block ? undefined : text)
+  const kept = current ? projectDiagnostics(driver, true) : undefined
   const diagnostics: Diagnostic[] = []
   const sites: Site[] = []
   for (const part of parts) {
@@ -188,15 +266,23 @@ export function inspect(context: Context): Inspection {
         end: found.span.end + part.offset,
       },
     })
+    // Held, the spans are the checked module's, which may open with line breaks this text lacks
+    // (KF-034); one placed on them, as a relation's at the module's start, stays at the start.
+    // Asked again, they are this text's own.
+    const unshift = <T extends { span: { start: number; end: number } }>(
+      found: T
+    ): T => ({
+      ...found,
+      span: {
+        start: Math.max(0, found.span.start - part.shift),
+        end: Math.max(0, found.span.end - part.shift),
+      },
+    })
+    const project = kept
+      ? (kept.get(relative) ?? []).map(unshift)
+      : (projectDiagnostics(driver, false).get(relative) ?? [])
     diagnostics.push(
-      ...[
-        ...result.diagnostics,
-        ...driver
-          .diagnostics()
-          .filter((diagnostic) => diagnostic.file === relative),
-      ]
-        .filter(linted)
-        .map(place)
+      ...[...result.diagnostics, ...project].filter(linted).map(place)
     )
     sites.push(...driver.sites(part.id).filter(linted).map(place))
   }
@@ -223,5 +309,7 @@ export function inspect(context: Context): Inspection {
 /** Forgets every session (tests, and editors that lint after the configuration changed). */
 export function reset(): void {
   drivers.clear()
+  checked.clear()
+  held.clear()
   inspections.clear()
 }

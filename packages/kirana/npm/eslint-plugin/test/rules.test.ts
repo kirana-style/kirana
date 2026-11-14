@@ -699,6 +699,74 @@ tester.run("no-class-helpers", rules["no-class-helpers"] as never, {
   ],
 })
 
+// KF-123: the project-wide diagnostics are computed over the whole project and cross into
+// JavaScript as JSON, about 40 ms in a large project. Asked once per linted file, they were most of
+// a lint run; they are read once while every file is linted as the session checked it.
+describe("project-wide diagnostics", () => {
+  it("are read once for the files linted as checked, again for one that is not", async () => {
+    const { expect, vi } = await import("vite-plus/test")
+    const { mkdtempSync, rmSync, utimesSync, writeFileSync } =
+      await import("node:fs")
+    const { Driver } = await import("@kirana-style/compiler")
+    const { inspect } = await import("../src/project.ts")
+    reset()
+    const root = mkdtempSync(path.join(import.meta.dirname, ".kf123-"))
+    const lone = (name: string) =>
+      `import { css, relation } from "@kirana-style/core"\nconst ${name} = relation("${name}")\nexport const a = css({ color: { [${name}.within(":hover")]: "red" } })\n`
+    const files: Record<string, string> = {
+      "package.json": '{"name":"app","type":"module"}',
+      "kirana.config.json": "{}",
+      "a.tsx": lone("first"),
+      // Two in one file.
+      "b.tsx": `${lone("second")}${lone("third").split("\n").slice(1).join("\n").replace("export const a", "export const b")}`,
+      "c.tsx":
+        'import { css } from "@kirana-style/core"\nexport const c = css({ color: "red" })\n',
+      "d.tsx": lone("fourth"),
+      // Oxlint hands over the block without its leading line break (KF-034).
+      "Card.vue": `<script setup lang="ts">\n${lone("card")}</script>\n<template><div /></template>\n`,
+    }
+    for (const [name, text] of Object.entries(files))
+      writeFileSync(path.join(root, name), text)
+    const inRoot = (name: string) => path.join(root, name)
+    const context = (filename: string, text: string) =>
+      ({ filename, cwd: root, settings: {}, sourceCode: { text } }) as never
+    const names = (name: string, text = files[name]!) =>
+      inspect(context(inRoot(name), text)).diagnostics.map(
+        (found) => `${found.name}@${found.span.start}`
+      )
+    const asked = vi.spyOn(Driver.prototype, "diagnostics")
+    try {
+      const block = lone("card")
+      expect(names("a.tsx")).toEqual(["relation-without-anchor@0"])
+      expect(names("b.tsx")).toEqual([
+        "relation-without-anchor@0",
+        "relation-without-anchor@0",
+      ])
+      expect(names("c.tsx")).toEqual([])
+      expect(names("Card.vue", block)).toEqual(["relation-without-anchor@0"])
+      expect(asked).toHaveBeenCalledTimes(1)
+      // An edit the file on disk does not have: asked again, and the edit counts.
+      const anchored = `${files["c.tsx"]}import { relation as r } from "@kirana-style/core"\nexport const anchor = css({ [r("second").anchor]: {} })\n`
+      inspect(context(inRoot("c.tsx"), anchored))
+      expect(asked).toHaveBeenCalledTimes(2)
+      // The next file as checked reads them once more, then holds them again.
+      expect(names("d.tsx")).toEqual(["relation-without-anchor@0"])
+      expect(names("Card.vue", `${block}// unchanged\n`).length).toBe(1)
+      expect(asked).toHaveBeenCalledTimes(4)
+      // A file written since the session's check is not the checked one.
+      utimesSync(inRoot("a.tsx"), new Date(), new Date(Date.now() + 60_000))
+      expect(names("a.tsx", `${files["a.tsx"]}// saved\n`)).toEqual([
+        "relation-without-anchor@0",
+      ])
+      expect(asked).toHaveBeenCalledTimes(5)
+    } finally {
+      asked.mockRestore()
+      reset()
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+})
+
 describe("configs under ESLint", () => {
   it("runs every rule over one compiled file", async () => {
     const { expect } = await import("vite-plus/test")

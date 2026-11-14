@@ -404,7 +404,10 @@ loads through `jsPlugins` and ESLint loads through flat config (D-031):
 
 - Rules read the Driver's inspection API; they never re-implement validation. The package pins the exact
   `@kirana-style/compiler` version it was released with.
-- The project is inspected once per lint run, then rule visitors only look up results.
+- The project is inspected once per lint run, then rule visitors only look up results. Its project-wide
+  diagnostics are read once per session while each file is linted as the session checked it; a file
+  linted with other text (an editor's unsaved buffer) or changed on disk since is compiled again and the
+  project-wide diagnostics read again, so the edit counts.
 - **FACT:** Oxlint's JavaScript plugin support is documented as alpha
   ([Oxlint JS plugins](https://oxc.rs/docs/guide/usage/linter/js-plugins.html)); the plugin also works
   under ESLint so teams are not blocked on it.
