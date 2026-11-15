@@ -138,7 +138,7 @@ export const PACKAGES: readonly PackageEntry[] = [
     "name": "@kirana-style/states",
     "version": "0.4.1",
     "published": true,
-    "description": "Component states as Kirana condition keys: each part's data attributes, typed, generated from the UI library's own declarations, for Base UI, Ark UI, React Aria, Reka UI, Bits UI and Angular Primitives."
+    "description": "Component states as Kirana condition keys: each part's data attributes, typed, generated from the UI library's own declarations, for Base UI, Ark UI, React Aria, Reka UI, Bits UI, Angular Primitives, ui-sdk and Kirana UI Primitives."
   },
   {
     "name": "@kirana-style/registry",

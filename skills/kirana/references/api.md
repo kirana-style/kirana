@@ -51,9 +51,11 @@ relation reads). A headless part's states come typed from `@kirana-style/states`
 `'[data-side="bottom"]'` (`import { Select, Switch } from "@kirana-style/states/base-ui"`); prefer
 them to hand-typed attributes for Base UI parts, and likewise `@kirana-style/states/ark-ui`
 (`Switch.Root.state.checked`), `/react-aria` (`Button.focusVisible`), `/reka-ui` and `/bits-ui`
-(`Switch.Root.state.checked`) and `/ng-primitives` (`Switch.Root.checked`). Each exports `exclusive`
-for `conditions: { exclusive }` in `kirana.config`, so `checked` and `unchecked` on one property are
-not `ambiguous-precedence`. Nesting two conditions means both must match, and
+(`Switch.Root.state.checked`), `/ng-primitives` (`Switch.Root.checked`), `/ui-sdk` (`Popover.Content.open`)
+and `/kirana-ui` (Kirana UI Primitives, Base UI's names). Each exports `exclusive` for
+`conditions: { exclusive }` in `kirana.config`, so `checked` and `unchecked` on one property are not
+`ambiguous-precedence`; `conditionsOf(baseUi, kiranaUi)` from `@kirana-style/states` gives both
+`exclusive` and `exclusiveAcross` for several libraries. Nesting two conditions means both must match, and
 the nested one wins.
 `"*": null` drops every earlier entry of a property; `base: null` drops the base entry only. A whole
 box removed in one style, as `padding` or as `paddingBlock` with `paddingInline`, drops it on both
@@ -167,15 +169,17 @@ counterStyle(descriptors): CounterStyle          // an @counter-style rule's nam
 `ConditionalValue<V>`, `Condition`, `SelectTarget`, `Token`, `Keyframes`, `PositionTry`,
 `Fallbacks<V>`, `ViewTransition`, `CounterStyle`.
 
-| Import                               | Gives                                            |
-| ------------------------------------ | ------------------------------------------------ |
-| `@kirana-style/core`                 | the API above                                    |
-| `@kirana-style/core/config`          | `defineConfig` for `kirana.config.ts`            |
-| `@kirana-style/core/react`           | the `sx` prop's types                            |
-| `@kirana-style/core/stylesheet.css`  | the stylesheet entry, imported once by the app   |
-| `@kirana-style/states/base-ui`       | Base UI parts' states as condition keys          |
-| `@kirana-style/states/ark-ui`        | Ark UI (Zag) parts' states as condition keys     |
-| `@kirana-style/states/react-aria`    | React Aria components' states as condition keys  |
-| `@kirana-style/states/reka-ui`       | Reka UI (Vue) parts' states as condition keys    |
-| `@kirana-style/states/bits-ui`       | Bits UI (Svelte) parts' states as condition keys |
-| `@kirana-style/states/ng-primitives` | Angular Primitives' states as condition keys     |
+| Import                               | Gives                                                       |
+| ------------------------------------ | ----------------------------------------------------------- |
+| `@kirana-style/core`                 | the API above                                               |
+| `@kirana-style/core/config`          | `defineConfig` for `kirana.config.ts`                       |
+| `@kirana-style/core/react`           | the `sx` prop's types                                       |
+| `@kirana-style/core/stylesheet.css`  | the stylesheet entry, imported once by the app              |
+| `@kirana-style/states/base-ui`       | Base UI parts' states as condition keys                     |
+| `@kirana-style/states/ark-ui`        | Ark UI (Zag) parts' states as condition keys                |
+| `@kirana-style/states/react-aria`    | React Aria components' states as condition keys             |
+| `@kirana-style/states/reka-ui`       | Reka UI (Vue) parts' states as condition keys               |
+| `@kirana-style/states/bits-ui`       | Bits UI (Svelte) parts' states as condition keys            |
+| `@kirana-style/states/ng-primitives` | Angular Primitives' states as condition keys                |
+| `@kirana-style/states/ui-sdk`        | ui-sdk parts' states as condition keys                      |
+| `@kirana-style/states/kirana-ui`     | Kirana UI Primitives' states, from its published vocabulary |

@@ -16,7 +16,8 @@ export function entries(vocabulary: Record<string, unknown>) {
       else walk(component, part, inner as object, [...path, key])
   }
   for (const [component, value] of Object.entries(vocabulary)) {
-    if (component === "exclusive") continue
+    // Components are the capitalised exports; `exclusive`, `sharesNamesWith` and `variables` are not.
+    if (!/^[A-Z]/.test(component)) continue
     for (const [key, inner] of Object.entries(value as object))
       if (/^[A-Z]/.test(key)) walk(component, key, inner as object, [])
       else if (typeof inner === "string")
