@@ -104,9 +104,9 @@ export function settlesAt(
   return Math.max(...dates.map((date) => date ?? now)) + maxAge * 1000
 }
 
-/** A package's name as npm writes it in a URL (`@kirana-style%2fcore`, npm-package-arg's `escapedName`). */
+/** A package's name as npm writes it in a URL (`@kirana-style%2fcore`, npm-package-arg's `escapedName`). A valid name has one slash at most; `replaceAll` keeps an invalid one from reaching the URL half escaped. */
 export function escapedName(name: string): string {
-  return name.replace("/", "%2f")
+  return name.replaceAll("/", "%2f")
 }
 
 type Request = { url: string; init: RequestInit }

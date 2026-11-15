@@ -174,6 +174,7 @@ describe("the token exchange", () => {
     expect(escapedName("@kirana-style/compiler-wasm32-wasi")).toBe(
       "@kirana-style%2fcompiler-wasm32-wasi"
     )
+    expect(escapedName("a/b/c")).toBe("a%2fb%2fc")
   })
 
   it("needs npm 11.5.1 or later", () => {
