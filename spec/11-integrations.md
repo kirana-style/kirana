@@ -169,7 +169,14 @@ Vite discards that stale result rather than caching it, and sends the update aga
 analysed the module. Vite's client drops an update for a module the page has not run yet, and on a
 cold start with many modules every update can arrive before the stylesheet runs; so the stylesheet
 module, once it runs, sends the revision it holds (`kirana:stylesheet`), and the server sends the update
-again to a page behind it (KF-071). CI starts the
+again to a page behind it (KF-071). A server with HMR off (`server.hmr: false`, which Vitest sets for its
+browser mode) never reloads the stylesheet module, and the CSS update swaps only `<link>` elements, so
+nothing reaches the `<style>` a JavaScript-imported stylesheet writes. There the plugin invalidates every module of
+the stylesheet, so no request is answered from a transform cached before the change, and sends the
+pages the current revision (`kirana:stylesheet-revision`). The stylesheet module, told of a revision
+newer than its own, fetches its own URL as CSS (`?direct`) and replaces its `<style>`'s text only when
+the text changed, so an update that adds nothing does not restyle the page and end a running
+transition; a response a later one overtook is dropped (KF-124). CI starts the
 dev server of every Vite-based example and requires a style edit to reach the page, in place without
 a reload where the framework updates components that way (Vue, Nuxt, Svelte, SvelteKit). (The watch-build-only
 limitation recorded earlier is resolved.)

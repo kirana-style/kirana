@@ -863,6 +863,190 @@ describe("KRN-INT-009 development server", () => {
     }
   })
 
+  it("invalidates the stylesheet and sends its revision when HMR is off (KF-124)", async () => {
+    const root = app()
+    const server = await createServer({
+      root,
+      logLevel: "silent",
+      configFile: false,
+      plugins: [kirana()],
+      // Vitest's browser mode turns HMR off: Vite reloads nothing and sends no update.
+      server: {
+        middlewareMode: true,
+        ws: false,
+        watch: null,
+        hmr: false,
+        preTransformRequests: false,
+      },
+    })
+    try {
+      const client = server.environments.client
+      await client.transformRequest("/src/main.ts")
+      const stylesheet = (await client.pluginContainer.resolveId(
+        "@kirana-style/core/stylesheet.css",
+        path.join(root, "src/main.ts")
+      ))!.id
+      const page = String((await client.transformRequest(stylesheet))!.code)
+      // The module the page runs follows the stylesheet; the CSS Vite serves under `?direct` is CSS.
+      expect(page).toContain('import.meta.hot.on("kirana:stylesheet-revision"')
+      const direct = `${stylesheet}?direct`
+      expect(
+        String((await client.transformRequest(direct))!.code)
+      ).not.toContain("import.meta")
+      const send = vi.spyOn(client.hot, "send")
+      const reload = vi.spyOn(client, "reloadModule")
+      const plugin = server.config.plugins.find(
+        (candidate) => candidate.name === "kirana"
+      )!
+      await (
+        plugin.transform as {
+          handler: (this: unknown, ...args: unknown[]) => Promise<unknown>
+        }
+      ).handler.call(
+        { addWatchFile() {}, warn() {}, error() {} },
+        'import { css } from "@kirana-style/core"\nexport const late = css({ order: 8 })',
+        path.join(root, "src/late.ts")
+      )
+      await vi.waitFor(() =>
+        expect(send).toHaveBeenCalledWith(
+          "kirana:stylesheet-revision",
+          expect.any(Number)
+        )
+      )
+      expect(reload).not.toHaveBeenCalled()
+      // Nothing cached from before the change is served: the page's fetch reads the new rule.
+      for (const id of [stylesheet, direct]) {
+        expect(client.moduleGraph.getModuleById(id)!.transformResult).toBeNull()
+        expect(String((await client.transformRequest(id))!.code)).toContain(
+          "order: 8"
+        )
+      }
+      // A stylesheet module `load` never saw reports revision 0, so the server sends it the current one.
+      const late = server.config.plugins.find(
+        (candidate) => candidate.name === "kirana:late"
+      )!
+      expect(
+        (
+          late.transform as {
+            handler: (this: unknown, ...args: unknown[]) => unknown
+          }
+        ).handler.call(
+          {},
+          "__vite__updateStyle(__vite__id, __vite__css)",
+          `${stylesheet}?unseen`
+        )
+      ).toContain('import.meta.hot.send("kirana:stylesheet", 0)')
+    } finally {
+      await server.close()
+    }
+  })
+
+  it("has the page's stylesheet fetch itself again when told of a newer revision (KF-124)", async () => {
+    const root = app()
+    const server = await createServer({
+      root,
+      logLevel: "silent",
+      configFile: false,
+      plugins: [kirana()],
+      server: {
+        middlewareMode: true,
+        ws: false,
+        watch: null,
+        hmr: false,
+        preTransformRequests: false,
+      },
+    })
+    let code: string
+    try {
+      const client = server.environments.client
+      await client.transformRequest("/src/main.ts")
+      const stylesheet = (await client.pluginContainer.resolveId(
+        "@kirana-style/core/stylesheet.css",
+        path.join(root, "src/main.ts")
+      ))!.id
+      code = String((await client.transformRequest(stylesheet))!.code)
+    } finally {
+      await server.close()
+    }
+    // What the plugin appends, after Vite's own code, run against a page of fakes.
+    const start = code.indexOf("\nif (import.meta.hot) {\n  let held")
+    expect(start).toBeGreaterThan(0)
+    const held = Number(
+      /import\.meta\.hot\.send\("kirana:stylesheet", (\d+)\)/.exec(code)![1]
+    )
+    const listeners: Array<(revision: number) => Promise<void>> = []
+    const sent: unknown[][] = []
+    const meta = {
+      url: "http://localhost:5173/node_modules/@kirana-style/core/stylesheet.css?t=1",
+      hot: {
+        on: (_: string, listener: (typeof listeners)[number]) =>
+          listeners.push(listener),
+        send: (...args: unknown[]) => sent.push(args),
+      },
+    }
+    const update = vi.fn()
+    type Reply = { ok: boolean; text: () => Promise<string> }
+    const replies: Array<(reply: Reply | Error) => void> = []
+    const fetch = vi.fn(
+      () =>
+        new Promise<Reply>((resolve, reject) =>
+          replies.push((reply) =>
+            reply instanceof Error ? reject(reply) : resolve(reply)
+          )
+        )
+    )
+    const answer = (text: string, ok = true) =>
+      replies.shift()!({ ok, text: async () => text })
+    new Function(
+      "meta",
+      "__vite__updateStyle",
+      "__vite__id",
+      "__vite__css",
+      "fetch",
+      code.slice(start).replaceAll("import.meta", "meta")
+    )(meta, update, "/stylesheet.css", ".a{}", fetch)
+    const tell = listeners[0]!
+    expect(sent).toEqual([["kirana:stylesheet", held]])
+
+    // Not newer than what it holds: nothing to fetch.
+    await tell(held)
+    expect(fetch).not.toHaveBeenCalled()
+    // Newer, but the same text: fetched from its own URL as CSS, and the page is not restyled.
+    let told = tell(held + 1)
+    expect(fetch).toHaveBeenCalledWith(
+      new URL(
+        "http://localhost:5173/node_modules/@kirana-style/core/stylesheet.css?direct"
+      ),
+      { cache: "no-cache" }
+    )
+    answer(".a{}")
+    await told
+    expect(update).not.toHaveBeenCalled()
+    // Two in flight: the later answer wins, and the earlier one, arriving last, is dropped.
+    const earlier = tell(held + 2)
+    const later = tell(held + 3)
+    replies.reverse()
+    answer(".a{}.c{}")
+    answer(".a{}.b{}")
+    await Promise.all([earlier, later])
+    expect(update.mock.calls).toEqual([["/stylesheet.css", ".a{}.c{}"]])
+    // A failed fetch changes nothing, and the same revision told again is fetched again.
+    for (const fail of [
+      () => answer("Internal Server Error", false),
+      () => replies.shift()!(new Error("offline")),
+    ]) {
+      told = tell(held + 4)
+      fail()
+      await told
+    }
+    expect(fetch).toHaveBeenCalledTimes(5)
+    told = tell(held + 4)
+    answer(".a{}.c{}.d{}")
+    await told
+    expect(update).toHaveBeenLastCalledWith("/stylesheet.css", ".a{}.c{}.d{}")
+    expect(update).toHaveBeenCalledTimes(2)
+  })
+
   it("stops waiting for a stylesheet no browser asks for", async () => {
     const root = app()
     const server = await createServer({

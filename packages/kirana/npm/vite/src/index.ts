@@ -6,11 +6,7 @@
 import { createRequire } from "node:module"
 import path from "node:path"
 
-import {
-  ASSET_QUERY,
-  cleanId,
-  stylesheetPath,
-} from "@kirana-style/compiler/host"
+import { cleanId, stylesheetPath } from "@kirana-style/compiler/host"
 import { createKirana } from "@kirana-style/rolldown"
 import type { KiranaRolldownOptions } from "@kirana-style/rolldown"
 import type { Plugin, ViteDevServer } from "vite"
@@ -55,6 +51,52 @@ const RETRIES = 20
  * stylesheet it holds (KF-071).
  */
 const HELD = "kirana:stylesheet"
+
+/**
+ * What the dev server sends a page when Vite will not hot-update the stylesheet module, its HMR being
+ * off (`server.hmr: false`, which Vitest sets for its browser mode): the current revision. The
+ * stylesheet module then fetches itself again (KF-124).
+ */
+const CURRENT = "kirana:stylesheet-revision"
+
+/**
+ * The line Vite's CSS plugin ends a JavaScript-imported stylesheet's module with in development: it
+ * puts the text in the page's `<style>`. A module without it (`?direct`, `?inline`) is not the page's
+ * stylesheet.
+ */
+const INJECTS = "__vite__updateStyle(__vite__id, __vite__css)"
+
+/**
+ * What the stylesheet module runs in the page after Vite's own code: it reports the revision `held`
+ * it was served (KF-071) and, told of a newer one, fetches its own text as it stands now
+ * (`?direct`, which Vite answers with the CSS) and puts it in place of its `<style>`'s, only when
+ * the text changed: a restyle ends a running transition or entrance. A response that a later one
+ * overtook is dropped, and a failed fetch leaves the next report to try again (KF-124).
+ */
+function stylesheetClient(held: number): string {
+  return `
+if (import.meta.hot) {
+  let held = ${held}, latest = ${held}, text = __vite__css
+  import.meta.hot.on(${JSON.stringify(CURRENT)}, async (current) => {
+    if (current <= latest) return
+    latest = current
+    try {
+      const url = new URL(import.meta.url)
+      url.search = "?direct"
+      const response = await fetch(url, { cache: "no-cache" })
+      if (!response.ok) throw new Error(String(response.status))
+      const next = await response.text()
+      if (current !== latest) return
+      held = current
+      if (next !== text) __vite__updateStyle(__vite__id, (text = next))
+    } catch {
+      if (current === latest) latest = held
+    }
+  })
+  import.meta.hot.send(${JSON.stringify(HELD)}, ${held})
+}
+`
+}
 
 /** The module compiled output imports for the runtime merge (`kirana_transform`). */
 const RUNTIME = "@kirana-style/core/internal"
@@ -103,9 +145,9 @@ export default function kirana(
   let deadline = 0
   let sent = 0
   let retry: ReturnType<typeof setTimeout> | undefined
-  /** How many times a transform changed the stylesheet, and the count the last one served had. */
+  /** How many times a transform changed the stylesheet, and the count each module of it was served. */
   let revision = 0
-  let served = 0
+  const served = new Map<string, number>()
 
   /**
    * Tells browsers the stylesheet changed, once per burst of transforms (KRN-INT-009): a save after a
@@ -140,6 +182,10 @@ export default function kirana(
    * Vite's update stops silently at a module it has not analysed yet, and a reload would serve the
    * stylesheet a running transform cached before this change. Such a module is invalidated as an
    * edited file is, which discards that result, and the update is retried.
+   *
+   * With HMR off (Vitest's browser mode) Vite reloads nothing and sends no update: every module of
+   * the stylesheet is invalidated, so the next request reads the current one, and pages are sent
+   * its revision, for the stylesheet module to fetch itself again (KF-124).
    */
   const push = (attempt = 0) => {
     clearTimeout(retry)
@@ -149,12 +195,16 @@ export default function kirana(
       const modules = [
         ...(environment.moduleGraph.getModulesByFile(stylesheetFile) ?? []),
       ]
+      const hot = environment.config.server.hmr !== false
       for (const module of modules) {
-        if (module.isSelfAccepting === undefined) {
+        if (hot && module.isSelfAccepting !== undefined)
+          void environment.reloadModule(module)
+        else {
           environment.moduleGraph.invalidateModule(module)
-          unanalysed = true
-        } else void environment.reloadModule(module)
+          if (hot) unanalysed = true
+        }
       }
+      if (!hot) environment.hot.send(CURRENT, revision)
       const urls = new Set(modules.map((module) => module.url))
       if (urls.size === 0) urls.add(`/@fs${stylesheetFile}`)
       server.ws.send({
@@ -266,9 +316,9 @@ export default function kirana(
   }
   /**
    * What runs after Vite's own plugins. On a dev server, the stylesheet module, once Vite's CSS
-   * plugin has made it a script, reports the revision it holds when the page runs it; `load` notes
-   * the revision of the stylesheet it reads. In a build, the stylesheets other plugins added are
-   * filled.
+   * plugin has made it a script, reports the revision it holds when the page runs it and follows
+   * newer ones Vite does not deliver (`stylesheetClient`); `load` notes the revision of the
+   * stylesheet each module reads. In a build, the stylesheets other plugins added are filled.
    */
   const late: Plugin = {
     name: "kirana:late",
@@ -277,7 +327,7 @@ export default function kirana(
       order: "pre",
       filter: { id: /stylesheet\.css/ },
       handler(id) {
-        if (cleanId(id) === stylesheetFile) served = revision
+        if (cleanId(id) === stylesheetFile) served.set(id, revision)
         return null
       },
     },
@@ -288,10 +338,10 @@ export default function kirana(
         if (
           servers.size === 0 ||
           cleanId(id) !== stylesheetFile ||
-          ASSET_QUERY.test(id)
+          !code.includes(INJECTS)
         )
           return null
-        return `${code}\nif (import.meta.hot) import.meta.hot.send(${JSON.stringify(HELD)}, ${served})\n`
+        return `${code}\n${stylesheetClient(served.get(id) ?? 0)}`
       },
     },
     generateBundle: {

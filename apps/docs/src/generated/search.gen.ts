@@ -3628,7 +3628,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Vite",
     "section": "bundlers",
     "heading": "The stylesheet",
-    "text": "Import the entry once, in your entry; a framework that renders the document as a component imports it as a URL for its : In development the plugin serves the live stylesheet and pushes updates over Vite's hot channel, so a style change restyles the page without a reload. A page that is still loading its modules on a cold start cannot take an update yet; when the stylesheet runs, it tells the server which one it holds, and the server sends a newer one. In a build it replaces the placeholder rule with the real stylesheet and renames the asset to a content hash. returns two plugins, which Vite flattens, so it is still one entry in . The second, , runs after Vite's own: at the end of a build for a stylesheet asset a framework adds after the first has filled the others (Qwik does), and on a dev server to have the stylesheet report what it holds. , and behave the way they do for any other Vite asset."
+    "text": "Import the entry once, in your entry; a framework that renders the document as a component imports it as a URL for its : In development the plugin serves the live stylesheet and pushes updates over Vite's hot channel, so a style change restyles the page without a reload. A page that is still loading its modules on a cold start cannot take an update yet; when the stylesheet runs, it tells the server which one it holds, and the server sends a newer one. With Vite delivers no update, so the server tells the page the stylesheet changed and the stylesheet fetches itself again ( Vitest below). In a build it replaces the placeholder rule with the real stylesheet and renames the asset to a content hash. returns two plugins, which Vite flattens, so it is still one entry in . The second, , runs after Vite's own: at the end of a build for a stylesheet asset a framework adds after the first has filled the others (Qwik does), and on a dev server to have the stylesheet report what it holds. , and behave the way they do for any other Vite asset."
+  },
+  {
+    "id": "/docs/integrations/vite#vitest",
+    "href": "/docs/integrations/vite#vitest",
+    "page": "Vite",
+    "section": "bundlers",
+    "heading": "Vitest",
+    "text": "Vitest runs on Vite, so the plugin in your compiles the modules your tests import, to the class names the app ships. In browser mode, import the stylesheet in a setup file, as your app's entry does: Browser mode turns Vite's hot updates off, so a component a test imports compiles after the page loaded the stylesheet, and no hot update can bring its rules. The plugin tells the page the stylesheet changed, and the stylesheet fetches itself again, a moment after the component's module compiled. Read a style with an assertion that retries rather than right after mounting: The page's stylesheet is replaced only when its text changed, so an update that adds nothing does not restyle the page and cut a running transition short."
   },
   {
     "id": "/docs/integrations/vite#a-stylesheet-of-your-own",

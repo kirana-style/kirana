@@ -23,6 +23,8 @@ What it does:
   `.anchor` are compiled; everything else is left untouched. Compiler errors fail the build with the source line; warnings are printed.
 - **Development.** `@kirana-style/core/stylesheet.css` serves the live stylesheet. Editing a style sends a
   CSS hot update without a reload; editing tokens or relations re-runs the importers that read them.
+  With HMR off (`server.hmr: false`, as in Vitest's browser mode), the page's stylesheet fetches itself
+  again when the server says it changed, and replaces its text only when the text differs.
 - **Build.** The stylesheet asset first holds a placeholder rule; once every environment (client and
   server) has compiled, the plugin writes the finished stylesheet into it, renames it by content hash
   and patches every chunk and asset that names it.
