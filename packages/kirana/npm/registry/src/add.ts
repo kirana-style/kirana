@@ -39,6 +39,7 @@ import { loadSettings } from "./settings.ts"
 import type { AliasedType, Settings } from "./settings.ts"
 import type {
   Framework,
+  Index,
   Item,
   Locked,
   Lockfile,
@@ -86,12 +87,17 @@ const IMPORT = /(["'])@\/registry\/([a-z]+)\/([^"']+)\1/g
 const qualify = (dependency: string, namespace: string) =>
   dependency.startsWith("@") ? dependency : `${namespace}/${dependency}`
 
-/** The framework and base whose markup the project gets, or why it cannot get any. */
+/**
+ * The framework and base whose markup the project gets, or why it cannot get any: `base` (the
+ * project's `ui.base`) when set, else the item's only base, else `fallback`, its registry's default
+ * for the framework (KF-120), when the item has it.
+ */
 export function chooseBase(
   key: string,
   item: Item,
   framework: Framework | undefined,
-  base: string | undefined
+  base: string | undefined,
+  fallback?: string
 ): { framework?: Framework; base?: string } {
   if (!item.frameworks) return {}
   const supported = Object.entries(item.frameworks)
@@ -110,12 +116,50 @@ export function chooseBase(
   if (base !== undefined && names.includes(base)) return { framework, base }
   if (base === undefined && names.length === 1)
     return { framework, base: names[0]! }
+  if (base === undefined && fallback !== undefined && names.includes(fallback))
+    return { framework, base: fallback }
+  const lacking =
+    fallback === undefined
+      ? ""
+      : `, and not ${fallback}, ${parseReference(key).namespace}'s default`
   throw new RegistryError(
     base === undefined
-      ? `${key} has several ${framework} bases (${names.join(", ")}): set ui.base in kirana.config`
+      ? `${key} has several ${framework} bases (${names.join(", ")})${lacking}: set ui.base in kirana.config`
       : `${key} has no ${framework} markup for the base ${base}: it has ${names.join(", ")}`
   )
 }
+
+/** Reads each registry's index once per command, by namespace. */
+export function indexReader(
+  settings: Settings,
+  options: Options = {}
+): (namespace: string) => Promise<Index> {
+  const indexes = new Map<string, Promise<Index>>()
+  return (namespace) => {
+    let index = indexes.get(namespace)
+    if (index === undefined) {
+      index = read(`${namespace}/index`, settings, options).then(
+        ({ document }) => document as Index
+      )
+      indexes.set(namespace, index)
+    }
+    return index
+  }
+}
+
+/**
+ * A registry's default base for a framework, from its index (KF-120): none when the index names none
+ * or cannot be read, which leaves the choice to `ui.base`.
+ */
+export const defaultBase = (
+  indexOf: (namespace: string) => Promise<Index>,
+  namespace: string,
+  framework: Framework
+): Promise<string | undefined> =>
+  indexOf(namespace).then(
+    (index) => index.defaultBase?.[framework],
+    () => undefined
+  )
 
 /** One item as it installs: its files and its base's, and the packages they need. */
 export function planItem(
@@ -184,6 +228,7 @@ export async function plan(
   const framework = settings.framework ?? frameworkOf(project)
   const planned: Planned[] = []
   const visited = new Set<string>()
+  const indexOf = indexReader(settings, options)
   const visit = async (reference: string) => {
     if (!REFERENCE_PATTERN.test(reference))
       throw new RegistryError(
@@ -197,7 +242,14 @@ export async function plan(
     if (found.kind === "index")
       throw new RegistryError(`${key} is an index, not an item`)
     const item = found.document as Item
-    const chosen = chooseBase(key, item, framework, settings.base)
+    // The registry's default, read only to choose among several bases (KF-120).
+    const fallback =
+      settings.base === undefined &&
+      framework !== undefined &&
+      Object.keys(item.frameworks?.[framework] ?? {}).length > 1
+        ? await defaultBase(indexOf, namespace, framework)
+        : undefined
+    const chosen = chooseBase(key, item, framework, settings.base, fallback)
     const entry =
       chosen.framework === undefined
         ? undefined

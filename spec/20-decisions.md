@@ -1667,7 +1667,7 @@ the implementation tracker names its evidence.
 ### D-107 — Registry items in Kirana's own format, with a lockfile
 
 - **Status:** Accepted (2026-10-25). For kirana-ui's installer; the format third-party registries
-  use too. Amended 2026-10-29 for KF-050.
+  use too. Amended 2026-10-29 for KF-050, 2026-11-15 for KF-120.
 - **Decision:** a registry item is one JSON document of Kirana's own (KRN-DX-021): its style modules
   as written, one source for every framework, and its markup per framework and base, which
   installation flattens for the project's design. Registries are URL templates by namespace, with
@@ -1677,20 +1677,29 @@ the implementation tracker names its evidence.
   own reading of those schemas. A `font` item carries `font`: the family its design's tokens write and
   the stylesheet that loads it, a module of a package it depends on, which `ui add` imports in the
   app's entry. A design system's axis names the item each value installs (`items`), which
-  `ui init --preset` and `ui preset` add.
+  `ui init --preset` and `ui preset` add. A registry's index may name a default base per framework
+  (`defaultBase`): `ui add` takes it from an item with several bases when the project sets no
+  `ui.base`, and `ui init` writes it to `ui.base`.
 - **Rationale:** shadcn/ui's format holds one copy per framework and style, flattened ahead, and its
   CLI installs React only: kirana-ui would need a copy per combination (12 today), and could not
   install a design it did not build ahead. Carrying the unflattened styles once and the markup per
   framework lets one registry serve every framework and any design. Hashes and a lockfile give
   integrity, `diff` and `update`, which a copy-in model without a record lacks. JSON Schema lets
   editors and other tools check items without Kirana; checking with the schemas themselves keeps one
-  definition.
+  definition. The default base is the registry's to choose, so making a new base the default (Kirana
+  UI's own primitives) is a change to its index, not a release of the CLI; it lives in the index,
+  not in each item, because `init` needs it before it has read an item with markup, and one field
+  switches the whole registry. `init` writes it to `ui.base` so that a project keeps the base it
+  started with when the registry changes its default, and never mixes two.
 - **Trade-off:** shadcn/ui's CLI cannot read these items, so kirana-ui keeps a shadcn export for
   React users who stay on it. The lockfile is one file more in a project; it is plain JSON, named for
   the command that writes it, not for a registry, since one project installs from several. A
   family's item is named per value rather than found by a `font-<value>` convention: a value such as
   `inherit` names none, and a registry names its items as it likes. `ui preset` does not remove a
-  family no value names any more: the project may use it elsewhere, so it says so instead.
+  family no value names any more: the project may use it elsewhere, so it says so instead. A project
+  that sets no `ui.base` and was not set up by `init` follows the registry's default as it changes,
+  for the items it adds next; the lockfile keeps each installed item's base, which `update` and
+  `ui preset` keep. A style module without markup still takes its build for `ui.base` alone.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
 ### D-108 — Installed files name each other through the project's aliases

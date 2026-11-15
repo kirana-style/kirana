@@ -16,6 +16,28 @@
     "homepage": {
       "type": "string"
     },
+    "defaultBase": {
+      "type": "object",
+      "description": "The base each framework takes, by framework: `ui add` installs it from an item with several bases when the project sets no `ui.base`, and `ui init` writes it to `ui.base` (KF-120). Each is a base an item lists for that framework.",
+      "properties": {
+        "react": {
+          "$ref": "#/$defs/name"
+        },
+        "vue": {
+          "$ref": "#/$defs/name"
+        },
+        "svelte": {
+          "$ref": "#/$defs/name"
+        },
+        "solid": {
+          "$ref": "#/$defs/name"
+        },
+        "angular": {
+          "$ref": "#/$defs/name"
+        }
+      },
+      "additionalProperties": false
+    },
     "items": {
       "type": "array",
       "items": {

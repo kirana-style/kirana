@@ -121,7 +121,8 @@ const USAGE = `Usage: kirana-style ui <command>
 
 Commands in this release:
   init                   set a project up for a registry: Kirana where it is missing, the ui settings
-                         (--framework, --base, --registry @namespace=<template>), and the registry's
+                         (--framework, --base, else the registry index's defaultBase for the
+                         framework; --registry @namespace=<template>), and the registry's
                          design system (--design <item>) installed and wired in; --template <name>
                          [directory] starts a new project from one of Kirana's examples, a
                          registry's template (@namespace/name) or a template's archive (a URL),

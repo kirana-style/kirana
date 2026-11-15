@@ -307,6 +307,41 @@ describe("KRN-DX-022 an index", () => {
       },
     ])
   })
+
+  it("names a default base per framework, one an item lists for it (KF-120)", () => {
+    const items: Index["items"] = [
+      {
+        name: "button",
+        type: "component",
+        version: "0.1.0",
+        frameworks: { react: ["base", "kirana"], angular: ["kirana"] },
+      },
+      { name: "utils", type: "lib", version: "0.1.0" },
+    ]
+    expect(
+      check({ defaultBase: { react: "kirana", angular: "kirana" }, items })
+    ).toEqual({ kind: "index", problems: [] })
+    expect(
+      check({ defaultBase: { react: "aria", vue: "kirana" }, items }).problems
+    ).toEqual([
+      {
+        pointer: "/defaultBase/react",
+        message: "names aria, which no item has for react",
+      },
+      {
+        pointer: "/defaultBase/vue",
+        message: "names kirana, which no item has for vue",
+      },
+    ])
+    // The schema first: a framework it does not know, a base that is not a name.
+    expect(
+      check({ defaultBase: { qwik: "kirana", react: "Kirana" }, items })
+        .problems
+    ).toEqual([
+      { pointer: "/defaultBase/qwik", message: "is not allowed here" },
+      expect.objectContaining({ pointer: "/defaultBase/react" }),
+    ])
+  })
 })
 
 describe("KRN-DX-025 the lockfile", () => {

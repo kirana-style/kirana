@@ -25,7 +25,9 @@ import type { PackageManager } from "@kirana-style/compiler"
 
 import {
   checkWritten,
+  defaultBase,
   designSystemsOf,
+  indexReader,
   installPackages,
   place,
   placeOf,
@@ -56,7 +58,7 @@ import {
   TEMPLATE_FILE,
 } from "./project.ts"
 import type { Generator } from "./project.ts"
-import { read, RegistryError } from "./read.ts"
+import { parseReference, read, RegistryError } from "./read.ts"
 import { FRAMEWORKS, NAMESPACE_PATTERN, REFERENCE_PATTERN } from "./schema.ts"
 import { loadSettings } from "./settings.ts"
 import type { Settings } from "./settings.ts"
@@ -236,8 +238,7 @@ function withChosen(settings: Settings, chosen: Chosen): Settings {
 async function designOf(
   asked: string | undefined,
   namespace: string,
-  settings: Settings,
-  options: Options
+  indexOf: (namespace: string) => Promise<Index>
 ): Promise<string> {
   if (asked !== undefined) {
     if (!REFERENCE_PATTERN.test(asked))
@@ -246,8 +247,7 @@ async function designOf(
       )
     return asked.startsWith("@") ? asked : `${namespace}/${asked}`
   }
-  const { document } = await read(`${namespace}/index`, settings, options)
-  const found = (document as Index).items.find(
+  const found = (await indexOf(namespace)).items.find(
     (entry) => entry.type === "design-system"
   )
   if (!found)
@@ -1102,11 +1102,11 @@ export async function runInit(
       Object.keys(chosen.registries)[0] ??
       [...settings.registries.keys()].find((name) => name !== "@kirana") ??
       "@kirana"
+    const indexOf = indexReader(settings, options)
     const design = await designOf(
       parsed.values.get("--design")?.at(-1),
       namespace,
-      settings,
-      options
+      indexOf
     )
     // A preset, read with the design system's own layouts before anything is placed for it, and
     // the font items its values name (KF-050).
@@ -1123,6 +1123,19 @@ export async function runInit(
       Object.assign(chosen, given)
       settings = { ...settings, ...given }
       fonts.push(...axisItems(item.design!, given.design, design))
+    }
+    // Without a base, the design system's registry's default for the framework, written to ui.base
+    // so that the project keeps it when the registry changes its default (KF-120).
+    if (settings.base === undefined && settings.framework !== undefined) {
+      const home = parseReference(design).namespace
+      const base = await defaultBase(indexOf, home, settings.framework)
+      if (base !== undefined) {
+        chosen.base = base
+        settings = { ...settings, base }
+        report.push(
+          `ui.base ${base}, ${home}'s default for ${settings.framework}`
+        )
+      }
     }
     if (root === app)
       settings = prepareAliases(

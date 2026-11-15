@@ -845,6 +845,60 @@ describe("KRN-DX-032 kirana-style ui preset", () => {
     })
   })
 
+  it("keeps the base each item was installed with when the project sets none (KF-120)", async () => {
+    // Installed on the registry's default base, with no ui.base.
+    const cwd = await installed(
+      {},
+      {
+        "acme/kit.json": JSON.stringify({
+          ...KIT,
+          design: {
+            ...DESIGN,
+            presets: {
+              s: [
+                { axis: "style", values: ["nova", "vega"], bits: 1 },
+                { axis: "framework", values: ["react", "vue"], bits: 1 },
+              ],
+            },
+          },
+        }),
+        "acme/button.json": JSON.stringify({
+          ...BUTTON,
+          frameworks: {
+            ...BUTTON.frameworks,
+            vue: { ark: { files: [file("Button.vue", "<template/>\n")] } },
+          },
+        }),
+        "acme/index.json": JSON.stringify({
+          defaultBase: { react: "aria" },
+          items: [
+            {
+              name: "button",
+              type: "component",
+              version: "1.0.0",
+              frameworks: { react: ["base", "aria"], vue: ["ark"] },
+            },
+          ],
+        }),
+      }
+    )
+    expect(readLockfile(cwd).items["@acme/button"]!.base).toBe("aria")
+    const { code: exit, text } = await run(cwd, "preset", "s1", "--no-check")
+    expect(exit).toBe(0)
+    expect(text).toContain("@acme/button · style=vega · react/aria\n")
+    expect(read(cwd, "src/components/ui/button.styles.ts")).toBe(
+      'export const button = "vega aria"\n'
+    )
+    expect(readLockfile(cwd).items["@acme/button"]!.base).toBe("aria")
+    // Another framework: its only base, not the one installed for React.
+    const vue = await run(cwd, "preset", "s3", "--no-check", "--overwrite")
+    expect(vue.code).toBe(0)
+    expect(readLockfile(cwd).items["@acme/button"]).toMatchObject({
+      framework: "vue",
+      base: "ark",
+    })
+  })
+
   it("checks what it wrote", async () => {
     const wrong = {
       ...BUTTON,

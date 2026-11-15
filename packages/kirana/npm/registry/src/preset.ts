@@ -442,10 +442,14 @@ export async function runPreset(
     project,
     lockfile,
     options,
-    (key, item, locked) =>
-      item.frameworks
-        ? chooseBase(key, item, framework ?? locked.framework, next.base)
-        : {}
+    (key, item, locked) => {
+      if (!item.frameworks) return {}
+      const target = framework ?? locked.framework
+      // Without `ui.base`, the base it was installed with on that framework, which may have been
+      // its registry's default (KF-120).
+      const kept = target === locked.framework ? locked.base : undefined
+      return chooseBase(key, item, target, next.base ?? kept)
+    }
   )
   for (const failure of failures) write(failureLine(failure))
   if (failures.length > 0) return 1

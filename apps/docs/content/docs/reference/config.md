@@ -317,7 +317,7 @@ What `kirana-style ui add` installs, and where:
 | Key           | Holds                                                                                                                             |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `framework`   | whose markup to install: `react`, `vue`, `svelte`, `solid` or `angular`; by default the one whose package your project depends on |
-| `base`        | which base's markup, such as `base` or `aria`; by default the only one an item has                                                |
+| `base`        | which base's markup, such as `base` or `aria`; by default the only one an item has, else the registry's default for the framework |
 | `aliases`     | the import specifier for each file type, `ui`, `lib`, `component`, `hook` and `page`                                              |
 | `iconLibrary` | the library icons are drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                        |
 | `design`      | the design system's values your project uses, such as `{ style: "vega" }`, which `kirana-style ui preset` writes                  |
