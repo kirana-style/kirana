@@ -176,7 +176,8 @@ the harness:
 - **What it measures:** the published Kirana release from npm, never a workspace build (fairness rule 2
   applied to Kirana itself). `scripts/use-kirana.ts <version>` pins it.
 - **When:** on every Kirana release (`release.yml`'s `bench` job sends a `repository_dispatch` once
-  `verify` passes), weekly against npm's `latest`, and by hand.
+  no npm edge can still serve the previous release: npm's `max-age` after the last package is
+  published), weekly against npm's `latest`, and by hand.
 - **Where:** a GitHub-hosted runner, one session per run, with the runner image, CPU, cores and RAM in
   `meta`. **INFERENCE:** a hosted runner is the interim machine; interleaving and the intervals carry its
   noise, absolute times are never compared across runs, and a dedicated quiet machine replaces it when

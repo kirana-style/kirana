@@ -6,27 +6,62 @@
  *   bun scripts/publish-npm.ts <dir>             # publish
  *   bun scripts/publish-npm.ts <dir> --dry-run   # print the levels and what would be skipped
  *
- * Levels exist because npm's CDN caches metadata for `max-age` (300 s): a level is published only
- * once every edge must serve the one before it, so no install sees a package without its
- * dependencies. The last level is waited for the same way before the script ends, its tarballs
- * fetched once by then: kirana-lab installs the release as soon as this job ends, and 0.4.1's
- * `@kirana-style/vite`, the last published, answered its tarball with 404 four minutes after it was
- * published. The final tag is used directly because `npm dist-tag` fails with E401 under trusted
- * publishing (OIDC) although `npm publish` works.
+ * 1. **Nothing is published unless everything can be.** Trusted publishing (OIDC) exchanges the
+ *    workflow's identity for a token per package, and `npm publish` reports a package with no
+ *    matching trusted publisher only as an E404 on its upload, after the packages before it are
+ *    out. So the exchange is asked for every package first (`exchangeRequest`), and the release
+ *    stops there, with the refused packages named. The job writes no `.npmrc` (`setup-node` without
+ *    `registry-url`): a placeholder token there is what npm falls back to after a refused exchange.
  *
- * A version already published is skipped (or its tag moved forward), so a failed release can run
- * again. Transient registry failures are retried (`registry-retry.ts`), and a failed publish is
- * first checked against the registry, since a stored PUT can still be answered with an error.
+ * 2. **Nobody installs a package before the packages it names.** npm's CDN serves a package's list
+ *    of versions from its cache for `max-age` (read from the registry's own answers; 300 s), and
+ *    every sibling is named by the release's exact version. So a level is published once that time
+ *    has passed since the level before it was, and this runner's edge lists it. Within a level the
+ *    packages are uploaded at once. Why the levels are five, and cannot be fewer while the siblings
+ *    are pinned, is in `dependencyLevels` (`npm-release.ts`).
+ *
+ * 3. **Nothing is waited for at the end.** Until an edge's cache runs out it serves the previous
+ *    release whole, a working one, since every package names its family by exact version. What
+ *    installs the release next waits for the edge it reaches itself, at most `max-age`: `verify`
+ *    reads every package as an installer does (`verify-release.ts`), and the `bench` job dispatches
+ *    kirana-lab at the `served-at` time this script writes to the job's outputs, when no edge can
+ *    still serve the old lists. 0.4.1 showed why: the lab installed straight after the last
+ *    publish and got a 404 for `@kirana-style/vite`'s tarball four minutes later.
+ *
+ * 4. **It can always be run again.** A version already published is skipped (or its tag moved
+ *    forward), and a run that continues a release dates its wait from the registry's `time` for the
+ *    versions an earlier run published, so it waits only for what is left. A registry that fails for
+ *    its own reasons is asked again (`registry-retry.ts`), and a failed upload is first looked up
+ *    on the registry, since a stored PUT can still be answered with an error.
+ *
+ * The final tag is used directly because `npm dist-tag` fails with E401 under trusted publishing
+ * although `npm publish` works. Outside GitHub Actions (a maintainer signed in to npm, for a first
+ * publish) there is no exchange to ask, and packages are uploaded one at a time, so npm can ask for
+ * the passkey of each.
  */
-import { spawnSync } from "node:child_process"
-import { readdirSync } from "node:fs"
+import { spawn, spawnSync } from "node:child_process"
+import { appendFileSync, readdirSync } from "node:fs"
 import path from "node:path"
 
 import {
-  RETRY_DELAYS,
-  transientNpmError,
-  transientStatus,
-} from "./registry-retry.ts"
+  REGISTRY,
+  dependencyLevels,
+  escapedName,
+  exchangeRequest,
+  finalTag,
+  identityRequest,
+  later,
+  listedTarball,
+  maxAgeOf,
+  publishArgs,
+  publishedTime,
+  retryDelay,
+  settlesAt,
+  siblings,
+  trustedPublishing,
+} from "./npm-release.ts"
+import type { Manifest } from "./npm-release.ts"
+import { RETRY_DELAYS, transientStatus } from "./registry-retry.ts"
 
 const [directory, ...flags] = process.argv.slice(2)
 if (!directory) {
@@ -35,8 +70,6 @@ if (!directory) {
 }
 const dryRun = flags.includes("--dry-run")
 
-const REGISTRY = "https://registry.npmjs.org"
-
 type Tarball = {
   file: string
   name: string
@@ -44,68 +77,43 @@ type Tarball = {
   depends: string[]
 }
 
-function run(command: string, args: string[]) {
-  return spawnSync(command, args, { encoding: "utf8" })
-}
-
 /** A tarball's own manifest, read without unpacking it. */
 function manifest(file: string): Tarball {
-  const read = run("tar", ["-xzOf", file, "package/package.json"])
+  const read = spawnSync("tar", ["-xzOf", file, "package/package.json"], {
+    encoding: "utf8",
+  })
   if (read.status !== 0) throw new Error(`cannot read ${file}: ${read.stderr}`)
-  const json = JSON.parse(read.stdout) as {
-    name: string
-    version: string
-    dependencies?: Record<string, string>
-    peerDependencies?: Record<string, string>
-    optionalDependencies?: Record<string, string>
+  const json = JSON.parse(read.stdout) as Manifest
+  return {
+    file,
+    name: json.name,
+    version: json.version,
+    depends: siblings(json),
   }
-  const depends = Object.keys({
-    ...json.dependencies,
-    ...json.peerDependencies,
-    ...json.optionalDependencies,
-  }).filter(
-    (name) => name.startsWith("@kirana-style/") || name === "kirana-style"
-  )
-  return { file, name: json.name, version: json.version, depends }
 }
 
 const tarballs = readdirSync(directory)
   .filter((file) => file.endsWith(".tgz"))
   // An absolute path: npm reads a relative `dir/name.tgz` as a GitHub `user/repo` and tries to clone it.
   .map((file) => manifest(path.resolve(directory, file)))
-const byName = new Map(tarballs.map((tarball) => [tarball.name, tarball]))
+const levels = dependencyLevels(tarballs)
 
-/** Depth-first: a package after everything it depends on that is published here too. */
-const order: Tarball[] = []
-const visiting = new Set<string>()
-function visit(tarball: Tarball) {
-  if (order.includes(tarball)) return
-  if (visiting.has(tarball.name))
-    throw new Error(`dependency cycle through ${tarball.name}`)
-  visiting.add(tarball.name)
-  for (const name of tarball.depends) {
-    const dependency = byName.get(name)
-    if (dependency) visit(dependency)
-  }
-  visiting.delete(tarball.name)
-  order.push(tarball)
-}
-for (const tarball of [...tarballs].sort((a, b) =>
-  a.name.localeCompare(b.name)
-))
-  visit(tarball)
-
-const url = (name: string) => `${REGISTRY}/${encodeURIComponent(name)}`
+const url = (name: string) => `${REGISTRY}/${escapedName(name)}`
+const spec = ({ name, version }: Tarball) => `${name}@${version}`
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 /** A registry request, asked again while the registry fails for its own reasons. */
-async function registryFetch(target: string): Promise<Response> {
+async function registryFetch(
+  target: string,
+  init?: RequestInit
+): Promise<Response> {
   for (let attempt = 0; ; attempt++) {
     const delay = RETRY_DELAYS[attempt]
     let failure: string
     try {
       const response = await fetch(target, {
+        ...init,
         signal: AbortSignal.timeout(15_000),
       })
       if (!transientStatus(response.status) || delay === undefined)
@@ -121,7 +129,7 @@ async function registryFetch(target: string): Promise<Response> {
 }
 
 /** Whether the registry holds a version. This endpoint is not cached at the edge. */
-async function published_({ name, version }: Tarball): Promise<boolean> {
+async function held({ name, version }: Tarball): Promise<boolean> {
   const response = await registryFetch(`${url(name)}/${version}`)
   if (response.status === 404) return false
   if (!response.ok) throw new Error(`${name}: HTTP ${response.status}`)
@@ -131,28 +139,47 @@ async function published_({ name, version }: Tarball): Promise<boolean> {
 /** How long an edge may serve metadata it cached, read from the registry's own responses. */
 let maxAge = 300
 
-/**
- * What an installer reads (the abbreviated metadata), from the edge this runner reaches: each
- * version's tarball.
- */
-async function versions(name: string): Promise<Map<string, string>> {
+/** What an installer reads (the abbreviated metadata), from the edge this runner reaches. */
+async function listing(name: string): Promise<unknown> {
   const response = await fetch(url(name), {
     headers: { Accept: "application/vnd.npm.install-v1+json" },
     signal: AbortSignal.timeout(15_000),
   })
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
-  const age = /max-age=(\d+)/.exec(response.headers.get("cache-control") ?? "")
-  if (age) maxAge = Math.max(maxAge, Number(age[1]))
-  const json = (await response.json()) as {
-    versions: Record<string, { dist: { tarball: string } }>
-  }
-  return new Map(
-    Object.entries(json.versions).map(([version, { dist }]) => [
-      version,
-      dist.tarball,
-    ])
+  maxAge = Math.max(
+    maxAge,
+    maxAgeOf(response.headers.get("cache-control")) ?? 0
   )
+  return response.json()
 }
+
+/**
+ * When the registry says a version was published, for one an earlier run published: read from the
+ * full metadata this edge serves, `undefined` while that does not hold the version yet.
+ */
+async function registryDate({
+  name,
+  version,
+}: Tarball): Promise<number | undefined> {
+  try {
+    const response = await registryFetch(url(name))
+    if (!response.ok) return undefined
+    return publishedTime(await response.json(), version)
+  } catch {
+    return undefined
+  }
+}
+
+/** When each package was published by this run. */
+const publishedHere = new Map<string, number>()
+
+/** A level's publish dates: this run's, else the registry's (`settlesAt`). */
+const dates = (level: readonly Tarball[]) =>
+  Promise.all(
+    level.map(
+      async (each) => publishedHere.get(each.name) ?? (await registryDate(each))
+    )
+  )
 
 /**
  * Whether this edge serves a tarball. Asked only once the metadata has settled, when it should be
@@ -166,43 +193,6 @@ async function servesTarball(tarball: string): Promise<boolean> {
   return response.ok
 }
 
-/** The tag a version ends on. */
-const finalTag = (version: string) =>
-  version.includes("-") ? "next" : "latest"
-
-/** Whether version `a` is later than `b` (`x.y.z`, a prerelease before its release). */
-function later(a: string, b: string): boolean {
-  const parse = (version: string) => {
-    const [core = "", pre] = version.split("-", 2)
-    return { parts: core.split(".").map(Number), pre }
-  }
-  const [x, y] = [parse(a), parse(b)]
-  for (let index = 0; index < 3; index++) {
-    const difference = (x.parts[index] ?? 0) - (y.parts[index] ?? 0)
-    if (difference !== 0) return difference > 0
-  }
-  if (x.pre === y.pre) return false
-  if (x.pre === undefined) return true
-  if (y.pre === undefined) return false
-  return x.pre.localeCompare(y.pre, "en", { numeric: true }) > 0
-}
-
-/** Each package's level: 0 for one that depends on nothing published here, else one past its deepest. */
-const level = new Map<string, number>()
-for (const tarball of order)
-  level.set(
-    tarball.name,
-    Math.max(
-      -1,
-      ...tarball.depends
-        .filter((name) => byName.has(name))
-        .map((name) => level.get(name)!)
-    ) + 1
-  )
-const levels: Tarball[][] = []
-for (const tarball of order)
-  (levels[level.get(tarball.name)!] ??= []).push(tarball)
-
 /** The dist-tags of a package, from the registry (not cached at the edge). */
 async function tags(name: string): Promise<Record<string, string>> {
   const response = await registryFetch(
@@ -213,20 +203,21 @@ async function tags(name: string): Promise<Record<string, string>> {
 }
 
 /**
- * Wait until this edge serves every version of `published`, and until every edge must: none has
- * kept the old metadata longer than `max-age` past `lastPublish`; then until this edge serves
- * every tarball. Every package is asked at once.
+ * Wait until no edge can serve `level` without the release (`settlesAt`), and this edge lists every
+ * version of it and serves every tarball. Every package is asked at once.
  */
-async function settle(published: readonly Tarball[], lastPublish: number) {
-  const deadline = Date.now() + 20 * 60_000
+async function settle(level: readonly Tarball[], index: number) {
+  const asked = Date.now()
+  const known = await dates(level)
+  const deadline = asked + 20 * 60_000
   let pause = 5_000
   for (;;) {
     const missing: string[] = []
     const served: { name: string; tarball: string }[] = []
     await Promise.all(
-      published.map(async ({ name, version }) => {
+      level.map(async ({ name, version }) => {
         try {
-          const tarball = (await versions(name)).get(version)
+          const tarball = listedTarball(await listing(name), version)
           if (tarball === undefined) missing.push(name)
           else served.push({ name, tarball })
         } catch (error) {
@@ -234,7 +225,7 @@ async function settle(published: readonly Tarball[], lastPublish: number) {
         }
       })
     )
-    const settles = lastPublish + maxAge * 1000
+    const settles = settlesAt(known, asked, maxAge)
     if (missing.length === 0 && Date.now() >= settles)
       await Promise.all(
         served.map(async ({ name, tarball }) => {
@@ -249,7 +240,8 @@ async function settle(published: readonly Tarball[], lastPublish: number) {
     if (missing.length === 0 && Date.now() >= settles) return
     if (Date.now() > deadline) {
       console.error(
-        `failed   published but not served after 20 minutes: ${missing.join(", ")}`
+        `failed   published but not served after 20 minutes: ${missing.join(", ")}.\n` +
+          `         Nothing after level ${index} was published. Run the job again: it continues.`
       )
       process.exit(1)
     }
@@ -262,89 +254,234 @@ async function settle(published: readonly Tarball[], lastPublish: number) {
     } else {
       const wait = settles - Date.now()
       console.log(
-        `waiting  every version is served here; ${Math.ceil(wait / 1000)} s until no edge can serve the old metadata`
+        `waiting  ${Math.ceil(wait / 1000)} s: until then an edge may serve level ${index} without its new versions`
       )
       await sleep(wait)
     }
   }
 }
 
-/** `npm publish`, asked again while the registry fails for its own reasons. */
-async function publish(tarball: Tarball, spec: string, tag: string) {
-  for (let attempt = 0; ; attempt++) {
-    // stderr is read to tell a failing registry from a refused package; the rest streams as usual.
-    const result = spawnSync(
-      "npm",
-      ["publish", tarball.file, "--access", "public", "--tag", tag],
-      { stdio: ["inherit", "inherit", "pipe"], encoding: "utf8" }
+/**
+ * The workflow's identity for npm, or `undefined` outside GitHub Actions. In a workflow without
+ * `id-token: write`, npm would have no login at all: the release stops here instead.
+ */
+async function identity(): Promise<string | undefined> {
+  const { ACTIONS_ID_TOKEN_REQUEST_URL, ACTIONS_ID_TOKEN_REQUEST_TOKEN } =
+    process.env
+  if (!ACTIONS_ID_TOKEN_REQUEST_URL || !ACTIONS_ID_TOKEN_REQUEST_TOKEN) {
+    if (process.env.GITHUB_ACTIONS !== "true") return undefined
+    console.error(
+      "refused  nothing was published: the job has no identity for npm (it needs `id-token: write`)"
     )
-    process.stderr.write(result.stderr ?? "")
-    if (result.status === 0) return
-    if (await published_(tarball)) {
-      console.log(
-        `landed   ${spec}: npm reported a failure, the registry holds it`
+    process.exit(1)
+  }
+  const request = identityRequest(
+    ACTIONS_ID_TOKEN_REQUEST_URL,
+    ACTIONS_ID_TOKEN_REQUEST_TOKEN
+  )
+  const response = await registryFetch(request.url, request.init)
+  if (!response.ok)
+    throw new Error(`GitHub gave no identity token: HTTP ${response.status}`)
+  return ((await response.json()) as { value: string }).value
+}
+
+/** Stops the release, before any upload, when npm refuses this workflow any package. */
+async function authorize(pending: readonly Tarball[], token: string) {
+  const npm = spawnSync("npm", ["--version"], {
+    encoding: "utf8",
+  }).stdout.trim()
+  if (!trustedPublishing(npm)) {
+    console.error(
+      `refused  nothing was published: trusted publishing needs npm 11.5.1 or later, this is ${npm}`
+    )
+    process.exit(1)
+  }
+  const refused: string[] = []
+  await Promise.all(
+    pending.map(async ({ name }) => {
+      const request = exchangeRequest(name, token)
+      const response = await registryFetch(request.url, request.init)
+      if (response.ok) return
+      const body = (await response.json().catch(() => ({}))) as {
+        message?: string
+      }
+      refused.push(
+        `${name}: HTTP ${response.status} ${body.message ?? ""}`.trim()
       )
-      return
-    }
-    const delay = RETRY_DELAYS[attempt]
-    if (delay === undefined || !transientNpmError(result.stderr ?? "")) {
-      console.error(`failed   ${spec}`)
-      process.exit(1)
-    }
+    })
+  )
+  if (refused.length === 0) {
     console.log(
-      `retry    ${spec} in ${delay} s (attempt ${attempt + 2} of ${RETRY_DELAYS.length + 1})`
+      `allowed  npm ${npm} may publish all ${pending.length} packages for this workflow`
     )
-    await sleep(delay * 1000)
+    return
+  }
+  console.error(
+    `refused  nothing was published. npm does not let this workflow publish:\n` +
+      refused
+        .sort()
+        .map((each) => `           ${each}`)
+        .join("\n") +
+      `\n         Each needs a trusted publisher (npmjs.com, the package, Settings): repository\n` +
+      `         kirana-style/kirana, workflow release.yml, environment release. A package new to npm\n` +
+      `         has none until it exists: publish a 0.0.0 placeholder by hand and give it one.`
+  )
+  process.exit(1)
+}
+
+/**
+ * One `npm publish`. Together with others (a level at once), its output is printed in one piece when
+ * it ends; alone, it streams, so a maintainer signed in by hand sees npm's passkey prompt.
+ */
+function npmPublish(
+  tarball: Tarball,
+  tag: string,
+  together: boolean
+): Promise<{ status: number | null; output: string }> {
+  const child = spawn("npm", publishArgs(tarball.file, tag), {
+    stdio: [together ? "ignore" : "inherit", "pipe", "pipe"],
+  })
+  let output = ""
+  const keep = (stream: NodeJS.WritableStream) => (chunk: Buffer) => {
+    output += String(chunk)
+    if (!together) stream.write(chunk)
+  }
+  child.stdout.on("data", keep(process.stdout))
+  child.stderr.on("data", keep(process.stderr))
+  return new Promise((resolve, reject) => {
+    child.on("error", reject)
+    child.on("close", (status) => {
+      if (together) process.stdout.write(output)
+      resolve({ status, output })
+    })
+  })
+}
+
+/** Uploads one package, asked again while the registry fails for its own reasons. */
+async function publish(tarball: Tarball, tag: string, together: boolean) {
+  for (let attempt = 0; ; attempt++) {
+    const { status, output } = await npmPublish(tarball, tag, together)
+    if (status !== 0 && (await held(tarball)))
+      console.log(
+        `landed   ${spec(tarball)}: npm reported a failure, the registry holds it`
+      )
+    else if (status !== 0) {
+      const delay = retryDelay(attempt, output)
+      const code = /npm (?:error|ERR!) code (\S+)/.exec(output)?.[1]
+      if (delay === undefined)
+        throw new Error(`${spec(tarball)} (${code ?? `exit ${status}`})`)
+      console.log(
+        `retry    ${spec(tarball)} (${code}) in ${delay} s (attempt ${attempt + 2} of ${RETRY_DELAYS.length + 1})`
+      )
+      await sleep(delay * 1000)
+      continue
+    }
+    publishedHere.set(tarball.name, Date.now())
+    console.log(`done     ${spec(tarball)} (${tag})`)
+    return
   }
 }
 
-const unmoved: string[] = []
-let previous: { published: Tarball[]; lastPublish: number } | undefined
+// The plan: what each level publishes, or moves the tag of; what is published is skipped.
+type Step = { tarball: Tarball; tag: string; move: boolean }
+const plan: Step[][] = []
 for (const [index, members] of levels.entries()) {
-  // The level before must be served everywhere before anything that depends on it is published.
-  if (previous && previous.published.length > 0 && !dryRun)
-    await settle(previous.published, previous.lastPublish)
-  const published: Tarball[] = []
-  let lastPublish = 0
+  const steps: Step[] = []
   for (const tarball of members) {
-    const spec = `${tarball.name}@${tarball.version}`
     const tag = finalTag(tarball.version)
-    if (await published_(tarball)) {
-      const current = (await tags(tarball.name))[tag]
-      // Only ever forward: an older tarball never pulls the tag back.
-      if (current !== undefined && !later(tarball.version, current)) {
-        console.log(`skip     ${spec} (already published)`)
-        continue
-      }
-      // Published by an older, staged release whose tag never moved.
-      if (dryRun) {
-        console.log(
-          `tag      ${spec} ${tag} (published, tagged ${current ?? "nothing"})`
-        )
-        continue
-      }
-      const moved = run("npm", ["dist-tag", "add", spec, tag])
-      if (moved.status === 0) console.log(`${tag.padEnd(8)} ${spec}`)
-      else {
-        console.error(moved.stderr.trim())
-        unmoved.push(`npm dist-tag add ${spec} ${tag}`)
-      }
+    if (!(await held(tarball))) {
+      console.log(`plan     level ${index}  ${spec(tarball)} --tag ${tag}`)
+      steps.push({ tarball, tag, move: false })
       continue
     }
-    if (dryRun) {
-      console.log(`publish  ${spec} --tag ${tag} (level ${index})`)
+    const current = (await tags(tarball.name))[tag]
+    // Only ever forward: an older tarball never pulls the tag back.
+    if (current !== undefined && !later(tarball.version, current)) {
+      console.log(`skip     ${spec(tarball)} (already published)`)
       continue
     }
-    await publish(tarball, spec, tag)
-    lastPublish = Date.now()
-    published.push(tarball)
-    console.log(`done     ${spec} (${tag})`)
+    // Published by an older, staged release whose tag never moved.
+    console.log(
+      `tag      ${spec(tarball)} ${tag} (published, tagged ${current ?? "nothing"})`
+    )
+    steps.push({ tarball, tag, move: true })
   }
-  previous = { published, lastPublish }
+  plan.push(steps)
 }
-// The last level too: the job ends, and kirana-lab starts installing, only once it is served.
-if (previous && previous.published.length > 0 && !dryRun)
-  await settle(previous.published, previous.lastPublish)
+const uploads = plan.flat().filter((step) => !step.move)
+console.log(
+  `release  ${uploads.length} of ${tarballs.length} packages to publish, in ${levels.length} levels`
+)
+if (dryRun) process.exit(0)
+
+const token = uploads.length > 0 ? await identity() : undefined
+if (token)
+  await authorize(
+    uploads.map((step) => step.tarball),
+    token
+  )
+else if (uploads.length > 0)
+  console.log(
+    "by hand  no workflow identity: npm publishes as whoever is signed in, one package at a time"
+  )
+
+const started = Date.now()
+const unmoved: string[] = []
+for (const [index, steps] of plan.entries()) {
+  const before = levels[index - 1]
+  const publishing = steps.filter((step) => !step.move)
+  // A level starts only once the one before it is complete, so the levels before that are older:
+  // the one before is the one to wait for.
+  if (before && publishing.length > 0) await settle(before, index - 1)
+  for (const { tarball, tag } of steps.filter((step) => step.move)) {
+    const moved = spawnSync("npm", ["dist-tag", "add", spec(tarball), tag], {
+      encoding: "utf8",
+    })
+    if (moved.status === 0) console.log(`${tag.padEnd(8)} ${spec(tarball)}`)
+    else {
+      console.error(moved.stderr.trim())
+      unmoved.push(`npm dist-tag add ${spec(tarball)} ${tag}`)
+    }
+  }
+  const failed: string[] = []
+  if (token) {
+    const results = await Promise.allSettled(
+      publishing.map(({ tarball, tag }) => publish(tarball, tag, true))
+    )
+    for (const result of results)
+      if (result.status === "rejected")
+        failed.push((result.reason as Error).message)
+  } else {
+    for (const { tarball, tag } of publishing)
+      await publish(tarball, tag, false).catch((error: Error) =>
+        failed.push(error.message)
+      )
+  }
+  if (failed.length > 0) {
+    console.error(
+      `failed   not published: ${failed.sort().join(", ")}.\n` +
+        `         Nothing after level ${index} was published. Run the job again: what is published is skipped.`
+    )
+    process.exit(1)
+  }
+}
+
+// When no edge can serve the last level without the release: the `bench` job dispatches kirana-lab
+// then, since the lab installs from an edge of its own.
+const servedAt = Math.ceil(
+  settlesAt(
+    [...(await dates(levels.at(-1) ?? [])), ...publishedHere.values()],
+    Date.now(),
+    maxAge
+  ) / 1000
+)
+console.log(
+  `released ${publishedHere.size} packages in ${Math.round((Date.now() - started) / 1000)} s; ` +
+    `every edge serves them by ${new Date(servedAt * 1000).toISOString()}`
+)
+if (process.env.GITHUB_OUTPUT)
+  appendFileSync(process.env.GITHUB_OUTPUT, `served-at=${servedAt}\n`)
+
 if (unmoved.length > 0) {
   console.error(
     `failed   these versions are published, but their tags did not move. Run them signed in as kirana-maintainer:\n${unmoved.join("\n")}`
