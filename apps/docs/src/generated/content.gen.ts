@@ -3324,7 +3324,9 @@ export const PAGES: readonly PageMeta[] = [
       "plugin",
       "hmr",
       "stylesheet",
-      "build"
+      "build",
+      "vitest",
+      "browser mode"
     ],
     "headings": [
       {
@@ -3350,6 +3352,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "the-stylesheet",
         "text": "The stylesheet",
+        "level": 2
+      },
+      {
+        "id": "vitest",
+        "text": "Vitest",
         "level": 2
       },
       {
@@ -6559,7 +6566,9 @@ export const NAV: readonly NavGroup[] = [
           "plugin",
           "hmr",
           "stylesheet",
-          "build"
+          "build",
+          "vitest",
+          "browser mode"
         ]
       },
       {

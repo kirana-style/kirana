@@ -6,7 +6,7 @@ Source: https://site.kirana-style.workers.dev/docs/integrations/jest
 Jest runs no bundler, so Kirana is a transformer: it compiles a module's styles,
 then hands it to the transformer you already use. Tests see the class names your
 app ships; no stylesheet is written. Tested by `examples/jest-react`. With
-Vitest, [the Vite plugin](/docs/integrations/vite) does this already.
+Vitest, [the Vite plugin](/docs/integrations/vite#vitest) does this already.
 
 
 

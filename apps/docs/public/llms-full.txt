@@ -7755,7 +7755,9 @@ import kiranaCss from "@kirana-style/core/stylesheet.css?url"
   over Vite's hot channel, so a style change restyles the page without a reload.
   A page that is still loading its modules on a cold start cannot take an
   update yet; when the stylesheet runs, it tells the server which one it holds,
-  and the server sends a newer one.
+  and the server sends a newer one. With `server.hmr: false` Vite delivers no
+  update, so the server tells the page the stylesheet changed and the stylesheet
+  fetches itself again ([Vitest](#vitest) below).
 - **In a build** it replaces the placeholder rule with the real stylesheet and
   renames the asset to a content hash.
 
@@ -7765,6 +7767,52 @@ for a stylesheet asset a framework adds after the first has filled the others
 (Qwik does), and on a dev server to have the stylesheet report what it holds.
 
 `?url`, `?raw` and `?inline` behave the way they do for any other Vite asset.
+
+## Vitest
+
+Vitest runs on Vite, so the plugin in your `vite.config` compiles the modules
+your tests import, to the class names the app ships. In browser mode, import the
+stylesheet in a setup file, as your app's entry does:
+
+```ts file="vite.config.ts"
+import { playwright } from "@vitest/browser-playwright"
+
+export default defineConfig({
+  plugins: [kirana(), react()],
+  test: {
+    setupFiles: ["./test/setup.ts"],
+    browser: {
+      enabled: true,
+      provider: playwright(),
+      instances: [{ browser: "chromium" }],
+    },
+  },
+})
+```
+
+```ts file="test/setup.ts"
+import "@kirana-style/core/stylesheet.css"
+```
+
+Browser mode turns Vite's hot updates off, so a component a test imports
+compiles after the page loaded the stylesheet, and no hot update can bring its
+rules. The plugin tells the page the stylesheet changed, and the stylesheet
+fetches itself again, a moment after the component's module compiled. Read a
+style with an assertion that retries rather than right after mounting:
+
+```ts file="row.test.ts"
+import { expect, test } from "vitest"
+import { page } from "vitest/browser"
+
+test("the row wraps its items", async () => {
+  const { mountRow } = await import("./row")
+  mountRow(document.body)
+  await expect.element(page.getByRole("list")).toHaveStyle({ flexWrap: "wrap" })
+})
+```
+
+The page's stylesheet is replaced only when its text changed, so an update that
+adds nothing does not restyle the page and cut a running transition short.
 
 ## A stylesheet of your own
 
@@ -8148,7 +8196,7 @@ Source: https://site.kirana-style.workers.dev/docs/integrations/jest
 Jest runs no bundler, so Kirana is a transformer: it compiles a module's styles,
 then hands it to the transformer you already use. Tests see the class names your
 app ships; no stylesheet is written. Tested by `examples/jest-react`. With
-Vitest, [the Vite plugin](/docs/integrations/vite) does this already.
+Vitest, [the Vite plugin](/docs/integrations/vite#vitest) does this already.
 
 
 
