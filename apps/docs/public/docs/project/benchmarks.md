@@ -43,14 +43,14 @@ Every headline number here is the second kind:
 | | |
 | --- | --- |
 | Kirana | 0.4.1, from npm |
-| Date | 2026-11-09 |
+| Date | 2026-11-16 |
 | Versions | @stylexjs/stylex 0.19.1, @stylexjs/unplugin 0.19.1, @stylexswc/unplugin 0.19.1, @stylexswc/rs-compiler 0.19.1, tailwindcss 4.3.3, @tailwindcss/vite 4.3.3, vite 8.3.4, react 19.3.1 |
-| Machine | GitHub-hosted runner, 4 cores (AMD EPYC 7763), 16 GB, Linux 7.0.0-1019-azure |
-| Tools | Node.js 26.3.0, Bun 1.4.3, Chrome 157.0.8103.38 |
+| Machine | GitHub-hosted runner, 4 cores (Intel(R) Xeon(R) 6975P-C), 15 GB, Linux 7.0.0-1016-aws |
+| Tools | Node.js 26.3.0, Bun 1.4.3, Chrome 157.0.8103.78 |
 | Rounds | 10 cold builds per app after 1 warm-up; 20 browser runs; 20 rounds at each large-dom size; 10 cold builds at each scale-curve size |
-| Scale curve | its own GitHub-hosted runner, 4 cores (INTEL(R) XEON(R) PLATINUM 8573C), 16 GB |
+| Scale curve | its own GitHub-hosted runner, 4 cores (AMD EPYC 7763), 16 GB |
 | Conformance | web passed, blocks passed, examples passed, large-dom passed, scale-curve/100 passed, scale-curve/1000 passed, scale-curve/10000 passed |
-| Run | https://github.com/kirana-style/kirana-lab/actions/runs/42580600448 |
+| Run | https://github.com/kirana-style/kirana-lab/actions/runs/43855033615 |
 
 ## How to read it
 
@@ -78,19 +78,18 @@ Every measure on which Kirana measured higher, by its interval:
 
 - CSS, apps/web: 1.004× StyleX (1.004–1.004)
 - CSS, apps/examples: 1.003× StyleX (1.003–1.003)
-- Layout, apps/web, CPU throttled 4×, about 6211 elements: 1.11× StyleX (SWC) (1.01–1.17)
-- Filter, to the next frame, the large-dom table, 1,000 rows, CPU throttled 4×, about 22552 elements: 1.06× Tailwind (1.02–1.09)
-- Every row again, layout, the large-dom table, 1,000 rows, CPU throttled 4×, about 22552 elements: 1.07× StyleX (SWC) (1.01–1.12)
-- Scroll, frame time p95, the large-dom table, 1,000 rows, CPU throttled 4×, about 22552 elements: 1.07× StyleX (SWC) (1.01–1.12)
-- JavaScript heap, the large-dom table, 1,000 rows, CPU throttled 4×, about 22552 elements: 1.007× Tailwind (1.003–1.009)
-- Filter, to the next frame, the large-dom table, 5,000 rows, CPU throttled 4×, about 112608 elements: 1.05× Tailwind (1.04–1.07)
-- Filter, layout, the large-dom table, 5,000 rows, CPU throttled 4×, about 112608 elements: 1.15× Tailwind (1.06–1.21)
-- Every row again, to the next frame, the large-dom table, 5,000 rows, CPU throttled 4×, about 112608 elements: 1.03× StyleX (1.02–1.04)
-- Every row again, to the next frame, the large-dom table, 5,000 rows, CPU throttled 4×, about 112608 elements: 1.03× StyleX (SWC) (1.02–1.04)
-- Every row again, style recalc, the large-dom table, 5,000 rows, CPU throttled 4×, about 112608 elements: 1.09× StyleX (1.06–1.12)
-- Every row again, style recalc, the large-dom table, 5,000 rows, CPU throttled 4×, about 112608 elements: 1.11× StyleX (SWC) (1.09–1.12)
+- Colour-scheme switch, style recalc, apps/web, CPU throttled 4×, about 6211 elements: 1.02× StyleX (1.01–1.02)
+- Colour-scheme switch, style recalc, apps/web, CPU throttled 4×, about 6211 elements: 1.01× StyleX (SWC) (1.01–1.02)
+- Frame time, p95, apps/web, CPU throttled 4×, about 6211 elements: 1.06× StyleX (1.01–1.09)
+- Colour-scheme switch, style recalc, apps/web, CPU throttled 6×, about 6211 elements: 1.02× StyleX (SWC) (1.01–1.03)
+- Layout, apps/web, CPU throttled 6×, about 6211 elements: 1.05× StyleX (SWC) (1.01–1.08)
+- Filter, to the next frame, the large-dom table, 1,000 rows, CPU throttled 4×, about 22552 elements: 1.03× Tailwind (1.01–1.07)
+- JavaScript heap, the large-dom table, 1,000 rows, CPU throttled 4×, about 22552 elements: 1.005× Tailwind (1.002–1.009)
+- Every row again, to the next frame, the large-dom table, 5,000 rows, CPU throttled 4×, about 112608 elements: 1.02× StyleX (SWC) (1.01–1.04)
+- Every row again, style recalc, the large-dom table, 5,000 rows, CPU throttled 4×, about 112608 elements: 1.18× StyleX (1.16–1.19)
+- Every row again, style recalc, the large-dom table, 5,000 rows, CPU throttled 4×, about 112608 elements: 1.18× StyleX (SWC) (1.16–1.19)
 - JavaScript heap, the large-dom table, 5,000 rows, CPU throttled 4×, about 112608 elements: 1.03× Tailwind (1.03–1.03)
-- Build, cold, the scale curve, 10,000 components: 1.16× Tailwind (1.13–1.19)
+- Build, cold, the scale curve, 10,000 components: 1.20× Tailwind (1.18–1.21)
 
 ## Build and output
 
@@ -104,7 +103,7 @@ brotli at quality 11.
 
 | Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Build, cold | 10.11 s | 34.44 s | 17.76 s | 10.64 s | 0.29× (0.29–0.30) lower | 0.57× (0.57–0.57) lower | 0.95× (0.94–0.96) lower |
+| Build, cold | 6.10 s | 20.88 s | 10.03 s | 6.61 s | 0.29× (0.29–0.30) lower | 0.61× (0.60–0.62) lower | 0.92× (0.92–0.94) lower |
 | CSS | 226.4 kB | 228.2 kB | 232.3 kB | 586.9 kB | 0.99× (0.99–0.99) lower | 0.97× (0.97–0.97) lower | 0.39× (0.39–0.39) lower |
 | CSS, gzip | 50.9 kB | 62.8 kB | 62.8 kB | 87.1 kB | 0.81× (0.81–0.81) lower | 0.81× (0.81–0.81) lower | 0.58× (0.58–0.58) lower |
 | CSS, brotli | 42.7 kB | 55.3 kB | 55.5 kB | 69.5 kB | 0.77× (0.77–0.77) lower | 0.77× (0.77–0.77) lower | 0.61× (0.61–0.61) lower |
@@ -122,7 +121,7 @@ the browser times.
 
 | Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Build, cold | 2.70 s | 6.66 s | 4.47 s | 2.90 s | 0.41× (0.40–0.41) lower | 0.60× (0.60–0.61) lower | 0.93× (0.92–0.94) lower |
+| Build, cold | 1.61 s | 3.93 s | 2.43 s | 1.80 s | 0.41× (0.40–0.42) lower | 0.67× (0.65–0.67) lower | 0.90× (0.87–0.91) lower |
 | CSS | 65.7 kB | 65.4 kB | 66.5 kB | 184.2 kB | 1.004× (1.004–1.004) higher | 0.99× (0.99–0.99) lower | 0.36× (0.36–0.36) lower |
 | CSS, gzip | 14.7 kB | 17.8 kB | 17.8 kB | 26.9 kB | 0.83× (0.83–0.83) lower | 0.82× (0.82–0.82) lower | 0.55× (0.55–0.55) lower |
 | CSS, brotli | 12.5 kB | 15.8 kB | 15.9 kB | 21.7 kB | 0.79× (0.79–0.79) lower | 0.78× (0.78–0.78) lower | 0.58× (0.58–0.58) lower |
@@ -136,7 +135,7 @@ the browser times.
 
 | Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Build, cold | 3.76 s | 15.73 s | 6.87 s | 3.93 s | 0.24× (0.24–0.24) lower | 0.55× (0.54–0.55) lower | 0.96× (0.95–0.97) lower |
+| Build, cold | 2.29 s | 9.63 s | 3.95 s | 2.42 s | 0.24× (0.23–0.24) lower | 0.58× (0.57–0.59) lower | 0.95× (0.93–0.96) lower |
 | CSS | 78.6 kB | 80.9 kB | 82.3 kB | 204.0 kB | 0.97× (0.97–0.97) lower | 0.95× (0.95–0.95) lower | 0.39× (0.39–0.39) lower |
 | CSS, gzip | 17.7 kB | 22.2 kB | 22.2 kB | 30.4 kB | 0.80× (0.80–0.80) lower | 0.80× (0.80–0.80) lower | 0.58× (0.58–0.58) lower |
 | CSS, brotli | 14.8 kB | 19.4 kB | 19.5 kB | 24.1 kB | 0.76× (0.76–0.76) lower | 0.76× (0.76–0.76) lower | 0.61× (0.61–0.61) lower |
@@ -150,7 +149,7 @@ the browser times.
 
 | Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Build, cold | 3.65 s | 12.04 s | 6.43 s | 3.84 s | 0.30× (0.30–0.31) lower | 0.57× (0.56–0.57) lower | 0.95× (0.94–0.96) lower |
+| Build, cold | 2.22 s | 7.31 s | 3.65 s | 2.36 s | 0.30× (0.30–0.31) lower | 0.61× (0.60–0.62) lower | 0.94× (0.93–0.96) lower |
 | CSS | 82.2 kB | 81.9 kB | 83.5 kB | 198.7 kB | 1.003× (1.003–1.003) higher | 0.98× (0.98–0.98) lower | 0.41× (0.41–0.41) lower |
 | CSS, gzip | 18.5 kB | 22.8 kB | 22.8 kB | 29.8 kB | 0.81× (0.81–0.81) lower | 0.81× (0.81–0.81) lower | 0.62× (0.62–0.62) lower |
 | CSS, brotli | 15.4 kB | 20.0 kB | 20.1 kB | 23.7 kB | 0.77× (0.77–0.77) lower | 0.77× (0.77–0.77) lower | 0.65× (0.65–0.65) lower |
@@ -171,23 +170,23 @@ style recalculation when the colour scheme switches, a hover, layout, and the
 
 | Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Colour-scheme switch, style recalc | 1.65 s | 1.65 s | 1.63 s | 5.93 s | 1.002× (0.972–1.032) no clear difference | 1.01× (0.98–1.04) no clear difference | 0.28× (0.27–0.28) lower |
-| Colour-scheme switch, recalcs | 12 | 12 | 11 | 11 | 1.000× (0.917–1.200) no clear difference | 1.091× (1.000–1.200) no clear difference | 1.091× (1.000–1.091) no clear difference |
-| Hover, style recalc | 7.2 ms | 7.3 ms | 7.1 ms | 19.5 ms | 0.98× (0.86–1.08) no clear difference | 1.01× (0.84–1.25) no clear difference | 0.37× (0.31–0.39) lower |
-| Hover, recalcs | 19 | 19 | 19 | 39 | 1.000× (1.000–1.000) no clear difference | 1.000× (1.000–1.000) no clear difference | 0.49× (0.49–0.49) lower |
-| Layout | 15.9 ms | 14.3 ms | 14.4 ms | 15.7 ms | 1.116× (0.997–1.175) no clear difference | 1.11× (1.01–1.17) higher | 1.01× (0.91–1.08) no clear difference |
-| Frame time, p95 | 200.4 ms | 203.8 ms | 203.8 ms | 1.35 s | 0.98× (0.95–1.02) no clear difference | 0.98× (0.95–1.03) no clear difference | 0.15× (0.14–0.15) lower |
+| Colour-scheme switch, style recalc | 1.01 s | 992.5 ms | 995.2 ms | 3.94 s | 1.02× (1.01–1.02) higher | 1.01× (1.01–1.02) higher | 0.26× (0.25–0.26) lower |
+| Colour-scheme switch, recalcs | 10 | 10 | 10 | 12 | 1.000× (1.000–1.000) no clear difference | 1.000× (1.000–1.000) no clear difference | 0.83× (0.83–0.91) lower |
+| Hover, style recalc | 8.1 ms | 7.0 ms | 6.8 ms | 22.7 ms | 1.16× (0.89–1.44) no clear difference | 1.20× (0.88–1.50) no clear difference | 0.36× (0.30–0.42) lower |
+| Hover, recalcs | 19 | 19 | 19 | 40 | 1.000× (1.000–1.000) no clear difference | 1.000× (1.000–1.000) no clear difference | 0.47× (0.47–0.49) lower |
+| Layout | 10.6 ms | 10.4 ms | 10.3 ms | 11.5 ms | 1.01× (0.96–1.07) no clear difference | 1.02× (0.99–1.08) no clear difference | 0.92× (0.88–0.98) lower |
+| Frame time, p95 | 129.0 ms | 122.2 ms | 123.0 ms | 997.5 ms | 1.06× (1.01–1.09) higher | 1.049× (0.996–1.080) no clear difference | 0.13× (0.12–0.13) lower |
 
 ### CPU throttled 6×
 
 | Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Colour-scheme switch, style recalc | 2.52 s | 2.57 s | 2.54 s | 9.23 s | 0.977× (0.954–1.002) no clear difference | 0.99× (0.98–1.03) no clear difference | 0.27× (0.27–0.28) lower |
-| Colour-scheme switch, recalcs | 11 | 11 | 11 | 11 | 1.000× (0.955–1.100) no clear difference | 1.048× (1.000–1.150) no clear difference | 1.000× (1.000–1.091) no clear difference |
-| Hover, style recalc | 11.0 ms | 9.8 ms | 10.8 ms | 29.7 ms | 1.12× (0.93–1.20) no clear difference | 1.02× (0.84–1.17) no clear difference | 0.37× (0.33–0.40) lower |
-| Hover, recalcs | 19 | 19 | 19 | 36 | 1.000× (1.000–1.000) no clear difference | 1.000× (1.000–1.000) no clear difference | 0.53× (0.51–0.53) lower |
-| Layout | 21.9 ms | 24.4 ms | 21.6 ms | 25.3 ms | 0.899× (0.854–1.001) no clear difference | 1.01× (0.95–1.07) no clear difference | 0.87× (0.79–0.94) lower |
-| Frame time, p95 | 319.6 ms | 326.1 ms | 329.9 ms | 2.13 s | 0.98× (0.95–1.01) no clear difference | 0.969× (0.950–1.000) lower | 0.15× (0.15–0.15) lower |
+| Colour-scheme switch, style recalc | 1.54 s | 1.52 s | 1.52 s | 6.02 s | 1.014× (0.998–1.030) no clear difference | 1.02× (1.01–1.03) higher | 0.26× (0.25–0.26) lower |
+| Colour-scheme switch, recalcs | 11 | 11 | 11 | 12 | 1.000× (0.917–1.095) no clear difference | 1.000× (0.917–1.091) no clear difference | 0.92× (0.92–1.04) no clear difference |
+| Hover, style recalc | 11.3 ms | 10.8 ms | 11.6 ms | 37.1 ms | 1.05× (0.80–1.42) no clear difference | 0.97× (0.76–1.36) no clear difference | 0.31× (0.24–0.39) lower |
+| Hover, recalcs | 19 | 19 | 19 | 40 | 1.000× (1.000–1.000) no clear difference | 1.000× (1.000–1.000) no clear difference | 0.48× (0.47–0.49) lower |
+| Layout | 16.0 ms | 15.6 ms | 15.3 ms | 16.9 ms | 1.03× (0.99–1.08) no clear difference | 1.05× (1.01–1.08) higher | 0.95× (0.93–0.97) lower |
+| Frame time, p95 | 194.5 ms | 189.0 ms | 196.3 ms | 1.49 s | 1.029× (0.996–1.055) no clear difference | 0.99× (0.97–1.05) no clear difference | 0.13× (0.13–0.13) lower |
 
 ## A large page
 
@@ -220,16 +219,16 @@ HTML and `class` attributes are its size.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | HTML | 3.92 MB | 4.33 MB | 4.33 MB | 5.76 MB | 0.91× (0.91–0.91) lower | 0.91× (0.91–0.91) lower | 0.68× (0.68–0.68) lower |
 | class attributes | 1.38 MB | 1.78 MB | 1.78 MB | 3.20 MB | 0.78× (0.78–0.78) lower | 0.78× (0.78–0.78) lower | 0.43× (0.43–0.43) lower |
-| Filter, to the next frame | 315.8 ms | 321.9 ms | 323.9 ms | 297.3 ms | 0.98× (0.95–1.01) no clear difference | 0.975× (0.948–1.005) no clear difference | 1.06× (1.02–1.09) higher |
-| Filter, style recalc | 1.8 ms | 1.7 ms | 2.0 ms | 2.5 ms | 1.03× (0.82–1.14) no clear difference | 0.91× (0.78–1.01) no clear difference | 0.72× (0.63–0.78) lower |
-| Filter, layout | 47.4 ms | 48.8 ms | 49.8 ms | 46.9 ms | 0.97× (0.92–1.04) no clear difference | 0.95× (0.91–1.02) no clear difference | 1.01× (0.94–1.08) no clear difference |
-| Every row again, to the next frame | 2.01 s | 1.96 s | 2.04 s | 2.20 s | 1.03× (0.99–1.04) no clear difference | 0.99× (0.95–1.02) no clear difference | 0.91× (0.88–0.93) lower |
-| Every row again, style recalc | 524.6 ms | 504.1 ms | 594.9 ms | 831.0 ms | 1.04× (0.99–1.09) no clear difference | 0.88× (0.79–1.02) no clear difference | 0.63× (0.60–0.66) lower |
-| Every row again, layout | 516.4 ms | 509.7 ms | 483.5 ms | 509.9 ms | 1.01× (0.99–1.04) no clear difference | 1.07× (1.01–1.12) higher | 1.01× (0.98–1.03) no clear difference |
-| Scroll, frame time p95 | 95.9 ms | 94.6 ms | 89.9 ms | 93.3 ms | 1.01× (0.96–1.08) no clear difference | 1.07× (1.01–1.12) higher | 1.03× (0.98–1.10) no clear difference |
-| Scroll, style recalc | 0.0 ms | 0.4 ms | 0.0 ms | 1.6 ms | not judged | not judged | not judged |
-| Hover across rows, style recalc | 14.8 ms | 17.1 ms | 18.3 ms | 18.8 ms | 0.86× (0.76–0.99) lower | 0.81× (0.65–0.96) lower | 0.78× (0.68–0.90) lower |
-| JavaScript heap | 16.49 MB | 17.39 MB | 17.37 MB | 16.38 MB | 0.95× (0.94–0.95) lower | 0.95× (0.95–0.95) lower | 1.007× (1.003–1.009) higher |
+| Filter, to the next frame | 246.0 ms | 255.7 ms | 259.0 ms | 238.4 ms | 0.96× (0.92–1.01) no clear difference | 0.95× (0.91–0.98) lower | 1.03× (1.01–1.07) higher |
+| Filter, style recalc | 1.6 ms | 1.8 ms | 1.8 ms | 2.4 ms | 0.91× (0.79–1.03) no clear difference | 0.93× (0.82–1.09) no clear difference | 0.69× (0.60–0.81) lower |
+| Filter, layout | 37.6 ms | 38.8 ms | 38.0 ms | 38.3 ms | 0.967× (0.945–1.004) no clear difference | 0.99× (0.97–1.02) no clear difference | 0.98× (0.97–1.03) no clear difference |
+| Every row again, to the next frame | 1.29 s | 1.28 s | 1.30 s | 1.44 s | 1.01× (0.99–1.03) no clear difference | 0.998× (0.972–1.021) no clear difference | 0.90× (0.88–0.92) lower |
+| Every row again, style recalc | 283.4 ms | 284.7 ms | 287.3 ms | 464.1 ms | 0.995× (0.976–1.007) no clear difference | 0.986× (0.966–1.003) no clear difference | 0.61× (0.61–0.62) lower |
+| Every row again, layout | 366.8 ms | 360.5 ms | 362.6 ms | 359.2 ms | 1.018× (0.995–1.040) no clear difference | 1.012× (0.995–1.037) no clear difference | 1.021× (0.997–1.039) no clear difference |
+| Scroll, frame time p95 | 81.0 ms | 84.7 ms | 86.8 ms | 91.7 ms | 0.96× (0.81–1.15) no clear difference | 0.93× (0.80–1.12) no clear difference | 0.88× (0.78–1.08) no clear difference |
+| Scroll, style recalc | 1.0 ms | 1.0 ms | 0.8 ms | 2.0 ms | 1.03× (0.63–1.53) no clear difference | 1.23× (0.73–2.64) no clear difference | 0.49× (0.33–0.76) lower |
+| Hover across rows, style recalc | 17.8 ms | 18.2 ms | 20.8 ms | 24.7 ms | 0.98× (0.76–1.22) no clear difference | 0.86× (0.75–1.12) no clear difference | 0.72× (0.63–0.86) lower |
+| JavaScript heap | 16.48 MB | 17.38 MB | 17.39 MB | 16.40 MB | 0.95× (0.94–0.95) lower | 0.95× (0.94–0.95) lower | 1.005× (1.002–1.009) higher |
 
 **5,000 rows, CPU throttled 4×, about 112608 elements**
 
@@ -237,16 +236,16 @@ HTML and `class` attributes are its size.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | HTML | 19.60 MB | 21.63 MB | 21.63 MB | 28.77 MB | 0.91× (0.91–0.91) lower | 0.91× (0.91–0.91) lower | 0.68× (0.68–0.68) lower |
 | class attributes | 6.90 MB | 8.88 MB | 8.88 MB | 15.96 MB | 0.78× (0.78–0.78) lower | 0.78× (0.78–0.78) lower | 0.43× (0.43–0.43) lower |
-| Filter, to the next frame | 1.72 s | 1.78 s | 1.81 s | 1.63 s | 0.97× (0.96–0.99) lower | 0.95× (0.94–0.97) lower | 1.05× (1.04–1.07) higher |
-| Filter, style recalc | 2.5 ms | 3.0 ms | 3.5 ms | 3.4 ms | 0.83× (0.67–1.46) no clear difference | 0.72× (0.65–0.82) lower | 0.76× (0.69–0.85) lower |
-| Filter, layout | 345.0 ms | 412.6 ms | 419.0 ms | 300.9 ms | 0.84× (0.81–0.86) lower | 0.82× (0.79–0.85) lower | 1.15× (1.06–1.21) higher |
-| Every row again, to the next frame | 10.63 s | 10.31 s | 10.30 s | 11.65 s | 1.03× (1.02–1.04) higher | 1.03× (1.02–1.04) higher | 0.91× (0.90–0.92) lower |
-| Every row again, style recalc | 3.02 s | 2.76 s | 2.72 s | 4.67 s | 1.09× (1.06–1.12) higher | 1.11× (1.09–1.12) higher | 0.65× (0.63–0.65) lower |
-| Every row again, layout | 2.38 s | 2.67 s | 2.70 s | 2.51 s | 0.89× (0.88–0.90) lower | 0.88× (0.87–0.90) lower | 0.95× (0.94–0.96) lower |
-| Scroll, frame time p95 | 403.9 ms | 425.9 ms | 420.1 ms | 424.1 ms | 0.95× (0.92–0.99) lower | 0.962× (0.924–1.000) no clear difference | 0.95× (0.92–0.99) lower |
-| Scroll, style recalc | 0.1 ms | 0.4 ms | 0.1 ms | 0.6 ms | 0.18× (0.10–1.25) no clear difference | 1.19× (0.44–3.88) no clear difference | 0.11× (0.08–0.38) lower |
-| Hover across rows, style recalc | 78.1 ms | 80.1 ms | 79.6 ms | 79.8 ms | 0.97× (0.87–1.06) no clear difference | 0.98× (0.91–1.04) no clear difference | 0.98× (0.94–1.04) no clear difference |
-| JavaScript heap | 66.75 MB | 71.26 MB | 71.26 MB | 64.98 MB | 0.94× (0.94–0.94) lower | 0.94× (0.94–0.94) lower | 1.03× (1.03–1.03) higher |
+| Filter, to the next frame | 1.38 s | 1.46 s | 1.49 s | 1.40 s | 0.94× (0.91–0.97) lower | 0.93× (0.90–0.96) lower | 0.99× (0.96–1.03) no clear difference |
+| Filter, style recalc | 2.8 ms | 4.0 ms | 3.7 ms | 6.2 ms | 0.69× (0.59–0.79) lower | 0.75× (0.61–0.97) lower | 0.45× (0.39–0.85) lower |
+| Filter, layout | 295.0 ms | 340.0 ms | 344.8 ms | 364.0 ms | 0.87× (0.83–0.93) lower | 0.86× (0.82–0.91) lower | 0.81× (0.78–0.87) lower |
+| Every row again, to the next frame | 6.78 s | 6.70 s | 6.67 s | 7.51 s | 1.012× (1.000–1.030) no clear difference | 1.02× (1.01–1.04) higher | 0.90× (0.88–0.92) lower |
+| Every row again, style recalc | 1.81 s | 1.54 s | 1.54 s | 2.80 s | 1.18× (1.16–1.19) higher | 1.18× (1.16–1.19) higher | 0.65× (0.64–0.65) lower |
+| Every row again, layout | 1.62 s | 1.95 s | 1.92 s | 1.81 s | 0.83× (0.82–0.85) lower | 0.84× (0.82–0.86) lower | 0.90× (0.88–0.91) lower |
+| Scroll, frame time p95 | 420.6 ms | 441.5 ms | 437.6 ms | 421.3 ms | 0.95× (0.92–0.99) lower | 0.961× (0.914–1.000) no clear difference | 0.998× (0.956–1.031) no clear difference |
+| Scroll, style recalc | 0.1 ms | 0.6 ms | 0.1 ms | 0.5 ms | 0.16× (0.12–2.41) no clear difference | 1.24× (0.67–7.23) no clear difference | 0.17× (0.12–1.50) no clear difference |
+| Hover across rows, style recalc | 95.6 ms | 96.5 ms | 98.7 ms | 104.0 ms | 0.99× (0.93–1.09) no clear difference | 0.97× (0.90–1.03) no clear difference | 0.920× (0.862–0.998) lower |
+| JavaScript heap | 66.74 MB | 71.26 MB | 71.27 MB | 64.99 MB | 0.94× (0.94–0.94) lower | 0.94× (0.94–0.94) lower | 1.03× (1.03–1.03) higher |
 
 ## The same components, more of them
 
@@ -262,13 +261,13 @@ with the tables above.
 
 |  | 100 | 1,000 | 10,000 |
 | --- | --- | --- | --- |
-| Kirana | 1.76 s | 2.49 s | 9.21 s |
-| StyleX | 7.36 s | 46.00 s | 447.68 s |
-| StyleX (SWC) | 2.82 s | 7.04 s | 47.09 s |
-| Tailwind | 2.01 s | 2.58 s | 7.91 s |
-| Kirana ÷ StyleX | 0.24× (0.24–0.24) lower | 0.05× (0.05–0.05) lower | 0.02× (0.02–0.02) lower |
-| Kirana ÷ StyleX (SWC) | 0.62× (0.61–0.63) lower | 0.35× (0.35–0.36) lower | 0.20× (0.19–0.20) lower |
-| Kirana ÷ Tailwind | 0.87× (0.86–0.89) lower | 0.97× (0.94–0.98) lower | 1.16× (1.13–1.19) higher |
+| Kirana | 2.42 s | 3.48 s | 14.17 s |
+| StyleX | 9.95 s | 61.32 s | 610.17 s |
+| StyleX (SWC) | 4.02 s | 9.02 s | 60.05 s |
+| Tailwind | 2.70 s | 3.49 s | 11.84 s |
+| Kirana ÷ StyleX | 0.24× (0.24–0.25) lower | 0.06× (0.06–0.06) lower | 0.02× (0.02–0.02) lower |
+| Kirana ÷ StyleX (SWC) | 0.60× (0.60–0.62) lower | 0.39× (0.38–0.39) lower | 0.24× (0.23–0.24) lower |
+| Kirana ÷ Tailwind | 0.89× (0.88–0.91) lower | 0.998× (0.984–1.007) no clear difference | 1.20× (1.18–1.21) higher |
 
 **CSS + JavaScript, gzip, at every size**
 
@@ -286,7 +285,7 @@ with the tables above.
 
 | Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Build, cold | 1.76 s | 7.36 s | 2.82 s | 2.01 s | 0.24× (0.24–0.24) lower | 0.62× (0.61–0.63) lower | 0.87× (0.86–0.89) lower |
+| Build, cold | 2.42 s | 9.95 s | 4.02 s | 2.70 s | 0.24× (0.24–0.25) lower | 0.60× (0.60–0.62) lower | 0.89× (0.88–0.91) lower |
 | CSS | 26.2 kB | 31.9 kB | 32.7 kB | 185.5 kB | 0.82× (0.82–0.82) lower | 0.80× (0.80–0.80) lower | 0.14× (0.14–0.14) lower |
 | CSS, gzip | 6.6 kB | 9.3 kB | 9.3 kB | 27.1 kB | 0.72× (0.72–0.72) lower | 0.71× (0.71–0.71) lower | 0.24× (0.24–0.24) lower |
 | CSS, brotli | 5.6 kB | 8.3 kB | 8.3 kB | 21.8 kB | 0.68× (0.68–0.68) lower | 0.67× (0.67–0.67) lower | 0.26× (0.26–0.26) lower |
@@ -300,7 +299,7 @@ with the tables above.
 
 | Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Build, cold | 2.49 s | 46.00 s | 7.04 s | 2.58 s | 0.05× (0.05–0.05) lower | 0.35× (0.35–0.36) lower | 0.97× (0.94–0.98) lower |
+| Build, cold | 3.48 s | 61.32 s | 9.02 s | 3.49 s | 0.06× (0.06–0.06) lower | 0.39× (0.38–0.39) lower | 0.998× (0.984–1.007) no clear difference |
 | CSS | 34.1 kB | 42.1 kB | 48.2 kB | 202.4 kB | 0.81× (0.81–0.81) lower | 0.71× (0.71–0.71) lower | 0.17× (0.17–0.17) lower |
 | CSS, gzip | 8.5 kB | 12.7 kB | 12.9 kB | 29.3 kB | 0.67× (0.67–0.67) lower | 0.66× (0.66–0.66) lower | 0.29× (0.29–0.29) lower |
 | CSS, brotli | 6.6 kB | 10.7 kB | 10.8 kB | 22.5 kB | 0.61× (0.61–0.61) lower | 0.61× (0.61–0.61) lower | 0.29× (0.29–0.29) lower |
@@ -314,7 +313,7 @@ with the tables above.
 
 | Measure | Kirana | StyleX | StyleX (SWC) | Tailwind | Kirana ÷ StyleX | Kirana ÷ StyleX (SWC) | Kirana ÷ Tailwind |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Build, cold | 9.21 s | 447.68 s | 47.09 s | 7.91 s | 0.02× (0.02–0.02) lower | 0.20× (0.19–0.20) lower | 1.16× (1.13–1.19) higher |
+| Build, cold | 14.17 s | 610.17 s | 60.05 s | 11.84 s | 0.02× (0.02–0.02) lower | 0.24× (0.23–0.24) lower | 1.20× (1.18–1.21) higher |
 | CSS | 106.4 kB | 134.9 kB | 189.2 kB | 355.6 kB | 0.79× (0.79–0.79) lower | 0.56× (0.56–0.56) lower | 0.30× (0.30–0.30) lower |
 | CSS, gzip | 23.8 kB | 41.8 kB | 42.1 kB | 43.1 kB | 0.57× (0.57–0.57) lower | 0.57× (0.57–0.57) lower | 0.55× (0.55–0.55) lower |
 | CSS, brotli | 14.7 kB | 31.0 kB | 31.3 kB | 28.3 kB | 0.47× (0.47–0.47) lower | 0.47× (0.47–0.47) lower | 0.52× (0.52–0.52) lower |
