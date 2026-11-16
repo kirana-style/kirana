@@ -5,8 +5,8 @@ name: release
 # since the last tag, bumped in every package.json, Cargo.toml, the gemspec, mix.exs and the editor
 # extensions, with CHANGELOG.md. Merging that PR tags vX.Y.Z and creates the GitHub release; this
 # workflow then builds every platform, runs the installation matrix as the gate, publishes, asks
-# every registry for the version (`verify`), and asks kirana-lab to benchmark it once npm serves it
-# (`bench`):
+# every registry for the version (`verify`), and asks kirana-lab to benchmark it once every npm edge
+# serves it (`bench`):
 #
 #   npm (23 packages + 9 engine packages: 8 native, 1 WASI) · RubyGems · Hex · VS Code Marketplace · Open VSX ·
 #   the kirana-php mirror and the kirana/kirana alias (Packagist reads their tags)
@@ -205,6 +205,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    outputs:
+      served-at: ${{ steps.publish.outputs.served-at }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -216,10 +218,12 @@ jobs:
           node-version-file: .node-version
           run-install: false
 
+      # No `registry-url`: it writes an `.npmrc` with a placeholder token, which npm falls back to,
+      # and reports as an E404 on the upload, when a package's token exchange is refused. With no
+      # token configured, npm logs in with the workflow's identity alone.
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .node-version
-          registry-url: https://registry.npmjs.org
 
       # Trusted publishing needs npm 11.5.1 or later.
       - run: npm install --global npm@12
@@ -229,9 +233,13 @@ jobs:
           name: kirana-packages
           path: dist-packages
 
-      # Every package under its final tag, a dependency level at a time, each level once no CDN edge
-      # can serve the one before it without its new version (the script's header says why).
+      # First asks npm whether this workflow may publish every package, and stops before any upload
+      # if one is refused. Then every package under its final tag, a dependency level at a time,
+      # each level once no CDN edge can serve the one before it without its new version, and with
+      # no wait after the last (the script's header says why). `served-at` is when no edge can serve
+      # the last level without the release, for `bench`.
       - name: Publish, a dependency level at a time
+        id: publish
         run: bun packages/kirana/scripts/publish-npm.ts dist-packages
 
   rubygems:
@@ -419,19 +427,32 @@ jobs:
           TAG: ${{ needs.release-please.outputs.tag || inputs.tag }}
         run: bun packages/kirana/scripts/verify-release.ts "$TAG"
 
-  # Once npm serves the release (the `npm` job ends only when it does), kirana-lab measures it against
-  # StyleX and Tailwind (its bench workflow, about three hours); the `benchmarks` workflow then takes
-  # the results into the site. The lab installs from npm only, so it waits for no other registry.
+  # Once every npm edge serves the release, kirana-lab measures it against StyleX and Tailwind (its
+  # bench workflow, about three hours); the `benchmarks` workflow then takes the results into the
+  # site. The `npm` job ends when the last package is accepted, and an edge may serve the older
+  # lists of versions for npm's `max-age` after that: the lab installs from an edge of its own,
+  # which this job cannot ask, so it waits until `served-at` (the last publish and `max-age`), when
+  # no edge can still serve them. The lab installs from npm only, so it waits for no other registry.
   # KIRANA_LAB_DISPATCH is a fine-grained token with Contents read and write on kirana-lab only,
   # which is what a repository_dispatch needs. Only a release is measured, not a re-publish.
   bench:
     needs: [release-please, npm]
     if: needs.release-please.outputs.created == 'true'
     runs-on: ubuntu-26.04
-    timeout-minutes: 5
+    timeout-minutes: 15
     permissions: {}
 
     steps:
+      - name: Wait until every npm edge serves the release
+        env:
+          SERVED_AT: ${{ needs.npm.outputs.served-at }}
+        run: |
+          wait=$(( ${SERVED_AT:-0} - $(date +%s) ))
+          if [ "$wait" -gt 0 ]; then
+            echo "waiting $wait s: until then an npm edge may serve the previous release"
+            sleep "$wait"
+          fi
+
       - name: Ask kirana-lab to measure the release
         env:
           GH_TOKEN: ${{ secrets.KIRANA_LAB_DISPATCH }}

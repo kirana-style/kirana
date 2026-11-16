@@ -7,12 +7,16 @@
  *   bun scripts/verify-release.ts v0.2.0 --once     # one pass, no retries
  *
  * npm (every package, the engines included), RubyGems, Hex and Packagist (the mirror and the alias)
- * must have it. Open VSX (which answers 404 while an upload is held for review) and the VS Code
+ * must have it. npm is read as an installer reads it, from the edge this runner reaches: the list of
+ * versions holds the version and its tarball is served. The npm job does not wait for the cache of
+ * the last packages it published to run out (`publish-npm.ts`), so an edge may serve their older
+ * list for `max-age` (300 s) after the job ends; the retries below wait that out. Open VSX (which answers 404 while an upload is held for review) and the VS Code
  * Marketplace (uploaded by hand without a VSCE_PAT) only report, and never keep the retries going.
  */
 import { readdirSync, readFileSync } from "node:fs"
 import path from "node:path"
 
+import { escapedName, listedTarball } from "./npm-release.ts"
 import { TARGETS } from "./pack.ts"
 
 const [tag, ...flags] = process.argv.slice(2)
@@ -72,12 +76,22 @@ async function packagist(name: string): Promise<boolean> {
 const checks: Check[] = [
   ...npmPackages.map((name) => ({
     name: `npm ${name}`,
-    has: async () =>
-      Boolean(
-        await json(
-          `https://registry.npmjs.org/${encodeURIComponent(name)}/${version}`
-        )
-      ),
+    has: async () => {
+      const tarball = listedTarball(
+        await json(`https://registry.npmjs.org/${escapedName(name)}`, {
+          headers: { Accept: "application/vnd.npm.install-v1+json" },
+        }),
+        version
+      )
+      // The tarball only once the list holds it: an edge that cached a 404 from an earlier ask
+      // would hand it to the next installer.
+      if (tarball === undefined) return false
+      const response = await fetch(tarball, {
+        method: "HEAD",
+        signal: AbortSignal.timeout(15_000),
+      })
+      return response.ok
+    },
   })),
   {
     name: "RubyGems kirana",
