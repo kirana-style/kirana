@@ -7,8 +7,9 @@
  * project names it, `@/registry/<type>/<path>`, or `./<name>` beside it; the packages it imports
  * become the item's dependencies, at the ranges the registry's `package.json` gives, and the items
  * that hold what it imports its registry dependencies; it is hashed. Every item is checked against
- * the schema, and `<out>/<name>.json` and `<out>/index.json` are written, nothing when a problem is
- * found. Grown from Kirana UI's builder, which builds its registry with `buildRegistry`.
+ * the schema, then the index with the source's `defaultBase` (KF-120), and `<out>/<name>.json` and
+ * `<out>/index.json` are written, nothing when a problem is found. Grown from Kirana UI's builder,
+ * which builds its registry with `buildRegistry`.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
@@ -47,6 +48,8 @@ export type SourceRegistry = {
   $schema?: string
   name?: string
   homepage?: string
+  /** The base each framework takes without `ui.base`, written to the index (KF-120). */
+  defaultBase?: Partial<Record<Framework, string>>
   items: SourceItem[]
 }
 
@@ -195,6 +198,7 @@ export type Built = {
     $schema: string
     name?: string
     homepage?: string
+    defaultBase?: Partial<Record<Framework, string>>
     items: {
       name: string
       type: Item["type"]
@@ -404,6 +408,9 @@ export function buildRegistry(
     $schema: INDEX_SCHEMA_URL,
     ...(source.name === undefined ? {} : { name: source.name }),
     ...(source.homepage === undefined ? {} : { homepage: source.homepage }),
+    ...(source.defaultBase === undefined
+      ? {}
+      : { defaultBase: source.defaultBase }),
     items: items.map((item) => ({
       name: item.name,
       type: item.type,
@@ -424,6 +431,10 @@ export function buildRegistry(
           }),
     })),
   }
+  // The index, from items that are valid: its default bases (KF-120).
+  if (problems.length === 0)
+    for (const problem of check(index).problems)
+      problems.push(`index: ${problem.pointer} ${problem.message}`)
   return { items, index, problems }
 }
 

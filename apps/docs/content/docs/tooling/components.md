@@ -101,6 +101,10 @@ component has several:
 npx kirana-style ui init --framework react --base aria
 ```
 
+Without `--base`, `init` writes the registry's default base for your framework
+to `ui.base` when its index names one, and says so. Your project keeps that base
+when the registry changes its default later.
+
 Turn on the pointer cursor on buttons, or right to left, with the flags
 shadcn/ui's `init` takes:
 
@@ -161,8 +165,9 @@ your package manager, and Kirana checks what was written before your next build.
 <!-- consistency: subset -->
 
 It installs on React, Vue, Svelte, Solid and Angular, each component's markup for
-your framework and base. An icon is your library's own component where the
-library has a package for your framework:
+your framework and base: `ui.base`, else the component's only base, else the
+registry's default for your framework. An icon is your library's own component
+where the library has a package for your framework:
 
 <!-- consistency: subset -->
 

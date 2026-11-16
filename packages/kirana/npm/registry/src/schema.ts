@@ -375,6 +375,15 @@ export const INDEX_SCHEMA: Schema = {
     $schema: { type: "string" },
     name: { type: "string" },
     homepage: { type: "string" },
+    defaultBase: {
+      type: "object",
+      description:
+        "The base each framework takes, by framework: `ui add` installs it from an item with several bases when the project sets no `ui.base`, and `ui init` writes it to `ui.base` (KF-120). Each is a base an item lists for that framework.",
+      properties: Object.fromEntries(
+        FRAMEWORKS.map((framework) => [framework, { $ref: "#/$defs/name" }])
+      ),
+      additionalProperties: false,
+    },
     items: {
       type: "array",
       items: {

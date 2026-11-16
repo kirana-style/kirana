@@ -1,12 +1,12 @@
 /**
  * What a registry document is and everything wrong with it: its schema's problems, then what a
  * schema cannot say (KRN-DX-021, KRN-DX-024): each file's hash against its content, and a `target`
- * on exactly the files of type `file`.
+ * on exactly the files of type `file`; an index's default bases among its items' (KF-120).
  */
 import { createHash } from "node:crypto"
 
 import { INDEX_SCHEMA, ITEM_SCHEMA, LOCKFILE_SCHEMA } from "./schema.ts"
-import type { Item, RegistryFile } from "./types.ts"
+import type { Framework, Index, Item, RegistryFile } from "./types.ts"
 import { validate } from "./validate.ts"
 import type { Problem } from "./validate.ts"
 
@@ -137,6 +137,22 @@ function itemProblems(item: Item): Problem[] {
   return problems
 }
 
+/** What the index schema cannot check (KF-120): each default base is one an entry lists. */
+function indexProblems(index: Index): Problem[] {
+  const problems: Problem[] = []
+  for (const [framework, base] of Object.entries(index.defaultBase ?? {}))
+    if (
+      !index.items.some((entry) =>
+        entry.frameworks?.[framework as Framework]?.includes(base)
+      )
+    )
+      problems.push({
+        pointer: `/defaultBase/${framework}`,
+        message: `names ${base}, which no item has for ${framework}`,
+      })
+  return problems
+}
+
 /** The document's kind and its problems, in document order; none when it is valid. */
 export function check(document: unknown): { kind: Kind; problems: Problem[] } {
   const kind = kindOf(document)
@@ -146,5 +162,7 @@ export function check(document: unknown): { kind: Kind; problems: Problem[] } {
       ...itemProblems(document as Item),
       ...fileProblems(document as Item)
     )
+  if (kind === "index" && problems.length === 0)
+    problems.push(...indexProblems(document as Index))
   return { kind, problems }
 }

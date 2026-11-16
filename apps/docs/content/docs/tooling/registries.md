@@ -216,6 +216,34 @@ The index is the item named `index`, valid against
 name and each item's name, type, version and bases. `kirana-style ui search`
 reads it.
 
+When your items have several bases for a framework, the index can name the one a
+project gets when it sets no `ui.base`, per framework:
+
+```json
+{
+  "name": "Acme",
+  "defaultBase": { "react": "base", "vue": "ark" },
+  "items": [
+    {
+      "name": "button",
+      "type": "component",
+      "version": "1.0.0",
+      "frameworks": { "react": ["base", "aria"], "vue": ["ark"] }
+    }
+  ]
+}
+```
+
+- `kirana-style ui add` installs that base from an item that has several. An
+  item with one base for the framework installs it, and one whose bases do not
+  include the default still asks for a base.
+- A project's own `ui.base` always wins.
+- `kirana-style ui init` writes the default into the new project's `ui.base`, so
+  the project keeps its base when you change the default later. Changing it is
+  an edit to the index, and only projects set up after it get the new one.
+- Each default must be a base an item lists for that framework, which
+  `kirana-style ui validate` checks.
+
 ## Templates
 
 A registry can offer whole projects to start from: an app in the layout you
@@ -285,6 +313,7 @@ from, in a `registry.json`, and `kirana-style ui build` writes the documents:
 {
   "name": "Acme",
   "homepage": "https://acme.dev",
+  "defaultBase": { "react": "base" },
   "items": [
     {
       "name": "button",
@@ -334,9 +363,10 @@ project:
   gives it (a workspace's `catalog:` included), unless the item names one. The
   framework's own packages and Kirana's are left out: every project has them.
 
-Every item is checked as `validate` checks it, and nothing is written when a
+`name`, `homepage` and `defaultBase` go into the index as they are. Every item,
+then the index, is checked as `validate` checks it, and nothing is written when a
 problem is found: an import of no file of the registry, a package with no range,
-a file that is not there.
+a file that is not there, a default base no item has.
 
 ## Checking
 

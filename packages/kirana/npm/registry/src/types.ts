@@ -107,6 +107,8 @@ export type Index = {
   $schema?: string
   name?: string
   homepage?: string
+  /** The base each framework takes when the project sets no `ui.base` (KF-120). */
+  defaultBase?: Partial<Record<Framework, string>>
   items: IndexEntry[]
 }
 

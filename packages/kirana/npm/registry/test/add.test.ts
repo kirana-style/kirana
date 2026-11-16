@@ -10,7 +10,7 @@ import path from "node:path"
 
 import { afterAll, describe, expect, it } from "vite-plus/test"
 
-import { hashOf } from "../src/check.ts"
+import { check, hashOf } from "../src/check.ts"
 import { runInShell } from "../src/add.ts"
 import { main } from "../src/index.ts"
 import { readLockfile, writeLockfile } from "../src/lockfile.ts"
@@ -258,6 +258,153 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     expect((await add(unknown, "@acme/button")).text).toBe(
       "@acme/button has markup for react (base, aria), vue (ark): set ui.framework in kirana.config\n"
     )
+  })
+
+  it("takes its registry's default base where an item has several and ui.base is unset (KF-120)", async () => {
+    const MENU: Item = {
+      name: "menu",
+      type: "component",
+      version: "1.2.0",
+      frameworks: {
+        react: {
+          base: { files: [file("menu.tsx", "ui", "base\n")] },
+          aria: { files: [file("menu.tsx", "ui", "aria\n")] },
+        },
+        vue: { ark: { files: [file("menu/Menu.vue", "ui", "<template/>\n")] } },
+      },
+    }
+    /** `@acme`'s index with this default, listing the button's and the menu's bases. */
+    const index = (defaultBase: Record<string, string>) => ({
+      "acme/index.json": JSON.stringify({
+        defaultBase,
+        items: [BUTTON, MENU].map(({ name, type, version }) => ({
+          name,
+          type,
+          version,
+          frameworks: { react: ["base", "aria"], vue: ["ark"] },
+        })),
+      }),
+    })
+    const cwd = project({}, [KIT, BUTTON, MENU], index({ react: "aria" }))
+    const taken = await add(cwd, "@acme/button", "@acme/menu", "--no-check")
+    expect(taken.code).toBe(0)
+    expect(taken.text).toContain("@acme/button 1.2.0 · react/aria\n")
+    expect(taken.text).toContain("@acme/menu 1.2.0 · react/aria\n")
+    expect(taken.commands).toEqual([
+      "npm install react-aria-components@^1.22.1",
+    ])
+    expect(readLockfile(cwd).items["@acme/button"]).toMatchObject({
+      framework: "react",
+      base: "aria",
+    })
+    // ui.base wins over the default.
+    const set = project({ base: "base" }, undefined, index({ react: "aria" }))
+    expect((await add(set, "@acme/button")).text).toContain(
+      "@acme/button 1.2.0 · react/base\n"
+    )
+    // A default for another framework leaves the choice to ui.base, as does an index that cannot
+    // be used: this one names a base no item has.
+    const unused: Record<string, string>[] = [
+      { vue: "ark" },
+      { react: "radix" },
+    ]
+    for (const defaultBase of unused)
+      expect(
+        (
+          await add(
+            project({}, [KIT, BUTTON], index(defaultBase)),
+            "@acme/button"
+          )
+        ).text
+      ).toBe(
+        "@acme/button has several react bases (base, aria): set ui.base in kirana.config\n"
+      )
+    // A default the item does not have.
+    const DIALOG: Item = {
+      name: "dialog",
+      type: "component",
+      version: "1.0.0",
+      frameworks: {
+        react: { kirana: { files: [file("dialog.tsx", "ui", "x\n")] } },
+      },
+    }
+    const lacking = project({}, [KIT, BUTTON, DIALOG], {
+      "acme/index.json": JSON.stringify({
+        defaultBase: { react: "kirana" },
+        items: [{ ...DIALOG, frameworks: { react: ["kirana"] } }],
+      }),
+    })
+    expect((await add(lacking, "@acme/button")).text).toBe(
+      "@acme/button has several react bases (base, aria), and not kirana, @acme's default: set ui.base in kirana.config\n"
+    )
+  })
+
+  it("installs a kirana base on every framework, with the package it names (KF-120)", async () => {
+    const FRAMEWORKS = ["react", "vue", "svelte", "solid", "angular"] as const
+    const EXTENSIONS = {
+      react: "tsx",
+      vue: "vue",
+      svelte: "svelte",
+      solid: "tsx",
+      angular: "ts",
+    }
+    const DIALOG: Item = {
+      name: "dialog",
+      type: "component",
+      version: "1.0.0",
+      frameworks: Object.fromEntries(
+        FRAMEWORKS.map((framework) => {
+          const name = `dialog.${EXTENSIONS[framework]}`
+          return [
+            framework,
+            {
+              base: { files: [file(name, "ui", "base\n")] },
+              kirana: {
+                files: [file(name, "ui", `${framework}\n`)],
+                dependencies: { [`@kirana-ui/${framework}`]: "^0.1.0" },
+              },
+            },
+          ]
+        })
+      ),
+    }
+    const index = {
+      defaultBase: Object.fromEntries(
+        FRAMEWORKS.map((framework) => [framework, "kirana"])
+      ),
+      items: [
+        {
+          name: "dialog",
+          type: "component",
+          version: "1.0.0",
+          frameworks: Object.fromEntries(
+            FRAMEWORKS.map((framework) => [framework, ["base", "kirana"]])
+          ),
+        },
+      ],
+    }
+    expect(check(DIALOG).problems).toEqual([])
+    expect(check(index).problems).toEqual([])
+    // Named by ui.base, or the registry's default.
+    for (const framework of FRAMEWORKS)
+      for (const cwd of [
+        project({ framework, base: "kirana" }, [DIALOG]),
+        project({ framework }, [DIALOG], {
+          "acme/index.json": JSON.stringify(index),
+        }),
+      ]) {
+        const { code, text, commands } = await add(
+          cwd,
+          "@acme/dialog",
+          "--no-check"
+        )
+        expect(code).toBe(0)
+        expect(text).toContain(`@acme/dialog 1.0.0 · ${framework}/kirana\n`)
+        expect(commands).toEqual([`npm install @kirana-ui/${framework}@^0.1.0`])
+        expect(
+          read(cwd, `src/components/ui/dialog.${EXTENSIONS[framework]}`)
+        ).toBe(`${framework}\n`)
+      }
   })
 
   it("stops on what is not an item, an item no installed one provides for, or two at one place", async () => {

@@ -751,6 +751,59 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     ).toBe("../kit is not an item: @namespace/name, or a name for @kirana's\n")
   })
 
+  it("writes the registry's default base for the framework to ui.base, unless one is given (KF-120)", async () => {
+    const design: Item = {
+      ...kit(),
+      frameworks: {
+        react: {
+          base: { files: [file("kit/react.ts", "lib", "base\n")] },
+          aria: { files: [file("kit/react.ts", "lib", "aria\n")] },
+        },
+      },
+    }
+    const index = JSON.stringify({
+      defaultBase: { react: "aria" },
+      items: [
+        { name: "button", type: "component", version: "1.0.0" },
+        {
+          name: "kit",
+          type: "design-system",
+          version: "1.0.0",
+          frameworks: { react: ["base", "aria"] },
+        },
+      ],
+    })
+    const cwd = vite({ "acme/index.json": index }, design)
+    const { code, text } = await init(cwd, "--registry", ACME)
+    expect(code).toBe(0)
+    expect(text).toContain("@acme/kit 1.0.0 · react/aria\n")
+    expect(text).toContain("setup: ui.base aria, @acme's default for react\n")
+    expect(read(cwd, "kirana.config.ts")).toContain('"base": "aria",')
+    expect(read(cwd, "src/lib/kit/react.ts")).toBe("aria\n")
+    // The design system named, read from its own registry's index.
+    const named = await init(
+      vite({ "acme/index.json": index }, design),
+      "--registry",
+      ACME,
+      "--design",
+      "kit"
+    )
+    expect(named.text).toContain("@acme/kit 1.0.0 · react/aria\n")
+    // --base wins, and writes no default.
+    const given = await init(
+      vite({ "acme/index.json": index }, design),
+      "--registry",
+      ACME,
+      "--base",
+      "base"
+    )
+    expect(given.text).toContain("@acme/kit 1.0.0 · react/base\n")
+    expect(given.text).not.toContain("default for")
+    // An index that names no default for the framework leaves ui.base unset.
+    const none = await init(vite(), "--registry", ACME, "--dry-run")
+    expect(none.text).toContain('ui {"framework":"react","registries"')
+  })
+
   it("prints what it cannot do safely as steps by hand", async () => {
     // A JSON configuration takes the settings, but cannot import the design system's configuration.
     const json = vite({ "kirana.config.json": '{ "layers": {} }' })

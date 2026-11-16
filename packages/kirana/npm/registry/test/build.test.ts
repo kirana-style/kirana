@@ -255,6 +255,31 @@ describe("KRN-DX-034 buildRegistry", () => {
     })
   })
 
+  it("writes the source's default base per framework into the index, checked (KF-120)", () => {
+    const at = sources("defaults", ACME)
+    const built = buildRegistry(
+      { ...ACME_SOURCE, defaultBase: { react: "base" } },
+      at
+    )
+    expect(built.problems).toEqual([])
+    expect(built.index).toMatchObject({
+      name: "Acme",
+      defaultBase: { react: "base" },
+    })
+    expect(
+      buildRegistry({ ...ACME_SOURCE, defaultBase: { react: "kirana" } }, at)
+        .problems
+    ).toEqual([
+      "index: /defaultBase/react names kirana, which no item has for react",
+    ])
+    expect(
+      buildRegistry(
+        { ...ACME_SOURCE, defaultBase: { qwik: "base" } as never },
+        at
+      ).problems
+    ).toEqual(["index: /defaultBase/qwik is not allowed here"])
+  })
+
   it("follows folders, extensions, aliases and the dependencies the source declares", () => {
     const at = sources("shapes", {
       "src/lib/format/index.ts": "export const format = 1\n",

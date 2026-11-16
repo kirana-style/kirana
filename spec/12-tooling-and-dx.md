@@ -154,8 +154,10 @@ its `import` is in a package its `dependencies` lists. An axis's `items` name it
 values (KF-050).
 
 **KRN-DX-022** — A registry MUST be addressable as a URL template holding `{name}`, and its index
-is the item named `index`: `{ name, homepage, items }`, each entry with the item's `name`, `type`,
-`title`, `description`, `version` and its frameworks' bases. A project names registries in
+is the item named `index`: `{ name, homepage, defaultBase, items }`, each entry with the item's
+`name`, `type`, `title`, `description`, `version` and its frameworks' bases. `defaultBase` names, per
+framework, the base a project without `ui.base` gets from an item with several (KF-120); each MUST
+be a base an entry lists for that framework, which `validate` checks. A project names registries in
 `ui.registries` by namespace, `"@acme": "https://acme.dev/r/{name}.json"`, or as
 `{ url, headers }`. `@kirana`, Kirana UI's `https://ui.kirana.style/r/{name}.json`, is known
 without configuration and can be redefined. A template may also be a path (from the configuration's
@@ -207,15 +209,17 @@ read once (KRN-DX-026). The project's settings under `ui`:
 | Key         | Holds                                                                                                                                                                                                                                                      |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | framework   | the framework whose markup is installed; else the one of `react`, `vue`, `svelte`, `solid-js` and `@angular/core` the project depends on, directly or through an adapter that has it as a peer (Astro's islands, Inertia's client, TanStack Start; KF-109) |
-| base        | the base whose markup is installed; else the framework's only base in the item                                                                                                                                                                             |
+| base        | the base whose markup is installed; else the framework's only base in the item, else its registry index's `defaultBase` for the framework when the item has that base (KF-120)                                                                             |
 | aliases     | the import specifier for each file type: `ui`, `lib`, `component`, `hook`, `page`; `@/components/ui`, `@/lib`, `@/components` and `@/hooks` by default                                                                                                     |
 | iconLibrary | the library each `<IconPlaceholder>` is drawn with: `lucide` (the default), `tabler`, `hugeicons`, `phosphor` or `remixicon`                                                                                                                               |
 | design      | the design system's axis values the project uses (`{ style: "vega", baseColor: "stone" }`), which `ui preset` writes                                                                                                                                       |
 | allDesigns  | `true` to install style modules and design files as written, every design kept, not the registry's builds for `design` (KF-080)                                                                                                                            |
 | workspace   | in an app, the package of its workspace that `ui` installs into, from the configuration's directory, and the only key of the app's `ui` (D-129)                                                                                                            |
 
-An item with `frameworks` and none for the project's framework, or several bases and no `ui.base`,
-MUST stop the command, naming what the item supports. An item's style modules MUST be its
+An item with `frameworks` and none for the project's framework, or several bases, no `ui.base` and
+none its registry's index names as the default for the framework, MUST stop the command, naming what
+the item supports; the index is read only then, once per registry, and one that cannot be read
+names no default. An item's style modules MUST be its
 `flattened` build for `ui.design`'s value of the build's axis and the project's base when the item
 has one, and as written otherwise (D-110). Each of its `flattened.axes` MUST then replace, for
 `ui.design`'s value of that axis, each file of the same type and path with the value's build; a
@@ -236,7 +240,9 @@ when an item cannot be read or installed, 2 without an item or with settings it 
 
 **KRN-DX-029** — `kirana-style ui init` MUST set a project up for a registry: Kirana itself where it
 is missing (what `kirana-style init` does), the `ui` settings in `kirana.config.*` (`--framework`,
-`--base`, and `--registry @namespace=<template>` for each registry to name), and the registry's
+`--base`, and `--registry @namespace=<template>` for each registry to name; without a base, the
+design system's registry index's `defaultBase` for the framework, when it names one, is written as
+`ui.base` and said, KF-120), and the registry's
 design-system item (`--design <item>`, else the index's first item of that type) installed as `add`
 installs it. Its `setup` is then wired in (D-109): the configuration spread first into
 `defineConfig`, imported by relative path with its extension (a tsconfig that type-checks the
@@ -335,7 +341,8 @@ base-62 number holding one index per field from bit 0, an index past a list's en
 first value), the result written to `ui.design`, with the `framework`, `base` and `iconLibrary`
 fields to their own settings; the design's axes set as attributes on `<html>` in the root document,
 found as `init --pointer` finds it; and every
-installed item placed again for the new design, as `update` writes it: a file the project left as
+installed item placed again for the new design, as `update` writes it, on the base `ui.base` names,
+else the one the lockfile records where the framework is the same (KF-120): a file the project left as
 installed is replaced, one it changed stops the command unless `--overwrite`, and the lockfile
 records the new design and hashes. The items the new values name in their axis's `items` that are
 not installed MUST be installed as `add` installs them, a font's stylesheet imported; an installed
@@ -369,11 +376,12 @@ Each file MUST be read, each relative import of another of the registry's files 
 that file added to the importing item's (or base's) `registryDependencies`, each package it imports
 added to its `dependencies` at the range the item names, else the registry's `package.json` gives
 (a workspace `catalog:` read from the nearest manifest above with a catalog), the framework's own
-packages and Kirana's left out; its line endings made `\n` and its hash taken. Every item MUST be
-checked as `validate` checks it, and `<out>/<name>.json` and `<out>/index.json` written (`public/r`
-by default), nothing at all when a problem is found (an import of no file of the registry or of no
-item, a package without a range, a missing file, an item named `index`): exit 1. Exit 2 for a
-malformed command.
+packages and Kirana's left out; its line endings made `\n` and its hash taken. The source's `name`,
+`homepage` and `defaultBase` MUST be written into the index (KF-120). Every item, then the index
+once the items are valid, MUST be checked as `validate` checks it, and `<out>/<name>.json` and
+`<out>/index.json` written (`public/r` by default), nothing at all when a problem is found (an
+import of no file of the registry or of no item, a package without a range, a missing file, an item
+named `index`, a default base no item has): exit 1. Exit 2 for a malformed command.
 
 **KRN-DX-035** — `kirana-style ui mcp` MUST be a Model Context Protocol server over stdio (D-128):
 each line of stdin a JSON-RPC 2.0 message, each answer one line of stdout, nothing else written
