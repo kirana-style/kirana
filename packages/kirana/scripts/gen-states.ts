@@ -14,6 +14,11 @@
  *   ships in the package's `licenses/`): the `@selector` of each `<Name>RenderProps` interface.
  * - `reka-ui.ts` (MIT, Copyright (c) 2023 UnoVue), `bits-ui.ts` (MIT, Copyright (c) 2023 Hunter
  *   Johnston) and `ng-primitives.ts` (Apache-2.0), read from each part's code.
+ * - `ui-sdk.ts` from `@ui-sdk/core` (Apache-2.0): each `definePrimitive` slot's `attrs`, what its
+ *   `bind` writes and the helpers both reach (`states-ui-sdk.ts`, KF-125); one core serves every
+ *   framework's adapter.
+ * - `kirana-ui.ts` from `@kirana-ui/vocabulary` (MIT), the vocabulary Kirana UI Primitives publishes
+ *   as data, copied rather than read from code (KF-119, D-130).
  *
  * Each state becomes a condition key: an attribute's presence (`checked: "[data-checked]"`), or,
  * for a union of string literals, one key per value (`side.inlineEnd: '[data-side="inline-end"]'`),
@@ -26,6 +31,8 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs"
 import { createRequire } from "node:module"
 import path from "node:path"
 import { parseSync } from "oxc-parser"
+
+import { uiSdk } from "./states-ui-sdk.ts"
 
 const require = createRequire(import.meta.url)
 
@@ -2014,6 +2021,116 @@ function hostValues(
   )
 }
 
+// Kirana UI Primitives ---------------------------------------------------------------------------
+
+/** A state as `@kirana-ui/vocabulary` publishes it (format `version: 1`). */
+type PublishedState = {
+  attribute: string
+  description: string
+  /** Its presence, for a state that is present or absent. */
+  selector?: string
+  /** Each value's selector, for an attribute that carries one. */
+  values?: Record<string, string>
+}
+type PublishedPart = {
+  states: Record<string, PublishedState>
+  /** States of the part that never hold together, by name. */
+  exclusive: string[][]
+  /** Custom properties on the part's element, each with what it holds. */
+  variables: Record<string, string>
+}
+type Published = {
+  version: number
+  sharesNamesWith: string[]
+  components: Record<string, { parts: Record<string, PublishedPart> }>
+}
+
+/**
+ * Kirana UI Primitives' vocabulary, read from the data the library publishes rather than from its
+ * code (KF-119): `@kirana-ui/vocabulary`'s `vocabulary.json`, which the library generates from the
+ * part definitions its core runs on. Its `exclusive` groups are the library's own, by state name,
+ * and the values of one valued state are a group too (KF-121), so none is inferred here. A value's
+ * selector is the library's, its key the value as the other vocabularies key one.
+ */
+function kiranaUi(): {
+  vocabulary: Vocabulary
+  version: string
+  exclusive: string[][]
+  sharesNamesWith: string[]
+  variables: Map<string, Map<string, Record<string, string>>>
+} {
+  const { directory, version } = installed("@kirana-ui/vocabulary")
+  const data = JSON.parse(
+    readFileSync(path.join(directory, "src/vocabulary.json"), "utf8")
+  ) as Published
+  if (data.version !== 1)
+    throw new Error(
+      `@kirana-ui/vocabulary ${version} writes format ${data.version}; this reads 1`
+    )
+  const vocabulary: Vocabulary = new Map()
+  const groups = new Map<string, string[]>()
+  const group = (selectors: string[]) => {
+    if (selectors.length > 1) groups.set(selectors.join(" "), selectors)
+  }
+  const variables = new Map<string, Map<string, Record<string, string>>>()
+  for (const [component, { parts }] of Object.entries(data.components)) {
+    const byPart = new Map<string, State[]>()
+    for (const [part, published] of Object.entries(parts)) {
+      const states = Object.entries(published.states).map(
+        ([name, state]): State => {
+          const values = Object.values(state.values ?? {}).map((selector) => {
+            const value = new RegExp(
+              `^\\[${state.attribute}="([^"]*)"\\]$`
+            ).exec(selector)?.[1]
+            if (value === undefined)
+              throw new Error(
+                `${component}.${part}.${name}: ${selector} is not a value of ${state.attribute}`
+              )
+            return value
+          })
+          return {
+            name,
+            attribute: state.attribute,
+            doc: state.description,
+            values,
+            ...(state.selector === undefined ||
+            state.selector === `[${state.attribute}]`
+              ? {}
+              : { selector: state.selector }),
+          }
+        }
+      )
+      for (const names of published.exclusive)
+        group(
+          names.map((name) => {
+            const state = published.states[name]
+            if (state?.selector === undefined)
+              throw new Error(
+                `${component}.${part}: exclusive names ${name}, which is not a present-or-absent state`
+              )
+            return state.selector
+          })
+        )
+      for (const state of Object.values(published.states))
+        group(Object.values(state.values ?? {}))
+      byPart.set(pascal(part), states)
+      if (Object.keys(published.variables).length)
+        variables
+          .set(pascal(component), variables.get(pascal(component)) ?? new Map())
+          .get(pascal(component))!
+          .set(pascal(part), published.variables)
+    }
+    vocabulary.set(pascal(component), byPart)
+  }
+  return {
+    vocabulary,
+    version,
+    exclusive: [...groups.values()],
+    sharesNamesWith: data.sharesNamesWith,
+    variables,
+  }
+}
+
 // Writing ---------------------------------------------------------------------------------------
 
 /**
@@ -2085,7 +2202,13 @@ function write(
   file: string,
   library: string,
   header: readonly string[],
-  vocabulary: Vocabulary
+  vocabulary: Vocabulary,
+  own: {
+    /** The library's own groups, where it publishes them (KF-121), in place of the inferred ones. */
+    exclusive?: string[][]
+    /** Exports written after the components. */
+    after?: readonly string[]
+  } = {}
 ) {
   const lines = [
     ...header,
@@ -2097,7 +2220,7 @@ function write(
     ` *   import { exclusive } from "@kirana-style/states/${path.basename(file, ".ts")}"`,
     " *   export default defineConfig({ conditions: { exclusive } })",
     " */",
-    `export const exclusive: string[][] = ${JSON.stringify(exclusiveGroups(vocabulary))}`,
+    `export const exclusive: string[][] = ${JSON.stringify(own.exclusive ?? exclusiveGroups(vocabulary))}`,
     "",
   ]
   for (const [name, value] of vocabulary) {
@@ -2108,6 +2231,7 @@ function write(
         lines.push(`  ${part}: {`, ...stateLines(list, "    "), "  },")
     lines.push("} as const", "")
   }
+  lines.push(...(own.after ?? []))
   const output = path.join(import.meta.dirname, "../npm/states/src", file)
   writeFileSync(output, lines.join("\n"))
   return output
@@ -2119,6 +2243,16 @@ const aria = reactAria()
 const reka = rekaUi()
 const bitsVocabulary = bitsUi()
 const ng = ngPrimitives()
+const kirana = kiranaUi()
+const sdk = uiSdk()
+// A component with one part reads as Base UI's Button does, its states at the top (`Button.pressed`).
+const flattened: Vocabulary = new Map(
+  [...sdk.vocabulary].map(([name, value]) =>
+    !Array.isArray(value) && value.size === 1 && value.has("Root")
+      ? [name, value.get("Root")!]
+      : [name, value]
+  )
+)
 const outputs = [
   write(
     "base-ui.ts",
@@ -2176,6 +2310,52 @@ const outputs = [
       "// data attributes, read from its bindings. Do not edit.",
     ],
     ng.vocabulary
+  ),
+  write(
+    "ui-sdk.ts",
+    "ui-sdk",
+    [
+      `// @generated by scripts/gen-states.ts from @ui-sdk/core ${sdk.version} (Apache-2.0): each part's data`,
+      "// attributes, read from its slot's attrs and bind, the same for every framework. Do not edit.",
+    ],
+    flattened
+  ),
+  write(
+    "kirana-ui.ts",
+    "Kirana UI Primitives",
+    [
+      `// @generated by scripts/gen-states.ts from @kirana-ui/vocabulary ${kirana.version} (MIT, The Kirana`,
+      "// authors): the library's published vocabulary, its descriptions and exclusive groups. Do not edit.",
+    ],
+    kirana.vocabulary,
+    {
+      exclusive: kirana.exclusive,
+      after: [
+        "/**",
+        " * Vocabularies whose attribute names these are too: a style written for Base UI's states",
+        " * holds for these parts. `conditionsOf()` keeps the two apart all the same, since each lists",
+        " * what its library writes.",
+        " */",
+        `export const sharesNamesWith = ${JSON.stringify(kirana.sharesNamesWith)} as const`,
+        "",
+        "/** The custom properties each part sets on its element, by component and part, with what each holds. */",
+        "export const variables = {",
+        ...[...kirana.variables].flatMap(([component, parts]) => [
+          `  ${component}: {`,
+          ...[...parts].flatMap(([part, list]) => [
+            `    ${part}: {`,
+            ...Object.entries(list).flatMap(([name, doc]) => [
+              `      /** ${doc.replaceAll("*/", "*\\/")} */`,
+              `      ${camel(name.replace(/^--/, ""))}: "${name}",`,
+            ]),
+            "    },",
+          ]),
+          "  },",
+        ]),
+        "} as const",
+        "",
+      ],
+    }
   ),
 ]
 // Formatted with the repository's formatter so the CI freshness check compares like with like.

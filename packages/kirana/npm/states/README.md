@@ -27,14 +27,16 @@ condition does: nested in another, beside `media()`, in a relation (`field.withi
 and in recipes. The package has no runtime: the compiler reads the strings and they leave nothing
 behind.
 
-| Subpath           | Library                                                               | Generated from                                                                                              |
-| ----------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `./base-ui`       | [Base UI](https://base-ui.com) (`@base-ui/react`)                     | each part's published `*DataAttributes` module, and the open state its mapping writes                       |
-| `./ark-ui`        | [Ark UI](https://ark-ui.com), on React, Vue, Solid and Svelte         | `@zag-js/docs`, the data attributes of Zag's machines, and their code                                       |
-| `./react-aria`    | [React Aria Components](https://react-spectrum.adobe.com/react-aria/) | each component's render props, by their `@selector`                                                         |
-| `./reka-ui`       | [Reka UI](https://reka-ui.com), for Vue                               | each part's template, as the package ships it                                                               |
-| `./bits-ui`       | [Bits UI](https://bits-ui.com), for Svelte                            | the state classes of each part and of what it renders, by the types of their `props`                        |
-| `./ng-primitives` | [Angular Primitives](https://angularprimitives.com) (`ng-primitives`) | each part's data and host bindings, its interactions, those of what it composes, and what its portal writes |
+| Subpath           | Library                                                                        | Generated from                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `./base-ui`       | [Base UI](https://base-ui.com) (`@base-ui/react`)                              | each part's published `*DataAttributes` module, and the open state its mapping writes                       |
+| `./ark-ui`        | [Ark UI](https://ark-ui.com), on React, Vue, Solid and Svelte                  | `@zag-js/docs`, the data attributes of Zag's machines, and their code                                       |
+| `./react-aria`    | [React Aria Components](https://react-spectrum.adobe.com/react-aria/)          | each component's render props, by their `@selector`                                                         |
+| `./reka-ui`       | [Reka UI](https://reka-ui.com), for Vue                                        | each part's template, as the package ships it                                                               |
+| `./bits-ui`       | [Bits UI](https://bits-ui.com), for Svelte                                     | the state classes of each part and of what it renders, by the types of their `props`                        |
+| `./ng-primitives` | [Angular Primitives](https://angularprimitives.com) (`ng-primitives`)          | each part's data and host bindings, its interactions, those of what it composes, and what its portal writes |
+| `./ui-sdk`        | [ui-sdk](https://ui-sdk.dev) (`@ui-sdk/core`), on React, Vue, Svelte and Solid | each slot's `attrs`, what its `bind` writes, and the helpers both reach                                     |
+| `./kirana-ui`     | Kirana UI Primitives (`@kirana-ui/vocabulary`)                                 | the vocabulary the library publishes as data, its exclusive groups and custom properties included           |
 
 Each subpath also exports `exclusive`: the states its library sets one at a time (`checked` and
 `unchecked`, `open` and `closed`), for `conditions.exclusive` in `kirana.config`, so a property set
@@ -47,22 +49,22 @@ import { exclusive } from "@kirana-style/states/base-ui"
 export default defineConfig({ conditions: { exclusive } })
 ```
 
-A design system that writes each component once for several libraries passes `exclusiveAcross()`,
-from the package's root, one vocabulary per library: two state keys no single library sets never meet
-on an element, so their pairs are not reported either.
+A design system that writes each component once for several libraries passes `conditionsOf()`, from
+the package's root, the vocabularies its components are built on. It returns every vocabulary's
+`exclusive` groups once, and `exclusiveAcross`, one vocabulary per library: two state keys no single
+library sets never meet on an element, so their pairs are not reported either.
 
 ```ts
-import { exclusiveAcross } from "@kirana-style/states"
+import { conditionsOf } from "@kirana-style/states"
 import * as baseUi from "@kirana-style/states/base-ui"
 import * as reactAria from "@kirana-style/states/react-aria"
 
-export default defineConfig({
-  conditions: {
-    exclusive: [...baseUi.exclusive, ...reactAria.exclusive],
-    exclusiveAcross: exclusiveAcross(baseUi, reactAria),
-  },
-})
+export default defineConfig({ conditions: conditionsOf(baseUi, reactAria) })
 ```
+
+`exclusiveAcross(...vocabularies)` alone gives the second. A library's own module of keys in this shape
+(its components as capitalised exports, beside `exclusive`) is a vocabulary too: Kirana UI Primitives'
+`@kirana-ui/vocabulary/keys` is one, and `./kirana-ui` is a copy of it.
 
 A state that takes values (`side`, `align`, `orientation`) has one key per value, in camel case
 (`Select.Popup.side.inlineEnd` is `'[data-side="inline-end"]'`). A state whose value is free text or

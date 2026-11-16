@@ -6,7 +6,8 @@ import { afterAll, describe, expect, it } from "vite-plus/test"
 
 import * as arkUi from "../src/ark-ui.ts"
 import * as baseUi from "../src/base-ui.ts"
-import { exclusiveAcross } from "../src/index.ts"
+import { conditionsOf, exclusiveAcross } from "../src/index.ts"
+import * as kiranaUi from "../src/kirana-ui.ts"
 import * as reactAria from "../src/react-aria.ts"
 
 const root = mkdtempSync(path.join(import.meta.dirname, ".app-"))
@@ -50,6 +51,7 @@ describe("exclusiveAcross", () => {
       exclusiveAcross({
         exclusive: [["[a]", "[b]"]],
         Part: { odd: "a b", none: null },
+        variables: { Part: { width: "[data-width]" } },
       })
     ).toEqual([[]])
   })
@@ -74,6 +76,37 @@ describe("exclusiveAcross", () => {
               exclusiveAcross: exclusiveAcross(...vocabularies),
             },
           },
+        })
+      )
+    ).toBe(0)
+  })
+})
+
+describe("conditionsOf", () => {
+  it("gives both conditions from the vocabularies, each group once (KF-121)", () => {
+    const { exclusive, exclusiveAcross: across } = conditionsOf(
+      baseUi,
+      kiranaUi
+    )
+    // Base UI and Kirana UI Primitives both declare open and closed: one group.
+    expect(
+      exclusive.filter(
+        (group) => group.join(" ") === "[data-open] [data-closed]"
+      )
+    ).toHaveLength(1)
+    expect(across).toEqual(exclusiveAcross(baseUi, kiranaUi))
+    expect(conditionsOf(baseUi)).toEqual({ exclusive: baseUi.exclusive })
+    expect(conditionsOf({ Part: { open: "[data-open]" } })).toEqual({
+      exclusive: [],
+    })
+  })
+
+  it("settles the same pairs as listing them by hand, a vocabulary sharing names beside", () => {
+    expect(
+      ambiguous(
+        Driver.createSync({
+          root,
+          config: { conditions: conditionsOf(baseUi, reactAria, kiranaUi) },
         })
       )
     ).toBe(0)
