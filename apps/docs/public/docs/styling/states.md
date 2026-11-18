@@ -108,7 +108,8 @@ They differ where the libraries do:
   part has its states at the top, as Base UI's Button: `Button.pending`.
 - **Kirana UI Primitives** publishes its vocabulary as data, generated from the
   part definitions its core runs on, so `@kirana-style/states/kirana-ui` is a copy
-  of it, its exclusive groups included, and also names each part's custom
+  of it, its exclusive groups included (a value's name camelCased as in every
+  vocabulary here: `side.inlineStart`), and also names each part's custom
   properties: `variables.Popover.Positioner.transformOrigin`. It writes Base UI's
   attribute names (`sharesNamesWith`), so a style written with Base UI's keys
   holds for its parts.

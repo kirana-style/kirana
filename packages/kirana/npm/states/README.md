@@ -64,7 +64,8 @@ export default defineConfig({ conditions: conditionsOf(baseUi, reactAria) })
 
 `exclusiveAcross(...vocabularies)` alone gives the second. A library's own module of keys in this shape
 (its components as capitalised exports, beside `exclusive`) is a vocabulary too: Kirana UI Primitives'
-`@kirana-ui/vocabulary/keys` is one, and `./kirana-ui` is a copy of it.
+`@kirana-ui/vocabulary/keys` is one, and `./kirana-ui` is a copy of it, a value's name camelCased as in
+every vocabulary here (`side.inlineStart` where the library writes `side["inline-start"]`).
 
 A state that takes values (`side`, `align`, `orientation`) has one key per value, in camel case
 (`Select.Popup.side.inlineEnd` is `'[data-side="inline-end"]'`). A state whose value is free text or

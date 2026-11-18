@@ -9,9 +9,24 @@ const components = (vocabulary: Record<string, unknown>) =>
     Object.entries(vocabulary).filter(([name]) => /^[A-Z]/.test(name))
   )
 
+/** `inline-start` → `inlineStart`: a value's name as every vocabulary here writes it. */
+const camel = (name: string) =>
+  name.replace(/-(\w)/g, (_, letter: string) => letter.toUpperCase())
+
+/** The published keys with each value map's names camelCased, nested objects walked. */
+const camelValues = (node: unknown): unknown =>
+  typeof node === "object" && node !== null
+    ? Object.fromEntries(
+        Object.entries(node).map(([name, child]) => [
+          typeof child === "string" ? camel(name) : name,
+          camelValues(child),
+        ])
+      )
+    : node
+
 describe("kirana-ui", () => {
   it("is the vocabulary the library publishes, key for key (KF-119)", () => {
-    expect(components(kiranaUi)).toEqual(components(published))
+    expect(components(kiranaUi)).toEqual(camelValues(components(published)))
     expect(entries(kiranaUi).length).toBeGreaterThan(0)
     for (const [, , , selector] of entries(kiranaUi))
       expect(selector).toMatch(SELECTOR)
@@ -26,6 +41,8 @@ describe("kirana-ui", () => {
       '[data-side="right"]',
       '[data-side="bottom"]',
       '[data-side="left"]',
+      '[data-side="inline-start"]',
+      '[data-side="inline-end"]',
     ])
   })
 
@@ -33,6 +50,20 @@ describe("kirana-ui", () => {
     expect(kiranaUi.sharesNamesWith).toEqual(["base-ui"])
     expect(kiranaUi.variables.Popover.Positioner.transformOrigin).toBe(
       "--transform-origin"
+    )
+  })
+
+  it("follows the library's releases: 0.1.1's components, parts and custom properties", () => {
+    expect(Object.keys(components(kiranaUi))).toEqual(
+      expect.arrayContaining(["Combobox", "DatePicker", "Menu", "Toast"])
+    )
+    expect(kiranaUi.Select.ScrollUpArrow).toBeDefined()
+    expect(kiranaUi.variables.Slider.Thumb.position).toBe("--position")
+  })
+
+  it("names a value with a hyphen in camel case, as every vocabulary here does", () => {
+    expect(kiranaUi.Popover.Positioner.side.inlineStart).toBe(
+      '[data-side="inline-start"]'
     )
   })
 })
