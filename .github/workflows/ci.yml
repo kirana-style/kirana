@@ -73,7 +73,7 @@ jobs:
       - name: Format
         run: vp fmt --check
 
-      # Oxlint with the Kirana rules, and the TypeScript type check (tsgolint) in the same pass. A
+      # Oxlint with the Kirana rules, and the TypeScript type check (tsrs) in the same pass. A
       # warning fails it, like an error: the pre-push hook's `vp run check` does the same.
       - name: Lint and types
         run: vp lint --deny-warnings
