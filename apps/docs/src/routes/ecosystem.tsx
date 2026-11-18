@@ -415,7 +415,7 @@ function EcosystemPage() {
             art={<AddArt />}
             title="Kirana UI"
             href="/ui"
-            text={`shadcn/ui's components and charts on typed styles, installed with kirana-style ui add. ${UI_STATUS}.`}
+            text={`shadcn/ui's components and charts on typed styles, installed with kirana-style ui add, ${UI_STATUS}.`}
             links={[
               { title: "What it is", href: "/ui" },
               { title: "Browse the components", href: UI_PAGES.components },

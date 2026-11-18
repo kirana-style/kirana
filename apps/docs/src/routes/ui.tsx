@@ -116,7 +116,7 @@ const OWNED = [
   {
     kicker: "The same components",
     title: "shadcn/ui's API and look",
-    text: "The components and charts shadcn/ui has, with the same names and parts, on Base UI or React Aria underneath.",
+    text: "The components and charts shadcn/ui has, with the same names and parts, over an unstyled library your framework already has.",
   },
   {
     kicker: "Code you own",
@@ -158,7 +158,7 @@ function UiPage() {
         number="01"
         label="What you get"
         title="The components you know, as code you own"
-        lede="Moving to Kirana does not start with porting a component library: the one most React projects build on is already here."
+        lede={`Moving to Kirana does not start with porting a component library: shadcn/ui's is already here, ${UI_STATUS}.`}
       >
         <div sx={styles.cells}>
           {OWNED.map((entry) => (
@@ -230,8 +230,8 @@ function UiPage() {
       <PageSection
         number="04"
         label="Frameworks"
-        title="React today, the others on the way"
-        lede={`One style module serves every framework: only the markup is per framework. ${UI_STATUS}, each on the libraries it uses.`}
+        title="Every framework, one style module"
+        lede="A component's look is written once and compiled for each framework: only the markup is per framework, over the unstyled libraries each one uses."
       >
         <UiFrameworks />
       </PageSection>
