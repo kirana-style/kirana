@@ -3,6 +3,7 @@
  * frameworks it has markup for. The drawings are the illustration kit's; the terminal's lines are
  * as `kirana-style ui add` prints a new file, and the configuration has the keys `ui` takes.
  */
+import { Fragment } from "react"
 import { css } from "@kirana-style/core"
 import {
   BarChartIcon,
@@ -65,6 +66,8 @@ const styles = {
     lineHeight: "1.5",
     color: theme.mutedForeground,
   }),
+  // A word of a library's name never breaks at its hyphen ("ui-sdk"); a long name wraps between words.
+  word: css({ whiteSpace: "nowrap" }),
   status: css({
     fontFamily: fontFamily.mono,
     fontSize: textSize.micro,
@@ -156,6 +159,16 @@ export function DesignArt() {
   )
 }
 
+/** A library's name, each word kept whole. */
+function BaseName({ name }: { name: string }) {
+  return name.split(" ").map((word, index) => (
+    <Fragment key={word}>
+      {index > 0 ? " " : null}
+      <span sx={styles.word}>{word}</span>
+    </Fragment>
+  ))
+}
+
 /** Each framework Kirana UI has markup for, by its logo, and whether it is out. */
 export function UiFrameworks() {
   return (
@@ -170,7 +183,20 @@ export function UiFrameworks() {
           <span sx={[styles.name, framework.ready ? null : styles.muted]}>
             {framework.name}
           </span>
-          <span sx={styles.bases}>{framework.bases}</span>
+          <span sx={styles.bases}>
+            {framework.bases.map((base, index) => (
+              <Fragment key={base}>
+                {index > 0 ? ", " : null}
+                <BaseName name={base} />
+              </Fragment>
+            ))}
+            {framework.porting?.map((base) => (
+              <Fragment key={base}>
+                {", "}
+                <BaseName name={base} /> (being ported)
+              </Fragment>
+            ))}
+          </span>
           <span sx={[styles.status, framework.ready ? styles.ready : null]}>
             {framework.ready ? "Available" : "In development"}
           </span>
