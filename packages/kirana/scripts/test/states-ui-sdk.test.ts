@@ -62,7 +62,7 @@ describe("ui-sdk vocabulary", () => {
   })
 
   it("reads the pinned release, every expression of every part", () => {
-    expect(result.version).toBe("0.1.0-beta.5")
+    expect(result.version).toBe("0.1.0-beta.9")
     expect(result.unread).toEqual([])
   })
 

@@ -805,6 +805,11 @@ function collect(raw: Node, env: Env, collected: Collected, depth = 0) {
     }
     case "Literal":
       break
+    case "UnaryExpression":
+      // `...(state.listed ? void 0 : listName(…))` (Select's content, beta.9): spreading `void 0`
+      // adds nothing.
+      if (node.operator !== "void") collected.unread.push(source(node, env))
+      break
     default:
       collected.unread.push(source(node, env))
   }

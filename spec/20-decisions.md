@@ -2309,7 +2309,9 @@ the implementation tracker names its evidence.
   exactly as a development dependency: no reading of the library's code, and no generator rule of
   its own. Its `exclusive` groups are the library's, by state name, with the values of one valued
   state as a group; the module also exports `sharesNamesWith` and each part's custom properties
-  (`variables`). A test holds it equal, key for key, to the package's own `keys` module. The
+  (`variables`). A test holds it equal, key for key, to the package's own `keys` module, a value's
+  name camelCased as in every other vocabulary (`inline-start` → `inlineStart`, which the library's
+  module keeps as written from 0.2.0). The
   package's root adds `conditionsOf(...vocabularies)`, which returns each vocabulary's `exclusive`
   groups once and, from two vocabularies up, `exclusiveAcross`, so `conditions: conditionsOf(baseUi,
   kiranaUi)` replaces listing both. `exclusiveAcross` and `conditionsOf` read a vocabulary's
