@@ -323,13 +323,12 @@ export function defineTokens<const T extends TokenValues>(
 
 type ThemeOverrides<T> = {
   readonly [K in keyof T]?: T[K] extends Token
-    ?
-        | Primitive
-        | Token
-        | {
-            readonly light: Primitive | Token
-            readonly dark: Primitive | Token
-          }
+    ? | Primitive
+      | Token
+      | {
+          readonly light: Primitive | Token
+          readonly dark: Primitive | Token
+        }
     : ThemeOverrides<T[K]>
 }
 
