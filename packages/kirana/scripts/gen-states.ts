@@ -59,6 +59,13 @@ type State = {
 /** Components, each with its parts' states, or its own states when it has no parts. */
 type Vocabulary = Map<string, Map<string, State[]> | State[]>
 
+/**
+ * A folder's entries in name order. The file system lists them in an order of its own, which differs
+ * between machines: Reka UI's scrollbar took `vertical` before `horizontal` on a CI runner, where its
+ * `ScrollAreaScrollbarY.vue` came before `…X.vue`, and the committed module no longer matched.
+ */
+const entriesOf = (folder: string): string[] => readdirSync(folder).sort()
+
 /** A package's directory and version. */
 function installed(name: string, entry = "package.json") {
   const file = require.resolve(`${name}/${entry}`)
@@ -926,7 +933,7 @@ function bases(clause: string): RenderProps["bases"] {
 function renderProps(directory: string): Map<string, RenderProps> {
   const out = new Map<string, RenderProps>()
   const source = path.join(directory, "dist/types/src")
-  for (const file of readdirSync(source).filter((name) =>
+  for (const file of entriesOf(source).filter((name) =>
     name.endsWith(".d.ts")
   )) {
     const text = readFileSync(path.join(source, file), "utf8")
@@ -1103,7 +1110,7 @@ function helperBody(name: string, script: string, directory: string): string {
   )
   const local = pattern.exec(script)?.[0]
   if (local) return local
-  for (const file of readdirSync(directory).filter((entry) =>
+  for (const file of entriesOf(directory).filter((entry) =>
     entry.endsWith(".ts")
   )) {
     const found = pattern.exec(
@@ -1393,7 +1400,7 @@ function rekaUi(): { vocabulary: Vocabulary; version: string } {
   const { directory, version } = installed("reka-ui")
   const source = path.join(directory, "src")
   const out: Vocabulary = new Map()
-  for (const component of readdirSync(source).sort()) {
+  for (const component of entriesOf(source)) {
     const folder = path.join(source, component)
     const index = path.join(folder, "index.ts")
     if (!existsSync(index)) continue
@@ -1402,7 +1409,7 @@ function rekaUi(): { vocabulary: Vocabulary; version: string } {
         /default as (\w+)[^}]*\}\s*from\s*["']\.\/(\w+)\.vue["']/g
       ),
     ].map(([, name, file]) => ({ name: name!, file: file! }))
-    const files = readdirSync(folder).filter((entry) => entry.endsWith(".vue"))
+    const files = entriesOf(folder).filter((entry) => entry.endsWith(".vue"))
     const byPart = new Map<string, State[]>()
     for (const { name, file } of exported) {
       const part = partName(name, component)
@@ -1530,7 +1537,7 @@ function bitsUi(): { vocabulary: Vocabulary; version: string } {
       .filter((name) => /^[A-Z]/.test(name))
       .map((name) => [name, folder!] as const)
   )
-  const folders = readdirSync(bits)
+  const folders = entriesOf(bits)
   for (const [component, folder] of components) {
     const exports = path.join(bits, folder!, "exports.d.ts")
     if (!existsSync(exports)) continue
@@ -1639,7 +1646,7 @@ function ngUnits(modules: string, typings: string, everyEntry: string) {
   // The hooks a portal is created with that its content registers itself through
   // (`provideToastOptions({ register })`, which `NgpToast` injects), as the call that injects one.
   const registers = new Set<string>()
-  for (const file of readdirSync(modules).filter((entry) =>
+  for (const file of entriesOf(modules).filter((entry) =>
     /^ng-primitives-[\w-]+\.mjs$/.test(entry)
   )) {
     const entry = file.slice("ng-primitives-".length, -".mjs".length)
@@ -1746,7 +1753,7 @@ function ngPrimitives(): { vocabulary: Vocabulary; version: string } {
   const typings = path.join(directory, "types")
   // Every entry point's declarations: a type is declared in one and used in another
   // (`NgpOrientation` in `ng-primitives/common`).
-  const everyEntry = readdirSync(typings)
+  const everyEntry = entriesOf(typings)
     .filter((entry) => entry.endsWith(".d.ts"))
     .map((entry) => readFileSync(path.join(typings, entry), "utf8"))
     .join("\n")
