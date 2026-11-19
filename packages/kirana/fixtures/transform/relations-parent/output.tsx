@@ -1,6 +1,6 @@
 
 
-const group = {"name": "field-group", "anchor": "krEKOt"}
+const group = ({"name": "field-group", "anchor": "krEKOt"})
 
 // shadcn/ui's FieldGroup: a group directly inside another is tighter (`*:data-[slot=field-group]:gap-4`).
 const styles = {

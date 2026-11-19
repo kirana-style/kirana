@@ -2,8 +2,8 @@ import { runtime as __kirana_runtime } from "@kirana-style/core/internal";
 const __k = /* @__PURE__ */ __kirana_runtime("k", "className");
 
 
-const space = {"8": "2rem", "9": "2.25rem"}
-const colors = {"ring": "var(--kvkup3)"}
+const space = ({"8": "2rem", "9": "2.25rem"})
+const colors = ({"ring": "var(--kvkup3)"})
 
 // An optional value: a key the object lacks reads as `undefined`, whatever it holds (KF-039).
 const pick = (value: { base: string; mira?: string }) => ({

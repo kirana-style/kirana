@@ -1,7 +1,7 @@
 
 
-const ui = {"name": "ui", "anchor": "krscus"}
-const group = {"name": "field-group", "anchor": "krlcVV"}
+const ui = ({"name": "ui", "anchor": "krscus"})
+const group = ({"name": "field-group", "anchor": "krlcVV"})
 
 // kirana-ui's FieldGroup: Vega's wider gap, and a group directly inside another tighter. The parent
 // read ranks with the pseudo-classes, as the `:where([data-slot] > *)` it replaces did, so it wins

@@ -103,6 +103,18 @@ impl Code {
         }
     }
 
+    /// [`Code::value`] written in place of a call: an object literal (fixed tokens, a relation) opens
+    /// with `opening`, a parenthesis, as an inlined `props()` call does (KF-128).
+    pub fn expression(&mut self, names: &kirana_ir::Names, value: &Value, opening: &str) -> bool {
+        if !matches!(value, Value::Object(_) | Value::Relation(_)) {
+            return self.value(names, value);
+        }
+        self.text(opening);
+        self.value(names, value);
+        self.text(")");
+        true
+    }
+
     /// Code for a value a Kirana call produced. Returns `false` when the call should stay as is.
     pub fn value(&mut self, names: &kirana_ir::Names, value: &Value) -> bool {
         match value {

@@ -21,7 +21,7 @@ export const ends = "kZ_9lIr k10_AmXa"
 export const inline = "kV_AYXV"
 
 // A token's default may read a chain too; a variable token's default is read on the root.
-export const edges = {"top": "var(--kvCDGB)"}
+export const edges = ({"top": "var(--kvCDGB)"})
 
 // Outside a style the chain is its text.
 export const TOP_TEXT = TOP

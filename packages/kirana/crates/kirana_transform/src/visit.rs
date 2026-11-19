@@ -37,6 +37,8 @@ pub(crate) struct Rewriter<'e, 'p, 'a, 'c> {
     /// written at many sites is one handle (KF-059), so its classes are written, and in a dense build
     /// marked, once (KF-095). The handle is kept so that its address is not reused.
     dom_literals: FxHashMap<usize, (Arc<Handle>, Option<String>)>,
+    /// Where each expression statement in a statement list starts, for `object_opening`.
+    statement_starts: FxHashSet<u32>,
 }
 
 fn sp(span: oxc_span::Span) -> (u32, u32) {
@@ -55,7 +57,16 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             anchors: Vec::new(),
             diagnostics: Vec::new(),
             dom_literals: FxHashMap::default(),
+            statement_starts: FxHashSet::default(),
         }
+    }
+
+    /// How an object literal written in place of the expression at `start` opens: in parentheses,
+    /// since at the start of an arrow's body or of a statement `{` would open a block, and after a
+    /// semicolon at the start of a statement, so the parenthesis does not call the statement before
+    /// it when that one ends without one (KF-128).
+    fn object_opening(&self, start: u32) -> &'static str {
+        if self.statement_starts.contains(&start) { ";(" } else { "(" }
     }
 
     /// The class literal a host element gets for `handle`, or `None` when it has no class.
@@ -404,14 +415,13 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
         let mut code = Code::default();
         match parts.static_handle() {
             Some(handle) => {
-                match self.dom_literal(&handle) {
-                    Some(literal) => {
-                        code.text(format!("{{{class:?}: "));
-                        code.text(literal);
-                        code.text("}");
-                    }
-                    None => code.text("{}"),
+                code.text(self.object_opening(call.span.start));
+                code.text("{");
+                if let Some(literal) = self.dom_literal(&handle) {
+                    code.text(format!("{class:?}: "));
+                    code.text(literal);
                 }
+                code.text("})");
                 code.record(handle);
             }
             None => {
@@ -428,6 +438,7 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
     fn mode_object(&mut self, span: (u32, u32)) {
         let names = self.evaluator.context().names;
         let mut code = Code::default();
+        code.text(self.object_opening(span.0));
         code.text("{");
         for (index, mode) in ["system", "light", "dark"].into_iter().enumerate() {
             if index > 0 {
@@ -437,7 +448,7 @@ impl<'e, 'p, 'a, 'c> Rewriter<'e, 'p, 'a, 'c> {
             let value = self.evaluator.eval_mode(mode);
             code.value(names, &value);
         }
-        code.text("}");
+        code.text("})");
         self.push(span, code);
     }
 }
@@ -565,6 +576,15 @@ fn is_host(name: &JSXElementName<'_>) -> bool {
 }
 
 impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
+    fn visit_statements(&mut self, statements: &oxc_allocator::Vec<'a, Statement<'a>>) {
+        for statement in statements {
+            if let Statement::ExpressionStatement(expression) = statement {
+                self.statement_starts.insert(expression.span.start);
+            }
+        }
+        walk::walk_statements(self, statements);
+    }
+
     fn visit_call_expression(&mut self, call: &CallExpression<'a>) {
         self.reported = self.evaluator.reported();
         match &call.callee {
@@ -589,7 +609,8 @@ impl<'a> Visit<'a> for Rewriter<'_, '_, 'a, '_> {
             } else {
                 let value = self.evaluator.eval_call(call);
                 let mut code = Code::default();
-                if code.value(self.evaluator.context().names, &value) {
+                let opening = self.object_opening(call.span.start);
+                if code.expression(self.evaluator.context().names, &value, opening) {
                     self.push(sp(call.span), code);
                 }
             }

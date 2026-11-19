@@ -1,6 +1,6 @@
 
 
-const card = {"name": "card", "anchor": "krZC3H"}
+const card = ({"name": "card", "anchor": "krZC3H"})
 
 // Reported: the state is the parent's, which the port rarely means.
 export const links = "k50-dcN-KFHz_D9ur"

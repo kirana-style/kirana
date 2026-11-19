@@ -1,7 +1,7 @@
 
 
-const color = {"accent": "var(--kvcCJY)", "ink": "light-dark(black, white)"}
-const space = {"4": "var(--kv4tTp)"}
+const color = ({"accent": "var(--kvcCJY)", "ink": "light-dark(black, white)"})
+const space = ({"4": "var(--kv4tTp)"})
 
 // A variable token is checked through the value it declares; an inlined one, as its value.
 export const wrong = ""

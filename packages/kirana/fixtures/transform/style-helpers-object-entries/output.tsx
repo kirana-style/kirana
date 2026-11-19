@@ -2,8 +2,8 @@ import { runtime as __kirana_runtime } from "@kirana-style/core/internal";
 const __k = /* @__PURE__ */ __kirana_runtime("k", "className");
 
 
-const radius = {"lg": "0.5rem", "md": "0.375rem"}
-const ctx = {"gap": "var(--kvFN39)"}
+const radius = ({"lg": "0.5rem", "md": "0.375rem"})
+const ctx = ({"gap": "var(--kvFN39)"})
 const vega = '[data-style="vega"]'
 const wide = "@media (min-width: 40rem)"
 

@@ -7,9 +7,9 @@ const removed = "k5O*_"
 
 export function Primitive({ sx, on }: { sx?: string; on: boolean }) {
   return [
-    {"className": "k5O_23ai"},
-    {},
-    {},
+    ({"className": "k5O_23ai"}),
+    ({}),
+    ({}),
     /* @__PURE__ */ __k.sx(["k5O_23ai", (on && /* @__PURE__ */ __k.cx(/* @__PURE__ */ __k.b("kaF_ZFLY", "--kaF", (`${Number(on)}px`)))), (sx), ("foreign")], [], []),
   ]
 }

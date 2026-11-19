@@ -3,7 +3,7 @@
 
 
 
-const field = {"name": "field", "anchor": "kr2Ipz"}
+const field = ({"name": "field", "anchor": "kr2Ipz"})
 
 // A state from a vocabulary is a condition key like any other: it nests, combines with other
 // conditions and reads through a relation.

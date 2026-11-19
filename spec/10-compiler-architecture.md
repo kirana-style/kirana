@@ -292,7 +292,10 @@ every other module it MUST return "unchanged" so the host keeps the original byt
 2. replaces definitions (`defineTokens`, `relation`, `keyframes`, `recipe`) with the minimal runtime
    values their remaining consumers need (class strings, variable references, recipe tables). Every
    runtime call it writes is marked `/* @__PURE__ */`, so a bundler drops a table or a runtime instance
-   whose consumers all resolved at build time;
+   whose consumers all resolved at build time. A value written as an object literal (a static
+   `props()` call, fixed tokens, a relation, `mode`) is in parentheses, so it stays an expression where
+   `{` would open a block, after `=>` or at the start of a statement; at the start of a statement in a
+   list it also opens with `;`, so the parenthesis does not call the statement before (KF-128);
 3. removes Kirana authoring imports whose uses were all erased, and adds `@kirana-style/core/internal`
    imports only for runtime functions the module still uses. It also removes an import every read of
    whose bindings it folded away, when the module it names can go unloaded (D-118): loading it and
