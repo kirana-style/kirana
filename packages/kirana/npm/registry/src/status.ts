@@ -14,7 +14,7 @@ import { hashOf } from "./check.ts"
 import { failureLine, parseArgs } from "./command.ts"
 import type { Failure, Options } from "./command.ts"
 import { readLockfile } from "./lockfile.ts"
-import { frameworkOf, readProject } from "./project.ts"
+import { readProject } from "./project.ts"
 import type { Project } from "./project.ts"
 import { parseReference, read, RegistryError } from "./read.ts"
 import { loadSettings } from "./settings.ts"
@@ -107,12 +107,7 @@ export async function statusOf(
       const found = await read(key, settings, options)
       const item = found.document as Item
       const planned = planItem(key, item, settings, choose(key, item, locked))
-      await readIcons(
-        [planned],
-        settings,
-        settings.framework ?? frameworkOf(project),
-        options
-      )
+      await readIcons([planned], settings, project, options)
       const placed = place([planned], settings, project, undefined, false)
       const files: FileStatus[] = placed.map((next) => {
         const was = locked.files[next.relative]

@@ -192,7 +192,7 @@ tarballs, builds and checks in Chromium (the compatibility matrix).
 | ---------------------------------------- | -------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | React (and React Native Web DOM targets) | P0       | `className` + `style` object                         | TSX/JSX via Oxc                                                                                         |
 | Preact                                   | P1       | `class` + `style` object                             | TSX/JSX via Oxc. Built (`vite-preact`)                                                                  |
-| Solid                                    | P1       | `class` + `style` object                             | TSX/JSX via Oxc. Built (`vite-solid`)                                                                   |
+| Solid                                    | P1       | `class` + `style` object                             | TSX/JSX via Oxc. Built (`vite-solid`; Solid 2: `vite-solid2`)                                           |
 | Vue (SFC)                                | P1       | `:class` + `:style` bindings                         | SFC masking adapter Built (`vite-vue`)                                                                  |
 | Svelte                                   | P1       | `class=` + `style:` directives                       | SFC masking adapter Built (`vite-svelte`)                                                               |
 | Astro                                    | P1       | `class` + `style` attributes                         | SFC masking adapter Built (`astro`; React islands: `astro-react`)                                       |
@@ -202,13 +202,18 @@ tarballs, builds and checks in Chromium (the compatibility matrix).
 
 The `jsx` key selects the attribute (`className` for React, `class` for Preact, Solid and Qwik); left
 out, the Driver reads `compilerOptions.jsxImportSource` from the project's `tsconfig.json` (`preact`,
-`solid-js`, `@qwik.dev/core`, `@builder.io/qwik`) and otherwise uses React. Under a `class` mode a `className` already on the element is
+`solid-js`, Solid 2's `@solidjs/web` and `@solidjs/h` (KF-127), `@qwik.dev/core`, `@builder.io/qwik`) and otherwise
+uses React. `kirana-style init` writes `jsx: "solid"` into the configuration of a Solid project whose
+`tsconfig.json` does not name Solid's JSX, as Vite's starter keeps it in `tsconfig.app.json` (KF-129). Under a `class` mode a `className` already on the element is
 merged into the one `class` the element gets, since Preact users still write it. The private runtime
 is created with the attribute (`runtime(prefix, attribute)`), so dynamic `sx` and `props()` return
 the same key the static path writes; passing it from the compiler rather than defaulting it in the
 runtime keeps the runtime at 997 bytes gzip, 2 fewer than before the modes existed (KRN-DYN-005).
 `@kirana-style/core/preact`, `@kirana-style/core/solid` and `@kirana-style/core/qwik` add `sx` to each framework's JSX
-types, as `@kirana-style/core/react` does for React.
+types, as `@kirana-style/core/react` does for React. `@kirana-style/core/solid` augments both Solids:
+Solid 1's JSX in `solid-js` and Solid 2's in `@solidjs/web/jsx-runtime` (KF-127). An app has one of
+the two, and TypeScript skips an augmentation, in a declaration file, of a module it cannot resolve,
+with or without `skipLibCheck`, so one entry serves both.
 
 On a Vue component, a caller's `:sx` compiles to the `class` Vue falls through to the root, which Vue
 concatenates with the root's own. `useSx()` from `@kirana-style/core/vue` returns the caller's classes and

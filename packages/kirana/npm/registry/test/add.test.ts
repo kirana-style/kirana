@@ -574,6 +574,17 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     expect(code, text).toBe(0)
     // One read for the file's two placeholders, and no package to add.
     expect(seen).toHaveLength(1)
+    // On Solid 2, Lucide's own package for it, not `lucide-solid`, whose peer is Solid 1 (KF-129).
+    const solid2 = project({ framework: "solid" }, [close], {
+      "package.json": JSON.stringify({
+        dependencies: { "solid-js": "2", "@solidjs/web": "2" },
+      }),
+    })
+    const drawn = await add(solid2, "@acme/close")
+    expect(drawn.commands).toEqual(["npm install @lucide/solid"])
+    expect(read(solid2, "src/components/ui/close.tsx")).toContain(
+      'import { XIcon } from "@lucide/solid"'
+    )
     const written = read(solid, "src/components/ui/close.tsx")
     expect(written).toMatch(/^\/\* Icons drawn from Remix Icon, /)
     expect(written).toContain(
@@ -1006,6 +1017,8 @@ describe("D-108 where an alias points", () => {
     expect(of({ astro: "7", "@astrojs/react": "7", react: "19" })).toBe("react")
     expect(of({ "@inertiajs/react": "3" })).toBe("react")
     expect(of({ "@tanstack/solid-start": "1" })).toBe("solid")
+    // Solid 2's DOM runtime, whose peer is `solid-js` (KF-129).
+    expect(of({ "@solidjs/web": "2" })).toBe("solid")
     expect(of({ "@astrojs/vue": "6", "@astrojs/svelte": "8" })).toBeUndefined()
   })
 })

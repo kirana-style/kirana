@@ -175,7 +175,7 @@ passes, not a claim.
 | [TanStack Start](/docs/frameworks/tanstack-start) | Vite                       | `className` and `style`, `class` on Solid       | `tanstack-start`, `tanstack-start-solid` |
 | [Gatsby](/docs/frameworks/gatsby)                 | webpack                    | `className` and `style`                         | `gatsby`                                 |
 | [Preact](/docs/frameworks/preact)                 | Vite                       | `class` and `style`                             | `vite-preact`                            |
-| [Solid](/docs/frameworks/solid)                   | Vite                       | `class` and `style`                             | `vite-solid`                             |
+| [Solid](/docs/frameworks/solid)                   | Vite                       | `class` and `style`                             | `vite-solid`, `vite-solid2`              |
 | [Vue](/docs/frameworks/vue)                       | Vite                       | `:sx` → `class` and `style`                     | `vite-vue`                               |
 | [Nuxt](/docs/frameworks/nuxt)                     | Nuxt (Vite)                | `:sx` → `class` and `style`                     | `nuxt`                                   |
 | [Svelte](/docs/frameworks/svelte)                 | Vite                       | `sx` → `class` and `style`                      | `vite-svelte`                            |

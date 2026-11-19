@@ -152,6 +152,30 @@ const DRAWINGS: Record<
   },
 }
 
+/**
+ * Solid 2's drawings, where its packages are not Solid 1's (KF-129): Lucide's own package for Solid
+ * 2, and Tabler's icons inline, since its Solid package has Solid 1 as its peer.
+ */
+const SOLID_2: Record<IconLibrary, Drawing | typeof INLINE> = {
+  ...DRAWINGS.solid,
+  lucide: {
+    packages: ["@lucide/solid"],
+    imports: named("@lucide/solid"),
+    element: plain,
+  },
+  tabler: INLINE,
+}
+
+/** How `library` draws in `framework`, on Solid 2 when `solid2` says the project is. */
+const drawingOf = (
+  framework: Framework,
+  library: IconLibrary,
+  solid2: boolean
+): Drawing | typeof INLINE =>
+  solid2 && framework === "solid"
+    ? SOLID_2[library]
+    : DRAWINGS[framework][library]
+
 /** The text without its imports of the placeholder's module, whatever the item calls it. */
 function withoutPlaceholderImports(text: string): string {
   return text
@@ -285,13 +309,20 @@ function* componentPlaceholders(text: string) {
   }
 }
 
-/** The icons of `library` a file draws inline in `framework`: those its data must be read for. */
+/**
+ * The icons of `library` a file draws inline in `framework`: those its data must be read for.
+ * `solid2`: the project is on Solid 2 (`onSolid2`), whose packages differ.
+ */
 export function inlineNames(
   content: string,
   framework: Framework | undefined,
-  library: IconLibrary
+  library: IconLibrary,
+  solid2 = false
 ): string[] {
-  if (framework === undefined || DRAWINGS[framework][library] !== INLINE)
+  if (
+    framework === undefined ||
+    drawingOf(framework, library, solid2) !== INLINE
+  )
     return []
   const placeholders =
     framework === "angular"
@@ -403,14 +434,16 @@ function resolveAngular(
 /**
  * A file's placeholders drawn with `library` in `framework`, and the packages that needs; the file
  * as it is when it uses none. Stops when a placeholder names no icon for the library, or the
- * framework is not known. An icon drawn inline comes from `inline`, which `plan` reads.
+ * framework is not known. An icon drawn inline comes from `inline`, which `plan` reads. `solid2`:
+ * the project is on Solid 2 (`onSolid2`), whose packages differ (KF-129).
  */
 export function resolveIcons(
   where: string,
   content: string,
   framework: Framework | undefined,
   library: IconLibrary,
-  inline: ReadonlyMap<string, InlineIcon> = new Map()
+  inline: ReadonlyMap<string, InlineIcon> = new Map(),
+  solid2 = false
 ): { content: string; packages: string[] } {
   if (framework === "angular")
     return content.includes("iconPlaceholder")
@@ -424,7 +457,7 @@ export function resolveIcons(
     throw new RegistryError(
       `${where} draws icons, which a file for every framework cannot resolve yet`
     )
-  const drawing = DRAWINGS[framework][library]
+  const drawing = drawingOf(framework, library, solid2)
   const used = new Set<string>()
   let text = ""
   let from = 0

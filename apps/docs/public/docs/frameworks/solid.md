@@ -4,8 +4,9 @@ Source: https://site.kirana-style.workers.dev/docs/frameworks/solid
 # Solid
 
 `sx` compiles to `class` (and a style attribute for values known only at
-runtime). Kirana picks that up from the JSX import source in your `tsconfig.json`,
-so there is nothing to configure. Tested by `examples/vite-solid`.
+runtime). Kirana picks that up from the JSX import source in your tsconfig, so
+there is nothing to configure. Tested by `examples/vite-solid`, and by
+`examples/vite-solid2` on [Solid 2](#solid-2).
 
 
 
@@ -40,8 +41,10 @@ export default defineConfig({ plugins: [kirana(), solid()] })
 }
 ```
 
-Without a `tsconfig.json`, set [`jsx: "solid"`](/docs/reference/config) in
-`kirana.config.ts` instead.
+Kirana reads the JSX import source from `tsconfig.json` only. Without one, or
+where Vite's starter keeps it in another file, set
+[`jsx: "solid"`](/docs/reference/config) in `kirana.config.ts` instead. Kirana's
+`init` writes it for you there.
 
 ## 4. Import the stylesheet
 
@@ -68,6 +71,37 @@ it ends up with, and so is a `className`.
 `props()` follows the same rule: it returns `{ class, style }`, so its result
 spreads onto an element as it is, and the type entry types it that way. Read its
 `class`, never its `className`.
+
+## Solid 2
+
+Solid 2 moved its JSX to its DOM runtime, `@solidjs/web`, and its Vite plugin to
+`@solidjs/vite-plugin`. The setup is the one above with those names:
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import solid from "@solidjs/vite-plugin"
+import { defineConfig } from "vite"
+
+export default defineConfig({ plugins: [kirana(), solid()] })
+```
+
+```json file="tsconfig.json"
+{
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "@solidjs/web",
+    "types": ["@kirana-style/core/solid"]
+  }
+}
+```
+
+`jsxImportSource: "@solidjs/web"` selects `jsx: "solid"`, and the same type entry
+types `sx` on Solid 1's elements and Solid 2's. To start a Solid 2 app with the
+component registry, take the example:
+
+```bash
+npx @kirana-style/registry init --template vite-solid2 my-app
+```
 
 ## Next
 

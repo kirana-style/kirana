@@ -30,6 +30,7 @@ import {
   documentSources,
   frameworkOf,
   generateCommand,
+  onSolid2,
   readProject,
 } from "./project.ts"
 import type { Project, ReadFile } from "./project.ts"
@@ -262,7 +263,7 @@ export async function plan(
     planned.push(planItem(key, item, settings, chosen))
   }
   for (const reference of references) await visit(reference)
-  await readIcons(planned, settings, framework, options)
+  await readIcons(planned, settings, project, options)
   return planned
 }
 
@@ -273,9 +274,10 @@ export async function plan(
 export async function readIcons(
   planned: readonly Planned[],
   settings: Settings,
-  framework: Framework | undefined,
+  project: Project,
   options: Options = {}
 ): Promise<void> {
+  const framework = settings.framework ?? frameworkOf(project)
   const names = new Map<Planned, string[]>()
   for (const entry of planned)
     names.set(
@@ -284,7 +286,8 @@ export async function readIcons(
         inlineNames(
           file.content,
           entry.framework ?? framework,
-          settings.iconLibrary
+          settings.iconLibrary,
+          onSolid2(project)
         )
       )
     )
@@ -346,7 +349,8 @@ export function place(
         file.content,
         framework ?? projectFramework,
         settings.iconLibrary,
-        inline
+        inline,
+        onSolid2(project)
       )
       const content = icons.content.replace(
         IMPORT,

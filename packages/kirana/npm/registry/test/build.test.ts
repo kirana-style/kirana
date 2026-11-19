@@ -348,6 +348,37 @@ describe("KRN-DX-034 buildRegistry", () => {
     expect(content).toContain('import "@/registry/lib/style.css"')
   })
 
+  it("never makes Solid 2's DOM runtime a dependency, as it never makes solid-js one (KF-129)", () => {
+    const at = sources("solid2", {
+      "src/ui/portal.tsx": [
+        'import { createSignal } from "solid-js"',
+        'import { Portal } from "@solidjs/web"',
+        "export { createSignal, Portal }",
+        "",
+      ].join("\n"),
+    })
+    const built = buildRegistry(
+      {
+        items: [
+          {
+            name: "portal",
+            type: "component",
+            version: "1.0.0",
+            frameworks: {
+              solid: { uisdk: { files: ["src/ui/portal.tsx"] } },
+            },
+          },
+        ],
+      },
+      at,
+      () => undefined
+    )
+    expect(built.problems).toEqual([])
+    expect(
+      built.items[0]!.frameworks!.solid!.uisdk!.dependencies
+    ).toBeUndefined()
+  })
+
   it("takes a file two items list from the item that imports it, else the first", () => {
     const at = sources("shared", {
       "package.json": JSON.stringify({ dependencies: { clsx: "^2.1.1" } }),

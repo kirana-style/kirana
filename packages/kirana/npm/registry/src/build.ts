@@ -57,13 +57,17 @@ export const ITEM_SCHEMA_URL = "https://kirana.style/schema/registry-item.json"
 export const INDEX_SCHEMA_URL =
   "https://kirana.style/schema/registry-index.json"
 
-/** Packages a project has by being of its framework, or by having Kirana: never a dependency. */
+/**
+ * Packages a project has by being of its framework, or by having Kirana: never a dependency. Solid
+ * 2's DOM runtime is Solid's own, as `react-dom` is React's (KF-129).
+ */
 const PROVIDED = new Set([
   "react",
   "react-dom",
   "vue",
   "svelte",
   "solid-js",
+  "@solidjs/web",
   "@angular/core",
   "kirana-style",
 ])

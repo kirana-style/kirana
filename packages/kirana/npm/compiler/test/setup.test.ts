@@ -84,6 +84,8 @@ describe("KRN-DX-008 detecting a project", () => {
       [{ "@tanstack/react-start": "1" }, {}, "tanstack-start", "vite"],
       [{ preact: "10", vite: "8" }, {}, "preact", "vite"],
       [{ "solid-js": "1", "@rsbuild/core": "1" }, {}, "solid", "rsbuild"],
+      // Solid 2's DOM runtime, which has `solid-js` as its peer (KF-129).
+      [{ "@solidjs/web": "2", vite: "8" }, {}, "solid", "vite"],
       [{ vue: "3", "@rspack/core": "1" }, {}, "vue", "rspack"],
       [{ svelte: "5", webpack: "5" }, {}, "svelte", "webpack"],
       [{ react: "19", rolldown: "1" }, {}, "react", "rolldown"],
@@ -871,6 +873,56 @@ describe("KRN-DX-008 kirana-style init's plan", () => {
       plan(project({ "package.json": pkg({}), "tsconfig.json": "{}" }))
         .steps[3]!.detail
     ).toBe("no JSX: nothing to type")
+  })
+
+  it("names Solid's JSX in the configuration where tsconfig.json does not (KF-129)", () => {
+    const solid = (files: Record<string, string>) =>
+      project({
+        "package.json": pkg(
+          { "solid-js": "2", "@solidjs/web": "2", vite: "8" },
+          { type: "module" }
+        ),
+        "src/main.tsx": "",
+        ...files,
+      })
+    const config = (root: string) => {
+      const step = plan(root).steps[0]!
+      return step.status === "change" ? step.changes[0]!.after : step
+    }
+    // Detected from `jsxImportSource`: nothing to name, and the one type entry for both Solids.
+    const detected = solid({
+      "tsconfig.json":
+        '{ "compilerOptions": { "jsx": "preserve", "jsxImportSource": "@solidjs/web" } }',
+    })
+    expect(config(detected)).toBe(
+      `import { defineConfig } from "@kirana-style/core/config"\n\nexport default defineConfig({})\n`
+    )
+    expect(plan(detected).steps[3]).toMatchObject({
+      status: "change",
+      changes: [
+        {
+          file: "src/kirana.d.ts",
+          after: `/// <reference types="@kirana-style/core/solid" />\n`,
+        },
+      ],
+    })
+    // Vite's starter names it in tsconfig.app.json, which the compiler does not read.
+    const referenced = solid({
+      "tsconfig.json":
+        '{ "files": [], "references": [{ "path": "./tsconfig.app.json" }] }',
+      "tsconfig.app.json":
+        '{ "compilerOptions": { "jsx": "preserve", "jsxImportSource": "@solidjs/web" } }',
+    })
+    expect(config(referenced)).toContain('  jsx: "solid",\n')
+    expect(
+      config(solid({ "kirana.config.json": "{}", "tsconfig.json": "{}" }))
+    ).toMatchObject({
+      status: "manual",
+      detail: 'add jsx: "solid" to kirana.config.json',
+    })
+    expect(
+      config(solid({ "kirana.config.json": '{"jsx":"solid"}' }))
+    ).toMatchObject({ status: "done" })
   })
 })
 

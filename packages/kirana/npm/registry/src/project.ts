@@ -20,8 +20,8 @@ import type { Framework } from "./types.ts"
 
 /**
  * The packages each framework is known by, in the order they are looked for: its own, then the
- * adapters that install it as a peer, which a project may list without it (KF-109): Astro's islands,
- * Inertia's client and TanStack Start's builds.
+ * packages that install it as a peer, which a project may list without it (KF-109): Solid 2's DOM
+ * runtime (KF-129), Astro's islands, Inertia's client and TanStack Start's builds.
  */
 const FRAMEWORK_PACKAGES: readonly [string, Framework][] = [
   ["react", "react"],
@@ -29,6 +29,7 @@ const FRAMEWORK_PACKAGES: readonly [string, Framework][] = [
   ["svelte", "svelte"],
   ["solid-js", "solid"],
   ["@angular/core", "angular"],
+  ["@solidjs/web", "solid"],
   ["@astrojs/react", "react"],
   ["@astrojs/vue", "vue"],
   ["@astrojs/svelte", "svelte"],
@@ -47,6 +48,13 @@ export type Project = {
   /** Every package it lists, development ones included. */
   listed: Readonly<Record<string, string>>
 }
+
+/**
+ * Whether the project is on Solid 2: it lists Solid 2's DOM runtime, which renders it and which Solid 1
+ * does not have (KF-129). Icon packages differ between the two.
+ */
+export const onSolid2 = (project: Project): boolean =>
+  "@solidjs/web" in project.listed
 
 export function readProject(root: string): Project {
   const packageJson = readPackage(root)

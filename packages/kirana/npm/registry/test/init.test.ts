@@ -315,6 +315,33 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     )
   })
 
+  it("sets a Solid 2 app up: its JSX named in the configuration, sx typed (KF-127, KF-129)", async () => {
+    const cwd = vite({
+      "package.json": JSON.stringify({
+        type: "module",
+        dependencies: { "solid-js": "^2.0.3", "@solidjs/web": "^2.0.3" },
+        devDependencies: { vite: "^8.0.0", "@solidjs/vite-plugin": "^3.0.1" },
+      }),
+      "vite.config.ts":
+        "import solid from '@solidjs/vite-plugin'\nimport { defineConfig } from 'vite'\n\nexport default defineConfig({\n  plugins: [solid()],\n})\n",
+      // As Vite's starter has it: Solid's JSX in tsconfig.app.json, which the compiler does not read.
+      "tsconfig.app.json":
+        '{\n  "compilerOptions": {\n    "jsx": "preserve",\n    "jsxImportSource": "@solidjs/web"\n  },\n  "include": ["src"]\n}\n',
+      "src/main.tsx":
+        "import { render } from '@solidjs/web'\n\nrender(() => <p />, document.getElementById('root')!)\n",
+    })
+    const { code, text } = await init(cwd, "--registry", ACME)
+    expect(code).toBe(0)
+    expect(text).toContain("kirana: config: create kirana.config.ts\n")
+    expect(read(cwd, "kirana.config.ts")).toContain('  jsx: "solid",\n')
+    expect(read(cwd, "src/kirana.d.ts")).toBe(
+      `/// <reference types="@kirana-style/core/solid" />\n`
+    )
+    expect(read(cwd, "src/main.tsx")).toContain(
+      "\n\ndocument.documentElement.className = props(htmlStyles).class ?? ''\n"
+    )
+  })
+
   it("sets <html> up in an Astro layout, in its markup and its frontmatter (KF-109)", async () => {
     const cwd = project({
       "package.json": JSON.stringify({

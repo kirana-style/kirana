@@ -179,6 +179,8 @@ const FRAMEWORKS: readonly [string, Framework][] = [
   ["@angular/core", "angular"],
   ["preact", "preact"],
   ["solid-js", "solid"],
+  // Solid 2's DOM runtime, which has `solid-js` as its peer (KF-129).
+  ["@solidjs/web", "solid"],
   ["vue", "vue"],
   ["svelte", "svelte"],
   ["react", "react"],

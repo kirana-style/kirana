@@ -370,6 +370,9 @@ console.log(resolveConfigSync(${JSON.stringify(root)}).json)`,
       })
     expect(detectJsx(tsconfig("preact"))).toBe("preact")
     expect(detectJsx(tsconfig("solid-js"))).toBe("solid")
+    // Solid 2's JSX is its DOM runtime's, and its hyperscript's is a package of its own (KF-127).
+    expect(detectJsx(tsconfig("@solidjs/web"))).toBe("solid")
+    expect(detectJsx(tsconfig("@solidjs/h"))).toBe("solid")
     expect(detectJsx(tsconfig("@qwik.dev/core"))).toBe("qwik")
     expect(detectJsx(tsconfig("react"))).toBeUndefined()
     expect(detectJsx(project({ "tsconfig.json": "{}" }))).toBeUndefined()

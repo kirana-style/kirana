@@ -2014,12 +2014,14 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/frameworks/solid",
     "file": "content/docs/frameworks/solid.md",
     "title": "Solid",
-    "description": "Install Kirana in a Solid app on Vite, where sx compiles to class, detected from jsxImportSource.",
+    "description": "Install Kirana in a Solid 1 or Solid 2 app on Vite, where sx compiles to class, detected from jsxImportSource.",
     "section": "frameworks",
     "order": 6,
     "keywords": [
       "solid",
       "solid-js",
+      "solid 2",
+      "@solidjs/web",
       "vite",
       "install",
       "class",
@@ -2049,6 +2051,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "5-write-a-component",
         "text": "5. Write a component",
+        "level": 2
+      },
+      {
+        "id": "solid-2",
+        "text": "Solid 2",
         "level": 2
       },
       {
@@ -6185,10 +6192,12 @@ export const NAV: readonly NavGroup[] = [
       {
         "title": "Solid",
         "href": "/docs/frameworks/solid",
-        "description": "Install Kirana in a Solid app on Vite, where sx compiles to class, detected from jsxImportSource.",
+        "description": "Install Kirana in a Solid 1 or Solid 2 app on Vite, where sx compiles to class, detected from jsxImportSource.",
         "keywords": [
           "solid",
           "solid-js",
+          "solid 2",
+          "@solidjs/web",
           "vite",
           "install",
           "class",
