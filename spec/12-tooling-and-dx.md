@@ -255,7 +255,11 @@ document is static HTML, set on `document.documentElement` beside Kirana's style
 Nuxt app they go on Nuxt's `<Html>` as `:sx`, and where no Vue component renders one a
 self-closing `<Html />` goes first in `app.vue`'s template (KF-112); in a SvelteKit app, whose
 `app.html` is static, a `src/hooks.server.ts` it writes sets them in `handle`'s
-`transformPageChunk`, and a server hook the project has already is a step by hand (KF-113). A
+`transformPageChunk`, and a server hook the project has already is a step by hand (KF-113). In an
+Angular CLI app the stylesheets, and the font items' (`add`, `preset`), are listed in `angular.json`'s
+build `styles` after `.kirana/kirana.css` (the reset by its path, a font package as its `index.css`),
+the `<html>` styles are set in a `document.ts` beside the entry, which the entry imports, and the
+configuration's `.ts` import is allowed with `rewriteRelativeImportExtensions` (KF-131). A
 change it cannot make safely MUST be printed as a step to do by hand. Every change is planned before
 anything is written, and `--dry-run` writes and installs nothing. Exit 1 when a document cannot be
 read or the setup cannot be written, 2 for an unknown option or settings it cannot use. With

@@ -774,10 +774,13 @@ The design system says what a project needs from it, and `init` puts each part
 where Kirana's own setup put Kirana:
 
 - its configuration, spread into `kirana.config.ts`;
-- its stylesheets, imported after Kirana's;
+- its stylesheets, imported after Kirana's, or listed after it in
+  `angular.json`'s `styles` on the Angular CLI;
 - its styles for `<html>`, as `sx` on the `<html>` element where a layout renders
   one (Next.js, TanStack Start), or set from the entry in an app whose
-  `index.html` is static.
+  `index.html` is static;
+- on the Angular CLI, whose builders compile no entry, its styles for `<html>`
+  from `src/document.ts`, a module the entry imports.
 
 What it cannot change safely, it prints as a step to do by hand. A template's own
 styles of `:root` and `body` (Vite's `src/index.css`) still apply over the design

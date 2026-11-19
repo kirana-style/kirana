@@ -893,11 +893,12 @@ function withInstalledButton(text: string, file: string): string {
       '<script lang="ts">\n',
       '<script lang="ts">\n  import Button from "@/components/ui/Button.svelte"\n'
     )
-  const angular = file.endsWith(".page.ts") || file.endsWith(".component.ts")
+  // Analog's page and the Angular CLI's root component (KF-131), by their decorator.
+  const angular = /@Component\(/.test(text)
   const placed = angular
     ? place("<kit-button>Installed</kit-button>").replace(
-        "imports: [SxDirective]",
-        "imports: [SxDirective, Button]"
+        "imports: [SxDirective",
+        "imports: [SxDirective, Button"
       )
     : place("<Button>Installed</Button>")
   const imports = [...placed.matchAll(/^import\b[^\n]*\n/gm)]

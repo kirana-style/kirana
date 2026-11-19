@@ -492,9 +492,11 @@ export async function runPreset(
   // (D-129, KF-111).
   const appProject = appOf(settings, project)
   const app = appProject.root
-  const imports = importFonts(added, scriptsOf(app), (file) =>
-    readFileSync(path.join(app, file), "utf8")
-  )
+  // A file the app lacks reads as none: an Angular CLI app is told apart by its angular.json (KF-131).
+  const imports = importFonts(added, scriptsOf(app), (file) => {
+    const absolute = path.join(app, file)
+    return existsSync(absolute) ? readFileSync(absolute, "utf8") : undefined
+  })
   for (const line of imports.report) write(`font: ${line}\n`)
   for (const line of imports.manual) write(`by hand: ${line}\n`)
   for (const key of allAxisItems(design, system.key))

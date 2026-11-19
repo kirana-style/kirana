@@ -2924,7 +2924,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Angular",
     "section": "frameworks",
     "heading": "2. Use Kirana's builders",
-    "text": "In , swap the and builders. Every option stays as it is: Angular compiles TypeScript from disk and has no hook to change a file first. So the builders keep a compiled copy of in , and hand Angular: that copy, through ; the stylesheet, , in . The dev server and watch builds update the copy as you edit. Ignore the folder: There is no stylesheet import to add: the builders add it."
+    "text": "In , swap the and builders. Every option stays as it is: Angular compiles TypeScript from disk and has no hook to change a file first. So the builders keep a compiled copy of in , and hand Angular: that copy, through ; the stylesheet, , in . The dev server and watch builds update the copy as you edit. Ignore the folder: There is no stylesheet import to add: the builders add it. The builders compile every module but the entry, : call from a module it imports. follows both rules: a design system's stylesheets and its fonts go in , after , which the builders then leave where it is; 's classes are set in , which the entry imports."
   },
   {
     "id": "/docs/frameworks/angular#2-add-the-plugin",

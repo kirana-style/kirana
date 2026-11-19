@@ -1742,6 +1742,9 @@ the implementation tracker names its evidence.
   Vue component renders, so that component takes the attributes and `:sx` (one added to `app.vue`
   where none renders it, KF-112); SvelteKit's `app.html` is static and Svelte has no
   `<svelte:html>`, so a server hook `init` writes adds the classes to every rendered page (KF-113).
+  The Angular CLI takes global stylesheets in `angular.json`'s `styles`, not from a script, and its
+  builders (D-068) compile every module but the entry: there the stylesheets are listed after
+  Kirana's, and the classes are set in a module the entry imports (KF-131).
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
 ### D-110 — Registries ship their flattenings, a design system describes its axes

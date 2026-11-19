@@ -310,7 +310,8 @@ jobs:
   # (KF-109), and on Nuxt (its <Html>, KF-112) and SvelteKit (its layout and server hook, KF-113),
   # `kirana-style ui init` and `ui add` from the fixture registry (examples/registry), then
   # the build, and the installed button, its icon and the design system on <html> read back in
-  # Chromium beside the probe.
+  # Chromium beside the probe. On the Angular CLI, `ui init` lists the stylesheets in angular.json's
+  # styles (KF-131).
   install-registry:
     name: install (registry · ${{ matrix.example }})
     runs-on: ubuntu-26.04
@@ -335,6 +336,7 @@ jobs:
             tanstack-start-solid,
             nuxt,
             sveltekit,
+            angular-cli,
           ]
 
     steps:

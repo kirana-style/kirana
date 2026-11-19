@@ -39,7 +39,8 @@ async function sourceRootOf(context: BuilderContext): Promise<string> {
  * Application options with the mirror's replacements and the stylesheet added. The entry files
  * (`browser`, `server`) are not replaced: Angular type-checks only the files its tsconfig lists, and
  * an entry it reads from a replacement it would bundle unchecked. An entry holds no styles in an
- * Angular app; the components it imports are replaced.
+ * Angular app; the components it imports are replaced. The stylesheet goes last, unless `styles`
+ * lists it already: `kirana-style ui init` lists it before the design system's (KF-131).
  */
 export function withMirror<
   Options extends {
@@ -62,7 +63,15 @@ export function withMirror<
         (replacement) => !entries.has(path.normalize(replacement.replace))
       ),
     ],
-    styles: [...(options.styles ?? []), STYLESHEET],
+    // An entry is a path, or `{ input, bundleName, inject }`.
+    styles: (options.styles ?? []).some(
+      (entry) =>
+        path.normalize(
+          typeof entry === "string" ? entry : (entry as { input: string }).input
+        ) === STYLESHEET
+    )
+      ? options.styles
+      : [...(options.styles ?? []), STYLESHEET],
   }
 }
 
