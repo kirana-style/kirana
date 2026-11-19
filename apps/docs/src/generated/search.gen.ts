@@ -5680,7 +5680,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Publishing a registry",
     "section": "tooling",
     "heading": "Building it",
-    "text": "Write your registry's source as items whose files name where they are read from, in a , and writes the documents: A file's type comes from the deepest folder in its source's path that names one, and its path in the project from what follows that folder: Where the folders do not say, give the file as an object: . Each file is read and hashed, and its imports are written for an installed project: an import of another of the registry's files ( ) becomes , or beside it, and the item holding that file becomes a registry dependency; a package it imports becomes a dependency, at the range your gives it (a workspace's included), unless the item names one. The framework's own packages and Kirana's are left out: every project has them. , and go into the index as they are. Every item, then the index, is checked as checks it, and nothing is written when a problem is found: an import of no file of the registry, a package with no range, a file that is not there, a default base no item has."
+    "text": "Write your registry's source as items whose files name where they are read from, in a , and writes the documents: A file's type comes from the deepest folder in its source's path that names one, and its path in the project from what follows that folder: Where the folders do not say, give the file as an object: . Each file is read and hashed, and its imports are written for an installed project: an import of another of the registry's files ( ) becomes , or beside it, and the item holding that file becomes a registry dependency; a package it imports becomes a dependency, at the range your gives it (a workspace's and named included), unless the item names one. The framework's own packages and Kirana's are left out: every project has them. , and go into the index as they are. Every item, then the index, is checked as checks it, and nothing is written when a problem is found: an import of no file of the registry, a package with no range, a file that is not there, a default base no item has."
+  },
+  {
+    "id": "/docs/tooling/registries#two-bases-on-two-majors",
+    "href": "/docs/tooling/registries#two-bases-on-two-majors",
+    "page": "Publishing a registry",
+    "section": "tooling",
+    "heading": "Two bases on two majors",
+    "text": "Two bases of one framework can need two majors of one package: a Solid base on Solid 1 takes 0.3 where a base on Solid 2 takes 1.0. Give such a base its own at , beside . A package it names takes that range in that base's files; a package it does not name takes your registry's. A package an item's shared files import goes into the item's when every base takes the same range, and into each base's when the ranges differ. installs the item's packages and those of the project's base, the base's range first, so a Solid 2 project gets 1.0 and a Solid 1 project 0.3. Items built before install as they did. A builder of your own reads the same ranges through : returns a function that takes a package's name and, for a base's files, the framework and base, . asks yours the same way, and one that reads the name alone still works."
   },
   {
     "id": "/docs/tooling/registries#checking",

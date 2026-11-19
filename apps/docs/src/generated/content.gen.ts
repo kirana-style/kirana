@@ -5086,6 +5086,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "two-bases-on-two-majors",
+        "text": "Two bases on two majors",
+        "level": 3
+      },
+      {
         "id": "checking",
         "text": "Checking",
         "level": 2

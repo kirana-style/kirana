@@ -374,9 +374,11 @@ source (D-127): the item schema's items, each file named by the path it is read 
 Each file MUST be read, each relative import of another of the registry's files written as
 `@/registry/<type>/<path>` (or `./<name>` for a file of the same type and folder), the item holding
 that file added to the importing item's (or base's) `registryDependencies`, each package it imports
-added to its `dependencies` at the range the item names, else the registry's `package.json` gives
-(a workspace `catalog:` read from the nearest manifest above with a catalog), the framework's own
-packages and Kirana's left out; its line endings made `\n` and its hash taken. The source's `name`,
+added to its `dependencies` at the range the item (or base) names, else, for a base's files, the
+range `bases/<framework>-<base>/package.json` gives (KF-130), else the registry's `package.json`
+(a workspace `catalog:` or `catalog:<name>` read from the nearest manifest above with catalogs), the
+framework's own packages and Kirana's left out; a package the item's shared files import MUST go into
+the item's `dependencies` when every base of the item takes one range, else into each base's; its line endings made `\n` and its hash taken. The source's `name`,
 `homepage` and `defaultBase` MUST be written into the index (KF-120). Every item, then the index
 once the items are valid, MUST be checked as `validate` checks it, and `<out>/<name>.json` and
 `<out>/index.json` written (`public/r` by default), nothing at all when a problem is found (an

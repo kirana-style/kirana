@@ -10,8 +10,9 @@ import path from "node:path"
 
 import { afterAll, describe, expect, it } from "vite-plus/test"
 
-import { check, hashOf } from "../src/check.ts"
 import { runInShell } from "../src/add.ts"
+import { buildRegistry } from "../src/build.ts"
+import { check, hashOf } from "../src/check.ts"
 import { main } from "../src/index.ts"
 import { readLockfile, writeLockfile } from "../src/lockfile.ts"
 import { aliasDirectory, frameworkOf, readProject } from "../src/project.ts"
@@ -915,6 +916,79 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     expect(unnamed.text).toContain(
       "a workspace package needs its name, which its aliases start with"
     )
+  })
+
+  it("installs the range the project's base takes, and an item built before still installs (KF-130)", async () => {
+    // Built by `ui build` from two Solid bases on two majors of `solid-sonner`.
+    const source = mkdtempSync(path.join(root, "solid-source-"))
+    const sources: Record<string, string> = {
+      "package.json": JSON.stringify({
+        dependencies: { clsx: "^2.1.1", "solid-sonner": "0.3.3" },
+      }),
+      "bases/solid-uisdk/package.json": JSON.stringify({
+        dependencies: { "solid-sonner": "^1.0.0" },
+      }),
+      "src/lib/toaster.ts":
+        'import clsx from "clsx"\nimport { toast } from "solid-sonner"\nexport const show = [clsx, toast]\n',
+      "bases/solid-ark/ui/toast.tsx": "export const Toast = 1\n",
+      "bases/solid-uisdk/ui/toast.tsx": "export const Toast = 2\n",
+    }
+    for (const [name, text] of Object.entries(sources)) {
+      mkdirSync(path.dirname(path.join(source, name)), { recursive: true })
+      writeFileSync(path.join(source, name), text)
+    }
+    const built = buildRegistry(
+      {
+        items: [
+          {
+            name: "toast",
+            type: "component",
+            version: "1.0.0",
+            files: ["src/lib/toaster.ts"],
+            frameworks: {
+              solid: {
+                ark: { files: ["bases/solid-ark/ui/toast.tsx"] },
+                uisdk: { files: ["bases/solid-uisdk/ui/toast.tsx"] },
+              },
+            },
+          },
+        ],
+      },
+      source
+    )
+    expect(built.problems).toEqual([])
+    const solid = {
+      "package.json": JSON.stringify({
+        dependencies: { "solid-js": "^1.9.0", "@kirana-style/core": "0.3.2" },
+      }),
+    }
+    for (const [base, range] of [
+      ["ark", "0.3.3"],
+      ["uisdk", "^1.0.0"],
+    ]) {
+      const cwd = project({ framework: "solid", base }, built.items, solid)
+      const { code, commands } = await add(cwd, "@acme/toast", "--no-check")
+      expect(code).toBe(0)
+      expect(commands).toEqual([
+        `npm install clsx@^2.1.1 solid-sonner@${range}`,
+      ])
+    }
+    // One range for every base, at the item, as `ui build` wrote it before.
+    const before: Item = {
+      ...built.items[0]!,
+      dependencies: { clsx: "^2.1.1", "solid-sonner": "0.3.3" },
+      frameworks: {
+        solid: {
+          ark: { files: built.items[0]!.frameworks!.solid!.ark!.files },
+          uisdk: { files: built.items[0]!.frameworks!.solid!.uisdk!.files },
+        },
+      },
+    }
+    expect(check(before).problems).toEqual([])
+    const cwd = project({ framework: "solid", base: "uisdk" }, [before], solid)
+    const { code, commands } = await add(cwd, "@acme/toast", "--no-check")
+    expect(code).toBe(0)
+    expect(commands).toEqual(["npm install clsx@^2.1.1 solid-sonner@0.3.3"])
   })
 
   it("runs the package manager in a shell, a signal as a failure", () => {
