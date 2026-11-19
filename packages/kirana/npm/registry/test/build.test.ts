@@ -516,6 +516,137 @@ describe("KRN-DX-034 buildRegistry", () => {
   })
 })
 
+/** Solid's two bases on two majors of `solid-sonner`: Ark UI on Solid 1, ui-sdk on Solid 2. */
+const SOLID = {
+  "package.json": JSON.stringify({
+    dependencies: { clsx: "^2.1.1", "solid-sonner": "0.3.3" },
+  }),
+  "bases/solid-uisdk/package.json": JSON.stringify({
+    dependencies: { "solid-sonner": "^1.0.0", "@ui-sdk/solid": "^0.4.0" },
+  }),
+  "src/lib/utils.ts": 'import clsx from "clsx"\nexport const join = clsx\n',
+  "src/lib/toaster.ts": [
+    'import clsx from "clsx"',
+    'import { toast } from "solid-sonner"',
+    "export const show = [clsx, toast]",
+    "",
+  ].join("\n"),
+  "bases/solid-ark/ui/toast.tsx":
+    'import { Toaster } from "solid-sonner"\nexport const Toast = Toaster\n',
+  "bases/solid-uisdk/ui/toast.tsx": [
+    'import { Toaster } from "solid-sonner"',
+    'import { Portal } from "@ui-sdk/solid"',
+    "export const Toast = [Toaster, Portal]",
+    "",
+  ].join("\n"),
+}
+
+const SOLID_SOURCE: SourceRegistry = {
+  items: [
+    {
+      name: "toast",
+      type: "component",
+      version: "1.0.0",
+      files: ["src/lib/utils.ts", "src/lib/toaster.ts"],
+      frameworks: {
+        solid: {
+          ark: { files: ["bases/solid-ark/ui/toast.tsx"] },
+          uisdk: { files: ["bases/solid-uisdk/ui/toast.tsx"] },
+        },
+      },
+    },
+  ],
+}
+
+describe("KF-130 ranges per framework and base", () => {
+  it("takes a base's range from its own package.json, else the registry's", () => {
+    const built = buildRegistry(SOLID_SOURCE, sources("solid", SOLID))
+    expect(built.problems).toEqual([])
+    const toast = built.items[0]!
+    // A range every base shares is the item's; one that differs is each base's.
+    expect(toast.dependencies).toEqual({ clsx: "^2.1.1" })
+    expect(toast.frameworks!.solid!.ark!.dependencies).toEqual({
+      "solid-sonner": "0.3.3",
+    })
+    expect(toast.frameworks!.solid!.uisdk!.dependencies).toEqual({
+      "@ui-sdk/solid": "^0.4.0",
+      "solid-sonner": "^1.0.0",
+    })
+  })
+
+  it("asks the range with the framework and base for a base's files, a name-only callback still serving", () => {
+    const at = sources("solid-asked", SOLID)
+    const asked: string[] = []
+    const built = buildRegistry(SOLID_SOURCE, at, (name, combination) => {
+      asked.push(
+        combination === undefined
+          ? name
+          : `${name} ${combination.framework}/${combination.base}`
+      )
+      return "^1.0.0"
+    })
+    expect(built.problems).toEqual([])
+    expect([...new Set(asked)].sort()).toEqual([
+      "@ui-sdk/solid solid/uisdk",
+      "clsx solid/ark",
+      "clsx solid/uisdk",
+      "solid-sonner solid/ark",
+      "solid-sonner solid/uisdk",
+    ])
+    // One range everywhere: every package is the item's, and each base keeps what its files import.
+    const toast = built.items[0]!
+    expect(toast.dependencies).toEqual({
+      clsx: "^1.0.0",
+      "solid-sonner": "^1.0.0",
+    })
+    expect(toast.frameworks!.solid!.ark!.dependencies).toEqual({
+      "solid-sonner": "^1.0.0",
+    })
+    const nameOnly = buildRegistry(SOLID_SOURCE, at, (name) =>
+      name === "clsx" ? "^2.1.1" : "^0.3.0"
+    )
+    expect(nameOnly.problems).toEqual([])
+    expect(nameOnly.items[0]!.dependencies).toEqual({
+      clsx: "^2.1.1",
+      "solid-sonner": "^0.3.0",
+    })
+  })
+
+  it("keeps the range a base declares, and names the base a range is missing for", () => {
+    const at = sources("solid-declared", SOLID)
+    const declared = buildRegistry(
+      {
+        items: [
+          {
+            ...SOLID_SOURCE.items[0]!,
+            frameworks: {
+              solid: {
+                ark: {
+                  files: ["bases/solid-ark/ui/toast.tsx"],
+                  dependencies: { "solid-sonner": "0.3.4" },
+                },
+                uisdk: { files: ["bases/solid-uisdk/ui/toast.tsx"] },
+              },
+            },
+          },
+        ],
+      },
+      at
+    )
+    expect(declared.problems).toEqual([])
+    expect(declared.items[0]!.frameworks!.solid!.ark!.dependencies).toEqual({
+      "solid-sonner": "0.3.4",
+    })
+    const missing = buildRegistry(SOLID_SOURCE, at, (name, combination) =>
+      combination?.base === "uisdk" || name === "clsx" ? "^1.0.0" : undefined
+    )
+    expect(missing.problems).toEqual([
+      "toast: bases/solid-ark/ui/toast.tsx: imports solid-sonner, which has no version: name it in the item's dependencies",
+      "toast: src/lib/toaster.ts: imports solid-sonner, which has no version for solid/ark: name it in the item's dependencies",
+    ])
+  })
+})
+
 describe("KRN-DX-034 versionsFrom", () => {
   it("reads the registry's package.json, a catalog from the workspace above", () => {
     const workspace = sources("workspace", {
@@ -541,6 +672,53 @@ describe("KRN-DX-034 versionsFrom", () => {
       }),
     })
     expect(versionsFrom(bun)("zod")).toBe("^4.0.0")
+  })
+
+  it("reads a base's package.json first, else the registry's, and named catalogs (KF-130)", () => {
+    const workspace = sources("workspace-bases", {
+      "package.json": JSON.stringify({
+        workspaces: {
+          catalog: { "solid-js": "^1.9.0" },
+          catalogs: { solid2: { "solid-js": "^2.0.0" } },
+        },
+      }),
+      "registry/package.json": JSON.stringify({
+        dependencies: { "solid-js": "catalog:", clsx: "^2.1.1" },
+      }),
+      "registry/bases/solid-uisdk/package.json": JSON.stringify({
+        dependencies: { "solid-js": "catalog:solid2", gone: "catalog:other" },
+      }),
+    })
+    const versions = versionsFrom(path.join(workspace, "registry"))
+    const uisdk = { framework: "solid", base: "uisdk" } as const
+    expect(versions("solid-js", uisdk)).toBe("^2.0.0")
+    expect(versions("solid-js", uisdk)).toBe("^2.0.0")
+    expect(versions("solid-js", { framework: "solid", base: "ark" })).toBe(
+      "^1.9.0"
+    )
+    expect(versions("solid-js")).toBe("^1.9.0")
+    expect(versions("clsx", uisdk)).toBe("^2.1.1")
+    expect(versions("gone", uisdk)).toBeUndefined()
+    // Named catalogs alone: the default one is empty.
+    const named = sources("named-catalogs", {
+      "package.json": JSON.stringify({
+        catalogs: { one: { zod: "^4.0.0" } },
+        dependencies: {
+          zod: "catalog:one",
+          clsx: "catalog:",
+          a: "catalog:two",
+        },
+      }),
+    })
+    expect(versionsFrom(named)("zod")).toBe("^4.0.0")
+    expect(versionsFrom(named)("clsx")).toBeUndefined()
+    const only = sources("default-catalog", {
+      "package.json": JSON.stringify({
+        catalog: { zod: "^4.0.0" },
+        dependencies: { zod: "catalog:x" },
+      }),
+    })
+    expect(versionsFrom(only)("zod")).toBeUndefined()
   })
 
   it("reads nothing where there is no package.json, nor a catalog", () => {

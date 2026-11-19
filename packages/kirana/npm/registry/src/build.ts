@@ -5,11 +5,12 @@
  * path alone where a folder says its type) in place of its content. Each file is read; an import of
  * another of the registry's files (`./button.styles`, `../lib/utils`) is written as an installed
  * project names it, `@/registry/<type>/<path>`, or `./<name>` beside it; the packages it imports
- * become the item's dependencies, at the ranges the registry's `package.json` gives, and the items
- * that hold what it imports its registry dependencies; it is hashed. Every item is checked against
- * the schema, then the index with the source's `defaultBase` (KF-120), and `<out>/<name>.json` and
- * `<out>/index.json` are written, nothing when a problem is found. Grown from Kirana UI's builder,
- * which builds its registry with `buildRegistry`.
+ * become the item's dependencies, at the ranges the registry's `package.json` gives (a base's own
+ * `bases/<framework>-<base>/package.json` first, KF-130), and the items that hold what it imports
+ * its registry dependencies; it is hashed. Every item is checked against the schema, then the index
+ * with the source's `defaultBase` (KF-120), and `<out>/<name>.json` and `<out>/index.json` are
+ * written, nothing when a problem is found. Grown from Kirana UI's builder, which builds its
+ * registry with `buildRegistry`.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import path from "node:path"
@@ -52,6 +53,18 @@ export type SourceRegistry = {
   defaultBase?: Partial<Record<Framework, string>>
   items: SourceItem[]
 }
+
+/** A framework and one of its bases, where a package's range may differ (KF-130). */
+export type Combination = { framework: Framework; base: string }
+
+/**
+ * A package's range: for a framework and base when one is given, which may differ from another
+ * base's (KF-130), else the registry's. A callback that reads the name alone still serves.
+ */
+export type Versions = (
+  name: string,
+  combination?: Combination
+) => string | undefined
 
 export const ITEM_SCHEMA_URL = "https://kirana.style/schema/registry-item.json"
 export const INDEX_SCHEMA_URL =
@@ -217,12 +230,13 @@ export type Built = {
 
 /**
  * The registry's items and index, from its source. `root` is where the sources are read from;
- * `versions` gives a package's range (the registry's `package.json` by default, `versionsFrom`).
+ * `versions` gives a package's range, asked with the framework and base for the packages a base
+ * needs (KF-130): the registry's `package.json` and its bases' by default, `versionsFrom`.
  */
 export function buildRegistry(
   source: SourceRegistry,
   root: string,
-  versions: (name: string) => string | undefined = versionsFrom(root)
+  versions: Versions = versionsFrom(root)
 ): Built {
   const problems: string[] = []
   // Every source file's item and place, the item's own first.
@@ -275,10 +289,22 @@ export function buildRegistry(
   const items = source.items.map((item): Item => {
     const dependencies: Packages = { ...item.dependencies }
     const registryDependencies = new Set(item.registryDependencies ?? [])
+    /**
+     * What a group of files gathers: its packages and items, the ranges its source declares, and
+     * the base it is for. The files every base installs gather their packages unresolved
+     * (`pending`, each with the first file that imports it): a range may differ between bases.
+     */
+    type Into = {
+      packages: Packages
+      items: Set<string>
+      declared: Packages
+      combination?: Combination
+      pending: Map<string, string>
+    }
     /** One file read, its imports written for an installed project, its dependencies gathered. */
     const build = (
       file: ReturnType<typeof sourcePlace>,
-      into: { packages: Packages; items: Set<string>; declared: Packages }
+      into: Into
     ): RegistryFile | undefined => {
       const where = `${item.name}: ${file.source}`
       const absolute = path.resolve(root, file.source)
@@ -331,13 +357,18 @@ export function buildRegistry(
           continue
         const name = packageOf(specifier)
         if (PROVIDED.has(name) || name.startsWith("@kirana-style/")) continue
-        const range =
-          into.declared[name] ?? dependencies[name] ?? versions(name)
-        if (range === undefined)
-          problems.push(
-            `${where}: imports ${name}, which has no version: name it in the item's dependencies`
-          )
-        else into.packages[name] = range
+        const declared = into.declared[name]
+        if (declared !== undefined) into.packages[name] = declared
+        else if (into.combination === undefined) {
+          if (!into.pending.has(name)) into.pending.set(name, where)
+        } else {
+          const range = versions(name, into.combination)
+          if (range === undefined)
+            problems.push(
+              `${where}: imports ${name}, which has no version: name it in the item's dependencies`
+            )
+          else into.packages[name] = range
+        }
       }
       content = content.replace(/\r\n/g, "\n")
       return {
@@ -348,12 +379,14 @@ export function buildRegistry(
         hash: hashOf(content),
       }
     }
-    const shared = {
+    const shared: Into = {
       packages: dependencies,
       items: registryDependencies,
-      declared: {},
+      declared: { ...item.dependencies },
+      pending: new Map(),
     }
     const built: Partial<Pick<Item, "styles" | "files" | "frameworks">> = {}
+    const bases: (Combination & { files: RegistryFile[]; own: Into })[] = []
     for (const group of groups.get(item)!) {
       if (group.key === "styles" || group.key === "files") {
         built[group.key] = group.files.flatMap(
@@ -363,15 +396,43 @@ export function buildRegistry(
       }
       const [framework, base] = group.key.split("/") as [Framework, string]
       const declared = item.frameworks![framework]![base]!
-      const own = {
+      const own: Into = {
         packages: { ...declared.dependencies },
         items: new Set(declared.registryDependencies ?? []),
-        declared: declared.dependencies ?? {},
+        declared: { ...item.dependencies, ...declared.dependencies },
+        combination: { framework, base },
+        pending: new Map(),
       }
       const files = group.files.flatMap((file) => build(file, own) ?? [])
       for (const name of own.items)
         if (registryDependencies.has(name)) own.items.delete(name)
       own.items.delete(item.name)
+      bases.push({ framework, base, files, own })
+    }
+    // A package the files every base installs import, at each base's range (KF-130): the item's when
+    // every base takes the same one (or the item has no base), else each base's own.
+    for (const [name, where] of shared.pending) {
+      const ranges =
+        bases.length === 0
+          ? [versions(name)]
+          : bases.map(
+              ({ own }) => own.declared[name] ?? versions(name, own.combination)
+            )
+      const lacking = (at: string) =>
+        problems.push(
+          `${where}: imports ${name}, which has no version${at}: name it in the item's dependencies`
+        )
+      if (ranges.every((range) => range === ranges[0])) {
+        if (ranges[0] === undefined) lacking("")
+        else dependencies[name] = ranges[0]
+        continue
+      }
+      bases.forEach(({ framework, base, own }, at) => {
+        if (ranges[at] === undefined) lacking(` for ${framework}/${base}`)
+        else own.packages[name] = ranges[at]
+      })
+    }
+    for (const { framework, base, files, own } of bases) {
       built.frameworks ??= {}
       built.frameworks[framework] ??= {}
       built.frameworks[framework]![base] = {
@@ -447,41 +508,59 @@ const sorted = (packages: Packages): Packages =>
     Object.entries(packages).sort(([a], [b]) => a.localeCompare(b))
   )
 
+/** A workspace's catalogs: the default one (`catalog:`) and the named ones (`catalog:<name>`). */
+type Catalogs = { catalog?: Packages; catalogs?: Record<string, Packages> }
+
 /**
  * Each package's range as the registry's `package.json` declares it (its dependencies, then its
- * peer and dev dependencies); a workspace's `catalog:` read from the nearest `package.json` above
- * that has a catalog.
+ * peer and dev dependencies); for a framework and base, as `bases/<framework>-<base>/package.json`
+ * declares it when that names the package, which lets two bases of one framework take two majors of
+ * it (KF-130). A workspace's `catalog:` and `catalog:<name>` are read from the nearest `package.json`
+ * above that has catalogs.
  */
-export function versionsFrom(
-  root: string
-): (name: string) => string | undefined {
+export function versionsFrom(root: string): Versions {
   const read = (file: string) =>
     existsSync(file)
       ? (JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>)
       : undefined
-  const manifest = read(path.join(root, "package.json")) ?? {}
-  const declared: Packages = {
-    ...(manifest.devDependencies as Packages | undefined),
-    ...(manifest.peerDependencies as Packages | undefined),
-    ...(manifest.dependencies as Packages | undefined),
-  }
-  let catalog: Packages | undefined
-  const catalogOf = () => {
-    if (catalog !== undefined) return catalog
-    catalog = {}
-    for (let at = path.resolve(root); ; at = path.dirname(at)) {
-      const workspace = read(path.join(at, "package.json")) as
-        | { workspaces?: { catalog?: Packages }; catalog?: Packages }
-        | undefined
-      const found = workspace?.workspaces?.catalog ?? workspace?.catalog
-      if (found !== undefined) return (catalog = found)
-      if (path.dirname(at) === at) return catalog
+  const declaredIn = (folder: string): Packages => {
+    const manifest = read(path.join(folder, "package.json")) ?? {}
+    return {
+      ...(manifest.devDependencies as Packages | undefined),
+      ...(manifest.peerDependencies as Packages | undefined),
+      ...(manifest.dependencies as Packages | undefined),
     }
   }
-  return (name) => {
-    const range = declared[name]
-    if (range === undefined) return undefined
-    return range.startsWith("catalog:") ? catalogOf()[name] : range
+  const declared = declaredIn(root)
+  const bases = new Map<string, Packages>()
+  const baseOf = ({ framework, base }: Combination) => {
+    const folder = `${framework}-${base}`
+    if (!bases.has(folder))
+      bases.set(folder, declaredIn(path.join(root, "bases", folder)))
+    return bases.get(folder)!
+  }
+  let catalogs: Catalogs | undefined
+  const catalogsOf = (): Catalogs => {
+    if (catalogs !== undefined) return catalogs
+    for (let at = path.resolve(root); ; at = path.dirname(at)) {
+      const manifest = read(path.join(at, "package.json")) as
+        | (Catalogs & { workspaces?: Catalogs })
+        | undefined
+      const found = [manifest?.workspaces, manifest].find(
+        (entry) => entry?.catalog !== undefined || entry?.catalogs !== undefined
+      )
+      if (found !== undefined) return (catalogs = found)
+      if (path.dirname(at) === at) return (catalogs = {})
+    }
+  }
+  return (name, combination) => {
+    const range =
+      (combination === undefined ? undefined : baseOf(combination)[name]) ??
+      declared[name]
+    if (range === undefined || !range.startsWith("catalog:")) return range
+    const catalog = range.slice("catalog:".length)
+    const found = catalogsOf()
+    return (catalog === "" ? found.catalog : found.catalogs?.[catalog])?.[name]
   }
 }
 

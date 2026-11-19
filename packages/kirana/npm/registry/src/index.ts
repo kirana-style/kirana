@@ -55,10 +55,12 @@ export {
 } from "./build.ts"
 export type {
   Built,
+  Combination,
   SourceBase,
   SourceFile,
   SourceItem,
   SourceRegistry,
+  Versions,
 } from "./build.ts"
 export { inlineNames, resolveIcons } from "./icons.ts"
 export { fetchInlineIcons } from "./inline-icons.ts"

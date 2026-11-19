@@ -360,13 +360,45 @@ project:
   `@/registry/lib/utils`, or `./name` beside it, and the item holding that file
   becomes a registry dependency;
 - a package it imports becomes a dependency, at the range your `package.json`
-  gives it (a workspace's `catalog:` included), unless the item names one. The
-  framework's own packages and Kirana's are left out: every project has them.
+  gives it (a workspace's `catalog:` and named `catalog:<name>` included),
+  unless the item names one. The framework's own packages and Kirana's are left
+  out: every project has them.
 
 `name`, `homepage` and `defaultBase` go into the index as they are. Every item,
 then the index, is checked as `validate` checks it, and nothing is written when a
 problem is found: an import of no file of the registry, a package with no range,
 a file that is not there, a default base no item has.
+
+### Two bases on two majors
+
+Two bases of one framework can need two majors of one package: a Solid base on
+Solid 1 takes `solid-sonner` 0.3 where a base on Solid 2 takes 1.0. Give such a
+base its own `package.json` at `bases/<framework>-<base>/package.json`, beside
+`registry.json`. A package it names takes that range in that base's files; a
+package it does not name takes your registry's.
+
+```json
+{
+  "dependencies": {
+    "solid-js": "catalog:solid2",
+    "solid-sonner": "^1.0.0"
+  }
+}
+```
+
+A package an item's shared files import goes into the item's `dependencies`
+when every base takes the same range, and into each base's `dependencies` when
+the ranges differ. `kirana-style ui add` installs the item's packages and those
+of the project's base, the base's range first, so a Solid 2 project gets
+`solid-sonner` 1.0 and a Solid 1 project 0.3. Items built before install as they
+did.
+
+A builder of your own reads the same ranges through `@kirana-style/registry`:
+`versionsFrom(root)` returns a function that takes a package's name and, for a
+base's files, the framework and base,
+`versions("solid-sonner", { framework: "solid", base: "uisdk" })`.
+`buildRegistry(source, root, versions)` asks yours the same way, and one that
+reads the name alone still works.
 
 ## Checking
 

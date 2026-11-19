@@ -2238,20 +2238,29 @@ the implementation tracker names its evidence.
 ### D-127 — `ui build` builds a registry from a source that names its files
 
 - **Status:** Accepted (2026-11-06). The maintainer's choice: grown from Kirana UI's own builder
-  (KRN-DX-034).
+  (KRN-DX-034). Amended 2026-11-20 for KF-130.
 - **Decision:** a registry's source is `registry.json`, the item schema's items with each file named
   by where it is read from in place of its content. `ui build` reads each file, writes its imports
   of the registry's files as `@/registry/<type>/<path>`, takes its packages and the items it needs
   from its imports, hashes it, checks every item and writes the documents and the index, or nothing
   when a problem is found. Its API (`buildRegistry`) is exported, so a registry with its own needs
-  (Kirana UI's flattened designs, its shadcn/ui export) calls it and adds its own parts.
+  (Kirana UI's flattened designs, its shadcn/ui export) calls it and adds its own parts. A package's
+  range is asked per framework and base for a base's files (`versions(name, { framework, base })`),
+  read from `bases/<framework>-<base>/package.json` when it names the package, else from the
+  registry's; a package the item's shared files import is the item's when every base takes one
+  range, else each base's (KF-130).
 - **Rationale:** a registry author writes components, not JSON with their source escaped into it,
   and the imports between files, the dependencies and the hashes are exactly what goes stale when
   written by hand. Kirana UI had grown this in its builder; the generic part belongs with the
-  format.
+  format. One range per package named `solid-sonner` 0.3 in every Solid item, so Kirana UI's Solid 2
+  base would have installed a Solid 1 package (KF-130). The item format already had dependencies per
+  base, which `add` installs over the item's, so the documents keep their shape: a registry with no
+  base `package.json`, an item built before, and a callback that reads the name alone build and
+  install as before.
 - **Trade-off:** a dependency is found only through a static import; one loaded otherwise is named in
   the item's `dependencies`. A file's type from its folder is a convention a source can override,
-  not a rule.
+  not a rule. A base's `package.json` is found by its folder's name, `bases/<framework>-<base>`, a
+  convention (Kirana UI's layout) the source cannot point elsewhere.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md#component-registry).
 
 ### D-128 — `ui mcp` is a read-only MCP server over stdio with no dependency
