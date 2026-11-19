@@ -9,7 +9,7 @@ export const card = /* @__PURE__ */ __k.recipe({"s": ["root", "title"], "b": ["k
 export const plain = /* @__PURE__ */ __k.recipe({"s": null, "b": [""], "v": {}, "c": [], "d": {}})
 
 export function Button({ tone, disabled }: { tone: "primary" | "ghost"; disabled: boolean }) {
-  const slots = {"root": "k5O_fqMV kJ_pnCg", "title": "k6y_vXXk"}
+  const slots = ({"root": "k5O_fqMV kJ_pnCg", "title": "k6y_vXXk"})
   return (
     <div className="k5O_fqMV kJ_pnCg">
       <button className="k5O_Kh8G k44_FThQ k6V_Imrn k50_jWjM" />

@@ -155,7 +155,7 @@ useRender({ render, props: mergeProps({ ...props(item, sx) }, rest) })
 with tombstones stripped and bridged variables in `style`; plain class strings among the arguments pass
 through. Under a JSX whose elements take `class` (Solid, Preact, Qwik) the key is `class`, so the object
 spreads onto an element as it is, and that framework's type entry types the return so (KF-047). It serves headless libraries, render props and components from installed packages. Static
-arguments compile to an object literal. A key with nothing to carry is left out, not `undefined`:
+arguments compile to an object literal in parentheses, so `() => props(a)` still returns it (KF-128). A key with nothing to carry is left out, not `undefined`:
 spread after an element's own `style` (`style={{ "--gap": n }} {...props(a)}`), it must not erase it.
 
 ## `recipe()` — variants and slots

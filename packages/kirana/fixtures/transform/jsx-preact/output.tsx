@@ -14,7 +14,7 @@ export function A({ on, w, rest }: { on: boolean; w: number; rest: object }) {
       <div {...__k.sx(["k5O_fqMV k50_W0yl k50-KFHz_D9ur", (on) ? "kaF_yp7g" : ""], ["legacy"], [])} />
       <div {...__k.sx([/* @__PURE__ */ __k.b("kaF_ZFLY", "--kaF", (w))], [], [({ opacity: 1 })])} />
       <div {...rest} {...__k.sx(["k5O_fqMV k50_W0yl k50-KFHz_D9ur"], [(rest)?.class], [(rest)?.style])} />
-      <input {...{"class": "k5O_fqMV k50_W0yl k50-KFHz_D9ur"}} />
+      <input {...({"class": "k5O_fqMV k50_W0yl k50-KFHz_D9ur"})} />
     </>
   )
 }

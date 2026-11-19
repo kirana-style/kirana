@@ -1,6 +1,6 @@
 
 
-const card = {"name": "card", "anchor": "krvwJq"}
+const card = ({"name": "card", "anchor": "krvwJq"})
 const title = "k50-CIDc_D9ur"
 
 export function Outer({ children }: { children: React.ReactNode }) {

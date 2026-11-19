@@ -38,8 +38,14 @@ fn run_case(directory: &Path) -> Vec<String> {
             ("diagnostics.json", format!("{}\n", serde_json::to_string_pretty(&diagnostics).unwrap())),
         ],
     };
-    let update = std::env::var_os("KIRANA_UPDATE_FIXTURES").is_some();
     let mut failures = Vec::new();
+    // The output is code a bundler parses next. An object literal written where `{` opens a block
+    // parses as a block, or not at all (KF-128).
+    if let Err(errors) = kirana_frontend::with_parsed(&input, "output.tsx", &actual[0].1, |_| ()) {
+        let messages: Vec<&str> = errors.iter().map(|error| error.message.as_str()).collect();
+        failures.push(format!("{}/output.tsx does not parse: {}", directory.display(), messages.join("; ")));
+    }
+    let update = std::env::var_os("KIRANA_UPDATE_FIXTURES").is_some();
     for (name, text) in actual {
         let path = root.join(name);
         let expected = fs::read_to_string(&path).unwrap_or_default();

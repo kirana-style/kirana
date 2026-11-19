@@ -2,9 +2,9 @@
 
 export function Tokens({ runtime }: { runtime: string }) {
   return [
-    {},
-    {},
-    {},
+    ({}),
+    ({}),
+    ({}),
     undefined,
   ]
 }

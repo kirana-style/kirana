@@ -2,7 +2,7 @@ import { runtime as __kirana_runtime } from "@kirana-style/core/internal";
 const __k = /* @__PURE__ */ __kirana_runtime("k", "className");
 
 
-const group = {"name": "group", "anchor": "krYXFN"}
+const group = ({"name": "group", "anchor": "krYXFN"})
 const media = "@media (width >= 48rem)"
 const handle = "k50_D9ur"
 

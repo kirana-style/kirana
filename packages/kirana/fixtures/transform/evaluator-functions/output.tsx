@@ -100,6 +100,6 @@ enum Sizes {
   ["small"] = "1px",
 }
 const { gap = "3px" } = { gap: "2px" }
-const field = {"name": "field", "anchor": "krEtLv"}
+const field = ({"name": "field", "anchor": "krEtLv"})
 const orFallback = (v: string) => v || "4px"
 export const statics = "k6V_eK8R kJ_ASX8 k5n_btnY kaF_XMJ0"

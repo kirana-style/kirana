@@ -1,8 +1,8 @@
 
 
-const field = {"name": "field", "anchor": "krLW1F"}
-const peer = {"name": "peer", "anchor": "krzJXH"}
-const unused = {"name": "unused", "anchor": "krpkAj"}
+const field = ({"name": "field", "anchor": "krLW1F"})
+const peer = ({"name": "peer", "anchor": "krzJXH"})
+const unused = ({"name": "unused", "anchor": "krpkAj"})
 
 const label = "k87-soRz_ufrO"
 const hint = "k5O_Im6t k5O-krb5_u3uh"

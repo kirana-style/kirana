@@ -14,7 +14,7 @@ export const A = component$((props: { w: number }) => {
       <div class="k5O_fqMV" />
       <div {...__k.sx(["k5O_fqMV", (on.value) ? "k87_ufrO" : ""], ["own"], [])} />
       <div {...__k.sx([/* @__PURE__ */ __k.b("kaF_ZFLY", "--kaF", (props.w))], [], [])} />
-      <div {...{"class": "k5O_fqMV"}} />
+      <div {...({"class": "k5O_fqMV"})} />
     </>
   )
 })

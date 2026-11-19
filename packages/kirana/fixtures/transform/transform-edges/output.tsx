@@ -4,7 +4,7 @@ const __k = /* @__PURE__ */ __kirana_runtime("k", "className");
 import { Thing } from "lib"
 
 const root = "k5O_u3uh"
-const panel = {"name": "panel", "anchor": "krQQeO"}
+const panel = ({"name": "panel", "anchor": "krQQeO"})
 const reader = "k50-BMRq_D9ur"
 const factory = () => () => root
 

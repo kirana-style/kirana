@@ -1057,6 +1057,7 @@ dependencies = [
  "kirana_frontend",
  "kirana_ir",
  "kirana_shared",
+ "oxc_allocator",
  "oxc_ast",
  "oxc_ast_visit",
  "oxc_semantic",
