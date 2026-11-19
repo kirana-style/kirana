@@ -216,6 +216,9 @@ read once (KRN-DX-026). The project's settings under `ui`:
 | allDesigns  | `true` to install style modules and design files as written, every design kept, not the registry's builds for `design` (KF-080)                                                                                                                            |
 | workspace   | in an app, the package of its workspace that `ui` installs into, from the configuration's directory, and the only key of the app's `ui` (D-129)                                                                                                            |
 
+Solid 2's DOM runtime, `@solidjs/web`, has `solid-js` as its peer and names Solid as the adapters do;
+`ui build` never makes it an item's dependency, as it never makes `solid-js` one (KF-129).
+
 An item with `frameworks` and none for the project's framework, or several bases, no `ui.base` and
 none its registry's index names as the default for the framework, MUST stop the command, naming what
 the item supports; the index is read only then, once per registry, and one that cannot be read
@@ -365,7 +368,9 @@ library's own published data at the version the release pins, read once per inst
 network; the directive and its entry in the component's `imports` are dropped where no bound
 placeholder (`[lucide]="…"`) is left, and the file MUST carry the library's notice (its name, home,
 licence and copyright) in a comment. A placeholder in a comment is left as it is. An icon the pinned
-data does not have stops the command before anything is written.
+data does not have stops the command before anything is written. A project that lists `@solidjs/web`
+is on Solid 2, whose packages are not Solid 1's: Lucide's is `@lucide/solid`, and Tabler, whose Solid
+package has Solid 1 as its peer, is drawn inline (KF-129).
 
 **KRN-DX-034** — `kirana-style ui build [registry.json] [--out <dir>]` MUST build a registry from its
 source (D-127): the item schema's items, each file named by the path it is read from (a string, or

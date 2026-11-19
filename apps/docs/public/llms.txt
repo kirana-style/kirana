@@ -85,7 +85,7 @@ change the API. Pages state what is built and what is planned.
 - [Vike](https://site.kirana-style.workers.dev/docs/frameworks/vike.md): Install Kirana in a Vike app on Vite, with vike-react, vike-vue or vike-solid, where sx compiles in pages, layouts and prerendered HTML.
 - [Docusaurus](https://site.kirana-style.workers.dev/docs/frameworks/docusaurus.md): Install Kirana in a Docusaurus site through a local plugin that adds Kirana's webpack plugin, with Docusaurus's aliases declared and the stylesheet in the theme's Root.
 - [Preact](https://site.kirana-style.workers.dev/docs/frameworks/preact.md): Install Kirana in a Preact app on Vite, where sx compiles to class, detected from jsxImportSource.
-- [Solid](https://site.kirana-style.workers.dev/docs/frameworks/solid.md): Install Kirana in a Solid app on Vite, where sx compiles to class, detected from jsxImportSource.
+- [Solid](https://site.kirana-style.workers.dev/docs/frameworks/solid.md): Install Kirana in a Solid 1 or Solid 2 app on Vite, where sx compiles to class, detected from jsxImportSource.
 - [SolidStart](https://site.kirana-style.workers.dev/docs/frameworks/solid-start.md): Install Kirana in a SolidStart 2 app on Vite, where sx compiles to class for the server render and after hydration alike.
 - [Vue](https://site.kirana-style.workers.dev/docs/frameworks/vue.md): Install Kirana in a Vue app on Vite, with styles in the script and :sx in the template, compiled before Vue sees the component.
 - [Nuxt](https://site.kirana-style.workers.dev/docs/frameworks/nuxt.md): Install Kirana in a Nuxt app, with the Vite plugin in nuxt.config, the stylesheet in css, and :sx in components rendered on the server.

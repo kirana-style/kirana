@@ -1,0 +1,31 @@
+{
+  "name": "kirana-example-vite-solid2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc",
+    "build": "vite build"
+  },
+  "kirana-example": {
+    "dev": [
+      "vite",
+      "--port",
+      "{port}",
+      "--strictPort",
+      "--host",
+      "127.0.0.1"
+    ],
+    "edit": "src/main.tsx"
+  },
+  "dependencies": {
+    "@kirana-style/core": "0.1.0",
+    "@solidjs/web": "^2.0.3",
+    "solid-js": "^2.0.3"
+  },
+  "devDependencies": {
+    "@kirana-style/vite": "0.1.0",
+    "@solidjs/vite-plugin": "^3.0.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0"
+  }
+}

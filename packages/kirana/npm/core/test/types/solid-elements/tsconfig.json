@@ -1,0 +1,28 @@
+{
+  // Solid 1, installed as `solid-js-1`, under its own name. Nothing here resolves `@solidjs/web`,
+  // and library files are checked too, so the entry's augmentation of it shows if TypeScript
+  // reports an augmentation of a module it cannot find.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": false,
+    "verbatimModuleSyntax": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "paths": {
+      "solid-js": ["../../../../../node_modules/solid-js-1/types/index.d.ts"],
+      "solid-js/web": [
+        "../../../../../node_modules/solid-js-1/web/types/index.d.ts"
+      ],
+      "solid-js/jsx-runtime": [
+        "../../../../../node_modules/solid-js-1/types/jsx.d.ts"
+      ]
+    },
+    "types": ["@kirana-style/core/solid"]
+  },
+  "include": ["case.tsx"]
+}

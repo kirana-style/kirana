@@ -76,12 +76,12 @@ Which attribute `sx` compiles to. Leave it out and the compiler reads
 `compilerOptions.jsxImportSource` from the project's `tsconfig.json`, so most
 projects never set it:
 
-| Value      | `sx` compiles to | Read when `jsxImportSource` is |
-| ---------- | ---------------- | ------------------------------ |
-| `"react"`  | `className`      | anything not below             |
-| `"preact"` | `class`          | `"preact"`                     |
-| `"solid"`  | `class`          | `"solid-js"`, `"solid-js/h"`   |
-| `"qwik"`   | `class`          | `"@qwik.dev/core"`             |
+| Value      | `sx` compiles to | Read when `jsxImportSource` is                                                |
+| ---------- | ---------------- | ----------------------------------------------------------------------------- |
+| `"react"`  | `className`      | anything not below                                                            |
+| `"preact"` | `class`          | `"preact"`                                                                    |
+| `"solid"`  | `class`          | `"solid-js"`, `"solid-js/h"`, and on Solid 2 `"@solidjs/web"`, `"@solidjs/h"` |
+| `"qwik"`   | `class`          | `"@qwik.dev/core"`                                                            |
 
 See [supported frameworks](/docs/frameworks/overview).
 

@@ -270,11 +270,16 @@ export function mergeGrammars(
   return mergeEngineGrammars(grammars, root, path.resolve)
 }
 
-/** `jsxImportSource` values that mean a framework other than React. */
+/**
+ * `jsxImportSource` values that mean a framework other than React. Solid 2's JSX is its DOM
+ * runtime's, and its hyperscript's a package of its own (KF-127).
+ */
 const JSX_SOURCES: Readonly<Record<string, "preact" | "solid" | "qwik">> = {
   preact: "preact",
   "solid-js": "solid",
   "solid-js/h": "solid",
+  "@solidjs/web": "solid",
+  "@solidjs/h": "solid",
   "@qwik.dev/core": "qwik",
   "@builder.io/qwik": "qwik",
 }

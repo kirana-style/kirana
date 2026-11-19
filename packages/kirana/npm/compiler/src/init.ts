@@ -13,6 +13,7 @@ import {
 } from "node:fs"
 import path from "node:path"
 
+import { detectJsx } from "./config.ts"
 import type { Detected } from "./detect.ts"
 import {
   adapterOf,
@@ -459,6 +460,20 @@ const FRAMEWORK_CONFIG: Partial<
   },
 }
 
+/**
+ * The entry a framework needs in the configuration, if any: `FRAMEWORK_CONFIG`'s, or Solid's JSX
+ * where `tsconfig.json` does not name it (KF-129). Vite's starter names it in `tsconfig.app.json`,
+ * which the compiler does not read, and without it `sx` would compile to React's `className`, on
+ * Solid 1 and Solid 2 alike.
+ */
+function frameworkConfig(
+  project: Detected
+): { entry: string; marker: string } | undefined {
+  if (project.framework === "solid" && detectJsx(project.root) !== "solid")
+    return { entry: `jsx: "solid"`, marker: "jsx" }
+  return FRAMEWORK_CONFIG[project.framework]
+}
+
 /** The project's configuration file. */
 function configStep(
   files: Files,
@@ -472,7 +487,7 @@ function configStep(
   )
   const server = isServer(project.framework)
   const classes = `classes: { modules: ["resources/styles"], out: "${staticDirectory(project.framework)}/kirana/classes.json" }`
-  const own = FRAMEWORK_CONFIG[project.framework]
+  const own = frameworkConfig(project)
   if (existing) {
     const text = files.read(existing)!
     if (options.preset && !text.includes("@kirana-style/preset-scales"))

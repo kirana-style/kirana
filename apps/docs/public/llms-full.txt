@@ -4303,7 +4303,7 @@ passes, not a claim.
 | [TanStack Start](/docs/frameworks/tanstack-start) | Vite                       | `className` and `style`, `class` on Solid       | `tanstack-start`, `tanstack-start-solid` |
 | [Gatsby](/docs/frameworks/gatsby)                 | webpack                    | `className` and `style`                         | `gatsby`                                 |
 | [Preact](/docs/frameworks/preact)                 | Vite                       | `class` and `style`                             | `vite-preact`                            |
-| [Solid](/docs/frameworks/solid)                   | Vite                       | `class` and `style`                             | `vite-solid`                             |
+| [Solid](/docs/frameworks/solid)                   | Vite                       | `class` and `style`                             | `vite-solid`, `vite-solid2`              |
 | [Vue](/docs/frameworks/vue)                       | Vite                       | `:sx` → `class` and `style`                     | `vite-vue`                               |
 | [Nuxt](/docs/frameworks/nuxt)                     | Nuxt (Vite)                | `:sx` → `class` and `style`                     | `nuxt`                                   |
 | [Svelte](/docs/frameworks/svelte)                 | Vite                       | `sx` → `class` and `style`                      | `vite-svelte`                            |
@@ -5380,8 +5380,9 @@ Source: https://site.kirana-style.workers.dev/docs/frameworks/solid
 # Solid
 
 `sx` compiles to `class` (and a style attribute for values known only at
-runtime). Kirana picks that up from the JSX import source in your `tsconfig.json`,
-so there is nothing to configure. Tested by `examples/vite-solid`.
+runtime). Kirana picks that up from the JSX import source in your tsconfig, so
+there is nothing to configure. Tested by `examples/vite-solid`, and by
+`examples/vite-solid2` on [Solid 2](#solid-2).
 
 
 
@@ -5416,8 +5417,10 @@ export default defineConfig({ plugins: [kirana(), solid()] })
 }
 ```
 
-Without a `tsconfig.json`, set [`jsx: "solid"`](/docs/reference/config) in
-`kirana.config.ts` instead.
+Kirana reads the JSX import source from `tsconfig.json` only. Without one, or
+where Vite's starter keeps it in another file, set
+[`jsx: "solid"`](/docs/reference/config) in `kirana.config.ts` instead. Kirana's
+`init` writes it for you there.
 
 ## 4. Import the stylesheet
 
@@ -5444,6 +5447,37 @@ it ends up with, and so is a `className`.
 `props()` follows the same rule: it returns `{ class, style }`, so its result
 spreads onto an element as it is, and the type entry types it that way. Read its
 `class`, never its `className`.
+
+## Solid 2
+
+Solid 2 moved its JSX to its DOM runtime, `@solidjs/web`, and its Vite plugin to
+`@solidjs/vite-plugin`. The setup is the one above with those names:
+
+```ts file="vite.config.ts"
+import kirana from "@kirana-style/vite"
+import solid from "@solidjs/vite-plugin"
+import { defineConfig } from "vite"
+
+export default defineConfig({ plugins: [kirana(), solid()] })
+```
+
+```json file="tsconfig.json"
+{
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "@solidjs/web",
+    "types": ["@kirana-style/core/solid"]
+  }
+}
+```
+
+`jsxImportSource: "@solidjs/web"` selects `jsx: "solid"`, and the same type entry
+types `sx` on Solid 1's elements and Solid 2's. To start a Solid 2 app with the
+component registry, take the example:
+
+```bash
+npx @kirana-style/registry init --template vite-solid2 my-app
+```
 
 ## Next
 
@@ -10123,12 +10157,12 @@ Which attribute `sx` compiles to. Leave it out and the compiler reads
 `compilerOptions.jsxImportSource` from the project's `tsconfig.json`, so most
 projects never set it:
 
-| Value      | `sx` compiles to | Read when `jsxImportSource` is |
-| ---------- | ---------------- | ------------------------------ |
-| `"react"`  | `className`      | anything not below             |
-| `"preact"` | `class`          | `"preact"`                     |
-| `"solid"`  | `class`          | `"solid-js"`, `"solid-js/h"`   |
-| `"qwik"`   | `class`          | `"@qwik.dev/core"`             |
+| Value      | `sx` compiles to | Read when `jsxImportSource` is                                                |
+| ---------- | ---------------- | ----------------------------------------------------------------------------- |
+| `"react"`  | `className`      | anything not below                                                            |
+| `"preact"` | `class`          | `"preact"`                                                                    |
+| `"solid"`  | `class`          | `"solid-js"`, `"solid-js/h"`, and on Solid 2 `"@solidjs/web"`, `"@solidjs/h"` |
+| `"qwik"`   | `class`          | `"@qwik.dev/core"`                                                            |
 
 See [supported frameworks](/docs/frameworks/overview).
 
@@ -12339,13 +12373,17 @@ registry's default for your framework. An icon is your library's own component
 where the library has a package for your framework:
 
 
-| Icon library | React, Vue | Svelte  | Solid   | Angular |
-| ------------ | ---------- | ------- | ------- | ------- |
-| Lucide       | package    | package | package | inline  |
-| Tabler       | package    | package | package | inline  |
-| Hugeicons    | package    | package | inline  | inline  |
-| Phosphor     | package    | package | inline  | inline  |
-| Remix Icon   | package    | inline  | inline  | inline  |
+| Icon library | React, Vue | Svelte  | Solid   | Solid 2 | Angular |
+| ------------ | ---------- | ------- | ------- | ------- | ------- |
+| Lucide       | package    | package | package | package | inline  |
+| Tabler       | package    | package | package | inline  | inline  |
+| Hugeicons    | package    | package | inline  | inline  | inline  |
+| Phosphor     | package    | package | inline  | inline  | inline  |
+| Remix Icon   | package    | inline  | inline  | inline  | inline  |
+
+A project that lists `@solidjs/web` is on Solid 2: Lucide comes from
+`@lucide/solid`, its package for Solid 2, and Tabler, whose Solid package needs
+Solid 1, is drawn inline.
 
 Elsewhere it is written into the file as an inline `<svg>`, read at install from
 the library's own published data at the version your Kirana release names, and

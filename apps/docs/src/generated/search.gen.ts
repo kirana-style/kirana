@@ -2357,7 +2357,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "href": "/docs/frameworks/solid",
     "page": "Solid",
     "section": "frameworks",
-    "text": "Install Kirana in a Solid app on Vite, where sx compiles to class, detected from jsxImportSource. "
+    "text": "Install Kirana in a Solid 1 or Solid 2 app on Vite, where sx compiles to class, detected from jsxImportSource. "
   },
   {
     "id": "/docs/frameworks/solid#solid",
@@ -2365,7 +2365,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Solid",
     "section": "frameworks",
     "heading": "Solid",
-    "text": "compiles to (and a style attribute for values known only at runtime). Kirana picks that up from the JSX import source in your , so there is nothing to configure. Tested by ."
+    "text": "compiles to (and a style attribute for values known only at runtime). Kirana picks that up from the JSX import source in your tsconfig, so there is nothing to configure. Tested by , and by on Solid 2 ."
   },
   {
     "id": "/docs/frameworks/solid#2-add-the-plugin",
@@ -2381,7 +2381,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Solid",
     "section": "frameworks",
     "heading": "3. Point  jsxImportSource  at Solid, and type  sx",
-    "text": "Without a , set in instead."
+    "text": "Kirana reads the JSX import source from only. Without one, or where Vite's starter keeps it in another file, set in instead. Kirana's writes it for you there."
   },
   {
     "id": "/docs/frameworks/solid#5-write-a-component",
@@ -2390,6 +2390,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "section": "frameworks",
     "heading": "5. Write a component",
     "text": "A already on the element is merged with the styles into the one it ends up with, and so is a . follows the same rule: it returns , so its result spreads onto an element as it is, and the type entry types it that way. Read its , never its ."
+  },
+  {
+    "id": "/docs/frameworks/solid#solid-2",
+    "href": "/docs/frameworks/solid#solid-2",
+    "page": "Solid",
+    "section": "frameworks",
+    "heading": "Solid 2",
+    "text": "Solid 2 moved its JSX to its DOM runtime, , and its Vite plugin to . The setup is the one above with those names: selects , and the same type entry types on Solid 1's elements and Solid 2's. To start a Solid 2 app with the component registry, take the example:"
   },
   {
     "id": "/docs/frameworks/solid#next",
@@ -5561,7 +5569,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installing components",
     "section": "tooling",
     "heading": "Adding components",
-    "text": "Each component comes with the components it needs, in order. Its files land under your alias for their type, for components by default, and its icons are drawn with your icon library. The packages it needs are installed with your package manager, and Kirana checks what was written before your next build. It installs on React, Vue, Svelte, Solid and Angular, each component's markup for your framework and base: , else the component's only base, else the registry's default for your framework. An icon is your library's own component where the library has a package for your framework: Elsewhere it is written into the file as an inline , read at install from the library's own published data at the version your Kirana release names, and the file keeps the library's licence notice in a comment. An Angular component gets the in its template in place of the placeholder directive, which is dropped from its imports. never changes a file you already have unless you pass . shows what it would do. Each command that writes components ends by checking the scripts it wrote with Kirana. skips that, for a project whose configuration cannot load until its packages are installed. A font ( ) is a package"
+    "text": "Each component comes with the components it needs, in order. Its files land under your alias for their type, for components by default, and its icons are drawn with your icon library. The packages it needs are installed with your package manager, and Kirana checks what was written before your next build. It installs on React, Vue, Svelte, Solid and Angular, each component's markup for your framework and base: , else the component's only base, else the registry's default for your framework. An icon is your library's own component where the library has a package for your framework: A project that lists is on Solid 2: Lucide comes from , its package for Solid 2, and Tabler, whose Solid package needs Solid 1, is drawn inline. Elsewhere it is written into the file as an inline , read at install from the library's own published data at the version your Kirana release names, and the file keeps the library's licence notice in a comment. An Angular component gets the in its template in place of the placeholder directive, which is dropped from its imports. never changes a file you already have unless you pass . shows what it would do. Each command that writes components ends by checking the "
   },
   {
     "id": "/docs/tooling/components#in-a-monorepo",

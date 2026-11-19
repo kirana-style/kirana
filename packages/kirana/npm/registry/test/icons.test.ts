@@ -214,6 +214,22 @@ describe("KRN-DX-033 icons on Svelte, Solid and Angular", () => {
     )
   })
 
+  it("draws Solid 2's icons with its own packages: Lucide's for Solid 2, Tabler's inline (KF-129)", () => {
+    const lucide = resolveIcons("x", SOLID, "solid", "lucide", DRAWN, true)
+    expect(lucide.packages).toEqual(["@lucide/solid"])
+    expect(lucide.content).toContain('import { XIcon } from "@lucide/solid"')
+    const tabler = resolveIcons("x", SOLID, "solid", "tabler", DRAWN, true)
+    expect(tabler.packages).toEqual([])
+    expect(tabler.content).toMatch(/^\/\* Icons drawn from Tabler Icons, /)
+    expect(inlineNames(SOLID, "solid", "tabler", true)).toEqual(["IconX"])
+    expect(inlineNames(SOLID, "solid", "tabler")).toEqual([])
+    expect(inlineNames(SOLID, "solid", "lucide", true)).toEqual([])
+    // Only Solid's drawings change.
+    expect(
+      resolveIcons("x", SVELTE, "svelte", "tabler", DRAWN, true).packages
+    ).toEqual(["@tabler/icons-svelte"])
+  })
+
   it("fills Angular's <svg iconPlaceholder>, its import and its imports entry dropped", () => {
     const { content, packages } = resolveIcons(
       "x",

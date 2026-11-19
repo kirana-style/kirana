@@ -304,8 +304,9 @@ jobs:
         run: bun scripts/browser-engine.ts
 
   # The component registry's installer end to end (KRN-DX-028, KRN-DX-029, KRN-DX-033): on a Vite,
-  # a TanStack Start, a React Router and a Next.js app, on Vue, Svelte, Solid and Angular (its icon
-  # drawn inline), on Astro's React islands, Laravel's Inertia pages and TanStack Start on Solid
+  # a TanStack Start, a React Router and a Next.js app, on Vue, Svelte, Solid 1 and 2 (KF-129) and
+  # Angular (its icon drawn inline), on Astro's React islands, Laravel's Inertia pages and
+  # TanStack Start on Solid
   # (KF-109), and on Nuxt (its <Html>, KF-112) and SvelteKit (its layout and server hook, KF-113),
   # `kirana-style ui init` and `ui add` from the fixture registry (examples/registry), then
   # the build, and the installed button, its icon and the design system on <html> read back in
@@ -327,6 +328,7 @@ jobs:
             vite-vue,
             vite-svelte,
             vite-solid,
+            vite-solid2,
             analog-angular,
             astro-react,
             laravel-inertia,
@@ -388,8 +390,8 @@ jobs:
             build: next-webpack next-turbopack react-router
             dev: next-webpack next-turbopack react-router
           - shard: vite
-            build: vite-preact vite-solid vite-vanilla vite-vue vite-svelte vite-library vite-utilities jest-react
-            dev: vite-preact vite-solid vite-vue vite-svelte vite-utilities
+            build: vite-preact vite-solid vite-solid2 vite-vanilla vite-vue vite-svelte vite-library vite-utilities jest-react
+            dev: vite-preact vite-solid vite-solid2 vite-vue vite-svelte vite-utilities
           - shard: meta-frameworks
             build: sveltekit nuxt astro astro-react qwik solid-start tanstack-start-solid
             dev: sveltekit nuxt astro astro-react qwik solid-start tanstack-start-solid

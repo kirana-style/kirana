@@ -164,13 +164,17 @@ registry's default for your framework. An icon is your library's own component
 where the library has a package for your framework:
 
 
-| Icon library | React, Vue | Svelte  | Solid   | Angular |
-| ------------ | ---------- | ------- | ------- | ------- |
-| Lucide       | package    | package | package | inline  |
-| Tabler       | package    | package | package | inline  |
-| Hugeicons    | package    | package | inline  | inline  |
-| Phosphor     | package    | package | inline  | inline  |
-| Remix Icon   | package    | inline  | inline  | inline  |
+| Icon library | React, Vue | Svelte  | Solid   | Solid 2 | Angular |
+| ------------ | ---------- | ------- | ------- | ------- | ------- |
+| Lucide       | package    | package | package | package | inline  |
+| Tabler       | package    | package | package | inline  | inline  |
+| Hugeicons    | package    | package | inline  | inline  | inline  |
+| Phosphor     | package    | package | inline  | inline  | inline  |
+| Remix Icon   | package    | inline  | inline  | inline  | inline  |
+
+A project that lists `@solidjs/web` is on Solid 2: Lucide comes from
+`@lucide/solid`, its package for Solid 2, and Tabler, whose Solid package needs
+Solid 1, is drawn inline.
 
 Elsewhere it is written into the file as an inline `<svg>`, read at install from
 the library's own published data at the version your Kirana release names, and
