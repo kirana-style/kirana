@@ -37,6 +37,13 @@ import {
   writePlaced,
 } from "./add.ts"
 import type { Placed } from "./add.ts"
+import {
+  ANGULAR_JSON,
+  angularApp,
+  stylesLine,
+  withStyles,
+} from "./angular-cli.ts"
+import type { AngularApp } from "./angular-cli.ts"
 import { parseArgs } from "./command.ts"
 import type { Options } from "./command.ts"
 import {
@@ -568,7 +575,9 @@ function workspaceComponents(
 /**
  * The configuration imports the design system's with its `.ts` extension, as Node.js loads it; a
  * tsconfig that type-checks the configuration (Next.js's includes every `.ts` file) must allow that.
- * Allowed in place when it emits nothing, which the option requires; else a step by hand.
+ * Allowed in place when it emits nothing, which the option requires; else a step by hand. The
+ * Angular CLI's emits, and its build's tsconfig extends it, so `allowImportingTsExtensions` there
+ * fails the build (TS5096): `rewriteRelativeImportExtensions` allows the import instead (KF-131).
  */
 function allowTsImports(
   files: Files,
@@ -580,7 +589,11 @@ function allowTsImports(
   const text = files.read("tsconfig.json")!
   const tsconfig = readJsonc(text) as {
     include?: string[]
-    compilerOptions?: { allowImportingTsExtensions?: boolean; noEmit?: boolean }
+    compilerOptions?: {
+      allowImportingTsExtensions?: boolean
+      rewriteRelativeImportExtensions?: boolean
+      noEmit?: boolean
+    }
   }
   const includes =
     tsconfig.include === undefined ||
@@ -588,8 +601,17 @@ function allowTsImports(
       (pattern) => pattern === config || /^(\*\*\/)?\*\.ts$/.test(pattern)
     )
   const options = tsconfig.compilerOptions
-  if (!includes || !options || options.allowImportingTsExtensions) return
-  if (!options.noEmit) {
+  if (
+    !includes ||
+    !options ||
+    options.allowImportingTsExtensions ||
+    options.rewriteRelativeImportExtensions
+  )
+    return
+  const option = angularApp((file) => files.read(file))
+    ? "rewriteRelativeImportExtensions"
+    : "allowImportingTsExtensions"
+  if (!options.noEmit && option === "allowImportingTsExtensions") {
     manual.push(
       `tsconfig.json type-checks ${config}, whose import ends in .ts: set "allowImportingTsExtensions": true there, or leave ${config} out of its include`
     )
@@ -599,12 +621,10 @@ function allowTsImports(
     "tsconfig.json",
     text.replace(
       /"compilerOptions"\s*:\s*\{/,
-      (open) => `${open}\n    "allowImportingTsExtensions": true,`
+      (open) => `${open}\n    "${option}": true,`
     )
   )
-  report.push(
-    `tsconfig.json: allowImportingTsExtensions, for ${config}'s import`
-  )
+  report.push(`tsconfig.json: ${option}, for ${config}'s import`)
 }
 
 /**
@@ -837,6 +857,20 @@ function wire(
     const [, type, rest] = /^@\/registry\/([a-z]+)\/(.+)$/.exec(module)!
     return `${settings.aliases[type as keyof Settings["aliases"]]}/${rest}`
   }
+  const angular = angularApp((file) => files.read(file))
+  if (angular !== undefined) {
+    wireAngular(
+      files,
+      item.name,
+      setup,
+      placed,
+      angular,
+      aliased,
+      report,
+      manual
+    )
+    return
+  }
   const scripts = files.scripts()
   const loader = stylesheetEntry(scripts, (file) => files.read(file))
   // A configuration that lists the stylesheet (Nuxt's) runs in Node: `<html>` is not its to set.
@@ -947,6 +981,77 @@ function wire(
       manual.push(
         `give <html> the design system's styles: <html sx={${name}}>, with import { ${name} } from "${specifier}"`
       )
+  }
+}
+
+/**
+ * `wire` on the Angular CLI (KF-131): the design system's stylesheets listed in `angular.json`'s
+ * `styles` after Kirana's, by their paths in the project, since `styles` resolves no alias. Its
+ * builders compile every module of the source folder but the entry (`main.ts`), which would call
+ * the uncompiled `props()` on the compiled, string-typed handles; `src/index.html` is static. So
+ * `<html>`'s classes are set in a module of their own beside the entry, which the entry imports.
+ */
+function wireAngular(
+  files: Files,
+  item: string,
+  setup: NonNullable<Item["setup"]>,
+  placed: readonly Placed[],
+  angular: AngularApp,
+  aliased: (module: string) => string,
+  report: string[],
+  manual: string[]
+): void {
+  const stylesheets = (setup.stylesheets ?? []).map((stylesheet) => {
+    const target = installedOf(stylesheet, placed)
+    if (!target)
+      throw new RegistryError(
+        `${item}: setup.stylesheets names ${stylesheet}, which the item does not install`
+      )
+    return path
+      .relative(files.root, target.destination)
+      .split(path.sep)
+      .join("/")
+  })
+  const listed =
+    stylesheets.length === 0
+      ? undefined
+      : withStyles(files.read(ANGULAR_JSON)!, angular, stylesheets)
+  if (listed !== undefined) {
+    files.write(ANGULAR_JSON, listed.text)
+    report.push(stylesLine(listed.added))
+  }
+  if (!setup.document) return
+  const { export: name } = setup.document
+  const specifier = aliased(setup.document.module)
+  const { entry } = angular
+  const text = entry === undefined ? undefined : files.read(entry)
+  const module = path.posix.join(path.posix.dirname(entry ?? ""), "document.ts")
+  const existing = files.read(module)
+  if (
+    text === undefined ||
+    (existing !== undefined && !existing.includes(`props(${name})`))
+  ) {
+    manual.push(
+      `give <html> the design system's styles: document.documentElement.className = props(${name}).className ?? "" in a module the entry imports, with import { props } from "@kirana-style/core" and import { ${name} } from "${specifier}"`
+    )
+    return
+  }
+  if (existing === undefined) {
+    files.write(
+      module,
+      `import { props } from "@kirana-style/core"
+
+import { ${name} } from "${specifier}"
+
+/** \`<html>\`'s classes from the design system's styles: Angular's builder compiles no entry. */
+document.documentElement.className = props(${name}).className ?? ""
+`
+    )
+    report.push(`${module}: sets <html>'s classes from ${name}`)
+  }
+  if (!/(["'])\.\/document\1/.test(text)) {
+    files.write(entry!, addImport(text, `import "./document"`))
+    report.push(`${entry}: imports ./document`)
   }
 }
 

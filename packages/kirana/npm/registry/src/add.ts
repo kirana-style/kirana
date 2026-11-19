@@ -546,9 +546,11 @@ export async function runAdd(
   // A font is imported where Kirana's stylesheet is, and its package installed there: in a
   // workspace, in the app (D-129, KF-111).
   const app = appOf(settings, project)
-  const fonts = importFonts(planned, scriptsOf(app.root), (file) =>
-    readFileSync(path.join(app.root, file), "utf8")
-  )
+  // A file the app lacks reads as none: an Angular CLI app is told apart by its angular.json (KF-131).
+  const fonts = importFonts(planned, scriptsOf(app.root), (file) => {
+    const absolute = path.join(app.root, file)
+    return existsSync(absolute) ? readFileSync(absolute, "utf8") : undefined
+  })
   for (const line of fonts.report) write(`font: ${line}\n`)
   for (const line of fonts.manual) write(`by hand: ${line}\n`)
   const commands = packageCommands(planned, project, placed, app)

@@ -7,6 +7,13 @@
 import { addImport } from "@kirana-style/compiler"
 
 import type { Planned } from "./add.ts"
+import {
+  ANGULAR_JSON,
+  angularApp,
+  fontStyle,
+  stylesLine,
+  withStyles,
+} from "./angular-cli.ts"
 import { parseReference } from "./read.ts"
 import type { Design } from "./types.ts"
 
@@ -87,7 +94,8 @@ export function allAxisItems(design: Design, system: string): string[] {
 /**
  * The imports of the planned font items' stylesheets, each once, in the script that imports
  * Kirana's stylesheet: the edited texts by file, and a line for each. A project without such a
- * script (a PostCSS `@kirana;` directive) is told what to import, by hand.
+ * script (a PostCSS `@kirana;` directive) is told what to import, by hand. An Angular CLI app lists
+ * them in `angular.json`'s `styles` instead, whose fonts its builder loads as files (KF-131).
  */
 export function importFonts(
   planned: readonly Pick<Planned, "key" | "item">[],
@@ -97,6 +105,21 @@ export function importFonts(
   const edits = new Map<string, string>()
   const report: string[] = []
   const manual: string[] = []
+  const angular = angularApp(read)
+  if (angular !== undefined) {
+    const fonts = planned.flatMap(({ item }) =>
+      item.font === undefined ? [] : [fontStyle(item.font.import)]
+    )
+    const listed =
+      fonts.length === 0
+        ? undefined
+        : withStyles(read(ANGULAR_JSON)!, angular, fonts)
+    if (listed !== undefined) {
+      edits.set(ANGULAR_JSON, listed.text)
+      report.push(stylesLine(listed.added))
+    }
+    return { edits, report, manual }
+  }
   const entry = stylesheetEntry(scripts, read)
   for (const { item } of planned) {
     if (item.font === undefined) continue

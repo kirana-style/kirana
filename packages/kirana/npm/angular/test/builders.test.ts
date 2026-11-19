@@ -272,6 +272,18 @@ describe("D-068 the Angular CLI builders", () => {
     )
   })
 
+  it("keep the stylesheet where styles lists it already, as ui init lists it (KF-131)", () => {
+    const mirror = { replacements: [], update: () => false, messages: () => [] }
+    const listed = [".kirana/kirana.css", "src/components/ui/reset.css"]
+    expect(withMirror({ styles: listed }, mirror).styles).toBe(listed)
+    const object = [{ input: ".kirana/kirana.css", bundleName: "kirana" }]
+    expect(withMirror({ styles: object }, mirror).styles).toBe(object)
+    expect(withMirror({ styles: ["src/styles.css"] }, mirror).styles).toEqual([
+      "src/styles.css",
+      STYLESHEET,
+    ])
+  })
+
   it("ship Angular's own option schemas, the same as the installed @angular/build's", () => {
     const require = createRequire(import.meta.url)
     const build = path.dirname(require.resolve("@angular/build/package.json"))

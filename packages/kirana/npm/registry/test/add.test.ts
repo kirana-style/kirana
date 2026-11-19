@@ -724,6 +724,56 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     )
   })
 
+  it("lists a font item's stylesheet in an Angular CLI app's angular.json, after Kirana's (KF-131)", async () => {
+    const font = (name: string, specifier: string): Item => ({
+      name: `font-${name}`,
+      type: "font",
+      version: "1.0.0",
+      dependencies: { [`@fontsource-variable/${name}`]: "^5.2.0" },
+      font: { family: name, import: specifier },
+    })
+    const entry =
+      'import "@kirana-style/core/stylesheet.css"\nimport { App } from "./app"\n\nApp()\n'
+    const angular = `{
+  "projects": {
+    "app": {
+      "architect": {
+        "build": {
+          "builder": "@kirana-style/angular:application",
+          "options": {
+            "browser": "src/main.ts"
+          }
+        }
+      }
+    }
+  }
+}
+`
+    const cwd = project(
+      {},
+      [
+        font("lora", "@fontsource-variable/lora"),
+        font("inter", "@fontsource-variable/inter/wght-italic.css"),
+      ],
+      { "src/main.ts": entry, "angular.json": angular }
+    )
+    const { code, text } = await add(cwd, "@acme/font-lora")
+    expect(code).toBe(0)
+    expect(text).toContain(
+      "font: angular.json: styles list .kirana/kirana.css, @fontsource-variable/lora/index.css\n"
+    )
+    // A stylesheet named in full is listed as it is.
+    expect((await add(cwd, "@acme/font-inter")).text).toContain(
+      "font: angular.json: styles list @fontsource-variable/inter/wght-italic.css\n"
+    )
+    expect(read(cwd, "src/main.ts")).toBe(entry)
+    expect(read(cwd, "angular.json")).toContain(
+      '"options": {\n            "styles": [\n              ".kirana/kirana.css",\n              "@fontsource-variable/lora/index.css",\n              "@fontsource-variable/inter/wght-italic.css"\n            ],\n            "browser": "src/main.ts"\n'
+    )
+    // Once: angular.json lists it now.
+    expect((await add(cwd, "@acme/font-lora")).text).not.toContain("font: ")
+  })
+
   it("imports a font item's stylesheet in SvelteKit's +layout.svelte, its script (KF-113)", async () => {
     const LORA: Item = {
       name: "font-lora",

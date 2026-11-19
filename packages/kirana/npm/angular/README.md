@@ -31,6 +31,8 @@ export class Card {
 - **Angular CLI.** In `angular.json`, `@kirana-style/angular:application` and `@kirana-style/angular:dev-server`
   replace `@angular/build:application` and `:dev-server`, with the same options. They compile the
   source root into `.kirana/` (ignore it), hand Angular the copy through `fileReplacements`, and add
-  `.kirana/kirana.css` to `styles`.
+  `.kirana/kirana.css` to `styles`, last, unless it is listed there already: `kirana-style ui init`
+  lists it before a design system's stylesheets. The entry (`main.ts`) is not compiled, so code that
+  calls `props()` goes in a module it imports.
 
 `kirana-style init` sets up either. How it works and what it costs: `design-notes/angular.md`.

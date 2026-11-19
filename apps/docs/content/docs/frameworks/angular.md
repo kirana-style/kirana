@@ -93,6 +93,14 @@ The dev server and watch builds update the copy as you edit. Ignore the folder:
 
 There is no stylesheet import to add: the builders add it.
 
+The builders compile every module but the entry, `src/main.ts`: call `props()`
+from a module it imports. [`kirana-style ui init`](/docs/tooling/components)
+follows both rules:
+
+- a design system's stylesheets and its fonts go in `styles`, after
+  `.kirana/kirana.css`, which the builders then leave where it is;
+- `<html>`'s classes are set in `src/document.ts`, which the entry imports.
+
 ## With Analog
 
 ### 1. Install

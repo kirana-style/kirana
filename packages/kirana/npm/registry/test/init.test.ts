@@ -2169,3 +2169,250 @@ describe("KF-108 ui init in a workspace (D-129)", () => {
     expect(code).toBe(0)
   })
 })
+
+/** An Angular CLI app as `examples/angular-cli` has it, its builders Kirana's, with fonts in `@acme`. */
+function angularCli(extra: Record<string, string | undefined> = {}) {
+  const font: Item = {
+    name: "font-inter",
+    type: "font",
+    version: "1.0.0",
+    dependencies: { "@fontsource-variable/inter": "^5.2.0" },
+    font: { family: "'Inter Variable'", import: "@fontsource-variable/inter" },
+  }
+  const design = {
+    axes: {
+      font: {
+        attribute: "data-font",
+        values: ["inter"],
+        items: { inter: "font-inter" },
+      },
+    },
+    presets: { k: [{ axis: "font", values: ["inter"], bits: 1 }] },
+  }
+  return project({
+    "package.json": JSON.stringify({
+      dependencies: {
+        "@angular/core": "^22.2.1",
+        "@kirana-style/angular": "0.4.1",
+      },
+      devDependencies: { "@angular/build": "^22.2.1" },
+    }),
+    "angular.json": ANGULAR_JSON,
+    "tsconfig.json":
+      '{\n  "compilerOptions": {\n    "strict": true,\n    "module": "preserve"\n  }\n}\n',
+    "tsconfig.app.json":
+      '{\n  "extends": "./tsconfig.json",\n  "files": ["src/main.ts"]\n}\n',
+    "src/index.html": '<!doctype html>\n<html lang="en">\n</html>\n',
+    "src/main.ts":
+      'import { bootstrapApplication } from "@angular/platform-browser"\n\nimport { App } from "./app/app"\n\nbootstrapApplication(App)\n',
+    "src/app/app.ts": "export class App {}\n",
+    "acme/kit.json": JSON.stringify({ ...kit(), design }),
+    "acme/font-inter.json": JSON.stringify(font),
+    "acme/index.json": JSON.stringify(INDEX),
+    ...extra,
+  })
+}
+
+const ANGULAR_JSON = `{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": { "analytics": false },
+  "projects": {
+    "app": {
+      "projectType": "application",
+      "sourceRoot": "src",
+      "architect": {
+        "build": {
+          "builder": "@kirana-style/angular:application",
+          "options": {
+            "browser": "src/main.ts",
+            "index": "src/index.html"
+          },
+          "configurations": {
+            "production": { "outputHashing": "all" }
+          }
+        },
+        "serve": { "builder": "@kirana-style/angular:dev-server" }
+      }
+    }
+  }
+}
+`
+
+describe("KF-131 ui init on the Angular CLI", () => {
+  it("lists the stylesheets and the fonts in angular.json, and sets <html>'s classes in a module the entry imports", async () => {
+    const cwd = withCore(angularCli())
+    const { code, text } = await init(cwd, "--registry", ACME, "--preset", "k0")
+    expect(code).toBe(0)
+    const setup = text.split("\n").filter((line) => line.startsWith("setup: "))
+    expect(setup.slice(3)).toEqual([
+      "setup: tsconfig.json: rewriteRelativeImportExtensions, for kirana.config.mts's import",
+      "setup: angular.json: styles list .kirana/kirana.css, src/components/ui/reset.css",
+      "setup: src/document.ts: sets <html>'s classes from htmlStyles",
+      "setup: src/main.ts: imports ./document",
+      "setup: angular.json: styles list @fontsource-variable/inter/index.css",
+      'setup: src/index.html: <html data-font="inter">',
+    ])
+    expect(text).not.toContain("by hand: give <html>")
+    expect(text).not.toContain("allowImportingTsExtensions")
+    // Kirana's stylesheet first, then the reset by its path, then the font's stylesheet; the rest
+    // of the file as it was.
+    expect(read(cwd, "angular.json")).toBe(
+      ANGULAR_JSON.replace(
+        '"options": {\n',
+        '"options": {\n            "styles": [\n              ".kirana/kirana.css",\n              "src/components/ui/reset.css",\n              "@fontsource-variable/inter/index.css"\n            ],\n'
+      )
+    )
+    // The entry imports no stylesheet and calls no props(): it is not compiled.
+    expect(read(cwd, "src/main.ts")).toBe(
+      'import { bootstrapApplication } from "@angular/platform-browser"\n\nimport { App } from "./app/app"\nimport "./document"\n\nbootstrapApplication(App)\n'
+    )
+    expect(read(cwd, "src/document.ts")).toBe(
+      [
+        'import { props } from "@kirana-style/core"',
+        "",
+        'import { htmlStyles } from "@/lib/kit/document"',
+        "",
+        "/** `<html>`'s classes from the design system's styles: Angular's builder compiles no entry. */",
+        'document.documentElement.className = props(htmlStyles).className ?? ""',
+        "",
+      ].join("\n")
+    )
+    expect(read(cwd, "tsconfig.json")).toContain(
+      '"compilerOptions": {\n    "rewriteRelativeImportExtensions": true,\n'
+    )
+    // Run again: nothing more.
+    const files = [
+      "angular.json",
+      "src/main.ts",
+      "src/document.ts",
+      "tsconfig.json",
+    ]
+    const before = files.map((name) => read(cwd, name))
+    const again = await init(cwd, "--overwrite", "--preset", "k0")
+    expect(again.code).toBe(0)
+    expect(again.text).not.toContain("setup: angular.json")
+    expect(again.text).not.toContain("setup: src/main.ts")
+    expect(again.text).not.toContain("setup: src/document.ts")
+    expect(again.text).not.toContain("setup: tsconfig.json")
+    expect(again.text).not.toContain("by hand: give <html>")
+    expect(files.map((name) => read(cwd, name))).toEqual(before)
+  })
+
+  it("adds to the styles an app lists, in the layout it has, and keeps Kirana's where it is", async () => {
+    const listing = (styles: string) =>
+      angularCli({
+        "angular.json": ANGULAR_JSON.replace(
+          '"index": "src/index.html"',
+          `"index": "src/index.html",\n            "styles": ${styles}`
+        ),
+      })
+    // ng new's src/styles.css, one to a line.
+    const ngNew = listing('[\n              "src/styles.css"\n            ]')
+    await init(ngNew, "--registry", ACME)
+    expect(read(ngNew, "angular.json")).toContain(
+      '"styles": [\n              "src/styles.css",\n              ".kirana/kirana.css",\n              "src/components/ui/reset.css"\n            ]\n'
+    )
+    // On one line, an entry as an object, and Kirana's listed already.
+    const inline = listing(
+      '[{ "input": "src/theme.css", "bundleName": "theme" }, ".kirana/kirana.css"]'
+    )
+    await init(inline, "--registry", ACME)
+    expect(read(inline, "angular.json")).toContain(
+      '"styles": [{"input":"src/theme.css","bundleName":"theme"}, ".kirana/kirana.css", "src/components/ui/reset.css"]\n'
+    )
+    // Options on one line, or none yet, with a comment and the targets' other name.
+    const compact = angularCli({
+      "angular.json": `{
+  // The workspace.
+  "projects": {
+    "app": {
+      "targets": {
+        "build": { "builder": "@angular/build:application", "options": { "browser": "src/main.ts", "aot": true, "assets": [] } }
+      }
+    }
+  }
+}
+`,
+    })
+    await init(compact, "--registry", ACME)
+    expect(read(compact, "angular.json")).toContain(
+      '"options": { "styles": [".kirana/kirana.css", "src/components/ui/reset.css"], "browser": "src/main.ts", "aot": true, "assets": [] }'
+    )
+    const empty = angularCli({
+      "angular.json":
+        '{ "projects": { "app": { "architect": { "build": { "builder": "@kirana-style/angular:application", "options": {} } } } } }\n',
+    })
+    const { text } = await init(empty, "--registry", ACME)
+    expect(read(empty, "angular.json")).toContain(
+      '"options": {"styles": [".kirana/kirana.css", "src/components/ui/reset.css"]}'
+    )
+    // No entry to import the module that sets <html>'s classes: said.
+    expect(text).toContain(
+      'by hand: give <html> the design system\'s styles: document.documentElement.className = props(htmlStyles).className ?? "" in a module the entry imports, with import { props } from "@kirana-style/core" and import { htmlStyles } from "@/lib/kit/document"\n'
+    )
+    expect(existsSync(path.join(empty, "document.ts"))).toBe(false)
+  })
+
+  it("keeps a src/document.ts of the project's own, and imports one that sets the classes", async () => {
+    const own = angularCli({ "src/document.ts": "export const title = 1\n" })
+    const { text } = await init(own, "--registry", ACME)
+    expect(text).toContain("by hand: give <html> the design system's styles")
+    expect(read(own, "src/document.ts")).toBe("export const title = 1\n")
+    expect(read(own, "src/main.ts")).not.toContain("./document")
+    // Written by an earlier run, the entry's import taken out since.
+    const set = angularCli({
+      "src/document.ts":
+        "document.documentElement.className = props(htmlStyles).className\n",
+    })
+    const again = await init(set, "--registry", ACME)
+    expect(again.text).toContain("setup: src/main.ts: imports ./document\n")
+    expect(again.text).not.toContain("setup: src/document.ts")
+  })
+
+  it("leaves Analog, a workspace of several apps and a design system without stylesheets to the other ways", async () => {
+    // Analog's angular.json builds with Vite: its entry is compiled, so it takes what Vite's does.
+    const analog = angularCli({
+      "angular.json": ANGULAR_JSON.replace(
+        "@kirana-style/angular:application",
+        "@analogjs/platform:vite"
+      ),
+      "src/main.ts":
+        'import "@kirana-style/core/stylesheet.css"\nimport { bootstrapApplication } from "@angular/platform-browser"\n',
+    })
+    const viaVite = await init(analog, "--registry", ACME, "--preset", "k0")
+    expect(viaVite.text).toContain(
+      "setup: src/main.ts: imports @/components/ui/reset.css\n"
+    )
+    expect(viaVite.text).toContain(
+      "setup: src/main.ts: imports @fontsource-variable/inter\n"
+    )
+    expect(read(analog, "angular.json")).not.toContain('"styles"')
+    const two = JSON.parse(ANGULAR_JSON) as {
+      projects: Record<string, unknown>
+    }
+    two.projects.other = two.projects.app
+    // A library beside them, which builds nothing.
+    two.projects.lib = { projectType: "library" }
+    const several = angularCli({ "angular.json": JSON.stringify(two) })
+    const { text } = await init(several, "--registry", ACME)
+    expect(text).toContain(
+      'by hand: import "@/components/ui/reset.css" after Kirana\'s stylesheet\n'
+    )
+    expect(read(several, "angular.json")).not.toContain('"styles"')
+    // Nothing to list, and nothing for <html>: angular.json as it was.
+    const bare = angularCli({
+      "acme/kit.json": JSON.stringify(kit({ config: SETUP.config })),
+    })
+    expect((await init(bare, "--registry", ACME)).code).toBe(0)
+    expect(read(bare, "angular.json")).toBe(ANGULAR_JSON)
+    const lost = angularCli({
+      "acme/kit.json": JSON.stringify(
+        kit({ stylesheets: ["@/registry/ui/gone.css"] })
+      ),
+    })
+    expect((await init(lost, "--registry", ACME)).text).toBe(
+      "kit: setup.stylesheets names @/registry/ui/gone.css, which the item does not install\n"
+    )
+  })
+})
