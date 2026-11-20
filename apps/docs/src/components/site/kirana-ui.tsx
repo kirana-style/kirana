@@ -54,6 +54,10 @@ const styles = {
     alignContent: "start",
     padding: { base: spacing[4], [breakpoint.md]: spacing[5] },
     backgroundColor: theme.background,
+    // Two columns on a phone: an odd last framework takes the row, so no empty cell shows the gutter.
+    gridColumn: {
+      ":nth-child(odd):last-child": { base: "1 / -1", [breakpoint.md]: "auto" },
+    },
   }),
   name: css({
     fontSize: fontSize.base,
@@ -188,12 +192,6 @@ export function UiFrameworks() {
               <Fragment key={base}>
                 {index > 0 ? ", " : null}
                 <BaseName name={base} />
-              </Fragment>
-            ))}
-            {framework.porting?.map((base) => (
-              <Fragment key={base}>
-                {", "}
-                <BaseName name={base} /> (being ported)
               </Fragment>
             ))}
           </span>

@@ -1298,6 +1298,9 @@ compiler.
 Without a grammar, a string `sx` is the `utility-surface-disabled` error and the
 attribute is left as written.
 
+`examples/vite-utilities` is a Vite app styled with utility strings alone, built
+from the packages and checked in a browser on every change.
+
 ## Where strings go
 
 Anywhere `sx` takes a style: on elements and on your components, alone, in an
@@ -4311,7 +4314,7 @@ passes, not a claim.
 | [Astro](/docs/frameworks/astro)                   | Astro (Vite)               | `sx` → `class` and `style`                      | `astro`, `astro-react`                   |
 | [Qwik](/docs/frameworks/qwik)                     | Qwik Router (Vite)         | `class` and `style`                             | `qwik`                                   |
 | [Angular](/docs/frameworks/angular)               | Angular CLI, Analog (Vite) | `[sx]` directive (runtime merge)                | `angular-cli`, `analog-angular`          |
-| [Ember.js](/docs/frameworks/ember)                | Embroider (Vite)           | `cx` in templates                               | `ember`                                  |
+| [Ember.js](/docs/frameworks/ember)                | Embroider (Vite)           | the `sx` helper in templates                    | `ember`                                  |
 | [Meteor](/docs/frameworks/meteor)                 | Meteor (Rspack)            | `className` and `style`                         | `meteor`                                 |
 | [No framework](/docs/frameworks/vanilla)          | Vite                       | a class string you assign                       | `vite-vanilla`                           |
 | [Laravel](/docs/frameworks/laravel)               | Kirana CLI, Vite           | `@kirana(…)` in Blade, `className` with Inertia | `laravel`, `laravel-inertia`             |
@@ -10569,9 +10572,9 @@ lockfile stays yours.
 Its last line names the next command the way your package manager runs it, such
 as `pnpm exec kirana-style doctor`.
 
-Its setups were checked the way the examples are: sixteen examples, stripped of
-Kirana and set up again by `kirana-style init`, built from packed tarballs and styled
-exactly like the hand-written ones in a browser.
+Its setups were checked the way the examples are: examples stripped of Kirana and
+set up again by `kirana-style init`, built from packed tarballs and styled exactly
+like the hand-written ones in a browser.
 
 ## `kirana-style doctor`
 
@@ -11151,7 +11154,7 @@ takes the same commands as `kirana-style ui`.
 | `kirana-style ui view <item…>`          | Show what an item is: its version, type and description, the Kirana versions it was checked with, its dependencies, its style modules, each framework's bases with their files, and the files every framework installs. `--json` prints the items as read.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `kirana-style ui search [query]`        | List the items of your registries' indexes whose name, title or description holds every word of the query; without one, every item. `--registry <namespace>` searches only that registry (repeatable), `--json` prints the results.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | `kirana-style ui validate <document…>`  | Check registry items, indexes and lockfiles: each against its schema, and every file's hash against its content. A document is a file, a URL, or an item of your registries. Exit 1 on a problem, 2 without a document or with unusable settings.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `kirana-style ui build [registry.json]` | Build a registry from its source: each item's files read, imports between the registry's files written as an installed project names them, packages and the items each needs found, hashed and checked, into `--out <dir>` (`public/r`). Nothing is written on a problem; exit 1. See [building a registry](/docs/tooling/registries#building-it).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `kirana-style ui build [registry.json]` | Build a registry from its source: each item's files read, imports between the registry's files written as an installed project names them, packages and the items each needs found (at a base's own `bases/<framework>-<base>/package.json` range first), hashed and checked, into `--out <dir>` (`public/r`). Nothing is written on a problem; exit 1. See [building a registry](/docs/tooling/registries#building-it).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | `kirana-style ui mcp`                   | A Model Context Protocol server over stdio, for AI assistants: your registries, searching and viewing items, their files and the `add` command. See [registries for AI assistants](/docs/tooling/mcp).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 A registry is static JSON: one document per item at a URL template holding
@@ -12276,7 +12279,10 @@ Around the alias, `init` also:
 - lists the reset beside Kirana's stylesheet in the `css` of `nuxt.config.ts`,
   where Nuxt has it, and imports it in the `<script>` of SvelteKit's
   `src/routes/+layout.svelte`, where SvelteKit imports Kirana's stylesheet; a
-  font a design names goes in the same place.
+  font a design names goes in the same place;
+- on the Angular CLI, lists the reset and the fonts in the `styles` of
+  `angular.json`, after `.kirana/kirana.css`: Angular bundles a stylesheet a
+  script imports as code, without loading its fonts.
 
 To start from nothing, take one of Kirana's examples, as the release you run has
 it:
@@ -12355,7 +12361,9 @@ The design system's styles for `<html>` go:
   take `sx`;
 - on SvelteKit, whose `src/app.html` is static, from the server hook `init`
   writes, `src/hooks.server.ts`, which adds the classes to every page it renders.
-  A project with a hook of its own is told what to add to it.
+  A project with a hook of its own is told what to add to it;
+- on the Angular CLI, from `src/document.ts`, a module the entry imports: the
+  builders compile every module but the entry, and `src/index.html` is static.
 
 Neither is kept in the `ui` settings: the components need no rewriting for
 them, so `<html>` is the one place that says what the project has. On a project
@@ -13710,11 +13718,12 @@ Every framework has a guide and a tested example; the
 
 ## Configuration keys in the specification but not the build
 
-- `presets`, to compose preset packages. Import preset modules directly instead.
+- `presets` carries a utility grammar, which turns on
+  [utility strings](/docs/styling/utilities), and nothing else yet: a preset's
+  tokens and conditions are not composed into the project's. Import a preset's
+  tokens from its module instead, as the scales preset's are.
 
-It fails validation today. (`libraries` works: see
-[publishing a library](/docs/building/libraries).) See the [roadmap](/docs/project/roadmap) for when they
-are scheduled.
+(`libraries` works: see [publishing a library](/docs/building/libraries).)
 ---
 # Contributing
 Source: https://site.kirana-style.workers.dev/docs/project/contributing

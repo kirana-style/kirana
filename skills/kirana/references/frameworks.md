@@ -24,6 +24,10 @@ https://kirana.style/docs/start/installation.md.
 | Meteor 3.4+                                                     | `@kirana-style/rspack`                                                                                                                                  | `<h1 sx={a}>`                                              |
 | No framework                                                    | `@kirana-style/vite` or a bundler adapter                                                                                                               | `element.className = String(cx(a, b))` (later handles win) |
 
+Solid 2 is set up as Solid 1 with its new names: `jsxImportSource: "@solidjs/web"` and `@solidjs/vite-plugin`; the
+same `@kirana-style/core/solid` type entry types `sx` on both. On the Angular CLI the builders compile every module
+but the entry (`src/main.ts`): call `props()` from a module it imports.
+
 Bundlers without a framework: `@kirana-style/vite`, `@kirana-style/rolldown`, `@kirana-style/webpack`,
 `@kirana-style/rspack` (also Rsbuild), `@kirana-style/bun`, `@kirana-style/esbuild`, `@kirana-style/parcel-transformer`,
 `@kirana-style/postcss` for any PostCSS pipeline; `@kirana-style/jest` for tests. Storybook's Vite builders read the project's `vite.config`, so stories

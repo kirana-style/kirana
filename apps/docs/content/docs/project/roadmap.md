@@ -75,7 +75,7 @@ than re-implemented, so they never disagree with the build.
   [`positionTry()`](/docs/styling/anchor-positioning),
   [`viewTransition()`](/docs/styling/view-transitions) and
   [`counterStyle()`](/docs/styling/at-rules#counter-styles).
-- **[Agent skills](/docs/project/agent-skills)**, `kirana` and `kirana-migrate`.
+- **[Agent skills](/docs/project/agent-skills)**, {{fact:skills}}.
 
 Still to do: publishing the Zed extension to Zed's registry.
 

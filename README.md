@@ -161,8 +161,8 @@ here, and CI builds every one of them. How another project sets the plugin up un
 
 ### Agent skills
 
-`skills/` holds the skills people install with `npx skills add`: `kirana` and
-`kirana-migrate`. Their `references/diagnostics.md` and `references/lint.md` are
+`skills/` holds the skills people install with `npx skills add`, a folder each.
+Their `references/diagnostics.md` and `references/lint.md` are
 generated from the compiler (`bun run --cwd apps/docs generate:skills`); a new
 diagnostic needs a line in `apps/docs/scripts/generate-skills.ts` saying what to
 do about it, or `verify:generated` fails.

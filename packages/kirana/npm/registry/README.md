@@ -41,10 +41,11 @@ A document that cannot be read is named with what failed, and the command exits 
 
 <!-- consistency: subset -->
 
-Components install on React, Vue, Svelte, Solid and Angular. An icon is the project's icon
-library's own component where the library has a package for the framework, and otherwise an inline
-`<svg>` read at install from the library's published data, at the version this release pins, with
-the library's notice in a comment.
+Components install on React, Vue, Svelte, Solid (1 and 2) and Angular. An icon is the project's icon
+library's own component where the library has a package for the framework (on Solid 2, a project that
+lists `@solidjs/web`, Lucide's `@lucide/solid`), and otherwise an inline `<svg>` read at install from
+the library's published data, at the version this release pins, with the library's notice in a
+comment.
 
 ## Registries
 

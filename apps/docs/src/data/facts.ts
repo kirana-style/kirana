@@ -131,6 +131,7 @@ export const FACTS: Readonly<Record<string, string>> = {
   packages: String(COUNTS.packages),
   "native-targets-word": word(COUNTS.nativeTargets),
   "skills-word": word(COUNTS.skills),
+  skills: sentence(LISTS.skills.map((name) => `\`${name}\``)),
   "milestones-word": word(COUNTS.milestones),
   "milestones-done-word": word(COUNTS.milestonesDone),
   frameworks: sentence(LISTS.frameworks),

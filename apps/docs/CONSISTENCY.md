@@ -6,23 +6,25 @@ Every one of those happened. This file is how the site keeps from saying two thi
 
 ## The rule: state a fact once, read it everywhere
 
-| Fact                                            | Its source                                                                                                     | How a page uses it                                                                                                          |
-| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Diagnostics: codes, names, count                | `crates/kirana_diagnostics` → `src/generated/diagnostics.gen.ts`                                               | `DIAGNOSTICS`, `COUNTS.diagnostics`; markdown `{{fact:diagnostics}}`                                                        |
-| Lint rules: names, configs, Biome               | `npm/eslint-plugin`, `npm/biome-plugin` → `src/generated/lint.gen.ts`                                          | `LINT`, `COUNTS.lintRules`, `COUNTS.biomeRules`; `{{fact:lint-rules}}`, `{{fact:biome-rules-word}}`                         |
-| Packages and versions                           | `npm/*/package.json` → `src/generated/packages.gen.ts`                                                         | `PACKAGES` (the home page's groups, `/ecosystem`)                                                                           |
-| `kirana` commands, `@kirana-style/core` exports | `crates/kirana_cli`, `npm/compiler/src/cli.ts`, `npm/core/src/index.ts` → `src/generated/cli.gen.ts`           | `COMMANDS`, `API`; `{{fact:api}}`                                                                                           |
-| Frameworks, server frameworks, bundlers         | the install guides, `src/data/frameworks.ts`                                                                   | `LISTS.*` with `sentence()`; `{{fact:frameworks}}`, `{{fact:libraries}}`, `{{fact:server-frameworks}}`, `{{fact:bundlers}}` |
-| Linters                                         | `src/data/tooling.ts` (`LINTERS`)                                                                              | `LISTS.linters`; `{{fact:linters}}`, `{{fact:linters-or}}`                                                                  |
-| What agents get                                 | `src/data/facts.ts` (`LISTS.agents`)                                                                           | `{{fact:agents}}`                                                                                                           |
-| Brand logos                                     | `scripts/generate-svgl.ts` → `SVGL`                                                                            | `BrandIcon`, `Tile brand=`, a tool's `logo`                                                                                 |
-| Compare cells                                   | `src/data/compare.ts`, each with its source                                                                    | the `/compare` table                                                                                                        |
-| Measured numbers and claims                     | kirana-lab's newest run → `src/data/benchmarks.json` (`scripts/take-benchmarks.ts`, the `benchmarks` workflow) | `METRICS`, `HEADLINES`, `CLAIMS`; `{{fact:bench-build-stylex}}` and the other `bench-` facts; `<!-- ::benchmarks -->`       |
-| The runtime's size                              | KRN-DYN-005, asserted in `npm/core/test/internal.test.ts` → `RUNTIME_SIZE` in `src/data/benchmarks.ts`         | `RUNTIME_SIZE`; `{{fact:runtime-size}}`                                                                                     |
-| Whether the packages are on npm                 | `npm/*/package.json` (`private`) → `PUBLISHED` in `src/data/release.ts`                                        | the `<!-- ::npm-status -->` embed (`kind="helpers"` on a server framework's guide), from `src/data/npm-status.ts`           |
-| The mental model's ideas                        | its numbered headings (`## 1 · …`) in `content/docs/start/mental-model.md`                                     | the number is checked wherever a page says "N ideas"                                                                        |
-| The sites' addresses                            | `SITES` in `src/data/links.ts`: each site's Worker and its domain, and whether the domain is live              | `SITE_URL`, `PLAYGROUND`, `UI_SITE`, `UI_PAGES`                                                                             |
-| Kirana UI's frameworks                          | `UI_FRAMEWORKS` in `src/data/kirana-ui.ts`                                                                     | `UiFrameworks`, `UI_STATUS`                                                                                                 |
+| Fact                                            | Its source                                                                                                                           | How a page uses it                                                                                                          |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| Diagnostics: codes, names, count                | `crates/kirana_diagnostics` → `src/generated/diagnostics.gen.ts`                                                                     | `DIAGNOSTICS`, `COUNTS.diagnostics`; markdown `{{fact:diagnostics}}`                                                        |
+| Lint rules: names, configs, Biome               | `npm/eslint-plugin`, `npm/biome-plugin` → `src/generated/lint.gen.ts`                                                                | `LINT`, `COUNTS.lintRules`, `COUNTS.biomeRules`; `{{fact:lint-rules}}`, `{{fact:biome-rules-word}}`                         |
+| Packages and versions                           | `npm/*/package.json` → `src/generated/packages.gen.ts`                                                                               | `PACKAGES` (the home page's groups, `/ecosystem`)                                                                           |
+| `kirana` commands, `@kirana-style/core` exports | `crates/kirana_cli`, `npm/compiler/src/cli.ts`, `npm/core/src/index.ts` → `src/generated/cli.gen.ts`                                 | `COMMANDS`, `API`; `{{fact:api}}`                                                                                           |
+| Frameworks, server frameworks, bundlers         | the install guides, `src/data/frameworks.ts`                                                                                         | `LISTS.*` with `sentence()`; `{{fact:frameworks}}`, `{{fact:libraries}}`, `{{fact:server-frameworks}}`, `{{fact:bundlers}}` |
+| Linters                                         | `src/data/tooling.ts` (`LINTERS`)                                                                                                    | `LISTS.linters`; `{{fact:linters}}`, `{{fact:linters-or}}`                                                                  |
+| What agents get                                 | `src/data/facts.ts` (`LISTS.agents`)                                                                                                 | `{{fact:agents}}`                                                                                                           |
+| The agent skills' names                         | `skills/` → `SKILLS` in `src/generated/packages.gen.ts`                                                                              | `LISTS.skills`, `COUNTS.skills`; `{{fact:skills}}`, `{{fact:skills-word}}`                                                  |
+| Brand logos                                     | `scripts/generate-svgl.ts` → `SVGL`                                                                                                  | `BrandIcon`, `Tile brand=`, a tool's `logo`                                                                                 |
+| Compare cells                                   | `src/data/compare.ts`, each with its source                                                                                          | the `/compare` table                                                                                                        |
+| Measured numbers and claims                     | kirana-lab's newest run → `src/data/benchmarks.json` (`scripts/take-benchmarks.ts`, the `benchmarks` workflow)                       | `METRICS`, `HEADLINES`, `CLAIMS`; `{{fact:bench-build-stylex}}` and the other `bench-` facts; `<!-- ::benchmarks -->`       |
+| The runtime's size                              | KRN-DYN-005, asserted in `npm/core/test/internal.test.ts` → `RUNTIME_SIZE` in `src/data/benchmarks.ts`                               | `RUNTIME_SIZE`; `{{fact:runtime-size}}`                                                                                     |
+| Whether the packages are on npm                 | `npm/*/package.json` (`private`) → `PUBLISHED` in `src/data/release.ts`                                                              | the `<!-- ::npm-status -->` embed (`kind="helpers"` on a server framework's guide), from `src/data/npm-status.ts`           |
+| The mental model's ideas                        | its numbered headings (`## 1 · …`) in `content/docs/start/mental-model.md`                                                           | the number is checked wherever a page says "N ideas"                                                                        |
+| The sites' addresses                            | `SITES` in `src/data/links.ts`: each site's Worker and its domain, and whether the domain is live                                    | `SITE_URL`, `PLAYGROUND`, `UI_SITE`, `UI_PAGES`                                                                             |
+| Kirana UI's frameworks and bases                | kirana-ui's `FRAMEWORK_BASES` (`packages/builder/src/items.ts`), copied in its order into `UI_FRAMEWORKS` in `src/data/kirana-ui.ts` | `UiFrameworks`, `UI_STATUS`                                                                                                 |
+| The examples                                    | the folders of `packages/kirana/examples`                                                                                            | each named on its guide (the frameworks table's last column, a bundler's page)                                              |
 
 `src/data/facts.ts` gathers the counts and lists. Components import `COUNTS`, `LISTS` and
 `sentence()`; markdown writes `{{fact:name}}`, which the content generator fills in from `FACTS` —
@@ -38,7 +40,8 @@ runs and the framework guides, and whatever imports it puts them in that page's 
 `vp run check` and CI's `verify:generated` run `apps/docs/scripts/check-consistency.ts`. It fails
 on:
 
-- **a count written by hand** — "45 diagnostics", "45 checks with codes", "four rules", "20 packages";
+- **a count written by hand** — "45 diagnostics", "45 checks with codes", "four rules", "20 packages",
+  "sixteen examples";
 - **a number of ideas** other than the mental model's own;
 - **the runtime's size written by hand** ("under 1 kB") instead of `{{fact:runtime-size}}`;
 - **"not on npm" anywhere** once `PUBLISHED` is true, so publishing cannot leave a stale notice
@@ -55,7 +58,8 @@ on:
   runner would fetch whatever has that name;
 - **a partial list that reads as complete** — half or more of the frameworks, component layers,
   server frameworks, bundlers, linters or `@kirana-style/core` exports, but not all of them;
-- **agents offered llms.txt without the skills**;
+- **agents offered llms.txt without the skills**, and **the skills named by hand** (two or more of
+  their names in one sentence) where `{{fact:skills}}` or `LISTS.skills` says them;
 - **a menu item in another scene than its page**: the header's icons wear the hue of the page they
   lead to, so an item's `scene` in `nav.ts` must be the one its page's `<Page scene>` names, and a
   docs link's hue its tab's;
@@ -64,7 +68,10 @@ on:
 - **a command missing** from the CLI page, its description or spec 12.
 - **a `/docs/<page>#<heading>` link** to a page or a heading that does not exist;
 - **a scales colour written flat** (`color.zinc500`) where the preset nests it by hue (`color.zinc[500]`).
-- **an entry point of `@kirana-style/core`** (its `exports`) missing from the API page's table;
+- **an entry point of `@kirana-style/core`** (its `exports`) missing from the API page's table, or
+  from the core README's subpaths;
+- **an example no page names**, or a row of the frameworks table naming an example that is not in
+  `packages/kirana/examples` (the fixture registry, `examples/registry`, is not an app);
 - **a configuration key** `kirana_config` reads with no section on the configuration page, or a
   nested key its parent's section does not name;
 - **an editor window's hint** (`//:`) on a line of its own, or a lone `{" "}`: the formatter's damage
@@ -179,3 +186,29 @@ by its package (39–41), and a link to a heading since renamed (31–33).
 
 The causes: an access path or key written from memory rather than from the package (44, 45, 57),
 rows filed under the wrong key (46, 47), and numbers typed into prose (50, 51, 55).
+
+## What was found, 2026-11-20: Kirana UI on every base, and what shipped after 0.4.1
+
+Kirana UI finished its last base, and Solid 2, the Angular CLI's `ui init`, `ui build`'s ranges per
+base and the states vocabularies shipped. The summaries were read against kirana-ui's `origin/main`
+and against the code.
+
+| #   | Where                                                                  | What it said                                                                                                     | What was true                                                                                                               |
+| --- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 58  | `/ui`, the homepage's components chapter (`UI_FRAMEWORKS`)             | React on Kirana UI Primitives "(being ported)"; Vue, Svelte, Solid and Angular without it; Solid on Ark UI alone | every base whole (kirana-ui's `PORTING_BASES` is empty): Kirana UI Primitives on all five, ui-sdk on Solid too (on Solid 2) |
+| 59  | Installing components                                                  | the reset, the fonts and `<html>`'s classes placed for Nuxt, SvelteKit and Vite only                             | on the Angular CLI, listed in `angular.json`'s `styles` after Kirana's, and the classes set in `src/document.ts`            |
+| 60  | CLI page, `ui build`                                                   | packages at the registry's ranges                                                                                | a base's own `bases/<framework>-<base>/package.json` first, as the registries page and the README say                       |
+| 61  | Frameworks overview, Ember's row                                       | `cx` in templates                                                                                                | the `sx` helper (`@kirana-style/ember`)                                                                                     |
+| 62  | The core README                                                        | subpaths `react`, `config`, `stylesheet.css` and `internal`                                                      | the framework type entries (`/solid` for Solid 1 and 2) and `class-map` too                                                 |
+| 63  | Homepage, "Each page stands in its own place", Migrate                 | "a codemod for Tailwind and one for StyleX"                                                                      | codemods for Tailwind, StyleX, styled-components, Emotion and CSS Modules                                                   |
+| 64  | `/ecosystem` tooling, `/compare` agent skills, roadmap M3, root README | the skills' names and "Two skills" typed                                                                         | `LISTS.skills`, `Word(COUNTS.skills)`, `{{fact:skills}}`; the README no longer lists them                                   |
+| 65  | `/compare`, headless component states                                  | typed keys from Base UI's declarations only                                                                      | one vocabulary per library in `@kirana-style/states`                                                                        |
+| 66  | Ecosystem and status, configuration keys not built                     | `presets` "fails validation today"                                                                               | it is read, and carries a utility grammar; a preset's tokens are not composed yet                                           |
+| 67  | CLI page, `init`                                                       | "sixteen examples", a count from one check with no source                                                        | no count                                                                                                                    |
+| 68  | Utility strings                                                        | `examples/vite-utilities` named on no page                                                                       | its tested example                                                                                                          |
+| 69  | The registry README, the `kirana` skill's frameworks reference         | Solid without Solid 2; no word on the Angular CLI's uncompiled entry                                             | Solid 2's names and Lucide's `@lucide/solid`; `props()` in a module the entry imports                                       |
+| 70  | Kirana UI's product entry (`data/products.ts`)                         | "any framework"                                                                                                  | the five frameworks of `UI_STATUS`                                                                                          |
+
+The causes are the ones before: a status list written when a base was in progress and not revisited
+(58, 70), a feature's own page updated but not the guide that summarises it (59, 60, 69), a README
+left behind by its package (62), and lists typed where the data had them (63, 64, 67).

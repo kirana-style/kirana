@@ -48,6 +48,9 @@ compiler.
 Without a grammar, a string `sx` is the `utility-surface-disabled` error and the
 attribute is left as written.
 
+`examples/vite-utilities` is a Vite app styled with utility strings alone, built
+from the packages and checked in a browser on every change.
+
 ## Where strings go
 
 Anywhere `sx` takes a style: on elements and on your components, alone, in an

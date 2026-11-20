@@ -56,7 +56,10 @@ Around the alias, `init` also:
 - lists the reset beside Kirana's stylesheet in the `css` of `nuxt.config.ts`,
   where Nuxt has it, and imports it in the `<script>` of SvelteKit's
   `src/routes/+layout.svelte`, where SvelteKit imports Kirana's stylesheet; a
-  font a design names goes in the same place.
+  font a design names goes in the same place;
+- on the Angular CLI, lists the reset and the fonts in the `styles` of
+  `angular.json`, after `.kirana/kirana.css`: Angular bundles a stylesheet a
+  script imports as code, without loading its fonts.
 
 To start from nothing, take one of Kirana's examples, as the release you run has
 it:
@@ -135,7 +138,9 @@ The design system's styles for `<html>` go:
   take `sx`;
 - on SvelteKit, whose `src/app.html` is static, from the server hook `init`
   writes, `src/hooks.server.ts`, which adds the classes to every page it renders.
-  A project with a hook of its own is told what to add to it.
+  A project with a hook of its own is told what to add to it;
+- on the Angular CLI, from `src/document.ts`, a module the entry imports: the
+  builders compile every module but the entry, and `src/index.html` is static.
 
 Neither is kept in the `ui` settings: the components need no rewriting for
 them, so `<html>` is the one place that says what the project has. On a project

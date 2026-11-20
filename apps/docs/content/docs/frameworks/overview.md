@@ -162,7 +162,7 @@ passes, not a claim.
 | [Astro](/docs/frameworks/astro)                   | Astro (Vite)               | `sx` → `class` and `style`                      | `astro`, `astro-react`                   |
 | [Qwik](/docs/frameworks/qwik)                     | Qwik Router (Vite)         | `class` and `style`                             | `qwik`                                   |
 | [Angular](/docs/frameworks/angular)               | Angular CLI, Analog (Vite) | `[sx]` directive (runtime merge)                | `angular-cli`, `analog-angular`          |
-| [Ember.js](/docs/frameworks/ember)                | Embroider (Vite)           | `cx` in templates                               | `ember`                                  |
+| [Ember.js](/docs/frameworks/ember)                | Embroider (Vite)           | the `sx` helper in templates                    | `ember`                                  |
 | [Meteor](/docs/frameworks/meteor)                 | Meteor (Rspack)            | `className` and `style`                         | `meteor`                                 |
 | [No framework](/docs/frameworks/vanilla)          | Vite                       | a class string you assign                       | `vite-vanilla`                           |
 | [Laravel](/docs/frameworks/laravel)               | Kirana CLI, Vite           | `@kirana(…)` in Blade, `className` with Inertia | `laravel`, `laravel-inertia`             |

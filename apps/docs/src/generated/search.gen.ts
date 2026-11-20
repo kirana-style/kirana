@@ -629,7 +629,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Utility strings",
     "section": "writing",
     "heading": "Turning it on",
-    "text": "Utility strings are off until a preset declares a grammar. ships Tailwind v4's names over its own scales: Import the preset from , not from the package root: a configuration file runs uncompiled, and the root exports tokens, which only exist inside the compiler. Without a grammar, a string is the error and the attribute is left as written."
+    "text": "Utility strings are off until a preset declares a grammar. ships Tailwind v4's names over its own scales: Import the preset from , not from the package root: a configuration file runs uncompiled, and the root exports tokens, which only exist inside the compiler. Without a grammar, a string is the error and the attribute is left as written. is a Vite app styled with utility strings alone, built from the packages and checked in a browser on every change."
   },
   {
     "id": "/docs/styling/utilities#where-strings-go",
@@ -5561,7 +5561,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installing components",
     "section": "tooling",
     "heading": "Setting a project up",
-    "text": "works on a new app or one you already have: it sets Kirana up where the project lacks it, as does; it maps the alias in when the project has none, inside what that tsconfig compiles, and tells Vite to read it; it installs the registry's design system and wires it in: its configuration in , its reset beside Kirana's stylesheet, its styles on . Where the alias points, and what writes for it, follows the framework: Around the alias, also: adds to the tsconfig's the folders it leaves out, and Vue or Svelte files where its patterns take scripts only: Vite resolves no alias in a file its tsconfig does not compile; runs Nuxt's or SvelteKit's script once the packages are in, since each writes the tsconfig the project's extends on its first run; every later command that installs packages runs it again, since an install can remove what it wrote; lists the reset beside Kirana's stylesheet in the of , where Nuxt has it, and imports it in the of SvelteKit's , where SvelteKit imports Kirana's stylesheet; a font a design names goes in the same place. To start from nothing, take one of Kirana's examples, as the release you run has it: The project it makes runs by itself: adds beside Kirana's other"
+    "text": "works on a new app or one you already have: it sets Kirana up where the project lacks it, as does; it maps the alias in when the project has none, inside what that tsconfig compiles, and tells Vite to read it; it installs the registry's design system and wires it in: its configuration in , its reset beside Kirana's stylesheet, its styles on . Where the alias points, and what writes for it, follows the framework: Around the alias, also: adds to the tsconfig's the folders it leaves out, and Vue or Svelte files where its patterns take scripts only: Vite resolves no alias in a file its tsconfig does not compile; runs Nuxt's or SvelteKit's script once the packages are in, since each writes the tsconfig the project's extends on its first run; every later command that installs packages runs it again, since an install can remove what it wrote; lists the reset beside Kirana's stylesheet in the of , where Nuxt has it, and imports it in the of SvelteKit's , where SvelteKit imports Kirana's stylesheet; a font a design names goes in the same place; on the Angular CLI, lists the reset and the fonts in the of , after : Angular bundles a stylesheet a script imports as code, without loading its fon"
   },
   {
     "id": "/docs/tooling/components#adding-components",
@@ -6026,7 +6026,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Ecosystem and status",
     "section": "project",
     "heading": "Configuration keys in the specification but not the build",
-    "text": ", to compose preset packages. Import preset modules directly instead. It fails validation today. ( works: see publishing a library .) See the roadmap for when they are scheduled."
+    "text": "carries a utility grammar, which turns on utility strings , and nothing else yet: a preset's tokens and conditions are not composed into the project's. Import a preset's tokens from its module instead, as the scales preset's are. ( works: see publishing a library .)"
   },
   {
     "id": "/docs/project/contributing",
