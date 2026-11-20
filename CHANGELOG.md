@@ -1,5 +1,56 @@
 # Changelog
 
+## [0.4.2](https://github.com/kirana-style/kirana/compare/v0.4.1...v0.4.2) (2026-11-20)
+
+
+### Features
+
+* a registry's index names its default base per framework ([#313](https://github.com/kirana-style/kirana/pull/313)) ([78fc69a](https://github.com/kirana-style/kirana/commit/78fc69af98a0faece93ec559511e3224183ba408))
+* solid 2: sx typed on @solidjs/web, detected, and a ui template ([#323](https://github.com/kirana-style/kirana/pull/323)) ([ebe87a1](https://github.com/kirana-style/kirana/commit/ebe87a1d153550b9457c9a67fefb8efde2a043e2))
+* states for kirana ui primitives 0.2.0 and ui-sdk beta.9 ([#319](https://github.com/kirana-style/kirana/pull/319)) ([3416593](https://github.com/kirana-style/kirana/commit/3416593feb9c0b3176d7812fa53d017a5bf8105a))
+* states for kirana ui primitives 0.3.0 and ng-primitives 0.132.0 ([#327](https://github.com/kirana-style/kirana/pull/327)) ([f2dd41b](https://github.com/kirana-style/kirana/commit/f2dd41be4aa5a24b11fd3fa566ca72feeb5e23ab))
+* states vocabularies for ui-sdk and kirana ui primitives ([#312](https://github.com/kirana-style/kirana/pull/312)) ([56533a2](https://github.com/kirana-style/kirana/commit/56533a2f0ad837703dac3d2d7ae673bbf35c0037))
+* ui build's versions per framework and base ([#324](https://github.com/kirana-style/kirana/pull/324)) ([0f03b4d](https://github.com/kirana-style/kirana/commit/0f03b4db96bb35f32d3387e64b172ac8dddec0c4))
+
+
+### Bug fixes
+
+* a template's anchor counts in a block that imports no kirana ([#289](https://github.com/kirana-style/kirana/pull/289)) ([64aff61](https://github.com/kirana-style/kirana/commit/64aff61ae7761016c1078454e9d0774b4ea912d7))
+* an inlined props() call is parenthesised, so an arrow can return it ([#322](https://github.com/kirana-style/kirana/pull/322)) ([32eec93](https://github.com/kirana-style/kirana/commit/32eec930a05fc7f9268f1b0611bd2d2b71957d0b))
+* bits ui states name the side and alignment of every floating content ([#304](https://github.com/kirana-style/kirana/pull/304)) ([60332db](https://github.com/kirana-style/kirana/commit/60332dbdc742db5a86474245bf864e3c13a7388b))
+* linux engines load beside another kirana engine ([#306](https://github.com/kirana-style/kirana/pull/306)) ([25fc9fe](https://github.com/kirana-style/kirana/commit/25fc9fe2096281819fb5c5d26fb99599a878d599))
+* reka ui states name every data-state value reka writes ([#290](https://github.com/kirana-style/kirana/pull/290)) ([7d136c0](https://github.com/kirana-style/kirana/commit/7d136c01f773ca17feb8c712b98ec1fc37c2ea0c))
+* the dev stylesheet follows the compiles when vite's hmr is off ([#315](https://github.com/kirana-style/kirana/pull/315)) ([f67dd0e](https://github.com/kirana-style/kirana/commit/f67dd0e43361d35598b5c5791d7fc4066040757f))
+* the eslint rule reads a vue, svelte or astro file's script blocks ([#291](https://github.com/kirana-style/kirana/pull/291)) ([d964543](https://github.com/kirana-style/kirana/commit/d9645439f55d467b907d955a7e32856ac1f1cacf))
+* the npm release ends once its last package is served ([#283](https://github.com/kirana-style/kirana/pull/283)) ([5a87594](https://github.com/kirana-style/kirana/commit/5a87594c04cf40f017e08285bbacc28898061115))
+* ui init on angular cli lists stylesheets in angular.json ([#325](https://github.com/kirana-style/kirana/pull/325)) ([318c5ff](https://github.com/kirana-style/kirana/commit/318c5ffd66f31f0c0ec6471b01a23939c013747e))
+* ui init sets up the document on nuxt and sveltekit ([#288](https://github.com/kirana-style/kirana/pull/288)) ([7a486db](https://github.com/kirana-style/kirana/commit/7a486db1f49c3024e6c72157f769fdafcb38fe2f))
+* ui installs a workspace font's package in the app that imports it ([#287](https://github.com/kirana-style/kirana/pull/287)) ([e646c1b](https://github.com/kirana-style/kirana/commit/e646c1b9ced12f14f3e187c607e07b9cc1ecd0bb))
+
+
+### Performance
+
+* styles that read tokens compile once a session ([#305](https://github.com/kirana-style/kirana/pull/305)) ([f765b9e](https://github.com/kirana-style/kirana/commit/f765b9e5d0af6c56c8e63b3c517817be702c5b90))
+* the lint rules read the project's diagnostics once per run ([#311](https://github.com/kirana-style/kirana/pull/311)) ([f634a82](https://github.com/kirana-style/kirana/commit/f634a82e6ec06bd159088c0b71b0ec431249e2b7))
+
+
+### Documentation
+
+* kirana ui on every base, and the docs agree with what shipped ([#328](https://github.com/kirana-style/kirana/pull/328)) ([596629b](https://github.com/kirana-style/kirana/commit/596629bcf135d6a67037e84f2d96aaeb7f868cc6))
+* package managers as pills in every install block ([#286](https://github.com/kirana-style/kirana/pull/286)) ([9134ac3](https://github.com/kirana-style/kirana/commit/9134ac3d78d813aeb952b266214b217891e370b3))
+* take the benchmarks of kirana 0.4.1 from kirana-lab ([#292](https://github.com/kirana-style/kirana/pull/292)) ([b286d37](https://github.com/kirana-style/kirana/commit/b286d377d8182beeaa66ebbbe7d2a4ce0f60c4e0))
+* take the benchmarks of kirana 0.4.1 from kirana-lab ([#316](https://github.com/kirana-style/kirana/pull/316)) ([4723416](https://github.com/kirana-style/kirana/commit/4723416042bf68e676ca1b9e23dc1d22ad12a570))
+
+
+### Dependencies
+
+* bump string_wizard from 1.2.16 to 1.3.0 in /packages/kirana in the minor-and-patch group ([#296](https://github.com/kirana-style/kirana/pull/296)) ([219f589](https://github.com/kirana-style/kirana/commit/219f5897e7b0cc9ee47eb833af53e164f8a3e879))
+* bump the minor-and-patch group with 5 updates ([#318](https://github.com/kirana-style/kirana/pull/318)) ([8023d2a](https://github.com/kirana-style/kirana/commit/8023d2ae1a6f95dbf39f50e79d5bb3d786825dfe))
+* emnapi 2.0.0-beta.3, vite+ 1.5.1 and 24 minor updates ([#302](https://github.com/kirana-style/kirana/pull/302)) ([88076a3](https://github.com/kirana-style/kirana/commit/88076a361fca333a0f0e9690129d2ca68c2dbf41))
+* oxc 0.158.0 ([#301](https://github.com/kirana-style/kirana/pull/301)) ([da376c6](https://github.com/kirana-style/kirana/commit/da376c6d94df5517bec85727e1e8cdbdb598dc1d))
+* vite+ 1.6.0, napi 3.16.2 and minor updates ([#309](https://github.com/kirana-style/kirana/pull/309)) ([9179801](https://github.com/kirana-style/kirana/commit/9179801ccdf657735959aeccbcbd4a738dd84689))
+* vite+ 1.7.0, type checked by tsrs, and string_wizard 1.3.2 ([#321](https://github.com/kirana-style/kirana/pull/321)) ([3216b2c](https://github.com/kirana-style/kirana/commit/3216b2ceac6a6f9eefe4f9419a982915221592a2))
+
 ## [0.4.1](https://github.com/kirana-style/kirana/compare/v0.4.0...v0.4.1) (2026-11-09)
 
 
