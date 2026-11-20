@@ -61,6 +61,15 @@ describe("kirana-ui", () => {
     expect(kiranaUi.variables.Slider.Thumb.position).toBe("--position")
   })
 
+  it("follows the library's releases: 0.3.0's checkbox group, dialog viewport and avatar status", () => {
+    expect(kiranaUi.CheckboxGroup.Root.disabled).toBe("[data-disabled]")
+    expect(kiranaUi.Dialog.Viewport.nested).toBe("[data-nested]")
+    expect(kiranaUi.Avatar.Root.imageLoadingStatus.loaded).toBe(
+      '[data-image-loading-status="loaded"]'
+    )
+    expect(kiranaUi.Avatar.Image.error).toBe("[data-error]")
+  })
+
   it("names a value with a hyphen in camel case, as every vocabulary here does", () => {
     expect(kiranaUi.Popover.Positioner.side.inlineStart).toBe(
       '[data-side="inline-start"]'
