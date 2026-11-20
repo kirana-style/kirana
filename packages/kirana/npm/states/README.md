@@ -1,10 +1,10 @@
 # @kirana-style/states
 
-Component states as [Kirana](https://kirana.style) condition keys, for Base UI, Ark UI, React
-Aria, Reka UI, Bits UI and Angular Primitives. A headless UI library tells its
-parts' states through data attributes (`data-checked`, `data-side="bottom"`); this package lists
-them, per component and part, as the selectors Kirana's conditions already take. A misspelt state
-is a type error, and the editor shows the library's own description of each one.
+Component states as [Kirana](https://kirana.style) condition keys, for Base UI, Ark UI, React Aria,
+Reka UI, Bits UI, Angular Primitives, ui-sdk and Kirana UI Primitives. A headless UI library tells
+its parts' states through data attributes (`data-checked`, `data-side="bottom"`); this package lists
+them, per component and part, as the selectors Kirana's conditions already take. A misspelt state is
+a type error, and the editor shows the library's own description of each one.
 
 ```ts
 import { css } from "@kirana-style/core"
