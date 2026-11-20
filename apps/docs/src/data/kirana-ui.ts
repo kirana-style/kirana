@@ -9,10 +9,11 @@ export type UiFramework = {
   name: string
   /** A key into the SVGL logos. */
   logo: "react" | "vue" | "svelte" | "solidjs" | "angular"
-  /** The unstyled libraries its markup is built on, the registry's default first. */
+  /**
+   * The unstyled libraries its markup is built on, in kirana-ui's order (`FRAMEWORK_BASES`), the
+   * registry's default first.
+   */
   bases: readonly string[]
-  /** Bases whose components are still being written (kirana-ui's `PORTING_BASES`). */
-  porting?: readonly string[]
   ready: boolean
 }
 
@@ -20,24 +21,33 @@ export const UI_FRAMEWORKS: readonly UiFramework[] = [
   {
     name: "React",
     logo: "react",
-    bases: ["Base UI", "React Aria", "ui-sdk"],
-    porting: ["Kirana UI Primitives"],
+    bases: ["Base UI", "React Aria", "ui-sdk", "Kirana UI Primitives"],
     ready: true,
   },
   {
     name: "Vue",
     logo: "vue",
-    bases: ["Ark UI", "Reka UI", "ui-sdk"],
+    bases: ["Ark UI", "Reka UI", "ui-sdk", "Kirana UI Primitives"],
     ready: true,
   },
   {
     name: "Svelte",
     logo: "svelte",
-    bases: ["Ark UI", "Bits UI", "ui-sdk"],
+    bases: ["Ark UI", "Bits UI", "ui-sdk", "Kirana UI Primitives"],
     ready: true,
   },
-  { name: "Solid", logo: "solidjs", bases: ["Ark UI"], ready: true },
-  { name: "Angular", logo: "angular", bases: ["ng-primitives"], ready: true },
+  {
+    name: "Solid",
+    logo: "solidjs",
+    bases: ["Ark UI", "Kirana UI Primitives", "ui-sdk"],
+    ready: true,
+  },
+  {
+    name: "Angular",
+    logo: "angular",
+    bases: ["ng-primitives", "Kirana UI Primitives"],
+    ready: true,
+  },
 ]
 
 const names = (ready: boolean) =>

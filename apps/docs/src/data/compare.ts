@@ -6,7 +6,7 @@
  * 2026-10-12.
  */
 import { RUNTIME_SIZE } from "@/data/benchmarks"
-import { COUNTS, LISTS, sentence } from "@/data/facts"
+import { COUNTS, LISTS, sentence, Word } from "@/data/facts"
 import { DIAGNOSTICS } from "@/generated/diagnostics.gen"
 import type { SVGL } from "@/generated/svgl-icons.gen"
 
@@ -282,7 +282,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "Typed per library",
         tone: "good",
-        text: "Typed keys generated from the library's own declarations (Base UI), and a few lines for any other",
+        text: "Typed keys generated from each headless library's own declarations, in @kirana-style/states, and a few lines for any other",
         source: "/docs/styling/states",
       },
     },
@@ -582,9 +582,9 @@ export const ROWS: readonly Row[] = [
       },
       tailwind: none,
       kirana: {
-        short: "Two skills",
+        short: `${Word(COUNTS.skills)} skills`,
         tone: "good",
-        text: "kirana and kirana-migrate (from Tailwind, StyleX, styled-components, Emotion or CSS Modules), installed with npx skills add; the diagnostics and lint references in them are generated from the compiler on every build",
+        text: `${sentence(LISTS.skills)} (the migration from Tailwind, StyleX, styled-components, Emotion or CSS Modules), installed with npx skills add; the diagnostics and lint references in them are generated from the compiler on every build`,
         source: "/docs/project/agent-skills",
       },
     },

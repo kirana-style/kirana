@@ -3,9 +3,10 @@
  * (CONSISTENCY.md). It reads the pages, the site's components and the packages' READMEs, and checks
  * them against `src/data/facts.ts` and the generated data behind it:
  *
- *   counts        a number of diagnostics, lint rules or packages written by hand
+ *   counts        a number of diagnostics, lint rules, packages or examples written by hand
  *   lists         a sentence naming most frameworks, bundlers or linters, but not all of them
- *   agents        a sentence offering agents llms.txt without the skills
+ *   agents        a sentence offering agents llms.txt without the skills, or naming the skills
+ *                 by hand instead of {{fact:skills}} or LISTS.skills
  *   logos         a product named in a heading next to a generic icon instead of its logo
  *   lint rules    a rule missing from the lint page, the site's rule cards, the spec or a README
  *   commands      a `kirana-style` command missing from the CLI page or the spec
@@ -22,7 +23,9 @@
  *                 the name `kirana`, and a runner would fetch whatever has it
  *   links         a `/docs/<page>#<heading>` link to a page or heading that does not exist
  *   colours       a scales colour written flat (`color.zinc500`)
- *   entry points  an export of `@kirana-style/core` missing from the API page's table
+ *   entry points  an export of `@kirana-style/core` missing from the API page's table or the
+ *                 core README's subpaths
+ *   examples      an example no page names, or a frameworks-table row naming one that is not there
  *   config        a key `kirana_config` reads missing from the configuration page
  *   editors       an editor window's hint the formatter moved onto a line of its own
  *   groups        a package in no group of `/ecosystem`'s cards, or in two
@@ -259,9 +262,9 @@ function literals(text: string): { body: string; index: number }[] {
 }
 
 const NUMBER =
-  "(\\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)"
+  "(\\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)"
 const COUNTED = new RegExp(
-  `\\b${NUMBER}\\s+(diagnostics|diagnostic codes|codes with stable|checks with codes|(?:lint |Kirana |more |new )?rules|packages|commands|framework guides|platforms|agent skills|milestones)\\b`,
+  `\\b${NUMBER}\\s+(diagnostics|diagnostic codes|codes with stable|checks with codes|(?:lint |Kirana |more |new )?rules|packages|commands|framework guides|platforms|agent skills|milestones|examples)\\b`,
   "gi"
 )
 
@@ -379,6 +382,18 @@ function checkProse(path: string, text: string) {
         path,
         line,
         `names ${linters.join(" and ")} without ${LISTS.linters.filter((name) => !linters.includes(name)).join(", ")}; Kirana's rules run under ${LISTS.linters.join(", ")}; name all, or mark a deliberate subset`
+      )
+    // The skills as a list: two or more of their names, as code or as words, in one sentence.
+    const skills = LISTS.skills.filter((name) =>
+      new RegExp(`(^|[\\s(\`])${name}(\`|(?=[\\s,;:)]|\\.(?!\\w)|$))`).test(
+        sentence
+      )
+    )
+    if (skills.length >= 2)
+      report(
+        path,
+        line,
+        `names the agent skills (${skills.join(", ")}) by hand; use {{fact:skills}} in markdown or LISTS.skills in a component`
       )
     if (
       /llms\.txt/.test(sentence) &&
@@ -775,6 +790,60 @@ for (const path of coreExports) {
       lineOf(apiPage, apiPage.indexOf("## Entry points")),
       `@kirana-style/core${path.slice(1)} is an entry point the table does not list`
     )
+}
+
+/** And in the core package's README, under "Subpaths". */
+const coreReadmePath = "packages/kirana/npm/core/README.md"
+const coreReadme = await readFile(join(repository, coreReadmePath), "utf8")
+const subpaths = coreReadme.slice(
+  coreReadme.indexOf("Subpaths:"),
+  coreReadme.indexOf("\n## ", coreReadme.indexOf("Subpaths:"))
+)
+for (const path of coreExports)
+  if (
+    path !== "." &&
+    !new RegExp(`\`(@kirana-style/core)?${path.slice(1)}\``).test(subpaths)
+  )
+    report(
+      coreReadmePath,
+      lineOf(coreReadme, coreReadme.indexOf("Subpaths:")),
+      `@kirana-style/core${path.slice(1)} is an entry point the README's subpaths do not list`
+    )
+
+/**
+ * Every example in `packages/kirana/examples` is named on a page (`vite-solid2` or
+ * `examples/vite-solid2`), and every example the frameworks table names exists: a new example
+ * nobody can find, or a row pointing at a removed one, is caught. `registry` is the fixture
+ * registry `kirana:example --registry` installs from, not an app.
+ */
+const examplesDir = join(repository, "packages/kirana/examples")
+const examples = (await readdir(examplesDir, { withFileTypes: true }))
+  .filter((entry) => entry.isDirectory() && entry.name !== "registry")
+  .map((entry) => entry.name)
+const docsText = (
+  await Promise.all(
+    (await files(join(app, "content/docs"), /\.md$/)).map((path) =>
+      readFile(path, "utf8")
+    )
+  )
+).join("\n")
+for (const name of examples)
+  if (!new RegExp(`\`(examples/)?${name}\``).test(docsText))
+    report(
+      "packages/kirana/examples",
+      1,
+      `examples/${name} is named on no page: name it as the tested example of its guide`
+    )
+const overviewPath = "apps/docs/content/docs/frameworks/overview.md"
+const overview = await readFile(join(repository, overviewPath), "utf8")
+for (const row of overview.matchAll(/^\|.*\|\s*([^|]*)\|\s*$/gm)) {
+  for (const [, name] of row[1]!.matchAll(/`([a-z0-9-]+)`/g))
+    if (!examples.includes(name!))
+      report(
+        overviewPath,
+        lineOf(overview, row.index),
+        `\`${name}\` is not an example in packages/kirana/examples`
+      )
 }
 
 /**

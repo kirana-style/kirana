@@ -62,6 +62,10 @@ export function Field({
 Subpaths:
 
 - `@kirana-style/core/react`: adds `sx` to React's element types: `/// <reference types="@kirana-style/core/react" />`.
+- `@kirana-style/core/preact`, `/solid`, `/qwik`, `/remix`: the same for that framework's JSX (`/solid` types
+  Solid 1's `solid-js` and Solid 2's `@solidjs/web`).
+- `@kirana-style/core/vue`, `/svelte`, `/astro`: `sx` in their templates; in Vue, `useSx()` too.
+- `@kirana-style/core/class-map`: `classMap()`, the class map server templates read.
 - `@kirana-style/core/config`: `defineConfig` for `kirana.config.ts`.
 - `@kirana-style/core/stylesheet.css`: the stylesheet entry. Import it once (`?url` for a `<link>`); the
   adapter fills it.

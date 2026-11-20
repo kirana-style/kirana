@@ -73,8 +73,9 @@ Every framework has a guide and a tested example; the
 
 ## Configuration keys in the specification but not the build
 
-- `presets`, to compose preset packages. Import preset modules directly instead.
+- `presets` carries a utility grammar, which turns on
+  [utility strings](/docs/styling/utilities), and nothing else yet: a preset's
+  tokens and conditions are not composed into the project's. Import a preset's
+  tokens from its module instead, as the scales preset's are.
 
-It fails validation today. (`libraries` works: see
-[publishing a library](/docs/building/libraries).) See the [roadmap](/docs/project/roadmap) for when they
-are scheduled.
+(`libraries` works: see [publishing a library](/docs/building/libraries).)

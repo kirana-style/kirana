@@ -67,7 +67,7 @@ const PAGES: readonly {
     scene: "heritage-street",
     label: "Migrate",
     title: "Bring the styles you already have",
-    text: "A codemod for Tailwind and one for StyleX, each reporting what it would not decide.",
+    text: "Codemods for Tailwind, StyleX, styled-components, Emotion and CSS Modules, each reporting what it would not decide.",
   },
   {
     href: "/compare",

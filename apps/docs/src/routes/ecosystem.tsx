@@ -35,7 +35,7 @@ import { PLAYGROUND, UI_PAGES } from "@/data/links"
 import { PackageGroups } from "@/components/site/packages"
 import { Page, PageHero, PageSection } from "@/components/site/page"
 import { PACKAGES } from "@/generated/packages.gen"
-import { COUNTS } from "@/data/facts"
+import { COUNTS, LISTS, sentence } from "@/data/facts"
 
 export const Route = createFileRoute("/ecosystem")({
   component: EcosystemPage,
@@ -163,7 +163,7 @@ const TOOLING: { name: string; status?: Status; note: string; href: string }[] =
     },
     {
       name: "Agent skills",
-      note: "kirana and kirana-migrate, for npx skills add",
+      note: `${sentence(LISTS.skills)}, for npx skills add`,
       href: "/docs/project/agent-skills",
     },
     {
