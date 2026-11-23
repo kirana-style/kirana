@@ -262,8 +262,9 @@ transform a source before it:
   `styles` lists it already. `kirana-style ui init` lists it there, then the design system's
   stylesheets and the fonts after it, since Angular bundles a stylesheet a script imports as code,
   without a loader for its fonts. It sets `<html>`'s classes in a `document.ts` beside the entry,
-  which the entry imports: an entry is not compiled, and `index.html` is static, so classes written
-  there at install would go stale with the design (KF-131). In watch mode
+  which the entry imports before its own modules (KF-135): an entry is not compiled, and
+  `index.html` is static, so classes written there at install would go stale with the design
+  (KF-131). In watch mode
   each change is mirrored again with the modules that read from it. The builders' schemas are copies
   of `@angular/build`'s, kept equal as JSON by a test, because Architect resolves a schema only inside the
   builder's package.

@@ -84,7 +84,8 @@ follows both rules:
 
 - a design system's stylesheets and its fonts go in `styles`, after
   `.kirana/kirana.css`, which the builders then leave where it is;
-- `<html>`'s classes are set in `src/document.ts`, which the entry imports.
+- `<html>`'s classes are set in `src/document.ts`, which the entry imports
+  before the app's modules, so that they load with `<html>` styled.
 
 ## With Analog
 

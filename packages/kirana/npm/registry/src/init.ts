@@ -41,6 +41,7 @@ import {
   ANGULAR_JSON,
   angularApp,
   stylesLine,
+  withDocumentImport,
   withStyles,
 } from "./angular-cli.ts"
 import type { AngularApp } from "./angular-cli.ts"
@@ -989,7 +990,8 @@ function wire(
  * `styles` after Kirana's, by their paths in the project, since `styles` resolves no alias. Its
  * builders compile every module of the source folder but the entry (`main.ts`), which would call
  * the uncompiled `props()` on the compiled, string-typed handles; `src/index.html` is static. So
- * `<html>`'s classes are set in a module of their own beside the entry, which the entry imports.
+ * `<html>`'s classes are set in a module of their own beside the entry, which the entry imports
+ * before the app's modules (KF-135).
  */
 function wireAngular(
   files: Files,
@@ -1050,7 +1052,7 @@ document.documentElement.className = props(${name}).className ?? ""
     report.push(`${module}: sets <html>'s classes from ${name}`)
   }
   if (!/(["'])\.\/document\1/.test(text)) {
-    files.write(entry!, addImport(text, `import "./document"`))
+    files.write(entry!, withDocumentImport(text))
     report.push(`${entry}: imports ./document`)
   }
 }
