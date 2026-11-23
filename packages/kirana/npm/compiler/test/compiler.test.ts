@@ -30,6 +30,9 @@ import {
   resolveConfigSync,
   mergeGrammars,
   detectJsx,
+  jsxDetection,
+  readTsconfig,
+  tsconfigExtends,
   utf16Offset,
 } from "../src/index.ts"
 import type { PathKey, WrittenValue } from "../src/index.ts"
@@ -393,6 +396,158 @@ console.log(resolveConfigSync(${JSON.stringify(root)}).json)`,
         'import { css } from "@kirana-style/core"\nexport const A = () => <p sx={css({ display: "flex" })} />\n'
       ).code
     ).toContain('<p class="')
+  })
+
+  it("detects the jsx mode from what tsconfig.json extends, as TypeScript reads it (KF-132)", () => {
+    const solid = `{ "compilerOptions": { "jsx": "preserve", "jsxImportSource": "@solidjs/web" } }`
+    // A path, as kirana-ui's Solid 2 app extends its base's tsconfig.
+    expect(
+      detectJsx(
+        path.join(
+          project({
+            "base/tsconfig.json": solid,
+            "app/tsconfig.json": `{
+              // comments and trailing commas, as in the file beside the config
+              "extends": "../base/tsconfig.json",
+              "compilerOptions": { "types": ["vite/client"], },
+            }`,
+          }),
+          "app"
+        )
+      )
+    ).toBe("solid")
+    // An array, a path without `.json`, and a package, from the nearest `node_modules` above.
+    expect(
+      detectJsx(
+        path.join(
+          project({
+            "base.json": solid,
+            "node_modules/@tsconfig/strictest/tsconfig.json":
+              '{ "compilerOptions": { "strict": true } }',
+            "app/tsconfig.json":
+              '{ "extends": ["@tsconfig/strictest", "../base"] }',
+          }),
+          "app"
+        )
+      )
+    ).toBe("solid")
+    expect(
+      detectJsx(
+        project({
+          "node_modules/@workspace/tsconfig/solid.json": solid,
+          "tsconfig.json": '{ "extends": "@workspace/tsconfig/solid.json" }',
+        })
+      )
+    ).toBe("solid")
+    // The file beside the config still wins over what it extends.
+    expect(
+      detectJsx(
+        project({
+          "base.json": solid,
+          "tsconfig.json":
+            '{ "extends": "./base.json", "compilerOptions": { "jsxImportSource": "react" } }',
+        })
+      )
+    ).toBeUndefined()
+    // A base that cannot be found is left out, as before; one that cannot be parsed falls back to React.
+    expect(
+      detectJsx(
+        project({
+          "tsconfig.json":
+            '{ "extends": ["./missing.json", "missing-package"], "compilerOptions": { "jsxImportSource": "preact" } }',
+        })
+      )
+    ).toBe("preact")
+    expect(
+      detectJsx(
+        project({
+          "base.json": "{ not json",
+          "tsconfig.json": '{ "extends": "./base.json" }',
+        })
+      )
+    ).toBeUndefined()
+  })
+
+  it("reads a tsconfig with what it extends, as tsc --showConfig does (KF-132)", () => {
+    const root = project({
+      "node_modules/plain/tsconfig.json":
+        '{ "compilerOptions": { "strict": true, "target": "ES2020" } }',
+      "node_modules/@scope/configs/web.json":
+        '{ "extends": "../../plain/tsconfig", "compilerOptions": { "target": "ES2022" } }',
+      // A folder named as the base: TypeScript reads `base.json` beside it.
+      "app/base/readme.md": "",
+      "app/base.json": '{ "compilerOptions": { "jsx": "preserve" } }',
+      "app/node_modules/.keep": "",
+      "app/tsconfig.json": `{
+        "extends": ["plain", "@scope/configs/web", "./base", 42],
+        "compilerOptions": { "noEmit": true },
+      }`,
+    })
+    const app = path.join(root, "app")
+    // Later entries override earlier ones, and the file's own options override them all. A package
+    // is found in the nearest `node_modules` that has it, here the root's.
+    expect(readTsconfig(path.join(app, "tsconfig.json"))).toEqual({
+      compilerOptions: {
+        strict: true,
+        target: "ES2022",
+        jsx: "preserve",
+        noEmit: true,
+      },
+      files: [
+        path.join(app, "tsconfig.json"),
+        path.join(root, "node_modules/plain/tsconfig.json"),
+        path.join(root, "node_modules/@scope/configs/web.json"),
+        path.join(root, "node_modules/plain/tsconfig.json"),
+        path.join(app, "base.json"),
+      ],
+    })
+    // An absolute path, and names that resolve to nothing: a package nowhere above, a path ending in
+    // `.json` that is not there (no `.json.json` is tried), a value that is not a name.
+    expect(
+      tsconfigExtends(path.join(app, "tsconfig.json"), [
+        path.join(app, "base"),
+        "nowhere",
+        "./none.json",
+      ])
+    ).toEqual([path.join(app, "base.json")])
+    expect(tsconfigExtends(path.join(app, "tsconfig.json"), undefined)).toEqual(
+      []
+    )
+    expect(readTsconfig(path.join(app, "missing.json"))).toBeUndefined()
+
+    // A cycle is read once round, from planned files as well as from disk.
+    const files: Record<string, string> = {
+      "/p/tsconfig.json":
+        '{ "extends": "./a", "compilerOptions": { "jsxImportSource": "solid-js" } }',
+      "/p/a.json":
+        '{ "extends": "./tsconfig.json", "compilerOptions": { "a": 1 } }',
+    }
+    expect(readTsconfig("/p/tsconfig.json", (file) => files[file])).toEqual({
+      compilerOptions: { a: 1, jsxImportSource: "solid-js" },
+      files: ["/p/tsconfig.json", "/p/a.json"],
+    })
+    expect(
+      jsxDetection(
+        project({
+          "tsconfig.json": '{ "extends": "./a.json" }',
+          "a.json":
+            '{ "extends": "./tsconfig.json", "compilerOptions": { "jsxImportSource": "solid-js" } }',
+        })
+      ).jsx
+    ).toBe("solid")
+    // The files read, for `doctor` to name; none without a tsconfig, or one that cannot be parsed.
+    const solid = project({
+      "tsconfig.json": '{ "extends": "./a.json" }',
+      "a.json": '{ "compilerOptions": { "jsxImportSource": 1 } }',
+    })
+    expect(jsxDetection(solid)).toEqual({
+      jsx: undefined,
+      files: [path.join(solid, "tsconfig.json"), path.join(solid, "a.json")],
+    })
+    expect(jsxDetection(project({}))).toEqual({ jsx: undefined, files: [] })
+    expect(jsxDetection(project({ "tsconfig.json": "{ not json" }))).toEqual({
+      files: [],
+    })
   })
 
   it("opens synchronously, for hosts whose hooks are (Jest)", async () => {

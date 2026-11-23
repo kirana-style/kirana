@@ -203,7 +203,11 @@ tarballs, builds and checks in Chromium (the compatibility matrix).
 The `jsx` key selects the attribute (`className` for React, `class` for Preact, Solid and Qwik); left
 out, the Driver reads `compilerOptions.jsxImportSource` from the project's `tsconfig.json` (`preact`,
 `solid-js`, Solid 2's `@solidjs/web` and `@solidjs/h` (KF-127), `@qwik.dev/core`, `@builder.io/qwik`) and otherwise
-uses React. `kirana-style init` writes `jsx: "solid"` into the configuration of a Solid project whose
+uses React. It reads the tsconfig as TypeScript does, following `extends` (a path with or without
+`.json`, a package from `node_modules`, or an array of them, a later one over an earlier and the file's
+own options over all; KF-132); `references` are not followed. `kirana-style doctor` warns when a
+Solid project's `sx` still compiles to `className`, naming the tsconfig files it read.
+`kirana-style init` writes `jsx: "solid"` into the configuration of a Solid project whose
 `tsconfig.json` does not name Solid's JSX, as Vite's starter keeps it in `tsconfig.app.json` (KF-129). Under a `class` mode a `className` already on the element is
 merged into the one `class` the element gets, since Preact users still write it. The private runtime
 is created with the attribute (`runtime(prefix, attribute)`), so dynamic `sx` and `props()` return

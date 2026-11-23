@@ -56,7 +56,8 @@ jsx: "preact" // "react" | "preact" | "solid" | "qwik"
 ```
 
 Which attribute `sx` compiles to. Leave it out and the compiler reads
-`compilerOptions.jsxImportSource` from the project's `tsconfig.json`, so most
+`compilerOptions.jsxImportSource` from the project's `tsconfig.json`, following
+its `extends` as TypeScript does (a path, a package, or an array of them), so most
 projects never set it:
 
 | Value      | `sx` compiles to | Read when `jsxImportSource` is                                                |

@@ -10,7 +10,7 @@
 import { existsSync } from "node:fs"
 import path from "node:path"
 
-import { readJsonc, readPackage } from "@kirana-style/compiler"
+import { readPackage, readTsconfig } from "@kirana-style/compiler"
 
 import { aliasDirectory, pathsOf } from "./project.ts"
 import type { ReadFile } from "./project.ts"
@@ -120,15 +120,14 @@ function mapAlias(
       return false
     }
     const options = tsconfigOf(app)
-    const { jsx, jsxImportSource } =
+    // As TypeScript reads them, with what the tsconfig extends (KF-132).
+    const { jsx, jsxImportSource } = (
       options === undefined
         ? {}
-        : // It has compiler options: `tsconfigOf` found it by them.
-          (
-            readJsonc(app.read(options)!) as {
-              compilerOptions: { jsx?: string; jsxImportSource?: string }
-            }
-          ).compilerOptions
+        : // It can be read: `tsconfigOf` found it by its compiler options.
+          readTsconfig(path.join(app.root, options), app.absolute)!
+            .compilerOptions
+    ) as { jsx?: string; jsxImportSource?: string }
     const compilerOptions = {
       ...(jsx === undefined ? {} : { jsx }),
       ...(jsxImportSource === undefined ? {} : { jsxImportSource }),

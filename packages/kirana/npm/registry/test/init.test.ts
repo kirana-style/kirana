@@ -2080,6 +2080,32 @@ describe("KF-108 ui init in a workspace (D-129)", () => {
     expect(sourced.text).toContain(
       'setup: app: web/tsconfig.json: paths "@workspace/ui/*": ["../../packages/ui/src/*"]\n'
     )
+
+    // A Solid app whose tsconfig extends a base that names its JSX: the package takes the options
+    // TypeScript reads, with what the tsconfig extends (KF-132).
+    const based = turborepo({
+      "package.json": JSON.stringify({
+        type: "module",
+        dependencies: { "solid-js": "^1.9.0" },
+        devDependencies: { vite: "^8.0.0" },
+      }),
+      "tsconfig.app.json":
+        '{ "extends": "./tsconfig.solid", "compilerOptions": { "strict": true }, "include": ["src"] }',
+      "tsconfig.solid.json":
+        '{ "compilerOptions": { "jsx": "preserve", "jsxImportSource": "solid-js" } }',
+    })
+    expect(
+      (await init(based.app, "--workspace", "packages/ui", "--registry", ACME))
+        .code
+    ).toBe(0)
+    expect(JSON.parse(read(based.ui, "tsconfig.json"))).toEqual({
+      compilerOptions: {
+        jsx: "preserve",
+        jsxImportSource: "solid-js",
+        paths: { "@workspace/ui/*": ["./src/*"] },
+      },
+      include: ["src"],
+    })
   })
 
   it("gives a JavaScript Next.js app in a workspace Next.js's tsconfig with the package's aliases (KF-046)", async () => {

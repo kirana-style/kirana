@@ -1188,6 +1188,49 @@ describe("KRN-DX-008 kirana-style doctor", () => {
       /\d problem\(s\)\. npx kirana-style init sets up what it can\.\n$/
     )
   })
+
+  it("warns when sx compiles to className on Solid, naming the tsconfig files it read (KF-132)", async () => {
+    const solid = (files: Record<string, string>) =>
+      project({
+        "package.json": pkg({ "solid-js": "1", vite: "8" }),
+        "kirana.config.json": "{}",
+        ...files,
+      })
+    const config = async (root: string) =>
+      (await diagnose(root, () => native)).find(
+        (check) => check.name === "config"
+      )
+    const advice = `sx compiles to React's className, which Solid does not read: set jsx: "solid", or Solid's jsxImportSource in tsconfig.json`
+    expect(
+      await config(
+        solid({
+          "tsconfig.json": '{ "extends": "./tsconfig.base.json" }',
+          "tsconfig.base.json": "{}",
+        })
+      )
+    ).toEqual({
+      name: "config",
+      status: "warn",
+      detail: `kirana.config.json, prefix "k"; ${advice} (read tsconfig.json, tsconfig.base.json)`,
+    })
+    expect((await config(solid({})))!.detail).toBe(
+      `kirana.config.json, prefix "k"; ${advice} (no tsconfig.json)`
+    )
+    // Detected through what the tsconfig extends, or named in the configuration: nothing to say.
+    expect(
+      (await config(
+        solid({
+          "tsconfig.json": '{ "extends": "./tsconfig.base.json" }',
+          "tsconfig.base.json":
+            '{ "compilerOptions": { "jsxImportSource": "solid-js" } }',
+        })
+      ))!.status
+    ).toBe("ok")
+    expect(
+      (await config(solid({ "kirana.config.json": '{ "jsx": "solid" }' })))!
+        .status
+    ).toBe("ok")
+  })
 })
 
 describe("KRN-DX-008 kirana-style dev", () => {

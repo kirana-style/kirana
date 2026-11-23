@@ -118,7 +118,8 @@ export type KiranaConfig = {
   readonly ui?: Readonly<Record<string, unknown>>
   /**
    * Which attribute `sx` compiles to: `className` for React, `class` for Preact, Solid and Qwik. Default:
-   * detected from `compilerOptions.jsxImportSource` in the project's `tsconfig.json`, else React.
+   * detected from `compilerOptions.jsxImportSource` in the project's `tsconfig.json` and what it
+   * `extends`, as TypeScript reads it, else React.
    */
   readonly jsx?: "react" | "preact" | "solid" | "qwik"
   /** Re-level warnings and infos by name. */

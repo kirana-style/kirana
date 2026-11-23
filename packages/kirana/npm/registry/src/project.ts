@@ -11,6 +11,7 @@ import {
   readJsonc,
   readPackage,
   sources,
+  tsconfigExtends,
 } from "@kirana-style/compiler"
 import type { PackageJson, PackageManager } from "@kirana-style/compiler"
 import { SKIPPED } from "@kirana-style/compiler/host"
@@ -127,7 +128,10 @@ export type Paths = {
   file: string
 }
 
-/** `paths` and the directory they start from, following `extends` and then `references`. */
+/**
+ * `paths` and the directory they start from, following `extends` (a path, a package or an array of
+ * them, as TypeScript does) and then `references`.
+ */
 export function pathsOf(
   file: string,
   read: ReadFile = fromDisk,
@@ -141,9 +145,8 @@ export function pathsOf(
   const { paths, baseUrl } = config.compilerOptions ?? {}
   if (paths)
     return { paths, from: path.resolve(directory, baseUrl ?? "."), file }
-  const next: string[] = []
-  if (typeof config.extends === "string" && config.extends.startsWith("."))
-    next.push(path.resolve(directory, config.extends))
+  // What it extends, resolved as TypeScript resolves it, the last applied first (KF-132).
+  const next = tsconfigExtends(file, config.extends, read).reverse()
   for (const reference of config.references ?? [])
     if (typeof reference.path === "string") {
       const target = path.resolve(directory, reference.path)

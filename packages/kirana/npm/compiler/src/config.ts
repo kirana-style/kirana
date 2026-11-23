@@ -2,7 +2,7 @@
  * Configuration loading (KRN-INT-001, KRN-CMP-013): the Driver evaluates `kirana.config.*` once
  * and hands the engine plain JSON.
  */
-import { existsSync, readFileSync } from "node:fs"
+import { existsSync, readFileSync, statSync } from "node:fs"
 import * as nodeModule from "node:module"
 import { createRequire } from "node:module"
 import type { LoadHookSync } from "node:module"
@@ -329,24 +329,129 @@ export function readJsonc(text: string): unknown {
   return JSON.parse(json)
 }
 
+/** Reads a file: from disk, or as planned changes leave it. Undefined when there is none. */
+export type ReadFile = (file: string) => string | undefined
+
+const fromDisk: ReadFile = (file) =>
+  existsSync(file) && statSync(file).isFile()
+    ? readFileSync(file, "utf8")
+    : undefined
+
+/** `file`, else `file.json` unless it ends so already, whichever can be read first, as TypeScript tries them. */
+const jsonFile = (file: string, read: ReadFile) =>
+  [file, ...(file.endsWith(".json") ? [] : [`${file}.json`])].find(
+    (candidate) => read(candidate) !== undefined
+  )
+
 /**
- * The `jsx` mode `tsconfig.json`'s `compilerOptions.jsxImportSource` implies (KRN-INT-004), or
- * undefined for React and when there is no readable `tsconfig.json`. Comments and trailing commas,
- * which `tsconfig.json` allows, are removed before parsing; `extends` is not followed.
+ * The tsconfig a package specifier in `extends` names, from the nearest `node_modules` at or above
+ * `from` that has it: the package's `tsconfig.json`, or the subpath named, with or without `.json`
+ * (`@tsconfig/strictest/tsconfig.json`, `astro/tsconfigs/strict`). A package's `exports` and
+ * `tsconfig` fields are not read: published tsconfigs sit at the paths they are named by.
  */
+function packageTsconfig(
+  specifier: string,
+  from: string,
+  read: ReadFile
+): string | undefined {
+  const parts = specifier.split("/")
+  const length = specifier.startsWith("@") ? 2 : 1
+  const subpath = parts.slice(length).join("/") || "tsconfig.json"
+  for (let directory = from; ; directory = path.dirname(directory)) {
+    const found = jsonFile(
+      path.join(directory, "node_modules", ...parts.slice(0, length), subpath),
+      read
+    )
+    if (found) return found
+    if (path.dirname(directory) === directory) return undefined
+  }
+}
+
+/**
+ * The files a tsconfig's `extends` names, resolved as TypeScript resolves them (KF-132), in the order
+ * they apply, a later one over an earlier: one name or an array of them, each a path from the
+ * tsconfig's folder (`./`, `../` or absolute, with or without `.json`) or a package
+ * (`packageTsconfig`). One that cannot be found is left out.
+ */
+export function tsconfigExtends(
+  file: string,
+  extended: unknown,
+  read: ReadFile = fromDisk
+): string[] {
+  const directory = path.dirname(file)
+  return (Array.isArray(extended) ? extended : [extended]).flatMap((name) => {
+    if (typeof name !== "string") return []
+    const found =
+      path.isAbsolute(name) || /^\.\.?[\\/]/.test(name)
+        ? jsonFile(path.resolve(directory, name), read)
+        : packageTsconfig(name, directory, read)
+    return found === undefined ? [] : [found]
+  })
+}
+
+/** A tsconfig as TypeScript reads it: its compiler options, and every file they were read from. */
+export type Tsconfig = {
+  compilerOptions: Record<string, unknown>
+  /** The tsconfig itself, then each file it extends, depth first. */
+  files: string[]
+}
+
+/**
+ * A tsconfig as `tsc --showConfig` gives it (KF-132): its `compilerOptions` over those of what it
+ * `extends`, each extended file read the same way. Undefined when it cannot be read; JSON with
+ * comments and trailing commas (`readJsonc`). An extended file that cannot be found is left out, and
+ * one already being read, a cycle, is not read again.
+ */
+export function readTsconfig(
+  file: string,
+  read: ReadFile = fromDisk,
+  reading: ReadonlySet<string> = new Set()
+): Tsconfig | undefined {
+  const text = reading.has(file) ? undefined : read(file)
+  if (text === undefined) return undefined
+  const config = readJsonc(text) as {
+    extends?: unknown
+    compilerOptions?: Record<string, unknown>
+  }
+  const inner = new Set(reading).add(file)
+  const files = [file]
+  let compilerOptions: Record<string, unknown> = {}
+  for (const base of tsconfigExtends(file, config.extends, read)) {
+    const found = readTsconfig(base, read, inner)
+    if (found === undefined) continue
+    compilerOptions = { ...compilerOptions, ...found.compilerOptions }
+    files.push(...found.files)
+  }
+  return {
+    compilerOptions: { ...compilerOptions, ...config.compilerOptions },
+    files,
+  }
+}
+
+/**
+ * The `jsx` mode `tsconfig.json`'s `compilerOptions.jsxImportSource` implies (KRN-INT-004), with what
+ * it `extends` read as TypeScript reads it (KF-132), and the tsconfig files read. The mode is
+ * undefined for React and when there is no readable `tsconfig.json`.
+ */
+export function jsxDetection(root: string): {
+  jsx?: "preact" | "solid" | "qwik"
+  files: string[]
+} {
+  try {
+    const found = readTsconfig(path.join(root, "tsconfig.json"))
+    const source = found?.compilerOptions.jsxImportSource
+    return {
+      jsx: typeof source === "string" ? JSX_SOURCES[source] : undefined,
+      files: found?.files ?? [],
+    }
+  } catch {
+    return { files: [] }
+  }
+}
+
+/** `jsxDetection`'s mode alone. */
 export function detectJsx(
   root: string
 ): "preact" | "solid" | "qwik" | undefined {
-  const file = path.join(root, "tsconfig.json")
-  if (!existsSync(file)) return undefined
-  try {
-    const source = (
-      readJsonc(readFileSync(file, "utf8")) as {
-        compilerOptions?: { jsxImportSource?: string }
-      }
-    ).compilerOptions?.jsxImportSource
-    return source === undefined ? undefined : JSX_SOURCES[source]
-  } catch {
-    return undefined
-  }
+  return jsxDetection(root).jsx
 }

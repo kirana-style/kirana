@@ -9,6 +9,7 @@ import { existsSync, readFileSync } from "node:fs"
 import { createRequire } from "node:module"
 import path from "node:path"
 
+import { jsxDetection } from "./config.ts"
 import { Driver } from "./driver.ts"
 import { KIRANA_LIBRARIES } from "./host.ts"
 import type { NativeBinding } from "./native.ts"
@@ -62,6 +63,18 @@ function nodeModulesVersion(root: string, name: string): string | undefined {
         .version
     if (path.dirname(directory) === directory) return undefined
   }
+}
+
+/**
+ * Why `sx` compiles to `className` in a Solid project: no `jsx` in the configuration, and no Solid
+ * `jsxImportSource` in the tsconfig files `jsx` detection read, which it names.
+ */
+function reactOnSolid(root: string, configRoot: string): string {
+  const { files } = jsxDetection(configRoot)
+  const read = files.length
+    ? `read ${files.map((file) => path.relative(root, file)).join(", ")}`
+    : "no tsconfig.json"
+  return `sx compiles to React's className, which Solid does not read: set jsx: "solid", or Solid's jsxImportSource in tsconfig.json (${read})`
 }
 
 /** Every check, in the order they are printed. */
@@ -120,15 +133,24 @@ export async function diagnose(
           }
   )
 
+  const setup = plan(root)
   if (native) {
     try {
       const driver = await Driver.create({ root, native })
+      const detail = driver.configFile
+        ? `${path.relative(root, driver.configFile)}, prefix "${driver.prefix}"${configuredLibraries(driver).length ? `, libraries ${configuredLibraries(driver).join(", ")}` : ""}`
+        : "no kirana.config: every key at its default"
+      // Solid's JSX has no `className`: `sx` compiled as React's leaves every element without its
+      // classes, and the build says nothing (KF-132).
+      const react =
+        setup.project.framework === "solid" &&
+        driver.classAttribute === "className"
       checks.push({
         name: "config",
-        status: "ok",
-        detail: driver.configFile
-          ? `${path.relative(root, driver.configFile)}, prefix "${driver.prefix}"${configuredLibraries(driver).length ? `, libraries ${configuredLibraries(driver).join(", ")}` : ""}`
-          : "no kirana.config: every key at its default",
+        status: react ? "warn" : "ok",
+        detail: react
+          ? `${detail}; ${reactOnSolid(root, driver.root)}`
+          : detail,
       })
     } catch (error) {
       checks.push({
@@ -139,7 +161,6 @@ export async function diagnose(
     }
   }
 
-  const setup = plan(root)
   checks.push({
     name: "project",
     status: "ok",
