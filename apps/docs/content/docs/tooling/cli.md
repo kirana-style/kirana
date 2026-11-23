@@ -780,7 +780,7 @@ where Kirana's own setup put Kirana:
   one (Next.js, TanStack Start), or set from the entry in an app whose
   `index.html` is static;
 - on the Angular CLI, whose builders compile no entry, its styles for `<html>`
-  from `src/document.ts`, a module the entry imports.
+  from `src/document.ts`, a module the entry imports before the app's own.
 
 What it cannot change safely, it prints as a step to do by hand. A template's own
 styles of `:root` and `body` (Vite's `src/index.css`) still apply over the design

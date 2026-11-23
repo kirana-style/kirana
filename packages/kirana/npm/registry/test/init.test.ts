@@ -2318,7 +2318,7 @@ describe("KF-131 ui init on the Angular CLI", () => {
     )
     // The entry imports no stylesheet and calls no props(): it is not compiled.
     expect(read(cwd, "src/main.ts")).toBe(
-      'import { bootstrapApplication } from "@angular/platform-browser"\n\nimport { App } from "./app/app"\nimport "./document"\n\nbootstrapApplication(App)\n'
+      'import "./document"\nimport { bootstrapApplication } from "@angular/platform-browser"\n\nimport { App } from "./app/app"\n\nbootstrapApplication(App)\n'
     )
     expect(read(cwd, "src/document.ts")).toBe(
       [
@@ -2467,5 +2467,71 @@ describe("KF-131 ui init on the Angular CLI", () => {
     expect((await init(lost, "--registry", ACME)).text).toBe(
       "kit: setup.stylesheets names @/registry/ui/gone.css, which the item does not install\n"
     )
+  })
+})
+
+describe("KF-135 ui init on the Angular CLI imports the document first", () => {
+  it("imports ./document before the entry's modules, so <html> has its classes when they load", async () => {
+    const cwd = withCore(angularCli())
+    await init(cwd, "--registry", ACME)
+    expect(read(cwd, "src/main.ts")).toBe(
+      'import "./document"\nimport { bootstrapApplication } from "@angular/platform-browser"\n\nimport { App } from "./app/app"\n\nbootstrapApplication(App)\n'
+    )
+    // Run again: not moved, not doubled.
+    const again = await init(cwd, "--overwrite")
+    expect(again.text).not.toContain("setup: src/main.ts")
+    expect(read(cwd, "src/main.ts").match(/\.\/document/g)).toHaveLength(1)
+  })
+
+  it("keeps the polyfills and stylesheets that open the entry before it, in the entry's style", async () => {
+    const polyfilled = withCore(
+      angularCli({
+        "src/main.ts": [
+          '/// <reference types="@angular/localize" />',
+          "",
+          "import '@angular/localize/init';",
+          "import 'zone.js';",
+          "import './styles.css';",
+          "import { bootstrapApplication } from '@angular/platform-browser';",
+          "import { App } from './app/app';",
+          "",
+          "bootstrapApplication(App);",
+          "",
+        ].join("\n"),
+      })
+    )
+    await init(polyfilled, "--registry", ACME)
+    expect(read(polyfilled, "src/main.ts")).toBe(
+      [
+        '/// <reference types="@angular/localize" />',
+        "",
+        "import '@angular/localize/init';",
+        "import 'zone.js';",
+        "import './styles.css';",
+        "import './document';",
+        "import { bootstrapApplication } from '@angular/platform-browser';",
+        "import { App } from './app/app';",
+        "",
+        "bootstrapApplication(App);",
+        "",
+      ].join("\n")
+    )
+    // An entry that imports no module by name: after its last import.
+    const bare = withCore(
+      angularCli({ "src/main.ts": 'import "zone.js"\n\nconsole.log(1)\n' })
+    )
+    await init(bare, "--registry", ACME)
+    expect(read(bare, "src/main.ts")).toBe(
+      'import "zone.js"\nimport "./document"\n\nconsole.log(1)\n'
+    )
+  })
+
+  it("leaves an entry that imports ./document already as it is, wherever it does", async () => {
+    const entry =
+      'import { bootstrapApplication } from "@angular/platform-browser"\n\nimport { App } from "./app/app"\nimport "./document"\n\nbootstrapApplication(App)\n'
+    const cwd = withCore(angularCli({ "src/main.ts": entry }))
+    const { text } = await init(cwd, "--registry", ACME)
+    expect(text).not.toContain("setup: src/main.ts")
+    expect(read(cwd, "src/main.ts")).toBe(entry)
   })
 })

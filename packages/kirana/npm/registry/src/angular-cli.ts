@@ -5,7 +5,7 @@
  * fonts as files. So on the Angular CLI the design system's and the fonts' stylesheets are listed
  * there, after Kirana's, instead of imported from the entry.
  */
-import { readJsonc } from "@kirana-style/compiler"
+import { addImport, readJsonc } from "@kirana-style/compiler"
 
 /** The configuration that lists them. */
 export const ANGULAR_JSON = "angular.json"
@@ -170,6 +170,23 @@ function spanOf(
   }
   value([])
   return found
+}
+
+/**
+ * The entry importing `./document`, which sets `<html>`'s classes, before the modules it imports by
+ * name, so that the app's modules find them when they load (KF-135): after the side-effect imports
+ * that open it, its polyfills (`zone.js`, which patches the globals before any other code takes
+ * them, and `@angular/localize/init`) and stylesheets, as the stylesheet opens a Vite entry. An
+ * entry that imports no module by name takes it after its last import, in the module's style.
+ */
+export function withDocumentImport(text: string): string {
+  const added = addImport(text, `import "./document"`)
+  const named = [
+    ...text.matchAll(/^import\b[^;]*?["'][^"'\n]+["'];?[ \t]*$/gm),
+  ].find((found) => !/^import\s*["']/.test(found[0]))
+  if (named === undefined) return added
+  const line = /^import\s*(["'])\.\/document\1;?/m.exec(added)![0]
+  return `${text.slice(0, named.index)}${line}\n${text.slice(named.index)}`
 }
 
 /** The line reporting `withStyles`' edit. */
