@@ -7,8 +7,10 @@ import {
   LOCKFILE_SCHEMA,
   NAMESPACE_PATTERN,
   REFERENCE_PATTERN,
+  TEMPLATES_SCHEMA,
 } from "../src/schema.ts"
 import type { Index, Item, Lockfile, RegistryFile } from "../src/types.ts"
+import { validate } from "../src/validate.ts"
 
 const file = (
   path: string,
@@ -340,6 +342,81 @@ describe("KRN-DX-022 an index", () => {
     ).toEqual([
       { pointer: "/defaultBase/qwik", message: "is not allowed here" },
       expect.objectContaining({ pointer: "/defaultBase/react" }),
+    ])
+  })
+
+  it("names the runtime bases need per framework, for bases an item lists (KF-134)", () => {
+    const items: Index["items"] = [
+      {
+        name: "dialog",
+        type: "component",
+        version: "0.1.0",
+        frameworks: { solid: ["ark", "uisdk"] },
+      },
+    ]
+    expect(
+      check({ requires: { solid: { uisdk: "solid2", ark: "solid1" } }, items })
+    ).toEqual({ kind: "index", problems: [] })
+    expect(
+      check({
+        requires: { solid: { kirana: "solid2" }, vue: { ark: "vue4" } },
+        items,
+      }).problems
+    ).toEqual([
+      {
+        pointer: "/requires/solid/kirana",
+        message: "is for kirana, which no item has for solid",
+      },
+      {
+        pointer: "/requires/vue/ark",
+        message: "is for ark, which no item has for vue",
+      },
+    ])
+    // The schema first: a framework it does not know, a runtime that is not a name, none at all.
+    expect(
+      check({
+        requires: { qwik: {}, solid: { uisdk: "Solid 2" }, react: {} },
+        items,
+      }).problems
+    ).toEqual([
+      { pointer: "/requires/qwik", message: "is not allowed here" },
+      expect.objectContaining({ pointer: "/requires/solid/uisdk" }),
+      expect.objectContaining({ pointer: "/requires/react" }),
+    ])
+  })
+})
+
+describe("KF-134 a registry's templates", () => {
+  it("names a template's framework and runtime, the runtime with its framework", () => {
+    const entry = { name: "vite-solid2", file: "vite-solid2.tgz" }
+    expect(
+      validate(
+        {
+          templates: [
+            { ...entry, framework: "solid", runtime: "solid2" },
+            { ...entry, framework: "react" },
+          ],
+        },
+        TEMPLATES_SCHEMA
+      )
+    ).toEqual([])
+    expect(
+      validate(
+        {
+          templates: [
+            { ...entry, runtime: "solid2" },
+            { ...entry, framework: "qwik", runtime: "Solid 2" },
+          ],
+        },
+        TEMPLATES_SCHEMA
+      )
+    ).toEqual([
+      {
+        pointer: "/templates/0/framework",
+        message: "is required with runtime",
+      },
+      expect.objectContaining({ pointer: "/templates/1/framework" }),
+      expect.objectContaining({ pointer: "/templates/1/runtime" }),
     ])
   })
 })

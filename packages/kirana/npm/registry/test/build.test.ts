@@ -280,6 +280,34 @@ describe("KRN-DX-034 buildRegistry", () => {
     ).toEqual(["index: /defaultBase/qwik is not allowed here"])
   })
 
+  it("writes the runtime the source's bases need into the index, checked (KF-134)", () => {
+    const at = sources("runtimes", ACME)
+    const requires = { react: { base: "react20" } }
+    const built = buildRegistry({ ...ACME_SOURCE, requires }, at)
+    expect(built.problems).toEqual([])
+    expect(built.index).toMatchObject({ name: "Acme", requires })
+    expect(buildRegistry(ACME_SOURCE, at).index).not.toHaveProperty("requires")
+    expect(
+      buildRegistry(
+        {
+          ...ACME_SOURCE,
+          requires: { react: { aria: "react20", base: "React 20" } },
+        },
+        at
+      ).problems
+    ).toEqual([
+      "index: /requires/react/base must match ^[a-z0-9]+(-[a-z0-9]+)*$",
+    ])
+    expect(
+      buildRegistry(
+        { ...ACME_SOURCE, requires: { react: { aria: "react20" } } },
+        at
+      ).problems
+    ).toEqual([
+      "index: /requires/react/aria is for aria, which no item has for react",
+    ])
+  })
+
   it("follows folders, extensions, aliases and the dependencies the source declares", () => {
     const at = sources("shapes", {
       "src/lib/format/index.ts": "export const format = 1\n",
@@ -763,10 +791,11 @@ describe("KRN-DX-034 kirana-style ui build", () => {
     expect(existsSync(path.join(at, "button.json"))).toBe(true)
   })
 
-  it("is reached through main", async () => {
+  it("is reached through main, and writes the runtimes the source requires (KF-134)", async () => {
+    const requires = { react: { base: "react20" } }
     const at = sources("main", {
       ...ACME,
-      "registry.json": JSON.stringify(ACME_SOURCE),
+      "registry.json": JSON.stringify({ ...ACME_SOURCE, requires }),
     })
     let out = ""
     const code = await main(["build", "--out", "dist/r"], at, (text) => {
@@ -774,6 +803,10 @@ describe("KRN-DX-034 kirana-style ui build", () => {
     })
     expect(code).toBe(0)
     expect(out).toBe("build: 3 item(s) and the index in dist/r\n")
+    expect(
+      JSON.parse(readFileSync(path.join(at, "dist/r/index.json"), "utf8"))
+        .requires
+    ).toEqual(requires)
   })
 
   it("writes nothing on a problem", async () => {

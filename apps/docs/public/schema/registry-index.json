@@ -38,6 +38,73 @@
       },
       "additionalProperties": false
     },
+    "requires": {
+      "type": "object",
+      "description": "The runtime each base needs, by framework, then base: `{ \"solid\": { \"uisdk\": \"solid2\" } }` (KF-134). A base of a framework named here that is not listed needs the framework's default runtime; a framework not named here is not checked. `ui init --template` refuses a template on another runtime, naming one on the runtime needed, and `ui add` a project on another. Each base is one an item lists for that framework.",
+      "properties": {
+        "react": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^[a-z0-9]+(-[a-z0-9]+)*$": {
+              "type": "string",
+              "description": "A framework's runtime, a major only some templates and bases run on, by the name the registry gives it: `solid2`. Kirana tells Solid's apart in a project: `solid2` where it lists `@solidjs/web` or `solid-js` from 2 on, else `solid1`, Solid's default.",
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "vue": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^[a-z0-9]+(-[a-z0-9]+)*$": {
+              "type": "string",
+              "description": "A framework's runtime, a major only some templates and bases run on, by the name the registry gives it: `solid2`. Kirana tells Solid's apart in a project: `solid2` where it lists `@solidjs/web` or `solid-js` from 2 on, else `solid1`, Solid's default.",
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "svelte": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^[a-z0-9]+(-[a-z0-9]+)*$": {
+              "type": "string",
+              "description": "A framework's runtime, a major only some templates and bases run on, by the name the registry gives it: `solid2`. Kirana tells Solid's apart in a project: `solid2` where it lists `@solidjs/web` or `solid-js` from 2 on, else `solid1`, Solid's default.",
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "solid": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^[a-z0-9]+(-[a-z0-9]+)*$": {
+              "type": "string",
+              "description": "A framework's runtime, a major only some templates and bases run on, by the name the registry gives it: `solid2`. Kirana tells Solid's apart in a project: `solid2` where it lists `@solidjs/web` or `solid-js` from 2 on, else `solid1`, Solid's default.",
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "angular": {
+          "type": "object",
+          "minProperties": 1,
+          "patternProperties": {
+            "^[a-z0-9]+(-[a-z0-9]+)*$": {
+              "type": "string",
+              "description": "A framework's runtime, a major only some templates and bases run on, by the name the registry gives it: `solid2`. Kirana tells Solid's apart in a project: `solid2` where it lists `@solidjs/web` or `solid-js` from 2 on, else `solid1`, Solid's default.",
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
     "items": {
       "type": "array",
       "items": {

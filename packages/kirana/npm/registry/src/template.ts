@@ -29,7 +29,7 @@ import {
   TEMPLATES_SCHEMA,
 } from "./schema.ts"
 import { loadSettings } from "./settings.ts"
-import type { Templates } from "./types.ts"
+import type { TemplateEntry, Templates } from "./types.ts"
 import { validate } from "./validate.ts"
 import { version as release } from "./version.ts"
 
@@ -203,6 +203,29 @@ export function unpack(
   return files
 }
 
+/**
+ * What `init` reads of a template before it is written (KF-134): the template as asked, the packages
+ * its app lists, and for a registry's template its entry and the others its index lists.
+ */
+export type Unpacked = {
+  template: string
+  listed: Readonly<Record<string, string>>
+  entry?: TemplateEntry
+  index?: { namespace: string; templates: readonly TemplateEntry[] }
+}
+
+/** Checks a template before it is written, stopping `init` with a `RegistryError` (KF-134). */
+export type Vet = (unpacked: Unpacked) => Promise<void>
+
+/** The packages a manifest lists, development ones included; none without a manifest. */
+function listedIn(body: Uint8Array | undefined): Record<string, string> {
+  const manifest = (body === undefined ? {} : readManifest(body)) as {
+    dependencies?: Record<string, string>
+    devDependencies?: Record<string, string>
+  }
+  return { ...manifest.dependencies, ...manifest.devDependencies }
+}
+
 /** Where a registry's template is: its archive, for this package manager, from `templates/index.json`. */
 async function locateTemplate(
   reference: string,
@@ -211,7 +234,12 @@ async function locateTemplate(
   manager: (typeof TEMPLATE_MANAGERS)[number],
   env: Readonly<Record<string, string | undefined>>,
   options: Options
-): Promise<{ url: URL; headers: Record<string, string> }> {
+): Promise<{
+  url: URL
+  headers: Record<string, string>
+  entry: TemplateEntry
+  index: NonNullable<Unpacked["index"]>
+}> {
   const settings = await loadSettings(start, options.load)
   const known = new Map(settings.registries)
   for (const [namespace, template] of Object.entries(registries))
@@ -243,7 +271,12 @@ async function locateTemplate(
     throw new RegistryError(
       `${reference} has no archive for ${manager}: ${index.href} has one for ${Object.keys(entry.files!).join(", ")}`
     )
-  return { url: new URL(file, index), headers }
+  return {
+    url: new URL(file, index),
+    headers,
+    entry,
+    index: { namespace, templates },
+  }
 }
 
 /**
@@ -252,7 +285,8 @@ async function locateTemplate(
  * unpacked into the new directory; its root `package.json` takes the directory's name, the package
  * manager running this where `packageManager` is `{packageManager}`, and loses `kirana-template`,
  * whose `project` names the folder `init` goes on in (the root by default, `apps/web` in a
- * workspace); then the template is installed with that package manager.
+ * workspace); then the template is installed with that package manager. `vet` reads each template
+ * before anything is written (KF-134).
  */
 export async function startTemplate(
   template: string,
@@ -260,16 +294,15 @@ export async function startTemplate(
   start: string,
   registries: Readonly<Record<string, string>>,
   write: (text: string) => void,
-  options: Options = {}
+  options: Options,
+  vet: Vet
 ): Promise<string> {
   if (/^[a-z0-9]+(-[a-z0-9]+)*$/.test(template)) {
     const current = await release()
     const directory = path.resolve(start, named ?? template)
-    writeExample(
-      await fetchExample(template, current, options),
-      directory,
-      current
-    )
+    const example = await fetchExample(template, current, options)
+    await vet({ template, listed: listedIn(example.get("package.json")) })
+    writeExample(example, directory, current)
     write(`template: Kirana ${current}'s ${template} in ${directory}\n`)
     return directory
   }
@@ -278,12 +311,15 @@ export async function startTemplate(
   let url: URL
   let headers: Record<string, string> = {}
   let fallback: string
+  let listing: Pick<Unpacked, "entry" | "index"> = {}
   if (template.startsWith("@")) {
     if (!TEMPLATE_REFERENCE_PATTERN.test(template))
       throw new RegistryError(
         `${template}: a registry's template is @namespace/name`
       )
-    ;({ url, headers } = await locateTemplate(
+    let entry: TemplateEntry
+    let index: NonNullable<Unpacked["index"]>
+    ;({ url, headers, entry, index } = await locateTemplate(
       template,
       start,
       registries,
@@ -291,6 +327,7 @@ export async function startTemplate(
       env,
       options
     ))
+    listing = { entry, index }
     fallback = parseReference(template).name
   } else {
     url = locate(template, "", start)
@@ -333,6 +370,16 @@ export async function startTemplate(
       )
     manifest.packageManager = `${running.name}@${running.version}`
   }
+  // The app's packages: in a workspace, those of the folder `init` goes on in.
+  await vet({
+    template,
+    listed: listedIn(
+      project === undefined
+        ? body
+        : files.get(path.posix.join(String(project), "package.json"))
+    ),
+    ...listing,
+  })
   files.set("package.json", manifestBytes(manifest))
   writeFiles(files, directory)
   write(

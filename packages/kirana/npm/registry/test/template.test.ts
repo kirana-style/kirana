@@ -2,6 +2,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -15,7 +16,13 @@ import { afterAll, describe, expect, it } from "vite-plus/test"
 
 import { hashOf } from "../src/check.ts"
 import { main } from "../src/index.ts"
-import { fetchExample, untar, writeExample } from "../src/template.ts"
+import {
+  fetchExample,
+  startTemplate,
+  untar,
+  writeExample,
+} from "../src/template.ts"
+import type { Unpacked } from "../src/template.ts"
 import { version } from "../src/version.ts"
 
 const root = mkdtempSync(path.join(tmpdir(), "kirana-registry-template-"))
@@ -663,5 +670,371 @@ describe("KRN-DX-029 a project from a registry's template, or an archive's URL (
       ).toBe(
         `${url}: kirana-template.project in its package.json is ${JSON.stringify(project)}, not a folder of it with a package.json\n`
       )
+  })
+})
+
+/** A Solid app as a registry's template packs it: on Solid 1, or on Solid 2 with `@solidjs/web`. */
+const solidApp = (solid2: boolean) => ({
+  "package.json": JSON.stringify({
+    name: "app",
+    private: true,
+    dependencies: solid2
+      ? { "solid-js": "^2.0.3", "@solidjs/web": "^2.0.3" }
+      : { "solid-js": "^1.9.9" },
+  }),
+  "tsconfig.json": '{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }',
+  "src/index.tsx": "export {}\n",
+})
+
+/**
+ * A registry whose Solid on ui-sdk base needs Solid 2 (KF-134): a design system whose preset `p0`
+ * gives solid/ark and `p2` solid/uisdk, an index naming ark the default and, unless `requires` is
+ * false, what uisdk needs, and templates on both Solids. `templates` replaces the templates' entries.
+ */
+function runtimeRegistry(
+  options: {
+    requires?: false
+    defaultBase?: false
+    templates?: Record<string, unknown>[]
+  } = {}
+): string {
+  const registry = mkdtempSync(path.join(root, "runtimes-"))
+  const content = "export const kit = {}\n"
+  writeFileSync(
+    path.join(registry, "kit.json"),
+    JSON.stringify({
+      name: "kit",
+      type: "design-system",
+      version: "1.0.0",
+      files: [
+        { path: "kit/kit.ts", type: "lib", content, hash: hashOf(content) },
+      ],
+      design: {
+        axes: { style: { attribute: "data-style", values: ["nova"] } },
+        presets: {
+          p: [
+            { axis: "framework", values: ["solid"], bits: 1 },
+            { axis: "base", values: ["ark", "uisdk"], bits: 1 },
+          ],
+        },
+      },
+    })
+  )
+  writeFileSync(
+    path.join(registry, "index.json"),
+    JSON.stringify({
+      ...(options.defaultBase === false
+        ? {}
+        : { defaultBase: { solid: "ark" } }),
+      ...(options.requires === false
+        ? {}
+        : { requires: { solid: { uisdk: "solid2" } } }),
+      items: [
+        { name: "kit", type: "design-system", version: "1.0.0" },
+        {
+          name: "button",
+          type: "component",
+          version: "1.0.0",
+          frameworks: { solid: ["ark", "uisdk"] },
+        },
+      ],
+    })
+  )
+  mkdirSync(path.join(registry, "templates"))
+  const write = (name: string, body: Uint8Array | string) =>
+    writeFileSync(path.join(registry, "templates", name), body)
+  write(
+    "index.json",
+    JSON.stringify({
+      $schema: "https://kirana.style/schema/registry-templates.json",
+      templates: options.templates ?? [
+        { name: "vite-react--none", framework: "react", file: "react.tgz" },
+        { name: "vite-solid--turbo", framework: "solid", file: "solid.tgz" },
+        { name: "vite-solid--none", framework: "solid", file: "solid.tgz" },
+        {
+          name: "vite-solid2--turbo",
+          framework: "solid",
+          runtime: "solid2",
+          file: "solid2.tgz",
+        },
+        {
+          name: "vite-solid2--none",
+          framework: "solid",
+          runtime: "solid2",
+          file: "solid2.tgz",
+        },
+      ],
+    })
+  )
+  write(
+    "react.tgz",
+    packed({
+      ...solidApp(false),
+      "package.json": JSON.stringify({ dependencies: { react: "^19.3.0" } }),
+    })
+  )
+  write("solid.tgz", packed(solidApp(false)))
+  write("solid2.tgz", packed(solidApp(true)))
+  return registry
+}
+
+describe("KF-134 ui init --template checks the runtime the base needs", () => {
+  /** `init --template` from the registry, and whether anything was written or run. */
+  const fromTemplate = async (registry: string, ...argv: string[]) => {
+    const result = await initIn(
+      [...argv, "--registry", `@acme=${registry}/{name}.json`, "--no-check"],
+      { env: PNPM }
+    )
+    return { ...result, written: readdirSync(result.cwd) }
+  }
+
+  it("refuses a template on another runtime than the base needs, naming the one that fits, before writing", async () => {
+    const registry = runtimeRegistry()
+    // Solid on ui-sdk, from a preset, on a Solid 1 template.
+    const uisdk = await fromTemplate(
+      registry,
+      "--template",
+      "@acme/vite-solid--none",
+      "--preset",
+      "p2"
+    )
+    expect(uisdk).toMatchObject({
+      code: 1,
+      text: "@acme/vite-solid--none is on solid1, and @acme's solid/uisdk base needs solid2: nothing written; start from @acme/vite-solid2--none, on solid2\n",
+      ran: [],
+      written: [],
+    })
+    // The reverse: Ark UI, the registry's default base, on the Solid 2 template; the closest name wins.
+    const ark = await fromTemplate(
+      registry,
+      "--template",
+      "@acme/vite-solid2--turbo"
+    )
+    expect(ark).toMatchObject({
+      code: 1,
+      text: "@acme/vite-solid2--turbo is on solid2, and @acme's solid/ark base needs solid1: nothing written; start from @acme/vite-solid--turbo, on solid1\n",
+      written: [],
+    })
+    // A base named by its flag over the default.
+    expect(
+      (
+        await fromTemplate(
+          registry,
+          "--template",
+          "@acme/vite-solid--none",
+          "--base",
+          "uisdk"
+        )
+      ).text
+    ).toBe(
+      "@acme/vite-solid--none is on solid1, and @acme's solid/uisdk base needs solid2: nothing written; start from @acme/vite-solid2--none, on solid2\n"
+    )
+  })
+
+  it("refuses, in a project of its own, a base on another runtime than the project's", async () => {
+    const registry = runtimeRegistry()
+    /** `init` in a Solid app already there, on Solid 1 or 2, and what it wrote. */
+    const inApp = async (solid2: boolean, ...argv: string[]) => {
+      const cwd = mkdtempSync(path.join(root, "solid-app-"))
+      for (const [name, text] of Object.entries(solidApp(solid2))) {
+        mkdirSync(path.dirname(path.join(cwd, name)), { recursive: true })
+        writeFileSync(path.join(cwd, name), text)
+      }
+      let text = ""
+      const code = await main(
+        [
+          "init",
+          ...argv,
+          "--registry",
+          `@acme=${registry}/{name}.json`,
+          "--no-check",
+        ],
+        cwd,
+        (chunk) => void (text += chunk),
+        { env: {}, load: (url) => import(url), run: () => 0 }
+      )
+      return { code, text, written: readdirSync(cwd).sort() }
+    }
+    expect(await inApp(false, "--preset", "p2")).toEqual({
+      code: 1,
+      text: "@acme's solid/uisdk base needs solid2, and the project is on solid1: nothing written; take a base on solid1 (ark)\n",
+      written: ["package.json", "src", "tsconfig.json"],
+    })
+    expect((await inApp(true)).text).toBe(
+      "@acme's solid/ark base needs solid1, and the project is on solid2: nothing written; take a base on solid2 (uisdk)\n"
+    )
+    expect((await inApp(true, "--preset", "p2")).code).toBe(0)
+    // An index that cannot be read names no runtime.
+    const index = readFileSync(path.join(registry, "index.json"), "utf8")
+    rmSync(path.join(registry, "index.json"))
+    expect(
+      (
+        await inApp(
+          false,
+          "--design",
+          "@acme/kit",
+          "--framework",
+          "solid",
+          "--base",
+          "uisdk"
+        )
+      ).code
+    ).toBe(0)
+    writeFileSync(path.join(registry, "index.json"), index)
+    // A base the index lists for no runtime the project is on.
+    writeFileSync(
+      path.join(registry, "index.json"),
+      JSON.stringify({
+        requires: { solid: { uisdk: "solid2", ark: "solid2" } },
+        items: [
+          { name: "kit", type: "design-system", version: "1.0.0" },
+          {
+            name: "dialog",
+            type: "component",
+            version: "1.0.0",
+            frameworks: { solid: ["ark", "uisdk"] },
+          },
+        ],
+      })
+    )
+    expect((await inApp(false, "--base", "ark")).text).toBe(
+      "@acme's solid/ark base needs solid2, and the project is on solid1: nothing written; @acme has no solid base on solid1\n"
+    )
+  })
+
+  it("reads an example's packages before writing it, none where it has no package.json", async () => {
+    const seen: Unpacked[] = []
+    const vet = async (unpacked: Unpacked) => {
+      seen.push(unpacked)
+      throw new Error("refused")
+    }
+    const { fetch } = serving(
+      tarball({
+        [`${EXAMPLE}package.json`]: PACKAGE,
+        "packages/kirana/examples/bare/README.md": "Bare\n",
+      })
+    )
+    const start = mkdtempSync(path.join(root, "vetted-"))
+    for (const example of ["vite-react", "bare"])
+      await expect(
+        startTemplate(example, undefined, start, {}, () => {}, { fetch }, vet)
+      ).rejects.toThrow("refused")
+    expect(seen).toEqual([
+      {
+        template: "vite-react",
+        listed: {
+          "@kirana-style/core": "0.1.0",
+          react: "^19.0.0",
+          "@kirana-style/vite": "0.1.0",
+          "kirana-style": "0.1.0",
+          vite: "^8.0.0",
+        },
+      },
+      { template: "bare", listed: {} },
+    ])
+    expect(readdirSync(start)).toEqual([])
+  })
+
+  it("tells an archive's runtime from its packages, and says when no template it lists fits", async () => {
+    const registry = runtimeRegistry({
+      templates: [
+        { name: "vite-solid", file: "solid.tgz" },
+        { name: "vite-react", framework: "react", file: "solid.tgz" },
+      ],
+    })
+    // An entry that names no framework: its archive's packages say Solid 1.
+    expect(
+      (
+        await fromTemplate(
+          registry,
+          "--template",
+          "@acme/vite-solid",
+          "--preset",
+          "p2"
+        )
+      ).text
+    ).toBe(
+      "@acme/vite-solid is on solid1, and @acme's solid/uisdk base needs solid2: nothing written; no template @acme lists is on solid2\n"
+    )
+    // An archive by its path has no index to name one from.
+    const archive = path.join(root, "solid2-app.tgz")
+    writeFileSync(archive, packed(solidApp(true)))
+    const byPath = await fromTemplate(
+      registry,
+      "--template",
+      archive,
+      "--design",
+      "@acme/kit"
+    )
+    expect(byPath).toMatchObject({
+      code: 1,
+      text: `${archive} is on solid2, and @acme's solid/ark base needs solid1: nothing written; start from a template on solid1\n`,
+      written: [],
+    })
+  })
+
+  it("starts from a template on the runtime the base needs, and from any template where the index names none", async () => {
+    const registry = runtimeRegistry()
+    for (const [template, preset] of [
+      ["@acme/vite-solid2--none", "p2"],
+      ["@acme/vite-solid--none", "p0"],
+    ] as const) {
+      const { code, text, cwd } = await fromTemplate(
+        registry,
+        "--template",
+        template,
+        "--preset",
+        preset,
+        "app"
+      )
+      expect([template, code]).toEqual([template, 0])
+      expect(text).toContain(`template: ${template} from `)
+      expect(existsSync(path.join(cwd, "app/src/lib/kit/kit.ts"))).toBe(true)
+    }
+    // A preset for another framework than the template's, and no base yet, are left to what follows.
+    expect(
+      (
+        await fromTemplate(
+          registry,
+          "--template",
+          "@acme/vite-react--none",
+          "--preset",
+          "p2"
+        )
+      ).text
+    ).toContain("template: @acme/vite-react--none from ")
+    expect(
+      (
+        await fromTemplate(
+          runtimeRegistry({ defaultBase: false }),
+          "--template",
+          "@acme/vite-solid2--none"
+        )
+      ).code
+    ).toBe(0)
+    // Without `requires`, the index behaves as it did before.
+    const before = runtimeRegistry({ requires: false })
+    const { code, text } = await fromTemplate(
+      before,
+      "--template",
+      "@acme/vite-solid--none",
+      "--preset",
+      "p2"
+    )
+    expect(code).toBe(0)
+    expect(text).toContain("@acme/kit 1.0.0\n")
+    // An index that cannot be read leaves the check to what follows.
+    rmSync(path.join(before, "index.json"))
+    expect(
+      (
+        await fromTemplate(
+          before,
+          "--template",
+          "@acme/vite-solid2--none",
+          "--design",
+          "@acme/kit"
+        )
+      ).code
+    ).toBe(0)
   })
 })

@@ -29,6 +29,22 @@
           "description": {
             "type": "string"
           },
+          "framework": {
+            "type": "string",
+            "description": "The framework its app is on (KF-134): `ui init --template` names a template of the framework on the runtime a base needs when this one is on another.",
+            "enum": [
+              "react",
+              "vue",
+              "svelte",
+              "solid",
+              "angular"
+            ]
+          },
+          "runtime": {
+            "type": "string",
+            "description": "The framework's runtime it is on, as the registry index's `requires` names it: `solid2`; none for the framework's default (KF-134). Needs `framework`.",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
           "file": {
             "type": "string",
             "description": "The archive, relative to this document: for every package manager, or for those `files` does not name.",
@@ -61,6 +77,11 @@
           "meta": {
             "type": "object"
           }
+        },
+        "dependentRequired": {
+          "runtime": [
+            "framework"
+          ]
         },
         "additionalProperties": false
       }

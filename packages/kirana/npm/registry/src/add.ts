@@ -35,6 +35,7 @@ import {
 } from "./project.ts"
 import type { Project, ReadFile } from "./project.ts"
 import { parseReference, read, RegistryError, registryOf } from "./read.ts"
+import { baseRefusal, runtimeOf } from "./runtime.ts"
 import { REFERENCE_PATTERN } from "./schema.ts"
 import { loadSettings } from "./settings.ts"
 import type { AliasedType, Settings } from "./settings.ts"
@@ -255,6 +256,30 @@ export async function plan(
       chosen.framework === undefined
         ? undefined
         : item.frameworks![chosen.framework]![chosen.base!]!
+    // A base on another runtime than the project's (KF-134): the index is read only where the
+    // project's packages say which runtime it is on, and one that cannot be read names none.
+    const runtime =
+      chosen.framework === undefined
+        ? undefined
+        : runtimeOf(project.listed, chosen.framework)
+    if (runtime !== undefined) {
+      const refused = await indexOf(namespace).then(
+        (index) =>
+          baseRefusal(
+            index,
+            namespace,
+            chosen.framework!,
+            chosen.base!,
+            runtime,
+            Object.keys(item.frameworks![chosen.framework!]!)
+          ),
+        () => undefined
+      )
+      if (refused)
+        throw new RegistryError(
+          `${key}: ${refused.message}: ${refused.fits.length > 0 ? `set ui.base to a base on ${runtime} (${refused.fits.join(", ")})` : `it has no ${chosen.framework} base on ${runtime}`}`
+        )
+    }
     for (const dependency of [
       ...(item.registryDependencies ?? []),
       ...(entry?.registryDependencies ?? []),

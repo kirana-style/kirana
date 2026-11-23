@@ -109,14 +109,26 @@ export type Index = {
   homepage?: string
   /** The base each framework takes when the project sets no `ui.base` (KF-120). */
   defaultBase?: Partial<Record<Framework, string>>
+  /**
+   * The runtime each base needs, per framework (KF-134): `{ solid: { uisdk: "solid2" } }`. A base a
+   * named framework leaves out needs the framework's default runtime.
+   */
+  requires?: Requires
   items: IndexEntry[]
 }
+
+/** The runtime bases need, by framework and base (KF-134). */
+export type Requires = Partial<Record<Framework, Record<string, string>>>
 
 /** A registry's template: a project's archive, one for every package manager or one for each. */
 export type TemplateEntry = {
   name: string
   title?: string
   description?: string
+  /** The framework its app is on, which `runtime` is one of (KF-134). */
+  framework?: Framework
+  /** The framework's runtime it is on, `solid2`; none for the framework's default (KF-134). */
+  runtime?: string
   file?: string
   files?: Partial<Record<"npm" | "pnpm" | "yarn" | "bun", string>>
   meta?: Record<string, unknown>

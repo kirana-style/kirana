@@ -5083,6 +5083,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "bases-on-another-runtime",
+        "text": "Bases on another runtime",
+        "level": 3
+      },
+      {
         "id": "templates",
         "text": "Templates",
         "level": 2

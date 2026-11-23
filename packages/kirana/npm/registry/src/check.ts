@@ -1,7 +1,8 @@
 /**
  * What a registry document is and everything wrong with it: its schema's problems, then what a
  * schema cannot say (KRN-DX-021, KRN-DX-024): each file's hash against its content, and a `target`
- * on exactly the files of type `file`; an index's default bases among its items' (KF-120).
+ * on exactly the files of type `file`; an index's default bases among its items' (KF-120), and the
+ * bases it names runtimes for (KF-134).
  */
 import { createHash } from "node:crypto"
 
@@ -137,19 +138,29 @@ function itemProblems(item: Item): Problem[] {
   return problems
 }
 
-/** What the index schema cannot check (KF-120): each default base is one an entry lists. */
+/**
+ * What the index schema cannot check: each default base (KF-120) and each base a runtime is required
+ * for (KF-134) is one an entry lists.
+ */
 function indexProblems(index: Index): Problem[] {
   const problems: Problem[] = []
-  for (const [framework, base] of Object.entries(index.defaultBase ?? {}))
-    if (
-      !index.items.some((entry) =>
-        entry.frameworks?.[framework as Framework]?.includes(base)
-      )
+  const listed = (framework: string, base: string) =>
+    index.items.some((entry) =>
+      entry.frameworks?.[framework as Framework]?.includes(base)
     )
+  for (const [framework, base] of Object.entries(index.defaultBase ?? {}))
+    if (!listed(framework, base))
       problems.push({
         pointer: `/defaultBase/${framework}`,
         message: `names ${base}, which no item has for ${framework}`,
       })
+  for (const [framework, bases] of Object.entries(index.requires ?? {}))
+    for (const base of Object.keys(bases))
+      if (!listed(framework, base))
+        problems.push({
+          pointer: `/requires/${framework}/${base}`,
+          message: `is for ${base}, which no item has for ${framework}`,
+        })
   return problems
 }
 

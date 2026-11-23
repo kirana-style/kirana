@@ -1,4 +1,5 @@
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -1182,5 +1183,101 @@ describe("KRN-DX-025 the lockfile, written", () => {
     expect(text.indexOf("@a/x")).toBeLessThan(text.indexOf("@b/y"))
     expect(text.indexOf('"a.ts"')).toBeLessThan(text.indexOf('"z.ts"'))
     expect(readLockfile(cwd).items["@b/y"]!.version).toBe("1.0.0")
+  })
+})
+
+describe("KF-134 ui add checks the runtime a base needs", () => {
+  /** A Solid component on Ark UI, Kirana UI and ui-sdk, which alone needs Solid 2. */
+  const DIALOG: Item = {
+    name: "dialog",
+    type: "component",
+    version: "1.0.0",
+    frameworks: {
+      solid: Object.fromEntries(
+        ["ark", "kirana", "uisdk"].map((base) => [
+          base,
+          { files: [file("dialog.tsx", "ui", `${base}\n`)] },
+        ])
+      ),
+    },
+  }
+  /** `@acme`'s index, naming what ui-sdk needs unless `requires` is given (none for `null`). */
+  const index = (
+    requires: Record<string, unknown> | null = { solid: { uisdk: "solid2" } }
+  ) =>
+    JSON.stringify({
+      ...(requires === null ? {} : { requires }),
+      items: [
+        {
+          name: "dialog",
+          type: "component",
+          version: "1.0.0",
+          frameworks: { solid: ["ark", "kirana", "uisdk"], react: ["aria"] },
+        },
+      ],
+    })
+  const SOLID1 = { "solid-js": "^1.9.9" }
+  const SOLID2 = { "solid-js": "^2.0.3", "@solidjs/web": "^2.0.3" }
+  /** A Solid project on these packages, with this base, adding the dialog from `@acme`. */
+  const adding = async (
+    base: string,
+    dependencies: Record<string, string>,
+    requires?: Record<string, unknown> | null
+  ) => {
+    const cwd = project({ base }, [DIALOG], {
+      "package.json": JSON.stringify({ dependencies }),
+      "acme/index.json": index(requires),
+    })
+    return { cwd, ...(await add(cwd, "@acme/dialog", "--no-check")) }
+  }
+
+  it("refuses a base on another runtime than the project's, before writing", async () => {
+    const solid1 = await adding("uisdk", SOLID1)
+    expect(solid1).toMatchObject({
+      code: 1,
+      text: "@acme/dialog: @acme's solid/uisdk base needs solid2, and the project is on solid1: set ui.base to a base on solid1 (ark, kirana)\n",
+      commands: [],
+    })
+    expect(existsSync(path.join(solid1.cwd, "src/components/ui"))).toBe(false)
+    // The reverse: a Solid 2 project, on a base the index leaves on Solid 1.
+    expect((await adding("ark", SOLID2)).text).toBe(
+      "@acme/dialog: @acme's solid/ark base needs solid1, and the project is on solid2: set ui.base to a base on solid2 (uisdk)\n"
+    )
+    // A Solid 2 project on a range of solid-js alone, and an item with no base for it.
+    expect(
+      (
+        await adding(
+          "ark",
+          { "solid-js": "2.0.3" },
+          { solid: { uisdk: "solid2", kirana: "solid2", ark: "solid1" } }
+        )
+      ).text
+    ).toBe(
+      "@acme/dialog: @acme's solid/ark base needs solid1, and the project is on solid2: set ui.base to a base on solid2 (kirana, uisdk)\n"
+    )
+    expect(
+      (
+        await adding("uisdk", SOLID1, {
+          solid: { uisdk: "solid2", ark: "solid2", kirana: "solid2" },
+        })
+      ).text
+    ).toBe(
+      "@acme/dialog: @acme's solid/uisdk base needs solid2, and the project is on solid1: it has no solid base on solid1\n"
+    )
+  })
+
+  it("installs a base on the project's runtime, and checks nothing the index or the project does not say", async () => {
+    const passes = async (...args: Parameters<typeof adding>) => {
+      const { code, text } = await adding(...args)
+      expect([args, code]).toEqual([args, 0])
+      expect(text).toContain(`@acme/dialog 1.0.0 · solid/${args[0]}\n`)
+    }
+    await passes("uisdk", SOLID2)
+    await passes("ark", SOLID1)
+    // An index without `requires`, or without it for the framework.
+    await passes("uisdk", SOLID1, null)
+    await passes("uisdk", SOLID1, { react: { aria: "react20" } })
+    // A range without a number does not say which Solid.
+    await passes("uisdk", { "solid-js": "catalog:" })
   })
 })

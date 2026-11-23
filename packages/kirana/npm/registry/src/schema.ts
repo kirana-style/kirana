@@ -65,6 +65,17 @@ export const FILE_TYPES = [
   "file",
 ] as const
 
+/**
+ * A framework's runtime (KF-134): a major only some templates and bases run on, by the name the
+ * registry gives it. Kirana tells Solid's apart in a project (`runtime.ts`).
+ */
+const RUNTIME: Schema = {
+  type: "string",
+  description:
+    "A framework's runtime, a major only some templates and bases run on, by the name the registry gives it: `solid2`. Kirana tells Solid's apart in a project: `solid2` where it lists `@solidjs/web` or `solid-js` from 2 on, else `solid1`, Solid's default.",
+  pattern: `^${NAME}$`,
+}
+
 const definitions: Record<string, Schema> = {
   name: { type: "string", pattern: `^${NAME}$` },
   installed: {
@@ -384,6 +395,25 @@ export const INDEX_SCHEMA: Schema = {
       ),
       additionalProperties: false,
     },
+    requires: {
+      type: "object",
+      description:
+        'The runtime each base needs, by framework, then base: `{ "solid": { "uisdk": "solid2" } }` (KF-134). A base of a framework named here that is not listed needs the framework\'s default runtime; a framework not named here is not checked. `ui init --template` refuses a template on another runtime, naming one on the runtime needed, and `ui add` a project on another. Each base is one an item lists for that framework.',
+      properties: Object.fromEntries(
+        FRAMEWORKS.map((framework) => [
+          framework,
+          {
+            type: "object",
+            minProperties: 1,
+            patternProperties: {
+              [`^${NAME}$`]: RUNTIME,
+            },
+            additionalProperties: false,
+          },
+        ])
+      ),
+      additionalProperties: false,
+    },
     items: {
       type: "array",
       items: {
@@ -497,6 +527,17 @@ export const TEMPLATES_SCHEMA: Schema = {
           name: { type: "string", pattern: `^${TEMPLATE_NAME}$` },
           title: { type: "string" },
           description: { type: "string" },
+          framework: {
+            type: "string",
+            description:
+              "The framework its app is on (KF-134): `ui init --template` names a template of the framework on the runtime a base needs when this one is on another.",
+            enum: FRAMEWORKS,
+          },
+          runtime: {
+            ...RUNTIME,
+            description:
+              "The framework's runtime it is on, as the registry index's `requires` names it: `solid2`; none for the framework's default (KF-134). Needs `framework`.",
+          },
           file: {
             type: "string",
             description:
@@ -518,6 +559,7 @@ export const TEMPLATES_SCHEMA: Schema = {
           },
           meta: { type: "object" },
         },
+        dependentRequired: { runtime: ["framework"] },
         additionalProperties: false,
       },
     },
