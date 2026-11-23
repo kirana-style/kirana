@@ -13,24 +13,38 @@
  *   (`...openAttrs(state.open)`), of another slot's `attrs` (`...trigger.attrs(state, part)` from
  *   `popupTrigger(slot)`), or of a slot it is built from (`slot({ ...root, … })`), across files,
  *   each function once; and of what `live(read)` writes as the part changes;
- * - what its `bind(el, part)` writes on `el` itself (`el.toggleAttribute("data-checked", …)`), and in
- *   the functions it hands `el` to (`animateIn(el)` writes `data-starting-style`); and what the
- *   component's modules write on a part's element they look up by slot (`element("content")`);
+ * - what its `bind(el, part)` writes on `el` itself (`el.toggleAttribute("data-checked", …)`), in
+ *   the functions it hands `el` to (`animateIn(el)` writes `data-starting-style`), and where one of
+ *   them keeps `el` in an entry that its api reads back (Menu's `register(el, …)`, then
+ *   `data-highlighted` on `entryFor(key)?.el`, KF-133): what the api writes on it there, in the
+ *   functions it hands it to, and on what a method returns that hands it out
+ *   (`view.hostElement(id)`); and what the component's modules write on a part's element they look
+ *   up by slot (`element("content")`);
+ * - an attribute's name, from a literal, a constant, or a template, one for each value it is built
+ *   from (`data-${status}` for each `status` of the array it loops over, KF-133);
  * - a call on an object the api builds at run time (`api.internal.press.triggerAttrs(…)`) is read
- *   as the methods of that name the package defines (`Collected.methods`);
+ *   as the methods of that name the package defines (`Collected.methods`); a value it returns, as
+ *   what its declaration returns (`orientation: () => TabsOrientation`, KF-133);
  * - two writers nothing in a part's code names, read from their own code: the popup layer
  *   (`popupLayer`), which animates a popup's element and backdrop in and out, and the positioner
  *   (`positioner`), which writes `data-side` and `data-align` on a placed popup and its arrow.
  *
  * A value is the attribute's presence (`open ? "" : undefined`) or the string literals it writes,
  * with the union of string literals a typed field holds (`"data-side": state.side`, typed in the
- * package's `.d.ts`); a value no type lists (a number, an id) leaves its presence alone. Attributes
- * that carry an identifier rather than a state are left out (`UI_SDK_NOT_STATES`), as are markers
- * written as one constant.
+ * package's `.d.ts`), or a callback's parameter, typed where the function it is handed to is
+ * declared (the toast's `data-swipe-direction`, KF-133); a value no type lists (a number, an id)
+ * leaves its presence alone. Attributes that carry an identifier rather than a state are left out
+ * (`UI_SDK_NOT_STATES`), as are markers written as one constant. States are `data-*` attributes,
+ * as in every vocabulary read from a library's data attributes (Base UI's current link is
+ * `[data-active]`): an `aria-*` attribute is not read, and where a part's state shows in one, ui-sdk
+ * writes a data attribute beside it (`aria-current="page"` with `data-current` on a navigation
+ * link, a separator's `aria-orientation` with `data-orientation`, KF-133).
  *
  * The components are the parts of every primitive under `dist/components/`, and of the features a
  * renderer adds to one (`menuCheckable` gives Menu its `checkbox-item`), merged by `name`: Checkbox's
- * group parts are Checkbox's, as their `data-slot` (`checkbox-group`) says.
+ * group parts are Checkbox's, as their `data-slot` (`checkbox-group`) says. An element a component
+ * creates and names with a `data-slot` of its own is a part too, with what its code writes on it
+ * (the token input's `host`, KF-133).
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs"
 import { createRequire } from "node:module"
@@ -496,6 +510,8 @@ type Field = {
   field: string
   module: Module
   returnOf?: { module: Module; fn: string }
+  /** Called: a method of an object built at run time, typed by what its declaration returns. */
+  called?: boolean
 }
 
 /**
@@ -596,7 +612,16 @@ function written(
               module: env.module,
             }
           )
-      } else out.fields.push({ field: node.name as string, module: env.module })
+      } else {
+        const typed = binding
+          ? undefined
+          : (callbackParameter(node, env) ?? loopVariable(node, env))
+        if (typed) {
+          for (const value of typed)
+            if (!out.values.includes(value)) out.values.push(value)
+        } else
+          out.fields.push({ field: node.name as string, module: env.module })
+      }
       break
     }
     case "MemberExpression": {
@@ -630,7 +655,16 @@ function written(
         } finally {
           calling.delete(callee.node)
         }
-      } else out.open = true
+      } else {
+        // A method of an object the api builds at run time (`api.internal.orientation()`): what
+        // its declaration says it returns (`orientation: () => TabsOrientation`, KF-133).
+        const target = unwrap(node.callee as Node)
+        const method =
+          target.type === "MemberExpression" ? memberKey(target) : undefined
+        if (method === undefined) out.open = true
+        else
+          out.fields.push({ field: method, module: env.module, called: true })
+      }
       break
     }
     default:
@@ -706,6 +740,198 @@ function callField(raw: Node, env: Env, key: string): Field | undefined {
     module: fn.env.module,
     returnOf: { module: fn.env.module, fn: callee },
   }
+}
+
+/**
+ * The nodes from `root` down to `target`, `target` left out; none when `target` is not under it.
+ * Nodes carry no parent, so the path is found by their ranges.
+ */
+function ancestors(root: Node, target: Node): Node[] {
+  const chain: Node[] = []
+  for (let current: Node | undefined = root; current;) {
+    if (current === target) return chain
+    chain.push(current)
+    const children: Node[] = Object.entries(current)
+      .filter(
+        ([key, value]) => key !== "parent" && value && typeof value === "object"
+      )
+      .flatMap(
+        ([, value]) => (Array.isArray(value) ? value : [value]) as Node[]
+      )
+      .filter((child) => child && typeof child.type === "string")
+    current =
+      children.find((child) => child === target) ??
+      children.find(
+        (child) => child.start <= target.start && target.end <= child.end
+      )
+  }
+  return []
+}
+
+/**
+ * The values a loop's variable takes, from the array of literals it iterates (KF-133): the token
+ * view writes `data-${status}` for each `status` of `["pending", "unresolved"]`.
+ */
+function loopVariable(identifier: Node, env: Env): string[] | undefined {
+  const variable = identifier.name as string
+  const chain = ancestors(env.module.program, identifier)
+  for (let at = chain.length - 1; at >= 0; at--) {
+    const loop = chain[at]!
+    if (loop.type !== "ForOfStatement") continue
+    const left = loop.left as Node
+    const declared =
+      left.type === "VariableDeclaration"
+        ? name((left.declarations as Node[])[0]?.id)
+        : name(left)
+    if (declared !== variable) continue
+    const right = unwrap(loop.right as Node)
+    if (right.type !== "ArrayExpression") return undefined
+    const values: string[] = []
+    for (const element of right.elements as (Node | null)[]) {
+      if (element?.type !== "Literal" || typeof element.value !== "string")
+        return undefined
+      values.push(element.value)
+    }
+    return values.length > 0 ? values : undefined
+  }
+  return undefined
+}
+
+/**
+ * The values a callback's parameter holds, typed where the function it is handed to is declared
+ * (KF-133): the toast's `startSwipe` hands `trackSwipe(…, { onEnd: (direction, event) => … })` a
+ * callback that writes `data-swipe-direction` with `direction`, and `swipe.d.ts` declares
+ * `trackSwipe(…, callbacks: SwipeCallbacks)`, whose `onEnd` takes
+ * `direction: SwipeDirection | null`. The callback is the argument itself or a property of an object
+ * that is one; the function it is handed to is one the package declares.
+ */
+function callbackParameter(identifier: Node, env: Env): string[] | undefined {
+  const variable = identifier.name as string
+  const chain = ancestors(env.module.program, identifier)
+  // The nearest function around it that takes it as a parameter, and at which index.
+  let at = chain.length - 1
+  let index = -1
+  for (; at >= 0; at--) {
+    if (!isFunction(chain[at])) continue
+    index = (chain[at]!.params as Node[]).findIndex(
+      (param) =>
+        name(param.type === "AssignmentPattern" ? param.left : param) ===
+        variable
+    )
+    if (index >= 0) break
+  }
+  if (index < 0) return undefined
+  const fn = chain[at]!
+  // `{ onEnd: (direction) => … }` or `{ onEnd(direction) { … } }`, handed on as an argument.
+  const inObject =
+    chain[at - 1]?.type === "Property" &&
+    chain[at - 2]?.type === "ObjectExpression"
+  const key = inObject ? keyOf(chain[at - 1]!) : undefined
+  const argument = inObject ? chain[at - 2]! : fn
+  const site = chain[inObject ? at - 3 : at - 1]
+  if (site?.type !== "CallExpression" || (inObject && key === undefined))
+    return undefined
+  const position = (site.arguments as Node[]).indexOf(argument)
+  const callee = name(unwrap(site.callee as Node))
+  const target = callee ? settle(lookup(env, callee)) : undefined
+  if (position < 0 || !target || !("node" in target)) return undefined
+  const declared = name(target.node.id)
+  const file = declared && declarations(dtsOf(target.env.module.file))
+  const signature = file
+    ? (file.program.body as Node[])
+        .map((statement) =>
+          statement.type === "ExportNamedDeclaration"
+            ? (statement.declaration as Node | null)
+            : statement
+        )
+        .find(
+          (statement) =>
+            statement?.type === "TSDeclareFunction" &&
+            name(statement.id) === declared
+        )
+    : undefined
+  const param = (signature?.params as Node[] | undefined)?.[position]
+  let type = param && typeOf(param)
+  let from = file || undefined
+  if (type && from && key !== undefined) {
+    const found = memberType(type, key, from)
+    type = found?.node
+    from = found?.file
+  }
+  if (!type || !from) return undefined
+  const fnType = unwrapType(type)
+  const own = (fnType?.params as Node[] | undefined)?.[index]
+  const ownType = own && typeOf(own)
+  const values = ownType && literalUnion(ownType, from)
+  return values && values.length > 0 ? values : undefined
+}
+
+/** A parameter's or a property's declared type, `TSTypeAnnotation` unwrapped. */
+function typeOf(node: Node): Node | undefined {
+  const annotation = node.typeAnnotation as Node | null | undefined
+  return annotation
+    ? ((annotation.typeAnnotation as Node | undefined) ?? annotation)
+    : undefined
+}
+
+/** A function type, or a method signature, behind its parentheses. */
+function unwrapType(node: Node): Node | undefined {
+  if (node.type === "TSParenthesizedType")
+    return unwrapType(node.typeAnnotation as Node)
+  return node.type === "TSFunctionType" || node.type === "TSMethodSignature"
+    ? node
+    : undefined
+}
+
+/**
+ * The type of a type's member (`SwipeCallbacks["onEnd"]`): a property's type, or a method's
+ * signature, through the alias or interface a reference names.
+ */
+function memberType(
+  type: Node,
+  key: string,
+  file: Declarations,
+  depth = 0
+): { node: Node; file: Declarations } | undefined {
+  if (depth > 10) return undefined
+  if (type.type === "TSTypeReference") {
+    const reference = name(type.typeName)
+    const alias = reference && !type.typeArguments && typeAlias(file, reference)
+    if (alias) return memberType(alias.node, key, alias.file, depth + 1)
+    const declared = reference
+      ? (file.program.body as Node[])
+          .map((statement) =>
+            statement.type === "ExportNamedDeclaration"
+              ? (statement.declaration as Node | null)
+              : statement
+          )
+          .find(
+            (statement) =>
+              statement?.type === "TSInterfaceDeclaration" &&
+              name(statement.id) === reference
+          )
+      : undefined
+    return declared
+      ? members((declared.body as Node).body as Node[], key, file)
+      : undefined
+  }
+  return type.type === "TSTypeLiteral"
+    ? members(type.members as Node[], key, file)
+    : undefined
+}
+
+function members(
+  list: readonly Node[],
+  key: string,
+  file: Declarations
+): { node: Node; file: Declarations } | undefined {
+  for (const signature of list) {
+    if (signature.computed || keyOf(signature) !== key) continue
+    if (signature.type === "TSMethodSignature") return { node: signature, file }
+    const type = signature.type === "TSPropertySignature" && typeOf(signature)
+    if (type) return { node: type, file }
+  }
+  return undefined
 }
 
 // Collecting a part's attributes ------------------------------------------------------------------
@@ -867,33 +1093,90 @@ function imperative(
   )
 }
 
-/** What code writes on the element a name holds, and in the functions it hands it to. */
+/**
+ * `target.setAttribute("data-x", …)` or `target.toggleAttribute("data-x", …)`, noted on the part
+ * when `isTarget` takes its target: whether the call is such a write on it.
+ */
+function attributeWrite(
+  node: Node,
+  env: Env,
+  collected: Collected,
+  isTarget: (target: Node) => boolean
+): boolean {
+  const callee = unwrap(node.callee as Node)
+  const args = node.arguments as Node[]
+  if (callee.type !== "MemberExpression" || !args[0]) return false
+  const attributes = attributeNames(args[0], env).filter((attribute) =>
+    attribute.startsWith("data-")
+  )
+  if (attributes.length === 0 || !isTarget(unwrap(callee.object as Node)))
+    return false
+  const method = memberKey(callee)
+  for (const attribute of attributes)
+    // Set while something holds, and taken off after: never a constant.
+    if (method === "setAttribute" && args[1])
+      note(collected, attribute, { ...written(args[1], env), varies: true })
+    else if (method === "toggleAttribute")
+      note(collected, attribute, { ...nothing(), presence: true, varies: true })
+  return true
+}
+
+/**
+ * The attribute names an expression can be: a literal, a constant it names
+ * (`setAttribute(HOST, …)`), or a template, one name for each value of what it is built from
+ * (`data-${status}`, KF-133). None when one of its values can't be listed.
+ */
+function attributeNames(raw: Node, env: Env): string[] {
+  const node = unwrap(raw)
+  if (node.type === "Literal")
+    return typeof node.value === "string" ? [node.value] : []
+  const valuesOf = (part: Node) => {
+    const wrote = written(part, env)
+    return wrote.open || wrote.presence || wrote.fields.length > 0
+      ? []
+      : wrote.values
+  }
+  if (node.type !== "TemplateLiteral") return valuesOf(node)
+  const quasis = (node.quasis as Node[]).map(
+    (quasi) => (quasi.value as { cooked: string }).cooked
+  )
+  let names = [quasis[0]!]
+  ;(node.expressions as Node[]).forEach((expression, index) => {
+    const values = valuesOf(expression)
+    names = names.flatMap((start) =>
+      values.map((value) => `${start}${value}${quasis[index + 1]}`)
+    )
+  })
+  return names
+}
+
+/**
+ * What code writes on the element a name holds, in the functions it hands it to, and where it is
+ * read back from an entry it is kept in.
+ */
 function writesOn(body: Node, element: string, env: Env, collected: Collected) {
   collected.modules.add(env.module)
   walk(body, (node) => {
+    if (node.type === "ObjectExpression") {
+      for (const property of node.properties as Node[])
+        if (
+          property.type === "Property" &&
+          name(unwrap(property.value as Node)) === element
+        ) {
+          const key = keyOf(property)
+          if (key) keptIn(body, key, env.module, collected)
+        }
+      return
+    }
     if (node.type !== "CallExpression") return
+    if (
+      attributeWrite(node, env, collected, (target) => name(target) === element)
+    )
+      return
     const callee = unwrap(node.callee as Node)
     const args = node.arguments as Node[]
     const method =
       callee.type === "MemberExpression" ? memberKey(callee) : undefined
-    const attribute = args[0]?.type === "Literal" ? args[0].value : undefined
-    if (
-      callee.type === "MemberExpression" &&
-      name(unwrap(callee.object as Node)) === element &&
-      typeof attribute === "string" &&
-      attribute.startsWith("data-")
-    ) {
-      // Set while something holds, and taken off after: never a constant.
-      if (method === "setAttribute" && args[1])
-        note(collected, attribute, { ...written(args[1], env), varies: true })
-      else if (method === "toggleAttribute")
-        note(collected, attribute, {
-          ...nothing(),
-          presence: true,
-          varies: true,
-        })
-      return
-    }
     const at = args.findIndex((arg) => name(unwrap(arg)) === element)
     if (at < 0) return
     const targets = functions(evaluate(callee, env))
@@ -919,6 +1202,109 @@ function writesOn(body: Node, element: string, env: Env, collected: Collected) {
       )
     for (const target of targets) imperative(target, at, collected)
   })
+}
+
+/**
+ * What an api writes on an element a function keeps in an entry under `key`, where the api reads
+ * it back (KF-133): Menu's `register(el, item)` keeps each item's element as
+ * `entries.add({ ...item, el })`, and the menu's api, the function around it, writes
+ * `data-highlighted` on `entryFor(key)?.el` as the highlight moves. Every element so kept is one
+ * part's or another's of that api, as their `bind` hands them over: what it writes on an entry's
+ * element read back (`next = entryFor(…)?.el`, then `next.setAttribute(…)`), is theirs.
+ */
+function keptIn(body: Node, key: string, module: Module, collected: Collected) {
+  const around = ancestors(module.program, body).filter(isFunction)
+  // The function that keeps it is the last; the api it belongs to, the one around that.
+  const api = around.at(-2)
+  if (!api || collected.seen.has(api)) return
+  collected.seen.add(api)
+  const env = callScope({ node: api, env: module.env }, [], module.env, true)
+  const readBack = (raw: Node | undefined) => {
+    const node = raw && unwrap(raw)
+    return node?.type === "MemberExpression" && memberKey(node) === key
+  }
+  const isKept = (node: Node, raw: Node) => {
+    const target = unwrap(raw)
+    if (readBack(target)) return true
+    const variable = name(target)
+    return !!variable && readBack(declaredNear(api, node, variable))
+  }
+  // The api's methods that hand it out (`hostElement: (id) => hosts.get(id)?.host`).
+  const handsOut = new Set<string>()
+  walk(api.body, (node) => {
+    const [method, fn] =
+      node.type === "Property"
+        ? [keyOf(node), node.value as Node]
+        : node.type === "VariableDeclarator"
+          ? [name(node.id), node.init as Node | null]
+          : node.type === "FunctionDeclaration"
+            ? [name(node.id), node]
+            : [undefined, undefined]
+    if (
+      method &&
+      fn &&
+      isFunction(fn) &&
+      returns(fn).some((returned) => isKept(returned, returned))
+    )
+      handsOut.add(method)
+    if (node.type !== "CallExpression") return
+    if (attributeWrite(node, env, collected, (target) => isKept(node, target)))
+      return
+    // Handed to a function (`host(entry.host, token)`): what that function writes on it.
+    const at = (node.arguments as Node[]).findIndex((arg) => isKept(node, arg))
+    if (at >= 0)
+      for (const target of functions(evaluate(node.callee as Node, env)))
+        imperative(target, at, collected)
+  })
+  if (handsOut.size === 0) return
+  // What the component's modules write on what such a method returns: the token input's editor
+  // writes `data-selected` on `view.hostElement(token.id)`.
+  const folder = path.dirname(module.file)
+  for (const other of modules.values()) {
+    if (path.dirname(other.file) !== folder) continue
+    walk(other.program, (node) => {
+      if (node.type !== "CallExpression") return
+      attributeWrite(node, other.env, collected, (target) => {
+        const callee =
+          target.type === "CallExpression"
+            ? unwrap(target.callee as Node)
+            : undefined
+        return (
+          callee?.type === "MemberExpression" &&
+          handsOut.has(memberKey(callee) ?? "")
+        )
+      })
+    })
+  }
+}
+
+/**
+ * What a name is declared with (`const next = …`) in the function nearest a node that declares it,
+ * from that node out to `scope`.
+ */
+function declaredNear(
+  scope: Node,
+  node: Node,
+  variable: string
+): Node | undefined {
+  // `scope` is the first of the node's ancestors.
+  for (const fn of ancestors(scope, node).filter(isFunction).reverse()) {
+    let init: Node | undefined
+    walk(
+      fn.body,
+      (inner) => {
+        if (
+          !init &&
+          inner.type === "VariableDeclarator" &&
+          name(inner.id) === variable
+        )
+          init = (inner.init as Node | null) ?? undefined
+      },
+      true
+    )
+    if (init) return init
+  }
+  return undefined
 }
 
 /**
@@ -1187,10 +1573,20 @@ function typeAlias(
   return undefined
 }
 
-type Property = { owner: string; field: string; type: Node; doc: string }
+type Property = {
+  owner: string
+  field: string
+  type: Node
+  doc: string
+  /** What it returns, for a method (`f(): T`) or a function-typed property (`f: () => T`). */
+  returns?: Node
+}
 const propertyCache = new Map<Declarations, Property[]>()
 
-/** Each property signature of a declaration file, with the type alias it sits in and its JSDoc. */
+/**
+ * Each property and method signature of a declaration file, with the type alias it sits in and its
+ * JSDoc.
+ */
 function properties(file: Declarations): Property[] {
   const cached = propertyCache.get(file)
   if (cached) return cached
@@ -1208,15 +1604,33 @@ function properties(file: Declarations): Property[] {
         ? name(declaration.id)!
         : ""
     walk(declaration, (node) => {
-      if (node.type !== "TSPropertySignature" || node.computed) return
+      if (node.computed) return
+      if (node.type === "TSMethodSignature") {
+        const field = keyOf(node)
+        if (field && node.returnType)
+          out.push({
+            owner,
+            field,
+            type: node,
+            doc: jsdoc(file, node.start),
+            returns: node.returnType as Node,
+          })
+        return
+      }
+      if (node.type !== "TSPropertySignature") return
       const field = keyOf(node)
-      if (field && node.typeAnnotation)
-        out.push({
-          owner,
-          field,
-          type: node.typeAnnotation as Node,
-          doc: jsdoc(file, node.start),
-        })
+      const type = node.typeAnnotation as Node | null
+      if (!field || !type) return
+      const fn = type.typeAnnotation as Node
+      out.push({
+        owner,
+        field,
+        type,
+        doc: jsdoc(file, node.start),
+        ...(fn.type === "TSFunctionType"
+          ? { returns: fn.returnType as Node }
+          : {}),
+      })
     })
   }
   return out
@@ -1278,28 +1692,36 @@ function fieldValues(
     if (values) return values
   }
   const beside = declarations(dtsOf(field.module.file))
-  return typedProperty(field.field, [...files, ...(beside ? [beside] : [])])
+  return typedProperty(
+    field.field,
+    [...files, ...(beside ? [beside] : [])],
+    field.called
+  )
 }
 
 /**
  * The string literals the properties of a name list, a state type's first: those of the first
  * file that types one, all of its properties of that name together (`date-input-model.d.ts` types
- * a literal segment's `type: "literal"` and an editable one's `type: "month" | …`).
+ * a literal segment's `type: "literal"` and an editable one's `type: "month" | …`). For a method
+ * `called`, what its signature returns (KF-133).
  */
 function typedProperty(
   field: string,
-  files: readonly Declarations[]
+  files: readonly Declarations[],
+  called = false
 ): string[] | undefined {
   for (const states of [true, false])
     for (const file of files) {
       const out: string[] = []
       for (const property of properties(file)) {
+        const type = called ? property.returns : property.type
         if (
+          !type ||
           property.field !== field ||
           property.owner.endsWith("State") !== states
         )
           continue
-        for (const value of literalUnion(property.type, file) ?? [])
+        for (const value of literalUnion(type, file) ?? [])
           if (!out.includes(value)) out.push(value)
       }
       if (out.length > 0) return out
@@ -1441,7 +1863,8 @@ function stateOf(
     // A field no type lists, or the attribute typed where its object is (`radioGroupAttrs`
     // declares `"data-orientation": "horizontal" | "vertical" | undefined`).
     const typed = wrote.guessed
-      ? (typedProperty(field.field, files) ?? typedProperty(attribute, files))
+      ? (typedProperty(field.field, files, field.called) ??
+        typedProperty(attribute, files))
       : (fieldValues(field, files) ?? typedProperty(attribute, files))
     if (!typed) open = true
     else
@@ -1818,6 +2241,49 @@ export function uiSdk(): {
     slotElementWrites(module, (slot) => {
       const owner = owners.find(([, entry]) => entry.parts.has(slot))
       return owner?.[1].parts.get(slot)
+    })
+  }
+  // An element a component creates and names as a part of its own, as the kernel names a slot's
+  // (KF-133): the token view's `host.setAttribute("data-slot", "token-input-host")`, a part `host`
+  // of `token-input`, with what the code writes on it.
+  for (const { module, folder } of loaded) {
+    const owners = [...byName.keys()].filter((component) =>
+      byName.get(component)!.folders.has(folder)
+    )
+    walk(module.program, (node) => {
+      if (node.type !== "CallExpression") return
+      const callee = unwrap(node.callee as Node)
+      const [attribute, value] = node.arguments as Node[]
+      const element =
+        callee.type === "MemberExpression"
+          ? name(unwrap(callee.object as Node))
+          : undefined
+      if (
+        !element ||
+        memberKey(callee) !== "setAttribute" ||
+        attribute?.type !== "Literal" ||
+        attribute.value !== "data-slot" ||
+        value?.type !== "Literal" ||
+        typeof value.value !== "string"
+      )
+        return
+      const slot = value.value
+      const component = owners
+        .filter((owner) => slot.startsWith(`${owner}-`))
+        .sort((a, b) => b.length - a.length)[0]
+      const fn = ancestors(module.program, node).filter(isFunction).at(-1)
+      if (!component || !fn) return
+      const { collected } = collectedFor(
+        component,
+        folder,
+        slot.slice(component.length + 1)
+      )
+      writesOn(
+        fn.body as Node,
+        element,
+        callScope({ node: fn, env: module.env }, [], module.env, true),
+        collected
+      )
     })
   }
 

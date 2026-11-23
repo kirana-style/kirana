@@ -123,6 +123,16 @@ They differ where the libraries do:
 - **ui-sdk** writes the same attributes in every framework, since one core
   writes them, so one vocabulary serves its four adapters. A component with one
   part has its states at the top, as Base UI's Button: `Button.pending`.
+- **ui-sdk's parts** also have what their component writes on them as they
+  change, such as the item a menu highlights (`Menu.Item.highlighted`), and a
+  state's values come from ui-sdk's types where its code computes them:
+  `Tabs.Root.orientation.vertical`, `Toast.Root.swipeDirection.left`.
+- **ui-sdk's states** are its data attributes: where ui-sdk marks a navigation
+  menu's current link `aria-current="page"`, it writes `data-current` beside it,
+  `NavigationMenu.Link.current`.
+- **An element ui-sdk creates** and names with a `data-slot` of its own is a
+  part too, with what its code writes on it: each token's host in a token
+  input, `TokenInput.Host.selected`.
 - **Kirana UI Primitives** publishes its vocabulary as data, generated from the
   part definitions its core runs on, so `@kirana-style/states/kirana-ui` is a copy
   of it, its exclusive groups included (a value's name camelCased as in every

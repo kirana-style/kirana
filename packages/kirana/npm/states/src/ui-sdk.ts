@@ -1500,6 +1500,8 @@ export const Menu = {
     closed: "[data-closed]",
     /** Present when the trigger's `disabled` prop is set, or the menubar it's in is disabled. */
     disabled: "[data-disabled]",
+    /** Present when the menu trigger is highlighted. */
+    highlighted: "[data-highlighted]",
     /** Present when the menu is open from this trigger. */
     open: "[data-open]",
   },
@@ -1538,6 +1540,8 @@ export const Menu = {
     destructive: "[data-destructive]",
     /** Present when the item can't be chosen. */
     disabled: "[data-disabled]",
+    /** Present when the item has keyboard focus or is under the pointer. */
+    highlighted: "[data-highlighted]",
     /** Present when its `onSelect` or `onAction` Promise is running. */
     pending: "[data-pending]",
   },
@@ -1546,6 +1550,8 @@ export const Menu = {
     checked: "[data-checked]",
     /** Present when the item can't be chosen. */
     disabled: "[data-disabled]",
+    /** Present when the item has keyboard focus or is under the pointer. */
+    highlighted: "[data-highlighted]",
     /** Present when the menu checkbox item is indeterminate. */
     indeterminate: "[data-indeterminate]",
     /** Present when the menu checkbox item is unchecked. */
@@ -1556,6 +1562,8 @@ export const Menu = {
     checked: "[data-checked]",
     /** Present when the item can't be chosen. */
     disabled: "[data-disabled]",
+    /** Present when the item has keyboard focus or is under the pointer. */
+    highlighted: "[data-highlighted]",
     /** Present when the menu radio item is indeterminate. */
     indeterminate: "[data-indeterminate]",
     /** Present when the menu radio item is unchecked. */
@@ -2594,8 +2602,11 @@ export const Tabs = {
       up: '[data-activation-direction="up"]',
       down: '[data-activation-direction="down"]',
     },
-    /** The tabs' `orientation` option, or `"horizontal"` when it's unset or invalid. */
-    orientation: "[data-orientation]",
+    /** The tabs' `orientation` option, or `"horizontal"` when it's unset or invalid. One of `horizontal`, `vertical`. */
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   List: {
     /** The activation direction of the tabs list: one of `none`, `left`, `right`, `up`, `down`. */
@@ -2606,8 +2617,11 @@ export const Tabs = {
       up: '[data-activation-direction="up"]',
       down: '[data-activation-direction="down"]',
     },
-    /** The tabs' `orientation` option, or `"horizontal"` when it's unset or invalid. */
-    orientation: "[data-orientation]",
+    /** The tabs' `orientation` option, or `"horizontal"` when it's unset or invalid. One of `horizontal`, `vertical`. */
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Tab: {
     /** The activation direction of the tabs tab: one of `none`, `left`, `right`, `up`, `down`. */
@@ -2620,8 +2634,11 @@ export const Tabs = {
     },
     /** Present when this tab can't be selected. */
     disabled: "[data-disabled]",
-    /** The tabs' `orientation` option, or `"horizontal"` when it's unset or invalid. */
-    orientation: "[data-orientation]",
+    /** The tabs' `orientation` option, or `"horizontal"` when it's unset or invalid. One of `horizontal`, `vertical`. */
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when this tab's value is the tabs' `value`. */
     selected: "[data-selected]",
   },
@@ -2638,8 +2655,11 @@ export const Tabs = {
       up: '[data-activation-direction="up"]',
       down: '[data-activation-direction="down"]',
     },
-    /** The tabs' `orientation` option, or `"horizontal"` when it's unset or invalid. */
-    orientation: "[data-orientation]",
+    /** The tabs' `orientation` option, or `"horizontal"` when it's unset or invalid. One of `horizontal`, `vertical`. */
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
   },
   Panel: {
     /** The activation direction of the tabs panel: one of `none`, `left`, `right`, `up`, `down`. */
@@ -2652,8 +2672,11 @@ export const Tabs = {
     },
     /** Plays an element's exit animation: `data-ending-style` and `inert` while it animates out, then `done`, once every running animation has finished or a timeout from the computed durations has passed. */
     endingStyle: "[data-ending-style]",
-    /** The tabs' `orientation` option, or `"horizontal"` when it's unset or invalid. */
-    orientation: "[data-orientation]",
+    /** The tabs' `orientation` option, or `"horizontal"` when it's unset or invalid. One of `horizontal`, `vertical`. */
+    orientation: {
+      horizontal: '[data-orientation="horizontal"]',
+      vertical: '[data-orientation="vertical"]',
+    },
     /** Present when this panel's tab is selected. */
     selected: "[data-selected]",
     /** Starts an element's enter animation: `data-starting-style` for its first frame, so CSS transitions from it. */
@@ -2831,8 +2854,13 @@ export const Toast = {
     front: "[data-front]",
     /** Starts an element's enter animation: `data-starting-style` for its first frame, so CSS transitions from it. */
     startingStyle: "[data-starting-style]",
-    /** The swipe direction of the toast, a value no key lists: present whenever it is set. */
-    swipeDirection: "[data-swipe-direction]",
+    /** The swipe direction of the toast: one of `up`, `down`, `left`, `right`. */
+    swipeDirection: {
+      up: '[data-swipe-direction="up"]',
+      down: '[data-swipe-direction="down"]',
+      left: '[data-swipe-direction="left"]',
+      right: '[data-swipe-direction="right"]',
+    },
     /** Present when the toast is swiping. */
     swiping: "[data-swiping]",
     /** What it's about. One of `default`, `success`, `error`, `info`, `warning`, `loading`. */
@@ -2910,6 +2938,16 @@ export const TokenInput = {
     disabled: "[data-disabled]",
     /** Present when the token input token remove is readonly. */
     readonly: "[data-readonly]",
+  },
+  Host: {
+    /** Present when the token input host is pending. */
+    pending: "[data-pending]",
+    /** Present when the token input host is selected. */
+    selected: "[data-selected]",
+    /** The token type of the token input host, a value no key lists: present whenever it is set. */
+    tokenType: "[data-token-type]",
+    /** Present when the token input host is unresolved. */
+    unresolved: "[data-unresolved]",
   },
 } as const
 
