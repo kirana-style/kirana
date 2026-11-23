@@ -154,10 +154,15 @@ its `import` is in a package its `dependencies` lists. An axis's `items` name it
 values (KF-050).
 
 **KRN-DX-022** — A registry MUST be addressable as a URL template holding `{name}`, and its index
-is the item named `index`: `{ name, homepage, defaultBase, items }`, each entry with the item's
-`name`, `type`, `title`, `description`, `version` and its frameworks' bases. `defaultBase` names, per
-framework, the base a project without `ui.base` gets from an item with several (KF-120); each MUST
-be a base an entry lists for that framework, which `validate` checks. A project names registries in
+is the item named `index`: `{ name, homepage, defaultBase, requires, items }`, each entry with the
+item's `name`, `type`, `title`, `description`, `version` and its frameworks' bases. `defaultBase`
+names, per framework, the base a project without `ui.base` gets from an item with several (KF-120);
+each MUST be a base an entry lists for that framework, which `validate` checks. `requires` names,
+per framework and then per base, the runtime the base needs (`{ "solid": { "uisdk": "solid2" } }`):
+a major of the framework only some templates and bases run on, by a name the registry gives it
+(KF-134, D-111). A base of a framework `requires` names, and that it does not list, needs the
+framework's default runtime; a framework it does not name is never checked. Each base MUST be one an
+entry lists for that framework, which `validate` checks. A project names registries in
 `ui.registries` by namespace, `"@acme": "https://acme.dev/r/{name}.json"`, or as
 `{ url, headers }`. `@kirana`, Kirana UI's `https://ui.kirana.style/r/{name}.json`, is known
 without configuration and can be redefined. A template may also be a path (from the configuration's
@@ -232,7 +237,13 @@ its `target` for a `file`; its `@/registry/<type>/<path>` imports become the ali
 the project already has with other content MUST stop the command before anything is written, unless
 `--overwrite`; `--dry-run` writes and installs nothing. Each icon placeholder MUST be drawn with
 the project's icon library (KRN-DX-033); a placeholder that names no icon for the library stops the
-command.
+command. A base on another runtime than the project's (KF-134) MUST stop the command before
+anything is written, naming the runtime the base needs (KRN-DX-022), the project's, and the item's
+bases for the framework on the project's runtime (`ui.base` to set). Kirana tells a project's
+runtime apart for Solid alone: `solid2` where it lists `@solidjs/web` or a `solid-js` range whose
+first number is 2 or more, `solid1` (Solid's default) for one below; the index is read for it only
+then, once per registry, and a project whose packages do not say, an index that cannot be read or
+one whose `requires` does not name the framework, is not checked.
 The npm packages the items and their icons need and the project does not list are installed with
 its package manager, and each item is recorded in the
 lockfile (KRN-DX-025) with both hashes of every file. A font item's `import` MUST be imported once
@@ -278,7 +289,19 @@ leave the directory stops it. Its root `package.json` is named after the directo
 when nothing says which runs); `kirana-template.project` names the folder `init` goes on in (the
 root by default) and is dropped. The template is installed at its root with the package manager its
 `packageManager` names, else the running one, and `init` then goes on in that folder as in any
-project, its `--preset`, `--pointer`, `--rtl` and `--registry` included (KF-108). `--dry-run`
+project, its `--preset`, `--pointer`, `--rtl` and `--registry` included (KF-108). A template
+on another runtime than the base the project gets needs (KF-134, KRN-DX-022) MUST stop it before
+anything is written (exit 1), naming the two runtimes and, from a registry's template, the entry of
+its index of the same framework on the needed runtime that shares the most `--` parts of its name in
+place with the one asked, then the longest start of it (else saying none is listed; from an example
+or an archive's URL, that a template on that runtime is needed). The template's runtime is its
+entry's `runtime`, else what its app's packages say as `add` reads them, else, for an entry that
+names its `framework`, the framework's default; the base is the preset's, else `--base`, else the
+design system's registry index's `defaultBase` for the framework, read as `init` goes on to read
+them. A template whose runtime nothing says, a preset for another framework, no base yet, or a
+document that cannot be read leaves it to what follows. `init` in a project MUST refuse a base on
+another runtime than the project's as `add` does, before anything is written, naming the index's
+bases for the framework on the project's runtime. `--dry-run`
 cannot start from a template (exit 2). It then checks what it wrote, as `add` does. Kirana's packages it installs, `@kirana-style/registry` among them when the project
 lacks it, MUST be at the release's version (unless the design system names one) and recorded
 exactly, with the package manager's exact flag, so the project can run `kirana-style ui` alone
@@ -388,11 +411,11 @@ range `bases/<framework>-<base>/package.json` gives (KF-130), else the registry'
 (a workspace `catalog:` or `catalog:<name>` read from the nearest manifest above with catalogs), the
 framework's own packages and Kirana's left out; a package the item's shared files import MUST go into
 the item's `dependencies` when every base of the item takes one range, else into each base's; its line endings made `\n` and its hash taken. The source's `name`,
-`homepage` and `defaultBase` MUST be written into the index (KF-120). Every item, then the index
+`homepage`, `defaultBase` (KF-120) and `requires` (KF-134) MUST be written into the index. Every item, then the index
 once the items are valid, MUST be checked as `validate` checks it, and `<out>/<name>.json` and
 `<out>/index.json` written (`public/r` by default), nothing at all when a problem is found (an
 import of no file of the registry or of no item, a package without a range, a missing file, an item
-named `index`, a default base no item has): exit 1. Exit 2 for a malformed command.
+named `index`, a default base or a runtime for a base no item has): exit 1. Exit 2 for a malformed command.
 
 **KRN-DX-035** — `kirana-style ui mcp` MUST be a Model Context Protocol server over stdio (D-128):
 each line of stdin a JSON-RPC 2.0 message, each answer one line of stdout, nothing else written

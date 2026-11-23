@@ -8,8 +8,8 @@
  * become the item's dependencies, at the ranges the registry's `package.json` gives (a base's own
  * `bases/<framework>-<base>/package.json` first, KF-130), and the items that hold what it imports
  * its registry dependencies; it is hashed. Every item is checked against the schema, then the index
- * with the source's `defaultBase` (KF-120), and `<out>/<name>.json` and `<out>/index.json` are
- * written, nothing when a problem is found. Grown from Kirana UI's builder, which builds its
+ * with the source's `defaultBase` (KF-120) and `requires` (KF-134), and `<out>/<name>.json` and
+ * `<out>/index.json` are written, nothing when a problem is found. Grown from Kirana UI's builder, which builds its
  * registry with `buildRegistry`.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
@@ -18,7 +18,13 @@ import path from "node:path"
 import { check, hashOf } from "./check.ts"
 import { parseArgs } from "./command.ts"
 import { RegistryError } from "./read.ts"
-import type { FileType, Framework, Item, RegistryFile } from "./types.ts"
+import type {
+  FileType,
+  Framework,
+  Item,
+  RegistryFile,
+  Requires,
+} from "./types.ts"
 
 /** A file in the source: where it is read from, and where it installs. */
 export type SourceFile =
@@ -51,6 +57,8 @@ export type SourceRegistry = {
   homepage?: string
   /** The base each framework takes without `ui.base`, written to the index (KF-120). */
   defaultBase?: Partial<Record<Framework, string>>
+  /** The runtime each base needs, per framework, written to the index (KF-134). */
+  requires?: Requires
   items: SourceItem[]
 }
 
@@ -216,6 +224,7 @@ export type Built = {
     name?: string
     homepage?: string
     defaultBase?: Partial<Record<Framework, string>>
+    requires?: Requires
     items: {
       name: string
       type: Item["type"]
@@ -476,6 +485,7 @@ export function buildRegistry(
     ...(source.defaultBase === undefined
       ? {}
       : { defaultBase: source.defaultBase }),
+    ...(source.requires === undefined ? {} : { requires: source.requires }),
     items: items.map((item) => ({
       name: item.name,
       type: item.type,
@@ -496,7 +506,8 @@ export function buildRegistry(
           }),
     })),
   }
-  // The index, from items that are valid: its default bases (KF-120).
+  // The index, from items that are valid: its default bases (KF-120) and the bases it names runtimes
+  // for (KF-134).
   if (problems.length === 0)
     for (const problem of check(index).problems)
       problems.push(`index: ${problem.pointer} ${problem.message}`)

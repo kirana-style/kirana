@@ -108,6 +108,23 @@ Without `--base`, `init` writes the registry's default base for your framework
 to `ui.base` when its index names one, and says so. Your project keeps that base
 when the registry changes its default later.
 
+A registry can say that a base runs on one major of its framework only, as
+Solid on ui-sdk needs Solid 2. Then `init` refuses, before it writes anything:
+
+- a template on another runtime than the base you get from `--preset`, `--base`
+  or the registry's default, and names the registry's template that fits:
+
+  ```console
+  $ npx @kirana-style/registry init --template @acme/vite-solid --base uisdk --registry @acme=https://acme.dev/r/{name}.json
+  @acme/vite-solid is on solid1, and @acme's solid/uisdk base needs solid2: nothing written; start from @acme/vite-solid2, on solid2
+  ```
+
+- a project of yours on another runtime, naming the bases that fit it.
+
+A Solid project is on Solid 2 when it lists `@solidjs/web` or a `solid-js` from 2
+on. How a registry says it is in
+[publishing a registry](/docs/tooling/registries#bases-on-another-runtime).
+
 Turn on the pointer cursor on buttons, or right to left, with the flags
 shadcn/ui's `init` takes:
 
@@ -186,7 +203,13 @@ where the library has a package for your framework:
 
 A project that lists `@solidjs/web` is on Solid 2: Lucide comes from
 `@lucide/solid`, its package for Solid 2, and Tabler, whose Solid package needs
-Solid 1, is drawn inline.
+Solid 1, is drawn inline. A base its registry says needs the other Solid is
+refused before anything is written, with the bases that fit:
+
+```console
+$ npx kirana-style ui add @acme/dialog
+@acme/dialog: @acme's solid/uisdk base needs solid2, and the project is on solid1: set ui.base to a base on solid1 (ark, kirana)
+```
 
 Elsewhere it is written into the file as an inline `<svg>`, read at install from
 the library's own published data at the version your Kirana release names, and

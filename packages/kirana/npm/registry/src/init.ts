@@ -82,7 +82,16 @@ import {
   settingsOf,
   withAttributes,
 } from "./preset.ts"
+import {
+  baseRefusal,
+  fittingTemplate,
+  neededRuntime,
+  runtimeLabel,
+  runtimeOf,
+  templateRuntime,
+} from "./runtime.ts"
 import { startTemplate } from "./template.ts"
+import type { Unpacked } from "./template.ts"
 import type { Framework, IconLibrary, Index, Item } from "./types.ts"
 import { version } from "./version.ts"
 import {
@@ -262,6 +271,88 @@ async function designOf(
       `${namespace} has no design-system item in its index: name one with --design`
     )
   return `${namespace}/${found.name}`
+}
+
+/** The registry named on the command line, else the one the configuration names, else @kirana. */
+const namespaceOf = (chosen: Chosen, settings: Settings): string =>
+  Object.keys(chosen.registries)[0] ??
+  [...settings.registries.keys()].find((name) => name !== "@kirana") ??
+  "@kirana"
+
+/** Every base the index's entries list for the framework. */
+const basesOf = (index: Index, framework: Framework): string[] =>
+  index.items.flatMap((entry) => entry.frameworks?.[framework] ?? [])
+
+/**
+ * Refuses a template on another runtime than the base the project would get needs (KF-134), before
+ * it is written: the design system and its registry's index read as `init` goes on to read them, the
+ * framework and base the preset gives, else the flags, else the template's framework and the index's
+ * default base. A template whose runtime nothing says, or a design system, an index or a preset that
+ * cannot be read, leaves it to what follows.
+ */
+async function vetTemplate(
+  unpacked: Unpacked,
+  values: Map<string, string[]>,
+  chosen: Chosen,
+  start: string,
+  options: Options
+): Promise<void> {
+  const own = templateRuntime(unpacked.listed, unpacked.entry)
+  if (own === undefined) return
+  let needed:
+    | { home: string; framework: Framework; base: string; runtime: string }
+    | undefined
+  try {
+    const settings = withChosen(await loadSettings(start, options.load), chosen)
+    const indexOf = indexReader(settings, options)
+    const design = await designOf(
+      values.get("--design")?.at(-1),
+      namespaceOf(chosen, settings),
+      indexOf
+    )
+    const home = parseReference(design).namespace
+    const index = await indexOf(home)
+    const preset = values.get("--preset")?.at(-1)
+    const item =
+      preset === undefined
+        ? undefined
+        : ((await read(design, settings, options)).document as Item)
+    const decoded = item?.design && decodePreset(preset!, item.design)
+    const given: Partial<Pick<Settings, "framework" | "base">> = decoded
+      ? settingsOf(decoded, item!.design!)
+      : {}
+    const framework = given.framework ?? chosen.framework ?? own.framework
+    const base = given.base ?? chosen.base ?? index.defaultBase?.[framework]
+    // A preset for another framework than the template's, or no base yet, is left to what follows.
+    const runtime =
+      framework === own.framework && base !== undefined
+        ? neededRuntime(index, framework, base)
+        : undefined
+    if (runtime !== undefined)
+      needed = { home, framework, base: base!, runtime }
+  } catch {
+    return
+  }
+  if (needed === undefined || needed.runtime === own.runtime) return
+  const { home, framework, base, runtime } = needed
+  const fitting =
+    unpacked.index &&
+    fittingTemplate(
+      parseReference(unpacked.template).name,
+      unpacked.index.templates,
+      framework,
+      runtime
+    )
+  const label = runtimeLabel(framework, runtime)
+  throw new RegistryError(
+    `${unpacked.template} is on ${runtimeLabel(framework, own.runtime)}, and ${home}'s ${framework}/${base} base needs ${label}: nothing written; ${
+      fitting !== undefined
+        ? `start from ${unpacked.index!.namespace}/${fitting}, on ${label}`
+        : unpacked.index
+          ? `no template ${unpacked.index.namespace} lists is on ${label}`
+          : `start from a template on ${label}`
+    }`
+  )
 }
 
 /**
@@ -1125,7 +1216,9 @@ export async function runInit(
         cwd,
         chosen.registries,
         write,
-        options
+        options,
+        (unpacked) =>
+          vetTemplate(unpacked, parsed.values, chosen, start, options)
       )
     } catch (error) {
       write(`${(error as Error).message}\n`)
@@ -1202,11 +1295,7 @@ export async function runInit(
   let planned
   let lockfile
   try {
-    // The registry named on the command line, else the one the configuration names, else @kirana.
-    const namespace =
-      Object.keys(chosen.registries)[0] ??
-      [...settings.registries.keys()].find((name) => name !== "@kirana") ??
-      "@kirana"
+    const namespace = namespaceOf(chosen, settings)
     const indexOf = indexReader(settings, options)
     const design = await designOf(
       parsed.values.get("--design")?.at(-1),
@@ -1241,6 +1330,31 @@ export async function runInit(
           `ui.base ${base}, ${home}'s default for ${settings.framework}`
         )
       }
+    }
+    // A base on another runtime than the project's (KF-134), where the project's packages say which.
+    const runtime =
+      settings.framework === undefined || settings.base === undefined
+        ? undefined
+        : runtimeOf(project.listed, settings.framework)
+    if (runtime !== undefined) {
+      const home = parseReference(design).namespace
+      const framework = settings.framework!
+      const refused = await indexOf(home).then(
+        (index) =>
+          baseRefusal(
+            index,
+            home,
+            framework,
+            settings.base!,
+            runtime,
+            basesOf(index, framework)
+          ),
+        () => undefined
+      )
+      if (refused)
+        throw new RegistryError(
+          `${refused.message}: nothing written; ${refused.fits.length > 0 ? `take a base on ${runtime} (${refused.fits.join(", ")})` : `${home} has no ${framework} base on ${runtime}`}`
+        )
     }
     if (root === app)
       settings = prepareAliases(

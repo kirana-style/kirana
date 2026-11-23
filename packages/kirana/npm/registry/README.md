@@ -76,7 +76,12 @@ source for every framework, and its markup per framework and base, with the pack
 only that base needs; installation flattens the
 styles for the project's design. The index may name a default base per framework
 (`"defaultBase": { "react": "base" }`): `add` installs it from an item with several bases when the
-project sets no `ui.base`, and `init` writes it to `ui.base`. Every file carries a SHA-256
+project sets no `ui.base`, and `init` writes it to `ui.base`. It may also name the runtime a base
+needs, per framework (`"requires": { "solid": { "uisdk": "solid2" } }`, a framework's other bases
+on its default), and a template in `templates/index.json` its `framework` and `runtime`: `init
+--template` refuses a template on another runtime than the project's base needs, before writing
+anything, naming the template that fits, and `add` and `init` refuse a project on another (Solid 2
+is a project listing `@solidjs/web` or `solid-js` from 2 on). Every file carries a SHA-256
 integrity hash. A project records what it installed in `kirana-style.lock.json`.
 
 The schemas are served at their ids, for editors and other tools

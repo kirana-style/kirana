@@ -244,6 +244,41 @@ project gets when it sets no `ui.base`, per framework:
 - Each default must be a base an item lists for that framework, which
   `kirana-style ui validate` checks.
 
+### Bases on another runtime
+
+Some bases run on one major of their framework only: a Solid base on ui-sdk
+needs Solid 2, where Ark UI's is on Solid 1. The index says so in `requires`,
+per framework, then per base, by a name you give the runtime:
+
+```json
+{
+  "defaultBase": { "solid": "ark" },
+  "requires": { "solid": { "uisdk": "solid2" } },
+  "items": [
+    {
+      "name": "dialog",
+      "type": "component",
+      "version": "1.0.0",
+      "frameworks": { "solid": ["ark", "uisdk"] }
+    }
+  ]
+}
+```
+
+- A base of that framework the field leaves out needs the framework's default
+  runtime: here `ark` is on Solid 1. A framework the field does not name is
+  never checked, so an index without it installs as before.
+- `kirana-style ui init --template` refuses a template on another runtime than
+  the base the project gets, before it writes anything, and names one of your
+  templates that fits.
+- `kirana-style ui add` and `kirana-style ui init` refuse a project on another
+  runtime, and name the bases that fit it.
+- Kirana tells Solid's two runtimes apart in a project: `solid2` where it lists
+  `@solidjs/web`, or a `solid-js` from 2 on, else `solid1`, Solid's default. A
+  project on other packages, or whose Solid range has no number, is not checked.
+- Each base must be one an item lists for that framework, which
+  `kirana-style ui validate` checks.
+
 ## Templates
 
 A registry can offer whole projects to start from: an app in the layout you
@@ -265,6 +300,29 @@ valid against
   ]
 }
 ```
+
+An entry can name the framework its app is on, and the runtime when it is not
+the framework's default, as the index's `requires` names it:
+
+```json
+{
+  "$schema": "https://kirana.style/schema/registry-templates.json",
+  "templates": [
+    { "name": "vite-solid", "framework": "solid", "file": "vite-solid.tgz" },
+    {
+      "name": "vite-solid2",
+      "framework": "solid",
+      "runtime": "solid2",
+      "file": "vite-solid2.tgz"
+    }
+  ]
+}
+```
+
+A template's runtime is its entry's, else what the packages its app lists say.
+When a base needs another runtime, the refusal names your template of the
+same framework on that runtime whose name is closest: `vite-solid2--turbo` for
+`vite-solid--turbo`. A `runtime` needs its `framework`.
 
 Each archive:
 
@@ -364,10 +422,12 @@ project:
   unless the item names one. The framework's own packages and Kirana's are left
   out: every project has them.
 
-`name`, `homepage` and `defaultBase` go into the index as they are. Every item,
-then the index, is checked as `validate` checks it, and nothing is written when a
-problem is found: an import of no file of the registry, a package with no range,
-a file that is not there, a default base no item has.
+`name`, `homepage`, `defaultBase` and `requires` go into the index as they are.
+
+Every item, then the index, is checked as `validate` checks it, and nothing is
+written when a problem is found: an import of no file of the registry, a package
+with no range, a file that is not there, a default base or a runtime for a base
+no item has.
 
 ### Two bases on two majors
 

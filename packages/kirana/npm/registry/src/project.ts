@@ -96,8 +96,10 @@ export function documentSources(root: string): string[] {
 export const svelteKitMajor = (kit: string): number =>
   Number(/\d+/.exec(kit)?.[0] ?? 3)
 
-/** The framework the project depends on, when it is exactly one. */
-export function frameworkOf(project: Project): Framework | undefined {
+/** The framework the project depends on, when it is exactly one: a project's, or a template's (KF-134). */
+export function frameworkOf(
+  project: Pick<Project, "listed">
+): Framework | undefined {
   const found = new Set(
     FRAMEWORK_PACKAGES.filter(([name]) => name in project.listed).map(
       ([, framework]) => framework

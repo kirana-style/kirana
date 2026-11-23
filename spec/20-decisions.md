@@ -1786,7 +1786,8 @@ the implementation tracker names its evidence.
 ### D-111 — The registry runs on its own, and init leaves a project that can run it
 
 - **Status:** Accepted (2026-10-26). Answers KF-035; keeps D-103. Amended 2026-11-09 for KF-108:
-  `--template` also takes a registry's template or an archive's URL.
+  `--template` also takes a registry's template or an archive's URL. Amended 2026-11-23 for KF-134:
+  a template and a base name their runtime, and `init` and `add` refuse a mismatch.
 - **Decision:** `@kirana-style/registry` has one bin, `kirana-style-ui`, which runs its own `main`, so
   `npx @kirana-style/registry init --template vite-react my-app` starts from an empty folder. The
   `kirana-style` CLI still runs the project's copy (D-103). `ui init` installs Kirana's packages,
@@ -1815,6 +1816,25 @@ the implementation tracker names its evidence.
   registry client in every project's compiler install. A template's archive opened with `giget`
   keeps `{packageManager}` as written; a registry that serves `giget` too packs one per package
   manager under `files`.
+- **Amended (2026-11-23, KF-134):** a registry says which runtime, a major of a framework only some
+  templates and bases run on (Solid 2), each needs: a template entry its `framework` and `runtime`,
+  the registry's index `requires`, per framework and base (`{ solid: { uisdk: "solid2" } }`), a base
+  it leaves out being on the framework's default. `init --template` reads the template (its entry,
+  else its app's packages) and the base the preset, the flags or the index's default give before
+  writing anything, and refuses a mismatch, naming the registry's template of the framework on the
+  runtime needed whose name is closest; `init` in a project and `add` refuse a project on another
+  runtime, naming the bases that fit. Names, not package ranges: a registry names a runtime once and
+  kirana-ui's catalog already does (`RUNTIMES`, `BASE_RUNTIMES`); comparing a project's listed range
+  with a required one would need range intersection over `catalog:`, `workspace:` and `latest`, and a
+  template entry would have to list its packages for `init` to name one that fits. Kirana tells a
+  project's runtime apart for Solid only (`@solidjs/web`, or `solid-js` from 2 on; KF-129), so every
+  check needs both sides known: a project or a template whose runtime nothing says, or an index
+  whose `requires` does not name the framework, is not checked, and an index without the field
+  installs as before. In the index, not each item, for `defaultBase`'s reason: a base runs on one
+  runtime across the registry, and `init` needs it before it has read an item with markup.
+  Trade-off: a framework other than Solid is checked on templates alone, by the names its registry
+  writes; `ui preset` changing a project's base does not check it (its items are placed again from
+  the lockfile); a workspace package that lists its framework as a peer only is not checked.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
 ### D-112 — A relation may be read where its anchor is not installed
