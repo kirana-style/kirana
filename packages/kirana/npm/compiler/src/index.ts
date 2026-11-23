@@ -31,7 +31,12 @@ export {
 export {
   ConfigLoadError,
   detectJsx,
+  jsxDetection,
   readJsonc,
+  readTsconfig,
+  tsconfigExtends,
+  type ReadFile,
+  type Tsconfig,
   findConfigAbove,
   loadConfigFile,
   resolveConfig,

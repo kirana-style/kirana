@@ -53,8 +53,9 @@ export default defineConfig({ plugins: [kirana(), solid()] })
 }
 ```
 
-Kirana reads the JSX import source from `tsconfig.json` only. Without one, or
-where Vite's starter keeps it in another file, set
+Kirana reads the JSX import source from this file and from what it extends, as
+TypeScript does, but not from the files it references. Without one, or
+where Vite's starter keeps it in a referenced file, set
 [`jsx: "solid"`](/docs/reference/config) in `kirana.config.ts` instead. Kirana's
 `init` writes it for you there.
 

@@ -1113,6 +1113,23 @@ describe("D-108 where an alias points", () => {
     expect(aliasDirectory(extended, "@/lib")).toBe(
       path.join(extended, "src/lib")
     )
+    // A package, a path without `.json`, an array whose last entry wins, as TypeScript reads them (KF-132).
+    const packaged = write({
+      "tsconfig.json":
+        '{ "extends": ["@workspace/tsconfig/app", "./tsconfig.base"] }',
+      "tsconfig.base.json": "{}",
+      "node_modules/@workspace/tsconfig/app.json":
+        '{ "compilerOptions": { "paths": { "@/*": ["./src/*"] } } }',
+    })
+    expect(aliasDirectory(packaged, "@/lib")).toBe(
+      path.join(packaged, "node_modules/@workspace/tsconfig/src/lib")
+    )
+    const later = write({
+      "tsconfig.json": '{ "extends": ["./first", "./second.json"] }',
+      "first.json": '{ "compilerOptions": { "paths": { "@/*": ["./a/*"] } } }',
+      "second.json": '{ "compilerOptions": { "paths": { "@/*": ["./b/*"] } } }',
+    })
+    expect(aliasDirectory(later, "@/lib")).toBe(path.join(later, "b/lib"))
     const referenced = write({
       "tsconfig.json":
         '{ "extends": "@tsconfig/strictest", "references": [{ "path": "./tsconfig.node.json" }, { "path": "./app" }, {}] }',

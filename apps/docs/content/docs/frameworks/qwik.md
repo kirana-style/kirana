@@ -75,7 +75,8 @@ the same classes.
 }
 ```
 
-Without a `tsconfig.json`, set [`jsx: "qwik"`](/docs/reference/config) in
+Kirana reads it from this file and from what the file extends. Without a
+`tsconfig.json`, set [`jsx: "qwik"`](/docs/reference/config) in
 `kirana.config.ts` instead.
 
 ## 4. Import the stylesheet

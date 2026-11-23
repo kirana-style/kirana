@@ -2334,7 +2334,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Preact",
     "section": "frameworks",
     "heading": "3. Point  jsxImportSource  at Preact, and type  sx",
-    "text": "Without a , set in instead."
+    "text": "Kirana reads it from this file and from what the file extends. Without a , set in instead."
   },
   {
     "id": "/docs/frameworks/preact#5-write-a-component",
@@ -2381,7 +2381,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Solid",
     "section": "frameworks",
     "heading": "3. Point  jsxImportSource  at Solid, and type  sx",
-    "text": "Kirana reads the JSX import source from only. Without one, or where Vite's starter keeps it in another file, set in instead. Kirana's writes it for you there."
+    "text": "Kirana reads the JSX import source from this file and from what it extends, as TypeScript does, but not from the files it references. Without one, or where Vite's starter keeps it in a referenced file, set in instead. Kirana's writes it for you there."
   },
   {
     "id": "/docs/frameworks/solid#5-write-a-component",
@@ -2853,7 +2853,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Qwik",
     "section": "frameworks",
     "heading": "3. Point  jsxImportSource  at Qwik, and type  sx",
-    "text": "Without a , set in instead."
+    "text": "Kirana reads it from this file and from what the file extends. Without a , set in instead."
   },
   {
     "id": "/docs/frameworks/qwik#4-import-the-stylesheet",
@@ -4807,7 +4807,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Configuration reference",
     "section": "reference",
     "heading": "jsx",
-    "text": "Which attribute compiles to. Leave it out and the compiler reads from the project's , so most projects never set it: See supported frameworks ."
+    "text": "Which attribute compiles to. Leave it out and the compiler reads from the project's , following its as TypeScript does (a path, a package, or an array of them), so most projects never set it: See supported frameworks ."
   },
   {
     "id": "/docs/reference/config#libraries",
