@@ -135,6 +135,82 @@ describe("ui-sdk vocabulary", () => {
     ])
   })
 
+  it("reads what an api writes on an element it keeps in an entry", () => {
+    // KF-133. A menu item hands its element to `api.internal.register(el, …)`, which keeps it in an
+    // entry (`{ ...item, el }`); the api writes `data-highlighted` on the entry's `el` it reads back.
+    // A submenu's trigger registers with its parent menu, as an item of it.
+    for (const name of ["Item", "CheckboxItem", "RadioItem", "Trigger"])
+      expect(part("Menu", name).get("highlighted"), name).toMatchObject({
+        attribute: "data-highlighted",
+        values: [],
+      })
+  })
+
+  it("types what a method of a run-time api returns by its declaration", () => {
+    // KF-133. `"data-orientation": api.internal.orientation()`, a method the api builds at run time,
+    // declared `orientation: () => TabsOrientation`.
+    for (const name of ["Root", "List", "Tab", "Indicator", "Panel"])
+      expect(part("Tabs", name).get("orientation")?.values, name).toEqual([
+        "horizontal",
+        "vertical",
+      ])
+  })
+
+  it("types a callback's parameter where the function it is handed to is declared", () => {
+    // KF-133. `onEnd: (direction, event) => el.setAttribute("data-swipe-direction", direction)`, a
+    // callback `trackSwipe` declares as `(direction: SwipeDirection | null, …) => void`.
+    expect(part("Toast", "Root").get("swipeDirection")?.values).toEqual([
+      "up",
+      "down",
+      "left",
+      "right",
+    ])
+  })
+
+  it("reads an attribute named by a template, for each value it is built from", () => {
+    // KF-133. The token view creates each token's host and names it as a part
+    // (`data-slot="token-input-host"`); `host(entry.host, token)` writes `data-${status}` for each
+    // `status` of `["pending", "unresolved"]`.
+    const host = part("TokenInput", "Host")
+    expect(host.get("pending")).toMatchObject({
+      attribute: "data-pending",
+      values: [],
+    })
+    expect(host.get("unresolved")?.attribute).toBe("data-unresolved")
+  })
+
+  it("reads a write on what a method returns, the element its view keeps", () => {
+    // KF-133. The editor's `bind` writes `data-selected` on `view.hostElement(id)`, which returns
+    // `hosts.get(id)?.host`, the host the view keeps in an entry.
+    expect(part("TokenInput", "Host").get("selected")).toMatchObject({
+      attribute: "data-selected",
+      values: [],
+    })
+    // The id the host carries is left out, as on every part.
+    expect(result.leftOut).toContainEqual(
+      expect.objectContaining({
+        component: "TokenInput",
+        part: "Host",
+        attribute: "data-token-id",
+      })
+    )
+  })
+
+  it("names a state by its data attribute, where the part writes an aria one beside it", () => {
+    // KF-133's link and separator: `aria-current="page"` is written with `data-current`, a
+    // separator's `aria-orientation` with `data-orientation`, as Base UI's vocabulary names states
+    // by their data attributes only.
+    expect(part("NavigationMenu", "Link").get("current")?.attribute).toBe(
+      "data-current"
+    )
+    expect(part("Toolbar", "Separator").get("orientation")?.values).toEqual([
+      "vertical",
+      "horizontal",
+    ])
+    // ui-sdk's toast has no content part and writes no `data-behind`: kirana-ui's own does.
+    expect(result.parts.get("toast")).not.toContain("content")
+  })
+
   it("leaves out attributes that carry identifiers, with why", () => {
     expect(part("Slider", "Thumb").has("index")).toBe(false)
     expect(part("Tree", "Item").has("level")).toBe(false)

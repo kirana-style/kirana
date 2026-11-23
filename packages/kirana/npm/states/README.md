@@ -92,7 +92,14 @@ another part's getter onto its element has that getter's states: `Menu.CheckboxI
 `Menu.RadioItem` the option item's, Date Picker's `TableCell` and `TableCellTrigger` those of the
 day, month and year cells, and a part that mounts and unmounts the `open` and `closed` Ark UI's
 presence writes (`Tabs.Content.state.open`). `RootProvider` has no entry: it renders `Root`'s
-element, which `Root`'s keys style.
+element, which `Root`'s keys style. A ui-sdk part also has what its component writes on it as it
+changes, as the item a menu highlights (`Menu.Item.highlighted`), and a state's values come from
+ui-sdk's types where its code computes them (`Tabs.Root.orientation.vertical`,
+`Toast.Root.swipeDirection.left`). Its states are its data attributes: a navigation menu's current
+link, which ui-sdk marks `aria-current="page"`, is `NavigationMenu.Link.current`, the
+`data-current` it writes beside it. An element ui-sdk creates and names with a `data-slot` of its own
+is a part too, with what its code writes on it: each token's host in a token input
+(`TokenInput.Host.selected`).
 
 For another library, or your own components, write the same shape in a module of your own; see
 [States](https://kirana.style/docs/styling/states).
