@@ -135,7 +135,8 @@ npx kirana-style ui add dialog --dry-run   # what it would write; then without -
 `ui add` installs every item the component needs, points its imports at the project's aliases, and
 runs `kirana-style check` on what it wrote. The installed files are the project's own, so edit them:
 `ui diff` shows what changed since, and `ui update` brings the registry's changes in while keeping
-yours. The commands come from `@kirana-style/registry`, a development dependency; a project
+yours. Formatting them is fine: a file the project's formatter only reformatted is kept and read as
+installed (`~`), so never pass `--overwrite` for it, which replaces real edits (`!`). The commands come from `@kirana-style/registry`, a development dependency; a project
 started from nothing uses `npx @kirana-style/registry init --template <name> <directory>`, the name
 one of Kirana's examples, a registry's template (`@acme/vite-react--turbo`) or an archive's URL.
 In a monorepo whose app's `kirana.config` has `ui: { workspace: "../../packages/ui" }`, run the

@@ -2,7 +2,8 @@
  * Installed items against their registries (KRN-DX-025, KRN-DX-030): each item read again and
  * placed as installing it now would write it, and each file compared by the lockfile's two hashes,
  * the registry's content (`source`) and what was written (`written`), so a registry's change is told
- * from the project's own edit. `ui outdated`, `ui diff`, `ui update` and `ui remove` read it.
+ * from the project's own edit, and by its code's (`code`), so a file the project only reformatted is
+ * told from one it changed (KF-136). `ui outdated`, `ui diff`, `ui update` and `ui remove` read it.
  */
 import { existsSync, readFileSync } from "node:fs"
 
@@ -11,6 +12,7 @@ import { diffChange } from "@kirana-style/compiler"
 import { place, planItem, readIcons } from "./add.ts"
 import type { Placed, Planned } from "./add.ts"
 import { hashOf } from "./check.ts"
+import { againstInstalled, codeHash } from "./code.ts"
 import { failureLine, parseArgs } from "./command.ts"
 import type { Failure, Options } from "./command.ts"
 import { readLockfile } from "./lockfile.ts"
@@ -26,8 +28,11 @@ export type FileStatus = {
   relative: string
   /** `added`: the registry has it now, the install did not write it; `removed`: the other way. */
   registry: "same" | "changed" | "added" | "removed"
-  /** `missing`: the project no longer has it. */
-  project: "same" | "changed" | "missing"
+  /**
+   * `reformatted`: the project's formatter rewrote it, its code as installed (KF-136); `missing`:
+   * the project no longer has it.
+   */
+  project: "same" | "reformatted" | "changed" | "missing"
   /** What installing the item now would write; none for a file the registry removed. */
   next?: Placed
   /** The project's file, when it has one. */
@@ -119,9 +124,14 @@ export async function statusOf(
               : was.source === next.file.hash
                 ? "same"
                 : "changed",
-          ...projectSide(next.destination, was?.written),
+          ...projectSide(next.destination, next.relative, was, next.content),
           next,
-          restyled: was !== undefined && hashOf(next.content) !== was.written,
+          // What was written is the project's reformatted text when `add` kept it: its code says.
+          restyled:
+            was !== undefined &&
+            hashOf(next.content) !== was.written &&
+            (was.code === undefined ||
+              codeHash(next.relative, next.content) !== was.code),
         }
       })
       for (const [relative, was] of Object.entries(locked.files))
@@ -129,7 +139,7 @@ export async function statusOf(
           files.push({
             relative,
             registry: "removed",
-            ...projectSide(`${project.root}/${relative}`, was.written),
+            ...projectSide(`${project.root}/${relative}`, relative, was),
           })
       statuses.push({ key, locked, item, planned, files })
     } catch (error) {
@@ -139,15 +149,24 @@ export async function statusOf(
   return { statuses, failures }
 }
 
-/** The project's side of a file: its content, and whether it still is what was written. */
+/**
+ * The project's side of a file: its content, and whether it still is what was written, only
+ * reformatted (KF-136), or changed. `installed` is what installing it now writes, which a lockfile
+ * without `code` hashes compares with when it is exactly what was written.
+ */
 function projectSide(
   file: string,
-  written: string | undefined
+  relative: string,
+  was: Locked["files"][string] | undefined,
+  installed?: string
 ): Pick<FileStatus, "project" | "current"> {
   if (!existsSync(file)) return { project: "missing" }
   const current = readFileSync(file, "utf8")
   return {
-    project: hashOf(current) === written ? "same" : "changed",
+    project:
+      was === undefined
+        ? "changed"
+        : againstInstalled(relative, current, was, installed),
     current,
   }
 }
@@ -235,9 +254,20 @@ export async function runDiff(
     options
   )
   let differences = 0
+  const words = {
+    reformatted: "reformatted",
+    changed: "changed",
+    missing: "removed",
+  }
   for (const status of statuses)
     for (const file of status.files) {
-      if (file.registry === "same" && file.project === "same") continue
+      // A file the project only reformatted is the same code (KF-136).
+      if (
+        file.registry === "same" &&
+        file.project !== "changed" &&
+        file.project !== "missing"
+      )
+        continue
       differences++
       // A file the registry added is one the project never had: only the registry's side is news.
       const theirs =
@@ -248,9 +278,7 @@ export async function runDiff(
         ...(file.registry === "same"
           ? []
           : [`the registry ${file.registry} it`]),
-        ...(theirs === "same"
-          ? []
-          : [`the project ${theirs === "missing" ? "removed" : "changed"} it`]),
+        ...(theirs === "same" ? [] : [`the project ${words[theirs]} it`]),
       ].join(", ")
       write(`${status.key}: ${file.relative}: ${who}\n`)
       write(

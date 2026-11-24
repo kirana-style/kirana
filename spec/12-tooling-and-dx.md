@@ -234,8 +234,17 @@ has one, and as written otherwise (D-110). Each of its `flattened.axes` MUST the
 value without a build keeps the files as written (KF-080). With `ui.allDesigns`, no build is taken. Each file is written in the directory the
 project's `tsconfig.json` (its `extends` and `references` followed) maps its type's alias to, or at
 its `target` for a `file`; its `@/registry/<type>/<path>` imports become the alias (D-108). A file
-the project already has with other content MUST stop the command before anything is written, unless
-`--overwrite`; `--dry-run` writes and installs nothing. Each icon placeholder MUST be drawn with
+the project already has with other code MUST stop the command before anything is written, unless
+`--overwrite`; one whose code is the same with other formatting (KF-136) MUST be kept as the project
+has it, marked `~` and said apart from a changed one (`!`), with or without `--overwrite`. Code is
+compared as tokens without whitespace or comments, a string by its value, a number by its value, no
+semicolons or trailing commas, no parentheses a formatter adds or drops (around JSX, around a whole
+`return` value, arrow body, assigned value, spread or ternary branch, around an arrow's one
+parameter), no leading `|` or `&` of a type, an object key without the quotes it does not need, JSX
+text as React reads it, and the imports and their names sorted; for scripts, JSON, CSS, SCSS and
+Less, and the markup of Vue, Svelte, Astro and Angular components (each script and style block, each
+expression, an Angular component's inline `template`). Any other file, or one its kind cannot read,
+is compared byte for byte. `--dry-run` writes and installs nothing. Each icon placeholder MUST be drawn with
 the project's icon library (KRN-DX-033); a placeholder that names no icon for the library stops the
 command. A base on another runtime than the project's (KF-134) MUST stop the command before
 anything is written, naming the runtime the base needs (KRN-DX-022), the project's, and the item's
@@ -246,7 +255,7 @@ then, once per registry, and a project whose packages do not say, an index that 
 one whose `requires` does not name the framework, is not checked.
 The npm packages the items and their icons need and the project does not list are installed with
 its package manager, and each item is recorded in the
-lockfile (KRN-DX-025) with both hashes of every file. A font item's `import` MUST be imported once
+lockfile (KRN-DX-025) with the hashes of every file. A font item's `import` MUST be imported once
 in the script that imports Kirana's stylesheet, after it; a project without one (a PostCSS
 `@kirana;` directive) is told to import it by hand. Then `kirana-style check` MUST run on the
 scripts written, from the project's root, an error in them exiting 1; `--no-check` skips it. Exit 1
@@ -350,21 +359,23 @@ are installed there with the app's package manager, and `preset` sets the app's 
 **KRN-DX-030** — `kirana-style ui outdated [item…]` and `ui diff [item…]` MUST read each installed
 item (every one in the lockfile by default) again from its registry, place it as installing it now
 would write it, for the framework and base the lockfile records, and compare each file by the
-lockfile's two hashes: the registry changed, added or removed it (`source`), and the project changed
-or removed it (`written` against the file). `outdated` lists the items whose version or files
+lockfile's hashes: the registry changed, added or removed it (`source`), and the project changed
+or removed it (`written` against the file), or only reformatted it (its code's hash, `code`, else the
+code of what installing writes now when that is exactly what was written; KF-136), which is not a
+change. `outdated` lists the items whose version or files
 changed, saying when files changed under the same version, which updating refuses, and exits 1 when
 one did. `diff` shows, for each file either side changed, the lines between the project's file and
 what installing the item now would write.
 
 **KRN-DX-031** — `kirana-style ui update [item…]` (every outdated item by default) MUST write each
 file the registry changed or added, and delete each it removed, where the project left the file as
-it was installed; keep each file the project changed that the registry did not; and, where both
+it was installed or only reformatted it; keep each file the project changed that the registry did not; and, where both
 changed a file, stop before writing anything, unless `--overwrite`, which takes the registry's. An
 item whose files changed under the same version MUST be refused (KRN-DX-025). The items an update
 newly needs are installed with it, the lockfile records the new versions and hashes, and what was
 written is checked as `add` checks it. `kirana-style ui remove <item…>` MUST refuse an item another
 installed item needs, as its registry has it now; otherwise it deletes each file of the item the
-project left as installed, keeps the rest, and drops the item from the lockfile. For these commands,
+project left as installed or only reformatted, keeps the rest, and drops the item from the lockfile. For these commands,
 `outdated` and `diff`, a name alone names the one installed item of that name, else `@kirana`'s.
 
 **KRN-DX-032** — `kirana-style ui preset <code>` MUST change a project's design: the code decoded
@@ -437,9 +448,12 @@ when given an argument.
 `{ lockfileVersion: 1, items }`, each item by `@namespace/name`, with the registry template it came
 from, its version, the framework and base, the builds it was flattened for (`style=vega`, or several:
 `style=vega, baseColor=stone`), and for
-each installed file, by its path in the project, the hash of the registry's content (`source`) and
-of what was written (`written`). A changed `source` under the same version MUST be refused, and the
-two hashes tell a registry's change from the project's own edit.
+each installed file, by its path in the project, the hash of the registry's content (`source`), of
+what was written (`written`: the project's own text where `add` kept a file it only reformatted), and,
+for a file whose kind has one, of its code with formatting set aside (`code`, KF-136). A changed
+`source` under the same version MUST be refused; `source` and `written` tell a registry's change from
+the project's own edit, and `code` a reformatted file from a changed one. A lockfile without `code`
+hashes, as earlier releases wrote, MUST still be read.
 
 ## Lint
 

@@ -3,7 +3,7 @@
  * checked (KRN-DX-026), placed under the project's alias for its type with its `@/registry/` imports
  * rewritten, its packages installed and recorded in the lockfile (KRN-DX-025). A font item's
  * stylesheet is imported in the app's entry (KF-050). Nothing is written when a file the project has
- * would change, unless `--overwrite`.
+ * would change, unless `--overwrite`; a file the project only reformatted is kept as it is (KF-136).
  */
 import { spawnSync } from "node:child_process"
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
@@ -18,6 +18,7 @@ import {
 import type { Diagnostic } from "@kirana-style/compiler"
 
 import { hashOf } from "./check.ts"
+import { codeHash, sameCode } from "./code.ts"
 import { parseArgs } from "./command.ts"
 import type { Options, Run } from "./command.ts"
 import { importFonts } from "./font.ts"
@@ -78,10 +79,24 @@ export type Placed = {
   destination: string
   relative: string
   content: string
-  state: "new" | "same" | "differs"
+  /**
+   * `reformatted`: the project's file is `content` with other formatting (KF-136), and is kept;
+   * `differs`: it is other code.
+   */
+  state: "new" | "same" | "reformatted" | "differs"
+  /** The project's file, when it is reformatted. */
+  current?: string
   /** Packages its icons need (`lucide-react`), added at their latest version. */
   packages: string[]
 }
+
+/** How each state is marked in a command's list of files. */
+export const MARKS = {
+  new: "+",
+  same: "=",
+  reformatted: "~",
+  differs: "!",
+} as const
 
 const IMPORT = /(["'])@\/registry\/([a-z]+)\/([^"']+)\1/g
 
@@ -407,18 +422,22 @@ export function place(
       const current = existsSync(destination)
         ? readFileSync(destination, "utf8")
         : undefined
+      const state =
+        current === undefined
+          ? "new"
+          : current === content
+            ? "same"
+            : sameCode(relative, current, content)
+              ? "reformatted"
+              : "differs"
       placed.push({
         item: key,
         file,
         destination,
         relative,
         content,
-        state:
-          current === undefined
-            ? "new"
-            : current === content
-              ? "same"
-              : "differs",
+        state,
+        ...(state === "reformatted" ? { current } : {}),
         packages: icons.packages,
       })
     }
@@ -564,13 +583,12 @@ export async function runAdd(
     return 1
   }
   if (settings.app) write(workspaceLine(settings, cwd))
-  const marks = { new: "+", same: "=", differs: "!" } as const
   for (const { key, item, framework, base } of planned) {
     write(
       `${key} ${item.version}${framework ? ` · ${framework}/${base}` : ""}\n`
     )
     for (const file of placed.filter((entry) => entry.item === key))
-      write(`  ${marks[file.state]} ${file.relative}\n`)
+      write(`  ${MARKS[file.state]} ${file.relative}\n`)
   }
   // A font is imported where Kirana's stylesheet is, and its package installed there: in a
   // workspace, in the app (D-129, KF-111).
@@ -584,13 +602,7 @@ export async function runAdd(
   for (const line of fonts.manual) write(`by hand: ${line}\n`)
   const commands = packageCommands(planned, project, placed, app)
   writeCommands(commands, write)
-  const conflicts = placed.filter((file) => file.state === "differs")
-  if (conflicts.length > 0 && !parsed.flags.has("--overwrite")) {
-    write(
-      `${conflicts.length} file(s) the project has would change (!): nothing written; --overwrite replaces them\n`
-    )
-    return 1
-  }
+  if (refuses(placed, parsed.flags.has("--overwrite"), write)) return 1
   if (parsed.flags.has("--dry-run")) {
     write("dry run: nothing written\n")
     return 0
@@ -698,10 +710,40 @@ export function writeEdits(
   for (const [file, text] of edits) writeFileSync(path.join(root, file), text)
 }
 
-/** Writes every file that is new or differs. */
+/** Says how many files the project only reformatted, which are kept (KF-136). */
+export function sayReformatted(
+  placed: readonly Placed[],
+  write: (text: string) => void
+): void {
+  const reformatted = placed.filter((file) => file.state === "reformatted")
+  if (reformatted.length > 0)
+    write(
+      `${reformatted.length} file(s) differ only in formatting (~): kept as the project has them\n`
+    )
+}
+
+/**
+ * Says which files the project only reformatted, which are kept, and which it changed, which stop
+ * the command (true) unless `overwrite` (KF-136).
+ */
+export function refuses(
+  placed: readonly Placed[],
+  overwrite: boolean,
+  write: (text: string) => void
+): boolean {
+  sayReformatted(placed, write)
+  const conflicts = placed.filter((file) => file.state === "differs")
+  if (conflicts.length === 0 || overwrite) return false
+  write(
+    `${conflicts.length} file(s) the project has would change beyond formatting (!): nothing written; --overwrite replaces them\n`
+  )
+  return true
+}
+
+/** Writes every file that is new or differs; one the project only reformatted is kept (KF-136). */
 export function writePlaced(placed: readonly Placed[]): void {
   for (const file of placed)
-    if (file.state !== "same") {
+    if (file.state !== "same" && file.state !== "reformatted") {
       mkdirSync(path.dirname(file.destination), { recursive: true })
       writeFileSync(file.destination, file.content)
     }
@@ -731,7 +773,21 @@ export function installPackages(
   return ran(generate)
 }
 
-/** Each planned item in the lockfile, with both hashes of every file it wrote. */
+/**
+ * A placed file as the lockfile records it: the registry's hash (`source`), the project's file's
+ * (`written`: what was written, or the project's own text where it only reformatted it), and its
+ * code's (`code`, for a kind of file that has a form; KF-136).
+ */
+export function lockedFile(file: Placed): Locked["files"][string] {
+  const code = codeHash(file.relative, file.content)
+  return {
+    source: file.file.hash,
+    written: hashOf(file.current ?? file.content),
+    ...(code === undefined ? {} : { code }),
+  }
+}
+
+/** Each planned item in the lockfile, with the hashes of every file it wrote. */
 export function record(
   lockfile: Lockfile,
   planned: readonly Planned[],
@@ -740,10 +796,7 @@ export function record(
   for (const { key, template, item, framework, base, design } of planned) {
     const files: Locked["files"] = {}
     for (const file of placed.filter((entry) => entry.item === key))
-      files[file.relative] = {
-        source: file.file.hash,
-        written: hashOf(file.content),
-      }
+      files[file.relative] = lockedFile(file)
     lockfile.items[key] = {
       registry: template,
       version: item.version,

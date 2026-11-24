@@ -29,10 +29,12 @@ import {
   designSystemsOf,
   indexReader,
   installPackages,
+  MARKS,
   place,
   placeOf,
   plan,
   record,
+  refuses,
   splitPackages,
   writePlaced,
 } from "./add.ts"
@@ -1442,7 +1444,6 @@ export async function runInit(
     write(workspaceLine(settings, cwd))
   }
 
-  const marks = { new: "+", same: "=", differs: "!" } as const
   const own = (line: string) => /^(app: )?kirana: /.test(line)
   for (const line of report.filter(own)) write(`${line}\n`)
   for (const { key, item, framework, base } of planned) {
@@ -1450,7 +1451,7 @@ export async function runInit(
       `${key} ${item.version}${framework ? ` · ${framework}/${base}` : ""}\n`
     )
     for (const file of placed.filter((entry) => entry.item === key))
-      write(`  ${marks[file.state]} ${file.relative}\n`)
+      write(`  ${MARKS[file.state]} ${file.relative}\n`)
   }
   for (const line of report.filter((entry) => !own(entry)))
     write(`setup: ${line}\n`)
@@ -1503,13 +1504,7 @@ export async function runInit(
         )
   for (const command of commands) write(`packages: ${command}\n`)
   for (const command of appCommands) write(`packages: app: ${command}\n`)
-  const conflicts = placed.filter((file) => file.state === "differs")
-  if (conflicts.length > 0 && !parsed.flags.has("--overwrite")) {
-    write(
-      `${conflicts.length} file(s) the project has would change (!): nothing written; --overwrite replaces them\n`
-    )
-    return 1
-  }
+  if (refuses(placed, parsed.flags.has("--overwrite"), write)) return 1
   if (parsed.flags.has("--dry-run")) {
     write("dry run: nothing written\n")
     return 0

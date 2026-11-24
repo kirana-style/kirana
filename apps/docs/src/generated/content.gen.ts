@@ -5009,6 +5009,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "your-formatter-s-changes",
+        "text": "Your formatter's changes",
+        "level": 3
+      },
+      {
         "id": "in-a-monorepo",
         "text": "In a monorepo",
         "level": 2
