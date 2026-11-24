@@ -22,11 +22,11 @@
     "example": "bun examples/run.ts"
   },
   "devDependencies": {
-    "mdn-data": "2.37.2",
+    "mdn-data": "2.38.1",
     "vitest": "catalog:",
     "@vitest/coverage-v8": "catalog:",
-    "oxc-transform": "0.158.0",
-    "oxc-minify": "0.158.0",
+    "oxc-transform": "0.159.0",
+    "oxc-minify": "0.159.0",
     "@napi-rs/cli": "catalog:",
     "@types/node": "catalog:",
     "vite": "catalog:",
@@ -35,7 +35,7 @@
     "@kirana-style/core": "workspace:*",
     "react": "catalog:",
     "@types/react": "catalog:",
-    "oxc-parser": "0.158.0",
+    "oxc-parser": "0.159.0",
     "playwright": "catalog:",
     "typescript": "catalog:",
     "tailwindcss": "4.3.5",
