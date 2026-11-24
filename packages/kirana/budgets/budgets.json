@@ -1332,19 +1332,19 @@
   },
   "types": {
     "css": {
-      "types": 1993,
+      "types": 2058,
       "instantiations": 261
     },
     "recipe": {
-      "types": 2328,
+      "types": 2393,
       "instantiations": 1336
     },
     "states": {
-      "types": 4436,
+      "types": 4501,
       "instantiations": 162
     },
     "sx-react": {
-      "types": 2058,
+      "types": 2123,
       "instantiations": 1108
     },
     "sx-svelte": {
@@ -1352,11 +1352,11 @@
       "instantiations": 80
     },
     "sx-vue": {
-      "types": 1243,
+      "types": 1308,
       "instantiations": 68
     },
     "tokens": {
-      "types": 1702,
+      "types": 1767,
       "instantiations": 416
     }
   }

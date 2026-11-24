@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@tanstack/highlight": "^1.2.12",
-    "@tanstack/markdown": "^1.2.0"
+    "@tanstack/markdown": "^1.2.1"
   },
   "devDependencies": {
     "@types/node": "catalog:",
