@@ -129,6 +129,17 @@ describe("KF-136 a file's code with its formatting set aside", () => {
     differ("a.ts", [['import { a } from "x"', 'import { b } from "x"']])
   })
 
+  it("reads a child of comments one way only, so a long run of them cannot stall it", () => {
+    same("a.tsx", [
+      [
+        "const a = <div>{/* a */ /** b ** c */}</div>",
+        "const a = (\n  <div>\n    {/* a */\n    /** b ** c */}\n  </div>\n)",
+      ],
+    ])
+    // A lazy comment body inside the repeated group backtracked exponentially on this.
+    codeOf("a.tsx", `const a = <div>{/*${"*//*".repeat(5000)}x</div>`)
+  })
+
   it("reads JSX text as React does, and the parentheses around JSX", () => {
     same("a.tsx", [
       [

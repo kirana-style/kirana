@@ -40,8 +40,12 @@ const JSX_CLOSING = /<\/\s*([\w$.:-]*)\s*>/y
 /** A JSX child that is one string, which React renders as text: `{" "}`. */
 const TEXT_CHILD =
   /\{\s*(?:"((?:[^"\\]|\\[\s\S])*)"|'((?:[^'\\]|\\[\s\S])*)')\s*\}/y
-/** A JSX child that is only comments. */
-const EMPTY_CHILD = /\{\s*(?:\/\*[\s\S]*?\*\/\s*)*\}/y
+/**
+ * A JSX child that is only comments. Each comment ends at its first `*\/`, read one way only: a lazy
+ * `[\s\S]*?` inside the repeated group could also run across `*\/ /*`, and backtracked exponentially
+ * on `{/*` followed by many `*\/\/*`.
+ */
+const EMPTY_CHILD = /\{\s*(?:\/\*[^*]*\*+(?:[^/*][^*]*\*+)*\/\s*)*\}/y
 /** Longest first. A `>` stands alone: a formatter that wraps `Array<Array<T>>` writes `> >`. */
 const PUNCTUATORS = [
   "...",
