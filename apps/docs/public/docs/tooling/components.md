@@ -213,6 +213,31 @@ dropped from its imports.
 `add` never changes a file you already have unless you pass `--overwrite`.
 `--dry-run` shows what it would do.
 
+### Your formatter's changes
+
+Once Prettier, Biome, Oxfmt or `vp fmt` has reformatted an installed file, it is
+no longer byte for byte what was installed, but its code is. Kirana compares the
+code with the formatting set aside: quotes, semicolons, trailing commas,
+indentation and line breaks, the parentheses a formatter adds or drops, comments,
+JSX text as React reads it, and the order of imports. A file that differs only
+there is marked `~`, kept as you have it, and recorded as installed:
+
+```console
+$ npx kirana-style ui add @acme/card
+@acme/button 1.2.0 · react/base
+  ~ src/components/ui/button.tsx
+@acme/card 1.0.0 · react/base
+  + src/components/ui/card.tsx
+1 file(s) differ only in formatting (~): kept as the project has them
+kirana-style.lock.json: 2 item(s) recorded
+```
+
+A file whose code you changed is marked `!` and stops the command, as before:
+`--overwrite` replaces it, and keeps the ones you only reformatted. Scripts,
+JSON, CSS, SCSS and Less, and the markup of Vue, Svelte, Astro and Angular
+components (with an Angular component's inline `template`) are compared this way;
+any other kind of file is compared byte for byte.
+
 Each command that writes components ends by checking the scripts it wrote with
 Kirana. `--no-check` skips that, for a project whose configuration cannot load
 until its packages are installed.
@@ -273,10 +298,12 @@ the lint plugin does when `settings.kirana.root` is left unset.
 ## The lockfile
 
 `kirana-style.lock.json` records each installed component: the registry it came
-from, its version, the framework and base, and for each file two hashes. One is
-of the registry's content, the other of what was written. Commit it.
+from, its version, the framework and base, and for each file its hashes. One is
+of the registry's content, one of what was written, and one of its code with the
+formatting set aside (`code`). Commit it.
 
-The two hashes are how the later commands tell the registry's change from yours:
+The hashes are how the later commands tell the registry's change from yours, and
+a file you only reformatted from one you changed:
 
 ```bash
 npx kirana-style ui outdated
@@ -321,15 +348,18 @@ npx kirana-style ui update
 
 `update` writes what the registry changed and keeps what you changed. Where both
 of you changed the same file, it stops before writing anything: `ui diff` shows
-the two sides, and `--overwrite` takes the registry's. A registry that changes a
-component's files without a new version is refused.
+the two sides, and `--overwrite` takes the registry's. A file you only reformatted
+is not a change: the registry's new one is written over it, for your formatter to
+format again. A lockfile written before Kirana recorded `code` hashes tells a
+reformatted file only while the registry's file is the one installed. A registry
+that changes a component's files without a new version is refused.
 
 ```bash
 npx kirana-style ui remove dialog
 ```
 
-`remove` deletes the files you left as they were installed and keeps the ones you
-changed. It refuses a component another installed one still needs.
+`remove` deletes the files you left as they were installed, or only reformatted,
+and keeps the ones you changed. It refuses a component another installed one still needs.
 
 ## Your registries
 

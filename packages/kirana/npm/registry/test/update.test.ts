@@ -14,7 +14,7 @@ import { afterAll, describe, expect, it } from "vite-plus/test"
 
 import { hashOf } from "../src/check.ts"
 import { main } from "../src/index.ts"
-import { readLockfile } from "../src/lockfile.ts"
+import { readLockfile, writeLockfile } from "../src/lockfile.ts"
 import type { Item, RegistryFile } from "../src/types.ts"
 
 const root = mkdtempSync(path.join(tmpdir(), "kirana-registry-update-"))
@@ -436,5 +436,65 @@ describe("KRN-DX-031 kirana-style ui remove", () => {
     expect((await run(cwd, "remove", "--force", "util")).code).toBe(2)
     write("kirana-style.lock.json", "{")
     expect((await run(cwd, "remove", "util")).code).toBe(2)
+  })
+})
+
+describe("KF-136 update and remove on files the project only reformatted", () => {
+  it("writes the registry's change over a file the project only reformatted, and deletes one it removed", async () => {
+    const { cwd, write, publish } = await installed([
+      util("1.0.0", [...V1.files!, file("util/d.ts", "export const d = 1\n")]),
+    ])
+    write("src/lib/util/a.ts", "export const a = 1;\n")
+    write("src/lib/util/b.ts", "export const b = 1;\n")
+    write("src/lib/util/d.ts", "export const d = 1;\n")
+    publish(
+      util("2.0.0", [
+        file("util/a.ts", "export const a = 2\n"),
+        file("util/d.ts", "export const d = 1\n"),
+      ])
+    )
+    const { code, text } = await run(cwd, "update", "--no-check")
+    expect(code).toBe(0)
+    expect(text).toBe(
+      [
+        "@acme/util 1.0.0 → 2.0.0",
+        "  + src/lib/util/a.ts: reformatted only, so the registry's is written",
+        "  - src/lib/util/b.ts",
+        "kirana-style.lock.json: 1 item(s) recorded",
+        "",
+      ].join("\n")
+    )
+    expect(read(cwd, "src/lib/util/a.ts")).toBe("export const a = 2\n")
+    expect(exists(cwd, "src/lib/util/b.ts")).toBe(false)
+    expect(read(cwd, "src/lib/util/d.ts")).toBe("export const d = 1;\n")
+  })
+
+  it("still stops on a file both changed, and on one an older lockfile cannot tell", async () => {
+    const { cwd, write, publish } = await installed()
+    const lockfile = readLockfile(cwd)
+    delete lockfile.items["@acme/util"]!.files["src/lib/util/a.ts"]!.code
+    writeLockfile(cwd, lockfile)
+    write("src/lib/util/a.ts", "export const a = 1;\n")
+    write("src/lib/util/b.ts", "export const b = 'mine'\n")
+    publish(V2)
+    const { code, text } = await run(cwd, "update", "--no-check")
+    expect(code).toBe(1)
+    expect(text).toContain(
+      "  ! src/lib/util/a.ts: you and the registry both changed it\n"
+    )
+    expect(text).toContain(
+      "  ~ src/lib/util/b.ts: no longer the item's; yours, kept\n"
+    )
+  })
+
+  it("removes a file the project only reformatted, and keeps one it changed", async () => {
+    const { cwd, write } = await installed()
+    write("src/lib/util/a.ts", "export const a = 1;")
+    write("src/lib/util/b.ts", "export const b = 2\n")
+    const { code, text } = await run(cwd, "remove", "util")
+    expect(code).toBe(0)
+    expect(text).toContain("  - src/lib/util/a.ts\n")
+    expect(text).toContain("  ~ src/lib/util/b.ts: yours, kept\n")
+    expect(exists(cwd, "src/lib/util/a.ts")).toBe(false)
   })
 })

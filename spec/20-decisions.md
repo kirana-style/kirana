@@ -1706,21 +1706,41 @@ the implementation tracker names its evidence.
 
 ### D-108 — Installed files name each other through the project's aliases
 
-- **Status:** Accepted (2026-10-25). For `kirana-style ui add`.
+- **Status:** Accepted (2026-10-25). For `kirana-style ui add`. Amended 2026-11-24 for KF-136.
 - **Decision:** a registry file names another installed file as `@/registry/<type>/<path>`, its
   type and path exactly as the item lists that file. Installation rewrites the prefix to the
   project's alias for the type (`ui.aliases`, defaulting to shadcn/ui's `@/components/ui`, `@/lib`,
   `@/components`, `@/hooks`), and writes each file in the directory the project's `tsconfig.json`
   maps that alias to. Two files installed in one directory may import each other relatively. A
-  command that would change a file the project already has, with other content, changes nothing
-  unless told to overwrite.
+  command that would change a file the project already has, with other code, changes nothing
+  unless told to overwrite. A file whose code is the same with other formatting is kept as the
+  project has it and said apart (`~`, not `!`): Kirana compares a canonical form of the code, its
+  tokens without whitespace and comments and with what formatters choose freely written one way
+  (quotes, semicolons, trailing commas, optional parentheses, JSX text as React reads it, import
+  order), for scripts, JSON, CSS and the markup of Vue, Svelte, Astro and Angular components; any
+  other file byte for byte. The lockfile records the hash of that form beside the other two
+  (`code`), so `update`, `diff` and `remove` read a reformatted file as installed.
 - **Rationale:** a registry cannot know a project's layout, and a project already says it once, in
   its `paths`; reading it there keeps one source and makes the written imports resolve as the
   project's own do. Naming a file by its type and path keeps the import tied to the file the item
   carries, so the installer can check that every such import is installed. Refusing before writing
-  anything leaves a project whole: half an item is worse than none.
+  anything leaves a project whole: half an item is worse than none. A project's formatter rewrites
+  the files it installs, on save or before a commit, and a refusal over that taught one project to
+  pass `--overwrite` every time, which would also replace a real edit (KF-136). Comparing a form
+  Kirana computes itself, in the registry package, needs no formatter to be installed, configured
+  or run, gives every command the same answer offline, and is the same whichever formatter the
+  project uses. Running the project's formatter on what is written instead would spawn it on every
+  command that compares, depend on its configuration matching the editor's, and still fail where
+  the project formats in a way Kirana does not run. Printing the code with Oxc's codegen through
+  the native engine would cover scripts only, add a dependency and a napi export, and change the
+  recorded hashes with every Oxc release.
 - **Trade-off:** a project without `paths` for its aliases must add them (the message says which),
-  as shadcn/ui asks. `@/registry/` is reserved in registry files.
+  as shadcn/ui asks. `@/registry/` is reserved in registry files. The form sets aside a few edits
+  that are not formatting (a comment, the spaces in a line of JSX text, the order of imports), so
+  such a file is kept rather than replaced, never lost. `--overwrite` replaces only files whose code
+  differs. A lockfile written before `code` hashes reads a reformatted file as installed only while
+  the registry's file is the one installed; `add` records the hashes again for every item it
+  touches. Changing the form changes the hashes lockfiles hold: a later change is a decision.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
 ### D-109 — A design system says how a project wires it

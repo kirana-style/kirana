@@ -13,6 +13,7 @@ import { afterAll, describe, expect, it } from "vite-plus/test"
 
 import { hashOf } from "../src/check.ts"
 import { main } from "../src/index.ts"
+import { readLockfile, writeLockfile } from "../src/lockfile.ts"
 import type { Item, RegistryFile } from "../src/types.ts"
 
 const root = mkdtempSync(path.join(tmpdir(), "kirana-registry-status-"))
@@ -187,6 +188,58 @@ describe("KRN-DX-030 kirana-style ui outdated and diff", () => {
       expect((await run(cwd, command)).code).toBe(2)
     expect(readFileSync(path.join(cwd, "src/lib/util/a.ts"), "utf8")).toBe(
       "export const a = 1\n"
+    )
+  })
+})
+
+describe("KF-136 outdated and diff on a file the project only reformatted", () => {
+  it("read it as installed, and say so beside the registry's change", async () => {
+    const { cwd, write } = await installed()
+    write("src/lib/util/a.ts", "export const a = 1;")
+    expect(await run(cwd, "diff")).toEqual({
+      code: 0,
+      text: "1 item(s), no differences\n",
+    })
+    expect((await run(cwd, "outdated")).code).toBe(0)
+    const next = item("1.1.0", [
+      file("util/a.ts", "export const a = 2\n"),
+      file("util/b.ts", "export const b = 1\n"),
+    ])
+    write("acme/util.json", JSON.stringify(next))
+    expect((await run(cwd, "diff")).text).toContain(
+      "@acme/util: src/lib/util/a.ts: the registry changed it, the project reformatted it\n"
+    )
+    // Once `add` kept it, the lockfile records the project's text, and its code as installed.
+    write("acme/util.json", JSON.stringify(V1))
+    expect((await run(cwd, "add", "@acme/util", "--no-check")).text).toContain(
+      "  ~ src/lib/util/a.ts\n"
+    )
+    expect(
+      readLockfile(cwd).items["@acme/util"]!.files["src/lib/util/a.ts"]!.written
+    ).toBe(hashOf("export const a = 1;"))
+    expect((await run(cwd, "diff")).text).toBe("1 item(s), no differences\n")
+  })
+
+  it("read an older lockfile, without code hashes, through the file installing writes", async () => {
+    const { cwd, write } = await installed()
+    const lockfile = readLockfile(cwd)
+    for (const entry of Object.values(lockfile.items["@acme/util"]!.files))
+      delete entry.code
+    writeLockfile(cwd, lockfile)
+    write("src/lib/util/a.ts", "export const a = 1;")
+    expect((await run(cwd, "diff")).text).toBe("1 item(s), no differences\n")
+    // With the registry's file changed, what was written is not known: the project's reads as changed.
+    write(
+      "acme/util.json",
+      JSON.stringify(
+        item("1.1.0", [
+          file("util/a.ts", "export const a = 2\n"),
+          file("util/b.ts", "export const b = 1\n"),
+        ])
+      )
+    )
+    expect((await run(cwd, "diff")).text).toContain(
+      "@acme/util: src/lib/util/a.ts: the registry changed it, the project changed it\n"
     )
   })
 })

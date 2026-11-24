@@ -13,10 +13,12 @@ import {
   checkWritten,
   chooseBase,
   installBoth,
+  MARKS,
   packageCommands,
   place,
   plan,
   record,
+  sayReformatted,
   scriptsOf,
   writeCommands,
   writeEdits,
@@ -482,11 +484,10 @@ export async function runPreset(
     write(`${(error as Error).message}\n`)
     return 1
   }
-  const marks = { new: "+", same: "=", differs: "!" } as const
   for (const { key, item } of added) {
     write(`${key} ${item.version}\n`)
     for (const file of fonts.filter((entry) => entry.item === key))
-      write(`  ${marks[file.state]} ${file.relative}\n`)
+      write(`  ${MARKS[file.state]} ${file.relative}\n`)
   }
   // The fonts, their packages and the document are the app's: in a workspace, not the package's
   // (D-129, KF-111).
@@ -504,6 +505,7 @@ export async function runPreset(
       write(
         `unused: ${key}, which no value names now: kirana-style ui remove ${key}\n`
       )
+  sayReformatted(fonts, write)
   if (!parsed.flags.has("--overwrite"))
     conflicts.push(
       ...fonts

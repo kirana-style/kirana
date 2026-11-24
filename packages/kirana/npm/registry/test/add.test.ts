@@ -199,12 +199,80 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     expect(refused.code).toBe(1)
     expect(refused.text).toContain("  ! src/lib/sx.ts")
     expect(refused.text).toContain(
-      "1 file(s) the project has would change (!): nothing written; --overwrite replaces them"
+      "1 file(s) the project has would change beyond formatting (!): nothing written; --overwrite replaces them"
     )
     expect(refused.commands).toEqual([])
     expect(read(cwd, "src/lib/sx.ts")).toBe("// mine\n")
     expect((await add(cwd, "@acme/button", "--overwrite")).code).toBe(0)
     expect(read(cwd, "src/lib/sx.ts")).toBe("export type Sx = {}\n")
+  })
+
+  it("keeps a file the project only reformatted, and still stops on a real change (KF-136)", async () => {
+    const cwd = project()
+    await add(cwd, "@acme/button")
+    // What a formatter leaves: single quotes, no semicolons, four spaces, trailing commas, wrapped.
+    const reformatted = {
+      "src/components/ui/button.tsx":
+        "import { button } from '@/components/ui/button.styles';\nimport type {\n    Sx,\n} from \"@/lib/sx\";\n\nexport const Button = (\n) => button;\n",
+      "src/lib/kit/axes.ts": "export const axes = {\n}",
+      "app/globals.css": ":root {\n}\n",
+    }
+    for (const [name, text] of Object.entries(reformatted))
+      writeFileSync(path.join(cwd, name), text)
+    const again = await add(cwd, "@acme/button")
+    expect(again.code).toBe(0)
+    expect(again.text).toContain("  ~ src/components/ui/button.tsx")
+    expect(again.text).toContain("  ~ src/lib/kit/axes.ts")
+    expect(again.text).toContain("  ~ app/globals.css")
+    expect(again.text).toContain("  = src/lib/sx.ts")
+    expect(again.text).toContain(
+      "3 file(s) differ only in formatting (~): kept as the project has them"
+    )
+    for (const [name, text] of Object.entries(reformatted))
+      expect(read(cwd, name)).toBe(text)
+    // The lockfile records what the project has, so the next command reads them as installed.
+    const kit = readLockfile(cwd).items["@acme/kit"]!.files
+    expect(kit["src/lib/kit/axes.ts"]!.written).toBe(
+      hashOf(reformatted["src/lib/kit/axes.ts"])
+    )
+    expect(kit["src/lib/kit/axes.ts"]!.code).toMatch(/^sha256-/)
+    writeFileSync(
+      path.join(cwd, "src/lib/kit/axes.ts"),
+      "export const axes = { mine: 1 }\n"
+    )
+    const refused = await add(cwd, "@acme/button")
+    expect(refused.code).toBe(1)
+    expect(refused.text).toContain("  ! src/lib/kit/axes.ts")
+    expect(refused.text).toContain("  ~ src/components/ui/button.tsx")
+    expect(refused.text).toContain(
+      "1 file(s) the project has would change beyond formatting (!): nothing written; --overwrite replaces them"
+    )
+    expect(read(cwd, "src/lib/kit/axes.ts")).toBe(
+      "export const axes = { mine: 1 }\n"
+    )
+    // `--overwrite` replaces the changed file and keeps the reformatted ones.
+    expect((await add(cwd, "@acme/button", "--overwrite")).code).toBe(0)
+    expect(read(cwd, "src/lib/kit/axes.ts")).toBe("export const axes = {}\n")
+    expect(read(cwd, "src/components/ui/button.tsx")).toBe(
+      reformatted["src/components/ui/button.tsx"]
+    )
+  })
+
+  it("compares a kind of file it cannot read the code of byte for byte, and records no code hash (KF-136)", async () => {
+    const notes: Item = {
+      name: "notes",
+      type: "lib",
+      version: "1.0.0",
+      files: [file("notes.md", "file", "# Notes\n", "docs/notes.md")],
+    }
+    const cwd = project({}, [notes])
+    await add(cwd, "@acme/notes")
+    const locked = readLockfile(cwd).items["@acme/notes"]!.files
+    expect(locked["docs/notes.md"]).not.toHaveProperty("code")
+    writeFileSync(path.join(cwd, "docs/notes.md"), "# Notes\n\n")
+    const refused = await add(cwd, "@acme/notes")
+    expect(refused.code).toBe(1)
+    expect(refused.text).toContain("  ! docs/notes.md")
   })
 
   it("writes nothing on a dry run", async () => {

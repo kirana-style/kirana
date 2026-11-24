@@ -2,8 +2,9 @@
  * `kirana-style ui update [item…]` and `ui remove <item…>` (KRN-DX-031), on the lockfile's record
  * (KRN-DX-025). An update writes what the registry changed and keeps what the project changed: a
  * file both changed stops it, since the lockfile keeps hashes, not the content to merge from; `diff`
- * shows both sides and `--overwrite` takes the registry's. A removal deletes the files the project
- * left as they were installed, and refuses an item another installed item needs.
+ * shows both sides and `--overwrite` takes the registry's. A file the project only reformatted counts
+ * as left as installed (KF-136). A removal deletes the files the project left as they were installed,
+ * and refuses an item another installed item needs.
  */
 import { existsSync, readFileSync, unlinkSync } from "node:fs"
 import path from "node:path"
@@ -12,6 +13,7 @@ import {
   appOf,
   checkWritten,
   installBoth,
+  lockedFile,
   packageCommands,
   place,
   plan,
@@ -19,7 +21,7 @@ import {
   writePlaced,
 } from "./add.ts"
 import type { Placed, Planned } from "./add.ts"
-import { hashOf } from "./check.ts"
+import { againstInstalled } from "./code.ts"
 import { failureLine, parseArgs } from "./command.ts"
 import type { Options } from "./command.ts"
 import { writeLockfile } from "./lockfile.ts"
@@ -146,10 +148,7 @@ export async function runUpdate(
   for (const newcomer of newcomers) {
     const files: Locked["files"] = {}
     for (const file of added.filter((entry) => entry.item === newcomer.key))
-      files[file.relative] = {
-        source: file.file.hash,
-        written: hashOf(file.content),
-      }
+      files[file.relative] = lockedFile(file)
     lockfile.items[newcomer.key] = {
       registry: newcomer.template,
       version: newcomer.item.version,
@@ -171,8 +170,9 @@ export async function runUpdate(
 
 /**
  * What placing these items again changes, file by file: the registry's change written where the
- * project left the file as installed, the project's kept, a file both changed a conflict unless
- * `overwrite`; each item's header, then a line per file, reported as it goes.
+ * project left the file as installed or only reformatted it (KF-136), the project's kept, a file
+ * both changed a conflict unless `overwrite`; each item's header, then a line per file, reported as
+ * it goes.
  */
 export function reconcile(
   statuses: readonly ItemStatus[],
@@ -187,9 +187,9 @@ export function reconcile(
   for (const status of statuses) {
     header(status)
     for (const file of status.files) {
+      const theirs = file.project === "changed" || file.project === "missing"
       if (file.registry === "same") {
-        if (file.project !== "same")
-          write(`  ~ ${file.relative}: yours, kept\n`)
+        if (theirs) write(`  ~ ${file.relative}: yours, kept\n`)
         else if (file.restyled) {
           // The project's settings write it differently now (an icon library, an alias).
           writes.push(file.next!)
@@ -197,23 +197,26 @@ export function reconcile(
         }
         continue
       }
-      const theirs = file.project === "changed"
       if (file.registry === "removed") {
-        if (theirs)
+        if (file.project === "changed")
           write(`  ~ ${file.relative}: no longer the item's; yours, kept\n`)
-        else if (file.project === "same") {
+        else if (file.project !== "missing") {
           deletes.push(path.join(root, file.relative))
           write(`  - ${file.relative}\n`)
         }
         continue
       }
-      if (theirs && !overwrite) {
+      if (file.project === "changed" && !overwrite) {
         conflicts.push(file.relative)
         write(`  ! ${file.relative}: you and the registry both changed it\n`)
         continue
       }
       writes.push(file.next!)
-      write(`  + ${file.relative}\n`)
+      write(
+        file.project === "reformatted"
+          ? `  + ${file.relative}: reformatted only, so the registry's is written\n`
+          : `  + ${file.relative}\n`
+      )
     }
   }
   return { writes, deletes, conflicts }
@@ -233,10 +236,7 @@ export function recordStatuses(
     for (const file of status.files) {
       const was = status.locked.files[file.relative]
       if (writes.some((entry) => entry.relative === file.relative))
-        files[file.relative] = {
-          source: file.next!.file.hash,
-          written: hashOf(file.next!.content),
-        }
+        files[file.relative] = lockedFile(file.next!)
       else if (file.registry === "same" && was) files[file.relative] = was
     }
     const { framework, base, design } = status.planned
@@ -320,12 +320,14 @@ export async function runRemove(
   }
   for (const key of keys) {
     write(`${key}\n`)
-    for (const [relative, { written }] of Object.entries(
-      lockfile.items[key]!.files
-    )) {
+    for (const [relative, was] of Object.entries(lockfile.items[key]!.files)) {
       const file = path.join(project.root, relative)
       if (!existsSync(file)) continue
-      if (hashOf(readFileSync(file, "utf8")) !== written) {
+      // A file the project only reformatted is as installed (KF-136).
+      if (
+        againstInstalled(relative, readFileSync(file, "utf8"), was) ===
+        "changed"
+      ) {
         write(`  ~ ${relative}: yours, kept\n`)
         continue
       }

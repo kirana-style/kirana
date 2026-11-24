@@ -147,8 +147,11 @@ export type Locked = {
   framework?: Framework
   base?: string
   design?: string
-  /** Each installed file by its path: the registry's content hash, and what was written's. */
-  files: Record<string, { source: string; written: string }>
+  /**
+   * Each installed file by its path: the registry's content hash, what was written's, and its code's
+   * with formatting set aside (KF-136), for a kind of file that has a form.
+   */
+  files: Record<string, { source: string; written: string; code?: string }>
 }
 
 /** `kirana-style.lock.json`. */

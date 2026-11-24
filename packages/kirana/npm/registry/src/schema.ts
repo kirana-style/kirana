@@ -484,6 +484,11 @@ export const LOCKFILE_SCHEMA: Schema = {
                   properties: {
                     source: { $ref: "#/$defs/hash" },
                     written: { $ref: "#/$defs/hash" },
+                    code: {
+                      $ref: "#/$defs/hash",
+                      description:
+                        "The hash of its code with formatting set aside, so that a file the project only reformatted is told from one it changed (KF-136).",
+                    },
                   },
                   additionalProperties: false,
                 },
