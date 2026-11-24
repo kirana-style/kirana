@@ -58,7 +58,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "csstype": "^3.2.3"
+    "csstype": "^3.2.4"
   },
   "peerDependencies": {
     "vue": ">=3.3"

@@ -154,17 +154,20 @@ describe("KRN-INT-002 Rolldown on its own", () => {
     expect(atoms.length).toBeGreaterThan(5)
     for (const [atom] of atoms) expect(dense.css).toContain("." + atom)
     // The renaming is in the chunk's source map.
-    expect(dense.js.map?.sources.some((file) => file.endsWith("main.ts"))).toBe(
-      true
-    )
+    expect(
+      dense.js.map?.sources.some((file) => file?.endsWith("main.ts"))
+    ).toBe(true)
     // A build that writes no maps gets the same names, and the renaming builds none (KF-061).
     const renaming = vi.spyOn(Driver.prototype, "dense")
     const unmapped = await build("dense", false)
     // One call per chunk, each asking for no map.
     expect(renaming.mock.calls.map((call) => call[2])).toEqual([false, false])
     renaming.mockRestore()
-    expect(unmapped.js.code).toBe(
-      dense.js.code.replace(/\n\/\/# sourceMappingURL=.*$/, "")
+    // Rolldown 1.3.3 hashes a chunk's map into its file name, so the lazy chunk's name differs.
+    const chunkNames = (code: string) =>
+      code.replace(/plain-[\w-]+\.js/g, "plain.js")
+    expect(chunkNames(unmapped.js.code)).toBe(
+      chunkNames(dense.js.code.replace(/\n\/\/# sourceMappingURL=.*$/, ""))
     )
     expect(unmapped.js.map).toBeNull()
   })
