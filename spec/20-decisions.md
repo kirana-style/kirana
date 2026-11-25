@@ -1809,7 +1809,8 @@ the implementation tracker names its evidence.
   `--template` also takes a registry's template or an archive's URL. Amended 2026-11-23 for KF-134:
   a template and a base name their runtime, and `init` and `add` refuse a mismatch. Amended
   2026-11-25 for KF-137: `init` refuses flags its preset disagrees with, and a template of another
-  framework than it records.
+  framework than it records; `init` and `ui preset` refuse a code or flag for another framework than
+  the project's.
 - **Decision:** `@kirana-style/registry` has one bin, `kirana-style-ui`, which runs its own `main`, so
   `npx @kirana-style/registry init --template vite-react my-app` starts from an empty folder. The
   `kirana-style` CLI still runs the project's copy (D-103). `ui init` installs Kirana's packages,
@@ -1867,9 +1868,12 @@ the implementation tracker names its evidence.
   that framework whose name is closest. Refused rather than resolved by letting one side win and
   saying so: a kirana-ui prompt that encoded another design than its choices produced a Vue app with
   React's `ui` and exit 0, and either winner would still leave one of the two inputs wrong, while
-  the user who typed both is the one who knows which was meant. Trade-off: `init` in a project of
-  its own does not hold the preset to the framework its packages say, and `ui preset` with a code
-  for another framework places the installed items again for that framework.
+  the user who typed both is the one who knows which was meant. The framework a code or
+  `--framework` names is also held to the project's: `init` in a project whose packages name one
+  framework, and `ui preset` in a project whose `ui.framework` or packages name one, refuse a code or
+  flag for another with exit 2, nothing written. Trade-off: a project whose packages name no
+  framework or two (a workspace's root, an Astro site with islands of two) is not checked, and a
+  project moving to another framework edits `ui.framework` and its packages by hand first.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
 ### D-112 — A relation may be read where its anchor is not installed

@@ -890,13 +890,56 @@ describe("KRN-DX-032 kirana-style ui preset", () => {
       'export const button = "vega aria"\n'
     )
     expect(readLockfile(cwd).items["@acme/button"]!.base).toBe("aria")
-    // Another framework: its only base, not the one installed for React.
+    // s1 wrote ui.framework react: a code for Vue is refused (KF-137), and by the packages alone
+    // once ui.framework is gone.
+    const config = read(cwd, "kirana.config.json")
+    expect(JSON.parse(config).ui.framework).toBe("react")
+    expect(await run(cwd, "preset", "s3", "--no-check")).toMatchObject({
+      code: 2,
+      text: "kirana-style ui preset: the preset s3 gives vue, and this project is react (ui.framework): nothing changed; pass a preset for react\n",
+    })
+    expect(read(cwd, "kirana.config.json")).toBe(config)
+    const { framework: _, ...ui } = JSON.parse(config).ui
+    writeFileSync(path.join(cwd, "kirana.config.json"), JSON.stringify({ ui }))
+    expect(await run(cwd, "preset", "s3", "--no-check")).toMatchObject({
+      code: 2,
+      text: "kirana-style ui preset: the preset s3 gives vue, and this project is react (its packages): nothing changed; pass a preset for react\n",
+    })
+    // With no framework in its packages either, the code's is taken, with that framework's only
+    // base rather than the one installed for React.
+    writeFileSync(
+      path.join(cwd, "package.json"),
+      '{ "dependencies": { "lucide-react": "1" } }'
+    )
     const vue = await run(cwd, "preset", "s3", "--no-check", "--overwrite")
     expect(vue.code).toBe(0)
     expect(readLockfile(cwd).items["@acme/button"]).toMatchObject({
       framework: "vue",
       base: "ark",
     })
+  })
+
+  it("holds a code to the project's ui.framework, over what its packages say (KF-137)", async () => {
+    const vueKit = {
+      "acme/kit.json": JSON.stringify({
+        ...KIT,
+        design: {
+          ...DESIGN,
+          presets: {
+            s: [
+              { axis: "style", values: ["nova", "vega"], bits: 1 },
+              { axis: "framework", values: ["react", "vue"], bits: 1 },
+            ],
+          },
+        },
+      }),
+    }
+    const cwd = await installed({ base: "base", framework: "react" }, vueKit)
+    expect(await run(cwd, "preset", "s2", "--no-check")).toMatchObject({
+      code: 2,
+      text: "kirana-style ui preset: the preset s2 gives vue, and this project is react (ui.framework): nothing changed; pass a preset for react\n",
+    })
+    expect((await run(cwd, "preset", "s1", "--no-check")).code).toBe(0)
   })
 
   it("checks what it wrote", async () => {

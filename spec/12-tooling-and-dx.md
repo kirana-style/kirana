@@ -398,12 +398,16 @@ not installed MUST be installed as `add` installs them, a font's stylesheet impo
 one no value names any more is reported for `ui remove`, not removed. `init --preset <code>` starts
 a project with a design, installing the items its values name; a `--framework` or `--base` naming
 another framework or base than the code carries MUST stop it before anything is written (exit 2),
-naming the code's and the flags' and asking for a code for the flags' or no flag (KF-137). `--pointer`, `--rtl`,
+naming the code's and the flags' and asking for a code for the flags' or no flag (KF-137). A framework
+the code or `--framework` names that is not the one the project's packages name, when they name one,
+MUST stop `init` the same way, and a code for another framework than the project's (its
+`ui.framework`, else its packages') MUST stop `ui preset` with exit 2, nothing changed: either would
+place one framework's code into the other's project. `--pointer`, `--rtl`,
 `--no-pointer` and `--no-rtl` MUST act as `init`'s on the same document, each attribute the tag has
 replaced in place (bare, quoted or a JSX expression), never doubled; without them the tag keeps
 what it has (KF-077). What was written is checked as `add` checks it, unless `--no-check`.
 `--dry-run` writes nothing. Exit 1 for a code no layout reads or a project without a design system
-installed, 2 for an unknown option or settings it cannot use.
+installed, 2 for an unknown option, settings it cannot use or a code for another framework.
 
 **KRN-DX-033** — `ui add` and every command that places an item MUST draw each icon placeholder
 in React, Vue, Svelte, Solid and Angular markup with the project's icon library (D-126). In React,
