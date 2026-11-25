@@ -30,7 +30,7 @@ import { FrameworkGrid } from "@/components/site/framework-grid"
 import { IllustratedCard } from "@/components/site/illustrated-card"
 import { AddArt } from "@/components/site/kirana-ui"
 import { Card, Row, T } from "@/components/site/visuals"
-import { UI_STATUS } from "@/data/kirana-ui"
+import { UI_ON } from "@/data/kirana-ui"
 import { PLAYGROUND, UI_PAGES } from "@/data/links"
 import { PackageGroups } from "@/components/site/packages"
 import { Page, PageHero, PageSection } from "@/components/site/page"
@@ -415,7 +415,7 @@ function EcosystemPage() {
             art={<AddArt />}
             title="Kirana UI"
             href="/ui"
-            text={`shadcn/ui's components and charts on typed styles, installed with kirana-style ui add, ${UI_STATUS}.`}
+            text={`shadcn/ui's components and charts on typed styles, installed with kirana-style ui add, ${UI_ON}.`}
             links={[
               { title: "What it is", href: "/ui" },
               { title: "Browse the components", href: UI_PAGES.components },

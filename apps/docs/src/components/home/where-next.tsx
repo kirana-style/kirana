@@ -60,7 +60,7 @@ const PAGES: readonly {
     scene: "misty-hills",
     label: "Kirana UI",
     title: "Components you don't have to port",
-    text: "shadcn/ui's components and charts on typed styles, installed into your project with kirana-style ui add.",
+    text: "shadcn/ui's components and charts on typed styles, installed into your project with kirana-style ui add, by you or your agent.",
   },
   {
     href: "/migrate",

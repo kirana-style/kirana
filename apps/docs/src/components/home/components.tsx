@@ -36,7 +36,7 @@ export function Components() {
           art={<AddArt />}
           title="Kirana UI"
           href="/ui"
-          text="The components and charts you know from shadcn/ui, with a style module you can read, installed into your project as code you own. A preset from the site sets the style, colours, fonts, radius and icons once."
+          text="The components and charts you know from shadcn/ui, with a style module you can read, installed into your project as code you own. A preset from the site sets the style, colours, fonts, radius and icons once, and a prompt copied from it lets your agent do the setting up."
           links={[
             { title: "What it is", href: "/ui" },
             { title: "Browse the components", href: UI_PAGES.components },

@@ -13,7 +13,7 @@ import {
 } from "@hugeicons/core-free-icons"
 
 import type { SceneId } from "../brand/scenes.ts"
-import { UI_STATUS } from "./kirana-ui.ts"
+import { UI_ON } from "./kirana-ui.ts"
 import { UI_SITE } from "./links.ts"
 
 export type Product = {
@@ -45,7 +45,7 @@ export function productsMarkdown(): string {
 export const PRODUCTS: readonly Product[] = [
   {
     name: "Kirana UI",
-    description: `Components to copy in, ${UI_STATUS}`,
+    description: `Components to copy in, ${UI_ON}`,
     note: "A registry of components styled with Kirana, installed with `kirana-style ui add`",
     href: UI_SITE,
     icon: ComponentIcon,

@@ -1,7 +1,8 @@
 /**
  * `/ui`: Kirana UI, for someone weighing a move to Kirana whose first question is what happens to
  * their components. Its own site (`UI_SITE`) shows the components; this page says what they are,
- * how they install and where each framework stands (`UI_FRAMEWORKS`).
+ * how they install, what an agent does with them (`UI_AGENTS`) and the frameworks they are built for
+ * (`UI_FRAMEWORKS`).
  */
 import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
@@ -25,7 +26,7 @@ import { DocsLink } from "@/components/docs-link"
 import { IllustratedCard, PillLinks } from "@/components/site/illustrated-card"
 import { ChartArt, DesignArt, UiFrameworks } from "@/components/site/kirana-ui"
 import { Accent, Page, PageHero, PageSection } from "@/components/site/page"
-import { UI_STATUS } from "@/data/kirana-ui"
+import { UI_AGENTS, UI_ON } from "@/data/kirana-ui"
 import { UI_PAGES } from "@/data/links"
 import { SHOWCASE } from "@/generated/showcase.gen"
 
@@ -37,7 +38,7 @@ export const Route = createFileRoute("/ui")({
       {
         name: "description",
         content:
-          "shadcn/ui's components, blocks and charts, rebuilt on typed styles and compiled by Kirana. Installed into your project with kirana-style ui add, as code you own.",
+          "shadcn/ui's components, blocks and charts, rebuilt on typed styles and compiled by Kirana. Installed into your project with kirana-style ui add, as code you own, by you or your agent.",
       },
     ],
   }),
@@ -121,7 +122,7 @@ const OWNED = [
   {
     kicker: "Code you own",
     title: "Copied in, not imported",
-    text: "kirana-style ui add writes each component into your project and records it in a lockfile. ui diff and ui update show and take the registry's changes, keeping yours.",
+    text: "kirana-style ui add writes each component into your project and records it in a lockfile. ui diff and ui update show and take the registry's changes, keeping yours, and a file you only reformatted counts as unchanged.",
   },
   {
     kicker: "Typed styles",
@@ -141,7 +142,7 @@ function UiPage() {
             Components you don&apos;t have to <Accent>port</Accent>
           </>
         }
-        lede="The question before any move to a new way of styling is what happens to the components. Kirana UI is shadcn/ui's set, its blocks and its charts, already rebuilt on typed styles and compiled by Kirana, installed into your project with one command."
+        lede="The question before any move to a new way of styling is what happens to the components. Kirana UI is shadcn/ui's set, its blocks and its charts, already rebuilt on typed styles and compiled by Kirana, installed into your project with one command, by you or your agent."
         actions={
           <>
             <QuickStart href={UI_PAGES.components}>
@@ -158,7 +159,7 @@ function UiPage() {
         number="01"
         label="What you get"
         title="The components you know, as code you own"
-        lede={`Moving to Kirana does not start with porting a component library: shadcn/ui's is already here, ${UI_STATUS}.`}
+        lede={`Moving to Kirana does not start with porting a component library: shadcn/ui's is already here, ${UI_ON}.`}
       >
         <div sx={styles.cells}>
           {OWNED.map((entry) => (
@@ -203,6 +204,24 @@ function UiPage() {
 
       <PageSection
         number="03"
+        label="For agents"
+        title="Components your agent builds with, and drives"
+        lede="An agent sets the project up, adds the components and uses the page they make, today. Answering with them is being built, and its page says how far it is."
+      >
+        <div sx={styles.cells}>
+          {UI_AGENTS.map((entry) => (
+            <div key={entry.kicker} sx={styles.cell}>
+              <span sx={styles.kicker}>{entry.kicker}</span>
+              <h3 sx={styles.heading}>{entry.title}</h3>
+              <p sx={styles.text}>{entry.text}</p>
+              <PillLinks links={entry.links} />
+            </div>
+          ))}
+        </div>
+      </PageSection>
+
+      <PageSection
+        number="04"
         label="Your design"
         title="One design, chosen once"
         lede="A style, a base colour, a theme, fonts, a radius and an icon library, picked on the site and carried as a preset code."
@@ -228,7 +247,7 @@ function UiPage() {
       </PageSection>
 
       <PageSection
-        number="04"
+        number="05"
         label="Frameworks"
         title="Every framework, one style module"
         lede="A component's look is written once and compiled for each framework: only the markup is per framework, over the unstyled libraries each one uses."
@@ -237,7 +256,7 @@ function UiPage() {
       </PageSection>
 
       <PageSection
-        number="05"
+        number="06"
         label="Beyond components"
         title="Charts and blocks, from the same styles"
         lede="Charts drawn with the same tokens as the components around them, and whole sections to start a page from."
