@@ -1807,7 +1807,9 @@ the implementation tracker names its evidence.
 
 - **Status:** Accepted (2026-10-26). Answers KF-035; keeps D-103. Amended 2026-11-09 for KF-108:
   `--template` also takes a registry's template or an archive's URL. Amended 2026-11-23 for KF-134:
-  a template and a base name their runtime, and `init` and `add` refuse a mismatch.
+  a template and a base name their runtime, and `init` and `add` refuse a mismatch. Amended
+  2026-11-25 for KF-137: `init` refuses flags its preset disagrees with, and a template of another
+  framework than it records.
 - **Decision:** `@kirana-style/registry` has one bin, `kirana-style-ui`, which runs its own `main`, so
   `npx @kirana-style/registry init --template vite-react my-app` starts from an empty folder. The
   `kirana-style` CLI still runs the project's copy (D-103). `ui init` installs Kirana's packages,
@@ -1855,6 +1857,19 @@ the implementation tracker names its evidence.
   Trade-off: a framework other than Solid is checked on templates alone, by the names its registry
   writes; `ui preset` changing a project's base does not check it (its items are placed again from
   the lockfile); a workspace package that lists its framework as a peer only is not checked.
+- **Amended (2026-11-25, KF-137):** a preset code that carries a framework or a base wins over
+  nothing silently. `init` with a `--framework` or `--base` naming another than the code carries
+  stops with exit 2 before writing anything, naming both and the two ways out (a code for the
+  flags' framework and base, or no flag); a flag that agrees, or names what the code leaves open, is
+  taken. `init --template` holds the template to the framework it would record, by the same reading
+  as the runtime check (the preset's, else `--framework`, else the template's own): a template of
+  another framework is refused before it is written, with exit 2, naming the registry's template of
+  that framework whose name is closest. Refused rather than resolved by letting one side win and
+  saying so: a kirana-ui prompt that encoded another design than its choices produced a Vue app with
+  React's `ui` and exit 0, and either winner would still leave one of the two inputs wrong, while
+  the user who typed both is the one who knows which was meant. Trade-off: `init` in a project of
+  its own does not hold the preset to the framework its packages say, and `ui preset` with a code
+  for another framework places the installed items again for that framework.
 - **Elaborated in:** [12-tooling-and-dx](./12-tooling-and-dx.md).
 
 ### D-112 — A relation may be read where its anchor is not installed

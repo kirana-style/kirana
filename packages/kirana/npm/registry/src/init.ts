@@ -89,8 +89,10 @@ import {
   baseRefusal,
   fittingTemplate,
   neededRuntime,
+  runtimeKey,
   runtimeLabel,
   runtimeOf,
+  templateFramework,
   templateRuntime,
 } from "./runtime.ts"
 import { startTemplate } from "./template.ts"
@@ -239,6 +241,56 @@ function chosenOf(
   }
 }
 
+/** Flags that disagree with the preset or the template they come with: exit 2 (KF-137). */
+class Disagreement extends Error {}
+
+/** A framework and a base as a message names them: `react/base`, or the one of them given. */
+const pairOf = (given: Partial<Pick<Settings, "framework" | "base">>): string =>
+  [given.framework, given.base].filter(Boolean).join("/")
+
+/**
+ * The settings a `--preset` code gives (D-110), read with the design system's own layouts. A
+ * `--framework` or `--base` naming another framework or base than the code carries stops `init`
+ * (KF-137): the code would win over the flag without a word.
+ */
+function presetOf(
+  code: string,
+  design: string,
+  item: Item,
+  values: Map<string, string[]>
+): ReturnType<typeof settingsOf> {
+  const decoded = item.design && decodePreset(code, item.design)
+  if (!decoded)
+    throw new RegistryError(
+      `${code} is not a preset code of ${design}${item.design ? "" : ", which describes no design"}`
+    )
+  const given = settingsOf(decoded, item.design!)
+  const flags = {
+    framework: values.get("--framework")?.at(-1) as Framework | undefined,
+    base: values.get("--base")?.at(-1),
+  }
+  const disagreeing = (["framework", "base"] as const).filter(
+    (key) =>
+      flags[key] !== undefined &&
+      given[key] !== undefined &&
+      flags[key] !== given[key]
+  )
+  if (disagreeing.length > 0)
+    throw new Disagreement(
+      `kirana-style ui init: the preset ${code} gives ${pairOf(given)}, and ${disagreeing
+        .map((key) => `--${key} ${flags[key]}`)
+        .join(
+          " "
+        )} ${disagreeing.length > 1 ? "disagree" : "disagrees"}: nothing written; pass a preset for ${pairOf(
+        {
+          framework: flags.framework ?? given.framework,
+          base: flags.base ?? given.base,
+        }
+      )}, or drop ${disagreeing.map((key) => `--${key}`).join(" and ")}`
+    )
+  return given
+}
+
 /** The settings with the flags over them, as they will read once the configuration is written. */
 function withChosen(settings: Settings, chosen: Chosen): Settings {
   const registries = new Map(settings.registries)
@@ -287,11 +339,13 @@ const basesOf = (index: Index, framework: Framework): string[] =>
   index.items.flatMap((entry) => entry.frameworks?.[framework] ?? [])
 
 /**
- * Refuses a template on another runtime than the base the project would get needs (KF-134), before
- * it is written: the design system and its registry's index read as `init` goes on to read them, the
- * framework and base the preset gives, else the flags, else the template's framework and the index's
- * default base. A template whose runtime nothing says, or a design system, an index or a preset that
- * cannot be read, leaves it to what follows.
+ * Refuses a template before it is written where the rest of the command asks for something else: a
+ * `--framework` or `--base` the preset disagrees with, a framework that is not the template's
+ * (KF-137), or a base on another runtime than the template's (KF-134). The design system and its
+ * registry's index are read as `init` goes on to read them; the framework and base are the preset's,
+ * else the flags', else the template's framework and the index's default base. A template whose
+ * framework or runtime nothing says, or a design system, an index or a preset that cannot be read,
+ * leaves that check to what follows.
  */
 async function vetTemplate(
   unpacked: Unpacked,
@@ -300,11 +354,12 @@ async function vetTemplate(
   start: string,
   options: Options
 ): Promise<void> {
-  const own = templateRuntime(unpacked.listed, unpacked.entry)
-  if (own === undefined) return
-  let needed:
-    | { home: string; framework: Framework; base: string; runtime: string }
-    | undefined
+  const own = templateFramework(unpacked.listed, unpacked.entry)
+  const preset = values.get("--preset")?.at(-1)
+  if (own === undefined && preset === undefined) return
+  let home: string | undefined
+  let index: Index | undefined
+  let given: Partial<Pick<Settings, "framework" | "base">> = {}
   try {
     const settings = withChosen(await loadSettings(start, options.load), chosen)
     const indexOf = indexReader(settings, options)
@@ -313,32 +368,26 @@ async function vetTemplate(
       namespaceOf(chosen, settings),
       indexOf
     )
-    const home = parseReference(design).namespace
-    const index = await indexOf(home)
-    const preset = values.get("--preset")?.at(-1)
-    const item =
-      preset === undefined
-        ? undefined
-        : ((await read(design, settings, options)).document as Item)
-    const decoded = item?.design && decodePreset(preset!, item.design)
-    const given: Partial<Pick<Settings, "framework" | "base">> = decoded
-      ? settingsOf(decoded, item!.design!)
-      : {}
-    const framework = given.framework ?? chosen.framework ?? own.framework
-    const base = given.base ?? chosen.base ?? index.defaultBase?.[framework]
-    // A preset for another framework than the template's, or no base yet, is left to what follows.
-    const runtime =
-      framework === own.framework && base !== undefined
-        ? neededRuntime(index, framework, base)
-        : undefined
-    if (runtime !== undefined)
-      needed = { home, framework, base: base!, runtime }
-  } catch {
-    return
+    if (preset !== undefined)
+      given = presetOf(
+        preset,
+        design,
+        (await read(design, settings, options)).document as Item,
+        values
+      )
+    home = parseReference(design).namespace
+    index = await indexOf(home)
+  } catch (error) {
+    if (error instanceof Disagreement) throw error
   }
-  if (needed === undefined || needed.runtime === own.runtime) return
-  const { home, framework, base, runtime } = needed
-  const fitting =
+  if (own === undefined) return
+  const framework = given.framework ?? chosen.framework ?? own
+  const base = given.base ?? chosen.base ?? index?.defaultBase?.[framework]
+  const needed =
+    index && base !== undefined
+      ? neededRuntime(index, framework, base)
+      : undefined
+  const fittingOn = (runtime: string) =>
     unpacked.index &&
     fittingTemplate(
       parseReference(unpacked.template).name,
@@ -346,9 +395,25 @@ async function vetTemplate(
       framework,
       runtime
     )
-  const label = runtimeLabel(framework, runtime)
+  // A Vue skeleton with React's components in `ui` is never what was asked for (KF-137).
+  if (framework !== own) {
+    const fitting = fittingOn(needed ?? runtimeKey(framework))
+    const fromPreset = given.framework !== undefined
+    throw new Disagreement(
+      `${unpacked.template} is a ${own} template, and ${fromPreset ? `the preset ${preset} gives` : "--framework says"} ${framework}: nothing written; start from ${
+        fitting !== undefined
+          ? `${unpacked.index!.namespace}/${fitting}`
+          : `a ${framework} template`
+      }, or ${fromPreset ? `pass a preset for ${own}` : "drop --framework"}`
+    )
+  }
+  const runtime = templateRuntime(unpacked.listed, unpacked.entry)?.runtime
+  if (needed === undefined || runtime === undefined || needed === runtime)
+    return
+  const fitting = fittingOn(needed)
+  const label = runtimeLabel(framework, needed)
   throw new RegistryError(
-    `${unpacked.template} is on ${runtimeLabel(framework, own.runtime)}, and ${home}'s ${framework}/${base} base needs ${label}: nothing written; ${
+    `${unpacked.template} is on ${runtimeLabel(framework, runtime)}, and ${home}'s ${framework}/${base} base needs ${label}: nothing written; ${
       fitting !== undefined
         ? `start from ${unpacked.index!.namespace}/${fitting}, on ${label}`
         : unpacked.index
@@ -1153,7 +1218,8 @@ document.documentElement.className = props(${name}).className ?? ""
 /**
  * `init`: plans Kirana's setup, the design system and its wiring, then writes it all, installs the
  * packages and records the lockfile. Exit 1 when a document cannot be read or the setup cannot be
- * planned, 2 for an unknown option or settings it cannot use.
+ * planned, 2 for an unknown option, settings it cannot use, or flags that disagree with the preset or
+ * the template (KF-137).
  */
 export async function runInit(
   args: readonly string[],
@@ -1226,7 +1292,7 @@ export async function runInit(
       )
     } catch (error) {
       write(`${(error as Error).message}\n`)
-      return 1
+      return error instanceof Disagreement ? 2 : 1
     }
   }
   let settings: Settings
@@ -1312,12 +1378,7 @@ export async function runInit(
     const fonts: string[] = []
     if (preset !== undefined) {
       const item = (await read(design, settings, options)).document as Item
-      const values = item.design && decodePreset(preset, item.design)
-      if (!values)
-        throw new RegistryError(
-          `${preset} is not a preset code of ${design}${item.design ? "" : ", which describes no design"}`
-        )
-      const given = settingsOf(values, item.design!)
+      const given = presetOf(preset, design, item, parsed.values)
       Object.assign(chosen, given)
       settings = { ...settings, ...given }
       fonts.push(...axisItems(item.design!, given.design, design))
@@ -1436,7 +1497,7 @@ export async function runInit(
     lockfile = readLockfile(root)
   } catch (error) {
     write(`${(error as Error).message}\n`)
-    return 1
+    return error instanceof Disagreement ? 2 : 1
   }
   if (root !== app) {
     report.push(...appLines.report.map((line) => `app: ${line}`))

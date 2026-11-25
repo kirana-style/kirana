@@ -590,6 +590,57 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     ).toBe("k1 is not a preset code of @acme/kit, which describes no design\n")
   })
 
+  it("stops where --framework or --base disagree with the preset's code, and takes them where they agree (KF-137)", async () => {
+    const design = {
+      axes: { style: { attribute: "data-style", values: ["nova"] } },
+      presets: {
+        k: [
+          { axis: "framework", values: ["react", "vue"], bits: 1 },
+          { axis: "base", values: ["base", "reka"], bits: 1 },
+        ],
+        b: [{ axis: "base", values: ["base", "aria"], bits: 1 }],
+      },
+    }
+    const designed = { ...kit(), design }
+    const tried = async (...argv: string[]) => {
+      const cwd = vite({}, designed)
+      const result = await init(cwd, "--registry", ACME, ...argv)
+      return {
+        ...result,
+        config: existsSync(path.join(cwd, "kirana.config.ts")),
+      }
+    }
+    // k0 is react/base: neither flag would be heard, nothing is written.
+    expect(
+      await tried("--framework", "vue", "--base", "reka", "--preset", "k0")
+    ).toEqual({
+      code: 2,
+      text: "kirana-style ui init: the preset k0 gives react/base, and --framework vue --base reka disagree: nothing written; pass a preset for vue/reka, or drop --framework and --base\n",
+      commands: [],
+      config: false,
+    })
+    expect((await tried("--preset", "k0", "--framework", "vue")).text).toBe(
+      "kirana-style ui init: the preset k0 gives react/base, and --framework vue disagrees: nothing written; pass a preset for vue/base, or drop --framework\n"
+    )
+    expect((await tried("--preset", "k0", "--base", "reka")).text).toBe(
+      "kirana-style ui init: the preset k0 gives react/base, and --base reka disagrees: nothing written; pass a preset for react/reka, or drop --base\n"
+    )
+    // Flags that say what the code says, or what it leaves open, are taken.
+    const agreeing = await tried(
+      "--preset",
+      "k0",
+      "--framework",
+      "react",
+      "--base",
+      "base"
+    )
+    expect(agreeing).toMatchObject({ code: 0, config: true })
+    expect(agreeing.text).toContain('ui {"framework":"react","base":"base",')
+    const open = await tried("--preset", "b1", "--framework", "react")
+    expect(open.code).toBe(0)
+    expect(open.text).toContain('ui {"framework":"react","base":"aria",')
+  })
+
   it("keeps every design with --all-designs, saved as ui.allDesigns (KF-080)", async () => {
     const design = {
       axes: { style: { attribute: "data-style", values: ["nova", "vega"] } },
