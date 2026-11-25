@@ -1421,13 +1421,33 @@ export async function runInit(
     // the font items its values name (KF-050).
     const preset = parsed.values.get("--preset")?.at(-1)
     const fonts: string[] = []
+    let requested: { framework: Framework; by: string } | undefined
+    const flag = parsed.values.get("--framework")?.at(-1) as
+      | Framework
+      | undefined
+    if (flag !== undefined)
+      requested = { framework: flag, by: `--framework ${flag}` }
     if (preset !== undefined) {
       const item = (await read(design, settings, options)).document as Item
       const given = presetOf(preset, design, item, parsed.values)
       Object.assign(chosen, given)
       settings = { ...settings, ...given }
       fonts.push(...axisItems(item.design!, given.design, design))
+      if (given.framework !== undefined)
+        requested = { framework: given.framework, by: `the preset ${preset}` }
     }
+    // The framework a preset or --framework names, held to the one the project's packages name
+    // (KF-137): recorded over them, the next `ui add` installs one framework's code into the other's
+    // project. With no single framework in the packages, there is nothing to hold it to.
+    const packaged = frameworkOf(appProject)
+    if (
+      requested !== undefined &&
+      packaged !== undefined &&
+      requested.framework !== packaged
+    )
+      throw new Disagreement(
+        `kirana-style ui init: ${requested.by} gives ${requested.framework}, and this project's packages are ${packaged}: nothing written; ${preset === undefined ? `pass --framework ${packaged}, or drop it` : `pass a preset for ${packaged}`}`
+      )
     // Without a base, the design system's registry's default for the framework, written to ui.base
     // so that the project keeps it when the registry changes its default (KF-120).
     if (settings.base === undefined && settings.framework !== undefined) {

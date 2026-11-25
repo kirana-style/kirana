@@ -644,6 +644,19 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     const open = await tried("--preset", "b1", "--framework", "react")
     expect(open.code).toBe(0)
     expect(open.text).toContain('ui {"framework":"react","base":"aria",')
+    // The project is React by its packages: a preset or a flag for Vue is not recorded over them.
+    expect(await tried("--preset", "k1")).toEqual({
+      code: 2,
+      text: "kirana-style ui init: the preset k1 gives vue, and this project's packages are react: nothing written; pass a preset for react\n",
+      commands: [],
+      config: false,
+    })
+    expect(await tried("--framework", "vue")).toEqual({
+      code: 2,
+      text: "kirana-style ui init: --framework vue gives vue, and this project's packages are react: nothing written; pass --framework react, or drop it\n",
+      commands: [],
+      config: false,
+    })
   })
 
   it("keeps every design with --all-designs, saved as ui.allDesigns (KF-080)", async () => {

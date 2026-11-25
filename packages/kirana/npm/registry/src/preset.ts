@@ -29,7 +29,7 @@ import { failureLine, parseArgs } from "./command.ts"
 import type { Options } from "./command.ts"
 import { allAxisItems, axisItems, importFonts } from "./font.ts"
 import { writeLockfile } from "./lockfile.ts"
-import { readProject, TEMPLATE_FILE } from "./project.ts"
+import { frameworkOf, readProject, TEMPLATE_FILE } from "./project.ts"
 import { read } from "./read.ts"
 import { FRAMEWORKS, ICON_LIBRARIES } from "./schema.ts"
 import type { Settings } from "./settings.ts"
@@ -429,6 +429,20 @@ export async function runPreset(
     return 1
   }
   const chosen = settingsOf(values, design)
+  // A code for another framework than the project's would place every item again for it, in a
+  // project whose code is the other framework's (KF-137). The project's framework is its
+  // `ui.framework`, else the one its packages name; with neither, nothing to hold the code to.
+  const own = settings.framework ?? frameworkOf(project)
+  if (
+    chosen.framework !== undefined &&
+    own !== undefined &&
+    chosen.framework !== own
+  ) {
+    write(
+      `kirana-style ui preset: the preset ${code} gives ${chosen.framework}, and this project is ${own} (${settings.framework === undefined ? "its packages" : "ui.framework"}): nothing changed; pass a preset for ${own}\n`
+    )
+    return 2
+  }
   const next: Settings = { ...settings, ...chosen }
   const framework = chosen.framework ?? settings.framework
   write(
