@@ -858,6 +858,48 @@ function htmlTakesSx(text: string, start: number): boolean {
   return /\bsx=/.test(text.slice(start, text.indexOf(">", start)))
 }
 
+/** The colour scheme a static page is painted in before a script gives `<html>` its classes (KF-138). */
+const SCHEME_META = '<meta name="color-scheme" content="light dark" />'
+
+/**
+ * `SCHEME_META` in the static page whose `<html>` a script gives its classes (KF-138): until the
+ * script has run, `<html>` has no `color-scheme`, so a reader on a dark system saw a white first
+ * frame. Classes written into the page would not do: a dev server's stylesheets wait for the
+ * script too. `light dark` is the design system's own scheme until the page picks one
+ * (`data-mode`), every colour a `light-dark()` pair; once the classes are on `<html>`, its
+ * `color-scheme` wins over the tag. After the charset, else first in `<head>`, else after
+ * `<html>`; a step by hand where the page has none of them.
+ */
+function schemeMeta(files: Files, report: string[], manual: string[]): void {
+  const page = findDocument(
+    files.scripts(),
+    (file) => files.read(file),
+    files.nuxt
+  )
+  const text = page === undefined ? "" : files.read(page)!
+  if (/<meta\b[^>]*\bname=["']?color-scheme\b/i.test(text)) return
+  const charset = /<meta\b[^>]*\bcharset\b[^>]*>/i.exec(text)?.index ?? -1
+  const open = [charset, htmlAt(text, page, "<head"), htmlAt(text, page)].find(
+    (at) => at >= 0
+  )
+  if (open === undefined) {
+    manual.push(
+      `put ${SCHEME_META} in your HTML page's <head>: <html> has no colour scheme until a script gives it its classes`
+    )
+    return
+  }
+  const at = text.indexOf(">", open) + 1
+  // On a line of its own where the next tag is on one, else beside it.
+  const space = /^\s*/.exec(text.slice(at))![0]
+  files.write(
+    page!,
+    `${text.slice(0, at)}${space}${SCHEME_META}${text.slice(at)}`
+  )
+  report.push(
+    `${page}: ${SCHEME_META}, the scheme before <html> has its classes`
+  )
+}
+
 /** SvelteKit's server hooks, where a project has them: the one `init` writes first. */
 const HOOKS = ["src/hooks.server.ts", "src/hooks.server.js"] as const
 
@@ -1115,7 +1157,8 @@ function wire(
       script &&
       files.read(entry)!.includes(`props(${name})`)
     ) {
-      // Set up already.
+      // Set up already: the page may still lack the scheme.
+      schemeMeta(files, report, manual)
     } else if (html === undefined && documents.length === 0 && script) {
       // A static index.html cannot take sx: the entry sets the classes before the app renders.
       const imported = addImport(
@@ -1136,6 +1179,7 @@ function wire(
         `${imported.slice(0, end)}\n\ndocument.documentElement.className = props(${name}).${field} ?? ${quotes(imported)}${imported.slice(end)}`
       )
       report.push(`${entry}: sets <html>'s classes from ${name}`)
+      schemeMeta(files, report, manual)
     } else
       manual.push(
         `give <html> the design system's styles: <html sx={${name}}>, with import { ${name} } from "${specifier}"`
@@ -1149,7 +1193,7 @@ function wire(
  * builders compile every module of the source folder but the entry (`main.ts`), which would call
  * the uncompiled `props()` on the compiled, string-typed handles; `src/index.html` is static. So
  * `<html>`'s classes are set in a module of their own beside the entry, which the entry imports
- * before the app's modules (KF-135).
+ * before the app's modules (KF-135), and `src/index.html` says the scheme until it has (KF-138).
  */
 function wireAngular(
   files: Files,
@@ -1213,6 +1257,7 @@ document.documentElement.className = props(${name}).className ?? ""
     files.write(entry!, withDocumentImport(text))
     report.push(`${entry}: imports ./document`)
   }
+  schemeMeta(files, report, manual)
 }
 
 /**

@@ -271,7 +271,10 @@ installs it. Its `setup` is then wired in (D-109): the configuration spread firs
 `defineConfig`, imported by relative path with its extension (a tsconfig that type-checks the
 configuration and emits nothing then allows `.ts` imports); each stylesheet imported after
 Kirana's stylesheet; the `<html>` styles on the `<html>` element as `sx`, or, in an app whose
-document is static HTML, set on `document.documentElement` beside Kirana's stylesheet import. In a
+document is static HTML, set on `document.documentElement` beside Kirana's stylesheet import; that
+static page (the root document `ui preset` writes the attributes to) then gets
+`<meta name="color-scheme" content="light dark">` after its charset, unless it has one, so the frames
+before the script has run follow the reader's scheme (KF-138). In a
 Nuxt app they go on Nuxt's `<Html>` as `:sx`, and where no Vue component renders one a
 self-closing `<Html />` goes first in `app.vue`'s template (KF-112); in a SvelteKit app, whose
 `app.html` is static, a `src/hooks.server.ts` it writes sets them in `handle`'s
