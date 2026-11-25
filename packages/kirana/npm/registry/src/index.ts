@@ -129,7 +129,8 @@ Commands in this release:
                          [directory] starts a new project from one of Kirana's examples, a
                          registry's template (@namespace/name) or a template's archive (a URL),
                          installed with the package manager running it; --preset <code> sets its
-                         design, --all-designs (ui.allDesigns) keeps every other
+                         design (--framework and --base, and a template's framework, must agree
+                         with its code), --all-designs (ui.allDesigns) keeps every other
                          design installed too; --pointer (data-pointer on <html>: buttons get the
                          pointer cursor) and --rtl (dir="rtl" on <html>), --no-pointer and --no-rtl
                          take them off; --workspace <package> (from the workspace's root, as

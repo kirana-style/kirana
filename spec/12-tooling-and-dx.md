@@ -308,8 +308,11 @@ or an archive's URL, that a template on that runtime is needed). The template's 
 entry's `runtime`, else what its app's packages say as `add` reads them, else, for an entry that
 names its `framework`, the framework's default; the base is the preset's, else `--base`, else the
 design system's registry index's `defaultBase` for the framework, read as `init` goes on to read
-them. A template whose runtime nothing says, a preset for another framework, no base yet, or a
-document that cannot be read leaves it to what follows. `init` in a project MUST refuse a base on
+them. A template whose runtime nothing says, no base yet, or a document that cannot be read leaves
+it to what follows. A template of another framework than the preset gives, else `--framework`, MUST
+stop it the same way (exit 2), naming the template's framework and the one asked for and, from a
+registry's template, the entry of that framework that fits as above (KF-137); its framework is its
+entry's, else what its app's packages say. `init` in a project MUST refuse a base on
 another runtime than the project's as `add` does, before anything is written, naming the index's
 bases for the framework on the project's runtime. `--dry-run`
 cannot start from a template (exit 2). It then checks what it wrote, as `add` does. Kirana's packages it installs, `@kirana-style/registry` among them when the project
@@ -390,7 +393,9 @@ installed is replaced, one it changed stops the command unless `--overwrite`, an
 records the new design and hashes. The items the new values name in their axis's `items` that are
 not installed MUST be installed as `add` installs them, a font's stylesheet imported; an installed
 one no value names any more is reported for `ui remove`, not removed. `init --preset <code>` starts
-a project with a design, installing the items its values name. `--pointer`, `--rtl`,
+a project with a design, installing the items its values name; a `--framework` or `--base` naming
+another framework or base than the code carries MUST stop it before anything is written (exit 2),
+naming the code's and the flags' and asking for a code for the flags' or no flag (KF-137). `--pointer`, `--rtl`,
 `--no-pointer` and `--no-rtl` MUST act as `init`'s on the same document, each attribute the tag has
 replaced in place (bare, quoted or a JSX expression), never doubled; without them the tag keeps
 what it has (KF-077). What was written is checked as `add` checks it, unless `--no-check`.

@@ -130,6 +130,10 @@ codes.
 A code is the layout's letter and a base-62 number holding one index per field,
 from bit 0. Fields may also set `framework`, `base` and `iconLibrary`.
 
+When `ui init --preset` is given a flag that names another framework or base
+than its code carries, it stops before it writes anything: pass a code for that
+framework and base, or drop the flag.
+
 An axis can name the item each of its values installs, in `items`. A font axis
 names a font item per family, and a value with nothing to install, such as a
 heading that inherits the body's font, names none:
@@ -319,10 +323,16 @@ the framework's default, as the index's `requires` names it:
 }
 ```
 
-A template's runtime is its entry's, else what the packages its app lists say.
-When a base needs another runtime, the refusal names your template of the
-same framework on that runtime whose name is closest: `vite-solid2--turbo` for
-`vite-solid--turbo`. A `runtime` needs its `framework`.
+A template's framework and runtime are its entry's, else what the packages its
+app lists say. A `runtime` needs its `framework`. Before it writes anything,
+`init` refuses:
+
+- a template on another runtime than the base needs, naming your template of
+  the same framework on that runtime whose name is closest: `vite-solid2--turbo`
+  for `vite-solid--turbo`;
+- a template of another framework than the preset gives, else `--framework`,
+  naming your template of that framework the same way: a Vue app with React's
+  components is never what was asked for.
 
 Each archive:
 

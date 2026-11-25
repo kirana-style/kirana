@@ -52,6 +52,12 @@ export function neededRuntime(
   return bases === undefined ? undefined : runtimeKey(framework, bases[base])
 }
 
+/** A template's framework: its entry's, else what its app's packages say; undefined when nothing says. */
+export const templateFramework = (
+  listed: Readonly<Record<string, string>>,
+  entry: TemplateEntry | undefined
+): Framework | undefined => entry?.framework ?? frameworkOf({ listed })
+
 /**
  * A template's framework and runtime: its entry's, else what its app's packages say. An entry that
  * names its framework and no runtime, on packages that do not say, is on the framework's default.
@@ -61,7 +67,7 @@ export function templateRuntime(
   listed: Readonly<Record<string, string>>,
   entry: TemplateEntry | undefined
 ): { framework: Framework; runtime: string } | undefined {
-  const framework = entry?.framework ?? frameworkOf({ listed })
+  const framework = templateFramework(listed, entry)
   if (framework === undefined) return undefined
   const runtime =
     entry?.runtime ??

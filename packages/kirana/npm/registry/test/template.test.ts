@@ -686,10 +686,17 @@ const solidApp = (solid2: boolean) => ({
   "src/index.tsx": "export {}\n",
 })
 
+/** A Vue app as a registry's template packs it. */
+const vueApp = {
+  ...solidApp(false),
+  "package.json": JSON.stringify({ dependencies: { vue: "^3.5.0" } }),
+}
+
 /**
  * A registry whose Solid on ui-sdk base needs Solid 2 (KF-134): a design system whose preset `p0`
- * gives solid/ark and `p2` solid/uisdk, an index naming ark the default and, unless `requires` is
- * false, what uisdk needs, and templates on both Solids. `templates` replaces the templates' entries.
+ * gives solid/ark and `p2` solid/uisdk, and `k0` react/base and `k3` vue/reka (KF-137), an index
+ * naming ark the default and, unless `requires` is false, what uisdk needs, and templates on both
+ * Solids, React and Vue. `templates` replaces the templates' entries.
  */
 function runtimeRegistry(
   options: {
@@ -715,6 +722,10 @@ function runtimeRegistry(
           p: [
             { axis: "framework", values: ["solid"], bits: 1 },
             { axis: "base", values: ["ark", "uisdk"], bits: 1 },
+          ],
+          k: [
+            { axis: "framework", values: ["react", "vue"], bits: 1 },
+            { axis: "base", values: ["base", "reka"], bits: 1 },
           ],
         },
       },
@@ -749,6 +760,7 @@ function runtimeRegistry(
       $schema: "https://kirana.style/schema/registry-templates.json",
       templates: options.templates ?? [
         { name: "vite-react--none", framework: "react", file: "react.tgz" },
+        { name: "vite-vue--none", framework: "vue", file: "vue.tgz" },
         { name: "vite-solid--turbo", framework: "solid", file: "solid.tgz" },
         { name: "vite-solid--none", framework: "solid", file: "solid.tgz" },
         {
@@ -773,6 +785,7 @@ function runtimeRegistry(
       "package.json": JSON.stringify({ dependencies: { react: "^19.3.0" } }),
     })
   )
+  write("vue.tgz", packed(vueApp))
   write("solid.tgz", packed(solidApp(false)))
   write("solid2.tgz", packed(solidApp(true)))
   return registry
@@ -829,6 +842,127 @@ describe("KF-134 ui init --template checks the runtime the base needs", () => {
     ).toBe(
       "@acme/vite-solid--none is on solid1, and @acme's solid/uisdk base needs solid2: nothing written; start from @acme/vite-solid2--none, on solid2\n"
     )
+  })
+
+  it("refuses a --framework or --base the preset disagrees with, before writing (KF-137)", async () => {
+    const registry = runtimeRegistry()
+    // k0 is React on Base UI: the flags would lose to it without a word.
+    const both = await fromTemplate(
+      registry,
+      "--template",
+      "@acme/vite-vue--none",
+      "my-app",
+      "--framework",
+      "vue",
+      "--base",
+      "reka",
+      "--preset",
+      "k0"
+    )
+    expect(both).toMatchObject({
+      code: 2,
+      text: "kirana-style ui init: the preset k0 gives react/base, and --framework vue --base reka disagree: nothing written; pass a preset for vue/reka, or drop --framework and --base\n",
+      ran: [],
+      written: [],
+    })
+    // A template whose framework nothing says is still held to the preset its flags disagree with.
+    const archive = path.join(root, "single-app.tgz")
+    writeFileSync(archive, packed(SINGLE))
+    expect(
+      await fromTemplate(
+        registry,
+        "--template",
+        archive,
+        "--preset",
+        "k3",
+        "--base",
+        "base"
+      )
+    ).toMatchObject({
+      code: 2,
+      text: "kirana-style ui init: the preset k3 gives vue/reka, and --base base disagrees: nothing written; pass a preset for vue/base, or drop --base\n",
+      written: [],
+    })
+    // Flags that agree with the preset, or name what it leaves open, are taken.
+    const agreeing = await fromTemplate(
+      registry,
+      "--template",
+      "@acme/vite-vue--none",
+      "app",
+      "--framework",
+      "vue",
+      "--preset",
+      "k3"
+    )
+    expect(agreeing.code).toBe(0)
+    expect(agreeing.text).toContain('ui {"framework":"vue","base":"reka",')
+    expect(
+      (await fromTemplate(registry, "--template", archive, "--preset", "k3"))
+        .code
+    ).toBe(0)
+  })
+
+  it("refuses a template of another framework than the preset or --framework gives, before writing (KF-137)", async () => {
+    const registry = runtimeRegistry()
+    // The one that fits is named, on the runtime the preset's base needs.
+    expect(
+      await fromTemplate(
+        registry,
+        "--template",
+        "@acme/vite-vue--none",
+        "--preset",
+        "k0"
+      )
+    ).toMatchObject({
+      code: 2,
+      text: "@acme/vite-vue--none is a vue template, and the preset k0 gives react: nothing written; start from @acme/vite-react--none, or pass a preset for vue\n",
+      ran: [],
+      written: [],
+    })
+    expect(
+      (
+        await fromTemplate(
+          registry,
+          "--template",
+          "@acme/vite-react--none",
+          "--preset",
+          "p2"
+        )
+      ).text
+    ).toBe(
+      "@acme/vite-react--none is a react template, and the preset p2 gives solid: nothing written; start from @acme/vite-solid2--none, or pass a preset for react\n"
+    )
+    expect(
+      await fromTemplate(
+        registry,
+        "--template",
+        "@acme/vite-vue--none",
+        "--framework",
+        "react"
+      )
+    ).toMatchObject({
+      code: 2,
+      text: "@acme/vite-vue--none is a vue template, and --framework says react: nothing written; start from @acme/vite-react--none, or drop --framework\n",
+      written: [],
+    })
+    // An archive by its path, told from its packages, has no index to name one from.
+    const archive = path.join(root, "vue-app.tgz")
+    writeFileSync(archive, packed(vueApp))
+    expect(
+      await fromTemplate(
+        registry,
+        "--template",
+        archive,
+        "--design",
+        "@acme/kit",
+        "--framework",
+        "svelte"
+      )
+    ).toMatchObject({
+      code: 2,
+      text: `${archive} is a vue template, and --framework says svelte: nothing written; start from a svelte template, or drop --framework\n`,
+      written: [],
+    })
   })
 
   it("refuses, in a project of its own, a base on another runtime than the project's", async () => {
@@ -991,18 +1125,7 @@ describe("KF-134 ui init --template checks the runtime the base needs", () => {
       expect(text).toContain(`template: ${template} from `)
       expect(existsSync(path.join(cwd, "app/src/lib/kit/kit.ts"))).toBe(true)
     }
-    // A preset for another framework than the template's, and no base yet, are left to what follows.
-    expect(
-      (
-        await fromTemplate(
-          registry,
-          "--template",
-          "@acme/vite-react--none",
-          "--preset",
-          "p2"
-        )
-      ).text
-    ).toContain("template: @acme/vite-react--none from ")
+    // No base yet is left to what follows.
     expect(
       (
         await fromTemplate(
