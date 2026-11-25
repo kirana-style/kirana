@@ -21,14 +21,7 @@ import type { SvglIcon } from "@workspace/docs-ui/brand-icon.tsx"
 import { theme } from "@workspace/ui/theme/semantic"
 import { breakpoint } from "@workspace/ui/tokens/breakpoints"
 import { spacing } from "@workspace/ui/tokens/spacing"
-import {
-  fontFamily,
-  fontSize,
-  fontWeight,
-  textLeading,
-  textSize,
-  textTracking,
-} from "@workspace/ui/tokens/typography"
+import { fontSize, fontWeight } from "@workspace/ui/tokens/typography"
 
 import { At, Card, Caret, Row, Scene, T, Tile } from "@/components/site/visuals"
 import { UI_FRAMEWORKS } from "@/data/kirana-ui"
@@ -72,18 +65,6 @@ const styles = {
   }),
   // A word of a library's name never breaks at its hyphen ("ui-sdk"); a long name wraps between words.
   word: css({ whiteSpace: "nowrap" }),
-  status: css({
-    fontFamily: fontFamily.mono,
-    fontSize: textSize.micro,
-    lineHeight: textLeading.micro,
-    letterSpacing: textTracking.micro,
-    textTransform: "uppercase",
-    color: theme.mutedForeground,
-  }),
-  ready: css({ color: theme.foreground }),
-  // Not out yet: the logo faded and the name muted, as the menus mark what is coming.
-  faded: css({ opacity: 0.55 }),
-  muted: css({ color: theme.mutedForeground }),
 }
 
 /** A component installed: the command, and the files it writes into the project. */
@@ -173,7 +154,7 @@ function BaseName({ name }: { name: string }) {
   ))
 }
 
-/** Each framework Kirana UI has markup for, by its logo, and whether it is out. */
+/** Each framework Kirana UI has markup for, by its logo, with the unstyled libraries it is built on. */
 export function UiFrameworks() {
   return (
     <div sx={styles.frameworks}>
@@ -182,11 +163,8 @@ export function UiFrameworks() {
           <BrandIcon
             icon={(SVGL as Record<string, SvglIcon>)[framework.logo]!}
             size="1.75rem"
-            sx={framework.ready ? null : styles.faded}
           />
-          <span sx={[styles.name, framework.ready ? null : styles.muted]}>
-            {framework.name}
-          </span>
+          <span sx={styles.name}>{framework.name}</span>
           <span sx={styles.bases}>
             {framework.bases.map((base, index) => (
               <Fragment key={base}>
@@ -194,9 +172,6 @@ export function UiFrameworks() {
                 <BaseName name={base} />
               </Fragment>
             ))}
-          </span>
-          <span sx={[styles.status, framework.ready ? styles.ready : null]}>
-            {framework.ready ? "Available" : "In development"}
           </span>
         </div>
       ))}

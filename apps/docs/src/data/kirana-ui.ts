@@ -1,9 +1,10 @@
 /**
- * Kirana UI's frameworks and where each one stands. The registry (`kirana-ui`) holds markup for each
+ * Kirana UI's frameworks, each on the unstyled libraries it is built on. The registry (`kirana-ui`) holds markup for each
  * framework on its own bases, every one over the same style modules. `/ui`, `/ecosystem` and the
  * homepage's components chapter read it.
  */
 import { sentence } from "./facts.ts"
+import { UI_PAGES } from "./links.ts"
 
 export type UiFramework = {
   name: string
@@ -14,7 +15,6 @@ export type UiFramework = {
    * registry's default first.
    */
   bases: readonly string[]
-  ready: boolean
 }
 
 export const UI_FRAMEWORKS: readonly UiFramework[] = [
@@ -22,46 +22,56 @@ export const UI_FRAMEWORKS: readonly UiFramework[] = [
     name: "React",
     logo: "react",
     bases: ["Base UI", "React Aria", "ui-sdk", "Kirana UI Primitives"],
-    ready: true,
   },
   {
     name: "Vue",
     logo: "vue",
     bases: ["Ark UI", "Reka UI", "ui-sdk", "Kirana UI Primitives"],
-    ready: true,
   },
   {
     name: "Svelte",
     logo: "svelte",
     bases: ["Ark UI", "Bits UI", "ui-sdk", "Kirana UI Primitives"],
-    ready: true,
   },
   {
     name: "Solid",
     logo: "solidjs",
     bases: ["Ark UI", "Kirana UI Primitives", "ui-sdk"],
-    ready: true,
   },
   {
     name: "Angular",
     logo: "angular",
     bases: ["ng-primitives", "Kirana UI Primitives"],
-    ready: true,
   },
 ]
 
-const names = (ready: boolean) =>
-  UI_FRAMEWORKS.filter((framework) => framework.ready === ready).map(
-    (framework) => framework.name
-  )
-
-const pending = names(false)
+/** The frameworks as a clause: "on React, Vue, Svelte, Solid and Angular". */
+export const UI_ON = `on ${sentence(UI_FRAMEWORKS.map((framework) => framework.name))}`
 
 /**
- * Where the frameworks stand, as a clause: "on React, Vue, … and Angular" once every one is out,
- * else "on React today; Vue, … are being ported".
+ * What an agent does with Kirana UI, as its own AI page puts it (`UI_PAGES.agents`): two released,
+ * the third being built, and said so. `/ui`'s agents chapter reads it.
  */
-export const UI_STATUS =
-  pending.length === 0
-    ? `on ${sentence(names(true))}`
-    : `on ${sentence(names(true))} today; ${sentence(pending)} are being ported`
+export const UI_AGENTS = [
+  {
+    kicker: "Build",
+    title: "Your agent sets it up",
+    text: "A prompt copied from the site runs one command, installs the agent skills and adds a first component. A wrong value does not ship: Kirana's compiler answers with a code, the line and the fix, as JSON the agent reads.",
+    links: [
+      { title: "Agents build with it", href: UI_PAGES.agentsBuild },
+      { title: "Kirana's agent skills", href: "/docs/project/agent-skills" },
+    ],
+  },
+  {
+    kicker: "Drive",
+    title: "It uses the page you built",
+    text: "The agent bridge reads each control by its role and asks it to act. Your policy decides what the agent may do, a person answers where you ask for one, and a secret is never read back.",
+    links: [{ title: "The agent bridge", href: UI_PAGES.agentBridge }],
+  },
+  {
+    kicker: "Compose",
+    title: "It answers with your components",
+    text: "An agent answers with an interface made of the components your project already has, never with generated code. It is being built, on the registry that serves every component today.",
+    links: [{ title: "Where it stands", href: UI_PAGES.generativeUi }],
+  },
+] as const

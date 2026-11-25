@@ -49,6 +49,10 @@ export const UI_PAGES = {
   blocks: `${UI_SITE}/blocks`,
   charts: `${UI_SITE}/charts`,
   create: `${UI_SITE}/create`,
+  agents: `${UI_SITE}/docs/ai`,
+  agentsBuild: `${UI_SITE}/docs/ai/agents-build`,
+  agentBridge: `${UI_SITE}/docs/ai/agent-bridge`,
+  generativeUi: `${UI_SITE}/docs/ai/generative-ui`,
 } as const
 
 /** The repository on GitHub, as `owner/name`, and its page. */
