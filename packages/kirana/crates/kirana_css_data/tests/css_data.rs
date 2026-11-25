@@ -170,6 +170,12 @@ fn keywords_follow_the_grammar() {
     use kirana_css_data::{keywords, pseudo_selectors};
     assert!(keywords("display").contains(&"grid"));
     assert!(keywords("align-items").contains(&"center"));
+    // SVG's keywords as the grammar writes them, in camel case, each spelling once.
+    assert!(keywords("text-rendering").contains(&"optimizeLegibility"));
+    assert!(keywords("pointer-events").contains(&"visiblePainted"));
+    let interpolation = keywords("color-interpolation");
+    assert!(interpolation.contains(&"sRGB") && interpolation.contains(&"linearRGB"));
+    assert!(!interpolation.contains(&"srgb") && interpolation.contains(&"srgb-linear"));
     assert!(keywords("color").is_empty());
     assert!(keywords("not-a-property").is_empty());
     assert!(pseudo_selectors().any(|name| name == ":hover"));
