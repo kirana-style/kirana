@@ -3,7 +3,7 @@ const __k = /* @__PURE__ */ __kirana_runtime("k", "className");
 
 import { Thing } from "lib"
 
-const root = "k5O_u3uh"
+const root = "k5P_u3uh"
 const panel = ({"name": "panel", "anchor": "krQQeO"})
 const reader = "k50-BMRq_D9ur"
 const factory = () => () => root
@@ -15,7 +15,7 @@ function Wrapper({ sx }: { sx?: unknown }) {
 export function A() {
   return (
     <>
-      <svg xlink:href="#icon" className="k5O_u3uh" />
+      <svg xlink:href="#icon" className="k5P_u3uh" />
       <this sx={root} />
       <Wrapper sx={panel.anchor} />
       <Thing.missing sx={root} />

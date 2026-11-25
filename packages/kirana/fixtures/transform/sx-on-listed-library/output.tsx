@@ -5,7 +5,7 @@ import { Button, Menu } from "@acme/ds"
 import { Icon } from "@acme/ds-icons"
 import { Popup } from "menu-lib"
 
-const wide = "kaF_yp7g"
+const wide = "kaG_yp7g"
 export function App() {
   return (
     <>

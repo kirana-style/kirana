@@ -9,7 +9,7 @@ compiles, and turns it into `className`:
 ```tsx
 <div sx={styles.root} />
 // becomes
-<div className="k5O_23ai kJ_1O3s" />
+<div className="k5P_23ai kJ_1O3s" />
 ```
 
 It takes a handle, or an array of handles, and skips `null`, `undefined` and

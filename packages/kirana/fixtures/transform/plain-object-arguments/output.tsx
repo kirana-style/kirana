@@ -4,7 +4,7 @@ const __k = /* @__PURE__ */ __kirana_runtime("k", "className");
 
 // Each builds a plain object at runtime, which no merge can apply.
 export const fromEntries = ""
-export const assigned = "k5O_fqMV"
+export const assigned = "k5P_fqMV"
 export const created = ""
 export const parsed = ""
 export const cloned = ""

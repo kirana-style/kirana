@@ -148,7 +148,7 @@ describe("KRN-INT-003 webpack and Rspack", () => {
     expect(css).toContain("display:grid")
     expect(css).toContain("outline-offset:3px")
     expect(css).not.toContain("kirana-placeholder")
-    expect(js).toContain("k5O_")
+    expect(js).toContain("k5P_")
     // realContentHash named the file by the finished stylesheet, not by the placeholder: other
     // styles, another name.
     const other = app()
@@ -185,7 +185,7 @@ describe("KRN-INT-003 webpack and Rspack", () => {
     const { css, js, errors } = await bundle(app(), { bundler: "rspack" })
     expect(errors).toBe("")
     expect(css).toContain("outline-offset:3px")
-    expect(js).toContain("k5O_")
+    expect(js).toContain("k5P_")
   })
 
   it("development mode writes the stylesheet unminified", async () => {

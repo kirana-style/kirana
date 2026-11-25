@@ -163,7 +163,7 @@ function compile(source: string, file: string): string {
   const match = /className="([^"]*)"|export const s = "([^"]*)"/.exec(
     result.code ?? ""
   )
-  // Atoms only: a handle also carries merge markers (`k5X_`, a tombstone), which the DOM's class
+  // Atoms only: a handle also carries merge markers (`k5Y_`, a tombstone), which the DOM's class
   // list never shows and no CSS rule matches.
   return (match?.[1] ?? match?.[2] ?? "")
     .split(" ")

@@ -8,7 +8,7 @@ const TOP = "var(--kveHnr, var(--kvieC4, min(12%, 2.5rem)))"
 
 const reveal = "kfNgVx"
 
-export const region = "k3O_Uxgl k7D_wVRU kT_tkQA k87_yu62 kQ_Tnhh"
+export const region = "k3O_Uxgl k7E_wVRU kT_tkQA k88_yu62 kQ_Tnhh"
 
 // A region sets only the knobs it changes, typed and checked like any token.
 export const deep = "k2sckC_ALZU"

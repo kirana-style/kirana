@@ -13,7 +13,7 @@ export const folded = "k0_HV2H k50_AEIm kJ_ASX8"
 export function Box({ n }: { n: number }) {
   return (
     <div
-      {...__k.sx([/* @__PURE__ */ __k.b("kaF_ZFLY", "--kaF", (width)), /* @__PURE__ */ __k.b("k9_ZhSI", "--k9", (missing)), /* @__PURE__ */ __k.b("k6_fYDk", "--k6", (missing)), /* @__PURE__ */ __k.b("k7_O8Bf", "--k7", (again)), /* @__PURE__ */ __k.b("k6V_yYCA", "--k6V", (`${n}px`))], [], [])}
+      {...__k.sx([/* @__PURE__ */ __k.b("kaG_5ath", "--kaG", (width)), /* @__PURE__ */ __k.b("k9_ZhSI", "--k9", (missing)), /* @__PURE__ */ __k.b("k6_fYDk", "--k6", (missing)), /* @__PURE__ */ __k.b("k7_O8Bf", "--k7", (again)), /* @__PURE__ */ __k.b("k6W_bQv2", "--k6W", (`${n}px`))], [], [])}
     />
   )
 }

@@ -32,7 +32,7 @@ const screen = css({
 ```
 
 ```css
-.k7U_ulId {
+.k7V_ulId {
   min-height: 100vh;
   min-height: 100dvh;
 }

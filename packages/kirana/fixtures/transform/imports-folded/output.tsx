@@ -31,12 +31,12 @@ import { glow } from "./glow"
 // nothing. `./glow` stays, as its compile declares its variables; so do `./unclean` and
 // `./loadsUnclean`, as compiling them reports a diagnostic. The rest name modules that act when they
 // load, and stay.
-export const folded = "k0_HV2H kJ_ASX8 ka_zgUg k50_D9ur k44_LB88 kk_SiD8 k8b_49ob k4U_mjaJ k3B_u0lV k57_kEmz k9D_YxdK k5T_F2Xx k9j_D9ur k66_D9ur k7e_KDNf k1v_OVfB k1m_JXuo k5_Q6sa k9L_mjaJ"
+export const folded = "k0_HV2H kJ_ASX8 ka_zgUg k50_D9ur k44_LB88 kk_SiD8 k8c_49ob k4U_mjaJ k3B_u0lV k58_kEmz k9E_YxdK k5U_F2Xx k9k_D9ur k67_D9ur k7f_KDNf k1v_OVfB k1m_JXuo k5_Q6sa k9M_mjaJ"
 
 // Read at runtime: `./base` stays. Read in a style that a runtime call is handed, which compiles to
 // its classes inside the call: `./branch` goes.
 export function Box({ wide, choose }: { wide: number; choose: (style: unknown) => unknown }) {
-  return <div {...__k.sx([/* @__PURE__ */ __k.b("kaF_ZFLY", "--kaF", (wide * base)), (choose("k50_wB7n"))], [], [])} />
+  return <div {...__k.sx([/* @__PURE__ */ __k.b("kaG_5ath", "--kaG", (wide * base)), (choose("k50_wB7n"))], [], [])} />
 }
 
 // Read as a type: kept, for the type checker. Never read (`reads`): left as written.

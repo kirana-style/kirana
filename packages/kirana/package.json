@@ -22,7 +22,7 @@
     "example": "bun examples/run.ts"
   },
   "devDependencies": {
-    "mdn-data": "2.37.2",
+    "mdn-data": "2.38.1",
     "vitest": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "oxc-transform": "0.159.0",

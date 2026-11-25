@@ -4,10 +4,10 @@
   .k44_jWjM {
     background-color: gray;
   }
-  .k87_tIfm {
+  .k88_tIfm {
     opacity: 1;
   }
-  .k87-HPrZ_ufrO:where(.kr2Ipz[data-disabled] *) {
+  .k88-HPrZ_ufrO:where(.kr2Ipz[data-disabled] *) {
     opacity: 0.5;
   }
   .k44-r6IM_LB88:where([data-checked]) {
@@ -19,13 +19,13 @@
   .k6-c6Qv_vqnf:where([data-side="top"]) {
     margin-bottom: 4px;
   }
-  .k87-nKnc_oD60:where([data-state="closed"]) {
+  .k88-nKnc_oD60:where([data-state="closed"]) {
     opacity: 0;
   }
-  .k8R-nKnc_YJpC:where([data-state="closed"]) {
+  .k8S-nKnc_YJpC:where([data-state="closed"]) {
     scale: 0.95;
   }
-  .k8R-vv9I_tIfm:where([data-state="open"]) {
+  .k8S-vv9I_tIfm:where([data-state="open"]) {
     scale: 1;
   }
   .k44-Jaez_mjaJ:where(:hover[data-checked]) {

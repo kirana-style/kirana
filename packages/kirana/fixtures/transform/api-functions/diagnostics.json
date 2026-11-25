@@ -8,7 +8,7 @@
       "start": 1200,
       "end": 1214
     },
-    "message": "zIndex is set at runtime through --kaO",
+    "message": "zIndex is set at runtime through --kaP",
     "help": []
   },
   {
@@ -20,7 +20,7 @@
       "start": 1255,
       "end": 1265
     },
-    "message": "flexShrink is set at runtime through --k63",
+    "message": "flexShrink is set at runtime through --k64",
     "help": []
   }
 ]

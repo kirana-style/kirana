@@ -49,7 +49,7 @@ describe("KRN-INT-002 Rolldown on its own", () => {
     const css = output.find(
       (file) => file.fileName === "kirana.css"
     ) as OutputAsset
-    expect(js.code).toContain("k5O_")
+    expect(js.code).toContain("k5P_")
     expect(js.code).not.toContain('@kirana-style/core"')
     expect(String(css.source)).toContain("@layer kirana")
     expect(String(css.source)).toContain("display:grid")
@@ -89,7 +89,7 @@ describe("KRN-INT-002 Rolldown on its own", () => {
     ) as OutputAsset
     const ghost = /\.(k50_\w+)\{color:blue\}/.exec(String(css.source))?.[1]
     expect(ghost).toBeDefined()
-    expect(js.code).toContain("k5O_")
+    expect(js.code).toContain("k5P_")
     expect(js.code).not.toContain(ghost)
     expect(js.code).not.toContain("recipe")
     expect(js.code).not.toContain("runtime")

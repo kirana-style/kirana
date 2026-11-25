@@ -11,7 +11,7 @@ export function Edge({ on, value, list }: { on: boolean; value: string; list: st
     <div className="krYXFN">
       <p {...__k.sx([/* @__PURE__ */ __k.b("k50-0w85_ISJz", "--k50-0w85", (on ? "red" : value))], [], [])} />
       <p {...__k.sx([/* @__PURE__ */ __k.b("k50-9RcJ_Ycuw", "--k50-9RcJ", (value))], [], [])} />
-      <p {...__k.sx([/* @__PURE__ */ __k.b("kaF-C9M_w2yB", "--kaF-C9M", (value))], [], [])} />
+      <p {...__k.sx([/* @__PURE__ */ __k.b("kaG-C9M_pdB2", "--kaG-C9M", (value))], [], [])} />
       <p {...__k.sx([(on) ? "" : "k50_D9ur"], [], [])} />
       <p  />
       <p  />

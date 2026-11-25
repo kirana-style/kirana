@@ -271,7 +271,7 @@ describe("KRN-INT-002 production build", () => {
       (file) => file.fileName === "index.html"
     ) as Rolldown.OutputAsset
     expect(String(html.source)).toContain(css.fileName)
-    expect(js.code).toContain("k5O_")
+    expect(js.code).toContain("k5P_")
     expect(js.code).not.toContain('@kirana-style/core"')
   })
 

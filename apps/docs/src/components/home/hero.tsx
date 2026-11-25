@@ -43,7 +43,7 @@ import {
  * examples (`src/generated/examples.gen.ts`).
  */
 const RULES = [
-  { selector: ".k5O_fqMV", declaration: "display: grid" },
+  { selector: ".k5P_fqMV", declaration: "display: grid" },
   { selector: ".k0_HV2H", declaration: "padding: 1rem" },
   { selector: ".k44_nLQ3", declaration: "background-color: var(--kv0RCR)" },
 ] as const

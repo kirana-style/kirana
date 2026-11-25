@@ -12,4 +12,4 @@ enum Tone { Loud = "loud" }
 const key = "opacity"
 const shared = { display: "flex" }
 
-export const values = "k5O_23ai kaF_5QUl k6V_A8Sp k9_jeF2 k6_f2HK k50_sO1o k44_jWjM kl_sO1o kn_vIsY k5n_JmUz k87_tIfm kaO_arbC k88_reDk k61_tIfm k63_oD60 k6y_xnnw k7h_aXik k9s_oAVr k7d_f2HK kaJ_eK8R k9P_f2HK"
+export const values = "k5P_23ai kaG_5QUl k6W_A8Sp k9_jeF2 k6_f2HK k50_sO1o k44_jWjM kl_sO1o kn_vIsY k5o_JmUz k88_tIfm kaP_arbC k89_reDk k62_tIfm k64_oD60 k6z_xnnw k7i_aXik k9t_oAVr k7e_f2HK kaK_eK8R k9Q_f2HK"

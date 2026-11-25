@@ -284,7 +284,7 @@ fn rules_that_repeat_a_declaration_share_it() {
     ];
     let css = emit(&repeated, &[], &EmitOptions { minify: true, ..EmitOptions::default() }).css;
     assert!(
-        css.contains(".k5O_u3uh,.k5O-KFHz_u3uh:where(:hover),.k5O-Ikox_u3uh:where(:focus){display:block}"),
+        css.contains(".k5P_u3uh,.k5P-KFHz_u3uh:where(:hover),.k5P-Ikox_u3uh:where(:focus){display:block}"),
         "{css}"
     );
 }
