@@ -9,8 +9,8 @@ export function Exported() {
     <>
       <p className="k0_Vpbm k0-H4Dl_HV2H k0-dSbF_Elck k0-YNZe_Elck k0-6g4Z_Vpbm" />
       <p className="k0_Vpbm k0-H4Dl_HV2H k0-dSbF_Elck k0-YNZe_Elck" />
-      <p className="k7D_QNCC k0_Vpbm" />
-      <p className="k7D_QNCC k0_Vpbm" />
+      <p className="k7E_QNCC k0_Vpbm" />
+      <p className="k7E_QNCC k0_Vpbm" />
     </>
   )
 }

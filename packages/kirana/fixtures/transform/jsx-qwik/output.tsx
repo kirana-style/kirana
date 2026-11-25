@@ -3,7 +3,7 @@ const __k = /* @__PURE__ */ __kirana_runtime("k", "class");
 import { component$, useSignal } from "@qwik.dev/core"
 
 
-const box = "k5O_fqMV"
+const box = "k5P_fqMV"
 
 // Qwik: `sx` compiles to `class`; dynamic values bridge through custom properties in Qwik's style
 // object, and the handles stay module-level constants the optimizer's `$` segments import.
@@ -11,10 +11,10 @@ export const A = component$((props: { w: number }) => {
   const on = useSignal(false)
   return (
     <>
-      <div class="k5O_fqMV" />
-      <div {...__k.sx(["k5O_fqMV", (on.value) ? "k87_ufrO" : ""], ["own"], [])} />
-      <div {...__k.sx([/* @__PURE__ */ __k.b("kaF_ZFLY", "--kaF", (props.w))], [], [])} />
-      <div {...({"class": "k5O_fqMV"})} />
+      <div class="k5P_fqMV" />
+      <div {...__k.sx(["k5P_fqMV", (on.value) ? "k88_ufrO" : ""], ["own"], [])} />
+      <div {...__k.sx([/* @__PURE__ */ __k.b("kaG_5ath", "--kaG", (props.w))], [], [])} />
+      <div {...({"class": "k5P_fqMV"})} />
     </>
   )
 })

@@ -6,13 +6,13 @@ const group = ({"name": "field-group", "anchor": "krEKOt"})
 const styles = {
   group: "krEKOt kJ_ip70 kJ-0gNr_iExv",
   // `*:w-full`: the group's children, not its grandchildren.
-  child: "kaF-0gNr_yp7g k87-t3NK_FaDM",
+  child: "kaG-0gNr_yp7g k88-t3NK_FaDM",
 }
 
 export function Good() {
   return (
     <div className="krEKOt kJ_ip70 kJ-0gNr_iExv">
-      <label className="kaF-0gNr_yp7g k87-t3NK_FaDM" />
+      <label className="kaG-0gNr_yp7g k88-t3NK_FaDM" />
       <div className="krEKOt kJ_ip70 kJ-0gNr_iExv" />
     </div>
   )
@@ -22,7 +22,7 @@ export function Bad() {
   return (
     <div className="krEKOt">
       <span>
-        <label className="kaF-0gNr_yp7g k87-t3NK_FaDM" />
+        <label className="kaG-0gNr_yp7g k88-t3NK_FaDM" />
       </span>
     </div>
   )

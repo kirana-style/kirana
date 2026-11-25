@@ -6,7 +6,7 @@
   }
 }
 @layer kirana.contextual {
-  .k5T-C9M_D9ur :where(svg) {
+  .k5U-C9M_D9ur :where(svg) {
     fill: red;
   }
 }
@@ -65,47 +65,47 @@
   .k50_OuAg {
     color: var(--k50);
   }
-  .k57_0b2p {
-    column-rule-color: var(--k57);
-  }
   .k58_p3zk {
-    column-rule-style: var(--k58);
+    column-rule-color: var(--k58);
   }
-  .k5T_eJ5M {
-    fill: var(--k5T);
+  .k59_INVi {
+    column-rule-style: var(--k59);
   }
-  .k5n_bOc8 {
-    content: var(--k5n);
+  .k5U_yUfI {
+    fill: var(--k5U);
   }
-  .k66_ItKJ {
-    flood-color: var(--k66);
+  .k5o_VcRc {
+    content: var(--k5o);
   }
-  .k7e_pSfp {
-    lighting-color: var(--k7e);
+  .k67_1W80 {
+    flood-color: var(--k67);
   }
-  .k87_ufrO {
+  .k7f_0pYq {
+    lighting-color: var(--k7f);
+  }
+  .k88_ufrO {
     opacity: 0.5;
   }
-  .k8b_NoVg {
-    outline-color: var(--k8b);
+  .k8c_kKm5 {
+    outline-color: var(--k8c);
   }
-  .k8d_Frq4 {
-    outline-style: var(--k8d);
+  .k8e_eBud {
+    outline-style: var(--k8e);
   }
-  .k99_IReK {
-    scrollbar-color: var(--k99);
+  .k9E_ClE8 {
+    text-decoration-color: var(--k9E);
   }
-  .k9D_zGDU {
-    text-decoration-color: var(--k9D);
+  .k9M_vkZj {
+    text-emphasis-color: var(--k9M);
   }
-  .k9L_WxyE {
-    text-emphasis-color: var(--k9L);
+  .k9a_X0Yq {
+    scrollbar-color: var(--k9a);
   }
-  .k9h_Lfef {
-    stop-color: var(--k9h);
+  .k9i_aSgx {
+    stop-color: var(--k9i);
   }
-  .k9j_hM7R {
-    stroke: var(--k9j);
+  .k9k_lD0p {
+    stroke: var(--k9k);
   }
   .kg_vqnf {
     border-top-width: 4px;

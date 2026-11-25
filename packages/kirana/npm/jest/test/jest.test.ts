@@ -57,7 +57,7 @@ describe("KRN-INT-003 Jest", () => {
       {}
     ) as { code: string }
     expect(out.code).toContain('/* next {"presets":["x"]} */')
-    expect(out.code).toContain('className="k5O_')
+    expect(out.code).toContain('className="k5P_')
     // Modules without styles pass straight through; the Driver and the next transformer are reused.
     const plain = jest.process(
       "export const x = 1\n",

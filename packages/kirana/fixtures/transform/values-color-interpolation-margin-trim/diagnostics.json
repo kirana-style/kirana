@@ -1,0 +1,14 @@
+[
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 431,
+      "end": 448
+    },
+    "message": "margin-trim: `all` is not a value it takes (none | block | [ block-start || block-end ])",
+    "help": []
+  }
+]

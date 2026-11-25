@@ -60,7 +60,7 @@ export const InSx = () => <div  />
 // Still fine: a helper that folds, one that may return a handle, a call of a runtime value, and a
 // call read in a value.
 const plain = (value: string) => ({ maskImage: value })
-export const folded = "k7D_g2Fu"
+export const folded = "k7E_g2Fu"
 const on = "k50_D9ur"
 const off = "k50_LB88"
 function pick(active: boolean) {
@@ -73,5 +73,5 @@ export function Picked({ active }: { active: boolean }) {
 const styleFor = (globalThis as unknown as { styleFor: () => string }).styleFor
 export const fromRuntime = /* @__PURE__ */ __k.cx((styleFor()))
 export function Valued({ w }: { w: number }) {
-  return <div {...__k.sx([/* @__PURE__ */ __k.b("kaF_ZFLY", "--kaF", (sized(w).width))], [], [])} />
+  return <div {...__k.sx([/* @__PURE__ */ __k.b("kaG_5ath", "--kaG", (sized(w).width))], [], [])} />
 }

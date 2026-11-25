@@ -8,7 +8,7 @@
       "start": 1536,
       "end": 1546
     },
-    "message": "width is set at runtime through --kaF",
+    "message": "width is set at runtime through --kaG",
     "help": []
   },
   {
@@ -20,7 +20,7 @@
       "start": 1579,
       "end": 1644
     },
-    "message": "content is set at runtime through --k5n",
+    "message": "content is set at runtime through --k5o",
     "help": []
   },
   {
@@ -32,7 +32,7 @@
       "start": 1927,
       "end": 1944
     },
-    "message": "fontStyle is set at runtime through --k6j",
+    "message": "fontStyle is set at runtime through --k6k",
     "help": []
   },
   {
@@ -44,7 +44,7 @@
       "start": 1957,
       "end": 1975
     },
-    "message": "tabSize is set at runtime through --k9s",
+    "message": "tabSize is set at runtime through --k9t",
     "help": []
   },
   {
@@ -92,7 +92,7 @@
       "start": 2358,
       "end": 2383
     },
-    "message": "opacity is set at runtime through --k87",
+    "message": "opacity is set at runtime through --k88",
     "help": []
   },
   {
@@ -104,7 +104,7 @@
       "start": 2402,
       "end": 2420
     },
-    "message": "letterSpacing is set at runtime through --k7d",
+    "message": "letterSpacing is set at runtime through --k7e",
     "help": []
   },
   {
@@ -116,7 +116,7 @@
       "start": 2437,
       "end": 2459
     },
-    "message": "wordSpacing is set at runtime through --kaJ",
+    "message": "wordSpacing is set at runtime through --kaK",
     "help": []
   },
   {
@@ -128,7 +128,7 @@
       "start": 2475,
       "end": 2504
     },
-    "message": "textIndent is set at runtime through --k9P",
+    "message": "textIndent is set at runtime through --k9Q",
     "help": []
   },
   {

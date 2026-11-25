@@ -896,6 +896,11 @@ mod tests {
             ("background", "red radial-gradient(circle at 50% 50%, red, blue)"),
             ("background", "url(a.png) center / cover no-repeat"),
             ("background", "url(a.png) no-repeat, linear-gradient(red, blue), white"),
+            // Since mdn-data 2.38.
+            ("color-interpolation", "linearRGB"),
+            ("color-interpolation", "in oklch longer hue"),
+            ("margin-trim", "block"),
+            ("margin-trim", "block-end block-start"),
         ] {
             assert_eq!(verdict(property, value), Verdict::Accepted, "{property}: {value}");
         }
@@ -920,6 +925,9 @@ mod tests {
             ("width", "\"text\""),
             ("background", "solid"),
             ("background", "red, url(a.png)"),
+            // `margin-trim`'s grammar before mdn-data 2.38.
+            ("margin-trim", "all"),
+            ("margin-trim", "block block-start"),
         ] {
             // A rejection names the property's own syntax.
             let expected = lookup(PROPERTY_SYNTAX, property).unwrap();
@@ -939,6 +947,8 @@ mod tests {
             ("font-family", "Inter, system-ui"),
             ("width", "brand-new-function(1px)"),
             ("display", "brand-new-keyword"),
+            // A word only a grammar older than the data named (`margin-trim` before mdn-data 2.38).
+            ("margin-trim", "in-flow"),
             // Substitutions and units outside the data.
             ("padding", "var(--gap)"),
             ("padding", "env(safe-area-inset-top)"),

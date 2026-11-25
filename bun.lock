@@ -103,7 +103,7 @@
         "@zag-js/docs": "1.49.0",
         "bits-ui": "2.22.0",
         "emnapi": "catalog:",
-        "mdn-data": "2.37.2",
+        "mdn-data": "2.38.1",
         "ng-primitives": "0.132.0",
         "oxc-minify": "0.159.0",
         "oxc-parser": "0.159.0",
@@ -4070,7 +4070,7 @@
 
     "mdast-util-to-hast": ["mdast-util-to-hast@13.2.1", "", { "dependencies": { "@types/hast": "^3.0.0", "@types/mdast": "^4.0.0", "@ungap/structured-clone": "^1.0.0", "devlop": "^1.0.0", "micromark-util-sanitize-uri": "^2.0.0", "trim-lines": "^3.0.0", "unist-util-position": "^5.0.0", "unist-util-visit": "^5.0.0", "vfile": "^6.0.0" } }, "sha512-cctsq2wp5vTsLIcaymblUriiTcZd0CwWtCbLvrOzYCDZoWyMNV8sZ7krj09FSnsiJi3WVsHLM4k6Dq/yaPyCXA=="],
 
-    "mdn-data": ["mdn-data@2.37.2", "", {}, "sha512-rz9YOBGItdSbe7HcSArUbhiAv4SB/4DKRYg96CSFS2CcIYMbUvBtZlzA1NCbk2AdgbmYwMqwNblLpR441lLeiQ=="],
+    "mdn-data": ["mdn-data@2.38.1", "", {}, "sha512-Szm3orFLXzfE0+i+lTqxl37von6JY7Du5PRj7Lw6ScS4NiLVK5565eWJ9JkpImJ26OWkXXgX6r4Q51SZYcLHCw=="],
 
     "meant": ["meant@1.0.3", "", {}, "sha512-88ZRGcNxAq4EH38cQ4D85PM57pikCwS8Z99EWHODxN7KBY+UuPiqzRTtZzS8KTXO/ywSWbdjjJST2Hly/EQxLw=="],
 

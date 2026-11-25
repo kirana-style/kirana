@@ -344,7 +344,7 @@ Atoms by the number of sites applying them
   10+       144 atom(s)
 
 Most reused
-   477 site(s) in  42 module(s)  k5O_fqMV  display: grid
+   477 site(s) in  42 module(s)  k5P_fqMV  display: grid
    263 site(s) in  44 module(s)  k50_6mrG  color: var(--kviZP2)
 ```
 
@@ -570,7 +570,7 @@ kirana-style trace src/button.ts:2 height src/card.tsx:9 color --format json
         "value": "1.5rem",
         "conditions": [],
         "layer": "kirana.atoms",
-        "class": "k6V_5QUl",
+        "class": "k6W_5QUl",
         "part": { "options": { "size": "sm" }, "compound": false },
         "step": 0,
         "reason": "merge (size: sm replaces base)"

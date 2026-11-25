@@ -9,5 +9,5 @@ test("styles compile to class names", () => {
   expect(renderToString(<Probe wide={false} />)).toMatch(
     /class="k\w+_\w+( k\S+)*"/
   )
-  expect(renderToString(<Probe wide />)).toContain(" kaF_")
+  expect(renderToString(<Probe wide />)).toContain(" kaG_")
 })

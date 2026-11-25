@@ -121,14 +121,14 @@ describe("KRN-INT-001 Driver", () => {
     expect(driver.engine).toBe("native")
     expect(driver.configFile).toBeUndefined()
     const result = driver.transform(path.join(root, "src/a.tsx"), INPUT)
-    expect(result.code).toContain('__k.sx(["k5O_23ai')
+    expect(result.code).toContain('__k.sx(["k5P_23ai')
     expect(result.map).toContain(
       `"sources":[${JSON.stringify(path.join(root, "src/a.tsx"))}]`
     )
     expect(result.cssChanged).toBe(true)
     expect(result.dependencies).toEqual([])
     expect(result.diagnostics.map((d) => d.name)).toEqual(["dynamic-bridged"])
-    expect(driver.stylesheet(true)).toContain(".k5O_23ai{display:flex}")
+    expect(driver.stylesheet(true)).toContain(".k5P_23ai{display:flex}")
     expect(driver.stylesheet(false)).toContain("display: flex;")
     expect(driver.diagnostics()).toEqual([])
     const unchanged = driver.transform(

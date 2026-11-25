@@ -63,7 +63,7 @@ describe("Remix 3", () => {
   it("compiles a module's compiled JSX, and leaves what has no style alone", () => {
     const root = project()
     const url = pathToFileURL(path.join(root, "app/probe.tsx")).href
-    expect(compile(url, COMPILED)).toContain('className: "k5O_')
+    expect(compile(url, COMPILED)).toContain('className: "k5P_')
     expect(compile(url, "export const x = 1\n")).toBeUndefined()
     // Past the prefilter (`sx:`), with nothing for the compiler to change.
     expect(compile(url, "export const note = { sx: 1 }\n")).toBeUndefined()
@@ -98,10 +98,10 @@ describe("Remix 3", () => {
         ...context,
         source,
       }))
-    expect(loaded(COMPILED).source).toContain('className: "k5O_')
+    expect(loaded(COMPILED).source).toContain('className: "k5P_')
     expect(loaded(COMPILED).format).toBe("module")
     expect(loaded(new TextEncoder().encode(COMPILED)).source).toContain(
-      'className: "k5O_'
+      'className: "k5P_'
     )
     expect(loaded(null).source).toBeNull()
     expect(loaded("export const x = 1\n").source).toBe("export const x = 1\n")

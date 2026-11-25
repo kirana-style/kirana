@@ -4,12 +4,12 @@
 // another form, so the card never dims (KF-066). The state as a condition key is what was meant.
 const form = ({"name": "form", "anchor": "krg5EP"})
 const styles = {
-  card: "k87_tIfm k87-kG3N_W8PR k5J-kG3N_Gcl3",
-  field: "k87-kG3N_ufrO",
+  card: "k88_tIfm k88-kG3N_W8PR k5K-kG3N_Gcl3",
+  field: "k88-kG3N_ufrO",
 }
 export const SignIn = () => (
-  <form className="krg5EP k87_tIfm k87-kG3N_W8PR k5J-kG3N_Gcl3">
-    <input className="k87-kG3N_ufrO" />
+  <form className="krg5EP k88_tIfm k88-kG3N_W8PR k5K-kG3N_Gcl3">
+    <input className="k88-kG3N_ufrO" />
   </form>
 )
 

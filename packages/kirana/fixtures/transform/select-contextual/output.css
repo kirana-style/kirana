@@ -7,22 +7,22 @@
   .kW-OA0_q5fv > :where([data-slot="icon"]) {
     margin-inline-start: -0.25rem;
   }
-  .k5n-Ujl_57fc > :where([data-slot="icon"])::after {
+  .k5o-Ujl_57fc > :where([data-slot="icon"])::after {
     content: '';
   }
-  .k63-WzP_oD60 :where(svg[data-icon]) {
+  .k64-WzP_oD60 :where(svg[data-icon]) {
     flex-shrink: 0;
   }
-  .k6V-C9M_EOeu :where(svg) {
+  .k6W-C9M_EOeu :where(svg) {
     height: 1rem;
   }
-  .k9F-uyO_uowW :where(a:hover:not([data-disabled])) {
+  .k9G-uyO_uowW :where(a:hover:not([data-disabled])) {
     text-decoration-line: underline;
   }
-  .kaF-C9M_EOeu :where(svg) {
+  .kaG-C9M_EOeu :where(svg) {
     width: 1rem;
   }
-  .k6V-C9M-KFHz_5QUl:where(:hover) :where(svg) {
+  .k6W-C9M-KFHz_5QUl:where(:hover) :where(svg) {
     height: 2rem;
   }
 }

@@ -100,7 +100,7 @@ describe("KRN-INT-003 Bun bundler", () => {
       loader: string
     }
     expect(main.loader).toBe("tsx")
-    expect(main.contents).toContain("k5O_")
+    expect(main.contents).toContain("k5P_")
     expect(
       ((await load(path.join(root, "src/tokens.ts"))) as { loader: string })
         .loader

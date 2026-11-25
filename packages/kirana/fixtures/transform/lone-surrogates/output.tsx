@@ -15,7 +15,7 @@ enum Names {
 const keyed = (value: string) => ({ "\uD800": value })
 const templated = (value: string) => `\uD800${value}`
 
-export const values = /* @__PURE__ */ __k.cx(/* @__PURE__ */ __k.b("kaF_ZFLY", "--kaF", (lone)), "k6V_eK8R", /* @__PURE__ */ __k.b("k9_ZhSI", "--k9", (fromReexport)), /* @__PURE__ */ __k.b("k6_fYDk", "--k6", (namespaced)), "k1_eK8R")
+export const values = /* @__PURE__ */ __k.cx(/* @__PURE__ */ __k.b("kaG_5ath", "--kaG", (lone)), "k6W_eK8R", /* @__PURE__ */ __k.b("k9_ZhSI", "--k9", (fromReexport)), /* @__PURE__ */ __k.b("k6_fYDk", "--k6", (namespaced)), "k1_eK8R")
 
 export const keys = ""
 

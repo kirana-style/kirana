@@ -1,8 +1,8 @@
 @layer kirana;
 @layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
 @layer kirana.contextual {
-  .kaF-C9M_w2yB :where(svg) {
-    width: var(--kaF-C9M);
+  .kaG-C9M_pdB2 :where(svg) {
+    width: var(--kaG-C9M);
   }
 }
 @layer kirana.atoms {

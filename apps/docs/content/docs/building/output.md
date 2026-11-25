@@ -12,7 +12,7 @@ keywords: [output, css, atoms, class names, hashing, determinism, minification]
 
 ```css
 @layer kirana.atoms {
-  .k5O_23ai {
+  .k5P_23ai {
     display: flex;
   }
   .kJ_1O3s {
@@ -32,9 +32,9 @@ under an attribute and at rest), and there the writer gives one rule all three
 selectors:
 
 ```css
-.k5O_u3uh,
-.k5O-KFHz_u3uh:where(:hover),
-.k5O-Ikox_u3uh:where(:focus) {
+.k5P_u3uh,
+.k5P-KFHz_u3uh:where(:hover),
+.k5P-Ikox_u3uh:where(:focus) {
   display: block;
 }
 ```

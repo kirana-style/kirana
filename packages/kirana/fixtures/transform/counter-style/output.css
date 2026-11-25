@@ -33,26 +33,26 @@
   }
 }
 @layer kirana.atoms {
-  .k7l_Gmhn {
+  .k7m_Gmhn {
     list-style-image: none;
   }
-  .k7m_7dJg {
+  .k7n_7dJg {
     list-style-position: inside;
   }
-  .k7n_iqua {
+  .k7o_iqua {
     list-style-type: kcuXZX;
   }
-  .k5n-k9l_XoaZ::before {
+  .k5o-k9l_XoaZ::before {
     content: counter(item, kca4Jo) " ";
   }
-  .k7n_HtXf {
+  .k7o_HtXf {
     list-style-type: kc3V12;
   }
-  .k7n_jfmF {
+  .k7o_jfmF {
     list-style-type: kcdpzW;
   }
   @media (width >= 40rem) {
-    .k7n-yJgH_y8iZ {
+    .k7o-yJgH_y8iZ {
       list-style-type: kcgION;
     }
   }

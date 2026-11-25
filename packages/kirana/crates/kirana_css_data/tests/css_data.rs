@@ -34,6 +34,12 @@ fn properties() {
     assert!(is_known_property("text-wrap"));
     assert!(is_known_property("-webkit-line-clamp"));
     assert!(!is_known_property("colour"));
+    // Since mdn-data 2.38: SVG's own, beside `color-interpolation-filters`.
+    assert!(is_known_property("color-interpolation"));
+    assert_eq!(
+        property_index("color-interpolation").map(|index| PROPERTIES[index + 1]),
+        Some("color-interpolation-filters")
+    );
     assert!(is_known_property("-webkit-box-orient"));
     assert_eq!(property_index("-webkit-box-orient"), None);
     assert_eq!(property_index("align-content").map(|index| PROPERTIES[index]), Some("align-content"));

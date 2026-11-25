@@ -84,7 +84,7 @@ describe("KRN-INT-003 esbuild", () => {
     expect(css).toContain("gap:1rem")
     expect(css).not.toContain("kirana-placeholder")
     expect(readFileSync(path.join(root, "out/main.js"), "utf8")).toContain(
-      "k5O_"
+      "k5P_"
     )
   })
 

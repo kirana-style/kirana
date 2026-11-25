@@ -1,4 +1,4 @@
 
 import { a } from "./a"
 import { b } from "./b"
-export const box = "kaF_HIxI k6V_rjEI"
+export const box = "kaG_HIxI k6W_rjEI"

@@ -1,3 +1,3 @@
 
 
-export const style = "k5O_fqMV k87_ufrO"
+export const style = "k5P_fqMV k88_ufrO"

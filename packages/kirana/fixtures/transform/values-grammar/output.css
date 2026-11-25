@@ -16,19 +16,19 @@
   .k50_wO4K {
     color: light-dark(black, white);
   }
-  .k5O_Vw06 {
+  .k5P_Vw06 {
     display: inline flex;
   }
-  .k6S_CJd3 {
+  .k6T_CJd3 {
     grid-template-columns: [full] 1fr [end];
   }
   .k9_5T9b {
     margin-top: calc(-1 * 4px);
   }
-  .kaF_9wiv {
+  .kaG_9wiv {
     width: calc-size(auto, size);
   }
-  .k5O-KFHz_jenq:where(:hover) {
+  .k5P-KFHz_jenq:where(:hover) {
     display: revert-layer;
   }
 }

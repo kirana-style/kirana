@@ -7,8 +7,8 @@
   .k5_gplW {
     margin: var(--k5);
   }
-  .k75_NvtF {
-    inline-size: var(--k75);
+  .k76_7YFQ {
+    inline-size: var(--k76);
   }
   .k50_W0yl {
     color: black;
@@ -25,10 +25,10 @@
   .k50_D9ur {
     color: red;
   }
-  .kaF-aje_UQN4::after {
-    width: var(--kaF-aje);
+  .kaG-aje_b9et::after {
+    width: var(--kaG-aje);
   }
-  .k6V-aje-KFHz_4zme:where(:hover)::after {
-    height: var(--k6V-aje-KFHz);
+  .k6W-aje-KFHz_867i:where(:hover)::after {
+    height: var(--k6W-aje-KFHz);
   }
 }

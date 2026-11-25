@@ -1,19 +1,19 @@
 @layer kirana;
 @layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
 @layer kirana.atoms {
-  .k52_ap5c {
+  .k53_ap5c {
     color-scheme: dark;
   }
-  .k52_purd {
+  .k53_purd {
     color-scheme: light;
   }
-  .k52_f6nz {
+  .k53_f6nz {
     color-scheme: light dark;
   }
-  .k5O_fqMV {
+  .k5P_fqMV {
     display: grid;
   }
-  .k87-STpd_ufrO:where(.krNce6[data-disabled] *) {
+  .k88-STpd_ufrO:where(.krNce6[data-disabled] *) {
     opacity: 0.5;
   }
 }
