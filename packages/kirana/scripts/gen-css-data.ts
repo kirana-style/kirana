@@ -139,10 +139,19 @@ const skipTypes = new Set([
 function keywordsOf(syntax: string, out: Set<string>, seen: Set<string>) {
   const bare = syntax
     .replace(/<[^>]*>/g, " ")
-    .replace(/[a-z-]+\(/g, " ")
+    .replace(/[a-zA-Z-]+\(/g, " ")
     .replace(/'[^']*'/g, " ")
-  for (const match of bare.matchAll(/(?<![\w-])[a-z][a-z0-9-]*(?![\w(-])/g))
-    out.add(match[0])
+  // As the grammar writes them: SVG's keywords are camel case (`optimizeLegibility`, `sRGB`), and
+  // CSS matches keywords in any case. A spelling met first wins, so a property's own `sRGB` is
+  // offered once beside the colour space `srgb` its `<color-interpolation-method>` names.
+  const lower = new Set([...out].map((word) => word.toLowerCase()))
+  for (const match of bare.matchAll(
+    /(?<![\w-])[a-zA-Z][a-zA-Z0-9-]*(?![\w(-])/g
+  ))
+    if (!lower.has(match[0].toLowerCase())) {
+      lower.add(match[0].toLowerCase())
+      out.add(match[0])
+    }
   for (const match of syntax.matchAll(
     /<'([a-z-]+)'>|<([a-z-]+)(?:\s*\[[^\]]*\])?>/g
   )) {
