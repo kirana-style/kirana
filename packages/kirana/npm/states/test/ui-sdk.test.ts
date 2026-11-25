@@ -12,6 +12,8 @@ describe("ui-sdk", () => {
     expect(uiSdk.Select.Item.highlighted).toBe("[data-highlighted]")
     // One part: its states at the top, as Base UI's Button.
     expect(uiSdk.Button.pending).toBe("[data-pending]")
+    // beta.17: a dialog's close part is disabled with it.
+    expect(uiSdk.Dialog.Close.disabled).toBe("[data-disabled]")
   })
 
   it("holds only attribute selectors, and the pairs ui-sdk never sets together", () => {

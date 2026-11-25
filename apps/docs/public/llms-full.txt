@@ -2084,16 +2084,17 @@ Each one is generated from what its library publishes about its parts, so the
 names are the library's own and a state the library does not document is not
 there. CI regenerates them and checks every name against the library's exports.
 
-| Import                               | Library                                 | Generated from                                                                                     |
-| ------------------------------------ | --------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `@kirana-style/states/base-ui`       | Base UI                                 | each part's `*DataAttributes` declarations, and the open state its mapping writes                  |
-| `@kirana-style/states/ark-ui`        | Ark UI, on React, Vue, Solid and Svelte | `@zag-js/docs`, the reference of the Zag machines Ark UI runs on, and their code                   |
-| `@kirana-style/states/react-aria`    | React Aria Components                   | each component's render props, by their `@selector`                                                |
-| `@kirana-style/states/reka-ui`       | Reka UI, for Vue                        | each part's template, as the package ships it                                                      |
-| `@kirana-style/states/bits-ui`       | Bits UI, for Svelte                     | the state classes of each part and of what it renders, by the types of their `props`               |
-| `@kirana-style/states/ng-primitives` | Angular Primitives                      | each part's data and host bindings, its interactions, what it composes, and what its portal writes |
-| `@kirana-style/states/ui-sdk`        | ui-sdk, on React, Vue, Svelte and Solid | each slot's `attrs`, what its `bind` writes, and the helpers both reach                            |
-| `@kirana-style/states/kirana-ui`     | Kirana UI Primitives                    | the vocabulary the library publishes as data, `@kirana-ui/vocabulary`                              |
+
+| Import                               | Library                                                                            | Generated from                                                                                     |
+| ------------------------------------ | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `@kirana-style/states/base-ui`       | Base UI                                                                            | each part's `*DataAttributes` declarations, and the open state its mapping writes                  |
+| `@kirana-style/states/ark-ui`        | Ark UI, on React, Vue, Solid and Svelte                                            | `@zag-js/docs`, the reference of the Zag machines Ark UI runs on, and their code                   |
+| `@kirana-style/states/react-aria`    | React Aria Components                                                              | each component's render props, by their `@selector`                                                |
+| `@kirana-style/states/reka-ui`       | Reka UI, for Vue                                                                   | each part's template, as the package ships it                                                      |
+| `@kirana-style/states/bits-ui`       | Bits UI, for Svelte                                                                | the state classes of each part and of what it renders, by the types of their `props`               |
+| `@kirana-style/states/ng-primitives` | Angular Primitives                                                                 | each part's data and host bindings, its interactions, what it composes, and what its portal writes |
+| `@kirana-style/states/ui-sdk`        | ui-sdk, on React, Vue, Svelte, Solid and as web components                         | each slot's `attrs`, what its `bind` writes, and the helpers both reach                            |
+| `@kirana-style/states/kirana-ui`     | Kirana UI Primitives, on React, Vue, Svelte, Solid, Angular and as custom elements | the vocabulary the library publishes as data, `@kirana-ui/vocabulary`                              |
 
 They differ where the libraries do:
 
@@ -2114,8 +2115,9 @@ They differ where the libraries do:
   `Button.focusVisible`, `ListBoxItem.selected`. A state a component inherits
   from another's render props is there too.
 - **ui-sdk** writes the same attributes in every framework, since one core
-  writes them, so one vocabulary serves its four adapters. A component with one
-  part has its states at the top, as Base UI's Button: `Button.pending`.
+  writes them, so one vocabulary serves every adapter, its web components
+  included. A component with one part has its states at the top, as Base UI's
+  Button: `Button.pending`.
 - **ui-sdk's parts** also have what their component writes on them as they
   change, such as the item a menu highlights (`Menu.Item.highlighted`), and a
   state's values come from ui-sdk's types where its code computes them:
@@ -2127,12 +2129,13 @@ They differ where the libraries do:
   part too, with what its code writes on it: each token's host in a token
   input, `TokenInput.Host.selected`.
 - **Kirana UI Primitives** publishes its vocabulary as data, generated from the
-  part definitions its core runs on, so `@kirana-style/states/kirana-ui` is a copy
-  of it, its exclusive groups included (a value's name camelCased as in every
-  vocabulary here: `side.inlineStart`), and also names each part's custom
-  properties: `variables.Popover.Positioner.transformOrigin`. It writes Base UI's
-  attribute names (`sharesNamesWith`), so a style written with Base UI's keys
-  holds for its parts.
+  part definitions its core runs on, the same on every framework and on its
+  custom elements, so `@kirana-style/states/kirana-ui` is a copy of it, its
+  exclusive groups included (a value's name camelCased as in every vocabulary
+  here: `side.inlineStart`), and also names each part's custom properties:
+  `variables.Popover.Positioner.transformOrigin`. It writes Base UI's attribute
+  names (`sharesNamesWith`), so a style written with Base UI's keys holds for its
+  parts.
 - **Reka UI, Bits UI and Angular Primitives** document their states only in
   prose, so their vocabularies are read from the code the packages ship, with
   no descriptions. A value the code computes rather than writes, such as Reka

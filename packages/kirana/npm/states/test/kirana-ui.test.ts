@@ -70,6 +70,25 @@ describe("kirana-ui", () => {
     expect(kiranaUi.Avatar.Image.error).toBe("[data-error]")
   })
 
+  it("follows the library's releases: 0.4.0's components, segments and directions", () => {
+    expect(kiranaUi.TimeField.Root.invalid).toBe("[data-invalid]")
+    expect(kiranaUi.TimeField.Segment.segment.hour).toBe(
+      '[data-segment="hour"]'
+    )
+    expect(kiranaUi.NavigationMenu.Content.activationDirection.up).toBe(
+      '[data-activation-direction="up"]'
+    )
+    expect(kiranaUi.Combobox.Input.popupSide.top).toBe(
+      '[data-popup-side="top"]'
+    )
+    expect(kiranaUi.exclusive).toContainEqual([
+      '[data-activation-direction="left"]',
+      '[data-activation-direction="right"]',
+      '[data-activation-direction="up"]',
+      '[data-activation-direction="down"]',
+    ])
+  })
+
   it("names a value with a hyphen in camel case, as every vocabulary here does", () => {
     expect(kiranaUi.Popover.Positioner.side.inlineStart).toBe(
       '[data-side="inline-start"]'
