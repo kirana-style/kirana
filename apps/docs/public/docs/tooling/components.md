@@ -159,6 +159,20 @@ The design system's styles for `<html>` go:
 - on the Angular CLI, from `src/document.ts`, a module the entry imports: the
   builders compile every module but the entry, and `src/index.html` is static.
 
+Where a script gives `<html>` its classes (Vite, the Angular CLI, Laravel with
+Inertia), the page has no colour scheme until the script has run, and in a dev
+server the stylesheets wait for it too. So `init` also puts a colour scheme tag
+in the static page, after its charset:
+
+```html
+<meta name="color-scheme" content="light dark" />
+```
+
+A reader on a dark system gets a dark first frame, not a white one. It is the
+design system's own scheme until the page picks one; once the classes arrive,
+their colour scheme wins over the tag. A page with such a tag already keeps its
+own.
+
 Neither is kept in the `ui` settings: the components need no rewriting for
 them, so `<html>` is the one place that says what the project has. On a project
 already set up, `preset` takes the same flags, and their `--no-` forms take one

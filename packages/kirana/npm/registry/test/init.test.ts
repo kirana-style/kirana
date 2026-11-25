@@ -255,6 +255,7 @@ describe("KRN-DX-029 kirana-style ui init", () => {
       "setup: kirana.config.ts: spreads kitConfig (./src/lib/kit/config.ts)",
       "setup: src/main.tsx: imports @/components/ui/reset.css",
       "setup: src/main.tsx: sets <html>'s classes from htmlStyles",
+      'setup: index.html: <meta name="color-scheme" content="light dark" />, the scheme before <html> has its classes',
       "packages: npm install --save-exact @kirana-style/core@0.3.2",
       `packages: npm install --save-exact -D kirana-style@${release} @kirana-style/vite@${release} @kirana-style/registry@${release}`,
       "kirana-style.lock.json: 1 item(s) recorded",
@@ -414,6 +415,10 @@ describe("KRN-DX-029 kirana-style ui init", () => {
     )
     expect(read(cwd, "resources/views/app.blade.php")).toContain(
       "<html dir=\"rtl\" lang=\"{{ str_replace('_', '-', app()->getLocale()) }}\">"
+    )
+    // The view is static to the scheme too: the entry sets the classes (KF-138).
+    expect(read(cwd, "resources/views/app.blade.php")).toContain(
+      '<head><meta name="color-scheme" content="light dark" />@vite('
     )
   })
 
@@ -1799,6 +1804,7 @@ describe("KF-108 ui init in a workspace (D-129)", () => {
       "setup: app: kirana.config.ts: spreads kitConfig (../../packages/ui/src/lib/kit/config.ts)",
       "setup: app: src/main.tsx: imports @workspace/ui/components/reset.css",
       "setup: app: src/main.tsx: sets <html>'s classes from htmlStyles",
+      'setup: app: index.html: <meta name="color-scheme" content="light dark" />, the scheme before <html> has its classes',
       "packages: npm install --save-exact @kirana-style/core@0.3.2",
       "packages: app: npm install --save-exact @kirana-style/core@0.3.2",
       `packages: app: npm install --save-exact -D kirana-style@${release} @kirana-style/vite@${release} @kirana-style/registry@${release}`,
@@ -2303,6 +2309,7 @@ describe("KF-131 ui init on the Angular CLI", () => {
       "setup: angular.json: styles list .kirana/kirana.css, src/components/ui/reset.css",
       "setup: src/document.ts: sets <html>'s classes from htmlStyles",
       "setup: src/main.ts: imports ./document",
+      'setup: src/index.html: <meta name="color-scheme" content="light dark" />, the scheme before <html> has its classes',
       "setup: angular.json: styles list @fontsource-variable/inter/index.css",
       'setup: src/index.html: <html data-font="inter">',
     ])
@@ -2466,6 +2473,86 @@ describe("KF-131 ui init on the Angular CLI", () => {
     })
     expect((await init(lost, "--registry", ACME)).text).toBe(
       "kit: setup.stylesheets names @/registry/ui/gone.css, which the item does not install\n"
+    )
+  })
+})
+
+describe("KF-138 ui init gives a static page the colour scheme its script sets later", () => {
+  const META = '<meta name="color-scheme" content="light dark" />'
+  /** Vite's starter page, as `npm create vite` writes it. */
+  const PAGE =
+    '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <link rel="icon" type="image/svg+xml" href="/vite.svg" />\n    <title>app</title>\n  </head>\n  <body>\n    <div id="root"></div>\n    <script type="module" src="/src/main.tsx"></script>\n  </body>\n</html>\n'
+
+  it("puts the scheme after the charset, beside the attributes `ui preset` writes, once", async () => {
+    const cwd = vite({ "index.html": PAGE })
+    const { code, text } = await init(cwd, "--registry", ACME, "--pointer")
+    expect(code).toBe(0)
+    expect(text).toContain(
+      `setup: index.html: ${META}, the scheme before <html> has its classes\n`
+    )
+    expect(text).toContain("setup: index.html: <html data-pointer>\n")
+    expect(read(cwd, "index.html")).toBe(
+      PAGE.replace(
+        '<meta charset="UTF-8" />\n',
+        `<meta charset="UTF-8" />\n    ${META}\n`
+      ).replace("<html", "<html data-pointer")
+    )
+    // Run again: not doubled.
+    const again = await init(cwd, "--overwrite")
+    expect(again.text).not.toContain("color-scheme")
+    expect(read(cwd, "index.html").match(/color-scheme/g)).toHaveLength(1)
+  })
+
+  it("puts it first in <head> without a charset, else after <html>", async () => {
+    const head = vite({
+      "index.html": '<html lang="en">\n  <head>\n    <title>app</title>\n',
+    })
+    await init(head, "--registry", ACME)
+    expect(read(head, "index.html")).toBe(
+      `<html lang="en">\n  <head>\n    ${META}\n    <title>app</title>\n`
+    )
+    // `vite`'s page has no <head>: the tag opens it.
+    const bare = vite()
+    await init(bare, "--registry", ACME)
+    expect(read(bare, "index.html")).toBe(
+      `<!doctype html>\n<html lang="en">${META}<body><div id="root"></div></body></html>\n`
+    )
+  })
+
+  it("keeps a scheme the page has, and gives one to an entry set up already", async () => {
+    // As kirana-ui's dark mode guide writes it, with a script that sets it from the saved mode.
+    const own = '<html>\n<head><meta content="dark" name=color-scheme></head>\n'
+    const kept = vite({ "index.html": own })
+    expect((await init(kept, "--registry", ACME)).text).not.toContain(
+      "color-scheme"
+    )
+    expect(read(kept, "index.html")).toBe(own)
+    const entry =
+      "import { props } from '@kirana-style/core'\nimport { htmlStyles } from '@/lib/kit/document'\n\ndocument.documentElement.className = props(htmlStyles).className ?? ''\n"
+    const set = vite({ "src/main.tsx": entry })
+    const { text } = await init(set, "--registry", ACME)
+    expect(text).not.toContain("setup: src/main.tsx: sets")
+    expect(text).toContain(`setup: index.html: ${META}`)
+    expect(
+      read(set, "src/main.tsx").match(/props\(htmlStyles\)/g)
+    ).toHaveLength(1)
+  })
+
+  it("says where no page has a <head> or an <html> to take it", async () => {
+    const step = `by hand: put ${META} in your HTML page's <head>: <html> has no colour scheme until a script gives it its classes\n`
+    const fragment = vite({ "index.html": '<div id="root"></div>\n' })
+    expect((await init(fragment, "--registry", ACME)).text).toContain(step)
+    expect(read(fragment, "index.html")).toBe('<div id="root"></div>\n')
+    const none = vite()
+    rmSync(path.join(none, "index.html"))
+    expect((await init(none, "--registry", ACME)).text).toContain(step)
+  })
+
+  it("gives the Angular CLI's src/index.html the scheme its document module sets later", async () => {
+    const cwd = withCore(angularCli())
+    await init(cwd, "--registry", ACME)
+    expect(read(cwd, "src/index.html")).toBe(
+      `<!doctype html>\n<html lang="en">\n${META}\n</html>\n`
     )
   })
 })
