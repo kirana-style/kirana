@@ -27,9 +27,9 @@ numbered across the whole application, so `k50-KFHz_D9ur` ships as something lik
 short names the same way.
 
 Merging works exactly as before, and nothing extra ships to the browser. What it
-saves depends on the application: in the latest run of
-[the benchmarks](/docs/building/output#dense-names), against hashed names, the
-CSS in gzip came out {{fact:bench-dense-css}} and what a page downloads
+saves depends on the application. The latest run of
+[the benchmarks](/docs/building/output#dense-names), against hashed names: the
+CSS in gzip, {{fact:bench-dense-css}}; what a page downloads,
 {{fact:bench-dense-bytes}}.
 
 What can notice the change:

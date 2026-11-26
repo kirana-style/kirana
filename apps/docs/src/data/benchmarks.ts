@@ -292,23 +292,35 @@ export const CLAIMS = {
 }
 
 /**
- * Dense names (`names: "dense"`, D-084) against hashed names over all three apps, in
- * words: "11 % smaller", "8 % slower", "level". The lab builds Kirana both ways; the site's tables
- * leave the dense build out, and these are its only claims. "not measured" for a run without it.
+ * Dense names (`names: "dense"`, D-084) against hashed names over all three apps, in words: "11 %
+ * smaller", "8 % slower", "level". The lab builds Kirana both ways: as published, and with the
+ * naming the release does not use by default, `kirana-hashed` from 0.4.0 (dense names the default:
+ * Kirana's ratio is dense ÷ hashed) and `kirana-dense` before (hashed the default: its ratio is
+ * hashed ÷ dense, turned round). The site's tables leave that build out, and these are its only
+ * claims. "not measured" for a run without it, and for a `kirana-dense` beside a release that
+ * already writes dense names: before the lab measured `kirana-hashed`, that compared a build with
+ * itself and read "level" whatever dense names save.
  */
 const dense = (metric: string, kind: "time" | "size"): string => {
-  // The dense build is a target the site's types leave out (`TARGET`), so it is matched as text.
+  // The naming builds are targets the site's types leave out (`TARGET`), so they are matched as text.
   const entry = taken.comparisons.find(
     (candidate) =>
       candidate.corpus === "three-way/total" &&
       candidate.scenario === "build" &&
       candidate.metric === metric &&
-      (candidate.against as string) === "kirana-dense"
+      ((candidate.against as string) === "kirana-hashed" ||
+        (candidate.against as string) === "kirana-dense")
   )
-  if (!entry) return "not measured"
+  const [major = 0, minor = 0] = taken.meta.kirana.split(".").map(Number)
+  const denseDefault = major > 0 || minor >= 4
+  if (!entry || (denseDefault && (entry.against as string) === "kirana-dense"))
+    return "not measured"
   if (entry.verdict === "no clear difference") return "level"
-  // The comparison is the default build over the dense one; dense names are its inverse.
-  const ratio = 1 / entry.ratio
+  // Dense ÷ hashed: as it is against a hashed build, turned round against a dense one.
+  const ratio =
+    (entry.against as string) === "kirana-hashed"
+      ? entry.ratio
+      : 1 / entry.ratio
   const [less, more] =
     kind === "time" ? ["faster", "slower"] : ["smaller", "larger"]
   return ratio < 1

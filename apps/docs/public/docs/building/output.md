@@ -103,9 +103,9 @@ as this build writes them
 
 Measured on the three applications of
 [the benchmarks](/docs/project/benchmarks), Kirana 0.4.1 with
-dense names against hashed names: the CSS in gzip, level; the
-CSS and JavaScript a page downloads, level; cold builds,
-level. On this site, the stylesheet is 12.7 % smaller in
+dense names against hashed names: the CSS in gzip, not measured; the
+CSS and JavaScript a page downloads, not measured; cold builds,
+not measured. On this site, the stylesheet is 12.7 % smaller in
 gzip and brotli.
 
 They have one cost besides the build time: a code goes to the most used
