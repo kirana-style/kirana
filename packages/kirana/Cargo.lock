@@ -850,7 +850,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_cascade"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "insta",
  "kirana_css_data",
@@ -862,7 +862,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_cli"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "clap",
  "insta",
@@ -877,7 +877,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_config"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "kirana_diagnostics",
  "kirana_ir",
@@ -888,7 +888,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_css_data"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "kirana_shared",
  "rustc-hash",
@@ -896,7 +896,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_diagnostics"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "insta",
  "oxc_diagnostics",
@@ -906,7 +906,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_emit"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "insta",
  "kirana_css_data",
@@ -918,7 +918,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_evaluator"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "insta",
  "kirana_cascade",
@@ -938,7 +938,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_frontend"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "kirana_diagnostics",
  "oxc_allocator",
@@ -951,7 +951,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_ir"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "kirana_cascade",
  "kirana_css_data",
@@ -962,7 +962,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_lsp"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "kirana_cascade",
  "kirana_config",
@@ -983,7 +983,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_migrate"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "insta",
  "kirana_config",
@@ -1003,7 +1003,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_napi"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "kirana_cli",
  "kirana_diagnostics",
@@ -1022,7 +1022,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_project"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "insta",
  "kirana_cascade",
@@ -1044,7 +1044,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_shared"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "rustc-hash",
  "xxhash-rust",
@@ -1052,7 +1052,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_transform"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "kirana_diagnostics",
  "kirana_evaluator",
@@ -1070,7 +1070,7 @@ dependencies = [
 
 [[package]]
 name = "kirana_utility"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "kirana_config",
  "kirana_css_data",

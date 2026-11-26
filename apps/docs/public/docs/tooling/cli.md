@@ -146,7 +146,7 @@ kirana-style doctor --report bug.md --trace src/card.tsx:12 minHeight
 ```console
 $ kirana-style doctor
 ✓ engine       native (linux-x64)
-✓ packages     @kirana-style/core@0.4.2, @kirana-style/next@0.4.2, kirana-style@0.4.2
+✓ packages     @kirana-style/core@0.4.3, @kirana-style/next@0.4.3, kirana-style@0.4.3
 ✓ config       kirana.config.mts, prefix "k"
 ✓ project      Next.js · turbopack · npm · TypeScript
 ✓ adapter      next.config.ts, postcss.config.mjs
@@ -393,7 +393,7 @@ kirana-style export src --out design-system.json
 ```json file="design-system.json"
 {
   "schema": 1,
-  "engine": "0.4.2",
+  "engine": "0.4.3",
   "prefix": "k",
   "tokens": [
     {
@@ -786,7 +786,7 @@ setup: kirana.config.ts: ui {"framework":"react","base":"base"}
 setup: kirana.config.ts: spreads installConfig (./src/lib/kirana/kirana.ts)
 setup: src/main.tsx: imports @/components/ui/reset.css
 setup: src/main.tsx: sets <html>'s classes from htmlStyles
-packages: npm install @kirana-style/core@0.4.2 …
+packages: npm install @kirana-style/core@0.4.3 …
 kirana-style.lock.json: 1 item(s) recorded
 ```
 
@@ -842,9 +842,9 @@ $ kirana-style ui view @acme/button
 Button: Displays a button.
 from https://acme.dev/r/button.json
 
-  kirana      ^0.4.2
+  kirana      ^0.4.3
   registry    @acme/spinner, separator
-  packages    @kirana-style/core ^0.4.2
+  packages    @kirana-style/core ^0.4.3
   axes        style, radius
   styles      ui/button.styles.ts
   react/base  ui/button.tsx · @base-ui/react ^1.0.0
