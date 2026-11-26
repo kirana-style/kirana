@@ -89,6 +89,13 @@ describe("kirana-ui", () => {
     ])
   })
 
+  it("follows the library's releases: 0.4.1's progress and meter values", () => {
+    expect(kiranaUi.variables.Progress.Root.progressValue).toBe(
+      "--progress-value"
+    )
+    expect(kiranaUi.variables.Meter.Root.meterValue).toBe("--meter-value")
+  })
+
   it("names a value with a hyphen in camel case, as every vocabulary here does", () => {
     expect(kiranaUi.Popover.Positioner.side.inlineStart).toBe(
       '[data-side="inline-start"]'
