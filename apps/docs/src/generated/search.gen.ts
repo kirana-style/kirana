@@ -5149,7 +5149,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Editor support",
     "section": "tooling",
     "heading": "An editor in a web page",
-    "text": "A playground or a web IDE runs the same server in the page, on the in-memory project the browser engine compiles. takes the requests an editor sends over LSP, as objects, and hands back what the server answers: The server starts on the first request, and every file the project writes reaches it as an editor's change would."
+    "text": "A playground or a web IDE runs the same server in the page, on the in-memory project the browser engine compiles. takes the requests an editor sends over LSP, as objects, and hands back what the server answers: The server starts on the first request, and every file the project writes reaches it as an editor's change would. A playground that shows what a site ships asks for : the project's files compiled as a production build compiles them, in a session of their own, with dense names , the stylesheet minified and the tokens nothing names left out. and keep the readable names, so the page can show both."
   },
   {
     "id": "/docs/tooling/editor#the-style-card",

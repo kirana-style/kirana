@@ -101,6 +101,11 @@ JavaScript or another stylesheet in it names, such as a token read at runtime,
 keeps its name everywhere. Relation markers and theme classes, which elements
 carry, keep theirs too.
 
+The engine in a web page writes the same names, for a playground that shows
+what a site ships: a project's `production()` gives its modules and stylesheet
+as this build writes them
+([an editor in a web page](/docs/tooling/editor#an-editor-in-a-web-page)).
+
 Measured on the three applications of
 [the benchmarks](/docs/project/benchmarks), Kirana {{fact:bench-version}} with
 dense names makes the CSS {{fact:bench-dense-css}} in gzip than with hashed names, and the CSS and
