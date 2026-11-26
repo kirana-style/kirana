@@ -5,37 +5,37 @@
 
 ### Features
 
-* a registry names the runtime a base needs, and ui init checks it ([#331](https://github.com/kirana-style/kirana/issues/331)) ([15a0f7a](https://github.com/kirana-style/kirana/commit/15a0f7ab4d246f2cb9c958bbb192feb228227e78))
-* diagnostics name the fix, and the site says what the compiler really does ([#349](https://github.com/kirana-style/kirana/issues/349)) ([445ea16](https://github.com/kirana-style/kirana/commit/445ea16ba0e4ef01dd693feb83c1bddb051047dc))
-* states for kirana ui primitives 0.4 and ui-sdk beta.17 ([#345](https://github.com/kirana-style/kirana/issues/345)) ([dd5bec3](https://github.com/kirana-style/kirana/commit/dd5bec328c925fa8942d624a91869aa4197acfe5))
-* states for kirana ui primitives 0.4.1 ([#351](https://github.com/kirana-style/kirana/issues/351)) ([844947a](https://github.com/kirana-style/kirana/commit/844947a47552190dcd03466bd83b93e82914c4be))
-* the browser engine writes a production build's dense names ([#352](https://github.com/kirana-style/kirana/issues/352)) ([f94cb83](https://github.com/kirana-style/kirana/commit/f94cb8369d6e1281456cc9e50313615716c7d1d0))
-* ui add tells a reformatted file from a changed one ([#334](https://github.com/kirana-style/kirana/issues/334)) ([de3cfbb](https://github.com/kirana-style/kirana/commit/de3cfbb71d7bbfa99a565a05e1389bb3feeeac03))
-* ui-sdk's states name every attribute its parts write ([#330](https://github.com/kirana-style/kirana/issues/330)) ([e071b60](https://github.com/kirana-style/kirana/commit/e071b6030fb3afe5ef867b3d609602e9d45924b0))
+* a registry names the runtime a base needs, and ui init checks it ([#331](https://github.com/kirana-style/kirana/pull/331)) ([15a0f7a](https://github.com/kirana-style/kirana/commit/15a0f7ab4d246f2cb9c958bbb192feb228227e78))
+* diagnostics name the fix, and the site says what the compiler really does ([#349](https://github.com/kirana-style/kirana/pull/349)) ([445ea16](https://github.com/kirana-style/kirana/commit/445ea16ba0e4ef01dd693feb83c1bddb051047dc))
+* states for kirana ui primitives 0.4 and ui-sdk beta.17 ([#345](https://github.com/kirana-style/kirana/pull/345)) ([dd5bec3](https://github.com/kirana-style/kirana/commit/dd5bec328c925fa8942d624a91869aa4197acfe5))
+* states for kirana ui primitives 0.4.1 ([#351](https://github.com/kirana-style/kirana/pull/351)) ([844947a](https://github.com/kirana-style/kirana/commit/844947a47552190dcd03466bd83b93e82914c4be))
+* the browser engine writes a production build's dense names ([#352](https://github.com/kirana-style/kirana/pull/352)) ([f94cb83](https://github.com/kirana-style/kirana/commit/f94cb8369d6e1281456cc9e50313615716c7d1d0))
+* ui add tells a reformatted file from a changed one ([#334](https://github.com/kirana-style/kirana/pull/334)) ([de3cfbb](https://github.com/kirana-style/kirana/commit/de3cfbb71d7bbfa99a565a05e1389bb3feeeac03))
+* ui-sdk's states name every attribute its parts write ([#330](https://github.com/kirana-style/kirana/pull/330)) ([e071b60](https://github.com/kirana-style/kirana/commit/e071b6030fb3afe5ef867b3d609602e9d45924b0))
 
 
 ### Bug fixes
 
-* editor completions offer the keywords css writes in mixed case ([#348](https://github.com/kirana-style/kirana/issues/348)) ([f3ee09d](https://github.com/kirana-style/kirana/commit/f3ee09daf2b2972189d49df2c2914fd70530e6af))
-* jsx detection follows the tsconfig's extends ([#329](https://github.com/kirana-style/kirana/issues/329)) ([88d6feb](https://github.com/kirana-style/kirana/commit/88d6febb6e76ac45d1bb8f30079b96938c6ddf1b))
-* mdn-data 2.38.1 for color-interpolation and margin-trim values ([#346](https://github.com/kirana-style/kirana/issues/346)) ([b08789c](https://github.com/kirana-style/kirana/commit/b08789c96b7950c19f297ff7c118e8cac8081211))
-* ui init gives a static page its colour scheme before the script runs ([#342](https://github.com/kirana-style/kirana/issues/342)) ([fc8fdb9](https://github.com/kirana-style/kirana/commit/fc8fdb917633aac27faa58a2c563e4644942d559))
-* ui init on angular cli imports the document first ([#332](https://github.com/kirana-style/kirana/issues/332)) ([566284e](https://github.com/kirana-style/kirana/commit/566284e76b7b7719009cb97fce980a90105289bd))
-* ui init refuses flags and a template its preset disagrees with ([#341](https://github.com/kirana-style/kirana/issues/341)) ([b1e2b9a](https://github.com/kirana-style/kirana/commit/b1e2b9a6c6bbe6c79fd4269c1be698c121a94ef8))
-* ui preset and init hold a preset to the project's framework ([#347](https://github.com/kirana-style/kirana/issues/347)) ([bcf6fbe](https://github.com/kirana-style/kirana/commit/bcf6fbe9d18f534011fde69e09d34945104ccc3a))
+* editor completions offer the keywords css writes in mixed case ([#348](https://github.com/kirana-style/kirana/pull/348)) ([f3ee09d](https://github.com/kirana-style/kirana/commit/f3ee09daf2b2972189d49df2c2914fd70530e6af))
+* jsx detection follows the tsconfig's extends ([#329](https://github.com/kirana-style/kirana/pull/329)) ([88d6feb](https://github.com/kirana-style/kirana/commit/88d6febb6e76ac45d1bb8f30079b96938c6ddf1b))
+* mdn-data 2.38.1 for color-interpolation and margin-trim values ([#346](https://github.com/kirana-style/kirana/pull/346)) ([b08789c](https://github.com/kirana-style/kirana/commit/b08789c96b7950c19f297ff7c118e8cac8081211))
+* ui init gives a static page its colour scheme before the script runs ([#342](https://github.com/kirana-style/kirana/pull/342)) ([fc8fdb9](https://github.com/kirana-style/kirana/commit/fc8fdb917633aac27faa58a2c563e4644942d559))
+* ui init on angular cli imports the document first ([#332](https://github.com/kirana-style/kirana/pull/332)) ([566284e](https://github.com/kirana-style/kirana/commit/566284e76b7b7719009cb97fce980a90105289bd))
+* ui init refuses flags and a template its preset disagrees with ([#341](https://github.com/kirana-style/kirana/pull/341)) ([b1e2b9a](https://github.com/kirana-style/kirana/commit/b1e2b9a6c6bbe6c79fd4269c1be698c121a94ef8))
+* ui preset and init hold a preset to the project's framework ([#347](https://github.com/kirana-style/kirana/pull/347)) ([bcf6fbe](https://github.com/kirana-style/kirana/commit/bcf6fbe9d18f534011fde69e09d34945104ccc3a))
 
 
 ### Documentation
 
-* dense name figures read the lab's hashed build, not dense against dense ([#353](https://github.com/kirana-style/kirana/issues/353)) ([32634b5](https://github.com/kirana-style/kirana/commit/32634b5cc90ca0e8de225e97ab97fa7048605fc8))
+* dense name figures read the lab's hashed build, not dense against dense ([#353](https://github.com/kirana-style/kirana/pull/353)) ([32634b5](https://github.com/kirana-style/kirana/commit/32634b5cc90ca0e8de225e97ab97fa7048605fc8))
 
 
 ### Dependencies
 
-* bump the minor-and-patch group in /packages/kirana with 3 updates ([#338](https://github.com/kirana-style/kirana/issues/338)) ([5c177aa](https://github.com/kirana-style/kirana/commit/5c177aa11b9ef141d39bbab308f82e26db8b50f9))
-* bump the oxc group in /packages/kirana with 8 updates ([#337](https://github.com/kirana-style/kirana/issues/337)) ([e7b3648](https://github.com/kirana-style/kirana/commit/e7b364802e482a404e262638fdb30d4f6d9a6fe8))
-* bun minor and patch group, 21 updates, without mdn-data ([#340](https://github.com/kirana-style/kirana/issues/340)) ([d78aaed](https://github.com/kirana-style/kirana/commit/d78aaed3f7753772b457a1544a6f55c5d22c8dcf))
-* vite+ 1.8.0, with vitest 5.1.1 and tsrs beta.tsrs4 ([#335](https://github.com/kirana-style/kirana/issues/335)) ([2d32f11](https://github.com/kirana-style/kirana/commit/2d32f11170177bd1410765b02e3130140fbc5aba))
+* bump the minor-and-patch group in /packages/kirana with 3 updates ([#338](https://github.com/kirana-style/kirana/pull/338)) ([5c177aa](https://github.com/kirana-style/kirana/commit/5c177aa11b9ef141d39bbab308f82e26db8b50f9))
+* bump the oxc group in /packages/kirana with 8 updates ([#337](https://github.com/kirana-style/kirana/pull/337)) ([e7b3648](https://github.com/kirana-style/kirana/commit/e7b364802e482a404e262638fdb30d4f6d9a6fe8))
+* bun minor and patch group, 21 updates, without mdn-data ([#340](https://github.com/kirana-style/kirana/pull/340)) ([d78aaed](https://github.com/kirana-style/kirana/commit/d78aaed3f7753772b457a1544a6f55c5d22c8dcf))
+* vite+ 1.8.0, with vitest 5.1.1 and tsrs beta.tsrs4 ([#335](https://github.com/kirana-style/kirana/pull/335)) ([2d32f11](https://github.com/kirana-style/kirana/commit/2d32f11170177bd1410765b02e3130140fbc5aba))
 
 ## [0.4.2](https://github.com/kirana-style/kirana/compare/v0.4.1...v0.4.2) (2026-11-20)
 
