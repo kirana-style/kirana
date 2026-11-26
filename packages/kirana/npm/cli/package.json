@@ -1,6 +1,6 @@
 {
   "name": "kirana-style",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Kirana's command line: init sets a project up; check (human, JSON and GitHub output), trace, export, analyze, build, migrate and ui.",
   "license": "MIT",
   "author": "The Kirana authors",
