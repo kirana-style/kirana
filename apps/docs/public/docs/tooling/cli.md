@@ -260,8 +260,28 @@ $ kirana-style check src
 1 diagnostic(s), 0 error(s)
 ```
 
-`--format json` prints an array of `{ code, name, severity, file, span, message, help }`,
-for an editor or a script. The exit code is 1 when anything is an error.
+`--format json` prints the same diagnostics as one array, for an agent, an editor
+or a script. The exit code is 1 when anything is an error:
+
+```console
+$ kirana-style check src/card.tsx --format json
+[{"code":"KRN1201","name":"unknown-property","severity":"error","file":"src/card.tsx","span":{"start":89,"end":102},"message":"colr is not a CSS property","help":["did you mean `color`?"],"line":5,"column":3,"endLine":5,"endColumn":16}]
+```
+
+Each entry has these fields:
+
+| Field                  | What it holds                                                                    |
+| ---------------------- | -------------------------------------------------------------------------------- |
+| `code`, `name`         | The diagnostic's stable code and its name                                        |
+| `severity`             | `error` or `warning`                                                             |
+| `file`                 | The file, as it was given                                                        |
+| `line`, `column`       | Where the mistake starts, counted from 1                                         |
+| `endLine`, `endColumn` | Where it ends                                                                    |
+| `span`                 | The same place as byte offsets in the file                                       |
+| `message`              | What is wrong                                                                    |
+| `help`                 | What to do: for a misspelt property, condition or keyword, the nearest valid one |
+
+A diagnostic that belongs to no place in a file has no position fields.
 
 `--format github` prints one GitHub Actions workflow command per diagnostic, which
 annotates the line in the pull request's diff: errors as errors, warnings as
@@ -766,7 +786,7 @@ setup: kirana.config.ts: ui {"framework":"react","base":"base"}
 setup: kirana.config.ts: spreads installConfig (./src/lib/kirana/kirana.ts)
 setup: src/main.tsx: imports @/components/ui/reset.css
 setup: src/main.tsx: sets <html>'s classes from htmlStyles
-packages: npm install @kirana-style/core@0.3.2 …
+packages: npm install @kirana-style/core@0.4.2 …
 kirana-style.lock.json: 1 item(s) recorded
 ```
 
@@ -822,9 +842,9 @@ $ kirana-style ui view @acme/button
 Button: Displays a button.
 from https://acme.dev/r/button.json
 
-  kirana      ^0.3.2
+  kirana      ^0.4.2
   registry    @acme/spinner, separator
-  packages    @kirana-style/core ^0.3.2
+  packages    @kirana-style/core ^0.4.2
   axes        style, radius
   styles      ui/button.styles.ts
   react/base  ui/button.tsx · @base-ui/react ^1.0.0

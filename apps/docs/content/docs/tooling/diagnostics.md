@@ -135,7 +135,9 @@ A report has three parts:
   code, the name and the message;
 - a frame with the lines around the mistake and the mistake underlined, headed
   `file:line:column`;
-- a help line that says what to do.
+- a help line that says what to do, where the compiler knows: the unit to add,
+  the nearest property, condition or keyword to a misspelt one. A code without a
+  certain fix has none, and the table above says what to do about it.
 
 It is the report Oxlint prints, and the build prints the same one, so a bundler's
 overlay shows it as it is. `kirana-style check --format json` gives the same fields

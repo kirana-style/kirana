@@ -166,6 +166,18 @@ rejects valid CSS, including CSS newer than the data (P11):
   MAY remember it for the session; a token is resolved before the check, so an edited token's new
   value is judged afresh (D-092).
 
+**KRN-CAS-011** — A value the grammar check leaves unjudged because of one word the data does not know
+MUST be `unknown-keyword` (a warning) when that word is within one or two edits of a keyword the
+property's grammar names and putting that keyword in its place makes the value fit; its help names the
+keyword (`display: "flx"`, did you mean `flex`?; `justifyContent: "safe centre"`, `center`). It never
+fires on a value with a substitution (`var()`), a function or unit the data does not know, a bracketed
+block, a custom property or vendor-prefixed word, a CSS-wide keyword, more than one unknown word, or a
+grammar that takes a word of the author's own in that place (`<custom-ident>`, a type the data does not
+define), and never inside `firstThatWorks()`, which is how newer CSS is written. The declaration is
+still written: the word may be CSS newer than the data, so the diagnostic is a warning a project can
+switch off (D-131). A known word the grammar rejects stays `invalid-value`, with the near keyword in
+its help when there is one.
+
 ## The precedence ladder
 
 **KRN-CAS-003** — When two atoms for the same target and longhand both match an element, the winner is
@@ -293,6 +305,10 @@ A relation named `field` owns one marker class (`.kr…`), applied through `fiel
 | R3   | In one JSX tree, a `within` reader has no anchor among its ancestors (a `parent` reader: on its parent) but an anchor is applied to a sibling or a descendant. A reader that carries the anchor itself reads an outer instance and is accepted (D-101). | `relation-placement` (error)      |
 | R4   | In one JSX tree, an `after` reader has no earlier sibling carrying the anchor (a `before` reader: no later sibling) but one is applied elsewhere in that tree. A reader that carries the anchor itself reads another instance and is accepted (D-101).  | `relation-placement` (error)      |
 | R5   | Two modules of one package declare a relation with the same name, so both share one marker.                                                                                                                                                             | `relation-name-collision` (error) |
+
+R1 is reported at the read: the property entry whose condition reads the relation first in the first
+module, in path order, that reads it, or the site that writes the style when it was evaluated in another
+module.
 
 In a bundler build, R1 covers the relations whose declaring module the build compiled; one declared in a
 module the build never compiled (a shared component reading an ancestor this application does not

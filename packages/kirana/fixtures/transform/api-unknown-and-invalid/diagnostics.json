@@ -9,7 +9,9 @@
       "end": 82
     },
     "message": "colour is not a CSS property",
-    "help": []
+    "help": [
+      "did you mean `color`?"
+    ]
   },
   {
     "code": "KRN1203",
@@ -175,7 +177,9 @@
       "end": 433
     },
     "message": "backgroundColour is not a CSS property",
-    "help": []
+    "help": [
+      "did you mean `backgroundColor`?"
+    ]
   },
   {
     "code": "KRN1201",
@@ -187,6 +191,8 @@
       "end": 510
     },
     "message": "borderColour is not a CSS property",
-    "help": []
+    "help": [
+      "did you mean `borderColor`?"
+    ]
   }
 ]

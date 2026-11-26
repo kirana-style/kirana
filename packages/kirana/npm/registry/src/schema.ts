@@ -66,7 +66,7 @@ export const FILE_TYPES = [
 ] as const
 
 /**
- * A framework's runtime (KF-134): a major only some templates and bases run on, by the name the
+ * A framework's runtime: a major only some templates and bases run on, by the name the
  * registry gives it. Kirana tells Solid's apart in a project (`runtime.ts`).
  */
 const RUNTIME: Schema = {
@@ -221,7 +221,7 @@ export const ITEM_SCHEMA: Schema = {
     font: {
       type: "object",
       description:
-        "A font item's family and stylesheet (KF-050): `ui add` imports the stylesheet in the app's entry.",
+        "A font item's family and stylesheet: `ui add` imports the stylesheet in the app's entry.",
       required: ["family", "import"],
       properties: {
         family: {
@@ -241,7 +241,7 @@ export const ITEM_SCHEMA: Schema = {
     design: {
       type: "object",
       description:
-        "A design system's axes and preset layouts (D-110): what `ui preset` reads.",
+        "A design system's axes and preset layouts: what `ui preset` reads.",
       required: ["axes"],
       properties: {
         axes: {
@@ -259,7 +259,7 @@ export const ITEM_SCHEMA: Schema = {
                 items: {
                   type: "object",
                   description:
-                    "The item each value installs, by value: a font item per family (KF-050).",
+                    "The item each value installs, by value: a font item per family.",
                   patternProperties: {
                     "^.+$": { $ref: "#/$defs/reference" },
                   },
@@ -304,7 +304,7 @@ export const ITEM_SCHEMA: Schema = {
     flattened: {
       type: "object",
       description:
-        "Its style modules flattened for each value of `axis` and each base (D-110), in place of `styles`; with `axes`, the files that read one other axis alone, built for each of its values (KF-080). `axis` and `builds` come together, and `axes` can stand alone (KF-084).",
+        "Its style modules flattened for each value of `axis` and each base, in place of `styles`; with `axes`, the files that read one other axis alone, built for each of its values. `axis` and `builds` come together, and `axes` can stand alone.",
       minProperties: 1,
       dependentRequired: { axis: ["builds"], builds: ["axis"] },
       properties: {
@@ -351,7 +351,7 @@ export const ITEM_SCHEMA: Schema = {
     setup: {
       type: "object",
       description:
-        "A design system's wiring (D-109): what `ui init` adds to a project once the item is installed.",
+        "A design system's wiring: what `ui init` adds to a project once the item is installed.",
       properties: {
         config: {
           $ref: "#/$defs/export",
@@ -389,7 +389,7 @@ export const INDEX_SCHEMA: Schema = {
     defaultBase: {
       type: "object",
       description:
-        "The base each framework takes, by framework: `ui add` installs it from an item with several bases when the project sets no `ui.base`, and `ui init` writes it to `ui.base` (KF-120). Each is a base an item lists for that framework.",
+        "The base each framework takes, by framework: `ui add` installs it from an item with several bases when the project sets no `ui.base`, and `ui init` writes it to `ui.base`. Each is a base an item lists for that framework.",
       properties: Object.fromEntries(
         FRAMEWORKS.map((framework) => [framework, { $ref: "#/$defs/name" }])
       ),
@@ -398,7 +398,7 @@ export const INDEX_SCHEMA: Schema = {
     requires: {
       type: "object",
       description:
-        'The runtime each base needs, by framework, then base: `{ "solid": { "uisdk": "solid2" } }` (KF-134). A base of a framework named here that is not listed needs the framework\'s default runtime; a framework not named here is not checked. `ui init --template` refuses a template on another runtime, naming one on the runtime needed, and `ui add` a project on another. Each base is one an item lists for that framework.',
+        'The runtime each base needs, by framework, then base: `{ "solid": { "uisdk": "solid2" } }`. A base of a framework named here that is not listed needs the framework\'s default runtime; a framework not named here is not checked. `ui init --template` refuses a template on another runtime, naming one on the runtime needed, and `ui add` a project on another. Each base is one an item lists for that framework.',
       properties: Object.fromEntries(
         FRAMEWORKS.map((framework) => [
           framework,
@@ -487,7 +487,7 @@ export const LOCKFILE_SCHEMA: Schema = {
                     code: {
                       $ref: "#/$defs/hash",
                       description:
-                        "The hash of its code with formatting set aside, so that a file the project only reformatted is told from one it changed (KF-136).",
+                        "The hash of its code with formatting set aside, so that a file the project only reformatted is told from one it changed.",
                     },
                   },
                   additionalProperties: false,
@@ -535,13 +535,13 @@ export const TEMPLATES_SCHEMA: Schema = {
           framework: {
             type: "string",
             description:
-              "The framework its app is on (KF-134): `ui init --template` names a template of the framework on the runtime a base needs when this one is on another.",
+              "The framework its app is on: `ui init --template` names a template of the framework on the runtime a base needs when this one is on another.",
             enum: FRAMEWORKS,
           },
           runtime: {
             ...RUNTIME,
             description:
-              "The framework's runtime it is on, as the registry index's `requires` names it: `solid2`; none for the framework's default (KF-134). Needs `framework`.",
+              "The framework's runtime it is on, as the registry index's `requires` names it: `solid2`; none for the framework's default. Needs `framework`.",
           },
           file: {
             type: "string",
@@ -613,7 +613,7 @@ export const SETTINGS_SCHEMA: Schema = {
     allDesigns: {
       type: "boolean",
       description:
-        "Install style modules and design files as written, every design kept, instead of the registry's builds for `design` (KF-080).",
+        "Install style modules and design files as written, every design kept, instead of the registry's builds for `design`.",
     },
     design: {
       type: "object",
@@ -636,7 +636,7 @@ export const SETTINGS_SCHEMA: Schema = {
     workspace: {
       type: "string",
       description:
-        "The workspace package `ui` installs into, from this configuration's directory (`../../packages/ui`): its own configuration holds the other `ui` settings (D-129).",
+        "The workspace package `ui` installs into, from this configuration's directory (`../../packages/ui`): its own configuration holds the other `ui` settings.",
       minLength: 1,
     },
     registries: {

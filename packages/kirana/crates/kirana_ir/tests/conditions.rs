@@ -302,3 +302,28 @@ fn an_own_attribute_is_no_vocabulary_key() {
     assert!(apart(&set(&["[data-side=\"left\"]", "[data-side=\"top\"]"]), &own));
     assert!(!apart(&set(&[":hover", "[data-entering]"]), &own));
 }
+
+/// A rejected condition key names its fix when one can be named: the nearest at-rule or
+/// pseudo-class, the colon a pseudo-class was written without, the selector without nested CSS's
+/// `&`; a key with nothing near says nothing.
+#[test]
+fn a_rejected_condition_names_its_fix() {
+    for (key, help) in [
+        (":hovr", "did you mean `:hover`?"),
+        ("[data-open]:hovr", "did you mean `:hover`?"),
+        (":hover:focus-visble", "did you mean `:focus-visible`?"),
+        ("@meda (width >= 40rem)", "did you mean `@media`?"),
+        ("@contaner card (width > 1px)", "did you mean `@container`?"),
+        ("hover", "did you mean `:hover`?"),
+        ("hovr", "did you mean `:hover`?"),
+        ("hover[data-open]", "did you mean `:hover[data-open]`?"),
+        ("&:hover", "write `:hover`: a condition key is the selector alone, without `&`"),
+        ("& [data-open]", "write `[data-open]`: a condition key is the selector alone, without `&`"),
+    ] {
+        assert!(parse_condition_key(key).is_err(), "{key}");
+        assert_eq!(condition_help(key).as_deref(), Some(help), "{key}");
+    }
+    for key in ["md", "&", "& > div", "@layer base", ":zzzzzz", "::befor", "*", "12px", ":hover"] {
+        assert_eq!(condition_help(key), None, "{key}");
+    }
+}

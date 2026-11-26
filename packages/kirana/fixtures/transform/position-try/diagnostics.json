@@ -49,7 +49,9 @@
       "end": 889
     },
     "message": "marginTopp is not a CSS property",
-    "help": []
+    "help": [
+      "did you mean `marginTop`?"
+    ]
   },
   {
     "code": "KRN1208",

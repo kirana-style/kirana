@@ -1090,7 +1090,13 @@ impl<'p, 'a, 'c> Evaluator<'p, 'a, 'c> {
             Value::Object(entries) => match object.get(key) {
                 Some(value) => value.clone(),
                 None if token_group(entries) => {
-                    self.report(Code::UnknownToken, span, format!("the token group has no token {key:?}"), None);
+                    let help = crate::api::nearest_key(object, key);
+                    self.report(
+                        Code::UnknownToken,
+                        span,
+                        format!("the token group has no token {key:?}"),
+                        help.as_deref(),
+                    );
                     Value::Undefined
                 }
                 None => Value::Undefined,

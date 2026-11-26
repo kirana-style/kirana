@@ -248,3 +248,17 @@ fn what_a_declaration_sets() {
         }
     }
 }
+
+/// A misspelt property, pseudo-class or pseudo-element finds the one meant, written as the name was:
+/// camel case, kebab case, or a vendor prefix capitalised as camel case reads it back.
+#[test]
+fn nearest_names() {
+    assert_eq!(nearest_property("justifyContnet").as_deref(), Some("justifyContent"));
+    assert_eq!(nearest_property("colr").as_deref(), Some("color"));
+    assert_eq!(nearest_property("justify-contnet").as_deref(), Some("justify-content"));
+    assert_eq!(nearest_property("mozBindin").as_deref(), Some("MozBinding"));
+    assert_eq!(nearest_property("msaccelerator").as_deref(), Some("msAccelerator"));
+    assert_eq!(nearest_property("zzzzzzzz"), None);
+    assert_eq!(nearest_pseudo_class(":hovr"), Some(":hover"));
+    assert_eq!(nearest_pseudo_element("::befor"), Some("::before"));
+}

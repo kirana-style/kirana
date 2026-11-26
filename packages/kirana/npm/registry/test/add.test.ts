@@ -723,7 +723,7 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     )
     expect(text).toContain("╭─[src/lib/orphan/relation.ts:2:")
     expect(text).toMatch(/1 diagnostic\(s\), 0 error\(s\)\n$/)
-    // A diagnostic without a span names its file alone.
+    // A relation read with no anchor points at the property that reads it.
     const reader: Item = {
       name: "reader",
       type: "lib",
@@ -739,7 +739,26 @@ describe("KRN-DX-028 kirana-style ui add", () => {
     const unanchored = await add(project({}, [reader]), "@acme/reader")
     expect(unanchored.code).toBe(1)
     expect(unanchored.text).toContain(
-      '  × KRN1401 relation-without-anchor: relation "field" is read but its anchor is never applied (src/lib/reader.ts)\n'
+      '  × KRN1401 relation-without-anchor: relation "field" is read but its anchor is never applied\n'
+    )
+    expect(unanchored.text).toContain("╭─[src/lib/reader.ts:3:")
+    // A diagnostic without a span names its file alone.
+    const tokens = (name: string) =>
+      file(
+        `${name}.ts`,
+        "lib",
+        'import { defineTokens } from "@kirana-style/core"\nexport const theme = defineTokens("theme", { ink: "black" })\n'
+      )
+    const twice: Item = {
+      name: "twice",
+      type: "lib",
+      version: "1.0.0",
+      files: [tokens("one"), tokens("two")],
+    }
+    const collided = await add(project({}, [twice]), "@acme/twice")
+    expect(collided.code).toBe(1)
+    expect(collided.text).toMatch(
+      /× KRN1502 token-namespace-collision: token namespace "theme" is also declared in \S+ \(src\/lib\/two\.ts\)\n/
     )
   })
 

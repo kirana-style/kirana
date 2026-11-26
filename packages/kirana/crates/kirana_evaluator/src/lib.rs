@@ -91,6 +91,9 @@ pub struct Definitions {
     pub relations: Vec<(String, String, bool)>,
     /// Every token declared here, inlined or not, for tooling (hover, swatches, `prefer-token`).
     pub catalogue: Vec<TokenEntry>,
+    /// Each relation marker a style object here reads, with the span of the property entry whose
+    /// condition reads it first: where `relation-without-anchor` points.
+    pub relation_reads: Vec<(String, (u32, u32))>,
 }
 
 /// One token as written: its identity, value, whether it is a custom property, and the span of

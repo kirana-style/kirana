@@ -1,6 +1,7 @@
 /**
- * The homepage, top to bottom: what Kirana is, the compiler's own output, the editor, three ways to
- * start, the numbers, the frameworks, the components, where to go next, and the sponsors. Every chapter is its own
+ * The homepage, top to bottom: what Kirana is, the compiler's own output, the editor, what a coding
+ * agent runs, three ways to start, the numbers, the frameworks, the components, where to go next,
+ * and the sponsors. Every chapter is its own
  * module under `components/home/`; this file is only the order.
  */
 import { Suspense, lazy } from "react"
@@ -39,6 +40,7 @@ function later<K extends string>(
 
 const Showcase = later(() => import("./showcase"), "Showcase")
 const Editor = later(() => import("./editor"), "Editor")
+const Agents = later(() => import("./agents"), "Agents")
 const Flexible = later(() => import("./flexible"), "Flexible")
 const Proof = later(() => import("./proof"), "Proof")
 const Stack = later(() => import("./stack"), "Stack")
@@ -53,6 +55,7 @@ export function Home() {
       <Hero />
       <Showcase />
       <Editor />
+      <Agents />
       <Flexible />
       <Proof />
       <Stack />

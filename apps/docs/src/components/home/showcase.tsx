@@ -1,8 +1,9 @@
 /**
- * "Source in, CSS out": six tabs, each a real file and what the compiler did with it, in one dark
+ * "Source in, CSS out": a tab per job, each a real file and what the compiler did with it, in one dark
  * editor window whose panes change with the job. The terminal types its command and prints what
  * the compiler prints; switching tabs replays it, and under reduced motion everything is there.
- * Nothing in a pane is written by hand: sources, CSS and diagnostics come from the build.
+ * Nothing in a pane is written by hand: sources, CSS, diagnostics and the commands' answers come
+ * from the build (`examples.gen`, `showcase.gen`, `runs.gen`).
  */
 import { useState } from "react"
 import { css, keyframes } from "@kirana-style/core"
@@ -14,6 +15,8 @@ import {
   GitMergeIcon,
   LinkSquare02Icon,
   PaintBoardIcon,
+  SearchList01Icon,
+  ToggleOnIcon,
 } from "@hugeicons/core-free-icons"
 
 import { SUN, accent } from "@workspace/docs-ui/accent.ts"
@@ -33,6 +36,7 @@ import { DocsLink } from "@/components/docs-link"
 import { ExamplePreview } from "@/components/markdown/example"
 import { EDITOR } from "@/components/site/editor-window"
 import { EXAMPLES } from "@/generated/examples.gen"
+import { PROJECT, RUNS } from "@/generated/runs.gen"
 import { SHOWCASE } from "@/generated/showcase.gen"
 
 import { HomeSection } from "./frame"
@@ -63,12 +67,28 @@ const TABS: readonly Tab[] = [
     href: "/docs/styling/merging",
   },
   {
+    id: "trace",
+    label: "Trace",
+    icon: SearchList01Icon,
+    caption:
+      "The quiet style replaced the button's base background and kept its hover. kirana-style trace names the entry that wins at a line, and the step of the precedence ladder that decided it.",
+    href: "/docs/tooling/debugging",
+  },
+  {
     id: "relations",
     label: "Relations",
     icon: LinkSquare02Icon,
     caption:
       "Style one element from another's state. The relation is declared once, the anchor sits on the element that has the state, and the compiler checks both ends.",
     href: "/docs/styling/relations",
+  },
+  {
+    id: "states",
+    label: "States",
+    icon: ToggleOnIcon,
+    caption:
+      "A headless library's states are typed condition keys, generated from its own declarations. A misspelt state is a type error, and the compiler refuses a key it cannot read.",
+    href: "/docs/styling/states",
   },
   {
     id: "tokens",
@@ -142,6 +162,12 @@ const LAYOUT = {
     },
     gridTemplateRows: { [breakpoint.lg]: "minmax(0, 1fr)" },
     gridTemplateAreas: { [breakpoint.lg]: '"source terminal"' },
+  }),
+  // The source above, the answer under it at full width: trace aligns its columns wide.
+  trace: css({
+    gridTemplateColumns: { [breakpoint.lg]: "minmax(0, 1fr)" },
+    gridTemplateRows: { [breakpoint.lg]: "minmax(0, 1fr) auto" },
+    gridTemplateAreas: { [breakpoint.lg]: '"source" "terminal"' },
   }),
   migrate: css({
     gridTemplateColumns: {
@@ -395,6 +421,8 @@ const styles = {
   error: css({ color: "#ff7b72", fontWeight: fontWeight.semibold }),
   muted: css({ color: EDITOR.muted }),
   help: css({ color: "#79c0ff" }),
+  // An aligned answer keeps its columns: the pane scrolls instead of wrapping it.
+  unwrapped: css({ whiteSpace: "pre" }),
 }
 
 /** Numbered, highlighted lines; `stream` makes them arrive one after another from that delay. */
@@ -570,6 +598,62 @@ function CheckWindow() {
   )
 }
 
+/** A line of `trace`'s answer: the winning entry stands out, the heading is quiet. */
+function traceLine(line: string) {
+  if (/^\s*✓/.test(line)) return styles.help
+  if (!/^\s/.test(line)) return styles.muted
+  return null
+}
+
+/** Which entry wins at a line, as `kirana-style trace` answers it for the button beside it. */
+function TraceWindow() {
+  const run = RUNS.trace
+  return (
+    <div sx={[styles.window, LAYOUT.trace]}>
+      <Pane tabs={["button.tsx"]} area="source">
+        <Lines html={PROJECT["src/button.tsx"]!.html} />
+      </Pane>
+      <Pane tabs={["Terminal"]} area="terminal">
+        <Terminal commands={[run.command]}>
+          {`${run.output}\n`.split("\n").map((line, index) => (
+            <span key={index} sx={[styles.unwrapped, traceLine(line)]}>
+              {line}
+              {"\n"}
+            </span>
+          ))}
+        </Terminal>
+      </Pane>
+    </div>
+  )
+}
+
+/** A headless library's states as conditions: the source, and the stylesheet `build` wrote. */
+function StatesWindow() {
+  const run = RUNS.states
+  return (
+    <div sx={[styles.window, LAYOUT.migrate]}>
+      <Pane tabs={["switch.tsx"]} area="source">
+        <Lines html={PROJECT["src/switch.tsx"]!.html} />
+      </Pane>
+      <Pane tabs={["kirana.css"]} area="output">
+        <Lines html={run.html} stream={typingTime([run.command]) + 200} />
+      </Pane>
+      <Pane tabs={["Terminal"]} area="terminal">
+        <Terminal commands={[run.command]} />
+      </Pane>
+    </div>
+  )
+}
+
+/** The window for a tab. */
+function TabWindow({ id }: { id: Tab["id"] }) {
+  if (id === "diagnostics") return <CheckWindow />
+  if (id === "migrate") return <MigrateWindow />
+  if (id === "trace") return <TraceWindow />
+  if (id === "states") return <StatesWindow />
+  return <BuildWindow name={EXAMPLE_FOR[id]!} />
+}
+
 /** The commands the migration guide gives, without their comments. */
 const MIGRATE_COMMANDS = SHOWCASE["migrate-tailwind-command"]!.source.split(
   "\n"
@@ -673,13 +757,7 @@ export function Showcase() {
             </DocsLink>
           </p>
           {/* Keyed by the open tab, so the terminal types again whenever it is shown. */}
-          {tab.id === "diagnostics" ? (
-            <CheckWindow key={tab.id} />
-          ) : tab.id === "migrate" ? (
-            <MigrateWindow key={tab.id} />
-          ) : (
-            <BuildWindow key={tab.id} name={EXAMPLE_FOR[tab.id]!} />
-          )}
+          <TabWindow key={tab.id} id={tab.id} />
         </div>
       </div>
     </HomeSection>
@@ -706,13 +784,7 @@ export function ShowcaseScene({ id }: { id: Tab["id"] }) {
         </span>
       </div>
       <p sx={styles.caption}>{tab.caption}</p>
-      {id === "diagnostics" ? (
-        <CheckWindow />
-      ) : id === "migrate" ? (
-        <MigrateWindow />
-      ) : (
-        <BuildWindow name={EXAMPLE_FOR[id]!} />
-      )}
+      <TabWindow id={id} />
     </div>
   )
 }

@@ -26,18 +26,28 @@ export type RegistryCommand = {
 /**
  * Runs `kirana-style ui <argv…>` in `cwd`: the project's `@kirana-style/registry` gets the arguments
  * and returns the exit code. Exit 1, with the reason, when the project does not have the package,
- * when it fails to load (the 0.0.0 placeholder throws on purpose), or when it exports no `main`.
+ * when it fails to load (the 0.0.0 placeholder throws on purpose), or when it exports no `main`;
+ * without the package, `help` is printed instead for `ui`, `ui --help` and `ui <command> --help`.
  */
 export async function runUi(
   argv: readonly string[],
   cwd: string,
   write: (text: string) => void,
-  load: ImportFile = importFile
+  load: ImportFile = importFile,
+  help?: string
 ): Promise<number> {
   let file: string
   try {
     file = createRequire(path.join(cwd, "package.json")).resolve(REGISTRY)
   } catch {
+    // Asked for help, the reason is the help: what `ui` is and how to get its commands.
+    const asked =
+      argv.length === 0 ||
+      argv.some((arg) => ["help", "--help", "-h"].includes(arg))
+    if (help !== undefined && asked) {
+      write(help)
+      return 0
+    }
     write(
       `kirana-style ui needs ${REGISTRY}, which this project does not have: add it as a development dependency, or start a new project with npx ${REGISTRY} init --template <example> <directory>\n`
     )

@@ -42,8 +42,10 @@ install guide, and each is built and checked in a browser on every change:
 
 ## What it gives you
 
-- **Typed styles.** Ordinary objects, checked by TypeScript, with camelCase CSS
-  property names and real values, not a string vocabulary you have to learn.
+- **Typed styles.** Ordinary objects with camelCase CSS property names and real
+  values, not a string vocabulary you have to learn. TypeScript checks the names;
+  the compiler checks the values ([what it catches, and what it does
+  not](/docs/styling/styles#what-the-compiler-checks)).
 - **Conditions inside values.** `{ base: x, ":hover": y }` reads in the order it
   applies, instead of scattering `hover:` prefixes across a class list.
 - **Predictable precedence.** A stated ladder decides which value wins, and the
@@ -52,6 +54,19 @@ install guide, and each is built and checked in a browser on every change:
   and every colour can be a `light-dark()` pair, so dark mode needs no variant.
 - **Real diagnostics.** 51 checks with codes, severities and help text, from
   unknown properties to a component that forgets to pass `sx` on.
+- **Written well by agents.** The [agent skills](/docs/project/agent-skills) teach
+  a coding agent the rules. `kirana-style check --format json` answers it with
+  codes, `kirana-style trace` says which value wins and why, and
+  `kirana-style export` lists the tokens that exist.
+
+## The family
+
+[Kirana UI](https://ui.kirana-style.workers.dev/docs) is shadcn/ui's design system on your framework and
+your headless library, every style compiled by Kirana and installed with
+[`kirana-style ui`](/docs/tooling/components). [Kirana UI Primitives](https://ui.kirana-style.workers.dev/docs/primitives)
+are headless parts that are the same on every framework, checked state by state:
+a library of their own, not built on Kirana, which Kirana UI uses as one of its
+bases and whose states [`@kirana-style/states`](/docs/styling/states) types.
 
 ## What it is not
 
@@ -152,7 +167,7 @@ the editors built on it, Zed, Neovim, Helix and any other editor that speaks LSP
 editor and the stylesheet never disagree.
 
 So the trade is no longer readability for types. You keep what made object
-styles worth it (a typo is a compile error, a token is a typed import, a style is
+styles worth it (a misspelt property, condition or token is a compile error, a token is a typed import, a style is
 a value you pass and delete with its component), and the output is still atomic:
 one rule per distinct declaration, shared by every element that uses it. On the
 same three applications built three ways, Kirana 0.4.1's cold
@@ -185,7 +200,7 @@ answers them:
 | Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [51 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
 | The official compiler is Babel; the Rust one is a community port behind it                                                                      | The engine is Kirana's own, in Rust on [oxc](https://oxc.rs), with a WASI build that writes the same bytes where no native one runs                                                                  |
 | No utility vocabulary: a Tailwind team rebuilt the scales by hand                                                                               | [`@kirana-style/preset-scales`](/docs/tokens/preset-scales) is Tailwind v4's scales, and [utility strings](/docs/styling/utilities) compile to the same atoms as the object form                     |
-| A port from Tailwind was done by hand                                                                                                           | [`kirana-style migrate tailwind`](/docs/migration/from-tailwind), measured below                                                                                                                     |
+| A port from Tailwind was done by hand                                                                                                           | [`kirana-style migrate tailwind`](/docs/migration/from-tailwind), [measured on a whole codebase](/docs/migration/from-tailwind#measured-the-tailwind-original-of-our-shadcn-ui-port)                 |
 
 Framework reach is the other half: `sx` works in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (Angular
 templates take it as a directive, Ember's as a helper), and Kirana has adapters
@@ -214,8 +229,9 @@ last class of each conflict group. Measured with tailwind-merge 3.6.0:
 None of these is a bug in tailwind-merge; it works from class names, because
 class names are all it has. Kirana merges **declarations**, at build time, per
 longhand: `fontSize` and `lineHeight` are separate entries, a custom token is a
-typed value, and there is nothing to configure or parse at runtime. And a typo
-(`text-smm`) is a compile error, not a class that silently does nothing.
+typed value, and there is nothing to configure or parse at runtime. And a
+misspelt utility (`text-smm`) is a compile error (`unknown-utility`), not a class
+that silently does nothing.
 
 ## "It doubles the code"
 
@@ -446,7 +462,9 @@ npm install -D kirana-style @kirana-style/vite
 
 The engine is native code for eight platforms. Anywhere else (a WebContainer, an
 unusual CPU), install its WebAssembly build as well; Kirana uses it when no native
-engine loads, and it writes exactly the same CSS, about twice as slowly:
+engine loads, and it writes exactly the same CSS, about twice as slowly: the
+shadcn/ui port's 106 files compile in 63 ms native and 136 ms in WebAssembly, on
+one machine ([the measurement](https://github.com/kirana-style/kirana/blob/main/packages/kirana/design-notes/published-libraries.md#what-compiling-in-the-application-costs)):
 
 ```bash
 npm install -D @kirana-style/compiler-wasm32-wasi --force
@@ -941,9 +959,37 @@ css({ padding: color.accent }) // error: invalid-value - a colour token on a len
 css({ margin: "1px;" }) // error: invalid-value - a stray semicolon
 ```
 
-A word or a function the data does not know is left alone, because it may be
-newer CSS than the data, or a name of your own (`animationName: "spin"`). So is
-whatever is inside a function's parentheses, and a value made of `var()`.
+A property whose values are a fixed list of keywords warns about a word that is
+not on the list (`display: "flx"`), with the nearest keyword in its help. Where a
+property also takes names of your own, as `animationName: "spin"` and font
+families do, any word is accepted, because it may be yours. A function the data
+does not know is left alone, since it may be newer CSS than the data, and so is
+whatever is inside a function's parentheses and a value made of `var()`.
+
+## What the compiler checks
+
+TypeScript checks property names and token names in your editor. Values are
+typed from `csstype`, which suggests each property's keywords but accepts any
+string, so a misspelt keyword is the compiler's to catch, not the editor's.
+
+| Mistake                                                | Example                                | What happens                                                                |
+| ------------------------------------------------------ | -------------------------------------- | --------------------------------------------------------------------------- |
+| A property that does not exist                         | `colr: "red"`                          | `unknown-property`, with the nearest property in its help                   |
+| A condition that does not exist                        | `":hovr"`, `"md"`                      | `unknown-condition`, with the nearest one in its help                       |
+| A length without its unit                              | `width: 5`                             | `unitless-length`, with a unit in its help                                  |
+| A value the property never takes                       | `display: "center"`, `padding: "-4px"` | `invalid-value`                                                             |
+| A misspelt keyword, where the values are a fixed list  | `display: "flx"`                       | a warning (KRN1211 `unknown-keyword`), with the nearest keyword in its help |
+| A token that does not exist                            | `theme.accnt`                          | a type error, and `unknown-token`                                           |
+| A headless library's state that does not exist         | `Switch.Root.chekced`                  | a type error, and `dynamic-key`                                             |
+| A relation read with no anchor                         | `menu.within("[data-open]")` alone     | `relation-without-anchor`                                                   |
+| A word in a property that also takes names of your own | `transitionProperty: "opactiy"`        | accepted, since it may be a name of yours                                   |
+| A function newer than the data, or a `var()`           |                                        | accepted                                                                    |
+| Dark mode as a nested `prefers-color-scheme` query     |                                        | compiles; the lint rule `no-dark-variant` reports it                        |
+| A class helper joining class strings                   | `clsx(…)`                              | compiles; the strict lint rule `no-class-helpers` reports it                |
+| A valid style on the wrong element                     |                                        | compiles; [`kirana-style trace`](/docs/tooling/debugging) shows what wins   |
+
+Every code is in the [diagnostics reference](/docs/tooling/diagnostics), with
+what to do about it.
 
 ## Several objects, one handle
 
@@ -9880,28 +9926,6 @@ Vite pre-bundles the Worker's dependencies apart from the browser's. Kirana's Vi
 plugin names its runtime for pre-bundling and keeps its presets compiled in every
 environment, so nothing needs configuring.
 
-Kirana 0.3.1 did that for the browser only: the first request in development
-discovered Kirana's runtime late, re-optimised and loaded React twice, and a
-pre-bundled preset threw `defineTokens() ran without being compiled`. On 0.3.1, name
-the runtime and keep the preset out of workerd's pre-bundling:
-
-```ts file="vite.config.ts"
-export default defineConfig({
-  optimizeDeps: { include: ["@kirana-style/core/internal"] },
-  environments: {
-    ssr: {
-      optimizeDeps: {
-        include: ["@kirana-style/core/internal"],
-        exclude: ["@kirana-style/preset-scales"],
-      },
-    },
-  },
-  // the plugins, as above
-})
-```
-
-Remove it when you upgrade past 0.3.1.
-
 ## A stylesheet of your own
 
 A stylesheet you write goes through Vite's CSS minifier, which lowers
@@ -10722,8 +10746,28 @@ $ kirana-style check src
 1 diagnostic(s), 0 error(s)
 ```
 
-`--format json` prints an array of `{ code, name, severity, file, span, message, help }`,
-for an editor or a script. The exit code is 1 when anything is an error.
+`--format json` prints the same diagnostics as one array, for an agent, an editor
+or a script. The exit code is 1 when anything is an error:
+
+```console
+$ kirana-style check src/card.tsx --format json
+[{"code":"KRN1201","name":"unknown-property","severity":"error","file":"src/card.tsx","span":{"start":89,"end":102},"message":"colr is not a CSS property","help":["did you mean `color`?"],"line":5,"column":3,"endLine":5,"endColumn":16}]
+```
+
+Each entry has these fields:
+
+| Field                  | What it holds                                                                    |
+| ---------------------- | -------------------------------------------------------------------------------- |
+| `code`, `name`         | The diagnostic's stable code and its name                                        |
+| `severity`             | `error` or `warning`                                                             |
+| `file`                 | The file, as it was given                                                        |
+| `line`, `column`       | Where the mistake starts, counted from 1                                         |
+| `endLine`, `endColumn` | Where it ends                                                                    |
+| `span`                 | The same place as byte offsets in the file                                       |
+| `message`              | What is wrong                                                                    |
+| `help`                 | What to do: for a misspelt property, condition or keyword, the nearest valid one |
+
+A diagnostic that belongs to no place in a file has no position fields.
 
 `--format github` prints one GitHub Actions workflow command per diagnostic, which
 annotates the line in the pull request's diff: errors as errors, warnings as
@@ -11228,7 +11272,7 @@ setup: kirana.config.ts: ui {"framework":"react","base":"base"}
 setup: kirana.config.ts: spreads installConfig (./src/lib/kirana/kirana.ts)
 setup: src/main.tsx: imports @/components/ui/reset.css
 setup: src/main.tsx: sets <html>'s classes from htmlStyles
-packages: npm install @kirana-style/core@0.3.2 …
+packages: npm install @kirana-style/core@0.4.2 …
 kirana-style.lock.json: 1 item(s) recorded
 ```
 
@@ -11284,9 +11328,9 @@ $ kirana-style ui view @acme/button
 Button: Displays a button.
 from https://acme.dev/r/button.json
 
-  kirana      ^0.3.2
+  kirana      ^0.4.2
   registry    @acme/spinner, separator
-  packages    @kirana-style/core ^0.3.2
+  packages    @kirana-style/core ^0.4.2
   axes        style, radius
   styles      ui/button.styles.ts
   react/base  ui/button.tsx · @base-ui/react ^1.0.0
@@ -12178,7 +12222,9 @@ A report has three parts:
   code, the name and the message;
 - a frame with the lines around the mistake and the mistake underlined, headed
   `file:line:column`;
-- a help line that says what to do.
+- a help line that says what to do, where the compiler knows: the unit to add,
+  the nearest property, condition or keyword to a misspelt one. A code without a
+  certain fix has none, and the table above says what to do about it.
 
 It is the report Oxlint prints, and the build prints the same one, so a bundler's
 overlay shows it as it is. `kirana-style check --format json` gives the same fields
@@ -13159,10 +13205,12 @@ revisions from 2024-11-05 on.
 Source: https://site.kirana-style.workers.dev/docs/project/status
 # What works today
 
+
 Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the
 API. It compiles three real applications in our shadcn/ui port (a demo, the
-shadcn blocks and one page per component), and its own test suite keeps 100 %
-line coverage. The [changelog](/changelog) lists every release.
+shadcn blocks and one page per component) and Kirana UI's registry, whose style
+modules its preview apps compile for React, Vue, Svelte, Solid and Angular; its
+own test suite keeps 100 % line coverage. The [changelog](/changelog) lists every release.
 
 ## Built
 
@@ -13219,8 +13267,9 @@ line coverage. The [changelog](/changelog) lists every release.
 - `@kirana-style/eslint-plugin` under Oxlint and ESLint, identical results, and
   `@kirana-style/biome-plugin` with the five rules Biome can run; see
   [lint](/docs/tooling/lint)
-- Agent skills for writing Kirana and migrating to it, installable with
-  `npx skills add`; see [agent skills](/docs/project/agent-skills)
+- Agent skills for writing Kirana, building and publishing a design system on
+  it, and migrating to it, installable with `npx skills add`; see
+  [agent skills](/docs/project/agent-skills)
 - Every package on npm, with the native engine for eight platforms and a WASI
   build, released together from CI with provenance; the template helpers on
   Packagist, RubyGems and Hex; the VS Code extension on the Marketplace and Open
@@ -13229,7 +13278,8 @@ line coverage. The [changelog](/changelog) lists every release.
 
 ## Partial
 
-- **`variable-default-scope`** is in the catalogue but not emitted yet.
+- **`unsupported-dtcg-type`** (KRN1505) is in the catalogue and never emitted: it is reserved
+  for importing design tokens in the DTCG format, which Kirana does not do yet.
 - **Benchmarks** are advisory: hosted CI numbers, not dedicated hardware.
 - **The Zed extension** works, but is not in Zed's registry yet: install it as a
   dev extension; see [editor support](/docs/tooling/editor).
@@ -13328,7 +13378,7 @@ than re-implemented, so they never disagree with the build.
   [`positionTry()`](/docs/styling/anchor-positioning),
   [`viewTransition()`](/docs/styling/view-transitions) and
   [`counterStyle()`](/docs/styling/at-rules#counter-styles).
-- **[Agent skills](/docs/project/agent-skills)**, `kirana` and `kirana-migrate`.
+- **[Agent skills](/docs/project/agent-skills)**, `kirana`, `kirana-migrate` and `kirana-system`.
 
 Still to do: publishing the Zed extension to Zed's registry.
 
@@ -13395,9 +13445,9 @@ with the compiler; the rest are planned, with no dates for the same reason.
 
 | Product | Status | What it is |
 | --- | --- | --- |
-| [Kirana UI](https://ui.kirana-style.workers.dev) | Available | A registry of components styled with Kirana, installed with `kirana-style ui add` |
+| [Kirana UI](https://ui.kirana-style.workers.dev) | Available | A registry of components styled with Kirana, on React, Vue, Svelte, Solid and Angular, installed with `kirana-style ui add` |
 | Kirana Docs | Planned | Markdown pages built ahead of time on TanStack Start, with a twin of each page for agents |
-| Kirana Headless | Planned | The behaviour of menus, dialogs and fields, with no styles of its own |
+| [Kirana UI Primitives](https://ui.kirana-style.workers.dev/docs/primitives) | Available | The behaviour of menus, dialogs and fields with no styles of their own, a library apart from the compiler; its states are typed in `@kirana-style/states` |
 | Kirana Email | Planned | Styles inlined and checked against what email clients support |
 | Kirana PDF | Planned | Pages, margins and breaks written as typed styles |
 | Kirana Native | Planned | The same `css()` handles, compiled to style objects for mobile apps |
@@ -14060,8 +14110,9 @@ do that part: install them, and the agent loads the rules, the
 check-trace-report loop and the diagnostics reference by itself. The four rules worth stating outright in
 your own prompt or project instructions:
 
-- Styles are `css({ ... })` handles. There is no `cn`, no
-  `class-variance-authority`, and no utility-class strings.
+- Styles are `css({ ... })` handles. There is no `cn` and no
+  `class-variance-authority`, and no utility-class strings unless the project
+  turns on the [scales preset's utilities](/docs/styling/utilities).
 - Conditions go **inside the value**: `color: { base: a, ":hover": b }`, not a
   `:hover` key at the top level.
 - Dark mode is a `light-dark()` pair on the token. There is no `dark:` variant
@@ -14069,9 +14120,13 @@ your own prompt or project instructions:
 - A later style **replaces the entries it names** and keeps the rest. To drop a
   property's other entries, write `{ "*": null, base: ... }`.
 
-Everything the compiler can catch, it catches: a mistake in any of these is a
-diagnostic with a code, not a silently wrong style. The
-[diagnostics reference](/docs/tooling/diagnostics) lists all of them, and it is
+The compiler catches a condition written outside the value and a property that
+does not exist as diagnostics with a code. The lint plugin catches two more:
+`no-class-helpers` (in its strict config) reports `clsx` and the like joining
+class strings, and `no-dark-variant` reports dark mode written as a
+`prefers-color-scheme` query, which compiles. What the compiler checks, and what
+it leaves alone, is [on its own page](/docs/styling/styles#what-the-compiler-checks);
+the [diagnostics reference](/docs/tooling/diagnostics) lists every code, and it is
 worth handing to an agent alongside the pages above.
 
 ## Machine-readable extras
@@ -14084,10 +14139,14 @@ worth handing to an agent alongside the pages above.
   declared) as JSON, so an agent uses the names that exist.
 - The [API reference](/docs/reference/api) is generated from the packages'
   type declarations, so its signatures are the real ones.
-- The [playground](/play) shows curated examples with the CSS, class names and
-  diagnostics the real compiler produced from them at build time. It does not
-  compile pasted source yet (that needs the WASM engine), so to check an agent's
-  suggestion, run `kirana-style build` or `kirana-style check` on it.
+- [`kirana-style check --format json`](/docs/tooling/cli#kirana-style-check)
+  gives each diagnostic as data, and
+  [`kirana-style trace --format json`](/docs/tooling/cli#kirana-style-trace)
+  says which entry wins for a property at a line, and why.
+- [Kirana Play](https://play.kirana-style.workers.dev) compiles a project in your browser with a
+  released engine, and [`/play`](/play) shows this site's curated examples with
+  the CSS the compiler produced from them. To check an agent's change in its own
+  project, run `kirana-style check` on it.
 ---
 # Agent skills
 Source: https://site.kirana-style.workers.dev/docs/project/agent-skills
@@ -14095,12 +14154,12 @@ Source: https://site.kirana-style.workers.dev/docs/project/agent-skills
 
 A model's training data does not contain Kirana, so a coding agent left to itself
 writes Tailwind or StyleX and calls it Kirana. The [plain-text docs](/docs/project/llms)
-explain the system; the two skills in Kirana's repository tell an agent how to
-work in it: what to check first, which mistakes compile and still render wrong,
-and what to run when something does.
+explain the system; the skills in Kirana's repository, `kirana`, `kirana-migrate` and `kirana-system`, tell an
+agent how to work in it: what to check first, which mistakes compile and still
+render wrong, and what to run when something does.
 
 ```bash
-npx skills add kirana-style/kirana                 # both
+npx skills add kirana-style/kirana                 # all of them
 npx skills add kirana-style/kirana --skill kirana  # one
 ```
 
@@ -14114,14 +14173,15 @@ is merged, point the command at a checkout (`npx skills add ./kirana`).
 
 ## What each one teaches
 
-| Skill            | When the agent loads it                                                                                        | What it carries                                                                                          |
-| ---------------- | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `kirana`         | the project imports `@kirana-style/core`, or a style compiles and renders wrong                                | the rules that cause real bugs, the loop below, where each new thing goes, and the habits to unlearn     |
-| `kirana-migrate` | asked to port components or an app from Tailwind, shadcn/ui, StyleX, styled-components, Emotion or CSS Modules | the codemods and their reports, the traps in both directions, and how to prove the port renders the same |
+| Skill            | When the agent loads it                                                                                                                   | What it carries                                                                                                                                                                                                                        |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kirana`         | the project imports `@kirana-style/core` or has a `kirana.config`, a style compiles and renders wrong, or components come from a registry | the rules that cause real bugs, what the compiler does not catch, the loop below, where each new thing goes (typed state keys included), installing from a registry and `ui mcp`, the habits to unlearn, and the family's other skills |
+| `kirana-system`  | asked to build, restructure or publish a design system or component library on Kirana, or to write registry items                         | the layers of a system, the rules that cause real bugs when others consume it, the loops for building one, publishing an npm library and publishing a registry, and keeping installed copies current                                   |
+| `kirana-migrate` | asked to port components or an app from Tailwind, shadcn/ui, StyleX, styled-components, Emotion or CSS Modules                            | the codemods and their reports, the traps in both directions, and how to prove the port renders the same                                                                                                                               |
 
 Each skill is short (the rules and the workflow), and keeps the detail in
 reference files the agent reads only when it needs them: the API, how `sx` is
-spelled in each framework, the Tailwind, StyleX, styled-components and CSS Modules mappings, and two files
+spelled in each framework, the token kinds, the registry's documents and commands, the Tailwind, StyleX, styled-components and CSS Modules mappings, and two files
 generated from the compiler's source on every build: every
 [diagnostic](/docs/tooling/diagnostics) with what to do about it, and every
 [lint rule](/docs/tooling/lint) with the linters that run it. A diagnostic added
@@ -14134,15 +14194,27 @@ to the compiler without a line saying what to do about it fails the build.
    then `kirana-style doctor`.
 2. **Write the style**, with the rules: conditions inside the value, entries
    merge per condition, `sx` forwarded last, `styleProps` for installed
-   components, colours as `light-dark()` pairs.
-3. **`kirana-style check`**, and fix every error by its code.
+   components, a headless part's state by its typed key, colours as
+   `light-dark()` pairs.
+3. **`kirana-style check --format json`**, and fix every error by its code: each
+   entry carries the code, the file with its line and column, and a `help` that,
+   for a misspelt name, is the fix (the nearest property, condition, token,
+   variant or keyword).
 4. **Lint**, with whichever of Oxlint, ESLint or Biome the project runs.
-5. **`kirana-style trace file:line property`** when it compiles and looks wrong.
+5. **`kirana-style trace file:line property`** when it compiles and looks wrong,
+   and the browser after it: `check` passing means every name exists and every
+   value fits its property, not that the style is the one meant.
 6. **`kirana-style doctor --report`** when it looks like a Kirana bug, and ask before
    filing it.
 
 Every step answers from the compiler, so an agent that follows it checks its own
 work instead of guessing whether a class string it remembered still exists.
+
+## The family's skills
+
+Kirana UI, Kirana UI Primitives and the agent bridge have skills of their own,
+installed from their repository: `npx skills add kirana-style/kirana-ui`. The
+`kirana` skill names them, and when a project needs each.
 
 ## With llms.txt
 

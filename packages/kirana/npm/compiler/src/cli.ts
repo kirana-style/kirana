@@ -67,6 +67,68 @@ export function colourOf(
 }
 
 /**
+ * The help of each command this package runs in Node.js rather than in the engine. Its first line
+ * is the line the engine's `--help` lists the command with, which lists all of them.
+ */
+export const NODE_HELP = {
+  init: `Set a project up: the configuration, the bundler plugin, the stylesheet and the \`sx\` types
+
+Usage: kirana-style init [OPTIONS]
+
+Detects the framework, bundler and package manager, shows each change as a diff and writes the
+changes once you confirm. A configuration it cannot edit safely gets the step printed instead.
+
+Options:
+  -y, --yes      Write without asking
+      --dry-run  Show the changes and write nothing
+      --install  Also run the install command for the packages it adds
+      --preset   Also set up the scales preset (@kirana-style/preset-scales)
+  -h, --help     Print help
+`,
+  dev: `Watch files and rewrite the stylesheet when they change, for a project without a bundler plugin
+
+Usage: kirana-style dev [PATHS]... [OPTIONS]
+
+Arguments:
+  [PATHS]...  Directories to watch: src, else the project root, when none are given
+
+Options:
+      --out <FILE>  Where to write the stylesheet [default: kirana.css]
+      --minify      Write minified CSS
+  -h, --help        Print help
+`,
+  ui: `Install components from a registry and keep them up to date, with @kirana-style/registry
+
+Usage: kirana-style ui <COMMAND>
+
+The commands come from @kirana-style/registry, which this project does not have: add it as a
+development dependency, or start a new project with
+npx @kirana-style/registry init --template <example> <directory>. Then kirana-style ui --help
+lists its commands, and kirana-style ui <COMMAND> --help prints one command's help.
+`,
+  doctor: `Say what the project's Kirana setup is and what is missing; \`--report\` writes a bug report
+
+Usage: kirana-style doctor [OPTIONS]
+
+Reports the engine, the installed @kirana-style packages, the configuration, the framework,
+bundler and package manager, and whether the plugin, stylesheet and \`sx\` types are set up.
+Exits with 1 when something fails.
+
+Options:
+      --json                         Print the checks as JSON
+      --report [FILE]                Write a bug report to paste into an issue instead, to
+                                     kirana-report.md unless a file follows; with --json, print it
+      --trace <FILE:LINE> <PROPERTY> With --report, add the trace of one property
+  -h, --help                         Print help
+`,
+} as const
+
+/** Whether `argv` asks a command for its help. */
+function asksHelp(argv: readonly string[]): boolean {
+  return argv.some((arg) => arg === "--help" || arg === "-h")
+}
+
+/**
  * Runs `kirana-style` with `argv`, writing its output through `write`; returns the exit code.
  * `colour` adds ANSI colours to diagnostics, for a terminal that shows them: the binary passes
  * whether its standard output does, asked of the descriptor (`isatty(1)`), never of
@@ -81,6 +143,20 @@ export async function main(
   colour = false
 ): Promise<number> {
   const [command, ...rest] = argv
+  // `help <command>` and `--help` for a command run here. `ui`'s commands are the registry
+  // package's, which prints their help when the project has it.
+  const asked = command === "help" ? rest[0] : command
+  if (command === "help" && asked === "ui")
+    return runUi(["--help"], cwd, write, undefined, NODE_HELP.ui)
+  if (
+    asked !== undefined &&
+    asked !== "ui" &&
+    Object.hasOwn(NODE_HELP, asked) &&
+    (command === "help" || asksHelp(rest))
+  ) {
+    write(NODE_HELP[asked as keyof typeof NODE_HELP])
+    return 0
+  }
   // These work before a configuration exists, or to find out why one does not load. Only `init`
   // touches `process.stdin`: once Node.js opens it, the language server can no longer read fd 0.
   // Nothing on the way to `lsp` may touch `process.stdout` either: Node.js makes the pipe
@@ -100,8 +176,17 @@ export async function main(
   if (command === "dev")
     return (await runDev(rest, cwd, write, { native, colour })).code
   // The component registry's commands, from their own package (D-103).
-  if (command === "ui") return runUi(rest, cwd, write)
+  if (command === "ui") return runUi(rest, cwd, write, undefined, NODE_HELP.ui)
   const binding = native ?? loadNative()
+  // The engine's help, and its own commands', need no configuration: one that does not load must
+  // not hide them. `help <command>` is `<command> --help`.
+  if (command === "help")
+    return emit(
+      write,
+      binding.runCli(["kirana-style", ...rest, "--help"], colour)
+    )
+  if (command === undefined || asksHelp(argv))
+    return emit(write, binding.runCli(["kirana-style", ...argv], colour))
   try {
     // The language server owns stdin and stdout until the editor shuts it down (KRN-DX-001).
     if (command === "lsp")

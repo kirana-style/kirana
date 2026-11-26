@@ -72,7 +72,8 @@ tester.run(
           'const lone = relation("lone")\nexport const a = css({ color: { [lone.within(":hover")]: "red" } })',
         filename: path.join(project, "lone.jsx"),
         settings: { kirana: { root: path.relative(process.cwd(), project) } },
-        errors: [{ message: /relation-without-anchor/, line: 1, column: 1 }],
+        // At the property that reads the relation.
+        errors: [{ message: /relation-without-anchor/, line: 3, column: 24 }],
       },
       // Settings without a root fall back to the nearest configuration.
       at(CSS + "export const a = css({ width: 6 })", {
@@ -734,29 +735,35 @@ describe("project-wide diagnostics", () => {
       inspect(context(inRoot(name), text)).diagnostics.map(
         (found) => `${found.name}@${found.span.start}`
       )
+    // Each is reported at the property that reads the relation.
+    const read = (name: string, text = files[name]!, relation = "") =>
+      `relation-without-anchor@${text.indexOf(`color: { [${relation}`)}`
     const asked = vi.spyOn(Driver.prototype, "diagnostics")
     try {
       const block = lone("card")
-      expect(names("a.tsx")).toEqual(["relation-without-anchor@0"])
-      expect(names("b.tsx")).toEqual([
-        "relation-without-anchor@0",
-        "relation-without-anchor@0",
-      ])
+      expect(names("a.tsx")).toEqual([read("a.tsx")])
+      // In the order of their relations' markers.
+      expect([...names("b.tsx")].sort()).toEqual(
+        [
+          read("b.tsx", undefined, "second"),
+          read("b.tsx", undefined, "third"),
+        ].sort()
+      )
       expect(names("c.tsx")).toEqual([])
-      expect(names("Card.vue", block)).toEqual(["relation-without-anchor@0"])
+      expect(names("Card.vue", block)).toEqual([read("Card.vue", block)])
       expect(asked).toHaveBeenCalledTimes(1)
       // An edit the file on disk does not have: asked again, and the edit counts.
       const anchored = `${files["c.tsx"]}import { relation as r } from "@kirana-style/core"\nexport const anchor = css({ [r("second").anchor]: {} })\n`
       inspect(context(inRoot("c.tsx"), anchored))
       expect(asked).toHaveBeenCalledTimes(2)
       // The next file as checked reads them once more, then holds them again.
-      expect(names("d.tsx")).toEqual(["relation-without-anchor@0"])
+      expect(names("d.tsx")).toEqual([read("d.tsx")])
       expect(names("Card.vue", `${block}// unchanged\n`).length).toBe(1)
       expect(asked).toHaveBeenCalledTimes(4)
       // A file written since the session's check is not the checked one.
       utimesSync(inRoot("a.tsx"), new Date(), new Date(Date.now() + 60_000))
       expect(names("a.tsx", `${files["a.tsx"]}// saved\n`)).toEqual([
-        "relation-without-anchor@0",
+        read("a.tsx"),
       ])
       expect(asked).toHaveBeenCalledTimes(5)
     } finally {
@@ -857,7 +864,8 @@ describe("configs under ESLint", () => {
         ruleId: "kirana/diagnostics",
         line: 12,
         column: 34,
-        message: "colour is not a CSS property (unknown-property).",
+        message:
+          "colour is not a CSS property (unknown-property). Help: did you mean `color`?",
       },
       {
         ruleId: "kirana/diagnostics",

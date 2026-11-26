@@ -16,6 +16,8 @@ import { PUBLISHED, VERSION } from "./release.ts"
 import { MILESTONES } from "./roadmap.ts"
 import { LINTERS } from "./tooling.ts"
 
+import { PLAYGROUND, UI_PAGES } from "./links.ts"
+
 export { CORE_PACKAGE, GITHUB, NPM, REPOSITORY } from "./links.ts"
 export { PUBLISHED, VERSION }
 
@@ -90,6 +92,8 @@ export const LISTS = {
     "llms.txt",
     "llms-full.txt",
     "a markdown twin of every page",
+    "kirana-style check --format json",
+    "kirana-style ui mcp",
   ],
   commands: COMMANDS.map((command) => `kirana-style ${command}`),
   api: [...API],
@@ -162,4 +166,8 @@ export const FACTS: Readonly<Record<string, string>> = {
   "bench-dense-build": DENSE.build,
   /** The release every package is at. */
   version: VERSION,
+  // The family's docs, on Kirana UI's site, at the address `links.ts` says a link uses today.
+  "ui-docs": UI_PAGES.components,
+  "primitives-docs": UI_PAGES.primitives,
+  playground: PLAYGROUND,
 }

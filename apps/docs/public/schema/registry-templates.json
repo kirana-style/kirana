@@ -31,7 +31,7 @@
           },
           "framework": {
             "type": "string",
-            "description": "The framework its app is on (KF-134): `ui init --template` names a template of the framework on the runtime a base needs when this one is on another.",
+            "description": "The framework its app is on: `ui init --template` names a template of the framework on the runtime a base needs when this one is on another.",
             "enum": [
               "react",
               "vue",
@@ -42,7 +42,7 @@
           },
           "runtime": {
             "type": "string",
-            "description": "The framework's runtime it is on, as the registry index's `requires` names it: `solid2`; none for the framework's default (KF-134). Needs `framework`.",
+            "description": "The framework's runtime it is on, as the registry index's `requires` names it: `solid2`; none for the framework's default. Needs `framework`.",
             "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
           },
           "file": {

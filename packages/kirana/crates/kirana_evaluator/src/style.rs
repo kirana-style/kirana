@@ -496,7 +496,13 @@ impl<'a> Evaluator<'_, 'a, '_> {
                 Key::Str(name) if name.starts_with("::") => {
                     let pseudo = name.split('(').next().unwrap_or(name);
                     if !kirana_css_data::is_pseudo_element(pseudo) {
-                        self.report(Code::UnknownCondition, span, format!("{name} is not a pseudo-element"), None);
+                        let help = kirana_css_data::nearest_pseudo_element(pseudo).map(kirana_shared::did_you_mean);
+                        self.report(
+                            Code::UnknownCondition,
+                            span,
+                            format!("{name} is not a pseudo-element"),
+                            help.as_deref(),
+                        );
                     } else if let Value::Object(inner) = value {
                         let inner_target = match target {
                             Target::Element => Target::PseudoElement(name.to_string()),
@@ -624,10 +630,14 @@ impl<'a> Evaluator<'_, 'a, '_> {
                                 self.check_select_state(&parsed, target, span);
                                 self.nested(name, inner, target, &conditions.with(&parsed), span, parts)
                             }
-                            Err(error) => self.report(Code::UnknownCondition, span, error.to_string(), None),
+                            Err(error) => {
+                                let help = kirana_ir::condition_help(key);
+                                self.report(Code::UnknownCondition, span, error.to_string(), help.as_deref());
+                            }
                         },
                         Key::Conditions(parsed) => {
                             self.check_select_state(parsed, target, span);
+                            self.record_relation_reads(parsed, span);
                             self.nested(name, inner, target, &conditions.with(&parsed[..]), span, parts);
                         }
                         Key::Select(_) | Key::Token(_) => {
@@ -724,10 +734,20 @@ impl<'a> Evaluator<'_, 'a, '_> {
             let key = EntryKey::new(target.clone(), property.clone(), conditions.clone());
             handle.apply(Op::Set(key, self.atom_value(css.clone(), longhands)));
         }
-        for DeclarationWarning::Unsplittable { property } in &expanded.warnings {
-            // An unsplittable declaration is its one shorthand atom, whose text the report names.
-            let value_text = expanded.declarations.first().map_or("", |(_, css)| css);
-            self.report_unsplittable(property, value_text, span);
+        for warning in &expanded.warnings {
+            match warning {
+                DeclarationWarning::Unsplittable { property } => {
+                    // An unsplittable declaration is its one shorthand atom, whose text the report names.
+                    let value_text = expanded.declarations.first().map_or("", |(_, css)| css);
+                    self.report_unsplittable(property, value_text, span);
+                }
+                DeclarationWarning::NearMiss { property, written, keyword } => self.report(
+                    Code::UnknownKeyword,
+                    span,
+                    format!("{property}: `{written}` is not a keyword the CSS data has for it"),
+                    Some(&kirana_shared::did_you_mean(keyword)),
+                ),
+            }
         }
         handle.stamp(&self.written(Some(value)));
         parts.push_static(handle);
@@ -777,7 +797,9 @@ impl<'a> Evaluator<'_, 'a, '_> {
             }
             *css = joined.into();
         }
-        // Runs of the same longhands carry the same warnings, so the first run's stand for all.
+        // Runs of the same longhands carry the same warnings, so the first run's stand for all. A
+        // fallback is how newer CSS is written, so a word the data does not know is no near miss.
+        combined.warnings.retain(|warning| !matches!(warning, DeclarationWarning::NearMiss { .. }));
         Some(Arc::new(combined))
     }
 
@@ -806,6 +828,18 @@ impl<'a> Evaluator<'_, 'a, '_> {
         parts.push(StylePart::Bridge { handle, variable, value });
     }
 
+    /// Records where each relation `conditions` read is first read in the module.
+    fn record_relation_reads(&self, conditions: &[Condition], span: (u32, u32)) {
+        let mut definitions = self.definitions.borrow_mut();
+        for condition in conditions {
+            if let Condition::Relation { marker, .. } = condition
+                && !definitions.relation_reads.iter().any(|(read, _)| read == marker)
+            {
+                definitions.relation_reads.push((marker.clone(), span));
+            }
+        }
+    }
+
     /// Once per property and value in the module, with how many declarations write it (KF-093): a
     /// codebase that writes `borderColor: "var(--divider)"` everywhere needs to read it once.
     fn report_unsplittable(&self, property: &str, value: &str, span: (u32, u32)) {
@@ -832,10 +866,13 @@ impl<'a> Evaluator<'_, 'a, '_> {
     pub(crate) fn report_declaration(&self, error: DeclarationError, span: (u32, u32)) {
         match error {
             DeclarationError::UnknownProperty { name } => {
-                self.report(Code::UnknownProperty, span, format!("{name} is not a CSS property"), None);
+                let help =
+                    kirana_css_data::nearest_property(&name).map(|nearest| kirana_shared::did_you_mean(&nearest));
+                self.report(Code::UnknownProperty, span, format!("{name} is not a CSS property"), help.as_deref());
             }
-            DeclarationError::InvalidValue { property, reason } => {
-                self.report(Code::InvalidValue, span, format!("{property}: {reason}"), None);
+            DeclarationError::InvalidValue { property, reason, nearest } => {
+                let help = nearest.map(kirana_shared::did_you_mean);
+                self.report(Code::InvalidValue, span, format!("{property}: {reason}"), help.as_deref());
             }
             DeclarationError::UnitlessLength { property, number } => self.report(
                 Code::UnitlessLength,

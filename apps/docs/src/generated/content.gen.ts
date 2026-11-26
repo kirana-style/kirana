@@ -37,6 +37,11 @@ export const PAGES: readonly PageMeta[] = [
         "level": 2
       },
       {
+        "id": "the-family",
+        "text": "The family",
+        "level": 2
+      },
+      {
         "id": "what-it-is-not",
         "text": "What it is not",
         "level": 2
@@ -368,6 +373,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "values",
         "text": "Values",
+        "level": 2
+      },
+      {
+        "id": "what-the-compiler-checks",
+        "text": "What the compiler checks",
         "level": 2
       },
       {
@@ -5530,7 +5540,7 @@ export const PAGES: readonly PageMeta[] = [
     "href": "/docs/project/agent-skills",
     "file": "content/docs/project/agent-skills.md",
     "title": "Agent skills",
-    "description": "Two installable skills teach a coding agent to write Kirana and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule.",
+    "description": "Installable skills teach a coding agent to write Kirana, to build and publish a design system on it, and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule.",
     "section": "project",
     "order": 7,
     "keywords": [
@@ -5553,6 +5563,11 @@ export const PAGES: readonly PageMeta[] = [
       {
         "id": "the-loop-it-follows",
         "text": "The loop it follows",
+        "level": 2
+      },
+      {
+        "id": "the-family-s-skills",
+        "text": "The family's skills",
         "level": 2
       },
       {
@@ -7157,7 +7172,7 @@ export const NAV: readonly NavGroup[] = [
       {
         "title": "Agent skills",
         "href": "/docs/project/agent-skills",
-        "description": "Two installable skills teach a coding agent to write Kirana and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule.",
+        "description": "Installable skills teach a coding agent to write Kirana, to build and publish a design system on it, and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule.",
         "keywords": [
           "agent skills",
           "skills.sh",

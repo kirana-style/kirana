@@ -97,6 +97,17 @@ its hover, hints and lenses 137 ms, and the first answers 0.8 to 1 s after the w
 There is no `kirana cache clean`: Kirana keeps no persistent cache (D-049), so there is nothing to
 clear, and `kirana-style doctor` says so.
 
+**KRN-DX-036** — `kirana-style --help` MUST list every command above with one line, the ones the
+`kirana-style` package runs in Node.js (`init`, `dev`, `doctor`, `ui`) as well as the engine's, and
+`--help` (or `-h`, or `kirana-style help <command>`) MUST print the help of every command and
+subcommand, `ui`'s included, without loading the project's configuration. `ui --help` in a project
+without `@kirana-style/registry` says what `ui` is and how to get it. No help, error or diagnostic
+text names a requirement or decision id of this specification. A test holds the list in `--help`
+equal to the commands the CLI dispatches, so a new command cannot be left out of it. `check
+--format json` writes each diagnostic as `{ code, name, severity, file, span, message, help }`, and
+`line`, `column`, `endLine` and `endColumn` (1-based, in characters, as the terminal report counts
+them) for one with a span in a file.
+
 **KRN-DX-019** — `check`, `trace` and `export` MUST read, for each path, the nearest `kirana.config.*` above
 it, or the working directory's when there is none, and `--config <file>` MUST make every path read that
 file (D-097). Paths sharing a configuration run together; the human output names the configuration of
@@ -542,8 +553,9 @@ relations it anchors.
 ## Agent skills
 
 **KRN-DX-018** — The repository MUST ship agent skills in `skills/` at its root, in the format the
-`skills` CLI installs (`npx skills add`): `kirana` (writing and fixing styles) and `kirana-migrate`
-(from Tailwind or StyleX) (D-078). Each `SKILL.md` keeps the rules and the workflow — `kirana-style export`,
+`skills` CLI installs (`npx skills add`): `kirana` (writing and fixing styles), `kirana-system`
+(building and publishing a design system: libraries and registries) and `kirana-migrate` (from Tailwind,
+StyleX, styled-components, Emotion or CSS Modules) (D-078). Each `SKILL.md` keeps the rules and the workflow — `kirana-style export`,
 `check`, lint, `trace`, `doctor --report` — and puts detail in `references/`. The diagnostics and lint
 references are generated from the compiler's source by `apps/docs/scripts/generate-skills.ts`, which
 fails on a diagnostic without a stated fix and on a broken reference or docs link; CI runs it with

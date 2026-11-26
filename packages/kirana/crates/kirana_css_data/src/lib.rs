@@ -124,9 +124,37 @@ fn is_vendor(name: &str, colons: &str) -> bool {
 }
 
 /// The keyword values a property's grammar names (`display` → `block`, `flex`, `grid`, …), for
-/// editor completion. Colours and the CSS-wide keywords are not included.
+/// editor completion and the keyword a misspelt one was meant to be ([`grammar::near_miss`]).
+/// Colours and the CSS-wide keywords are not included.
 pub fn keywords(kebab: &str) -> &'static [&'static str] {
     KEYWORDS.binary_search_by(|(name, _)| name.cmp(&kebab)).map_or(&[], |found| KEYWORDS[found].1)
+}
+
+/// The known property nearest to a misspelt one ([`kirana_shared::nearest`]), written as the name
+/// is: camel case (`justifyContent`) for a camel-case name, kebab case (`justify-content`) for one
+/// written with dashes. What an `unknown-property` diagnostic's help names and the language
+/// server's quick fix writes.
+pub fn nearest_property(name: &str) -> Option<String> {
+    let nearest = kirana_shared::nearest(&kirana_shared::kebab_case(name), PROPERTIES.iter().copied())?;
+    if name.contains('-') {
+        return Some(nearest.to_owned());
+    }
+    // A vendor prefix other than `ms` is capitalised in camel case, as `kebab_case` reads it back.
+    let camel = kirana_shared::camel_case(nearest);
+    Some(match nearest.strip_prefix('-') {
+        Some(prefixed) if !prefixed.starts_with("ms-") => camel[..1].to_ascii_uppercase() + &camel[1..],
+        _ => camel,
+    })
+}
+
+/// The pseudo-class nearest to a misspelt one, both with their colon (`:hovr` → `:hover`).
+pub fn nearest_pseudo_class(name: &str) -> Option<&'static str> {
+    kirana_shared::nearest(name, PSEUDO_CLASSES.iter().copied())
+}
+
+/// The pseudo-element nearest to a misspelt one, both with their two colons (`::befor` → `::before`).
+pub fn nearest_pseudo_element(name: &str) -> Option<&'static str> {
+    kirana_shared::nearest(name, PSEUDO_ELEMENTS.iter().copied())
 }
 
 /// Every pseudo-class (with its colon) and pseudo-element (with both), for editor completion.

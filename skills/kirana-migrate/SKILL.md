@@ -50,6 +50,9 @@ beside it, and port in small steps.
 Port leaf components first, and keep the markup structure identical: change only how styles are
 expressed, so a difference means something.
 
+When the migrated code is a component library other projects consume (shadcn/ui's set, a shared
+`packages/ui`), publishing it as an npm library or a registry is the `kirana-system` skill's.
+
 ## The traps, both directions
 
 - **Merging is per entry.** Tailwind's `cn("p-2", "p-4")` kept the last class; StyleX replaced a

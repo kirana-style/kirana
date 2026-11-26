@@ -452,6 +452,14 @@ impl Value {
         })
     }
 
+    /// The static string keys of an object value, in order; none for any other value.
+    pub fn keys(&self) -> Vec<&str> {
+        match self {
+            Value::Object(entries) => entries.iter().filter_map(|(key, _)| key.as_str()).collect(),
+            _ => Vec::new(),
+        }
+    }
+
     /// Looks a static string key up in an object value.
     pub fn get(&self, name: &str) -> Option<&Value> {
         match self {

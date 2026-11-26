@@ -83,7 +83,7 @@ export function Proof() {
   return (
     <HomeSection
       id="measured"
-      number="04"
+      number="05"
       eyebrow="Measured"
       title="Measured on real applications, built whole"
       lede={`Kirana ${BENCH.meta.kirana}, the StyleX port and the Tailwind original of the same shadcn/ui applications, built and run in public by kirana-lab on every release. A build is the app's own production build, cold, from source, of the release you would install. Each figure links the run it comes from.`}

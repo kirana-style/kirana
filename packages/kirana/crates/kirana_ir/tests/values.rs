@@ -63,6 +63,9 @@ fn value_helpers() {
     assert_ne!(Dynamic::Spread((0, 1)), Dynamic::Open((0, 1)));
     assert_eq!(object.get("b"), None);
     assert_eq!(Value::Null.get("a"), None);
+    // The string keys, in order; a computed key and any value but an object give none.
+    assert_eq!(object.keys(), ["a", "a"]);
+    assert!(Value::Null.keys().is_empty());
 
     assert_eq!(Value::Undefined.truthy(), Some(false));
     assert_eq!(Value::Null.truthy(), Some(false));

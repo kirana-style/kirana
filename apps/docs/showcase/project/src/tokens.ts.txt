@@ -1,0 +1,11 @@
+import { defineTokens } from "@kirana-style/core"
+
+export const theme = defineTokens(
+  "theme",
+  {
+    surface: "light-dark(white, oklch(0.2 0 0))",
+    accent: "light-dark(oklch(0.55 0.2 260), oklch(0.72 0.15 260))",
+    muted: "light-dark(oklch(0.55 0 0), oklch(0.7 0 0))",
+  },
+  { variable: true }
+)

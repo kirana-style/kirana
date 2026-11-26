@@ -4,7 +4,7 @@ import path from "node:path"
 
 import { afterAll, describe, expect, it } from "vite-plus/test"
 
-import { main } from "../src/cli.ts"
+import { main, NODE_HELP } from "../src/cli.ts"
 import { resolveConfigFile } from "../src/config.ts"
 import { runUi } from "../src/ui.ts"
 
@@ -64,6 +64,24 @@ describe("KRN-DX-020 kirana-style ui", () => {
     expect(out.text).toBe(
       "kirana-style ui needs @kirana-style/registry, which this project does not have: add it as a development dependency, or start a new project with npx @kirana-style/registry init --template <example> <directory>\n"
     )
+  })
+
+  it("prints what ui is for its help when the project does not have it", async () => {
+    const root = project({ "package.json": JSON.stringify({ name: "app" }) })
+    for (const argv of [
+      ["ui"],
+      ["ui", "--help"],
+      ["ui", "add", "-h"],
+      ["ui", "help"],
+    ]) {
+      const { out, write } = capture()
+      expect(await main(argv, root, write)).toBe(0)
+      expect(out.text).toBe(NODE_HELP.ui)
+    }
+    // Called without a help to print, the reason it cannot run.
+    const { out, write } = capture()
+    expect(await runUi([], root, write)).toBe(1)
+    expect(out.text).toContain("kirana-style ui needs @kirana-style/registry")
   })
 
   it("passes on why it failed to load, as the placeholder's own message", async () => {

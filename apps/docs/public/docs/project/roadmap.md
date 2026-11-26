@@ -78,7 +78,7 @@ than re-implemented, so they never disagree with the build.
   [`positionTry()`](/docs/styling/anchor-positioning),
   [`viewTransition()`](/docs/styling/view-transitions) and
   [`counterStyle()`](/docs/styling/at-rules#counter-styles).
-- **[Agent skills](/docs/project/agent-skills)**, `kirana` and `kirana-migrate`.
+- **[Agent skills](/docs/project/agent-skills)**, `kirana`, `kirana-migrate` and `kirana-system`.
 
 Still to do: publishing the Zed extension to Zed's registry.
 
@@ -145,9 +145,9 @@ with the compiler; the rest are planned, with no dates for the same reason.
 
 | Product | Status | What it is |
 | --- | --- | --- |
-| [Kirana UI](https://ui.kirana-style.workers.dev) | Available | A registry of components styled with Kirana, installed with `kirana-style ui add` |
+| [Kirana UI](https://ui.kirana-style.workers.dev) | Available | A registry of components styled with Kirana, on React, Vue, Svelte, Solid and Angular, installed with `kirana-style ui add` |
 | Kirana Docs | Planned | Markdown pages built ahead of time on TanStack Start, with a twin of each page for agents |
-| Kirana Headless | Planned | The behaviour of menus, dialogs and fields, with no styles of its own |
+| [Kirana UI Primitives](https://ui.kirana-style.workers.dev/docs/primitives) | Available | The behaviour of menus, dialogs and fields with no styles of their own, a library apart from the compiler; its states are typed in `@kirana-style/states` |
 | Kirana Email | Planned | Styles inlined and checked against what email clients support |
 | Kirana PDF | Planned | Pages, margins and breaks written as typed styles |
 | Kirana Native | Planned | The same `css()` handles, compiled to style objects for mobile apps |

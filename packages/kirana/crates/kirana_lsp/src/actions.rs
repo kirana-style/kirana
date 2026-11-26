@@ -85,10 +85,9 @@ fn quick_fix(text: &str, index: &LineIndex<'_>, diagnostic: &Value, uri: &lsp_ty
         "KRN1201" => {
             let key_end = written.find(|c: char| !(c.is_ascii_alphanumeric() || c == '_'))?;
             let key = &written[..key_end];
-            let kebab = kirana_shared::kebab_case(key);
-            let nearest = nearest_property(&kebab).filter(|nearest| *nearest != kebab)?;
-            let camel = camel(nearest);
-            (format!("Change to {camel}"), start, start + key_end, camel)
+            // The name the compiler's help names, through the same search (`kirana_shared::nearest`).
+            let nearest = kirana_css_data::nearest_property(key)?;
+            (format!("Change to {nearest}"), start, start + key_end, nearest)
         }
         _ => return None,
     };
@@ -99,47 +98,6 @@ fn quick_fix(text: &str, index: &LineIndex<'_>, diagnostic: &Value, uri: &lsp_ty
         "isPreferred": true,
         "edit": { "changes": { uri.as_str(): [{ "range": index.range(edit_start, edit_end), "newText": replacement }] } },
     }))
-}
-
-/// The known property closest to a misspelled one, within two edits.
-fn nearest_property(name: &str) -> Option<&'static str> {
-    kirana_css_data::generated::PROPERTIES
-        .iter()
-        .map(|property| (distance(name, property), *property))
-        .filter(|(distance, _)| *distance <= 2)
-        .min()
-        .map(|(_, property)| property)
-}
-
-fn distance(a: &str, b: &str) -> usize {
-    let b: Vec<char> = b.chars().collect();
-    let mut row: Vec<usize> = (0..=b.len()).collect();
-    for (i, ca) in a.chars().enumerate() {
-        let mut previous = row[0];
-        row[0] = i + 1;
-        for (j, cb) in b.iter().enumerate() {
-            let current = row[j + 1];
-            row[j + 1] = (previous + usize::from(ca != *cb)).min(row[j] + 1).min(current + 1);
-            previous = current;
-        }
-    }
-    row[b.len()]
-}
-
-fn camel(kebab: &str) -> String {
-    let mut out = String::new();
-    let mut upper = false;
-    for character in kebab.chars() {
-        if character == '-' {
-            upper = !out.is_empty();
-        } else if upper {
-            out.extend(character.to_uppercase());
-            upper = false;
-        } else {
-            out.push(character);
-        }
-    }
-    out
 }
 
 pub fn execute(server: &Server, params: &Value) -> Result<Value, String> {

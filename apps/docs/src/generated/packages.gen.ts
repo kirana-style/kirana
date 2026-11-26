@@ -126,7 +126,7 @@ export const PACKAGES: readonly PackageEntry[] = [
     "name": "kirana-style",
     "version": "0.4.2",
     "published": true,
-    "description": "Kirana's command line: npx kirana-style@latest init sets a project up; check, build, trace and migrate."
+    "description": "Kirana's command line: init sets a project up; check (human, JSON and GitHub output), trace, export, analyze, build, migrate and ui."
   },
   {
     "name": "@kirana-style/preset-scales",
@@ -175,5 +175,6 @@ export const NATIVE_TARGETS: readonly string[] = [
 /** The agent skills (`skills/*`). */
 export const SKILLS: readonly string[] = [
   "kirana",
-  "kirana-migrate"
+  "kirana-migrate",
+  "kirana-system"
 ]

@@ -1,0 +1,49 @@
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.tokens {
+  :root {
+    --kvMmFe: blue;
+    --kvizqq: white;
+  }
+}
+@layer kirana.themes {
+  .ktJw5G {
+  }
+}
+@layer kirana.atoms {
+  .k4f_CyMK {
+    border: 1px soild red;
+  }
+  .k4g_5Hkq {
+    border-block: 1px solid var(--b);
+    border-block: 1px solid var(--a);
+  }
+  .k5_qekr {
+    margin: atuo;
+  }
+  .kM_QMM6 {
+    overflow: zzzzzzzz;
+  }
+  .k18_zfgP {
+    align-items: center;
+    align-items: anchr-center;
+  }
+  .k1c_53EM {
+    justify-content: var(--flx);
+  }
+  .k3O_ucdO {
+    animation-name: fdae;
+  }
+  .k50_4U33 {
+    color: white;
+  }
+  .k5P_23ai {
+    display: flex;
+  }
+  .k5P_fbvD {
+    display: flx;
+  }
+  .k8y_g2F7 {
+    position: absolue;
+  }
+}

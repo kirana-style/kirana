@@ -26,10 +26,11 @@ pub enum RawValue<'a> {
 /// Why a declaration was rejected.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DeclarationError {
-    /// `unknown-property`, with a suggestion when the name is close to a real one.
+    /// `unknown-property`; the evaluator names the nearest property in its help.
     UnknownProperty { name: String },
-    /// `invalid-value`.
-    InvalidValue { property: String, reason: String },
+    /// `invalid-value`, with the keyword a rejected word was most likely meant to be
+    /// ([`kirana_css_data::grammar::near_miss`]).
+    InvalidValue { property: String, reason: String, nearest: Option<&'static str> },
     /// `unitless-length`: a number on a property whose grammar has no `<number>`.
     UnitlessLength { property: String, number: String },
 }
@@ -39,6 +40,10 @@ pub enum DeclarationError {
 pub enum DeclarationWarning {
     /// `unsplittable-shorthand`.
     Unsplittable { property: String },
+    /// `unknown-keyword`: a word the CSS data does not know, an edit or two from a keyword of the
+    /// property's grammar that would make the value fit. It may be CSS newer than the data, so the
+    /// declaration is still written.
+    NearMiss { property: String, written: String, keyword: &'static str },
 }
 
 /// The longhands a declaration expands to.
@@ -230,20 +235,25 @@ fn expand(
         RawValue::Str(text) => normalize_text(text),
     };
     if text.is_empty() {
-        return Err(DeclarationError::InvalidValue { property, reason: "the value is empty".to_owned() });
+        return Err(DeclarationError::InvalidValue {
+            property,
+            reason: "the value is empty".to_owned(),
+            nearest: None,
+        });
     }
     if let Some(reason) = structural_problem(&text) {
-        return Err(DeclarationError::InvalidValue { property, reason });
+        return Err(DeclarationError::InvalidValue { property, reason, nearest: None });
     }
-    if let Some(reason) = grammar_problem(&property, &text, variable_value) {
-        return Err(DeclarationError::InvalidValue { property, reason });
+    if let Some((reason, nearest)) = grammar_problem(&property, &text, variable_value) {
+        return Err(DeclarationError::InvalidValue { property, reason, nearest });
     }
+    let warnings = near_miss_warning(&property, &text);
     let id = PropertyId::from(property.as_str());
     let family = kirana_css_data::family_longhands(&property).is_some();
     // A longhand stands as written, unparsed: the grammar has checked its value, and a parse keeps
     // the property's own id, which its name already gives.
     if id.longhands().is_none() && !family {
-        return Ok(single(Property::longhand(property.clone()), text.clone()));
+        return Ok(warned(single(Property::longhand(property.clone()), text.clone()), warnings));
     }
     let parsed = LProperty::parse_string(id, &text, ParserOptions::default())
         .expect("structurally valid values always parse, falling back to unparsed tokens");
@@ -256,17 +266,44 @@ fn expand(
             variable_value(variable).is_some_and(|values| values.iter().all(|value| is_single_component(value)))
         });
     if family && replicable {
-        return Ok(single(Property::shorthand(property.clone()), text.clone()));
+        return Ok(warned(single(Property::shorthand(property.clone()), text.clone()), warnings));
     }
     if matches!(parsed, LProperty::Unparsed(_)) || parsed.property_id().longhands().is_none() {
-        return Ok(Expanded {
+        let expanded = Expanded {
             declarations: vec![(Property::shorthand(property.clone()), text.clone().into())],
             warnings: vec![DeclarationWarning::Unsplittable { property: property.clone() }],
-        });
+        };
+        return Ok(warned(expanded, warnings));
     }
     let mut declarations = Vec::new();
     expand_into(&parsed, &mut declarations);
-    Ok(Expanded { declarations, warnings: Vec::new() })
+    Ok(Expanded { declarations, warnings })
+}
+
+/// `unknown-keyword` for a value the grammar check leaves unjudged ([`Verdict::Unchecked`]) whose one
+/// unknown word is a near miss of a keyword ([`kirana_css_data::grammar::near_miss`]). The check is
+/// remembered, so asking it again costs a lookup; only an unjudged value is looked at further.
+///
+/// [`Verdict::Unchecked`]: kirana_css_data::grammar::Verdict::Unchecked
+fn near_miss_warning(property: &str, text: &str) -> Vec<DeclarationWarning> {
+    use kirana_css_data::grammar::{Verdict, check, near_miss};
+    if check(property, text) != Verdict::Unchecked {
+        return Vec::new();
+    }
+    near_miss(property, text)
+        .map(|miss| DeclarationWarning::NearMiss {
+            property: property.to_owned(),
+            written: miss.written,
+            keyword: miss.keyword,
+        })
+        .into_iter()
+        .collect()
+}
+
+/// `expanded` with `warnings` after its own.
+fn warned(mut expanded: Expanded, warnings: Vec<DeclarationWarning>) -> Expanded {
+    expanded.warnings.extend(warnings);
+    expanded
 }
 
 fn single(property: Property, text: String) -> Expanded {
@@ -299,8 +336,15 @@ fn expand_into(property: &LProperty<'_>, out: &mut Vec<(Property, Arc<str>)>) {
 /// colour token on `padding` is caught. A token an element may leave unset (D-059: no value) holds
 /// anything an element gives it, so it is judged by what its reference falls back to, the end of a
 /// `fallback()` chain (KRN-API-022), and not at all when it falls back to nothing.
-fn grammar_problem(property: &str, text: &str, variable_value: &dyn Fn(&str) -> Option<Vec<String>>) -> Option<String> {
-    use kirana_css_data::grammar::{Verdict, check};
+///
+/// A value written as one word the grammar rejects also gives the keyword it was most likely meant
+/// to be, when one is near it (`display: tables`, `table`).
+fn grammar_problem(
+    property: &str,
+    text: &str,
+    variable_value: &dyn Fn(&str) -> Option<Vec<String>>,
+) -> Option<(String, Option<&'static str>)> {
+    use kirana_css_data::grammar::{Verdict, check, near_miss};
     let mut text = text;
     let mut fallen = false;
     let token = loop {
@@ -315,11 +359,14 @@ fn grammar_problem(property: &str, text: &str, variable_value: &dyn Fn(&str) -> 
     let values = token.clone().unwrap_or_else(|| vec![text.to_owned()]);
     values.iter().find_map(|value| match check(property, value) {
         Verdict::Rejected { expected } => Some(match (&token, fallen) {
-            (Some(_), _) => format!("the token's value `{value}` is not one it takes ({expected})"),
+            (Some(_), _) => (format!("the token's value `{value}` is not one it takes ({expected})"), None),
             (None, true) => {
-                format!("`{value}`, what its unset tokens fall back to, is not a value it takes ({expected})")
+                (format!("`{value}`, what its unset tokens fall back to, is not a value it takes ({expected})"), None)
             }
-            (None, false) => format!("`{value}` is not a value it takes ({expected})"),
+            (None, false) => (
+                format!("`{value}` is not a value it takes ({expected})"),
+                near_miss(property, value).map(|miss| miss.keyword),
+            ),
         }),
         Verdict::Accepted | Verdict::Unchecked => None,
     })

@@ -236,9 +236,10 @@ const rustCommands = [
   .filter((match) => !match[1]!.includes("hide = true"))
   .map((match) => match[2]!.toLowerCase())
 const driver = await readFile(join(kirana, "npm/compiler/src/cli.ts"), "utf8")
-const nodeCommands = [...driver.matchAll(/command === "(\w+)"/g)].map(
-  (match) => match[1]!
-)
+// `help <command>` is how the driver spells `<command> --help`, not a command of its own.
+const nodeCommands = [...driver.matchAll(/command === "(\w+)"/g)]
+  .map((match) => match[1]!)
+  .filter((command) => command !== "help")
 const commands = [...new Set([...nodeCommands, ...rustCommands])].sort()
 const core = await readFile(join(kirana, "npm/core/src/index.ts"), "utf8")
 const api = [...core.matchAll(/^export (?:function|const) (\w+)/gm)].map(

@@ -190,7 +190,7 @@ export async function diagnose(
   checks.push({
     name: "cache",
     status: "ok",
-    detail: "none on disk: every build compiles from source (D-049)",
+    detail: "none on disk: every build compiles from source",
   })
   return checks
 }

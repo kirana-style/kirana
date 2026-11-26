@@ -1,0 +1,454 @@
+[
+  {
+    "code": "KRN1501",
+    "name": "unknown-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 311,
+      "end": 363
+    },
+    "message": "the token group has no token \"primray\"",
+    "help": [
+      "did you mean `primary`?"
+    ]
+  },
+  {
+    "code": "KRN1501",
+    "name": "unknown-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 311,
+      "end": 363
+    },
+    "message": "the token group has no token \"zzzzzz\"",
+    "help": []
+  },
+  {
+    "code": "KRN1201",
+    "name": "unknown-property",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 426,
+      "end": 450
+    },
+    "message": "justifyContnet is not a CSS property",
+    "help": [
+      "did you mean `justifyContent`?"
+    ]
+  },
+  {
+    "code": "KRN1201",
+    "name": "unknown-property",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 454,
+      "end": 481
+    },
+    "message": "justify-contnet is not a CSS property",
+    "help": [
+      "did you mean `justify-content`?"
+    ]
+  },
+  {
+    "code": "KRN1201",
+    "name": "unknown-property",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 485,
+      "end": 500
+    },
+    "message": "zzzzzzzz is not a CSS property",
+    "help": []
+  },
+  {
+    "code": "KRN1501",
+    "name": "unknown-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 511,
+      "end": 524
+    },
+    "message": "the token group has no token \"primray\"",
+    "help": [
+      "did you mean `primary`?"
+    ]
+  },
+  {
+    "code": "KRN1501",
+    "name": "unknown-token",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 545,
+      "end": 559
+    },
+    "message": "the token group has no token \"qqqqqqqq\"",
+    "help": []
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 563,
+      "end": 572
+    },
+    "message": "::befor is not a pseudo-element",
+    "help": [
+      "did you mean `::before`?"
+    ]
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 595,
+      "end": 605
+    },
+    "message": "::zzzzzz is not a pseudo-element",
+    "help": []
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 644,
+      "end": 665
+    },
+    "message": "\":hovr\": :hovr is not a pseudo-class",
+    "help": [
+      "did you mean `:hover`?"
+    ]
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 697,
+      "end": 720
+    },
+    "message": "\":focus-visble\": :focus-visble is not a pseudo-class",
+    "help": [
+      "did you mean `:focus-visible`?"
+    ]
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 722,
+      "end": 736
+    },
+    "message": "\"hover\": expected a pseudo-class, an attribute selector or an at-rule",
+    "help": [
+      "did you mean `:hover`?"
+    ]
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 738,
+      "end": 757
+    },
+    "message": "\"&:active\": expected a pseudo-class, an attribute selector or an at-rule",
+    "help": [
+      "write `:active`: a condition key is the selector alone, without `&`"
+    ]
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 759,
+      "end": 772
+    },
+    "message": "\"zzzzzz\": expected a pseudo-class, an attribute selector or an at-rule",
+    "help": []
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 794,
+      "end": 825
+    },
+    "message": "\"@meda (width >= 40rem)\": only @media, @container and @supports conditions are supported",
+    "help": [
+      "did you mean `@media`?"
+    ]
+  },
+  {
+    "code": "KRN1301",
+    "name": "unknown-condition",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 827,
+      "end": 837
+    },
+    "message": "\"md\": expected a pseudo-class, an attribute selector or an at-rule",
+    "help": []
+  },
+  {
+    "code": "KRN1211",
+    "name": "unknown-keyword",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1131,
+      "end": 1145
+    },
+    "message": "display: `flx` is not a keyword the CSS data has for it",
+    "help": [
+      "did you mean `flex`?"
+    ]
+  },
+  {
+    "code": "KRN1211",
+    "name": "unknown-keyword",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1149,
+      "end": 1163
+    },
+    "message": "margin: `atuo` is not a keyword the CSS data has for it",
+    "help": [
+      "did you mean `auto`?"
+    ]
+  },
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1167,
+      "end": 1190
+    },
+    "message": "border cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  },
+  {
+    "code": "KRN1211",
+    "name": "unknown-keyword",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1167,
+      "end": 1190
+    },
+    "message": "border: `soild` is not a keyword the CSS data has for it",
+    "help": [
+      "did you mean `solid`?"
+    ]
+  },
+  {
+    "code": "KRN1211",
+    "name": "unknown-keyword",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1194,
+      "end": 1213
+    },
+    "message": "position: `absolue` is not a keyword the CSS data has for it",
+    "help": [
+      "did you mean `absolute`?"
+    ]
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1217,
+      "end": 1241
+    },
+    "message": "flex-direction: `columns` is not a value it takes (row | row-reverse | column | column-reverse)",
+    "help": [
+      "did you mean `column`?"
+    ]
+  },
+  {
+    "code": "KRN1202",
+    "name": "invalid-value",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1245,
+      "end": 1258
+    },
+    "message": "float: `bold` is not a value it takes (left | right | none | inline-start | inline-end)",
+    "help": []
+  },
+  {
+    "code": "KRN1204",
+    "name": "unsplittable-shorthand",
+    "severity": "warning",
+    "file": "input.tsx",
+    "span": {
+      "start": 1318,
+      "end": 1389
+    },
+    "message": "border-block cannot be split, so it stays one shorthand atom; if a later style removes one of its longhands, the remaining longhands receive this whole value, which is only valid for a single component",
+    "help": [
+      "write the longhands instead when a later style removes some of them"
+    ]
+  },
+  {
+    "code": "KRN1801",
+    "name": "unknown-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1498,
+      "end": 1807
+    },
+    "message": "variant \"tone\" has no option \"zzzzzz\"",
+    "help": []
+  },
+  {
+    "code": "KRN1801",
+    "name": "unknown-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1498,
+      "end": 1807
+    },
+    "message": "variant \"tone\" has no option \"primay\"",
+    "help": [
+      "did you mean `primary`?"
+    ]
+  },
+  {
+    "code": "KRN1801",
+    "name": "unknown-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1498,
+      "end": 1807
+    },
+    "message": "variant \"tnoe\" has no option \"ghost\"",
+    "help": [
+      "did you mean `tone`?"
+    ]
+  },
+  {
+    "code": "KRN1801",
+    "name": "unknown-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1498,
+      "end": 1807
+    },
+    "message": "variant \"zzzzzz\" has no option \"x\"",
+    "help": []
+  },
+  {
+    "code": "KRN1802",
+    "name": "unknown-slot",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1498,
+      "end": 1807
+    },
+    "message": "the recipe has no slot \"lable\"",
+    "help": [
+      "did you mean `label`?"
+    ]
+  },
+  {
+    "code": "KRN1802",
+    "name": "unknown-slot",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1498,
+      "end": 1807
+    },
+    "message": "the recipe has no slot \"zzzzzz\"",
+    "help": []
+  },
+  {
+    "code": "KRN1801",
+    "name": "unknown-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1848,
+      "end": 1873
+    },
+    "message": "variant \"tone\" has no option \"ghots\"",
+    "help": [
+      "did you mean `ghost`?"
+    ]
+  },
+  {
+    "code": "KRN1801",
+    "name": "unknown-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1888,
+      "end": 1915
+    },
+    "message": "the recipe has no variant \"tnoe\"",
+    "help": [
+      "did you mean `tone`?"
+    ]
+  },
+  {
+    "code": "KRN1801",
+    "name": "unknown-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1932,
+      "end": 1961
+    },
+    "message": "the recipe has no variant \"zzzzzz\"",
+    "help": []
+  },
+  {
+    "code": "KRN1801",
+    "name": "unknown-variant",
+    "severity": "error",
+    "file": "input.tsx",
+    "span": {
+      "start": 1977,
+      "end": 2003
+    },
+    "message": "variant \"tone\" has no option \"zzzzzz\"",
+    "help": []
+  }
+]

@@ -118,57 +118,139 @@ export type * from "./types.ts"
 export { validate } from "./validate.ts"
 export type { Problem } from "./validate.ts"
 
+/** Each command `kirana-style ui` runs: how it is written, and its help, line by line. */
+const COMMANDS: readonly (readonly [string, readonly string[]])[] = [
+  [
+    "init",
+    [
+      "set a project up for a registry: Kirana where it is missing, the ui settings",
+      "(--framework, --base, else the registry index's defaultBase for the",
+      "framework; --registry @namespace=<template>), and the registry's",
+      "design system (--design <item>) installed and wired in; --template <name>",
+      "[directory] starts a new project from one of Kirana's examples, a",
+      "registry's template (@namespace/name) or a template's archive (a URL),",
+      "installed with the package manager running it; --preset <code> sets its",
+      "design (--framework and --base, and a template's framework, must agree",
+      "with its code), --all-designs (ui.allDesigns) keeps every other",
+      "design installed too; --pointer (data-pointer on <html>: buttons get the",
+      'pointer cursor) and --rtl (dir="rtl" on <html>), --no-pointer and --no-rtl',
+      "take them off; --workspace <package> (from the workspace's root, as",
+      "packages/ui) makes that package the project ui installs into, named in",
+      "the app's ui.workspace; --dry-run, --overwrite, --no-check",
+    ],
+  ],
+  [
+    "add <item…>",
+    [
+      "install items and every item they need: files at the project's aliases",
+      "(ui.aliases, through tsconfig.json's paths), packages with its package",
+      "manager, each recorded in kirana-style.lock.json; in an app whose",
+      "ui.workspace names a package, into that package; --dry-run, --overwrite,",
+      "--no-check",
+    ],
+  ],
+  [
+    "outdated [item…]",
+    [
+      "the installed items behind their registries: a new version, or files changed",
+    ],
+  ],
+  [
+    "diff [item…]",
+    [
+      "each installed file the registry or the project changed, as lines between",
+      "the project's and what installing it now would write",
+    ],
+  ],
+  [
+    "update [item…]",
+    [
+      "write what the registry changed since install, keep what the project changed;",
+      "a file both changed stops it (--overwrite takes the registry's); --dry-run,",
+      "--no-check",
+    ],
+  ],
+  [
+    "remove <item…>",
+    [
+      "delete the files the project left as installed, unless another item needs",
+      "it; --dry-run",
+    ],
+  ],
+  [
+    "preset <code>",
+    [
+      "change the project's design: the code read with its design system's layouts,",
+      "ui.design and <html>'s attributes set, every item placed again for it;",
+      "--pointer, --rtl, --no-pointer, --no-rtl as init's; --dry-run, --overwrite,",
+      "--no-check",
+    ],
+  ],
+  [
+    "view <item…>",
+    [
+      "what an item is: its frameworks and bases, files, styles and dependencies",
+      "(@acme/card, or button for @kirana's); --json prints the items as read",
+    ],
+  ],
+  [
+    "search [query]",
+    [
+      "the items of every registry's index whose name, title or description holds",
+      "the query; --registry <namespace> (repeatable) searches only those, --json",
+    ],
+  ],
+  [
+    "validate <document…>",
+    [
+      "check registry items, indexes and lockfiles: their schema, and every file's",
+      "hash; a document is a file, a URL, or an item of the project's registries",
+      "(@acme/card, button for @kirana's, @acme/index for an index)",
+    ],
+  ],
+  [
+    "build [registry.json]",
+    [
+      "build a registry from its source: each item's files read, their imports",
+      "between the registry's files written as an installed project names them,",
+      "their packages and the items they need found, hashed and checked, into",
+      "--out <dir> (public/r): one document per item and index.json",
+    ],
+  ],
+  [
+    "mcp",
+    [
+      "a Model Context Protocol server over stdio for AI assistants: the project's",
+      "registries, searching and viewing items, their files and the add command",
+    ],
+  ],
+]
+
+/** What every command that writes scripts takes. */
+const NO_CHECK =
+  "--no-check skips the kirana-style check a command runs on the scripts it wrote."
+
 const USAGE = `Usage: kirana-style ui <command>
        npx @kirana-style/registry <command>   (where no project has the package yet)
 
 Commands in this release:
-  init                   set a project up for a registry: Kirana where it is missing, the ui settings
-                         (--framework, --base, else the registry index's defaultBase for the
-                         framework; --registry @namespace=<template>), and the registry's
-                         design system (--design <item>) installed and wired in; --template <name>
-                         [directory] starts a new project from one of Kirana's examples, a
-                         registry's template (@namespace/name) or a template's archive (a URL),
-                         installed with the package manager running it; --preset <code> sets its
-                         design (--framework and --base, and a template's framework, must agree
-                         with its code), --all-designs (ui.allDesigns) keeps every other
-                         design installed too; --pointer (data-pointer on <html>: buttons get the
-                         pointer cursor) and --rtl (dir="rtl" on <html>), --no-pointer and --no-rtl
-                         take them off; --workspace <package> (from the workspace's root, as
-                         packages/ui) makes that package the project ui installs into, named in
-                         the app's ui.workspace; --dry-run, --overwrite, --no-check
-  add <item…>            install items and every item they need: files at the project's aliases
-                         (ui.aliases, through tsconfig.json's paths), packages with its package
-                         manager, each recorded in kirana-style.lock.json; in an app whose
-                         ui.workspace names a package, into that package; --dry-run, --overwrite,
-                         --no-check
-  outdated [item…]       the installed items behind their registries: a new version, or files changed
-  diff [item…]           each installed file the registry or the project changed, as lines between
-                         the project's and what installing it now would write
-  update [item…]         write what the registry changed since install, keep what the project changed;
-                         a file both changed stops it (--overwrite takes the registry's); --dry-run,
-                         --no-check
-  remove <item…>         delete the files the project left as installed, unless another item needs
-                         it; --dry-run
-  preset <code>          change the project's design: the code read with its design system's layouts,
-                         ui.design and <html>'s attributes set, every item placed again for it;
-                         --pointer, --rtl, --no-pointer, --no-rtl as init's; --dry-run, --overwrite,
-                         --no-check
-  view <item…>           what an item is: its frameworks and bases, files, styles and dependencies
-                         (@acme/card, or button for @kirana's); --json prints the items as read
-  search [query]         the items of every registry's index whose name, title or description holds
-                         the query; --registry <namespace> (repeatable) searches only those, --json
-  validate <document…>   check registry items, indexes and lockfiles: their schema, and every file's
-                         hash; a document is a file, a URL, or an item of the project's registries
-                         (@acme/card, button for @kirana's, @acme/index for an index)
-  build [registry.json]  build a registry from its source: each item's files read, their imports
-                         between the registry's files written as an installed project names them,
-                         their packages and the items they need found, hashed and checked, into
-                         --out <dir> (public/r): one document per item and index.json
-  mcp                    a Model Context Protocol server over stdio for AI assistants: the project's
-                         registries, searching and viewing items, their files and the add command
+${COMMANDS.map(
+  ([command, help]) =>
+    `  ${command.padEnd(23)}${help.join(`\n${" ".repeat(25)}`)}\n`
+).join("")}
+${NO_CHECK}
 
---no-check skips the kirana-style check a command runs on the scripts it wrote.
+\`kirana-style ui <command> --help\` prints one command's help.
 `
+
+/** One command's help, for `kirana-style ui <command> --help`. */
+function helpOf(name: string): string | undefined {
+  const found = COMMANDS.find(([command]) => command.split(" ")[0] === name)
+  if (found === undefined) return undefined
+  const [command, help] = found
+  const checks = help.some((line) => line.includes("--no-check"))
+  return `Usage: kirana-style ui ${command}\n\n${help.join("\n")}\n${checks ? `\n${NO_CHECK}\n` : ""}`
+}
 
 /**
  * A document to validate and its JSON: a URL is fetched as it is; a file is read; a registry
@@ -256,6 +338,14 @@ export async function main(
   }
   if (command === "--version" || command === "-v") {
     write(`@kirana-style/registry ${await version()}\n`)
+    return 0
+  }
+  const help = helpOf(command)
+  if (
+    help !== undefined &&
+    rest.some((arg) => arg === "--help" || arg === "-h")
+  ) {
+    write(help)
     return 0
   }
   if (command === "validate") return runValidate(rest, cwd, write, options)

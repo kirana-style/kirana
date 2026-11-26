@@ -47,7 +47,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Introduction",
     "section": "start",
     "heading": "What it gives you",
-    "text": "Typed styles. Ordinary objects, checked by TypeScript, with camelCase CSS property names and real values, not a string vocabulary you have to learn. Conditions inside values. reads in the order it applies, instead of scattering prefixes across a class list. Predictable precedence. A stated ladder decides which value wins, and the diagnostic tells you when two values could both apply. Tokens and themes. Design tokens compile to constants or custom properties, and every colour can be a pair, so dark mode needs no variant. Real diagnostics. 51 checks with codes, severities and help text, from unknown properties to a component that forgets to pass on."
+    "text": "Typed styles. Ordinary objects with camelCase CSS property names and real values, not a string vocabulary you have to learn. TypeScript checks the names; the compiler checks the values ( what it catches, and what it does not ). Conditions inside values. reads in the order it applies, instead of scattering prefixes across a class list. Predictable precedence. A stated ladder decides which value wins, and the diagnostic tells you when two values could both apply. Tokens and themes. Design tokens compile to constants or custom properties, and every colour can be a pair, so dark mode needs no variant. Real diagnostics. 51 checks with codes, severities and help text, from unknown properties to a component that forgets to pass on. Written well by agents. The agent skills teach a coding agent the rules. answers it with codes, says which value wins and why, and lists the tokens that exist."
+  },
+  {
+    "id": "/docs#the-family",
+    "href": "/docs#the-family",
+    "page": "Introduction",
+    "section": "start",
+    "heading": "The family",
+    "text": "Kirana UI is shadcn/ui's design system on your framework and your headless library, every style compiled by Kirana and installed with . Kirana UI Primitives are headless parts that are the same on every framework, checked state by state: a library of their own, not built on Kirana, which Kirana UI uses as one of its bases and whose states types."
   },
   {
     "id": "/docs#what-it-is-not",
@@ -110,7 +118,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Why Kirana",
     "section": "start",
     "heading": "Why not Tailwind and  cn() ?",
-    "text": "Tailwind is excellent, and Kirana borrows its vocabulary on purpose. What Kirana replaces is the merging. A component library built on Tailwind lets callers override styles by appending classes, and resolves conflicts at runtime with tailwind-merge ( ), which parses class strings in the browser and keeps the last class of each conflict group. Measured with tailwind-merge 3.6.0: None of these is a bug in tailwind-merge; it works from class names, because class names are all it has. Kirana merges declarations , at build time, per longhand: and are separate entries, a custom token is a typed value, and there is nothing to configure or parse at runtime. And a typo ( ) is a compile error, not a class that silently does nothing."
+    "text": "Tailwind is excellent, and Kirana borrows its vocabulary on purpose. What Kirana replaces is the merging. A component library built on Tailwind lets callers override styles by appending classes, and resolves conflicts at runtime with tailwind-merge ( ), which parses class strings in the browser and keeps the last class of each conflict group. Measured with tailwind-merge 3.6.0: None of these is a bug in tailwind-merge; it works from class names, because class names are all it has. Kirana merges declarations , at build time, per longhand: and are separate entries, a custom token is a typed value, and there is nothing to configure or parse at runtime. And a misspelt utility ( ) is a compile error ( ), not a class that silently does nothing."
   },
   {
     "id": "/docs/start/why-kirana#it-doubles-the-code",
@@ -188,7 +196,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Installation",
     "section": "start",
     "heading": "Machines without a native build",
-    "text": "The engine is native code for eight platforms. Anywhere else (a WebContainer, an unusual CPU), install its WebAssembly build as well; Kirana uses it when no native engine loads, and it writes exactly the same CSS, about twice as slowly: uses it even where the native engine works."
+    "text": "The engine is native code for eight platforms. Anywhere else (a WebContainer, an unusual CPU), install its WebAssembly build as well; Kirana uses it when no native engine loads, and it writes exactly the same CSS, about twice as slowly: the shadcn/ui port's 106 files compile in 63 ms native and 136 ms in WebAssembly, on one machine ( the measurement ): uses it even where the native engine works."
   },
   {
     "id": "/docs/start/installation#two-versions-in-one-process",
@@ -456,7 +464,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Writing styles",
     "section": "writing",
     "heading": "Values",
-    "text": "Values are strings and numbers, exactly as CSS reads them. Kirana does not add units for you: The rule is the CSS rule: a property that takes a needs a unit. A property whose value is a plain number takes a plain number. Guessing is how a styling system ends up with values it cannot explain, so the compiler asks you instead. Invalid values are errors too ( ), checked against the property's grammar as MDN writes it: A word or a function the data does not know is left alone, because it may be newer CSS than the data, or a name of your own ( ). So is whatever is inside a function's parentheses, and a value made of ."
+    "text": "Values are strings and numbers, exactly as CSS reads them. Kirana does not add units for you: The rule is the CSS rule: a property that takes a needs a unit. A property whose value is a plain number takes a plain number. Guessing is how a styling system ends up with values it cannot explain, so the compiler asks you instead. Invalid values are errors too ( ), checked against the property's grammar as MDN writes it: A property whose values are a fixed list of keywords warns about a word that is not on the list ( ), with the nearest keyword in its help. Where a property also takes names of your own, as and font families do, any word is accepted, because it may be yours. A function the data does not know is left alone, since it may be newer CSS than the data, and so is whatever is inside a function's parentheses and a value made of ."
+  },
+  {
+    "id": "/docs/styling/styles#what-the-compiler-checks",
+    "href": "/docs/styling/styles#what-the-compiler-checks",
+    "page": "Writing styles",
+    "section": "writing",
+    "heading": "What the compiler checks",
+    "text": "TypeScript checks property names and token names in your editor. Values are typed from , which suggests each property's keywords but accepts any string, so a misspelt keyword is the compiler's to catch, not the editor's. Every code is in the diagnostics reference , with what to do about it."
   },
   {
     "id": "/docs/styling/styles#several-objects-one-handle",
@@ -4593,7 +4609,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Cloudflare Workers",
     "section": "building",
     "heading": "Workers and pre-bundling",
-    "text": "Vite pre-bundles the Worker's dependencies apart from the browser's. Kirana's Vite plugin names its runtime for pre-bundling and keeps its presets compiled in every environment, so nothing needs configuring. Kirana 0.3.1 did that for the browser only: the first request in development discovered Kirana's runtime late, re-optimised and loaded React twice, and a pre-bundled preset threw . On 0.3.1, name the runtime and keep the preset out of workerd's pre-bundling: Remove it when you upgrade past 0.3.1."
+    "text": "Vite pre-bundles the Worker's dependencies apart from the browser's. Kirana's Vite plugin names its runtime for pre-bundling and keeps its presets compiled in every environment, so nothing needs configuring."
   },
   {
     "id": "/docs/building/cloudflare-workers#a-stylesheet-of-your-own",
@@ -4958,7 +4974,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "The CLI",
     "section": "tooling",
     "heading": "kirana-style check",
-    "text": "Report diagnostics without writing anything. It walks the paths you give it, skipping , , dotfiles and files, and compiles: each script as a module; each Vue, Svelte and Astro component as the build does: every script block, the one the template sees with the template's ; each Angular component's script with its template's , written inline or in its own file. A component's diagnostics are reported in it, at their line, and a relation anchored or read only in a component counts. Human output is the report Oxlint prints: the code and the message, the lines around the mistake with it underlined, and the help line. In a terminal it is in colour; turns colour off, and turns it on where the output is not a terminal. prints an array of , for an editor or a script. The exit code is 1 when anything is an error. prints one GitHub Actions workflow command per diagnostic, which annotates the line in the pull request's diff: errors as errors, warnings as warnings, infos as notices. Paths are relative to the project root, so run it from the repository root or a project at the root. fails the run, exit code 1, when there are more than warnings; makes every warning block a merge, without re-levell"
+    "text": "Report diagnostics without writing anything. It walks the paths you give it, skipping , , dotfiles and files, and compiles: each script as a module; each Vue, Svelte and Astro component as the build does: every script block, the one the template sees with the template's ; each Angular component's script with its template's , written inline or in its own file. A component's diagnostics are reported in it, at their line, and a relation anchored or read only in a component counts. Human output is the report Oxlint prints: the code and the message, the lines around the mistake with it underlined, and the help line. In a terminal it is in colour; turns colour off, and turns it on where the output is not a terminal. prints the same diagnostics as one array, for an agent, an editor or a script. The exit code is 1 when anything is an error: Each entry has these fields: A diagnostic that belongs to no place in a file has no position fields. prints one GitHub Actions workflow command per diagnostic, which annotates the line in the pull request's diff: errors as errors, warnings as warnings, infos as notices. Paths are relative to the project root, so run it from the repository root or a proj"
   },
   {
     "id": "/docs/tooling/cli#which-configuration",
@@ -5467,7 +5483,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Diagnostics reference",
     "section": "tooling",
     "heading": "Reading one",
-    "text": "A report has three parts: a mark for the severity ( an error, a warning, an info), then the code, the name and the message; a frame with the lines around the mistake and the mistake underlined, headed ; a help line that says what to do. It is the report Oxlint prints, and the build prints the same one, so a bundler's overlay shows it as it is. gives the same fields as data."
+    "text": "A report has three parts: a mark for the severity ( an error, a warning, an info), then the code, the name and the message; a frame with the lines around the mistake and the mistake underlined, headed ; a help line that says what to do, where the compiler knows: the unit to add, the nearest property, condition or keyword to a misspelt one. A code without a certain fix has none, and the table above says what to do about it. It is the report Oxlint prints, and the build prints the same one, so a bundler's overlay shows it as it is. gives the same fields as data."
   },
   {
     "id": "/docs/tooling/debugging",
@@ -5758,7 +5774,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "What works today",
-    "text": "Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the API. It compiles three real applications in our shadcn/ui port (a demo, the shadcn blocks and one page per component), and its own test suite keeps 100 % line coverage. The changelog lists every release."
+    "text": "Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the API. It compiles three real applications in our shadcn/ui port (a demo, the shadcn blocks and one page per component) and Kirana UI's registry, whose style modules its preview apps compile for React, Vue, Svelte, Solid and Angular; its own test suite keeps 100 % line coverage. The changelog lists every release."
   },
   {
     "id": "/docs/project/status#built",
@@ -5774,7 +5790,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "What works today",
     "section": "project",
     "heading": "Partial",
-    "text": "is in the catalogue but not emitted yet. Benchmarks are advisory: hosted CI numbers, not dedicated hardware. The Zed extension works, but is not in Zed's registry yet: install it as a dev extension; see editor support ."
+    "text": "(KRN1505) is in the catalogue and never emitted: it is reserved for importing design tokens in the DTCG format, which Kirana does not do yet. Benchmarks are advisory: hosted CI numbers, not dedicated hardware. The Zed extension works, but is not in Zed's registry yet: install it as a dev extension; see editor support ."
   },
   {
     "id": "/docs/project/status#not-built",
@@ -5837,7 +5853,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Roadmap",
     "section": "project",
     "heading": "M3: Developer experience",
-    "text": "Done, and published. Editor and lint support, read from the compiler rather than re-implemented, so they never disagree with the build. The language server , : diagnostics at the property, hover with the compiled CSS and the ladder step that won, tokens in both modes, colour swatches, a summary after every , completion, navigation and quick fixes. Hover answers in 1.2 ms at the 95th percentile on our shadcn/ui port. Editors: the extension on the VS Code Marketplace and Open VSX, and the same server in Vue, Svelte and Astro files; Zed through a dev extension, and Neovim and Helix through their own LSP configuration. Lint: under Oxlint and ESLint, and with the five rules Biome can run. The command line: setting a project up and checking it, with a redacted bug report; compiling without a bundler; sizing the stylesheet; the design system as JSON; and reports for CI with GitHub annotations. The CLI page has every command. CSS helpers checked at build time: , , and . Agent skills , and . Still to do: publishing the Zed extension to Zed's registry."
+    "text": "Done, and published. Editor and lint support, read from the compiler rather than re-implemented, so they never disagree with the build. The language server , : diagnostics at the property, hover with the compiled CSS and the ladder step that won, tokens in both modes, colour swatches, a summary after every , completion, navigation and quick fixes. Hover answers in 1.2 ms at the 95th percentile on our shadcn/ui port. Editors: the extension on the VS Code Marketplace and Open VSX, and the same server in Vue, Svelte and Astro files; Zed through a dev extension, and Neovim and Helix through their own LSP configuration. Lint: under Oxlint and ESLint, and with the five rules Biome can run. The command line: setting a project up and checking it, with a redacted bug report; compiling without a bundler; sizing the stylesheet; the design system as JSON; and reports for CI with GitHub annotations. The CLI page has every command. CSS helpers checked at build time: , , and . Agent skills , , and . Still to do: publishing the Zed extension to Zed's registry."
   },
   {
     "id": "/docs/project/roadmap#m4-ecosystem",
@@ -6168,7 +6184,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "For LLMs",
     "section": "project",
     "heading": "Giving an agent the rules",
-    "text": "The documentation explains Kirana; it does not, by itself, stop an agent reaching for habits from other systems. The agent skills do that part: install them, and the agent loads the rules, the check-trace-report loop and the diagnostics reference by itself. The four rules worth stating outright in your own prompt or project instructions: Styles are handles. There is no , no , and no utility-class strings. Conditions go inside the value : , not a key at the top level. Dark mode is a pair on the token. There is no variant and no second stylesheet. A later style replaces the entries it names and keeps the rest. To drop a property's other entries, write . Everything the compiler can catch, it catches: a mistake in any of these is a diagnostic with a code, not a silently wrong style. The diagnostics reference lists all of them, and it is worth handing to an agent alongside the pages above."
+    "text": "The documentation explains Kirana; it does not, by itself, stop an agent reaching for habits from other systems. The agent skills do that part: install them, and the agent loads the rules, the check-trace-report loop and the diagnostics reference by itself. The four rules worth stating outright in your own prompt or project instructions: Styles are handles. There is no and no , and no utility-class strings unless the project turns on the scales preset's utilities . Conditions go inside the value : , not a key at the top level. Dark mode is a pair on the token. There is no variant and no second stylesheet. A later style replaces the entries it names and keeps the rest. To drop a property's other entries, write . The compiler catches a condition written outside the value and a property that does not exist as diagnostics with a code. The lint plugin catches two more: (in its strict config) reports and the like joining class strings, and reports dark mode written as a query, which compiles. What the compiler checks, and what it leaves alone, is on its own page ; the diagnostics reference lists every code, and it is worth handing to an agent alongside the pages above."
   },
   {
     "id": "/docs/project/llms#machine-readable-extras",
@@ -6176,14 +6192,14 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "For LLMs",
     "section": "project",
     "heading": "Machine-readable extras",
-    "text": "The diagnostics are also available as data on the diagnostics page : code, message, and what to do about it. prints your project's own design system (tokens, themes, recipes and relations, with where each is declared) as JSON, so an agent uses the names that exist. The API reference is generated from the packages' type declarations, so its signatures are the real ones. The playground shows curated examples with the CSS, class names and diagnostics the real compiler produced from them at build time. It does not compile pasted source yet (that needs the WASM engine), so to check an agent's suggestion, run or on it."
+    "text": "The diagnostics are also available as data on the diagnostics page : code, message, and what to do about it. prints your project's own design system (tokens, themes, recipes and relations, with where each is declared) as JSON, so an agent uses the names that exist. The API reference is generated from the packages' type declarations, so its signatures are the real ones. gives each diagnostic as data, and says which entry wins for a property at a line, and why. Kirana Play compiles a project in your browser with a released engine, and shows this site's curated examples with the CSS the compiler produced from them. To check an agent's change in its own project, run on it."
   },
   {
     "id": "/docs/project/agent-skills",
     "href": "/docs/project/agent-skills",
     "page": "Agent skills",
     "section": "project",
-    "text": "Two installable skills teach a coding agent to write Kirana and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule. "
+    "text": "Installable skills teach a coding agent to write Kirana, to build and publish a design system on it, and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule. "
   },
   {
     "id": "/docs/project/agent-skills#agent-skills",
@@ -6191,7 +6207,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Agent skills",
     "section": "project",
     "heading": "Agent skills",
-    "text": "A model's training data does not contain Kirana, so a coding agent left to itself writes Tailwind or StyleX and calls it Kirana. The plain-text docs explain the system; the two skills in Kirana's repository tell an agent how to work in it: what to check first, which mistakes compile and still render wrong, and what to run when something does. The command installs them for the agent you use (Claude Code, Cursor, Codex, OpenCode and the others it supports), in your project or globally with , and keeps them current. They live in the repository's folder; to try a change to them before it is merged, point the command at a checkout ( )."
+    "text": "A model's training data does not contain Kirana, so a coding agent left to itself writes Tailwind or StyleX and calls it Kirana. The plain-text docs explain the system; the skills in Kirana's repository, , and , tell an agent how to work in it: what to check first, which mistakes compile and still render wrong, and what to run when something does. The command installs them for the agent you use (Claude Code, Cursor, Codex, OpenCode and the others it supports), in your project or globally with , and keeps them current. They live in the repository's folder; to try a change to them before it is merged, point the command at a checkout ( )."
   },
   {
     "id": "/docs/project/agent-skills#what-each-one-teaches",
@@ -6199,7 +6215,7 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Agent skills",
     "section": "project",
     "heading": "What each one teaches",
-    "text": "Each skill is short (the rules and the workflow), and keeps the detail in reference files the agent reads only when it needs them: the API, how is spelled in each framework, the Tailwind, StyleX, styled-components and CSS Modules mappings, and two files generated from the compiler's source on every build: every diagnostic with what to do about it, and every lint rule with the linters that run it. A diagnostic added to the compiler without a line saying what to do about it fails the build."
+    "text": "Each skill is short (the rules and the workflow), and keeps the detail in reference files the agent reads only when it needs them: the API, how is spelled in each framework, the token kinds, the registry's documents and commands, the Tailwind, StyleX, styled-components and CSS Modules mappings, and two files generated from the compiler's source on every build: every diagnostic with what to do about it, and every lint rule with the linters that run it. A diagnostic added to the compiler without a line saying what to do about it fails the build."
   },
   {
     "id": "/docs/project/agent-skills#the-loop-it-follows",
@@ -6207,7 +6223,15 @@ export const SEARCH: readonly SearchRecord[] = [
     "page": "Agent skills",
     "section": "project",
     "heading": "The loop it follows",
-    "text": "Learn the project. Run for the tokens, themes, recipes and relations that exist, by their real names, then . Write the style , with the rules: conditions inside the value, entries merge per condition, forwarded last, for installed components, colours as pairs. , and fix every error by its code. Lint , with whichever of Oxlint, ESLint or Biome the project runs. when it compiles and looks wrong. when it looks like a Kirana bug, and ask before filing it. Every step answers from the compiler, so an agent that follows it checks its own work instead of guessing whether a class string it remembered still exists."
+    "text": "Learn the project. Run for the tokens, themes, recipes and relations that exist, by their real names, then . Write the style , with the rules: conditions inside the value, entries merge per condition, forwarded last, for installed components, a headless part's state by its typed key, colours as pairs. , and fix every error by its code: each entry carries the code, the file with its line and column, and a that, for a misspelt name, is the fix (the nearest property, condition, token, variant or keyword). Lint , with whichever of Oxlint, ESLint or Biome the project runs. when it compiles and looks wrong, and the browser after it: passing means every name exists and every value fits its property, not that the style is the one meant. when it looks like a Kirana bug, and ask before filing it. Every step answers from the compiler, so an agent that follows it checks its own work instead of guessing whether a class string it remembered still exists."
+  },
+  {
+    "id": "/docs/project/agent-skills#the-family-s-skills",
+    "href": "/docs/project/agent-skills#the-family-s-skills",
+    "page": "Agent skills",
+    "section": "project",
+    "heading": "The family's skills",
+    "text": "Kirana UI, Kirana UI Primitives and the agent bridge have skills of their own, installed from their repository: . The skill names them, and when a project needs each."
   },
   {
     "id": "/docs/project/agent-skills#with-llms-txt",

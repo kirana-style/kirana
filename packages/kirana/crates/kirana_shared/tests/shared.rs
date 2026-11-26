@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use kirana_shared::{
-    Fs, MemoryFs, OsFs, base62, base62_bytes, base62_compact, hash_parts, hash64, kebab_case, parse_base62,
-    push_base62, push_base62_compact,
+    Fs, MemoryFs, OsFs, base62, base62_bytes, base62_compact, did_you_mean, hash_parts, hash64, kebab_case, nearest,
+    parse_base62, push_base62, push_base62_compact,
 };
 
 #[test]
@@ -73,4 +73,26 @@ fn base62_reads_back_what_it_wrote() {
     assert_eq!(parse_base62(""), None);
     assert_eq!(parse_base62("k5-0"), None);
     assert_eq!(parse_base62("ZZZZZZZZZZZZZZ"), None);
+}
+
+/// A misspelt name finds what was meant within one edit up to five characters and two from six, a
+/// swap of neighbours is one edit, ties go to the first name alphabetically, and a short name or a
+/// far one finds nothing.
+#[test]
+fn nearest_finds_the_name_meant() {
+    let names = ["color", "colour-x", "display", "justify-content", "center", "flex", "gap", "top"];
+    assert_eq!(nearest("colr", names), Some("color"));
+    assert_eq!(nearest("flx", names), Some("flex"));
+    assert_eq!(nearest("centre", names), Some("center"));
+    assert_eq!(nearest("justify-contnet", names), Some("justify-content"));
+    assert_eq!(nearest("dsplya", names), Some("display"));
+    // Two edits are too many for a short name; a name of two characters suggests nothing.
+    assert_eq!(nearest("flox", ["float-x", "flexes"]), None);
+    assert_eq!(nearest("fx", names), None);
+    assert_eq!(nearest("gpa", names), Some("gap"));
+    assert_eq!(nearest("zzzzzzz", names), None);
+    // A name is not its own suggestion; equally near ones go to the first alphabetically.
+    assert_eq!(nearest("color", ["color"]), None);
+    assert_eq!(nearest("tap", ["top", "gap"]), Some("gap"));
+    assert_eq!(did_you_mean("justifyContent"), "did you mean `justifyContent`?");
 }

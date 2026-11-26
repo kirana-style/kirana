@@ -135,7 +135,9 @@ npm install -D kirana-style @kirana-style/vite
 
 The engine is native code for eight platforms. Anywhere else (a WebContainer, an
 unusual CPU), install its WebAssembly build as well; Kirana uses it when no native
-engine loads, and it writes exactly the same CSS, about twice as slowly:
+engine loads, and it writes exactly the same CSS, about twice as slowly: the
+shadcn/ui port's 106 files compile in 63 ms native and 136 ms in WebAssembly, on
+one machine ([the measurement](https://github.com/kirana-style/kirana/blob/main/packages/kirana/design-notes/published-libraries.md#what-compiling-in-the-application-costs)):
 
 ```bash
 npm install -D @kirana-style/compiler-wasm32-wasi --force

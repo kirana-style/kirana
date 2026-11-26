@@ -2401,16 +2401,56 @@ the implementation tracker names its evidence.
   stops the generator rather than guessing.
 - **Elaborated in:** [11-integrations](./11-integrations.md#component-libraries).
 
+### D-131 — A word an edit or two from a keyword is a warning with the keyword, when the grammar takes no other word there
+
+- **Status:** Accepted (2026-11-26).
+- **Decision:** a value the grammar check leaves unjudged (D-089) because of one word the data does not
+  know is `unknown-keyword` (KRN1211, a warning) when the word is one or two edits from a keyword the
+  property's grammar names, and putting that keyword in its place makes the value fit (KRN-CAS-011).
+  The help names the keyword. Every other component of the value must be one the data judges, and the
+  grammar must refuse a word in that place, so a `<custom-ident>`, a type the data does not define, a
+  substitution, an unknown function, a vendor value, a custom property, a CSS-wide keyword and a
+  `firstThatWorks()` member never qualify. The same search gives `invalid-value` the keyword near a
+  known word the grammar rejects.
+- **Rationale:**
+  - **The commonest mistake passed.** `display: "flx"` and `justifyContent: "centre"` compiled with no
+    word, and TypeScript's CSS types take any string; the declaration then did nothing in the browser.
+  - **Sound by construction.** The value is judged twice by the same grammar, with the word as written
+    and with the keyword: only a grammar that refuses the first and takes the second qualifies, so a
+    word the grammar could take as a name of the author's own is never reported.
+  - **A warning, not an error.** A word the data does not know may be newer CSS than the data (P11); an
+    error cannot be switched off (doc 11), a warning can, and the declaration is still written.
+- **Measured:** no new diagnostic on the golden fixtures, the 54 examples, the docs site, kirana-ui's
+  registry and apps, or kirana-lab's apps and packages.
+- **Trade-off:** a misspelt keyword more than two edits away, or one among two unknown words, still
+  passes; so does a misspelt name the grammar takes as the author's own.
+- **Elaborated in:** [08-conditions-and-cascade](./08-conditions-and-cascade.md#value-normalization),
+  [10-compiler-architecture](./10-compiler-architecture.md#diagnostic-catalogue).
+
+### D-132 — `variable-default-scope` is retired, never emitted
+
+- **Status:** Accepted (2026-11-26). Amends KRN-TOK-004.
+- **Decision:** KRN1503 `variable-default-scope` leaves the catalogue. Its code is never given to another
+  diagnostic, and a configuration that re-levels it is accepted and changes nothing.
+- **Rationale:** it was catalogued for the StyleX lesson of a variable default that reads a library's
+  element-level variable, and never emitted: where a custom property is set is decided at runtime, by
+  the page's own CSS or a headless library, which the compiler cannot see. A check would guess, and a
+  diagnostic that is counted but never reported overstates what the compiler catches.
+- **Trade-off:** such a default still resolves to nothing on `:root`; the documentation says to assign
+  the value on the element that owns it.
+- **Elaborated in:** [07-tokens-themes-presets](./07-tokens-themes-presets.md),
+  [10-compiler-architecture](./10-compiler-architecture.md#diagnostic-catalogue).
+
 ## Index by document
 
 | Document                                                      | Decisions                                                                                                                                                                                                        |
 | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | the brand notes                                               | D-001                                                                                                                                                                                                            |
 | [06-authoring-api](./06-authoring-api.md)                     | D-003, D-004, D-006, D-019, D-020, D-035, D-038, D-041, D-043, D-047, D-057, D-058, D-060, D-061, D-074, D-075, D-076, D-088, D-091, D-094, D-096, D-098, D-101, D-112, D-115, D-117, D-120, D-121, D-122        |
-| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099, D-115, D-117                                                                                                                 |
-| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114, D-117, D-119                                           |
+| [07-tokens-themes-presets](./07-tokens-themes-presets.md)     | D-005, D-007, D-008, D-009, D-010, D-035, D-047, D-057, D-058, D-059, D-086, D-099, D-115, D-117, D-132                                                                                                          |
+| [08-conditions-and-cascade](./08-conditions-and-cascade.md)   | D-011, D-012, D-013, D-014, D-015, D-016, D-036, D-038, D-042, D-061, D-062, D-089, D-090, D-092, D-096, D-098, D-099, D-101, D-104, D-105, D-112, D-114, D-117, D-119, D-131                                    |
 | [09-dynamic-styles](./09-dynamic-styles.md)                   | D-017, D-018, D-037, D-043, D-083, D-084, D-095                                                                                                                                                                  |
-| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116, D-118, D-123                                                                                            |
+| [10-compiler-architecture](./10-compiler-architecture.md)     | D-006, D-021, D-022, D-023, D-024, D-025, D-037, D-039, D-041, D-044, D-045, D-084, D-085, D-113, D-116, D-118, D-123, D-131, D-132                                                                              |
 | [11-integrations](./11-integrations.md)                       | D-027, D-028, D-029, D-050, D-052, D-053, D-054, D-055, D-065, D-067, D-068, D-069, D-070, D-071, D-072, D-073, D-099, D-100, D-102, D-113, D-130                                                                |
 | [12-tooling-and-dx](./12-tooling-and-dx.md)                   | D-003, D-030, D-031, D-063, D-064, D-066, D-077, D-078, D-079, D-080, D-081, D-082, D-093, D-096, D-097, D-103, D-106, D-107, D-108, D-109, D-110, D-111, D-116, D-120, D-124, D-125, D-126, D-127, D-128, D-129 |
 | [13-output-and-performance](./13-output-and-performance.md)   | D-020, D-026, D-027, D-036, D-037, D-039, D-044, D-048, D-083, D-087, D-114, D-123                                                                                                                               |

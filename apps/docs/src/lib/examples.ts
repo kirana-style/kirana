@@ -20,6 +20,20 @@ export type CompiledExample = {
   }[]
 }
 
+/** A command run on `showcase/project/`, and what it printed (`build`: the stylesheet it wrote). */
+export type ShowcaseRun = {
+  /** The command line, `kirana-style …`. */
+  readonly command: string
+  /** Its exit code. */
+  readonly code: number
+  readonly output: string
+  /** For `build`, the stylesheet highlighted. */
+  readonly html?: string
+}
+
+/** A file of `showcase/project/`, as the runs read it, and highlighted. */
+export type ProjectFile = { readonly source: string; readonly html: string }
+
 /** A homepage snippet from `showcase/`: highlighted, and compiled when it is TSX. */
 export type ShowcaseSnippet = {
   readonly name: string

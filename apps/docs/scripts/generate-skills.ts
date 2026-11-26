@@ -39,6 +39,8 @@ const FIXES: Record<string, string> = {
     "Not a CSS property (a typo such as `colour`, or a Tailwind class name used as a key). Use the camelCase CSS property name.",
   "invalid-value":
     "The value does not fit the property's grammar: a keyword it does not take (`padding: \"red\"`), a negative size, or a token of the wrong kind (a colour token on `padding`). The message gives the grammar. Words the data does not know, function arguments and `var()` are never judged, except a token's own values and the end of a `fallback()` chain.",
+  "unknown-keyword":
+    'A word the CSS data does not list for a property whose values are a fixed set of keywords (`display: "flx"`). Its help names the nearest keyword: write that, or the keyword you meant. It is a warning, so CSS newer than the data still builds.',
   "unitless-length":
     'A bare number on a length property. Write the unit: `width: "5px"`, or a token.',
   "unsplittable-shorthand":
@@ -79,8 +81,6 @@ const FIXES: Record<string, string> = {
     "The token group has no token by that name. Check the name against `kirana-style export`.",
   "token-namespace-collision":
     "Two modules declare one token namespace. Give each `defineTokens()` its own namespace.",
-  "variable-default-scope":
-    "Reserved, not emitted yet: a variable token's default reads a custom property that exists only on a descendant. Assign the value on the element that owns it.",
   "dynamic-token":
     "A token value is not known at build time. Token values must be static; bridge runtime values in the style instead.",
   "unsupported-dtcg-type":

@@ -8,6 +8,7 @@ license.workspace = true
 publish.workspace = true
 
 [dependencies]
+kirana_shared = { workspace = true }
 rustc-hash = { workspace = true }
 
 [lints]

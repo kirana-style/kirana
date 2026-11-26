@@ -83,7 +83,9 @@
       "end": 1450
     },
     "message": "animationDurationn is not a CSS property",
-    "help": []
+    "help": [
+      "did you mean `animationDuration`?"
+    ]
   },
   {
     "code": "KRN1209",

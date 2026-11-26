@@ -59,8 +59,8 @@ const PAGES: readonly {
     href: "/ui",
     scene: "misty-hills",
     label: "Kirana UI",
-    title: "Components you don't have to port",
-    text: "shadcn/ui's components and charts on typed styles, installed into your project with kirana-style ui add, by you or your agent.",
+    title: "shadcn/ui's design system, on your framework",
+    text: "Components, blocks and charts on your framework and your headless library, each with a style module Kirana compiles, installed with kirana-style ui add, by you or your agent.",
   },
   {
     href: "/migrate",
@@ -169,7 +169,7 @@ const styles = {
 export function WhereNext() {
   return (
     <HomeSection
-      number="07"
+      number="08"
       eyebrow="Where to next"
       title="Each page stands in its own place"
       lede="The rest of the site, in the order a newcomer tends to read it."

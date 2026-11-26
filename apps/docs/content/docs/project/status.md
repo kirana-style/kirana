@@ -8,10 +8,13 @@ keywords: [status, support, what works, version, limitations]
 
 # What works today
 
+<!-- consistency: subset (Kirana UI's frameworks) -->
+
 Kirana is on npm, at a 0.x version: before 1.0, a minor version may change the
 API. It compiles three real applications in our shadcn/ui port (a demo, the
-shadcn blocks and one page per component), and its own test suite keeps 100 %
-line coverage. The [changelog](/changelog) lists every release.
+shadcn blocks and one page per component) and Kirana UI's registry, whose style
+modules its preview apps compile for React, Vue, Svelte, Solid and Angular; its
+own test suite keeps 100 % line coverage. The [changelog](/changelog) lists every release.
 
 ## Built
 
@@ -68,8 +71,9 @@ line coverage. The [changelog](/changelog) lists every release.
 - `@kirana-style/eslint-plugin` under Oxlint and ESLint, identical results, and
   `@kirana-style/biome-plugin` with the {{fact:biome-rules-word}} rules Biome can run; see
   [lint](/docs/tooling/lint)
-- Agent skills for writing Kirana and migrating to it, installable with
-  `npx skills add`; see [agent skills](/docs/project/agent-skills)
+- Agent skills for writing Kirana, building and publishing a design system on
+  it, and migrating to it, installable with `npx skills add`; see
+  [agent skills](/docs/project/agent-skills)
 - Every package on npm, with the native engine for {{fact:native-targets-word}} platforms and a WASI
   build, released together from CI with provenance; the template helpers on
   Packagist, RubyGems and Hex; the VS Code extension on the Marketplace and Open
@@ -78,7 +82,8 @@ line coverage. The [changelog](/changelog) lists every release.
 
 ## Partial
 
-- **`variable-default-scope`** is in the catalogue but not emitted yet.
+- **`unsupported-dtcg-type`** (KRN1505) is in the catalogue and never emitted: it is reserved
+  for importing design tokens in the DTCG format, which Kirana does not do yet.
 - **Benchmarks** are advisory: hosted CI numbers, not dedicated hardware.
 - **The Zed extension** works, but is not in Zed's registry yet: install it as a
   dev extension; see [editor support](/docs/tooling/editor).

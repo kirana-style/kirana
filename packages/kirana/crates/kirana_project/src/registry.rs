@@ -29,8 +29,9 @@ pub struct ModuleRecord {
     pub atoms: Vec<Arc<Atom>>,
     pub marker_deps: Vec<Dep>,
     pub anchors: Vec<String>,
-    /// Relation markers read by atoms.
-    pub reads: Vec<String>,
+    /// Relation markers read by atoms, each with the site of the first handle that reads it, where
+    /// `relation-without-anchor` points.
+    pub reads: Vec<(String, (u32, u32))>,
     /// `(shorthand, target)` for every unfold token in the module's handles (D-045).
     pub unfolds: Vec<(Property, Target)>,
     /// `(name, marker, optional)` relations declared here.
@@ -52,7 +53,7 @@ impl ModuleRecord {
         // with one handle wherever it is written, KF-059, or one binding read again) is recorded at
         // its first: its classes, unfolds and reads are the same at every other.
         let mut recorded = kirana_shared::FxHashSet::default();
-        for (_, handle) in &output.handles {
+        for (site, handle) in &output.handles {
             if !recorded.insert(Arc::as_ptr(handle)) {
                 continue;
             }
@@ -74,8 +75,12 @@ impl ModuleRecord {
                 }
             }
             for (marker, _) in relation_reads(handle) {
-                if !record.reads.contains(&marker) {
-                    record.reads.push(marker);
+                if !record.reads.iter().any(|(read, _)| *read == marker) {
+                    // The entry that reads it, when this module wrote it; else the site of the
+                    // handle, a style evaluated elsewhere.
+                    let written = definitions.relation_reads.iter().find(|(read, _)| *read == marker);
+                    let at = written.map_or(*site, |(_, span)| *span);
+                    record.reads.push((marker, at));
                 }
             }
         }
@@ -659,7 +664,7 @@ impl Project {
         let mut paths: Vec<_> = state.modules.keys().collect();
         paths.sort();
         let mut anchors = BTreeSet::new();
-        let mut reads: BTreeMap<&str, String> = BTreeMap::new();
+        let mut reads: BTreeMap<&str, (String, Span)> = BTreeMap::new();
         let mut relation_names: BTreeMap<&str, &str> = BTreeMap::new();
         // Relations declared `{ optional: true }`: read where their anchor's component may not be
         // installed, which R1 leaves alone (KF-037, D-112), and anchored where their readers may not
@@ -674,8 +679,8 @@ impl Project {
             let record = &state.modules[*path];
             let file = self.display_name(path);
             anchors.extend(record.anchors.iter().map(String::as_str));
-            for marker in &record.reads {
-                reads.entry(marker).or_insert_with(|| file.clone());
+            for (marker, (start, end)) in &record.reads {
+                reads.entry(marker).or_insert_with(|| (file.clone(), Span::new(*start, *end)));
             }
             for (name, marker, optional) in &record.relations {
                 relation_names.insert(marker, name);
@@ -757,7 +762,7 @@ impl Project {
                 );
             }
         }
-        for (marker, file) in &reads {
+        for (marker, (file, site)) in &reads {
             // A relation declared in a module this build never compiled (its import only carried a
             // style) is anchored where that module renders, which this build cannot see: `kirana-style
             // check`, compiling every module, decides it (D-062).
@@ -769,7 +774,7 @@ impl Project {
                     Diagnostic::new(
                         Code::RelationWithoutAnchor,
                         file,
-                        Span::default(),
+                        *site,
                         format!("relation {name:?} is read but its anchor is never applied"),
                     )
                     .with_help("apply `relation.anchor` to the element whose state is read"),

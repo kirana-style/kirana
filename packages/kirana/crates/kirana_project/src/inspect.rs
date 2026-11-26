@@ -204,7 +204,7 @@ impl Project {
             for marker in &record.anchors {
                 anchored.entry(marker).or_default().insert(self.display_name(path));
             }
-            for marker in &record.reads {
+            for (marker, _) in &record.reads {
                 read.entry(marker).or_default().insert(self.display_name(path));
             }
         }

@@ -98,6 +98,12 @@ export const DIAGNOSTICS: readonly DiagnosticEntry[] = [
     "family": "Properties and values"
   },
   {
+    "code": "KRN1211",
+    "name": "unknown-keyword",
+    "severity": "warning",
+    "family": "Properties and values"
+  },
+  {
     "code": "KRN1301",
     "name": "unknown-condition",
     "severity": "error",
@@ -167,12 +173,6 @@ export const DIAGNOSTICS: readonly DiagnosticEntry[] = [
     "code": "KRN1502",
     "name": "token-namespace-collision",
     "severity": "error",
-    "family": "Tokens"
-  },
-  {
-    "code": "KRN1503",
-    "name": "variable-default-scope",
-    "severity": "warning",
     "family": "Tokens"
   },
   {

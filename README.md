@@ -9,13 +9,24 @@
 
 **Write objects. Read classes. Ship CSS.**
 
-CSS-in-JS with a Rust engine of its own. Kirana compiles typed style objects into
-one small, layered, atomic stylesheet at native speed. Start with plain objects and
-no preset; add tokens, themes and ready-made scales when your design system grows.
-A typo or a selector that can never match is a compile error, styles merge per
-property instead of colliding, and your editor shows every element's CSS at the end
-of its line, across the frameworks, bundlers and editors you already use. Nothing
-runs in the browser but a class-name merge.
+Kirana is a styling compiler for component code. You write typed style objects next to your
+components; a Rust engine compiles them at build time into one small, layered, atomic stylesheet.
+You keep real CSS property names instead of a class vocabulary, conditions sit inside the value
+they change, and a later style replaces the entries it names, condition by condition, and keeps
+the rest, so there is no `cn()` to merge class strings. A misspelt property, condition or token, or
+a length without its unit, fails the build with a code and the line, as JSON a coding agent reads.
+Nothing runs in the browser but a class-name merge.
+
+## Try it
+
+```bash
+npx kirana-style@latest init
+```
+
+`init` detects your framework and bundler, shows the changes and writes them. Every framework has
+a guide at <https://kirana.style/docs/frameworks/overview>.
+
+## What it compiles to
 
 ```tsx
 import { css } from "@kirana-style/core"
@@ -26,6 +37,7 @@ const styles = {
     borderRadius: "9999px",
     paddingInline: "0.5rem",
     fontSize: "0.75rem",
+    backgroundColor: { base: "white", ":hover": "whitesmoke" },
   }),
 }
 
@@ -34,9 +46,110 @@ export function Badge(props: React.ComponentProps<"span">) {
 }
 ```
 
-> Start a project with `npx kirana-style@latest init`. Kirana follows semantic versioning:
-> before 1.0, a minor version may change the API, and its release notes say how to move.
-> Documentation: <https://kirana.style>. Changes: [CHANGELOG.md](CHANGELOG.md).
+`kirana-style build src/badge.tsx --out kirana.css` wrote one rule per declaration:
+
+```css
+@layer kirana;
+@layer kirana.tokens, kirana.themes, kirana.contextual, kirana.atoms;
+@layer kirana.atoms {
+  .ka_vsvh {
+    border-radius: 9999px;
+  }
+  .kP_pnCg {
+    padding-inline: 0.5rem;
+  }
+  .k44_4U33 {
+    background-color: white;
+  }
+  .k5O_Kh8G {
+    display: inline-flex;
+  }
+  .k6f_1Rdu {
+    font-size: 0.75rem;
+  }
+  .k44-KFHz_tiHX:where(:hover) {
+    background-color: whitesmoke;
+  }
+}
+```
+
+`sx` became a `className` holding those classes, and every module that writes the same
+declaration shares its class.
+
+## What it catches
+
+```console
+$ npx kirana-style check src/badge.tsx
+
+  × KRN1203 unitless-length: padding-inline does not accept a bare number (8)
+   ╭─[src/badge.tsx:6:5]
+ 5 │     display: "inline-flex",
+ 6 │     paddingInline: 8,
+   ·     ────────────────
+ 7 │     colr: "white",
+   ╰────
+  help: write the unit, for example "8px"
+
+  × KRN1201 unknown-property: colr is not a CSS property
+   ╭─[src/badge.tsx:7:5]
+ 6 │     paddingInline: 8,
+ 7 │     colr: "white",
+   ·     ─────────────
+ 8 │   }),
+   ╰────
+  help: did you mean `color`?
+
+2 diagnostic(s), 2 error(s)
+```
+
+A property, condition, token or headless library's state that does not exist, a length without
+its unit, a value the property never takes and a relation read without its anchor are errors. A
+misspelt keyword, where a property's values are a fixed list, is a warning that names the nearest
+one. A word in a property that also takes names of your own (`transitionProperty: "opactiy"`) is
+accepted, since it may be yours, and dark mode written as a `prefers-color-scheme` query is the
+lint plugin's to report. The whole
+list, with what each code means: <https://kirana.style/docs/styling/styles#what-the-compiler-checks>.
+
+## Why a value wins
+
+A style that compiles and still looks wrong is a question for `trace`, which names the entry that
+wins and the step of the precedence ladder that decided it:
+
+```console
+$ npx kirana-style trace src/badge.tsx:9 backgroundColor
+backgroundColor at src/badge.tsx:9
+  ✓ whitesmoke               :hover                           kirana.atoms       step 2 (1 condition > 0)
+    white                    base                             kirana.atoms
+```
+
+Your editor shows the same answers on every element's line, through the language server the build
+runs (`kirana-style lsp`, with extensions for VS Code and Zed).
+
+## For coding agents
+
+| Task                          | Command                                                            |
+| ----------------------------- | ------------------------------------------------------------------ |
+| Install every agent skill     | `npx skills add kirana-style/kirana`                               |
+| Only the rules and the loop   | `npx skills add kirana-style/kirana --skill kirana`                |
+| Only building a design system | `npx skills add kirana-style/kirana --skill kirana-system`         |
+| Only migrating to Kirana      | `npx skills add kirana-style/kirana --skill kirana-migrate`        |
+| Learn the tokens that exist   | `npx kirana-style export`                                          |
+| Check what it wrote, as JSON  | `npx kirana-style check src --format json`                         |
+| Ask which entry wins, as JSON | `npx kirana-style trace <file>:<line> <property> --format json`    |
+| Annotate a pull request       | `npx kirana-style check src --format github`                       |
+| Read the docs                 | <https://kirana.style/llms.txt>, and a markdown twin of every page |
+
+## The family
+
+- **[Kirana UI](https://kirana.style/ui)**: shadcn/ui's design system, on your framework and your
+  headless library. Its components, blocks and charts have style modules Kirana compiles, and
+  `kirana-style ui add` installs them as code you own.
+- **[Kirana UI Primitives](https://kirana.style/ecosystem)**: headless parts that are the same on
+  every framework, checked state by state. A library of their own, not built on Kirana, which Kirana
+  UI uses as one of its bases.
+
+Kirana follows semantic versioning: before 1.0, a minor version may change the API, and its release
+notes say how to move. Documentation: <https://kirana.style>. Changes: [CHANGELOG.md](CHANGELOG.md).
 
 ## What is here
 
@@ -53,36 +166,13 @@ export function Badge(props: React.ComponentProps<"span">) {
 | `apps/docs`                                     | The documentation site, kirana.style, styled with Kirana                                                                                                  |
 | `packages/docs-*`, `ui`, `shell`, `vite-config` | The docs site's components, tokens and shared Vite config                                                                                                 |
 
-## Getting started
+## Developing Kirana
 
-### 1. Install the prerequisites (once)
+To build Kirana from source (Vite+, Rust and a C compiler), follow
+[CONTRIBUTING.md, "Developing Kirana"](CONTRIBUTING.md#developing-kirana). The tables below are the
+reference once it is set up.
 
-| Tool          | Why                                                                                    | Install                                                           |
-| ------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Vite+ (`vp`)  | the toolchain: install, check, test, tasks, git hooks; brings Node.js 24 and Bun 1.4.3 | `curl -fsSL https://vite.plus \| bash`, then open a new terminal  |
-| Rust (rustup) | the Kirana engine is Rust, built before anything else                                  | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
-| A C compiler  | Rust links the native engine with it, and builds mimalloc, the engine's allocator      | Linux/WSL: `build-essential` · macOS: `xcode-select --install`    |
-| Cargo tools   | only for `vp run rust`, `vp run coverage`, the pre-push hook                           | `cargo install --locked cargo-nextest cargo-deny cargo-llvm-cov`  |
-| Chromium      | only for `kirana:example`                                                              | `cd packages/kirana && bunx playwright install chromium`          |
-
-The Rust version is pinned in `packages/kirana/rust-toolchain.toml`; rustup
-downloads it the first time a command needs it. The scripts find cargo in
-`~/.cargo/bin` even when your terminal has not loaded `~/.cargo/env`.
-
-### 2. Install, run and build
-
-```bash
-vp install       # again whenever bun.lock changes; also installs the git hooks
-vp run dev       # builds the native engine, then serves the docs on :3000
-vp run build     # native engine, then the docs site → apps/docs/dist
-```
-
-The first run compiles the Rust workspace and takes a few minutes; later runs
-replay it from the task cache (`node_modules/.vite/task-cache`) until a file in
-`packages/kirana/crates` changes. The build prints every compiler diagnostic as
-`file:line:column`; it must report 0 errors.
-
-## Scripts
+### Scripts
 
 Every command runs from the repository root. `vp <command>` is a Vite+ built-in;
 `vp run <task>` runs a task from the root `vite.config.ts`, cached unless noted:
@@ -114,7 +204,7 @@ what must be installed.
 `KIRANA_UPDATE_FIXTURES=1 bun run --cwd packages/kirana test:rust` rewrites the
 golden fixtures.
 
-### Git hooks
+#### Git hooks
 
 `vp install` installs two hooks (`.vite-hooks/`): **pre-commit** formats and
 lints the staged files (`vp staged`, the `staged` block of `vite.config.ts`),
@@ -130,11 +220,11 @@ them once; `vp hooks status` shows their state.
 When a Rust tool is missing, the command stops and prints the line that installs
 it.
 
-## Troubleshooting
+### Troubleshooting
 
 | Symptom                                                         | Fix                                                                                                         |
 | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `Kirana needs Rust, and cargo was not found`                    | install rustup (above), then open a new terminal                                                            |
+| `Kirana needs Rust, and cargo was not found`                    | install rustup ([CONTRIBUTING.md](CONTRIBUTING.md#developing-kirana)), then open a new terminal             |
 | `Internal Error: cargo metadata failed to run`                  | cargo is not reachable: install rustup, or `. "$HOME/.cargo/env"`                                           |
 | `Cannot find module '…/kirana.<platform>.node'`                 | `vp run engine`                                                                                             |
 | `This command needs cargo-nextest …`                            | run the `cargo install` line it prints                                                                      |
@@ -145,9 +235,9 @@ it.
 | `default_*.profraw` files outside `target/`                     | left by an instrumented engine; ignored: `find . -name 'default_*.profraw' -not -path '*/target/*' -delete` |
 | `Kirana has no engine` from `vp check`                          | `vp run engine`                                                                                             |
 
-## Editor, lint and brand-logo tooling
+### Editor, lint and brand-logo tooling
 
-### Lint
+#### Lint
 
 `vp check` (or `vp lint`) runs Oxlint with Kirana's own rules,
 `@kirana-style/eslint-plugin`, loaded from source through `jsPlugins` in the
@@ -159,7 +249,7 @@ are installed from packed tarballs elsewhere, so their imports cannot resolve
 here, and CI builds every one of them. How another project sets the plugin up under Oxlint, ESLint or Biome
 (`@kirana-style/biome-plugin`) is on the docs page `/docs/tooling/lint`.
 
-### Agent skills
+#### Agent skills
 
 `skills/` holds the skills people install with `npx skills add`, a folder each.
 Their `references/diagnostics.md` and `references/lint.md` are
@@ -167,7 +257,7 @@ generated from the compiler (`bun run --cwd apps/docs generate:skills`); a new
 diagnostic needs a line in `apps/docs/scripts/generate-skills.ts` saying what to
 do about it, or `verify:generated` fails.
 
-### The language server in VS Code, Cursor, Windsurf or Antigravity
+#### The language server in VS Code, Cursor, Windsurf or Antigravity
 
 The extension lives in `packages/kirana/editors/vscode` and starts the project's
 own `kirana-style lsp`. Users install it from the
@@ -212,13 +302,13 @@ points the extension at the compiler entry instead:
 The extension's end-to-end test downloads VS Code and runs it headless against a
 fixture project: `(cd packages/kirana/editors/vscode && bun run test:e2e)`.
 
-### Zed, Neovim and Helix
+#### Zed, Neovim and Helix
 
 Zed: **zed: install dev extension** and pick `packages/kirana/editors/zed`
 (it builds the WebAssembly itself; `rustup target add wasm32-wasip2` once).
 Neovim and Helix need only configuration, on the docs page `/docs/tooling/editor`.
 
-### Brand logos (SVGL, then LogoForge, then the brand's own)
+#### Brand logos (SVGL, then LogoForge, then the brand's own)
 
 The docs show product logos from [SVGL](https://svgl.app), and from
 [LogoForge](https://logoforge.terravidhal.me) for a brand SVGL has no logo for

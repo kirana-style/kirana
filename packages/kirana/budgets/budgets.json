@@ -145,6 +145,18 @@
           "brotli": 245
         }
       },
+      "diagnostics-help": {
+        "css": {
+          "raw": 764,
+          "gzip": 374,
+          "brotli": 310
+        },
+        "js": {
+          "raw": 1330,
+          "gzip": 728,
+          "brotli": 624
+        }
+      },
       "directives-and-hashbang": {
         "css": {
           "raw": 150,

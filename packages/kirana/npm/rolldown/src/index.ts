@@ -175,12 +175,12 @@ export function createKirana(
           .map((name) => `${pruned.get(name)} (${name})`)
           .join(", ")
         this.error(
-          `kirana: ${chunk.fileName} reads tokens the stylesheet left out: ${list}. Nothing the stylesheet's own build bundled named them at runtime. Declare each one \`runtime: true\` in defineTokens (D-086).`
+          `kirana: ${chunk.fileName} reads tokens the stylesheet left out: ${list}. Nothing the stylesheet's own build bundled named them at runtime. Declare each one \`runtime: true\` in defineTokens.`
         )
       }
       if (keyframes.length > 0) {
         this.error(
-          `kirana: ${chunk.fileName} names keyframes the stylesheet left out: ${keyframes.join(", ")}. Nothing the stylesheet's own build bundled named them. Apply them in a style a module of that build compiles (\`animationName\`), so a rule reads them (D-094).`
+          `kirana: ${chunk.fileName} names keyframes the stylesheet left out: ${keyframes.join(", ")}. Nothing the stylesheet's own build bundled named them. Apply them in a style a module of that build compiles (\`animationName\`), so a rule reads them.`
         )
       }
       const own = namedBy(this)

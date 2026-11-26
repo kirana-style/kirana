@@ -489,6 +489,7 @@ and the bundler adapters print the same text through the engine (`renderDiagnost
 | KRN1208 | `invalid-position-try`          | error    | 06        |
 | KRN1209 | `invalid-view-transition`       | error    | 06        |
 | KRN1210 | `invalid-counter-style`         | error    | 06        |
+| KRN1211 | `unknown-keyword`               | warning  | 08        |
 | KRN1301 | `unknown-condition`             | error    | 08        |
 | KRN1302 | `ambiguous-precedence`          | warning  | 08        |
 | KRN1303 | `unsupported-contextual-target` | error    | 06        |
@@ -501,7 +502,6 @@ and the bundler adapters print the same text through the engine (`renderDiagnost
 | KRN1405 | `relation-read-on-anchor`       | info     | 08        |
 | KRN1501 | `unknown-token`                 | error    | 07        |
 | KRN1502 | `token-namespace-collision`     | error    | 07        |
-| KRN1503 | `variable-default-scope`        | warning  | 07        |
 | KRN1504 | `dynamic-token`                 | error    | 09        |
 | KRN1505 | `unsupported-dtcg-type`         | error    | 07        |
 | KRN1506 | `token-not-variable`            | error    | 07        |
@@ -525,3 +525,18 @@ and the bundler adapters print the same text through the engine (`renderDiagnost
 | KRN1903 | `class-name-collision`          | error    | 10        |
 | KRN1904 | `classes-not-static`            | error    | 11        |
 | KRN1905 | `unknown-class-name`            | error    | 12        |
+
+A code taken out of the catalogue is never given to another diagnostic, and a configuration that still
+re-levels it is accepted and changes nothing: KRN1503 `variable-default-scope` (D-132).
+
+**KRN-CMP-014** — A diagnostic whose fix is a name the compiler knows at that point MUST give it in its
+help, worded `did you mean `<name>`?`, when one is near enough to be meant: at most one edit away for a
+name of three to five characters, two from six on, and none for a shorter one (an edit inserts,
+removes or replaces a character, or swaps two neighbours). The names are the CSS properties for
+`unknown-property` (written as the property was, camel or kebab case), the pseudo-classes,
+pseudo-elements and condition at-rules for `unknown-condition` (with the colon a pseudo-class was
+written without, and the selector without nested CSS's `&`), the token group's tokens for
+`unknown-token`, the recipe's slots for `unknown-slot`, its variants and their options for
+`unknown-variant`, a property's keywords for `invalid-value` and `unknown-keyword` (D-131), and the
+catalogue's names for `invalid-config` on a `diagnostics` key. The language server's quick fix for
+`unknown-property` writes the same name, from the same search (`kirana_shared::nearest`).

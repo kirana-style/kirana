@@ -3,7 +3,7 @@
 use std::cmp::Ordering;
 use std::fmt;
 
-use kirana_css_data::{is_pseudo_class, pseudo_class_rank};
+use kirana_css_data::{is_pseudo_class, nearest_pseudo_class, pseudo_class_rank};
 
 /// How a relation reader is placed relative to the anchor.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -135,6 +135,43 @@ pub fn parse_condition_key(key: &str) -> Result<Vec<Condition>, ConditionError> 
         return Err(error("only @media, @container and @supports conditions are supported"));
     }
     parse_simple_selectors(trimmed).map_err(|reason| ConditionError { key: key.to_owned(), reason })
+}
+
+/// The fix for a condition key [`parse_condition_key`] rejects, when one can be named: the at-rule
+/// (`@meda` → `@media`) or pseudo-class (`:hovr` → `:hover`) nearest to a misspelt one
+/// ([`kirana_shared::nearest`]), a pseudo-class written without its colon (`hover`), or the selector
+/// without the `&` that nested CSS writes before it (`&:hover`).
+pub fn condition_help(key: &str) -> Option<String> {
+    let trimmed = key.trim();
+    if let Some(rest) = trimmed.strip_prefix('&') {
+        let rest = rest.trim();
+        return parse_condition_key(rest)
+            .is_ok()
+            .then(|| format!("write `{rest}`: a condition key is the selector alone, without `&`"));
+    }
+    if trimmed.starts_with('@') {
+        let word = trimmed.split([' ', '(']).next().unwrap_or_default();
+        let nearest = kirana_shared::nearest(word, ["@media", "@container", "@supports"])?;
+        return Some(kirana_shared::did_you_mean(nearest));
+    }
+    let word_end = |text: &str| text.find(|c: char| !(c.is_ascii_alphanumeric() || c == '-')).unwrap_or(text.len());
+    if trimmed.starts_with(|c: char| c.is_ascii_alphabetic()) {
+        let word = &trimmed[..word_end(trimmed)];
+        let pseudo = format!(":{}", word.to_ascii_lowercase());
+        let meant = if is_pseudo_class(&pseudo) { Some(pseudo.as_str()) } else { nearest_pseudo_class(&pseudo) };
+        return meant.map(|meant| kirana_shared::did_you_mean(&format!("{meant}{}", &trimmed[word.len()..])));
+    }
+    trimmed.match_indices(':').find_map(|(at, _)| {
+        let rest = &trimmed[at + 1..];
+        if rest.starts_with(':') || at > 0 && trimmed.as_bytes()[at - 1] == b':' {
+            return None;
+        }
+        let name = format!(":{}", rest[..word_end(rest)].to_ascii_lowercase());
+        if is_pseudo_class(&name) {
+            return None;
+        }
+        nearest_pseudo_class(&name).map(kirana_shared::did_you_mean)
+    })
 }
 
 /// Splits a compound selector made only of pseudo-classes and attribute selectors.

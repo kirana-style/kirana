@@ -68,6 +68,12 @@ fn invalid_configuration() {
             "diagnostics":{"nope":"off","parse-error":"warning"}}"#,
     );
     assert_eq!(problems.len(), 7, "{problems:#?}");
+    // A retired diagnostic's name is still accepted, and changes nothing.
+    assert!(Config::from_json(r#"{"diagnostics":{"variable-default-scope":"off"}}"#).is_ok());
+    // A misspelt diagnostic name gets the nearest one in its help.
+    let misspelt = Config::from_json(r#"{"diagnostics":{"relation-unsed":"off","nope":"off"}}"#).unwrap_err();
+    let helps: Vec<&[String]> = misspelt.iter().map(|problem| problem.help.as_slice()).collect();
+    assert_eq!(helps, [&[][..], &["did you mean `relation-unused`?".to_owned()][..]]);
     assert!(messages(r#"{"names":{"prefix":""}}"#)[0].contains("names.prefix"));
     assert!(messages(r#"{"names":{"prefix":"abcde"}}"#)[0].contains("names.prefix"));
 }

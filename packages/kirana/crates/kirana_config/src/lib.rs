@@ -362,11 +362,17 @@ impl Config {
                 problems.push(invalid(format!("layers: {layer:?} is not a usable layer name")));
             }
         }
-        for name in config.diagnostics.keys() {
+        let retired = |name: &str| kirana_diagnostics::RETIRED.iter().any(|(_, retired)| *retired == name);
+        for name in config.diagnostics.keys().filter(|name| !retired(name)) {
             match validate_override(name) {
                 Ok(_) => {}
                 Err(OverrideError::UnknownName(name)) => {
-                    problems.push(invalid(format!("diagnostics.{name} is not a Kirana diagnostic")));
+                    let mut problem = invalid(format!("diagnostics.{name} is not a Kirana diagnostic"));
+                    let names = Code::ALL.iter().map(|code| code.name());
+                    if let Some(nearest) = kirana_shared::nearest(&name, names) {
+                        problem = problem.with_help(kirana_shared::did_you_mean(nearest));
+                    }
+                    problems.push(problem);
                 }
                 Err(OverrideError::ErrorNotAdjustable(name)) => problems.push(invalid(format!(
                     "diagnostics.{name} is an error and cannot be re-levelled: it means the output would be wrong"

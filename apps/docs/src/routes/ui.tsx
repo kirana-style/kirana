@@ -38,7 +38,7 @@ export const Route = createFileRoute("/ui")({
       {
         name: "description",
         content:
-          "shadcn/ui's components, blocks and charts, rebuilt on typed styles and compiled by Kirana. Installed into your project with kirana-style ui add, as code you own, by you or your agent.",
+          "shadcn/ui's design system, on your framework and your headless library: components, blocks and charts in typed styles compiled by Kirana, installed with kirana-style ui add as code you own, by you or your agent.",
       },
     ],
   }),
@@ -139,10 +139,10 @@ function UiPage() {
         label="Kirana UI"
         title={
           <>
-            Components you don&apos;t have to <Accent>port</Accent>
+            shadcn/ui&apos;s design system, on your <Accent>framework</Accent>
           </>
         }
-        lede="The question before any move to a new way of styling is what happens to the components. Kirana UI is shadcn/ui's set, its blocks and its charts, already rebuilt on typed styles and compiled by Kirana, installed into your project with one command, by you or your agent."
+        lede="And on the headless library your project already uses. Every component, block and chart has a style module Kirana compiles, and one command installs it as code you own, by you or your agent. The design and the components are shadcn/ui's, ported with credit."
         actions={
           <>
             <QuickStart href={UI_PAGES.components}>
@@ -159,7 +159,7 @@ function UiPage() {
         number="01"
         label="What you get"
         title="The components you know, as code you own"
-        lede={`Moving to Kirana does not start with porting a component library: shadcn/ui's is already here, ${UI_ON}.`}
+        lede={`The components, blocks and charts of shadcn/ui's design system, ${UI_ON}, as code you own.`}
       >
         <div sx={styles.cells}>
           {OWNED.map((entry) => (

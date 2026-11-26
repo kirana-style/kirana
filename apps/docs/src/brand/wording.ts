@@ -19,7 +19,7 @@ export type Line = {
 
 export const HEADLINES: Line[] = [
   {
-    text: "A typo is a compile error, not a bug report.",
+    text: "A misspelt property is a compile error, not a bug report.",
     tone: "Bold",
     proof: `Typed tokens and ${DIAGNOSTICS.length} diagnostics from the compiler itself.`,
     href: "/docs/tooling/diagnostics",
@@ -62,13 +62,13 @@ export const HEADLINES: Line[] = [
 
 export const DESCRIPTIONS: Line[] = [
   {
-    text: "Kirana compiles typed style objects into one small, atomic stylesheet with an engine written in Rust. A typo or a selector that can never match is a compile error; styles merge per property instead of colliding; and your editor shows every element's CSS at the end of its line.",
+    text: "Kirana compiles typed style objects into one small, atomic stylesheet with an engine written in Rust. A misspelt property, condition or token, or a selector that can never match, is a compile error; a later style replaces the entries it names, condition by condition; and your editor shows every element's CSS at the end of its line.",
     tone: "The whole case",
     proof: "Types, merging, editor and the Rust engine, in one paragraph.",
     href: "/docs/start/why-kirana",
   },
   {
-    text: "No class collisions, no cn(), no merge library. Styles merge per property on one precedence ladder you can trace, and a parent styles its children without overriding their own styles.",
+    text: "No class collisions, no cn(), no merge library. A later style replaces the entries it names, condition by condition, on one precedence ladder you can trace, and a parent styles its children without overriding their own styles.",
     tone: "For Tailwind users",
     proof:
       "Merging per longhand; select.child and select.descendant sit in a layer below the child's own styles.",
@@ -162,14 +162,14 @@ export const IMPROVED_HEADLINES: Line[] = [
 
 export const IMPROVED_DESCRIPTIONS: Line[] = [
   {
-    text: "CSS-in-JS with a Rust engine of its own. Kirana compiles typed style objects into one small, atomic stylesheet at native speed. Start with plain objects and no preset; add tokens, themes and ready-made scales when your design system grows. A typo or a selector that can never match is a compile error, styles merge per property instead of colliding, and your editor shows every element's CSS at the end of its line, across the frameworks, bundlers and editors you already use.",
+    text: "CSS-in-JS with a Rust engine of its own. Kirana compiles typed style objects into one small, atomic stylesheet at native speed. Start with plain objects and no preset; add tokens, themes and ready-made scales when your design system grows. A misspelt property, condition or token, or a selector that can never match, is a compile error, a later style replaces the entries it names and keeps the rest, and your editor shows every element's CSS at the end of its line, across the frameworks, bundlers and editors you already use.",
     tone: "The whole case, complete",
     proof:
       "Engine, speed, starting small, safety, merging, the editor and the ecosystem.",
     href: "/docs/start/why-kirana",
   },
   {
-    text: "CSS-in-JS with a Rust engine of its own. Start with plain style objects and grow into tokens and themes; Kirana compiles them into one atomic stylesheet at native speed, turns mistakes into compile errors, and shows every element's CSS on its line in your editor.",
+    text: "CSS-in-JS with a Rust engine of its own. Start with plain style objects and grow into tokens and themes; Kirana compiles them into one atomic stylesheet at native speed, turns a misspelt property, condition or token into a compile error, and shows every element's CSS on its line in your editor.",
     tone: "Hero length",
     proof: "The same case in two sentences, for under the headline.",
     href: "/docs/start/why-kirana",

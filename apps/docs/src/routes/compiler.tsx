@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { css } from "@kirana-style/core"
 import {
+  Analytics01Icon,
   FileScriptIcon,
   Layers01Icon,
   SourceCodeIcon,
@@ -138,7 +139,7 @@ function CompilerPage() {
         title="What the browser receives"
         lede={`The only runtime code is a private helper under ${RUNTIME_SIZE}, included only in modules that merge styles at runtime or bridge a value. It merges class strings; it never generates CSS.`}
       >
-        <CardGrid>
+        <CardGrid cols={2}>
           <Card icon={FileScriptIcon} title="One stylesheet">
             The atoms your application actually uses, minified through Lightning
             CSS and lowered for your browser targets.
@@ -150,6 +151,12 @@ function CompilerPage() {
           <Card icon={Layers01Icon} title="Layers you control">
             Every rule sits in a layer, so your reset stays below Kirana's and
             nothing is emitted unlayered.
+          </Card>
+          <Card icon={Analytics01Icon} title="A report of what it holds">
+            <InlineCode>kirana-style analyze</InlineCode> lists the atoms by how
+            many places apply them, the bytes by layer and by module, and the
+            tokens nothing reads; <InlineCode>--html</InlineCode> writes it as
+            one page.
           </Card>
         </CardGrid>
       </PageSection>
