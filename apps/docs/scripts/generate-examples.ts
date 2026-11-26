@@ -249,6 +249,10 @@ try {
       .map((line) => line.trimEnd())
       .join("\n")
       .trimEnd()
+      // `export` names the engine's release, which release-please moves in its Release PR: recorded
+      // as it is, the file went stale on the release's own pull request. The site reads no version
+      // from a run; one that shows it fills this in from `data/release.ts`.
+      .replace(/"engine": "[^"]+"/g, '"engine": "{{version}}"')
     runs[name] = {
       command: `kirana-style ${args.join(" ")}`,
       code,
