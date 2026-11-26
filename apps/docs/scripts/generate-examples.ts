@@ -242,7 +242,13 @@ try {
     if (built) output = await readFile(join(scratch, args.at(-1)!), "utf8")
     if (output.includes(scratch))
       problems.push(`showcase run ${name}: its output names the scratch folder`)
-    output = output.replace(/[ \t]+$/gm, "").trimEnd()
+    // Each line without the spaces the CLI pads it with, a line at a time: one pattern over the
+    // whole text would look again from every space of a long run.
+    output = output
+      .split("\n")
+      .map((line) => line.trimEnd())
+      .join("\n")
+      .trimEnd()
     runs[name] = {
       command: `kirana-style ${args.join(" ")}`,
       code,
