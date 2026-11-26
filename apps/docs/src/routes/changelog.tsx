@@ -54,6 +54,9 @@ const label = {
 
 const styles = {
   release: css({
+    // A link to a version (the docs banner's) lands on the release, clear of the sticky header;
+    // the version heading is sticky itself, so it cannot be the target.
+    scrollMarginBlockStart: "6rem",
     display: "grid",
     gap: { base: spacing[6], [breakpoint.md]: spacing[12] },
     gridTemplateColumns: {
@@ -186,12 +189,10 @@ function ReleaseRow({
   latest: boolean
 }) {
   return (
-    <div sx={styles.release}>
+    <div sx={styles.release} id={`v${release.version}`}>
       <div sx={styles.side}>
         {latest ? <span sx={styles.latest}>Latest</span> : null}
-        <h2 sx={styles.version} id={`v${release.version}`}>
-          {release.version}
-        </h2>
+        <h2 sx={styles.version}>{release.version}</h2>
         <time dateTime={release.date} sx={styles.date}>
           {format(release.date)}
         </time>
