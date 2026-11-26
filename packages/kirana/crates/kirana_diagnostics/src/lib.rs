@@ -61,6 +61,7 @@ catalogue! {
     InvalidPositionTry = "KRN1208", "invalid-position-try", Error;
     InvalidViewTransition = "KRN1209", "invalid-view-transition", Error;
     InvalidCounterStyle = "KRN1210", "invalid-counter-style", Error;
+    UnknownKeyword = "KRN1211", "unknown-keyword", Warning;
     UnknownCondition = "KRN1301", "unknown-condition", Error;
     AmbiguousPrecedence = "KRN1302", "ambiguous-precedence", Warning;
     UnsupportedContextualTarget = "KRN1303", "unsupported-contextual-target", Error;
@@ -73,7 +74,6 @@ catalogue! {
     RelationReadOnAnchor = "KRN1405", "relation-read-on-anchor", Info;
     UnknownToken = "KRN1501", "unknown-token", Error;
     TokenNamespaceCollision = "KRN1502", "token-namespace-collision", Error;
-    VariableDefaultScope = "KRN1503", "variable-default-scope", Warning;
     DynamicToken = "KRN1504", "dynamic-token", Error;
     UnsupportedDtcgType = "KRN1505", "unsupported-dtcg-type", Error;
     TokenNotVariable = "KRN1506", "token-not-variable", Error;
@@ -98,6 +98,12 @@ catalogue! {
     ClassesNotStatic = "KRN1904", "classes-not-static", Error;
     UnknownClassName = "KRN1905", "unknown-class-name", Error;
 }
+
+/// Codes taken out of the catalogue, by name, never to be given to another diagnostic. A
+/// configuration that still re-levels one is accepted and changes nothing: `variable-default-scope`
+/// (KRN1503) was catalogued and never reported, since where a custom property is set is decided at
+/// runtime, by the page's own CSS or a headless library, which the compiler cannot see.
+pub const RETIRED: &[(&str, &str)] = &[("KRN1503", "variable-default-scope")];
 
 impl Code {
     /// Looks a code up by its kebab-case name.
@@ -531,4 +537,45 @@ fn github_property(text: &str) -> String {
 /// Renders diagnostics as a JSON array.
 pub fn render_json(diagnostics: &[Diagnostic]) -> String {
     serde_json::to_string(diagnostics).expect("diagnostics serialize")
+}
+
+/// Renders diagnostics as a JSON array for `kirana-style check --format json`: each one as
+/// [`render_json`] writes it, and, when it has a span in a file whose text `source` gives, where the
+/// span starts and ends as 1-based lines and columns, counted in characters as the terminal report's
+/// `file:line:column` counts them (`line`, `column`, `endLine`, `endColumn`). One file's diagnostics
+/// share one line index.
+pub fn render_json_located<'a>(diagnostics: &'a [Diagnostic], source: &dyn Fn(&str) -> Option<&'a str>) -> String {
+    #[derive(Serialize)]
+    struct Located<'a> {
+        #[serde(flatten)]
+        diagnostic: &'a Diagnostic,
+        #[serde(flatten)]
+        at: Option<At>,
+    }
+    #[derive(Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct At {
+        line: usize,
+        column: usize,
+        end_line: usize,
+        end_column: usize,
+    }
+    let mut indexes: std::collections::HashMap<&str, LineIndex> = std::collections::HashMap::new();
+    let located: Vec<Located<'a>> = diagnostics
+        .iter()
+        .map(|diagnostic| {
+            let file = diagnostic.file.as_str();
+            let at = Some(diagnostic.span)
+                .filter(|span| *span != Span::default() && !file.is_empty())
+                .and_then(|span| Some((span, source(file).filter(|text| within(text, span))?)))
+                .map(|(span, text)| {
+                    let lines = indexes.entry(file).or_insert_with(|| LineIndex::new(text));
+                    let (line, column) = lines.line_column(text, span.start);
+                    let (end_line, end_column) = lines.line_column(text, span.end);
+                    At { line, column, end_line, end_column }
+                });
+            Located { diagnostic, at }
+        })
+        .collect();
+    serde_json::to_string(&located).expect("diagnostics serialize")
 }

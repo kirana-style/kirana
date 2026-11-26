@@ -274,3 +274,38 @@ fn renders_github_workflow_commands() {
         "::notice file=a.ts,title=KRN1601 dynamic-bridged::bridged"
     );
 }
+
+/// `check --format json` gives where a span starts and ends, in lines and characters, as the terminal
+/// report counts them; a diagnostic with no span, no file, a file with no text or a span outside it
+/// has none. A retired code is not in the catalogue.
+#[test]
+fn json_for_check_gives_lines_and_columns() {
+    let source = "const a = 1\nconst é = css({ colr: \"red\" })\n";
+    let start = u32::try_from(source.find("colr").unwrap()).unwrap();
+    let diagnostics = [
+        Diagnostic::new(Code::UnknownProperty, "a.tsx", Span::new(start, start + 11), "colr is not a CSS property")
+            .with_help("did you mean `color`?"),
+        Diagnostic::new(Code::RelationUnused, "a.tsx", Span::new(0, 25), "x"),
+        Diagnostic::new(Code::RelationUnused, "a.tsx", Span::default(), "no span"),
+        Diagnostic::new(Code::InvalidConfig, "", Span::new(1, 2), "no file"),
+        Diagnostic::new(Code::RelationUnused, "b.tsx", Span::new(1, 2), "no text"),
+        Diagnostic::new(Code::RelationUnused, "a.tsx", Span::new(1, 999), "outside"),
+    ];
+    let json: serde_json::Value =
+        serde_json::from_str(&render_json_located(&diagnostics, &|file| (file == "a.tsx").then_some(source))).unwrap();
+    let at = |index: usize| {
+        let entry = &json[index];
+        [&entry["line"], &entry["column"], &entry["endLine"], &entry["endColumn"]].map(|value| value.as_u64())
+    };
+    assert_eq!(at(0), [Some(2), Some(17), Some(2), Some(28)]);
+    assert_eq!(json[0]["help"][0], "did you mean `color`?");
+    assert_eq!(json[0]["code"], "KRN1201");
+    assert_eq!(at(1), [Some(1), Some(1), Some(2), Some(13)]);
+    for index in 2..6 {
+        assert_eq!(at(index), [None; 4], "{}", json[index]);
+        assert!(json[index]["span"]["start"].as_u64().is_some());
+    }
+    for (code, name) in RETIRED {
+        assert!(Code::ALL.iter().all(|known| known.code() != *code && known.name() != *name));
+    }
+}

@@ -723,7 +723,7 @@ fn reports_what_a_bug_report_needs_from_the_engine() {
     assert_eq!(value["diagnostics"], serde_json::json!([]));
     // A hidden command: the help does not list it.
     let (_, help) = run(&["--help"]);
-    assert!(!help.contains("report"), "{help}");
+    assert!(!help.lines().any(|line| line.trim_start().starts_with("report ")), "{help}");
     fs::remove_dir_all(root).unwrap();
 }
 
@@ -1023,4 +1023,56 @@ export const styles = css({
     // A handle the compiler builds itself was written by no one.
     assert!(entries("scheme")[0].get("path").is_none());
     fs::remove_dir_all(root).unwrap();
+}
+
+/// `--help` lists every command with one line, the ones the `kirana-style` package runs in Node.js
+/// too, and no help text names an internal specification or decision id. Those commands reached
+/// through the engine alone say where they run.
+#[test]
+fn help_lists_every_command_and_no_internal_id() {
+    let (code, help) = run(&["--help"]);
+    assert_eq!(code, 0);
+    let listed: Vec<&str> = help
+        .lines()
+        .skip_while(|line| *line != "Commands:")
+        .skip(1)
+        .take_while(|line| !line.is_empty())
+        .filter_map(|line| line.split_whitespace().next())
+        .collect();
+    let commands = ["init", "check", "build", "dev", "analyze", "export", "trace", "migrate", "ui", "doctor", "lsp"];
+    assert_eq!(listed, commands, "{help}");
+    for name in kirana_cli::NODE_COMMANDS {
+        assert!(listed.contains(name), "{name}");
+        assert_eq!(
+            run(&[name, "--help"]),
+            (2, format!("kirana-style {name} runs in Node.js: run it through the kirana-style package\n"))
+        );
+    }
+    let mut texts = vec![help];
+    for command in commands {
+        texts.push(run(&[command, "--help"]).1);
+    }
+    for from in ["stylex", "tailwind", "css-modules", "styled-components"] {
+        texts.push(run(&["migrate", from, "--help"]).1);
+    }
+    let id = internal_id(&texts.join("\n"));
+    assert_eq!(id, None);
+}
+
+/// The first internal id in `text`: `KRN-DX-011`, `D-049`, `KF-088`, `E-02`.
+fn internal_id(text: &str) -> Option<String> {
+    let words = text.split(|c: char| !(c.is_ascii_alphanumeric() || c == '-'));
+    words
+        .filter(|word| {
+            let parts: Vec<&str> = word.split('-').collect();
+            match parts.as_slice() {
+                ["KRN", family, number] => {
+                    family.chars().all(|c| c.is_ascii_uppercase()) && number.parse::<u32>().is_ok()
+                }
+                ["D" | "KF" | "E", number] => number.len() >= 2 && number.parse::<u32>().is_ok(),
+                _ => false,
+            }
+        })
+        .map(str::to_owned)
+        .next()
 }

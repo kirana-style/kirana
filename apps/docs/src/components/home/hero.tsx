@@ -289,14 +289,18 @@ export function Hero() {
               <em sx={styles.titleAccent}>Ship CSS.</em>
             </h1>
             <p sx={styles.lede}>
-              Typed style objects next to your components, compiled by a Rust
-              engine into one atomic stylesheet. Mistakes become compile errors,
-              and your editor shows every element&apos;s CSS on its line.
+              Typed style objects beside each component, compiled by a Rust
+              engine into one atomic stylesheet at build time. A misspelt
+              property, condition or token fails the build with a code, the line
+              and the fix, as JSON a coding agent reads.
             </p>
             <div sx={styles.actions}>
               <QuickStart />
               <SecondaryCta render={<DocsLink href={PLAYGROUND} />}>
                 See it compile
+              </SecondaryCta>
+              <SecondaryCta render={<DocsLink href="/compare" />}>
+                Compare
               </SecondaryCta>
             </div>
             <Status />

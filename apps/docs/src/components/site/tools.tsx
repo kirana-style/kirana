@@ -224,7 +224,7 @@ const ITEMS: {
   {
     title: "Language models and agents",
     accent: "ochre",
-    text: "Agent skills for writing Kirana and migrating to it, installed with npx skills add; llms.txt, llms-full.txt and a markdown twin of every page, with Copy page and Open in ChatGPT or Claude.",
+    text: "Agent skills for writing Kirana, building a design system on it and migrating to it, installed with npx skills add; llms.txt, llms-full.txt and a markdown twin of every page, with Copy page and Open in ChatGPT or Claude.",
     href: "/docs/project/llms",
     art: LlmArt,
   },

@@ -9,7 +9,9 @@
       "end": 425
     },
     "message": "\"hover\": expected a pseudo-class, an attribute selector or an at-rule",
-    "help": []
+    "help": [
+      "did you mean `:hover`?"
+    ]
   },
   {
     "code": "KRN1101",

@@ -311,10 +311,13 @@ function WhyPage() {
               compiler, so it is never a guess.
             </p>
             <p>
-              And you keep what object styles are for: types that reject a typo
-              before it ships, atomic output (one rule per distinct declaration,
-              shared by every element), and a Rust compiler that built the
-              shadcn/ui port&apos;s three apps{" "}
+              And you keep what object styles are for: types that reject a
+              misspelt property, token or component state before it ships (a
+              headless library&apos;s states are typed keys in{" "}
+              <A href="/docs/styling/states">@kirana-style/states</A>, generated
+              from its own declarations), atomic output (one rule per distinct
+              declaration, shared by every element), and a Rust compiler that
+              built the shadcn/ui port&apos;s three apps{" "}
               <A href="/compiler#measured">
                 {CLAIMS.buildTailwind} and {CLAIMS.buildStylex}
               </A>

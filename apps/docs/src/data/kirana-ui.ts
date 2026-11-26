@@ -56,7 +56,7 @@ export const UI_AGENTS = [
   {
     kicker: "Build",
     title: "Your agent sets it up",
-    text: "A prompt copied from the site runs one command, installs the agent skills and adds a first component. A wrong value does not ship: Kirana's compiler answers with a code, the line and the fix, as JSON the agent reads.",
+    text: "A prompt copied from the site runs one command, installs the agent skills and adds a first component. A misspelt property, condition or token does not ship: Kirana's compiler answers with a code and the line as JSON the agent reads, and help names the fix where it is certain.",
     links: [
       { title: "Agents build with it", href: UI_PAGES.agentsBuild },
       { title: "Kirana's agent skills", href: "/docs/project/agent-skills" },

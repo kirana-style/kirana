@@ -49,8 +49,9 @@ do that part: install them, and the agent loads the rules, the
 check-trace-report loop and the diagnostics reference by itself. The four rules worth stating outright in
 your own prompt or project instructions:
 
-- Styles are `css({ ... })` handles. There is no `cn`, no
-  `class-variance-authority`, and no utility-class strings.
+- Styles are `css({ ... })` handles. There is no `cn` and no
+  `class-variance-authority`, and no utility-class strings unless the project
+  turns on the [scales preset's utilities](/docs/styling/utilities).
 - Conditions go **inside the value**: `color: { base: a, ":hover": b }`, not a
   `:hover` key at the top level.
 - Dark mode is a `light-dark()` pair on the token. There is no `dark:` variant
@@ -58,9 +59,13 @@ your own prompt or project instructions:
 - A later style **replaces the entries it names** and keeps the rest. To drop a
   property's other entries, write `{ "*": null, base: ... }`.
 
-Everything the compiler can catch, it catches: a mistake in any of these is a
-diagnostic with a code, not a silently wrong style. The
-[diagnostics reference](/docs/tooling/diagnostics) lists all of them, and it is
+The compiler catches a condition written outside the value and a property that
+does not exist as diagnostics with a code. The lint plugin catches two more:
+`no-class-helpers` (in its strict config) reports `clsx` and the like joining
+class strings, and `no-dark-variant` reports dark mode written as a
+`prefers-color-scheme` query, which compiles. What the compiler checks, and what
+it leaves alone, is [on its own page](/docs/styling/styles#what-the-compiler-checks);
+the [diagnostics reference](/docs/tooling/diagnostics) lists every code, and it is
 worth handing to an agent alongside the pages above.
 
 ## Machine-readable extras
@@ -73,7 +78,11 @@ worth handing to an agent alongside the pages above.
   declared) as JSON, so an agent uses the names that exist.
 - The [API reference](/docs/reference/api) is generated from the packages'
   type declarations, so its signatures are the real ones.
-- The [playground](/play) shows curated examples with the CSS, class names and
-  diagnostics the real compiler produced from them at build time. It does not
-  compile pasted source yet (that needs the WASM engine), so to check an agent's
-  suggestion, run `kirana-style build` or `kirana-style check` on it.
+- [`kirana-style check --format json`](/docs/tooling/cli#kirana-style-check)
+  gives each diagnostic as data, and
+  [`kirana-style trace --format json`](/docs/tooling/cli#kirana-style-trace)
+  says which entry wins for a property at a line, and why.
+- [Kirana Play](https://play.kirana-style.workers.dev) compiles a project in your browser with a
+  released engine, and [`/play`](/play) shows this site's curated examples with
+  the CSS the compiler produced from them. To check an agent's change in its own
+  project, run `kirana-style check` on it.

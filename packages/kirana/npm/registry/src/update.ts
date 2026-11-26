@@ -69,7 +69,7 @@ export async function runUpdate(
   const refused = statuses.filter(changedInPlace)
   for (const status of refused)
     write(
-      `${status.key} ${status.locked.version}: the registry changed its files without a new version; refused (KRN-DX-025)\n`
+      `${status.key} ${status.locked.version}: the registry changed its files without a new version; refused\n`
     )
   const outdated = statuses.filter(
     (status) => isOutdated(status) && !changedInPlace(status)

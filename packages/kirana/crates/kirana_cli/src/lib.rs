@@ -12,23 +12,58 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use clap::{Parser, Subcommand, ValueEnum};
-use kirana_diagnostics::{Diagnostic, LineIndex, Severity, render_github, render_human, render_json};
+use kirana_diagnostics::{Diagnostic, LineIndex, Severity, render_github, render_human, render_json_located};
 use kirana_project::Project;
 pub use kirana_project::plain_path;
 use kirana_shared::OsFs;
 
 #[derive(Parser, Debug)]
-#[command(name = "kirana-style", version, about = "Styling, compiled.")]
+#[command(
+    name = "kirana-style",
+    version,
+    about = "Styling, compiled.",
+    arg_required_else_help = true,
+    disable_help_subcommand = true
+)]
 struct Cli {
-    /// Resolved configuration as JSON (the Driver loads kirana.config.* and passes it here).
-    #[arg(long, global = true, default_value = "{}")]
+    /// The resolved configuration as JSON, which the `kirana-style` package passes after loading
+    /// kirana.config.*; not for people.
+    #[arg(long, global = true, default_value = "{}", hide = true)]
     config_json: String,
     #[command(subcommand)]
     command: Command,
 }
 
+/// The commands the `kirana-style` package runs in Node.js itself, because they read and write the
+/// project around the compiler or load another package: they are listed here so that `--help` lists
+/// every command, and their own `--help` is the package's.
+pub const NODE_COMMANDS: &[&str] = &["init", "dev", "ui", "doctor"];
+
 #[derive(Subcommand, Debug)]
 enum Command {
+    /// Set a project up: the configuration, the bundler plugin, the stylesheet and the `sx` types.
+    #[command(disable_help_flag = true)]
+    Init {
+        #[arg(trailing_var_arg = true, allow_hyphen_values = true, hide = true)]
+        args: Vec<String>,
+    },
+    /// Report diagnostics without writing anything.
+    Check {
+        /// Files and directories to check.
+        paths: Vec<PathBuf>,
+        #[arg(long, value_enum, default_value_t = Format::Human)]
+        format: Format,
+        /// Fail when more than this many warnings are reported, as when an error is.
+        #[arg(long)]
+        max_warnings: Option<usize>,
+        /// Also report how much work the engine did: modules seen, skipped and parsed.
+        #[arg(long)]
+        stats: bool,
+        /// Read this configuration file for every path, instead of each path's nearest kirana.config.*
+        /// (the kirana-style package reads it).
+        #[arg(long, value_name = "FILE")]
+        config: Option<PathBuf>,
+    },
     /// Compile files and directories and write the stylesheet.
     Build {
         paths: Vec<PathBuf>,
@@ -39,20 +74,17 @@ enum Command {
         #[arg(long)]
         minify: bool,
     },
-    /// Report diagnostics without writing anything.
-    Check {
-        paths: Vec<PathBuf>,
-        #[arg(long, value_enum, default_value_t = Format::Human)]
-        format: Format,
-        /// Fail when more than this many warnings are reported, as when an error is.
-        #[arg(long)]
-        max_warnings: Option<usize>,
-        /// Also report how much work the engine did (E-02, KRN-PERF-002).
-        #[arg(long)]
-        stats: bool,
+    /// Watch files and rewrite the stylesheet when they change, for a project without a bundler
+    /// plugin.
+    #[command(disable_help_flag = true)]
+    Dev {
+        #[arg(trailing_var_arg = true, allow_hyphen_values = true, hide = true)]
+        args: Vec<String>,
     },
-    /// Report what the stylesheet holds and why: atoms and reuse, bytes by layer and by module,
-    /// runtime values and recipes, themes, unproven relation reads, tokens nothing reads.
+    /// Report what the stylesheet holds and why, and the tokens nothing reads.
+    ///
+    /// Atoms and reuse, bytes by layer and by module, runtime values and recipes, themes, unproven
+    /// relation reads, tokens nothing reads.
     Analyze {
         paths: Vec<PathBuf>,
         /// Print JSON instead of the summary.
@@ -63,7 +95,7 @@ enum Command {
         html: Option<PathBuf>,
     },
     /// Describe the design system as JSON: tokens, themes, recipes, relations and named definitions,
-    /// each with the file that declares it (KRN-DX-011).
+    /// each with the file that declares it.
     Export {
         /// Sources to read; the project root when none are given.
         paths: Vec<PathBuf>,
@@ -74,6 +106,10 @@ enum Command {
         /// conditions, the tokens they read and the relations they anchor.
         #[arg(long)]
         definitions: bool,
+        /// Read this configuration file for every path, instead of each path's nearest kirana.config.*
+        /// (the kirana-style package reads it).
+        #[arg(long, value_name = "FILE")]
+        config: Option<PathBuf>,
     },
     /// What a bug report needs from the engine, as JSON (`kirana-style doctor --report` runs it).
     #[command(hide = true)]
@@ -81,22 +117,40 @@ enum Command {
         /// Sources to compile; the project root when none are given.
         paths: Vec<PathBuf>,
     },
-    /// Explain which value wins for a property at `file:line`. Several `file:line property` pairs
-    /// are answered in one compile.
+    /// Explain which value wins for a property at `file:line`.
+    ///
+    /// Several `file:line property` pairs are answered in one compile.
     Trace {
         /// `file:line property`, once or several times.
         #[arg(required = true, num_args = 2.., value_names = ["LOCATION", "PROPERTY"])]
         queries: Vec<String>,
         #[arg(long, value_enum, default_value_t = TraceFormat::Human)]
         format: TraceFormat,
+        /// Read this configuration file for every path, instead of each path's nearest kirana.config.*
+        /// (the kirana-style package reads it).
+        #[arg(long, value_name = "FILE")]
+        config: Option<PathBuf>,
     },
-    /// Start the language server on stdin/stdout (KRN-DX-001); editors run it, people rarely do.
-    Lsp,
-    /// Rewrite sources from another styling system (KRN-API-013).
+    /// Rewrite sources from another styling system: Tailwind, StyleX, CSS Modules, styled-components
+    /// or Emotion.
     Migrate {
         #[command(subcommand)]
         from: From,
     },
+    /// Install components from a registry and keep them up to date, with @kirana-style/registry.
+    #[command(disable_help_flag = true)]
+    Ui {
+        #[arg(trailing_var_arg = true, allow_hyphen_values = true, hide = true)]
+        args: Vec<String>,
+    },
+    /// Say what the project's Kirana setup is and what is missing; `--report` writes a bug report.
+    #[command(disable_help_flag = true)]
+    Doctor {
+        #[arg(trailing_var_arg = true, allow_hyphen_values = true, hide = true)]
+        args: Vec<String>,
+    },
+    /// Start the language server on stdin and stdout; editors run it, people rarely do.
+    Lsp,
 }
 
 /// How `kirana-style check` prints its diagnostics.
@@ -104,7 +158,8 @@ enum Command {
 enum Format {
     /// For a terminal, with the source line.
     Human,
-    /// One JSON array.
+    /// One JSON array: each diagnostic's code, name, severity, file, span, line and column, message
+    /// and help.
     Json,
     /// GitHub Actions workflow commands, which annotate the pull request's files.
     Github,
@@ -205,6 +260,10 @@ pub fn run_coloured(args: &[String], out: &mut dyn Write, colour: bool) -> i32 {
         }
     };
     match cli.command {
+        Command::Init { .. } => node_only(out, "init"),
+        Command::Dev { .. } => node_only(out, "dev"),
+        Command::Ui { .. } => node_only(out, "ui"),
+        Command::Doctor { .. } => node_only(out, "doctor"),
         // The server owns stdin and stdout, and opens its own session; `out` stays empty.
         Command::Lsp => kirana_lsp::serve_stdio(&config.to_string(), None),
         Command::Build { paths, out: target, minify } => {
@@ -233,7 +292,7 @@ pub fn run_coloured(args: &[String], out: &mut dyn Write, colour: bool) -> i32 {
             }
             exit_code(&diagnostics)
         }
-        Command::Check { paths, format, max_warnings, stats } => {
+        Command::Check { paths, format, max_warnings, stats, .. } => {
             let (diagnostics, sources) = project.compile_paths(&paths);
             print_diagnostics(out, &diagnostics, format, &sources, colour);
             if stats {
@@ -280,7 +339,7 @@ pub fn run_coloured(args: &[String], out: &mut dyn Write, colour: bool) -> i32 {
             }
             exit_code(&diagnostics)
         }
-        Command::Export { paths, out: target, definitions } => {
+        Command::Export { paths, out: target, definitions, .. } => {
             let (description, diagnostics) = project.export(&paths, definitions);
             let text = format!("{}\n", serde_json::to_string_pretty(&description).expect("serializable"));
             match target {
@@ -307,7 +366,7 @@ pub fn run_coloured(args: &[String], out: &mut dyn Write, colour: bool) -> i32 {
             let _ = writeln!(out, "{}", serde_json::to_string_pretty(&report).expect("serializable"));
             0
         }
-        Command::Trace { queries, format } => {
+        Command::Trace { queries, format, .. } => {
             if queries.len() % 2 != 0 {
                 let _ = writeln!(out, "expected <file>:<line> <property> pairs, got {} arguments", queries.len());
                 return 2;
@@ -421,6 +480,13 @@ pub fn run_coloured(args: &[String], out: &mut dyn Write, colour: bool) -> i32 {
             })
         }
     }
+}
+
+/// A command the `kirana-style` package runs in Node.js ([`NODE_COMMANDS`]), reached through the
+/// engine alone: exit 2, with where it runs.
+fn node_only(out: &mut dyn Write, name: &str) -> i32 {
+    let _ = writeln!(out, "kirana-style {name} runs in Node.js: run it through the kirana-style package");
+    2
 }
 
 /// What the Tailwind lowering needs and a project without a utility grammar lacks. The preset is the
@@ -577,7 +643,7 @@ fn print_diagnostics(
         sources.iter().map(|(name, text)| (name.as_str(), text.as_str())).collect();
     match format {
         Format::Json => {
-            let _ = writeln!(out, "{}", render_json(diagnostics));
+            let _ = writeln!(out, "{}", render_json_located(diagnostics, &|file| texts.get(file).copied()));
             return;
         }
         Format::Github => {

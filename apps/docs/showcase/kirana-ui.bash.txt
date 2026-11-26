@@ -1,3 +1,5 @@
+# the ui commands live in their own package
+npm install --save-dev @kirana-style/registry
 # set up the registry, its design system and a design, from a preset code
 npx kirana-style ui init --preset k2bS6
 # then add components, each with the items it needs, as code you own

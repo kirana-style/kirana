@@ -262,8 +262,8 @@ fn components_forward_sx_and_report_project_diagnostics() {
     let uri = f.uri("Card.vue");
     let open = json!({ "textDocument": { "uri": uri, "languageId": "vue", "version": 1, "text": VUE } });
     let published = f.server.notification(Notification::new("textDocument/didOpen".to_owned(), open));
-    // A relation read in the script and never anchored: a project-wide diagnostic naming the
-    // script's block, reported at the block's start in the component.
+    // A relation read in the script and never anchored: a project-wide diagnostic, reported at
+    // the property that reads it, in the component's own lines.
     let diagnostics = published.iter().find(|n| n.params["uri"] == uri).unwrap().params["diagnostics"].clone();
     let without = diagnostics
         .as_array()
@@ -271,7 +271,7 @@ fn components_forward_sx_and_report_project_diagnostics() {
         .iter()
         .find(|d| d["code"] == "relation-without-anchor")
         .unwrap_or_else(|| panic!("{diagnostics}"));
-    assert_eq!(without["range"]["start"], json!({ "line": 0, "character": 24 }));
+    assert_eq!(without["range"]["start"], json!({ "line": 4, "character": 53 }));
     // A binding that merges a handle with a prop is recorded as its expression; it still summarizes.
     let hints = f.ok("textDocument/inlayHint", json!({ "textDocument": { "uri": uri } }));
     assert!(hints.to_string().contains("▦ grid"), "{hints}");

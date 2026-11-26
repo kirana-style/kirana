@@ -93,10 +93,11 @@ flowchart TD
 - A derived value built from mode tokens (a `color-mix` over `theme.primary`) stays unresolved inside the
   CSS and follows the mode wherever it is used — no re-declaration per theme.
 
-**KRN-TOK-004** — A variable token's default is resolved where it is declared (`:root`). If a default
-references a custom property that only exists on a descendant element (for example a variable set by a
-headless library at runtime), the compiler MUST emit `variable-default-scope` and suggest assigning the
-value on the owning element instead.
+**KRN-TOK-004** — A variable token's default is resolved where it is declared (`:root`). A default that
+references a custom property only a descendant element sets (for example a variable a headless library
+sets at runtime) resolves to nothing there; such a value is assigned on the element that owns it. The
+compiler does not report it: where a custom property is set is decided at runtime, by the page's own
+CSS or a library, which it cannot see (D-132).
 
 **KRN-TOK-011** — A token written `{ value, syntax, inherits? }` MUST be a variable token registered with
 `@property`: `syntax` is its CSS syntax string (`"<length-percentage>"`), `inherits` defaults to `true`,

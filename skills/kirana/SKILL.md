@@ -57,6 +57,16 @@ borrows from all three:
 10. **Animate the property you set.** `translate`, `scale` and `rotate` are properties of their own:
     `transitionProperty: "translate"`, not `"transform"`, which does not cover them.
 
+## What the compiler does not catch
+
+`check` passing means every property, condition, token, state key and relation exists, every length
+has its unit and every value fits its property's grammar. It does not mean the style is the one
+meant. A misspelt keyword is a warning only where the property takes a fixed list of keywords
+(`display: "flx"`, `unknown-keyword`); in a property that also takes names of your own
+(`transitionProperty: "opactiy"`, `animationName`, `gridArea`) any word is valid CSS and passes. A
+nested `prefers-color-scheme` query compiles; only the lint plugin flags it. So after `check`, read
+the result with `trace` (step 5) and in the browser before calling a style done.
+
 ## The loop
 
 Run the CLI through the project's package manager (`npx kirana-style …`, `bunx kirana-style …`); the
@@ -74,8 +84,11 @@ an error diagnostic, 2 a bad configuration or argument.
 2. **Write the style** with the API below. Look up a signature in `references/api.md`.
 3. **Check it.** `kirana-style check src` prints every diagnostic as `severity[KRN1234] name: message`,
    with the location and a `help:` line; `--format json` gives you
-   `{ code, name, severity, file, span, message, help }` to act on, and `--max-warnings 0` fails on
-   any warning. Fix every error; `references/diagnostics.md` explains each code. Do not silence a
+   `{ code, name, severity, file, line, column, endLine, endColumn, span, message, help }` to act
+   on, and `--max-warnings 0` fails on any warning. For a misspelt name, `help` is the fix: the
+   nearest valid property, condition, token, recipe variant or keyword (``did you mean `color`?``);
+   apply it and check again. Fix every error; `references/diagnostics.md` explains each code. In
+   CI, `--format github` annotates each line of the pull request. Do not silence a
    warning by re-levelling it in config unless the user agrees. In a monorepo, run it from the root
    over every app's sources: each path reads its nearest `kirana.config.*`.
 4. **Lint.** If the project has `@kirana-style/eslint-plugin` (ESLint or Oxlint) or
@@ -97,23 +110,24 @@ an error diagnostic, 2 a bad configuration or argument.
 
 ## Where new things go
 
-| You need                                   | Write                                                                                                                                                                                        |
-| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Styles for a component                     | `const styles = { root: css({...}), title: css({...}) }` after the imports, named by part                                                                                                    |
-| Variants (size, tone) and slots            | `recipe({ base, variants, compoundVariants, defaultVariants, slots? })`; static calls compile to class strings                                                                               |
-| A design value used twice                  | `defineTokens("space", { 4: "1rem" })`; colours as `light-dark()` pairs                                                                                                                      |
-| A token a theme or a subtree overrides     | `defineTokens(ns, values, { variable: true })`, then `defineTheme(tokens, overrides)`                                                                                                        |
-| Style by a parent's or sibling's state     | `const field = relation("field")`, `sx={field.anchor}` on the element whose state it is, `{ [field.within(":focus-within")]: ... }` on the reader (`parent()` for the direct parent)         |
-| Style by the element's own state           | the state as the key: `opacity: { '[data-disabled="true"]': 0.5 }`, never a read through its own anchor (`relation-read-on-anchor`)                                                          |
-| An attribute your component writes itself  | `css(own("data-side"), {...})`, when a library's states name the attribute too                                                                                                               |
-| A Kirana design system installed from npm  | `libraries: ["@acme/ui"]` in `kirana.config`, or its first `css()` throws in the browser                                                                                                     |
-| Style children from a parent               | `[select.descendant("svg")]: { ... }`; it ranks below the child's own styles                                                                                                                 |
-| A media, container or supports query       | `[media("(min-width: 48rem)")]`, `[container("(min-width: 20rem)", "card")]`, `[supports("display: grid")]` inside the value                                                                 |
-| An animation                               | `const spin = keyframes({ to: { rotate: "1turn" } })`, then `animationName: spin`                                                                                                            |
-| A value with a fallback for older browsers | `minHeight: firstThatWorks("100dvh", "100vh")`, preferred first                                                                                                                              |
-| Anchor-positioning fallbacks               | `const below = positionTry({ positionArea: "bottom" })`, then `positionTryFallbacks: \`${below}, flip-block\``                                                                               |
-| View-transition styles                     | `const slide = viewTransition({ old: {...}, new: {...} })`, applied as `sx={slide}` and passed as the class name to the framework's transition API; you set `viewTransitionName` per element |
-| List markers and counters                  | `const check = counterStyle({ system: "cyclic", symbols: '"✓"' })`, then `listStyleType: check` or `` content: `counter(step, ${check})` ``; `@font-face` and `@page` stay in a stylesheet   |
+| You need                                   | Write                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Styles for a component                     | `const styles = { root: css({...}), title: css({...}) }` after the imports, named by part                                                                                                                                                                                                                                                     |
+| Variants (size, tone) and slots            | `recipe({ base, variants, compoundVariants, defaultVariants, slots? })`; static calls compile to class strings                                                                                                                                                                                                                                |
+| A design value used twice                  | `defineTokens("space", { 4: "1rem" })`; colours as `light-dark()` pairs                                                                                                                                                                                                                                                                       |
+| A token a theme or a subtree overrides     | `defineTokens(ns, values, { variable: true })`, then `defineTheme(tokens, overrides)`                                                                                                                                                                                                                                                         |
+| Style by a parent's or sibling's state     | `const field = relation("field")`, `sx={field.anchor}` on the element whose state it is, `{ [field.within(":focus-within")]: ... }` on the reader (`parent()` for the direct parent)                                                                                                                                                          |
+| Style by the element's own state           | the state as the key: `opacity: { '[data-disabled="true"]': 0.5 }`, never a read through its own anchor (`relation-read-on-anchor`)                                                                                                                                                                                                           |
+| A headless library part's state            | its typed key, never a hand-written attribute: `import { Switch } from "@kirana-style/states/base-ui"`, then `{ [Switch.Root.checked]: ... }` (also `/react-aria`, `/ark-ui`, `/reka-ui`, `/bits-ui`, `/ng-primitives`, `/ui-sdk`, `/kirana-ui`); a misspelt one is a type error, and the module's `exclusive` goes in `conditions.exclusive` |
+| An attribute your component writes itself  | `css(own("data-side"), {...})`, when a library's states name the attribute too                                                                                                                                                                                                                                                                |
+| A Kirana design system installed from npm  | `libraries: ["@acme/ui"]` in `kirana.config`, or its first `css()` throws in the browser                                                                                                                                                                                                                                                      |
+| Style children from a parent               | `[select.descendant("svg")]: { ... }`; it ranks below the child's own styles                                                                                                                                                                                                                                                                  |
+| A media, container or supports query       | `[media("(min-width: 48rem)")]`, `[container("(min-width: 20rem)", "card")]`, `[supports("display: grid")]` inside the value                                                                                                                                                                                                                  |
+| An animation                               | `const spin = keyframes({ to: { rotate: "1turn" } })`, then `animationName: spin`                                                                                                                                                                                                                                                             |
+| A value with a fallback for older browsers | `minHeight: firstThatWorks("100dvh", "100vh")`, preferred first                                                                                                                                                                                                                                                                               |
+| Anchor-positioning fallbacks               | `const below = positionTry({ positionArea: "bottom" })`, then `positionTryFallbacks: \`${below}, flip-block\``                                                                                                                                                                                                                                |
+| View-transition styles                     | `const slide = viewTransition({ old: {...}, new: {...} })`, applied as `sx={slide}` and passed as the class name to the framework's transition API; you set `viewTransitionName` per element                                                                                                                                                  |
+| List markers and counters                  | `const check = counterStyle({ system: "cyclic", symbols: '"✓"' })`, then `listStyleType: check` or `` content: `counter(step, ${check})` ``; `@font-face` and `@page` stay in a stylesheet                                                                                                                                                    |
 
 In a bundler project the adapter compiles the styles: do not add `kirana-style build` or `dev` there.
 Those two are for server templates and projects with no bundler.
@@ -142,6 +156,10 @@ one of Kirana's examples, a registry's template (`@acme/vite-react--turbo`) or a
 In a monorepo whose app's `kirana.config` has `ui: { workspace: "../../packages/ui" }`, run the
 commands in the app: they install into that package, which the app imports by its package name
 (`@workspace/ui/components/button`), never into the app's own `@/components`.
+`kirana-style ui mcp` serves the same registries over the Model Context Protocol (searching and
+viewing items, their files, the `add` command), for an agent that takes tools rather than a shell.
+A base that needs a runtime the project is not on (a Solid 2 base in a Solid 1 project) is refused
+by `ui init` with the reason: choose a base or a template that matches, do not force it.
 The pointer cursor on buttons and right to left are attributes on `<html>`, `data-pointer` and
 `dir="rtl"`, which `ui init --pointer --rtl` (or `ui preset <code> --pointer`) writes: never a
 `cursor: "pointer"` in a component's styles, and never a physical property for right to left.
@@ -163,9 +181,22 @@ The pointer cursor on buttons and right to left are attributes on `<html>`, `dat
 | `diagnostics: { "ambiguous-precedence": "off" }`                     | nest the winning condition inside the other                          |
 | a shadcn component's source pasted into the project                  | `kirana-style ui add <item>`, when the project has a registry        |
 
+## The family
+
+Kirana is the compiler. Two more products are built to be used with it, each with skills of its
+own (`npx skills add kirana-style/kirana-ui`); use them when the project has these packages:
+
+| The project has                                     | It is                                                                                                               | Skill                  |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| components installed from `https://ui.kirana.style` | Kirana UI: a design system's components for React, Vue, Svelte, Solid and Angular, installed with `kirana-style ui` | `kirana-ui`            |
+| `@kirana-ui/*` packages                             | Kirana UI Primitives: headless components, a library of their own that needs no Kirana                              | `kirana-ui-primitives` |
+| `createAgent` from `@kirana-ui/*/agent`             | The agent bridge: an agent in the page reads the controls and acts on them                                          | `kirana-ui-agent`      |
+
 ## More
 
 Kirana's documentation is written for agents too: `https://kirana.style/llms.txt` is the index (one
 line per page), and every page has a markdown twin at `https://kirana.style/docs/<path>.md`. Start
 with `start/mental-model.md`, `styling/merging.md`, `styling/precedence.md` and
 `reference/api.md`. For moving a codebase from Tailwind, StyleX, styled-components, Emotion or CSS Modules, use the `kirana-migrate` skill.
+For building a design system other projects consume (its token layers and themes, an npm library, a
+registry for `kirana-style ui`), use the `kirana-system` skill.

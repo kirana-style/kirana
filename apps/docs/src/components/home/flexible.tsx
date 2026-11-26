@@ -4,7 +4,7 @@
  * and why agents write it well.
  */
 import { css } from "@kirana-style/core"
-import { CodeIcon, CommandLineIcon } from "@hugeicons/core-free-icons"
+import { CodeIcon } from "@hugeicons/core-free-icons"
 
 import { BrandIcon } from "@workspace/docs-ui/brand-icon.tsx"
 import { accent } from "@workspace/docs-ui/accent.ts"
@@ -22,10 +22,11 @@ import {
 import { COUNTS, Word } from "@/data/facts"
 import { SHOWCASE } from "@/generated/showcase.gen"
 import { IllustratedCard } from "@/components/site/illustrated-card"
-import { At, Card, Row, Scene, T, Tile } from "@/components/site/visuals"
-import { DIAGNOSTICS } from "@/generated/diagnostics.gen"
+import { At, Card, Scene, Tile } from "@/components/site/visuals"
+import { RUNS } from "@/generated/runs.gen"
 import { SVGL } from "@/generated/svgl-icons.gen"
 
+import { FIRST_DIAGNOSTIC, JsonArt } from "./agents"
 import { HomeSection } from "./frame"
 
 // Every card is the site's illustrated card (components/site/illustrated-card.tsx):
@@ -248,12 +249,12 @@ const AGENT_POINTS: readonly { title: string; text: string }[] = [
     text: "Styles are CSS properties and selectors a model already knows, with no class vocabulary to hallucinate.",
   },
   {
-    title: "Wrong code does not compile",
-    text: `Property names and values are typed, and ${DIAGNOSTICS.length} diagnostics with stable codes say what is wrong and how to fix it.`,
+    title: "Most wrong code does not compile",
+    text: "A misspelt property, condition or token, a keyword a property never takes, or a length without its unit is a diagnostic with a stable code, and its help names the fix where the fix is certain. A word in a property that also takes your own names passes, since it may be yours.",
   },
   {
     title: "Feedback it can read",
-    text: "kirana-style check --format json, the lint plugins and the language server report machine-readably, at the line; kirana-style export lists the tokens and recipes that exist.",
+    text: "kirana-style check --format json, the lint plugins and the language server report each diagnostic with its code and its place; kirana-style export lists the tokens and recipes that exist, and trace --format json says which entry wins and why.",
   },
   {
     title: "Skills and docs it can load",
@@ -310,33 +311,16 @@ export function ChoicesArt() {
   )
 }
 
-/** What an agent works with: a check it can parse. */
+/** What an agent works with: a check it can parse, as `check --format json` printed it. */
 export function AgentsArt() {
   return (
-    <Card title="~/app" icon={CommandLineIcon} glow sx={styles.window}>
-      <Row flat typed={0}>
-        <T tone="prompt">$</T>
-        <T tone="strong">kirana-style check src --format json</T>
-      </Row>
-      <Row flat typed={1}>
-        <T tone="muted">{"[{"}</T>
-      </Row>
-      <Row flat typed={2}>
-        <T tone="info">{'  "code"'}</T>
-        <T>{': "KRN1203",'}</T>
-      </Row>
-      <Row flat typed={3}>
-        <T tone="info">{'  "name"'}</T>
-        <T>{': "unitless-length",'}</T>
-      </Row>
-      <Row flat typed={4}>
-        <T tone="info">{'  "help"'}</T>
-        <T tone="success">{': ["write 5px"]'}</T>
-      </Row>
-      <Row flat typed={5}>
-        <T tone="muted">{"}]"}</T>
-      </Row>
-    </Card>
+    <JsonArt
+      command={RUNS.check.command}
+      value={FIRST_DIAGNOSTIC}
+      keys={["code", "name", "line", "message", "help"]}
+      open="[{"
+      close="}]"
+    />
   )
 }
 
@@ -344,7 +328,7 @@ export function AgentsArt() {
 export function Flexible() {
   return (
     <HomeSection
-      number="03"
+      number="04"
       eyebrow="Fits the project"
       title="As small or as structured as you need"
       lede="Start with one css() call. Grow into Tailwind's system, or into a design system with your own rules. Nothing about the first step has to be undone for the next."

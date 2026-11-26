@@ -289,7 +289,7 @@ describe("KRN-DX-031 kirana-style ui update", () => {
     const refused = await run(cwd, "update")
     expect(refused).toMatchObject({
       code: 1,
-      text: "@acme/util 1.0.0: the registry changed its files without a new version; refused (KRN-DX-025)\n",
+      text: "@acme/util 1.0.0: the registry changed its files without a new version; refused\n",
     })
     expect((await run(cwd, "update", "@acme/other")).code).toBe(1)
     publish(util("3.0.0", V1.files!, { registryDependencies: ["missing"] }))

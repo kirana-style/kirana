@@ -53,6 +53,8 @@ export const UI_PAGES = {
   agentsBuild: `${UI_SITE}/docs/ai/agents-build`,
   agentBridge: `${UI_SITE}/docs/ai/agent-bridge`,
   generativeUi: `${UI_SITE}/docs/ai/generative-ui`,
+  /** Kirana UI Primitives' docs, on Kirana UI's site. */
+  primitives: `${UI_SITE}/docs/primitives`,
 } as const
 
 /** The repository on GitHub, as `owner/name`, and its page. */

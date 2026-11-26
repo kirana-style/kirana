@@ -59,6 +59,36 @@ describe("KRN-DX-020 the commands kirana-style ui runs", () => {
     }
   })
 
+  it("prints one command's help with --help or -h, and lists every command", async () => {
+    const { text: usage } = await run("--help")
+    const listed = [...usage.matchAll(/^ {2}([a-z]+)\b/gm)].map(
+      (match) => match[1]
+    )
+    expect(listed).toEqual([
+      "init",
+      "add",
+      "outdated",
+      "diff",
+      "update",
+      "remove",
+      "preset",
+      "view",
+      "search",
+      "validate",
+      "build",
+      "mcp",
+    ])
+    for (const command of listed) {
+      const { code, text } = await run(command!, "--help")
+      expect(code).toBe(0)
+      expect(text).toMatch(new RegExp(`^Usage: kirana-style ui ${command}\\b`))
+    }
+    expect((await run("add", "-h")).text).toContain(
+      "\n--no-check skips the kirana-style check"
+    )
+    expect((await run("diff", "--help")).text).not.toContain("--no-check")
+  })
+
   it("prints its own version", async () => {
     const { version } = JSON.parse(
       readFileSync(new URL("../package.json", import.meta.url), "utf8")

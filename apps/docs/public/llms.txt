@@ -8,12 +8,36 @@ Kirana is on npm: the `@kirana-style/*` packages are at 0.4.2, and
 `npx kirana-style@latest init` sets a project up. Before 1.0, a minor version may
 change the API. Pages state what is built and what is planned.
 
+## Before writing styles
+
+- Install the agent skills: `npx skills add kirana-style/kirana`. They carry the rules, the
+  loop below, every diagnostic with what to do about it, and how to build and publish a design
+  system (`kirana`, `kirana-migrate` and `kirana-system`).
+- Styles are `css({ ... })` handles from `@kirana-style/core`, passed to `sx`. There is no `cn`
+  and no `class-variance-authority`, and no utility-class strings unless the project turns on
+  the scales preset's utilities.
+- Conditions go inside the value: `color: { base: a, ":hover": b }`.
+- Dark mode is a `light-dark()` pair on the token; there is no `dark:` variant.
+- A later style replaces the entries it names and keeps the rest.
+
+## The loop
+
+1. `kirana-style export` lists the tokens, themes, recipes and relations that exist, each with
+   the file and line that declares it: use those names.
+2. After writing styles, `kirana-style check <paths> --format json`, and fix each error by its
+   code ([the diagnostics](https://site.kirana-style.workers.dev/docs/tooling/diagnostics.md)). A misspelt property,
+   condition or token and a length without its unit are errors; a word in a property that also
+   takes names of your own is accepted.
+3. When a style compiles and looks wrong, `kirana-style trace <file>:<line> <property>` names
+   the entry that wins and the step of the precedence ladder that decided it.
+
 ## Beyond the docs
 
 - [The compiler](https://site.kirana-style.workers.dev/compiler): the build-time pipeline, and what reaches the browser
 - [In your editor](https://site.kirana-style.workers.dev/editor): what the language server shows on every element, and where it runs
-- [Kirana UI](https://site.kirana-style.workers.dev/ui): shadcn/ui's components and charts in typed styles, installed with `kirana-style ui add` ([its site](https://ui.kirana-style.workers.dev))
-- [Migrate](https://site.kirana-style.workers.dev/migrate): the Tailwind and StyleX codemods, measured on a whole codebase
+- [Kirana UI](https://site.kirana-style.workers.dev/ui): shadcn/ui's design system, on your framework and your headless library, installed with `kirana-style ui add` ([its site](https://ui.kirana-style.workers.dev))
+- [Kirana UI Primitives](https://ui.kirana-style.workers.dev/docs/primitives): headless parts that are the same on every framework, checked state by state; a library of their own, which Kirana UI uses as one of its bases
+- [Migrate](https://site.kirana-style.workers.dev/migrate): codemods for Tailwind, StyleX, CSS Modules and styled-components or Emotion; the Tailwind one measured on a whole codebase
 - [Compare](https://site.kirana-style.workers.dev/compare): runtime CSS-in-JS, StyleX, Panda CSS and Tailwind, with sources
 - [Ecosystem](https://site.kirana-style.workers.dev/ecosystem): every package, bundler, framework and tool, with status
 - [Playground](https://play.kirana-style.workers.dev): a project compiled in your browser by a released engine
@@ -174,5 +198,5 @@ change the API. Pages state what is built and what is planned.
 - [Ecosystem and status](https://site.kirana-style.workers.dev/docs/project/ecosystem.md): What works today, what is planned, and which milestone each thing belongs to.
 - [Contributing](https://site.kirana-style.workers.dev/docs/project/contributing.md): How to report a bug, fix the docs, get a pull request merged, and support Kirana.
 - [For LLMs](https://site.kirana-style.workers.dev/docs/project/llms.md): Plain-text endpoints of this documentation, written for coding agents: llms.txt, the full text, and a markdown twin of every page.
-- [Agent skills](https://site.kirana-style.workers.dev/docs/project/agent-skills.md): Two installable skills teach a coding agent to write Kirana and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule.
+- [Agent skills](https://site.kirana-style.workers.dev/docs/project/agent-skills.md): Installable skills teach a coding agent to write Kirana, to build and publish a design system on it, and to migrate to it, with the rules that cause real bugs, the check, trace and report loop, and every diagnostic and lint rule.
 

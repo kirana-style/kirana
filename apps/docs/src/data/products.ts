@@ -1,5 +1,5 @@
 /**
- * Kirana's products beside the compiler: the one you can use with it today and the ones that are
+ * Kirana's products beside the compiler: the ones you can use today and the ones that are
  * planned. The roadmap shows them (`components/site/product-table.tsx`). A product without `href` is
  * not there to use yet, and the table marks it "Planned".
  */
@@ -14,7 +14,7 @@ import {
 
 import type { SceneId } from "../brand/scenes.ts"
 import { UI_ON } from "./kirana-ui.ts"
-import { UI_SITE } from "./links.ts"
+import { UI_PAGES, UI_SITE } from "./links.ts"
 
 export type Product = {
   name: string
@@ -45,8 +45,9 @@ export function productsMarkdown(): string {
 export const PRODUCTS: readonly Product[] = [
   {
     name: "Kirana UI",
-    description: `Components to copy in, ${UI_ON}`,
-    note: "A registry of components styled with Kirana, installed with `kirana-style ui add`",
+    description:
+      "shadcn/ui's design system, on your framework and your headless library",
+    note: `A registry of components styled with Kirana, ${UI_ON}, installed with \`kirana-style ui add\``,
     href: UI_SITE,
     icon: ComponentIcon,
     scene: "misty-hills",
@@ -61,9 +62,11 @@ export const PRODUCTS: readonly Product[] = [
     target: "web",
   },
   {
-    name: "Kirana Headless",
-    description: "Unstyled, accessible parts to build on",
-    note: "The behaviour of menus, dialogs and fields, with no styles of its own",
+    name: "Kirana UI Primitives",
+    description:
+      "Headless parts that are the same on every framework, checked state by state",
+    note: "The behaviour of menus, dialogs and fields with no styles of their own, a library apart from the compiler; its states are typed in `@kirana-style/states`",
+    href: UI_PAGES.primitives,
     icon: Layout01Icon,
     scene: "misty-hills",
     target: "web",

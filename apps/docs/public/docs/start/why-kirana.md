@@ -87,7 +87,7 @@ the editors built on it, Zed, Neovim, Helix and any other editor that speaks LSP
 editor and the stylesheet never disagree.
 
 So the trade is no longer readability for types. You keep what made object
-styles worth it (a typo is a compile error, a token is a typed import, a style is
+styles worth it (a misspelt property, condition or token is a compile error, a token is a typed import, a style is
 a value you pass and delete with its component), and the output is still atomic:
 one rule per distinct declaration, shared by every element that uses it. On the
 same three applications built three ways, Kirana 0.4.1's cold
@@ -120,7 +120,7 @@ answers them:
 | Six silent bug classes needed a hand-written checking script; the lint plugin lagged the compiler and was turned off after ~150 false positives | [51 diagnostics](/docs/tooling/diagnostics) come from the compiler itself; the [lint plugin](/docs/tooling/lint) reads the compiler's own validation instead of re-implementing it |
 | The official compiler is Babel; the Rust one is a community port behind it                                                                      | The engine is Kirana's own, in Rust on [oxc](https://oxc.rs), with a WASI build that writes the same bytes where no native one runs                                                                  |
 | No utility vocabulary: a Tailwind team rebuilt the scales by hand                                                                               | [`@kirana-style/preset-scales`](/docs/tokens/preset-scales) is Tailwind v4's scales, and [utility strings](/docs/styling/utilities) compile to the same atoms as the object form                     |
-| A port from Tailwind was done by hand                                                                                                           | [`kirana-style migrate tailwind`](/docs/migration/from-tailwind), measured below                                                                                                                     |
+| A port from Tailwind was done by hand                                                                                                           | [`kirana-style migrate tailwind`](/docs/migration/from-tailwind), [measured on a whole codebase](/docs/migration/from-tailwind#measured-the-tailwind-original-of-our-shadcn-ui-port)                 |
 
 Framework reach is the other half: `sx` works in React, Preact, Solid, Qwik, Vue, Svelte, Astro, Angular and Ember (Angular
 templates take it as a directive, Ember's as a helper), and Kirana has adapters
@@ -149,8 +149,9 @@ last class of each conflict group. Measured with tailwind-merge 3.6.0:
 None of these is a bug in tailwind-merge; it works from class names, because
 class names are all it has. Kirana merges **declarations**, at build time, per
 longhand: `fontSize` and `lineHeight` are separate entries, a custom token is a
-typed value, and there is nothing to configure or parse at runtime. And a typo
-(`text-smm`) is a compile error, not a class that silently does nothing.
+typed value, and there is nothing to configure or parse at runtime. And a
+misspelt utility (`text-smm`) is a compile error (`unknown-utility`), not a class
+that silently does nothing.
 
 ## "It doubles the code"
 

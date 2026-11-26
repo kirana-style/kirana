@@ -512,7 +512,7 @@ const FEATURES: readonly Feature[] = [
     label: "Diagnostics",
     title: "Wrong styles, caught as you type.",
     // consistency: subset — Biome cannot run the compiler's diagnostics
-    text: "The compiler's own diagnostics at the property, with a fix one keystroke away. The same checks run under Oxlint and ESLint.",
+    text: "The compiler's own diagnostics at the property, and a quick fix for a length without its unit or a misspelt property. The same checks run under Oxlint and ESLint.",
     href: "/docs/tooling/diagnostics",
   },
   {

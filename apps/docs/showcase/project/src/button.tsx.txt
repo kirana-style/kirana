@@ -1,0 +1,14 @@
+import { css } from "@kirana-style/core"
+import { theme } from "./tokens"
+
+const styles = {
+  button: css({
+    color: theme.accent,
+    backgroundColor: { base: theme.surface, ":hover": "whitesmoke" },
+  }),
+  quiet: css({ backgroundColor: { base: "transparent" } }),
+}
+
+export function Button() {
+  return <button sx={[styles.button, styles.quiet]}>Save</button>
+}

@@ -284,7 +284,9 @@ function MigratePage() {
               Class strings become css() objects, cn() becomes sx arrays, cva
               becomes recipe, group and peer become relations. It uses the same
               utility grammar as utility strings, so the object compiles to the
-              atoms of the class string it replaces.
+              atoms of the class string it replaces. One string at a time, the
+              editor does the same: the language server&apos;s Convert Tailwind
+              classes action rewrites the className under the cursor.
             </p>
             <CodeBlock
               html={SHOWCASE["migrate-tailwind-command"]!.html}

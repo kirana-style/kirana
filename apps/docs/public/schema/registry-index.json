@@ -18,7 +18,7 @@
     },
     "defaultBase": {
       "type": "object",
-      "description": "The base each framework takes, by framework: `ui add` installs it from an item with several bases when the project sets no `ui.base`, and `ui init` writes it to `ui.base` (KF-120). Each is a base an item lists for that framework.",
+      "description": "The base each framework takes, by framework: `ui add` installs it from an item with several bases when the project sets no `ui.base`, and `ui init` writes it to `ui.base`. Each is a base an item lists for that framework.",
       "properties": {
         "react": {
           "$ref": "#/$defs/name"
@@ -40,7 +40,7 @@
     },
     "requires": {
       "type": "object",
-      "description": "The runtime each base needs, by framework, then base: `{ \"solid\": { \"uisdk\": \"solid2\" } }` (KF-134). A base of a framework named here that is not listed needs the framework's default runtime; a framework not named here is not checked. `ui init --template` refuses a template on another runtime, naming one on the runtime needed, and `ui add` a project on another. Each base is one an item lists for that framework.",
+      "description": "The runtime each base needs, by framework, then base: `{ \"solid\": { \"uisdk\": \"solid2\" } }`. A base of a framework named here that is not listed needs the framework's default runtime; a framework not named here is not checked. `ui init --template` refuses a template on another runtime, naming one on the runtime needed, and `ui add` a project on another. Each base is one an item lists for that framework.",
       "properties": {
         "react": {
           "type": "object",

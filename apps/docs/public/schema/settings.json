@@ -33,7 +33,7 @@
     },
     "allDesigns": {
       "type": "boolean",
-      "description": "Install style modules and design files as written, every design kept, instead of the registry's builds for `design` (KF-080)."
+      "description": "Install style modules and design files as written, every design kept, instead of the registry's builds for `design`."
     },
     "design": {
       "type": "object",
@@ -75,7 +75,7 @@
     },
     "workspace": {
       "type": "string",
-      "description": "The workspace package `ui` installs into, from this configuration's directory (`../../packages/ui`): its own configuration holds the other `ui` settings (D-129).",
+      "description": "The workspace package `ui` installs into, from this configuration's directory (`../../packages/ui`): its own configuration holds the other `ui` settings.",
       "minLength": 1
     },
     "registries": {

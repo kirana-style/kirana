@@ -159,7 +159,7 @@ export function Sponsors() {
   return (
     <HomeSection
       accent="ochre"
-      number="08"
+      number="09"
       eyebrow="Sponsors"
       title={gold.length > 0 ? "Backed by" : "Back the compiler you build on"}
       lede={

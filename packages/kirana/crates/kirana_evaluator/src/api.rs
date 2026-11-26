@@ -141,7 +141,8 @@ impl<'a> Evaluator<'_, 'a, '_> {
                     Some((Value::Str(text), _)) => match parse_simple_selectors(text.trim()) {
                         Ok(conditions) => Some(conditions.iter().map(Condition::canonical).collect()),
                         Err(reason) => {
-                            self.report(Code::UnknownCondition, span, format!("{text:?}: {reason}"), None);
+                            let help = kirana_ir::condition_help(text);
+                            self.report(Code::UnknownCondition, span, format!("{text:?}: {reason}"), help.as_deref());
                             None
                         }
                     },
@@ -517,7 +518,12 @@ impl<'a> Evaluator<'_, 'a, '_> {
                         None,
                     ),
                 },
-                _ => self.report(Code::UnknownToken, span, format!("the token group has no token {name:?}"), None),
+                _ => self.report(
+                    Code::UnknownToken,
+                    span,
+                    format!("the token group has no token {name:?}"),
+                    nearest_key(group, name).as_deref(),
+                ),
             }
         }
     }
@@ -541,7 +547,14 @@ impl<'a> Evaluator<'_, 'a, '_> {
                         if let Key::Str(key) = key
                             && !names.iter().any(|name| name == &**key)
                         {
-                            self.report(Code::UnknownSlot, span, format!("the recipe has no slot {key:?}"), None);
+                            let help = kirana_shared::nearest(key, names.iter().map(String::as_str))
+                                .map(kirana_shared::did_you_mean);
+                            self.report(
+                                Code::UnknownSlot,
+                                span,
+                                format!("the recipe has no slot {key:?}"),
+                                help.as_deref(),
+                            );
                         }
                     }
                     names
@@ -588,7 +601,7 @@ impl<'a> Evaluator<'_, 'a, '_> {
                                 Code::UnknownVariant,
                                 span,
                                 format!("variant {key:?} has no option {option:?}"),
-                                None,
+                                variant_help(&variants, key, &option).as_deref(),
                             );
                         }
                         Some((key.to_string(), option))
@@ -645,11 +658,27 @@ impl<'a> Evaluator<'_, 'a, '_> {
                 )),
             },
             Err(message) => {
-                self.report(Code::UnknownVariant, span, message, None);
+                let help = options.iter().find_map(|(group, option)| variant_help(&recipe.variants, group, option));
+                self.report(Code::UnknownVariant, span, message, help.as_deref());
                 Value::unknown("variant")
             }
         }
     }
+}
+
+/// The variant group, or the option of a known group, nearest to a misspelt one.
+fn variant_help<T>(variants: &[(String, Vec<(String, T)>)], group: &str, option: &str) -> Option<String> {
+    match variants.iter().find(|(name, _)| name == group) {
+        Some((_, options)) => kirana_shared::nearest(option, options.iter().map(|(name, _)| name.as_str()))
+            .map(kirana_shared::did_you_mean),
+        None => kirana_shared::nearest(group, variants.iter().map(|(name, _)| name.as_str()))
+            .map(kirana_shared::did_you_mean),
+    }
+}
+
+/// The key of a token group nearest to a misspelt token name.
+pub(crate) fn nearest_key(group: &Value, name: &str) -> Option<String> {
+    kirana_shared::nearest(name, group.keys()).map(kirana_shared::did_you_mean)
 }
 
 fn css_text(value: &Value) -> Option<String> {

@@ -38,6 +38,39 @@ page names shows its logo. `vp run check` fails on a hand-written count, a
 partial list or a missing logo; [`apps/docs/CONSISTENCY.md`](apps/docs/CONSISTENCY.md)
 explains the rules and how to mark a list that is deliberately partial.
 
+## Developing Kirana
+
+### 1. Install the prerequisites (once)
+
+| Tool          | Why                                                                                    | Install                                                           |
+| ------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Vite+ (`vp`)  | the toolchain: install, check, test, tasks, git hooks; brings Node.js 24 and Bun 1.4.3 | `curl -fsSL https://vite.plus \| bash`, then open a new terminal  |
+| Rust (rustup) | the Kirana engine is Rust, built before anything else                                  | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
+| A C compiler  | Rust links the native engine with it, and builds mimalloc, the engine's allocator      | Linux/WSL: `build-essential` · macOS: `xcode-select --install`    |
+| Cargo tools   | only for `vp run rust`, `vp run coverage`, the pre-push hook                           | `cargo install --locked cargo-nextest cargo-deny cargo-llvm-cov`  |
+| Chromium      | only for `kirana:example`                                                              | `cd packages/kirana && bunx playwright install chromium`          |
+
+The Rust version is pinned in `packages/kirana/rust-toolchain.toml`; rustup
+downloads it the first time a command needs it. The scripts find cargo in
+`~/.cargo/bin` even when your terminal has not loaded `~/.cargo/env`.
+
+### 2. Install, run and build
+
+```bash
+vp install       # again whenever bun.lock changes; also installs the git hooks
+vp run dev       # builds the native engine, then serves the docs on :3000
+vp run build     # native engine, then the docs site → apps/docs/dist
+```
+
+The first run compiles the Rust workspace and takes a few minutes; later runs
+replay it from the task cache (`node_modules/.vite/task-cache`) until a file in
+`packages/kirana/crates` changes. The build prints every compiler diagnostic as
+`file:line:column`; it must report 0 errors.
+
+The README's [Scripts table](README.md#scripts) lists every task and what it
+needs, and its [Troubleshooting table](README.md#troubleshooting) the usual
+failures and their fixes.
+
 ## Change the code
 
 ### Before you start
@@ -57,8 +90,9 @@ vp run test            # Vitest
 vp run build           # native engine, then the docs site
 ```
 
-Vite+ (`vp`) and Rust (through rustup) are the two installs. The README's
-Scripts table lists what each command needs. The pre-push hook (`vp run prepush`)
+Vite+ (`vp`) and Rust (through rustup) are the two installs, as
+[Developing Kirana](#developing-kirana) says. The README's Scripts table lists
+what each command needs. The pre-push hook (`vp run prepush`)
 runs the checks, the Rust lints, the tests with 100 % coverage, the Zed
 extension's own Rust checks and the budgets, each from the cache when nothing it
 reads changed.

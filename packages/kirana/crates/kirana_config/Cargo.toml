@@ -8,6 +8,7 @@ license.workspace = true
 publish.workspace = true
 
 [dependencies]
+kirana_shared = { workspace = true }
 kirana_diagnostics = { workspace = true }
 kirana_ir = { workspace = true }
 serde = { workspace = true }

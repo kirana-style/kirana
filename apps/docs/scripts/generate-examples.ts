@@ -2,13 +2,23 @@
  * Compiles every documentation example with the real compiler and writes what it produced, so the
  * CSS, class names and diagnostics shown beside an example under `src/examples/` come from running
  * `@kirana-style/compiler` over the same file the page renders live, never from prose. Also
- * highlights the homepage's `showcase/` snippets.
+ * highlights the homepage's `showcase/` snippets, and runs the CLI's commands the homepage shows
+ * (`check`, `trace`, `export`, `analyze`, `build`) on `showcase/project/`.
  *
  * Needs the native engine (`vp run engine`); the output is committed, so `dev` and `typecheck` do not.
  */
-import { readdir, readFile, writeFile } from "node:fs/promises"
-import { basename, join, relative } from "node:path"
-import { Driver, formatDiagnostics } from "@kirana-style/compiler"
+import {
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  rm,
+  symlink,
+  writeFile,
+} from "node:fs/promises"
+import { tmpdir } from "node:os"
+import { basename, dirname, join, relative } from "node:path"
+import { Driver, formatDiagnostics, main } from "@kirana-style/compiler"
 
 import {
   highlightSource,
@@ -156,10 +166,125 @@ for (const file of (await readdir(showcaseDir)).sort()) {
   })
 }
 
+// The commands the homepage shows, run for real: `showcase/project/` is copied into a folder of its
+// own (each file without its `.txt`), with `@kirana-style/core` and `@kirana-style/states` linked
+// from this repository, and each command's output is recorded as the CLI printed it. Paths in the
+// output are the project's own (`src/card.tsx`), so the record is the same on every machine.
+const projectDir = join(showcaseDir, "project")
+const RUNS: Record<string, readonly string[]> = {
+  // A misspelt property, as an agent reads it, and as a pull request shows it.
+  check: ["check", "src/card.tsx", "--format", "json"],
+  github: ["check", "src/card.tsx", "--format", "github"],
+  // Which background wins on the button that merges two styles, for a person and for a tool.
+  trace: ["trace", "src/button.tsx:13", "backgroundColor"],
+  traceJson: [
+    "trace",
+    "src/button.tsx:13",
+    "backgroundColor",
+    "--format",
+    "json",
+  ],
+  // The design system by its real names, and what nothing reads.
+  export: ["export", "src/tokens.ts"],
+  analyze: ["analyze", "src/button.tsx", "src/switch.tsx", "src/tokens.ts"],
+  // A headless library's state as a condition, compiled.
+  states: ["build", "src/switch.tsx", "--out", "kirana.css"],
+}
+const projectFiles: string[] = []
+const walkProject = async (dir: string): Promise<void> => {
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory()) await walkProject(path)
+    else if (entry.name.endsWith(".txt")) projectFiles.push(path)
+  }
+}
+await walkProject(projectDir)
+projectFiles.sort()
+
+const scratch = await mkdtemp(join(tmpdir(), "kirana-showcase-"))
+const cwd = process.cwd()
+const runs: Record<
+  string,
+  { command: string; code: number; output: string; html?: string }
+> = {}
+const projectSources: Record<string, { source: string; html: string }> = {}
+try {
+  await writeFile(
+    join(scratch, "package.json"),
+    `${JSON.stringify({ name: "app", private: true, type: "module" })}\n`
+  )
+  const packages = join(root, "../../packages/kirana/npm")
+  await mkdir(join(scratch, "node_modules/@kirana-style"), { recursive: true })
+  for (const name of ["core", "states"])
+    await symlink(
+      join(packages, name),
+      join(scratch, "node_modules/@kirana-style", name)
+    )
+  for (const path of projectFiles) {
+    const file = relative(projectDir, path).replace(/\.txt$/, "")
+    const source = await readFile(path, "utf8")
+    await mkdir(join(scratch, dirname(file)), { recursive: true })
+    await writeFile(join(scratch, file), source)
+    projectSources[file] = {
+      source,
+      html: highlightSource(source, file.endsWith(".tsx") ? "tsx" : "ts"),
+    }
+  }
+  // From inside the project, as a reader runs them: `build` reads its paths from the process's own
+  // working directory.
+  process.chdir(scratch)
+  for (const [name, args] of Object.entries(RUNS)) {
+    let output = ""
+    const code = await main(args, scratch, (printed) => {
+      output += printed
+    })
+    const built = args[0] === "build"
+    if (built) output = await readFile(join(scratch, args.at(-1)!), "utf8")
+    if (output.includes(scratch))
+      problems.push(`showcase run ${name}: its output names the scratch folder`)
+    // Each line without the spaces the CLI pads it with, a line at a time: one pattern over the
+    // whole text would look again from every space of a long run.
+    output = output
+      .split("\n")
+      .map((line) => line.trimEnd())
+      .join("\n")
+      .trimEnd()
+    runs[name] = {
+      command: `kirana-style ${args.join(" ")}`,
+      code,
+      output,
+      // A stylesheet is shown as a file, highlighted.
+      ...(built ? { html: highlightSource(output, "css") } : {}),
+    }
+  }
+} finally {
+  process.chdir(cwd)
+  await rm(scratch, { recursive: true, force: true })
+}
+if (runs.check && runs.check.code !== 1)
+  problems.push(
+    "showcase/project/src/card.tsx: meant to fail, and checked clean"
+  )
+for (const name of ["trace", "export", "analyze", "states"])
+  if (runs[name]?.code !== 0)
+    problems.push(`showcase run ${name} failed:\n${runs[name]?.output}`)
+
 if (problems.length > 0) {
   console.error(problems.join("\n"))
   process.exit(1)
 }
+
+const runsOut = join(root, "src/generated/runs.gen.ts")
+const runsText = `// @generated by scripts/generate-examples.ts from showcase/project/. Do not edit.
+//
+// Each command ran on that project with the compiler in this repository; \`output\` is what it
+// printed (for \`build\`, the stylesheet it wrote), trailing spaces trimmed.
+import type { ProjectFile, ShowcaseRun } from "@/lib/examples"
+
+export const RUNS = ${JSON.stringify(runs, null, 2)} as const satisfies Readonly<Record<string, ShowcaseRun>>
+
+export const PROJECT: Readonly<Record<string, ProjectFile>> = ${JSON.stringify(projectSources, null, 2)}
+`
 
 const showcaseOut = join(root, "src/generated/showcase.gen.ts")
 const showcaseText = `// @generated by scripts/generate-examples.ts from showcase/. Do not edit.
@@ -176,6 +301,7 @@ let stale = false
 for (const [path, body, label] of [
   [out, text, `examples: ${compiled.length}`],
   [showcaseOut, showcaseText, `showcase: ${showcase.length}`],
+  [runsOut, runsText, `showcase runs: ${Object.keys(runs).length}`],
 ] as const) {
   const current = await readFile(path, "utf8").catch(() => undefined)
   if (current === body) {

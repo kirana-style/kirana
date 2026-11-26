@@ -41,7 +41,7 @@ export function Stack() {
   const init = SHOWCASE["kirana-init"]!
   return (
     <HomeSection
-      number="05"
+      number="06"
       eyebrow="Frameworks"
       title="Works with the stack you have"
       lede={`${FRAMEWORKS.length} guides, from React to Rails. Each is built from the packages and checked in a browser on every change.`}

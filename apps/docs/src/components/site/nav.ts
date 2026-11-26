@@ -136,7 +136,7 @@ export const MENUS: readonly Menu[] = [
           },
           {
             title: "Kirana UI",
-            description: "shadcn/ui, ported to Kirana",
+            description: "shadcn/ui's design system, on your framework",
             href: "/ui",
             icon: ComponentIcon,
             scene: "misty-hills",
@@ -193,7 +193,7 @@ export const MENUS: readonly Menu[] = [
           },
           {
             title: "For agents",
-            description: "llms.txt and agent skills",
+            description: "Skills, llms.txt, JSON checks, MCP",
             href: "/docs/project/agent-skills",
             icon: RoboticIcon,
             scene: "old-hall",

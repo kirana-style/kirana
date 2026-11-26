@@ -1,0 +1,14 @@
+import { css } from "@kirana-style/core"
+import { Switch } from "@kirana-style/states/base-ui"
+
+export const styles = {
+  track: css({
+    backgroundColor: {
+      base: "silver",
+      [Switch.Root.checked]: "royalblue",
+    },
+  }),
+  thumb: css({
+    translate: { base: "0", [Switch.Thumb.checked]: "1rem" },
+  }),
+}

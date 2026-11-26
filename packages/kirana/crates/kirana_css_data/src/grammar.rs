@@ -69,19 +69,76 @@ fn judge(property: &str, value: &str) -> Verdict {
     let Some(syntax) = lookup(PROPERTY_SYNTAX, property) else { return Verdict::Unchecked };
     let Some(tokens) = tokenize(value) else { return Verdict::Unchecked };
     if let [Token::Ident(word)] = tokens.as_slice()
-        && ["inherit", "initial", "unset", "revert", "revert-layer"].iter().any(|wide| word.eq_ignore_ascii_case(wide))
+        && is_wide(word)
     {
         return Verdict::Accepted;
     }
     if !tokens.iter().all(judgeable) {
         return Verdict::Unchecked;
     }
-    let matcher = Matcher { depth: 0, range: None };
-    if matcher.ends(&parsed(syntax), &tokens, 0).contains(&tokens.len()) {
-        Verdict::Accepted
-    } else {
-        Verdict::Rejected { expected: syntax }
-    }
+    if fits(syntax, &tokens) { Verdict::Accepted } else { Verdict::Rejected { expected: syntax } }
+}
+
+/// Whether a word is a CSS-wide keyword, which every property takes.
+fn is_wide(word: &str) -> bool {
+    ["inherit", "initial", "unset", "revert", "revert-layer"].iter().any(|wide| word.eq_ignore_ascii_case(wide))
+}
+
+/// Whether the tokens are a whole value of the grammar.
+fn fits(syntax: &'static str, tokens: &[Token<'_>]) -> bool {
+    Matcher { depth: 0, range: None }.ends(&parsed(syntax), tokens, 0).contains(&tokens.len())
+}
+
+/// A word of a value within an edit or two of a keyword of the property's grammar, and that
+/// keyword: `flx` and `flex` for `display: flx`, `centre` and `center` for
+/// `justify-content: safe centre`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NearMiss {
+    /// The word as written.
+    pub written: String,
+    /// The keyword nearest to it, which makes the value fit.
+    pub keyword: &'static str,
+}
+
+/// The keyword a value that does not fit its property was most likely meant to hold, when the data
+/// can tell soundly; `None` whenever it cannot.
+///
+/// Two values qualify. One holds a single word the data does not know, which leaves the grammar
+/// check [`Verdict::Unchecked`]: every other component is one the data judges, the word is neither a
+/// custom property nor vendor-prefixed (`-webkit-box`), and the grammar refuses a word in its place,
+/// so a grammar that takes a name of the author's own there (`<custom-ident>`, a type the data does
+/// not define) never qualifies, and nor does a value with a substitution (`var()`), a function the
+/// data does not know or a bracketed block. The other is one known word the grammar rejects
+/// (`display: center`). Either way the word is replaced by the nearest keyword the property's grammar
+/// names ([`crate::keywords`], through [`kirana_shared::nearest`]), and the value qualifies only when
+/// that replacement makes it fit.
+pub fn near_miss(property: &str, value: &str) -> Option<NearMiss> {
+    let syntax = lookup(PROPERTY_SYNTAX, property)?;
+    let tokens = tokenize(value)?;
+    let unknown: Vec<usize> = (0..tokens.len()).filter(|at| !judgeable(&tokens[*at])).collect();
+    let at = match unknown[..] {
+        [at] => at,
+        [] if tokens.len() == 1 => 0,
+        _ => return None,
+    };
+    let written = match tokens[at] {
+        Token::Ident(word) if !word.starts_with('-') && !is_wide(word) && !fits(syntax, &tokens) => word,
+        _ => return None,
+    };
+    let lower = written.to_ascii_lowercase();
+    let mut replaced = tokens.clone();
+    let near: Vec<&'static str> = crate::keywords(property)
+        .iter()
+        .copied()
+        .filter(|keyword| {
+            kirana_shared::nearest(&lower, [*keyword]).is_some() && {
+                replaced[at] = Token::Ident(keyword);
+                fits(syntax, &replaced)
+            }
+        })
+        .collect();
+    let keyword = kirana_shared::nearest(&lower, near)?;
+    Some(NearMiss { written: written.to_owned(), keyword })
 }
 
 fn lookup(table: &'static [(&'static str, &'static str)], name: &str) -> Option<&'static str> {
@@ -1076,5 +1133,58 @@ mod tests {
         assert!(fits("<hex-color>", "#fff") && !fits("<hex-color>", "a"));
         assert!(fits("<length>", "max(1px, 2px)") && !fits("<string>", "calc(1px)"));
         assert!(!fits("<length>", "1deg") && !fits("<number>", "a"));
+    }
+
+    /// A word the data does not know, an edit or two from a keyword that makes the value fit, is a
+    /// near miss with that keyword; so is a known word the grammar rejects, when a keyword near it
+    /// fits. Nothing else is: no valid value, nothing the grammar takes a name of the author's own
+    /// for, no substitution, unknown function, vendor value, multi-word guess or far word.
+    #[test]
+    fn finds_the_keyword_a_misspelt_word_meant() {
+        let near = |property: &str, value: &str| near_miss(property, value).map(|miss| (miss.written, miss.keyword));
+        for (property, value, written, keyword) in [
+            ("display", "flx", "flx", "flex"),
+            ("display", "inline-blok", "inline-blok", "inline-block"),
+            ("display", "Grd", "Grd", "grid"),
+            ("justify-content", "centre", "centre", "center"),
+            ("justify-content", "safe centre", "centre", "center"),
+            ("align-items", "strech", "strech", "stretch"),
+            ("position", "absolue", "absolue", "absolute"),
+            ("flex-direction", "colum", "colum", "column"),
+            // A known word the grammar rejects, near a keyword that fits.
+            ("display", "tables", "tables", "table"),
+        ] {
+            assert_eq!(near(property, value), Some((written.to_owned(), keyword)), "{property}: {value}");
+        }
+        for (property, value) in [
+            // Valid, or CSS-wide.
+            ("display", "flex"),
+            ("display", "inherit"),
+            ("display", "unset"),
+            // A name of the author's own, where the grammar takes one.
+            ("animation-name", "fdae"),
+            ("font-family", "Intr"),
+            ("grid-area", "haeder"),
+            ("view-transition-name", "crd"),
+            ("list-style-type", "dics"),
+            // Substitutions, unknown functions, blocks, custom properties and vendor values.
+            ("display", "var(--flx)"),
+            ("display", "flx(1)"),
+            ("width", "[flx]"),
+            ("display", "--flx"),
+            ("display", "-webkit-bx"),
+            // Two unknown words, a word too far from every keyword, a short word, no grammar.
+            ("justify-content", "sfae centre"),
+            ("display", "flexbox-ish"),
+            ("display", "fx"),
+            ("display", "center"),
+            ("--x", "flx"),
+            ("not-a-property", "flx"),
+            ("display", "'flx"),
+            // A number in a keyword's place is not a word.
+            ("display", "12"),
+        ] {
+            assert_eq!(near(property, value), None, "{property}: {value}");
+        }
     }
 }

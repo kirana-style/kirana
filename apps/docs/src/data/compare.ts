@@ -381,7 +381,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "In the compiler",
         tone: "good",
-        text: "Every value checked against its property's grammar at build, tokens included; CSS newer than the data is never rejected",
+        text: "Every value checked against its property's grammar at build, tokens included, with a warning for a misspelt keyword where the values are a fixed list; a word in a property that also takes names of your own, and CSS newer than the data, are accepted",
         source: "/docs/styling/styles",
       },
     },
@@ -407,7 +407,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: "Yes",
         tone: "good",
-        text: "Real CSS properties and values, checked by TypeScript",
+        text: "Property and token names checked by TypeScript; values typed from csstype, which suggests keywords and accepts any string, so the compiler checks them",
         source: "/docs/styling/styles",
       },
     },
@@ -560,10 +560,10 @@ export const ROWS: readonly Row[] = [
       },
       tailwind: none,
       kirana: {
-        short: "llms.txt",
+        short: "llms.txt, JSON",
         tone: "good",
         // consistency: subset (the agent skills are the next row's)
-        text: "llms.txt, llms-full.txt and a markdown twin of every page; and the styles themselves are plain CSS properties an agent already knows",
+        text: "llms.txt, llms-full.txt and a markdown twin of every page; kirana-style export answers what tokens and recipes exist, check --format json and trace --format json answer as data, and kirana-style ui mcp is an MCP server for the component registries",
         source: "/docs/project/llms",
       },
     },
@@ -584,7 +584,7 @@ export const ROWS: readonly Row[] = [
       kirana: {
         short: `${Word(COUNTS.skills)} skills`,
         tone: "good",
-        text: `${sentence(LISTS.skills)} (the migration from Tailwind, StyleX, styled-components, Emotion or CSS Modules), installed with npx skills add; the diagnostics and lint references in them are generated from the compiler on every build`,
+        text: `${sentence(LISTS.skills)}: writing styles, building and publishing a design system, and migrating from Tailwind, StyleX, styled-components, Emotion or CSS Modules, installed with npx skills add; the diagnostics and lint references in them are generated from the compiler on every build`,
         source: "/docs/project/agent-skills",
       },
     },

@@ -287,7 +287,9 @@
       "end": 3043
     },
     "message": "\"hover\": expected a pseudo-class, an attribute selector or an at-rule",
-    "help": []
+    "help": [
+      "did you mean `:hover`?"
+    ]
   },
   {
     "code": "KRN1201",
@@ -299,7 +301,9 @@
       "end": 3077
     },
     "message": "colour is not a CSS property",
-    "help": []
+    "help": [
+      "did you mean `color`?"
+    ]
   },
   {
     "code": "KRN1603",

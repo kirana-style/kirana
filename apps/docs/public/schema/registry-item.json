@@ -87,7 +87,7 @@
     },
     "font": {
       "type": "object",
-      "description": "A font item's family and stylesheet (KF-050): `ui add` imports the stylesheet in the app's entry.",
+      "description": "A font item's family and stylesheet: `ui add` imports the stylesheet in the app's entry.",
       "required": [
         "family",
         "import"
@@ -107,7 +107,7 @@
     },
     "design": {
       "type": "object",
-      "description": "A design system's axes and preset layouts (D-110): what `ui preset` reads.",
+      "description": "A design system's axes and preset layouts: what `ui preset` reads.",
       "required": [
         "axes"
       ],
@@ -133,7 +133,7 @@
                 },
                 "items": {
                   "type": "object",
-                  "description": "The item each value installs, by value: a font item per family (KF-050).",
+                  "description": "The item each value installs, by value: a font item per family.",
                   "patternProperties": {
                     "^.+$": {
                       "$ref": "#/$defs/reference"
@@ -189,7 +189,7 @@
     },
     "flattened": {
       "type": "object",
-      "description": "Its style modules flattened for each value of `axis` and each base (D-110), in place of `styles`; with `axes`, the files that read one other axis alone, built for each of its values (KF-080). `axis` and `builds` come together, and `axes` can stand alone (KF-084).",
+      "description": "Its style modules flattened for each value of `axis` and each base, in place of `styles`; with `axes`, the files that read one other axis alone, built for each of its values. `axis` and `builds` come together, and `axes` can stand alone.",
       "minProperties": 1,
       "dependentRequired": {
         "axis": [
@@ -248,7 +248,7 @@
     },
     "setup": {
       "type": "object",
-      "description": "A design system's wiring (D-109): what `ui init` adds to a project once the item is installed.",
+      "description": "A design system's wiring: what `ui init` adds to a project once the item is installed.",
       "properties": {
         "config": {
           "$ref": "#/$defs/export",

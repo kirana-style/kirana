@@ -17,7 +17,7 @@ export const SHOWCASE: Readonly<Record<string, ShowcaseSnippet>> = {
         ]
       }
     ],
-    "report": "  × KRN1401 relation-without-anchor: relation \"menu\" is read but its anchor is never applied (menu.tsx)\n  help: apply `relation.anchor` to the element whose state is read"
+    "report": "  × KRN1401 relation-without-anchor: relation \"menu\" is read but its anchor is never applied\n   ╭─[menu.tsx:7:5]\n 6 │   chevron: css({\n 7 │     rotate: { base: \"0deg\", [menu.within(\"[data-open]\")]: \"180deg\" },\n   ·     ──────\n 8 │   }),\n   ╰────\n  help: apply `relation.anchor` to the element whose state is read"
   },
   "kirana-init": {
     "name": "kirana-init",
@@ -30,8 +30,8 @@ export const SHOWCASE: Readonly<Record<string, ShowcaseSnippet>> = {
   "kirana-ui": {
     "name": "kirana-ui",
     "lang": "bash",
-    "source": "# set up the registry, its design system and a design, from a preset code\nnpx kirana-style ui init --preset k2bS6\n# then add components, each with the items it needs, as code you own\nnpx kirana-style ui add button dialog\n",
-    "html": "<span class=\"th-token th-comment\"># set up the registry, its design system and a design, from a preset code</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style ui init <span class=\"th-token th-attr\">--preset</span> k2bS6\n<span class=\"th-token th-comment\"># then add components, each with the items it needs, as code you own</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style ui add button dialog",
+    "source": "# the ui commands live in their own package\nnpm install --save-dev @kirana-style/registry\n# set up the registry, its design system and a design, from a preset code\nnpx kirana-style ui init --preset k2bS6\n# then add components, each with the items it needs, as code you own\nnpx kirana-style ui add button dialog\n",
+    "html": "<span class=\"th-token th-comment\"># the ui commands live in their own package</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npm</span> install <span class=\"th-token th-attr\">--save-dev</span> @kirana-style/registry\n<span class=\"th-token th-comment\"># set up the registry, its design system and a design, from a preset code</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style ui init <span class=\"th-token th-attr\">--preset</span> k2bS6\n<span class=\"th-token th-comment\"># then add components, each with the items it needs, as code you own</span>\n<span class=\"th-token th-prompt\">$</span> <span class=\"th-token th-command\">npx</span> kirana-style ui add button dialog",
     "diagnostics": [],
     "report": ""
   },

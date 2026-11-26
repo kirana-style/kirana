@@ -38,8 +38,10 @@ install guide, and each is built and checked in a browser on every change:
 
 ## What it gives you
 
-- **Typed styles.** Ordinary objects, checked by TypeScript, with camelCase CSS
-  property names and real values, not a string vocabulary you have to learn.
+- **Typed styles.** Ordinary objects with camelCase CSS property names and real
+  values, not a string vocabulary you have to learn. TypeScript checks the names;
+  the compiler checks the values ([what it catches, and what it does
+  not](/docs/styling/styles#what-the-compiler-checks)).
 - **Conditions inside values.** `{ base: x, ":hover": y }` reads in the order it
   applies, instead of scattering `hover:` prefixes across a class list.
 - **Predictable precedence.** A stated ladder decides which value wins, and the
@@ -48,6 +50,19 @@ install guide, and each is built and checked in a browser on every change:
   and every colour can be a `light-dark()` pair, so dark mode needs no variant.
 - **Real diagnostics.** 51 checks with codes, severities and help text, from
   unknown properties to a component that forgets to pass `sx` on.
+- **Written well by agents.** The [agent skills](/docs/project/agent-skills) teach
+  a coding agent the rules. `kirana-style check --format json` answers it with
+  codes, `kirana-style trace` says which value wins and why, and
+  `kirana-style export` lists the tokens that exist.
+
+## The family
+
+[Kirana UI](https://ui.kirana-style.workers.dev/docs) is shadcn/ui's design system on your framework and
+your headless library, every style compiled by Kirana and installed with
+[`kirana-style ui`](/docs/tooling/components). [Kirana UI Primitives](https://ui.kirana-style.workers.dev/docs/primitives)
+are headless parts that are the same on every framework, checked state by state:
+a library of their own, not built on Kirana, which Kirana UI uses as one of its
+bases and whose states [`@kirana-style/states`](/docs/styling/states) types.
 
 ## What it is not
 

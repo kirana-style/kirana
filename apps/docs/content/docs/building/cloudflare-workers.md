@@ -72,28 +72,6 @@ Vite pre-bundles the Worker's dependencies apart from the browser's. Kirana's Vi
 plugin names its runtime for pre-bundling and keeps its presets compiled in every
 environment, so nothing needs configuring.
 
-Kirana 0.3.1 did that for the browser only: the first request in development
-discovered Kirana's runtime late, re-optimised and loaded React twice, and a
-pre-bundled preset threw `defineTokens() ran without being compiled`. On 0.3.1, name
-the runtime and keep the preset out of workerd's pre-bundling:
-
-```ts file="vite.config.ts"
-export default defineConfig({
-  optimizeDeps: { include: ["@kirana-style/core/internal"] },
-  environments: {
-    ssr: {
-      optimizeDeps: {
-        include: ["@kirana-style/core/internal"],
-        exclude: ["@kirana-style/preset-scales"],
-      },
-    },
-  },
-  // the plugins, as above
-})
-```
-
-Remove it when you upgrade past 0.3.1.
-
 ## A stylesheet of your own
 
 A stylesheet you write goes through Vite's CSS minifier, which lowers

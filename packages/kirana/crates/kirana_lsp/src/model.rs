@@ -8,7 +8,7 @@ use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 use kirana_project::SiteAtom;
-use kirana_shared::FxHashMap;
+use kirana_shared::{FxHashMap, camel_case as camel};
 use serde::Serialize;
 
 use crate::Server;
@@ -434,22 +434,6 @@ pub(crate) fn key_offset(site: &str, property: &str) -> Option<usize> {
         }
     }
     None
-}
-
-fn camel(kebab: &str) -> String {
-    let mut out = String::new();
-    let mut upper = false;
-    for character in kebab.chars() {
-        if character == '-' {
-            upper = !out.is_empty();
-        } else if upper {
-            out.extend(character.to_uppercase());
-            upper = false;
-        } else {
-            out.push(character);
-        }
-    }
-    out
 }
 
 /// The name a `css()` call at `start` is bound to: `card` in `const card = css(`, `styles.probe`

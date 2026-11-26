@@ -116,6 +116,73 @@ pub fn kebab_case(name: &str) -> String {
     out
 }
 
+/// `kebab-case` → `camelCase`, as a style object writes a property: `justify-content` →
+/// `justifyContent`, `-webkit-line-clamp` → `webkitLineClamp`.
+pub fn camel_case(kebab: &str) -> String {
+    let mut out = String::with_capacity(kebab.len());
+    let mut upper = false;
+    for character in kebab.chars() {
+        if character == '-' {
+            upper = !out.is_empty();
+        } else if upper {
+            out.extend(character.to_uppercase());
+            upper = false;
+        } else {
+            out.push(character);
+        }
+    }
+    out
+}
+
+/// The candidate nearest to a misspelt `name`, when one is near enough to be what was meant: at most
+/// one edit away for a name of three to five characters, two from six on, and none for a shorter
+/// name, where one edit reaches too much. An edit is a character inserted, removed or replaced, or two
+/// neighbours swapped (`centre` is one edit from `center`). Of equally near candidates the first in
+/// alphabetical order wins, so the answer never depends on the candidates' order. The compiler's
+/// `help` lines and the language server's quick fixes both ask this, so they always agree.
+pub fn nearest<'a>(name: &str, candidates: impl IntoIterator<Item = &'a str>) -> Option<&'a str> {
+    let most = match name.chars().count() {
+        0..=2 => return None,
+        3..=5 => 1,
+        _ => 2,
+    };
+    candidates
+        .into_iter()
+        .filter(|candidate| *candidate != name)
+        .filter_map(|candidate| Some((edit_distance(name, candidate, most)?, candidate)))
+        .min()
+        .map(|(_, candidate)| candidate)
+}
+
+/// The help line for a misspelt name, worded as every diagnostic words it: did you mean `name`?
+pub fn did_you_mean(name: &str) -> String {
+    format!("did you mean `{name}`?")
+}
+
+/// The optimal string alignment distance between `a` and `b`, when it is at most `most`.
+fn edit_distance(a: &str, b: &str, most: usize) -> Option<usize> {
+    let (a, b): (Vec<char>, Vec<char>) = (a.chars().collect(), b.chars().collect());
+    if a.len().abs_diff(b.len()) > most {
+        return None;
+    }
+    // Three rows: the one before the previous is what a swap of two neighbours reads.
+    let mut before: Vec<usize> = Vec::new();
+    let mut previous: Vec<usize> = (0..=b.len()).collect();
+    for i in 1..=a.len() {
+        let mut row = vec![i; b.len() + 1];
+        for j in 1..=b.len() {
+            let cost = usize::from(a[i - 1] != b[j - 1]);
+            row[j] = (previous[j - 1] + cost).min(previous[j] + 1).min(row[j - 1] + 1);
+            if i > 1 && j > 1 && a[i - 1] == b[j - 2] && a[i - 2] == b[j - 1] {
+                row[j] = row[j].min(before[j - 2] + 1);
+            }
+        }
+        before = std::mem::replace(&mut previous, row);
+    }
+    let distance = previous[b.len()];
+    (distance <= most).then_some(distance)
+}
+
 /// The file system the engine reads modules and `package.json` files from.
 pub trait Fs: Send + Sync {
     /// Reads a whole UTF-8 file.

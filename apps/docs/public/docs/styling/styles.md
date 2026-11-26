@@ -59,9 +59,37 @@ css({ padding: color.accent }) // error: invalid-value - a colour token on a len
 css({ margin: "1px;" }) // error: invalid-value - a stray semicolon
 ```
 
-A word or a function the data does not know is left alone, because it may be
-newer CSS than the data, or a name of your own (`animationName: "spin"`). So is
-whatever is inside a function's parentheses, and a value made of `var()`.
+A property whose values are a fixed list of keywords warns about a word that is
+not on the list (`display: "flx"`), with the nearest keyword in its help. Where a
+property also takes names of your own, as `animationName: "spin"` and font
+families do, any word is accepted, because it may be yours. A function the data
+does not know is left alone, since it may be newer CSS than the data, and so is
+whatever is inside a function's parentheses and a value made of `var()`.
+
+## What the compiler checks
+
+TypeScript checks property names and token names in your editor. Values are
+typed from `csstype`, which suggests each property's keywords but accepts any
+string, so a misspelt keyword is the compiler's to catch, not the editor's.
+
+| Mistake                                                | Example                                | What happens                                                                |
+| ------------------------------------------------------ | -------------------------------------- | --------------------------------------------------------------------------- |
+| A property that does not exist                         | `colr: "red"`                          | `unknown-property`, with the nearest property in its help                   |
+| A condition that does not exist                        | `":hovr"`, `"md"`                      | `unknown-condition`, with the nearest one in its help                       |
+| A length without its unit                              | `width: 5`                             | `unitless-length`, with a unit in its help                                  |
+| A value the property never takes                       | `display: "center"`, `padding: "-4px"` | `invalid-value`                                                             |
+| A misspelt keyword, where the values are a fixed list  | `display: "flx"`                       | a warning (KRN1211 `unknown-keyword`), with the nearest keyword in its help |
+| A token that does not exist                            | `theme.accnt`                          | a type error, and `unknown-token`                                           |
+| A headless library's state that does not exist         | `Switch.Root.chekced`                  | a type error, and `dynamic-key`                                             |
+| A relation read with no anchor                         | `menu.within("[data-open]")` alone     | `relation-without-anchor`                                                   |
+| A word in a property that also takes names of your own | `transitionProperty: "opactiy"`        | accepted, since it may be a name of yours                                   |
+| A function newer than the data, or a `var()`           |                                        | accepted                                                                    |
+| Dark mode as a nested `prefers-color-scheme` query     |                                        | compiles; the lint rule `no-dark-variant` reports it                        |
+| A class helper joining class strings                   | `clsx(…)`                              | compiles; the strict lint rule `no-class-helpers` reports it                |
+| A valid style on the wrong element                     |                                        | compiles; [`kirana-style trace`](/docs/tooling/debugging) shows what wins   |
+
+Every code is in the [diagnostics reference](/docs/tooling/diagnostics), with
+what to do about it.
 
 ## Several objects, one handle
 
