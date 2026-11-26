@@ -93,7 +93,7 @@
         "@kirana-style/preset-scales": "workspace:*",
         "@kirana-style/states": "workspace:*",
         "@kirana-style/vite": "workspace:*",
-        "@kirana-ui/vocabulary": "0.4.0",
+        "@kirana-ui/vocabulary": "0.4.1",
         "@napi-rs/cli": "catalog:",
         "@napi-rs/wasm-runtime": "catalog:",
         "@types/node": "catalog:",
@@ -1350,7 +1350,7 @@
 
     "@kirana-style/workspace": ["@kirana-style/workspace@workspace:packages/kirana"],
 
-    "@kirana-ui/vocabulary": ["@kirana-ui/vocabulary@0.4.0", "", {}, "sha512-f+SAsqsU+WxVQYTFiP+fsCKxCJnM9/9Zv8xvGobl+od7zKiLZ5YegIn9jc8t7l4wHd0A3BDCwazwJdLkY7Tmtg=="],
+    "@kirana-ui/vocabulary": ["@kirana-ui/vocabulary@0.4.1", "", {}, "sha512-w9VovxHo9aNUvYPiJmcqFyQ1roIdCZ1Ul75NFIDnTHrNvel5WFHGG4tDOHsCiS6brLNTR6H0IpiWb8Zf96BmuQ=="],
 
     "@lezer/common": ["@lezer/common@1.5.3", "", {}, "sha512-H0iErY4e43LpXbYDyBci5W4v/RwTgGV3YzYOlJPiGZ8RY8w51kVE+xLn1tg3Z6UmSfyETvtsUK3r7YsgDQEI7Q=="],
 
