@@ -7300,6 +7300,56 @@ export const ORDER: readonly string[] = [
 
 export const POSTS: readonly BlogMeta[] = [
   {
+    "href": "/blog/kirana-0.4",
+    "file": "content/blog/kirana-0.4.md",
+    "title": "Kirana 0.4",
+    "summary": "Shorter class names in production, a given className that wins over sx, codemods from styled-components and CSS Modules, kirana-style ui on more frameworks, and three releases in three weeks.",
+    "date": "2026-11-26",
+    "author": "Kirana team",
+    "tags": [
+      "announcement",
+      "release"
+    ],
+    "readingMinutes": 4,
+    "headings": [
+      {
+        "id": "breaking-production-builds-write-dense-class-names",
+        "text": "Breaking: production builds write dense class names",
+        "level": 2
+      },
+      {
+        "id": "breaking-a-given-classname-wins-over-an-element-s-own-sx",
+        "text": "Breaking: a given className wins over an element's own sx",
+        "level": 2
+      },
+      {
+        "id": "moving-an-existing-project-over",
+        "text": "Moving an existing project over",
+        "level": 2
+      },
+      {
+        "id": "components-on-more-frameworks",
+        "text": "Components on more frameworks",
+        "level": 2
+      },
+      {
+        "id": "typed-states-for-more-libraries",
+        "text": "Typed states for more libraries",
+        "level": 2
+      },
+      {
+        "id": "smaller-things-worth-knowing",
+        "text": "Smaller things worth knowing",
+        "level": 2
+      },
+      {
+        "id": "how-0-4-came-together",
+        "text": "How 0.4 came together",
+        "level": 2
+      }
+    ]
+  },
+  {
     "href": "/blog/kirana-0.3",
     "file": "content/blog/kirana-0.3.md",
     "title": "Kirana 0.3.0",

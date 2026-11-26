@@ -4,7 +4,6 @@ import { Cancel01Icon } from "@hugeicons/core-free-icons"
 
 import { DocsLink } from "@/components/docs-link"
 import { VERSION } from "@/data/release"
-import { POSTS } from "@/generated/content.gen"
 
 import { Icon } from "@workspace/ui/primitives/icon"
 import { alpha, radius, theme } from "@workspace/ui/theme/semantic"
@@ -87,9 +86,12 @@ function subscribe(onChange: () => void) {
   return () => window.removeEventListener(EVENT, onChange)
 }
 
-/** The newest post tagged `release` (posts are newest first), so the link follows each release. */
-const NOTES =
-  POSTS.find((post) => post.tags.includes("release"))?.href ?? "/changelog"
+/**
+ * This release's entry on the changelog page, which reads `CHANGELOG.md`: release-please writes the
+ * entry in the same Release PR that sets the version, so the two never part. The newest post
+ * tagged `release` lagged a patch release, which gets no post (0.4.2's banner linked 0.3's).
+ */
+const NOTES = `/changelog#v${VERSION}`
 
 /**
  * The line above the docs: the current release, and where to read about it.
