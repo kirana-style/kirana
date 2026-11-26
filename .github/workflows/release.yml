@@ -135,6 +135,8 @@ jobs:
           (cd packages/kirana && cargo update --workspace)
           # The generators that read versions; none of them needs the native engine. Reference first:
           # the pages' facts (`{{fact:version}}`, the counts) are read from the files it writes.
+          # generate:examples needs the engine, so what it records holds no version: the engine's
+          # release in `export`'s output is written as `{{version}}`.
           bun run --cwd apps/docs generate:reference
           bun run --cwd apps/docs generate:content
           bun run --cwd apps/docs generate:skills

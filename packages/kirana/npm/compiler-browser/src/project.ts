@@ -4,6 +4,7 @@
  * the language server answers on the same files (KF-065). `openProject` takes the engine rather than
  * loading it, so the tests run the same code on the native engine and a directory.
  */
+import { definitionNames } from "@kirana-style/compiler/definition-names"
 import { engineJson } from "@kirana-style/compiler/engine-json"
 import type { KiranaConfig } from "@kirana-style/core/config"
 
@@ -27,6 +28,17 @@ export type Session = {
     dependencies: string[]
   }
   stylesheet: (minify: boolean) => string
+  /** Starts a dense build (D-084): from then on every module marks the names written into it. */
+  markDense: () => void
+  /** A finished bundle's stylesheet (D-086): what `named` and the rules use, and what was left out. */
+  finishedStylesheet: (
+    minify: boolean,
+    named: string[]
+  ) => { css: string; pruned: { variable: string; identity: string }[] }
+  /** `text` with dense names, definitions `named` does not hold included. */
+  denseStylesheet: (text: string, named: string[]) => string
+  /** `code` with dense names; null when it names no Kirana class. */
+  denseChunk: (code: string) => string | null
   diagnostics: () => string
   invalidate: (id: string) => string[]
   remove: (id: string) => boolean
@@ -113,6 +125,17 @@ export type ProjectOptions = {
   language?: Readonly<Record<string, unknown>>
 }
 
+/** What a production build ships for the project's files (KF-145). */
+export type Production = {
+  /** The code of each file the compiler rewrote, with dense names, by path relative to the root. */
+  modules: Record<string, string>
+  /**
+   * The finished stylesheet, minified and in dense names: every rule, and the variable tokens and
+   * keyframes the modules name or a rule reads, as a build writes it (D-084, D-086).
+   */
+  stylesheet: string
+}
+
 export type Project = {
   readonly root: string
   /** The configuration as the engine received it. */
@@ -128,6 +151,12 @@ export type Project = {
   transform: (file: string) => Transformed
   /** The stylesheet of every module transformed so far. */
   stylesheet: (minify?: boolean) => string
+  /**
+   * Every file of the project compiled as a production build compiles it, in a session of its own:
+   * dense names, the stylesheet minified, the tokens nothing names left out (KF-145). `transform`
+   * and `stylesheet` keep the readable names.
+   */
+  production: () => Production
   /** Diagnostics about the project as a whole (token and relation checks). */
   diagnostics: () => Diagnostic[]
   /** The files written, relative to the root, in the order they were first written. */
@@ -170,6 +199,7 @@ export function openProject(
   const volume = engine.__volume
   volume.mkdirSync(root, { recursive: true })
   const session = new engine.Compiler(configJson)
+  const prefix = config.names?.prefix ?? "k"
   const sources = new Map<string, string>()
 
   /** The language server, once a question started it, and the version of each file open in it. */
@@ -257,6 +287,24 @@ export function openProject(
       }
     },
     stylesheet: (minify = false) => session.stylesheet(minify),
+    production() {
+      // A fresh session, as a build starts one: a dense build marks the names in every module it
+      // compiles, and assigns codes from what it has seen, so the project's own session can do
+      // neither. The chunks come first, as in a build: they name the definitions the stylesheet keeps.
+      const build = new engine.Compiler(configJson)
+      build.markDense()
+      const modules: Record<string, string> = {}
+      const named = new Set<string>()
+      for (const [file, code] of sources) {
+        const compiled = build.transform(absolute(root, file), code).code
+        if (compiled === undefined) continue
+        for (const name of definitionNames(compiled, prefix)) named.add(name)
+        modules[file] = build.denseChunk(compiled) ?? compiled
+      }
+      const list = [...named]
+      const { css } = build.finishedStylesheet(true, list)
+      return { modules, stylesheet: build.denseStylesheet(css, list) }
+    },
     diagnostics: () => diagnosticsOf(session.diagnostics()),
     files: () => [...sources.keys()],
     language: {

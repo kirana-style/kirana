@@ -448,7 +448,8 @@ properties typed one keystroke at a time would grow), start over past their boun
 - **KRN-CMP-012 — WASM:** the same crates MUST build for `wasm32-wasip1` (a fallback package for
   environments where native addons cannot load, such as WebContainers). In a browser (the
   playground) the same build runs with an in-memory filesystem, as `@kirana-style/compiler-browser`
-  (D-113), with the language server on the same files (`project.language`, KF-065); no
+  (D-113), with the language server on the same files (`project.language`, KF-065) and a production
+  build's dense names (`project.production()`, KF-145); no
   `wasm32-unknown-unknown` build is needed.
 
 ## Diagnostics

@@ -21,6 +21,9 @@ const css = project.stylesheet()
 - **`transform(file)`** compiles a file: its code, source map, diagnostics with line and column, and
   whether the stylesheet changed. `stylesheet(minify?)` is the CSS of every module transformed so
   far, and `diagnostics()` the project-wide checks.
+- **`production()`** compiles the project's files as a production build does, in a session of its
+  own: their code with dense names, and the stylesheet minified, tokens nothing names left out
+  (KF-145). `transform` and `stylesheet` keep the readable names, so a playground can show both.
 - **`language`** is the language server on the project's files: `request` and `notify` take what an
   editor sends over LSP, as objects, so a web editor shows the summaries, code lenses and hovers the
   desktop editors show.

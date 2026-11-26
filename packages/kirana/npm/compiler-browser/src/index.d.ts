@@ -5,6 +5,7 @@ export type {
   Language,
   LanguageMessage,
   Position,
+  Production,
   Project,
   ProjectOptions,
   Transformed,

@@ -122,6 +122,10 @@ describe("openProject", () => {
             dependencies: ["/elsewhere/x.ts"],
           })
           stylesheet = () => ""
+          markDense = () => undefined
+          finishedStylesheet = () => ({ css: "", pruned: [] })
+          denseStylesheet = () => ""
+          denseChunk = () => null
           diagnostics = () => "[]"
           invalidate = () => []
           remove = () => true
@@ -151,6 +155,66 @@ describe("openProject", () => {
     expect(() => project.transform("Card.tsx")).toThrow(
       "Card.tsx is not a file of this project"
     )
+  })
+})
+
+describe("production (KF-145)", () => {
+  /** The class names a module's JSX writes. */
+  const classes = (code: string) =>
+    [...code.matchAll(/className="([^"]+)"/g)].flatMap(([, names]) =>
+      names!.split(" ")
+    )
+
+  it("writes the names, the modules and the stylesheet a production build ships", () => {
+    const project = openProject(engine, {
+      root: root(),
+      files: {
+        "src/tokens.ts": TOKENS,
+        "src/Card.tsx": CARD,
+        "src/plain.ts": "export const plain = 1\n",
+      },
+    })
+    const card = project.transform("src/Card.tsx").code!
+    const readable = project.stylesheet(true)
+
+    const shipped = project.production()
+    expect(Object.keys(shipped.modules)).toEqual([
+      "src/tokens.ts",
+      "src/Card.tsx",
+    ])
+    const dense = classes(shipped.modules["src/Card.tsx"]!)
+    expect(dense.length).toBe(classes(card).length)
+    for (const name of dense) {
+      expect(name).toMatch(/^k[\w-]+$/)
+      expect(shipped.stylesheet).toMatch(new RegExp(`\\.${name}[{:]`))
+      expect(card).not.toContain(name)
+    }
+    expect(shipped.stylesheet).toContain("light-dark(#00736a,#6fd6c8)")
+    expect(shipped.stylesheet.length).toBeLessThan(readable.length)
+    // The project's own session is left as it was: readable, and as a second call finds it.
+    expect(project.transform("src/Card.tsx").code).toBe(card)
+    expect(project.stylesheet(true)).toBe(readable)
+    expect(project.production()).toEqual(shipped)
+  })
+
+  it("keeps the tokens the modules read, under the names the rules use", () => {
+    const project = openProject(engine, {
+      root: root(),
+      config: { names: { prefix: "p" } },
+      files: {
+        "tokens.ts": `import { defineTokens } from "@kirana-style/core"
+export const brand = defineTokens("brand", { accent: "red", unused: "blue" }, { variable: true })
+`,
+        "a.tsx": `import { css } from "@kirana-style/core"
+import { brand } from "./tokens"
+export const b = css({ color: brand.accent })
+`,
+      },
+    })
+    const { modules, stylesheet } = project.production()
+    expect(modules["a.tsx"]).toMatch(/b = "p[\w-]+"/)
+    expect(stylesheet).toContain("red")
+    expect(stylesheet).toMatch(/\.p[\w-]+\{color:var\(--p/)
   })
 })
 
