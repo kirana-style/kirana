@@ -149,6 +149,17 @@ const hints = project.language.request("textDocument/inlayHint", {
 The server starts on the first request, and every file the project writes reaches
 it as an editor's change would.
 
+A playground that shows what a site ships asks for `production()`: the project's
+files compiled as a production build compiles them, in a session of their own, with
+[dense names](/docs/building/output#dense-names), the stylesheet minified and the
+tokens nothing names left out. `transform` and `stylesheet` keep the readable
+names, so the page can show both.
+
+```ts
+const { modules, stylesheet } = project.production()
+// modules["src/Card.tsx"]: the code with dense class names, which `stylesheet` defines
+```
+
 ## What you get
 
 ### The style card

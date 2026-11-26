@@ -9805,6 +9805,11 @@ JavaScript or another stylesheet in it names, such as a token read at runtime,
 keeps its name everywhere. Relation markers and theme classes, which elements
 carry, keep theirs too.
 
+The engine in a web page writes the same names, for a playground that shows
+what a site ships: a project's `production()` gives its modules and stylesheet
+as this build writes them
+([an editor in a web page](/docs/tooling/editor#an-editor-in-a-web-page)).
+
 Measured on the three applications of
 [the benchmarks](/docs/project/benchmarks), Kirana 0.4.1 with
 dense names against hashed names: the CSS in gzip, level; the
@@ -11510,6 +11515,17 @@ const hints = project.language.request("textDocument/inlayHint", {
 
 The server starts on the first request, and every file the project writes reaches
 it as an editor's change would.
+
+A playground that shows what a site ships asks for `production()`: the project's
+files compiled as a production build compiles them, in a session of their own, with
+[dense names](/docs/building/output#dense-names), the stylesheet minified and the
+tokens nothing names left out. `transform` and `stylesheet` keep the readable
+names, so the page can show both.
+
+```ts
+const { modules, stylesheet } = project.production()
+// modules["src/Card.tsx"]: the code with dense class names, which `stylesheet` defines
+```
 
 ## What you get
 
@@ -13915,12 +13931,12 @@ Every framework has a guide and a tested example; the
 
 ## Runtime and distribution
 
-| What runs it                                     | Detail                                                                                                                          |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| Node.js ≥ 22.18, Bun, Deno                       | Any of them runs the compiler and the command line                                                                              |
-| Native engine (Node-API)                         | A prebuilt package per platform on npm, eight in all, install-tested in CI                                                      |
-| WASI fallback (WebContainers, no native addon)   | `@kirana-style/compiler-wasm32-wasi`, with byte-identical output                                                                |
-| A browser page (playgrounds, editors on the web) | `@kirana-style/compiler-browser`: the WASI engine with an in-memory project and its language server, byte-identical in Chromium |
+| What runs it                                     | Detail                                                                                                                                                                |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Node.js ≥ 22.18, Bun, Deno                       | Any of them runs the compiler and the command line                                                                                                                    |
+| Native engine (Node-API)                         | A prebuilt package per platform on npm, eight in all, install-tested in CI                                                                                            |
+| WASI fallback (WebContainers, no native addon)   | `@kirana-style/compiler-wasm32-wasi`, with byte-identical output                                                                                                      |
+| A browser page (playgrounds, editors on the web) | `@kirana-style/compiler-browser`: the WASI engine with an in-memory project and its language server, byte-identical in Chromium, and a production build's dense names |
 
 ## Configuration keys in the specification but not the build
 

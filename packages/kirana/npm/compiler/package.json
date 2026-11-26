@@ -22,6 +22,7 @@
     ".": "./src/index.ts",
     "./host": "./src/host.ts",
     "./engine-json": "./src/engine-json.ts",
+    "./definition-names": "./src/definition-names.ts",
     "./package.json": "./package.json"
   },
   "napi": {

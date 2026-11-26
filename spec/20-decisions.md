@@ -1900,7 +1900,8 @@ the implementation tracker names its evidence.
 
 ### D-113 — The browser engine is the WASI build with an in-memory project
 
-- **Status:** Accepted (2026-10-28). Answers KF-056 and KF-057; amended 2026-10-29 for KF-065.
+- **Status:** Accepted (2026-10-28). Answers KF-056 and KF-057; amended 2026-10-29 for KF-065 and
+  2026-11-26 for KF-145.
 - **Decision:** the engine runs in a browser as the `wasm32-wasip1-threads` build (D-055) whose
   browser loader mounts an in-memory file system (napi-rs's `wasm.browser.fs`), published as
   `@kirana-style/compiler-browser`: no `cpu` field, its loader, worker, runtime packages and the
@@ -1912,7 +1913,10 @@ the implementation tracker names its evidence.
   in and out (`request`, `notify`), indexing the project one file after another, since a page's main
   thread may not block on the threads a parallel build waits for; `project.language` opens each file
   the project writes in it,
-  so a web editor shows the summary, the code lens and hovers the desktop editors show. CI serves the
+  so a web editor shows the summary, the code lens and hovers the desktop editors show. A
+  project's `production()` compiles its files in a dense session of its own (D-084), as a build
+  starts one, and gives their code and the finished stylesheet (D-086) as the build writes them;
+  the project's own session keeps the readable names `transform` and `stylesheet` give (KF-145). CI serves the
   packed tarball to Chromium from a cross-origin-isolated page and requires its output, the
   summaries among it, to match the native engine's byte for byte. No `wasm32-unknown-unknown` build
   (KRN-CMP-012).

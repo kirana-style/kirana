@@ -2,8 +2,9 @@
  * The browser engine's check (D-113, KRN-CMP-012): `@kirana-style/compiler-browser`'s packed tarball
  * is served to headless Chromium from a cross-origin-isolated page, compiles projects held in memory,
  * and must write what the native engine writes for the same files, byte for byte, the language
- * server's summaries of each file among them (KF-065). It also prints how
- * long the engine takes to start and to compile, the numbers the playground is planned on.
+ * server's summaries of each file among them (KF-065) and a production build's dense names
+ * (KF-145). It also prints how long the engine takes to start and to compile, the numbers the
+ * playground is planned on.
  *
  *   bun scripts/browser-engine.ts                    # the tarball in dist-packages/ (bun run pack)
  *   bun scripts/browser-engine.ts --tarball <file>   # CI: the tarball the pack job made
@@ -108,6 +109,8 @@ type Compiled = {
   css: string
   /** Each file's inlay hints from the language server: where each is, and its text. */
   hints: Record<string, string[]>
+  /** The modules and stylesheet with dense names, as a production build writes them (KF-145). */
+  production: { modules: Record<string, string>; stylesheet: string }
 }
 
 /** What the native engine writes for a fixture, from a directory as a project on disk. */
@@ -152,7 +155,13 @@ function compile(project: ReturnType<typeof openProject>): Compiled {
       ({ position, label }) =>
         `${position.line}:${position.character} ${typeof label === "string" ? label : label.map((part) => part.value).join("")}`
     )
-  return { modules, diagnostics, css: project.stylesheet(true), hints }
+  return {
+    modules,
+    diagnostics,
+    css: project.stylesheet(true),
+    hints,
+    production: project.production(),
+  }
 }
 
 const PAGE = `<!doctype html>
@@ -181,7 +190,7 @@ const PAGE = `<!doctype html>
         .map(({ position, label }) =>
           position.line + ":" + position.character + " " +
           (typeof label === "string" ? label : label.map((part) => part.value).join("")))
-    return { modules, diagnostics, css: project.stylesheet(true), hints }
+    return { modules, diagnostics, css: project.stylesheet(true), hints, production: project.production() }
   }
   window.ready = true
 </script>
@@ -270,7 +279,8 @@ try {
       actual.css === expected.css &&
       JSON.stringify(actual.diagnostics) ===
         JSON.stringify(expected.diagnostics) &&
-      JSON.stringify(actual.hints) === JSON.stringify(expected.hints)
+      JSON.stringify(actual.hints) === JSON.stringify(expected.hints) &&
+      JSON.stringify(actual.production) === JSON.stringify(expected.production)
     console.log(
       `${same ? "ok  " : "FAIL"} ${fixture.name}: ${actual.css.length} bytes of CSS in ${took.toFixed(0)} ms`
     )
